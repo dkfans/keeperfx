@@ -53,10 +53,9 @@ DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *creat
 /******************************************************************************/
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name)
 {
-    AriadneReturn aret;
     NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(creatng),(int)creatng->index,
         (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
-    aret = ariadne_initialise_creature_route_f((struct Thing *)creatng, pos, get_creature_speed(creatng), flags, func_name);
+    AriadneReturn aret = ariadne_initialise_creature_route_f((struct Thing*)creatng, pos, get_creature_speed(creatng), flags, func_name);
     NAVIDBG(18,"Ariadne returned %d",(int)aret);
     return (aret == AridRet_OK);
 }
@@ -69,7 +68,8 @@ unsigned char get_nearest_valid_position_for_creature_at(struct Thing *thing, st
 static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, NaviRouteFlags flags)
 {
     long nav_sizexy;
-    long px, py;
+    long px;
+    long py;
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
@@ -90,15 +90,14 @@ HOOK_DK_FUNC(get_nearest_navigable_point_for_thing)
 
 TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
 {
-    struct CreatureControl *cctrl;
-    struct Coord3d locpos;
     SYNCDBG(18,"%s: Moving %s index %d to (%d,%d)",func_name,thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
     TRACE_THING(thing);
+    struct Coord3d locpos;
     locpos.x.val = subtile_coord_center(stl_x);
     locpos.y.val = subtile_coord_center(stl_y);
     locpos.z.val = thing->mappos.z.val;
     locpos.z.val = get_thing_height_at(thing, &locpos);
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         WARNLOG("%s: Tried to move invalid creature to (%d,%d)",func_name,(int)stl_x,(int)stl_y);
@@ -125,19 +124,18 @@ TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x,
 
 TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags)
 {
-    struct CreatureControl *cctrl;
-    struct Coord3d trgpos;
-    struct Coord3d navpos;
     SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
+    struct Coord3d trgpos;
     trgpos.x.val = subtile_coord_center(stl_x);
     trgpos.y.val = subtile_coord_center(stl_y);
     trgpos.z.val = thing->mappos.z.val;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         WARNLOG("Tried to move invalid creature to (%d,%d)",(int)stl_x,(int)stl_y);
         return false;
     }
+    struct Coord3d navpos;
     get_nearest_navigable_point_for_thing(thing, &trgpos, &navpos, flags);
     if (!creature_can_navigate_to_with_storage(thing, &navpos, flags))
     {
@@ -154,10 +152,9 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord st
 
 TbBool setup_person_move_backwards_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
 {
-    struct CreatureControl *cctrl;
-    struct Coord3d locpos;
     SYNCDBG(18,"%s: Moving %s index %d to (%d,%d)",func_name,thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Coord3d locpos;
     locpos.x.val = subtile_coord_center(stl_x);
     locpos.y.val = subtile_coord_center(stl_y);
     locpos.z.val = 0;
@@ -199,14 +196,11 @@ TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Co
  */
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
 {
-    struct Thing *thing;
-    unsigned long k;
-    int i;
-    k = 0;
-    i = game.thing_lists[TngList_Objects].index;
+    unsigned long k = 0;
+    int i = game.thing_lists[TngList_Objects].index;
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -276,8 +270,7 @@ TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
  */
 TbBool creature_can_travel_over_lava(const struct Thing *creatng)
 {
-    const struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     // Check if a creature can fly in this moment - we don't care if it's natural ability
     // or temporary spell effect
     return (crstat->hurt_by_lava <= 0) || ((creatng->movement_flags & TMvF_Flying) != 0);
@@ -294,8 +287,7 @@ TbBool creature_can_travel_over_lava(const struct Thing *creatng)
  */
 TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *dstpos, NaviRouteFlags flags, const char *func_name)
 {
-    long waypoints_num;
-    waypoints_num = ariadne_count_waypoints_on_creature_route_to_target_f(thing, &thing->mappos, dstpos, flags, func_name);
+    long waypoints_num = ariadne_count_waypoints_on_creature_route_to_target_f(thing, &thing->mappos, dstpos, flags, func_name);
     return (waypoints_num > 0);
 }
 
@@ -308,16 +300,14 @@ TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *dst
  */
 TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    struct Thing *heartng;
     SYNCDBG(18,"Starting");
-    player = get_player(plyr_idx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (!player_exists(player) || (player->field_2C != 1))
     {
         SYNCDBG(18,"The %s index %d cannot get to inactive player %d",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
     }
-    heartng = get_player_soul_container(player->id_number);
+    struct Thing* heartng = get_player_soul_container(player->id_number);
     if (thing_is_invalid(heartng))
     {
         SYNCDBG(18,"The %s index %d cannot get to player %d without heart",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
@@ -336,14 +326,11 @@ long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
     //TODO enable when issue in pathfinding is solved
     /*if (get_2d_box_distance(&thing->mappos, pos) <= 0)
         return -1;*/
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    long angle;
-    angle = get_angle_xy_to(&thing->mappos, pos);
-    long angle_diff, angle_sign, angle_delta;
-    angle_diff = get_angle_difference(thing->move_angle_xy, angle);
-    angle_sign = get_angle_sign(thing->move_angle_xy, angle);
-    angle_delta = crstat->max_angle_change;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long angle = get_angle_xy_to(&thing->mappos, pos);
+    long angle_diff = get_angle_difference(thing->move_angle_xy, angle);
+    long angle_sign = get_angle_sign(thing->move_angle_xy, angle);
+    long angle_delta = crstat->max_angle_change;
     if (angle_delta < 1) {
         angle_delta = 1;
     }
@@ -353,8 +340,7 @@ long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
     if (angle_sign < 0) {
         angle_delta = -angle_delta;
     }
-    long i;
-    i = (thing->move_angle_xy + angle_delta);
+    long i = (thing->move_angle_xy + angle_delta);
     thing->move_angle_xy = i & LbFPMath_AngleMask;
     return get_angle_difference(thing->move_angle_xy, angle);
 }
@@ -374,8 +360,6 @@ long creature_turn_to_face_angle(struct Thing *thing, long a2)
 
 long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, long a4, NaviRouteFlags flags, TbBool backward)
 {
-    struct Coord3d nextpos;
-    AriadneReturn follow_result;
     long i;
     SYNCDBG(18,"Starting to move %s index %d from (%d,%d) to (%d,%d) with speed %d",thing_model_name(thing),
         (int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)speed);
@@ -386,7 +370,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         i = (thing->move_angle_xy + LbFPMath_PI);
         thing->move_angle_xy = i & LbFPMath_AngleMask;
     }
-    follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, speed, flags);
+    struct Coord3d nextpos;
+    AriadneReturn follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, speed, flags);
     SYNCDBG(18,"The %s index %d route result: %d, next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)follow_result,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
     if ( backward )
     {
@@ -403,8 +388,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     {
         return  1;
     }
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ( backward )
     {
         if (creature_turn_to_face_backwards(thing, &nextpos) > 0)
@@ -469,15 +453,13 @@ long creature_move_to(struct Thing *creatng, struct Coord3d *pos, MoveSpeed spee
 
 TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos, long walk_speed)
 {
-    struct CreatureControl *cctrl;
-    short destination_valid;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_instance_is_available(thing, CrInst_TELEPORT)
      && creature_instance_has_reset(thing, CrInst_TELEPORT)
      && (cctrl->instance_id == CrInst_NULL))
     {
         // Creature can only be teleported to a revealed location
-        destination_valid = true;
+        short destination_valid = true;
         if (!is_hero_thing(thing) && !is_neutral_thing(thing)) {
             destination_valid = subtile_revealed(pos->x.stl.num, pos->y.stl.num, thing->owner);
         }
@@ -496,15 +478,9 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
 
 short move_to_position(struct Thing *creatng)
 {
-    CreatureStateCheck callback;
-    struct CreatureControl *cctrl;
-    struct StateInfo *stati;
-    long move_result;
-    CrCheckRet state_check;
-    long speed;
     TRACE_THING(creatng);
-    cctrl = creature_control_get_from_thing(creatng);
-    speed = get_creature_speed(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    long speed = get_creature_speed(creatng);
     SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
     // Try teleporting the creature
     if (creature_move_to_using_teleport(creatng, &cctrl->moveto_pos, speed)) {
@@ -512,12 +488,12 @@ short move_to_position(struct Thing *creatng)
             (int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num,creature_state_code_name(creatng->continue_state));
         return 1;
     }
-    move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
-    state_check = CrCkRet_Available;
-    stati = get_thing_continue_state_info(creatng);
+    long move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
+    CrCheckRet state_check = CrCkRet_Available;
+    struct StateInfo* stati = get_thing_continue_state_info(creatng);
     if (!state_info_invalid(stati))
     {
-        callback = stati->move_check;
+        CreatureStateCheck callback = stati->move_check;
         if (callback != NULL)
         {
             SYNCDBG(18,"Doing move check callback for continue state %s",creature_state_code_name(creatng->continue_state));
@@ -534,8 +510,7 @@ short move_to_position(struct Thing *creatng)
         }
         // If moving failed, do a reset
         if (move_result == -1) {
-            CrtrStateId cntstat;
-            cntstat = creatng->continue_state;
+            CrtrStateId cntstat = creatng->continue_state;
             internal_set_thing_state(creatng, cntstat);
             set_start_state(creatng);
             SYNCDBG(8,"Couldn't move %s to place required for state %s; reset to state %s",thing_model_name(creatng),creature_state_code_name(cntstat),creatrtng_actstate_name(creatng));
@@ -567,9 +542,8 @@ long thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord
 
 long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
 {
+    unsigned short flags = SlbBloF_None;
     struct Coord3d locpos;
-    unsigned short flags;
-    flags = SlbBloF_None;
     locpos.x.val = pos->x.val;
     locpos.y.val = thing->mappos.y.val;
     locpos.z.val = thing->mappos.z.val;

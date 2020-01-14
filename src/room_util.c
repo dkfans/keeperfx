@@ -42,27 +42,24 @@
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
     unsigned short eetype, PlayerNumber owner)
 {
-  struct Thing *eething;
-  eething = create_effect_element(pos, room_effect_elements[eetype & 7], owner);
-  if (!thing_is_invalid(eething))
-  {
-    eething->mappos.z.val = get_thing_height_at(eething, &eething->mappos);
-    eething->mappos.z.val += 10;
-    // Size of the flame depends on room efficiency
-    eething->sprite_size = ((eething->sprite_size - 80) * ((long)room->efficiency) / 256) + 80;
+    struct Thing* eething = create_effect_element(pos, room_effect_elements[eetype & 7], owner);
+    if (!thing_is_invalid(eething))
+    {
+        eething->mappos.z.val = get_thing_height_at(eething, &eething->mappos);
+        eething->mappos.z.val += 10;
+        // Size of the flame depends on room efficiency
+        eething->sprite_size = ((eething->sprite_size - 80) * ((long)room->efficiency) / 256) + 80;
   }
   return eething;
 }
 
 void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos)
 {
-    struct Room *curoom;
-    MapSubtlCoord x,y;
-    long i,k;
-    i = room->field_43;
-    x = pos->x.stl.num + (MapSubtlCoord)small_around[i].delta_x;
-    y = pos->y.stl.num + (MapSubtlCoord)small_around[i].delta_y;
-    curoom = subtile_room_get(x,y);
+    long k;
+    long i = room->field_43;
+    MapSubtlCoord x = pos->x.stl.num + (MapSubtlCoord)small_around[i].delta_x;
+    MapSubtlCoord y = pos->y.stl.num + (MapSubtlCoord)small_around[i].delta_y;
+    struct Room* curoom = subtile_room_get(x, y);
     if (curoom->index != room->index)
     {
         k = (i + 1) % 4;
@@ -84,13 +81,11 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
 
 void process_room_surrounding_flames(struct Room *room)
 {
-    struct Coord3d pos;
-    MapSlabCoord x,y;
-    long i;
     SYNCDBG(19,"Starting");
-    x = slb_num_decode_x(room->field_41);
-    y = slb_num_decode_y(room->field_41);
-    i = 3 * room->field_43 + room->flame_stl;
+    MapSlabCoord x = slb_num_decode_x(room->field_41);
+    MapSlabCoord y = slb_num_decode_y(room->field_41);
+    long i = 3 * room->field_43 + room->flame_stl;
+    struct Coord3d pos;
     pos.x.val = subtile_coord_center(slab_subtile_center(x)) + room_spark_offset[i].delta_x;
     pos.y.val = subtile_coord_center(slab_subtile_center(y)) + room_spark_offset[i].delta_y;
     pos.z.val = 0;
@@ -114,14 +109,11 @@ void process_room_surrounding_flames(struct Room *room)
 void recompute_rooms_count_in_dungeons(void)
 {
     SYNCDBG(17,"Starting");
-    struct Dungeon *dungeon;
-    long i;
-    for (i=0; i < DUNGEONS_COUNT; i++)
+    for (long i = 0; i < DUNGEONS_COUNT; i++)
     {
-        dungeon = get_dungeon(i);
+        struct Dungeon* dungeon = get_dungeon(i);
         dungeon->total_rooms = 0;
-        RoomKind rkind;
-        for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+        for (RoomKind rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
         {
             if (!room_never_buildable(rkind))
             {
@@ -134,10 +126,8 @@ void recompute_rooms_count_in_dungeons(void)
 void process_rooms(void)
 {
   SYNCDBG(7,"Starting");
-  struct Room *room;
-  TbBigChecksum sum;
-  sum = 0;
-  for (room = start_rooms; room < end_rooms; room++)
+  TbBigChecksum sum = 0;
+  for (struct Room* room = start_rooms; room < end_rooms; room++)
   {
       if (!room_exists(room))
           continue;
@@ -156,19 +146,15 @@ void process_rooms(void)
 
 void kill_all_room_slabs_and_contents(struct Room *room)
 {
-    struct SlabMap *slb;
-    long slb_x, slb_y;
-    unsigned long k;
-    long i;
-    k = 0;
-    i = room->slabs_list;
+    unsigned long k = 0;
+    long i = room->slabs_list;
     while (i != 0)
     {
-        slb_x = slb_num_decode_x(i);
-        slb_y = slb_num_decode_y(i);
+        long slb_x = slb_num_decode_x(i);
+        long slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
         // Per room tile code
-        slb = get_slabmap_block(slb_x, slb_y);
+        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
         kill_room_slab_and_contents(room->owner, slb_x, slb_y);
         slb->next_in_room = 0;
         slb->room_index = 0;
@@ -186,15 +172,13 @@ void kill_all_room_slabs_and_contents(struct Room *room)
 
 void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, long slb_y, unsigned char gnd_slab)
 {
-    struct RoomStats *rstat;
-    struct Coord3d pos;
-    long revenue;
     delete_room_slab_when_no_free_room_structures(slb_x, slb_y, gnd_slab);
-    rstat = &game.room_stats[room->kind];
-    revenue = compute_value_percentage(rstat->cost, ROOM_SELL_REVENUE_PERCENT);
+    struct RoomStats* rstat = &game.room_stats[room->kind];
+    long revenue = compute_value_percentage(rstat->cost, ROOM_SELL_REVENUE_PERCENT);
     if (revenue != 0)
     {
-        set_coords_to_slab_center(&pos,slb_x,slb_y);
+        struct Coord3d pos;
+        set_coords_to_slab_center(&pos, slb_x, slb_y);
         create_price_effect(&pos, room->owner, revenue);
         player_add_offmap_gold(room->owner, revenue);
     }
@@ -202,19 +186,15 @@ void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, 
 
 void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
 {
-    struct SlabMap *slb;
-    long slb_x, slb_y;
-    unsigned long k;
-    long i;
     SYNCDBG(7,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
     // Clear room index in all slabs
     // This will make sure that the old room won't be returned by subtile_room_get()
     // and used as one of new rooms.
-    k = 0;
-    i = room->slabs_list;
+    unsigned long k = 0;
+    long i = room->slabs_list;
     while (i > 0)
     {
-        slb = get_slabmap_direct(i);
+        struct SlabMap* slb = get_slabmap_direct(i);
         if (slabmap_block_invalid(slb))
         {
           ERRORLOG("Jump to invalid item when sweeping Slabs.");
@@ -232,18 +212,16 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
         }
     }
     // Create a new room for every slab
-    struct Room *proom;
-    proom = INVALID_ROOM;
+    struct Room* proom = INVALID_ROOM;
     k = 0;
     i = room->slabs_list;
     while (i != 0)
     {
-        struct Room *nroom;
-        slb_x = slb_num_decode_x(i);
-        slb_y = slb_num_decode_y(i);
+        long slb_x = slb_num_decode_x(i);
+        long slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
         // Per room tile code
-        nroom = create_room(room->owner, room->kind, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        struct Room* nroom = create_room(room->owner, room->kind, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (room_is_invalid(nroom)) // In case of error, sell the whole thing
         {
             ERRORLOG("Room creation failed; selling slabs");
@@ -275,8 +253,7 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
 
 TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char is_destroyed)
 {
-    struct Room *room;
-    room = slab_room_get(slb_x,slb_y);
+    struct Room* room = slab_room_get(slb_x, slb_y);
     if (room_is_invalid(room))
     {
         ERRORLOG("Slab (%ld,%ld) is not a room",slb_x, slb_y);
@@ -314,7 +291,6 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char is
 short check_and_asimilate_thing_by_room(struct Thing *thing)
 {
     struct Room *room;
-    unsigned long n;
     if (thing_is_dragged_or_pulled(thing))
     {
         ERRORLOG("It shouldn't be possible to drag %s during initial asimilation",thing_model_name(thing));
@@ -331,9 +307,8 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             delete_thing_structure(thing, 0);
             return false;
         }
-        long wealth_size_holds;
-        wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
-        n = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing)+1);
+        long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+        unsigned long n = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
         thing->owner = room->owner;
         add_gold_to_hoarde(thing, room, n);
         return true;
@@ -389,20 +364,20 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
 
 EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomKind rkind)
 {
-    EventIndex evidx;
-    evidx = 0;
+    EventIndex evidx = 0;
     if (player_has_room(plyr_idx, rkind))
     {
         // Could not find room to send thing - either no capacity or not navigable
-        struct CreatureStats *crstat;
         struct Room *room;
         switch (rkind)
         {
         case RoK_LAIR:
             // Find room with lair capacity
-            crstat = creature_stats_get_from_thing(creatng);
-            room = find_room_with_spare_capacity(plyr_idx, rkind, crstat->lair_size);
-            break;
+            {
+                struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+                room = find_room_with_spare_capacity(plyr_idx, rkind, crstat->lair_size);
+                break;
+            }
         case RoK_TREASURE:
         case RoK_WORKSHOP:
         case RoK_LIBRARY:

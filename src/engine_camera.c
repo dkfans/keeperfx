@@ -46,34 +46,29 @@ long camera_zoom;
 /******************************************************************************/
 MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-  long dist_x;
-  long dist_y;
-  long dist_z;
-  dist_y = abs(pos2->y.val - (long)pos1->y.val);
-  dist_x = abs(pos2->x.val - (long)pos1->x.val);
-  if (dist_y <= dist_x)
-    dist_y = dist_x;
-  dist_z = abs(pos2->z.val - (long)pos1->z.val);
-  if (dist_y <= dist_z)
-    dist_y = dist_z;
-  return dist_y;
+    long dist_y = abs(pos2->y.val - (long)pos1->y.val);
+    long dist_x = abs(pos2->x.val - (long)pos1->x.val);
+    if (dist_y <= dist_x)
+        dist_y = dist_x;
+    long dist_z = abs(pos2->z.val - (long)pos1->z.val);
+    if (dist_y <= dist_z)
+        dist_y = dist_z;
+    return dist_y;
 }
 
 MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-  long dist_x,dist_y;
-  dist_y = abs((long)pos1->y.val - (long)pos2->y.val);
-  dist_x = abs((long)pos1->x.val - (long)pos2->x.val);
-  if (dist_y <= dist_x)
-    return dist_x;
-  return dist_y;
+    long dist_y = abs((long)pos1->y.val - (long)pos2->y.val);
+    long dist_x = abs((long)pos1->x.val - (long)pos2->x.val);
+    if (dist_y <= dist_x)
+        return dist_x;
+    return dist_y;
 }
 
 MapCoordDelta get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y)
 {
-    long dist_x,dist_y;
-    dist_x = abs((long)pos1_x - (long)pos2_x);
-    dist_y = abs((long)pos1_y - (long)pos2_y);
+    long dist_x = abs((long)pos1_x - (long)pos2_x);
+    long dist_y = abs((long)pos1_y - (long)pos2_y);
     if (dist_y <= dist_x)
       return dist_x;
     return dist_y;
@@ -81,15 +76,13 @@ MapCoordDelta get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long
 
 void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
 {
-    long long sin_yz,cos_yz,sin_xy,cos_xy;
-    long long lldist,mag,factor;
-    cos_yz = LbCosL(angle_yz) >> 2;
-    sin_yz = LbSinL(angle_yz) >> 2;
-    cos_xy = LbCosL(angle_xy) >> 2;
-    sin_xy = LbSinL(angle_xy) >> 2;
-    lldist = dist;
-    mag = (lldist << 14) - cos_yz;
-    factor = sin_xy * mag;
+    long long cos_yz = LbCosL(angle_yz) >> 2;
+    long long sin_yz = LbSinL(angle_yz) >> 2;
+    long long cos_xy = LbCosL(angle_xy) >> 2;
+    long long sin_xy = LbSinL(angle_xy) >> 2;
+    long long lldist = dist;
+    long long mag = (lldist << 14) - cos_yz;
+    long long factor = sin_xy * mag;
     cvect->x = (factor >> 14) >> 14;
     factor = cos_xy * mag;
     cvect->y = -(factor >> 14) >> 14;
@@ -104,8 +97,7 @@ long get_angle_xy_to_vec(const struct CoordDelta3d *vec)
 
 long get_angle_yz_to_vec(const struct CoordDelta3d *vec)
 {
-    long dist;
-    dist = LbDiagonalLength(abs(vec->x.val), abs(vec->y.val));
+    long dist = LbDiagonalLength(abs(vec->x.val), abs(vec->y.val));
     return LbArcTanAngle(vec->z.val, dist) & LbFPMath_AngleMask;
 }
 
@@ -116,41 +108,36 @@ long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-    long dist;
-    dist = get_2d_distance(pos1, pos2);
+    long dist = get_2d_distance(pos1, pos2);
     return LbArcTanAngle(pos2->z.val - pos1->z.val, dist) & LbFPMath_AngleMask;
 }
 
 // TODO these are actually Coord2d and Coord3d just inherits from it
 MapCoordDelta get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-    long dist_x,dist_y;
-    dist_x = (long)pos1->x.val - (long)pos2->x.val;
-    dist_y = (long)pos1->y.val - (long)pos2->y.val;
+    long dist_x = (long)pos1->x.val - (long)pos2->x.val;
+    long dist_y = (long)pos1->y.val - (long)pos2->y.val;
     return LbDiagonalLength(abs(dist_x), abs(dist_y));
 }
 
 MapCoordDelta get_2d_distance_squared(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-    long dist_x,dist_y;
-    dist_x = (long)pos1->x.val - (long)pos2->x.val;
-    dist_y = (long)pos1->y.val - (long)pos2->y.val;
+    long dist_x = (long)pos1->x.val - (long)pos2->x.val;
+    long dist_y = (long)pos1->y.val - (long)pos2->y.val;
     return dist_x * dist_x + dist_y * dist_y;
 }
 
 void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps)
 {
-    long dx,dy,dz;
-    long n;
+    long dx = distance_with_angle_to_coord_x(distance, angle_xy);
+    long dy = distance_with_angle_to_coord_y(distance, angle_xy);
+    long dz = distance_with_angle_to_coord_z(distance, angle_z);
     struct Coord3d pos;
-    dx = distance_with_angle_to_coord_x(distance,angle_xy);
-    dy = distance_with_angle_to_coord_y(distance,angle_xy);
-    dz = distance_with_angle_to_coord_z(distance,angle_z);
     pos.x.val = pos1->x.val;
     pos.y.val = pos1->y.val;
     pos.z.val = pos1->z.val;
     // Do num_steps until a solid wall is reached
-    for (n=num_steps; n > 0; n--)
+    for (long n = num_steps; n > 0; n--)
     {
         if (point_in_map_is_solid(&pos))
             break;
@@ -165,8 +152,8 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
 
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
 {
-    long new_zoom,old_zoom;
-    old_zoom = get_camera_zoom(cam);
+    long new_zoom;
+    long old_zoom = get_camera_zoom(cam);
     switch (cam->view_mode)
     {
     case PVM_IsometricView:
@@ -226,8 +213,8 @@ void set_camera_zoom(struct Camera *cam, long new_zoom)
 
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
 {
-    long new_zoom,old_zoom;
-    old_zoom = get_camera_zoom(cam);
+    long new_zoom;
+    long old_zoom = get_camera_zoom(cam);
     switch (cam->view_mode)
     {
     case PVM_IsometricView:
@@ -275,8 +262,7 @@ void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min)
 void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min)
 {
     SYNCDBG(7,"Starting");
-    long zoom_val;
-    zoom_val = get_camera_zoom(cam);
+    long zoom_val = get_camera_zoom(cam);
     if (zoom_val < zoom_min)
     {
       zoom_val = zoom_min;
@@ -311,9 +297,8 @@ long get_camera_zoom(struct Camera *cam)
  */
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 {
-    unsigned long size_wide,size_narr;
-    size_narr = ((pixel_size*units_per_pixel_min)<<7)/10;
-    size_wide = (pixel_size*units_per_pixel) << 3;
+    unsigned long size_narr = ((pixel_size * units_per_pixel_min) << 7) / 10;
+    unsigned long size_wide = (pixel_size * units_per_pixel) << 3;
     // Currently, the side menu isn't scaled. We have to take that into account. Side menu takes approx 0.22 of the screen.
     // Note that this is temporary - it would be better to scale the side menu. Not to mention making larger rendering arrays.
     if (units_per_pixel+units_per_pixel_min > 35) // this means resolution over 800x600
@@ -325,8 +310,7 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 
 void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
 {
-    long abslimit;
-    abslimit = abs(ilimit);
+    long abslimit = abs(ilimit);
     cam->field_25 += delta;
     if (cam->field_25 < -abslimit) {
         cam->field_25 = -abslimit;
@@ -339,8 +323,7 @@ void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
 
 void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
 {
-    long abslimit;
-    abslimit = abs(ilimit);
+    long abslimit = abs(ilimit);
     cam->field_20 += delta;
     if (cam->field_20 < -abslimit) {
         cam->field_20 = -abslimit;
@@ -354,9 +337,8 @@ void view_set_camera_x_inertia(struct Camera *cam, long delta, long ilimit)
 void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimit)
 {
     //_DK_view_set_camera_rotation_inertia(cam, delta, ilimit);
-    int limit_val, new_val;
-    limit_val = abs(ilimit);
-    new_val = delta + cam->field_1B;
+    int limit_val = abs(ilimit);
+    int new_val = delta + cam->field_1B;
     cam->field_1B = new_val;
     if (new_val < -limit_val)
     {
@@ -376,11 +358,9 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long delta, long ilimi
 void init_player_cameras(struct PlayerInfo *player)
 {
     //_DK_init_player_cameras(player);
-    struct Thing *heartng;
-    heartng = get_player_soul_container(player->id_number);
-    struct Camera *cam;
 
-    cam = &player->cameras[CamIV_FirstPerson];
+    struct Thing* heartng = get_player_soul_container(player->id_number);
+    struct Camera* cam = &player->cameras[CamIV_FirstPerson];
     cam->mappos.x.val = 0;
     cam->mappos.y.val = 0;
     cam->mappos.z.val = 256;

@@ -81,8 +81,7 @@ void frontend_level_select_maintain(struct GuiButton *gbtn)
 {
     if (gbtn == NULL)
         return;
-    long i;
-    i = (long)gbtn->content - 45;
+    long i = (long)gbtn->content - 45;
     if (select_level_scroll_offset+i < number_of_freeplay_levels)
         gbtn->flags |= LbBtnF_Enabled;
     else
@@ -91,16 +90,12 @@ void frontend_level_select_maintain(struct GuiButton *gbtn)
 
 void frontend_draw_level_select_button(struct GuiButton *gbtn)
 {
-    struct LevelInformation *lvinfo;
-    long btn_idx;
-    long lvnum;
-    long i;
-    btn_idx = (long)gbtn->content;
-    i = btn_idx + select_level_scroll_offset - 45;
-    lvnum = 0;
+    long btn_idx = (long)gbtn->content;
+    long i = btn_idx + select_level_scroll_offset - 45;
+    long lvnum = 0;
     if ((i >= 0) && (i < campaign.freeplay_levels_count))
       lvnum = campaign.freeplay_levels[i];
-    lvinfo = get_level_info(lvnum);
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
     if (lvinfo == NULL)
       return;
     if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
@@ -112,9 +107,8 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
       i = 1;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     LbTextSetFont(frontend_font[i]);
-    int tx_units_per_px;
     // This text is a bit condensed - button size is smaller than text height
-    tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
+    int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
     i = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
     LbTextDrawResized(0, 0, tx_units_per_px, lvinfo->name);
@@ -128,10 +122,8 @@ void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn)
 void frontend_level_select(struct GuiButton *gbtn)
 {
     // Find the level number
-    long i;
-    long lvnum;
-    i = (long)gbtn->content + select_level_scroll_offset - 45;
-    lvnum = 0;
+    long i = (long)gbtn->content + select_level_scroll_offset - 45;
+    long lvnum = 0;
     if (i < campaign.freeplay_levels_count)
       lvnum = campaign.freeplay_levels[i];
     if (lvnum <= 0)
@@ -226,12 +218,10 @@ void frontend_campaign_select_down_maintain(struct GuiButton *gbtn)
 
 void frontend_campaign_select_maintain(struct GuiButton *gbtn)
 {
-  long btn_idx;
-  long i;
   if (gbtn == NULL)
     return;
-  btn_idx = (long)gbtn->content;
-  i = select_campaign_scroll_offset + btn_idx-45;
+  long btn_idx = (long)gbtn->content;
+  long i = select_campaign_scroll_offset + btn_idx - 45;
   if (i < campaigns_list.items_num)
       gbtn->flags |= LbBtnF_Enabled;
   else
@@ -240,14 +230,11 @@ void frontend_campaign_select_maintain(struct GuiButton *gbtn)
 
 void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
 {
-    struct GameCampaign *campgn;
-    long btn_idx;
-    long i;
     if (gbtn == NULL)
       return;
-    btn_idx = (long)gbtn->content;
-    i = select_campaign_scroll_offset + btn_idx-45;
-    campgn = NULL;
+    long btn_idx = (long)gbtn->content;
+    long i = select_campaign_scroll_offset + btn_idx - 45;
+    struct GameCampaign* campgn = NULL;
     if ((i >= 0) && (i < campaigns_list.items_num))
       campgn = &campaigns_list.items[i];
     if (campgn == NULL)
@@ -261,9 +248,8 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
       i = 1;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     LbTextSetFont(frontend_font[i]);
-    int tx_units_per_px;
     // This text is a bit condensed - button size is smaller than text height
-    tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
+    int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
     i = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
     LbTextDrawResized(0, 0, tx_units_per_px, campgn->name);
@@ -271,14 +257,11 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
 
 void frontend_campaign_select(struct GuiButton *gbtn)
 {
-    long i;
-    long btn_idx;
-    struct GameCampaign *campgn;
     if (gbtn == NULL)
         return;
-    btn_idx = (long)gbtn->content;
-    i = select_campaign_scroll_offset + btn_idx-45;
-    campgn = NULL;
+    long btn_idx = (long)gbtn->content;
+    long i = select_campaign_scroll_offset + btn_idx - 45;
+    struct GameCampaign* campgn = NULL;
     if ((i >= 0) && (i < campaigns_list.items_num))
         campgn = &campaigns_list.items[i];
     if (campgn == NULL)

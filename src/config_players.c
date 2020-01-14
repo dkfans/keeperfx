@@ -75,8 +75,7 @@ const struct NamedCommand player_state_commands[] = {
  */
 const char *player_state_code_name(int wrkstate)
 {
-    const char *name;
-    name = get_conf_parameter_text(player_state_commands,wrkstate);
+    const char* name = get_conf_parameter_text(player_state_commands, wrkstate);
     if (name[0] != '\0')
         return name;
     return "INVALID";

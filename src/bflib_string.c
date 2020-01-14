@@ -96,18 +96,16 @@ TbLocChar *LbLocTextStringConcat(TbLocChar *str,const TbLocChar *catstr, TbSize 
  */
 TbLocChar *LbLocTextStringInsert(TbLocChar *str,const TbLocChar *catstr, TbCharCount pos, TbSize maxlen)
 {
-    TbSize spos,slen,clen;
-    spos = LbLocTextPosToLength(str, pos);
-    slen = LbLocTextStringSize(str);
-    clen = LbLocTextStringSize(catstr);
+    TbSize spos = LbLocTextPosToLength(str, pos);
+    TbSize slen = LbLocTextStringSize(str);
+    TbSize clen = LbLocTextStringSize(catstr);
     // Check if we're ok
     if (slen < spos)
         spos = slen;
     if (slen+clen >= maxlen)
         return NULL;
     // Make place for the string to insert
-    TbSize i;
-    for (i=slen-spos; i > 0; i--)
+    for (TbSize i = slen - spos; i > 0; i--)
     {
         str[spos+clen+i-1] = str[spos+i-1];
     }
@@ -122,19 +120,17 @@ TbLocChar *LbLocTextStringInsert(TbLocChar *str,const TbLocChar *catstr, TbCharC
  */
 TbLocChar *LbLocTextStringDelete(TbLocChar *str, TbCharCount pos, TbCharCount count)
 {
-    TbSize spos,slen,clen,lim;
-    spos = LbLocTextPosToLength(str, pos);
-    slen = LbLocTextStringSize(str);
-    clen = LbLocTextPosToLength(str,pos+count)-spos;
+    TbSize spos = LbLocTextPosToLength(str, pos);
+    TbSize slen = LbLocTextStringSize(str);
+    TbSize clen = LbLocTextPosToLength(str, pos + count) - spos;
     // Check if we're ok
     if (slen < spos)
         return NULL;
     if (spos+clen > slen)
         clen = slen-spos;
     // Remove the chars
-    TbSize i;
-    lim = slen-spos-clen;
-    for (i=0; i < lim; i++)
+    TbSize lim = slen - spos - clen;
+    for (TbSize i = 0; i < lim; i++)
     {
         str[spos+i] = str[spos+clen+i];
     }

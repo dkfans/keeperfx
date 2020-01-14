@@ -143,11 +143,9 @@ DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, l
  */
 int get_creature_health_permil(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    HitPoints health,max_health;
-    health = thing->health * 1000;
-    max_health = cctrl->max_health;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    HitPoints health = thing->health * 1000;
+    HitPoints max_health = cctrl->max_health;
     if (max_health < 1)
         max_health = 1;
     return health/max_health;
@@ -210,25 +208,20 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
         SYNCDBG(2,"The %s cannot lead a barracks party", thing_model_name(grthing));
         return 0;
     }
-    struct Room *room;
-    room = get_room_thing_is_on(grthing);
+    struct Room* room = get_room_thing_is_on(grthing);
     if (!room_still_valid_as_type_for_thing(room, RoK_BARRACKS, grthing))
     {
         SYNCDBG(2,"Room %s owned by player %d does not allow the %s index %d owner %d to lead a party",room_code_name(room->kind),(int)room->owner,thing_model_name(grthing),(int)grthing->index,(int)grthing->owner);
         return 0;
     }
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
-    unsigned long k;
-    long i, n;
-    n = 0;
-    i = room->creatures_list;
-    k = 0;
+    long n = 0;
+    long i = room->creatures_list;
+    unsigned long k = 0;
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
-        cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_exists(cctrl))
         {
             ERRORLOG("Jump to invalid creature %d detected",(int)i);
@@ -259,8 +252,6 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
 {
     struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    struct InitLight ilght;
     struct Camera *cam;
     //return _DK_control_creature_as_controller(player, thing);
     if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
@@ -273,7 +264,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       cam->mappos.z.val += crstat->eye_height;
       return true;
     }
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->moveto_pos.x.val = 0;
     cctrl->moveto_pos.y.val = 0;
     cctrl->moveto_pos.z.val = 0;
@@ -298,6 +289,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
             make_group_member_leader(thing);
         }
     }
+    struct InitLight ilght;
     LbMemorySet(&ilght, 0, sizeof(struct InitLight));
     ilght.mappos.x.val = thing->mappos.x.val;
     ilght.mappos.y.val = thing->mappos.y.val;
@@ -325,7 +317,6 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
 
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
 {
-    struct Camera *cam;
     //return _DK_control_creature_as_passenger(player, thing);
     if ((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlPassngr))
     {
@@ -344,7 +335,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
         turn_off_roaming_menus();
     }
     set_selected_thing(player, thing);
-    cam = player->acamera;
+    struct Camera* cam = player->acamera;
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
@@ -365,19 +356,16 @@ void free_swipe_graphic(void)
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
 {
-    int swpe_idx;
-    int i;
     SYNCDBG(6,"Starting for %s",thing_model_name(thing));
     //_DK_load_swipe_graphic_for_creature(thing);
 
-    i = creatures[thing->model%CREATURE_TYPES_COUNT].swipe_idx;
+    int i = creatures[thing->model % CREATURE_TYPES_COUNT].swipe_idx;
     if ((i == 0) || (game.loaded_swipe_idx == i))
         return true;
     free_swipe_graphic();
-    swpe_idx = i;
+    int swpe_idx = i;
     {
-        struct TbLoadFiles *t_lfile;
-        t_lfile = &swipe_load_file[0];
+        struct TbLoadFiles* t_lfile = &swipe_load_file[0];
 #ifdef SPRITE_FORMAT_V2
         sprintf(t_lfile->FName, "data/swipe%02d-%d.dat", swpe_idx, 32);
         t_lfile++;
@@ -403,47 +391,37 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
 
 void draw_swipe_graphic(void)
 {
-    struct PlayerInfo *myplyr;
-    myplyr = get_my_player();
+    struct PlayerInfo* myplyr = get_my_player();
     //_DK_draw_swipe();
-    struct Thing *thing;
-    thing = thing_get(myplyr->controlled_thing_idx);
+    struct Thing* thing = thing_get(myplyr->controlled_thing_idx);
     if (thing_is_creature(thing))
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->instance_id == CrInst_SWING_WEAPON_SWORD)
          || (cctrl->instance_id == CrInst_SWING_WEAPON_FIST)
          || (cctrl->instance_id == CrInst_FIRST_PERSON_DIG))
         {
-            struct TbSprite *startspr;
-            struct TbSprite *endspr;
-            struct TbSprite *sprlist;
-            long allwidth;
-            long i,n;
             lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
-            n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
-            allwidth = 0;
-            i = abs(n) >> 8;
+            long n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
+            long allwidth = 0;
+            long i = abs(n) >> 8;
             if (i >= SWIPE_SPRITE_FRAMES)
                 i = SWIPE_SPRITE_FRAMES-1;
-            sprlist = &swipe_sprites[SWIPE_SPRITES_X*SWIPE_SPRITES_Y*i];
-            startspr = &sprlist[1];
-            endspr = &sprlist[1];
+            struct TbSprite* sprlist = &swipe_sprites[SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i];
+            struct TbSprite* startspr = &sprlist[1];
+            struct TbSprite* endspr = &sprlist[1];
             for (n=0; n < SWIPE_SPRITES_X; n++)
             {
                 allwidth += endspr->SWidth;
                 endspr++;
             }
-            int units_per_px;
-            units_per_px = (LbScreenWidth()*59/64) * 16 / allwidth;
-            int scrpos_x, scrpos_y;
-            scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
+            int units_per_px = (LbScreenWidth() * 59 / 64) * 16 / allwidth;
+            int scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
             struct TbSprite *spr;
+            int scrpos_x;
             if ((myplyr->field_1 & 4) != 0)
             {
-                int delta_y;
-                delta_y = sprlist[1].SHeight;
+                int delta_y = sprlist[1].SHeight;
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
                 {
                     spr = &startspr[i];
@@ -458,12 +436,11 @@ void draw_swipe_graphic(void)
                 }
             } else
             {
-                int delta_y;
                 lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_FLIP_HORIZ;
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
                 {
                     spr = &sprlist[SWIPE_SPRITES_X+i];
-                    delta_y = spr->SHeight;
+                    int delta_y = spr->SHeight;
                     scrpos_x = (MyScreenWidth * 16 / units_per_px - allwidth) / 2;
                     for (n=0; n < SWIPE_SPRITES_X; n++)
                     {
@@ -484,8 +461,7 @@ void draw_swipe_graphic(void)
 long creature_available_for_combat_this_turn(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     // Check once per 8 turns
     if (((game.play_gameturn + creatng->index) & 7) != 0)
     {
@@ -506,22 +482,19 @@ long creature_available_for_combat_this_turn(struct Thing *creatng)
     if ((creatng->owner == game.neutral_player_num) || ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)) {
         return false;
     }
-    CrtrStateId i;
-    i = get_creature_state_besides_interruptions(creatng);
+    CrtrStateId i = get_creature_state_besides_interruptions(creatng);
     return can_change_from_state_to(creatng, i, CrSt_CreatureInCombat);
 }
 
 struct Thing *get_players_soul_container_creature_can_see(struct Thing *creatng, PlayerNumber heart_owner)
 {
-    struct Thing * heartng;
-    int dist;
-    heartng = get_player_soul_container(heart_owner);
+    struct Thing* heartng = get_player_soul_container(heart_owner);
     if (!thing_exists(heartng))
     {
         SYNCDBG(7,"The player %d has no heart",(int)heart_owner);
         return INVALID_THING;
     }
-    dist = get_combat_distance(creatng, heartng);
+    int dist = get_combat_distance(creatng, heartng);
     if (creature_can_see_combat_path(creatng, heartng, dist)) {
         SYNCDBG(7,"The %s index %d owned by player %d can see player %d %s index %d at distance %d",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,
@@ -549,20 +522,17 @@ struct Thing *get_players_soul_container_creature_can_see(struct Thing *creatng,
  */
 struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *creatng)
 {
-    PlayerNumber enemy_idx;
-
     SYNCDBG(17, "Starting");
 
     //return _DK_get_enemy_dungeon_heart_creature_can_see(creatng);
 
     assert(DUNGEONS_COUNT == PLAYERS_COUNT);
 
-    for (enemy_idx = 0; enemy_idx < DUNGEONS_COUNT; enemy_idx++)
+    for (PlayerNumber enemy_idx = 0; enemy_idx < DUNGEONS_COUNT; enemy_idx++)
     {
         if (players_are_enemies(creatng->owner, enemy_idx))
         {
-            struct Thing * heartng;
-            heartng = get_players_soul_container_creature_can_see(creatng, enemy_idx);
+            struct Thing* heartng = get_players_soul_container_creature_can_see(creatng, enemy_idx);
             if (!thing_is_invalid(heartng))
             {
                 return heartng;
@@ -575,14 +545,12 @@ struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *creatng)
 
 void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->combat.battle_enemy_idx = obthing->index;
     cctrl->combat.battle_enemy_crtn = obthing->creation_turn;
     cctrl->field_AA = 0;
     cctrl->combat_flags |= CmbtF_ObjctFight;
-    const struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->attack_preference == AttckT_Ranged)
       && creature_has_ranged_object_weapon(creatng)) {
         cctrl->combat.state_id = ObjCmbtSt_Ranged;
@@ -605,14 +573,12 @@ TbBool set_creature_object_combat(struct Thing *creatng, struct Thing *obthing)
 
 void set_creature_combat_door_state(struct Thing *creatng, struct Thing *obthing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->combat.battle_enemy_idx = obthing->index;
     cctrl->combat.battle_enemy_crtn = obthing->creation_turn;
     cctrl->field_AA = 0;
     cctrl->combat_flags |= CmbtF_DoorFight;
-    const struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->attack_preference == AttckT_Ranged)
       && creature_has_ranged_object_weapon(creatng)) {
         cctrl->combat.state_id = ObjCmbtSt_Ranged;
@@ -637,8 +603,7 @@ TbBool set_creature_door_combat(struct Thing *creatng, struct Thing *obthing)
 void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
 {
     //_DK_food_eaten_by_creature(foodtng, creatng);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id == CrInst_NULL)
     {
         set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
@@ -655,11 +620,9 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
     }
     // Food is destroyed just below, so the sound must be made by creature
     thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crstat->annoy_eat_food, AngR_Hungry, 1);
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(creatng->owner);
+    struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.chickens_eaten++;
     }
@@ -687,8 +650,7 @@ void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMot
         {
             if (anger_free_for_anger_increase(creatng))
             {
-                long angrpart;
-                angrpart = 32 * anger / 256;
+                long angrpart = 32 * anger / 256;
                 anger_increase_creature_anger_f(creatng, angrpart, AngR_Other, func_name);
             }
         }
@@ -698,10 +660,9 @@ void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMot
         anger_reduce_creature_anger_f(creatng, anger, reason, func_name);
         if (reason == AngR_Other)
         {
-            AnnoyMotive reaspart;
-            long angrpart;
-            angrpart = 32 * anger / 256;
-            for (reaspart = 1; reaspart < AngR_Other; reaspart++) {
+            long angrpart = 32 * anger / 256;
+            for (AnnoyMotive reaspart = 1; reaspart < AngR_Other; reaspart++)
+            {
                 anger_reduce_creature_anger_f(creatng, angrpart, reaspart, func_name);
             }
         }
@@ -716,8 +677,7 @@ void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMot
  */
 TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
 {
-    const struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     switch (spkind)
     {
     case SplK_Freeze:
@@ -776,8 +736,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
 
 TbBool creature_affected_by_slap(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     return (cctrl->slap_turns != 0);
 }
 
@@ -789,18 +748,15 @@ TbBool creature_affected_by_slap(const struct Thing *thing)
  */
 GameTurnDelta get_spell_duration_left_on_thing_f(const struct Thing *thing, SpellKind spkind, const char *func_name)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("%s: Invalid creature control for thing %d",func_name,(int)thing->index);
         return 0;
     }
-    long i;
-    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
-        struct CastedSpellData *cspell;
-        cspell = &cctrl->casted_spells[i];
+        struct CastedSpellData* cspell = &cctrl->casted_spells[i];
         if (cspell->spkind == spkind) {
             return cspell->duration;
         }
@@ -825,13 +781,11 @@ TbBool thing_affected_by_spell(const struct Thing *thing, SpellKind spkind)
 long get_free_spell_slot(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl *cctrl;
     struct CastedSpellData *cspell;
-    long ci,cval;
-    long i,k;
-    cctrl = creature_control_get_from_thing(creatng);
-    cval = LONG_MAX;
-    ci = -1;
+    long i;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    long cval = LONG_MAX;
+    long ci = -1;
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
@@ -841,7 +795,7 @@ long get_free_spell_slot(struct Thing *creatng)
             return i;
         }
         // Otherwise, select the one making minimum damage
-        k = abs(cspell->duration);
+        long k = abs(cspell->duration);
         if (k < cval)
         {
             cval = k;
@@ -865,13 +819,10 @@ long get_free_spell_slot(struct Thing *creatng)
 
 long get_spell_slot(const struct Thing *thing, SpellKind spkind)
 {
-    struct CreatureControl *cctrl;
-    struct CastedSpellData *cspell;
-    long i;
-    cctrl = creature_control_get_from_thing(thing);
-    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
-        cspell = &cctrl->casted_spells[i];
+        struct CastedSpellData* cspell = &cctrl->casted_spells[i];
         // If there is a slot with required spell
         if (cspell->spkind == spkind)
         {
@@ -884,14 +835,12 @@ long get_spell_slot(const struct Thing *thing, SpellKind spkind)
 
 TbBool fill_spell_slot(struct Thing *thing, long slot_idx, SpellKind spell_idx, long spell_power)
 {
-    struct CreatureControl *cctrl;
-    struct CastedSpellData *cspell;
     if ((slot_idx < 0) || (slot_idx >= CREATURE_MAX_SPELLS_CASTED_AT))
         return false;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
         return false;
-    cspell = &cctrl->casted_spells[slot_idx];
+    struct CastedSpellData* cspell = &cctrl->casted_spells[slot_idx];
     cspell->spkind = spell_idx;
     cspell->duration = spell_power;
     return true;
@@ -899,14 +848,12 @@ TbBool fill_spell_slot(struct Thing *thing, long slot_idx, SpellKind spell_idx, 
 
 TbBool free_spell_slot(struct Thing *thing, long slot_idx)
 {
-    struct CreatureControl *cctrl;
-    struct CastedSpellData *cspell;
     if ((slot_idx < 0) || (slot_idx >= CREATURE_MAX_SPELLS_CASTED_AT))
         return false;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
         return false;
-    cspell = &cctrl->casted_spells[slot_idx];
+    struct CastedSpellData* cspell = &cctrl->casted_spells[slot_idx];
     cspell->spkind = SplK_None;
     cspell->duration = 0;
     return true;
@@ -914,19 +861,19 @@ TbBool free_spell_slot(struct Thing *thing, long slot_idx)
 
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
-    struct CreatureControl *cctrl;
-    struct SpellConfig *splconf;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     const struct MagicStats *pwrdynst;
     struct ComponentVector cvect;
     struct Coord3d pos;
     struct Thing *ntng;
-    long i,k,n;
-    cctrl = creature_control_get_from_thing(thing);
+    long i;
+    long k;
     if (spell_lev > SPELL_MAX_LEVEL)
         spell_lev = SPELL_MAX_LEVEL;
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    splconf = &game.spells_config[spell_idx];
-    switch ( spell_idx )
+    struct SpellConfig* splconf = &game.spells_config[spell_idx];
+    long n;
+    switch (spell_idx)
     {
     case SplK_Freeze:
         i = get_free_spell_slot(thing);
@@ -1102,17 +1049,13 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
 
 void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev, long idx)
 {
-    struct CreatureControl *cctrl;
-    struct SpellConfig *splconf;
-    const struct MagicStats *pwrdynst;
-    long i;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (spell_lev > SPELL_MAX_LEVEL)
         spell_lev = SPELL_MAX_LEVEL;
-    struct CastedSpellData * cspell;
-    cspell = &cctrl->casted_spells[idx];
+    struct CastedSpellData* cspell = &cctrl->casted_spells[idx];
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
-    splconf = &game.spells_config[spell_idx];
+    struct SpellConfig* splconf = &game.spells_config[spell_idx];
+    const struct MagicStats* pwrdynst;
     switch (spell_idx)
     {
     case SplK_Freeze:
@@ -1127,8 +1070,9 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cspell->duration = splconf->duration;
         break;
     case SplK_Heal:
+    {
         pwrdynst = get_power_dynamic_stats(PwrK_HEALCRTR);
-        i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev],16);
+        long i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
         if (i < 0)
         {
           thing->health = 0;
@@ -1138,6 +1082,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cctrl->field_2B0 = 7;
         cctrl->field_2AE = pwrdynst->time;
         break;
+    }
     case SplK_Invisibility:
         pwrdynst = get_power_dynamic_stats(PwrK_CONCEAL);
         cspell->duration = pwrdynst->strength[spell_lev];
@@ -1180,20 +1125,18 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
 
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
-    struct CreatureControl *cctrl;
-    long i;
     // Make sure the creature level isn't larger than max spell level
     if (spell_lev > SPELL_MAX_LEVEL)
         spell_lev = SPELL_MAX_LEVEL;
     SYNCDBG(6,"Applying %s to %s index %d",spell_code_name(spell_idx),thing_model_name(thing),(int)thing->index);
     //_DK_apply_spell_effect_to_thing(thing, spell_idx, spell_lev); return;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature tried to accept spell %s",spell_code_name(spell_idx));
         return;
     }
-    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         if (cctrl->casted_spells[i].spkind == spell_idx)
         {
@@ -1206,15 +1149,12 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
 
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
 {
-    struct CreatureControl *cctrl;
-    int slot_idx;
-    ThingIndex eff_idx;
-    long i;
     //_DK_terminate_thing_spell_effect(thing, spkind);
     TRACE_THING(thing);
-    slot_idx = get_spell_slot(thing, spkind);
-    cctrl = creature_control_get_from_thing(thing);
-    switch ( spkind )
+    int slot_idx = get_spell_slot(thing, spkind);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    long i;
+    switch (spkind)
     {
     case SplK_Freeze:
         cctrl->stateblock_flags &= ~CCSpl_Freeze;
@@ -1228,7 +1168,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->spell_flags &= ~CSAfF_Armour;
         for (i=0; i < 3; i++)
         {
-            eff_idx = cctrl->spell_tngidx_armour[i];
+            ThingIndex eff_idx = cctrl->spell_tngidx_armour[i];
             if (eff_idx > 0) {
                 struct Thing * efftng;
                 efftng = thing_get(eff_idx);
@@ -1268,7 +1208,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->spell_flags &= ~CSAfF_Disease;
         for (i=0; i < 3; i++)
         {
-            eff_idx = cctrl->spell_tngidx_disease[i];
+            ThingIndex eff_idx = cctrl->spell_tngidx_disease[i];
             if (eff_idx > 0) {
                 struct Thing * efftng;
                 efftng = thing_get(eff_idx);
@@ -1290,10 +1230,8 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
 
 void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpellData *cspell)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    struct SpellConfig *splconf;
-    splconf = &game.spells_config[SplK_Teleport];
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig* splconf = &game.spells_config[SplK_Teleport];
     if (cspell->duration == splconf->duration / 2)
     {
         struct Coord3d pos;
@@ -1302,11 +1240,9 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         pos.z.val = get_floor_height_at(&pos);
         if (thing_in_wall_at(thing, &pos))
         {
-            const struct Coord3d *newpos;
-            newpos = NULL;
+            const struct Coord3d* newpos = NULL;
             {
-                const struct Thing *lairtng;
-                lairtng = thing_get(cctrl->lairtng_idx);
+                const struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
                 if (thing_is_object(lairtng)) {
                     newpos = &lairtng->mappos;
                 }
@@ -1335,14 +1271,11 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
 
 void process_thing_spell_effects(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
     //_DK_process_thing_spell_effects(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    int i;
-    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
-        struct CastedSpellData * cspell;
-        cspell = &cctrl->casted_spells[i];
+        struct CastedSpellData* cspell = &cctrl->casted_spells[i];
         if (cspell->spkind == SplK_None)
             continue;
         switch (cspell->spkind)
@@ -1370,13 +1303,10 @@ void process_thing_spell_effects(struct Thing *thing)
 
 void process_thing_spell_effects_while_blocked(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    int i;
-    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
-        struct CastedSpellData * cspell;
-        cspell = &cctrl->casted_spells[i];
+        struct CastedSpellData* cspell = &cctrl->casted_spells[i];
         if (cspell->spkind == SplK_None)
             continue;
         if (cspell->duration > 0) {
@@ -1391,9 +1321,7 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing)
 
 short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *goldtng)
 {
-    struct CreatureStats *crstat;
-    long i;
-    crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if (goldtng->creature.gold_carried <= 0)
     {
       ERRORLOG("GoldPile had no gold so was deleted.");
@@ -1404,9 +1332,9 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
     {
       if (goldtng->creature.gold_carried+creatng->creature.gold_carried > crstat->gold_hold)
       {
-        i = crstat->gold_hold-creatng->creature.gold_carried;
-        creatng->creature.gold_carried += i;
-        goldtng->creature.gold_carried -= i;
+          long i = crstat->gold_hold - creatng->creature.gold_carried;
+          creatng->creature.gold_carried += i;
+          goldtng->creature.gold_carried -= i;
       } else
       {
         creatng->creature.gold_carried += goldtng->creature.gold_carried;
@@ -1426,7 +1354,6 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
  */
 void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, long spl_idx, long shot_lvl)
 {
-    const struct SpellInfo *spinfo;
     unsigned char hit_type;
     if ((castng->alloc_flags & TAlF_IsControlled) != 0)
     {
@@ -1444,7 +1371,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         else
             hit_type = THit_CrtrsOnlyNotOwn;
     }
-    spinfo = get_magic_info(spl_idx);
+    const struct SpellInfo* spinfo = get_magic_info(spl_idx);
     if (magic_info_is_invalid(spinfo))
     {
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
@@ -1461,13 +1388,10 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
  */
 void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long trg_x, long trg_y)
 {
-    const struct SpellInfo *spinfo;
-    struct CreatureControl *cctrl;
-    struct Thing *efthing;
     long i;
     //_DK_creature_cast_spell(caster, spl_idx, shot_lvl, trg_x, trg_y);
-    spinfo = get_magic_info(spl_idx);
-    cctrl = creature_control_get_from_thing(castng);
+    const struct SpellInfo* spinfo = get_magic_info(spl_idx);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature tried to cast spell %d",(int)spl_idx);
@@ -1498,7 +1422,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     // Check if the spell has an effect associated
     if (spinfo->cast_effect_model != 0)
     {
-        efthing = create_effect(&castng->mappos, spinfo->cast_effect_model, castng->owner);
+        struct Thing* efthing = create_effect(&castng->mappos, spinfo->cast_effect_model, castng->owner);
         if (!thing_is_invalid(efthing))
         {
           if (spinfo->cast_effect_model == 14)
@@ -1520,16 +1444,13 @@ void update_creature_count(struct Thing *creatng)
     if (thing_is_picked_up(creatng) || creature_is_being_unconscious(creatng)) {
         return;
     }
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(creatng->owner);
+    struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
     if (dungeon_invalid(dungeon)) {
         return;
     }
-    int statyp;
-    statyp = get_creature_state_type(creatng);
+    int statyp = get_creature_state_type(creatng);
     dungeon->field_64[creatng->model][statyp]++;
-    int job_idx;
-    job_idx = get_creature_gui_job(creatng);
+    int job_idx = get_creature_gui_job(creatng);
     if (can_thing_be_picked_up_by_player(creatng, creatng->owner))
     {
         if (!creature_is_dragging_or_being_dragged(creatng)) {
@@ -1544,61 +1465,53 @@ void update_creature_count(struct Thing *creatng)
 
 struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
 {
-  struct Thing *thing;
-  struct Room *room;
-  unsigned long k;
-  long i;
-  k = 0;
-  i = get_mapwho_thing_index(mapblk);
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
     {
-      WARNLOG("Jump out of things array");
-      break;
-    }
-    i = thing->next_on_mapblk;
-    if (thing->class_id == TCls_Object)
-    {
-      if ((thing->model == 43) && thing_touching_floor(thing))
-        return thing;
-      if (object_is_mature_food(thing))
-      {
-        room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room))
-          return thing;
-        if (!room_role_matches(room->kind, RoRoF_FoodStorage) && (room->kind != RoK_TORTURE) && (room->kind != RoK_PRISON))
-          return thing;
-      }
-    }
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break_mapwho_infinite_chain(mapblk);
-      break;
-    }
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        if (thing->class_id == TCls_Object)
+        {
+            if ((thing->model == 43) && thing_touching_floor(thing))
+                return thing;
+            if (object_is_mature_food(thing))
+            {
+                struct Room* room = get_room_thing_is_on(thing);
+                if (room_is_invalid(room))
+                    return thing;
+                if (!room_role_matches(room->kind, RoRoF_FoodStorage) && (room->kind != RoK_TORTURE) && (room->kind != RoK_PRISON))
+                    return thing;
+            }
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
   }
   return INVALID_THING;
 }
 
 struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
 {
-    long k;
-    for (k=0; k < AROUND_TILES_COUNT; k++)
+    for (long k = 0; k < AROUND_TILES_COUNT; k++)
     {
-        struct Map *mapblk;
-        long stl_x,stl_y;
-        stl_x = creatng->mappos.x.stl.num + around[k].delta_x;
-        stl_y = creatng->mappos.y.stl.num + around[k].delta_y;
-        mapblk = get_map_block_at(stl_x,stl_y);
+        long stl_x = creatng->mappos.x.stl.num + around[k].delta_x;
+        long stl_y = creatng->mappos.y.stl.num + around[k].delta_y;
+        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
         if (!map_block_invalid(mapblk))
         {
             if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
             {
-                struct Thing *thing;
-                thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
+                struct Thing* thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
                 if (!thing_is_invalid(thing))
                     return thing;
             }
@@ -1621,23 +1534,20 @@ TbBool thing_can_be_eaten(struct Thing *thing)
 
 TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
 {
-    struct Thing *tgthing;
-    struct CreatureStats *crstat;
-    tgthing = find_interesting_object_laying_around_thing(creatng);
+    struct Thing* tgthing = find_interesting_object_laying_around_thing(creatng);
     if (thing_is_invalid(tgthing)) {
         return false;
     }
     if (object_is_gold_laying_on_ground(tgthing))
     {
-        crstat = creature_stats_get_from_thing(creatng);
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         if (tgthing->valuable.gold_stored > 0)
         {
             if (creatng->creature.gold_carried < crstat->gold_hold)
             {
                 if (crstat->gold_hold < tgthing->valuable.gold_stored + creatng->creature.gold_carried)
                 {
-                    long k;
-                    k = crstat->gold_hold - creatng->creature.gold_carried;
+                    long k = crstat->gold_hold - creatng->creature.gold_carried;
                     creatng->creature.gold_carried += k;
                     tgthing->valuable.gold_stored -= k;
                 } else
@@ -1665,20 +1575,16 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
 
 TngUpdateRet process_creature_state(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    unsigned long model_flags;
-    long x,y;
     SYNCDBG(19,"Starting for %s index %d owned by player %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     TRACE_THING(thing);
     //return _DK_process_creature_state(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    model_flags = get_creature_model_flags(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    unsigned long model_flags = get_creature_model_flags(thing);
 
     process_person_moods_and_needs(thing);
     if (creature_available_for_combat_this_turn(thing))
     {
-        TbBool fighting;
-        fighting = creature_look_for_combat(thing);
+        TbBool fighting = creature_look_for_combat(thing);
         if (!fighting) {
             fighting = creature_look_for_enemy_heart_combat(thing);
         }
@@ -1689,10 +1595,9 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         {
             if ( can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat) )
             {
-                struct Thing *doortng;
-                x = stl_num_decode_x(cctrl->collided_door_subtile);
-                y = stl_num_decode_y(cctrl->collided_door_subtile);
-                doortng = get_door_for_position(x,y);
+                long x = stl_num_decode_x(cctrl->collided_door_subtile);
+                long y = stl_num_decode_y(cctrl->collided_door_subtile);
+                struct Thing* doortng = get_door_for_position(x, y);
                 if (!thing_is_invalid(doortng))
                 {
                     if (thing->owner != doortng->owner) {
@@ -1728,11 +1633,9 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     //TODO CREATURE_AI rewrite state subfunctions so they won't hang
     //if (game.play_gameturn > 119800)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
-    struct StateInfo *stati;
-    stati = get_thing_active_state_info(thing);
+    struct StateInfo* stati = get_thing_active_state_info(thing);
     if (stati->process_state != NULL) {
-        short k;
-        k = stati->process_state(thing);
+        short k = stati->process_state(thing);
         if (k == CrStRet_Deleted) {
             SYNCDBG(18,"Finished with creature deleted");
             return TUFRet_Deleted;
@@ -1747,13 +1650,12 @@ TngUpdateRet process_creature_state(struct Thing *thing)
  */
 TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
 {
-  struct Dungeon *killer_dungeon;
-  killer_dungeon = get_players_num_dungeon(killer_idx);
-  if (victim->owner == killer_idx)
-    killer_dungeon->lvstats.friendly_kills++;
-  else
-    killer_dungeon->battles_won++;
-  return true;
+    struct Dungeon* killer_dungeon = get_players_num_dungeon(killer_idx);
+    if (victim->owner == killer_idx)
+        killer_dungeon->lvstats.friendly_kills++;
+    else
+        killer_dungeon->battles_won++;
+    return true;
 }
 
 /**
@@ -1763,8 +1665,7 @@ TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
 TbBool update_kills_counters(struct Thing *victim, struct Thing *killer,
     PlayerNumber def_plyr_idx, CrDeathFlags flags)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(victim);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(victim);
     if ((flags & CrDed_DiedInBattle) != 0)
     {
         if (!thing_is_invalid(killer))
@@ -1786,9 +1687,8 @@ TbBool update_kills_counters(struct Thing *victim, struct Thing *killer,
 long creature_is_ambulating(struct Thing *thing)
 {
     //return _DK_creature_is_ambulating(thing);
-    int n, i;
-    n = get_creature_model_graphics(thing->model, CGI_Ambulate);
-    i = convert_td_iso(n);
+    int n = get_creature_model_graphics(thing->model, CGI_Ambulate);
+    int i = convert_td_iso(n);
     if (i != thing->anim_sprite)
         return 0;
     return 1;
@@ -1798,14 +1698,13 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
 {
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     //_DK_check_for_door_collision_at(thing, pos, a3); return;
-    int nav_sizexy;
-    nav_sizexy = thing_nav_sizexy(thing)/2;
-    MapSubtlCoord start_x, end_x, start_y, end_y;
-    start_x = coord_subtile(pos->x.val - nav_sizexy);
-    end_x = coord_subtile(pos->x.val + nav_sizexy);
-    start_y = coord_subtile(pos->y.val - nav_sizexy);
-    end_y = coord_subtile(pos->y.val + nav_sizexy);
-    MapSubtlCoord stl_x, stl_y;
+    int nav_sizexy = thing_nav_sizexy(thing) / 2;
+    MapSubtlCoord start_x = coord_subtile(pos->x.val - nav_sizexy);
+    MapSubtlCoord end_x = coord_subtile(pos->x.val + nav_sizexy);
+    MapSubtlCoord start_y = coord_subtile(pos->y.val - nav_sizexy);
+    MapSubtlCoord end_y = coord_subtile(pos->y.val + nav_sizexy);
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     if ((blocked_flags & 0x01) != 0)
     {
         stl_x = end_x;
@@ -1813,12 +1712,10 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
             stl_x = start_x;
         for (stl_y = start_y; stl_y <= end_y; stl_y++)
         {
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x, stl_y);
+            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & SlbAtFlg_IsDoor) != 0) {
                 SYNCDBG(18,"Door collision at X with %s",thing_model_name(thing));
-                struct CreatureControl *cctrl;
-                cctrl = creature_control_get_from_thing(thing);
+                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                 cctrl->collided_door_subtile = get_subtile_number(stl_x, stl_y);
                 return true;
             }
@@ -1831,12 +1728,10 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
             stl_y = start_y;
         for (stl_x = start_x; stl_x <= end_x; stl_x++)
         {
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x, stl_y);
+            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & SlbAtFlg_IsDoor) != 0) {
                 SYNCDBG(18,"Door collision at Y with %s",thing_model_name(thing));
-                struct CreatureControl *cctrl;
-                cctrl = creature_control_get_from_thing(thing);
+                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                 cctrl->collided_door_subtile = get_subtile_number(stl_x, stl_y);
                 return true;
             }
@@ -1848,9 +1743,8 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
 
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos)
 {
+    unsigned int flags = 0;
     struct Coord3d pos;
-    unsigned int flags;
-    flags = 0;
     pos.x.val = newpos->x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val;
@@ -1911,11 +1805,10 @@ unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *
 void update_tunneller_trail(struct Thing *thing)
 {
     //_DK_update_tunneller_trail(thing); return;
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // Shift all elements freeing first item
-    int i;
-    for (i = 4; i > 0; i--) {
+    for (int i = 4; i > 0; i--)
+    {
         cctrl->party.member_pos_stl[i] = cctrl->party.member_pos_stl[i-1];
     }
     // Fill the first item
@@ -1924,19 +1817,16 @@ void update_tunneller_trail(struct Thing *thing)
 
 long move_creature(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
     //return _DK_move_creature(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    struct Coord3d *tngpos;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Coord3d* tngpos = &thing->mappos;
     struct Coord3d pvpos;
-    int velo_x,velo_y,velo_z;
-    tngpos = &thing->mappos;
     pvpos.x.val = tngpos->x.val;
     pvpos.y.val = tngpos->y.val;
     pvpos.z.val = tngpos->z.val;
-    velo_x = thing->velocity.x.val;
-    velo_y = thing->velocity.y.val;
-    velo_z = thing->velocity.z.val;
+    int velo_x = thing->velocity.x.val;
+    int velo_y = thing->velocity.y.val;
+    int velo_z = thing->velocity.z.val;
     cctrl->flgfield_1 &= ~CCFlg_Unknown08;
     struct Coord3d nxpos;
     if (thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_throgh_wall_at(thing, &thing->mappos))
@@ -1984,8 +1874,7 @@ long move_creature(struct Thing *thing)
         {
             if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_throgh_wall_at(thing, &nxpos))
             {
-                long blocked_flags;
-                blocked_flags = get_thing_blocked_flags_at(thing, &nxpos);
+                long blocked_flags = get_thing_blocked_flags_at(thing, &nxpos);
                 if (cctrl->collided_door_subtile == 0) {
                     check_for_door_collision_at(thing, &nxpos, blocked_flags);
                 }
@@ -1998,8 +1887,7 @@ long move_creature(struct Thing *thing)
             {
                 if (creature_cannot_move_directly_to(thing, &nxpos))
                 {
-                    long blocked_flags;
-                    blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
+                    long blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
                     if (cctrl->collided_door_subtile == 0) {
                         check_for_door_collision_at(thing, &nxpos, blocked_flags);
                     }
@@ -2013,8 +1901,7 @@ long move_creature(struct Thing *thing)
         }
         if ((cctrl->flgfield_1 & CCFlg_Unknown10) != 0)
         {
-            struct Thing * collidtng;
-            collidtng = get_thing_collided_with_at_satisfying_filter(thing, &nxpos, collide_filter_thing_is_of_type, 5, -1);
+            struct Thing* collidtng = get_thing_collided_with_at_satisfying_filter(thing, &nxpos, collide_filter_thing_is_of_type, 5, -1);
             if (!thing_is_invalid(collidtng))
             {
                 nxpos.x.val = tngpos->x.val;
@@ -2031,11 +1918,9 @@ long move_creature(struct Thing *thing)
              || (subtile_slab_fast(tngpos->y.stl.num) != subtile_slab_fast(nxpos.y.stl.num)))
             {
                 check_map_explored(thing, nxpos.x.stl.num, nxpos.y.stl.num);
-                struct StateInfo *stati;
-                stati = get_thing_active_state_info(thing);
+                struct StateInfo* stati = get_thing_active_state_info(thing);
                 if (!state_info_invalid(stati)) {
-                    CreatureStateFunc2 callback;
-                    callback = stati->move_from_slab;
+                    CreatureStateFunc2 callback = stati->move_from_slab;
                     if (callback != NULL) {
                         callback(thing);
                     }
@@ -2045,12 +1930,14 @@ long move_creature(struct Thing *thing)
         move_thing_in_map(thing, &nxpos);
     }
     {
-        long angle;
+        long angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
         long dist;
-        angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
-        if (get_angle_difference(angle, thing->move_angle_xy) <= LbFPMath_PI/2) {
+        if (get_angle_difference(angle, thing->move_angle_xy) <= LbFPMath_PI / 2)
+        {
             dist = get_2d_distance(&pvpos, tngpos);
-        } else {
+        }
+        else
+        {
             dist = -get_2d_distance(&pvpos, tngpos);
         }
         cctrl->field_9 = dist;
@@ -2066,10 +1953,8 @@ long move_creature(struct Thing *thing)
  */
 void creature_rebirth_at_lair(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct Thing *lairtng;
-    cctrl = creature_control_get_from_thing(thing);
-    lairtng = thing_get(cctrl->lairtng_idx);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
     if (thing_is_invalid(lairtng))
     {
         // If creature has no lair - treat dungeon heart as lair
@@ -2088,35 +1973,28 @@ void creature_rebirth_at_lair(struct Thing *thing)
 void throw_out_gold(struct Thing *thing)
 {
     // Compute how many pots we want to drop
-    int num_pots_to_drop;
-    num_pots_to_drop = (thing->creature.gold_carried + game.pot_of_gold_holds - 1) / game.pot_of_gold_holds;
+    int num_pots_to_drop = (thing->creature.gold_carried + game.pot_of_gold_holds - 1) / game.pot_of_gold_holds;
     if (num_pots_to_drop > 8)
         num_pots_to_drop = 8;
-    GoldAmount gold_dropped;
-    gold_dropped = 0;
+    GoldAmount gold_dropped = 0;
     // Now do the dropping
-    int npot;
-    for (npot = 0; npot < num_pots_to_drop; npot++)
+    for (int npot = 0; npot < num_pots_to_drop; npot++)
     {
         // Create a new pot object
-        struct Thing *gldtng;
-        gldtng = create_object(&thing->mappos, 6, game.neutral_player_num, -1);
+        struct Thing* gldtng = create_object(&thing->mappos, 6, game.neutral_player_num, -1);
         if (thing_is_invalid(gldtng))
             break;
         // Update its position and acceleration
-        long angle,radius;
-        long x,y;
-        angle = ACTION_RANDOM(2*LbFPMath_PI);
-        radius = ACTION_RANDOM(128);
-        x = (radius * LbSinL(angle)) / 256;
-        y = (radius * LbCosL(angle)) / 256;
+        long angle = ACTION_RANDOM(2 * LbFPMath_PI);
+        long radius = ACTION_RANDOM(128);
+        long x = (radius * LbSinL(angle)) / 256;
+        long y = (radius * LbCosL(angle)) / 256;
         gldtng->veloc_push_add.x.val += x/256;
         gldtng->veloc_push_add.y.val -= y/256;
         gldtng->veloc_push_add.z.val += ACTION_RANDOM(64) + 96;
         gldtng->state_flags |= TF1_PushAdd;
         // Set the amount of gold and mark that we've dropped that gold
-        GoldAmount delta;
-        delta = (thing->creature.gold_carried - gold_dropped) / (num_pots_to_drop - npot);
+        GoldAmount delta = (thing->creature.gold_carried - gold_dropped) / (num_pots_to_drop - npot);
         gldtng->valuable.gold_stored = delta;
         // Update size of the gold object
         add_gold_to_pile(gldtng, 0);
@@ -2126,14 +2004,12 @@ void throw_out_gold(struct Thing *thing)
 
 void thing_death_normal(struct Thing *thing)
 {
-    struct Thing *deadtng;
+    long memp1 = thing->move_angle_xy;
     struct Coord3d memaccl;
-    long memp1;
-    memp1 = thing->move_angle_xy;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    deadtng = destroy_creature_and_create_corpse(thing, 1);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 1);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2151,24 +2027,21 @@ void thing_death_normal(struct Thing *thing)
  */
 void thing_death_flesh_explosion(struct Thing *thing)
 {
-    struct Thing *deadtng;
-    struct Coord3d pos;
-    struct Coord3d memaccl;
-    long memp1;
-    long i;
     //_DK_thing_death_flesh_explosion(thing);return;
-    memp1 = thing->move_angle_xy;
+    long memp1 = thing->move_angle_xy;
+    struct Coord3d memaccl;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    for (i = 0; i <= thing->clipbox_size_yz; i+=64)
+    for (long i = 0; i <= thing->clipbox_size_yz; i += 64)
     {
+        struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
         pos.z.val = thing->mappos.z.val+i;
         create_effect(&pos, TngEff_Unknown09, thing->owner);
     }
-    deadtng = destroy_creature_and_create_corpse(thing, 2);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2183,13 +2056,11 @@ void thing_death_flesh_explosion(struct Thing *thing)
 
 void thing_death_gas_and_flesh_explosion(struct Thing *thing)
 {
-    struct Thing *deadtng;
     struct Coord3d pos;
-    struct Coord3d memaccl;
-    long memp1;
     long i;
     //_DK_thing_death_gas_and_flesh_explosion(thing);return;
-    memp1 = thing->move_angle_xy;
+    long memp1 = thing->move_angle_xy;
+    struct Coord3d memaccl;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
@@ -2205,7 +2076,7 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
     create_effect(&pos, TngEff_Unknown13, thing->owner);
-    deadtng = destroy_creature_and_create_corpse(thing, 2);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2220,22 +2091,19 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
 
 void thing_death_smoke_explosion(struct Thing *thing)
 {
-    struct Thing *deadtng;
-    struct Coord3d pos;
-    struct Coord3d memaccl;
-    long memp1;
-    long i;
     //_DK_thing_death_smoke_explosion(thing);return;
-    memp1 = thing->move_angle_xy;
+    long memp1 = thing->move_angle_xy;
+    struct Coord3d memaccl;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    i = (thing->clipbox_size_yz >> 1);
+    long i = (thing->clipbox_size_yz >> 1);
+    struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
     create_effect(&pos, TngEff_Unknown16, thing->owner);
-    deadtng = destroy_creature_and_create_corpse(thing, 2);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2255,24 +2123,21 @@ void thing_death_smoke_explosion(struct Thing *thing)
  */
 void thing_death_ice_explosion(struct Thing *thing)
 {
-    struct Thing *deadtng;
-    struct Coord3d pos;
-    struct Coord3d memaccl;
-    long memp1;
-    long i;
     //_DK_thing_death_ice_explosion(thing);return;
-    memp1 = thing->move_angle_xy;
+    long memp1 = thing->move_angle_xy;
+    struct Coord3d memaccl;
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    for (i = 0; i <= thing->clipbox_size_yz; i+=64)
+    for (long i = 0; i <= thing->clipbox_size_yz; i += 64)
     {
+        struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
         pos.z.val = thing->mappos.z.val+i;
         create_effect(&pos, TngEff_Unknown24, thing->owner);
     }
-    deadtng = destroy_creature_and_create_corpse(thing, 2);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2287,8 +2152,7 @@ void thing_death_ice_explosion(struct Thing *thing)
 
 void creature_death_as_nature_intended(struct Thing *thing)
 {
-    long i;
-    i = creatures[thing->model%CREATURE_TYPES_COUNT].natural_death_kind;
+    long i = creatures[thing->model % CREATURE_TYPES_COUNT].natural_death_kind;
     switch (i)
     {
     case Death_Normal:
@@ -2320,17 +2184,13 @@ void creature_death_as_nature_intended(struct Thing *thing)
  */
 unsigned long remove_parent_thing_from_things_in_list(struct StructureList *list,long remove_idx)
 {
-    struct Thing *thing;
-    unsigned long n;
-    unsigned long k;
-    int i;
     SYNCDBG(18,"Starting");
-    n = 0;
-    k = 0;
-    i = list->index;
+    unsigned long n = 0;
+    unsigned long k = 0;
+    int i = list->index;
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_invalid(thing)) {
             ERRORLOG("Jump to invalid thing detected");
             break;
@@ -2354,17 +2214,14 @@ unsigned long remove_parent_thing_from_things_in_list(struct StructureList *list
 
 void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    long crmodel;
     //_DK_cause_creature_death(thing, (flags & CrDed_NoEffects) != 0); return;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
     throw_out_gold(thing);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
 
-    crmodel = thing->model;
-    crstat = creature_stats_get_from_thing(thing);
+    long crmodel = thing->model;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (!thing_exists(thing)) {
         flags |= CrDed_NoEffects;
     }
@@ -2414,29 +2271,28 @@ void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 
 void prepare_to_controlled_creature_death(struct Thing *thing)
 {
-  struct PlayerInfo *player;
-  player = get_player(thing->owner);
-  leave_creature_as_controller(player, thing);
-  player->influenced_thing_idx = 0;
-  if (player->id_number == thing->owner)
-    setup_eye_lens(0);
-  set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
-  if (player->id_number == thing->owner)
-  {
-    turn_off_all_window_menus();
-    turn_off_query_menus();
-    turn_on_main_panel_menu();
-    set_flag_byte(&game.operation_flags,GOF_ShowPanel,(game.operation_flags & GOF_ShowGui) != 0);
+    struct PlayerInfo* player = get_player(thing->owner);
+    leave_creature_as_controller(player, thing);
+    player->influenced_thing_idx = 0;
+    if (player->id_number == thing->owner)
+        setup_eye_lens(0);
+    set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+    if (player->id_number == thing->owner)
+    {
+        turn_off_all_window_menus();
+        turn_off_query_menus();
+        turn_on_main_panel_menu();
+        set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   light_turn_light_on(player->field_460);
 }
 
 void delete_effects_attached_to_creature(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
     struct Thing *efftng;
-    long i,k;
-    cctrl = creature_control_get_from_thing(creatng);
+    long i;
+    long k;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (creature_control_invalid(cctrl)) {
         return;
     }
@@ -2481,11 +2337,10 @@ TbBool kill_creature_compat(struct Thing *creatng, struct Thing *killertng, Play
 TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
-    struct Dungeon *dungeon;
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
     //return _DK_kill_creature(creatng, killertng, killer_plyr_idx, (flags&CrDed_NoEffects)!=0, (flags&CrDed_DiedInBattle)!=0, (flags&CrDed_NoUnconscious)!=0);
-    dungeon = INVALID_DUNGEON;
+    struct Dungeon* dungeon = INVALID_DUNGEON;
     cleanup_creature_state_and_interactions(creatng);
     if (!thing_is_invalid(killertng))
     {
@@ -2530,8 +2385,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
             dungeon->lvstats.flies_killed_by_spiders++;
         }
     }
-    struct CreatureControl *cctrlgrp;
-    cctrlgrp = creature_control_get_from_thing(killertng);
+    struct CreatureControl* cctrlgrp = creature_control_get_from_thing(killertng);
     if (!creature_control_invalid(cctrlgrp)) {
         cctrlgrp->kills_num++;
     }
@@ -2548,8 +2402,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         }
     }
     {
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(killertng);
+        struct CreatureStats* crstat = creature_stats_get_from_thing(killertng);
         anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
     if (!creature_control_invalid(cctrlgrp) && ((flags & CrDed_DiedInBattle) != 0)) {
@@ -2584,18 +2437,13 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
 {
     //_DK_process_creature_standing_on_corpses_at(thing, pos);
     SYNCDBG(18,"Starting for %s at %d,%d",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
-    struct Map *mapblk;
-    mapblk = get_map_block_at(pos->x.stl.num,pos->y.stl.num);
-    long i;
-    unsigned long k;
-    k = 0;
-    i = get_mapwho_thing_index(mapblk);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing *thing;
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
@@ -2608,12 +2456,14 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
         {
             if (!is_hero_thing(creatng))
             {
+                struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
                 int annoy_val;
-                struct CreatureStats *crstat;
-                crstat = creature_stats_get_from_thing(creatng);
-                if (thing->owner == creatng->owner) {
+                if (thing->owner == creatng->owner)
+                {
                     annoy_val = crstat->annoy_on_dead_friend;
-                } else {
+                }
+                else
+                {
                     annoy_val = crstat->annoy_on_dead_enemy;
                 }
                 anger_apply_anger_to_creature(creatng, annoy_val, AngR_Other, 1);
@@ -2640,12 +2490,9 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
  */
 long calculate_melee_damage(const struct Thing *creatng)
 {
-    const struct CreatureControl *cctrl;
-    const struct CreatureStats *crstat;
-    cctrl = creature_control_get_from_thing(creatng);
-    crstat = creature_stats_get_from_thing(creatng);
-    long strength;
-    strength = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
     return compute_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel);
 }
 
@@ -2656,12 +2503,9 @@ long calculate_melee_damage(const struct Thing *creatng)
  */
 long project_melee_damage(const struct Thing *creatng)
 {
-    const struct CreatureControl *cctrl;
-    const struct CreatureStats *crstat;
-    cctrl = creature_control_get_from_thing(creatng);
-    crstat = creature_stats_get_from_thing(creatng);
-    long strength;
-    strength = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
     return project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel);
 }
 
@@ -2672,12 +2516,9 @@ long project_melee_damage(const struct Thing *creatng)
  */
 long calculate_shot_damage(const struct Thing *creatng, ThingModel shot_model)
 {
-    const struct CreatureControl *cctrl;
-    const struct CreatureStats *crstat;
-    const struct ShotConfigStats *shotst;
-    shotst = get_shot_model_stats(shot_model);
-    cctrl = creature_control_get_from_thing(creatng);
-    crstat = creature_stats_get_from_thing(creatng);
+    const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     return compute_creature_attack_spell_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
 }
 
@@ -2689,18 +2530,14 @@ long calculate_shot_damage(const struct Thing *creatng, ThingModel shot_model)
  */
 long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model)
 {
-    const struct CreatureControl *cctrl;
-    const struct CreatureStats *crstat;
-    const struct ShotConfigStats *shotst;
-    shotst = get_shot_model_stats(shot_model);
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
+    const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long damage;
     if ( shotst->old->is_melee )
     {
         // Project melee damage
-        long strength;
-        strength = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+        long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
         damage = project_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel);
     } else
     {
@@ -2712,24 +2549,18 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
 
 void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct ShotConfigStats *shotst;
-    struct Coord3d pos1;
     struct Coord3d pos2;
-    struct ComponentVector cvect;
-    struct Thing *shotng;
     struct Thing *tmptng;
-    short angle_xy,angle_yz;
+    short angle_xy;
+    short angle_yz;
     long damage;
-    long target_idx,i;
-    TbBool flag1;
     //_DK_creature_fire_shot(firing,target,shot_model,shot_lvl,a3); return;
-    cctrl = creature_control_get_from_thing(firing);
-    crstat = creature_stats_get_from_thing(firing);
-    shotst = get_shot_model_stats(shot_model);
-    flag1 = false;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
+    struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
+    TbBool flag1 = false;
     // Prepare source position
+    struct Coord3d pos1;
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
@@ -2765,15 +2596,16 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     {
         damage = calculate_shot_damage(firing,shot_model);
     }
-    shotng = NULL;
-    target_idx = 0;
+    struct Thing* shotng = NULL;
+    long target_idx = 0;
     // Set target index for navigating shots
     if (shot_model_is_navigable(shot_model))
     {
       if (!thing_is_invalid(target))
         target_idx = target->index;
     }
-    switch ( shot_model )
+    struct ComponentVector cvect;
+    switch (shot_model)
     {
     case ShM_Lightning:
     case ShM_Drain:
@@ -2804,7 +2636,9 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng->parent_idx = firing->index;
         break;
     case ShM_Hail_storm:
-        for (i=0; i < 32; i++)
+    {
+        long i;
+        for (i = 0; i < 32; i++)
         {
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
@@ -2823,6 +2657,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             shotng->parent_idx = firing->index;
         }
         break;
+    }
     default:
         shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
@@ -2870,11 +2705,8 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
 void set_creature_level(struct Thing *thing, long nlvl)
 {
     //_DK_set_creature_level(thing, nlvl); return;
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    long old_max_health,max_health;
-    crstat = creature_stats_get_from_thing(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Creature has no control");
@@ -2888,11 +2720,11 @@ void set_creature_level(struct Thing *thing, long nlvl)
         ERRORLOG("Level %d too low, bounding",(int)nlvl);
         nlvl = 0;
     }
-    old_max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    long old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
     if (old_max_health < 1)
         old_max_health = 1;
     cctrl->explevel = nlvl;
-    max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    long max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
     cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
     if (old_max_health > 0)
@@ -2905,9 +2737,8 @@ void set_creature_level(struct Thing *thing, long nlvl)
 
 void init_creature_level(struct Thing *thing, long nlev)
 {
-    struct CreatureControl *cctrl;
     //_DK_init_creature_level(thing,nlev);
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Creature has no control");
@@ -2924,12 +2755,10 @@ void init_creature_level(struct Thing *thing, long nlev)
  */
 long get_creature_speed(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    long speed;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
         return 0;
-    speed = cctrl->max_speed;
+    long speed = cctrl->max_speed;
     if (speed < 0)
         speed = 0;
     if (speed > MAX_VELOCITY)
@@ -2944,14 +2773,11 @@ long get_human_controlled_creature_target(struct Thing *thing, long a2)
 
 long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
 {
-    const struct CreatureControl *cctrl;
-    const struct InstanceInfo *inst_inf;
     long ritime;
     //return _DK_creature_instance_has_reset(thing, a2);
-    cctrl = creature_control_get_from_thing(thing);
-    inst_inf = creature_instance_info_get(inst_idx);
-    long delta;
-    delta = (long)game.play_gameturn - (long)cctrl->instance_use_turn[inst_idx];
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    const struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+    long delta = (long)game.play_gameturn - (long)cctrl->instance_use_turn[inst_idx];
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         ritime = inst_inf->fp_reset_time + inst_inf->fp_time - inst_inf->fp_action_time;
@@ -2971,9 +2797,9 @@ long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
  */
 void get_creature_instance_times(const struct Thing *thing, long inst_idx, long *ritime, long *raitime)
 {
-    struct InstanceInfo *inst_inf;
-    long itime,aitime;
-    inst_inf = creature_instance_info_get(inst_idx);
+    long itime;
+    long aitime;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         itime = inst_inf->fp_time;
@@ -3016,15 +2842,12 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
 
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, long targtng_idx, const struct Coord3d *pos)
 {
-    struct InstanceInfo *inst_inf;
-    struct CreatureControl *cctrl;
     long i;
-    long itime,aitime;
     //_DK_set_creature_instance(thing, inst_idx, a2, a3, pos); return;
     if (inst_idx == 0)
         return;
-    cctrl = creature_control_get_from_thing(thing);
-    inst_inf = creature_instance_info_get(inst_idx);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
     if (creature_instance_info_invalid(inst_inf) || (inst_inf->time == -1))
     {
         ERRORLOG("Cannot set negative instance %d to %s index %d",(int)inst_idx,thing_model_name(thing),(int)thing->index);
@@ -3037,6 +2860,8 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
           i = inst_inf->force_visibility;
         cctrl->force_visible = i;
     }
+    long itime;
+    long aitime;
     get_creature_instance_times(thing, inst_idx, &itime, &aitime);
     if ((cctrl->instance_id != CrInst_NULL) && (cctrl->instance_id == inst_idx))
     {
@@ -3071,14 +2896,10 @@ unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2)
 
 void draw_creature_view(struct Thing *thing)
 {
-  TbGraphicsWindow grwnd;
-  struct PlayerInfo *player;
-  unsigned char *wscr_cp;
-  unsigned char *scrmem;
   //_DK_draw_creature_view(thing); return;
 
   // If no eye lens required - just draw on the screen, directly
-  player = get_my_player();
+  struct PlayerInfo* player = get_my_player();
   if (((game.flags_cd & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.numfield_1B == 0))
   {
       engine(player,&player->cameras[CamIV_FirstPerson]);
@@ -3086,9 +2907,10 @@ void draw_creature_view(struct Thing *thing)
   }
   // So there is an eye lens - we have to put a buffer in place of screen,
   // draw on that buffer, an then copy it to screen applying lens effect.
-  scrmem = eye_lens_spare_screen_memory;
+  unsigned char* scrmem = eye_lens_spare_screen_memory;
   // Store previous graphics settings
-  wscr_cp = lbDisplay.WScreen;
+  unsigned char* wscr_cp = lbDisplay.WScreen;
+  TbGraphicsWindow grwnd;
   LbScreenStoreGraphicsWindow(&grwnd);
   // Prepare new settings
   LbMemorySet(scrmem, 0, eye_lens_width*eye_lens_height*sizeof(TbPixel));
@@ -3133,8 +2955,7 @@ struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long 
 void set_first_creature(struct Thing *creatng)
 {
     //_DK_set_first_creature(creatng);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
 
     if ((creatng->alloc_flags & TAlF_InDungeonList) != 0) {
         ERRORLOG("Thing already in Peter list");
@@ -3147,10 +2968,8 @@ void set_first_creature(struct Thing *creatng)
     {
         if (game.nodungeon_creatr_list_start > 0)
         {
-            struct Thing *prevtng;
-            prevtng = thing_get(game.nodungeon_creatr_list_start);
-            struct CreatureControl *prevctrl;
-            prevctrl = creature_control_get_from_thing(prevtng);
+            struct Thing* prevtng = thing_get(game.nodungeon_creatr_list_start);
+            struct CreatureControl* prevctrl = creature_control_get_from_thing(prevtng);
             prevctrl->players_prev_creature_idx = creatng->index;
             cctrl->players_next_creature_idx = game.nodungeon_creatr_list_start;
             cctrl->players_prev_creature_idx = 0;
@@ -3165,14 +2984,11 @@ void set_first_creature(struct Thing *creatng)
     } else
     if (!creature_is_for_dungeon_diggers_list(creatng))
     {
-        struct Dungeon *dungeon;
-        dungeon = get_dungeon(creatng->owner);
+        struct Dungeon* dungeon = get_dungeon(creatng->owner);
         if (dungeon->creatr_list_start > 0)
         {
-            struct Thing *prevtng;
-            prevtng = thing_get(dungeon->creatr_list_start);
-            struct CreatureControl *prevctrl;
-            prevctrl = creature_control_get_from_thing(prevtng);
+            struct Thing* prevtng = thing_get(dungeon->creatr_list_start);
+            struct CreatureControl* prevctrl = creature_control_get_from_thing(prevtng);
             prevctrl->players_prev_creature_idx = creatng->index;
             cctrl->players_next_creature_idx = dungeon->creatr_list_start;
             cctrl->players_prev_creature_idx = 0;
@@ -3192,14 +3008,11 @@ void set_first_creature(struct Thing *creatng)
     }
     else
     {
-        struct Dungeon *dungeon;
-        dungeon = get_dungeon(creatng->owner);
+        struct Dungeon* dungeon = get_dungeon(creatng->owner);
         if (dungeon->digger_list_start > 0)
         {
-            struct Thing *prevtng;
-            prevtng = thing_get(dungeon->digger_list_start);
-            struct CreatureControl *prevctrl;
-            prevctrl = creature_control_get_from_thing(prevtng);
+            struct Thing* prevtng = thing_get(dungeon->digger_list_start);
+            struct CreatureControl* prevctrl = creature_control_get_from_thing(prevtng);
             prevctrl->players_prev_creature_idx = creatng->index;
             cctrl->players_next_creature_idx = dungeon->digger_list_start;
             cctrl->players_prev_creature_idx = 0;
@@ -3219,12 +3032,11 @@ void set_first_creature(struct Thing *creatng)
 
 void remove_first_creature(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     struct CreatureControl *secctrl;
     struct Thing *sectng;
     //_DK_remove_first_creature(creatng);
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((creatng->alloc_flags & TAlF_InDungeonList) == 0)
     {
         ERRORLOG("The %s index %d is not in Peter list",thing_model_name(creatng),(int)creatng->index);
@@ -3330,8 +3142,7 @@ void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
 
 struct Room *get_creature_lair_room(const struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->lairtng_idx <= 0) {
         return INVALID_ROOM;
     }
@@ -3340,8 +3151,7 @@ struct Room *get_creature_lair_room(const struct Thing *creatng)
 
 TbBool creature_has_lair_room(const struct Thing *creatng)
 {
-    struct Room *room;
-    room = get_creature_lair_room(creatng);
+    struct Room* room = get_creature_lair_room(creatng);
     if (!room_is_invalid(room) && (room->kind == get_room_for_job(Job_TAKE_SLEEP))) {
         return true;
     }
@@ -3350,13 +3160,11 @@ TbBool creature_has_lair_room(const struct Thing *creatng)
 
 TbBool remove_creature_lair(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct Room *room;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (cctrl->lairtng_idx <= 0) {
         return false;
     }
-    room = room_get(cctrl->lair_room_id);
+    struct Room* room = room_get(cctrl->lair_room_id);
     if (!room_is_invalid(room)) {
         creature_remove_lair_totem_from_room(thing, room);
         return true;
@@ -3405,12 +3213,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
 
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct CreatureData *crdata;
-    struct Thing *crtng;
-    long i;
-    crstat = creature_stats_get(model);
+    struct CreatureStats* crstat = creature_stats_get(model);
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create %s for player %d. There are too many things allocated.",creature_code_name(model),(int)owner);
@@ -3423,13 +3226,13 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
         erstat_inc(ESE_NoFreeCreatrs);
         return INVALID_THING;
     }
-    crtng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* crtng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (crtng->index == 0) {
         ERRORDBG(3,"Should be able to allocate %s for player %d, but failed.",creature_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    cctrl = allocate_free_control_structure();
+    struct CreatureControl* cctrl = allocate_free_control_structure();
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = TCls_Creature;
     crtng->model = model;
@@ -3453,7 +3256,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->shot_shift_x = creatures[model].shot_shift_x;
     cctrl->shot_shift_y = creatures[model].shot_shift_y;
     cctrl->shot_shift_z = creatures[model].shot_shift_z;
-    i = get_creature_anim(crtng, 0);
+    long i = get_creature_anim(crtng, 0);
     set_thing_draw(crtng, i, 256, 300, 0, 0, 2);
     cctrl->explevel = 1;
     crtng->health = crstat->health;
@@ -3486,27 +3289,24 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
       set_first_creature(crtng);
     set_start_state(crtng);
     add_creature_score_to_owner(crtng);
-    crdata = creature_data_get(crtng->model);
+    struct CreatureData* crdata = creature_data_get(crtng->model);
     cctrl->active_instance_id = crdata->flags;
     return crtng;
 }
 
 TbBool creature_increase_level(struct Thing *thing)
 {
-  struct Dungeon *dungeon;
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
   //_DK_creature_increase_level(thing);
-  cctrl = creature_control_get_from_thing(thing);
+  struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
   if (creature_control_invalid(cctrl))
   {
       ERRORLOG("Invalid creature control; no action");
       return false;
   }
-  dungeon = get_dungeon(thing->owner);
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
   if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
   {
-      crstat = creature_stats_get_from_thing(thing);
+      struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
       if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
       {
           cctrl->spell_flags |= CSAfF_ExpLevelUp;
@@ -3518,28 +3318,24 @@ TbBool creature_increase_level(struct Thing *thing)
 
 TbBool creature_increase_multiple_levels(struct Thing *thing, int count)
 {
-  struct Dungeon *dungeon;
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-      ERRORLOG("Invalid creature control; no action");
-      return false;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control; no action");
+        return false;
   }
-  dungeon = get_dungeon(thing->owner);
-  int i;
+  struct Dungeon* dungeon = get_dungeon(thing->owner);
   int k = 0;
-  for (i=0; i < count; i++)
+  for (int i = 0; i < count; i++)
   {
     if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
     {
-      crstat = creature_stats_get_from_thing(thing);
-      if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-      {
-        cctrl->spell_flags |= CSAfF_ExpLevelUp;
-        update_creature_levels(thing);
-        k++;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
+        {
+            cctrl->spell_flags |= CSAfF_ExpLevelUp;
+            update_creature_levels(thing);
+            k++;
       }
     }
   }
@@ -3560,14 +3356,11 @@ TbBool creature_increase_multiple_levels(struct Thing *thing, int count)
  */
 TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv)
 {
-    struct Thing *thing;
-    struct Coord3d pos;
     ThingModel crmodel;
     while (1) {
         crmodel = ACTION_RANDOM(crtr_conf.model_count) + 1;
         // Accept only evil creatures
-        struct CreatureModelConfig *crconf;
-        crconf = &crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &crtr_conf.model[crmodel];
         if ((crconf->model_flags & CMF_IsSpectator) != 0) {
             continue;
         }
@@ -3575,10 +3368,11 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
             break;
         }
     }
+    struct Coord3d pos;
     pos.x.val = x;
     pos.y.val = y;
     pos.z.val = 0;
-    thing = create_creature(&pos, crmodel, owner);
+    struct Thing* thing = create_creature(&pos, crmodel, owner);
     if (thing_is_invalid(thing))
     {
         ERRORLOG("Cannot create evil creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
@@ -3597,8 +3391,7 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
     remove_first_creature(thing);
     set_first_creature(thing);
     set_start_state(thing);
-    CrtrExpLevel lv;
-    lv = ACTION_RANDOM(max_lv);
+    CrtrExpLevel lv = ACTION_RANDOM(max_lv);
     set_creature_level(thing, lv);
     return true;
 }
@@ -3613,8 +3406,6 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
  */
 TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv)
 {
-  struct Thing *thing;
-  struct Coord3d pos;
   ThingModel crmodel;
   while (1) {
       crmodel = ACTION_RANDOM(crtr_conf.model_count) + 1;
@@ -3627,8 +3418,7 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
       }
 
       // Accept only evil creatures
-      struct CreatureModelConfig *crconf;
-      crconf = &crtr_conf.model[crmodel];
+      struct CreatureModelConfig* crconf = &crtr_conf.model[crmodel];
       if ((crconf->model_flags & CMF_IsSpectator) != 0) {
           continue;
       }
@@ -3638,10 +3428,11 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
           break;
       }
   }
+  struct Coord3d pos;
   pos.x.val = x;
   pos.y.val = y;
   pos.z.val = 0;
-  thing = create_creature(&pos, crmodel, owner);
+  struct Thing* thing = create_creature(&pos, crmodel, owner);
   if (thing_is_invalid(thing))
   {
       ERRORLOG("Cannot create player %d hero %s at (%ld,%ld)",(int)owner,creature_code_name(crmodel),x,y);
@@ -3662,8 +3453,7 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
 //  set_start_state(thing); - simplified to the following two commands
   game.field_14E498 = game.play_gameturn;
   game.field_14E49C++;
-  CrtrExpLevel lv;
-  lv = ACTION_RANDOM(max_lv);
+  CrtrExpLevel lv = ACTION_RANDOM(max_lv);
   set_creature_level(thing, lv);
   return true;
 }
@@ -3677,14 +3467,12 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
  */
 TbBool create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner)
 {
-    struct Thing *thing;
+    ThingModel crmodel = get_players_special_digger_model(owner);
     struct Coord3d pos;
-    ThingModel crmodel;
-    crmodel = get_players_special_digger_model(owner);
     pos.x.val = x;
     pos.y.val = y;
     pos.z.val = 0;
-    thing = create_creature(&pos, crmodel, owner);
+    struct Thing* thing = create_creature(&pos, crmodel, owner);
     if (thing_is_invalid(thing))
     {
         ERRORLOG("Cannot create creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
@@ -3716,8 +3504,7 @@ TbBool create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner)
  */
 long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->combat_flags != 0) && !creature_is_being_unconscious(thing))
     {
         if ((param->plyr_idx >= 0) && (thing->owner != param->plyr_idx))
@@ -3745,8 +3532,7 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
  */
 long player_list_creature_filter_dragging_specific_thing(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (param->num1 > 0)
     {
         if (cctrl->dragtng_idx == param->num1) {
@@ -3756,8 +3542,7 @@ long player_list_creature_filter_dragging_specific_thing(const struct Thing *thi
     }
     if ((param->class_id > 0) || (param->model_id > 0) || (param->plyr_idx >= 0))
     {
-        struct Thing *dragtng;
-        dragtng = thing_get(cctrl->dragtng_idx);
+        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
         if ((param->plyr_idx >= 0) && (dragtng->owner != param->plyr_idx))
             return -1;
         if ((param->model_id > 0) && (dragtng->model != param->model_id))
@@ -3780,11 +3565,9 @@ long player_list_creature_filter_dragging_specific_thing(const struct Thing *thi
  */
 long player_list_creature_filter_most_experienced(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    long nmaxim;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    nmaxim = cctrl->explevel+1;
+    long nmaxim = cctrl->explevel + 1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
         && ((param->model_id == -1) || (thing->model == param->model_id))
@@ -3807,11 +3590,9 @@ long player_list_creature_filter_most_experienced(const struct Thing *thing, Max
  */
 long player_list_creature_filter_most_experienced_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    long nmaxim;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    nmaxim = cctrl->explevel+1;
+    long nmaxim = cctrl->explevel + 1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
         && ((param->model_id == -1) || (thing->model == param->model_id))
@@ -3838,11 +3619,9 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
  */
 long player_list_creature_filter_most_experienced_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    long nmaxim;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    nmaxim = cctrl->explevel+1;
+    long nmaxim = cctrl->explevel + 1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
         && ((param->model_id == -1) || (thing->model == param->model_id))
@@ -3869,11 +3648,9 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
  */
 long player_list_creature_filter_least_experienced(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    long nmaxim;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    nmaxim = CREATURE_MAX_LEVEL-cctrl->explevel;
+    long nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
@@ -3896,11 +3673,9 @@ long player_list_creature_filter_least_experienced(const struct Thing *thing, Ma
  */
 long player_list_creature_filter_least_experienced_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    long nmaxim;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    nmaxim = CREATURE_MAX_LEVEL-cctrl->explevel;
+    long nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
@@ -3927,11 +3702,9 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
  */
 long player_list_creature_filter_least_experienced_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    long nmaxim;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
-    nmaxim = CREATURE_MAX_LEVEL-cctrl->explevel;
+    long nmaxim = CREATURE_MAX_LEVEL - cctrl->explevel;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
@@ -4033,17 +3806,14 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
  */
 struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind)
 {
-    Thing_Maximizer_Filter filter;
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     struct CompoundTngFilterParam param;
-    struct Dungeon *dungeon;
-    struct Thing *creatng;
-    dungeon = get_players_num_dungeon(plyr_idx);
     param.plyr_idx = -1;
     param.class_id = 0;
     param.model_id = 0;
     param.num1 = pwkind;
-    filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
-    creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    Thing_Maximizer_Filter filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
+    struct Thing* creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
         creatng = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     }
@@ -4059,19 +3829,16 @@ struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell
  */
 struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const struct Thing *dragtng)
 {
-    Thing_Maximizer_Filter filter;
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    Thing_Maximizer_Filter filter = player_list_creature_filter_dragging_specific_thing;
     struct CompoundTngFilterParam param;
-    struct Dungeon *dungeon;
-    struct Thing *creatng;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    filter = player_list_creature_filter_dragging_specific_thing;
     param.class_id = TCls_Creature;
     param.model_id = -1;
     param.plyr_idx = -1;
     param.num1 = dragtng->index;
     param.num2 = -1;
     param.num3 = -1;
-    creatng = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
+    struct Thing* creatng = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
         creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     }
@@ -4085,10 +3852,9 @@ struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const 
  */
 struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
 {
-    Thing_Maximizer_Filter filter;
-    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
-    filter = player_list_creature_filter_dragging_specific_thing;
+    Thing_Maximizer_Filter filter = player_list_creature_filter_dragging_specific_thing;
+    struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
     param.model_id = -1;
     param.plyr_idx = -1;
@@ -4107,9 +3873,8 @@ struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
 struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     struct CompoundTngFilterParam param;
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
     param.plyr_idx = plyr_idx;
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
@@ -4129,10 +3894,8 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
         filter = player_list_creature_filter_most_experienced_and_pickable2;
         break;
     }
-    TbBool is_spec_digger;
-    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
-    struct Thing *thing;
-    thing = INVALID_THING;
+    TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
+    struct Thing* thing = INVALID_THING;
     if ((is_spec_digger) || (crmodel == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
@@ -4153,9 +3916,8 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
 struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     struct CompoundTngFilterParam param;
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
     param.plyr_idx = plyr_idx;
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
@@ -4175,10 +3937,8 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
         filter = player_list_creature_filter_least_experienced_and_pickable2;
         break;
     }
-    TbBool is_spec_digger;
-    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
-    struct Thing *thing;
-    thing = INVALID_THING;
+    TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
+    struct Thing* thing = INVALID_THING;
     if ((!is_spec_digger) || (crmodel == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
@@ -4200,10 +3960,9 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
 struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundTngFilterParam param;
-    struct Dungeon *dungeon;
     SYNCDBG(5,"Searching for model %d, GUI job %d",(int)crmodel,(int)job_idx);
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct CompoundTngFilterParam param;
     param.plyr_idx = plyr_idx;
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
@@ -4223,10 +3982,8 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
         filter = player_list_creature_filter_of_gui_job_and_pickable2;
         break;
     }
-    TbBool is_spec_digger;
-    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
-    struct Thing *thing;
-    thing = INVALID_THING;
+    TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
+    struct Thing* thing = INVALID_THING;
     if ((!is_spec_digger) || (crmodel == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
@@ -4249,19 +4006,14 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
  */
 struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
 {
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    Thing_Maximizer_Filter filter;
-    struct CompoundTngFilterParam param;
-    long i;
     SYNCDBG(5,"Searching for model %d, GUI job %d",(int)crmodel,(int)job_idx);
     //return _DK_find_my_next_creature_of_breed_and_job(crmodel, job_idx, (pick_flags & TPF_PickableCheck) != 0);
-    thing = INVALID_THING;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Thing* thing = INVALID_THING;
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     /* Check if we should start the search with a creature after last one, not from start of the list */
     if ((pick_flags & TPF_OrderedPick) == 0)
     {
+        long i;
         if (crmodel != -1)
         {
             i = dungeon->selected_creatures_of_model[crmodel];
@@ -4288,7 +4040,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
     // If the thing previously picked up seem right, allow next creature to be checked first
     if (!thing_is_invalid(thing))
     {
-        cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((pick_flags & TPF_ReverseOrder) != 0)
         {
             thing = thing_get(cctrl->players_prev_creature_idx);
@@ -4312,10 +4064,12 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
     /* If filtering is unordered, use the index of previous creature */
     if (!thing_is_invalid(thing))
     {
+        struct CompoundTngFilterParam param;
         param.plyr_idx = plyr_idx;
         param.class_id = TCls_Creature;
         param.model_id = crmodel;
         param.num1 = job_idx;
+        Thing_Maximizer_Filter filter;
         if ((pick_flags & TPF_PickableCheck) != 0)
         {
             filter = player_list_creature_filter_of_gui_job_and_pickable1;
@@ -4355,15 +4109,13 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
 
 struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
 {
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    thing = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, pick_flags);
+    struct Thing* thing = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, pick_flags);
     if (thing_is_invalid(thing))
     {
         SYNCDBG(2,"Can't find creature of model %d and GUI job %d.",(int)crmodel,(int)job_idx);
         return INVALID_THING;
     }
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT))
     {
         if ((job_idx == -1) || (dungeon->guijob_all_creatrs_count[crmodel][job_idx & 0x03]))
@@ -4390,12 +4142,10 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
 void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx)
 {
     //_DK_go_to_next_creature_of_breed_and_job(crmodel, job_idx); return;
-    struct Thing *creatng;
-    creatng = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, my_player_number, 0);
+    struct Thing* creatng = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, my_player_number, 0);
     if (!thing_is_invalid(creatng))
     {
-        struct Packet *pckt;
-        pckt = get_packet_direct(my_player_number);
+        struct Packet* pckt = get_packet_direct(my_player_number);
         set_packet_action(pckt, PckA_Unknown087, creatng->mappos.x.val, creatng->mappos.y.val, 0, 0);
     }
 }
@@ -4404,18 +4154,15 @@ TbBool creature_is_doing_job_in_room_role(const struct Thing *creatng, RoomRole 
 {
     {
         // Check if we're just starting a job related to that room
-        CrtrStateId pvstate;
-        CrtrStateId nxstate;
-        pvstate = get_creature_state_besides_interruptions(creatng);
-        nxstate = get_initial_state_for_job(get_job_for_room_role(rrole, JoKF_None, Job_NULL));
+        CrtrStateId pvstate = get_creature_state_besides_interruptions(creatng);
+        CrtrStateId nxstate = get_initial_state_for_job(get_job_for_room_role(rrole, JoKF_None, Job_NULL));
         if ((pvstate != CrSt_Unused) && (pvstate == nxstate)) {
             return true;
         }
     }
     {
         // Check if we're already working in that room kind
-        struct Room *room;
-        room = get_room_creature_works_in(creatng);
+        struct Room* room = get_room_creature_works_in(creatng);
         if (!room_is_invalid(room)) {
             return ((get_room_roles(room->kind) & rrole) != 0);
         }
@@ -4425,21 +4172,17 @@ TbBool creature_is_doing_job_in_room_role(const struct Thing *creatng, RoomRole 
 
 long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct Computer2 *comp;
-    struct Dungeon *dungeon;
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
     SYNCDBG(19,"Starting for %s index %d owner %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
-    comp = (struct Computer2 *)(param->ptr1);
-    dungeon = comp->dungeon;
+    struct Computer2* comp = (struct Computer2*)(param->ptr1);
+    struct Dungeon* dungeon = comp->dungeon;
     if (!can_thing_be_picked_up_by_player(thing, dungeon->owner)) {
         return -1;
     }
     if (creature_is_being_dropped(thing)) {
         return -1;
     }
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
 
     // If the creature is too angry to help it
     if (creature_is_doing_anger_job(thing) || anger_is_creature_livid(thing))
@@ -4470,8 +4213,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         }
     }
 
-    int health_permil;
-    health_permil = get_creature_health_permil(thing);
+    int health_permil = get_creature_health_permil(thing);
     // If it's angry but not furious, or has lost half or health due to disease,
     // then should be placed in temple
     if ((anger_is_creature_angry(thing) ||
@@ -4498,8 +4240,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
             if (!creature_is_doing_lair_activity(thing))
             {
                 // cast heal if we can, don't always use max level to appear lifelike
-                int splevel;
-                splevel = ACTION_RANDOM(4)+5;
+                int splevel = ACTION_RANDOM(4) + 5;
                 if (computer_able_to_use_power(comp, PwrK_HEALCRTR, splevel, 1))
                 {
                     if (try_game_action(comp, dungeon->owner, GA_UsePwrHealCrtr, splevel, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->index, 1) > Lb_OK)
@@ -4577,8 +4318,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         }
     }
 
-    TbBool force_state_reset;
-    force_state_reset = false;
+    TbBool force_state_reset = false;
     // Creatures may have primary jobs other than training, or selected when there was no possibility to train
     // Make sure they are re-assigned sometimes
     if (creature_could_be_placed_in_better_room(comp, thing))
@@ -4589,8 +4329,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     // Get other rooms the creature may work in
     if (creature_state_is_unset(thing) || force_state_reset)
     {
-        CreatureJob new_job;
-        new_job = get_job_to_place_creature_in_room(comp, thing);
+        CreatureJob new_job = get_job_to_place_creature_in_room(comp, thing);
         // Make sure the place we've selected is not the same as the one creature works in now
         if (!creature_is_doing_job_in_room_role(thing, get_room_role_for_job(new_job)))
         {
@@ -4604,10 +4343,10 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
 struct Thing *create_footprint_sine(struct Coord3d *crtr_pos, unsigned short phase, short nfoot, unsigned short model, unsigned short owner)
 {
   struct Coord3d pos;
-  unsigned int i;
   pos.x.val = crtr_pos->x.val;
   pos.y.val = crtr_pos->y.val;
   pos.z.val = crtr_pos->z.val;
+  unsigned int i;
   switch (nfoot)
   {
   case 1:
@@ -4626,17 +4365,15 @@ struct Thing *create_footprint_sine(struct Coord3d *crtr_pos, unsigned short pha
 
 void place_bloody_footprint(struct Thing *thing)
 {
-    struct Thing *footng;
-    struct CreatureControl *cctrl;
-    short nfoot;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control; no action");
         return;
     }
-    nfoot = get_foot_creature_has_down(thing);
-    switch (creatures[thing->model%CREATURE_TYPES_COUNT].field_6)
+    short nfoot = get_foot_creature_has_down(thing);
+    struct Thing* footng;
+    switch (creatures[thing->model % CREATURE_TYPES_COUNT].field_6)
     {
     case 3:
     case 4:
@@ -4661,8 +4398,7 @@ void place_bloody_footprint(struct Thing *thing)
 
 TbBool update_controlled_creature_movement(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     TbBool upd_done = false;
     if ((thing->movement_flags & TMvF_Flying) != 0)
     {
@@ -4697,22 +4433,19 @@ TbBool update_controlled_creature_movement(struct Thing *thing)
 
 TbBool update_flight_altitude_towards_typical(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    MapCoordDelta thing_curr_alt, i;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Coord3d nxpos;
     nxpos.x.val = thing->mappos.x.val + cctrl->moveaccel.x.val;
     nxpos.y.val = thing->mappos.y.val + cctrl->moveaccel.y.val;
     nxpos.z.val = subtile_coord(1,0);
     MapCoord floor_height, ceiling_height;
     get_floor_and_ceiling_height_under_thing_at(thing, &nxpos, &floor_height, &ceiling_height);
-    thing_curr_alt = thing->mappos.z.val;
+    MapCoordDelta thing_curr_alt = thing->mappos.z.val;
     SYNCDBG(16,"The height for %s index %d owner %d must fit between %d and %d, now is %d",thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)floor_height,(int)ceiling_height,(int)thing_curr_alt);
-    MoveSpeed max_speed;
-    max_speed = cctrl->max_speed / 8;
+    MoveSpeed max_speed = cctrl->max_speed / 8;
     if (max_speed < 1)
         max_speed = 1;
-    i = floor_height + NORMAL_FLYING_ALTITUDE;
+    MapCoordDelta i = floor_height + NORMAL_FLYING_ALTITUDE;
     MapCoordDelta max_pos_to_ceiling = ceiling_height - thing->clipbox_size_yz;
     if ((floor_height < max_pos_to_ceiling) && (i > max_pos_to_ceiling))
         i = max_pos_to_ceiling;
@@ -4737,16 +4470,14 @@ TbBool update_flight_altitude_towards_typical(struct Thing *thing)
 
 short update_creature_movements(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    short upd_done;
     SYNCDBG(18,"Starting");
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control; no action");
         return false;
     }
-    upd_done = 0;
+    short upd_done = 0;
     if (cctrl->stateblock_flags != 0)
     {
         upd_done = 1;
@@ -4793,37 +4524,36 @@ short update_creature_movements(struct Thing *thing)
 
 void check_for_creature_escape_from_lava(struct Thing *thing)
 {
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
     if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnLava) != 0))
     {
-      crstat = creature_stats_get_from_thing(thing);
-      if (crstat->hurt_by_lava > 0)
-      {
-          cctrl = creature_control_get_from_thing(thing);
-          if ((!creature_is_escaping_death(thing)) && (cctrl->field_2FE + 64 < game.play_gameturn))
-          {
-              cctrl->field_2FE = game.play_gameturn;
-              if ( cleanup_current_thing_state(thing) )
-              {
-                if ( setup_move_off_lava(thing) ) {
-                    thing->continue_state = CrSt_CreatureEscapingDeath;
-                } else {
-                    set_start_state(thing);
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        if (crstat->hurt_by_lava > 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if ((!creature_is_escaping_death(thing)) && (cctrl->field_2FE + 64 < game.play_gameturn))
+            {
+                cctrl->field_2FE = game.play_gameturn;
+                if (cleanup_current_thing_state(thing))
+                {
+                    if (setup_move_off_lava(thing))
+                    {
+                        thing->continue_state = CrSt_CreatureEscapingDeath;
+                    }
+                    else
+                    {
+                        set_start_state(thing);
+                    }
                 }
-              }
-          }
+            }
       }
     }
 }
 
 void process_creature_leave_footsteps(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
     struct Thing *footng;
-    struct SlabMap *slb;
     short nfoot;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ((thing->movement_flags & TMvF_IsOnWater) != 0)
     {
         nfoot = get_foot_creature_has_down(thing);
@@ -4846,7 +4576,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     // Snow footprints
     if (game.texture_id == 2)
     {
-        slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (slb->kind == SlbT_PATH)
         {
           thing->movement_flags |= TMvF_Unknown80;
@@ -4884,16 +4614,11 @@ HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoint
 
 void process_landscape_affecting_creature(struct Thing *thing)
 {
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    unsigned long navheight;
-    int stl_idx;
-    int i;
     SYNCDBG(18,"Starting");
     thing->movement_flags &= ~TMvF_IsOnWater;
     thing->movement_flags &= ~TMvF_IsOnLava;
     thing->movement_flags &= ~TMvF_Unknown80;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control; no action");
@@ -4901,14 +4626,14 @@ void process_landscape_affecting_creature(struct Thing *thing)
     }
     cctrl->field_B9 = 0;
 
-    stl_idx = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-    navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+    int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    unsigned long navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (subtile_coord(navheight,0) == thing->mappos.z.val)
     {
-        i = get_top_cube_at_pos(stl_idx);
+        int i = get_top_cube_at_pos(stl_idx);
         if (cube_is_lava(i))
         {
-            crstat = creature_stats_get_from_thing(thing);
+            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, DmgT_Heatburn, -1);
             thing->movement_flags |= TMvF_IsOnLava;
         } else
@@ -4925,14 +4650,12 @@ void process_landscape_affecting_creature(struct Thing *thing)
 
 TbBool add_creature_score_to_owner(struct Thing *thing)
 {
-    struct Dungeon *dungeon;
-    long score;
     if (is_neutral_thing(thing))
         return false;
-    dungeon = get_dungeon(thing->owner);
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
     if (dungeon_invalid(dungeon))
         return false;
-    score = get_creature_thing_score(thing);
+    long score = get_creature_thing_score(thing);
     if (dungeon->score < LONG_MAX-score)
         dungeon->score += score;
     else
@@ -4942,14 +4665,12 @@ TbBool add_creature_score_to_owner(struct Thing *thing)
 
 TbBool remove_creature_score_from_owner(struct Thing *thing)
 {
-    struct Dungeon *dungeon;
-    long score;
     if (is_neutral_thing(thing))
         return false;
-    dungeon = get_dungeon(thing->owner);
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
     if (dungeon_invalid(dungeon))
         return false;
-    score = get_creature_thing_score(thing);
+    long score = get_creature_thing_score(thing);
     if (dungeon->score >= score)
         dungeon->score -= score;
     else
@@ -4959,10 +4680,10 @@ TbBool remove_creature_score_from_owner(struct Thing *thing)
 
 void init_creature_scores(void)
 {
-    long i,k;
-    long score,max_score;
+    long i;
+    long score;
     // compute maximum score
-    max_score = 0;
+    long max_score = 0;
     for (i=0; i < CREATURE_TYPES_COUNT; i++)
     {
         score = compute_creature_kind_score(i,CREATURE_MAX_LEVEL-1);
@@ -4984,7 +4705,7 @@ void init_creature_scores(void)
     // now compute scores for experience levels
     for (i=0; i < CREATURE_TYPES_COUNT; i++)
     {
-        for (k=0; k < CREATURE_MAX_LEVEL; k++)
+        for (long k = 0; k < CREATURE_MAX_LEVEL; k++)
         {
           score = compute_creature_kind_score(i,k);
           score = saturate_set_unsigned(200*score / max_score, 8);
@@ -5000,15 +4721,13 @@ void init_creature_scores(void)
 
 long get_creature_thing_score(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    long crmodel,exp;
-    cctrl = creature_control_get_from_thing(thing);
-    crmodel = thing->model;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    long crmodel = thing->model;
     if (crmodel >= CREATURE_TYPES_COUNT)
         crmodel = 0;
     if (crmodel < 0)
         crmodel = 0;
-    exp = cctrl->explevel;
+    long exp = cctrl->explevel;
     if (exp >= CREATURE_MAX_LEVEL)
         exp = 0;
     if (exp < 0)
@@ -5018,12 +4737,8 @@ long get_creature_thing_score(const struct Thing *thing)
 
 long update_creature_levels(struct Thing *thing)
 {
-    struct CreatureStats *crstat;
-    struct PlayerInfo *player;
-    struct CreatureControl *cctrl;
-    struct Thing *newtng;
     SYNCDBG(18,"Starting");
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->spell_flags & CSAfF_ExpLevelUp) == 0)
         return 0;
     cctrl->spell_flags &= ~CSAfF_ExpLevelUp;
@@ -5035,12 +4750,12 @@ long update_creature_levels(struct Thing *thing)
         return 1;
     }
     // If it is highest level, maybe we should transform the creature?
-    crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (crstat->grow_up == 0) {
         return 0;
     }
     // Transforming
-    newtng = create_creature(&thing->mappos, crstat->grow_up, thing->owner);
+    struct Thing* newtng = create_creature(&thing->mappos, crstat->grow_up, thing->owner);
     if (thing_is_invalid(newtng))
     {
         ERRORLOG("Could not create creature to transform %s to",thing_model_name(thing));
@@ -5051,7 +4766,7 @@ long update_creature_levels(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     cctrl->countdown_282 = 50;
     external_set_thing_state(newtng, CrSt_CreatureBeHappy);
-    player = get_player(thing->owner);
+    struct PlayerInfo* player = get_player(thing->owner);
     // Switch control if this creature is possessed
     if (is_thing_directly_controlled(thing))
     {
@@ -5075,9 +4790,6 @@ long update_creature_levels(struct Thing *thing)
 
 TngUpdateRet update_creature(struct Thing *thing)
 {
-    struct PlayerInfo *player;
-    struct CreatureControl *cctrl;
-    struct Thing *tngp;
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
     if ((thing->active_state == CrSt_CreatureUnconscious) && subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
@@ -5091,7 +4803,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
@@ -5125,7 +4837,7 @@ TngUpdateRet update_creature(struct Thing *thing)
             }
         }
         cctrl = creature_control_get_from_thing(thing);
-        player = get_player(thing->owner);
+        struct PlayerInfo* player = get_player(thing->owner);
         if (creature_affected_by_spell(thing, SplK_Freeze))
         {
             if ((player->field_3 & Pf3F_Unkn04) == 0)
@@ -5191,7 +4903,7 @@ TngUpdateRet update_creature(struct Thing *thing)
 
     if (cctrl->dragtng_idx > 0)
     {
-        tngp = thing_get(cctrl->dragtng_idx);
+        struct Thing* tngp = thing_get(cctrl->dragtng_idx);
         if ((tngp->state_flags & TF1_IsDragged1) != 0)
           move_thing_in_map(tngp, &thing->mappos);
     }
@@ -5241,39 +4953,31 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 
 TbBool creature_is_invisible(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     return creature_affected_by_spell(thing, SplK_Invisibility) && (cctrl->force_visible <= 0);
 }
 
 TbBool creature_can_see_invisible(const struct Thing *thing)
 {
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     return (crstat->can_see_invisible) || creature_affected_by_spell(thing, SplK_Sight);
 }
 
 int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)
 {
-    long i,n;
-    unsigned long k;
-    MapSlabCoord slb_x, slb_y;
-    slb_x = subtile_slab_fast(pos->x.stl.num);
-    slb_y = subtile_slab_fast(pos->y.stl.num);
-    n = 0;
-    i = game.nodungeon_creatr_list_start;
-    k = 0;
+    MapSlabCoord slb_x = subtile_slab_fast(pos->x.stl.num);
+    MapSlabCoord slb_y = subtile_slab_fast(pos->y.stl.num);
+    long n = 0;
+    long i = game.nodungeon_creatr_list_start;
+    unsigned long k = 0;
     while (i != 0)
     {
-        struct Thing *thing;
-        struct CreatureControl *cctrl;
-        thing = thing_get(i);
-        cctrl = creature_control_get_from_thing(thing);
+        struct Thing* thing = thing_get(i);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
         // Per thing code starts
-        int dx, dy;
-        dx = abs(slb_x - subtile_slab_fast(thing->mappos.x.stl.num));
-        dy = abs(slb_y - subtile_slab_fast(thing->mappos.y.stl.num));
+        int dx = abs(slb_x - subtile_slab_fast(thing->mappos.x.stl.num));
+        int dy = abs(slb_y - subtile_slab_fast(thing->mappos.y.stl.num));
         if ((dx <= can_see_slabs) && (dy <= can_see_slabs))
         {
             if (is_neutral_thing(thing) && line_of_sight_3d(&thing->mappos, pos))
@@ -5299,15 +5003,12 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
 
 TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng)
 {
-    PlayerNumber plyr_idx;
-    for (plyr_idx=0; plyr_idx < game.neutral_player_num; plyr_idx++)
+    for (PlayerNumber plyr_idx = 0; plyr_idx < game.neutral_player_num; plyr_idx++)
     {
-        struct PlayerInfo *player;
-        player = get_player(plyr_idx);
+        struct PlayerInfo* player = get_player(plyr_idx);
         if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->field_2C == 1) && (player->victory_state != VicS_LostLevel) )
         {
-            struct Thing *heartng;
-            heartng = get_player_soul_container(plyr_idx);
+            struct Thing* heartng = get_player_soul_container(plyr_idx);
             if (thing_exists(heartng) && (get_2d_box_distance(&creatng->mappos, &heartng->mappos) < subtile_coord(6,0)))
             {
                 change_creature_owner(creatng, plyr_idx);
@@ -5321,19 +5022,13 @@ TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng)
 
 TbBool creature_stats_debug_dump(void)
 {
-    struct Thing *thing;
-    long crstate;
-    TbBool result;
-    unsigned long k;
-    int i;
-    result = false;
-    k = 0;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Creature);
-    i = slist->index;
+    TbBool result = false;
+    unsigned long k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    int i = slist->index;
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_invalid(thing)) {
             ERRORLOG("Jump to invalid thing detected");
             result = true;
@@ -5341,7 +5036,7 @@ TbBool creature_stats_debug_dump(void)
         }
         i = thing->next_of_class;
         // Per-creature block starts
-        crstate = get_creature_state_besides_move(thing);
+        long crstate = get_creature_state_besides_move(thing);
         if (!is_hero_thing(thing)) {
             switch (crstate)
             {

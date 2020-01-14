@@ -61,8 +61,7 @@ void nodes_classify(void)
 
 void tree_init(void)
 {
-    long i;
-    for (i=0; i < TREEVALS_COUNT; i++)
+    for (long i = 0; i < TREEVALS_COUNT; i++)
     {
         tree_val[i] = -LONG_MAX;
     }
@@ -76,11 +75,9 @@ void tree_init(void)
  */
 long compute_tree_move_cost(long tag_start_id, long tag_end_id)
 {
-    long ipt,itag;
-    long long rcost;
-    rcost = 0;
-    itag = tag_start_id;
-    ipt = 0;
+    long long rcost = 0;
+    long itag = tag_start_id;
+    long ipt = 0;
     while (itag != tag_end_id)
     {
         rcost += tree_val[itag];
@@ -107,9 +104,8 @@ long compute_tree_move_cost(long tag_start_id, long tag_end_id)
  */
 long copy_tree_to_route(long tag_start_id, long tag_end_id, long *route_pts, long route_len)
 {
-    long ipt,itag;
-    itag = tag_start_id;
-    ipt = 0;
+    long itag = tag_start_id;
+    long ipt = 0;
     while (itag != tag_end_id)
     {
         route_pts[ipt] = itag;
@@ -126,10 +122,9 @@ long copy_tree_to_route(long tag_start_id, long tag_end_id, long *route_pts, lon
 
 long tree_to_route(long tag_start_id, long tag_end_id, long *route_pts)
 {
-    long ipt;
     if (tag_current != Tags[tag_start_id])
         return -1;
-    ipt = copy_tree_to_route(tag_start_id, tag_end_id, route_pts, 3000+1);
+    long ipt = copy_tree_to_route(tag_start_id, tag_end_id, route_pts, 3000 + 1);
     if (ipt < 0)
     {
         erstat_inc(ESE_BadRouteTree);
@@ -159,12 +154,10 @@ void tags_init(void)
  */
 long update_border_tags(long tag_id, long *border_pt, long border_len)
 {
-    long ipt,n;
-    long iset;
-    iset = 0;
-    for (ipt=0; ipt < border_len; ipt++)
+    long iset = 0;
+    for (long ipt = 0; ipt < border_len; ipt++)
     {
-        n = border_pt[ipt];
+        long n = border_pt[ipt];
         if ((n < 0) || (n >= TREEITEMS_COUNT))
         {
             erstat_inc(ESE_BadRouteTree);
@@ -194,8 +187,7 @@ void store_current_tag(long tag_id)
 
 TbBool navitree_add(long itm_pos, long itm_dat, long mvcost)
 {
-    long tag_pos;
-    tag_pos = tag_current;
+    long tag_pos = tag_current;
     if (itm_pos >= TRIANLGLES_COUNT) {
         WARNLOG("Inserting outranged pos %d",(int)itm_pos);
     }
@@ -226,8 +218,7 @@ TbBool delaunay_add(long itm_pos)
 
 TbBool delaunay_add_triangle(long tri_idx)
 {
-    long i;
-    i = get_triangle_tree_alt(tri_idx);
+    long i = get_triangle_tree_alt(tri_idx);
     if (i != -1)
     {
         if (!is_current_tag(tri_idx))
@@ -243,13 +234,14 @@ TbBool delaunay_add_triangle(long tri_idx)
 
 static void delaunay_stack_point(long pt_x, long pt_y)
 {
-    long tri_idx,cor_idx;
-    long dst_tri_idx,dst_cor_idx;
-    long tri_id2, i;
+    long cor_idx;
+    long dst_tri_idx;
+    long dst_cor_idx;
+    long tri_id2;
     NAVIDBG(19,"Starting");
     //_DK_delaunay_stack_point(pt_x, pt_y); return;
 
-    tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
+    long tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
     if (tri_idx == -1) {
         NAVIDBG(19,"Tri not found");
         return;
@@ -266,8 +258,7 @@ static void delaunay_stack_point(long pt_x, long pt_y)
     {
       tri_idx = dst_tri_idx;
       cor_idx = dst_cor_idx;
-      unsigned long k;
-      k = 0;
+      unsigned long k = 0;
       do
       {
           tri_id2 = Triangles[tri_idx].tags[cor_idx];
@@ -275,7 +266,7 @@ static void delaunay_stack_point(long pt_x, long pt_y)
               NAVIDBG(19,"Tag not found");
               break;
           }
-          i = link_find(tri_id2, tri_idx);
+          long i = link_find(tri_id2, tri_idx);
           if (i == -1) {
               NAVIDBG(19,"Link not found");
               break;
@@ -298,39 +289,34 @@ HOOK_DK_FUNC(delaunay_stack_point)
 long optimise_heuristic(long tri_id1, long tri_id2)
 {
     //return _DK_optimise_heuristic(tri_id1, tri_id2);
-    struct Triangle *tri1;
-    struct Triangle *tri3;
-    struct Point *pt;
-    long tri_id3,tri_lnk;
-    long Ax,Ay,Bx,By,Cx,Cy,Dx,Dy;
 
-    tri1 = get_triangle(tri_id1);
-    tri_id3 = tri1->tags[tri_id2];
+    struct Triangle* tri1 = get_triangle(tri_id1);
+    long tri_id3 = tri1->tags[tri_id2];
     if (tri_id3 == -1)
         return 0;
-    tri3 = get_triangle(tri_id3);
+    struct Triangle* tri3 = get_triangle(tri_id3);
     if (get_triangle_tree_alt(tri_id3) != get_triangle_tree_alt(tri_id1))
     {
         return 0;
     }
-    tri_lnk = link_find(tri_id3, tri_id1);
+    long tri_lnk = link_find(tri_id3, tri_id1);
     if (( (tri1->field_D & (1 << tri_id2)) == 0)
      || ( (tri3->field_D & (1 << tri_lnk)) == 0))
     {
         return 0;
     }
-    pt = get_triangle_point(tri_id3, MOD3[tri_lnk+2]);
-    Ax = pt->x;
-    Ay = pt->y;
+    struct Point* pt = get_triangle_point(tri_id3, MOD3[tri_lnk + 2]);
+    long Ax = pt->x;
+    long Ay = pt->y;
     pt = get_triangle_point(tri_id1, MOD3[tri_id2+2]);
-    Bx = pt->x;
-    By = pt->y;
+    long Bx = pt->x;
+    long By = pt->y;
     pt = get_triangle_point(tri_id1, MOD3[tri_id2+1]);
-    Cx = pt->x;
-    Cy = pt->y;
+    long Cx = pt->x;
+    long Cy = pt->y;
     pt = get_triangle_point(tri_id1, MOD3[tri_id2]);
-    Dx = pt->x;
-    Dy = pt->y;
+    long Dx = pt->x;
+    long Dy = pt->y;
     if (LbCompareMultiplications(Ay-By, Dx-Bx, Ax-Bx, Dy-By) >= 0)
         return 0;
     if (LbCompareMultiplications(Ay-By, Cx-Bx, Ax-Bx, Cy-By) <= 0)
@@ -343,9 +329,6 @@ long optimise_heuristic(long tri_id1, long tri_id2)
 
 long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
 {
-    long tri_idx,cor_idx;
-    long tri_id2,cor_id2;
-    long count;
     NAVIDBG(19,"Starting");
     //return _DK_delaunay_seeded(start_x, start_y, end_x, end_y);
     tags_init();
@@ -354,12 +337,12 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
     delaunay_stack_point(start_x, end_y);
     delaunay_stack_point(end_x, start_y);
     delaunay_stack_point(end_x, end_y);
-    count = 0;
+    long count = 0;
     while (ix_delaunay > 0)
     {
         ix_delaunay--;
-        tri_idx = delaunay_stack[ix_delaunay];
-        for (cor_idx=0; cor_idx < 3; cor_idx++)
+        long tri_idx = delaunay_stack[ix_delaunay];
+        for (long cor_idx = 0; cor_idx < 3; cor_idx++)
         {
             if (!optimise_heuristic(tri_idx, cor_idx))
                 continue;
@@ -370,9 +353,9 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
               ERRORLOG("stack full");
               return count;
             }
-            for (cor_id2=0; cor_id2 < 3; cor_id2++)
+            for (long cor_id2 = 0; cor_id2 < 3; cor_id2++)
             {
-                tri_id2 = Triangles[tri_idx].tags[cor_id2];
+                long tri_id2 = Triangles[tri_idx].tags[cor_id2];
                 if (tri_id2 == -1)
                     continue;
                 delaunay_add_triangle(tri_id2);

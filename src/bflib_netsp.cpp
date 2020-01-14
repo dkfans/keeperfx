@@ -224,7 +224,9 @@ TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a
 TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
 {
   unsigned char messageType;
-  unsigned long dataLen,seqNbr,p3;
+  unsigned long dataLen;
+  unsigned long seqNbr;
+  unsigned long p3;
   void *imsg;
   char str[32];
   long i;
@@ -325,7 +327,8 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
 TbError ServiceProvider::Receive(unsigned long flags)
 {
     unsigned long playerId;
-    unsigned long dataLen,seqNbr;
+    unsigned long dataLen;
+    unsigned long seqNbr;
     unsigned char messageType;
     unsigned long id;
     TbBool keepExchanging;
@@ -337,7 +340,8 @@ TbError ServiceProvider::Receive(unsigned long flags)
     char * msgBufferPtr2;
     char * array3Ptr;
     void * somePtr;
-    long tmpInt1, tmpInt2;
+    long tmpInt1;
+    long tmpInt2;
     TbError result;
 
     result = 0;

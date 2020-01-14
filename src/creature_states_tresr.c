@@ -44,8 +44,7 @@ extern "C" {
  */
 TbBool creature_able_to_get_salary(const struct Thing *creatng)
 {
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if (creature_stats_invalid(crstat))
         return false;
     return (crstat->pay != 0);

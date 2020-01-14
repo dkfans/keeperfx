@@ -180,8 +180,11 @@ void SmackSimulate(unsigned long sim)
 
 void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, long width, long dst_shift)
 {
-    unsigned long i,k;
-    unsigned long n,w,s;
+    unsigned long i;
+    unsigned long k;
+    unsigned long n;
+    unsigned long w;
+    unsigned long s;
     unsigned long *dst;
     unsigned long *src;
     src = (unsigned long *)srcbuf;
@@ -209,7 +212,9 @@ void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, long wi
 
 void copy_to_screen_pxdblh(unsigned char *srcbuf, unsigned char *dstbuf, long width, long dst_shift)
 {
-    unsigned long n,w,s;
+    unsigned long n;
+    unsigned long w;
+    unsigned long s;
     unsigned long *dst;
     unsigned long *src;
     src = (unsigned long *)srcbuf;
@@ -230,8 +235,10 @@ void copy_to_screen_pxdblh(unsigned char *srcbuf, unsigned char *dstbuf, long wi
 
 void copy_to_screen_pxdblw(unsigned char *srcbuf, unsigned char *dstbuf, long width)
 {
-    unsigned long i,k;
-    unsigned long n,w;
+    unsigned long i;
+    unsigned long k;
+    unsigned long n;
+    unsigned long w;
     unsigned long *dst;
     unsigned long *src;
     src = (unsigned long *)srcbuf;
@@ -258,7 +265,8 @@ void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long he
 {
     unsigned char *dstbuf;
     long buf_center;
-    long w,h;
+    long w;
+    long h;
     if ( ((flags & SMK_PixelDoubleLine) != 0) || ((flags & SMK_InterlaceLine) != 0) )
     {
         buf_center = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - 2 * height) >> 1);
@@ -609,7 +617,8 @@ long anim_make_FLI_COLOUR256(unsigned char *palette)
     unsigned short *change_count;
     unsigned char *kept_count;
     short colridx;
-    short change_chunk_len, kept_chunk_len;
+    short change_chunk_len;
+    short kept_chunk_len;
     change_chunk_len = 0;
     kept_chunk_len = 0;
     change_count = (unsigned short *)animation.field_C;
@@ -659,7 +668,10 @@ long anim_make_FLI_COLOUR256(unsigned char *palette)
 long anim_make_FLI_BRUN(unsigned char *screenbuf)
 {
     unsigned char *blk_begin = animation.field_C;
-    short w,h,k,count;
+    short w;
+    short h;
+    short k;
+    short count;
     unsigned char *sbuf = screenbuf;
     for ( h = animation.header.height; h>0; h-- )
     {
@@ -734,8 +746,11 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
     unsigned char *pbuf;
     unsigned char *cbf;
     unsigned char *pbf;
-    short h,w;
-    short k,nsame,ndiff;
+    short h;
+    short w;
+    short k;
+    short nsame;
+    short ndiff;
     short wend;
     short wendt;
     cbuf = curdat;
@@ -892,10 +907,15 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
     unsigned char *cbf;
     unsigned char *pbf;
     unsigned char *outptr;
-    short h,w;
-    short hend,wend;
-    short hdim,wendt;
-    short k,nsame,ndiff;
+    short h;
+    short w;
+    short hend;
+    short wend;
+    short hdim;
+    short wendt;
+    short k;
+    short nsame;
+    short ndiff;
     int blksize;
 
     cbuf = curdat;
@@ -1206,7 +1226,9 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
     SYNCDBG(7,"Starting");
     unsigned long max_chunk_size;
     unsigned char *dataptr;
-    long brun_size,lc_size,ss2_size;
+    long brun_size;
+    long lc_size;
+    long ss2_size;
     int width = animation.header.width;
     int height = animation.header.height;
     animation.field_C = animation.chunkdata;

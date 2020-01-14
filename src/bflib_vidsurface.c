@@ -83,13 +83,13 @@ TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned lo
 {
     // Convert TbRect to SDL rectangles
     SDL_Rect srcRect;
-    SDL_Rect destRect;
 
     srcRect.x = rect->left;
     srcRect.y = rect->top;
     srcRect.w = rect->right - rect->left;
     srcRect.h = rect->bottom - rect->top;
 
+    SDL_Rect destRect;
     destRect.x = x;
     destRect.y = y;
     destRect.w = srcRect.w;

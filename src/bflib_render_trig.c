@@ -121,11 +121,10 @@ int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b
     struct PolyPoint *ordpt_a = *opt_a;
     struct PolyPoint *ordpt_b = *opt_b;
     struct PolyPoint *ordpt_c = *opt_c;
-    long start_type;
 
     struct PolyPoint *ordpt_tmp1;
     struct PolyPoint *ordpt_tmp2;
-    start_type = RendStart_NO;
+    long start_type = RendStart_NO;
     if (ordpt_a->field_4 == ordpt_b->field_4)
     {
         if (ordpt_a->field_4 == ordpt_c->field_4)
@@ -2622,11 +2621,6 @@ int trig_ft_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const st
  */
 void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
-    struct PolyPoint *opt_a;
-    struct PolyPoint *opt_b;
-    struct PolyPoint *opt_c;
-    struct TrigLocals lv;
-    long start_type;
 //    JUSTLOG("Pa(%ld,%ld,%ld)",point_a->field_8,point_a->field_C,point_a->field_10);
 //    JUSTLOG("Pb(%ld,%ld,%ld)",point_b->field_8,point_b->field_C,point_b->field_10);
 //    JUSTLOG("Pc(%ld,%ld,%ld)",point_c->field_8,point_c->field_C,point_c->field_10);
@@ -2636,10 +2630,11 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
     LOC_vec_screen_width = vec_screen_width;
     LOC_vec_window_width = vec_window_width;
     LOC_vec_window_height = vec_window_height;
-    opt_a = point_a;
-    opt_b = point_b;
-    opt_c = point_c;
-    start_type = trig_reorder_input_points(&opt_a, &opt_b, &opt_c);
+    struct PolyPoint* opt_a = point_a;
+    struct PolyPoint* opt_b = point_b;
+    struct PolyPoint* opt_c = point_c;
+    long start_type = trig_reorder_input_points(&opt_a, &opt_b, &opt_c);
+    struct TrigLocals lv;
     switch (start_type)
     {
     case RendStart_LL:

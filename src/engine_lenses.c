@@ -55,12 +55,11 @@ unsigned int eye_lens_height = 0;
 /******************************************************************************/
 void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt)
 {
-  long i;
   if (cor->z >= 32)
   {
-    i = (lens<<16)/(cor->z);
-    ppt->field_0 = view_width_over_2 + (i * cor->x >> 16);
-    ppt->field_4 = view_height_over_2 - (i * cor->y >> 16);
+      long i = (lens << 16) / (cor->z);
+      ppt->field_0 = view_width_over_2 + (i * cor->x >> 16);
+      ppt->field_4 = view_height_over_2 - (i * cor->y >> 16);
   } else
   {
     ppt->field_0 = view_width_over_2 + cor->x;
@@ -73,15 +72,13 @@ void perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt)
 
 void pers_set_transform_matrix(struct EngineCoord *epos, const struct M33 *matx)
 {
-    long px, py, pz;
-    px = epos->x;
-    py = epos->y;
-    pz = epos->z;
-    long long pxpy, pyr0, pxr1, pzr2;
-    pxpy = px * py;
-    pyr0 = py + matx->r[0].v[0];
-    pxr1 = px + matx->r[0].v[1];
-    pzr2 = pz * matx->r[0].v[2];
+    long px = epos->x;
+    long py = epos->y;
+    long pz = epos->z;
+    long long pxpy = px * py;
+    long long pyr0 = py + matx->r[0].v[0];
+    long long pxr1 = px + matx->r[0].v[1];
+    long long pzr2 = pz * matx->r[0].v[2];
     epos->x = object_origin.x + ((pzr2 + pyr0 * pxr1 - matx->r[0].v[3] - pxpy) >> 14);
     pyr0 = py + matx->r[1].v[0];
     pxr1 = px + matx->r[1].v[1];
@@ -117,13 +114,11 @@ void pers_set_view_height(struct EngineCoord *epos, long len)
 
 void rotpers_parallel(struct EngineCoord *epos, const struct M33 *matx)
 {
-    long tx,ty,tz;
-    long zoom;
     pers_set_transform_matrix(epos, matx);
-    zoom = camera_zoom / pixel_size;
-    tx = view_width_over_2 + ((epos->x * zoom) >> 16);
-    ty = view_height_over_2 - ((epos->y * zoom) >> 16);
-    tz = (epos->z + (cells_away << 8)) / 2;
+    long zoom = camera_zoom / pixel_size;
+    long tx = view_width_over_2 + ((epos->x * zoom) >> 16);
+    long ty = view_height_over_2 - ((epos->y * zoom) >> 16);
+    long tz = (epos->z + (cells_away << 8)) / 2;
     if (tz < 32) {
         tz = 0;
     } else
@@ -149,16 +144,16 @@ void rotpers_parallel(struct EngineCoord *epos, const struct M33 *matx)
 
 void rotpers_standard(struct EngineCoord *epos, const struct M33 *matx)
 {
-    long tx,ty,tz;
     pers_set_transform_matrix(epos, matx);
-    tx = epos->x;
-    ty = epos->y;
-    tz = epos->z;
+    long tx = epos->x;
+    long ty = epos->y;
+    long tz = epos->z;
     epos->field_C = tz;
     if (tz > fade_max) {
       epos->field_8 |= 0x0080;
     }
-    long long wx, wy;
+    long long wx;
+    long long wy;
     if (tz < 32)
     {
         epos->field_8 |= 0x0100;
@@ -186,15 +181,15 @@ void rotpers_standard(struct EngineCoord *epos, const struct M33 *matx)
 void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
 {
     pers_set_transform_matrix(epos, matx);
-    long tx, ty, tz;
-    tx = epos->x;
-    ty = epos->y;
-    tz = epos->z;
+    long tx = epos->x;
+    long ty = epos->y;
+    long tz = epos->z;
     epos->field_C = abs(tx) + abs(ty) + tz;
     if (tz > fade_max) {
       epos->field_8 |= 0x0080;
     }
-    long long wx, wy;
+    long long wx;
+    long long wy;
     if (tz < 32)
     {
         epos->field_8 |= 0x0100;
@@ -204,8 +199,7 @@ void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
         epos->field_8 |= 0x0002;
     } else
     {
-        long adheight;
-        adheight = (lens << 16) / tz;
+        long adheight = (lens << 16) / tz;
         if (tz < split_1)
         {
             epos->field_8 |= 0x0001;
@@ -224,17 +218,16 @@ void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
 void rotpers_fisheye(struct EngineCoord *epos, const struct M33 *matx)
 {
     pers_set_transform_matrix(epos, matx);
-    long tx, ty, tz;
-    tx = epos->x;
-    ty = epos->y;
-    tz = epos->z;
-    long txz;
-    txz = LbDiagonalLength(abs(tx), abs(tz));
+    long tx = epos->x;
+    long ty = epos->y;
+    long tz = epos->z;
+    long txz = LbDiagonalLength(abs(tx), abs(tz));
     epos->field_C = abs(LbDiagonalLength(abs(txz), abs(ty)));
     if (epos->field_C > fade_max) {
         epos->field_8 |= 0x0080;
     }
-    long long wx, wy;
+    long long wx;
+    long long wy;
     if ((tz < 32) || (epos->field_C < 32))
     {
         epos->field_8 |= 0x0100;

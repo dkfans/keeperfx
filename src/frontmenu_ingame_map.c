@@ -87,17 +87,23 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     col = player_room_colours[owner];
     int i;
     i = 2*(PANNEL_MAP_RADIUS*units_per_px/16) / 2;
-    long center_x, center_y;
+    long center_x;
+    long center_y;
     center_x = i + x2;
     center_y = i + y2;
     long long cscale;
     cscale = ((game.play_gameturn + owner) & 7) * pwrdynst->strength[dungeon->cta_splevel];
-    int dxq1, dyq1;
-    int dxq2, dyq2;
-    int dxq3, dyq3;
-    int dxq4, dyq4;
+    int dxq1;
+    int dyq1;
+    int dxq2;
+    int dyq2;
+    int dxq3;
+    int dyq3;
+    int dxq4;
+    int dyq4;
 
-    int sx, sy;
+    int sx;
+    int sy;
     long base_y;
     base_y = ((cscale >> 3) << 8) / zoom;
     if ( base_y > 1 )
@@ -163,7 +169,8 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
 int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     unsigned long k;
-    int i,n;
+    int i;
+    int n;
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
@@ -191,11 +198,13 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
             {
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-                long zmpos_x, zmpos_y;
+                long zmpos_x;
+                long zmpos_y;
                 zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
                 zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
                 // Now rotate the coordinates to receive minimap points
-                long mapos_x, mapos_y;
+                long mapos_x;
+                long mapos_y;
                 mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
                 mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
                 draw_call_to_arms_circle(thing->owner, 0, 0, mapos_x, mapos_y, zoom);
@@ -222,7 +231,8 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
 int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     unsigned long k;
-    int i,n;
+    int i;
+    int n;
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
@@ -248,11 +258,13 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
         {
             // Position of the thing on unrotated map
             // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-            long zmpos_x, zmpos_y;
+            long zmpos_x;
+            long zmpos_y;
             zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
             zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
             // Now rotate the coordinates to receive minimap points
-            RealScreenCoord mapos_x, mapos_y;
+            RealScreenCoord mapos_x;
+            RealScreenCoord mapos_y;
             mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
             mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
             RealScreenCoord basepos;
@@ -294,7 +306,8 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long zoom)
 int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     unsigned long k;
-    int i,n;
+    int i;
+    int n;
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
@@ -322,10 +335,12 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
             {
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-                long zmpos_x, zmpos_y;
+                long zmpos_x;
+                long zmpos_y;
                 zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
                 zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
-                long mapos_x, mapos_y;
+                long mapos_x;
+                long mapos_y;
                 // Now rotate the coordinates to receive minimap points
                 mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
                 mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
@@ -427,7 +442,8 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
     }
 
     unsigned long k;
-    int i,n;
+    int i;
+    int n;
     SYNCDBG(18,"Starting");
     if (player->acamera == NULL)
         return 0;
@@ -449,7 +465,9 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
         }
         i = thing->next_of_class;
         // Per-thing code
-        TbPixel col1, col2, col;
+        TbPixel col1;
+        TbPixel col2;
+        TbPixel col;
         col1 = 31;
         col2 = 1;
         if (!thing_is_picked_up(thing))
@@ -463,11 +481,13 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 }
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-                long zmpos_x, zmpos_y;
+                long zmpos_x;
+                long zmpos_y;
                 zmpos_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
                 zmpos_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
                 // Now rotate the coordinates to receive minimap points
-                long mapos_x, mapos_y;
+                long mapos_x;
+                long mapos_y;
                 mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
                 mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
                 RealScreenCoord basepos;
@@ -514,10 +534,12 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                         col1 = player_room_colours[thing->owner];
                         col2 = player_room_colours[thing->owner];
                     }
-                    long zmpos_x, zmpos_y;
+                    long zmpos_x;
+                    long zmpos_y;
                     zmpos_x = ((stl_num_decode_x(memberpos) - (MapSubtlDelta)cam->mappos.x.stl.num) << 8) / zoom;
                     zmpos_y = ((stl_num_decode_y(memberpos) - (MapSubtlDelta)cam->mappos.y.stl.num) << 8) / zoom;
-                    long mapos_x, mapos_y;
+                    long mapos_x;
+                    long mapos_y;
                     mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
                     mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
                     RealScreenCoord basepos;
@@ -563,25 +585,30 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     // Position of the thing on unrotated map
     // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
-    long zmpos_x, zmpos_y;
+    long zmpos_x;
+    long zmpos_y;
     zmpos_x = (heartng->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0)) / zoom;
     zmpos_y = (heartng->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0)) / zoom;
     // Now rotate the coordinates to receive minimap points
-    RealScreenCoord mapos_x, mapos_y;
+    RealScreenCoord mapos_x;
+    RealScreenCoord mapos_y;
     mapos_x = (zmpos_x * LbCosL(cam->orient_a) + zmpos_y * LbSinL(cam->orient_a)) >> 16;
     mapos_y = (zmpos_y * LbCosL(cam->orient_a) - zmpos_x * LbSinL(cam->orient_a)) >> 16;
     RealScreenCoord basepos;
     basepos = MapDiagonalLength/2;
     // Do the drawing
-    long dist, angle;
+    long dist;
+    long angle;
     dist = get_distance_xy(basepos, basepos, mapos_x + basepos, mapos_y + basepos);
     angle = -(LbArcTanAngle(mapos_x, mapos_y) & LbFPMath_AngleMask) & 0x1FFC;
-    int delta_x, delta_y;
+    int delta_x;
+    int delta_y;
     delta_x = (-1024*units_per_px/16) * LbSinL(angle) >> 16;
     delta_y = (-1024*units_per_px/16) * LbCosL(angle) >> 16;
     long frame;
     frame = (game.play_gameturn & 3) + 1;
-    int draw_x, draw_y;
+    int draw_x;
+    int draw_y;
     draw_x = delta_x / 2 + (frame * delta_x) / 4 + (basepos << 8);
     draw_y = delta_y / 2 + (frame * delta_y) / 4 + (basepos << 8);
     int i;
@@ -607,7 +634,8 @@ int draw_overlay_possessed_thing(struct PlayerInfo *player, long units_per_px, l
         return 0;
     if (cam->view_mode != PVM_CreatureView)
         return 0;
-    long scr_x,scr_y;
+    long scr_x;
+    long scr_y;
     scr_x = MapDiagonalLength / 2;
     scr_y = MapDiagonalLength / 2;
     pannel_map_draw_pixel(scr_x,   scr_y,   colours[15][15][15]);
@@ -641,7 +669,8 @@ void pannel_map_draw_overlay_things(long units_per_px, long zoom, long basic_zoo
 
 void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    MapSlabCoord slb_x, slb_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     slb_y = subtile_slab_fast(stl_y);
     slb_x = subtile_slab_fast(stl_x);
     SubtlCodedCoords stl_num;
@@ -718,7 +747,8 @@ void pannel_map_update(long x, long y, long w, long h)
     SYNCDBG(17,"Starting for rect (%ld,%ld) at (%ld,%ld)",w,h,x,y);
     struct PlayerInfo *player;
     player = get_my_player();
-    MapSubtlCoord stl_x, stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     for (stl_y = y; stl_y < y + h; stl_y++)
     {
         if (stl_y > map_subtiles_y)
@@ -743,7 +773,8 @@ void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long *stl_y,
     cam = player->acamera;
     int angle;
     angle = cam->orient_a & 0x1FFC;
-    int shift_x, shift_y;
+    int shift_x;
+    int shift_y;
     shift_x = -LbSinL(angle);
     shift_y = LbCosL(angle);
     *stl_x = (shift_y * relpos_x + shift_x * relpos_y) >> 16;
@@ -756,7 +787,8 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
 {
   SYNCDBG(17,"Starting");
   struct PlayerInfo *player;
-  long x,y;
+  long x;
+  long y;
   if (!clicked_on_small_map)
   {
     grabbed_small_map = 0;
@@ -816,7 +848,8 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
 
 short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my, long zoom)
 {
-    long x,y;
+    long x;
+    long y;
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -881,7 +914,8 @@ void setup_background(long units_per_px)
     bkgnd_pos = 0;
     TbPixel *out;
     out = &lbDisplay.WScreen[PannelMapX + out_scanline * PannelMapY];
-    int w,h;
+    int w;
+    int h;
     for (h=0; h < MapDiagonalLength; h++)
     {
         for (w = MapShapeStart[h]; w < MapShapeEnd[h]; w++)
@@ -915,7 +949,8 @@ void setup_pannel_colours(void)
     frame = game.play_gameturn & 3;
     unsigned int frcol;
     frcol = RoomColours[frame];
-    int bkcol_idx, pncol_idx;
+    int bkcol_idx;
+    int pncol_idx;
     pncol_idx = 0;
     for (bkcol_idx=0; bkcol_idx < NoBackColours; bkcol_idx++)
     {
@@ -939,7 +974,8 @@ void setup_pannel_colours(void)
         PannelColours[n + 6] = 146;
         PannelColours[n + 7] = 85;
         n = pncol_idx + 8;
-        int i, k;
+        int i;
+        int k;
         for (i=17; i > 0; i--)
         {
             PannelColours[n + 0] = 132;
@@ -983,7 +1019,8 @@ void update_pannel_colours(void)
     frame = game.play_gameturn & 3;
     unsigned int frcol;
     frcol = RoomColours[frame];
-    int bkcol_idx, pncol_idx;
+    int bkcol_idx;
+    int pncol_idx;
     pncol_idx = 0;
     for (bkcol_idx=0; bkcol_idx < NoBackColours; bkcol_idx++)
     {
@@ -1019,7 +1056,8 @@ void update_pannel_colours(void)
     {
         if ((PrevRoomHighlight >= 0) && (NoBackColours > 0))
         {
-            int i, n;
+            int i;
+            int n;
             n = 6 * PrevRoomHighlight + 8;
             for (i=NoBackColours; i > 0; i--)
             {
@@ -1034,7 +1072,8 @@ void update_pannel_colours(void)
         }
         if ((highlight >= 0) && (NoBackColours > 0))
         {
-            int i, n;
+            int i;
+            int n;
             n = 6 * highlight + 8;
             for (i=NoBackColours; i > 0; i--)
             {
@@ -1057,7 +1096,8 @@ void update_pannel_colours(void)
     {
         if ((PrevDoorHighlight >= 0) && (PrevDoorHighlight != 5) && (NoBackColours > 0))
         {
-            int i, n;
+            int i;
+            int n;
             n = 12 * PrevDoorHighlight;
             for (i=NoBackColours; i > 0; i--)
             {
@@ -1072,7 +1112,8 @@ void update_pannel_colours(void)
         }
         if ((highlight >= 0) && (NoBackColours > 0))
         {
-            int i, n;
+            int i;
+            int n;
             n = 12 * highlight;
             for (i = NoBackColours; i > 0; i--)
             {
@@ -1111,8 +1152,10 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     cam = player->acamera;
     if ((cam == NULL) || (MapDiagonalLength < 1))
         return;
-    long shift_x, shift_y;
-    long shift_stl_x, shift_stl_y;
+    long shift_x;
+    long shift_y;
+    long shift_stl_x;
+    long shift_stl_y;
     {
         int angle;
         angle = cam->orient_a & 0x1FFC;
@@ -1129,10 +1172,12 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     int h;
     for (h = 0; h < MapDiagonalLength; h++)
     {
-        int start_w, end_w;
+        int start_w;
+        int end_w;
         start_w = MapShapeStart[h];
         end_w = MapShapeEnd[h];
-        int subpos_x, subpos_y;
+        int subpos_x;
+        int subpos_y;
         subpos_y = shift_stl_x + shift_y * (end_w - 1);
         subpos_x = shift_stl_y - shift_x * (end_w - 1);
         for (; end_w > start_w; end_w--)
@@ -1157,7 +1202,8 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         bkgnd = &bkgnd_line[start_w];
         TbPixel *out;
         out = &out_line[start_w];
-        unsigned int precor_y, precor_x;
+        unsigned int precor_y;
+        unsigned int precor_x;
         precor_x = subpos_y;
         precor_y = subpos_x;
         int w;

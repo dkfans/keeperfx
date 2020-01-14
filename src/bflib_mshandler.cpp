@@ -93,7 +93,8 @@ struct TbPoint *MouseStateHandler::GetPosition(void)
 
 bool MouseStateHandler::SetMousePosition(long x, long y)
 {
-    long mx,my;
+    long mx;
+    long my;
     LbSemaLock semlock(&semaphore,0);
     if (!semlock.Lock(true))
       return false;
@@ -115,8 +116,10 @@ bool MouseStateHandler::SetMousePosition(long x, long y)
 
 bool MouseStateHandler::SetPosition(long x, long y)
 {
-    long prev_x,prev_y;
-    long mx,my;
+    long prev_x;
+    long prev_y;
+    long mx;
+    long my;
     if (!this->installed)
       return false;
     // Clip coordinates to our mouse window

@@ -36,14 +36,12 @@ long get_subtile_lightness(const struct LightsShadows * lish, MapSubtlCoord stl_
 
 void clear_subtiles_lightness(struct LightsShadows * lish)
 {
-    MapSubtlCoord x,y;
-    unsigned short *wptr;
-    for (y=0; y < (map_subtiles_y+1); y++)
+    for (MapSubtlCoord y = 0; y < (map_subtiles_y + 1); y++)
     {
-        for (x=0; x < (map_subtiles_x+1); x++)
+        for (MapSubtlCoord x = 0; x < (map_subtiles_x + 1); x++)
         {
-          wptr = &lish->subtile_lightness[get_subtile_number(x,y)];
-          *wptr = MINIMUM_LIGHTNESS;
+            unsigned short* wptr = &lish->subtile_lightness[get_subtile_number(x, y)];
+            *wptr = MINIMUM_LIGHTNESS;
         }
     }
 }

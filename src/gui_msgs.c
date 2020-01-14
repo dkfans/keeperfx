@@ -30,22 +30,18 @@
 /******************************************************************************/
 void message_draw(void)
 {
-    int i,h;
-    long x,y;
     SYNCDBG(7,"Starting");
     LbTextSetFont(winfont);
-    int tx_units_per_px;
-    tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
     int ps_units_per_px;
     {
-        struct TbSprite *spr;
-        spr = &gui_panel_sprites[488];
+        struct TbSprite* spr = &gui_panel_sprites[488];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
-    h = LbTextLineHeight();
-    x = 148*units_per_pixel/16;
-    y = 28*units_per_pixel/16;
-    for (i=0; i < game.active_messages_count; i++)
+    int h = LbTextLineHeight();
+    long x = 148 * units_per_pixel / 16;
+    long y = 28 * units_per_pixel / 16;
+    for (int i = 0; i < game.active_messages_count; i++)
     {
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
@@ -58,13 +54,11 @@ void message_draw(void)
 void message_update(void)
 {
     SYNCDBG(6,"Starting");
-    int i;
-    i = game.active_messages_count - 1;
+    int i = game.active_messages_count - 1;
     // Set end turn for all messages
     while (i >= 0)
     {
-        struct GuiMessage *gmsg;
-        gmsg = &game.messages[i];
+        struct GuiMessage* gmsg = &game.messages[i];
         if (gmsg->creation_turn + 400 < game.play_gameturn)
         {
             game.active_messages_count--;
@@ -76,9 +70,8 @@ void message_update(void)
 
 void zero_messages(void)
 {
-    int i;
     game.active_messages_count = 0;
-    for (i=0; i<3; i++)
+    for (int i = 0; i < 3; i++)
     {
       memset(&game.messages[i], 0, sizeof(struct GuiMessage));
     }
@@ -87,8 +80,8 @@ void zero_messages(void)
 void message_add(PlayerNumber plyr_idx, const char *text)
 {
     SYNCDBG(2,"Player %d: %s",(int)plyr_idx,text);
-    int i;
-    for (i=GUI_MESSAGES_COUNT-1; i > 0; i--) {
+    for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
+    {
         memcpy(&game.messages[i], &game.messages[i-1], sizeof(struct GuiMessage));
     }
     strncpy(game.messages[0].text, text,sizeof(game.messages[0].text));

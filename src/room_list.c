@@ -43,10 +43,9 @@ extern "C" {
 /******************************************************************************/
 void clear_rooms(void)
 {
-  int i;
-  for (i=0; i < ROOMS_COUNT; i++)
-  {
-    memset(&game.rooms[i], 0, sizeof(struct Room));
+    for (int i = 0; i < ROOMS_COUNT; i++)
+    {
+        memset(&game.rooms[i], 0, sizeof(struct Room));
   }
 }
 
@@ -58,20 +57,16 @@ void clear_rooms(void)
  */
 long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    struct Dungeon *dungeon;
-    struct Room *room;
-    long i;
-    unsigned long k;
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
         return 0;
-    i = dungeon->room_kind[rkind];
-    k = 0;
+    long i = dungeon->room_kind[rkind];
+    unsigned long k = 0;
     while (i != 0)
     {
-        room = room_get(i);
+        struct Room* room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -101,12 +96,9 @@ long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
  */
 long calculate_player_num_rooms_built(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    long rkind;
-    long count;
-    count = 0;
-    player = get_player(plyr_idx);
-    for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
+    long count = 0;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    for (long rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
     {
         if (!room_never_buildable(rkind))
         {
@@ -118,16 +110,12 @@ long calculate_player_num_rooms_built(PlayerNumber plyr_idx)
 
 long count_player_rooms_entrances(PlayerNumber plyr_idx)
 {
-    struct Room *room;
-    long i;
-    unsigned long k;
-    long count;
-    count = 0;
-    i = game.entrance_room_id;
-    k = 0;
+    long count = 0;
+    long i = game.entrance_room_id;
+    unsigned long k = 0;
     while (i != 0)
     {
-        room = room_get(i);
+        struct Room* room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -151,29 +139,22 @@ long count_player_rooms_entrances(PlayerNumber plyr_idx)
 struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind rkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist)
 {
-    struct Dungeon *dungeon;
-    struct Room *room;
-    long i;
-    unsigned long k;
-    dungeon = get_dungeon(plyr_idx);
-    struct Room *nearest_room;
-    long nearest_dist;
-    nearest_dist = LONG_MAX;
-    nearest_room = INVALID_ROOM;
-    i = dungeon->room_kind[rkind];
-    k = 0;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    long nearest_dist = LONG_MAX;
+    struct Room* nearest_room = INVALID_ROOM;
+    long i = dungeon->room_kind[rkind];
+    unsigned long k = 0;
     while (i != 0)
     {
-      room = room_get(i);
-      if (room_is_invalid(room))
-      {
-          ERRORLOG("Jump to invalid room detected");
-          break;
+        struct Room* room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
       }
       i = room->next_of_owner;
       // Per-room code
-      long dist;
-      dist = abs(room->central_stl_y - stl_y) + abs(room->central_stl_x - stl_x);
+      long dist = abs(room->central_stl_y - stl_y) + abs(room->central_stl_x - stl_x);
       if (dist < nearest_dist)
       {
           nearest_dist = dist;
@@ -195,16 +176,12 @@ struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind 
 struct Room *get_player_room_any_kind_nearest_to(PlayerNumber plyr_idx,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist)
 {
-    struct Room *nearest_room;
-    long nearest_dist;
-    nearest_dist = LONG_MAX;
-    nearest_room = INVALID_ROOM;
-    RoomKind rkind;
-    for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+    long nearest_dist = LONG_MAX;
+    struct Room* nearest_room = INVALID_ROOM;
+    for (RoomKind rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
     {
-        struct Room *room;
         long dist;
-        room = get_player_room_of_kind_nearest_to(plyr_idx, rkind, stl_x, stl_y, &dist);
+        struct Room* room = get_player_room_of_kind_nearest_to(plyr_idx, rkind, stl_x, stl_y, &dist);
         if (!room_is_invalid(room) && (dist < nearest_dist)) {
             nearest_dist = dist;
             nearest_room = room;
@@ -217,17 +194,11 @@ struct Room *get_player_room_any_kind_nearest_to(PlayerNumber plyr_idx,
 
 struct Room * find_next_navigable_room_for_thing_with_capacity_and_closer_than(struct Thing *thing, int prev_room_idx, unsigned char nav_flags, long used, long *neardistance)
 {
-    long distance;
-    struct Coord3d pos;
-
-    struct Room *room;
-    unsigned long k;
-    int i;
-    k = 0;
-    i = prev_room_idx;
+    unsigned long k = 0;
+    int i = prev_room_idx;
     while (i != 0)
     {
-        room = room_get(i);
+        struct Room* room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -236,10 +207,10 @@ struct Room * find_next_navigable_room_for_thing_with_capacity_and_closer_than(s
         i = room->next_of_owner;
         // Per-room code
         // Compute simplified distance - without use of mul or div
-        distance = abs(thing->mappos.x.stl.num - (int)room->central_stl_x)
-                 + abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
+        long distance = abs(thing->mappos.x.stl.num - (int)room->central_stl_x) + abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
         if ((*neardistance > distance) && (room->used_capacity >= used))
         {
+            struct Coord3d pos;
             if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
             {
                 TbBool is_connected;
@@ -272,19 +243,14 @@ struct Room * find_next_navigable_room_for_thing_with_capacity_and_closer_than(s
 
 struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long used, long *neardistance)
 {
-    struct Dungeon *dungeon;
-    struct Room *nearoom;
-    long distance;
-    int i;
     SYNCDBG(18,"Searching for %s navigable by %s index %d",room_code_name(rkind),thing_model_name(thing),(int)thing->index);
-    dungeon = get_dungeon(owner);
-    nearoom = INVALID_ROOM;
-    distance = *neardistance;
-    i = dungeon->room_kind[rkind];
+    struct Dungeon* dungeon = get_dungeon(owner);
+    struct Room* nearoom = INVALID_ROOM;
+    long distance = *neardistance;
+    int i = dungeon->room_kind[rkind];
     while (i != 0)
     {
-        struct Room *room;
-        room = find_next_navigable_room_for_thing_with_capacity_and_closer_than(thing, i, nav_flags, used, &distance);
+        struct Room* room = find_next_navigable_room_for_thing_with_capacity_and_closer_than(thing, i, nav_flags, used, &distance);
         if (room_is_invalid(room)) {
             break;
         }
@@ -307,10 +273,8 @@ struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_tha
  */
 struct Room *find_nearest_room_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
 {
-    long neardistance;
-    struct Room *nearoom;
-    neardistance = LONG_MAX;
-    nearoom = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &neardistance);
+    long neardistance = LONG_MAX;
+    struct Room* nearoom = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &neardistance);
     return nearoom;
 }
 
@@ -325,13 +289,10 @@ struct Room *find_nearest_room_for_thing(struct Thing *thing, PlayerNumber owner
  */
 struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long max_distance)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(owner);
+    struct Dungeon* dungeon = get_dungeon(owner);
     SYNCDBG(18,"Searching for %s navigable by %s index %d",room_code_name(rkind),thing_model_name(thing),(int)thing->index);
-    long neardistance;
-    struct Room *nearoom;
-    neardistance = max_distance;
-    nearoom = INVALID_ROOM;
+    long neardistance = max_distance;
+    struct Room* nearoom = INVALID_ROOM;
     nearoom = find_next_navigable_room_for_thing_with_capacity_and_closer_than(thing, dungeon->room_kind[rkind], nav_flags, 0, &neardistance);
     return nearoom;
 }
@@ -347,20 +308,15 @@ struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, 
  */
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, PlayerNumber owner, RoomKind skip_rkind1, RoomKind skip_rkind2, unsigned char nav_flags)
 {
-    long neardistance;
-    struct Room *nearoom;
-    neardistance = LONG_MAX;
-    nearoom = INVALID_ROOM;
-    RoomKind rkind;
-    for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+    long neardistance = LONG_MAX;
+    struct Room* nearoom = INVALID_ROOM;
+    for (RoomKind rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
     {
         if ((rkind == skip_rkind1) || (rkind == skip_rkind2)) {
             continue;
         }
-        long distance;
-        struct Room *room;
-        distance = neardistance;
-        room = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &distance);
+        long distance = neardistance;
+        struct Room* room = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &distance);
         if (neardistance > distance)
         {
             neardistance = distance;
@@ -382,10 +338,8 @@ struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing
  */
 struct Room *find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long used)
 {
-    long neardistance;
-    struct Room *nearoom;
-    neardistance = LONG_MAX;
-    nearoom = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, used, &neardistance);
+    long neardistance = LONG_MAX;
+    struct Room* nearoom = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, used, &neardistance);
     return nearoom;
 }
 /******************************************************************************/
@@ -400,21 +354,16 @@ struct Room *find_nearest_room_for_thing_with_used_capacity(struct Thing *thing,
 */
 struct Room *find_nearest_room_to_vandalise(struct Thing *thing, PlayerNumber owner, unsigned char nav_flags)
 {
-	long neardistance;
-	struct Room *nearoom;
-	neardistance = LONG_MAX;
-	nearoom = INVALID_ROOM;
-	RoomKind rkind;
-	for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
-	{
+    long neardistance = LONG_MAX;
+    struct Room* nearoom = INVALID_ROOM;
+    for (RoomKind rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+    {
 		if (room_cannot_vandalise(rkind)) {
 			continue;
 		}
-		long distance;
-		struct Room *room;
-		distance = neardistance;
-		room = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &distance);
-		if (neardistance > distance)
+        long distance = neardistance;
+        struct Room* room = find_nearest_navigable_room_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &distance);
+        if (neardistance > distance)
 		{
 			neardistance = distance;
 			nearoom = room;

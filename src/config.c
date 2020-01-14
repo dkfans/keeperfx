@@ -152,12 +152,11 @@ short is_near_new_moon = 0;
  */
 TbBool update_features(unsigned long mem_size)
 {
-  short result;
-  result = false;
-  if (mem_size >= 32)
-  {
-    result = true;
-    features_enabled |= Ft_HiResCreatr;
+    short result = false;
+    if (mem_size >= 32)
+    {
+        result = true;
+        features_enabled |= Ft_HiResCreatr;
   }
   if (mem_size >= 16)
   {
@@ -236,9 +235,8 @@ TbBool skip_conf_spaces(const char *buf, long *pos, long buflen)
  */
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname)
 {
-  int blname_len;
   text_line_number = 1;
-  blname_len = strlen(blockname);
+  int blname_len = strlen(blockname);
   while ((*pos)+blname_len+2 < buflen)
   {
     // Skipping starting spaces
@@ -290,7 +288,6 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
  */
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
 {
-    int i,cmdname_len;
     SYNCDBG(19,"Starting");
     if ((*pos) >= buflen) return -1;
     // Skipping starting spaces
@@ -306,10 +303,10 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
     if (buf[*pos] == '[')
         return -3;
     // Finding command number
-    i = 0;
+    int i = 0;
     while (commands[i].num > 0)
     {
-        cmdname_len = strlen(commands[i].name);
+        int cmdname_len = strlen(commands[i].name);
         if ((*pos)+cmdname_len > buflen) {
             i++;
             continue;
@@ -397,8 +394,6 @@ int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,lo
  */
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
 {
-  int i;
-  int par_len;
   if ((*pos) >= buflen) return 0;
   // Skipping spaces after previous parameter
   while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
@@ -406,10 +401,10 @@ int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct 
     (*pos)++;
     if ((*pos) >= buflen) return 0;
   }
-  i = 0;
+  int i = 0;
   while (commands[i].name != NULL)
   {
-      par_len = strlen(commands[i].name);
+      int par_len = strlen(commands[i].name);
       if (strncasecmp(&buf[(*pos)], commands[i].name, par_len) == 0)
       {
           // If EOLN found, finish and return position before the EOLN
@@ -436,14 +431,13 @@ int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct 
  */
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num)
 {
-  long i;
-  i = 0;
-  while (commands[i].name != NULL)
-  {
-      //SYNCLOG("\"%s\", %d %d",commands[i].name,commands[i].num,num);
-      if (commands[i].num == num)
-          return commands[i].name;
-      i++;
+    long i = 0;
+    while (commands[i].name != NULL)
+    {
+        //SYNCLOG("\"%s\", %d %d",commands[i].name,commands[i].num,num);
+        if (commands[i].num == num)
+            return commands[i].name;
+        i++;
   }
   return lbEmptyString;
 }
@@ -461,13 +455,12 @@ const char *get_current_language_str(void)
  */
 const char *get_language_lwrstr(int lang_id)
 {
-  static char lang_str[4];
-  const char *src;
-  src = get_conf_parameter_text(lang_type,lang_id);
+    const char* src = get_conf_parameter_text(lang_type, lang_id);
 #if (BFDEBUG_LEVEL > 0)
   if (strlen(src) != 3)
       WARNLOG("Bad text code for language index %d",(int)lang_id);
 #endif
+  static char lang_str[4];
   strncpy(lang_str, src, 4);
   lang_str[3] = '\0';
   strlwr(lang_str);
@@ -482,10 +475,9 @@ const char *get_language_lwrstr(int lang_id)
  */
 long get_id(const struct NamedCommand *desc, const char *itmname)
 {
-  long i;
   if ((desc == NULL) || (itmname == NULL))
     return -1;
-  for (i=0; desc[i].name != NULL; i++)
+  for (long i = 0; desc[i].name != NULL; i++)
   {
     if (strcasecmp(desc[i].name, itmname) == 0)
       return desc[i].num;
@@ -519,16 +511,17 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
 
 TbBool prepare_diskpath(char *buf,long buflen)
 {
-  int i;
-  i = strlen(buf)-1;
-  if (i >= buflen) i = buflen-1;
-  if (i<0) return false;
-  while (i>0)
-  {
-    if ((buf[i]!='\\') && (buf[i]!='/') &&
-      ((unsigned char)(buf[i]) > 32))
-      break;
-    i--;
+    int i = strlen(buf) - 1;
+    if (i >= buflen)
+        i = buflen - 1;
+    if (i < 0)
+        return false;
+    while (i > 0)
+    {
+        if ((buf[i] != '\\') && (buf[i] != '/') &&
+            ((unsigned char)(buf[i]) > 32))
+            break;
+        i--;
   }
   buf[i+1]='\0';
   return true;
@@ -537,21 +530,15 @@ TbBool prepare_diskpath(char *buf,long buflen)
 short load_configuration(void)
 {
   static const char config_textname[] = "Config";
-  const char *fname;
-  char *buf;
-  long len,pos;
-  int cmd_num;
   // Variables to use when recognizing parameters
-  char word_buf[32];
-  int i,k;
   SYNCDBG(4,"Starting");
   // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
   install_info.field_9A = 0;
   // Set default runtime directory and load the config file
   strcpy(keeper_runtime_directory,".");
-  fname = prepare_file_path(FGrp_Main,keeper_config_file);
-  len = LbFileLengthRnc(fname);
+  const char* fname = prepare_file_path(FGrp_Main, keeper_config_file);
+  long len = LbFileLengthRnc(fname);
   if (len < 2)
   {
     WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,keeper_config_file);
@@ -562,7 +549,7 @@ short load_configuration(void)
     WARNMSG("%s file \"%s\" is too large.",config_textname,keeper_config_file);
     return false;
   }
-  buf = (char *)LbMemoryAlloc(len+256);
+  char* buf = (char*)LbMemoryAlloc(len + 256);
   if (buf == NULL)
     return false;
   // Loading file data
@@ -573,14 +560,16 @@ short load_configuration(void)
     buf[len] = '\0';
     // Set text line number - we don't have blocks so we need to initialize it manually
     text_line_number = 1;
-    pos = 0;
+    long pos = 0;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(conf_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
-      i = 0;
-      cmd_num = recognize_conf_command(buf,&pos,len,conf_commands);
+      int i = 0;
+      int cmd_num = recognize_conf_command(buf, &pos, len, conf_commands);
       // Now store the config item in correct place
+      int k;
+      char word_buf[32];
       switch (cmd_num)
       {
       case 1: // INSTALL_PATH
@@ -963,18 +952,17 @@ char *prepare_file_path(short fgroup,const char *fname)
 
 char *prepare_file_path_va(short fgroup, const char *fmt_str, va_list arg)
 {
-  static char ffullpath[2048];
   char fname[255];
   vsprintf(fname, fmt_str, arg);
-  return prepare_file_path_buf(ffullpath,fgroup,fname);
+  static char ffullpath[2048];
+  return prepare_file_path_buf(ffullpath, fgroup, fname);
 }
 
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...)
 {
-  char *result;
   va_list val;
   va_start(val, fmt_str);
-  result=prepare_file_path_va(fgroup, fmt_str, val);
+  char* result = prepare_file_path_va(fgroup, fmt_str, val);
   va_end(val);
   return result;
 }
@@ -993,13 +981,12 @@ short file_group_needs_cd(short fgroup)
 
 short get_level_fgroup(LevelNumber lvnum)
 {
-  struct LevelInformation *lvinfo;
-  lvinfo = get_level_info(lvnum);
-  if (lvinfo == NULL)
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
+    if (lvinfo == NULL)
+        return FGrp_VarLevels;
+    if (lvinfo->location == LvLc_Campaign)
+        return FGrp_CmpgLvls;
     return FGrp_VarLevels;
-  if (lvinfo->location == LvLc_Campaign)
-    return FGrp_CmpgLvls;
-  return FGrp_VarLevels;
 }
 
 /**
@@ -1010,15 +997,13 @@ short get_level_fgroup(LevelNumber lvnum)
  */
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...)
 {
-  char ffullpath[2048];
-  char fname[255];
-  unsigned char *buf;
-  long fsize;
   // Prepare file name
   va_list arg;
   va_start(arg, fmt_str);
+  char fname[255];
   vsprintf(fname, fmt_str, arg);
-  prepare_file_path_buf(ffullpath,fgroup,fname);
+  char ffullpath[2048];
+  prepare_file_path_buf(ffullpath, fgroup, fname);
   va_end(arg);
   // Load the file
   if (file_group_needs_cd(fgroup))
@@ -1026,13 +1011,13 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
     if (!wait_for_cd_to_be_available())
       return NULL;
    }
-  fsize = LbFileLengthRnc(ffullpath);
-  if (fsize < *ldsize)
-  {
-    WARNMSG("File \"%s\" doesn't exist or is too small.",fname);
-    return NULL;
+   long fsize = LbFileLengthRnc(ffullpath);
+   if (fsize < *ldsize)
+   {
+       WARNMSG("File \"%s\" doesn't exist or is too small.", fname);
+       return NULL;
   }
-  buf = LbMemoryAlloc(fsize+16);
+  unsigned char* buf = LbMemoryAlloc(fsize + 16);
   if (buf == NULL)
   {
     WARNMSG("Can't allocate %ld bytes to load \"%s\".",fsize,fname);
@@ -1118,10 +1103,8 @@ void load_or_create_high_score_table(void)
 
 TbBool load_high_score_table(void)
 {
-    char *fname;
-    long arr_size;
-    fname = prepare_file_path(FGrp_Save,campaign.hiscore_fname);
-    arr_size = campaign.hiscore_count*sizeof(struct HighScore);
+    char* fname = prepare_file_path(FGrp_Save, campaign.hiscore_fname);
+    long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
     if (arr_size <= 0)
     {
         LbMemoryFree(campaign.hiscore_table);
@@ -1141,10 +1124,8 @@ TbBool load_high_score_table(void)
 
 TbBool save_high_score_table(void)
 {
-    char *fname;
-    long fsize;
-    fname = prepare_file_path(FGrp_Save,campaign.hiscore_fname);
-    fsize = campaign.hiscore_count*sizeof(struct HighScore);
+    char* fname = prepare_file_path(FGrp_Save, campaign.hiscore_fname);
+    long fsize = campaign.hiscore_count * sizeof(struct HighScore);
     if (fsize <= 0)
         return true;
     if (campaign.hiscore_table == NULL)
@@ -1160,13 +1141,10 @@ TbBool save_high_score_table(void)
  */
 TbBool create_empty_high_score_table(void)
 {
-  long arr_size;
-  int npoints;
-  int nlevel;
   int i;
-  npoints = 100*VISIBLE_HIGH_SCORES_COUNT;
-  nlevel = 1*VISIBLE_HIGH_SCORES_COUNT;
-  arr_size = campaign.hiscore_count*sizeof(struct HighScore);
+  int npoints = 100 * VISIBLE_HIGH_SCORES_COUNT;
+  int nlevel = 1 * VISIBLE_HIGH_SCORES_COUNT;
+  long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
   if (campaign.hiscore_table == NULL)
     campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
   if (campaign.hiscore_table == NULL)
@@ -1215,8 +1193,7 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *nam
     int overwrite_idx;
     for (overwrite_idx = campaign.hiscore_count-1; overwrite_idx >= 10; overwrite_idx--)
     {
-        LevelNumber last_lvnum;
-        last_lvnum = campaign.hiscore_table[overwrite_idx].lvnum;
+        LevelNumber last_lvnum = campaign.hiscore_table[overwrite_idx].lvnum;
         if (last_lvnum <= 0) {
             // Found unused slot
             break;
@@ -1252,16 +1229,14 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *nam
     if (overwrite_idx > dest_idx)
     {
         // Moving entries down
-        int k;
-        for (k=overwrite_idx-1; k >= dest_idx; k--)
+        for (int k = overwrite_idx - 1; k >= dest_idx; k--)
         {
             memcpy(&campaign.hiscore_table[k+1],&campaign.hiscore_table[k],sizeof(struct HighScore));
         }
     } else
     {
         // Moving entries up
-        int k;
-        for (k=overwrite_idx; k < dest_idx; k++)
+        for (int k = overwrite_idx; k < dest_idx; k++)
         {
             memcpy(&campaign.hiscore_table[k],&campaign.hiscore_table[k+1],sizeof(struct HighScore));
         }
@@ -1278,11 +1253,10 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *nam
  */
 unsigned long get_level_highest_score(LevelNumber lvnum)
 {
-  int idx;
-  for (idx=0; idx < campaign.hiscore_count; idx++)
-  {
-    if (campaign.hiscore_table[idx].lvnum == lvnum)
-      return campaign.hiscore_table[idx].score;
+    for (int idx = 0; idx < campaign.hiscore_count; idx++)
+    {
+        if (campaign.hiscore_table[idx].lvnum == lvnum)
+            return campaign.hiscore_table[idx].score;
   }
   return 0;
 }
@@ -1294,12 +1268,11 @@ struct LevelInformation *get_level_info(LevelNumber lvnum)
 
 struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned long lvoptions)
 {
-  struct LevelInformation *lvinfo;
-  lvinfo = get_campaign_level_info(&campaign, lvnum);
-  if (lvinfo != NULL)
-  {
-    lvinfo->options |= lvoptions;
-    return lvinfo;
+    struct LevelInformation* lvinfo = get_campaign_level_info(&campaign, lvnum);
+    if (lvinfo != NULL)
+    {
+        lvinfo->options |= lvoptions;
+        return lvinfo;
   }
   lvinfo = new_level_info_entry(&campaign, lvnum);
   if (lvinfo != NULL)
@@ -1338,12 +1311,11 @@ struct LevelInformation *get_last_level_info(void)
  */
 struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo)
 {
-  int i;
   if (campaign.lvinfos == NULL)
     return NULL;
   if (previnfo == NULL)
     return NULL;
-  i = previnfo - &campaign.lvinfos[0];
+  int i = previnfo - &campaign.lvinfos[0];
   i++;
   if (i >= campaign.lvinfos_count)
     return NULL;
@@ -1358,12 +1330,11 @@ struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo)
  */
 struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo)
 {
-  int i;
   if (campaign.lvinfos == NULL)
     return NULL;
   if (nextinfo == NULL)
     return NULL;
-  i = nextinfo - &campaign.lvinfos[0];
+  int i = nextinfo - &campaign.lvinfos[0];
   i--;
   if (i < 0)
     return NULL;
@@ -1372,55 +1343,51 @@ struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo)
 
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions)
 {
-  struct LevelInformation *lvinfo;
-  lvinfo = get_or_create_level_info(lvnum, lvoptions);
-  if (lvinfo == NULL)
-    return false;
-  strncpy(lvinfo->name,name,LINEMSG_SIZE-1);
-  lvinfo->name[LINEMSG_SIZE-1] = '\0';
-  if ((lvoptions & LvOp_IsFree) != 0) {
-      lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH>>4) *(LbSinL(lvnum*LbFPMath_PI/16)>>6)) >> 10;
-      lvinfo->ensign_y -= ((LANDVIEW_MAP_HEIGHT>>4)*(LbCosL(lvnum*LbFPMath_PI/16)>>6)) >> 10;
+    struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
+    if (lvinfo == NULL)
+        return false;
+    strncpy(lvinfo->name, name, LINEMSG_SIZE - 1);
+    lvinfo->name[LINEMSG_SIZE - 1] = '\0';
+    if ((lvoptions & LvOp_IsFree) != 0)
+    {
+        lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
+        lvinfo->ensign_y -= ((LANDVIEW_MAP_HEIGHT >> 4) * (LbCosL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
   }
   return true;
 }
 
 TbBool reset_credits(struct CreditsItem *credits)
 {
-  long i;
-  for (i=0; i<CAMPAIGN_CREDITS_COUNT; i++)
-  {
-    LbMemorySet(&credits[i],0,sizeof(struct CreditsItem));
-    credits[i].kind = CIK_None;
+    for (long i = 0; i < CAMPAIGN_CREDITS_COUNT; i++)
+    {
+        LbMemorySet(&credits[i], 0, sizeof(struct CreditsItem));
+        credits[i].kind = CIK_None;
   }
   return true;
 }
 
 TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
 {
-  long pos;
-  int k,n;
-  long len;
   // Block name and parameter word store variables
   char block_buf[32];
-  char word_buf[32];
   // Find the block
   sprintf(block_buf,"credits");
-  len = buf_end-buf;
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
+  long len = buf_end - buf;
+  long pos = 0;
+  int k = find_conf_block(buf, &pos, len, block_buf);
   if (k < 0)
   {
     WARNMSG("Block [%s] not found in Credits file.",block_buf);
     return 0;
   }
-  n = 0;
+  int n = 0;
   while (pos<len)
   {
     if ((buf[pos] != 0) && (buf[pos] != '[') && (buf[pos] != ';'))
     {
       credits[n].kind = CIK_EmptyLine;
       credits[n].font = 2;
+      char word_buf[32];
       switch (buf[pos])
       {
       case '*':
@@ -1495,14 +1462,9 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
  */
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
 {
-  char *credits_data_end;
-  char *fname;
-  short result;
-  long loaded_size;
-  long filelen;
   SYNCDBG(18,"Starting");
-  fname = prepare_file_path(FGrp_LandView,campgn->credits_fname);
-  filelen = LbFileLengthRnc(fname);
+  char* fname = prepare_file_path(FGrp_LandView, campgn->credits_fname);
+  long filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
     ERRORLOG("Campaign Credits file \"%s\" does not exist or can't be opened",campgn->credits_fname);
@@ -1514,9 +1476,9 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
     ERRORLOG("Can't allocate memory for Campaign Credits file \"%s\"",campgn->credits_fname);
     return false;
   }
-  credits_data_end = campgn->credits_data+filelen+255;
-  result = true;
-  loaded_size = LbFileLoadAt(fname, campgn->credits_data);
+  char* credits_data_end = campgn->credits_data + filelen + 255;
+  short result = true;
+  long loaded_size = LbFileLoadAt(fname, campgn->credits_data);
   if (loaded_size < 4)
   {
     ERRORLOG("Campaign Credits file \"%s\" couldn't be loaded or is too small",campgn->credits_fname);
@@ -1537,9 +1499,8 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
 
 short is_bonus_level(LevelNumber lvnum)
 {
-  int i;
   if (lvnum < 1) return false;
-  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.bonus_levels[i] == lvnum)
     {
@@ -1553,9 +1514,8 @@ short is_bonus_level(LevelNumber lvnum)
 
 short is_extra_level(LevelNumber lvnum)
 {
-  int i;
   if (lvnum < 1) return false;
-  for (i=0; i<EXTRA_LEVELS_COUNT; i++)
+  for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
   {
       if (campaign.extra_levels[i] == lvnum)
       {
@@ -1573,15 +1533,15 @@ short is_extra_level(LevelNumber lvnum)
  */
 int storage_index_for_bonus_level(LevelNumber bn_lvnum)
 {
-  int i,k;
-  if (bn_lvnum < 1) return -1;
-  k=0;
-  for (i=0; i < CAMPAIGN_LEVELS_COUNT; i++)
-  {
-    if (campaign.bonus_levels[i] == bn_lvnum)
-        return k;
-    if (campaign.bonus_levels[i] != 0)
-        k++;
+    if (bn_lvnum < 1)
+        return -1;
+    int k = 0;
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        if (campaign.bonus_levels[i] == bn_lvnum)
+            return k;
+        if (campaign.bonus_levels[i] != 0)
+            k++;
   }
   return -1;
 }
@@ -1592,9 +1552,8 @@ int storage_index_for_bonus_level(LevelNumber bn_lvnum)
  */
 int array_index_for_bonus_level(LevelNumber bn_lvnum)
 {
-  int i;
   if (bn_lvnum < 1) return -1;
-  for (i=0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.bonus_levels[i] == bn_lvnum)
         return i;
@@ -1608,9 +1567,8 @@ int array_index_for_bonus_level(LevelNumber bn_lvnum)
  */
 int array_index_for_extra_level(LevelNumber ex_lvnum)
 {
-  int i;
   if (ex_lvnum < 1) return -1;
-  for (i=0; i < EXTRA_LEVELS_COUNT; i++)
+  for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
   {
     if (campaign.extra_levels[i] == ex_lvnum)
         return i;
@@ -1624,9 +1582,8 @@ int array_index_for_extra_level(LevelNumber ex_lvnum)
  */
 int array_index_for_singleplayer_level(LevelNumber sp_lvnum)
 {
-  int i;
   if (sp_lvnum < 1) return -1;
-  for (i=0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == sp_lvnum)
         return i;
@@ -1640,9 +1597,8 @@ int array_index_for_singleplayer_level(LevelNumber sp_lvnum)
  */
 int array_index_for_multiplayer_level(LevelNumber mp_lvnum)
 {
-  int i;
   if (mp_lvnum < 1) return -1;
-  for (i=0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.multi_levels[i] == mp_lvnum)
         return i;
@@ -1656,9 +1612,8 @@ int array_index_for_multiplayer_level(LevelNumber mp_lvnum)
  */
 int array_index_for_freeplay_level(LevelNumber fp_lvnum)
 {
-  int i;
   if (fp_lvnum < 1) return -1;
-  for (i=0; i < FREE_LEVELS_COUNT; i++)
+  for (int i = 0; i < FREE_LEVELS_COUNT; i++)
   {
     if (campaign.freeplay_levels[i] == fp_lvnum)
         return i;
@@ -1672,8 +1627,7 @@ int array_index_for_freeplay_level(LevelNumber fp_lvnum)
  */
 LevelNumber bonus_level_for_singleplayer_level(LevelNumber sp_lvnum)
 {
-    int i;
-    i = array_index_for_singleplayer_level(sp_lvnum);
+    int i = array_index_for_singleplayer_level(sp_lvnum);
     if (i >= 0)
         return campaign.bonus_levels[i];
     return 0;
@@ -1697,11 +1651,10 @@ LevelNumber first_singleplayer_level(void)
  */
 LevelNumber last_singleplayer_level(void)
 {
-  int i;
-  i = campaign.single_levels_count;
-  if ((i > 0) && (i <= CAMPAIGN_LEVELS_COUNT))
-    return campaign.single_levels[i-1];
-  return SINGLEPLAYER_NOTSTARTED;
+    int i = campaign.single_levels_count;
+    if ((i > 0) && (i <= CAMPAIGN_LEVELS_COUNT))
+        return campaign.single_levels[i - 1];
+    return SINGLEPLAYER_NOTSTARTED;
 }
 
 /**
@@ -1722,11 +1675,10 @@ LevelNumber first_multiplayer_level(void)
  */
 LevelNumber last_multiplayer_level(void)
 {
-  int i;
-  i = campaign.multi_levels_count;
-  if ((i > 0) && (i <= CAMPAIGN_LEVELS_COUNT))
-    return campaign.multi_levels[i-1];
-  return SINGLEPLAYER_NOTSTARTED;
+    int i = campaign.multi_levels_count;
+    if ((i > 0) && (i <= CAMPAIGN_LEVELS_COUNT))
+        return campaign.multi_levels[i - 1];
+    return SINGLEPLAYER_NOTSTARTED;
 }
 
 /**
@@ -1747,11 +1699,10 @@ LevelNumber first_freeplay_level(void)
  */
 LevelNumber last_freeplay_level(void)
 {
-  int i;
-  i = campaign.freeplay_levels_count;
-  if ((i > 0) && (i <= FREE_LEVELS_COUNT))
-    return campaign.freeplay_levels[i-1];
-  return SINGLEPLAYER_NOTSTARTED;
+    int i = campaign.freeplay_levels_count;
+    if ((i > 0) && (i <= FREE_LEVELS_COUNT))
+        return campaign.freeplay_levels[i - 1];
+    return SINGLEPLAYER_NOTSTARTED;
 }
 
 /**
@@ -1760,13 +1711,11 @@ LevelNumber last_freeplay_level(void)
  */
 LevelNumber first_extra_level(void)
 {
-  long lvidx;
-  long lvnum;
-  for (lvidx=0; lvidx < campaign.extra_levels_index; lvidx++)
-  {
-    lvnum = campaign.extra_levels[lvidx];
-    if (lvnum > 0)
-      return lvnum;
+    for (long lvidx = 0; lvidx < campaign.extra_levels_index; lvidx++)
+    {
+        long lvnum = campaign.extra_levels[lvidx];
+        if (lvnum > 0)
+            return lvnum;
   }
   return SINGLEPLAYER_NOTSTARTED;
 }
@@ -1777,17 +1726,15 @@ LevelNumber first_extra_level(void)
  */
 LevelNumber get_extra_level(unsigned short elv_kind)
 {
-  int i;
-  LevelNumber lvnum;
-  i = elv_kind;
-  i--;
-  if ((i < 0) || (i >= EXTRA_LEVELS_COUNT))
-    return LEVELNUMBER_ERROR;
-  lvnum = campaign.extra_levels[i];
-  SYNCDBG(5,"Extra level kind %d has number %ld",(int)elv_kind,lvnum);
-  if (lvnum > 0)
-  {
-    return lvnum;
+    int i = elv_kind;
+    i--;
+    if ((i < 0) || (i >= EXTRA_LEVELS_COUNT))
+        return LEVELNUMBER_ERROR;
+    LevelNumber lvnum = campaign.extra_levels[i];
+    SYNCDBG(5, "Extra level kind %d has number %ld", (int)elv_kind, lvnum);
+    if (lvnum > 0)
+    {
+        return lvnum;
   }
   return SINGLEPLAYER_NOTSTARTED;
 }
@@ -1798,11 +1745,10 @@ LevelNumber get_extra_level(unsigned short elv_kind)
  */
 LevelNumber next_singleplayer_level(LevelNumber sp_lvnum)
 {
-  int i;
   if (sp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (sp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_singleplayer_level();
   if (sp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == sp_lvnum)
     {
@@ -1822,11 +1768,10 @@ LevelNumber next_singleplayer_level(LevelNumber sp_lvnum)
  */
 LevelNumber prev_singleplayer_level(LevelNumber sp_lvnum)
 {
-  int i;
   if (sp_lvnum == SINGLEPLAYER_NOTSTARTED) return SINGLEPLAYER_NOTSTARTED;
   if (sp_lvnum == SINGLEPLAYER_FINISHED) return last_singleplayer_level();
   if (sp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == sp_lvnum)
     {
@@ -1846,11 +1791,10 @@ LevelNumber prev_singleplayer_level(LevelNumber sp_lvnum)
  */
 LevelNumber next_multiplayer_level(LevelNumber mp_lvnum)
 {
-  int i;
   if (mp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (mp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_multiplayer_level();
   if (mp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.multi_levels[i] == mp_lvnum)
     {
@@ -1870,11 +1814,10 @@ LevelNumber next_multiplayer_level(LevelNumber mp_lvnum)
  */
 LevelNumber prev_multiplayer_level(LevelNumber mp_lvnum)
 {
-  int i;
   if (mp_lvnum == SINGLEPLAYER_NOTSTARTED) return SINGLEPLAYER_NOTSTARTED;
   if (mp_lvnum == SINGLEPLAYER_FINISHED) return last_multiplayer_level();
   if (mp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.multi_levels[i] == mp_lvnum)
     {
@@ -1894,11 +1837,10 @@ LevelNumber prev_multiplayer_level(LevelNumber mp_lvnum)
  */
 LevelNumber next_extra_level(LevelNumber ex_lvnum)
 {
-  int i;
   if (ex_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (ex_lvnum == SINGLEPLAYER_NOTSTARTED) return first_extra_level();
   if (ex_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (i=0; i<EXTRA_LEVELS_COUNT; i++)
+  for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
   {
     if (campaign.extra_levels[i] == ex_lvnum)
     {
@@ -1921,11 +1863,10 @@ LevelNumber next_extra_level(LevelNumber ex_lvnum)
  */
 LevelNumber next_freeplay_level(LevelNumber fp_lvnum)
 {
-  int i;
   if (fp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (fp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_freeplay_level();
   if (fp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (i=0; i<FREE_LEVELS_COUNT; i++)
+  for (int i = 0; i < FREE_LEVELS_COUNT; i++)
   {
     if (campaign.freeplay_levels[i] == fp_lvnum)
     {
@@ -1945,11 +1886,10 @@ LevelNumber next_freeplay_level(LevelNumber fp_lvnum)
  */
 LevelNumber prev_freeplay_level(LevelNumber fp_lvnum)
 {
-  int i;
   if (fp_lvnum == SINGLEPLAYER_NOTSTARTED) return SINGLEPLAYER_NOTSTARTED;
   if (fp_lvnum == SINGLEPLAYER_FINISHED) return last_freeplay_level();
   if (fp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (i=0; i<FREE_LEVELS_COUNT; i++)
+  for (int i = 0; i < FREE_LEVELS_COUNT; i++)
   {
     if (campaign.freeplay_levels[i] == fp_lvnum)
     {
@@ -1979,13 +1919,12 @@ short is_singleplayer_like_level(LevelNumber lvnum)
  */
 short is_singleplayer_level(LevelNumber lvnum)
 {
-  int i;
   if (lvnum < 1)
   {
     SYNCDBG(17,"Level index %ld is not correct",lvnum);
     return false;
   }
-  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == lvnum)
     {
@@ -2010,16 +1949,15 @@ short is_multiplayer_level(LevelNumber lvnum)
     }
   }
   // Original MP checking - remove when it's not needed anymore
-  struct NetLevelDesc *lvdesc;
   if (net_number_of_levels <= 0)
     return false;
   for (i=0; i < net_number_of_levels; i++)
   {
-    lvdesc = &net_level_desc[i];
-    if (lvdesc->lvnum == lvnum)
-    {
-        SYNCDBG(17,"Level %ld identified as MP with old description",lvnum);
-        return true;
+      struct NetLevelDesc* lvdesc = &net_level_desc[i];
+      if (lvdesc->lvnum == lvnum)
+      {
+          SYNCDBG(17, "Level %ld identified as MP with old description", lvnum);
+          return true;
     }
   }
   SYNCDBG(17,"Level %ld not recognized as MP",lvnum);
@@ -2045,9 +1983,8 @@ short is_campaign_level(LevelNumber lvnum)
  */
 short is_freeplay_level(LevelNumber lvnum)
 {
-  int i;
   if (lvnum < 1) return false;
-  for (i=0; i<FREE_LEVELS_COUNT; i++)
+  for (int i = 0; i < FREE_LEVELS_COUNT; i++)
   {
     if (campaign.freeplay_levels[i] == lvnum)
     {

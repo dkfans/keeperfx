@@ -51,9 +51,14 @@ struct CScan *ScanBuffer;
 /******************************************************************************/
 CHex::CHex(long width, long height)
 {
-    long maxsize,mwidth,mheight;
-    long double ldpar1,ldpar2;
-    long double varA,varB,len;
+    long maxsize;
+    long mwidth;
+    long mheight;
+    long double ldpar1;
+    long double ldpar2;
+    long double varA;
+    long double varB;
+    long double len;
     long i;
     if (ScrHeight > ScrWidth)
         maxsize = ScrHeight;
@@ -91,7 +96,8 @@ CHex::CHex(long width, long height)
 
 void CHex::DrawOutline(void)
 {
-    long i,k;
+    long i;
+    long k;
     for (i=0; i < 6; i++)
     {
         k = (i + 1) % 6;
@@ -101,8 +107,10 @@ void CHex::DrawOutline(void)
 
 void CHex::AddScan(struct CScan *scan, long strip_len, long len_limit, long nstrip_w, long nstrip_h)
 {
-    long stlen,clen;
-    long i,n;
+    long stlen;
+    long clen;
+    long i;
+    long n;
 
     stlen = strip_len;
     if (strip_len < 0)
@@ -153,12 +161,18 @@ void CHex::AddScan(struct CScan *scan, long strip_len, long len_limit, long nstr
 
 void CHex::BlitHex(void)
 {
-    int min_idx,counter1,counter2;
-    int first_idx,last_idx;
-    int deltaV1,deltaV2;
-    int posV1,posV2;
+    int min_idx;
+    int counter1;
+    int counter2;
+    int first_idx;
+    int last_idx;
+    int deltaV1;
+    int deltaV2;
+    int posV1;
+    int posV2;
     long scan_num;
-    int i,n;
+    int i;
+    int n;
     min_idx = 0;
     for (i = 1; i < 6; i++)
     {
@@ -217,7 +231,9 @@ void CHex::BlitHex(void)
 
 void flyeye_setup(long width, long height)
 {
-    long i,x,y;
+    long i;
+    long x;
+    long y;
     ScrCenterX = (width >> 1);
     ScrWidth = width;
     ScrCenterY = (height >> 1);
@@ -244,8 +260,10 @@ void CHex::BlitScan(struct CScan *scan, long h)
 {
   unsigned char *dst;
   unsigned char *src;
-  long shift_w,shift_h;
-  long w,end_w;
+  long shift_w;
+  long shift_h;
+  long w;
+  long end_w;
   long i;
   SYNCDBG(16,"Starting line %d",h);
   for(i=0; i < scan->strips_num; i++)

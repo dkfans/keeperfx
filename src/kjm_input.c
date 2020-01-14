@@ -120,9 +120,8 @@ struct KeyToStringInit key_to_string_init[] = {
  */
 long GetMouseX(void)
 {
-  long result;
-  result = lbDisplay.MMouseX * (long)pixel_size;
-  return result;
+    long result = lbDisplay.MMouseX * (long)pixel_size;
+    return result;
 }
 
 /**
@@ -130,9 +129,8 @@ long GetMouseX(void)
  */
 long GetMouseY(void)
 {
-  long result;
-  result = lbDisplay.MMouseY * (long)pixel_size;
-  return result;
+    long result = lbDisplay.MMouseY * (long)pixel_size;
+    return result;
 }
 
 short is_mouse_pressed_leftbutton(void)
@@ -332,9 +330,8 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
                 ERRORLOG("Reached a place we should not be able");
                 ncode = KC_UNASSIGNED;
             }
-            struct GameKey  *kbk;
             // Do not allow the key if it is used as other mod key
-            kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_RotateMod) < 1) + Gkey_RotateMod];
+            struct GameKey* kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_RotateMod) < 1) + Gkey_RotateMod];
             if (kbk->code != ncode)
             {
                 kbk = &settings.kbkeys[key_id];
@@ -362,9 +359,8 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
                 ERRORLOG("Reached a place we should not be able");
                 ncode = KC_UNASSIGNED;
             }
-            struct GameKey  *kbk;
             // Do not allow the key if it is used as other mod key
-            kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_CrtrContrlMod) < 1) + Gkey_CrtrContrlMod];
+            struct GameKey* kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_CrtrContrlMod) < 1) + Gkey_CrtrContrlMod];
             if (kbk->code != ncode)
             {
                 kbk = &settings.kbkeys[key_id];
@@ -374,9 +370,8 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
             return 1;
         } else
         {
-            long i;
             struct GameKey  *kbk;
-            for (i = 0; i < GAME_KEYS_COUNT; i++)
+            for (long i = 0; i < GAME_KEYS_COUNT; i++)
             {
                 kbk = &settings.kbkeys[i];
                 if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods)) {
@@ -402,8 +397,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
             return 0;
         }
         struct GameKey *kbk;
-        long i;
-        for (i = 0; i < GAME_KEYS_COUNT; i++)
+        for (long i = 0; i < GAME_KEYS_COUNT; i++)
         {
             kbk = &settings.kbkeys[i];
             if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods)) {
@@ -443,13 +437,11 @@ void define_key_input(void)
  */
 void init_key_to_strings(void)
 {
-    struct KeyToStringInit *ktsi;
-    long k;
     LbMemorySet(key_to_string, 0, sizeof(key_to_string));
-    for (ktsi = &key_to_string_init[0]; ktsi->chr != 0; ktsi++)
+    for (struct KeyToStringInit* ktsi = &key_to_string_init[0]; ktsi->chr != 0; ktsi++)
     {
-      k = ktsi->chr;
-      key_to_string[k] = ktsi->str_idx;
+        long k = ktsi->chr;
+        key_to_string[k] = ktsi->str_idx;
     }
 }
 
@@ -461,14 +453,11 @@ void init_key_to_strings(void)
  */
 TbBool mouse_is_over_pannel_map(ScreenCoord x, ScreenCoord y)
 {
-    long cmx,cmy;
-    long px,py;
-    cmx = GetMouseX();
-    cmy = GetMouseY();
-    int units_per_px;
-    units_per_px = (16*status_panel_width + 140/2) / 140;
-    px = (cmx-(x+PANNEL_MAP_RADIUS*units_per_px/16));
-    py = (cmy-(y+PANNEL_MAP_RADIUS*units_per_px/16));
+    long cmx = GetMouseX();
+    long cmy = GetMouseY();
+    int units_per_px = (16 * status_panel_width + 140 / 2) / 140;
+    long px = (cmx - (x + PANNEL_MAP_RADIUS * units_per_px / 16));
+    long py = (cmy - (y + PANNEL_MAP_RADIUS * units_per_px / 16));
     return (LbSqrL(px*px + py*py) < PANNEL_MAP_RADIUS*units_per_px/16);
 }
 /******************************************************************************/

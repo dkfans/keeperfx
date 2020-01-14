@@ -56,20 +56,18 @@ DLLIMPORT void _DK_fill_in_explored_area(unsigned char plyr_idx, short stl_x, sh
 /******************************************************************************/
 TbBool player_has_won(PlayerNumber plyr_idx)
 {
-  struct PlayerInfo *player;
-  player = get_player(plyr_idx);
-  if (player_invalid(player))
-    return false;
-  return (player->victory_state == VicS_WonLevel);
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_invalid(player))
+        return false;
+    return (player->victory_state == VicS_WonLevel);
 }
 
 TbBool player_has_lost(PlayerNumber plyr_idx)
 {
-  struct PlayerInfo *player;
-  player = get_player(plyr_idx);
-  if (player_invalid(player))
-    return false;
-  return (player->victory_state == VicS_LostLevel);
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_invalid(player))
+        return false;
+    return (player->victory_state == VicS_LostLevel);
 }
 
 /**
@@ -79,16 +77,14 @@ TbBool player_has_lost(PlayerNumber plyr_idx)
  */
 TbBool player_cannot_win(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
     if (plyr_idx == game.neutral_player_num)
         return true;
-    player = get_player(plyr_idx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (!player_exists(player))
         return true;
     if (player->victory_state == VicS_LostLevel)
         return true;
-    struct Thing *heartng;
-    heartng = get_player_soul_container(player->id_number);
+    struct Thing* heartng = get_player_soul_container(player->id_number);
     if (!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed))
         return true;
     return false;
@@ -96,7 +92,6 @@ TbBool player_cannot_win(PlayerNumber plyr_idx)
 
 void set_player_as_won_level(struct PlayerInfo *player)
 {
-  struct Dungeon *dungeon;
   if (player->victory_state != VicS_Undecided)
   {
       //WARNLOG("Player fate is already decided to %d",(int)player->victory_state);
@@ -105,7 +100,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   if (is_my_player(player))
     frontstats_initialise();
   player->victory_state = VicS_WonLevel;
-  dungeon = get_dungeon(player->id_number);
+  struct Dungeon* dungeon = get_dungeon(player->id_number);
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
@@ -124,8 +119,6 @@ void set_player_as_won_level(struct PlayerInfo *player)
 
 void set_player_as_lost_level(struct PlayerInfo *player)
 {
-    struct Dungeon *dungeon;
-    struct Thing *thing;
     if (player->victory_state != VicS_Undecided)
     {
         // Suppress redundant warnings
@@ -139,7 +132,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     if (is_my_player(player))
         frontstats_initialise();
     player->victory_state = VicS_LostLevel;
-    dungeon = get_dungeon(player->id_number);
+    struct Dungeon* dungeon = get_dungeon(player->id_number);
     // Computing player score
     dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
     if (is_my_player(player))
@@ -156,7 +149,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         turn_off_power_call_to_arms(player->id_number);
     if (player_uses_power_sight(player->id_number))
     {
-        thing = thing_get(dungeon->sight_casted_thing_idx);
+        struct Thing* thing = thing_get(dungeon->sight_casted_thing_idx);
         delete_thing_structure(thing, 0);
         dungeon->sight_casted_thing_idx = 0;
     }
@@ -194,32 +187,25 @@ long compute_player_final_score(struct PlayerInfo *player, long gameplay_score)
  */
 GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
 {
-    GoldAmount amount;
-    amount = amount_take;
-    unsigned long slbnum;
-    unsigned long k;
+    GoldAmount amount = amount_take;
     // Remove gold from room border slabs
-    k = 0;
-    slbnum = room->slabs_list;
+    unsigned long k = 0;
+    unsigned long slbnum = room->slabs_list;
     while (slbnum > 0)
     {
-        struct SlabMap *slb;
-        slb = get_slabmap_direct(slbnum);
+        struct SlabMap* slb = get_slabmap_direct(slbnum);
         if (slabmap_block_invalid(slb)) {
             ERRORLOG("Jump to invalid room slab detected");
             break;
         }
         // Per-slab code starts
-        MapSlabCoord slb_x, slb_y;
-        slb_x = slb_num_decode_x(slbnum);
-        slb_y = slb_num_decode_y(slbnum);
-        MapSubtlCoord stl_x,stl_y;
-        stl_x = slab_subtile_center(slb_x);
-        stl_y = slab_subtile_center(slb_y);
+        MapSlabCoord slb_x = slb_num_decode_x(slbnum);
+        MapSlabCoord slb_y = slb_num_decode_y(slbnum);
+        MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+        MapSubtlCoord stl_y = slab_subtile_center(slb_y);
         if (slab_is_area_outer_border(slb_x, slb_y))
         {
-            struct Thing *hrdtng;
-            hrdtng = find_gold_hoard_at(stl_x, stl_y);
+            struct Thing* hrdtng = find_gold_hoard_at(stl_x, stl_y);
             if (!thing_is_invalid(hrdtng)) {
                 amount -= remove_gold_from_hoarde(hrdtng, room, amount);
             }
@@ -242,19 +228,16 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
     slbnum = room->slabs_list;
     while (slbnum > 0)
     {
-        struct SlabMap *slb;
-        slb = get_slabmap_direct(slbnum);
+        struct SlabMap* slb = get_slabmap_direct(slbnum);
         if (slabmap_block_invalid(slb)) {
             ERRORLOG("Jump to invalid room slab detected");
             break;
         }
         // Per-slab code starts
-        MapSubtlCoord stl_x,stl_y;
-        stl_x = slab_subtile_center(slb_num_decode_x(slbnum));
-        stl_y = slab_subtile_center(slb_num_decode_y(slbnum));
+        MapSubtlCoord stl_x = slab_subtile_center(slb_num_decode_x(slbnum));
+        MapSubtlCoord stl_y = slab_subtile_center(slb_num_decode_y(slbnum));
         {
-            struct Thing *hrdtng;
-            hrdtng = find_gold_hoard_at(stl_x, stl_y);
+            struct Thing* hrdtng = find_gold_hoard_at(stl_x, stl_y);
             if (!thing_is_invalid(hrdtng)) {
                 amount -= remove_gold_from_hoarde(hrdtng, room, amount);
             }
@@ -275,16 +258,13 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
 
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("%s: Cannot take gold from player %d with no dungeon",func_name,(int)plyr_idx);
         return -1;
     }
-    GoldAmount take_remain;
-    take_remain = amount_take;
-    GoldAmount total_money;
-    total_money = dungeon->total_money_owned;
+    GoldAmount take_remain = amount_take;
+    GoldAmount total_money = dungeon->total_money_owned;
     if (take_remain <= 0) {
         WARNLOG("%s: No gold needed to be taken from player %d",func_name,(int)plyr_idx);
         return 0;
@@ -298,8 +278,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         take_remain = dungeon->total_money_owned;
         amount_take = dungeon->total_money_owned;
     }
-    GoldAmount offmap_money;
-    offmap_money = dungeon->offmap_money_owned;
+    GoldAmount offmap_money = dungeon->offmap_money_owned;
     if (offmap_money > 0)
     {
         if (take_remain <= offmap_money)
@@ -312,14 +291,11 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->total_money_owned -= offmap_money;
         dungeon->offmap_money_owned = 0;
     }
-    long i;
-    unsigned long k;
-    i = dungeon->room_kind[RoK_TREASURE];
-    k = 0;
+    long i = dungeon->room_kind[RoK_TREASURE];
+    unsigned long k = 0;
     while (i != 0)
     {
-        struct Room *room;
-        room = room_get(i);
+        struct Room* room = room_get(i);
         if (room_is_invalid(room))
         {
           ERRORLOG("Jump to invalid room detected");
@@ -356,17 +332,14 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
 long update_dungeon_generation_speeds(void)
 {
     int plyr_idx;
-    int max_manage_score;
     // Get value of generation
-    max_manage_score = 0;
+    int max_manage_score = 0;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        struct PlayerInfo *player;
-        player = get_player(plyr_idx);
+        struct PlayerInfo* player = get_player(plyr_idx);
         if (player_exists(player) && (player->field_2C == 1))
         {
-            struct Dungeon *dungeon;
-            dungeon = get_players_dungeon(player);
+            struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->total_score > max_manage_score)
                 max_manage_score = dungeon->manage_score;
         }
@@ -374,12 +347,10 @@ long update_dungeon_generation_speeds(void)
     // Update the values
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        struct PlayerInfo *player;
-        player = get_player(plyr_idx);
+        struct PlayerInfo* player = get_player(plyr_idx);
         if (player_exists(player) && (player->field_2C == 1))
         {
-            struct Dungeon *dungeon;
-            dungeon = get_players_dungeon(player);
+            struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->manage_score > 0)
                 dungeon->turns_between_entrance_generation = max_manage_score * game.generate_speed / dungeon->manage_score;
             else
@@ -393,12 +364,10 @@ long update_dungeon_generation_speeds(void)
 void calculate_dungeon_area_scores(void)
 {
     //_DK_calculate_dungeon_area_scores();
-    PlayerNumber plyr_idx;
     // Zero dungeon areas
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        struct Dungeon *dungeon;
-        dungeon = get_players_num_dungeon(plyr_idx);
+        struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
         if (!dungeon_invalid(dungeon))
         {
             dungeon->total_area = 0;
@@ -406,17 +375,13 @@ void calculate_dungeon_area_scores(void)
         }
     }
     // Compute new values for dungeon areas
-    MapSlabCoord slb_x, slb_y;
-    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    for (MapSlabCoord slb_y = 0; slb_y < map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        for (MapSlabCoord slb_x = 0; slb_x < map_tiles_x; slb_x++)
         {
-            SlabCodedCoords slb_num;
-            slb_num = get_slab_number(slb_x, slb_y);
-            struct SlabMap *slb;
-            slb = get_slabmap_direct(slb_num);
-            const struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(slb);
+            SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
+            struct SlabMap* slb = get_slabmap_direct(slb_num);
+            const struct SlabAttr* slbattr = get_slab_attrs(slb);
             if (slbattr->category == SlbAtCtg_RoomInterior)
             {
                 struct Dungeon *dungeon;
@@ -450,22 +415,18 @@ void calculate_dungeon_area_scores(void)
 
 void init_player_music(struct PlayerInfo *player)
 {
-    LevelNumber lvnum;
-    lvnum = get_loaded_level_number();
+    LevelNumber lvnum = get_loaded_level_number();
     game.audiotrack = 3 + ((lvnum - 1) % 4);
     randomize_sound_font();
 }
 
 TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)
 {
-    int n;
-    for (n = 0; n < SMALL_AROUND_LENGTH; n++)
+    for (int n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
-        int dx,dy;
-        dx = small_around[n].delta_x;
-        dy = small_around[n].delta_y;
-        struct SlabMap *slb;
-        slb = get_slabmap_block(slb_x+dx, slb_y+dy);
+        int dx = small_around[n].delta_x;
+        int dy = small_around[n].delta_y;
+        struct SlabMap* slb = get_slabmap_block(slb_x + dx, slb_y + dy);
         if ((slb->kind == slbkind) && (slabmap_owner(slb) == plyr_idx)) {
             return true;
         }
@@ -475,10 +436,8 @@ TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, Sla
 
 TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
-    struct Map *mapblk;
-    mapblk = get_map_block_at(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    struct Map* mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
     // All owned ground is visible
     if (slabmap_owner(slb) == plyr_idx) {
         return true;
@@ -488,8 +447,7 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
         return true;
     }
     // Neutral entrances are visible
-    struct Room *room;
-    room = room_get(slb->room_index);
+    struct Room* room = room_get(slb->room_index);
     if (((mapblk->flags & SlbAtFlg_IsRoom) != 0) && (room->kind == RoK_ENTRANCE) && (slabmap_owner(slb) == game.neutral_player_num)) {
         return true;
     }
@@ -512,15 +470,13 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player)
 {
     //_DK_init_keeper_map_exploration(player); return;
-    struct Thing *heartng;
-    heartng = get_player_soul_container(player->id_number);
+    struct Thing* heartng = get_player_soul_container(player->id_number);
     if (thing_exists(heartng)) {
         fill_in_explored_area(player->id_number, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num);
     }
-    MapSlabCoord slb_x, slb_y;
-    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    for (MapSlabCoord slb_y = 0; slb_y < map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        for (MapSlabCoord slb_x = 0; slb_x < map_tiles_x; slb_x++)
         {
             if (map_position_initially_explored_for_player(player->id_number, slb_x, slb_y)) {
                 set_slab_explored(player->id_number, slb_x, slb_y);
@@ -542,7 +498,6 @@ void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player)
 
 void init_player_as_single_keeper(struct PlayerInfo *player)
 {
-    unsigned short idx;
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
     player->field_4CD = 0;
@@ -550,7 +505,7 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     ilght.field_2 = 48;
     ilght.field_3 = 5;
     ilght.is_dynamic = 1;
-    idx = light_create_light(&ilght);
+    unsigned short idx = light_create_light(&ilght);
     player->field_460 = idx;
     if (idx != 0) {
         light_set_light_never_cache(idx);
@@ -620,11 +575,9 @@ void init_player(struct PlayerInfo *player, short no_explore)
 
 void init_players(void)
 {
-    struct PlayerInfo *player;
-    int i;
-    for (i=0;i<PLAYERS_COUNT;i++)
+    for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        player = get_player(i);
+        struct PlayerInfo* player = get_player(i);
         if ((game.packet_save_head.players_exist & (1 << i)) != 0)
             player->allocflags |= PlaF_Allocated;
         else
@@ -650,18 +603,15 @@ void init_players(void)
 TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
     SYNCDBG(16,"Starting");
-    MapSubtlCoord stl_x,stl_y;
-    stl_x = stl_num_decode_x(stl_num);
-    stl_y = stl_num_decode_y(stl_num);
+    MapSubtlCoord stl_x = stl_num_decode_x(stl_num);
+    MapSubtlCoord stl_y = stl_num_decode_y(stl_num);
     if (wandr->wandr_slot == CrWaS_WithinDungeon)
     {
-        struct Map *mapblk;
-        mapblk = get_map_block_at_pos(stl_num);
+        struct Map* mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are revealed to the wandering player, unless it's heroes - for them, add all
         if ((wandr->plyr_idx == game.hero_player_num) || map_block_revealed(mapblk, wandr->plyr_idx))
         {
-            struct SlabMap *slb;
-            slb = get_slabmap_for_subtile(stl_x, stl_y);
+            struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0)
              && players_creatures_tolerate_each_other(wandr->plyr_idx,slabmap_owner(slb)))
             {
@@ -670,15 +620,13 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
         }
     } else
     {
-        struct Map *mapblk;
-        mapblk = get_map_block_at_pos(stl_num);
+        struct Map* mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
         if ((wandr->plyr_idx != game.hero_player_num) && !map_block_revealed(mapblk, wandr->plyr_idx))
         {
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
-                struct Thing *heartng;
-                heartng = get_player_soul_container(wandr->plyr_idx);
+                struct Thing* heartng = get_player_soul_container(wandr->plyr_idx);
                 if (!thing_is_invalid(heartng))
                 {
                     struct Coord3d dstpos;
@@ -696,8 +644,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 
 TbBool wander_point_add(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
-    unsigned long i;
-    i = wandr->point_insert_idx;
+    unsigned long i = wandr->point_insert_idx;
     wandr->points[i].stl_x = stl_num_decode_x(stl_num);
     wandr->points[i].stl_y = stl_num_decode_y(stl_num);
     wandr->point_insert_idx = (i + 1) % WANDER_POINTS_COUNT;
@@ -720,12 +667,11 @@ TbBool store_wander_points_up_to(struct Wander *wandr, const SubtlCodedCoords st
     long i;
     if (stl_num_count > max_to_store)
     {
-        double realidx,delta;
         if (wandr->max_found_per_check <= 0)
             return 1;
         wandr->point_insert_idx %= WANDER_POINTS_COUNT;
-        delta = ((double)stl_num_count) / max_to_store;
-        realidx = 0.1; // A little above zero to avoid float rounding errors
+        double delta = ((double)stl_num_count) / max_to_store;
+        double realidx = 0.1; // A little above zero to avoid float rounding errors
         for (i = 0; i < max_to_store; i++)
         {
             wander_point_add(wandr, stl_num_list[(unsigned int)(realidx)]);
@@ -753,19 +699,14 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
     wandr->max_found_per_check = 4;
     wandr->wdrfield_14 = 0;
 
-    SubtlCodedCoords *stl_num_list;
-    long stl_num_list_count;
-    SlabCodedCoords slb_num;
-    stl_num_list_count = 0;
-    stl_num_list = (SubtlCodedCoords *)scratch;
-    slb_num = 0;
+    long stl_num_list_count = 0;
+    SubtlCodedCoords* stl_num_list = (SubtlCodedCoords*)scratch;
+    SlabCodedCoords slb_num = 0;
     while (1)
     {
-        MapSlabCoord slb_x,slb_y;
-        SubtlCodedCoords stl_num;
-        slb_x = slb_num_decode_x(slb_num);
-        slb_y = slb_num_decode_y(slb_num);
-        stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
+        MapSlabCoord slb_x = slb_num_decode_x(slb_num);
+        MapSlabCoord slb_y = slb_num_decode_y(slb_num);
+        SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
         if (wp_check_map_pos_valid(wandr, stl_num))
         {
             if (stl_num_list_count >= 0x10000/sizeof(SubtlCodedCoords)-1)
@@ -790,20 +731,15 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
 long wander_point_update(struct Wander *wandr)
 {
     SubtlCodedCoords stl_num_list[LOCAL_LIST_SIZE];
-    long stl_num_list_count;
-    SlabCodedCoords slb_num;
-    long i;
     SYNCDBG(6,"Starting");
     // Find up to 20 numbers (starting where we ended last time) and store them in local array
-    slb_num = wandr->last_checked_slb_num;
-    stl_num_list_count = 0;
-    for (i = 0; i < wandr->num_check_per_run; i++)
+    SlabCodedCoords slb_num = wandr->last_checked_slb_num;
+    long stl_num_list_count = 0;
+    for (long i = 0; i < wandr->num_check_per_run; i++)
     {
-        MapSlabCoord slb_x,slb_y;
-        SubtlCodedCoords stl_num;
-        slb_x = slb_num_decode_x(slb_num);
-        slb_y = slb_num_decode_y(slb_num);
-        stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
+        MapSlabCoord slb_x = slb_num_decode_x(slb_num);
+        MapSlabCoord slb_y = slb_num_decode_y(slb_num);
+        SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
         if (wp_check_map_pos_valid(wandr, stl_num))
         {
             if (stl_num_list_count >= LOCAL_LIST_SIZE)
@@ -852,11 +788,9 @@ void post_init_player(struct PlayerInfo *player)
 
 void post_init_players(void)
 {
-    PlayerNumber plyr_idx;
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        struct PlayerInfo *player;
-        player = get_player(plyr_idx);
+        struct PlayerInfo* player = get_player(plyr_idx);
         if ((player->allocflags & PlaF_Allocated) != 0) {
             post_init_player(player);
         }
@@ -865,9 +799,8 @@ void post_init_players(void)
 
 void init_players_local_game(void)
 {
-    struct PlayerInfo *player;
     SYNCDBG(4,"Starting");
-    player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated;
     if (settings.video_rotate_mode < 1)
@@ -880,19 +813,15 @@ void init_players_local_game(void)
 void process_player_states(void)
 {
     SYNCDBG(6,"Starting");
-    PlayerNumber plyr_idx;
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        struct PlayerInfo *player;
-        player = get_player(plyr_idx);
+        struct PlayerInfo* player = get_player(plyr_idx);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
             if (player->work_state == PSt_CreatrInfo)
             {
-                struct Thing *thing;
-                thing = thing_get(player->controlled_thing_idx);
-                struct Camera *cam;
-                cam = player->acamera;
+                struct Thing* thing = thing_get(player->controlled_thing_idx);
+                struct Camera* cam = player->acamera;
                 if ((cam != NULL) && thing_exists(thing)) {
                     cam->mappos.x.val = thing->mappos.x.val;
                     cam->mappos.y.val = thing->mappos.y.val;
@@ -904,14 +833,12 @@ void process_player_states(void)
 
 void process_players(void)
 {
-    int i;
-    struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
     process_player_instances();
     process_player_states();
-    for (i=0; i<PLAYERS_COUNT; i++)
+    for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        player = get_player(i);
+        struct PlayerInfo* player = get_player(i);
         if (player_exists(player) && (player->field_2C == 1))
         {
             SYNCDBG(6,"Doing updates for player %d",i);
@@ -921,8 +848,7 @@ void process_players(void)
             update_player_objectives(i);
         }
     }
-    TbBigChecksum sum;
-    sum = 0;
+    TbBigChecksum sum = 0;
     sum += compute_players_checksum();
     sum += game.action_rand_seed;
     player_packet_checksum_add(my_player_number,sum,"players");
@@ -931,19 +857,15 @@ void process_players(void)
 
 TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    MapSlabCoord slb_x,slb_y;
-    long sell_value;
-    thing = get_trap_for_slab_position(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+    struct Thing* thing = get_trap_for_slab_position(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
     if (thing_is_invalid(thing))
     {
         return false;
     }
-    dungeon = get_players_num_dungeon(thing->owner);
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
-    sell_value = 0;
+    struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    long sell_value = 0;
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
@@ -959,8 +881,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         WARNLOG("Sold traps at (%d,%d) which didn't cost anything",(int)stl_x,(int)stl_y);
     }
     { // Add the trap location to related computer player, in case we'll want to place a trap again
-        struct Computer2 *comp;
-        comp = get_computer_player(plyr_idx);
+        struct Computer2* comp = get_computer_player(plyr_idx);
         if (!computer_player_invalid(comp)) {
             add_to_trap_location(comp, &pos);
         }
@@ -970,20 +891,16 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    MapSubtlCoord cstl_x,cstl_y;
-    long i;
-    cstl_x = stl_slab_center_subtile(stl_x);
-    cstl_y = stl_slab_center_subtile(stl_y);
-    thing = get_door_for_position(cstl_x, cstl_y);
+    MapSubtlCoord cstl_x = stl_slab_center_subtile(stl_x);
+    MapSubtlCoord cstl_y = stl_slab_center_subtile(stl_y);
+    struct Thing* thing = get_door_for_position(cstl_x, cstl_y);
     if (thing_is_invalid(thing))
     {
         return false;
     }
-    dungeon = get_players_num_dungeon(thing->owner);
+    struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
     dungeon->camera_deviate_jump = 192;
-    i = game.doors_config[thing->model].selling_value;
+    long i = game.doors_config[thing->model].selling_value;
     destroy_door(thing);
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
@@ -995,8 +912,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         player_add_offmap_gold(plyr_idx, i);
     }
     { // Add the trap location to related computer player, in case we'll want to place a trap again
-        struct Computer2 *comp;
-        comp = get_computer_player(plyr_idx);
+        struct Computer2* comp = get_computer_player(plyr_idx);
         if (!computer_player_invalid(comp)) {
             add_to_trap_location(comp, &pos);
         }
@@ -1007,8 +923,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
 {
     SYNCDBG(15,"Starting for player %d",(int)plyr_idx);
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->creatures_total_pay = compute_player_payday_total(dungeon);
 }
 /******************************************************************************/

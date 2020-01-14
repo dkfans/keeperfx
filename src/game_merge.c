@@ -103,16 +103,15 @@ LevelNumber set_selected_level_number(LevelNumber lvnum)
  */
 TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum)
 {
-  int i,n,k;
-  i = storage_index_for_bonus_level(bn_lvnum);
-  if (i < 0)
-  {
-      // This hapens quite often - status of bonus level is checked even
-      // if there's no such bonus level. So no log message here.
-      return false;
+    int i = storage_index_for_bonus_level(bn_lvnum);
+    if (i < 0)
+    {
+        // This hapens quite often - status of bonus level is checked even
+        // if there's no such bonus level. So no log message here.
+        return false;
   }
-  n = i/8;
-  k = (1 << (i%8));
+  int n = i / 8;
+  int k = (1 << (i % 8));
   if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
   {
     WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
@@ -126,15 +125,14 @@ TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum)
  */
 TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
 {
-  int i,n,k;
-  i = storage_index_for_bonus_level(bn_lvnum);
-  if (i < 0)
-  {
-      WARNLOG("Can't set state of non-existing bonus level %d.",(int)bn_lvnum);
-      return false;
+    int i = storage_index_for_bonus_level(bn_lvnum);
+    if (i < 0)
+    {
+        WARNLOG("Can't set state of non-existing bonus level %d.", (int)bn_lvnum);
+        return false;
   }
-  n = i/8;
-  k = (1 << (i%8));
+  int n = i / 8;
+  int k = (1 << (i % 8));
   if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
   {
     WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
@@ -149,13 +147,12 @@ TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
  */
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible)
 {
-  long bn_lvnum;
-  bn_lvnum = bonus_level_for_singleplayer_level(sp_lvnum);
-  if (!set_bonus_level_visibility(bn_lvnum, visible))
-  {
-    if (visible)
-      WARNMSG("Couldn't store bonus award for level %d",sp_lvnum);
-    return false;
+    long bn_lvnum = bonus_level_for_singleplayer_level(sp_lvnum);
+    if (!set_bonus_level_visibility(bn_lvnum, visible))
+    {
+        if (visible)
+            WARNMSG("Couldn't store bonus award for level %d", sp_lvnum);
+        return false;
   }
   if (visible)
     SYNCMSG("Bonus award for level %d enabled",sp_lvnum);
@@ -164,9 +161,8 @@ TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *play
 
 void hide_all_bonus_levels(struct PlayerInfo *player)
 {
-  int i;
-  for(i=0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
-    intralvl.bonuses_found[i] = 0;
+    for (int i = 0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
+        intralvl.bonuses_found[i] = 0;
 }
 
 /**
@@ -174,24 +170,23 @@ void hide_all_bonus_levels(struct PlayerInfo *player)
  */
 unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
 {
-  LevelNumber ex_lvnum;
-  ex_lvnum = get_extra_level(elv_kind);
-  if (ex_lvnum <= 0)
-    return LvSt_Hidden;
-  switch (elv_kind)
-  {
-  case ExLv_FullMoon:
-    if (is_full_moon)
-      return LvSt_Visible;
-    if (is_near_full_moon)
-      return LvSt_HalfShow;
-    break;
-  case ExLv_NewMoon:
-    if (is_new_moon)
-      return LvSt_Visible;
-    if (is_near_new_moon)
-      return LvSt_HalfShow;
-    break;
+    LevelNumber ex_lvnum = get_extra_level(elv_kind);
+    if (ex_lvnum <= 0)
+        return LvSt_Hidden;
+    switch (elv_kind)
+    {
+    case ExLv_FullMoon:
+        if (is_full_moon)
+            return LvSt_Visible;
+        if (is_near_full_moon)
+            return LvSt_HalfShow;
+        break;
+    case ExLv_NewMoon:
+        if (is_new_moon)
+            return LvSt_Visible;
+        if (is_near_new_moon)
+            return LvSt_HalfShow;
+        break;
   }
   return LvSt_Hidden;
 }
@@ -201,14 +196,13 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
  */
 short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
 {
-  int i;
-  i = array_index_for_extra_level(ex_lvnum);
-  switch (i+1)
-  {
-  case ExLv_FullMoon:
-    return is_full_moon;
-  case ExLv_NewMoon:
-    return is_new_moon;
+    int i = array_index_for_extra_level(ex_lvnum);
+    switch (i + 1)
+    {
+    case ExLv_FullMoon:
+        return is_full_moon;
+    case ExLv_NewMoon:
+        return is_new_moon;
   }
   return false;
 }

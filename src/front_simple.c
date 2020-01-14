@@ -117,19 +117,16 @@ unsigned char palette_buf[PALETTE_SIZE];
 TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int dst_width,const int dst_height,
     const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height)
 {
-  int i,k;
-  unsigned char *dst;
-  const unsigned char *src;
-  SYNCDBG(18,"Starting; screen buf %d,%d screen size %d,%d dst pos %d,%d src %d,%d",(int)scanline,(int)nlines,(int)dst_width,(int)dst_height,(int)spw,(int)sph,(int)src_width,(int)src_height);
-  // Source pixel coords
-  int sw,sh;
-  sw=0;
-  sh=0;
-  // Clearing top of the canvas
-  for (sh=0; sh<sph; sh++)
-  {
-    dst = dst_buf + (sh)*scanline;
-    LbMemorySet(dst, 0, scanline);
+    unsigned char* dst;
+    SYNCDBG(18, "Starting; screen buf %d,%d screen size %d,%d dst pos %d,%d src %d,%d", (int)scanline, (int)nlines, (int)dst_width, (int)dst_height, (int)spw, (int)sph, (int)src_width, (int)src_height);
+    // Source pixel coords
+    int sw = 0;
+    int sh = 0;
+    // Clearing top of the canvas
+    for (sh = 0; sh < sph; sh++)
+    {
+        dst = dst_buf + (sh)*scanline;
+        LbMemorySet(dst, 0, scanline);
   }
   // Clearing bottom of the canvas
   // (Note: it must be done before drawing, to make sure we won't overwrite last line)
@@ -139,34 +136,29 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
       LbMemorySet(dst, 0, scanline);
   }
   // Now drawing
-  int dhstart;
-  dhstart = sph;
+  int dhstart = sph;
   for (sh=0; sh<src_height; sh++)
   {
-      int dhend;
-      dhend = sph + (dst_height*(sh+1)/src_height);
-      src = src_buf + sh*src_width;
+      int dhend = sph + (dst_height * (sh + 1) / src_height);
+      const unsigned char* src = src_buf + sh * src_width;
       // make for(k=0;k<dhend-dhstart;k++) but restrict k to draw area
-      int mhmin, mhmax;
-      mhmin = max(0, -dhstart);
-      mhmax = min(dhend - dhstart, nlines - dhstart);
-      for (k=mhmin; k<mhmax; k++)
+      int mhmin = max(0, -dhstart);
+      int mhmax = min(dhend - dhstart, nlines - dhstart);
+      for (int k = mhmin; k < mhmax; k++)
       {
           dst = dst_buf + (dhstart+k)*scanline;
-          int dwstart;
-          dwstart = spw;
+          int dwstart = spw;
           if (dwstart > 0) {
               LbMemorySet(dst, 0, dwstart);
           }
           for (sw=0; sw<src_width; sw++)
           {
-              int dwend;
-              dwend = spw + (dst_width*(sw+1)/src_width);
+              int dwend = spw + (dst_width * (sw + 1) / src_width);
               // make for(i=0;i<dwend-dwstart;i++) but restrict i to draw area
-              int mwmin, mwmax;
-              mwmin = max(0,-dwstart);
-              mwmax = min(dwend - dwstart, scanline - dwstart);
-              for (i=mwmin;i<mwmax;i++) {
+              int mwmin = max(0, -dwstart);
+              int mwmax = min(dwend - dwstart, scanline - dwstart);
+              for (int i = mwmin; i < mwmax; i++)
+              {
                   dst[dwstart+i] = src[sw];
               }
               dwstart = dwend;
@@ -193,9 +185,8 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_w
     // Compute scaling ratio
     int units_per_px;
     {
-        int width,height;
-        width = LbScreenWidth();
-        height = LbScreenHeight();
+        int width = LbScreenWidth();
+        int height = LbScreenHeight();
         units_per_px = (width>height?width:height)/((img_width>img_height?img_width:img_height)/16);
     }
     SYNCDBG(18,"Starting; src %d,%d scale %d",(int)img_width,(int)img_height,(int)units_per_px);
@@ -203,9 +194,8 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_w
     if (LbScreenLock() != Lb_SUCCESS)
       return false;
     // Starting point coords
-    int spx,spy;
-    spx = (LbScreenWidth()-img_width*units_per_px/16)>>1;
-    spy = (LbScreenHeight()-img_height*units_per_px/16)>>1;
+    int spx = (LbScreenWidth() - img_width * units_per_px / 16) >> 1;
+    int spy = (LbScreenHeight() - img_height * units_per_px / 16) >> 1;
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
         img_width*units_per_px/16,img_height*units_per_px/16,spx,spy,buf,img_width,img_height);
     perform_any_screen_capturing();
@@ -217,10 +207,8 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_w
 TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay)
 {
     LbPaletteSet(pal);
-    TbClockMSec end_time;
-    end_time = LbTimerClock() + tmdelay;
-    TbClockMSec tmdelta;
-    tmdelta = tmdelay / 100;
+    TbClockMSec end_time = LbTimerClock() + tmdelay;
+    TbClockMSec tmdelta = tmdelay / 100;
     if (tmdelta > 100)
         tmdelta = 100;
     if (tmdelta < 10)
@@ -273,8 +261,6 @@ short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
 TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
 {
   struct RawBitmap *rbmp;
-  unsigned char *buf;
-  long ldsize;
   // Set startup parameters
   if (LbGraphicsScreenWidth() >= 1280)
     rbmp = &bitmaps_1280[stype];
@@ -291,8 +277,8 @@ TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   actv_bmp->start_tm = LbTimerClock();
   SYNCDBG(18,"Starting; src %d,%d bpp %d",(int)actv_bmp->width,(int)actv_bmp->height,(int)actv_bmp->bpp);
   // Load PAL
-  ldsize = PALETTE_SIZE;
-  buf = load_data_file_to_buffer(&ldsize, rbmp->fgroup, rbmp->pal_fname);
+  long ldsize = PALETTE_SIZE;
+  unsigned char* buf = load_data_file_to_buffer(&ldsize, rbmp->fgroup, rbmp->pal_fname);
   if (buf == NULL)
   {
     ERRORLOG("Couldn't load palette file for %s screen",rbmp->name);
@@ -414,11 +400,10 @@ TbBool show_actv_bitmap_screen(TbClockMSec tmdelay)
  */
 TbBool display_loading_screen(void)
 {
-    TbBool done;
     draw_clear_screen();
     if (!wait_for_cd_to_be_available())
       return false;
-    done = init_bitmap_screen(&astd_bmp,RBmp_WaitLoading);
+    TbBool done = init_bitmap_screen(&astd_bmp, RBmp_WaitLoading);
     if (done)
     {
       redraw_bitmap_screen(&astd_bmp);
@@ -446,14 +431,12 @@ TbBool wait_for_cd_to_be_available(void)
       return false;
   }
   draw_bitmap_screen(&nocd_bmp);
-  unsigned long counter;
-  unsigned int i;
-  counter=0;
+  unsigned long counter = 0;
   while ( !exit_keeper )
   {
       if ( LbFileExists(ffullpath) )
         break;
-      for (i=0; i < 10; i++)
+      for (unsigned int i = 0; i < 10; i++)
       {
         redraw_bitmap_screen(&nocd_bmp);
         do
@@ -497,72 +480,69 @@ TbBool wait_for_cd_to_be_available(void)
  */
 TbBool display_centered_message(long showTime, char *text)
 {
-  TbBool finish;
-  TbClockMSec tmEnd;
-  long tmDelta;
-  TbBool was_locked;
-  tmEnd = LbTimerClock()+showTime;
-  tmDelta = showTime/10;
-  if (tmDelta < 10) tmDelta = 10;
-  if (tmDelta > 250) tmDelta = 100;
-  was_locked = LbScreenIsLocked();
-  if ( was_locked )
-    LbScreenUnlock();
-
-  finish = false;
-  while ( !finish )
-  {
-      // Redraw screen
-      if (LbScreenLock() == Lb_SUCCESS)
-      {
-        draw_text_box(text);
+    TbClockMSec tmEnd = LbTimerClock() + showTime;
+    long tmDelta = showTime / 10;
+    if (tmDelta < 10)
+        tmDelta = 10;
+    if (tmDelta > 250)
+        tmDelta = 100;
+    TbBool was_locked = LbScreenIsLocked();
+    if (was_locked)
         LbScreenUnlock();
-      }
-      LbScreenSwap();
-      // Check if the window is active
-      do
-      {
-          if (!LbWindowsControl())
-              exit_keeper = 1;
-          if ((exit_keeper) || (quit_game))
-          {
-              finish = true;
-              break;
-          }
-      } while (!LbIsActive());
-      // Process inputs
-      update_mouse();
-      update_key_modifiers();
-      if (is_key_pressed(KC_Q,KMod_DONTCARE) || is_key_pressed(KC_X,KMod_DONTCARE))
-      {
-        ERRORLOG("User requested quit, giving up");
-        clear_key_pressed(KC_Q);
-        clear_key_pressed(KC_X);
-        exit_keeper = 1;
-        finish = true;
-        break;
-      }
-      if (is_key_pressed(KC_ESCAPE,KMod_DONTCARE) || is_key_pressed(KC_RETURN,KMod_DONTCARE) || is_key_pressed(KC_SPACE,KMod_DONTCARE))
-      {
-        clear_key_pressed(KC_ESCAPE);
-        clear_key_pressed(KC_RETURN);
-        clear_key_pressed(KC_SPACE);
-        finish = true;
-        break;
-      }
-      if (left_button_clicked || right_button_clicked)
-      {
-        left_button_clicked = 0;
-        right_button_clicked = 0;
-        finish = true;
-        break;
-      }
-      // Make delay and check if we should end
-      LbSleepFor(tmDelta);
-      if (LbTimerClock() > tmEnd)
-      {
-        finish = true;
-      }
+    TbBool finish = false;
+    while (!finish)
+    {
+        // Redraw screen
+        if (LbScreenLock() == Lb_SUCCESS)
+        {
+            draw_text_box(text);
+            LbScreenUnlock();
+        }
+        LbScreenSwap();
+        // Check if the window is active
+        do
+        {
+            if (!LbWindowsControl())
+                exit_keeper = 1;
+            if ((exit_keeper) || (quit_game))
+            {
+                finish = true;
+                break;
+            }
+        } while (!LbIsActive());
+        // Process inputs
+        update_mouse();
+        update_key_modifiers();
+        if (is_key_pressed(KC_Q, KMod_DONTCARE) || is_key_pressed(KC_X, KMod_DONTCARE))
+        {
+            ERRORLOG("User requested quit, giving up");
+            clear_key_pressed(KC_Q);
+            clear_key_pressed(KC_X);
+            exit_keeper = 1;
+            finish = true;
+            break;
+        }
+        if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE) || is_key_pressed(KC_RETURN, KMod_DONTCARE) || is_key_pressed(KC_SPACE, KMod_DONTCARE))
+        {
+            clear_key_pressed(KC_ESCAPE);
+            clear_key_pressed(KC_RETURN);
+            clear_key_pressed(KC_SPACE);
+            finish = true;
+            break;
+        }
+        if (left_button_clicked || right_button_clicked)
+        {
+            left_button_clicked = 0;
+            right_button_clicked = 0;
+            finish = true;
+            break;
+        }
+        // Make delay and check if we should end
+        LbSleepFor(tmDelta);
+        if (LbTimerClock() > tmEnd)
+        {
+            finish = true;
+        }
   }
   if ( was_locked )
     LbScreenLock();

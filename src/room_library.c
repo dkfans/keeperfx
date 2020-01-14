@@ -47,16 +47,15 @@ extern "C" {
 /******************************************************************************/
 struct Thing *create_spell_in_library(struct Room *room, ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Coord3d pos;
-    struct Thing *spelltng;
     if (room->kind != RoK_LIBRARY) {
         SYNCDBG(4,"Cannot add spell to %s owned by player %d",room_code_name(room->kind),(int)room->owner);
         return INVALID_THING;
     }
+    struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = 0;
-    spelltng = create_object(&pos, tngmodel, room->owner, -1);
+    struct Thing* spelltng = create_object(&pos, tngmodel, room->owner, -1);
     if (thing_is_invalid(spelltng))
     {
         return INVALID_THING;
@@ -130,19 +129,16 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
 
 void init_dungeons_research(void)
 {
-    struct Dungeon *dungeon;
-    int i;
-    for (i=0; i < DUNGEONS_COUNT; i++)
+    for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
-        dungeon = get_dungeon(i);
+        struct Dungeon* dungeon = get_dungeon(i);
         dungeon->current_research_idx = get_next_research_item(dungeon);
     }
 }
 
 TbBool remove_all_research_from_player(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     dungeon->research_num = 0;
     dungeon->research_override = 1;
     return true;
@@ -150,20 +146,17 @@ TbBool remove_all_research_from_player(PlayerNumber plyr_idx)
 
 TbBool research_overriden_for_player(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     return (dungeon->research_override != 0);
 }
 
 TbBool clear_research_for_all_players(void)
 {
-    struct Dungeon *dungeon;
-    int plyr_idx;
-    for (plyr_idx=0; plyr_idx < DUNGEONS_COUNT; plyr_idx++)
+    for (int plyr_idx = 0; plyr_idx < DUNGEONS_COUNT; plyr_idx++)
     {
-      dungeon = get_dungeon(plyr_idx);
-      dungeon->research_num = 0;
-      dungeon->research_override = 0;
+        struct Dungeon* dungeon = get_dungeon(plyr_idx);
+        dungeon->research_num = 0;
+        dungeon->research_override = 0;
     }
     return true;
 }
@@ -203,17 +196,14 @@ TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon 
 
 TbBool add_research_to_player(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
 {
-    struct Dungeon *dungeon;
-    struct ResearchVal *resrch;
-    long i;
-    dungeon = get_dungeon(plyr_idx);
-    i = dungeon->research_num;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    long i = dungeon->research_num;
     if (i >= DUNGEON_RESEARCH_COUNT)
     {
       ERRORLOG("Too much research (%d items) for player %d", i, plyr_idx);
       return false;
     }
-    resrch = &dungeon->research[i];
+    struct ResearchVal* resrch = &dungeon->research[i];
     resrch->rtyp = rtyp;
     resrch->rkind = rkind;
     resrch->req_amount = amount;
@@ -223,31 +213,26 @@ TbBool add_research_to_player(PlayerNumber plyr_idx, long rtyp, long rkind, long
 
 TbBool add_research_to_all_players(long rtyp, long rkind, long amount)
 {
-  TbBool result;
-  long i;
-  result = true;
-  SYNCDBG(17,"Adding type %d, kind %d, amount %d",rtyp, rkind, amount);
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    result &= add_research_to_player(i, rtyp, rkind, amount);
+    TbBool result = true;
+    SYNCDBG(17, "Adding type %d, kind %d, amount %d", rtyp, rkind, amount);
+    for (long i = 0; i < PLAYERS_COUNT; i++)
+    {
+        result &= add_research_to_player(i, rtyp, rkind, amount);
   }
   return result;
 }
 
 TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
 {
-  struct Dungeon *dungeon;
-  struct ResearchVal *resrch;
-  long i;
-  dungeon = get_dungeon(plyr_idx);
-  for (i = 0; i < dungeon->research_num; i++)
-  {
-    resrch = &dungeon->research[i];
-    if ((resrch->rtyp == rtyp) && (resrch->rkind = rkind))
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    for (long i = 0; i < dungeon->research_num; i++)
     {
-      resrch->req_amount = amount;
-    }
-    return true;
+        struct ResearchVal* resrch = &dungeon->research[i];
+        if ((resrch->rtyp == rtyp) && (resrch->rkind = rkind))
+        {
+            resrch->req_amount = amount;
+        }
+        return true;
   }
   return false;
 }
@@ -262,13 +247,11 @@ TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, l
 void process_player_research(PlayerNumber plyr_idx)
 {
     //_DK_process_player_research(plyr_idx); return;
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (!player_has_room_of_role(plyr_idx, RoRoF_Research)) {
         return;
     }
-    struct ResearchVal *rsrchval;
-    rsrchval = get_players_current_research_val(plyr_idx);
+    struct ResearchVal* rsrchval = get_players_current_research_val(plyr_idx);
     if (rsrchval == NULL)
     {
         // If no current research - try to set one for next time the function is run
@@ -289,18 +272,16 @@ void process_player_research(PlayerNumber plyr_idx)
         return;
     }
     struct Room *room;
-    struct Thing *spelltng;
     struct Coord3d pos;
     switch (rsrchval->rtyp)
     {
     case RsCat_Power:
+    {
         if (dungeon->magic_resrchable[rsrchval->rkind])
         {
-            PowerKind pwkind;
-            pwkind = rsrchval->rkind;
+            PowerKind pwkind = rsrchval->rkind;
             room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
-            struct PowerConfigStats *powerst;
-            powerst = get_power_model_stats(pwkind);
+            struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
             if (powerst->artifact_model < 1) {
                 ERRORLOG("Tried to research power with no associated artifact");
                 break;
@@ -312,7 +293,7 @@ void process_player_research(PlayerNumber plyr_idx)
             pos.x.val = 0;
             pos.y.val = 0;
             pos.z.val = 0;
-            spelltng = create_object(&pos, powerst->artifact_model, plyr_idx, -1);
+            struct Thing* spelltng = create_object(&pos, powerst->artifact_model, plyr_idx, -1);
             if (thing_is_invalid(spelltng))
             {
                 ERRORLOG("Could not create %s artifact",power_code_name(pwkind));
@@ -342,6 +323,7 @@ void process_player_research(PlayerNumber plyr_idx)
             dungeon->magic_level[pwkind]++;
         }
         break;
+    }
     case RsCat_Room:
         if (dungeon->room_resrchable[rsrchval->rkind])
         {

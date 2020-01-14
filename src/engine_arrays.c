@@ -977,7 +977,8 @@ void init_iso_3d_conversion_tables(void)
 void setup_3d(void)
 {
     unsigned long seed;
-    long i,k;
+    long i;
+    long k;
     SYNCDBG(6,"Starting");
     seed = 0x0f0f0f0f;
     for (i=0; i < RANDOMISORS_LEN; i++)
@@ -990,10 +991,12 @@ void setup_3d(void)
 
 void fill_floor_heights_table(void)
 {
-    long top_height,btm_height;
+    long top_height;
+    long btm_height;
     long shade_back;
     unsigned long flag_bit;
-    long i,n;
+    long i;
+    long n;
     for (n=0; n < 256; n++)
     {
         i = 0;
@@ -1048,7 +1051,8 @@ void generate_wibble_table(void)
     struct WibbleTable *wibl;
     struct WibbleTable *qwibl;
     unsigned short seed;
-    int i,n;
+    int i;
+    int n;
     // Clear the whole wibble table
     for (n=0; n < 4; n++)
     {
@@ -1088,7 +1092,8 @@ TbBool load_ceiling_table(void)
     char nchr;
     char numstr[8];
     TbBool do_next;
-    long i,n;
+    long i;
+    long n;
     //_DK_load_ceiling_table(); return true;
     // Prepare filename and open the file
     wait_for_cd_to_be_available();

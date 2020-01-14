@@ -392,10 +392,8 @@ DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thi
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
-    struct Objects *objdat;
-    struct InitLight ilight;
-    struct Thing *thing;
-    long i,k;
+    long i;
+    long k;
 
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
@@ -403,7 +401,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate object %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -416,9 +414,8 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     else
       thing->parent_idx = parent_idx;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
-    struct ObjectConfig *objconf;
-    objconf = get_object_model_stats2(model);
-    objdat = get_objects_data_for_thing(thing);
+    struct ObjectConfig* objconf = get_object_model_stats2(model);
+    struct Objects* objdat = get_objects_data_for_thing(thing);
     thing->clipbox_size_xy = objdat->size_xy;
     thing->clipbox_size_yz = objdat->size_yz;
     thing->solid_size_xy = objdat->size_xy;
@@ -451,6 +448,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->active_state = objdat->initial_state;
     if (objconf->ilght.field_0 != 0)
     {
+        struct InitLight ilight;
         LbMemorySet(&ilight, 0, sizeof(struct InitLight));
         LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
         ilight.field_0 = objconf->ilght.field_0;
@@ -500,21 +498,17 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
 
 void destroy_food(struct Thing *foodtng)
 {
-    struct Room *room;
-    struct Thing *efftng;
-    struct Coord3d pos;
-    PlayerNumber plyr_idx;
     SYNCDBG(8,"Starting");
-    plyr_idx = foodtng->owner;
+    PlayerNumber plyr_idx = foodtng->owner;
     if (game.neutral_player_num != plyr_idx) {
-        struct Dungeon *dungeon;
-        dungeon = get_dungeon(plyr_idx);
+        struct Dungeon* dungeon = get_dungeon(plyr_idx);
         dungeon->lvstats.chickens_wasted++;
     }
-    efftng = create_effect(&foodtng->mappos, TngEff_Unknown49, plyr_idx);
+    struct Thing* efftng = create_effect(&foodtng->mappos, TngEff_Unknown49, plyr_idx);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
+    struct Coord3d pos;
     pos.x.val = foodtng->mappos.x.val;
     pos.y.val = foodtng->mappos.y.val;
     pos.z.val = foodtng->mappos.z.val + 256;
@@ -524,17 +518,16 @@ void destroy_food(struct Thing *foodtng)
     {
         if (foodtng->word_13 == -1)
         {
-          room = get_room_thing_is_on(foodtng);
-          if (!room_is_invalid(room))
-          {
-            if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == foodtng->owner))
+            struct Room* room = get_room_thing_is_on(foodtng);
+            if (!room_is_invalid(room))
             {
-                int required_cap;
-                required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage,foodtng->model,0);
-                if (room->used_capacity >= required_cap)
-                  room->used_capacity -= required_cap;
-                foodtng->word_13 = game.food_life_out_of_hatchery;
-            }
+                if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == foodtng->owner))
+                {
+                    int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
+                    if (room->used_capacity >= required_cap)
+                        room->used_capacity -= required_cap;
+                    foodtng->word_13 = game.food_life_out_of_hatchery;
+                }
           }
         }
     }
@@ -570,8 +563,7 @@ void change_object_owner(struct Thing *objtng, PlayerNumber nowner)
 
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
-    unsigned int tmodel;
-    tmodel = thing->model;
+    unsigned int tmodel = thing->model;
     if (tmodel >= OBJECT_TYPES_COUNT)
       return &objects_data[0];
     return &objects_data[tmodel];
@@ -611,8 +603,7 @@ TbBool thing_is_special_box(const struct Thing *thing)
 {
     if (!thing_is_object(thing))
         return false;
-    struct ObjectConfigStats *objst;
-    objst = get_object_model_stats(thing->model);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return (objst->genre == OCtg_SpecialBox);
 }
 
@@ -620,8 +611,7 @@ TbBool thing_is_workshop_crate(const struct Thing *thing)
 {
     if (!thing_is_object(thing))
         return false;
-    struct ObjectConfigStats *objst;
-    objst = get_object_model_stats(thing->model);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return (objst->genre == OCtg_WrkshpBox);
 }
 
@@ -641,8 +631,7 @@ TbBool thing_is_dungeon_heart(const struct Thing *thing)
         return false;
     if (thing->class_id != TCls_Object)
         return false;
-    struct ObjectConfig *objconf;
-    objconf = get_object_model_stats2(thing->model);
+    struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
     return (objconf->is_heart) != 0;
 }
 
@@ -657,8 +646,7 @@ TbBool thing_is_spellbook(const struct Thing *thing)
 {
     if (!thing_is_object(thing))
         return false;
-    struct ObjectConfigStats *objst;
-    objst = get_object_model_stats(thing->model);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return (objst->genre == OCtg_Spellbook);
 }
 
@@ -666,8 +654,7 @@ TbBool thing_is_lair_totem(const struct Thing *thing)
 {
     if (!thing_is_object(thing))
         return false;
-    struct ObjectConfigStats *objst;
-    objst = get_object_model_stats(thing->model);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return (objst->genre == OCtg_LairTotem);
 }
 
@@ -704,8 +691,7 @@ TbBool object_is_gold(const struct Thing *thing)
  */
 TbBool object_is_gold_hoard(const struct Thing *thing)
 {
-    struct ObjectConfigStats *objst;
-    objst = get_object_model_stats(thing->model);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return (objst->genre == OCtg_GoldHoard);
 }
 
@@ -843,8 +829,7 @@ TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
         return false;
     if (thing->class_id != TCls_Object)
         return false;
-    struct ObjectConfigStats *objst;
-    objst = get_object_model_stats(thing->model);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return (objst->genre == OCtg_Power);
 }
 
@@ -889,17 +874,14 @@ struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->lair_room_id != room->index)
     {
         ERRORLOG("Attempt to remove a lair which belongs to %s index %d from room index %d he didn't think he was in",thing_model_name(creatng),(int)creatng->index,(int)room->index);
         return false;
     }
-    TbBool result;
-    result = true;
-    int required_cap;
-    required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
+    TbBool result = true;
+    int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
     // Remove lair from room capacity
     if (room->content_per_model[creatng->model] <= 0)
     {
@@ -919,8 +901,7 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
     //Remove the totem thing
     if (cctrl->lairtng_idx > 0)
     {
-        struct Thing *lairtng;
-        lairtng = thing_get(cctrl->lairtng_idx);
+        struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
         TRACE_THING(lairtng);
         create_effect(&lairtng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
         delete_lair_totem(lairtng);
@@ -930,11 +911,9 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
 
 TbBool delete_lair_totem(struct Thing *lairtng)
 {
-    struct Thing *creatng;
-    creatng = thing_get(lairtng->word_13);
+    struct Thing* creatng = thing_get(lairtng->word_13);
     if (thing_is_creature(creatng)) {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(creatng);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         cctrl->lair_room_id = 0;
         cctrl->lairtng_idx = 0;
     } else {
@@ -947,20 +926,17 @@ TbBool delete_lair_totem(struct Thing *lairtng)
 long food_moves(struct Thing *objtng)
 {
     //return _DK_food_moves(objtng);
-    struct Thing *near_creatng;
     struct Coord3d pos;
     pos.x.val = objtng->mappos.x.val;
     pos.y.val = objtng->mappos.y.val;
     pos.z.val = objtng->mappos.z.val;
-    unsigned int snd_smplidx;
-    snd_smplidx = 0;
+    unsigned int snd_smplidx = 0;
     if (objtng->food.byte_17)
     {
         destroy_food(objtng);
         return -1;
     }
-    TbBool dirct_ctrl;
-    dirct_ctrl = is_thing_directly_controlled(objtng);
+    TbBool dirct_ctrl = is_thing_directly_controlled(objtng);
     if (dirct_ctrl)
     {
         if (objtng->food.byte_16 > 0)
@@ -969,8 +945,7 @@ long food_moves(struct Thing *objtng)
             return 1;
         }
     }
-    struct Room *room;
-    room = get_room_thing_is_on(objtng);
+    struct Room* room = get_room_thing_is_on(objtng);
     if (!dirct_ctrl)
     {
       if (objtng->food.word_13 >= 0)
@@ -989,8 +964,7 @@ long food_moves(struct Thing *objtng)
         objtng->food.word_13--;
         if (objtng->food.word_13 <= 0)
         {
-            struct Dungeon *dungeon;
-            dungeon = get_dungeon(objtng->owner);
+            struct Dungeon* dungeon = get_dungeon(objtng->owner);
             dungeon->lvstats.chickens_wasted++;
             create_effect(&objtng->mappos, TngEff_Unknown51, objtng->owner);
             create_effect(&objtng->mappos, TngEff_Unknown07, objtng->owner);
@@ -999,10 +973,10 @@ long food_moves(struct Thing *objtng)
         }
       }
     }
-    TbBool has_near_creature;
-    has_near_creature = false;
+    TbBool has_near_creature = false;
     if (!room_is_invalid(room) && (room->kind == 13) && (objtng->food.word_13 < 0))
     {
+        struct Thing* near_creatng;
         if (room->hatch_gameturn == game.play_gameturn)
         {
             near_creatng = thing_get(room->hatchfield_1B);
@@ -1051,19 +1025,16 @@ long food_moves(struct Thing *objtng)
     }
     else
     {
-        int vel_x, vel_y;
-        vel_x = 32 * LbSinL(objtng->food.word_18) >> 16;
+        int vel_x = 32 * LbSinL(objtng->food.word_18) >> 16;
         pos.x.val += vel_x;
-        vel_y = -(32 * LbCosL(objtng->food.word_18) >> 8) >> 8;
+        int vel_y = -(32 * LbCosL(objtng->food.word_18) >> 8) >> 8;
         pos.y.val += vel_y;
         if (thing_in_wall_at(objtng, &pos))
         {
             objtng->food.word_18 = ACTION_RANDOM(0x7FF);
         }
-        int sangle;
-        long dangle;
-        dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.word_18);
-        sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.word_18);
+        long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.word_18);
+        int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.word_18);
         if (dangle > 62)
             dangle = 62;
         objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & LbFPMath_AngleMask;
@@ -1107,11 +1078,9 @@ long food_grows(struct Thing *objtng)
     pos.x.val = objtng->mappos.x.val;
     pos.y.val = objtng->mappos.y.val;
     pos.z.val = objtng->mappos.z.val;
-    struct Thing *nobjtng;
-    long ret;
-    ret = 0;
-    PlayerNumber tngowner;
-    tngowner = objtng->owner;
+    long ret = 0;
+    PlayerNumber tngowner = objtng->owner;
+    struct Thing* nobjtng;
     switch (objtng->anim_sprite)
     {
       case 893:
@@ -1167,10 +1136,8 @@ long food_grows(struct Thing *objtng)
 
 GoldAmount add_gold_to_treasure_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, GoldAmount gold_store)
 {
-    struct Room *room;
-    room = subtile_room_get(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-    struct Thing *gldtng;
-    gldtng = find_gold_hoard_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    struct Room* room = subtile_room_get(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    struct Thing* gldtng = find_gold_hoard_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
     if (thing_is_invalid(gldtng))
     {
         struct Coord3d pos;
@@ -1190,19 +1157,15 @@ GoldAmount add_gold_to_treasure_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y
 
 long gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
 {
-    GoldAmount gold_store;
-    gold_store = thing->valuable.gold_stored;
-    MapSlabCoord slb_x, slb_y;
+    GoldAmount gold_store = thing->valuable.gold_stored;
     {
-        slb_x = coord_slab(thing->mappos.x.val);
-        slb_y = coord_slab(thing->mappos.y.val);
+        MapSlabCoord slb_x = coord_slab(thing->mappos.x.val);
+        MapSlabCoord slb_y = coord_slab(thing->mappos.y.val);
         gold_store = add_gold_to_treasure_room_slab(slb_x, slb_y, gold_store);
     }
-    SlabCodedCoords slbnum;
-    long n;
     unsigned long k;
-    n = ACTION_RANDOM(room->slabs_count);
-    slbnum = room->slabs_list;
+    long n = ACTION_RANDOM(room->slabs_count);
+    SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
         if (slbnum == 0)
@@ -1216,9 +1179,8 @@ long gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
     k = 0;
     while (1)
     {
-        MapSlabCoord slb_x,slb_y;
-        slb_x = slb_num_decode_x(slbnum);
-        slb_y = slb_num_decode_y(slbnum);
+        MapSlabCoord slb_x = slb_num_decode_x(slbnum);
+        MapSlabCoord slb_y = slb_num_decode_y(slbnum);
         // Per slab code
         if (gold_store <= 0)
             break;
@@ -1246,23 +1208,20 @@ TbBool temple_check_for_arachnid_join_dungeon(struct Dungeon *dungeon)
 {
     if ((dungeon->chickens_sacrificed % 16) == 0)
     {
-        ThingModel crmodel, spdigmodel;
-        crmodel = get_creature_model_with_model_flags(CMF_IsArachnid);
-        spdigmodel = get_players_special_digger_model(dungeon->owner);
+        ThingModel crmodel = get_creature_model_with_model_flags(CMF_IsArachnid);
+        ThingModel spdigmodel = get_players_special_digger_model(dungeon->owner);
         if ((dungeon->gold_piles_sacrificed == 4) &&
             (dungeon->creature_sacrifice[spdigmodel] == 4) &&
             (dungeon->owned_creatures_of_model[crmodel] < 4))
         {
             SYNCLOG("Conditions to trigger arachnid met");
-            struct Room *room;
-            room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
+            struct Room* room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Could not get a random entrance for player %d",(int)dungeon->owner);
                 return false;
             }
-            struct Thing *ncreatng;
-            ncreatng = create_creature_at_entrance(room, crmodel);
+            struct Thing* ncreatng = create_creature_at_entrance(room, crmodel);
             set_creature_level(ncreatng, ACTION_RANDOM(CREATURE_MAX_LEVEL));
             return true;
         }
@@ -1272,8 +1231,7 @@ TbBool temple_check_for_arachnid_join_dungeon(struct Dungeon *dungeon)
 
 long process_temple_special(struct Thing *thing, long sacowner)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(sacowner);
+    struct Dungeon* dungeon = get_dungeon(sacowner);
     if (object_is_mature_food(thing))
     {
         dungeon->chickens_sacrificed++;
@@ -1291,8 +1249,7 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
     //_DK_process_object_sacrifice(thing, sacowner); return;
     PlayerNumber slbowner;
     {
-        struct SlabMap *slb;
-        slb = get_slabmap_thing_is_on(thing);
+        struct SlabMap* slb = get_slabmap_thing_is_on(thing);
         slbowner = slabmap_owner(slb);
     }
     if (object_is_mature_food(thing))
@@ -1307,8 +1264,7 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
         if (thing->valuable.gold_stored > 0)
         {
             process_temple_special(thing, sacowner);
-            int num_allies;
-            num_allies = 0;
+            int num_allies = 0;
             PlayerNumber plyr_idx;
             for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
             {
@@ -1319,8 +1275,7 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
             }
             if (num_allies > 0)
             {
-                GoldAmount value;
-                value = thing->valuable.gold_stored / num_allies;
+                GoldAmount value = thing->valuable.gold_stored / num_allies;
                 for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
                 {
                     if ((slbowner != plyr_idx) && players_are_mutual_allies(slbowner, plyr_idx))
@@ -1349,8 +1304,7 @@ long object_being_dropped(struct Thing *thing)
     }
     if (subtile_has_sacrificial_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
-        struct Room *room;
-        room = get_room_thing_is_on(thing);
+        struct Room* room = get_room_thing_is_on(thing);
         process_object_sacrifice(thing, room->owner);
         delete_thing_structure(thing, 0);
         return -1;
@@ -1362,8 +1316,7 @@ long object_being_dropped(struct Thing *thing)
             delete_thing_structure(thing, 0);
             return -1;
         }
-        struct Room *room;
-        room = get_room_thing_is_on(thing);
+        struct Room* room = get_room_thing_is_on(thing);
         if (!room_is_invalid(room) && room_role_matches(room->kind, RoRoF_GoldStorage))
         {
             if ((thing->owner == room->owner) || is_neutral_thing(thing))
@@ -1379,8 +1332,7 @@ long object_being_dropped(struct Thing *thing)
             delete_thing_structure(thing, 0);
             return -1;
         }
-        struct Thing *gldtng;
-        gldtng = find_base_thing_on_mapwho_excluding_self(thing);
+        struct Thing* gldtng = find_base_thing_on_mapwho_excluding_self(thing);
         if (!thing_is_invalid(gldtng))
         {
             add_gold_to_pile(gldtng, thing->valuable.gold_stored);
@@ -1394,17 +1346,14 @@ long object_being_dropped(struct Thing *thing)
 
 void update_dungeon_heart_beat(struct Thing *heartng)
 {
-    long i;
-    long long k;
     const long base_heart_beat_rate = 2304;
     static long bounce = 0;
     if (heartng->active_state != ObSt_BeingDestroyed)
     {
-        i = (char)heartng->byte_14;
+        long i = (char)heartng->byte_14;
         heartng->field_3E = 0;
-        struct ObjectConfig *objconf;
-        objconf = get_object_model_stats2(5);
-        k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
+        struct ObjectConfig* objconf = get_object_model_stats2(5);
+        long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);
         light_set_light_intensity(heartng->light_id, light_get_light_intensity(heartng->light_id) + (i*36/k));
         heartng->field_40 += (i*base_heart_beat_rate/k);
@@ -1437,14 +1386,10 @@ void update_dungeon_heart_beat(struct Thing *heartng)
 
 TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 {
-    struct Dungeon *dungeon;
-    long i;
-    long long k;
     SYNCDBG(18,"Starting");
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-        struct ObjectConfig *objconf;
-        objconf = get_object_model_stats2(5);
+        struct ObjectConfig* objconf = get_object_model_stats2(5);
         if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
         {
             heartng->health += game.dungeon_heart_heal_health;
@@ -1457,16 +1402,15 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
               heartng->health = objconf->health;
             }
         }
-        k = ((heartng->health << 8) / objconf->health) << 7;
-        i = (saturate_set_signed(k,32) >> 8) + 128;
-        struct Objects *objdat;
-        objdat = get_objects_data_for_thing(heartng);
+        long long k = ((heartng->health << 8) / objconf->health) << 7;
+        long i = (saturate_set_signed(k, 32) >> 8) + 128;
+        struct Objects* objdat = get_objects_data_for_thing(heartng);
         heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
         heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
     } else
     if (heartng->owner != game.neutral_player_num)
     {
-        dungeon = get_players_num_dungeon(heartng->owner);
+        struct Dungeon* dungeon = get_players_num_dungeon(heartng->owner);
         if (dungeon->heart_destroy_state == 0)
         {
             dungeon->heart_destroy_turn = 0;
@@ -1506,14 +1450,11 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
         frame = 0;
         break;
     }
-    struct CallToArmsGraphics *ctagfx;
-    ctagfx = &call_to_arms_graphics[objtng->owner];
-    struct Objects *objdat;
-    objdat = get_objects_data_for_thing(objtng);
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct Objects* objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->byte_13 = CTAOL_Birthing;
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(PwrK_CALL2ARMS);
+    struct PowerConfigStats* powerst = get_power_model_stats(PwrK_CALL2ARMS);
     stop_thing_playing_sample(objtng, powerst->select_sound_idx);
     thing_play_sample(objtng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
 }
@@ -1539,10 +1480,8 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
         frame = 0;
         break;
     }
-    struct CallToArmsGraphics *ctagfx;
-    ctagfx = &call_to_arms_graphics[objtng->owner];
-    struct Objects *objdat;
-    objdat = get_objects_data_for_thing(objtng);
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct Objects* objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->byte_13 = CTAOL_Dying;
 }
@@ -1568,30 +1507,23 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
         frame = 0;
         break;
     }
-    struct CallToArmsGraphics *ctagfx;
-    ctagfx = &call_to_arms_graphics[objtng->owner];
-    struct Objects *objdat;
-    objdat = get_objects_data_for_thing(objtng);
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct Objects* objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->byte_13 = CTAOL_Rebirthing;
 }
 
 TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 {
-    struct PlayerInfo *player;
-    player = get_player(thing->owner);
+    struct PlayerInfo* player = get_player(thing->owner);
     if (thing->index != player->field_43C)
     {
         delete_thing_structure(thing, 0);
         return -1;
     }
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
-    struct CallToArmsGraphics *ctagfx;
-    ctagfx = &call_to_arms_graphics[player->id_number];
-    struct Objects *objdat;
-    objdat = get_objects_data_for_thing(thing);
-    struct Coord3d pos;
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[player->id_number];
+    struct Objects* objdat = get_objects_data_for_thing(thing);
 
     switch (thing->byte_13)
     {
@@ -1614,10 +1546,11 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
         }
         break;
     case CTAOL_Rebirthing:
+    {
         if (thing->field_49 - 1 == thing->field_48)
         {
-		    struct PowerConfigStats *powerst;
-            powerst = get_power_model_stats(PwrK_CALL2ARMS);
+            struct PowerConfigStats* powerst = get_power_model_stats(PwrK_CALL2ARMS);
+            struct Coord3d pos;
             pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
             pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
             pos.z.val = get_thing_height_at(thing, &pos);
@@ -1628,6 +1561,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
         }
         break;
+    }
     default:
         break;
     }
@@ -1637,15 +1571,12 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 TngUpdateRet object_update_armour(struct Thing *objtng)
 {
     //return _DK_object_update_armour(objtng);
-    struct Thing *thing;
-    thing = thing_get(objtng->word_13);
+    struct Thing* thing = thing_get(objtng->word_13);
     if (thing_is_picked_up(thing))
     {
         objtng->field_4F |= TF4F_Unknown01;
         return 1;
     }
-    long cvect_len;
-    short shspeed;
     struct Coord3d pos;
     struct ComponentVector cvect;
     pos.x.val = thing->mappos.x.val;
@@ -1655,7 +1586,7 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
      || (abs(objtng->mappos.y.val - pos.y.val) > 512)
      || (abs(objtng->mappos.z.val - pos.z.val) > 512))
     {
-        shspeed = objtng->byte_15;
+        short shspeed = objtng->byte_15;
         pos.x.val += 32 * LbSinL(682 * shspeed) >> 16;
         pos.y.val += -(32 * LbCosL(682 * shspeed) >> 8) >> 8;
         pos.z.val += shspeed * (thing->clipbox_size_yz >> 1);
@@ -1670,7 +1601,7 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
         objtng->move_angle_xy = get_angle_xy_to(&objtng->mappos, &pos);
         objtng->move_angle_z = get_angle_yz_to(&objtng->mappos, &pos);
         angles_to_vector(objtng->move_angle_xy, objtng->move_angle_z, 32, &cvect);
-        cvect_len = LbSqrL(cvect.x * cvect.x + cvect.z * cvect.z + cvect.y * cvect.y);
+        long cvect_len = LbSqrL(cvect.x * cvect.x + cvect.z * cvect.z + cvect.y * cvect.y);
         if (cvect_len > 128)
         {
           pos.x.val = (cvect.x << 7) / cvect_len;
@@ -1692,22 +1623,17 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
 TngUpdateRet object_update_object_scale(struct Thing *objtng)
 {
     //return _DK_object_update_object_scale(objtng);
-    struct Thing *creatng;
-    creatng = thing_get(objtng->word_13);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
-    struct Objects *objdat;
-    objdat = get_objects_data_for_thing(objtng);
-    int start_frame;
+    struct Thing* creatng = thing_get(objtng->word_13);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Objects* objdat = get_objects_data_for_thing(objtng);
     int spr_size;
-    start_frame = objtng->field_48;
+    int start_frame = objtng->field_48;
     if (objtng->word_13) {
         spr_size = 300 * cctrl->explevel / 20 + 300;
     } else {
         spr_size = objdat->sprite_size_max;
     }
-    int cssize;
-    cssize = objtng->word_15;
+    int cssize = objtng->word_15;
     objtng->word_17 = spr_size;
     long i;
     if (cssize+32 < spr_size)
@@ -1744,21 +1670,16 @@ TngUpdateRet object_update_power_sight(struct Thing *objtng)
 #define NUM_ANGLES 16
 TngUpdateRet object_update_power_lightning(struct Thing *objtng)
 {
-    long i;
-    unsigned long exist_turns;
-    long variation;
     objtng->health = 2;
-    exist_turns = game.play_gameturn - objtng->creation_turn;
-    variation = NUM_ANGLES * exist_turns;
-    for (i=0; i < NUM_ANGLES; i++)
+    unsigned long exist_turns = game.play_gameturn - objtng->creation_turn;
+    long variation = NUM_ANGLES * exist_turns;
+    for (long i = 0; i < NUM_ANGLES; i++)
     {
+        int angle = (variation % NUM_ANGLES) * 2 * LbFPMath_PI / NUM_ANGLES;
         struct Coord3d pos;
-        int angle;
-        angle = (variation % NUM_ANGLES) * 2*LbFPMath_PI / NUM_ANGLES;
-        if (set_coords_to_cylindric_shift(&pos, &objtng->mappos, 8*variation, angle, 0))
+        if (set_coords_to_cylindric_shift(&pos, &objtng->mappos, 8 * variation, angle, 0))
         {
-            struct Map *mapblk;
-            mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+            struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
             if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
             {
                 pos.z.val = get_floor_height_at(&pos) + 128;
@@ -1767,8 +1688,7 @@ TngUpdateRet object_update_power_lightning(struct Thing *objtng)
         }
         variation++;
     }
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
+    const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
     if (exist_turns > abs(pwrdynst->strength[objtng->byte_13]))
     {
         delete_thing_structure(objtng, 0);
@@ -1780,17 +1700,15 @@ TngUpdateRet object_update_power_lightning(struct Thing *objtng)
 
 TngUpdateRet move_object(struct Thing *thing)
 {
-    struct Coord3d pos;
-    TbBool move_allowed;
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    move_allowed = get_thing_next_position(&pos, thing);
+    struct Coord3d pos;
+    TbBool move_allowed = get_thing_next_position(&pos, thing);
     if ( !positions_equivalent(&thing->mappos, &pos) )
     {
         if ((!move_allowed) || thing_in_wall_at(thing, &pos))
         {
-            long blocked_flags;
-            blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+            long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
             slide_thing_against_wall_at(thing, &pos, blocked_flags);
             remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
             if (thing->model == 6)
@@ -1804,13 +1722,10 @@ TngUpdateRet move_object(struct Thing *thing)
 
 TngUpdateRet update_object(struct Thing *thing)
 {
-    Thing_Class_Func upcallback;
-    Thing_State_Func stcallback;
-    struct Objects *objdat;
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     TRACE_THING(thing);
 
-    upcallback = NULL;
+    Thing_Class_Func upcallback = NULL;
     if (thing->model < sizeof(object_update_functions)/sizeof(object_update_functions[0])) {
         upcallback = object_update_functions[thing->model];
     } else {
@@ -1822,7 +1737,7 @@ TngUpdateRet update_object(struct Thing *thing)
             return TUFRet_Deleted;
         }
     }
-    stcallback = NULL;
+    Thing_State_Func stcallback = NULL;
     if (thing->active_state < sizeof(object_state_functions)/sizeof(object_state_functions[0])) {
         stcallback = object_state_functions[thing->active_state];
     } else {
@@ -1843,7 +1758,7 @@ TngUpdateRet update_object(struct Thing *thing)
       if (subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
       {
         thing->movement_flags |= TMvF_IsOnLava;
-        objdat = get_objects_data_for_thing(thing);
+        struct Objects* objdat = get_objects_data_for_thing(thing);
         if ( (objdat->destroy_on_lava) && !thing_is_dragged_or_pulled(thing) )
         {
             destroy_object(thing);
@@ -1869,7 +1784,6 @@ TngUpdateRet update_object(struct Thing *thing)
  */
 struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx)
 {
-    struct Thing *thing;
     ThingModel grdflag_kind;
     if (plyr_idx >= sizeof(player_guardflag_objects)/sizeof(player_guardflag_objects[0]))
         grdflag_kind = player_guardflag_objects[NEUTRAL_PLAYER];
@@ -1878,7 +1792,7 @@ struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber p
     if (grdflag_kind <= 0)
         return INVALID_THING;
     // Guard posts have slab number set as parent
-    thing = create_object(pos, grdflag_kind, plyr_idx, parent_idx);
+    struct Thing* thing = create_object(pos, grdflag_kind, plyr_idx, parent_idx);
     if (thing_is_invalid(thing))
         return INVALID_THING;
     return thing;
@@ -1886,12 +1800,11 @@ struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber p
 
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
 {
-    struct Thing *gldtng;
     struct Coord3d pos;
     pos.x.val = pos_x;
     pos.y.val = pos_y;
     pos.z.val = subtile_coord(3,0);
-    gldtng = create_object(&pos, 6, plyr_idx, -1);
+    struct Thing* gldtng = create_object(&pos, 6, plyr_idx, -1);
     if (thing_is_invalid(gldtng))
         return INVALID_THING;
     gldtng->valuable.gold_stored = gold_object_typical_value(6);
@@ -1906,8 +1819,7 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
 int get_wealth_size_of_gold_hoard_model(ThingModel objmodel)
 {
     // Find position of the hoard size
-    int i;
-    for (i = get_wealth_size_types_count(); i > 0; i--)
+    for (int i = get_wealth_size_types_count(); i > 0; i--)
     {
         if (gold_hoard_objects[i] == objmodel)
             return i;
@@ -1928,10 +1840,8 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    long wealth_size_holds;
-    wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
-    int wealth_size;
-    wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
+    long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    int wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
     if (wealth_size > get_wealth_size_types_count()) {
         WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
         wealth_size = get_wealth_size_types_count();
@@ -1960,10 +1870,8 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
 {
     if (value >= gold_per_hoard)
         value = gold_per_hoard;
-    int wealth_size;
-    wealth_size = get_wealth_size_of_gold_amount(value);
-    struct Thing *gldtng;
-    gldtng = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
+    int wealth_size = get_wealth_size_of_gold_amount(value);
+    struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
     if (thing_is_invalid(gldtng))
         return INVALID_THING;
     gldtng->valuable.gold_stored = value;
@@ -1972,28 +1880,23 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
 
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
-    struct Thing *thing;
-    GoldAmount wealth_size_holds;
-    wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
         ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
         return INVALID_THING;
     }
-    GoldAmount max_hoard_size_in_room;
-    max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
+    GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     if (value > max_hoard_size_in_room)
         value = max_hoard_size_in_room;
-    thing = create_gold_hoard_object(pos, room->owner, value);
+    struct Thing* thing = create_gold_hoard_object(pos, room->owner, value);
     if (!thing_is_invalid(thing))
     {
-        struct Dungeon *dungeon;
         room->capacity_used_for_storage += thing->valuable.gold_stored;
-        dungeon = get_dungeon(room->owner);
+        struct Dungeon* dungeon = get_dungeon(room->owner);
         if (!dungeon_invalid(dungeon)) {
             dungeon->total_money_owned += thing->valuable.gold_stored;
         }
-        int wealth_size;
-        wealth_size = get_wealth_size_of_gold_amount(thing->valuable.gold_stored);
+        int wealth_size = get_wealth_size_of_gold_amount(thing->valuable.gold_stored);
         room->used_capacity += wealth_size;
     }
     return thing;
@@ -2010,10 +1913,8 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
 long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
     //return _DK_add_gold_to_hoarde(gldtng, room, amount);
-    GoldAmount wealth_size_holds;
-    wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
-    GoldAmount max_hoard_size_in_room;
-    max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
+    GoldAmount wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // Fix amount
     if (gldtng->valuable.gold_stored + amount > max_hoard_size_in_room)
         amount = max_hoard_size_in_room - gldtng->valuable.gold_stored;
@@ -2021,8 +1922,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
         return 0;
     }
     // Remove prev wealth size
-    int wealth_size;
-    wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+    int wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     if (wealth_size > room->used_capacity) {
         ERRORLOG("Room %s index %d has used capacity %d but stores gold hoard index %d of wealth size %d (%ld gold)",
             room_code_name(room->kind),(int)room->index,(int)room->used_capacity,(int)gldtng->index,(int)wealth_size,(long)gldtng->valuable.gold_stored);
@@ -2034,8 +1934,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     room->capacity_used_for_storage += amount;
     if (room->owner != game.neutral_player_num)
     {
-        struct Dungeon *dungeon;
-        dungeon = get_dungeon(room->owner);
+        struct Dungeon* dungeon = get_dungeon(room->owner);
         if (!dungeon_invalid(dungeon)) {
             dungeon->total_money_owned += amount;
         }
@@ -2046,11 +1945,9 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     // switch hoard object model
     gldtng->model = gold_hoard_objects[wealth_size];
     // Set visual appearance
-    struct Objects *objdat;
-    objdat = get_objects_data_for_thing(gldtng);
-    unsigned short i, n;
-    i = objdat->sprite_anim_idx;
-    n = convert_td_iso(i);
+    struct Objects* objdat = get_objects_data_for_thing(gldtng);
+    unsigned short i = objdat->sprite_anim_idx;
+    unsigned short n = convert_td_iso(i);
     if ((n & 0x8000u) == 0) {
       i = n;
     }
@@ -2075,8 +1972,7 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     if (amount > gldtng->valuable.gold_stored)
         amount = gldtng->valuable.gold_stored;
     // Remove prev wealth size
-    int wealth_size;
-    wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
+    int wealth_size = get_wealth_size_of_gold_amount(gldtng->valuable.gold_stored);
     if (wealth_size > room->used_capacity) {
         ERRORLOG("Room %s index %d has used capacity %d but stores gold hoard index %d of wealth size %d (%ld gold)",
             room_code_name(room->kind),(int)room->index,(int)room->used_capacity,(int)gldtng->index,(int)wealth_size,(long)gldtng->valuable.gold_stored);
@@ -2086,8 +1982,7 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     // Add amount of gold
     gldtng->valuable.gold_stored -= amount;
     room->capacity_used_for_storage -= amount;
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(gldtng->owner);
+    struct Dungeon* dungeon = get_dungeon(gldtng->owner);
     if (!dungeon_invalid(dungeon)) {
         dungeon->total_money_owned -= amount;
     }
@@ -2103,11 +1998,9 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     // switch hoard object model
     gldtng->model = gold_hoard_objects[wealth_size];
     // Set visual appearance
-    struct Objects *objdat;
-    objdat = get_objects_data_for_thing(gldtng);
-    unsigned short i, n;
-    i = objdat->sprite_anim_idx;
-    n = convert_td_iso(i);
+    struct Objects* objdat = get_objects_data_for_thing(gldtng);
+    unsigned short i = objdat->sprite_anim_idx;
+    unsigned short n = convert_td_iso(i);
     if ((n & 0x8000u) == 0) {
       i = n;
     }
@@ -2132,20 +2025,16 @@ TbBool thing_is_gold_hoard(const struct Thing *thing)
 
 struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Thing *thing;
-    struct Map *mapblk;
-    long i;
-    unsigned long k;
-    k = 0;
-    mapblk = get_map_block_at(stl_x,stl_y);
-    i = get_mapwho_thing_index(mapblk);
+    unsigned long k = 0;
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-      thing = thing_get(i);
-      if (thing_is_invalid(thing))
-      {
-        WARNLOG("Jump out of things array");
-        break;
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
       }
       i = thing->next_on_mapblk;
       // Per-thing block
@@ -2195,8 +2084,7 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     if (thing_is_invalid(thing)) {
         return false;
     }
-    GoldAmount typical_value;
-    typical_value = gold_object_typical_value(thing->model);
+    GoldAmount typical_value = gold_object_typical_value(thing->model);
     if (typical_value <= 0) {
         return false;
     }
@@ -2215,8 +2103,7 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
 
 struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long value)
 {
-    struct Thing *gldtng;
-    gldtng = create_object(pos, 43, plyr_idx, -1);
+    struct Thing* gldtng = create_object(pos, 43, plyr_idx, -1);
     if (thing_is_invalid(gldtng)) {
         return INVALID_THING;
     }
@@ -2227,8 +2114,7 @@ struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long 
 
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
 {
-    struct Thing *thing;
-    thing = smallest_gold_pile_at_xy(pos->x.stl.num, pos->y.stl.num);
+    struct Thing* thing = smallest_gold_pile_at_xy(pos->x.stl.num, pos->y.stl.num);
     if (thing_is_invalid(thing)) {
         thing = create_gold_pile(pos, game.neutral_player_num, value);
     } else {

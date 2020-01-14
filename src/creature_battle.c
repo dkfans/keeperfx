@@ -51,11 +51,10 @@ struct CreatureBattle *creature_battle_get(BattleIndex battle_id)
  */
 struct CreatureBattle *creature_battle_get_from_thing(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
     if (!thing_is_creature(thing)) {
         return INVALID_CRTR_BATTLE;
     }
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl)) {
         return INVALID_CRTR_BATTLE;
     }
@@ -78,8 +77,7 @@ TbBool creature_battle_invalid(const struct CreatureBattle *battle)
  */
 TbBool creature_battle_exists(BattleIndex battle_id)
 {
-    struct CreatureBattle *battle;
-    battle = creature_battle_get(battle_id);
+    struct CreatureBattle* battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle))
         return false;
     return (battle->fighters_num > 0);
@@ -87,32 +85,27 @@ TbBool creature_battle_exists(BattleIndex battle_id)
 
 TbBool has_melee_combat_attackers(struct Thing *victim)
 {
-    struct CreatureControl *vicctrl;
-    vicctrl = creature_control_get_from_thing(victim);
+    struct CreatureControl* vicctrl = creature_control_get_from_thing(victim);
     return (vicctrl->opponents_melee_count > 0);
 }
 
 TbBool can_add_melee_combat_attacker(struct Thing *victim)
 {
-    struct CreatureControl *vicctrl;
-    vicctrl = creature_control_get_from_thing(victim);
+    struct CreatureControl* vicctrl = creature_control_get_from_thing(victim);
     return (vicctrl->opponents_melee_count < COMBAT_MELEE_OPPONENTS_LIMIT);
 }
 
 TbBool has_ranged_combat_attackers(const struct Thing *victim)
 {
-    struct CreatureControl *vicctrl;
-    vicctrl = creature_control_get_from_thing(victim);
+    struct CreatureControl* vicctrl = creature_control_get_from_thing(victim);
     return (vicctrl->opponents_ranged_count > 0);
 }
 
 BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx)
 {
-    struct CreatureBattle *battle;
-    long i;
-    for (i = 1; i < BATTLES_COUNT; i++)
+    for (long i = 1; i < BATTLES_COUNT; i++)
     {
-        battle = creature_battle_get(i);
+        struct CreatureBattle* battle = creature_battle_get(i);
         if (battle->fighters_num != 0)
         {
             if (battle_with_creature_of_player(plyr_idx, i))
@@ -124,11 +117,9 @@ BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx)
 
 BattleIndex find_last_battle_of_mine(PlayerNumber plyr_idx)
 {
-    struct CreatureBattle *battle;
-    long i;
-    for (i = BATTLES_COUNT; i > 0; i--)
+    for (long i = BATTLES_COUNT; i > 0; i--)
     {
-        battle = creature_battle_get(i);
+        struct CreatureBattle* battle = creature_battle_get(i);
         if (battle->fighters_num != 0)
         {
             if (battle_with_creature_of_player(plyr_idx, i))
@@ -140,25 +131,17 @@ BattleIndex find_last_battle_of_mine(PlayerNumber plyr_idx)
 
 TbBool can_add_ranged_combat_attacker(const struct Thing *victim)
 {
-    struct CreatureControl *vicctrl;
-    vicctrl = creature_control_get_from_thing(victim);
+    struct CreatureControl* vicctrl = creature_control_get_from_thing(victim);
     return (vicctrl->opponents_ranged_count < COMBAT_RANGED_OPPONENTS_LIMIT);
 }
 
 long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
 {
-    struct Dungeon *dungeon;
-    struct PlayerInfo *player;
-    struct CreatureControl *cctrl;
-    struct Thing *lairtng;
-    struct Thing *heartng;
-    struct Thing *gatetng;
-
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     // Heroes should flee to their gate
     if (is_hero_thing(creatng))
     {
-        gatetng = find_hero_door_hero_can_navigate_to(creatng);
+        struct Thing* gatetng = find_hero_door_hero_can_navigate_to(creatng);
         if ( !thing_is_invalid(gatetng) )
         {
             pos->x.val = gatetng->mappos.x.val;
@@ -177,7 +160,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
         return 0;
     }
     // Same with creatures without dungeon - try using last place
-    dungeon = get_dungeon(creatng->owner);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
     if (dungeon_invalid(dungeon))
     {
         if ( (pos->x.val != 0) || (pos->y.val != 0) )
@@ -189,7 +172,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
     // Other creatures can flee to heart or their lair
     if (cctrl->lairtng_idx > 0)
     {
-        lairtng = thing_get(cctrl->lairtng_idx);
+        struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
         TRACE_THING(lairtng);
         pos->x.val = lairtng->mappos.x.val;
         pos->y.val = lairtng->mappos.y.val;
@@ -197,14 +180,14 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
     } else
     if (dungeon->dnheart_idx > 0)
     {
-        heartng = thing_get(dungeon->dnheart_idx);
+        struct Thing* heartng = thing_get(dungeon->dnheart_idx);
         TRACE_THING(heartng);
         pos->x.val = heartng->mappos.x.val;
         pos->y.val = heartng->mappos.y.val;
         pos->z.val = heartng->mappos.z.val;
     } else
     {
-        player = get_player(creatng->owner);
+        struct PlayerInfo* player = get_player(creatng->owner);
         if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->field_2C == 1) && (player->victory_state != VicS_LostLevel) )
         {
             ERRORLOG("The %s index %d has no dungeon heart or lair to flee to",thing_model_name(creatng),(int)creatng->index);
@@ -219,8 +202,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
 
 void setup_combat_flee_position(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl)) {
         ERRORLOG("Invalid creature control");
         return;
@@ -236,7 +218,6 @@ void setup_combat_flee_position(struct Thing *thing)
 
 long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_pref)
 {
-    struct CreatureStats *crstat;
     if (attack_pref == AttckT_Ranged)
     {
         if (can_add_ranged_combat_attacker(enmtng)) {
@@ -244,7 +225,7 @@ long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, Cr
         }
         return CmbtSt_Waiting;
     }
-    crstat = creature_stats_get_from_thing(fightng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
     if (crstat->attack_preference == AttckT_Ranged)
     {
         if (creature_has_ranged_weapon(fightng) && can_add_ranged_combat_attacker(enmtng)) {
@@ -265,9 +246,8 @@ long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, Cr
 
 void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_type)
 {
-    struct CreatureControl *cctrl;
     SYNCDBG(8,"Starting for %s index %d and %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);
-    cctrl = creature_control_get_from_thing(fightng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(fightng);
     if (creature_control_invalid(cctrl)) {
         ERRORLOG("Invalid creature control");
         return;
@@ -294,21 +274,18 @@ void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, CrAttac
 
 TbBool active_battle_exists(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     return (dungeon->visible_battles[0] != 0);
 }
 
 TbBool step_battles_forward(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    BattleIndex i;
-    i = dungeon->visible_battles[2];
+    BattleIndex i = dungeon->visible_battles[2];
     if (i > 0) {
         i = find_next_battle_of_mine_excluding_current_list(plyr_idx, i);
     }
@@ -324,10 +301,8 @@ TbBool step_battles_forward(PlayerNumber plyr_idx)
 
 long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_idx)
 {
-    struct CreatureBattle *battle;
-    struct Thing *thing;
-    battle = creature_battle_get(battle_idx);
-    thing = thing_get(battle->first_creatr);
+    struct CreatureBattle* battle = creature_battle_get(battle_idx);
+    struct Thing* thing = thing_get(battle->first_creatr);
     TRACE_THING(thing);
     if (!thing_exists(thing))
     {
@@ -344,16 +319,15 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex ba
 
 void battle_initialise(void)
 {
-    int battle_idx;
-    for (battle_idx = 0; battle_idx < BATTLES_COUNT; battle_idx++) {
+    for (int battle_idx = 0; battle_idx < BATTLES_COUNT; battle_idx++)
+    {
         LbMemorySet(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
     }
 }
 
 BattleIndex find_next_battle_of_mine(PlayerNumber plyr_idx, BattleIndex prev_idx)
 {
-    BattleIndex next_idx;
-    for (next_idx = prev_idx+1; next_idx < BATTLES_COUNT; next_idx++)
+    for (BattleIndex next_idx = prev_idx + 1; next_idx < BATTLES_COUNT; next_idx++)
     {
         if (creature_battle_exists(next_idx) && battle_with_creature_of_player(plyr_idx, next_idx)) {
             return next_idx;
@@ -364,8 +338,7 @@ BattleIndex find_next_battle_of_mine(PlayerNumber plyr_idx, BattleIndex prev_idx
 
 BattleIndex find_previous_battle_of_mine(PlayerNumber plyr_idx, BattleIndex next_idx)
 {
-    BattleIndex prev_idx;
-    for (prev_idx = next_idx-1; prev_idx > 0; prev_idx--)
+    for (BattleIndex prev_idx = next_idx - 1; prev_idx > 0; prev_idx--)
     {
         if (creature_battle_exists(prev_idx) && battle_with_creature_of_player(plyr_idx, prev_idx)) {
             return prev_idx;
@@ -376,10 +349,8 @@ BattleIndex find_previous_battle_of_mine(PlayerNumber plyr_idx, BattleIndex next
 
 TbBool battle_in_list(PlayerNumber plyr_idx, BattleIndex battle_id)
 {
-    struct Dungeon *dungeon;
-    long i;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    for (i=0; i < 3; i++)
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    for (long i = 0; i < 3; i++)
     {
         if (battle_id > 0)
         {
@@ -392,10 +363,8 @@ TbBool battle_in_list(PlayerNumber plyr_idx, BattleIndex battle_id)
 
 BattleIndex find_next_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex prev_idx)
 {
-    BattleIndex first_idx;
-    BattleIndex battle_idx;
-    battle_idx = find_next_battle_of_mine(plyr_idx, prev_idx);
-    first_idx = battle_idx;
+    BattleIndex battle_idx = find_next_battle_of_mine(plyr_idx, prev_idx);
+    BattleIndex first_idx = battle_idx;
     while (battle_in_list(plyr_idx, battle_idx))
     {
         battle_idx = find_next_battle_of_mine(plyr_idx, battle_idx);
@@ -407,10 +376,8 @@ BattleIndex find_next_battle_of_mine_excluding_current_list(PlayerNumber plyr_id
 
 BattleIndex find_previous_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex next_idx)
 {
-    BattleIndex last_idx;
-    BattleIndex battle_id;
-    battle_id = find_previous_battle_of_mine(plyr_idx, next_idx);
-    last_idx = battle_id;
+    BattleIndex battle_id = find_previous_battle_of_mine(plyr_idx, next_idx);
+    BattleIndex last_idx = battle_id;
     while (battle_in_list(plyr_idx, battle_id))
     {
         battle_id = find_previous_battle_of_mine(plyr_idx, battle_id);
@@ -422,8 +389,7 @@ BattleIndex find_previous_battle_of_mine_excluding_current_list(PlayerNumber ply
 
 TbBool clear_battlers(unsigned short *friendly_battlers, unsigned short *enemy_battlers)
 {
-    long i;
-    for (i=0; i < MESSAGE_BATTLERS_COUNT; i++)
+    for (long i = 0; i < MESSAGE_BATTLERS_COUNT; i++)
     {
         friendly_battlers[i] = 0;
         enemy_battlers[i] = 0;
@@ -433,17 +399,13 @@ TbBool clear_battlers(unsigned short *friendly_battlers, unsigned short *enemy_b
 
 long setup_player_battlers(struct PlayerInfo *player, struct CreatureBattle *battle, unsigned short *friendly_battlers, unsigned short *enemy_battlers)
 {
-    long i;
-    unsigned long k;
-    short friendly_pos, enemy_pos;
-    friendly_pos = 0;
-    enemy_pos = 0;
-    i = battle->first_creatr;
-    k = 0;
+    short friendly_pos = 0;
+    short enemy_pos = 0;
+    long i = battle->first_creatr;
+    unsigned long k = 0;
     while (i > 0)
     {
-        struct Thing *thing;
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_invalid(thing)) {
             ERRORLOG("Invalid thing index %d in friend/enemy battle-list",(int)i);
             break;
@@ -453,8 +415,7 @@ long setup_player_battlers(struct PlayerInfo *player, struct CreatureBattle *bat
             ERRORLOG("Dead thing index %d in friend/enemy battle-list",(int)i);
             break;
         }
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->battle_prev_creatr;
         // Per creature code
         long n;
@@ -489,10 +450,8 @@ long setup_my_battlers(unsigned char battle_idx, unsigned short *friendly_battle
     // Clear the battlers
     clear_battlers(friendly_battlers, enemy_battlers);
     // And fill them with new data
-    struct PlayerInfo *player;
-    player = get_my_player();
-    struct CreatureBattle *battle;
-    battle = creature_battle_get(battle_idx);
+    struct PlayerInfo* player = get_my_player();
+    struct CreatureBattle* battle = creature_battle_get(battle_idx);
     if (creature_battle_invalid(battle)) {
         ERRORLOG("Invalid battle %d",(int)battle_idx);
         return 0;
@@ -502,18 +461,14 @@ long setup_my_battlers(unsigned char battle_idx, unsigned short *friendly_battle
 
 void maintain_my_battle_list(void)
 {
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    BattleIndex battle_id;
-    long i,n;
+    long i;
     // Find battle index
-    player = get_my_player();
-    dungeon = get_players_dungeon(player);
-    battle_id = 0;
+    struct PlayerInfo* player = get_my_player();
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    BattleIndex battle_id = 0;
     for (i=0; i < 3; i++)
     {
-        struct CreatureBattle *battle;
-        battle = creature_battle_get(dungeon->visible_battles[i]);
+        struct CreatureBattle* battle = creature_battle_get(dungeon->visible_battles[i]);
         if (battle->fighters_num > 0) {
             battle_id = dungeon->visible_battles[i];
         } else {
@@ -526,7 +481,7 @@ void maintain_my_battle_list(void)
       if (dungeon->visible_battles[i] <= 0)
       {
           // Got empty spot - fill it with first non-empty item
-          for (n=i+1; n < 3; n++)
+          for (long n = i + 1; n < 3; n++)
           {
               if (dungeon->visible_battles[n] > 0)
               {

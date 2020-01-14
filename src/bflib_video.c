@@ -109,10 +109,9 @@ TbResult LbScreenUnlock(void)
 
 TbResult LbScreenSwap(void)
 {
-    TbResult ret;
     int blresult;
     SYNCDBG(12,"Starting");
-    ret = LbMouseOnBeginSwap();
+    TbResult ret = LbMouseOnBeginSwap();
     // Put the data from Draw Surface onto Screen Surface
     if ((ret == Lb_SUCCESS) && (lbHasSecondSurface)) {
         blresult = SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL);
@@ -205,12 +204,11 @@ TbScreenCoord LbScreenHeight(void)
 
 TbResult LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fade_steps)
 {
-    int i,c1,c2;
     unsigned char palette[PALETTE_SIZE];
-    for (i=0; i < 3*PALETTE_COLORS; i+=3)
+    for (int i = 0; i < 3 * PALETTE_COLORS; i += 3)
     {
-        c1 =   to_pal[i+0];
-        c2 = from_pal[i+0];
+        int c1 = to_pal[i + 0];
+        int c2 = from_pal[i + 0];
         palette[i+0] = fade_count * (c1 - c2) / fade_steps + c2;
         c1 =   to_pal[i+1];
         c2 = from_pal[i+1];
@@ -219,9 +217,8 @@ TbResult LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fa
         c2 = from_pal[i+2];
         palette[i+2] = fade_count * (c1 - c2) / fade_steps + c2;
     }
-    TbResult ret;
     LbScreenWaitVbi();
-    ret = LbPaletteSet(palette);
+    TbResult ret = LbPaletteSet(palette);
     if (lbHasSecondSurface)
         LbScreenSwap();
     return ret;
@@ -295,33 +292,31 @@ TbResult LbScreenWaitVbi(void)
 
 static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode)
 {
-  TbScreenModeInfo *mdinfo;
-  unsigned long sdlFlags;
-  int closestBPP;
-  mdinfo = LbScreenGetModeInfo(mode);
-  sdlFlags = 0;
-  if (mdinfo->BitsPerPixel == lbEngineBPP) {
-      sdlFlags |= SDL_HWPALETTE | SDL_DOUBLEBUF;
+    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
+    unsigned long sdlFlags = 0;
+    if (mdinfo->BitsPerPixel == lbEngineBPP)
+    {
+        sdlFlags |= SDL_HWPALETTE | SDL_DOUBLEBUF;
   }
   if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
       sdlFlags |= SDL_FULLSCREEN;
   }
 
-  closestBPP = SDL_VideoModeOK(mdinfo->Width, mdinfo->Height, mdinfo->BitsPerPixel, sdlFlags);
+  int closestBPP = SDL_VideoModeOK(mdinfo->Width, mdinfo->Height, mdinfo->BitsPerPixel, sdlFlags);
   return (closestBPP == mdinfo->BitsPerPixel);
 }
 
 TbResult LbScreenFindVideoModes(void)
 {
-  int i,avail_num;
-  avail_num = 0;
-  lbScreenModeInfo[0].Available = false;
-  for (i=1; i < lbScreenModeInfoNum; i++)
-  {
-      if (LbHwCheckIsModeAvailable(i)) {
-          lbScreenModeInfo[i].Available = true;
-          avail_num++;
-      } else {
+    int avail_num = 0;
+    lbScreenModeInfo[0].Available = false;
+    for (int i = 1; i < lbScreenModeInfoNum; i++)
+    {
+        if (LbHwCheckIsModeAvailable(i))
+        {
+            lbScreenModeInfo[i].Available = true;
+            avail_num++;
+        } else {
           lbScreenModeInfo[i].Available = false;
       }
   }
@@ -372,7 +367,6 @@ static void LbRegisterStandardVideoModes(void)
 
 TbResult LbScreenInitialize(void)
 {
-    char buf[32];
     // Clear global variables
     lbScreenInitialised = false;
     lbScreenSurface = NULL;
@@ -387,7 +381,8 @@ TbResult LbScreenInitialize(void)
     }
     // SDL environment variables
     if (lbVideoDriver[0] != '\0') {
-        sprintf(buf,"SDL_VIDEODRIVER=%s",lbVideoDriver);
+        char buf[32];
+        sprintf(buf, "SDL_VIDEODRIVER=%s", lbVideoDriver);
         putenv(buf);
     }
     // Initialize SDL library
@@ -439,8 +434,6 @@ TbResult LbScreenUpdateIcon(void)
     SDL_SetColorKey(image, SDL_SRCCOLORKEY, colorkey);
     SDL_WM_SetIcon(image,NULL);
  */
-    HICON hIcon;
-    HINSTANCE lbhInstance;
     SDL_SysWMinfo wmInfo;
 
     SDL_VERSION(&wmInfo.version);
@@ -449,8 +442,8 @@ TbResult LbScreenUpdateIcon(void)
         return Lb_FAIL;
     }
 
-    lbhInstance = GetModuleHandle(NULL);
-    hIcon = LoadIcon(lbhInstance, MsResourceMapping(lbIconIndex));
+    HINSTANCE lbhInstance = GetModuleHandle(NULL);
+    HICON hIcon = LoadIcon(lbhInstance, MsResourceMapping(lbIconIndex));
     SendMessage(wmInfo.window, WM_SETICON, ICON_BIG,  (LPARAM)hIcon);
     SendMessage(wmInfo.window, WM_SETICON, ICON_SMALL,(LPARAM)hIcon);
     return Lb_SUCCESS;
@@ -459,20 +452,17 @@ TbResult LbScreenUpdateIcon(void)
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
-    SDL_Surface * prevScreenSurf;
-    long hot_x,hot_y;
-    struct TbSprite *msspr;
-    TbScreenModeInfo *mdinfo;
-    unsigned long sdlFlags;
+    long hot_x;
+    long hot_y;
 
-    msspr = NULL;
+    struct TbSprite* msspr = NULL;
     LbExeReferenceNumber();
     if (lbDisplay.MouseSprite != NULL)
     {
         msspr = lbDisplay.MouseSprite;
         GetPointerHotspot(&hot_x,&hot_y);
     }
-    prevScreenSurf = lbScreenSurface;
+    SDL_Surface* prevScreenSurf = lbScreenSurface;
     LbMouseChangeSprite(NULL);
     if (lbHasSecondSurface) {
         SDL_FreeSurface(lbDrawSurface);
@@ -483,7 +473,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if (prevScreenSurf != NULL) {
     }
 
-    mdinfo = LbScreenGetModeInfo(mode);
+    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
     if ( !LbScreenIsModeAvailable(mode) )
     {
         ERRORLOG("%s resolution %dx%d (mode %d) not available",
@@ -493,7 +483,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     }
 
     // SDL video mode flags
-    sdlFlags = 0;
+    unsigned long sdlFlags = 0;
     sdlFlags |= SDL_SWSURFACE;
     if (mdinfo->BitsPerPixel == lbEngineBPP) {
         sdlFlags |= SDL_HWPALETTE;
@@ -593,22 +583,18 @@ TbResult LbPaletteDataFillWhite(unsigned char *palette)
  */
 TbResult LbPaletteSet(unsigned char *palette)
 {
-    unsigned char * bufColors;
-    SDL_Color * destColors;
-    const unsigned char * srcColors;
-    unsigned long i;
-    TbResult ret;
     SYNCDBG(12,"Starting");
     if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
       return Lb_FAIL;
     //destColors = (SDL_Color *) malloc(sizeof(SDL_Color) * PALETTE_COLORS);
-    destColors = lbPaletteColors;
-    srcColors = palette;
-    bufColors = lbPalette;
+    SDL_Color* destColors = lbPaletteColors;
+    const unsigned char* srcColors = palette;
+    unsigned char* bufColors = lbPalette;
     if ((destColors == NULL) || (srcColors == NULL))
       return Lb_FAIL;
-    ret = Lb_SUCCESS;
-    for (i = 0; i < PALETTE_COLORS; i++) {
+    TbResult ret = Lb_SUCCESS;
+    for (unsigned long i = 0; i < PALETTE_COLORS; i++)
+    {
         // note that bufColors and srcColors could be the same pointer
         bufColors[0] = srcColors[0] & 0x3F;
         bufColors[1] = srcColors[1] & 0x3F;
@@ -762,15 +748,14 @@ TbResult LbScreenLoadGraphicsWindow(TbGraphicsWindow *grwnd)
 
 TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
 {
-  long x2,y2;
-  long i;
-  x2 = x + width;
-  y2 = y + height;
-  if (x2 < x)
-  {
-    i = (x^x2);
-    x = x^i;
-    x2 = x^i^i;
+    long i;
+    long x2 = x + width;
+    long y2 = y + height;
+    if (x2 < x)
+    {
+        i = (x ^ x2);
+        x = x ^ i;
+        x2 = x ^ i ^ i;
   }
   if (y2 < y)
   {
@@ -810,7 +795,6 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
 
 TbBool LbScreenIsModeAvailable(TbScreenMode mode)
 {
-  TbScreenModeInfo *mdinfo;
   static TbBool setup = false;
   if (!setup)
   {
@@ -818,7 +802,7 @@ TbBool LbScreenIsModeAvailable(TbScreenMode mode)
       return false;
     setup = true;
   }
-  mdinfo = LbScreenGetModeInfo(mode);
+  TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
   return mdinfo->Available;
 }
 
@@ -852,8 +836,7 @@ TbBool LbScreenIsDoubleBufferred(void)
 
 TbScreenMode LbRecogniseVideoModeString(const char *desc)
 {
-    int mode;
-    for (mode=0; mode < lbScreenModeInfoNum; mode++)
+    for (int mode = 0; mode < lbScreenModeInfoNum; mode++)
     {
       if (strcasecmp(lbScreenModeInfo[mode].Desc,desc) == 0)
         return (TbScreenMode)mode;
@@ -865,8 +848,7 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
     unsigned short bpp, unsigned long flags)
 {
     TbScreenModeInfo *mdinfo;
-    TbScreenMode mode;
-    mode = LbRecogniseVideoModeString(desc);
+    TbScreenMode mode = LbRecogniseVideoModeString(desc);
     if (mode != Lb_SCREEN_MODE_INVALID)
     {
         mdinfo = &lbScreenModeInfo[mode];
@@ -909,7 +891,8 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
  */
 TbScreenMode LbRegisterVideoModeString(const char *desc)
 {
-    int width, height;
+    int width;
+    int height;
     int bpp;
     unsigned long flags;
     int ret;
@@ -946,18 +929,15 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
 
 TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned char g, unsigned char b)
 {
-    int min_delta;
-    const unsigned char *c;
     int i;
     // Compute minimal square difference in color; return exact match if found
-    min_delta = 999999;
-    c = pal;
+    int min_delta = 999999;
+    const unsigned char* c = pal;
     for (i = 0; i < 256; i++)
     {
-        int dr,dg,db;
-        dr = (r - c[0]) * (r - c[0]);
-        dg = (g - c[1]) * (g - c[1]);
-        db = (b - c[2]) * (b - c[2]);
+        int dr = (r - c[0]) * (r - c[0]);
+        int dg = (g - c[1]) * (g - c[1]);
+        int db = (b - c[2]) * (b - c[2]);
         if (min_delta > dr+dg+db)
         {
             min_delta = dr+dg+db;
@@ -968,18 +948,15 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
         c += 3;
     }
     // Gather all the colors with minimal square difference
+    int n = 0;
     unsigned char tmcol[256];
-    unsigned char *o;
-    int n;
-    n = 0;
-    o = tmcol;
+    unsigned char* o = tmcol;
     c = pal;
     for (i = 0; i < 256; i++)
     {
-        int dr,dg,db;
-        dr = (r - c[0]) * (r - c[0]);
-        dg = (g - c[1]) * (g - c[1]);
-        db = (b - c[2]) * (b - c[2]);
+        int dr = (r - c[0]) * (r - c[0]);
+        int dg = (g - c[1]) * (g - c[1]);
+        int db = (b - c[2]) * (b - c[2]);
         if (min_delta == dr+dg+db)
         {
             n += 1;
@@ -996,27 +973,24 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
     min_delta = 999999;
     for (i = 0; i < n; i++)
     {
-        int dr,dg,db;
         c = &pal[3 * tmcol[i]];
-        dr = abs(r - c[0]);
-        dg = abs(g - c[1]);
-        db = abs(b - c[2]);
+        int dr = abs(r - c[0]);
+        int dg = abs(g - c[1]);
+        int db = abs(b - c[2]);
         if (min_delta > dr+dg+db) {
             min_delta = dr+dg+db;
         }
     }
     // Gather all the colors with minimal linear difference
     // Note that we may re-use tmcol array, because (i <= m)
-    int m;
-    m = 0;
+    int m = 0;
     o = tmcol;
     for (i = 0; i < n; i++)
     {
-        int dr,dg,db;
         c = &pal[3 * tmcol[i]];
-        dr = abs(r - c[0]);
-        dg = abs(g - c[1]);
-        db = abs(b - c[2]);
+        int dr = abs(r - c[0]);
+        int dg = abs(g - c[1]);
+        int db = abs(b - c[2]);
         if (min_delta == dr+dg+db)
         {
             m += 1;
@@ -1033,11 +1007,10 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
     o = &tmcol[0];
     for (i = 0; i < m; i++)
     {
-        int dr,dg,db;
         c = &pal[3 * tmcol[i]];
-        dr = (c[0] * c[0]);
-        dg = (c[1] * c[1]);
-        db = (c[2] * c[2]);
+        int dr = (c[0] * c[0]);
+        int dg = (c[1] * c[1]);
+        int db = (c[2] * c[2]);
         if (min_delta > db+2*(dg+dr))
         {
           min_delta = db+2*(dg+dr);

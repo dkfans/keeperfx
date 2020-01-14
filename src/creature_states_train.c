@@ -50,8 +50,7 @@
  */
 TbBool creature_can_be_trained(const struct Thing *thing)
 {
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     // Creatures without training value can't be trained
     if (crstat->training_value <= 0)
         return false;
@@ -61,17 +60,14 @@ TbBool creature_can_be_trained(const struct Thing *thing)
 
 TbBool player_can_afford_to_train_creature(const struct Thing *thing)
 {
-    struct Dungeon *dungeon;
-    struct CreatureStats *crstat;
-    dungeon = get_dungeon(thing->owner);
-    crstat = creature_stats_get_from_thing(thing);
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     return (dungeon->total_money_owned >= crstat->training_cost);
 }
 
 void setup_training_move(struct Thing *creatng, SubtlCodedCoords stl_num)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->moveto_pos.x.val = subtile_coord_center(stl_num_decode_x(stl_num));
     cctrl->moveto_pos.y.val = subtile_coord_center(stl_num_decode_y(stl_num));
     cctrl->moveto_pos.z.val = get_thing_height_at(creatng, &cctrl->moveto_pos);
@@ -87,14 +83,11 @@ void setup_training_move(struct Thing *creatng, SubtlCodedCoords stl_num)
 
 void setup_training_move_near(struct Thing *creatng, SubtlCodedCoords stl_num)
 {
-    SubtlCodedCoords near_stl_num;
-    MapSubtlDelta dist_x,dist_y;
-    MapSubtlCoord stl_x,stl_y;
-    stl_x = stl_num_decode_x(stl_num);
-    stl_y = stl_num_decode_y(stl_num);
+    MapSubtlCoord stl_x = stl_num_decode_x(stl_num);
+    MapSubtlCoord stl_y = stl_num_decode_y(stl_num);
     // Select a subtile closer to current position
-    dist_x = stl_x - (MapSubtlDelta)creatng->mappos.x.stl.num;
-    dist_y = stl_y - (MapSubtlDelta)creatng->mappos.y.stl.num;
+    MapSubtlDelta dist_x = stl_x - (MapSubtlDelta)creatng->mappos.x.stl.num;
+    MapSubtlDelta dist_y = stl_y - (MapSubtlDelta)creatng->mappos.y.stl.num;
     if (abs(dist_x) > abs(dist_y))
     {
         if (dist_x > 0) {
@@ -110,24 +103,20 @@ void setup_training_move_near(struct Thing *creatng, SubtlCodedCoords stl_num)
             stl_y += 1;
         }
     }
-    near_stl_num = get_subtile_number(stl_x,stl_y);
+    SubtlCodedCoords near_stl_num = get_subtile_number(stl_x, stl_y);
     setup_training_move(creatng, near_stl_num);
 }
 
 struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Room *room, struct Thing *partnertng)
 {
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
-    unsigned long k;
-    long i;
     TRACE_THING(partnertng);
-    i = room->creatures_list;
-    k = 0;
+    long i = room->creatures_list;
+    unsigned long k = 0;
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
-        cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_exists(cctrl))
         {
             ERRORLOG("Jump to invalid creature %d detected",(int)i);
@@ -159,25 +148,20 @@ struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Ro
 
 void setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long restart)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct Thing *prtng;
-    struct CreatureControl *prctrl;
     struct Coord3d pos;
-    long i;
     SYNCDBG(8,"Starting for %s",thing_model_name(thing));
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if ( restart )
       cctrl->training.search_timeout = 50;
     // Try partner training
     if ((crstat->partner_training > 0) && (ACTION_RANDOM(100) < crstat->partner_training))
     {
-        prtng = get_creature_in_training_room_which_could_accept_partner(room, thing);
+        struct Thing* prtng = get_creature_in_training_room_which_could_accept_partner(room, thing);
         if (!thing_is_invalid(prtng))
         {
             SYNCDBG(7,"The %s found %s as training partner.",thing_model_name(thing),thing_model_name(prtng));
-            prctrl = creature_control_get_from_thing(prtng);
+            struct CreatureControl* prctrl = creature_control_get_from_thing(prtng);
             prctrl->training.mode = CrTrMd_PartnerTraining;
             prctrl->training.train_timeout = 75;
             prctrl->training.partner_idx = thing->index;
@@ -194,7 +178,7 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
         SYNCDBG(8,"Going to train at (%d,%d)",(int)pos.x.stl.num,(int)pos.y.stl.num);
-        i = get_subtile_number(pos.x.stl.num,pos.y.stl.num);
+        long i = get_subtile_number(pos.x.stl.num, pos.y.stl.num);
         setup_training_move(thing, i);
     } else {
         SYNCDBG(8,"No new position found, staying at (%d,%d)",(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.x.stl.num);
@@ -214,22 +198,15 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
  */
 void setup_training_search_for_post(struct Thing *creatng)
 {
-    struct Room *room;
-    struct Thing *traintng;
-    struct Thing *thing;
-    long start_slab;
-    long min_distance,dist;
-    long slb_x,slb_y;
-    long i,k;
-    room = get_room_thing_is_on(creatng);
+    struct Room* room = get_room_thing_is_on(creatng);
     // Let's start from a random slab
-    slb_x = -1;
-    slb_y = -1;
-    min_distance = LONG_MAX;
-    traintng = INVALID_THING;
-    start_slab = ACTION_RANDOM(room->slabs_count);
-    k = start_slab;
-    i = room->slabs_list;
+    long slb_x = -1;
+    long slb_y = -1;
+    long min_distance = LONG_MAX;
+    struct Thing* traintng = INVALID_THING;
+    long start_slab = ACTION_RANDOM(room->slabs_count);
+    long k = start_slab;
+    long i = room->slabs_list;
     while (i != 0)
     {
         slb_x = slb_num_decode_x(i);
@@ -240,7 +217,7 @@ void setup_training_search_for_post(struct Thing *creatng)
         k--;
     }
     // Got random starting slab, now sweep room slabs from it
-    thing = INVALID_THING;
+    struct Thing* thing = INVALID_THING;
     k = room->slabs_count;
     i = get_slab_number(slb_x,slb_y);
     while (k > 0)
@@ -254,7 +231,7 @@ void setup_training_search_for_post(struct Thing *creatng)
         thing = get_object_at_subtile_of_model_and_owned_by(slab_subtile_center(slb_x), slab_subtile_center(slb_y), 31, creatng->owner);
         if (!thing_is_invalid(thing))
         {
-            dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+            long dist = get_2d_distance(&creatng->mappos, &thing->mappos);
             if (dist < min_distance) {
                 traintng = thing;
                 min_distance = dist;
@@ -279,14 +256,11 @@ void setup_training_search_for_post(struct Thing *creatng)
 
 struct Thing *find_training_post_just_next_to_creature(struct Thing *creatng)
 {
-    long i;
-    struct Thing *traintng;
-    traintng = INVALID_THING;
-    for (i=0; i < 4; i++)
+    struct Thing* traintng = INVALID_THING;
+    for (long i = 0; i < 4; i++)
     {
-        long stl_x,stl_y;
-        stl_x = creatng->mappos.x.stl.num + (long)small_around[i].delta_x;
-        stl_y = creatng->mappos.y.stl.num + (long)small_around[i].delta_y;
+        long stl_x = creatng->mappos.x.stl.num + (long)small_around[i].delta_x;
+        long stl_y = creatng->mappos.y.stl.num + (long)small_around[i].delta_y;
         traintng = get_object_at_subtile_of_model_and_owned_by(stl_x, stl_y, 31, creatng->owner);
         if (!thing_is_invalid(traintng))
             break;
@@ -308,7 +282,8 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     struct Thing *crtng;
     struct CreatureControl *cctrl2;
     struct Coord3d pos;
-    long speed,dist;
+    long speed;
+    long dist;
     long i;
     cctrl = creature_control_get_from_thing(thing);
     SYNCDBG(8,"Starting %s mode %d",thing_model_name(thing),(int)cctrl->training.mode);
@@ -354,8 +329,10 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     case CrTrMd_SelectPositionNearTrainPost:
         for (i=0; i < 4; i++)
         {
-            long slb_x,slb_y;
-            long stl_x,stl_y;
+            long slb_x;
+            long slb_y;
+            long stl_x;
+            long stl_y;
             struct SlabMap *slb;
             slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[i].delta_x;
             slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[i].delta_y;
@@ -525,9 +502,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
 
 short at_training_room(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct Room *room;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     if (!creature_can_be_trained(thing))
     {
@@ -542,7 +517,7 @@ short at_training_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_TRAIN), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
@@ -562,10 +537,9 @@ short at_training_room(struct Thing *thing)
 
 CrStateRet training(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
     TRACE_THING(thing);
     SYNCDBG(18,"Starting");
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // Check if we should finish training
     if (!creature_can_be_trained(thing))
     {
@@ -584,18 +558,15 @@ CrStateRet training(struct Thing *thing)
         return CrStRet_ResetFail;
     }
     // Check if we're in correct room
-    struct Room *room;
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (creature_job_in_room_no_longer_possible(room, Job_TRAIN, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetFail;
     }
-    struct Dungeon *dungeon;
-    struct CreatureStats *crstat;
-    dungeon = get_dungeon(thing->owner);
-    crstat = creature_stats_get_from_thing(thing);
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     // Pay for the training
     cctrl->field_82++;
     if (cctrl->field_82 >= game.train_cost_frequency)
@@ -608,8 +579,7 @@ CrStateRet training(struct Thing *thing)
     }
     if ((cctrl->instance_id != CrInst_NULL) || !check_experience_upgrade(thing))
     {
-        long work_value;
-        work_value = compute_creature_work_value_for_room_role(thing, RoRoF_CrTrainExp, room->efficiency);
+        long work_value = compute_creature_work_value_for_room_role(thing, RoRoF_CrTrainExp, room->efficiency);
         SYNCDBG(19,"The %s index %d produced %d training points",thing_model_name(thing),(int)thing->index,(int)work_value);
         cctrl->exp_points += work_value;
         dungeon->total_experience_creatures_gained += work_value;

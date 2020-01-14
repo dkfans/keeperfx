@@ -267,7 +267,8 @@ static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
 static void process_event(const SDL_Event *ev)
 {
     struct TbPoint mousePos;
-    int x, y;
+    int x;
+    int y;
     SYNCDBG(10, "Starting");
 
     switch (ev->type)

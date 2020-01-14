@@ -71,10 +71,9 @@ void do_sound_button_click(struct GuiButton *gbtn)
 
 void setup_input_field(struct GuiButton *gbtn, const char * empty_text)
 {
-    char *content;
     lbInkey = 0;
     LbMemorySet(backup_input_field, 0, INPUT_FIELD_LEN);
-    content = (char *)gbtn->content;
+    char* content = (char*)gbtn->content;
     if (content == NULL)
     {
         ERRORLOG("Button has invalid content pointer");

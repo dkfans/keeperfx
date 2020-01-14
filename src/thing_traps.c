@@ -68,16 +68,12 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 
 struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Thing *thing;
-    struct Map *mapblk;
-    long i;
-    unsigned long k;
-    mapblk = get_map_block_at(stl_x,stl_y);
-    k = 0;
-    i = get_mapwho_thing_index(mapblk);
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
@@ -103,16 +99,14 @@ struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    MapCoord pos_x,pos_y;
-    pos_x = subtile_coord_center(slab_subtile_center(slb_x));
-    pos_y = subtile_coord_center(slab_subtile_center(slb_y));
+    MapCoord pos_x = subtile_coord_center(slab_subtile_center(slb_x));
+    MapCoord pos_y = subtile_coord_center(slab_subtile_center(slb_y));
     return get_trap_around_of_model_and_owned_by(pos_x, pos_y, -1, -1);
 }
 
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct Thing *traptng;
-    traptng = get_trap_for_slab_position(slb_x, slb_y);
+    struct Thing* traptng = get_trap_for_slab_position(slb_x, slb_y);
     return !thing_is_invalid(traptng);
 }
 
@@ -127,16 +121,12 @@ TbBool thing_is_deployed_trap(const struct Thing *thing)
 
 TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Thing *thing;
-    struct Map *mapblk;
-    long i;
-    unsigned long k;
-    mapblk = get_map_block_at(stl_x,stl_y);
-    k = 0;
-    i = get_mapwho_thing_index(mapblk);
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
@@ -173,20 +163,20 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
 TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 {
     static const MapSubtlDelta line_of_sight_90_range = 20;
-    MapSubtlCoord stl_x_beg, stl_x_end;
-    MapSubtlCoord stl_y_beg, stl_y_end;
+    MapSubtlCoord stl_x_beg;
+    MapSubtlCoord stl_x_end;
+    MapSubtlCoord stl_y_beg;
+    MapSubtlCoord stl_y_end;
     {
-        MapCoord coord_x, coord_y;
-        MapCoordDelta trap_radius;
-        trap_radius = traptng->clipbox_size_xy / 2;
-        coord_x = traptng->mappos.x.val;
+        MapCoordDelta trap_radius = traptng->clipbox_size_xy / 2;
+        MapCoord coord_x = traptng->mappos.x.val;
         stl_x_beg = coord_subtile(coord_x - trap_radius);
         if (stl_x_beg <= 0)
             stl_x_beg = 0;
         stl_x_end = coord_subtile(coord_x + trap_radius);
         if (stl_x_end >= map_subtiles_x)
             stl_x_end = map_subtiles_x;
-        coord_y = traptng->mappos.y.val;
+        MapCoord coord_y = traptng->mappos.y.val;
         stl_y_beg = coord_subtile(coord_y - trap_radius);
         if (stl_y_beg <= 0)
             stl_y_beg = 0;
@@ -194,8 +184,10 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         if (stl_y_end >= map_subtiles_y)
             stl_y_end = map_subtiles_y;
     }
-    MapSubtlCoord stl_x_pre, stl_x_aft;
-    MapSubtlCoord stl_y_pre, stl_y_aft;
+    MapSubtlCoord stl_x_pre;
+    MapSubtlCoord stl_x_aft;
+    MapSubtlCoord stl_y_pre;
+    MapSubtlCoord stl_y_aft;
     {
         stl_y_pre = stl_y_beg - line_of_sight_90_range;
         if (stl_y_pre <= 0)
@@ -210,14 +202,14 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
         if (stl_x_aft >= map_subtiles_x+1)
             stl_x_aft = map_subtiles_x+1;
     }
-    MapSubtlCoord stl_x, stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     // Find a limit of where the trap will fit in negative Y
     for (stl_x=stl_x_beg; stl_x <= stl_x_end; stl_x++)
     {
         for (stl_y = stl_y_beg; stl_y >= stl_y_pre; stl_y--)
         {
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x, stl_y);
+            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
                 stl_y_pre = stl_y + 1;
                 break;
@@ -239,8 +231,7 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
     {
         for (stl_y = stl_y_end; stl_y <= stl_y_aft; stl_y++)
         {
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x, stl_y);
+            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
                 stl_y_aft = stl_y - 1;
                 break;
@@ -262,8 +253,7 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
     {
         for (stl_x=stl_x_end; stl_x <= stl_x_aft; stl_x++)
         {
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x, stl_y);
+            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
                 stl_x_aft = stl_x - 1;
                 break;
@@ -285,8 +275,7 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
     {
         for (stl_x=stl_x_beg; stl_x >= stl_x_pre; stl_x--)
         {
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x, stl_y);
+            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
                 stl_x_pre = stl_x + 1;
                 break;
@@ -308,24 +297,20 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 
 void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *creatng)
 {
-    struct TrapStats *trapstat;
-    trapstat = &trap_stats[traptng->model];
+    struct TrapStats* trapstat = &trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
         return;
     }
-    struct Thing *shotng;
-    shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng))
     {
         {
-            MapCoord crpos_x, crpos_y;
-            MapCoord trpos_x, trpos_y;
-            trpos_x = traptng->mappos.x.val;
-            trpos_y = traptng->mappos.y.val;
-            crpos_x = creatng->mappos.x.val;
-            crpos_y = creatng->mappos.y.val;
+            MapCoord trpos_x = traptng->mappos.x.val;
+            MapCoord trpos_y = traptng->mappos.y.val;
+            MapCoord crpos_x = creatng->mappos.x.val;
+            MapCoord crpos_y = creatng->mappos.y.val;
             if (abs(trpos_x - crpos_x) <= abs(trpos_y - crpos_y))
             {
                 if (crpos_y >= trpos_y)
@@ -341,8 +326,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
             }
         }
         shotng->move_angle_z = 0;
-        struct ShotConfigStats *shotst;
-        shotst = get_shot_model_stats(trapstat->created_itm_model);
+        struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
         struct ComponentVector cvect;
         angles_to_vector(shotng->move_angle_xy, 0, shotst->old->speed, &cvect);
         shotng->veloc_push_add.x.val += cvect.x;
@@ -362,15 +346,13 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
 
 void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
 {
-    struct TrapStats *trapstat;
-    trapstat = &trap_stats[traptng->model];
+    struct TrapStats* trapstat = &trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad effect kind %d",(int)trapstat->created_itm_model);
         return;
     }
-    struct Thing *efftng;
-    efftng = create_effect(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Thing* efftng = create_effect(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(efftng)) {
         efftng->byte_16 = trapstat->field_1B;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
@@ -379,15 +361,13 @@ void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
 
 void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
 {
-    struct TrapStats *trapstat;
-    trapstat = &trap_stats[traptng->model];
+    struct TrapStats* trapstat = &trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
         return;
     }
-    struct Thing *shotng;
-    shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng)) {
         shotng->byte_16 = trapstat->field_1B;
         shotng->parent_idx = 0;
@@ -400,9 +380,8 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
 
 void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
 {
-    MapSubtlCoord stl_x, stl_y;
-    stl_x = traptng->mappos.x.stl.num;
-    stl_y = traptng->mappos.y.stl.num;
+    MapSubtlCoord stl_x = traptng->mappos.x.stl.num;
+    MapSubtlCoord stl_y = traptng->mappos.y.stl.num;
     if (subtile_is_room(stl_x, stl_y)) {
         delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), true);
     }
@@ -412,9 +391,8 @@ void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
 
 void activate_trap(struct Thing *traptng, struct Thing *creatng)
 {
-    const struct TrapStats *trapstat;
     traptng->trap.byte_18t = 1;
-    trapstat = &trap_stats[traptng->model];
+    const struct TrapStats* trapstat = &trap_stats[traptng->model];
     //TODO CONFIG trap model dependency, make config option instead
     if (traptng->model == 2) {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
@@ -442,16 +420,12 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
 
 TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing **found_thing)
 {
-    struct Thing *thing;
-    struct Map *mapblk;
-    long i;
-    unsigned long k;
-    mapblk = get_map_block_at(stl_x,stl_y);
-    k = 0;
-    i = get_mapwho_thing_index(mapblk);
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
@@ -487,19 +461,15 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
 
 TbBool update_trap_trigger_pressure(struct Thing *traptng)
 {
-    MapSlabCoord slb_x, slb_y;
-    slb_x = subtile_slab_fast(traptng->mappos.x.stl.num);
-    slb_y = subtile_slab_fast(traptng->mappos.y.stl.num);
-    MapSubtlCoord stl_x, stl_y;
-    MapSubtlCoord end_stl_x, end_stl_y;
-    end_stl_x = slab_subtile(slb_x,2);
-    end_stl_y = slab_subtile(slb_y,2);
-    for (stl_y=slab_subtile(slb_y,0); stl_y <= end_stl_y; stl_y++)
+    MapSlabCoord slb_x = subtile_slab_fast(traptng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab_fast(traptng->mappos.y.stl.num);
+    MapSubtlCoord end_stl_x = slab_subtile(slb_x, 2);
+    MapSubtlCoord end_stl_y = slab_subtile(slb_y, 2);
+    for (MapSubtlCoord stl_y = slab_subtile(slb_y, 0); stl_y <= end_stl_y; stl_y++)
     {
-        for (stl_x=slab_subtile(slb_x,0); stl_x <= end_stl_x; stl_x++)
+        for (MapSubtlCoord stl_x = slab_subtile(slb_x, 0); stl_x <= end_stl_x; stl_x++)
         {
-            struct Thing *creatng;
-            creatng = INVALID_THING;
+            struct Thing* creatng = INVALID_THING;
             if (find_pressure_trigger_trap_target_passing_by_subtile(traptng, stl_x, stl_y, &creatng))
             {
                 activate_trap(traptng, creatng);
@@ -532,19 +502,16 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     }
     if (do_trig)
     {
-        const struct ManfctrConfig *mconf;
-        mconf = &game.traps_config[traptng->model];
+        const struct ManfctrConfig* mconf = &game.traps_config[traptng->model];
         traptng->trap.long_14t = game.play_gameturn + mconf->shots_delay;
-        int n;
-        n = traptng->trap.num_shots;
+        int n = traptng->trap.num_shots;
         if ((n > 0) && (n != 255))
         {
             traptng->trap.num_shots = n - 1;
             if (traptng->trap.num_shots == 0)
             {
                 // If the trap is in strange location, destroy it after it's depleted
-                struct SlabMap *slb;
-                slb = get_slabmap_thing_is_on(traptng);
+                struct SlabMap* slb = get_slabmap_thing_is_on(traptng);
                 if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                     traptng->health = -1;
                 }
@@ -562,10 +529,8 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
 
 TbBool rearm_trap(struct Thing *traptng)
 {
-    struct ManfctrConfig *mconf;
-    mconf = &game.traps_config[traptng->model];
-    struct TrapStats *trapstat;
-    trapstat = &trap_stats[traptng->model];
+    struct ManfctrConfig* mconf = &game.traps_config[traptng->model];
+    struct TrapStats* trapstat = &trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
     traptng->field_4F ^= (traptng->field_4F ^ (trapstat->field_12 << 4)) & (TF4F_Unknown10|TF4F_Unknown20);
     return true;
@@ -594,8 +559,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx)
 {
     SYNCDBG(7,"Starting for %s owner %d",trap_code_name(trpkind),(int)plyr_idx);
-    struct TrapStats *trapstat;
-    trapstat = &trap_stats[trpkind];
+    struct TrapStats* trapstat = &trap_stats[trpkind];
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         ERRORDBG(3,"Cannot create trap %s for player %d. There are too many things allocated.",trap_code_name(trpkind),(int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
@@ -603,8 +567,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     }
     struct InitLight ilght;
     LbMemorySet(&ilght, 0, sizeof(struct InitLight));
-    struct Thing *thing;
-    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate trap %s for player %d, but failed.",trap_code_name(trpkind),(int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
@@ -666,15 +629,12 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
 
 void init_traps(void)
 {
-    struct Thing *thing;
-    int i, k;
-    k = 0;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Trap);
-    i = slist->index;
+    int k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
+    int i = slist->index;
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -708,19 +668,16 @@ void init_traps(void)
  */
 long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
 {
-    long i,k;
-    long total;
-    total = 0;
-    for (k=0; k < AROUND_TILES_COUNT; k++)
+    long total = 0;
+    for (long k = 0; k < AROUND_TILES_COUNT; k++)
     {
-        struct Thing *traptng;
-        traptng = get_trap_for_position(stl_x+around[k].delta_x, stl_y+around[k].delta_y);
+        struct Thing* traptng = get_trap_for_position(stl_x + around[k].delta_x, stl_y + around[k].delta_y);
         if (!thing_is_invalid(traptng))
         {
             if (sell_value != NULL)
             {
                 // Do the refund only if we were able to sell armed trap
-                i = game.traps_config[traptng->model].selling_value;
+                long i = game.traps_config[traptng->model].selling_value;
                 if (traptng->trap.num_shots == 0)
                 {
                     // Trap not armed - try selling crate from workshop
@@ -746,30 +703,26 @@ long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 {
-    struct TrapStats *trapstat;
-    trapstat = &trap_stats[thing->model];
+    struct TrapStats* trapstat = &trap_stats[thing->model];
     if (trapstat->created_itm_model <= 0) {
         ERRORLOG("Cannot activate trap with shot model %d",(int)trapstat->created_itm_model);
         return;
     }
-    struct Thing *shotng;
-    shotng = create_shot(&thing->mappos, trapstat->created_itm_model, thing->owner);
+    struct Thing* shotng = create_shot(&thing->mappos, trapstat->created_itm_model, thing->owner);
     if (thing_is_invalid(shotng)) {
         return;
     }
-    struct ShotConfigStats *shotst;
-    shotst = get_shot_model_stats(shotng->model);
-    struct ComponentVector cvect;
+    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     shotng->move_angle_xy = a2;
     shotng->move_angle_z = 0;
+    struct ComponentVector cvect;
     angles_to_vector(shotng->move_angle_xy, 0, shotst->old->speed, &cvect);
     shotng->veloc_push_add.x.val += cvect.x;
     shotng->veloc_push_add.y.val += cvect.y;
     shotng->veloc_push_add.z.val += cvect.z;
     shotng->state_flags |= TF1_PushAdd;
     shotng->byte_16 = trapstat->field_1B;
-    const struct ManfctrConfig *mconf;
-    mconf = &game.traps_config[thing->model];
+    const struct ManfctrConfig* mconf = &game.traps_config[thing->model];
     thing->long_14 = game.play_gameturn + mconf->shots_delay;
     if (thing->byte_13 != 255)
     {
@@ -784,13 +737,10 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 
 TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    MapSlabCoord slb_x, slb_y;
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
-    struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabAttr* slbattr = get_slab_attrs(slb);
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
         return false;
     }
@@ -812,10 +762,8 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
 
 int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabAttr* slbattr = get_slab_attrs(slb);
     if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) || ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
     {
         return temp_cluedo_mode < 1u ? 5 : 2;
@@ -830,13 +778,10 @@ int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
 TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(7,"Starting");
-    int floor_height;
-    TbBool can_place;
-    MapSlabCoord slb_x, slb_y;
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
-    can_place = can_place_trap_on(plyr_idx, stl_x, stl_y);
-    floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    TbBool can_place = can_place_trap_on(plyr_idx, stl_x, stl_y);
+    int floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     if (is_my_player_number(plyr_idx))
     {
         if (!game_is_busy_doing_gui() && (game.small_map_state != 2)) {

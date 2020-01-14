@@ -131,15 +131,12 @@ TbBool S3DSoundEmitterInvalid(struct SoundEmitter *emit)
 
 TbBool S3DEmitterIsPlayingSample(SoundEmitterID eidx, long smpl_idx, long bank_id)
 {
-    struct SoundEmitter *emit;
-    struct S3DSample *sample;
-    long i;
-    emit = S3DGetSoundEmitter(eidx);
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
         return false;
-    for (i=0; i < MaxNoSounds; i++)
+    for (long i = 0; i < MaxNoSounds; i++)
     {
-        sample = &SampleList[i];
+        struct S3DSample* sample = &SampleList[i];
         if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
         {
             if ((sample->smptbl_id == smpl_idx) && (sample->bank_id == bank_id)) {
@@ -152,15 +149,12 @@ TbBool S3DEmitterIsPlayingSample(SoundEmitterID eidx, long smpl_idx, long bank_i
 
 TbBool S3DDeleteSampleFromEmitter(SoundEmitterID eidx, long smpl_idx, long bank_id)
 {
-    struct SoundEmitter *emit;
-    struct S3DSample *sample;
-    long i;
-    emit = S3DGetSoundEmitter(eidx);
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
         return false;
-    for (i=0; i < MaxNoSounds; i++)
+    for (long i = 0; i < MaxNoSounds; i++)
     {
-        sample = &SampleList[i];
+        struct S3DSample* sample = &SampleList[i];
         if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
         {
             if ((sample->smptbl_id == smpl_idx) && (sample->bank_id == bank_id)) {
@@ -175,8 +169,7 @@ TbBool S3DDeleteSampleFromEmitter(SoundEmitterID eidx, long smpl_idx, long bank_
 
 TbBool S3DDeleteAllSamplesFromEmitter(SoundEmitterID eidx)
 {
-    struct SoundEmitter *emit;
-    emit = S3DGetSoundEmitter(eidx);
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit)) {
         ERRORLOG("Trying to delete samples from invalid emitter %ld",eidx);
         return false;
@@ -227,8 +220,7 @@ void S3DSetSoundReceiverSensitivity(unsigned short nsensivity)
  */
 long S3DDestroySoundEmitter(SoundEmitterID eidx)
 {
-    struct SoundEmitter *emit;
-    emit = S3DGetSoundEmitter(eidx);
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit)) {
         ERRORLOG("Invalid emitter %ld",eidx);
         return false;
@@ -245,8 +237,7 @@ long S3DDestroySoundEmitter(SoundEmitterID eidx)
  */
 TbBool S3DDestroySoundEmitterAndSamples(SoundEmitterID eidx)
 {
-    struct SoundEmitter *emit;
-    emit = S3DGetSoundEmitter(eidx);
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit)) {
         ERRORLOG("Invalid emitter %ld",eidx);
         return false;
@@ -258,9 +249,8 @@ TbBool S3DDestroySoundEmitterAndSamples(SoundEmitterID eidx)
 
 TbBool S3DEmitterIsAllocated(SoundEmitterID eidx)
 {
-    struct SoundEmitter *emit;
     SYNCDBG(17,"Starting");
-    emit = S3DGetSoundEmitter(eidx);
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
         return false;
     return ((emit->flags & Emi_IsAllocated) != 0);
@@ -268,8 +258,7 @@ TbBool S3DEmitterIsAllocated(SoundEmitterID eidx)
 
 TbBool S3DEmitterHasFinishedPlaying(SoundEmitterID eidx)
 {
-    struct SoundEmitter *emit;
-    emit = S3DGetSoundEmitter(eidx);
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
         return true;
     return ((emit->flags & Emi_UnknownPlay) == 0);
@@ -277,10 +266,9 @@ TbBool S3DEmitterHasFinishedPlaying(SoundEmitterID eidx)
 
 TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
 {
-    struct SoundEmitter *emit;
     if (!S3DEmitterIsAllocated(eidx))
         return false;
-    emit = S3DGetSoundEmitter(eidx);
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     emit->pos.val_x = x;
     emit->pos.val_y = y;
     emit->pos.val_z = z;
@@ -290,17 +278,14 @@ TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
 
 TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a6, char a7, long a8, long a9)
 {
-    struct SoundEmitter *emit;
-    emit = S3DGetSoundEmitter(eidx);
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, a6, a7, a8, a9) != 0;
 }
 
 long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long a8, long a9, long a10)
 {
-    struct SoundEmitter *emit;
-    long eidx;
-    eidx = allocate_free_sound_emitter();
-    emit = S3DGetSoundEmitter(eidx);
+    long eidx = allocate_free_sound_emitter();
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
         return 0;
     emit->pos.val_x = x;
@@ -317,18 +302,16 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, 
 
 TbBool S3DEmitterIsPlayingAnySample(SoundEmitterID eidx)
 {
-    struct SoundEmitter *emit;
-    TbBool is_playing;
     SYNCDBG(17,"Starting");
     if (MaxNoSounds <= 0)
         return false;
-    emit = S3DGetSoundEmitter(eidx);
+    struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
     {
         ERRORLOG("Invalid emiter %ld",eidx);
         return false;
     }
-    is_playing = emitter_is_playing(emit);
+    TbBool is_playing = emitter_is_playing(emit);
     SYNCDBG(17,"Emitter %ld %s playing",eidx,is_playing?"is":"not");
     return is_playing;
 }
@@ -365,10 +348,9 @@ short sound_emitter_in_use(SoundEmitterID eidx)
 
 long get_sound_distance(const struct SoundCoord3d *pos1, const struct SoundCoord3d *pos2)
 {
-    long dist_x,dist_y,dist_z;
-    dist_x = abs(pos1->val_x - (long)pos2->val_x);
-    dist_y = abs(pos1->val_y - (long)pos2->val_y);
-    dist_z = abs(pos1->val_z - (long)pos2->val_z);
+    long dist_x = abs(pos1->val_x - (long)pos2->val_x);
+    long dist_y = abs(pos1->val_y - (long)pos2->val_y);
+    long dist_z = abs(pos1->val_z - (long)pos2->val_z);
     // Make sure we're not exceeding sqrt(LONG_MAX/3), to fit the final result in long
     if (dist_x > 26754)
         dist_x = 26754;
@@ -381,10 +363,9 @@ long get_sound_distance(const struct SoundCoord3d *pos1, const struct SoundCoord
 
 long get_sound_squareedge_distance(const struct SoundCoord3d *pos1, const struct SoundCoord3d *pos2)
 {
-    long dist_x,dist_y,dist_z;
-    dist_x = abs(pos1->val_x - (long)pos2->val_x);
-    dist_y = abs(pos1->val_y - (long)pos2->val_y);
-    dist_z = abs(pos1->val_z - (long)pos2->val_z);
+    long dist_x = abs(pos1->val_x - (long)pos2->val_x);
+    long dist_y = abs(pos1->val_y - (long)pos2->val_y);
+    long dist_z = abs(pos1->val_z - (long)pos2->val_z);
     // Make sure we're not exceeding LONG_MAX/3
     if (dist_x > LONG_MAX/3)
         dist_x = LONG_MAX/3;
@@ -397,8 +378,7 @@ long get_sound_squareedge_distance(const struct SoundCoord3d *pos1, const struct
 
 long get_emitter_distance(struct SoundReceiver *recv, struct SoundEmitter *emit)
 {
-    long dist;
-    dist = get_sound_distance(&recv->pos, &emit->pos);
+    long dist = get_sound_distance(&recv->pos, &emit->pos);
     if (dist > MaxSoundDistance-1)
         dist = MaxSoundDistance-1;
     if (dist < 0)
@@ -413,39 +393,32 @@ long get_emitter_sight(struct SoundReceiver *recv, struct SoundEmitter *emit)
 
 long get_emitter_volume(const struct SoundReceiver *recv, const struct SoundEmitter *emit, long dist)
 {
-    long long sens,vol;
-    long i,n;
-    i = dist - deadzone_radius;
+    long i = dist - deadzone_radius;
     if (i < 0) i = 0;
-    n = MaxSoundDistance - deadzone_radius;
-    sens = recv->sensivity;
-    vol = (127 - 127*i/n) * sens;
+    long n = MaxSoundDistance - deadzone_radius;
+    long long sens = recv->sensivity;
+    long long vol = (127 - 127 * i / n) * sens;
     return (vol >> 6);
 }
 
 long get_emitter_pan(const struct SoundReceiver *recv, const struct SoundEmitter *emit)
 {
-    long diff_x,diff_y;
-    long angle_a, angle_b;
-    long angdiff,angsign;
-    long radius,pan;
-    long i;
     if ((recv->flags & Emi_IsAllocated) != 0) {
       return 64;
     }
-    diff_x = emit->pos.val_x - (long)recv->pos.val_x;
-    diff_y = emit->pos.val_y - (long)recv->pos.val_y;
+    long diff_x = emit->pos.val_x - (long)recv->pos.val_x;
+    long diff_y = emit->pos.val_y - (long)recv->pos.val_y;
     // Faster way of doing simple thing: radius = sqrt(dist_x*dist_y);
-    radius = LbDiagonalLength(abs(diff_x), abs(diff_y));
+    long radius = LbDiagonalLength(abs(diff_x), abs(diff_y));
     if (radius < deadzone_radius) {
       return 64;
     }
-    angle_b = LbArcTanAngle(diff_x, diff_y);
-    angle_a = recv->orient_a;
-    angdiff = get_angle_difference(angle_a, angle_b);
-    angsign = get_angle_sign(angle_a, angle_b);
-    i = (radius - deadzone_radius) * LbSinL(angsign*angdiff) >> 16;
-    pan = (i << 6) / (MaxSoundDistance - deadzone_radius) + 64;
+    long angle_b = LbArcTanAngle(diff_x, diff_y);
+    long angle_a = recv->orient_a;
+    long angdiff = get_angle_difference(angle_a, angle_b);
+    long angsign = get_angle_sign(angle_a, angle_b);
+    long i = (radius - deadzone_radius) * LbSinL(angsign * angdiff) >> 16;
+    long pan = (i << 6) / (MaxSoundDistance - deadzone_radius) + 64;
     if (pan > 127)
         pan = 127;
     if (pan < 0)
@@ -455,11 +428,9 @@ long get_emitter_pan(const struct SoundReceiver *recv, const struct SoundEmitter
 
 long get_emitter_pitch_from_doppler(const struct SoundReceiver *recv, struct SoundEmitter *emit)
 {
-    long doppler_distance;
-    long target_pitch, next_pitch;
-    long delta;
-    doppler_distance = get_sound_squareedge_distance(&emit->pos, &recv->pos);
-    delta = doppler_distance - emit->pitch_doppler;
+    long target_pitch;
+    long doppler_distance = get_sound_squareedge_distance(&emit->pos, &recv->pos);
+    long delta = doppler_distance - emit->pitch_doppler;
     if (delta > 256)
         delta = 256;
     if (delta < 0)
@@ -468,7 +439,7 @@ long get_emitter_pitch_from_doppler(const struct SoundReceiver *recv, struct Sou
         target_pitch = 100;
     else
         target_pitch = 100 - 20 * delta / 256;
-    next_pitch = emit->curr_pitch;
+    long next_pitch = emit->curr_pitch;
     if (next_pitch != target_pitch)
     {
         next_pitch += (abs(target_pitch - next_pitch) >> 1);
@@ -483,8 +454,6 @@ long get_emitter_pitch_from_doppler(const struct SoundReceiver *recv, struct Sou
 long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, long *pan, long *volume, long *pitch)
 {
     TbBool on_sight;
-    long dist;
-    long i;
     if ((emit->field_1 & 0x08) != 0)
     {
         *volume = 127;
@@ -492,13 +461,13 @@ long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitte
         *pitch = 100;
         return 1;
     }
-    dist = get_emitter_distance(recv, emit);
+    long dist = get_emitter_distance(recv, emit);
     if ((emit->field_1 & 0x04) != 0) {
         on_sight = 1;
     } else {
         on_sight = get_emitter_sight(recv, emit);
     }
-    i = get_emitter_volume(recv, emit, dist);
+    long i = get_emitter_volume(recv, emit, dist);
     if (on_sight) {
         *volume = i;
     } else {
@@ -521,11 +490,9 @@ long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitte
 
 long set_emitter_pan_volume_pitch(struct SoundEmitter *emit, long pan, long volume, long pitch)
 {
-    struct S3DSample *sample;
-    long i;
-    for (i=0; i < MaxNoSounds; i++)
+    for (long i = 0; i < MaxNoSounds; i++)
     {
-        sample = &SampleList[i];
+        struct S3DSample* sample = &SampleList[i];
         if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
         {
             if ((sample->flags & Smp_Unknown02) == 0) {
@@ -543,7 +510,9 @@ long set_emitter_pan_volume_pitch(struct SoundEmitter *emit, long pan, long volu
 TbBool process_sound_emitters(void)
 {
     struct SoundEmitter *emit;
-    long pan, volume, pitch;
+    long pan;
+    long volume;
+    long pitch;
     long i;
     for (i=1; i < NoSoundEmitters; i++)
     {
@@ -565,11 +534,9 @@ TbBool process_sound_emitters(void)
 
 TbBool emitter_is_playing(struct SoundEmitter *emit)
 {
-    struct S3DSample *sample;
-    long i;
-    for (i=0; i < MaxNoSounds; i++)
+    for (long i = 0; i < MaxNoSounds; i++)
     {
-        sample = &SampleList[i];
+        struct S3DSample* sample = &SampleList[i];
         if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
         {
             return true;
@@ -580,11 +547,9 @@ TbBool emitter_is_playing(struct SoundEmitter *emit)
 
 TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit)
 {
-    struct S3DSample *sample;
-    long i;
-    for (i=0; i < MaxNoSounds; i++)
+    for (long i = 0; i < MaxNoSounds; i++)
     {
-        sample = &SampleList[i];
+        struct S3DSample* sample = &SampleList[i];
         if ( (sample->is_playing != 0) && (sample->emit_ptr == emit) )
         {
             if (sample->field_1D == -1)
@@ -600,13 +565,10 @@ TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit)
 
 long stop_emitter_samples(struct SoundEmitter *emit)
 {
-    struct S3DSample *sample;
-    long num_stopped;
-    long i;
-    num_stopped = 0;
-    for (i=0; i < MaxNoSounds; i++)
+    long num_stopped = 0;
+    for (long i = 0; i < MaxNoSounds; i++)
     {
-        sample = &SampleList[i];
+        struct S3DSample* sample = &SampleList[i];
         if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
         {
             stop_sample_using_heap(get_emitter_id(emit), sample->smptbl_id, sample->bank_id);
@@ -650,11 +612,9 @@ void close_sound_heap(void)
 short find_slot(long fild8, SoundBankID bank_id, struct SoundEmitter *emit, long ctype, long spcmax)
 {
     struct S3DSample *sample;
-    long spcval;
-    short min_sample_id;
     long i;
-    spcval = 2147483647;
-    min_sample_id = SOUNDS_MAX_COUNT;
+    long spcval = 2147483647;
+    short min_sample_id = SOUNDS_MAX_COUNT;
     if ((ctype == 2) || (ctype == 3))
     {
         for (i=0; i < MaxNoSounds; i++)
@@ -769,13 +729,11 @@ void play_atmos_sound(long smpl_idx)
  */
 SoundEmitterID allocate_free_sound_emitter(void)
 {
-    struct SoundEmitter *emit;
-    long i;
-    for (i=1; i < NoSoundEmitters; i++)
+    for (long i = 1; i < NoSoundEmitters; i++)
     {
         if (!S3DEmitterIsAllocated(i))
         {
-            emit = S3DGetSoundEmitter(i);
+            struct SoundEmitter* emit = S3DGetSoundEmitter(i);
             emit->flags = Emi_IsAllocated;
             emit->index = i;
             return i;
@@ -789,10 +747,9 @@ SoundEmitterID allocate_free_sound_emitter(void)
  */
 void delete_sound_emitter(SoundEmitterID idx)
 {
-    struct SoundEmitter *emit;
     if (S3DEmitterIsAllocated(idx))
     {
-        emit = S3DGetSoundEmitter(idx);
+        struct SoundEmitter* emit = S3DGetSoundEmitter(idx);
         LbMemorySet(emit, 0, sizeof(struct SoundEmitter));
     }
 }
@@ -803,33 +760,27 @@ void delete_sound_emitter(SoundEmitterID idx)
  */
 void delete_all_sound_emitters(void)
 {
-    struct SoundEmitter *emit;
-    long i;
-    for (i=0; i < SOUND_EMITTERS_MAX; i++)
+    for (long i = 0; i < SOUND_EMITTERS_MAX; i++)
     {
-        emit = &emitter[i];
+        struct SoundEmitter* emit = &emitter[i];
         LbMemorySet(emit, 0, sizeof(struct SoundEmitter));
     }
 }
 
 void init_sample_list(void)
 {
-    struct S3DSample *sample;
-    long i;
-    for (i=0; i < SOUNDS_MAX_COUNT; i++)
+    for (long i = 0; i < SOUNDS_MAX_COUNT; i++)
     {
-        sample = &SampleList[i];
+        struct S3DSample* sample = &SampleList[i];
         LbMemorySet(sample, 0, sizeof(struct S3DSample));
     }
 }
 
 void increment_sample_times(void)
 {
-    struct S3DSample *sample;
-    long i;
-    for (i=0; i < MaxNoSounds; i++)
+    for (long i = 0; i < MaxNoSounds; i++)
     {
-        sample = &SampleList[i];
+        struct S3DSample* sample = &SampleList[i];
         sample->time_turn++;
     }
 }
@@ -889,23 +840,19 @@ SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id, SoundBankID bank_id)
 
 void kick_out_sample(short smpl_id)
 {
-    struct S3DSample *sample;
-    sample = &SampleList[smpl_id];
+    struct S3DSample* sample = &SampleList[smpl_id];
     stop_sample_using_heap(get_sample_id(sample), sample->smptbl_id, sample->bank_id);
     sample->is_playing = 0;
 }
 
 struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, long file_pos, unsigned char bank_id)
 {
-    struct SampleTable *smp_table;
-    struct HeapMgrHandle *hmhandle;
-    long smptbl_idx;
     if ((!using_two_banks) && (bank_id > 0))
     {
         ERRORLOG("Trying to use two sound banks when only one has been set up");
         return NULL;
     }
-    hmhandle = heapmgr_add_item(sndheap, smpl_len);
+    struct HeapMgrHandle* hmhandle = heapmgr_add_item(sndheap, smpl_len);
     if (hmhandle == NULL)
     {
         while (sndheap->field_10)
@@ -913,9 +860,10 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
             hmhandle = heapmgr_add_item(sndheap, smpl_len);
             if (hmhandle != NULL)
               break;
-            smptbl_idx = heapmgr_free_oldest(sndheap);
+            long smptbl_idx = heapmgr_free_oldest(sndheap);
             if (smptbl_idx < 0)
               break;
+            struct SampleTable* smp_table;
             if (smptbl_idx < samples_in_bank)
             {
               smp_table = &sample_table[smptbl_idx];
@@ -944,14 +892,13 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
 
 struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptbl_id, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id)
 {
-    struct SampleTable *smp_table;
     if ((!using_two_banks) && (bank_id > 0))
     {
         ERRORLOG("Trying to use two sound banks when only one has been set up");
         return NULL;
     }
 
-    smp_table = sample_table_get(smptbl_id, bank_id);
+    struct SampleTable* smp_table = sample_table_get(smptbl_id, bank_id);
     if (smp_table == NULL) {
         return NULL;
     }
@@ -964,8 +911,7 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, SoundSmplTblID smptb
     }
     heapmgr_make_newest(sndheap, smp_table->hmhandle);
     // Start the play
-    struct SampleInfo *smpinfo;
-    smpinfo = PlaySampleFromAddress(a1, smptbl_id, a3, a4, a5, a6, a7, smp_table->hmhandle->buf, smp_table->sfxid);
+    struct SampleInfo* smpinfo = PlaySampleFromAddress(a1, smptbl_id, a3, a4, a5, a6, a7, smp_table->hmhandle->buf, smp_table->sfxid);
     if (smpinfo == NULL) {
         SYNCLOG("Can't start playing sample %d",smptbl_id);
         return NULL;
@@ -1029,11 +975,9 @@ void stop_sample_using_heap(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, So
 
 TbBool process_sound_samples(void)
 {
-    struct S3DSample *sample;
-    long i;
-    for (i=0; i < MaxNoSounds; i++)
+    for (long i = 0; i < MaxNoSounds; i++)
     {
-        sample = &SampleList[i];
+        struct S3DSample* sample = &SampleList[i];
         if (sample->is_playing != 0)
         {
             if (sample->smpinfo == NULL)
@@ -1062,7 +1006,6 @@ TbBool process_sound_samples(void)
 
 long speech_sample_playing(void)
 {
-    long sp_emiter;
     if (SoundDisabled) {
          SYNCDBG(7,"Disabled");
          return false;
@@ -1072,7 +1015,7 @@ long speech_sample_playing(void)
          return false;
      }
      SYNCDBG(17,"Starting");
-     sp_emiter = SpeechEmitter;
+     long sp_emiter = SpeechEmitter;
      if (sp_emiter != 0)
      {
          if (S3DEmitterIsAllocated(SpeechEmitter))
@@ -1092,12 +1035,11 @@ long speech_sample_playing(void)
 
 long play_speech_sample(SoundSmplTblID smptbl_id)
 {
-    long sp_emiter;
     if (SoundDisabled)
       return false;
     if (GetCurrentSoundMasterVolume() <= 0)
       return false;
-    sp_emiter = SpeechEmitter;
+    long sp_emiter = SpeechEmitter;
     if (sp_emiter != 0)
     {
       if (S3DEmitterIsAllocated(SpeechEmitter))
@@ -1129,20 +1071,19 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
 
 long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, SoundBankID bank_id, long smpitch, SoundVolume loudness, long fild1D, long ctype, unsigned char flags, long fild0)
 {
-    struct S3DSample *sample;
-    struct SampleInfo *smpinfo;
-    long pan, volume, pitch;
-    long smpl_idx;
+    long pan;
+    long volume;
+    long pitch;
     get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
-    smpl_idx = find_slot(smptbl_id, bank_id, emit, ctype, fild0);
+    long smpl_idx = find_slot(smptbl_id, bank_id, emit, ctype, fild0);
     volume = (volume * loudness) / 256;
     if (smpl_idx < 0)
         return 0;
-    smpinfo = play_sample_using_heap(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype, bank_id);
+    struct SampleInfo* smpinfo = play_sample_using_heap(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype, bank_id);
     if (smpinfo == NULL) {
         return 0;
     }
-    sample = &SampleList[smpl_idx];
+    struct S3DSample* sample = &SampleList[smpl_idx];
     sample->field_0 = fild0;
     sample->smptbl_id = smptbl_id;
     sample->bank_id = bank_id;

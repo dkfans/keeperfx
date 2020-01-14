@@ -34,9 +34,7 @@
 /******************************************************************************/
 TbBool load_stats_files(void)
 {
-    int i;
-    TbBool result;
-    result = true;
+    TbBool result = true;
     clear_research_for_all_players();
     if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_ListOnly))
       result = false;
@@ -73,7 +71,7 @@ TbBool load_stats_files(void)
     // note that rules file requires definitions of magic and creature types
     if (!load_rules_config(keeper_rules_file,CnfLd_Standard))
       result = false;
-    for (i=1; i < crtr_conf.model_count; i++)
+    for (int i = 1; i < crtr_conf.model_count; i++)
     {
       if (!load_creaturemodel_config(i,0))
         result = false;
@@ -114,18 +112,17 @@ unsigned long compute_dungeon_rooms_attraction_score(long num_entrance_slbs, lon
  */
 unsigned long compute_dungeon_creature_tactics_score(long battles_won, long battles_lost, long scavenge_gain, long scavenge_lost)
 {
-    long battle_total,battle_efficiency,scavenge_efficiency;
-    battle_efficiency = battles_won - battles_lost;
+    long battle_efficiency = battles_won - battles_lost;
     if (battle_efficiency < 0)
         battle_efficiency = 0;
     if (battle_efficiency > 40)
         battle_efficiency = 40;
-    battle_total = battles_won + battles_lost;
+    long battle_total = battles_won + battles_lost;
     if (battle_total < 0)
         battle_total = 0;
     if (battle_total > 80)
         battle_total = 80;
-    scavenge_efficiency = scavenge_gain - scavenge_lost;
+    long scavenge_efficiency = scavenge_gain - scavenge_lost;
     if (scavenge_efficiency < 0)
         scavenge_efficiency = 0;
     if (scavenge_efficiency > 40)
@@ -154,23 +151,22 @@ unsigned long compute_dungeon_rooms_variety_score(long room_types, long total_ar
 
 unsigned long compute_dungeon_train_research_manufctr_wealth_score(long total_train, long total_research, long total_manufctr, long total_wealth)
 {
-    long pt_total_train, pt_total_research, pt_total_manufctr, pt_total_wealth;
-    pt_total_train = total_train / 256;
+    long pt_total_train = total_train / 256;
     if (pt_total_train < 0)
         pt_total_train = 0;
     if (pt_total_train >= 96000)
         pt_total_train = 96000;
-    pt_total_research = total_research / 256;
+    long pt_total_research = total_research / 256;
     if (pt_total_research < 0)
         pt_total_research = 0;
     if (pt_total_research >= 96000)
         pt_total_research = 96000;
-    pt_total_manufctr = total_manufctr / 256;
+    long pt_total_manufctr = total_manufctr / 256;
     if (pt_total_manufctr < 0)
         pt_total_manufctr = 0;
     if (pt_total_manufctr >= 96000)
         pt_total_manufctr = 96000;
-    pt_total_wealth = total_wealth;
+    long pt_total_wealth = total_wealth;
     if (pt_total_wealth < 0)
         pt_total_wealth = 0;
     if (pt_total_wealth >= 30000)
@@ -209,15 +205,14 @@ unsigned long compute_dungeon_creature_mood_score(long survived_creatrs, long an
  */
 TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
 {
-    struct Dungeon *dungeon;
-    int i,k;
-    dungeon = get_players_dungeon(player);
-    unsigned long manage_efficiency,max_manage_efficiency;
+    int i;
+    int k;
+    struct Dungeon* dungeon = get_players_dungeon(player);
     if (dungeon_invalid(dungeon)) {
         return false;
     }
-    manage_efficiency = 0;
-    max_manage_efficiency = 0;
+    unsigned long manage_efficiency = 0;
+    unsigned long max_manage_efficiency = 0;
     {
         manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeon->room_slabs_count[RoK_ENTRANCE],
             dungeon->room_manage_area, dungeon->field_1485);
@@ -230,8 +225,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     }
     {
         // Compute amount of different types of rooms built
-        unsigned long room_types;
-        room_types = 0;
+        unsigned long room_types = 0;
         for (i=0; i < ROOM_TYPES_COUNT; i++)
         {
             if (dungeon->room_slabs_count[i] > 0)
@@ -245,8 +239,10 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
             dungeon->total_research_points, dungeon->field_1181, dungeon->total_money_owned);
         max_manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX);
     }
-    unsigned long creatures_efficiency, creatures_mood;
-    unsigned long max_creatures_efficiency, max_creatures_mood;
+    unsigned long creatures_efficiency;
+    unsigned long creatures_mood;
+    unsigned long max_creatures_efficiency;
+    unsigned long max_creatures_mood;
     {
         creatures_efficiency = compute_dungeon_creature_amount_score(dungeon->num_active_creatrs);
         max_creatures_efficiency = compute_dungeon_creature_amount_score(LONG_MAX);
@@ -263,15 +259,13 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
         k = max_manage_efficiency - max_creatures_efficiency;
         if (i < 0)
             i = 0;
-        long raw_score;
-        raw_score = 1000 * i / k;
+        long raw_score = 1000 * i / k;
         // Angry creatures may degrade the score by up to 50%
         raw_score = raw_score / 2 + raw_score * (max_creatures_mood - creatures_mood) / (2*max_creatures_mood);
         dungeon->manage_score = raw_score;
     }
     {
-        unsigned long gameplay_score;
-        gameplay_score = dungeon->total_score;
+        unsigned long gameplay_score = dungeon->total_score;
         if (gameplay_score <= 1) {
             WARNLOG("Player %d total score for turn is too low.", (int)player->id_number);
             gameplay_score = 1;
@@ -279,8 +273,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
         dungeon->total_score = gameplay_score;
     }
     {
-        unsigned long gameplay_score;
-        gameplay_score = dungeon->manage_score;
+        unsigned long gameplay_score = dungeon->manage_score;
         if (gameplay_score <= 1) {
             WARNLOG("Player %d managing score for turn is too low.", (int)player->id_number);
             gameplay_score = 1;
@@ -288,8 +281,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
         dungeon->manage_score = gameplay_score;
     }
     { // Check to update max score
-        unsigned long gameplay_score;
-        gameplay_score = dungeon->total_score;
+        unsigned long gameplay_score = dungeon->total_score;
         if (dungeon->max_gameplay_score < gameplay_score)
             dungeon->max_gameplay_score = gameplay_score;
     }
@@ -302,12 +294,10 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
  */
 long update_dungeons_scores(void)
 {
-    int i,k;
-    k = 0;
-    for (i=0; i < PLAYERS_COUNT; i++)
+    int k = 0;
+    for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        struct PlayerInfo *player;
-        player = get_player(i);
+        struct PlayerInfo* player = get_player(i);
         if (!player_exists(player))
             continue;
         if (player->field_2C == 1)

@@ -318,8 +318,7 @@ TbBool creature_stats_invalid(const struct CreatureStats *crstat)
  */
 void creature_stats_updated(ThingModel crstat_idx)
 {
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get(crstat_idx);
+    struct CreatureStats* crstat = creature_stats_get(crstat_idx);
     // Update old stats by copying part of the new stats memory
     // Note that CreatureStats may only change at end for this hack to work!
     memcpy(&game.creature_stats_OLD[crstat_idx],crstat,sizeof(struct CreatureStatsOLD));
@@ -327,14 +326,11 @@ void creature_stats_updated(ThingModel crstat_idx)
 
 void check_and_auto_fix_stats(void)
 {
-    struct CreatureStats *crstat;
-    long model;
-    long i,n;
     SYNCDBG(8,"Starting for %d models",(int)crtr_conf.model_count);
     //_DK_check_and_auto_fix_stats();
-    for (model=0; model < crtr_conf.model_count; model++)
+    for (long model = 0; model < crtr_conf.model_count; model++)
     {
-        crstat = creature_stats_get(model);
+        struct CreatureStats* crstat = creature_stats_get(model);
         if ( (crstat->lair_size <= 0) && (crstat->heal_requirement != 0) )
         {
             ERRORLOG("Creature model %d No LairSize But Heal Requirment - Fixing", (int)model);
@@ -374,9 +370,9 @@ void check_and_auto_fix_stats(void)
             ERRORLOG("Creature model %d Rebirth Invalid - Fixing", (int)model);
             crstat->rebirth = 0;
         }
-        for (i=0; i < LEARNED_INSTANCES_COUNT; i++)
+        for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
         {
-            n = crstat->learned_instance_level[i];
+            long n = crstat->learned_instance_level[i];
             if (crstat->learned_instance_id[i] != CrInst_NULL)
             {
                 if ((n < 1) || (n > CREATURE_MAX_LEVEL))
@@ -424,8 +420,7 @@ struct CreatureData *creature_data_get_from_thing(const struct Thing *thing)
  */
 const char *creature_code_name(ThingModel crmodel)
 {
-    const char *name;
-    name = get_conf_parameter_text(creature_desc,crmodel);
+    const char* name = get_conf_parameter_text(creature_desc, crmodel);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -439,9 +434,8 @@ const char *creature_code_name(ThingModel crmodel)
  */
 long creature_model_id(const char * name)
 {
-    int i;
-
-    for (i = 0; i < crtr_conf.model_count; ++i) {
+    for (int i = 0; i < crtr_conf.model_count; ++i)
+    {
         if (strncmp(name, crtr_conf.model[i].name, COMMAND_WORD_LEN) == 0) {
             return i + 1;
         }
@@ -452,12 +446,7 @@ long creature_model_id(const char * name)
 
 TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int i,k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -470,15 +459,16 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         crtr_conf.special_digger_evil = 0;
         crtr_conf.spectator_breed = 0;
     }
-    k = sizeof(crtr_conf.model)/sizeof(crtr_conf.model[0]);
-    for (i=0; i < k; i++)
+    int k = sizeof(crtr_conf.model) / sizeof(crtr_conf.model[0]);
+    for (int i = 0; i < k; i++)
     {
       LbMemorySet(crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
     }
     LbStringCopy(crtr_conf.model[0].name, "NOCREATURE", COMMAND_WORD_LEN);
     // Find the block
-    sprintf(block_buf,"common");
-    pos = 0;
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "common");
+    long pos = 0;
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
@@ -490,10 +480,11 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,creaturetype_common_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, creaturetype_common_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // CREATURES
@@ -608,12 +599,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
 
 TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -629,9 +615,10 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
         crtr_conf.exp.armour_increase_on_exp = 0;
     }
     // Find the block
-    sprintf(block_buf,"experience");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "experience");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -642,10 +629,11 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,creaturetype_experience_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, creaturetype_experience_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // PAYINCREASEONEXP
@@ -800,13 +788,8 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
 
 TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    struct InstanceInfo *inst_inf;
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     int arr_size;
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -830,23 +813,25 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
     // Load the file blocks
     for (i=0; i < arr_size; i++)
     {
-      sprintf(block_buf,"instance%d",i);
-      pos = 0;
-      k = find_conf_block(buf,&pos,len,block_buf);
-      if (k < 0)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0) {
-              WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-              return false;
-          }
-          continue;
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "instance%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
+            if ((flags & CnfLd_AcceptPartial) == 0)
+            {
+                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+                return false;
+            }
+            continue;
       }
-      inst_inf = creature_instance_info_get(i);
+      struct InstanceInfo* inst_inf = creature_instance_info_get(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
       while (pos<len)
       {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,creaturetype_instance_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, creaturetype_instance_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
@@ -855,7 +840,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 cmd_num = 0;
             }
         }
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // NAME
@@ -1093,12 +1079,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
 TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct CreatureJobConfig *jobcfg;
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     int arr_size;
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1134,9 +1116,10 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
     // Load the file blocks
     for (i=0; i < arr_size; i++)
     {
-        sprintf(block_buf,"job%d",i);
-        pos = 0;
-        k = find_conf_block(buf,&pos,len,block_buf);
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "job%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
             if ((flags & CnfLd_AcceptPartial) == 0) {
@@ -1150,7 +1133,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
         while (pos<len)
         {
             // Finding command number in this line
-            cmd_num = recognize_conf_command(buf,&pos,len,creaturetype_job_commands);
+            int cmd_num = recognize_conf_command(buf, &pos, len, creaturetype_job_commands);
             // Now store the config item in correct place
             if (cmd_num == -3) break; // if next block starts
             if ((flags & CnfLd_ListOnly) != 0) {
@@ -1159,7 +1142,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                     cmd_num = 0;
                 }
             }
-            n = 0;
+            int n = 0;
+            char word_buf[COMMAND_WORD_LEN];
             switch (cmd_num)
             {
             case 1: // NAME
@@ -1351,11 +1335,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
 TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct CreatureAngerJobConfig *agjobcfg;
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
     int arr_size;
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1383,9 +1364,10 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
     // Load the file blocks
     for (i=0; i < arr_size; i++)
     {
-        sprintf(block_buf,"angerjob%d",i);
-        pos = 0;
-        k = find_conf_block(buf,&pos,len,block_buf);
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "angerjob%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
             if ((flags & CnfLd_AcceptPartial) == 0) {
@@ -1399,7 +1381,7 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
         while (pos<len)
         {
             // Finding command number in this line
-            cmd_num = recognize_conf_command(buf,&pos,len,creaturetype_angerjob_commands);
+            int cmd_num = recognize_conf_command(buf, &pos, len, creaturetype_angerjob_commands);
             // Now store the config item in correct place
             if (cmd_num == -3) break; // if next block starts
             if ((flags & CnfLd_ListOnly) != 0) {
@@ -1408,7 +1390,7 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
                     cmd_num = 0;
                 }
             }
-            n = 0;
+            int n = 0;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -1438,11 +1420,8 @@ TbBool parse_creaturetype_angerjob_blocks(char *buf, long len, const char *confi
 
 TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
     int arr_size;
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1466,9 +1445,10 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
     // Load the file blocks
     for (i=0; i < arr_size; i++)
     {
-        sprintf(block_buf,"attackpref%d",i);
-        pos = 0;
-        k = find_conf_block(buf,&pos,len,block_buf);
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "attackpref%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
             if ((flags & CnfLd_AcceptPartial) == 0) {
@@ -1481,7 +1461,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
         while (pos<len)
         {
             // Finding command number in this line
-            cmd_num = recognize_conf_command(buf,&pos,len,creaturetype_attackpref_commands);
+            int cmd_num = recognize_conf_command(buf, &pos, len, creaturetype_attackpref_commands);
             // Now store the config item in correct place
             if (cmd_num == -3) break; // if next block starts
             if ((flags & CnfLd_ListOnly) != 0) {
@@ -1490,7 +1470,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
                     cmd_num = 0;
                 }
             }
-            n = 0;
+            int n = 0;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -1520,11 +1500,8 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
 
 TbBool load_creaturetypes_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    char *buf;
-    long len;
-    TbBool result;
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
-    len = LbFileLengthRnc(fname);
+    long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -1537,12 +1514,12 @@ TbBool load_creaturetypes_config_file(const char *textname, const char *fname, u
             WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    result = (len > 0);
+    TbBool result = (len > 0);
     // Parse blocks of the config file
     if (result)
     {
@@ -1601,10 +1578,8 @@ TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature types config";
     static const char config_campgn_textname[] = "campaign creature types config";
-    char *fname;
-    TbBool result;
-    fname = prepare_file_path(FGrp_FxData,conf_fname);
-    result = load_creaturetypes_config_file(config_global_textname,fname,flags);
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    TbBool result = load_creaturetypes_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
@@ -1623,8 +1598,7 @@ unsigned short get_creature_model_flags(const struct Thing *thing)
 
 ThingModel get_creature_model_with_model_flags(unsigned short needflags)
 {
-    ThingModel crmodel;
-    for (crmodel=0; crmodel < crtr_conf.model_count; crmodel++)
+    for (ThingModel crmodel = 0; crmodel < crtr_conf.model_count; crmodel++)
     {
         if ((crtr_conf.model[crmodel].model_flags & needflags) == needflags) {
             return crmodel;
@@ -1638,10 +1612,9 @@ ThingModel get_creature_model_with_model_flags(unsigned short needflags)
  */
 TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail)
 {
-    struct Dungeon *dungeon;
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORDBG(11,"Cannot set %s availability; player %d has no dungeon.",thing_class_and_model_name(TCls_Creature, crtr_model),(int)plyr_idx);
         return false;
@@ -1685,8 +1658,7 @@ ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
 
 ThingModel get_players_spectator_model(PlayerNumber plyr_idx)
 {
-    ThingModel breed;
-    breed = crtr_conf.spectator_breed;
+    ThingModel breed = crtr_conf.spectator_breed;
     if (breed == 0)
     {
         WARNLOG("There is no spectator breed for player %d!",(int)plyr_idx);
@@ -1704,12 +1676,10 @@ ThingModel get_players_spectator_model(PlayerNumber plyr_idx)
 const char *creature_own_name(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     char *text;
     if ((get_creature_model_flags(creatng) & CMF_OneOfKind) != 0) {
-        struct CreatureData *crdata;
-        crdata = creature_data_get_from_thing(creatng);
+        struct CreatureData* crdata = creature_data_get_from_thing(creatng);
         text = buf_sprintf("%s",get_string(crdata->namestr_idx));
         return text;
     }
@@ -1736,9 +1706,8 @@ const char *creature_own_name(const struct Thing *creatng)
         end_consonants_len = sizeof(name_consonants)/sizeof(name_consonants[0]);
     }
     {
-        unsigned long seed;
         //TODO CREATURE store creature name seed somewhere in CreatureControl instead making it from other parameters
-        seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
+        unsigned long seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
         // Get amount of nucleus
         int name_len;
         {
@@ -1752,9 +1721,8 @@ const char *creature_own_name(const struct Thing *creatng)
         }
         // Get starting part of a name
         {
-            const char *part;
             int n = LB_RANDOM(starts_len, &seed);
-            part = starts[n];
+            const char* part = starts[n];
             text = buf_sprintf("%s", part);
         }
         // Append nucleus items to the name
@@ -1801,10 +1769,8 @@ struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id)
  */
 const char *creature_instance_code_name(CrInstance inst_id)
 {
-    struct CreatureInstanceConfig *crinstcfg;
-    crinstcfg = get_config_for_instance(inst_id);
-    const char *name;
-    name = crinstcfg->name;
+    struct CreatureInstanceConfig* crinstcfg = get_config_for_instance(inst_id);
+    const char* name = crinstcfg->name;
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -1812,10 +1778,8 @@ const char *creature_instance_code_name(CrInstance inst_id)
 
 struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
 {
-    long i;
-    unsigned long k;
-    i = 0;
-    k = job_flags;
+    long i = 0;
+    unsigned long k = job_flags;
     while (k)
     {
         k >>= 1;
@@ -1836,16 +1800,14 @@ struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
  */
 CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long drop_kind_flags)
 {
-    unsigned long required_kind_flags;
     // Detect the job which we will do in the area
-    required_kind_flags = drop_kind_flags;
+    unsigned long required_kind_flags = drop_kind_flags;
     if (slab_is_area_inner_fill(subtile_slab(stl_x), subtile_slab(stl_y))) {
         required_kind_flags |= JoKF_AssignOnAreaCenter;
     } else {
         required_kind_flags |= JoKF_AssignOnAreaBorder;
     }
-    struct SlabMap *slb;
-    slb = get_slabmap_for_subtile(stl_x,stl_y);
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (creatng->owner == slabmap_owner(slb))
     {
         if (creatng->model == get_players_special_digger_model(creatng->owner)) {
@@ -1861,11 +1823,9 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             required_kind_flags |= JoKF_EnemyCreatures;
         }
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     RoomKind rkind;
-    struct Room *room;
-    room = get_room_thing_is_on(creatng);
+    struct Room* room = get_room_thing_is_on(creatng);
     if (!room_is_invalid(room)) {
         required_kind_flags |= JoKF_AssignAreaWithinRoom;
         rkind = room->kind;
@@ -1873,8 +1833,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
         required_kind_flags |= JoKF_AssignAreaOutsideRoom;
         rkind = RoK_NONE;
     }
-    CreatureJob jobpref;
-    jobpref = get_job_for_room(rkind, required_kind_flags, crstat->job_primary|crstat->job_secondary);
+    CreatureJob jobpref = get_job_for_room(rkind, required_kind_flags, crstat->job_primary | crstat->job_secondary);
     return jobpref;
 }
 
@@ -1890,15 +1849,12 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
  */
 CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_flags, CreatureJob has_jobs)
 {
-    long i;
-    for (i=0; i < crtr_conf.jobs_count; i++)
+    for (long i = 0; i < crtr_conf.jobs_count; i++)
     {
-        struct CreatureJobConfig *jobcfg;
-        jobcfg = &crtr_conf.jobs[i];
+        struct CreatureJobConfig* jobcfg = &crtr_conf.jobs[i];
         if ((jobcfg->job_flags & required_kind_flags) == required_kind_flags)
         {
-            CreatureJob new_job;
-            new_job = 1<<(i-1);
+            CreatureJob new_job = 1 << (i - 1);
             if (((jobcfg->job_flags & JoKF_NeedsHaveJob) == 0) || ((has_jobs & new_job) != 0))
             {
                 if (((jobcfg->room_role & rrole) != 0) || ((jobcfg->job_flags & JoKF_AssignAreaOutsideRoom) != 0)) {
@@ -1934,14 +1890,12 @@ CreatureJob get_job_for_room(RoomKind rkind, unsigned long required_kind_flags, 
  */
 CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qualify_flags, unsigned long prevent_flags)
 {
-    long i;
     if (rrole == RoRoF_None) {
         return Job_NULL;
     }
-    for (i=0; i < crtr_conf.jobs_count; i++)
+    for (long i = 0; i < crtr_conf.jobs_count; i++)
     {
-        struct CreatureJobConfig *jobcfg;
-        jobcfg = &crtr_conf.jobs[i];
+        struct CreatureJobConfig* jobcfg = &crtr_conf.jobs[i];
         if ((jobcfg->job_flags & qualify_flags) != 0)
         {
             if ((jobcfg->job_flags & prevent_flags) == 0)
@@ -1974,13 +1928,10 @@ CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify
  */
 CreatureJob get_jobs_enemies_may_do_in_room_role(RoomRole rrole)
 {
-    CreatureJob jobpref;
-    jobpref = Job_NULL;
-    long i;
-    for (i=0; i < crtr_conf.jobs_count; i++)
+    CreatureJob jobpref = Job_NULL;
+    for (long i = 0; i < crtr_conf.jobs_count; i++)
     {
-        struct CreatureJobConfig *jobcfg;
-        jobcfg = &crtr_conf.jobs[i];
+        struct CreatureJobConfig* jobcfg = &crtr_conf.jobs[i];
         // Accept only jobs in given room
         if ((jobcfg->room_role & rrole) != 0)
         {
@@ -2013,10 +1964,8 @@ CreatureJob get_jobs_enemies_may_do_in_room(RoomKind rkind)
  */
 RoomKind get_room_for_job(CreatureJob job_flags)
 {
-    struct CreatureJobConfig *jobcfg;
-    jobcfg = get_config_for_job(job_flags);
-    RoomKind rkind;
-    for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
+    struct CreatureJobConfig* jobcfg = get_config_for_job(job_flags);
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, jobcfg->room_role))
             return rkind;
@@ -2031,40 +1980,34 @@ RoomKind get_room_for_job(CreatureJob job_flags)
  */
 RoomRole get_room_role_for_job(CreatureJob job_flags)
 {
-    struct CreatureJobConfig *jobcfg;
-    jobcfg = get_config_for_job(job_flags);
+    struct CreatureJobConfig* jobcfg = get_config_for_job(job_flags);
     return jobcfg->room_role;
 }
 
 EventKind get_event_for_job(CreatureJob job_flags)
 {
-    struct CreatureJobConfig *jobcfg;
-    jobcfg = get_config_for_job(job_flags);
+    struct CreatureJobConfig* jobcfg = get_config_for_job(job_flags);
     return jobcfg->event_kind;
 }
 
 CrtrStateId get_initial_state_for_job(CreatureJob jobpref)
 {
-    struct CreatureJobConfig *jobcfg;
-    jobcfg = get_config_for_job(jobpref);
+    struct CreatureJobConfig* jobcfg = get_config_for_job(jobpref);
     return jobcfg->initial_crstate;
 }
 
 unsigned long get_flags_for_job(CreatureJob jobpref)
 {
-    struct CreatureJobConfig *jobcfg;
-    jobcfg = get_config_for_job(jobpref);
+    struct CreatureJobConfig* jobcfg = get_config_for_job(jobpref);
     return jobcfg->job_flags;
 }
 
 int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel)
 {
-    struct CreatureJobConfig *jobcfg;
-    jobcfg = get_config_for_job(jobpref);
+    struct CreatureJobConfig* jobcfg = get_config_for_job(jobpref);
     if ((jobcfg->job_flags & JoKF_NeedsCapacity) == 0) {
         return 0;
     }
-    struct CreatureStats *crstat;
     switch (jobcfg->room_role)
     {
     case RoRoF_None:
@@ -2072,8 +2015,10 @@ int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel)
         return 0;
     case RoRoF_LairStorage:
     case RoRoF_CrHealSleep:
-        crstat = creature_stats_get(crmodel);
+    {
+        struct CreatureStats* crstat = creature_stats_get(crmodel);
         return crstat->lair_size;
+    }
     default:
         return 1;
     }
@@ -2082,28 +2027,24 @@ int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel)
 
 CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref)
 {
-    struct CreatureJobConfig *jobcfg;
-    jobcfg = get_config_for_job(jobpref);
+    struct CreatureJobConfig* jobcfg = get_config_for_job(jobpref);
     return jobcfg->initial_crstate;
 }
 
 CrtrStateId get_continue_state_for_job(CreatureJob jobpref)
 {
-    struct CreatureJobConfig *jobcfg;
-    jobcfg = get_config_for_job(jobpref);
+    struct CreatureJobConfig* jobcfg = get_config_for_job(jobpref);
     return jobcfg->continue_crstate;
 }
 
 CreatureJob get_job_for_creature_state(CrtrStateId crstat_id)
 {
-    long i;
     if (crstat_id == CrSt_Unused) {
         return Job_NULL;
     }
-    for (i=0; i < crtr_conf.jobs_count; i++)
+    for (long i = 0; i < crtr_conf.jobs_count; i++)
     {
-        struct CreatureJobConfig *jobcfg;
-        jobcfg = &crtr_conf.jobs[i];
+        struct CreatureJobConfig* jobcfg = &crtr_conf.jobs[i];
         //TODO CREATURE_JOBS Add other job-related states here
         if ((jobcfg->initial_crstate == crstat_id)
          || (jobcfg->continue_crstate == crstat_id)) {
@@ -2141,10 +2082,8 @@ CreatureJob get_job_for_creature_state(CrtrStateId crstat_id)
  */
 const char *creature_job_code_name(CreatureJob job_flag)
 {
-    struct CreatureJobConfig *jobcfg;
-    jobcfg = get_config_for_job(job_flag);
-    const char *name;
-    name = jobcfg->name;
+    struct CreatureJobConfig* jobcfg = get_config_for_job(job_flag);
+    const char* name = jobcfg->name;
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -2159,10 +2098,9 @@ const char *creature_job_code_name(CreatureJob job_flag)
  */
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind)
 {
-    CreatureJob qualified_job;
     // Allowing one-time jobs to be stressful would make this job selection ambiguous
     // TODO CREATURE_JOBS it would be better to get stressful job based on creature state, not on room
-    qualified_job = get_job_which_qualify_for_room(rkind, JoKF_OwnedCreatures|JoKF_OwnedDiggers, JoKF_AssignOneTime);
+    CreatureJob qualified_job = get_job_which_qualify_for_room(rkind, JoKF_OwnedCreatures | JoKF_OwnedDiggers, JoKF_AssignOneTime);
     return (job_flags & qualified_job);
 }
 
@@ -2175,8 +2113,7 @@ CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkin
  */
 CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKind rkind)
 {
-    CreatureJob qualified_job;
-    qualified_job = get_job_which_qualify_for_room(rkind, JoKF_OwnedCreatures|JoKF_OwnedDiggers, JoKF_EnemyCreatures|JoKF_EnemyDiggers|JoKF_AssignOneTime|JoKF_NoSelfControl);
+    CreatureJob qualified_job = get_job_which_qualify_for_room(rkind, JoKF_OwnedCreatures | JoKF_OwnedDiggers, JoKF_EnemyCreatures | JoKF_EnemyDiggers | JoKF_AssignOneTime | JoKF_NoSelfControl);
     return (job_flags & qualified_job);
 }
 
@@ -2188,8 +2125,7 @@ const char *attack_type_job_code_name(CrAttackType attack_type)
     } else {
         attack_type_info = &crtr_conf.attacktypes[0];
     }
-    const char *name;
-    name = attack_type_info->text;
+    const char* name = attack_type_info->text;
     if (name[0] != '\0')
         return name;
     return "INVALID";

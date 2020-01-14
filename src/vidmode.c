@@ -105,11 +105,10 @@ extern struct TbLoadFiles pointer_small_load_files_640[];
  */
 short LoadVRes256Data(long scrbuf_size)
 {
-    int i;
     // Update size of the parchment buffer, as it is also used as screen buffer
     if (scrbuf_size < 640*480)
         scrbuf_size = 640*480;
-    i = LbDataFindStartIndex(gui_load_files_640,(unsigned char **)&hires_parchment);
+    int i = LbDataFindStartIndex(gui_load_files_640, (unsigned char**)&hires_parchment);
     if (i>=0) {
         gui_load_files_640[i].SLength = scrbuf_size;
     }
@@ -128,37 +127,31 @@ short LoadVRes256Data(long scrbuf_size)
  */
 short LoadMcgaData(void)
 {
-  struct TbLoadFiles *load_files;
-  void *mem;
-  struct TbLoadFiles *t_lfile;
-  int ferror;
-  int ret_val;
-  int i;
-  load_files = gui_load_files_320;
-  LbDataFreeAll(load_files);
-  ferror = 0;
-  i = 0;
-  t_lfile = &load_files[i];
-  // Allocate some low memory, only to be sure that
-  // it will be free when this function ends
-  mem = LbMemoryAllocLow(0x10000u);
-  while (t_lfile->Start != NULL)
-  {
-    // Don't allow loading flags
-    t_lfile->Flags = 0;
-    ret_val = LbDataLoad(t_lfile);
-    if (ret_val == -100)
+    struct TbLoadFiles* load_files = gui_load_files_320;
+    LbDataFreeAll(load_files);
+    int ferror = 0;
+    int i = 0;
+    struct TbLoadFiles* t_lfile = &load_files[i];
+    // Allocate some low memory, only to be sure that
+    // it will be free when this function ends
+    void* mem = LbMemoryAllocLow(0x10000u);
+    while (t_lfile->Start != NULL)
     {
-      ERRORLOG("Can't allocate memory for MCGA files element \"%s\".", t_lfile->FName);
-      ferror++;
-    } else
-    if ( ret_val == -101 )
-    {
-      ERRORLOG("Can't load MCGA file \"%s\".", t_lfile->FName);
-      ferror++;
-    }
-    i++;
-    t_lfile = &load_files[i];
+        // Don't allow loading flags
+        t_lfile->Flags = 0;
+        int ret_val = LbDataLoad(t_lfile);
+        if (ret_val == -100)
+        {
+            ERRORLOG("Can't allocate memory for MCGA files element \"%s\".", t_lfile->FName);
+            ferror++;
+        }
+        else if (ret_val == -101)
+        {
+            ERRORLOG("Can't load MCGA file \"%s\".", t_lfile->FName);
+            ferror++;
+        }
+        i++;
+        t_lfile = &load_files[i];
   }
   if (mem != NULL)
     LbMemoryFree(mem);
@@ -209,11 +202,9 @@ TbScreenMode get_next_vidmode(TbScreenMode mode)
  */
 TbScreenMode get_higher_vidmode(TbScreenMode curr_mode)
 {
-    unsigned long curr_size, next_size;
-    TbScreenModeInfo *mdinfo;
     // Get size of current mode
-    mdinfo = LbScreenGetModeInfo(curr_mode);
-    curr_size = 0;
+    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(curr_mode);
+    unsigned long curr_size = 0;
     if (LbScreenIsModeAvailable(curr_mode)) {
         curr_size = mdinfo->Width * mdinfo->Height;
     }
@@ -222,9 +213,8 @@ TbScreenMode get_higher_vidmode(TbScreenMode curr_mode)
     while (next_mode != Lb_SCREEN_MODE_INVALID)
     {
         next_mode = get_next_vidmode(next_mode);
-        TbScreenModeInfo *mdinfo;
-        mdinfo = LbScreenGetModeInfo(next_mode);
-        next_size = 0;
+        TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(next_mode);
+        unsigned long next_size = 0;
         if (LbScreenIsModeAvailable(next_mode)) {
             next_size = mdinfo->Width * mdinfo->Height;
         }
@@ -256,12 +246,11 @@ unsigned short max_game_vidmode_count(void)
 
 TbScreenMode validate_vidmode(TbScreenMode mode)
 {
-  int i;
   int maxmodes=sizeof(switching_vidmodes)/sizeof(TbScreenMode);
   // Do not allow to enter higher modes on low memory systems
   if ((features_enabled & Ft_HiResVideo) == 0)
     return failsafe_vidmode;
-  for (i=0;i<maxmodes;i++)
+  for (int i = 0; i < maxmodes; i++)
   {
     if (switching_vidmodes[i] == mode) return switching_vidmodes[i];
   }
@@ -339,14 +328,15 @@ TbBool set_pointer_graphic_menu(void)
 
 TbBool set_pointer_graphic_spell(long group_idx, long frame)
 {
-  long i,x,y;
-  struct TbSprite *spr;
-  SYNCDBG(8,"Setting to group %d",(int)group_idx);
-  if (pointer_sprites == NULL)
-  {
-    WARNLOG("Pointer sprites not loaded, setting to none");
-    LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
-    return false;
+    long i;
+    long x;
+    long y;
+    SYNCDBG(8, "Setting to group %d", (int)group_idx);
+    if (pointer_sprites == NULL)
+    {
+        WARNLOG("Pointer sprites not loaded, setting to none");
+        LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
+        return false;
   }
   if ((group_idx < 0) || (group_idx >= SPELL_POINTER_GROUPS))
   {
@@ -365,7 +355,7 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
     x = 26;
     i = group_idx;
   }
-  spr = &pointer_sprites[40+i];
+  struct TbSprite* spr = &pointer_sprites[40 + i];
   SYNCDBG(8,"Activating pointer %d",40+i);
   if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
   {
@@ -380,14 +370,15 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
 
 TbBool set_pointer_graphic(long ptr_idx)
 {
-  long x,y;
-  struct TbSprite *spr;
-  SYNCDBG(8,"Setting to %d",(int)ptr_idx);
-  if (pointer_sprites == NULL)
-  {
-    WARNLOG("Pointer sprites not loaded, setting to none");
-    LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
-    return false;
+    long x;
+    long y;
+    struct TbSprite* spr;
+    SYNCDBG(8, "Setting to %d", (int)ptr_idx);
+    if (pointer_sprites == NULL)
+    {
+        WARNLOG("Pointer sprites not loaded, setting to none");
+        LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
+        return false;
   }
   switch (ptr_idx)
   {
@@ -500,10 +491,8 @@ void unload_pointer_file(short hi_res)
 
 TbBool init_fades_table(void)
 {
-    char *fname;
-    long i;
     static const char textname[] = "fade table";
-    fname = prepare_file_path(FGrp_StdData,"tables.dat");
+    char* fname = prepare_file_path(FGrp_StdData, "tables.dat");
     SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
     if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
     {
@@ -513,7 +502,7 @@ TbBool init_fades_table(void)
     lbDisplay.FadeTable = pixmap.fade_tables;
     TbPixel cblack = 144;
     // Update black color
-    for (i=0; i < 8192; i++)
+    for (long i = 0; i < 8192; i++)
     {
         if (pixmap.fade_tables[i] == 0) {
             pixmap.fade_tables[i] = cblack;
@@ -524,9 +513,8 @@ TbBool init_fades_table(void)
 
 TbBool init_alpha_table(void)
 {
-    char *fname;
     static const char textname[] = "alpha color table";
-    fname = prepare_file_path(FGrp_StdData,"alpha.col");
+    char* fname = prepare_file_path(FGrp_StdData, "alpha.col");
     SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
     // Loading file data
     if (LbFileLoadAt(fname, &alpha_sprite_table) != sizeof(struct TbAlphaTables))
@@ -539,9 +527,8 @@ TbBool init_alpha_table(void)
 
 TbBool init_rgb2idx_table(void)
 {
-    char *fname;
     static const char textname[] = "rgb-to-index color table";
-    fname = prepare_file_path(FGrp_StdData,"colours.col");
+    char* fname = prepare_file_path(FGrp_StdData, "colours.col");
     SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
     // Loading file data
     if (LbFileLoadAt(fname, &colours) != sizeof(TbRGBColorTable))
@@ -554,9 +541,8 @@ TbBool init_rgb2idx_table(void)
 
 TbBool init_redpal_table(void)
 {
-    char *fname;
     static const char textname[] = "red-blended color table";
-    fname = prepare_file_path(FGrp_StdData,"redpal.col");
+    char* fname = prepare_file_path(FGrp_StdData, "redpal.col");
     SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
     // Loading file data
     if (LbFileLoadAt(fname, &red_pal) != 256)
@@ -569,9 +555,8 @@ TbBool init_redpal_table(void)
 
 TbBool init_whitepal_table(void)
 {
-    char *fname;
     static const char textname[] = "white-blended color table";
-    fname = prepare_file_path(FGrp_StdData,"whitepal.col");
+    char* fname = prepare_file_path(FGrp_StdData, "whitepal.col");
     SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
     // Loading file data
     if (LbFileLoadAt(fname, &white_pal) != 256)
@@ -591,17 +576,12 @@ void init_colours(void)
 
 char *get_vidmode_name(unsigned short mode)
 {
-  TbScreenModeInfo *mdinfo;
-  mdinfo = LbScreenGetModeInfo(mode);
-  return   mdinfo->Desc;
+    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
+    return mdinfo->Desc;
 }
 
 TbBool setup_screen_mode(unsigned short nmode)
 {
-    TbScreenModeInfo *mdinfo;
-    unsigned int flg_mem;
-    long lens_mem;
-    short was_minimal_res;
     SYNCDBG(4,"Setting up mode %d",(int)nmode);
     if (!force_video_mode_reset)
     {
@@ -611,9 +591,9 @@ TbBool setup_screen_mode(unsigned short nmode)
         return true;
       }
     }
-    lens_mem = game.numfield_1B;
-    flg_mem = lbDisplay.DrawFlags;
-    was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
+    long lens_mem = game.numfield_1B;
+    unsigned int flg_mem = lbDisplay.DrawFlags;
+    short was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
     set_pointer_graphic_none();
     if (LbGraphicsScreenHeight() < 200)
     {
@@ -661,7 +641,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         }
     }
 
-    mdinfo = LbScreenGetModeInfo(nmode);
+    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(nmode);
     if (mdinfo->Height < 200)
     {
         ERRORLOG("Unhandled Screen Mode %d, setup failed",(int)nmode);
@@ -759,15 +739,13 @@ TbBool update_screen_mode_data(long width, long height)
 
 short setup_screen_mode_minimal(unsigned short nmode)
 {
-  unsigned int flg_mem;
-  TbScreenModeInfo *mdinfo;
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   if (!force_video_mode_reset)
   {
     if ((nmode == lbDisplay.ScreenMode) && (MinimalResolutionSetup))
       return 1;
   }
-  flg_mem = lbDisplay.DrawFlags;
+  unsigned int flg_mem = lbDisplay.DrawFlags;
   if (LbGraphicsScreenHeight() < 200)
   {
       WARNLOG("Unhandled previous Screen Mode %d, Reset skipped",(int)lbDisplay.ScreenMode);
@@ -811,7 +789,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
         LbDataFreeAll(gui_load_files_640);
       }
   }
-  mdinfo = LbScreenGetModeInfo(nmode);
+  TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(nmode);
   if (mdinfo->Height < 200)
   {
       ERRORLOG("Unhandled Screen Mode %d, setup failed",(int)nmode);
@@ -870,9 +848,8 @@ short setup_screen_mode_minimal(unsigned short nmode)
 
 TbBool setup_screen_mode_zero(unsigned short nmode)
 {
-  TbScreenModeInfo *mdinfo;
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
-  mdinfo = LbScreenGetModeInfo(nmode);
+  TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(nmode);
   LbPaletteDataFillBlack(engine_palette);
   if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 2, 0) != 1)
   {
@@ -886,11 +863,10 @@ TbBool setup_screen_mode_zero(unsigned short nmode)
 
 TbScreenMode reenter_video_mode(void)
 {
- TbScreenMode scrmode;
- scrmode=validate_vidmode(settings.video_scrnmode);
- if ( setup_screen_mode(scrmode) )
-  {
-      settings.video_scrnmode = scrmode;
+    TbScreenMode scrmode = validate_vidmode(settings.video_scrnmode);
+    if (setup_screen_mode(scrmode))
+    {
+        settings.video_scrnmode = scrmode;
   } else
   {
       SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
@@ -911,8 +887,7 @@ TbScreenMode reenter_video_mode(void)
 
 TbScreenMode switch_to_next_video_mode(void)
 {
-    TbScreenMode scrmode;
-    scrmode = get_next_vidmode(lbDisplay.ScreenMode);
+    TbScreenMode scrmode = get_next_vidmode(lbDisplay.ScreenMode);
     if ( setup_screen_mode(scrmode) )
     {
         settings.video_scrnmode = scrmode;

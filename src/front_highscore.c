@@ -38,14 +38,11 @@
 /******************************************************************************/
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
 {
-    struct HighScore *hscore;
-    char str[64];
-    int i;
     if ((idx >= campaign.hiscore_count) || (campaign.hiscore_table == NULL))
       return;
-    hscore = &campaign.hiscore_table[idx];
+    struct HighScore* hscore = &campaign.hiscore_table[idx];
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-    i = pos_x + col1_width;
+    int i = pos_x + col1_width;
     LbTextNumberDraw(i, pos_y, units_per_px, idx+1, Fnt_RightJustify);
     i += col2_width;
     LbTextNumberDraw(i, pos_y, units_per_px, hscore->score, Fnt_RightJustify);
@@ -54,7 +51,8 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     i += col4_width;
     if (idx == high_score_entry_input_active)
     {
-        memcpy(str,high_score_entry,sizeof(str));
+        char str[64];
+        memcpy(str, high_score_entry, sizeof(str));
         str[sizeof(str)-1] = '\0';
         LbTextStringDraw(i, pos_y, units_per_px, str, Fnt_LeftJustify);
         str[high_score_entry_index] = '\0';
@@ -73,15 +71,11 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
 void frontend_draw_high_score_table(struct GuiButton *gbtn)
 {
     struct TbSprite *spr;
-    struct TbSprite *swpspr;
-    long pos_x,pos_y;
-    long col1_width,col2_width,col3_width,col4_width;
-    long i,k;
+    long i;
     // Detect scaling factor is quite complicated for this item
     int fs_units_per_px;
     {
-        int orig_size;
-        orig_size = 0;
+        int orig_size = 0;
         spr = &frontend_sprite[33];
         for (i=0; i < 6; i++)
         {
@@ -91,10 +85,10 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
         fs_units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
     }
     // Draw the high scores area - top
-    pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
+    long pos_x = gbtn->scr_pos_x;
+    long pos_y = gbtn->scr_pos_y;
     spr = &frontend_sprite[25];
-    swpspr = spr;
+    struct TbSprite* swpspr = spr;
     for (i=6; i > 0; i--)
     {
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, swpspr);
@@ -103,7 +97,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     }
     pos_y += spr->SHeight * fs_units_per_px / 16;
     // Draw the high scores area - filling
-    k = 12;
+    long k = 12;
     while (k > 0)
     {
         if (k < 3)
@@ -141,13 +135,12 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     pos_x = gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16;
     spr = &frontend_sprite[25];
     pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
-    int tx_units_per_px;
     // The GUI item height should be 11 lines of text
-    tx_units_per_px = gbtn->height * 16 / (11*(LbTextLineHeight()));
-    col1_width = LbTextStringWidth("99") * tx_units_per_px / 16;
-    col2_width = LbTextStringWidth(" 99999") * tx_units_per_px / 16;
-    col3_width = LbTextStringWidth(" 9999") * tx_units_per_px / 16;
-    col4_width = LbTextCharWidth('-') * tx_units_per_px / 16;
+    int tx_units_per_px = gbtn->height * 16 / (11 * (LbTextLineHeight()));
+    long col1_width = LbTextStringWidth("99") * tx_units_per_px / 16;
+    long col2_width = LbTextStringWidth(" 99999") * tx_units_per_px / 16;
+    long col3_width = LbTextStringWidth(" 9999") * tx_units_per_px / 16;
+    long col4_width = LbTextCharWidth('-') * tx_units_per_px / 16;
     for (k=0; k < VISIBLE_HIGH_SCORES_COUNT-1; k++)
     {
         draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
@@ -161,8 +154,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
 
 void frontend_quit_high_score_table(struct GuiButton *gbtn)
 {
-    FrontendMenuState nstate;
-    nstate = get_menu_state_when_back_from_substate(FeSt_HIGH_SCORES);
+    FrontendMenuState nstate = get_menu_state_when_back_from_substate(FeSt_HIGH_SCORES);
     frontend_set_state(nstate);
 }
 
@@ -172,8 +164,6 @@ void frontend_quit_high_score_table(struct GuiButton *gbtn)
  */
 TbBool frontend_high_score_table_input(void)
 {
-    struct HighScore *hscore;
-    char chr;
     long i;
     if (high_score_entry_input_active >= campaign.hiscore_count)
         high_score_entry_input_active  = -1;
@@ -241,7 +231,7 @@ TbBool frontend_high_score_table_input(void)
     }
     if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE))
     {
-        hscore = &campaign.hiscore_table[high_score_entry_input_active];
+        struct HighScore* hscore = &campaign.hiscore_table[high_score_entry_input_active];
         if (lbInkey == KC_ESCAPE) {
             strncpy(hscore->name, get_string(GUIStr_TeamLeader), HISCORE_NAME_LENGTH);
         } else {
@@ -254,11 +244,10 @@ TbBool frontend_high_score_table_input(void)
     }
     if (high_score_entry_index < HISCORE_NAME_LENGTH)
     {
-        chr = key_to_ascii(lbInkey, key_modifiers);
+        char chr = key_to_ascii(lbInkey, key_modifiers);
         if (chr != 0)
         {
-            int entry_len;
-            entry_len = strlen(high_score_entry);
+            int entry_len = strlen(high_score_entry);
             LbTextSetFont(frontend_font[1]);
             i = LbTextCharWidth(chr);
             if ((entry_len < (HISCORE_NAME_LENGTH - 1)) &&
@@ -291,12 +280,9 @@ void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
 
 void add_score_to_high_score_table(void)
 {
-    struct Dungeon *dungeon;
-    struct PlayerInfo *player;
-    int idx;
-    player = get_my_player();
-    dungeon = get_players_dungeon(player);
-    idx = add_high_score_entry(dungeon->lvstats.player_score, get_loaded_level_number(), "");
+    struct PlayerInfo* player = get_my_player();
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    int idx = add_high_score_entry(dungeon->lvstats.player_score, get_loaded_level_number(), "");
     if (idx >= 0)
     {
         // Preparing input in the new entry
@@ -312,8 +298,7 @@ void add_score_to_high_score_table(void)
 
 void frontstats_save_high_score(void)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(my_player_number);
+    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     if (dungeon->lvstats.allow_save_score)
     {
         dungeon->lvstats.allow_save_score = false;

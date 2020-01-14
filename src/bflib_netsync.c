@@ -31,7 +31,6 @@ static float self_information(const char * buffer, size_t len)
 {
     size_t counts[0x100];
     size_t i;
-    float nat;
 
     LbMemorySet(counts, 0, sizeof(counts));
 
@@ -39,7 +38,7 @@ static float self_information(const char * buffer, size_t len)
         counts[((unsigned) buffer[i]) & 0xFF] += 1; //handles other char sizes than 8 bit.. probably redundant
     }
 
-    nat = 0.0f;
+    float nat = 0.0f;
     for (i = 0; i < 0x100; i++) {
         if (counts[i] == 0) {
             continue;
@@ -55,15 +54,14 @@ static float self_information(const char * buffer, size_t len)
 static enum DeltaEncoding encode(enum DeltaEncoding encoding, char * code,
     const char * old_state, const char * new_state, size_t len)
 {
-    size_t i;
-
     if (encoding == DELTA_NONE) {
         LbMemoryCopy(code, new_state, len);
         return DELTA_NONE;
     }
 
     //encode
-    for (i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i)
+    {
         code[i] = new_state[i] - old_state[i];
     }
 
@@ -87,14 +85,13 @@ static enum DeltaEncoding encode(enum DeltaEncoding encoding, char * code,
 static void decode(enum DeltaEncoding encoding, const char * code,
     const char * old_state, char * new_state, size_t len)
 {
-    size_t i;
-
     if (encoding == DELTA_NONE) {
         LbMemoryCopy(new_state, code, len);
     }
     else {
         //delta decode
-        for (i = 0; i < len; ++i) {
+        for (size_t i = 0; i < len; ++i)
+        {
             new_state[i] = code[i] + old_state[i];
         }
     }
@@ -122,13 +119,12 @@ size_t LbNetsyncBufferSize(const struct NetsyncInstr ** instr)
 void LbNetsyncCollect(const struct NetsyncInstr ** instr, char * out_buffer,
     const char * old_state, char * new_state)
 {
-    unsigned i;
     NetsyncHeader * header = NULL;
-    enum DeltaEncoding enc;
 
     NETDBG(5, "Collecting data for synchronization");
 
-    for (i = 0; instr[i] != NULL; ++i) {
+    for (unsigned int i = 0; instr[i] != NULL; ++i)
+    {
         if (instr[i]->len == 0) {
             continue;
         }
@@ -154,7 +150,9 @@ void LbNetsyncCollect(const struct NetsyncInstr ** instr, char * out_buffer,
         }
 
         //do (any) encoding
-        if (old_state == NULL) {
+        enum DeltaEncoding enc;
+        if (old_state == NULL)
+        {
             enc = encode(DELTA_NONE, out_buffer, NULL, new_state, instr[i]->len);
         }
         else {
@@ -176,13 +174,12 @@ void LbNetsyncCollect(const struct NetsyncInstr ** instr, char * out_buffer,
 void LbNetsyncRestore(const struct NetsyncInstr ** instr, const char * in_buffer,
     const char * old_state, char * new_state)
 {
-    unsigned i;
     NetsyncHeader header = 0; //removing unit warning
-    enum DeltaEncoding enc;
 
     NETDBG(5, "Restoring data for synchronization");
 
-    for (i = 0; instr[i] != NULL; ++i) {
+    for (unsigned int i = 0; instr[i] != NULL; ++i)
+    {
         if (instr[i]->len == 0) {
             continue;
         }
@@ -198,7 +195,9 @@ void LbNetsyncRestore(const struct NetsyncInstr ** instr, const char * in_buffer
         }
 
         //determine coding used
-        if (old_state == NULL) {
+        enum DeltaEncoding enc;
+        if (old_state == NULL)
+        {
             enc = DELTA_NONE;
         }
         else {

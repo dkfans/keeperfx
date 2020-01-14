@@ -29,10 +29,8 @@ extern "C" {
 /******************************************************************************/
 short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char * data)
 {
-    struct TbSprite *sprt;
-    int n;
-    n = 0;
-    sprt = start;
+    int n = 0;
+    struct TbSprite* sprt = start;
     while (sprt < end)
     {
       if ((unsigned long)sprt->Data < (unsigned long)data)
@@ -50,10 +48,8 @@ short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const un
 
 int LbSpriteSetupAll(struct TbSetupSprite t_setup[])
 {
-    struct TbSetupSprite *stp_sprite;
-    int idx;
-    idx=0;
-    stp_sprite=&t_setup[idx];
+    int idx = 0;
+    struct TbSetupSprite* stp_sprite = &t_setup[idx];
     while (stp_sprite->Data != NULL)
     {
       if ((stp_sprite->Start != NULL) && (stp_sprite->End != NULL))
@@ -69,20 +65,18 @@ int LbSpriteSetupAll(struct TbSetupSprite t_setup[])
 
 int LbSpriteClearAll(struct TbSetupSprite t_setup[])
 {
-  struct TbSetupSprite *stp_sprite;
-  int idx;
-  idx=0;
-  stp_sprite=&t_setup[idx];
-  while (stp_sprite->Data != NULL)
-  {
-    if ((stp_sprite->Start != NULL) && (stp_sprite->End != NULL))
+    int idx = 0;
+    struct TbSetupSprite* stp_sprite = &t_setup[idx];
+    while (stp_sprite->Data != NULL)
     {
-      *(stp_sprite->Start) = NULL;
-      *(stp_sprite->End) = NULL;
-      *(stp_sprite->Data) = 0;
-    }
-    idx++;
-    stp_sprite=&t_setup[idx];
+        if ((stp_sprite->Start != NULL) && (stp_sprite->End != NULL))
+        {
+            *(stp_sprite->Start) = NULL;
+            *(stp_sprite->End) = NULL;
+            *(stp_sprite->Data) = 0;
+        }
+        idx++;
+        stp_sprite = &t_setup[idx];
   }
 #ifdef __DEBUG
   LbSyncLog("%s: Cleaned %d SetupSprite lists\n",func_name,idx);

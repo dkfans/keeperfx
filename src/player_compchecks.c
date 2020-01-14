@@ -127,24 +127,18 @@ struct ExpandRooms expand_rooms[] = {
 
 long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    struct Dungeon *compdngn;
     SYNCDBG(8,"Starting");
-    compdngn = comp->dungeon;
+    struct Dungeon* compdngn = comp->dungeon;
     // Reference values for checking hate
-    int cdngn_creatrs, cdngn_spdiggrs, cdngn_enrancs;
-    cdngn_creatrs = count_creatures_in_dungeon(compdngn);
-    cdngn_spdiggrs = count_diggers_in_dungeon(compdngn);
-    cdngn_enrancs = count_entrances(comp, compdngn->owner);
+    int cdngn_creatrs = count_creatures_in_dungeon(compdngn);
+    int cdngn_spdiggrs = count_diggers_in_dungeon(compdngn);
+    int cdngn_enrancs = count_entrances(comp, compdngn->owner);
     // Now check hate for every player
-    int i;
-    for (i=0; i < PLAYERS_COUNT; i++)
+    for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        struct PlayerInfo *player;
-        struct Dungeon *dungeon;
-        struct OpponentRelation *oprel;
-        player = get_player(i);
-        dungeon = get_players_dungeon(player);
-        oprel = &comp->opponent_relations[i];
+        struct PlayerInfo* player = get_player(i);
+        struct Dungeon* dungeon = get_players_dungeon(player);
+        struct OpponentRelation* oprel = &comp->opponent_relations[i];
         if (!player_exists(player) || (player->id_number == compdngn->owner)
          || (player->id_number == game.neutral_player_num))
             continue;
@@ -152,11 +146,9 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
             continue;
         if (players_are_mutual_allies(compdngn->owner, i))
             continue;
-        int hdngn_creatrs, hdngn_spdiggrs, hdngn_enrancs;
-        int hate_reasons;
-        hate_reasons = 0;
-        hdngn_creatrs = count_creatures_in_dungeon(dungeon);
-        hdngn_spdiggrs = count_diggers_in_dungeon(dungeon);
+        int hate_reasons = 0;
+        int hdngn_creatrs = count_creatures_in_dungeon(dungeon);
+        int hdngn_spdiggrs = count_diggers_in_dungeon(dungeon);
         // Computers hate players who have more creatures than them
         if (hdngn_creatrs >= cdngn_creatrs)
         {
@@ -176,7 +168,7 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
             oprel->hate_amount++;
         }
         // Computers highly hate players who claimed more entrances than them
-        hdngn_enrancs = count_entrances(comp, i);
+        int hdngn_enrancs = count_entrances(comp, i);
         if (hdngn_enrancs > cdngn_enrancs)
         {
             hate_reasons++;
@@ -195,11 +187,9 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
-    int num_to_move;
-    num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
+    int num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
         SYNCDBG(8,"No player %d creatures to move, active %d percentage %d",
             (int)dungeon->owner,(int)dungeon->num_active_creatrs,(int)check->param1);
@@ -222,12 +212,9 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
 
 long computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    struct Dungeon *dungeon;
-    struct Room *room;
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     SYNCDBG(8,"Checking player %d for move to %s", (int)dungeon->owner, room_code_name(check->param2));
-    int num_to_move;
-    num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
+    int num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
         SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
         return CTaskRet_Unk4;
@@ -240,13 +227,11 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
     if (is_task_in_progress_using_hand(comp)) {
         return CTaskRet_Unk4;
     }
-    unsigned long k;
-    long i;
-    k = 0;
-    i = dungeon->room_kind[check->param2];
+    unsigned long k = 0;
+    long i = dungeon->room_kind[check->param2];
     while (i != 0)
     {
-        room = room_get(i);
+        struct Room* room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -256,8 +241,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
         // Per-room code
         if (room->total_capacity > room->used_capacity)
         {
-            int num_to_move_fit;
-            num_to_move_fit = min(num_to_move, room->total_capacity - room->used_capacity);
+            int num_to_move_fit = min(num_to_move, room->total_capacity - room->used_capacity);
             if (create_task_move_creatures_to_room(comp, room->index, num_to_move_fit)) {
                 SYNCDBG(8,"Added task to move %d creatures to %s index %d", (int)num_to_move_fit,room_code_name(room->kind),(int)room->index);
                 return CTaskRet_Unk1;
@@ -282,17 +266,13 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
  */
 static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dungeon)
 {
-	long i;
-	unsigned long k;
-	k = 0;
-	i = dungeon->digger_list_start;
-	while (i != 0)
+    unsigned long k = 0;
+    long i = dungeon->digger_list_start;
+    while (i != 0)
 	{
-		struct Thing *thing;
-		struct CreatureControl *cctrl;
-		thing = thing_get(i);
-		cctrl = creature_control_get_from_thing(thing);
-		if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        struct Thing* thing = thing_get(i);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
 		{
 			ERRORLOG("Jump to invalid creature detected");
 			break;
@@ -301,10 +281,9 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
 		// Thing list loop body
 		if (cctrl->combat_flags == 0)
 		{
-			long state_type;
-			state_type = get_creature_state_type(thing);
+            long state_type = get_creature_state_type(thing);
 
-			if ((state_type == CrStTyp_Work)
+            if ((state_type == CrStTyp_Work)
 				&& (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
 				&& is_digging_indestructible_place(thing))
 			{
@@ -332,27 +311,21 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
  */
 static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon *dungeon)
 {
-    int num_faces;
-    num_faces = 0;
-    struct MapTask* mtask;
-    MapSubtlCoord stl_x, stl_y;
-    long i;
+    int num_faces = 0;
     SYNCDBG(18,"Starting");
-    i = -1;
+    long i = -1;
     while (1)
     {
         i = find_next_dig_in_dungeon_task_list(dungeon, i);
         if (i < 0)
             break;
-        mtask = get_dungeon_task_list_entry(dungeon, i);
-        stl_x = stl_num_decode_x(mtask->coords);
-        stl_y = stl_num_decode_y(mtask->coords);
+        struct MapTask* mtask = get_dungeon_task_list_entry(dungeon, i);
+        MapSubtlCoord stl_x = stl_num_decode_x(mtask->coords);
+        MapSubtlCoord stl_y = stl_num_decode_y(mtask->coords);
         if (subtile_revealed(stl_x, stl_y, dungeon->owner))
         {
-            struct SlabMap *slb;
-            slb = get_slabmap_for_subtile(stl_x, stl_y);
-            const struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(slb);
+            struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+            const struct SlabAttr* slbattr = get_slab_attrs(slb);
             if (((slbattr->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
             {
                 num_faces += block_count_diggable_sides(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
@@ -373,8 +346,7 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
  */
 long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
 
     if ((cctrl->combat_flags == 0) && (param->num2 || thing->creature.gold_carried == 0)) //no gold carried if no gem access
     {
@@ -388,11 +360,9 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
             return -1;
         if ((param->class_id > 0) && (thing->class_id != param->class_id))
             return -1;
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(thing);
-        long priority;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
         // Let us estimate value of the creature in gold
-        priority = thing->creature.gold_carried; // base value
+        long priority = thing->creature.gold_carried;             // base value
         priority += param->num1 * thing->health / crstat->health; // full health valued at this many gold
         priority += 10000 * cctrl->explevel; // experience earned by the creature has a big value
         if (get_creature_state_type(thing) == CrStTyp_Work)
@@ -410,21 +380,17 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
 
 static struct Thing *find_creature_for_sacrifice(struct Computer2 *comp, ThingModel crmodel)
 {
-	struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
 
-    Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
     param.plyr_idx = dungeon->owner;
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
     param.num1 = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
     param.num2 = any_digger_is_digging_indestructible_valuables(dungeon);
-    filter = player_list_creature_filter_best_for_sacrifice;
-    TbBool is_spec_digger;
-    is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
-    struct Thing *thing;
-    thing = INVALID_THING;
+    Thing_Maximizer_Filter filter = player_list_creature_filter_best_for_sacrifice;
+    TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
+    struct Thing* thing = INVALID_THING;
     if (is_spec_digger)
     {
         thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
@@ -443,9 +409,8 @@ static struct Thing *find_creature_for_sacrifice(struct Computer2 *comp, ThingMo
  */
 long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
@@ -454,19 +419,16 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
         return CTaskRet_Unk0;
     }
 
-    GoldAmount power_price, lowest_price;
-	power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-	lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-	SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
+    GoldAmount power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+    GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
+    SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
 
 	if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
 		&& computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
 	{
-		struct Thing* creatng;
-		creatng = find_creature_for_sacrifice(comp, gameadd.cheaper_diggers_sacrifice_model);
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(creatng);
-		if (!thing_is_invalid(creatng) && (cctrl->explevel < 2))
+        struct Thing* creatng = find_creature_for_sacrifice(comp, gameadd.cheaper_diggers_sacrifice_model);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        if (!thing_is_invalid(creatng) && (cctrl->explevel < 2))
 		{
 		    SYNCDBG(18, "Got digger to sacrifice, %s index %d owner %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
 	        if (creature_can_do_job_for_player(creatng, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))
@@ -497,15 +459,14 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     if (computer_check_sacrifice_for_cheap_diggers(comp, check) == CTaskRet_Unk1) {
         return CTaskRet_Unk1;
     }
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    long controlled_diggers;
-    controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
-    int preferred_imps, minimal_imps;
+    long controlled_diggers = dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(dungeon->owner);
+    int preferred_imps;
+    int minimal_imps;
     // Compute additional imps from gem faces
     preferred_imps = minimal_imps = check->param3 * count_faces_of_indestructible_valuables_marked_for_dig(dungeon);
     // The additional imps can double the limits, but no more
@@ -534,18 +495,14 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     }
     if (able_to_use_power)
     {
-        struct Thing *heartng;
-        MapSubtlCoord stl_x, stl_y;
-        heartng = get_player_soul_container(dungeon->owner);
-        stl_x = heartng->mappos.x.stl.num;
-        stl_y = heartng->mappos.y.stl.num;
+        struct Thing* heartng = get_player_soul_container(dungeon->owner);
+        MapSubtlCoord stl_x = heartng->mappos.x.stl.num;
+        MapSubtlCoord stl_y = heartng->mappos.y.stl.num;
         if (xy_walkable(stl_x, stl_y, dungeon->owner))
         {
             if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
-                struct PowerConfigStats *powerst;
-                powerst = get_power_model_stats(PwrK_MKDIGGER);
-                struct CreatureData *crdata;
-                crdata = creature_data_get(get_players_special_digger_model(dungeon->owner));
+                struct PowerConfigStats* powerst = get_power_model_stats(PwrK_MKDIGGER);
+                struct CreatureData* crdata = creature_data_get(get_players_special_digger_model(dungeon->owner));
                 message_add_fmt(comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crdata->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
             }
             if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > Lb_OK) {
@@ -559,26 +516,17 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
 
 struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Dungeon *dungeon;
-    int pick1_dist;
-    struct Thing *pick1_tng;
-    int pick2_dist;
-    struct Thing *pick2_tng;
-    dungeon = comp->dungeon;
-    pick1_dist = INT_MAX;
-    pick2_dist = INT_MAX;
-    pick2_tng = INVALID_THING;
-    pick1_tng = INVALID_THING;
-    long i;
-    unsigned long k;
-    k = 0;
-    i = dungeon->digger_list_start;
+    struct Dungeon* dungeon = comp->dungeon;
+    int pick1_dist = INT_MAX;
+    int pick2_dist = INT_MAX;
+    struct Thing* pick2_tng = INVALID_THING;
+    struct Thing* pick1_tng = INVALID_THING;
+    unsigned long k = 0;
+    long i = dungeon->digger_list_start;
     while (i != 0)
     {
-        struct Thing *thing;
-        struct CreatureControl *cctrl;
-        thing = thing_get(i);
-        cctrl = creature_control_get_from_thing(thing);
+        struct Thing* thing = thing_get(i);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
           ERRORLOG("Jump to invalid creature detected");
@@ -592,10 +540,8 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
             {
                 if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
                 {
-                    MapSubtlDelta dist;
-                    long state_type;
-                    dist = abs(stl_x - (MapSubtlDelta)thing->mappos.x.stl.num) + abs(stl_y - (MapSubtlDelta)thing->mappos.y.stl.num);
-                    state_type = get_creature_state_type(thing);
+                    MapSubtlDelta dist = abs(stl_x - (MapSubtlDelta)thing->mappos.x.stl.num) + abs(stl_y - (MapSubtlDelta)thing->mappos.y.stl.num);
+                    long state_type = get_creature_state_type(thing);
                     if (state_type == CrStTyp_Work)
                     {
                         if (dist < pick1_dist)
@@ -632,31 +578,27 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
 
 long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    dungeon = comp->dungeon;
-    MapSubtlCoord stl_x, stl_y;
+    struct Dungeon* dungeon = comp->dungeon;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
         return CTaskRet_Unk4;
     }
     {
-        long stack_len;
-        stack_len = dungeon->digger_stack_length;
+        long stack_len = dungeon->digger_stack_length;
         if (stack_len <= check->param1 * dungeon->total_area / 100) {
             return CTaskRet_Unk4;
         }
-        long n;
-        n = find_in_imp_stack_starting_at(DigTsk_ImproveDungeon, ACTION_RANDOM(stack_len), dungeon);
+        long n = find_in_imp_stack_starting_at(DigTsk_ImproveDungeon, ACTION_RANDOM(stack_len), dungeon);
         if (n < 0) {
             return CTaskRet_Unk4;
         }
-        const struct DiggerStack *dstack;
-        dstack = &dungeon->digger_stack[n];
+        const struct DiggerStack* dstack = &dungeon->digger_stack[n];
         stl_x = stl_num_decode_x(dstack->stl_num);
         stl_y = stl_num_decode_y(dstack->stl_num);
     }
-    struct Thing * creatng;
-    creatng = find_imp_for_pickup(comp, stl_x, stl_y);
+    struct Thing* creatng = find_imp_for_pickup(comp, stl_x, stl_y);
     if (thing_is_invalid(creatng)) {
         return CTaskRet_Unk4;
     }
@@ -669,17 +611,14 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
 struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
 {
     static const RoomKind opponent_room_kinds[] = {RoK_DUNGHEART, RoK_PRISON, RoK_LIBRARY, RoK_TREASURE};
-    struct Dungeon *dungeon;
-    struct Room *room;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon) || (slab_conf.room_types_count < 1)) {
         return INVALID_ROOM;
     }
-    int i,n;
-    n = opponent_room_kinds[ACTION_RANDOM(sizeof(opponent_room_kinds)/sizeof(opponent_room_kinds[0]))];
-    for (i=0; i < slab_conf.room_types_count; i++)
+    int n = opponent_room_kinds[ACTION_RANDOM(sizeof(opponent_room_kinds) / sizeof(opponent_room_kinds[0]))];
+    for (int i = 0; i < slab_conf.room_types_count; i++)
     {
-        room = room_get(dungeon->room_kind[n]);
+        struct Room* room = room_get(dungeon->room_kind[n]);
         if (room_exists(room)) {
             return room;
         }
@@ -690,21 +629,18 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
 
 struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp, long min_hate)
 {
-    struct THate hates[PLAYERS_COUNT];
-    long i;
     SYNCDBG(8,"Starting for player %d",(int)comp->dungeon->owner);
+    struct THate hates[PLAYERS_COUNT];
     get_opponent(comp, hates);
     // note that 'i' is not player index, player index is inside THate struct
-    for (i=0; i < PLAYERS_COUNT; i++)
+    for (long i = 0; i < PLAYERS_COUNT; i++)
     {
-        struct THate *hate;
-        hate = &hates[i];
+        struct THate* hate = &hates[i];
         if (players_are_enemies(comp->dungeon->owner, hate->plyr_idx))
         {
             if ((hate->pos_near != NULL) && (hate->amount > min_hate))
             {
-                struct Room *room;
-                room = get_opponent_room(comp, hate->plyr_idx);
+                struct Room* room = get_opponent_room(comp, hate->plyr_idx);
                 if (!room_is_invalid(room)) {
                     return room;
                 }
@@ -722,11 +658,9 @@ struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp, long min_ha
  */
 long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    dungeon = comp->dungeon;
-    int creatrs_num;
-    creatrs_num = check->param1 * dungeon->num_active_creatrs / 100;
+    struct Dungeon* dungeon = comp->dungeon;
+    int creatrs_num = check->param1 * dungeon->num_active_creatrs / 100;
     if (check->param3 >= creatrs_num) {
         return CTaskRet_Unk4;
     }
@@ -736,8 +670,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     if ((check_call_to_arms(comp) != 1) || is_there_an_attack_task(comp)) {
         return CTaskRet_Unk4;
     }
-    struct Room *room;
-    room = get_hated_room_for_quick_attack(comp, check->param3);
+    struct Room* room = get_hated_room_for_quick_attack(comp, check->param3);
     if (room_is_invalid(room)) {
         return CTaskRet_Unk4;
     }
@@ -759,18 +692,13 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
 
 struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *comp, struct Room *room)
 {
-    struct Dungeon *dungeon;
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
-    unsigned long k;
-    long i,n;
-    dungeon = comp->dungeon;
-    i = room->creatures_list;
-    k = 0;
+    struct Dungeon* dungeon = comp->dungeon;
+    long i = room->creatures_list;
+    unsigned long k = 0;
     while (i != 0)
     {
-        thing = thing_get(i);
-        cctrl = creature_control_get_from_thing(thing);
+        struct Thing* thing = thing_get(i);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
             ERRORLOG("Jump to invalid creature %ld detected",i);
@@ -780,9 +708,8 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
         // Per creature code
         if (!thing_affected_by_spell(thing, SplK_Speed))
         {
-            n = get_creature_state_besides_move(thing);
-            struct StateInfo *stati;
-            stati = get_thing_state_info_num(n);
+            long n = get_creature_state_besides_move(thing);
+            struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
@@ -804,27 +731,22 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
 
 struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(struct Computer2 *comp, RoomKind rkind)
 {
-    struct Dungeon *dungeon;
-    struct Room *room;
-    struct Thing *thing;
-    long i;
-    unsigned long k;
     if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT))
     {
         ERRORLOG("Invalid room kind %d",(int)rkind);
         return INVALID_THING;
     }
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Invalid computer players dungeon");
         return INVALID_THING;
     }
-    i = dungeon->room_kind[rkind];
-    k = 0;
+    long i = dungeon->room_kind[rkind];
+    unsigned long k = 0;
     while (i != 0)
     {
-        room = room_get(i);
+        struct Room* room = room_get(i);
         if (room_is_invalid(room))
         {
           ERRORLOG("Jump to invalid room detected");
@@ -832,7 +754,7 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(s
         }
         i = room->next_of_owner;
         // Per-room code
-        thing = computer_check_creatures_in_room_for_accelerate(comp, room);
+        struct Thing* thing = computer_check_creatures_in_room_for_accelerate(comp, room);
         if (!thing_is_invalid(thing))
             return thing;
         // Per-room code ends
@@ -849,19 +771,17 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(s
 long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck * check)
 {
     static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
-    struct Thing *thing;
-    long i,n;
     SYNCDBG(8,"Starting");
     if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, 8, 3))
     {
         return CTaskRet_Unk4;
     }
-    n = check->param1 % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+    long n = check->param1 % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
     if (n <= 0)
         n = ACTION_RANDOM(sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
-    for (i=0; i < sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]); i++)
+    for (long i = 0; i < sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]); i++)
     {
-        thing = computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(comp, workers_in_rooms[n]);
+        struct Thing* thing = computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(comp, workers_in_rooms[n]);
         if (!thing_is_invalid(thing))
         {
             SYNCDBG(8,"Cast on thing %d",(int)thing->index);
@@ -874,14 +794,12 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
 
 long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, PwrK_SLAP)) {
         return CTaskRet_Unk4;
     }
-    long creatrs_num;
-    creatrs_num = check->param1 * dungeon->num_active_diggers / 100;
+    long creatrs_num = check->param1 * dungeon->num_active_diggers / 100;
     if (!is_task_in_progress(comp, CTT_SlapDiggers))
     {
         if (create_task_slap_imps(comp, creatrs_num)) {
@@ -894,10 +812,8 @@ long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * che
 long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    long result;
-    result = CTaskRet_Unk4;
-    PlayerNumber plyr_idx;
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    long result = CTaskRet_Unk4;
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (comp->dungeon->owner == plyr_idx) {
             continue;
@@ -905,18 +821,13 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
         if (players_are_mutual_allies(comp->dungeon->owner, plyr_idx)) {
             continue;
         }
-        struct PlayerInfo *player;
-        struct Dungeon *dungeon;
-        player = get_player(plyr_idx);
-        dungeon = get_players_dungeon(player);
-        long i;
-        unsigned long k;
-        i = dungeon->room_kind[RoK_ENTRANCE];
-        k = 0;
+        struct PlayerInfo* player = get_player(plyr_idx);
+        struct Dungeon* dungeon = get_players_dungeon(player);
+        long i = dungeon->room_kind[RoK_ENTRANCE];
+        unsigned long k = 0;
         while (i != 0)
         {
-            struct Room *room;
-            room = room_get(i);
+            struct Room* room = room_get(i);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Jump to invalid room detected");
@@ -924,24 +835,21 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             }
             i = room->next_of_owner;
             // Per-room code
-            struct OpponentRelation *oprel;
-            oprel = &comp->opponent_relations[(int)plyr_idx];
+            struct OpponentRelation* oprel = &comp->opponent_relations[(int)plyr_idx];
             long n;
             for (n = 0; n < 64; n++)
             {
-                struct Coord3d *pos;
-                pos = &oprel->pos_A[n];
+                struct Coord3d* pos = &oprel->pos_A[n];
                 if ((pos->x.val == subtile_coord(room->central_stl_x,0)) && (pos->y.val == subtile_coord(room->central_stl_y,0))) {
                     break;
                 }
             }
             if (n == 64)
             {
-                struct Coord3d *pos;
                 n = oprel->field_4;
                 oprel->field_4 = (n + 1) % 64;
                 oprel->field_0 = game.play_gameturn;
-                pos = &oprel->pos_A[n];
+                struct Coord3d* pos = &oprel->pos_A[n];
                 pos->x.val = subtile_coord(room->central_stl_x,0);
                 pos->y.val = subtile_coord(room->central_stl_y,0);
                 pos->z.val = subtile_coord(1,0);
@@ -961,17 +869,14 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
 
 TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3d *pos)
 {
-    long m,n;
-    m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
-    for (n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    long m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         // Get position containing room center
-        MapSlabCoord slb_x,slb_y;
-        slb_x = subtile_slab_fast(room->central_stl_x);
-        slb_y = subtile_slab_fast(room->central_stl_y);
+        MapSlabCoord slb_x = subtile_slab_fast(room->central_stl_x);
+        MapSlabCoord slb_y = subtile_slab_fast(room->central_stl_y);
         // Move the position to edge of the room
-        struct Room *sibroom;
-        sibroom = slab_room_get(slb_x, slb_y);
+        struct Room* sibroom = slab_room_get(slb_x, slb_y);
         while (!room_is_invalid(sibroom) && (sibroom->index == room->index))
         {
             slb_x += small_around[m].delta_x;
@@ -983,8 +888,7 @@ TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3
         int i;
         for (i = 4; i > 0; i--)
         {
-            struct SlabMap *slb;
-            slb = get_slabmap_block(slb_x, slb_y);
+            struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
             if ((slabmap_owner(slb) != room->owner) || (slb->kind != SlbT_CLAIMED)) {
                 i = 0;
                 break;
@@ -1002,13 +906,10 @@ TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3
         // Now if we were able to move, then the position seem ok. One last check - make sure the corridor is not dead end and doesn't already have a door
         if (i > 0)
         {
-            MapSlabCoord nxslb_x,nxslb_y;
-            nxslb_x = slb_x + small_around[m].delta_x;
-            nxslb_y = slb_y + small_around[m].delta_y;
-            struct SlabMap *nxslb;
-            nxslb = get_slabmap_block(nxslb_x, nxslb_y);
-            struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(nxslb);
+            MapSlabCoord nxslb_x = slb_x + small_around[m].delta_x;
+            MapSlabCoord nxslb_y = slb_y + small_around[m].delta_y;
+            struct SlabMap* nxslb = get_slabmap_block(nxslb_x, nxslb_y);
+            struct SlabAttr* slbattr = get_slab_attrs(nxslb);
             if ((slabmap_owner(nxslb) == room->owner) && ((slbattr->block_flags & SlbAtFlg_Filled) == 0))
             {
                 if (!subtile_has_door_thing_on(slab_subtile_center(nxslb_x), slab_subtile_center(nxslb_y))) {
@@ -1027,29 +928,23 @@ TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3
 long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    ThingModel doorkind;
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
-    for (doorkind = DOOR_TYPES_COUNT; doorkind > 1; doorkind--)
+    struct Dungeon* dungeon = comp->dungeon;
+    for (ThingModel doorkind = DOOR_TYPES_COUNT; doorkind > 1; doorkind--)
     {
         if (dungeon->door_amount_stored[doorkind] <= 0) {
             continue;
         }
-        long rkind;
-        rkind = check->param1;
+        long rkind = check->param1;
         if (rkind == 0)
         {
             rkind = (check->param2 + 1) % ROOM_TYPES_COUNT;
             check->param2 = rkind;
         }
-        unsigned long k;
-        k = 0;
-        long i;
-        i = dungeon->room_kind[rkind];
+        unsigned long k = 0;
+        long i = dungeon->room_kind[rkind];
         while (i != 0)
         {
-            struct Room *room;
-            room = room_get(i);
+            struct Room* room = room_get(i);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Jump to invalid room detected");
@@ -1082,35 +977,26 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
 long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    struct OpponentRelation *oprel;
-    oprel = &comp->opponent_relations[game.neutral_player_num];
-    struct Room *near_room;
-    struct Coord3d *near_pos;
-    int near_dist;
-    near_room = INVALID_ROOM;
-    near_dist = LONG_MAX;
-    near_pos = &oprel->pos_A[0];
-    int i;
-    for (i=0; i < COMPUTER_SPARK_POSITIONS_COUNT; i++)
+    struct OpponentRelation* oprel = &comp->opponent_relations[game.neutral_player_num];
+    struct Room* near_room = INVALID_ROOM;
+    int near_dist = LONG_MAX;
+    struct Coord3d* near_pos = &oprel->pos_A[0];
+    for (int i = 0; i < COMPUTER_SPARK_POSITIONS_COUNT; i++)
     {
-        struct Coord3d *place;
-        place = &oprel->pos_A[i];
+        struct Coord3d* place = &oprel->pos_A[i];
         if ((place->x.val == 0) || (place->y.val == 0)) {
             continue;
         }
-        struct Room *room;
-        room = INVALID_ROOM;
+        struct Room* room = INVALID_ROOM;
         if (computer_finds_nearest_room_to_pos(comp, &room, place))
         {
-            MapSubtlDelta dx,dy;
-            dx = abs((int)room->central_stl_x - (MapSubtlDelta)place->x.stl.num);
-            dy = abs((int)room->central_stl_y - (MapSubtlDelta)place->y.stl.num);
+            MapSubtlDelta dx = abs((int)room->central_stl_x - (MapSubtlDelta)place->x.stl.num);
+            MapSubtlDelta dy = abs((int)room->central_stl_y - (MapSubtlDelta)place->y.stl.num);
             if (near_dist > dx+dy)
             {
                 near_room = room;
@@ -1123,10 +1009,10 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
         return CTaskRet_Unk4;
     }
     struct Coord3d endpos;
-    struct Coord3d startpos;
     endpos.x.val = near_pos->x.val;
     endpos.y.val = near_pos->y.val;
     endpos.z.val = near_pos->z.val;
+    struct Coord3d startpos;
     startpos.x.val = subtile_coord_center(stl_slab_center_subtile(near_room->central_stl_x));
     startpos.y.val = subtile_coord_center(stl_slab_center_subtile(near_room->central_stl_y));
     startpos.z.val = subtile_coord(1,0);
@@ -1149,16 +1035,12 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
  */
 int count_slabs_around_of_kind(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber owner)
 {
-    unsigned long n;
-    int matched_slabs;
-    matched_slabs = 0;
-    for (n = 1; n < MID_AROUND_LENGTH; n++)
+    int matched_slabs = 0;
+    for (unsigned long n = 1; n < MID_AROUND_LENGTH; n++)
     {
-        MapSlabCoord arslb_x, arslb_y;
-        arslb_x = slb_x + mid_around[n].delta_x;
-        arslb_y = slb_y + mid_around[n].delta_y;
-        struct SlabMap *slb;
-        slb = get_slabmap_block(arslb_x, arslb_y);
+        MapSlabCoord arslb_x = slb_x + mid_around[n].delta_x;
+        MapSlabCoord arslb_y = slb_y + mid_around[n].delta_y;
+        struct SlabMap* slb = get_slabmap_block(arslb_x, arslb_y);
         if ((slb->kind == slbkind) && (slabmap_owner(slb) == owner)) {
             matched_slabs++;
         }
@@ -1179,27 +1061,21 @@ int count_slabs_around_of_kind(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind 
  */
 TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct ComputerCheck * check, struct Room *room, MapSubtlCoord max_radius, long around_start)
 {
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     if (!is_room_available(dungeon->owner, room->kind)) {
         return false;
     }
-    unsigned long i;
-    unsigned long k;
-    k = 0;
-    i = room->slabs_list;
+    unsigned long k = 0;
+    unsigned long i = room->slabs_list;
     while (i > 0)
     {
-        MapSlabCoord slb_x,slb_y;
-        struct SlabMap *slb;
-        slb = get_slabmap_direct(i);
-        slb_x = slb_num_decode_x(i);
-        slb_y = slb_num_decode_y(i);
+        struct SlabMap* slb = get_slabmap_direct(i);
+        MapSlabCoord slb_x = slb_num_decode_x(i);
+        MapSlabCoord slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
         // Per-slab code
-        int room_around, claimed_around;
-        room_around = count_slabs_around_of_kind(slb_x, slb_y, slb->kind, dungeon->owner);
-        claimed_around = 0;
+        int room_around = count_slabs_around_of_kind(slb_x, slb_y, slb->kind, dungeon->owner);
+        int claimed_around = 0;
         if (room_around < 8) {
             claimed_around = count_slabs_around_of_kind(slb_x, slb_y, SlbT_CLAIMED, dungeon->owner);
         }
@@ -1207,18 +1083,14 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
          || ((room_around >= 4) && (claimed_around >= 2) && (room_around+claimed_around >= 8)) // If we're in open space, don't expand that much
          || ((room_around >= 6) && (claimed_around >= 1))) // Allow fixing one-slab holes inside rooms
         {
-            unsigned long m,n;
-            m = around_start % SMALL_AROUND_SLAB_LENGTH;
-            for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+            unsigned long m = around_start % SMALL_AROUND_SLAB_LENGTH;
+            for (unsigned long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
             {
-                MapSlabCoord arslb_x, arslb_y;
-                arslb_x = slb_x + small_around[m].delta_x;
-                arslb_y = slb_y + small_around[m].delta_y;
-                MapSubtlCoord arstl_x, arstl_y;
-                arstl_x = slab_subtile_center(arslb_x);
-                arstl_y = slab_subtile_center(arslb_y);
-                long dist;
-                dist = abs(room->central_stl_x - arstl_x) + abs(room->central_stl_y - arstl_y);
+                MapSlabCoord arslb_x = slb_x + small_around[m].delta_x;
+                MapSlabCoord arslb_y = slb_y + small_around[m].delta_y;
+                MapSubtlCoord arstl_x = slab_subtile_center(arslb_x);
+                MapSubtlCoord arstl_y = slab_subtile_center(arslb_y);
+                long dist = abs(room->central_stl_x - arstl_x) + abs(room->central_stl_y - arstl_y);
                 if (dist <= max_radius)
                 {
                     if (can_build_room_at_slab(dungeon->owner, room->kind, arslb_x, arslb_y))
@@ -1244,28 +1116,22 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
 
 TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct ComputerCheck * check, RoomKind rkind, long max_slabs, long around_start)
 {
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     {
-        struct RoomStats *rstat;
-        rstat = room_stats_get_for_kind(rkind);
+        struct RoomStats* rstat = room_stats_get_for_kind(rkind);
         // If we don't have money for the room - don't even try
         // Check price for two slabs - after all, we don't want to end up having nothing
         if (2*rstat->cost >= dungeon->total_money_owned) {
             return false;
         }
     }
-    MapSubtlCoord max_radius;
     // Don't allow the room to be made into long, narrow shape
-    max_radius = 3 * slab_subtile(LbSqrL(max_slabs),2) / 4;
-    struct Room *room;
-    long i;
-    unsigned long k;
-    i = dungeon->room_kind[rkind];
-    k = 0;
+    MapSubtlCoord max_radius = 3 * slab_subtile(LbSqrL(max_slabs), 2) / 4;
+    long i = dungeon->room_kind[rkind];
+    unsigned long k = 0;
     while (i != 0)
     {
-        room = room_get(i);
+        struct Room* room = room_get(i);
         if (room_is_invalid(room))
         {
           ERRORLOG("Jump to invalid room detected");
@@ -1293,14 +1159,12 @@ TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct Comput
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon) || !player_has_heart(dungeon->owner)) {
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    long around_start;
-    around_start = ACTION_RANDOM(119);
+    long around_start = ACTION_RANDOM(119);
     // Don't work when placing rooms; we could place in an area for room by mistake
     if (is_task_in_progress(comp, CTT_PlaceRoom) || is_task_in_progress(comp, CTT_CheckRoomDug)) {
         SYNCDBG(8,"No rooms expansion - colliding task already in progress");
@@ -1314,8 +1178,7 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
         SYNCDBG(8,"No rooms expansion - not enough money buffer");
         return CTaskRet_Unk0;
     }
-    const struct ExpandRooms *expndroom;
-    for (expndroom = &expand_rooms[0]; expndroom->rkind != RoK_NONE; expndroom++)
+    for (const struct ExpandRooms* expndroom = &expand_rooms[0]; expndroom->rkind != RoK_NONE; expndroom++)
     {
         if (computer_check_for_expand_room_kind(comp, check, expndroom->rkind, expndroom->max_slabs, around_start)) {
             return CTaskRet_Unk1;

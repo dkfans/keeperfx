@@ -49,16 +49,15 @@ TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)
 
 struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Coord3d pos;
-    struct Thing *cratetng;
     if (!room_role_matches(room->kind, RoRoF_CratesStorage)) {
         SYNCDBG(4,"Crate %s cannot be created in a %s owned by player %d, wrong room",object_code_name(cratngmodel),room_code_name(room->kind),(int)room->owner);
         return INVALID_THING;
     }
+    struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = 0;
-    cratetng = create_object(&pos, cratngmodel, room->owner, -1);
+    struct Thing* cratetng = create_object(&pos, cratngmodel, room->owner, -1);
     if (thing_is_invalid(cratetng))
     {
         return INVALID_THING;
@@ -74,21 +73,17 @@ struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel
         destroy_object(cratetng);
         return INVALID_THING;
     }
-    ThingClass tngclass;
-    ThingModel tngmodel;
-    tngclass = crate_thing_to_workshop_item_class(cratetng);
-    tngmodel = crate_thing_to_workshop_item_model(cratetng);
+    ThingClass tngclass = crate_thing_to_workshop_item_class(cratetng);
+    ThingModel tngmodel = crate_thing_to_workshop_item_model(cratetng);
     add_workshop_item_to_amounts(cratetng->owner, tngclass, tngmodel);
     return cratetng;
 }
 
 TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
 {
-    struct Coord3d pos;
     struct Thing *cratetng;
-    struct Room *room;
-    struct Dungeon *dungeon;
     SYNCDBG(7,"Making player %d new %s",(int)plyr_idx,thing_class_code_name(tngclass));
+    struct Coord3d pos;
     pos.x.val = 0;
     pos.y.val = 0;
     pos.z.val = 0;
@@ -110,7 +105,7 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
         ERRORLOG("Could not create workshop crate thing for %s",thing_class_code_name(tngclass));
         return false;
     }
-    room = find_random_room_for_thing_with_spare_room_item_capacity(cratetng, plyr_idx, RoK_WORKSHOP, 0);
+    struct Room* room = find_random_room_for_thing_with_spare_room_item_capacity(cratetng, plyr_idx, RoK_WORKSHOP, 0);
     if (room_is_invalid(room))
     {
         ERRORLOG("No %s room found which would accept %s crate",room_code_name(RoK_WORKSHOP),thing_class_code_name(tngclass));
@@ -132,7 +127,7 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
         destroy_object(cratetng);
         return false;
     }
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     switch (tngclass)
     {
     case TCls_Trap:
@@ -171,8 +166,7 @@ TbBool remove_workshop_object_from_workshop(struct Room *room, struct Thing *cra
 
 TbBool set_manufacture_level(struct Dungeon *dungeon)
 {
-    int wrkshp_slabs;
-    wrkshp_slabs = count_slabs_of_room_type(dungeon->owner, RoK_WORKSHOP);
+    int wrkshp_slabs = count_slabs_of_room_type(dungeon->owner, RoK_WORKSHOP);
     if (wrkshp_slabs <= 3*3) {
         dungeon->manufacture_level = 0;
     } else
@@ -196,21 +190,18 @@ TbBool set_manufacture_level(struct Dungeon *dungeon)
 
 struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)
 {
-    struct Thing *thing;
-    int i,k;
-    k = 0;
-    i = game.thing_lists[TngList_Objects].index;
+    int k = 0;
+    int i = game.thing_lists[TngList_Objects].index;
     while (i > 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_invalid(thing))
             break;
         i = thing->next_of_class;
         // Per-thing code
         if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->model == objmodel) && (thing->owner == owner) )
         {
-            struct Room *room;
-            room = get_room_thing_is_on(thing);
+            struct Room* room = get_room_thing_is_on(thing);
             if (!thing_is_picked_up(thing) && room_role_matches(room->kind, RoRoF_CratesStorage) && (room->owner == owner))
                 return thing;
         }
@@ -235,8 +226,7 @@ struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)
  */
 TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon_f(plyr_idx,func_name);
+    struct Dungeon* dungeon = get_players_num_dungeon_f(plyr_idx, func_name);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't add item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
@@ -290,8 +280,7 @@ TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass
  */
 TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon_f(plyr_idx,func_name);
+    struct Dungeon* dungeon = get_players_num_dungeon_f(plyr_idx, func_name);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't add item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
@@ -341,14 +330,12 @@ TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingCla
 int remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, unsigned short flags, const char *func_name)
 {
     SYNCDBG(18,"%s: Starting",func_name);
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon_f(plyr_idx,func_name);
+    struct Dungeon* dungeon = get_players_num_dungeon_f(plyr_idx, func_name);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return WrkCrtS_None;
     }
-    long amount;
-    amount = 0;
+    long amount = 0;
     switch (tngclass)
     {
     case TCls_Trap:
@@ -406,8 +393,7 @@ int remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass 
 TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
 {
     SYNCDBG(18,"%s: Starting",func_name);
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon_f(plyr_idx,func_name);
+    struct Dungeon* dungeon = get_players_num_dungeon_f(plyr_idx, func_name);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
@@ -447,8 +433,7 @@ TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, Thing
 TbBool placing_offmap_workshop_item(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
 {
     SYNCDBG(18,"Starting");
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         // Player with no dungeon has only on-map items
         // But this shouldn't really happen
@@ -478,8 +463,7 @@ TbBool placing_offmap_workshop_item(PlayerNumber plyr_idx, ThingClass tngclass, 
 
 TbBool check_workshop_item_limit_reached(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
         return true;
     switch (tngclass)
@@ -494,14 +478,12 @@ TbBool check_workshop_item_limit_reached(PlayerNumber plyr_idx, ThingClass tngcl
 
 TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmodel)
 {
-    struct Thing *cratetng;
-    struct Room *room;
-    cratetng = get_workshop_box_thing(owner, objmodel);
+    struct Thing* cratetng = get_workshop_box_thing(owner, objmodel);
     if (thing_is_invalid(cratetng)) {
         WARNLOG("Crate %s could not be found",object_code_name(objmodel));
         return false;
     }
-    room = get_room_thing_is_on(cratetng);
+    struct Room* room = get_room_thing_is_on(cratetng);
     if (room_exists(room)) {
         remove_workshop_object_from_workshop(room,cratetng);
     } else {
@@ -522,14 +504,13 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
  */
 long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind)
 {
-    int chosen_class,chosen_kind,chosen_amount,chosen_level;
     struct ManfctrConfig *mconf;
     int tngmodel;
     long amount;
-    chosen_class = TCls_Empty;
-    chosen_kind = 0;
-    chosen_amount = LONG_MAX;
-    chosen_level = LONG_MAX;
+    int chosen_class = TCls_Empty;
+    int chosen_kind = 0;
+    int chosen_amount = LONG_MAX;
+    int chosen_level = LONG_MAX;
     // Try getting door kind for manufacture
     for (tngmodel = 1; tngmodel < DOOR_TYPES_COUNT; tngmodel++)
     {
@@ -576,11 +557,10 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
 
 TbBool get_next_manufacture(struct Dungeon *dungeon)
 {
-    int chosen_class,chosen_kind,chosen_amount;
     set_manufacture_level(dungeon);
-    chosen_class = TCls_Empty;
-    chosen_kind = 0;
-    chosen_amount = get_doable_manufacture_with_minimal_amount_available(dungeon, &chosen_class, &chosen_kind);
+    int chosen_class = TCls_Empty;
+    int chosen_kind = 0;
+    int chosen_amount = get_doable_manufacture_with_minimal_amount_available(dungeon, &chosen_class, &chosen_kind);
     if (chosen_amount >= MANUFACTURED_ITEMS_LIMIT)
     {
         if (chosen_amount == LONG_MAX) {
@@ -620,12 +600,9 @@ long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, cons
 
 short process_player_manufacturing(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    struct Room *room;
-    int k;
     SYNCDBG(7,"Starting for player %d",(int)plyr_idx);
 
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (!player_has_room_of_role(plyr_idx, RoRoF_CratesManufctr))
     {
         return true;
@@ -635,12 +612,12 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
         get_next_manufacture(dungeon);
         return true;
     }
-    k = manufacture_points_required(dungeon->manufacture_class, dungeon->manufacture_kind);
+    int k = manufacture_points_required(dungeon->manufacture_class, dungeon->manufacture_kind);
     // If we don't have enough manufacture points, don't do anything
     if (dungeon->manufacture_progress < (k << 8))
         return true;
     // Try to do the manufacturing
-    room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_WORKSHOP);
+    struct Room* room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_WORKSHOP);
     if (room_is_invalid(room))
     {
         dungeon->manufacture_class = TCls_Empty;

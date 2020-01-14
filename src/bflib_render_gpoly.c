@@ -372,7 +372,6 @@ void draw_gpoly_sub14();
 
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
-    long exceeds_window;
     //_DK_vec_mode = vec_mode; _DK_vec_colour = vec_colour;
     //_DK_draw_gpoly(point_a, point_b, point_c); return;
     LOC_poly_screen = poly_screen;
@@ -383,43 +382,33 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     LOC_vec_window_height = vec_window_height;
     gpoly_mode = gpoly_pro_enable_mode_ofs + vec_mode;
     { // Check for outranged poly size
-        int len_bc_x;
-        int len_bc_y;
-        int len_ba_x;
-        int len_ca_y;
-        int len_ca_x;
-        int len_ba_y;
         // test lengths
-        len_bc_x = point_b->field_0 - point_c->field_0;
+        int len_bc_x = point_b->field_0 - point_c->field_0;
         if ((len_bc_x < -16383) || (len_bc_x > 16383))
             return;
-        len_bc_y = point_b->field_4 - point_c->field_4;
+        int len_bc_y = point_b->field_4 - point_c->field_4;
         if ((len_bc_y < -16383) || (len_bc_y > 16383))
             return;
-        len_ba_x = point_b->field_0 - point_a->field_0;
+        int len_ba_x = point_b->field_0 - point_a->field_0;
         if ((len_ba_x < -16383) || (len_ba_x > 16383))
             return;
-        len_ca_y = point_c->field_4 - point_a->field_4;
+        int len_ca_y = point_c->field_4 - point_a->field_4;
         if ((len_ca_y < -16383) || (len_ca_y > 16383))
             return;
-        len_ca_x = point_c->field_0 - point_a->field_0;
+        int len_ca_x = point_c->field_0 - point_a->field_0;
         if ((len_ca_x < -16383) || (len_ca_x > 16383))
             return;
-        len_ba_y = point_b->field_4 - point_a->field_4;
+        int len_ba_y = point_b->field_4 - point_a->field_4;
         if ((len_ba_y < -16383) || (len_ba_y > 16383))
             return;
         // test area
         if ((len_ca_x * len_ba_y) - (len_ba_x * len_ca_y) >= 0)
             return;
     }
-    exceeds_window = ((point_a->field_0 | point_b->field_0 | point_c->field_0) < 0)
-        || (point_a->field_0 > vec_window_width)
-        || (point_b->field_0 > vec_window_width)
-        || (point_c->field_0 > vec_window_width);
+    long exceeds_window = ((point_a->field_0 | point_b->field_0 | point_c->field_0) < 0) || (point_a->field_0 > vec_window_width) || (point_b->field_0 > vec_window_width) || (point_c->field_0 > vec_window_width);
     { // Reorder points
-        int min_y;
-        struct PolyPoint *point_tmp;
-        min_y = point_a->field_4;
+        int min_y = point_a->field_4;
+        struct PolyPoint* point_tmp;
         if (min_y > point_b->field_4)
         {
             min_y = point_b->field_4;
@@ -444,9 +433,8 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     if (point_a->field_4 == point_c->field_4)
         return;
     {
-        long len_x,len_y;
-        len_y = point_c->field_4 - point_a->field_4;
-        len_x = point_c->field_0 - point_a->field_0;
+        long len_y = point_c->field_4 - point_a->field_4;
+        long len_x = point_c->field_0 - point_a->field_0;
         if (len_y != 0)
         {
             if ((len_y < 0) || (len_y > 31) || (len_x < -32) || (len_x > 31))
@@ -707,13 +695,12 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
 
 static void unk_update_gpoly1_tri8a(long * vout0, long * vout1, long vinp2, long vin0, long delta)
 {
-    long tmp1, tmp2, tmp3;
-    tmp1 = (vin0 << 16);
-    tmp2 = (vin0 >> 16);
+    long tmp1 = (vin0 << 16);
+    long tmp2 = (vin0 >> 16);
     tmp1 += (unsigned char)(vinp2);
     if ( (char)(vinp2) < 0 )
     {
-        tmp3 = (unsigned int)tmp1 < delta;
+        long tmp3 = (unsigned int)tmp1 < delta;
         tmp1 -= delta;
         tmp2 = (tmp2 & ~0xff) | ((tmp2 - tmp3) & 0xff);
     }
@@ -723,13 +710,12 @@ static void unk_update_gpoly1_tri8a(long * vout0, long * vout1, long vinp2, long
 
 static void unk_update_gpoly1_tri16a(long * vout0, long * vout1, long vinp2, long vin0, long delta)
 {
-    long tmp1, tmp2, tmp3;
-    tmp1 = (vin0 << 16);
-    tmp2 = (vin0 >> 16);
+    long tmp1 = (vin0 << 16);
+    long tmp2 = (vin0 >> 16);
     tmp1 += (unsigned short)(vinp2);
     if ( (short)(vinp2) < 0 )
     {
-        tmp3 = (unsigned int)tmp1 < delta;
+        long tmp3 = (unsigned int)tmp1 < delta;
         tmp1 -= delta;
         tmp2 = (tmp2 & ~0xff) | ((tmp2 - tmp3) & 0xff);
     }
@@ -739,9 +725,8 @@ static void unk_update_gpoly1_tri16a(long * vout0, long * vout1, long vinp2, lon
 
 static void unk_update_gpoly1_tri8b(long * vout0, long * vout1, long * vout2, long vin0, long vin1)
 {
-    long tmp1;
     *vout2 = (vin1 << 16);
-    tmp1 = (vin0 << 16);
+    long tmp1 = (vin0 << 16);
     tmp1 += ((unsigned int)vin1 >> 16) & 0xff;
     *vout1 = tmp1;
     *vout0 = (unsigned int)(vin0 << 8) >> 24 << 8;
@@ -749,8 +734,7 @@ static void unk_update_gpoly1_tri8b(long * vout0, long * vout1, long * vout2, lo
 
 static void unk_update_gpoly1_tri16b(long * vout0, long * vout1, long * vout2, long vin0, long vin1, long vin2)
 {
-    long tmp1;
-    tmp1 = (vin1 << 16);
+    long tmp1 = (vin1 << 16);
     tmp1 += ((unsigned int)vin2 >> 8) & 0xffff;
     *vout2 = tmp1;
     tmp1 = (vin0 << 16);

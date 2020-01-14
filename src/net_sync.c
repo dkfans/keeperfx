@@ -62,25 +62,20 @@ struct Boing boing;
 /******************************************************************************/
 long get_resync_sender(void)
 {
-  struct PlayerInfo *player;
-  int i;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-      return i;
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+            return i;
   }
   return -1;
 }
 
 TbBool send_resync_game(void)
 {
-  TbFileHandle fh;
-  char *fname;
-
   //TODO NET see if it is necessary to dump to file... probably superfluous
-  fname = prepare_file_path(FGrp_Save,"resync.dat");
-  fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
+  char* fname = prepare_file_path(FGrp_Save, "resync.dat");
+  TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
   if (fh == -1)
   {
     ERRORLOG("Can't open resync file.");
@@ -146,14 +141,12 @@ void recall_localised_game_structure(void)
 
 void resync_game(void)
 {
-    struct PlayerInfo *player;
-    int i;
     SYNCDBG(2,"Starting");
-    player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
     reset_eye_lenses();
     store_localised_game_structure();
-    i = get_resync_sender();
+    int i = get_resync_sender();
     if (is_my_player_number(i))
     {
         send_resync_game();
@@ -173,22 +166,17 @@ void resync_game(void)
  */
 short perform_checksum_verification(void)
 {
-    struct Packet *pckt;
-    struct Thing *thing;
-    unsigned long checksum_mem;
-    short result;
-    int i;
-    result = true;
-    checksum_mem = 0;
-    for (i=1; i<THINGS_COUNT; i++)
+    short result = true;
+    unsigned long checksum_mem = 0;
+    for (int i = 1; i < THINGS_COUNT; i++)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_exists(thing)) {
             checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
         }
     }
     clear_packets();
-    pckt = get_packet(my_player_number);
+    struct Packet* pckt = get_packet(my_player_number);
     set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
     pckt->chksum = checksum_mem + game.action_rand_seed;
     if (LbNetwork_Exchange(pckt))

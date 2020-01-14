@@ -42,16 +42,13 @@
 /******************************************************************************/
 struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)
 {
-    struct MagicStats *pwrdynst;
-    struct Dungeon *dungeon;
-    struct Thing *thing;
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
         ERRORDBG(3,"Cannot create cave in %d for player %d. There are too many things allocated.",(int)cimodel,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate cave in %d for player %d, but failed.",(int)cimodel,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -63,7 +60,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
-    pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
+    struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
     thing->word_15 = pwrdynst->time;
     thing->byte_13 = pos->x.stl.num;
     thing->byte_14 = pos->y.stl.num;
@@ -71,7 +68,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     thing->health = pwrdynst->time;
     if (owner != game.neutral_player_num)
     {
-        dungeon = get_dungeon(owner);
+        struct Dungeon* dungeon = get_dungeon(owner);
         dungeon->camera_deviate_quake = thing->word_15;
     }
     add_thing_to_its_class_list(thing);
@@ -81,8 +78,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
 
 struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short tngmodel, unsigned short owner, long parent_idx)
 {
-    struct Thing *thing;
-    thing = INVALID_THING;
+    struct Thing* thing = INVALID_THING;
     switch (tngclass)
     {
     case TCls_Object:
@@ -121,7 +117,6 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigne
 
 short thing_create_thing(struct InitThing *itng)
 {
-    struct Thing *thing;
     if (itng->owner == 7)
     {
         ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.hero_player_num);
@@ -137,6 +132,7 @@ short thing_create_thing(struct InitThing *itng)
         ERRORLOG("Invalid owning player %d, thing discarded", (int)itng->owner);
         return false;
     }
+    struct Thing* thing;
     switch (itng->oclass)
     {
     case TCls_Object:

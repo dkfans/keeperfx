@@ -52,17 +52,14 @@ struct RegionT bad_region;
  */
 static unsigned long region_alloc(void)
 {
-    struct RegionT * rgn;
-    long reg_id,sreg_id;
     long i;
-    int min_f0;
 
     NAVIDBG(19,"Starting");
-    reg_id = -1;
-    min_f0 = 2147483647;
+    long reg_id = -1;
+    int min_f0 = 2147483647;
     for (i=1; i < REGIONS_COUNT; i++)
     {
-        rgn = &Regions[i];
+        struct RegionT* rgn = &Regions[i];
         if (min_f0 > rgn->num_triangles)
         {
             if (rgn->num_triangles == 0) {
@@ -81,7 +78,7 @@ static unsigned long region_alloc(void)
     NAVIDBG(19,"removing triangles from region %ld",reg_id);
     for (i=0; i < ix_Triangles; i++)
     {
-        sreg_id = get_triangle_region_id(i);
+        long sreg_id = get_triangle_region_id(i);
         if (sreg_id >= REGIONS_COUNT)
         {
             ERRORLOG("triangle %ld in outranged region", (long)i);
@@ -105,27 +102,24 @@ static unsigned long region_alloc(void)
 
 void region_lnk(int nreg)
 {
-  int ncor;
-  for (ncor=0; ncor < 3; ncor++)
-  {
-      TbBool notfound;
-      int ctri_id;
-      int ccor_id;
-      ctri_id = nreg;
-      ccor_id = ncor;
-      unsigned long k;
-      k = 0;
-      while ( 1 )
-      {
-          int ntri_id;
-          if ((Triangles[ctri_id].tree_alt & 0xF) == 15) {
-            notfound = 1;
-            break;
-          }
-          ntri_id = Triangles[ctri_id].tags[ccor_id];
-          if (ntri_id == -1) {
-              notfound = 1;
-              break;
+    for (int ncor = 0; ncor < 3; ncor++)
+    {
+        int ctri_id = nreg;
+        int ccor_id = ncor;
+        unsigned long k = 0;
+        TbBool notfound;
+        while (1)
+        {
+            if ((Triangles[ctri_id].tree_alt & 0xF) == 15)
+            {
+                notfound = 1;
+                break;
+            }
+            int ntri_id = Triangles[ctri_id].tags[ccor_id];
+            if (ntri_id == -1)
+            {
+                notfound = 1;
+                break;
             }
           ccor_id = link_find(ntri_id, ctri_id);
           if (ccor_id < 0) {
@@ -153,9 +147,8 @@ void region_lnk(int nreg)
       ccor_id = ncor;
       while ( 1 )
       {
-          int ntri_id;
           set_triangle_edgelen(ctri_id, get_triangle_edgelen(ctri_id) | (3 << 2 * ccor_id));
-          ntri_id = Triangles[ctri_id].tags[ccor_id];
+          int ntri_id = Triangles[ctri_id].tags[ccor_id];
           if (ntri_id == -1)
               break;
           ccor_id = link_find(ntri_id, ctri_id);
@@ -172,8 +165,7 @@ void region_lnk(int nreg)
 static void region_connect(unsigned long tree_reg)
 {
     //_DK_region_connect(tree_reg); return;
-    long nreg_id;
-    nreg_id = region_alloc();
+    long nreg_id = region_alloc();
     Regions[nreg_id].field_2 = 1;
     region_store_init();
     region_set(tree_reg, nreg_id);
@@ -181,21 +173,17 @@ static void region_connect(unsigned long tree_reg)
     region_lnk(tree_reg);
     while ( 1 )
     {
-        long creg_id;
-        creg_id = region_get();
+        long creg_id = region_get();
         if (creg_id == -1)
           break;
-        unsigned int ncor1;
-        for (ncor1=0; ncor1 < 3; ncor1++)
+        for (unsigned int ncor1 = 0; ncor1 < 3; ncor1++)
         {
-            int ntri_id;
-            ntri_id = Triangles[creg_id].tags[ncor1];
+            int ntri_id = Triangles[creg_id].tags[ncor1];
             if (ntri_id != -1)
             {
               if ((Triangles[ntri_id].tree_alt & 0xF) != 15)
               {
-                  long preg_id;
-                  preg_id = get_triangle_region_id(ntri_id);
+                  long preg_id = get_triangle_region_id(ntri_id);
                   if (preg_id != nreg_id)
                   {
                       region_lnk(creg_id);
@@ -229,8 +217,6 @@ struct RegionT *get_region(long reg_id)
  */
 TbBool regions_connected(long tree_reg1, long tree_reg2)
 {
-    long reg_id1,reg_id2;
-    unsigned long intersect;
     //return _DK_regions_connected(tree_reg1, tree_reg2);
     if ((tree_reg1 < 0) || (tree_reg1 >= TRIANLGLES_COUNT))
         return false;
@@ -239,15 +225,15 @@ TbBool regions_connected(long tree_reg1, long tree_reg2)
     if (((get_triangle_tree_alt(tree_reg1) & 0x0F) == 0x0F)
     ||  ((get_triangle_tree_alt(tree_reg2) & 0x0F) == 0x0F))
         return false;
-    reg_id1 = get_triangle_region_id(tree_reg1);
-    reg_id2 = get_triangle_region_id(tree_reg2);
+    long reg_id1 = get_triangle_region_id(tree_reg1);
+    long reg_id2 = get_triangle_region_id(tree_reg2);
     if (Regions[reg_id1].field_2 == 1)
         return (reg_id2 == reg_id1);
     if (Regions[reg_id2].field_2 == 1)
         return (reg_id2 == reg_id1);
     region_connect(tree_reg1);
     // Fast version of comparing region id values
-    intersect = (Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E);
+    unsigned long intersect = (Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E);
     return ((intersect & 0xFFC0) == 0);
 }
 
@@ -260,8 +246,7 @@ void region_store_init(void)
 
 long region_get(void)
 {
-    long qget;
-    qget = ix_RegionQget;
+    long qget = ix_RegionQget;
     count_RegionQ--;
     long regn;
     if (ix_RegionQget != ix_RegionQput)
@@ -280,8 +265,7 @@ long region_get(void)
 
 void region_put(long nreg)
 {
-    long qpos;
-    qpos = ix_RegionQput;
+    long qpos = ix_RegionQput;
     ix_RegionQput++;
     if (ix_RegionQput >= REGION_QUEUE_LEN) {
         ix_RegionQput = 0;
@@ -298,14 +282,13 @@ void region_put(long nreg)
 
 void region_set_f(long ntri, unsigned long nreg, const char *func_name)
 {
-    unsigned long oreg;
     if ((ntri < 0) || (ntri >= TRIANLGLES_COUNT) || (nreg >= REGIONS_COUNT))
     {
         ERRORMSG("%s: can't set triangle %ld region %lu",func_name,ntri,nreg);
         return;
     }
     // Get old region
-    oreg = get_triangle_region_id(ntri);
+    unsigned long oreg = get_triangle_region_id(ntri);
     // If the region changed
     if (oreg != nreg)
     {
@@ -331,8 +314,7 @@ void region_unset_f(long ntri, unsigned long nreg, const char *func_name)
 
 void region_unlock(long ntri)
 {
-    unsigned long oreg;
-    oreg = get_triangle_region_id(ntri);
+    unsigned long oreg = get_triangle_region_id(ntri);
     if (oreg < REGIONS_COUNT)
     {
         Regions[oreg].field_2 = 0;

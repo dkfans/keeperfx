@@ -78,8 +78,7 @@ AridPointId point_new(void)
 
 void point_dispose(AridPointId pt_id)
 {
-    AridPointId last_pt_id;
-    last_pt_id = free_Points;
+    AridPointId last_pt_id = free_Points;
     Points[pt_id].y = 0x8000;
     free_Points = pt_id;
     Points[pt_id].x = last_pt_id;
@@ -113,11 +112,10 @@ TbBool point_is_invalid(const struct Point *pt)
 
 TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y)
 {
-    long tip_x,tip_y;
     if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
         return false;
-    tip_x = Points[pt_idx].x;
-    tip_y = Points[pt_idx].y;
+    long tip_x = Points[pt_idx].x;
+    long tip_y = Points[pt_idx].y;
     if ((tip_x != pt_x) || (tip_y != pt_y))
         return false;
     return true;
@@ -125,15 +123,13 @@ TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y)
 
 AridPointId allocated_point_search(long pt_x, long pt_y)
 {
-    AridPointId pt_idx;
     if (pt_y == 0x8000) {
         return -1;
     }
-    for (pt_idx=0; pt_idx < POINTS_COUNT; pt_idx++)
+    for (AridPointId pt_idx = 0; pt_idx < POINTS_COUNT; pt_idx++)
     {
-        long tip_x,tip_y;
-        tip_x = Points[pt_idx].x;
-        tip_y = Points[pt_idx].y;
+        long tip_x = Points[pt_idx].x;
+        long tip_y = Points[pt_idx].y;
         if ((tip_x == pt_x) && (tip_y == pt_y)) {
             return pt_idx;
         }
@@ -143,8 +139,7 @@ AridPointId allocated_point_search(long pt_x, long pt_y)
 
 AridPointId point_set_new_or_reuse(long pt_x, long pt_y)
 {
-    AridPointId pt_idx;
-    pt_idx = allocated_point_search(pt_x, pt_y);
+    AridPointId pt_idx = allocated_point_search(pt_x, pt_y);
     if (pt_idx >= 0) {
         return pt_idx;
     }
@@ -158,11 +153,9 @@ AridPointId point_set_new_or_reuse(long pt_x, long pt_y)
 
 void triangulation_initxy_points(long startx, long starty, long endx, long endy)
 {
-    long i;
-    for (i=0; i < POINTS_COUNT; i++)
+    for (long i = 0; i < POINTS_COUNT; i++)
     {
-        struct Point *pt;
-        pt = &Points[i];
+        struct Point* pt = &Points[i];
         pt->y = 0x8000;
     }
     Points[0].x = startx;

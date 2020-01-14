@@ -358,7 +358,8 @@ struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
 TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx)
 {
   struct Dungeon *dungeon;
-  long i, num_in_hand;
+  long i;
+  long num_in_hand;
   dungeon = get_dungeon(plyr_idx);
   num_in_hand = dungeon->num_things_in_hand;
   if (num_in_hand > MAX_THINGS_IN_HAND)
@@ -386,7 +387,8 @@ TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx)
 TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-    long i, num_in_hand;
+    long i;
+    long num_in_hand;
     dungeon = get_dungeon(plyr_idx);
     num_in_hand = dungeon->num_things_in_hand;
     if (num_in_hand > MAX_THINGS_IN_HAND)
@@ -512,7 +514,8 @@ void draw_power_hand(void)
     if (((game.operation_flags & GOF_ShowGui) != 0) && (game.small_map_state != 2)
       && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
-        MapSubtlCoord stl_x,stl_y;
+        MapSubtlCoord stl_x;
+        MapSubtlCoord stl_y;
         stl_x = game.hand_over_subtile_x;
         stl_y = game.hand_over_subtile_y;
         SYNCDBG(7,"Drawing over pannel map");
@@ -574,7 +577,8 @@ void draw_power_hand(void)
         }
       }
     }
-    long inputpos_x,inputpos_y;
+    long inputpos_x;
+    long inputpos_y;
     picktng = get_first_thing_in_power_hand(player);
     if ((!thing_is_invalid(picktng)) && ((picktng->field_4F & TF4F_Unknown01) == 0))
     {
@@ -686,7 +690,8 @@ TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
 
 long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    long dist_x,dist_y;
+    long dist_x;
+    long dist_y;
     if (!thing_is_picked_up(thing)
         && (thing->active_state != CrSt_CreatureUnconscious))
     {
@@ -1065,13 +1070,15 @@ void draw_mini_things_in_hand(long x, long y)
         i = gui_panel_sprites[spr_idx].SWidth - button_sprite[184].SWidth;
     else
         i = 0;
-    long scrbase_x, scrbase_y;
+    long scrbase_x;
+    long scrbase_y;
     scrbase_x = x;
     scrbase_y = y - 58*units_per_pixel/16;
     expshift_x = (abs(i)*units_per_pixel/16) / 2;
     for (i = dungeon->num_things_in_hand-1; i >= 0; i--)
     {
-        int icol, irow;
+        int icol;
+        int irow;
         icol = i % 4;
         irow = (i / 4);
         struct Thing *thing;
@@ -1079,7 +1086,8 @@ void draw_mini_things_in_hand(long x, long y)
         if (!thing_exists(thing)) {
             continue;
         }
-        int scrpos_x, scrpos_y;
+        int scrpos_x;
+        int scrpos_y;
         int shift_y;
         if (thing->class_id == TCls_Creature)
         {

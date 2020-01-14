@@ -61,21 +61,17 @@ long level_file_version = 0;
  */
 unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,long *ldsize,unsigned short flags)
 {
-  unsigned char *buf;
-  char *fname;
-  long fsize;
-  short fgroup;
-  fgroup = get_level_fgroup(lvnum);
-  fname = prepare_file_fmtpath(fgroup,"map%05lu.%s",lvnum,fext);
+  short fgroup = get_level_fgroup(lvnum);
+  char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", lvnum, fext);
   wait_for_cd_to_be_available();
-  fsize = LbFileLengthRnc(fname);
+  long fsize = LbFileLengthRnc(fname);
   if (fsize < *ldsize)
   {
-    if ((flags & LMFF_Optional) == 0)
-      WARNMSG("Map file \"map%05lu.%s\" doesn't exist or is too small.",lvnum,fext);
-    else
-      SYNCMSG("Optional file \"map%05lu.%s\" doesn't exist or is too small.",lvnum,fext);
-    return NULL;
+      if ((flags & LMFF_Optional) == 0)
+          WARNMSG("Map file \"map%05lu.%s\" doesn't exist or is too small.", lvnum, fext);
+      else
+          SYNCMSG("Optional file \"map%05lu.%s\" doesn't exist or is too small.", lvnum, fext);
+      return NULL;
   }
   if (fsize > ANY_MAP_FILE_MAX_SIZE)
   {
@@ -85,7 +81,7 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
       SYNCMSG("Optional file \"map%05lu.%s\" exceeds max size of %d; not loading.",lvnum,fext,ANY_MAP_FILE_MAX_SIZE);
     return NULL;
   }
-  buf = LbMemoryAlloc(fsize+16);
+  unsigned char* buf = LbMemoryAlloc(fsize + 16);
   if (buf == NULL)
   {
     if ((flags & LMFF_Optional) == 0)
@@ -111,11 +107,10 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
 
 long get_level_number_from_file_name(char *fname)
 {
-  long lvnum;
   if (strnicmp(fname,"map",3) != 0)
     return SINGLEPLAYER_NOTSTARTED;
   // Get level number
-  lvnum = strtol(&fname[3],NULL,10);
+  long lvnum = strtol(&fname[3], NULL, 10);
   if (lvnum <= 0)
     return SINGLEPLAYER_NOTSTARTED;
   return lvnum;
@@ -127,12 +122,9 @@ long get_level_number_from_file_name(char *fname)
  */
 long level_lif_entry_parse(char *fname, char *buf)
 {
-  long lvnum;
-  char *cbuf;
-  long i;
   if (buf[0] == '\0')
     return 0;
-  i = 0;
+  long i = 0;
   // Skip spaces and control chars
   while (buf[i] != '\0')
   {
@@ -141,7 +133,8 @@ long level_lif_entry_parse(char *fname, char *buf)
     i++;
   }
   // Get level number
-  lvnum = strtol(&buf[i],&cbuf,0);
+  char* cbuf;
+  long lvnum = strtol(&buf[i], &cbuf, 0);
   // If can't read number, return
   if (cbuf == &buf[i])
   {
@@ -203,13 +196,11 @@ long level_lif_entry_parse(char *fname, char *buf)
  */
 short level_lif_file_parse(char *fname, char *buf, long buflen)
 {
-  short result;
-  long i;
-  long pos;
   if (buf == NULL)
     return false;
-  result = false;
-  pos = 0;
+  short result = false;
+  long pos = 0;
+  long i;
   do
   {
     i = level_lif_entry_parse(fname, &buf[pos]);
@@ -229,25 +220,20 @@ short level_lif_file_parse(char *fname, char *buf, long buflen)
  */
 TbBool find_and_load_lif_files(void)
 {
-  struct TbFileFind fileinfo;
-  unsigned char *buf;
-  char *fname;
-  short result;
-  int rc;
-  long i;
-  buf = LbMemoryAlloc(MAX_LIF_SIZE);
-  if (buf == NULL)
-  {
-    ERRORLOG("Can't allocate memory for .LIF files parsing.");
-    return false;
+    unsigned char* buf = LbMemoryAlloc(MAX_LIF_SIZE);
+    if (buf == NULL)
+    {
+        ERRORLOG("Can't allocate memory for .LIF files parsing.");
+        return false;
   }
-  result = false;
-  fname = prepare_file_path(FGrp_VarLevels,"*.lif");
-  rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
+  short result = false;
+  char* fname = prepare_file_path(FGrp_VarLevels, "*.lif");
+  struct TbFileFind fileinfo;
+  int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
   while (rc != -1)
   {
     fname = prepare_file_path(FGrp_VarLevels,fileinfo.Filename);
-    i = LbFileLength(fname);
+    long i = LbFileLength(fname);
     if ((i < 0) || (i >= MAX_LIF_SIZE))
     {
       WARNMSG("File \"%s\" too long (Max size %d)", fileinfo.Filename, MAX_LIF_SIZE);
@@ -279,7 +265,8 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
     char word_buf[32];
     long lvnum;
     int cmd_num;
-    int k,n;
+    int k;
+    int n;
     SYNCDBG(8,"Starting for \"%s\"",fname);
     if (buf == NULL)
         return false;
@@ -522,26 +509,21 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
  */
 TbBool find_and_load_lof_files(void)
 {
-    struct TbFileFind fileinfo;
-    unsigned char *buf;
-    char *fname;
-    short result;
-    int rc;
-    long i;
     SYNCDBG(16,"Starting");
-    buf = LbMemoryAlloc(MAX_LIF_SIZE);
+    unsigned char* buf = LbMemoryAlloc(MAX_LIF_SIZE);
     if (buf == NULL)
     {
       ERRORLOG("Can't allocate memory for .LOF files parsing.");
       return false;
     }
-    result = false;
-    fname = prepare_file_path(FGrp_VarLevels,"*.lof");
-    rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
+    short result = false;
+    char* fname = prepare_file_path(FGrp_VarLevels, "*.lof");
+    struct TbFileFind fileinfo;
+    int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
     while (rc != -1)
     {
         fname = prepare_file_path(FGrp_VarLevels,fileinfo.Filename);
-        i = LbFileLength(fname);
+        long i = LbFileLength(fname);
         if ((i < 0) || (i >= MAX_LIF_SIZE))
         {
           WARNMSG("File '%s' too long (Max size %d)", fileinfo.Filename, MAX_LIF_SIZE);
@@ -571,24 +553,18 @@ long convert_old_column_file(LevelNumber lv_num)
 
 TbBool load_column_file(LevelNumber lv_num)
 {
-    unsigned long i;
-    long k;
-    unsigned short n;
-    long total;
-    unsigned char *buf;
-    long fsize;
     if ((game.operation_flags & GOF_ColumnConvert) != 0)
     {
         convert_old_column_file(lv_num);
         game.operation_flags &= ~GOF_ColumnConvert;
     }
-    fsize = 8;
-    buf = load_single_map_file_to_buffer(lv_num,"clm",&fsize,LMFF_None);
+    long fsize = 8;
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "clm", &fsize, LMFF_None);
     if (buf == NULL)
       return false;
     clear_columns();
-    i = 0;
-    total = llong(&buf[i]);
+    unsigned long i = 0;
+    long total = llong(&buf[i]);
     i += 4;
     // Validate total amount of columns
     if ((total < 0) || (total > (fsize-8)/sizeof(struct Column)))
@@ -609,13 +585,12 @@ TbBool load_column_file(LevelNumber lv_num)
     }
     i += 4;
     // Fill the columns
-    for (k=0; k < total; k++)
+    for (long k = 0; k < total; k++)
     {
-        struct Column *colmn;
-        colmn = &game.columns_data[k];
+        struct Column* colmn = &game.columns_data[k];
         LbMemoryCopy(colmn, &buf[i], sizeof(struct Column));
         //Update top cube in the column
-        n = find_column_height(colmn);
+        unsigned short n = find_column_height(colmn);
         set_column_floor_filled_subtiles(colmn, n);
         i += sizeof(struct Column);
     }
@@ -626,24 +601,20 @@ TbBool load_column_file(LevelNumber lv_num)
 TbBool load_map_data_file(LevelNumber lv_num)
 {
     struct Map *mapblk;
-    unsigned long x,y;
-    unsigned char *buf;
-    unsigned long i;
-    unsigned long n;
-    unsigned short *wptr;
-    long fsize;
+    unsigned long x;
+    unsigned long y;
     clear_map();
-    fsize = 2*(map_subtiles_y+1)*(map_subtiles_x+1);
-    buf = load_single_map_file_to_buffer(lv_num,"dat",&fsize,LMFF_None);
+    long fsize = 2 * (map_subtiles_y + 1) * (map_subtiles_x + 1);
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "dat", &fsize, LMFF_None);
     if (buf == NULL)
         return false;
-    i = 0;
+    unsigned long i = 0;
     for (y=0; y < (map_subtiles_y+1); y++)
     {
         for (x=0; x < (map_subtiles_x+1); x++)
         {
             mapblk = get_map_block_at(x,y);
-            n = -lword(&buf[i]);
+            unsigned long n = -lword(&buf[i]);
             mapblk->data ^= (mapblk->data ^ n) & 0x7FF;
             i += 2;
         }
@@ -655,7 +626,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
         for (x=0; x < (map_subtiles_x+1); x++)
         {
             mapblk = get_map_block_at(x,y);
-            wptr = &game.lish.subtile_lightness[get_subtile_number(x,y)];
+            unsigned short* wptr = &game.lish.subtile_lightness[get_subtile_number(x, y)];
             *wptr = 32;
             mapblk->data &= 0xFFC007FFu;
             mapblk->data &= ~0x0F000000;
@@ -667,19 +638,13 @@ TbBool load_map_data_file(LevelNumber lv_num)
 
 TbBool load_thing_file(LevelNumber lv_num)
 {
-    struct InitThing itng;
-    unsigned long i;
-    long k;
-    long total;
-    unsigned char *buf;
-    long fsize;
     SYNCDBG(5,"Starting");
-    fsize = 2;
-    buf = load_single_map_file_to_buffer(lv_num,"tng",&fsize,LMFF_None);
+    long fsize = 2;
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "tng", &fsize, LMFF_None);
     if (buf == NULL)
       return false;
-    i = 0;
-    total = lword(&buf[i]);
+    unsigned long i = 0;
+    long total = lword(&buf[i]);
     i += 2;
     // Validate total amount of things
     if ((total < 0) || (total > (fsize-2)/sizeof(struct InitThing)))
@@ -693,8 +658,9 @@ TbBool load_thing_file(LevelNumber lv_num)
         total = THINGS_COUNT-2;
     }
     // Create things
-    for (k=0; k < total; k++)
+    for (long k = 0; k < total; k++)
     {
+        struct InitThing itng;
         LbMemoryCopy(&itng, &buf[i], sizeof(struct InitThing));
         thing_create_thing(&itng);
         i += sizeof(struct InitThing);
@@ -705,19 +671,13 @@ TbBool load_thing_file(LevelNumber lv_num)
 
 TbBool load_action_point_file(LevelNumber lv_num)
 {
-  struct InitActionPoint iapt;
-  unsigned long i;
-  long k;
-  long total;
-  unsigned char *buf;
-  long fsize;
   SYNCDBG(5,"Starting");
-  fsize = 4;
-  buf = load_single_map_file_to_buffer(lv_num,"apt",&fsize,LMFF_None);
+  long fsize = 4;
+  unsigned char* buf = load_single_map_file_to_buffer(lv_num, "apt", &fsize, LMFF_None);
   if (buf == NULL)
     return false;
-  i = 0;
-  total = llong(&buf[i]);
+  unsigned long i = 0;
+  long total = llong(&buf[i]);
   i += 4;
   // Validate total amount of action points
   if ((total < 0) || (total > (fsize-4)/sizeof(struct InitActionPoint)))
@@ -731,13 +691,12 @@ TbBool load_action_point_file(LevelNumber lv_num)
     total = ACTN_POINTS_COUNT-1;
   }
   // Create action points
-  for (k=0; k < total; k++)
+  for (long k = 0; k < total; k++)
   {
-    LbMemoryCopy(&iapt, &buf[i], sizeof(struct InitActionPoint));
-    if (actnpoint_create_actnpoint(&iapt) == INVALID_ACTION_POINT)
-    {
-      ERRORLOG("Cannot allocate action point %d during APT load",k);
-    }
+      struct InitActionPoint iapt;
+      LbMemoryCopy(&iapt, &buf[i], sizeof(struct InitActionPoint));
+      if (actnpoint_create_actnpoint(&iapt) == INVALID_ACTION_POINT)
+          ERRORLOG("Cannot allocate action point %d during APT load", k);
     i += sizeof(struct InitActionPoint);
   }
   LbMemoryFree(buf);
@@ -746,17 +705,15 @@ TbBool load_action_point_file(LevelNumber lv_num)
 
 TbBool load_slabdat_file(struct SlabSet *slbset, long *scount)
 {
-  long total;
-  unsigned char *buf;
-  long fsize;
-  long i,k,n;
+  long k;
+  long n;
   SYNCDBG(5,"Starting");
-  fsize = 2;
-  buf = load_data_file_to_buffer(&fsize, FGrp_StdData, "slabs.dat");
+  long fsize = 2;
+  unsigned char* buf = load_data_file_to_buffer(&fsize, FGrp_StdData, "slabs.dat");
   if (buf == NULL)
     return false;
-  i = 0;
-  total = lword(&buf[i]);
+  long i = 0;
+  long total = lword(&buf[i]);
   i += 2;
   // Validate total amount of indices
   if ((total < 0) || (total > (fsize-2)/(9*sizeof(short))))
@@ -785,11 +742,12 @@ TbBool load_slabdat_file(struct SlabSet *slbset, long *scount)
  */
 TbBool update_columns_use(struct Column *cols,long ccount,struct SlabSet *sset,long scount)
 {
-  long i,k;
-  long ncol;
-  for (i=0; i < ccount; i++)
-  {
-    cols[i].use = 0;
+    long i;
+    long k;
+    long ncol;
+    for (i = 0; i < ccount; i++)
+    {
+        cols[i].use = 0;
   }
   for (i=0; i < scount; i++)
     for (k=0; k < 9; k++)
@@ -803,17 +761,13 @@ TbBool update_columns_use(struct Column *cols,long ccount,struct SlabSet *sset,l
 
 TbBool load_slabclm_file(struct Column *cols, long *ccount)
 {
-  long total;
-  unsigned char *buf;
-  long fsize;
-  long i,k;
   SYNCDBG(18,"Starting");
-  fsize = 4;
-  buf = load_data_file_to_buffer(&fsize, FGrp_StdData, "slabs.clm");
+  long fsize = 4;
+  unsigned char* buf = load_data_file_to_buffer(&fsize, FGrp_StdData, "slabs.clm");
   if (buf == NULL)
     return false;
-  i = 0;
-  total = llong(&buf[i]);
+  long i = 0;
+  long total = llong(&buf[i]);
   i += 4;
   // Validate total amount of columns
   if ((total < 0) || (total > (fsize-4)/sizeof(struct Column)))
@@ -826,7 +780,7 @@ TbBool load_slabclm_file(struct Column *cols, long *ccount)
     WARNMSG("Only %d columns supported, Column Set file has %ld.",*ccount,total);
     total = *ccount;
   }
-  for (k=0; k < total; k++)
+  for (long k = 0; k < total; k++)
   {
     LbMemoryCopy(&cols[k],&buf[i],sizeof(struct Column));
     i += sizeof(struct Column);
@@ -838,29 +792,25 @@ TbBool load_slabclm_file(struct Column *cols, long *ccount)
 
 TbBool columns_add_static_entries(void)
 {
-    struct Column *colmn;
-    struct Column lcolmn;
-    short *wptr;
     short c[3];
-    long ncol;
-    long i,k;
 
-    for (i=0; i < 3; i++)
+    for (long i=0; i < 3; i++)
       c[i] = 0;
-    LbMemorySet(&lcolmn,0,sizeof(struct Column));
-    wptr = &game.field_14A818[0];
-    for (i=0; i < 3; i++)
+    struct Column lcolmn;
+    LbMemorySet(&lcolmn, 0, sizeof(struct Column));
+    short* wptr = &game.field_14A818[0];
+    for (long i=0; i < 3; i++)
     {
         LbMemorySet(&lcolmn, 0, sizeof(struct Column));
         lcolmn.baseblock = c[i];
-        for (k=0; k < 6; k++)
+        for (long k = 0; k < 6; k++)
         {
           lcolmn.cubes[0] = player_cubes[k];
           make_solidmask(&lcolmn);
-          ncol = find_column(&lcolmn);
+          long ncol = find_column(&lcolmn);
           if (ncol == 0)
             ncol = create_column(&lcolmn);
-          colmn = get_column(ncol);
+          struct Column* colmn = get_column(ncol);
           colmn->bitfields |= 0x01;
           *wptr = -(short)ncol;
           wptr++;
@@ -871,29 +821,26 @@ TbBool columns_add_static_entries(void)
 
 TbBool update_slabset_column_indices(struct Column *cols, long ccount)
 {
-    struct Column *colmn;
     struct Column lcolmn;
-    struct SlabSet *sset;
-    long ncol;
-    long i,k,n;
     LbMemorySet(&lcolmn,0,sizeof(struct Column));
-    for (i=0; i < game.slabset_num; i++)
+    for (long i = 0; i < game.slabset_num; i++)
     {
-      sset = &game.slabset[i];
-      for (k=0; k < 9; k++)
-      {
-          n = sset->col_idx[k];
-          if (n >= 0)
-          {
-            lcolmn.baseblock = n;
-            ncol = find_column(&lcolmn);
-            if (ncol == 0)
+        struct SlabSet* sset = &game.slabset[i];
+        for (long k = 0; k < 9; k++)
+        {
+            long n = sset->col_idx[k];
+            long ncol;
+            if (n >= 0)
             {
-              ncol = create_column(&lcolmn);
-              colmn = get_column(ncol);
-              colmn->bitfields |= 0x01;
-            }
-          } else
+                lcolmn.baseblock = n;
+                ncol = find_column(&lcolmn);
+                if (ncol == 0)
+                {
+                    ncol = create_column(&lcolmn);
+                    struct Column* colmn = get_column(ncol);
+                    colmn->bitfields |= 0x01;
+                }
+            } else
           {
             if (-n < ccount)
               ncol = find_column(&cols[-n]);
@@ -913,18 +860,15 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
 
 TbBool create_columns_from_list(struct Column *cols, long ccount)
 {
-    struct Column *colmn;
-    long ncol;
-    long i;
-    for (i=1; i < ccount; i++)
+    for (long i = 1; i < ccount; i++)
     {
         if (cols[i].use)
         {
-          ncol = find_column(&cols[i]);
-          if (ncol == 0)
-            ncol = create_column(&cols[i]);
-          colmn = get_column(ncol);
-          colmn->bitfields |= 0x01;
+            long ncol = find_column(&cols[i]);
+            if (ncol == 0)
+                ncol = create_column(&cols[i]);
+            struct Column* colmn = get_column(ncol);
+            colmn->bitfields |= 0x01;
         }
     }
     return true;
@@ -932,16 +876,10 @@ TbBool create_columns_from_list(struct Column *cols, long ccount)
 
 TbBool load_slab_datclm_files(void)
 {
-    struct Column *cols;
-    long cols_tot;
-    struct SlabSet *slbset;
-    long slbset_tot;
-    struct SlabSet *sset;
-    long i;
     SYNCDBG(5,"Starting");
     // Load Column Set
-    cols_tot = COLUMNS_COUNT;
-    cols = (struct Column *)LbMemoryAlloc(cols_tot*sizeof(struct Column));
+    long cols_tot = COLUMNS_COUNT;
+    struct Column* cols = (struct Column*)LbMemoryAlloc(cols_tot * sizeof(struct Column));
     if (cols == NULL)
     {
       WARNMSG("Can't allocate memory for %d column sets.",cols_tot);
@@ -953,8 +891,8 @@ TbBool load_slab_datclm_files(void)
       return false;
     }
     // Load Slab Set
-    slbset_tot = SLABSET_COUNT;
-    slbset = (struct SlabSet *)LbMemoryAlloc(slbset_tot*sizeof(struct SlabSet));
+    long slbset_tot = SLABSET_COUNT;
+    struct SlabSet* slbset = (struct SlabSet*)LbMemoryAlloc(slbset_tot * sizeof(struct SlabSet));
     if (slbset == NULL)
     {
       WARNMSG("Can't allocate memory for %d slab sets.",slbset_tot);
@@ -967,9 +905,9 @@ TbBool load_slab_datclm_files(void)
       return false;
     }
     // Update the structure
-    for (i=0; i < slbset_tot; i++)
+    for (long i = 0; i < slbset_tot; i++)
     {
-        sset = &game.slabset[i];
+        struct SlabSet* sset = &game.slabset[i];
         LbMemoryCopy(sset, &slbset[i], sizeof(struct SlabSet));
     }
     game.slabset_num = slbset_tot;
@@ -983,9 +921,8 @@ TbBool load_slab_datclm_files(void)
 
 TbBool load_slab_tng_file(void)
 {
-    char *fname;
     SYNCDBG(5,"Starting");
-    fname = prepare_file_fmtpath(FGrp_StdData,"slabs.tng");
+    char* fname = prepare_file_fmtpath(FGrp_StdData, "slabs.tng");
     wait_for_cd_to_be_available();
     if ( LbFileExists(fname) )
       LbFileLoadAt(fname, &game.slabobjs_num);
@@ -996,8 +933,7 @@ TbBool load_slab_tng_file(void)
 
 TbBool load_slab_file(void)
 {
-    TbBool result;
-    result = true;
+    TbBool result = true;
     if (!load_slab_datclm_files())
         result = false;
     if (!columns_add_static_entries())
@@ -1010,9 +946,11 @@ TbBool load_slab_file(void)
 long load_map_wibble_file(unsigned long lv_num)
 {
     struct Map *mapblk;
-    unsigned long stl_x,stl_y;
+    unsigned long stl_x;
+    unsigned long stl_y;
     unsigned char *buf;
-    unsigned long i,k;
+    unsigned long i;
+    unsigned long k;
     long fsize;
     fsize = (map_subtiles_y+1)*(map_subtiles_x+1);
     buf = load_single_map_file_to_buffer(lv_num,"wib",&fsize,LMFF_None);
@@ -1034,7 +972,8 @@ long load_map_wibble_file(unsigned long lv_num)
 short load_map_ownership_file(LevelNumber lv_num)
 {
     struct SlabMap *slb;
-    unsigned long x,y;
+    unsigned long x;
+    unsigned long y;
     unsigned char *buf;
     unsigned long i;
     long fsize;
@@ -1061,8 +1000,10 @@ TbBool initialise_map_wlb_auto(void)
 {
     struct SlabMap *slb;
     struct SlabAttr *slbattr;
-    unsigned long x,y;
-    unsigned long n,nbridge;
+    unsigned long x;
+    unsigned long y;
+    unsigned long n;
+    unsigned long nbridge;
     nbridge = 0;
     for (y=0; y < map_tiles_y; y++)
       for (x=0; x < map_tiles_x; x++)
@@ -1090,7 +1031,8 @@ TbBool initialise_map_wlb_auto(void)
 TbBool load_map_wlb_file(unsigned long lv_num)
 {
     struct SlabMap *slb;
-    unsigned long x,y;
+    unsigned long x;
+    unsigned long y;
     unsigned char *buf;
     unsigned long i;
     unsigned long n;
@@ -1130,9 +1072,8 @@ TbBool load_map_wlb_file(unsigned long lv_num)
 
 TbBool initialise_extra_slab_info(unsigned long lv_num)
 {
-    TbBool result;
     initialise_map_rooms();
-    result = load_map_wlb_file(lv_num);
+    TbBool result = load_map_wlb_file(lv_num);
     if (!result)
       result = initialise_map_wlb_auto();
     return result;
@@ -1142,7 +1083,8 @@ short load_map_slab_file(unsigned long lv_num)
 {
     SYNCDBG(7,"Starting");
     struct SlabMap *slb;
-    unsigned long x,y;
+    unsigned long x;
+    unsigned long y;
     unsigned char *buf;
     unsigned long i;
     unsigned long n;
@@ -1175,21 +1117,16 @@ short load_map_slab_file(unsigned long lv_num)
 short load_map_flag_file(unsigned long lv_num)
 {
     SYNCDBG(5,"Starting");
-    struct Map *mapblk;
-    unsigned long stl_x,stl_y;
-    unsigned char *buf;
-    unsigned long i;
-    long fsize;
-    fsize = 2*(map_subtiles_y+1)*(map_subtiles_x+1);
-    buf = load_single_map_file_to_buffer(lv_num,"flg",&fsize,LMFF_Optional);
+    long fsize = 2 * (map_subtiles_y + 1) * (map_subtiles_x + 1);
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "flg", &fsize, LMFF_Optional);
     if (buf == NULL)
         return false;
-    i = 0;
-    for (stl_y=0; stl_y < (map_subtiles_y+1); stl_y++)
+    unsigned long i = 0;
+    for (unsigned long stl_y = 0; stl_y < (map_subtiles_y + 1); stl_y++)
     {
-        for (stl_x=0; stl_x < (map_subtiles_x+1); stl_x++)
+        for (unsigned long stl_x = 0; stl_x < (map_subtiles_x + 1); stl_x++)
         {
-            mapblk = get_map_block_at(stl_x,stl_y);
+            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             mapblk->flags = buf[i];
             i += 2;
         }
@@ -1200,19 +1137,13 @@ short load_map_flag_file(unsigned long lv_num)
 
 long load_static_light_file(unsigned long lv_num)
 {
-    unsigned long i;
-    long k;
-    long total;
-    unsigned char *buf;
-    struct InitLight ilght;
-    long fsize;
-    fsize = 4;
-    buf = load_single_map_file_to_buffer(lv_num,"lgt",&fsize,LMFF_Optional);
+    long fsize = 4;
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "lgt", &fsize, LMFF_Optional);
     if (buf == NULL)
         return false;
     light_initialise();
-    i = 0;
-    total = llong(&buf[i]);
+    unsigned long i = 0;
+    long total = llong(&buf[i]);
     i += 4;
     // Validate total amount of lights
     if ((total < 0) || (total > (fsize-4)/sizeof(struct InitLight)))
@@ -1230,8 +1161,9 @@ long load_static_light_file(unsigned long lv_num)
         WARNMSG("More than %d%% of light slots used by static lights.",100*total/LIGHTS_COUNT);
     }
     // Create the lights
-    for (k=0; k < total; k++)
+    for (long k = 0; k < total; k++)
     {
+        struct InitLight ilght;
         LbMemoryCopy(&ilght, &buf[i], sizeof(struct InitLight));
         if (light_create_light(&ilght) == 0)
         {
@@ -1245,10 +1177,8 @@ long load_static_light_file(unsigned long lv_num)
 
 short load_and_setup_map_info(unsigned long lv_num)
 {
-    unsigned char *buf;
-    long fsize;
-    fsize = 1;
-    buf = load_single_map_file_to_buffer(lv_num,"inf",&fsize,LMFF_None);
+    long fsize = 1;
+    unsigned char* buf = load_single_map_file_to_buffer(lv_num, "inf", &fsize, LMFF_None);
     if (buf == NULL)
     {
         game.texture_id = 0;
@@ -1261,11 +1191,9 @@ short load_and_setup_map_info(unsigned long lv_num)
 
 short load_level_file(LevelNumber lvnum)
 {
-    char *fname;
-    short fgroup;
     short result;
-    fgroup = get_level_fgroup(lvnum);
-    fname = prepare_file_fmtpath(fgroup,"map%05lu.slb",(unsigned long)lvnum);
+    short fgroup = get_level_fgroup(lvnum);
+    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
     wait_for_cd_to_be_available();
     if (LbFileExists(fname))
     {
@@ -1305,8 +1233,7 @@ short load_level_file(LevelNumber lvnum)
 
 TbBool load_map_file(LevelNumber lvnum)
 {
-    TbBool result;
-    result = load_level_file(lvnum);
+    TbBool result = load_level_file(lvnum);
     if (result)
         set_loaded_level_number(lvnum);
     else

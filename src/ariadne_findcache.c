@@ -36,13 +36,12 @@ DLLIMPORT long _DK_find_cache[4][4];
 long triangle_brute_find8_near(long pos_x, long pos_y)
 {
     //return _DK_triangle_brute_find8_near(pos_x, pos_y);
-    long cx, cy;
-    cx = pos_x >> 14;
+    long cx = pos_x >> 14;
     if (cx < 0)
         cx = 0;
     if (cx > 3)
         cx = 3;
-    cy = pos_y >> 14;
+    long cy = pos_y >> 14;
     if (cy < 0)
         cy = 0;
     if (cy > 3)
@@ -90,29 +89,27 @@ long triangle_brute_find8_near(long pos_x, long pos_y)
 
 long triangle_find_cache_get(long pos_x, long pos_y)
 {
-  long cache_x,cache_y;
-  long ntri;
-  cache_x = (pos_x >> 14);
-  if (cache_x > 3)
-    cache_x = 3;
-  if (cache_x < 0)
-    cache_x = 0;
-  cache_y = (pos_y >> 14);
-  if (cache_y > 3)
-    cache_y = 3;
-  if (cache_y < 0)
-    cache_y = 0;
+    long cache_x = (pos_x >> 14);
+    if (cache_x > 3)
+        cache_x = 3;
+    if (cache_x < 0)
+        cache_x = 0;
+    long cache_y = (pos_y >> 14);
+    if (cache_y > 3)
+        cache_y = 3;
+    if (cache_y < 0)
+        cache_y = 0;
 
-  ntri = find_cache[cache_y][cache_x];
-  if (get_triangle_tree_alt(ntri) == -1)
-  {
-    ntri = triangle_brute_find8_near(pos_x, pos_y);
-    if ((ntri < 0) || (ntri > ix_Triangles))
+    long ntri = find_cache[cache_y][cache_x];
+    if (get_triangle_tree_alt(ntri) == -1)
     {
-        ERRORLOG("triangles count overflow");
-        ntri = -1;
-    }
-    find_cache[cache_y][cache_x] = ntri;
+        ntri = triangle_brute_find8_near(pos_x, pos_y);
+        if ((ntri < 0) || (ntri > ix_Triangles))
+        {
+            ERRORLOG("triangles count overflow");
+            ntri = -1;
+        }
+        find_cache[cache_y][cache_x] = ntri;
   }
   return ntri;
 
@@ -120,24 +117,22 @@ long triangle_find_cache_get(long pos_x, long pos_y)
 
 void triangle_find_cache_put(long pos_x, long pos_y, long ntri)
 {
-  long cache_x,cache_y;
-  cache_x = (pos_x >> 14);
-  if (cache_x > 3)
-    cache_x = 3;
-  if (cache_x < 0)
-    cache_x = 0;
-  cache_y = (pos_y >> 14);
-  if (cache_y > 3)
-    cache_y = 3;
-  if (cache_y < 0)
-    cache_y = 0;
-  find_cache[cache_y][cache_x] = ntri;
+    long cache_x = (pos_x >> 14);
+    if (cache_x > 3)
+        cache_x = 3;
+    if (cache_x < 0)
+        cache_x = 0;
+    long cache_y = (pos_y >> 14);
+    if (cache_y > 3)
+        cache_y = 3;
+    if (cache_y < 0)
+        cache_y = 0;
+    find_cache[cache_y][cache_x] = ntri;
 }
 
 void triangulation_init_cache(long tri_idx)
 {
-    long i;
-    for (i=0; i < 4; i++)
+    for (long i = 0; i < 4; i++)
     {
         find_cache[i][0] = tri_idx;
         find_cache[i][1] = tri_idx;
@@ -148,50 +143,48 @@ void triangulation_init_cache(long tri_idx)
 
 long triangle_find8(long pt_x, long pt_y)
 {
-    int eqA,eqB,eqC;
-    long ntri,ncor;
-    long nxcor; // Used only to verify if pointed_at8() didn't failed
-    unsigned long k;
     NAVIDBG(19,"Starting");
     //TODO PATHFINDING triangulate_area sub-sub-sub-function
     //return _DK_triangle_find8(pt_x, pt_y);
-    ntri = triangle_find_cache_get(pt_x, pt_y);
-    for (k=0; k < TRIANLGLES_COUNT; k++)
+    long ntri = triangle_find_cache_get(pt_x, pt_y);
+    for (unsigned long k = 0; k < TRIANLGLES_COUNT; k++)
     {
-      eqA = triangle_divide_areas_s8differ(ntri, 0, 1, pt_x, pt_y) > 0;
-      eqB = triangle_divide_areas_s8differ(ntri, 1, 2, pt_x, pt_y) > 0;
-      eqC = triangle_divide_areas_s8differ(ntri, 2, 0, pt_x, pt_y) > 0;
+        int eqA = triangle_divide_areas_s8differ(ntri, 0, 1, pt_x, pt_y) > 0;
+        int eqB = triangle_divide_areas_s8differ(ntri, 1, 2, pt_x, pt_y) > 0;
+        int eqC = triangle_divide_areas_s8differ(ntri, 2, 0, pt_x, pt_y) > 0;
 
-      switch ( eqA + 2 * (eqB + 2 * eqC) )
-      {
-      case 1:
-          ntri = Triangles[ntri].tags[0];
-          nxcor = 0;
-          break;
-      case 2:
-          ntri = Triangles[ntri].tags[1];
-          nxcor = 0;
-          break;
-      case 3:
-          ncor = 1;
-          nxcor = pointed_at8(pt_x, pt_y, &ntri, &ncor);
-          break;
-      case 4:
-          ntri = Triangles[ntri].tags[2];
-          nxcor = 0;
-          break;
-      case 5:
-          ncor = 0;
-          nxcor = pointed_at8(pt_x, pt_y, &ntri, &ncor);
-          break;
-      case 6:
-      case 7:
-          ncor = 2;
-          nxcor = pointed_at8(pt_x, pt_y, &ntri, &ncor);
-          break;
-      case 0:
-          triangle_find_cache_put(pt_x, pt_y, ntri);
-          return ntri;
+        long ncor;
+        long nxcor; // Used only to verify if pointed_at8() didn't failed
+        switch (eqA + 2 * (eqB + 2 * eqC))
+        {
+        case 1:
+            ntri = Triangles[ntri].tags[0];
+            nxcor = 0;
+            break;
+        case 2:
+            ntri = Triangles[ntri].tags[1];
+            nxcor = 0;
+            break;
+        case 3:
+            ncor = 1;
+            nxcor = pointed_at8(pt_x, pt_y, &ntri, &ncor);
+            break;
+        case 4:
+            ntri = Triangles[ntri].tags[2];
+            nxcor = 0;
+            break;
+        case 5:
+            ncor = 0;
+            nxcor = pointed_at8(pt_x, pt_y, &ntri, &ncor);
+            break;
+        case 6:
+        case 7:
+            ncor = 2;
+            nxcor = pointed_at8(pt_x, pt_y, &ntri, &ncor);
+            break;
+        case 0:
+            triangle_find_cache_put(pt_x, pt_y, ntri);
+            return ntri;
       }
       if (nxcor < 0) {
           ERRORLOG("No position pointed at %d,%d",(int)pt_x, (int)pt_y);
@@ -212,16 +205,14 @@ long triangle_find8(long pt_x, long pt_y)
  */
 TbBool point_find(long pt_x, long pt_y, long *out_tri_idx, long *out_cor_idx)
 {
-    struct Point *pt;
-    long tri_idx,cor_id;
-    tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
+    long tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
     if (tri_idx < 0)
     {
         return false;
     }
-    for (cor_id=0; cor_id < 3; cor_id++)
+    for (long cor_id = 0; cor_id < 3; cor_id++)
     {
-        pt = get_triangle_point(tri_idx,cor_id);
+        struct Point* pt = get_triangle_point(tri_idx, cor_id);
         if ((pt->x == pt_x) && (pt->y == pt_y))
         {
           *out_tri_idx = tri_idx;

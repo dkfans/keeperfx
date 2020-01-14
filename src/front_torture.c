@@ -98,25 +98,20 @@ void torture_play_sound(long door_id, TbBool state)
 
 long torture_door_over_point(long x,long y)
 {
-    int units_per_px;
-    units_per_px = min(units_per_pixel,units_per_pixel_min*16/10);
+    int units_per_px = min(units_per_pixel, units_per_pixel_min * 16 / 10);
     const int img_width = 640;
     const int img_height = 480;
-    int w,h;
-    int spx,spy;
-    w = img_width * units_per_px / 16;
-    h = img_height * units_per_px / 16;
+    int w = img_width * units_per_px / 16;
+    int h = img_height * units_per_px / 16;
     // Starting point coords
-    spx = (LbScreenWidth() - w) >> 1;
-    spy = (LbScreenHeight() - h) >> 1;
-    struct DoorDesc *door;
-    long i;
-    for (i=0; i < torture_doors_available; i++)
+    int spx = (LbScreenWidth() - w) >> 1;
+    int spy = (LbScreenHeight() - h) >> 1;
+    for (long i = 0; i < torture_doors_available; i++)
     {
-      door = &doors[i];
-      if ((x >= spx + door->pos_x*units_per_px/16) && (x < spx + door->pos_x*units_per_px/16 + door->width*units_per_px/16))
-        if ((y >= spy + door->pos_y*units_per_px/16) && (y < spy + door->pos_y*units_per_px/16 + door->height*units_per_px/16))
-          return i;
+        struct DoorDesc* door = &doors[i];
+        if ((x >= spx + door->pos_x * units_per_px / 16) && (x < spx + door->pos_x * units_per_px / 16 + door->width * units_per_px / 16))
+            if ((y >= spy + door->pos_y * units_per_px / 16) && (y < spy + door->pos_y * units_per_px / 16 + door->height * units_per_px / 16))
+                return i;
     }
     return -1;
 }
@@ -138,19 +133,15 @@ void fronttorture_unload(void)
 
 void fronttorture_load(void)
 {
-    struct PlayerInfo *player;
-    char *fname;
-    unsigned char *ptr;
-    long i,k;
     wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Texture blocks memory isn't used here, so reuse it instead of allocating
-    ptr = block_mem;
+    unsigned char* ptr = block_mem;
     // Load RAW/PAL background
-    fname = prepare_file_path(FGrp_LoData,"torture.raw");
+    char* fname = prepare_file_path(FGrp_LoData, "torture.raw");
     torture_background = ptr;
-    i = LbFileLoadAt(fname, ptr);
+    long i = LbFileLoadAt(fname, ptr);
     ptr += i;
     fname = prepare_file_path(FGrp_LoData,"torture.pal");
     torture_palette = ptr;
@@ -158,7 +149,7 @@ void fronttorture_load(void)
     ptr += i;
 
     // Load DAT/TAB sprites for doors
-    k = 0;
+    long k = 0;
     {
         fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
         i = LbFileLoadAt(fname, ptr);
@@ -212,7 +203,7 @@ void fronttorture_load(void)
     torture_sprite_direction = 0;
     LbMemorySet(door_sound_state, 0, TORTURE_DOORS_COUNT*sizeof(struct DoorSoundState));
 
-    player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     if (player->victory_state == VicS_WonLevel)
     {
         LbMouseChangeSpriteAndHotspot(&fronttor_sprites[1], 0, 0);
@@ -225,29 +216,26 @@ void fronttorture_load(void)
 
 TbBool fronttorture_draw(void)
 {
-  struct TbSprite *spr;
   const int img_width = 640;
   const int img_height = 480;
-  int w,h,i;
-  int spx,spy;
   // Only 8bpp supported for now
   if (LbGraphicsScreenBPP() != 8)
     return false;
-  int units_per_px;
-  units_per_px = min(units_per_pixel,units_per_pixel_min*16/10);
-  w = img_width * units_per_px / 16;
-  h = img_height * units_per_px / 16;
+  int units_per_px = min(units_per_pixel, units_per_pixel_min * 16 / 10);
+  int w = img_width * units_per_px / 16;
+  int h = img_height * units_per_px / 16;
   // Starting point coords
-  spx = (LbScreenWidth() - w) >> 1;
-  spy = (LbScreenHeight() - h) >> 1;
+  int spx = (LbScreenWidth() - w) >> 1;
+  int spy = (LbScreenHeight() - h) >> 1;
   copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
       w,h,spx,spy,torture_background,img_width,img_height);
 
-  for (i=0; i < torture_doors_available; i++)
+  for (int i = 0; i < torture_doors_available; i++)
   {
-    if (i == torture_door_selected)
-    {
-      spr = &doors[i].sprites[torture_sprite_frame];
+      struct TbSprite* spr;
+      if (i == torture_door_selected)
+      {
+          spr = &doors[i].sprites[torture_sprite_frame];
     } else
     {
       spr = &doors[i].sprites[1];
@@ -265,14 +253,12 @@ void fronttorture_clear_state(void)
 
 void fronttorture_input(void)
 {
-    struct PlayerInfo *player;
-    struct Packet *pckt;
-    long x,y;
+    long x;
+    long y;
     PlayerNumber plyr_idx;
-    long door_id;
     clear_packets();
-    player = get_my_player();
-    pckt = get_packet(my_player_number);
+    struct PlayerInfo* player = get_my_player();
+    struct Packet* pckt = get_packet(my_player_number);
     // Get inputs and create packet
     if (player->victory_state == VicS_WonLevel)
     {
@@ -329,7 +315,7 @@ void fronttorture_input(void)
         return;
     }
     // Get active door
-    door_id = torture_door_over_point(x,y);
+    long door_id = torture_door_over_point(x, y);
     if ((torture_door_selected != -1) && (torture_door_selected != door_id))
         door_id = -1;
     // Make the action
@@ -406,17 +392,13 @@ void fronttorture_update(void)
       if ( torture_sprite_frame != torture_end_sprite )
         torture_sprite_frame += torture_sprite_direction;
     }
-    int i;
-    for (i = 0; i < TORTURE_DOORS_COUNT; i++)
+    for (int i = 0; i < TORTURE_DOORS_COUNT; i++)
     {
-        struct DoorDesc * door;
-        struct DoorSoundState * doorsnd;
-        door = &doors[i];
-        doorsnd = &door_sound_state[i];
+        struct DoorDesc* door = &doors[i];
+        struct DoorSoundState* doorsnd = &door_sound_state[i];
         if ( doorsnd->field_4 )
         {
-            int volume;
-            volume = doorsnd->field_4 + doorsnd->field_0;
+            int volume = doorsnd->field_4 + doorsnd->field_0;
             if (volume <= 0)
             {
                 volume = 0;

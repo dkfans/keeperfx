@@ -138,12 +138,8 @@ void process_network_error(long errcode)
 
 void draw_out_of_sync_box(long a1, long a2, long box_width)
 {
-    long min_width,max_width;
-    long ornate_width,ornate_height;
-    long x,y;
-    long text_x,text_y,text_h;
-    min_width = 2*a1;
-    max_width = 2*a2;
+    long min_width = 2 * a1;
+    long max_width = 2 * a2;
     if (min_width > max_width)
     {
         min_width = max_width;
@@ -152,23 +148,21 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     {
         min_width = 0;
     }
-    int units_per_px;
-    units_per_px = units_per_pixel;
+    int units_per_px = units_per_pixel;
     if (LbScreenLock() == Lb_SUCCESS)
     {
-        ornate_width =  200*units_per_px/16;
-        ornate_height = 100*units_per_px/16;
-        x = box_width + (MyScreenWidth-box_width-ornate_width) / 2;
-        y = (MyScreenHeight-ornate_height) / 2;
+        long ornate_width = 200 * units_per_px / 16;
+        long ornate_height = 100 * units_per_px / 16;
+        long x = box_width + (MyScreenWidth - box_width - ornate_width) / 2;
+        long y = (MyScreenHeight - ornate_height) / 2;
         draw_ornate_slab64k(x, y, units_per_px, ornate_width, ornate_height);
         LbTextSetFont(winfont);
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
         LbTextSetWindow(x, y, ornate_width, ornate_height);
-        int tx_units_per_px;
-        tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
-        text_h = LbTextLineHeight()*tx_units_per_px/16;
-        text_x = x + 100*units_per_px/16 - max_width;
-        text_y = y +  58*units_per_px/16;
+        int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
+        long text_h = LbTextLineHeight() * tx_units_per_px / 16;
+        long text_x = x + 100 * units_per_px / 16 - max_width;
+        long text_y = y + 58 * units_per_px / 16;
         LbTextDrawResized(0, 50*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
         LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_px/16, 0);
         LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_px/16, 133);
@@ -179,19 +173,17 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
 
 void setup_alliances(void)
 {
-  int i;
-  struct PlayerInfo *player;
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if (!is_my_player_number(i) && player_exists(player))
-      {
-          if (frontend_is_player_allied(my_player_number, i))
-          {
-              set_ally_with_player(my_player_number, i, true);
-              set_ally_with_player(i, my_player_number, true);
-          }
-      }
+    for (int i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if (!is_my_player_number(i) && player_exists(player))
+        {
+            if (frontend_is_player_allied(my_player_number, i))
+            {
+                set_ally_with_player(my_player_number, i, true);
+                set_ally_with_player(i, my_player_number, true);
+            }
+        }
   }
 }
 
@@ -283,7 +275,6 @@ void frontnet_session_update(void)
 {
     static long last_enum_players = 0;
     static long last_enum_sessions = 0;
-    long i;
 
     if (LbTimerClock() >= last_enum_sessions)
     {
@@ -304,7 +295,7 @@ void frontnet_session_update(void)
             || (!net_session[net_session_index_active]->joinable))
           {
             net_session_index_active = -1;
-            for (i=0; i < net_number_of_sessions; i++)
+            for (long i = 0; i < net_number_of_sessions; i++)
             {
               if (net_session[i]->joinable)
               {
@@ -413,19 +404,17 @@ void frontnet_serial_update(void)
 void frontnet_rewite_net_messages(void)
 {
     struct NetMessage lmsg[NET_MESSAGES_COUNT];
-    struct NetMessage *nmsg;
-    long i,k;
-    k = 0;
-    i = net_number_of_messages;
+    long k = 0;
+    long i = net_number_of_messages;
     for (i=0; i < NET_MESSAGES_COUNT; i++)
       LbMemorySet(&lmsg[i], 0, sizeof(struct NetMessage));
     for (i=0; i < net_number_of_messages; i++)
     {
-      nmsg = &net_message[i];
-      if (network_player_active(nmsg->plyr_idx))
-      {
-        memcpy(&lmsg[k], nmsg, sizeof(struct NetMessage));
-        k++;
+        struct NetMessage* nmsg = &net_message[i];
+        if (network_player_active(nmsg->plyr_idx))
+        {
+            memcpy(&lmsg[k], nmsg, sizeof(struct NetMessage));
+            k++;
       }
     }
     net_number_of_messages = k;
@@ -472,11 +461,9 @@ void display_attempting_to_join_message(void)
 
 void net_load_config_file(void)
 {
-    TbFileHandle handle;
-    char *fname;
     // Try to load the config file
-    fname = prepare_file_path(FGrp_Save,keeper_netconf_file);
-    handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
+    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (handle != -1)
     {
       if (LbFileRead(handle, &net_config_info, sizeof(net_config_info)) == sizeof(net_config_info))
@@ -493,11 +480,9 @@ void net_load_config_file(void)
 
 void net_write_config_file(void)
 {
-    TbFileHandle handle;
-    char *fname;
     // Try to load the config file
-    fname = prepare_file_path(FGrp_Save,keeper_netconf_file);
-    handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
+    char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
+    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (handle != -1)
     {
         strupr(net_config_info.str_atz);
@@ -549,11 +534,9 @@ void frontnet_start_setup(void)
     net_message_scroll_offset = 0;
     //net_old_number_of_players = 0;
     players_currently_in_session = 0;
-    int i;
-    for (i=0; i < PLAYERS_COUNT; i++)
+    for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        struct PlayerInfo *player;
-        player = get_player(i);
+        struct PlayerInfo* player = get_player(i);
         player->mp_message_text[0] = '\0';
     }
 }

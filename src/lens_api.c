@@ -43,14 +43,18 @@ void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsign
 
 void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nlens, int mag, int period)
 {
-    long w,h;
-    long shift_w,shift_h;
+    long w;
+    long h;
+    long shift_w;
+    long shift_h;
     unsigned long *mem;
-    double flwidth,flheight;
-    double center_w,center_h;
-    double flpos_w,flpos_h;
-    double flmag,flperiod;
-    double fldist,fldivs;
+    double flwidth;
+    double flheight;
+    double center_w;
+    double center_h;
+    double flpos_w;
+    double flpos_h;
+    double flmag;
     switch (nlens)
     {
     case 0:
@@ -65,8 +69,9 @@ void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nl
         }
         break;
     case 1:
+    {
         flmag = mag;
-        flperiod = period;
+        double flperiod = period;
         flwidth = width;
         flheight = height;
         center_h = flheight * 0.5;
@@ -95,49 +100,52 @@ void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nl
             flpos_h += 1.0;
         }
         break;
+    }
     case 2:
-        flmag = mag * (double)mag;
-        flwidth = width;
-        flheight = height;
-        center_h = flheight * 0.5;
-        center_w = flwidth * 0.5;
-        fldivs = sqrt(center_h * center_h + center_w * center_w + flmag);
-        flpos_h = -center_h;
-        mem = lens_mem;
-        for (h=0; h < height; h++)
+    {
         {
-            flpos_w = -center_w;
-            for (w = 0; w < width; w++)
+            flmag = mag * (double)mag;
+            flwidth = width;
+            flheight = height;
+            center_h = flheight * 0.5;
+            center_w = flwidth * 0.5;
+            double fldivs = sqrt(center_h * center_h + center_w * center_w + flmag);
+            flpos_h = -center_h;
+            mem = lens_mem;
+            for (h = 0; h < height; h++)
             {
-                fldist = sqrt(flpos_w * flpos_w + flpos_h * flpos_h + flmag) / fldivs;
-                shift_w = (long)(fldist * flpos_w + center_w);
-                shift_h = (long)(fldist * flpos_h + center_h);
-                if (shift_w >= width)
-                    shift_w = width - 1;
-                if ((shift_w < 0) || ((period & 1) == 0))
-                    shift_w = 0;
-                if (shift_h >= height)
-                  shift_h = height - 1;
-                if ((shift_h < 0) || ((period & 2) == 0))
-                    shift_h = 0;
-                *mem = shift_w + shift_h * pitch;
-                flpos_w += 1.0;
-                mem++;
+                flpos_w = -center_w;
+                for (w = 0; w < width; w++)
+                {
+                    double fldist = sqrt(flpos_w * flpos_w + flpos_h * flpos_h + flmag) / fldivs;
+                    shift_w = (long)(fldist * flpos_w + center_w);
+                    shift_h = (long)(fldist * flpos_h + center_h);
+                    if (shift_w >= width)
+                        shift_w = width - 1;
+                    if ((shift_w < 0) || ((period & 1) == 0))
+                        shift_w = 0;
+                    if (shift_h >= height)
+                        shift_h = height - 1;
+                    if ((shift_h < 0) || ((period & 2) == 0))
+                        shift_h = 0;
+                    *mem = shift_w + shift_h * pitch;
+                    flpos_w += 1.0;
+                    mem++;
+                }
+                flpos_h += 1.0;
             }
-            flpos_h += 1.0;
+            break;
         }
-        break;
+    }
     }
 }
 
 TbBool clear_lens_palette(void)
 {
-    struct PlayerInfo *player;
-    struct LensConfig *lenscfg;
     SYNCDBG(7,"Staring");
-    player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     // Get lens config and check if it has palette entry
-    lenscfg = get_lens_config(game.numfield_1B);
+    struct LensConfig* lenscfg = get_lens_config(game.numfield_1B);
     if ((lenscfg->flags & LCF_HasPalette) != 0)
     {
         // If there is a palette entry, then clear it
@@ -151,8 +159,7 @@ TbBool clear_lens_palette(void)
 
 void set_lens_palette(unsigned char *palette)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     player->palette = palette;
     player->field_7 = palette;
 }
@@ -180,7 +187,6 @@ void reset_eye_lenses(void)
 
 void initialise_eye_lenses(void)
 {
-  unsigned long screen_size;
   SYNCDBG(7,"Starting");
   if ((eye_lens_memory != NULL) || (eye_lens_spare_screen_memory != NULL))
   {
@@ -195,7 +201,7 @@ void initialise_eye_lenses(void)
 
   eye_lens_height = lbDisplay.GraphicsScreenHeight;
   eye_lens_width = lbDisplay.GraphicsScreenWidth;
-  screen_size = eye_lens_width * eye_lens_height + 2;
+  unsigned long screen_size = eye_lens_width * eye_lens_height + 2;
   if (screen_size < 256*256) screen_size = 256*256 + 2;
   eye_lens_memory = (unsigned long *)LbMemoryAlloc(screen_size*sizeof(unsigned long));
   eye_lens_spare_screen_memory = (unsigned char *)LbMemoryAlloc(screen_size*sizeof(TbPixel));
@@ -211,8 +217,6 @@ void initialise_eye_lenses(void)
 
 void setup_eye_lens(long nlens)
 {
-    struct LensConfig *lenscfg;
-    char *fname;
     if ((game.flags_cd & MFlg_EyeLensReady) == 0)
     {
         WARNLOG("Can't setup lens - not initialized");
@@ -233,11 +237,11 @@ void setup_eye_lens(long nlens)
         game.numfield_1B = nlens;
         return;
     }
-    lenscfg = get_lens_config(nlens);
+    struct LensConfig* lenscfg = get_lens_config(nlens);
     if ((lenscfg->flags & LCF_HasMist) != 0)
     {
         SYNCDBG(9,"Mist config entered");
-        fname = prepare_file_path(FGrp_StdData,lenscfg->mist_file);
+        char* fname = prepare_file_path(FGrp_StdData, lenscfg->mist_file);
         LbFileLoadAt(fname, eye_lens_memory);
         setup_mist((unsigned char *)eye_lens_memory,
             &pixmap.fade_tables[(lenscfg->mist_lightness)*256],
@@ -283,18 +287,14 @@ void reinitialise_eye_lens(long nlens)
 
 void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsigned long *lens_mem, int width, int height, int dstpitch)
 {
-    int w,h;
-    long pos_map;
-    unsigned char *dst;
-    unsigned long *mem;
     SYNCDBG(16,"Starting");
-    dst = dstbuf;
-    mem = lens_mem;
-    for (h=0; h < height; h++)
+    unsigned char* dst = dstbuf;
+    unsigned long* mem = lens_mem;
+    for (int h = 0; h < height; h++)
     {
-        for (w=0; w < width; w++)
+        for (int w = 0; w < width; w++)
         {
-            pos_map = *mem;
+            long pos_map = *mem;
             dst[w] = srcbuf[pos_map];
             mem++;
         }
@@ -304,12 +304,9 @@ void draw_displacement_lens(unsigned char *dstbuf, unsigned char *srcbuf, unsign
 
 void draw_copy(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height)
 {
-    long i;
-    unsigned char *dst;
-    unsigned char *src;
-    dst = dstbuf;
-    src = srcbuf;
-    for (i=0; i < height; i++)
+    unsigned char* dst = dstbuf;
+    unsigned char* src = srcbuf;
+    for (long i = 0; i < height; i++)
     {
         LbMemoryCopy(dst,src,width*sizeof(TbPixel));
         dst += dstpitch;
@@ -319,7 +316,6 @@ void draw_copy(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long
 
 void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long effect)
 {
-    struct LensConfig *lenscfg;
     long copied = 0;
     if ((effect < 1) || (effect > lenses_conf.lenses_count))
     {
@@ -327,7 +323,7 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
             ERRORLOG("Invalid lens effect %d",effect);
         effect = 0;
     }
-    lenscfg = &lenses_conf.lenses[effect];
+    struct LensConfig* lenscfg = &lenses_conf.lenses[effect];
     if ((lenscfg->flags & LCF_HasMist) != 0)
     {
         draw_mist(dstbuf, dstpitch, srcbuf, srcpitch, width, height);

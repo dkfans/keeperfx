@@ -49,11 +49,9 @@
  */
 short at_kinky_torture_room(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct Room *room;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_KINKY_TORTURE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
@@ -83,11 +81,9 @@ short at_kinky_torture_room(struct Thing *thing)
  */
 short at_torture_room(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct Room *room;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_PAINFUL_TORTURE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
@@ -114,12 +110,10 @@ short at_torture_room(struct Thing *thing)
 
 short cleanup_torturing(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->word_A6 > 0)
     {
-        struct Thing *thing;
-        thing = thing_get(cctrl->word_A6);
+        struct Thing* thing = thing_get(cctrl->word_A6);
         if (thing_exists(thing)) {
             thing->word_13 = 0;
             thing->field_4F &= ~TF4F_Unknown01;
@@ -136,12 +130,9 @@ short cleanup_torturing(struct Thing *creatng)
 
 long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
-    SlabCodedCoords slbnum;
-    long n;
     unsigned long k;
-    struct Thing *tortrtng;
-    n = ACTION_RANDOM(room->slabs_count);
-    slbnum = room->slabs_list;
+    long n = ACTION_RANDOM(room->slabs_count);
+    SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
         if (slbnum == 0)
@@ -155,10 +146,9 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
     k = 0;
     while (1)
     {
-        MapSlabCoord slb_x,slb_y;
-        slb_x = slb_num_decode_x(slbnum);
-        slb_y = slb_num_decode_y(slbnum);
-        tortrtng = find_base_thing_on_mapwho(TCls_Object, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        MapSlabCoord slb_x = slb_num_decode_x(slbnum);
+        MapSlabCoord slb_y = slb_num_decode_y(slbnum);
+        struct Thing* tortrtng = find_base_thing_on_mapwho(TCls_Object, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(tortrtng) && (tortrtng->word_13 == 0))
         {
             if (!setup_person_move_to_coord(creatng, &tortrtng->mappos, NavRtF_Default))
@@ -166,8 +156,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
                 ERRORLOG("Move failed in torture");
                 break;
             }
-            struct CreatureControl *cctrl;
-            cctrl = creature_control_get_from_thing(creatng);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             creatng->continue_state = get_continue_state_for_job(jobpref);
             tortrtng->word_13 = creatng->index;
             tortrtng->word_15 = tortrtng->sprite_size;
@@ -246,19 +235,16 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
 
 short kinky_torturing(struct Thing *thing)
 {
-    struct Room *room;
     TRACE_THING(thing);
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (creature_job_in_room_no_longer_possible(room, Job_KINKY_TORTURE, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetFail;
     }
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    crstat = creature_stats_get_from_thing(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (game.play_gameturn-cctrl->field_82 > crstat->torture_break_time)
     {
         set_start_state(thing);
@@ -278,32 +264,27 @@ short kinky_torturing(struct Thing *thing)
 
 CrCheckRet process_kinky_function(struct Thing *thing)
 {
-  struct CreatureStats *crstat;
-  crstat = creature_stats_get_from_thing(thing);
-  anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, AngR_Other, 1);
-  return CrCkRet_Available;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, AngR_Other, 1);
+    return CrCkRet_Available;
 }
 
 void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    struct Thing *newthing;
-    int crmodel;
-    crmodel = get_room_create_creature_model(room->kind);
-    newthing = create_creature(&thing->mappos, crmodel, room->owner);
+    int crmodel = get_room_create_creature_model(room->kind);
+    struct Thing* newthing = create_creature(&thing->mappos, crmodel, room->owner);
     if (thing_is_invalid(newthing))
     {
         ERRORLOG("Couldn't create creature %s in %s room",creature_code_name(crmodel),room_code_name(room->kind));
         return;
     }
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     init_creature_level(newthing, cctrl->explevel);
     if (creature_model_bleeds(thing->model))
       create_effect_around_thing(newthing, TngEff_Unknown10);
     set_start_state(newthing);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_DiedInBattle);
-    dungeon = get_dungeon(room->owner);
+    struct Dungeon* dungeon = get_dungeon(room->owner);
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.ghosts_raised++;
     }
@@ -313,7 +294,6 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
 
 void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_owner)
 {
-    struct Dungeon *dungeon;
     if (is_my_player_number(new_owner))
     {
         output_message(SMsg_TortureConverted, 0, true);
@@ -324,7 +304,7 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
     }
     change_creature_owner(creatng, new_owner);
     anger_set_creature_anger_all_types(creatng, 0);
-    dungeon = get_dungeon(new_owner);
+    struct Dungeon* dungeon = get_dungeon(new_owner);
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.creatures_converted++;
     }
@@ -332,18 +312,14 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
 
 long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr_idx)
 {
-    struct CreatureControl *cctrl;
-    struct Thing *heartng;
     SlabCodedCoords slb_num;
     struct SlabMap *slb;
-    MapSubtlCoord revealstl_x,revealstl_y;
-    MapSlabCoord slb_x, slb_y;
-    unsigned char *ownership_map;
-    struct USPOINT_2D *revealed_pts;
-    unsigned int pt_idx,pts_count,pts_to_reveal;
-    TbBool reveal_success;
+    MapSubtlCoord revealstl_x;
+    MapSubtlCoord revealstl_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     TRACE_THING(thing);
-    heartng = get_player_soul_container(thing->owner);
+    struct Thing* heartng = get_player_soul_container(thing->owner);
     if (!thing_is_invalid(heartng))
     {
         TRACE_THING(heartng);
@@ -352,13 +328,13 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     } else
     {
         setup_combat_flee_position(thing);
-        cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         revealstl_x = cctrl->flee_pos.x.stl.num;
         revealstl_y = cctrl->flee_pos.y.stl.num;
     }
-    reveal_success = 0;
+    TbBool reveal_success = 0;
 
-    ownership_map = (unsigned char *)malloc(map_tiles_y*map_tiles_x);
+    unsigned char* ownership_map = (unsigned char*)malloc(map_tiles_y * map_tiles_x);
     LbMemorySet(ownership_map,0,map_tiles_y*map_tiles_x);
     for (slb_y=0; slb_y < map_tiles_y; slb_y++)
     {
@@ -370,10 +346,10 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
                 ownership_map[slb_num] |= 0x01;
         }
     }
-    revealed_pts = (struct USPOINT_2D *)malloc((map_tiles_y*map_tiles_x)*sizeof(struct USPOINT_2D));
-    pts_to_reveal = 32;
-    pts_count = 0;
-    pt_idx = 0;
+    struct USPOINT_2D* revealed_pts = (struct USPOINT_2D*)malloc((map_tiles_y * map_tiles_x) * sizeof(struct USPOINT_2D));
+    unsigned int pts_to_reveal = 32;
+    unsigned int pts_count = 0;
+    unsigned int pt_idx = 0;
 
     slb_x = subtile_slab_fast(revealstl_x);
     slb_y = subtile_slab_fast(revealstl_y);
@@ -466,10 +442,8 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
  */
 long compute_torture_convert_time(const struct Thing *thing, const struct Room *room)
 {
-    struct CreatureControl *cctrl;
-    long i;
-    cctrl = creature_control_get_from_thing(thing);
-    i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency / ROOM_EFFICIENCY_MAX;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    long i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency / ROOM_EFFICIENCY_MAX;
     if (creature_affected_by_spell(thing, SplK_Speed))
       i = (4 * i) / 3;
     if (creature_affected_by_slap(thing))
@@ -485,30 +459,24 @@ long compute_torture_convert_time(const struct Thing *thing, const struct Room *
  */
 long compute_torture_broke_chance(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    long i;
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) - (long)crstat->torture_break_time;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) - (long)crstat->torture_break_time;
     return (i/64 + 1);
 }
 
 CrCheckRet process_torture_function(struct Thing *creatng)
 {
-    struct Room *room;
     long i;
-    room = get_room_creature_works_in(creatng);
+    struct Room* room = get_room_creature_works_in(creatng);
     if ( !room_still_valid_as_type_for_thing(room,RoK_TORTURE,creatng) )
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->owner);
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
     if ((long)game.play_gameturn >= cctrl->field_82 + game.turns_per_torture_health_loss)
     {
@@ -552,9 +520,8 @@ CrCheckRet process_torture_function(struct Thing *creatng)
 
 CrStateRet torturing(struct Thing *thing)
 {
-    struct Room *room;
     TRACE_THING(thing);
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (creature_job_in_room_no_longer_possible(room, Job_PAINFUL_TORTURE, thing))
     {
         remove_creature_from_work_room(thing);

@@ -91,10 +91,16 @@ void CMistFade::mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf
 {
     unsigned char *src;
     unsigned char *dst;
-    unsigned long p2,c2,p1,c1;
+    unsigned long p2;
+    unsigned long c2;
+    unsigned long p1;
+    unsigned long c1;
     unsigned long lens_div;
-    long i,k,n;
-    long w,h;
+    long i;
+    long k;
+    long n;
+    long w;
+    long h;
 
     if ((lens_data == NULL) || (fade_data == NULL))
     {

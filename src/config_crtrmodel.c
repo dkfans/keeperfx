@@ -199,17 +199,10 @@ const struct NamedCommand creatmodel_jobs_commands[] = {
 /******************************************************************************/
 TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-  struct CreatureStats *crstat;
-  struct CreatureModelConfig *crconf;
-  long pos;
-  int k,n;
-  int cmd_num;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
-  crstat = creature_stats_get(crtr_model);
-  crconf = &crtr_conf.model[crtr_model];
+  struct CreatureStats* crstat = creature_stats_get(crtr_model);
+  struct CreatureModelConfig* crconf = &crtr_conf.model[crtr_model];
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
       crstat->health = 1;
@@ -252,9 +245,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crconf->model_flags = 0;
   }
   // Find the block
-  sprintf(block_buf,"attributes");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
+  char block_buf[COMMAND_WORD_LEN];
+  sprintf(block_buf, "attributes");
+  long pos = 0;
+  int k = find_conf_block(buf, &pos, len, block_buf);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
@@ -265,10 +259,11 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   while (pos<len)
   {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,creatmodel_attributes_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_attributes_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // NAME
@@ -799,15 +794,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
 
 TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-  struct CreatureStats *crstat;
-  long pos;
-  int k,n;
-  int cmd_num;
+  int n;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Initialize block data
-  crstat = creature_stats_get(crtr_model);
+  struct CreatureStats* crstat = creature_stats_get(crtr_model);
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
       for (n=0; n < ENTRANCE_ROOMS_COUNT; n++)
@@ -821,9 +811,10 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
       crstat->torture_break_time = 1;
   }
   // Find the block
-  sprintf(block_buf,"attraction");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
+  char block_buf[COMMAND_WORD_LEN];
+  sprintf(block_buf, "attraction");
+  long pos = 0;
+  int k = find_conf_block(buf, &pos, len, block_buf);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
@@ -834,10 +825,11 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
   while (pos<len)
   {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,creatmodel_attraction_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_attraction_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // ENTRANCEROOM
@@ -943,15 +935,9 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
 
 TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-    struct CreatureStats *crstat;
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
-    crstat = creature_stats_get(crtr_model);
+    struct CreatureStats* crstat = creature_stats_get(crtr_model);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         crstat->annoy_eat_food = 0;
@@ -981,9 +967,10 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
         crstat->jobs_anger = 0;
     }
     // Find the block
-    sprintf(block_buf,"annoyance");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "annoyance");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -994,10 +981,11 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,creatmodel_annoyance_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_annoyance_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // EATFOOD
@@ -1346,15 +1334,9 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
 
 TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-    struct CreatureStats *crstat;
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
-    crstat = creature_stats_get(crtr_model);
+    struct CreatureStats* crstat = creature_stats_get(crtr_model);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         crstat->hearing = 0;
@@ -1364,9 +1346,10 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
         crstat->max_angle_change = 1;
     }
     // Find the block
-    sprintf(block_buf,"senses");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "senses");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1377,10 +1360,11 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,creatmodel_senses_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_senses_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // HEARING
@@ -1471,15 +1455,9 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
 
 TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-    struct CreatureStats *crstat;
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
-    crstat = creature_stats_get(crtr_model);
+    struct CreatureStats* crstat = creature_stats_get(crtr_model);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         crstat->walking_anim_speed = 1;
@@ -1491,9 +1469,10 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         creatures[crtr_model].shot_shift_z = 0;
     }
     // Find the block
-    sprintf(block_buf,"appearance");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "appearance");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1504,10 +1483,11 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,creatmodel_appearance_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_appearance_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // WALKINGANIMSPEED
@@ -1610,15 +1590,10 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
 
 TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-    struct CreatureStats *crstat;
-    long pos;
-    int k,n;
-    int cmd_num;
+    int n;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
-    crstat = creature_stats_get(crtr_model);
+    struct CreatureStats* crstat = creature_stats_get(crtr_model);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         for (n=0; n < LEARNED_INSTANCES_COUNT; n++)
@@ -1638,9 +1613,10 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
         crstat->rebirth = 0;
     }
     // Find the block
-    sprintf(block_buf,"experience");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "experience");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1651,10 +1627,11 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,creatmodel_experience_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_experience_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
         n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // POWERS
@@ -1803,15 +1780,9 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
 
 TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-    struct CreatureStats *crstat;
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
-    crstat = creature_stats_get(crtr_model);
+    struct CreatureStats* crstat = creature_stats_get(crtr_model);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         crstat->job_primary = 0;
@@ -1827,9 +1798,10 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
         crstat->partner_training = 0;
     }
     // Find the block
-    sprintf(block_buf,"jobs");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "jobs");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1840,10 +1812,11 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,creatmodel_jobs_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, creatmodel_jobs_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // PRIMARYJOBS
@@ -2018,12 +1991,8 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
 
 TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-  long pos;
-  int k,n;
-  int cmd_num;
+  int n;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // If the file can't be partial, then initialize block data
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
@@ -2033,9 +2002,10 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
       }
   }
   // Find the block
-  sprintf(block_buf,"sprites");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
+  char block_buf[COMMAND_WORD_LEN];
+  sprintf(block_buf, "sprites");
+  long pos = 0;
+  int k = find_conf_block(buf, &pos, len, block_buf);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
@@ -2046,13 +2016,14 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   while (pos<len)
   {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,creature_graphics_desc);
+      int cmd_num = recognize_conf_command(buf, &pos, len, creature_graphics_desc);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       n = 0;
       if ((cmd_num > 0) && (cmd_num <= CREATURE_GRAPHICS_INSTANCES))
       {
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          char word_buf[COMMAND_WORD_LEN];
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
             set_creature_model_graphics(crtr_model, cmd_num-1, k);
@@ -2083,11 +2054,8 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
 
 TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const char *fname,unsigned short flags)
 {
-    char *buf;
-    long len;
-    TbBool result;
     SYNCDBG(0,"%s model %ld from %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",crtr_model,textname,fname);
-    len = LbFileLengthRnc(fname);
+    long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -2100,16 +2068,15 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
             WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    result = (len > 0);
+    TbBool result = (len > 0);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get(crtr_model);
+        struct CreatureStats* crstat = creature_stats_get(crtr_model);
         LbMemorySet(crstat, '\0', sizeof(struct CreatureStats));
     }
     // Parse blocks of the config file
@@ -2189,16 +2156,14 @@ TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
     static const char config_global_textname[] = "global creature model config";
     static const char config_campgn_textname[] = "campaing creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
-    char *fname;
-    TbBool result;
     LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
     {
         WARNMSG("Cannot get config file name for creature %d.",crmodel);
         return false;
     }
-    fname = prepare_file_fmtpath(FGrp_CrtrData,"%s.cfg",conf_fnstr);
-    result = load_creaturemodel_config_file(crmodel,config_global_textname,fname,flags);
+    char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
+    TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
     fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
     if (strlen(fname) > 0)
     {
@@ -2213,14 +2178,12 @@ TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
  */
 TbBool make_all_creatures_free(void)
 {
-    struct CreatureStats *crstat;
-    long i;
-    for (i=0; i < crtr_conf.model_count; i++)
+    for (long i = 0; i < crtr_conf.model_count; i++)
     {
-      crstat = creature_stats_get(i);
-      crstat->training_cost = 0;
-      crstat->scavenger_cost = 0;
-      crstat->pay = 0;
+        struct CreatureStats* crstat = creature_stats_get(i);
+        crstat->training_cost = 0;
+        crstat->scavenger_cost = 0;
+        crstat->pay = 0;
     }
     return true;
 }
@@ -2230,8 +2193,7 @@ TbBool make_all_creatures_free(void)
  */
 TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
 {
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get(crmodel);
+    struct CreatureStats* crstat = creature_stats_get(crmodel);
     if (creature_stats_invalid(crstat)) {
         ERRORLOG("Invalid creature model %d",(int)crmodel);
         return false;
@@ -2239,16 +2201,14 @@ TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
     SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crstat->health,(int)new_max);
     crstat->health = saturate_set_signed(new_max, 16);
     creature_stats_updated(crmodel);
-    int n;
-    n = do_to_all_things_of_class_and_model(TCls_Creature, crmodel, update_creature_health_to_max);
+    int n = do_to_all_things_of_class_and_model(TCls_Creature, crmodel, update_creature_health_to_max);
     return (n > 0);
 }
 
 TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     SYNCDBG(3,"Healing all player %d creatures of model %s",(int)plyr_idx,creature_code_name(crmodel));
-    int n;
-    n = do_to_players_all_creatures_of_model(plyr_idx,crmodel,update_creature_health_to_max);
+    int n = do_to_players_all_creatures_of_model(plyr_idx, crmodel, update_creature_health_to_max);
     return (n > 0);
 }
 

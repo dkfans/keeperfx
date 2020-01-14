@@ -117,21 +117,18 @@ static inline void clear_gui_tooltip_button(void)
 
 TbBool setup_trap_tooltips(struct Coord3d *pos)
 {
-    struct TrapConfigStats *trapst;
-    struct Thing *thing;
-    struct PlayerInfo *player;
     SYNCDBG(18,"Starting");
     // Traps searching is restricted to one subtile - otherwise we could lose tooltips for other objects.
-    thing = get_trap_at_subtile_of_model_and_owned_by(pos->x.stl.num, pos->y.stl.num, -1, -1);
+    struct Thing* thing = get_trap_at_subtile_of_model_and_owned_by(pos->x.stl.num, pos->y.stl.num, -1, -1);
     //thing = get_trap_for_slab_position(subtile_slab_fast(pos->x.stl.num),subtile_slab_fast(pos->y.stl.num));
     if (thing_is_invalid(thing)) return false;
-    player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     if ((thing->byte_18 == 0) && (player->id_number != thing->owner))
         return false;
     update_gui_tooltip_target(thing);
     if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
     {
-        trapst = get_trap_model_stats(thing->model);
+        struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
         set_gui_tooltip_box_fmt(4,"%s",get_string(trapst->name_stridx));
     } else
     {
@@ -142,16 +139,11 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
 
 TbBool setup_object_tooltips(struct Coord3d *pos)
 {
-  struct Thing *thing;
-  struct Objects *objdat;
-  struct CreatureData *crdata;
-  struct RoomData *rdata;
-  struct PlayerInfo *player;
   long i;
   SYNCDBG(18,"Starting");
-  player = get_my_player();
+  struct PlayerInfo* player = get_my_player();
   // Find a special to show tooltip for
-  thing = thing_get(player->thing_under_hand);
+  struct Thing* thing = thing_get(player->thing_under_hand);
   if (thing_is_invalid(thing) || !thing_is_special_box(thing)) {
       thing = get_special_at_position(pos->x.stl.num, pos->y.stl.num);
   }
@@ -178,13 +170,11 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     update_gui_tooltip_target(thing);
     if (crate_thing_to_workshop_item_class(thing) == TCls_Trap)
     {
-        struct TrapConfigStats *trapst;
-        trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(thing));
+        struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(thing));
         i = trapst->name_stridx;
     } else
     {
-        struct DoorConfigStats *doorst;
-        doorst = get_door_model_stats(crate_thing_to_workshop_item_model(thing));
+        struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(thing));
         i = doorst->name_stridx;
     }
     set_gui_tooltip_box_fmt(5,"%s",get_string(i));
@@ -208,15 +198,15 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       }
       return true;
     }
-    objdat = get_objects_data_for_thing(thing);
+    struct Objects* objdat = get_objects_data_for_thing(thing);
     if (objdat->related_creatr_model)
     {
       update_gui_tooltip_target(thing);
       if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
       {
-        crdata = creature_data_get(objdat->related_creatr_model);
-        rdata = room_data_get_for_kind(RoK_LAIR); //TODO use a separate string for creature lair object than for lair room
-        set_gui_tooltip_box_fmt(5,"%s %s", get_string(crdata->namestr_idx), get_string(rdata->name_stridx)); // (creature) Lair
+          struct CreatureData* crdata = creature_data_get(objdat->related_creatr_model);
+          struct RoomData* rdata = room_data_get_for_kind(RoK_LAIR);                                            //TODO use a separate string for creature lair object than for lair room
+          set_gui_tooltip_box_fmt(5, "%s %s", get_string(crdata->namestr_idx), get_string(rdata->name_stridx)); // (creature) Lair
       } else
       {
         help_tip_time++;
@@ -229,20 +219,16 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
 
 short setup_land_tooltips(struct Coord3d *pos)
 {
-  struct PlayerInfo *player;
-  struct SlabMap *slb;
-  struct SlabAttr *slbattr;
-  long skind;
   SYNCDBG(18,"Starting");
   if (!settings.tooltips_on)
     return false;
-  slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
-  skind = slb->kind;
-  slbattr = get_slab_kind_attrs(skind);
+  struct SlabMap* slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
+  long skind = slb->kind;
+  struct SlabAttr* slbattr = get_slab_kind_attrs(skind);
   if (slbattr->tooltip_stridx == GUIStr_Empty)
     return false;
   update_gui_tooltip_target((void *)skind);
-  player = get_my_player();
+  struct PlayerInfo* player = get_my_player();
   if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
   {
       set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
@@ -255,20 +241,17 @@ short setup_land_tooltips(struct Coord3d *pos)
 
 short setup_room_tooltips(struct Coord3d *pos)
 {
-  struct PlayerInfo *player;
-  struct Room *room;
-  int stridx;
   SYNCDBG(18,"Starting");
   if (!settings.tooltips_on)
     return false;
-  room = subtile_room_get(pos->x.stl.num, pos->y.stl.num);
+  struct Room* room = subtile_room_get(pos->x.stl.num, pos->y.stl.num);
   if (room_is_invalid(room))
     return false;
-  stridx = room_data[room->kind].name_stridx;
+  int stridx = room_data[room->kind].name_stridx;
   if (stridx == GUIStr_Empty)
     return false;
   update_gui_tooltip_target(room);
-  player = get_my_player();
+  struct PlayerInfo* player = get_my_player();
   if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
   {
     set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
@@ -281,9 +264,8 @@ short setup_room_tooltips(struct Coord3d *pos)
 
 short setup_scrolling_tooltips(struct Coord3d *mappos)
 {
-  short shown;
   SYNCDBG(18,"Starting");
-  shown = false;
+  short shown = false;
   if (!shown)
     shown = setup_trap_tooltips(mappos);
   if (!shown)
@@ -301,26 +283,22 @@ short setup_scrolling_tooltips(struct Coord3d *mappos)
 
 void setup_gui_tooltip(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct CreatureData *crdata;
-  const char *text;
-  long i,k;
+  long k;
   if (gbtn->tooltip_stridx == GUIStr_Empty)
     return;
   if (!settings.tooltips_on)
     return;
-  dungeon = get_my_dungeon();
+  struct Dungeon* dungeon = get_my_dungeon();
   set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
-  i = gbtn->tooltip_stridx;
-  text = get_string(i);
+  long i = gbtn->tooltip_stridx;
+  const char* text = get_string(i);
   if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
   {
       if (tool_tip_box.gbutton != NULL)
           k = (long)tool_tip_box.gbutton->content;
       else
           k = -1;
-      player = get_player(k);
+      struct PlayerInfo* player = get_player(k);
       if (player->field_15[0] != '\0')
           set_gui_tooltip_box_fmt(0, "%s: %s", text, player->field_15);
       else
@@ -337,7 +315,7 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
           k = breed_activities[top_of_breed_list+k];
       else
           k = get_players_special_digger_model(my_player_number);
-      crdata = creature_data_get(k);
+      struct CreatureData* crdata = creature_data_get(k);
       set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crdata->namestr_idx), text);
   } else
   {
@@ -348,15 +326,13 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
 
 TbBool gui_button_tooltip_update(int gbtn_idx)
 {
-  struct PlayerInfo *player;
-  struct GuiButton *gbtn;
   if ((gbtn_idx < 0) || (gbtn_idx >= ACTIVE_BUTTONS_COUNT))
   {
     clear_gui_tooltip_button();
     return false;
   }
-  player = get_my_player();
-  gbtn = &active_buttons[gbtn_idx];
+  struct PlayerInfo* player = get_my_player();
+  struct GuiButton* gbtn = &active_buttons[gbtn_idx];
   if ((get_active_menu(gbtn->gmenu_idx)->visual_state == 2) && ((gbtn->btype_value & LbBFeF_NoTooltip) == 0))
   {
     if (tool_tip_box.gbutton == gbtn)
@@ -384,12 +360,9 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
 
 TbBool input_gameplay_tooltips(TbBool gameplay_on)
 {
-    struct Coord3d mappos;
-    struct PlayerInfo *player;
-    TbBool shown;
     SYNCDBG(17,"Starting");
-    shown = false;
-    player = get_my_player();
+    TbBool shown = false;
+    struct PlayerInfo* player = get_my_player();
     if ((gameplay_on) && (tool_tip_time == 0) && (!busy_doing_gui))
     {
         if (player->acamera == NULL)
@@ -397,7 +370,8 @@ TbBool input_gameplay_tooltips(TbBool gameplay_on)
             ERRORLOG("No active camera");
             return false;
         }
-        if (screen_to_map(player->acamera,GetMouseX(),GetMouseY(),&mappos))
+        struct Coord3d mappos;
+        if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &mappos))
         {
             if (subtile_revealed(mappos.x.stl.num,mappos.y.stl.num, player->id_number))
             {
@@ -430,9 +404,7 @@ void toggle_tooltips(void)
 
 void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, long ttheight, long viswidth)
 {
-    unsigned int flg_mem;
-    long x,y;
-    flg_mem = lbDisplay.DrawFlags;
+    unsigned int flg_mem = lbDisplay.DrawFlags;
     if (ttwidth > viswidth)
     {
         if (tooltip_scroll_timer <= 0)
@@ -450,9 +422,9 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
     }
     if (tttext != NULL)
     {
-        x = pos_x + 26*units_per_pixel/16;
+        long x = pos_x + 26 * units_per_pixel / 16;
         lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-        y = pos_y - (ttheight+28)*units_per_pixel/16;
+        long y = pos_y - (ttheight + 28) * units_per_pixel / 16;
         if (x > MyScreenWidth)
           x = MyScreenWidth;
         if (x < 6*units_per_pixel/16)
@@ -470,8 +442,7 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             LbTextSetWindow(x, y, viswidth*units_per_pixel/16, ttheight*units_per_pixel/16);
             draw_slab64k(x, y, units_per_pixel, viswidth*units_per_pixel/16, ttheight*units_per_pixel/16);
             lbDisplay.DrawFlags = 0;
-            int tx_units_per_px;
-            tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+            int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
             LbTextDrawResized(tooltip_scroll_offset*units_per_pixel/16, -2*units_per_pixel/16, tx_units_per_px, tttext);
         }
     }
@@ -492,9 +463,8 @@ long find_string_length_to_first_character(char *str, char fch)
 
 long find_string_width_to_first_character(char *str, char fch)
 {
-  long len;
   char text[TOOLTIP_MAX_LEN];
-  len = find_string_length_to_first_character(str, fch);
+  long len = find_string_length_to_first_character(str, fch);
   if (len >= sizeof(text))
   {
     WARNLOG("This bloody tooltip is too long");
@@ -522,35 +492,30 @@ void move_characters_forward_and_fill_empty_space(char *str,long move_pos,long s
 
 long find_and_pad_string_width_to_first_character(char *str, char fch)
 {
-  long len,fill_len;
-  len = find_string_length_to_first_character(str, fch);
-  fill_len = 10-len;
-  if (fill_len > 0)
-  {
-    // Moving characters after fch beyond the tooltip box size
-    move_characters_forward_and_fill_empty_space(str,10,fill_len,len,strlen(str)+9,' ');
-    move_characters_forward_and_fill_empty_space(str,fill_len/2,fill_len/2,0,9,' ');
+    long len = find_string_length_to_first_character(str, fch);
+    long fill_len = 10 - len;
+    if (fill_len > 0)
+    {
+        // Moving characters after fch beyond the tooltip box size
+        move_characters_forward_and_fill_empty_space(str, 10, fill_len, len, strlen(str) + 9, ' ');
+        move_characters_forward_and_fill_empty_space(str, fill_len / 2, fill_len / 2, 0, 9, ' ');
   }
   return find_string_width_to_first_character(str, fch);
 }
 
 void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
 {
-  struct PlayerInfo *player;
-  unsigned int flg_mem;
-  long hdwidth,ttwidth,ttheight;
-  long pos_x,pos_y;
   if (tttext == NULL)
     return;
-  flg_mem = lbDisplay.DrawFlags;
+  unsigned int flg_mem = lbDisplay.DrawFlags;
   lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-  hdwidth = find_and_pad_string_width_to_first_character(tttext, ':');
-  ttwidth = LbTextStringWidth(tttext);
-  ttheight = LbTextStringHeight(tttext);
+  long hdwidth = find_and_pad_string_width_to_first_character(tttext, ':');
+  long ttwidth = LbTextStringWidth(tttext);
+  long ttheight = LbTextStringHeight(tttext);
   lbDisplay.DrawFlags = flg_mem;
-  player = get_my_player();
-  pos_x = ttpos_x;
-  pos_y = ttpos_y;
+  struct PlayerInfo* player = get_my_player();
+  long pos_x = ttpos_x;
+  long pos_y = ttpos_y;
   if (player->view_type == PVT_MapScreen)
   {
       pos_y = GetMouseY() + 24*units_per_pixel/16;

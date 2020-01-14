@@ -108,18 +108,15 @@ int setup_old_network_service(void)
 
 void setup_exchange_player_number(void)
 {
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  int i,k;
   SYNCDBG(6,"Starting");
   clear_packets();
-  player = get_my_player();
-  pckt = get_packet_direct(my_player_number);
+  struct PlayerInfo* player = get_my_player();
+  struct Packet* pckt = get_packet_direct(my_player_number);
   set_packet_action(pckt, PckA_InitPlayerNum, player->field_2C, settings.video_rotate_mode, 0, 0);
   if (LbNetwork_Exchange(pckt))
       ERRORLOG("Network Exchange failed");
-  k = 0;
-  for (i=0; i<NET_PLAYERS_COUNT; i++)
+  int k = 0;
+  for (int i = 0; i < NET_PLAYERS_COUNT; i++)
   {
       pckt = get_packet_direct(i);
       if ((net_player_info[i].active) && (pckt->action == PckA_InitPlayerNum))
@@ -141,39 +138,35 @@ void setup_exchange_player_number(void)
 
 short setup_select_player_number(void)
 {
-  struct PlayerInfo *player;
-  short is_set;
-  int i,k;
-  is_set = 0;
-  k = 0;
-  SYNCDBG(6,"Starting");
-  for (i=0; i<NET_PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if ( net_player_info[i].active )
-      {
-        player->packet_num = i;
-        if ((!is_set) && (my_player_number == i))
+    short is_set = 0;
+    int k = 0;
+    SYNCDBG(6, "Starting");
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if (net_player_info[i].active)
         {
-          is_set = 1;
-          my_player_number = k;
+            player->packet_num = i;
+            if ((!is_set) && (my_player_number == i))
+            {
+                is_set = 1;
+                my_player_number = k;
+            }
+            k++;
         }
-        k++;
-      }
   }
   return is_set;
 }
 
 void setup_count_players(void)
 {
-  int i;
   if (game.game_kind == GKind_LocalGame)
   {
     game.active_players_count = 1;
   } else
   {
     game.active_players_count = 0;
-    for (i=0; i<NET_PLAYERS_COUNT; i++)
+    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
       if (net_player_info[i].active)
         game.active_players_count++;

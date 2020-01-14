@@ -78,23 +78,20 @@ long naviheap_get(long heapid)
  */
 void heap_down(long heapid)
 {
-    unsigned long hpos,hnew,hend;
-    long tree_idb,tree_ids;
-    long tval_idb;
     // Insert dummy value (there is no associated triangle for it)
     Heap[heap_end+1] = TREEVALS_COUNT-1;
     tree_val[TREEVALS_COUNT-1] = LONG_MAX;
-    hend = (heap_end >> 1);
-    tree_idb = Heap[heapid];
-    tval_idb = tree_val[tree_idb];
-    hpos = heapid;
+    unsigned long hend = (heap_end >> 1);
+    long tree_idb = Heap[heapid];
+    long tval_idb = tree_val[tree_idb];
+    unsigned long hpos = heapid;
     while (hpos <= hend)
     {
-        hnew = (hpos << 1);
+        unsigned long hnew = (hpos << 1);
         /* Select the cone with smaller tree value */
         if (naviheap_item_tree_val(hnew+1) < naviheap_item_tree_val(hnew))
             hnew++;
-        tree_ids = Heap[hnew];
+        long tree_ids = Heap[hnew];
         if (tree_val[tree_ids] > tval_idb)
             break;
         Heap[hpos] = tree_ids;
@@ -109,13 +106,12 @@ void heap_down(long heapid)
  */
 long naviheap_remove(void)
 {
-  long popval;
   if (heap_end < 1)
   {
       erstat_inc(ESE_BadPathHeap);
       return -1;
   }
-  popval = Heap[1];
+  long popval = Heap[1];
   Heap[1] = Heap[heap_end];
   heap_end--;
   heap_down(1);
@@ -125,17 +121,15 @@ long naviheap_remove(void)
 #define heap_up(heapid) heap_up_f(heapid, __func__)
 void heap_up_f(long heapid, const char *func_name)
 {
-    unsigned long nmask,pmask;
-    long i,k;
-    pmask = heapid;
+    unsigned long pmask = heapid;
     Heap[0] = TREEVALS_COUNT-1;
     tree_val[TREEVALS_COUNT-1] = -1;
-    nmask = pmask;
-    k = Heap[pmask];
+    unsigned long nmask = pmask;
+    long k = Heap[pmask];
     while ( 1 )
     {
         nmask >>= 1;
-        i = Heap[nmask];
+        long i = Heap[nmask];
         if (tree_val[k] > tree_val[i])
           break;
         if (pmask == 0)
@@ -171,8 +165,7 @@ TbBool naviheap_add(long heapid)
  */
 long naviheap_item_tree_val(long heapid)
 {
-    long tree_id;
-    tree_id = naviheap_get(heapid);
+    long tree_id = naviheap_get(heapid);
     if ((tree_id < 0) || (tree_id >= TREEVALS_COUNT))
     {
         erstat_inc(ESE_BadPathHeap);

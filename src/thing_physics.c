@@ -53,11 +53,10 @@ TbBool thing_touching_floor(const struct Thing *thing)
 
 TbBool thing_touching_flight_altitude(const struct Thing *thing)
 {
-    int floor_height;
     if (thing->veloc_push_add.z.val != 0) {
         return false;
     }
-    floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
+    int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
     return (thing->mappos.z.val >= floor_height + 16*NORMAL_FLYING_ALTITUDE/17)
         && (thing->mappos.z.val <= floor_height + 19*NORMAL_FLYING_ALTITUDE/17);
 }
@@ -118,8 +117,7 @@ TbBool positions_equivalent(const struct Coord3d *pos_a, const struct Coord3d *p
 
 void creature_set_speed(struct Thing *thing, long speed)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (speed < -MAX_VELOCITY)
     {
         cctrl->move_speed = -MAX_VELOCITY;
@@ -136,12 +134,13 @@ void creature_set_speed(struct Thing *thing, long speed)
 
 TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-  int delta_x, delta_y;
-  int mul_x, mul_y;
-  delta_x = pos2->x.val - (int)pos1->x.val;
-  delta_y = pos2->y.val - (int)pos1->y.val;
-  if (delta_x < 0) {
-      mul_x = pos1->x.stl.pos;
+    int mul_x;
+    int mul_y;
+    int delta_x = pos2->x.val - (int)pos1->x.val;
+    int delta_y = pos2->y.val - (int)pos1->y.val;
+    if (delta_x < 0)
+    {
+        mul_x = pos1->x.stl.pos;
   } else {
       mul_x = 255 - (int)pos1->x.stl.pos;
   }
@@ -155,12 +154,13 @@ TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *
 
 TbBool cross_y_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-  int delta_x, delta_y;
-  int mul_x, mul_y;
-  delta_x = pos2->x.val - (int)pos1->x.val;
-  delta_y = pos2->y.val - (int)pos1->y.val;
-  if (delta_x < 0) {
-      mul_x = pos1->x.stl.pos;
+    int mul_x;
+    int mul_y;
+    int delta_x = pos2->x.val - (int)pos1->x.val;
+    int delta_y = pos2->y.val - (int)pos1->y.val;
+    if (delta_x < 0)
+    {
+        mul_x = pos1->x.stl.pos;
   } else {
       mul_x = 255 - (int)pos1->x.stl.pos;
   }
@@ -180,9 +180,8 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
     modpos.z.val = pos->z.val;
     if (thing_in_wall_at(thing, &modpos))
     {
-        long curr_height, norm_height;
-        curr_height = thing->mappos.z.val;
-        norm_height = get_floor_height_under_thing_at(thing, &modpos);
+        long curr_height = thing->mappos.z.val;
+        long norm_height = get_floor_height_under_thing_at(thing, &modpos);
         if (norm_height < curr_height)
         {
             return true;
@@ -203,12 +202,10 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
     realpos.x.val = thing->mappos.x.val;
     realpos.y.val = thing->mappos.y.val;
     realpos.z.val = thing->mappos.z.val;
-    int delta_x, delta_y;
-    delta_x = pos->x.val - (long)realpos.x.val;
-    delta_y = pos->y.val - (long)realpos.y.val;
+    int delta_x = pos->x.val - (long)realpos.x.val;
+    int delta_y = pos->y.val - (long)realpos.y.val;
     // Backup original position - we will have to restore it before each return
-    struct Coord3d origpos;
-    origpos = thing->mappos;
+    struct Coord3d origpos = thing->mappos;
 
     if ((pos->x.stl.num != realpos.x.stl.num) && (pos->y.stl.num != realpos.y.stl.num))
     {
@@ -356,26 +353,23 @@ long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
     SYNCDBG(18,"Starting");
     //return _DK_get_thing_height_at(thing, pos);
     int i;
-    int radius;
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
         i = thing->clipbox_size_xy;
     }
-    radius = i >> 1;
+    int radius = i >> 1;
 
-    MapCoord pos_x_beg, pos_x_end;
-    MapCoord pos_y_beg, pos_y_end;
-    pos_x_beg = max((MapCoord)pos->x.val - radius, 0);
-    pos_y_beg = max((MapCoord)pos->y.val - radius, 0);
-    pos_x_end = min((MapCoord)pos->x.val + radius, subtile_coord(map_subtiles_x, COORD_PER_STL-1));
-    pos_y_end = min((MapCoord)pos->y.val + radius, subtile_coord(map_subtiles_y, COORD_PER_STL-1));
-    MapSubtlCoord floor_height, ceiling_height;
+    MapCoord pos_x_beg = max((MapCoord)pos->x.val - radius, 0);
+    MapCoord pos_y_beg = max((MapCoord)pos->y.val - radius, 0);
+    MapCoord pos_x_end = min((MapCoord)pos->x.val + radius, subtile_coord(map_subtiles_x, COORD_PER_STL - 1));
+    MapCoord pos_y_end = min((MapCoord)pos->y.val + radius, subtile_coord(map_subtiles_y, COORD_PER_STL - 1));
+    MapSubtlCoord floor_height;
+    MapSubtlCoord ceiling_height;
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
-    MapCoord pos_z_floor, pos_z_ceiling;
-    pos_z_ceiling = subtile_coord(ceiling_height,0);
-    pos_z_floor = subtile_coord(floor_height,0);
+    MapCoord pos_z_ceiling = subtile_coord(ceiling_height, 0);
+    MapCoord pos_z_floor = subtile_coord(floor_height, 0);
     if (pos_z_floor + thing->clipbox_size_yz >= pos_z_ceiling)
         return  pos->z.val;
     else
@@ -389,8 +383,7 @@ long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coo
 
 TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord height_beg, MapCoord height_end)
 {
-    struct Map *mapblk;
-    mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
     {
         return true;
@@ -408,34 +401,27 @@ TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord
 
 TbBool creature_can_pass_throgh_wall_at(const struct Thing *creatng, const struct Coord3d *pos)
 {
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if (crstat->can_go_locked_doors)
     {
-        int radius;
         long i;
         if (thing_is_creature(creatng)) {
             i = thing_nav_sizexy(creatng);
         } else {
             i = creatng->clipbox_size_xy;
         }
-        radius = i/2;
+        int radius = i / 2;
         // Base on the radius, determine bounds of the object
-        MapSubtlCoord stl_x_beg, stl_x_end;
-        MapSubtlCoord stl_y_beg, stl_y_end;
-        MapCoord height_beg, height_end;
-        height_beg = pos->z.val;
-        height_end = height_beg + creatng->clipbox_size_yz;
-        stl_x_beg = coord_subtile(pos->x.val - radius);
-        stl_x_end = coord_subtile(pos->x.val + radius);
-        stl_y_beg = coord_subtile(pos->y.val - radius);
-        stl_y_end = coord_subtile(pos->y.val + radius);
-        TbBool allow;
-        allow = false;
-        MapSubtlCoord stl_x, stl_y;
-        for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
+        MapCoord height_beg = pos->z.val;
+        MapCoord height_end = height_beg + creatng->clipbox_size_yz;
+        MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
+        MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
+        MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
+        MapSubtlCoord stl_y_end = coord_subtile(pos->y.val + radius);
+        TbBool allow = false;
+        for (MapSubtlCoord stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
         {
-            for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
+            for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
             {
                 if (subtile_is_door(stl_x, stl_y)) {
                     allow = true;
@@ -452,28 +438,23 @@ TbBool creature_can_pass_throgh_wall_at(const struct Thing *creatng, const struc
 
 long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-    int radius;
     long i;
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
         i = thing->clipbox_size_xy;
     }
-    radius = i/2;
+    int radius = i / 2;
     // Base on the radius, determine bounds of the object
-    MapSubtlCoord stl_x_beg, stl_x_end;
-    MapSubtlCoord stl_y_beg, stl_y_end;
-    MapCoord height_beg, height_end;
-    height_beg = pos->z.val;
-    height_end = height_beg + thing->clipbox_size_yz;
-    stl_x_beg = coord_subtile(pos->x.val - radius);
-    stl_x_end = coord_subtile(pos->x.val + radius);
-    stl_y_beg = coord_subtile(pos->y.val - radius);
-    stl_y_end = coord_subtile(pos->y.val + radius);
-    MapSubtlCoord stl_x, stl_y;
-    for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    MapCoord height_beg = pos->z.val;
+    MapCoord height_end = height_beg + thing->clipbox_size_yz;
+    MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
+    MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
+    MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
+    MapSubtlCoord stl_y_end = coord_subtile(pos->y.val + radius);
+    for (MapSubtlCoord stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
-        for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
+        for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
         {
             if (map_is_solid_at_height(stl_x, stl_y, height_beg, height_end)) {
                 return 1;
@@ -485,32 +466,25 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
 {
-    MapCoord z_beg, z_end;
-    z_beg = pos->z.val;
-    z_end = z_beg + thing->clipbox_size_yz;
-    MapSubtlCoord stl_x_beg, stl_x_end;
-    stl_x_beg = coord_subtile(pos->x.val - radius);
-    stl_x_end = coord_subtile(pos->x.val + radius);
-    MapSubtlCoord stl_y_beg, stl_y_end;
-    stl_y_beg = coord_subtile(pos->y.val - radius);
-    stl_y_end = coord_subtile(pos->y.val + radius);
-    MapSubtlCoord stl_x, stl_y;
-    for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    MapCoord z_beg = pos->z.val;
+    MapCoord z_end = z_beg + thing->clipbox_size_yz;
+    MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
+    MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
+    MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
+    MapSubtlCoord stl_y_end = coord_subtile(pos->y.val + radius);
+    for (MapSubtlCoord stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
-        for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
+        for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
         {
-            struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x, stl_y);
+            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
                 return true;
             }
-            int floor_stl;
-            floor_stl = get_map_floor_filled_subtiles(mapblk);
+            int floor_stl = get_map_floor_filled_subtiles(mapblk);
             if (subtile_coord(floor_stl,0) > z_beg) {
                 return true;
             }
-            int ceiln_stl;
-            ceiln_stl = get_map_ceiling_filled_subtiles(mapblk);
+            int ceiln_stl = get_map_ceiling_filled_subtiles(mapblk);
             if (ceiln_stl == 0) {
                 ceiln_stl = get_mapblk_filled_subtiles(mapblk);
             }
@@ -524,31 +498,29 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
 
 long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-    int radius;
     long i;
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
         i = thing->clipbox_size_xy;
     }
-    radius = i/2;
+    int radius = i / 2;
     // Get range of coords under thing
-    MapCoord pos_x_beg, pos_x_end;
-    MapCoord pos_y_beg, pos_y_end;
-    pos_x_beg = (pos->x.val - radius);
+    MapCoord pos_x_beg = (pos->x.val - radius);
     if (pos_x_beg < 0)
         pos_x_beg = 0;
-    pos_x_end = pos->x.val + radius;
-    pos_y_beg = (pos->y.val - radius);
+    MapCoord pos_x_end = pos->x.val + radius;
+    MapCoord pos_y_beg = (pos->y.val - radius);
     if (pos_y_beg < 0)
         pos_y_beg = 0;
     if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
         pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
-    pos_y_end = pos->y.val + radius;
+    MapCoord pos_y_end = pos->y.val + radius;
     if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
         pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
     // Find correct floor and ceiling plane for the area
-    MapSubtlCoord floor_height, ceiling_height;
+    MapSubtlCoord floor_height;
+    MapSubtlCoord ceiling_height;
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
     return subtile_coord(floor_height,0);
@@ -556,29 +528,28 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
 
 long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-    int radius;
     long i;
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
         i = thing->clipbox_size_xy;
     }
-    radius = i/2;
-    int pos_x_beg, pos_y_beg, pos_x_end, pos_y_end;
-    pos_x_beg = (int)pos->x.val - radius;
+    int radius = i / 2;
+    int pos_x_beg = (int)pos->x.val - radius;
     if (pos_x_beg < 0)
         pos_x_beg = 0;
-    pos_y_beg = (int)pos->y.val - radius;
+    int pos_y_beg = (int)pos->y.val - radius;
     if (pos_y_beg < 0)
         pos_y_beg = 0;
-    pos_x_end = (int)pos->x.val + radius;
+    int pos_x_end = (int)pos->x.val + radius;
     if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
         pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
-    pos_y_end = (int)pos->y.val + radius;
+    int pos_y_end = (int)pos->y.val + radius;
     if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
         pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
     // Set initial values for computing floor and ceiling heights
-    MapSubtlCoord floor_height, ceiling_height;
+    MapSubtlCoord floor_height;
+    MapSubtlCoord ceiling_height;
     // Sweep through subtiles and select highest floor and lowest ceiling
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
@@ -590,31 +561,29 @@ long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct C
 void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor)
 {
-    int radius;
     long i;
     if (thing_is_creature(thing)) {
         i = thing_nav_sizexy(thing);
     } else {
         i = thing->clipbox_size_xy;
     }
-    radius = i/2;
+    int radius = i / 2;
     // Get range of coords under thing
-    MapCoord pos_x_beg, pos_x_end;
-    MapCoord pos_y_beg, pos_y_end;
-    pos_x_beg = (pos->x.val - radius);
+    MapCoord pos_x_beg = (pos->x.val - radius);
     if (pos_x_beg < 0)
         pos_x_beg = 0;
-    pos_x_end = pos->x.val + radius;
-    pos_y_beg = (pos->y.val - radius);
+    MapCoord pos_x_end = pos->x.val + radius;
+    MapCoord pos_y_beg = (pos->y.val - radius);
     if (pos_y_beg < 0)
         pos_y_beg = 0;
     if (pos_x_end >= subtile_coord(map_subtiles_x,COORD_PER_STL-1))
         pos_x_end = subtile_coord(map_subtiles_x,COORD_PER_STL-1);
-    pos_y_end = pos->y.val + radius;
+    MapCoord pos_y_end = pos->y.val + radius;
     if (pos_y_end >= subtile_coord(map_subtiles_y,COORD_PER_STL-1))
         pos_y_end = subtile_coord(map_subtiles_y,COORD_PER_STL-1);
     // Find correct floor and ceiling plane for the area
-    MapSubtlCoord floor_height, ceiling_height;
+    MapSubtlCoord floor_height;
+    MapSubtlCoord ceiling_height;
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
     *floor_height_cor = subtile_coord(floor_height,0);
@@ -638,17 +607,14 @@ void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVec
  */
 TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos, const struct Thing *sectng)
 {
-    MapCoordDelta dist_collide;
-    dist_collide = (sectng->solid_size_xy + firstng->solid_size_xy) / 2;
-    MapCoordDelta dist_x, dist_y;
-    dist_x = pos->x.val - (MapCoordDelta)sectng->mappos.x.val;
-    dist_y = pos->y.val - (MapCoordDelta)sectng->mappos.y.val;
+    MapCoordDelta dist_collide = (sectng->solid_size_xy + firstng->solid_size_xy) / 2;
+    MapCoordDelta dist_x = pos->x.val - (MapCoordDelta)sectng->mappos.x.val;
+    MapCoordDelta dist_y = pos->y.val - (MapCoordDelta)sectng->mappos.y.val;
     if ((abs(dist_x) >= dist_collide) || (abs(dist_y) >= dist_collide)) {
         return false;
     }
     dist_collide = (sectng->field_5C + firstng->field_5C) / 2;
-    MapCoordDelta dist_z;
-    dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->field_5C >> 1) + (firstng->field_5C >> 1);
+    MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->field_5C >> 1) + (firstng->field_5C >> 1);
     if (abs(dist_z) >= dist_collide) {
         return false;
     }
@@ -667,15 +633,14 @@ TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const st
     dt.y.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
     dt.z.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
     // Compute amount of interpoints for collision check
-    int i, interpoints;
+    int interpoints;
     {
-        MapCoordDelta dt_max, dt_limit;
-        dt_max = max(max(dt.x.val,dt.y.val),dt.z.val);
+        MapCoordDelta dt_max = max(max(dt.x.val, dt.y.val), dt.z.val);
         // Require checking at 1/4 of max collision distance
-        dt_limit = (sectng->solid_size_xy + firstng->solid_size_xy) / 4 + 1;
+        MapCoordDelta dt_limit = (sectng->solid_size_xy + firstng->solid_size_xy) / 4 + 1;
         interpoints = dt_max / dt_limit;
     }
-    for (i=1; i < interpoints; i++)
+    for (int i = 1; i < interpoints; i++)
     {
         struct Coord3d pos;
         pos.x.val = firstng->mappos.x.val + dt.x.val * i / interpoints;

@@ -41,37 +41,33 @@ char *gui_strings[STRINGS_MAX+1];
 /******************************************************************************/
 TbBool reset_strings(char **strings)
 {
-  int text_idx;
-  char **text_arr;
-  text_arr = strings;
-  text_idx = STRINGS_MAX;
-  while (text_idx >= 0)
-  {
-    *text_arr = lbEmptyString;
-    text_arr++;
-    text_idx--;
+    char** text_arr = strings;
+    int text_idx = STRINGS_MAX;
+    while (text_idx >= 0)
+    {
+        *text_arr = lbEmptyString;
+        text_arr++;
+        text_idx--;
   }
   return true;
 }
 
 TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_end)
 {
-  int text_idx;
-  char *text_ptr;
-  char **text_arr;
-  text_arr = strings;
-  text_idx = STRINGS_MAX;
-  text_ptr = strings_data;
-  while (text_idx >= 0)
-  {
-    if (text_ptr >= strings_data_end)
+    char** text_arr = strings;
+    int text_idx = STRINGS_MAX;
+    char* text_ptr = strings_data;
+    while (text_idx >= 0)
     {
-      break;
-    }
-    *text_arr = text_ptr;
-    text_arr++;
-    char chr_prev;
-    do {
+        if (text_ptr >= strings_data_end)
+        {
+            break;
+        }
+        *text_arr = text_ptr;
+        text_arr++;
+        char chr_prev;
+        do
+        {
             chr_prev = *text_ptr;
             text_ptr++;
     } while ((chr_prev != '\0') && (text_ptr < strings_data_end));
@@ -85,15 +81,10 @@ TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_
  */
 TbBool setup_gui_strings_data(void)
 {
-  char *strings_data_end;
-  char *fname;
-  short result;
-  long filelen;
-  long loaded_size;
   SYNCDBG(8,"Starting");
 
-  fname = prepare_file_fmtpath(FGrp_FxData,"gtext_%s.dat",get_language_lwrstr(install_info.lang_id));
-  filelen = LbFileLengthRnc(fname);
+  char* fname = prepare_file_fmtpath(FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
+  long filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
     ERRORLOG("GUI Strings file does not exist or can't be opened");
@@ -107,8 +98,8 @@ TbBool setup_gui_strings_data(void)
     SYNCLOG("Strings file name is \"%s\"",fname);
     return false;
   }
-  strings_data_end = gui_strings_data+filelen+255;
-  loaded_size = LbFileLoadAt(fname, gui_strings_data);
+  char* strings_data_end = gui_strings_data + filelen + 255;
+  long loaded_size = LbFileLoadAt(fname, gui_strings_data);
   if (loaded_size < 16)
   {
     ERRORLOG("GUI Strings file couldn't be loaded or is too small");
@@ -117,7 +108,7 @@ TbBool setup_gui_strings_data(void)
   // Resetting all values to empty strings
   reset_strings(gui_strings);
   // Analyzing strings data and filling correct values
-  result = create_strings_list(gui_strings, gui_strings_data, strings_data_end);
+  short result = create_strings_list(gui_strings, gui_strings_data, strings_data_end);
   // Updating strings inside the DLL
   LbMemoryCopy(_DK_strings, gui_strings, DK_STRINGS_MAX*sizeof(char *));
   SYNCDBG(19,"Finished");
@@ -139,13 +130,9 @@ TbBool free_gui_strings_data(void)
  */
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
 {
-  char *strings_data_end;
-  char *fname;
-  short result;
-  long filelen;
   SYNCDBG(18,"Starting");
-  fname = prepare_file_path(FGrp_Main,campgn->strings_fname);
-  filelen = LbFileLengthRnc(fname);
+  char* fname = prepare_file_path(FGrp_Main, campgn->strings_fname);
+  long filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
     ERRORLOG("Campaign Strings file does not exist or can't be opened");
@@ -157,9 +144,8 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
     ERRORLOG("Can't allocate memory for Campaign Strings data");
     return false;
   }
-  strings_data_end = campgn->strings_data+filelen+255;
-  long loaded_size;
-  loaded_size = LbFileLoadAt(fname, campgn->strings_data);
+  char* strings_data_end = campgn->strings_data + filelen + 255;
+  long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
   if (loaded_size < 16)
   {
     ERRORLOG("Campaign Strings file couldn't be loaded or is too small");
@@ -168,7 +154,7 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
   // Resetting all values to empty strings
   reset_strings(campgn->strings);
   // Analyzing strings data and filling correct values
-  result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end);
+  short result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end);
   SYNCDBG(19,"Finished");
   return result;
 }

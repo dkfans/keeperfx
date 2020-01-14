@@ -109,8 +109,7 @@ ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
 {
     if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
         return object_conf.workshop_object_class[0];
-    ThingModel tngmodel;
-    tngmodel = thing->model;
+    ThingModel tngmodel = thing->model;
     if ((tngmodel <= 0) || (tngmodel >= object_conf.object_types_count))
         return object_conf.workshop_object_class[0];
     return object_conf.workshop_object_class[tngmodel];
@@ -120,8 +119,7 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
 {
     if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
         return object_conf.object_to_door_or_trap[0];
-    ThingModel tngmodel;
-    tngmodel = thing->model;
+    ThingModel tngmodel = thing->model;
     if ((tngmodel <= 0) || (tngmodel >= object_conf.object_types_count))
         return object_conf.object_to_door_or_trap[0];
     return object_conf.object_to_door_or_trap[tngmodel];
@@ -129,21 +127,17 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
 
 TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         object_conf.object_types_count = 1;
     }
     // Find the block
-    sprintf(block_buf,"common");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "common");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -154,14 +148,16 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,objects_common_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, objects_common_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
         switch (cmd_num)
         {
         case 1: // OBJECTSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+        {
+            char word_buf[COMMAND_WORD_LEN];
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
               if ((k > 0) && (k <= OBJECT_TYPES_MAX))
@@ -176,6 +172,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
+        }
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -194,13 +191,8 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
 TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ObjectConfigStats *objst;
-    struct Objects *objdat;
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize the objects array
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -227,9 +219,10 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
     arr_size = object_conf.object_types_count;
     for (i=0; i < arr_size; i++)
     {
-        sprintf(block_buf,"object%d",i);
-        pos = 0;
-        k = find_conf_block(buf,&pos,len,block_buf);
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "object%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
             if ((flags & CnfLd_AcceptPartial) == 0) {
@@ -239,12 +232,12 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             continue;
         }
         objst = &object_conf.object_cfgstats[i];
-        objdat = get_objects_data(i);
+        struct Objects* objdat = get_objects_data(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
             // Finding command number in this line
-            cmd_num = recognize_conf_command(buf,&pos,len,objects_object_commands);
+            int cmd_num = recognize_conf_command(buf, &pos, len, objects_object_commands);
             // Now store the config item in correct place
             if (cmd_num == -3) break; // if next block starts
             if ((flags & CnfLd_ListOnly) != 0) {
@@ -253,7 +246,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     cmd_num = 0;
                 }
             }
-            n = 0;
+            int n = 0;
+            char word_buf[COMMAND_WORD_LEN];
             switch (cmd_num)
             {
             case 1: // NAME
@@ -337,11 +331,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
 
 TbBool load_objects_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    char *buf;
-    long len;
-    TbBool result;
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
-    len = LbFileLengthRnc(fname);
+    long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -354,12 +345,12 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    result = (len > 0);
+    TbBool result = (len > 0);
     // Parse blocks of the config file
     if (result)
     {
@@ -386,10 +377,8 @@ TbBool load_objects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global objects config";
     static const char config_campgn_textname[] = "campaign objects config";
-    char *fname;
-    TbBool result;
-    fname = prepare_file_path(FGrp_FxData,conf_fname);
-    result = load_objects_config_file(config_global_textname,fname,flags);
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    TbBool result = load_objects_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
@@ -404,8 +393,7 @@ TbBool load_objects_config(const char *conf_fname, unsigned short flags)
  */
 const char *object_code_name(ThingModel tngmodel)
 {
-    const char *name;
-    name = get_conf_parameter_text(object_desc,tngmodel);
+    const char* name = get_conf_parameter_text(object_desc, tngmodel);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -419,9 +407,8 @@ const char *object_code_name(ThingModel tngmodel)
  */
 ThingModel object_model_id(const char * code_name)
 {
-    int i;
-
-    for (i = 0; i < object_conf.object_types_count; ++i) {
+    for (int i = 0; i < object_conf.object_types_count; ++i)
+    {
         if (strncasecmp(object_conf.object_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
@@ -483,7 +470,6 @@ int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmode
 
 void init_objects(void)
 {
-    long i;
     game.objects_config[1].ilght.field_0 = 0;
     game.objects_config[1].ilght.field_2 = 0x00;
     game.objects_config[1].ilght.field_3 = 0;
@@ -725,7 +711,7 @@ void init_objects(void)
     game.objects_config[107].field_8 = 1;
     game.objects_config[108].field_8 = 1;
     game.objects_config[128].field_4 = 10;
-    for (i=57; i <= 85; i++)
+    for (long i = 57; i <= 85; i++)
     {
       game.objects_config[i].field_8 = 1;
     }

@@ -61,21 +61,17 @@ struct CubeConfigStats *get_cube_model_stats(long cumodel)
 
 TbBool parse_cubes_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         cube_conf.cube_types_count = 1;
     }
     // Find the block
-    sprintf(block_buf,"common");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "common");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -86,14 +82,16 @@ TbBool parse_cubes_common_blocks(char *buf, long len, const char *config_textnam
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,cubes_common_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, cubes_common_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
         switch (cmd_num)
         {
         case 1: // CUBESSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+        {
+            char word_buf[COMMAND_WORD_LEN];
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
               if ((k > 0) && (k <= CUBE_ITEMS_MAX))
@@ -108,6 +106,7 @@ TbBool parse_cubes_common_blocks(char *buf, long len, const char *config_textnam
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
+        }
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -126,13 +125,8 @@ TbBool parse_cubes_common_blocks(char *buf, long len, const char *config_textnam
 TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct CubeConfigStats *objst;
-    struct CubeAttribs * cubed;
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize the cubes array
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -157,9 +151,10 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
     arr_size = cube_conf.cube_types_count;
     for (i=0; i < arr_size; i++)
     {
-        sprintf(block_buf,"cube%d",i);
-        pos = 0;
-        k = find_conf_block(buf,&pos,len,block_buf);
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "cube%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
             if ((flags & CnfLd_AcceptPartial) == 0) {
@@ -169,12 +164,12 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             continue;
         }
         objst = &cube_conf.cube_cfgstats[i];
-        cubed = &game.cubes_data[i];
+        struct CubeAttribs* cubed = &game.cubes_data[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cubes_cube_commands,cmd_num)
         while (pos<len)
         {
             // Finding command number in this line
-            cmd_num = recognize_conf_command(buf,&pos,len,cubes_cube_commands);
+            int cmd_num = recognize_conf_command(buf, &pos, len, cubes_cube_commands);
             // Now store the config item in correct place
             if (cmd_num == -3) break; // if next block starts
             if ((flags & CnfLd_ListOnly) != 0) {
@@ -183,7 +178,8 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                     cmd_num = 0;
                 }
             }
-            n = 0;
+            int n = 0;
+            char word_buf[COMMAND_WORD_LEN];
             switch (cmd_num)
             {
             case 1: // NAME
@@ -250,11 +246,8 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
 
 TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    char *buf;
-    long len;
-    TbBool result;
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
-    len = LbFileLengthRnc(fname);
+    long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -267,12 +260,12 @@ TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    result = (len > 0);
+    TbBool result = (len > 0);
     // Parse blocks of the config file
     if (result)
     {
@@ -299,10 +292,8 @@ TbBool load_cubes_config(unsigned short flags)
 {
     static const char config_global_textname[] = "global cubes config";
     static const char config_campgn_textname[] = "campaign cubes config";
-    char *fname;
-    TbBool result;
-    fname = prepare_file_path(FGrp_FxData,keeper_cubes_file);
-    result = load_cubes_config_file(config_global_textname,fname,flags);
+    char* fname = prepare_file_path(FGrp_FxData, keeper_cubes_file);
+    TbBool result = load_cubes_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,keeper_cubes_file);
     if (strlen(fname) > 0)
     {
@@ -317,8 +308,7 @@ TbBool load_cubes_config(unsigned short flags)
  */
 const char *cube_code_name(long model)
 {
-    const char *name;
-    name = get_conf_parameter_text(cube_desc,model);
+    const char* name = get_conf_parameter_text(cube_desc, model);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -332,9 +322,8 @@ const char *cube_code_name(long model)
  */
 ThingModel cube_model_id(const char * code_name)
 {
-    int i;
-
-    for (i = 0; i < cube_conf.cube_types_count; ++i) {
+    for (int i = 0; i < cube_conf.cube_types_count; ++i)
+    {
         if (strncasecmp(cube_conf.cube_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
@@ -346,18 +335,18 @@ ThingModel cube_model_id(const char * code_name)
 
 void clear_cubes(void)
 {
-  int i;
-  for (i=0; i < CUBE_ITEMS_MAX; i++)
-  {
-      struct CubeAttribs *cubed;
-      cubed = &game.cubes_data[i];
-      int n;
-      for (n=0; n < CUBE_TEXTURES; n++) {
-          cubed->texture_id[n] = 0;
-      }
-      for (n=0; n < CUBE_TEXTURES; n++) {
-          cubed->field_C[n] = 0;
-      }
+    for (int i = 0; i < CUBE_ITEMS_MAX; i++)
+    {
+        struct CubeAttribs* cubed = &game.cubes_data[i];
+        int n;
+        for (n = 0; n < CUBE_TEXTURES; n++)
+        {
+            cubed->texture_id[n] = 0;
+        }
+        for (n = 0; n < CUBE_TEXTURES; n++)
+        {
+            cubed->field_C[n] = 0;
+        }
   }
 }
 
@@ -367,15 +356,11 @@ void clear_cubes(void)
  */
 long load_cube_file(void)
 {
-    char *buf;
-    long len;
-    TbBool result;
-    char *fname;
     static const char textname[] = "binary cubes config";
-    fname = prepare_file_path(FGrp_StdData,"cube.dat");
+    char* fname = prepare_file_path(FGrp_StdData, "cube.dat");
     SYNCDBG(0,"%s %s file \"%s\".","Reading",textname,fname);
     clear_cubes();
-    len = LbFileLengthRnc(fname);
+    long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
@@ -386,17 +371,16 @@ long load_cube_file(void)
         WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    result = (len > 0);
+    TbBool result = (len > 0);
     // Parse the config file
     if (result)
     {
-        long i,count;
-        count = *(long *)&buf[0];
+        long count = *(long*)&buf[0];
         if (count > len/sizeof(struct CubeAttribs)) {
             count = len/sizeof(struct CubeAttribs);
             WARNMSG("The %s file \"%s\" seem truncated.",textname,fname);
@@ -405,12 +389,10 @@ long load_cube_file(void)
             count = CUBE_ITEMS_MAX-1;
         if (count < 0)
             count = 0;
-        struct CubeAttribs * cubuf;
-        cubuf = (struct CubeAttribs *)&buf[4];
-        for (i=0; i < count; i++)
+        struct CubeAttribs* cubuf = (struct CubeAttribs*)&buf[4];
+        for (long i = 0; i < count; i++)
         {
-            struct CubeAttribs * cubed;
-            cubed = &game.cubes_data[i];
+            struct CubeAttribs* cubed = &game.cubes_data[i];
             int n;
             for (n=0; n < CUBE_TEXTURES; n++) {
                 cubed->texture_id[n] = cubuf->texture_id[n];

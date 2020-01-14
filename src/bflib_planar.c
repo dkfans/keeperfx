@@ -45,8 +45,7 @@ void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBo
  */
 long get_angle_symmetric_difference(long angle_a, long angle_b)
 {
-    long diff;
-    diff = (angle_a & LbFPMath_AngleMask) - (angle_b & LbFPMath_AngleMask);
+    long diff = (angle_a & LbFPMath_AngleMask) - (angle_b & LbFPMath_AngleMask);
     if (diff > LbFPMath_PI)
         diff = (2*LbFPMath_PI - diff);
     else
@@ -63,8 +62,7 @@ long get_angle_symmetric_difference(long angle_a, long angle_b)
  */
 long get_angle_difference(long angle_a, long angle_b)
 {
-    long diff;
-    diff = abs((angle_a & LbFPMath_AngleMask) - (angle_b & LbFPMath_AngleMask));
+    long diff = abs((angle_a & LbFPMath_AngleMask) - (angle_b & LbFPMath_AngleMask));
     if (diff > LbFPMath_PI)
         diff = (2*LbFPMath_PI - diff);
     return diff;
@@ -72,8 +70,7 @@ long get_angle_difference(long angle_a, long angle_b)
 
 long get_angle_sign(long angle_a, long angle_b)
 {
-    long diff;
-    diff = (angle_b & LbFPMath_AngleMask) - (angle_a & LbFPMath_AngleMask);
+    long diff = (angle_b & LbFPMath_AngleMask) - (angle_a & LbFPMath_AngleMask);
     if (diff == 0)
         return 0;
     if (abs(diff) > LbFPMath_PI)
@@ -112,9 +109,8 @@ long distance_with_angle_to_coord_y(long distance, long angle)
 
 long get_distance_xy(long x1, long y1, long x2, long y2)
 {
-    long dx, dy;
-    dx = abs(x1 - x2);
-    dy = abs(y1 - y2);
+    long dx = abs(x1 - x2);
+    long dy = abs(y1 - y2);
     return LbDiagonalLength(dx, dy);
 }
 

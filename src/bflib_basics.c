@@ -45,8 +45,7 @@ extern TbBool emulate_integer_overflow(unsigned short nbits);
 /** Return the big-endian longword at p. */
 unsigned long blong (unsigned char *p)
 {
-    unsigned long n;
-    n = p[0];
+    unsigned long n = p[0];
     n = (n << 8) + p[1];
     n = (n << 8) + p[2];
     n = (n << 8) + p[3];
@@ -56,8 +55,7 @@ unsigned long blong (unsigned char *p)
 /** Return the little-endian longword at p. */
 unsigned long llong (unsigned char *p)
 {
-    unsigned long n;
-    n = p[3];
+    unsigned long n = p[3];
     n = (n << 8) + p[2];
     n = (n << 8) + p[1];
     n = (n << 8) + p[0];
@@ -67,8 +65,7 @@ unsigned long llong (unsigned char *p)
 /** Return the big-endian word at p. */
 unsigned long bword (unsigned char *p)
 {
-    unsigned long n;
-    n = p[0];
+    unsigned long n = p[0];
     n = (n << 8) + p[1];
     return n;
 }
@@ -76,8 +73,7 @@ unsigned long bword (unsigned char *p)
 /* Return the little-endian word at p. */
 unsigned long lword (unsigned char *p)
 {
-    unsigned long n;
-    n = p[1];
+    unsigned long n = p[1];
     n = (n << 8) + p[0];
     return n;
 }
@@ -192,9 +188,9 @@ const char *log_file_name=DEFAULT_LOG_FILENAME;
 
 char *buf_sprintf(const char *format, ...)
 {
-    static char text[TEXT_BUFFER_LENGTH+1];
     va_list val;
     va_start(val, format);
+    static char text[TEXT_BUFFER_LENGTH + 1];
     vsprintf(text, format, val);
     text[TEXT_BUFFER_LENGTH]='\0';
     va_end(val);
@@ -215,11 +211,10 @@ short error_dialog(const char *codefile,const int ecode,const char *message)
 
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message)
 {
-  static char msg_text[2048];
-  HWND whandle;
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
-  sprintf(msg_text,"%s This error in '%s' makes the program unable to continue. See '%s' for details.",message,codefile,log_file_name);
-  whandle = GetDesktopWindow();
+  static char msg_text[2048];
+  sprintf(msg_text, "%s This error in '%s' makes the program unable to continue. See '%s' for details.", message, codefile, log_file_name);
+  HWND whandle = GetDesktopWindow();
   MessageBox(whandle, msg_text, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
   return 0;
 }
@@ -356,10 +351,9 @@ int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
     fixed_fname = "error.log";
   char log_filename[DISKPATH_SIZE];
   int result;
-  ulong flags;
   if ( LbFileMakeFullPath(true,directory,fixed_fname,log_filename,DISKPATH_SIZE) != 1 )
     return -1;
-  flags = (flag==0)+1;
+  ulong flags = (flag == 0) + 1;
   flags |= LbLog_TimeInHeader | LbLog_DateInHeader | 0x04;
   if ( LbLogSetup(&error_log, log_filename, flags) == 1 )
   {
@@ -391,12 +385,10 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
 //  printf(fmt_str, arg);
   if (!log->Initialised)
     return -1;
-  short need_initial_newline;
-  char header;
   if ( log->Suspended )
     return 1;
-  header = NONE;
-  need_initial_newline = false;
+  char header = NONE;
+  short need_initial_newline = false;
   if ( !log->Created )
   {
       if (((log->flags & 0x04) == 0) || LbFileExists(log->filename))
@@ -443,8 +435,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
         actn = "APPENDED";
       }
       fprintf(file, "LOG %s", actn);
-      short at_used;
-      at_used = 0;
+      short at_used = 0;
       if ((log->flags & LbLog_TimeInHeader) != 0)
       {
         struct TbTime curr_time;
@@ -506,14 +497,14 @@ int LbLogSetPrefix(struct TbLog *log, const char *prefix)
 
 int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
 {
-  va_list val;
   if (!log->Initialised)
     return -1;
   if (format)
   {
-    va_start(val, format);
-    vsprintf(log->prefix, format, val);
-    va_end(val);
+      va_list val;
+      va_start(val, format);
+      vsprintf(log->prefix, format, val);
+      va_end(val);
   } else
   {
     LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);

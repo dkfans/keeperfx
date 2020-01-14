@@ -75,15 +75,13 @@ TbBool player_exists(const struct PlayerInfo *player)
 
 TbBool is_my_player(const struct PlayerInfo *player)
 {
-    struct PlayerInfo *myplyr;
-    myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+    struct PlayerInfo* myplyr = &game.players[my_player_number % PLAYERS_COUNT];
     return (player == myplyr);
 }
 
 TbBool is_my_player_number(PlayerNumber plyr_num)
 {
-    struct PlayerInfo *myplyr;
-    myplyr = &game.players[my_player_number%PLAYERS_COUNT];
+    struct PlayerInfo* myplyr = &game.players[my_player_number % PLAYERS_COUNT];
     return (plyr_num == myplyr->id_number);
 }
 
@@ -96,15 +94,14 @@ TbBool is_my_player_number(PlayerNumber plyr_num)
  */
 TbBool players_are_enemies(long origin_plyr_idx, long check_plyr_idx)
 {
-    struct PlayerInfo *origin_player,*check_player;
     // Player can't be his own enemy
     if (origin_plyr_idx == check_plyr_idx)
         return false;
     // And neutral player can't be enemy
     if ((origin_plyr_idx == game.neutral_player_num) || (check_plyr_idx == game.neutral_player_num))
         return false;
-    origin_player = get_player(origin_plyr_idx);
-    check_player = get_player(check_plyr_idx);
+    struct PlayerInfo* origin_player = get_player(origin_plyr_idx);
+    struct PlayerInfo* check_player = get_player(check_plyr_idx);
     // Inactive or invalid players are not enemies, as long as they're not heroes
     // (heroes are normally NOT existing keepers)
     if (!player_exists(origin_player) && (origin_plyr_idx != game.hero_player_num))
@@ -124,15 +121,14 @@ TbBool players_are_enemies(long origin_plyr_idx, long check_plyr_idx)
  */
 TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
 {
-    struct PlayerInfo *player1,*player2;
     // Player is always his own ally
     if (plyr1_idx == plyr2_idx)
         return true;
     // And neutral player can't be allied
     if ((plyr1_idx == game.neutral_player_num) || (plyr2_idx == game.neutral_player_num))
         return false;
-    player1 = get_player(plyr1_idx);
-    player2 = get_player(plyr2_idx);
+    struct PlayerInfo* player1 = get_player(plyr1_idx);
+    struct PlayerInfo* player2 = get_player(plyr2_idx);
     // Inactive or invalid players are not allies
     if (!player_exists(player1))
         return false;
@@ -151,15 +147,14 @@ TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
  */
 TbBool players_creatures_tolerate_each_other(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
 {
-    struct PlayerInfo *player1,*player2;
     // Player is always tolerating fellow creatures
     if (plyr1_idx == plyr2_idx)
         return true;
     // And neutral player creatures are like fellow creatures
     if ((plyr1_idx == game.neutral_player_num) || (plyr2_idx == game.neutral_player_num))
         return true;
-    player1 = get_player(plyr1_idx);
-    player2 = get_player(plyr2_idx);
+    struct PlayerInfo* player1 = get_player(plyr1_idx);
+    struct PlayerInfo* player2 = get_player(plyr2_idx);
     // Check if we're allied
     return ((player1->allied_players & (1<<plyr2_idx)) != 0)
         && ((player2->allied_players & (1<<plyr1_idx)) != 0);
@@ -183,13 +178,11 @@ TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx
  */
 TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber origin_plyr_idx)
 {
-    struct PlayerInfo *player;
-    struct PlayerInfo *win_player;
     // Handle neutral player at first, because we can't get PlayerInfo nor Dungeon for it
     if ((origin_plyr_idx == game.neutral_player_num) || (check_plyr_idx == game.neutral_player_num))
         return true;
-    player = get_player(check_plyr_idx);
-    win_player = get_player(origin_plyr_idx);
+    struct PlayerInfo* player = get_player(check_plyr_idx);
+    struct PlayerInfo* win_player = get_player(origin_plyr_idx);
     if (player_exists(player))
     {
         if ( (!player_allied_with(win_player, check_plyr_idx)) || (!player_allied_with(player, origin_plyr_idx)) )
@@ -203,11 +196,9 @@ TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber 
 
 void clear_players(void)
 {
-    struct PlayerInfo *player;
-    int i;
-    for (i=0; i < PLAYERS_COUNT; i++)
+    for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        player = &game.players[i];
+        struct PlayerInfo* player = &game.players[i];
         LbMemorySet(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
     }
@@ -220,8 +211,7 @@ void clear_players(void)
 
 void toggle_ally_with_player(long plyridx, unsigned int allyidx)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyridx);
+    struct PlayerInfo* player = get_player(plyridx);
     if (player_invalid(player))
         return;
     player->allied_players ^= (1 << allyidx);
@@ -229,8 +219,7 @@ void toggle_ally_with_player(long plyridx, unsigned int allyidx)
 
 TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyridx);
+    struct PlayerInfo* player = get_player(plyridx);
     if (player_invalid(player))
         return false;
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
@@ -244,8 +233,6 @@ TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
 {
-  struct Thing *thing;
-  struct Coord3d pos;
   SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
@@ -286,19 +273,24 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
       create_power_hand(player->id_number);
       break;
   case PSt_Slap:
-      pos.x.val = 0;
-      pos.y.val = 0;
-      pos.z.val = 0;
-      thing = create_object(&pos, 37, player->id_number, -1);
-      if (thing_is_invalid(thing))
+  {
       {
-        player->hand_thing_idx = 0;
-        break;
+          struct Coord3d pos;
+          pos.x.val = 0;
+          pos.y.val = 0;
+          pos.z.val = 0;
+          struct Thing* thing = create_object(&pos, 37, player->id_number, -1);
+          if (thing_is_invalid(thing))
+          {
+              player->hand_thing_idx = 0;
+              break;
+          }
+          player->hand_thing_idx = thing->index;
+          set_power_hand_graphic(player->id_number, 785, 256);
+          place_thing_in_limbo(thing);
+          break;
       }
-      player->hand_thing_idx = thing->index;
-      set_power_hand_graphic(player->id_number, 785, 256);
-      place_thing_in_limbo(thing);
-      break;
+  }
   case PSt_PlaceTrap:
       player->chosen_trap_kind = chosen_kind;
       break;
@@ -318,7 +310,6 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
  */
 void set_player_mode(struct PlayerInfo *player, unsigned short nview)
 {
-  long i;
   if (player->view_type == nview)
     return;
   player->view_type = nview;
@@ -333,7 +324,8 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   switch (player->view_type)
   {
   case PVT_DungeonTop:
-      i = PVM_IsometricView;
+  {
+      long i = PVM_IsometricView;
       if (player->view_mode_restore == PVM_FrontView)
       {
         set_engine_view(player, PVM_IsometricView);
@@ -347,6 +339,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
       else
         setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
+  }
   case PVT_CreatureContrl:
   case PVT_CreaturePasngr:
       set_engine_view(player, PVM_CreatureView);

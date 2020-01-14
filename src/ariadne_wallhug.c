@@ -99,17 +99,14 @@ struct Around const start_at_around[] = {
  */
 int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
 {
-    long i;
-    i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI/4);
+    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI / 4);
     return (i >> 9) & 3;
 }
 
 TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
-    struct SlabMap *slb;
-    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     // We can step on lava if it doesn't hurt us or we can fly
     if (slb->kind == SlbT_LAVA) {
         return (crstat->hurt_by_lava <= 0) || ((creatng->movement_flags & TMvF_Flying) != 0);
@@ -119,8 +116,7 @@ TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSu
 
 TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     // If the position is over lava, and we can't continuously fly, then it's toxic
     if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
         // Check not only if a creature is now flying, but also whether it's natural ability
@@ -132,16 +128,13 @@ TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSu
 
 TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct SlabMap *slb;
-    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb))
         return false;
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
+    struct SlabAttr* slbattr = get_slab_attrs(slb);
     if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
     {
-        struct Thing *doortng;
-        doortng = get_door_for_position(stl_x, stl_y);
+        struct Thing* doortng = get_door_for_position(stl_x, stl_y);
         if (!thing_is_invalid(doortng) && (doortng->owner == creatng->owner) && !doortng->door.is_locked)
         {
             return true;
@@ -171,11 +164,11 @@ long get_angle_of_wall_hug(struct Thing *creatng, long a2, long a3, unsigned cha
     //return _DK_get_angle_of_wall_hug(creatng, a2, a3, a4);
     struct Navigation *navi;
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(creatng);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         navi = &cctrl->navi;
     }
-    long quadr, whangle;
+    long quadr;
+    long whangle;
     switch (navi->field_1[0])
     {
     case 1:
@@ -226,33 +219,30 @@ short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos
 long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
 {
     struct Coord3d curr_pos;
-    struct Coord3d next_pos;
-    struct Coord3d pos3;
     //return _DK_slab_wall_hug_route(thing, pos, max_val);
     curr_pos.x.val = thing->mappos.x.val;
     curr_pos.y.val = thing->mappos.y.val;
     curr_pos.z.val = thing->mappos.z.val;
     curr_pos.x.stl.num = stl_slab_center_subtile(curr_pos.x.stl.num);
     curr_pos.y.stl.num = stl_slab_center_subtile(curr_pos.y.stl.num);
-    MapSubtlCoord stl_x, stl_y;
-    stl_x = stl_slab_center_subtile(pos->x.stl.num);
-    stl_y = stl_slab_center_subtile(pos->y.stl.num);
+    MapSubtlCoord stl_x = stl_slab_center_subtile(pos->x.stl.num);
+    MapSubtlCoord stl_y = stl_slab_center_subtile(pos->y.stl.num);
+    struct Coord3d pos3;
     pos3.x.val = pos->x.val;
     pos3.y.val = pos->y.val;
     pos3.z.val = pos->z.val;
     pos3.x.stl.num = stl_x;
     pos3.y.stl.num = stl_y;
+    struct Coord3d next_pos;
     next_pos.x.val = curr_pos.x.val;
     next_pos.y.val = curr_pos.y.val;
     next_pos.z.val = curr_pos.z.val;
-    int i;
-    for (i = 0; i < max_val; i++)
+    for (int i = 0; i < max_val; i++)
     {
         if ((curr_pos.x.stl.num == stl_x) && (curr_pos.y.stl.num == stl_y)) {
             return i + 1;
         }
-        int round_idx;
-        round_idx = small_around_index_in_direction(curr_pos.x.stl.num, curr_pos.y.stl.num, stl_x, stl_y);
+        int round_idx = small_around_index_in_direction(curr_pos.x.stl.num, curr_pos.y.stl.num, stl_x, stl_y);
         if (hug_can_move_on(thing, curr_pos.x.stl.num, curr_pos.y.stl.num))
         {
             next_pos.x.val = curr_pos.x.val;
@@ -262,10 +252,8 @@ long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
             curr_pos.y.stl.num += STL_PER_SLB * (int)small_around[round_idx].delta_y;
         } else
         {
-            long hug_val;
-            hug_val = max_val - i;
-            int hug_ret;
-            hug_ret = hug_round(thing, &next_pos, &pos3, round_idx, &hug_val);
+            long hug_val = max_val - i;
+            int hug_ret = hug_round(thing, &next_pos, &pos3, round_idx, &hug_val);
             if (hug_ret == -1) {
                 return -1;
             }
@@ -288,9 +276,8 @@ signed char get_starting_angle_and_side_of_hug(struct Thing *creatng, struct Coo
 
 unsigned short get_hugging_blocked_flags(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
 {
-    unsigned short blkflags;
     struct Coord3d tmpos;
-    blkflags = 0;
+    unsigned short blkflags = 0;
     {
         tmpos.x.val = pos->x.val;
         tmpos.y.val = creatng->mappos.y.val;
@@ -395,11 +382,10 @@ long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *creatng,
 
 long creature_cannot_move_directly_to_with_collide_sub(struct Thing *creatng, struct Coord3d pos, long a3, unsigned char a4)
 {
-    MapCoord height;
     if (thing_in_wall_at(creatng, &pos))
     {
         pos.z.val = subtile_coord(map_subtiles_z,COORD_PER_STL-1);
-        height = get_thing_height_at(creatng, &pos);
+        MapCoord height = get_thing_height_at(creatng, &pos);
         if ((height >= subtile_coord(map_subtiles_z,COORD_PER_STL-1)) || (height - creatng->mappos.z.val > COORD_PER_STL))
         {
             if (get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, a3, a4) >= 0) {
@@ -417,17 +403,13 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
     //return _DK_creature_cannot_move_directly_to_with_collide(creatng, pos, a3, a4);
 
     MapCoord clpcor;
-    int cannot_mv;
-    struct Coord3d next_pos;
-    struct Coord3d prev_pos;
-    struct Coord3d orig_pos;
-    MapCoordDelta dt_x, dt_y;
 
-    prev_pos = creatng->mappos;
-    dt_x = (prev_pos.x.val - pos->x.val);
-    dt_y = (prev_pos.y.val - pos->y.val);
-    cannot_mv = 0;
-    orig_pos = creatng->mappos;
+    struct Coord3d next_pos;
+    struct Coord3d prev_pos = creatng->mappos;
+    MapCoordDelta dt_x = (prev_pos.x.val - pos->x.val);
+    MapCoordDelta dt_y = (prev_pos.y.val - pos->y.val);
+    int cannot_mv = 0;
+    struct Coord3d orig_pos = creatng->mappos;
     if ((pos->x.stl.num == prev_pos.x.stl.num) || (pos->y.stl.num == prev_pos.y.stl.num))
     {
         // Only one coordinate changed enough to switch subtile - easy path
@@ -589,25 +571,22 @@ long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct
 
 TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2, long a4, long a5, unsigned char a6)
 {
-    long angle;
+    long angle = get_angle_xy_to(pos1, pos2);
     struct Coord3d posa;
-    struct Coord3d posb;
-    struct Coord3d posc;
-    int coord;
-    angle = get_angle_xy_to(pos1, pos2);
     posa.x.val = pos1->x.val;
     posa.y.val = pos1->y.val;
     posa.z.val = pos1->z.val;
     posa.x.val += distance_with_angle_to_coord_x(a5, angle);
     posa.y.val += distance_with_angle_to_coord_y(a5, angle);
     posa.z.val = get_thing_height_at(creatng, &posa);
-    coord = pos1->x.val;
+    int coord = pos1->x.val;
     if (coord < posa.x.val) {
         coord += a5;
     } else
     if (coord > posa.x.val) {
         coord -= a5;
     }
+    struct Coord3d posb;
     posb.x.val = coord;
     posb.y.val = pos1->y.val;
     posb.z.val = get_thing_height_at(creatng, &posb);
@@ -618,6 +597,7 @@ TbBool thing_can_continue_direct_line_to(struct Thing *creatng, struct Coord3d *
     if (coord > posa.y.val) {
         coord -= a5;
     }
+    struct Coord3d posc;
     posc.y.val = coord;
     posc.x.val = pos1->x.val;
     posc.z.val = get_thing_height_at(creatng, &posc);
@@ -637,24 +617,19 @@ TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlC
     targetpos.x.val = subtile_coord_center(stl_x);
     targetpos.y.val = subtile_coord_center(stl_y);
     targetpos.z.val = 0;
-    long min_dist;
-    long n;
-    min_dist = LONG_MAX;
-    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    long min_dist = LONG_MAX;
+    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        long dx,dy;
-        dx = spacing * (long)small_around[n].delta_x;
-        dy = spacing * (long)small_around[n].delta_y;
+        long dx = spacing * (long)small_around[n].delta_x;
+        long dy = spacing * (long)small_around[n].delta_y;
         struct Coord3d tmpos;
         tmpos.x.val = targetpos.x.val + dx;
         tmpos.y.val = targetpos.y.val + dy;
         tmpos.z.val = 0;
-        struct Map *mapblk;
-        mapblk = get_map_block_at(tmpos.x.stl.num, tmpos.y.stl.num);
+        struct Map* mapblk = get_map_block_at(tmpos.x.stl.num, tmpos.y.stl.num);
         if ((!map_block_invalid(mapblk)) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {
-            long dist;
-            dist = get_2d_box_distance(srcpos, &tmpos);
+            long dist = get_2d_box_distance(srcpos, &tmpos);
             if (min_dist > dist)
             {
                 min_dist = dist;
@@ -690,8 +665,7 @@ TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *cre
         navi->pos_next.z.val = pos1.z.val;
     }
     navi->field_9 = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
-    int cannot_move;
-    cannot_move = creature_cannot_move_directly_to_with_collide(creatng, &navi->pos_next, 33, a3);
+    int cannot_move = creature_cannot_move_directly_to_with_collide(creatng, &navi->pos_next, 33, a3);
     if (cannot_move == 4)
     {
         navi->pos_next.x.val = creatng->mappos.x.val;
@@ -702,12 +676,10 @@ TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *cre
     navi->field_5 = get_2d_box_distance(&creatng->mappos, pos);
     if (cannot_move == 1)
     {
-        SubtlCodedCoords stl_num;
-        stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, 40, 0);
+        SubtlCodedCoords stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, 40, 0);
         navi->field_15 = stl_num;
-        MapSubtlCoord stl_x, stl_y;
-        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
-        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
+        MapSubtlCoord stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
+        MapSubtlCoord stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
         find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
         navi->field_D = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
         navi->navstate = 3;
@@ -720,8 +692,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
     struct Navigation *navi;
     int speed;
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(creatng);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         navi = &cctrl->navi;
         speed = cctrl->max_speed;
         cctrl->flgfield_2 = 0;
@@ -729,13 +700,15 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
     }
     a3 |= (1 << creatng->owner);
     //return _DK_get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, a3);
-    MapSubtlCoord stl_x, stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     SubtlCodedCoords stl_num;
     MapCoordDelta dist_to_next;
     struct Coord3d tmpos;
     int nav_radius;
-    long angle, i;
-    int block_flags, cannot_move;
+    long angle;
+    int block_flags;
+    int cannot_move;
     struct Map *mapblk;
     switch (navi->navstate)
     {
@@ -803,7 +776,8 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, 40, 0);
                 navi->field_15 = stl_num;
                 nav_radius = thing_nav_sizexy(creatng) / 2;
-                MapSubtlCoord stl_x, stl_y;
+                MapSubtlCoord stl_x;
+                MapSubtlCoord stl_y;
                 stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
                 stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
                 find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
@@ -1026,6 +1000,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         navi->field_17 = stl_num;
         return 2;
     case 6:
+    {
         stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(navi->field_15)));
         stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(navi->field_15)));
         stl_num = get_subtile_number(stl_x,stl_y);
@@ -1036,9 +1011,13 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
           return 2;
         }
         nav_radius = thing_nav_sizexy(creatng) / 2;
-        if (navi->field_1[0] == 1) {
+        long i;
+        if (navi->field_1[0] == 1)
+        {
             i = (creatng->move_angle_xy + LbFPMath_PI/4) / (LbFPMath_PI/2) - 1;
-        } else {
+        }
+        else
+        {
             i = (creatng->move_angle_xy + LbFPMath_PI/4) / (LbFPMath_PI/2) + 1;
         }
         navi->pos_next.x.val += (384 - nav_radius) * small_around[i&3].delta_x;
@@ -1049,6 +1028,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         navi->pos_next.y.val += (128) * small_around[i&3].delta_y;
         navi->navstate = 7;
         return 1;
+    }
     case 5:
         stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(navi->field_15)));
         stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(navi->field_15)));
@@ -1081,8 +1061,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
 
 TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 {
-    const struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
+    const struct SlabAttr* slbattr = get_slab_attrs(slb);
     if ( ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
         return true;
     return false;
@@ -1090,14 +1069,11 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 
 TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    struct SlabMap *slb;
-    const struct SlabAttr *slbattr;
-    slb = get_slabmap_for_subtile(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    const struct SlabAttr* slbattr = get_slab_attrs(slb);
     if ((slbattr->is_diggable) && !slab_kind_is_indestructible(slb->kind))
     {
-        struct Map *mapblk;
-        mapblk = get_map_block_at(stl_x, stl_y);
+        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
         if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == plyr_idx)) {
             SYNCDBG(17,"Subtile (%d,%d) rejected based on attrs",(int)stl_x,(int)stl_y);
             return false;
@@ -1112,7 +1088,7 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 
 long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside)
 {
-    long i,round_idx,round_change;
+    long round_change;
     //return _DK_dig_to_position(a1, a2, a3, start_side, revside);
     SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
     if (revside) {
@@ -1120,17 +1096,15 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     } else {
       round_change = 3;
     }
-    round_idx = (direction_around + SMALL_AROUND_LENGTH - round_change) % SMALL_AROUND_LENGTH;
-    for (i=0; i < SMALL_AROUND_LENGTH; i++)
+    long round_idx = (direction_around + SMALL_AROUND_LENGTH - round_change) % SMALL_AROUND_LENGTH;
+    for (long i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
-        MapSubtlCoord stl_x,stl_y;
-        stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
-        stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
+        MapSubtlCoord stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
+        MapSubtlCoord stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
         if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx))
         {
             SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
-            SubtlCodedCoords stl_num;
-            stl_num = get_subtile_number(stl_x, stl_y);
+            SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
             return stl_num;
         }
         round_idx = (round_idx + round_change) % SMALL_AROUND_LENGTH;
@@ -1141,16 +1115,12 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
 static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y, int dirctn, PlayerNumber plyr_idx,
     char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, short *round, int *maxdist)
 {
-    MapSubtlCoord curr_stl_x, curr_stl_y;
-    curr_stl_x = *ostl_x;
-    curr_stl_y = *ostl_y;
-    unsigned short round_idx;
-    round_idx = small_around_index_in_direction(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
-    int dist;
-    dist = max(abs(curr_stl_x - dst_stl_x), abs(curr_stl_y - dst_stl_y));
-    int dx,dy;
-    dx = small_around[round_idx].delta_x;
-    dy = small_around[round_idx].delta_y;
+    MapSubtlCoord curr_stl_x = *ostl_x;
+    MapSubtlCoord curr_stl_y = *ostl_y;
+    unsigned short round_idx = small_around_index_in_direction(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
+    int dist = max(abs(curr_stl_x - dst_stl_x), abs(curr_stl_y - dst_stl_y));
+    int dx = small_around[round_idx].delta_x;
+    int dy = small_around[round_idx].delta_y;
     // If we can follow direction straight to the target, and we will get closer to it, then do it
     if ((dist <= *maxdist) && is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
     {
@@ -1165,9 +1135,9 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         *state = WaHSS_Val2;
     } else
     { // Here we need to use wallhug to slide until we will be able to move towards destination again
-        int n;
         // Try directions starting at the one towards the wall, in case wall has ended
         round_idx = (*round + SMALL_AROUND_LENGTH + dirctn) % SMALL_AROUND_LENGTH;
+        int n;
         for (n = 0; n < SMALL_AROUND_LENGTH; n++)
         {
             dx = small_around[round_idx].delta_x;
@@ -1196,29 +1166,22 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
     unsigned short direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y)
 {
     SYNCDBG(4,"Starting");
-    MapSubtlCoord stl_b_x, stl_b_y;
-    MapSubtlCoord stl_a_x, stl_a_y;
-    int maxdist_a,maxdist_b;
-    short round_a,round_b;
-    char state_a, state_b;
-    int dist;
-    dist = max(abs(src_stl_x - dst_stl_x), abs(src_stl_y - dst_stl_y));
 
-    state_a = WaHSS_Val0;
-    stl_a_x = src_stl_x;
-    stl_a_y = src_stl_y;
-    round_a = (direction + SMALL_AROUND_LENGTH + 1) % SMALL_AROUND_LENGTH;
-    maxdist_a = dist - 1;
+    int dist = max(abs(src_stl_x - dst_stl_x), abs(src_stl_y - dst_stl_y));
 
-    state_b = WaHSS_Val0;
-    stl_b_x = src_stl_x;
-    stl_b_y = src_stl_y;
-    round_b = (direction + SMALL_AROUND_LENGTH - 1) % SMALL_AROUND_LENGTH;
-    maxdist_b = dist - 1;
+    char state_a = WaHSS_Val0;
+    MapSubtlCoord stl_a_x = src_stl_x;
+    MapSubtlCoord stl_a_y = src_stl_y;
+    short round_a = (direction + SMALL_AROUND_LENGTH + 1) % SMALL_AROUND_LENGTH;
+    int maxdist_a = dist - 1;
+    char state_b = WaHSS_Val0;
+    MapSubtlCoord stl_b_x = src_stl_x;
+    MapSubtlCoord stl_b_y = src_stl_y;
+    short round_b = (direction + SMALL_AROUND_LENGTH - 1) % SMALL_AROUND_LENGTH;
+    int maxdist_b = dist - 1;
 
     // Try moving in both directions
-    int i;
-    for (i = 150; i > 0; i--)
+    for (int i = 150; i > 0; i--)
     {
         if ((state_a == WaHSS_Val2) && (state_b == WaHSS_Val2)) {
             break;

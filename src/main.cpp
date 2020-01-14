@@ -330,7 +330,8 @@ void clear_creature_pool(void)
 void give_shooter_drained_health(struct Thing *shooter, long health_delta)
 {
     struct CreatureControl *cctrl;
-    HitPoints max_health,health;
+    HitPoints max_health;
+    HitPoints health;
     if ( !thing_exists(shooter) )
         return;
     cctrl = creature_control_get_from_thing(shooter);
@@ -380,8 +381,10 @@ void process_keeper_spell_effect(struct Thing *thing)
     if (cctrl->field_2B0 == 7)
     {
         struct Coord3d pos;
-        long amp,direction;
-        long delta_x,delta_y;
+        long amp;
+        long direction;
+        long delta_x;
+        long delta_y;
         amp = 5 * thing->clipbox_size_xy / 8;
         direction = ACTION_RANDOM(2*LbFPMath_PI);
         delta_x = (amp * LbSinL(direction) >> 8);
@@ -571,13 +574,18 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step)
 {
   //_DK_draw_flame_breath(pos1, pos2, a3, a4);
-    MapCoordDelta dist_x, dist_y, dist_z;
-    dist_x = pos2->x.val - (MapCoordDelta)pos1->x.val;
-    dist_y = pos2->y.val - (MapCoordDelta)pos1->y.val;
-    dist_z = pos2->z.val - (MapCoordDelta)pos1->z.val;
-    int delta_x, delta_y, delta_z;
-    if (dist_x >= 0) {
-        delta_x = delta_step;
+  MapCoordDelta dist_x;
+  MapCoordDelta dist_y;
+  MapCoordDelta dist_z;
+  dist_x = pos2->x.val - (MapCoordDelta)pos1->x.val;
+  dist_y = pos2->y.val - (MapCoordDelta)pos1->y.val;
+  dist_z = pos2->z.val - (MapCoordDelta)pos1->z.val;
+  int delta_x;
+  int delta_y;
+  int delta_z;
+  if (dist_x >= 0)
+  {
+      delta_x = delta_step;
     } else {
         dist_x = -dist_x;
         delta_x = -delta_step;
@@ -626,7 +634,8 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
         }
         struct EffectElementStats *eestat;
         eestat = get_effect_element_model_stats(9);
-        int sprsize, delta_size;
+        int sprsize;
+        int delta_size;
         delta_size = ((eestat->sprite_size_max - eestat->sprite_size_min) << 8) / (nsteps+1);
         sprsize = (eestat->sprite_size_min << 8);
         int deviat;
@@ -668,11 +677,15 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
 void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, long eemodel)
 {
     //_DK_draw_lightning(pos1, pos2, a3, a4);
-    MapCoordDelta dist_x, dist_y, dist_z;
+    MapCoordDelta dist_x;
+    MapCoordDelta dist_y;
+    MapCoordDelta dist_z;
     dist_x = pos2->x.val - (MapCoordDelta)pos1->x.val;
     dist_y = pos2->y.val - (MapCoordDelta)pos1->y.val;
     dist_z = pos2->z.val - (MapCoordDelta)pos1->z.val;
-    int delta_x, delta_y, delta_z;
+    int delta_x;
+    int delta_y;
+    int delta_z;
     if (dist_x >= 0) {
         delta_x = eeinterspace;
     } else {
@@ -711,7 +724,9 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             delta_x = dist_x * delta_x / dist_y;
             delta_z = delta_z * dist_z / dist_y;
         }
-        int deviat_x, deviat_y, deviat_z;
+        int deviat_x;
+        int deviat_y;
+        int deviat_z;
         deviat_x = 0;
         deviat_y = 0;
         deviat_z = 0;
@@ -780,14 +795,16 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
 TbBool setup_move_off_lava(struct Thing *thing)
 {
     //return _DK_setup_move_off_lava(thing);
-    MapSlabCoord slb_x, slb_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     slb_x = subtile_slab(thing->mappos.x.stl.num);
     slb_y = subtile_slab(thing->mappos.y.stl.num);
     long i;
     for (i=0; i < 32; i++)
     {
         struct MapOffset *sstep;
-        MapSubtlCoord cx,cy;
+        MapSubtlCoord cx;
+        MapSubtlCoord cy;
         sstep = &spiral_step[i];
         cx = slab_subtile_center(slb_x + sstep->h);
         cy = slab_subtile_center(slb_y + sstep->v);
@@ -800,12 +817,14 @@ TbBool setup_move_off_lava(struct Thing *thing)
         if (!slbattr->is_safe_land)
             continue;
         // Check all subtiles of the slab in random order
-        long k, n;
+        long k;
+        long n;
         n = ACTION_RANDOM(AROUND_TILES_COUNT);
         for (k=0; k < AROUND_TILES_COUNT; k++, n=(n + 1) % AROUND_TILES_COUNT)
         {
             struct Map *mapblk;
-            long stl_x,stl_y;
+            long stl_x;
+            long stl_y;
             stl_x = cx + around[k].delta_x;
             stl_y = cy + around[k].delta_y;
             mapblk = get_map_block_at(stl_x,stl_y);
@@ -1287,7 +1306,8 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos)
 {
     TbBool result;
-    long x,y;
+    long x;
+    long y;
     SYNCDBG(19,"Starting");
     result = false;
     if (camera != NULL)
@@ -1423,7 +1443,8 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
 {
     //_DK_reinit_tagged_blocks_for_player(plyr_idx); return;
     // Clear tagged blocks
-    MapSubtlCoord stl_x, stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     for (stl_y=0; stl_y < map_subtiles_y; stl_y++)
     {
         for (stl_x=0; stl_x < map_subtiles_x; stl_x++)
@@ -1442,7 +1463,8 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
     {
         struct MapTask  *mtask;
         mtask = &dungeon->task_list[task_idx];
-        MapSubtlCoord taskstl_x, taskstl_y;
+        MapSubtlCoord taskstl_x;
+        MapSubtlCoord taskstl_y;
         taskstl_x = stl_num_decode_x(mtask->coords);
         taskstl_y = stl_num_decode_y(mtask->coords);
         switch (mtask->kind)
@@ -1485,8 +1507,10 @@ void instant_instance_selected(CrInstance check_inst_id)
     ctrltng = thing_get(player->controlled_thing_idx);
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(ctrltng);
-    long i,k;
-    int avail_pos, match_avail_pos;
+    long i;
+    long k;
+    int avail_pos;
+    int match_avail_pos;
     avail_pos = 0;
     match_avail_pos = 0;
     for (i=0; i < CREATURE_MAX_LEVEL; i++)
@@ -1715,7 +1739,9 @@ void init_keepers_map_exploration(void)
 void clear_players_for_save(void)
 {
     struct PlayerInfo *player;
-    unsigned short id_mem,mem2,memflg;
+    unsigned short id_mem;
+    unsigned short mem2;
+    unsigned short memflg;
     struct Camera cammem;
     int i;
     for (i=0; i < PLAYERS_COUNT; i++)
@@ -1814,7 +1840,8 @@ void clear_game_for_save(void)
 
 void reset_creature_max_levels(void)
 {
-    int i,k;
+    int i;
+    int k;
     for (i=0; i < DUNGEONS_COUNT; i++)
     {
         struct Dungeon *dungeon;
@@ -1833,7 +1860,8 @@ void reset_creature_max_levels(void)
 void reset_script_timers_and_flags(void)
 {
     struct Dungeon *dungeon;
-    int plyr_idx,k;
+    int plyr_idx;
+    int k;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         add_power_to_player(PwrK_HAND, plyr_idx);
@@ -1928,7 +1956,8 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
 
 void centre_engine_window(void)
 {
-    long x1,y1;
+    long x1;
+    long y1;
     struct PlayerInfo *player=get_my_player();
     if ((game.operation_flags & GOF_ShowGui) != 0)
       x1 = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
@@ -1977,7 +2006,8 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
 {
     struct ActionPoint *apt;
     struct Thing *thing;
-    long pos_x,pos_y;
+    long pos_x;
+    long pos_y;
     long i;
     SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, *x, *y);
     pos_y = 0;
@@ -2051,7 +2081,8 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
 void set_general_information(long msg_id, long target, long x, long y)
 {
     struct PlayerInfo *player;
-    long pos_x,pos_y;
+    long pos_x;
+    long pos_y;
     player = get_my_player();
     find_map_location_coords(target, &x, &y, __func__);
     pos_x = 0;
@@ -2067,7 +2098,8 @@ void set_general_information(long msg_id, long target, long x, long y)
 void set_quick_information(long msg_id, long target, long x, long y)
 {
     struct PlayerInfo *player;
-    long pos_x,pos_y;
+    long pos_x;
+    long pos_y;
     player = get_my_player();
     find_map_location_coords(target, &x, &y, __func__);
     pos_x = 0;
@@ -2088,7 +2120,8 @@ void set_general_objective(long msg_id, long target, long x, long y)
 void process_objective(const char *msg_text, long target, long x, long y)
 {
     struct PlayerInfo *player;
-    long pos_x,pos_y;
+    long pos_x;
+    long pos_y;
     player = get_my_player();
     find_map_location_coords(target, &x, &y, __func__);
     pos_y = y;
@@ -2100,7 +2133,9 @@ void process_objective(const char *msg_text, long target, long x, long y)
 short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
 {
     struct PlayerInfo *swplyr;
-    int i,k,n;
+    int i;
+    int k;
+    int n;
     if (player->victory_state == VicS_LostLevel)
     {
       return 0;
@@ -2321,8 +2356,10 @@ void process_dungeon_devastation_effects(void)
         dungeon->devastation_turn++;
         if (dungeon->devastation_turn >= max(map_tiles_x,map_tiles_y))
             continue;
-        MapSlabCoord slb_x, slb_y;
-        int i,range;
+        MapSlabCoord slb_x;
+        MapSlabCoord slb_y;
+        int i;
+        int range;
         slb_x = subtile_slab(dungeon->devastation_centr_x) - dungeon->devastation_turn;
         slb_y = subtile_slab(dungeon->devastation_centr_y) - dungeon->devastation_turn;
         range = 2*dungeon->devastation_turn;
@@ -2897,7 +2934,8 @@ long update_cave_in(struct Thing *thing)
         }
     }
 
-    GameTurnDelta turns_between, turns_alive;
+    GameTurnDelta turns_between;
+    GameTurnDelta turns_alive;
     turns_between = pwrdynst->time / 5;
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
@@ -3085,7 +3123,10 @@ void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, lon
     if ((a6x == 0) || (a6y == 0)) {
         return;
     }
-    long xstart, ystart, xend, yend;
+    long xstart;
+    long ystart;
+    long xend;
+    long yend;
     char orient;
     switch (flags)
     {
@@ -3148,7 +3189,8 @@ void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, lon
     default:
           return;
     }
-    long v10, v12;
+    long v10;
+    long v12;
     v10 = a4x;
     if (v10 < 0)
     {
@@ -3209,8 +3251,10 @@ void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, lon
         dbuf = &vec_screen[v10 + v12 * vec_screen_width];
         block = block_ptrs[a1];
         ylim = hlimits;
-        long px, py;
-        int srcx, srcy;
+        long px;
+        long py;
+        int srcx;
+        int srcy;
         unsigned char *d;
         if ( a3 >= 0 )
         {
@@ -3266,8 +3310,10 @@ void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, lon
         dbuf = &vec_screen[v10 + v12 * vec_screen_width];
         block = block_ptrs[a1];
         ylim = wlimits;
-        long px, py;
-        int srcx, srcy;
+        long px;
+        long py;
+        int srcx;
+        int srcy;
         unsigned char *d;
         if ( a3 >= 0 )
         {
@@ -3377,12 +3423,18 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
-    long x,y;
-    long x_frac,y_frac;
-    long hori_ptr_y,vert_ptr_y;
-    long hori_hdelta_y,vert_hdelta_y;
-    long hori_ptr_x,vert_ptr_x;
-    long hvdiv_x,hvdiv_y;
+    long x;
+    long y;
+    long x_frac;
+    long y_frac;
+    long hori_ptr_y;
+    long vert_ptr_y;
+    long hori_hdelta_y;
+    long vert_hdelta_y;
+    long hori_ptr_x;
+    long vert_ptr_x;
+    long hvdiv_x;
+    long hvdiv_y;
     long long lltmp;
     long k;
     int i;
@@ -3688,7 +3740,8 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
 {
     SYNCDBG(7,"Starting");
     //return _DK_tag_cursor_blocks_place_room(plyr_idx, a2, a3, a4);
-    MapSlabCoord slb_x, slb_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
     struct SlabMap *slb;
@@ -3734,19 +3787,22 @@ void initialise_map_collides(void)
 {
     SYNCDBG(7,"Starting");
     //_DK_initialise_map_collides(); return;
-    MapSlabCoord slb_x, slb_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     for (slb_y=0; slb_y < map_tiles_y; slb_y++)
     {
         for (slb_x=0; slb_x < map_tiles_x; slb_x++)
         {
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);
-            int ssub_x, ssub_y;
+            int ssub_x;
+            int ssub_y;
             for (ssub_y=0; ssub_y < STL_PER_SLB; ssub_y++)
             {
                 for (ssub_x=0; ssub_x < STL_PER_SLB; ssub_x++)
                 {
-                    MapSubtlCoord stl_x, stl_y;
+                    MapSubtlCoord stl_x;
+                    MapSubtlCoord stl_y;
                     stl_x = slab_subtile(slb_x,ssub_x);
                     stl_y = slab_subtile(slb_y,ssub_y);
                     struct Map *mapblk;
@@ -3763,7 +3819,8 @@ void initialise_map_health(void)
 {
     SYNCDBG(7,"Starting");
     //_DK_initialise_map_health();
-    MapSlabCoord slb_x, slb_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     for (slb_y=0; slb_y < map_tiles_y; slb_y++)
     {
         for (slb_x=0; slb_x < map_tiles_x; slb_x++)
@@ -3812,7 +3869,8 @@ long ceiling_init(unsigned long a1, unsigned long a2)
 {
     return _DK_ceiling_init(a1, a2);
     //TODO Fix, then enable rewritten version
-    MapSubtlCoord stl_x, stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     for (stl_y=0; stl_y < map_subtiles_y; stl_y++)
     {
         for (stl_x=0; stl_x < map_subtiles_x; stl_x++)
@@ -3850,7 +3908,8 @@ long ceiling_init(unsigned long a1, unsigned long a2)
                 {
                     struct MapOffset *sstep;
                     sstep = &spiral_step[i];
-                    MapSubtlCoord cstl_x, cstl_y;
+                    MapSubtlCoord cstl_x;
+                    MapSubtlCoord cstl_y;
                     cstl_x = stl_x + sstep->h;
                     cstl_y = stl_y + sstep->v;
                     if ((cstl_x >= 0) && (cstl_x <= map_subtiles_x))
@@ -3860,7 +3919,8 @@ long ceiling_init(unsigned long a1, unsigned long a2)
                             filled_h = ceiling_block_is_solid_including_corners_return_height(sstep->both + get_subtile_number(stl_x,stl_y), cstl_x, cstl_y);
                             if (filled_h > -1)
                             {
-                                int delta_tmp, delta_max;
+                                int delta_tmp;
+                                int delta_max;
                                 delta_tmp = abs(stl_x - cstl_x);
                                 delta_max = abs(stl_y - cstl_y);
                                 if (delta_max <= delta_tmp)
@@ -4695,7 +4755,9 @@ int main(int argc, char *argv[])
 #if (BFDEBUG_LEVEL > 1)
   if (sizeof(struct Game) != SIZEOF_Game)
   {
-      long delta1,delta2,delta3;
+      long delta1;
+      long delta2;
+      long delta3;
       if (sizeof(struct PlayerInfo) != SIZEOF_PlayerInfo)
       {
           text = buf_sprintf("Bad compilation - struct PlayerInfo has wrong size!\nThe difference is %d bytes.\n",sizeof(struct PlayerInfo)-SIZEOF_PlayerInfo);

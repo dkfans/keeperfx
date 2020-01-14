@@ -82,7 +82,8 @@ void LbCursorSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
  */
 long PointerDraw(long x, long y, struct TbSprite *spr, TbPixel *outbuf, unsigned long scanline)
 {
-    unsigned int dwidth,dheight;
+    unsigned int dwidth;
+    unsigned int dheight;
     // Prepare bounds
     dwidth = (spr->SWidth*units_per_pixel)/16;
     dheight = (spr->SHeight*units_per_pixel)/16;
@@ -136,7 +137,8 @@ LbI_PointerHandler::~LbI_PointerHandler(void)
 
 void LbI_PointerHandler::SetHotspot(long x, long y)
 {
-    long prev_x,prev_y;
+    long prev_x;
+    long prev_y;
     LbSemaLock semlock(&sema_rel,0);
     semlock.Lock(true);
     if (this->field_1050)
@@ -188,7 +190,8 @@ void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct TbPoint *npos, 
     void *surfbuf;
     TbPixel *buf;
     long i;
-    int dstwidth, dstheight;
+    int dstwidth;
+    int dstheight;
     Release();
     LbSemaLock semlock(&sema_rel,0);
     semlock.Lock(true);
@@ -272,7 +275,8 @@ void LbI_PointerHandler::NewMousePos(void)
 {
     this->draw_pos_x = position->x - spr_offset->x*units_per_pixel/16;
     this->draw_pos_y = position->y - spr_offset->y*units_per_pixel/16;
-    int dstwidth, dstheight;
+    int dstwidth;
+    int dstheight;
     dstwidth = (sprite->SWidth*units_per_pixel)/16;
     dstheight = (sprite->SHeight*units_per_pixel)/16;
     LbSetRect(&rect_1038, 0, 0, dstwidth, dstheight);

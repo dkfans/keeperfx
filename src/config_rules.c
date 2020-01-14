@@ -208,13 +208,11 @@ const struct NamedCommand sacrifice_unique_desc[] = {
  */
 struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void)
 {
-  struct SacrificeRecipe *sac;
-  long i;
-  for (i=1; i < MAX_SACRIFICE_RECIPES; i++)
-  {
-    sac = &gameadd.sacrifice_recipes[i];
-    if (sac->action == SacA_None)
-      return sac;
+    for (long i = 1; i < MAX_SACRIFICE_RECIPES; i++)
+    {
+        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        if (sac->action == SacA_None)
+            return sac;
   }
   return &gameadd.sacrifice_recipes[0];
 }
@@ -224,50 +222,42 @@ struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void)
  */
 void clear_sacrifice_recipes(void)
 {
-  struct SacrificeRecipe *sac;
-  long i;
-  for (i=0; i < MAX_SACRIFICE_RECIPES; i++)
-  {
-    sac = &gameadd.sacrifice_recipes[i];
-    LbMemorySet(sac, '\0', sizeof(struct SacrificeRecipe));
-    sac->action = SacA_None;
+    for (long i = 0; i < MAX_SACRIFICE_RECIPES; i++)
+    {
+        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        LbMemorySet(sac, '\0', sizeof(struct SacrificeRecipe));
+        sac->action = SacA_None;
   }
 }
 
 TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
 {
-  long i,k;
-  // If all slots are taken, then just drop it.
-  if (sac->victims[MAX_SACRIFICE_VICTIMS-1] != 0)
-    return false;
-  // Otherwise, find place for our item (array is sorted)
-  for (i=0; i < MAX_SACRIFICE_VICTIMS; i++)
-  {
-    if ((sac->victims[i] == 0) || (sac->victims[i] > crtr_idx))
+    // If all slots are taken, then just drop it.
+    if (sac->victims[MAX_SACRIFICE_VICTIMS - 1] != 0)
+        return false;
+    // Otherwise, find place for our item (array is sorted)
+    for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-      // Move the entries to make place
-      for (k=MAX_SACRIFICE_VICTIMS-1; k > i; k--)
-        sac->victims[k] = sac->victims[k-1];
-      if (i > 0)
-      {
-        sac->victims[i] = sac->victims[i-1];
-        i--;
-      }
-      sac->victims[i] = crtr_idx;
-      return true;
-    }
+        if ((sac->victims[i] == 0) || (sac->victims[i] > crtr_idx))
+        {
+            // Move the entries to make place
+            for (long k = MAX_SACRIFICE_VICTIMS - 1; k > i; k--)
+                sac->victims[k] = sac->victims[k - 1];
+            if (i > 0)
+            {
+                sac->victims[i] = sac->victims[i - 1];
+                i--;
+            }
+            sac->victims[i] = crtr_idx;
+            return true;
+        }
   }
   return false;
 }
 
 TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -294,9 +284,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         gameadd.classic_bugs_flags = ClscBug_None;
     }
     // Find the block
-    sprintf(block_buf,"game");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "game");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -307,10 +298,11 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,rules_game_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, rules_game_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // GOLDPERGOLDBLOCK
@@ -648,12 +640,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
 
 TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Default values
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -663,9 +650,10 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
         game.wait_after_room_area = 200;
     }
     // Find the block
-    sprintf(block_buf,"computer");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "computer");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -676,10 +664,11 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,rules_computer_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, rules_computer_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // AUTODIGLIMIT
@@ -754,12 +743,7 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
 
 TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  long pos;
-  int k,n;
-  int cmd_num;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
@@ -775,9 +759,10 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
       gameadd.critical_health_permil = 125;
   }
   // Find the block
-  sprintf(block_buf,"creatures");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
+  char block_buf[COMMAND_WORD_LEN];
+  sprintf(block_buf, "creatures");
+  long pos = 0;
+  int k = find_conf_block(buf, &pos, len, block_buf);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
@@ -788,10 +773,11 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
   while (pos<len)
   {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,rules_creatures_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, rules_creatures_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // RECOVERYFREQUENCY
@@ -941,12 +927,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
 
 TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  long pos;
-  int k,n;
-  int cmd_num;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
@@ -964,9 +945,10 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
       game.power_hand_gold_grab_amount = 100;
   }
   // Find the block
-  sprintf(block_buf,"magic");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
+  char block_buf[COMMAND_WORD_LEN];
+  sprintf(block_buf, "magic");
+  long pos = 0;
+  int k = find_conf_block(buf, &pos, len, block_buf);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
@@ -977,10 +959,11 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
   while (pos<len)
   {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,rules_magic_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, rules_magic_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // HOLDAUDIENCETIME
@@ -1198,12 +1181,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
 
 TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  long pos;
-  int k,n;
-  int cmd_num;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
@@ -1222,9 +1200,10 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       gameadd.time_between_prison_break = 64;
   }
   // Find the block
-  sprintf(block_buf,"rooms");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
+  char block_buf[COMMAND_WORD_LEN];
+  sprintf(block_buf, "rooms");
+  long pos = 0;
+  int k = find_conf_block(buf, &pos, len, block_buf);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1235,10 +1214,11 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
   while (pos<len)
   {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,rules_rooms_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, rules_rooms_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // SCAVENGECOSTFREQUENCY
@@ -1485,12 +1465,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
 
 TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  long pos;
-  int k,n;
-  int cmd_num;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
@@ -1500,9 +1475,10 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
       game.per_imp_gold_dig_size = 30;
   }
   // Find the block
-  sprintf(block_buf,"workers");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
+  char block_buf[COMMAND_WORD_LEN];
+  sprintf(block_buf, "workers");
+  long pos = 0;
+  int k = find_conf_block(buf, &pos, len, block_buf);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1513,10 +1489,11 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
   while (pos<len)
   {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,rules_workers_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, rules_workers_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // HITSPERSLAB
@@ -1600,12 +1577,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
 
 TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  long pos;
-  int k,n;
-  int cmd_num;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
@@ -1616,9 +1588,10 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
       game.turns_per_torture_health_loss = 100;
   }
   // Find the block
-  sprintf(block_buf,"health");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
+  char block_buf[COMMAND_WORD_LEN];
+  sprintf(block_buf, "health");
+  long pos = 0;
+  int k = find_conf_block(buf, &pos, len, block_buf);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1629,10 +1602,11 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
   while (pos<len)
   {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,rules_health_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, rules_health_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // HUNGERHEALTHLOSS
@@ -1763,8 +1737,7 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
  */
 const char *player_code_name(PlayerNumber plyr_idx)
 {
-    const char *name;
-    name = get_conf_parameter_text(player_desc,plyr_idx);
+    const char* name = get_conf_parameter_text(player_desc, plyr_idx);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -1772,16 +1745,14 @@ const char *player_code_name(PlayerNumber plyr_idx)
 
 TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  long pos;
-  int i,k,l,n;
-  int cmd_num;
+  int i;
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Find the block
   sprintf(block_buf,"research");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
+  long pos = 0;
+  int k = find_conf_block(buf, &pos, len, block_buf);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1795,40 +1766,40 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
   while (pos<len)
   {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,rules_research_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, rules_research_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      l = 0;
+      int n = 0;
+      int l = 0;
       switch (cmd_num)
       {
       case 1: // RESEARCH
           i = 0;
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = get_id(research_desc, word_buf);
-            if (i >= 0)
-              n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            l = get_research_id(i, word_buf, __func__);
-            if (l >= 0)
-              n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            n++;
-          }
-          if (n < 3)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            break;
-          }
-          add_research_to_all_players(i, l, k);
-          break;
+              {
+                  i = get_id(research_desc, word_buf);
+                  if (i >= 0)
+                      n++;
+              }
+              if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+              {
+                  l = get_research_id(i, word_buf, __func__);
+                  if (l >= 0)
+                      n++;
+              }
+              if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+              {
+                  k = atoi(word_buf);
+                  n++;
+              }
+              if (n < 3)
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                  break;
+              }
+              add_research_to_all_players(i, l, k);
+              break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1849,12 +1820,10 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
  */
 static void mark_cheaper_diggers_sacrifice(void)
 {
-    struct SacrificeRecipe* sac;
-    int i;
     gameadd.cheaper_diggers_sacrifice_model = 0;
-    for (i=1; i < MAX_SACRIFICE_RECIPES; i++)
+    for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        sac = &gameadd.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             continue;
         if ((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp))
@@ -1872,17 +1841,14 @@ static void mark_cheaper_diggers_sacrifice(void)
 
 TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
     char block_buf[COMMAND_WORD_LEN];
     char word_buf[COMMAND_WORD_LEN];
-    struct SacrificeRecipe *sac;
     // Find the block
     sprintf(block_buf,"sacrifices");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1895,10 +1861,11 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,rules_sacrifices_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, rules_sacrifices_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        struct SacrificeRecipe* sac;
         switch (cmd_num)
         {
         case 1: // MKCREATURE
@@ -2057,11 +2024,8 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
 
 TbBool load_rules_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    char *buf;
-    long len;
-    TbBool result;
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
-    len = LbFileLengthRnc(fname);
+    long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -2074,12 +2038,12 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    result = (len > 0);
+    TbBool result = (len > 0);
     // Parse blocks of the config file
     if (result)
     {
@@ -2162,10 +2126,8 @@ TbBool load_rules_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global rules config";
     static const char config_campgn_textname[] = "campaign rules config";
-    char *fname;
-    TbBool result;
-    fname = prepare_file_path(FGrp_FxData,conf_fname);
-    result = load_rules_config_file(config_global_textname,fname,flags);
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    TbBool result = load_rules_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {

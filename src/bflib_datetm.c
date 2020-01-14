@@ -59,9 +59,8 @@ TbClockMSec LbTimerClock_1000(void)
  */
 TbClockMSec LbTimerClock_1024(void)
 {
-  clock_t cclk;
-  cclk = clock();
-  return cclk - (cclk>>6) - (cclk>>7);
+    clock_t cclk = clock();
+    return cclk - (cclk >> 6) - (cclk >> 7);
 }
 
 /**
@@ -142,14 +141,12 @@ inline void LbDoMultitasking(void)
 
 TbBool __fastcall LbSleepFor(TbClockMSec delay)
 {
-  register TbClockMSec currclk;
-  register TbClockMSec endclk;
-  currclk=LbTimerClock();
-  endclk=currclk+delay;
-  while ((currclk+LARGE_DELAY_TIME) < endclk)
-  {
-    LbDoMultitasking();
-    currclk=LbTimerClock();
+    TbClockMSec currclk = LbTimerClock();
+    TbClockMSec endclk = currclk + delay;
+    while ((currclk + LARGE_DELAY_TIME) < endclk)
+    {
+        LbDoMultitasking();
+        currclk = LbTimerClock();
   }
   while (currclk < endclk)
     currclk=LbTimerClock();
@@ -158,12 +155,11 @@ TbBool __fastcall LbSleepFor(TbClockMSec delay)
 
 TbBool __fastcall LbSleepUntil(TbClockMSec endtime)
 {
-  register TbClockMSec currclk;
-  currclk=LbTimerClock();
-  while ((currclk+LARGE_DELAY_TIME) < endtime)
-  {
-    LbDoMultitasking();
-    currclk=LbTimerClock();
+    TbClockMSec currclk = LbTimerClock();
+    while ((currclk + LARGE_DELAY_TIME) < endtime)
+    {
+        LbDoMultitasking();
+        currclk = LbTimerClock();
   }
   while (currclk < endtime)
     currclk=LbTimerClock();

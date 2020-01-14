@@ -622,7 +622,8 @@ static void AddSession(const char * str, size_t len)
 
 void LbNetwork_InitSessionsFromCmdLine(const char * str)
 {
-    const char * start, * end;
+    const char* start;
+    const char* end;
 
     NETMSG("Initializing sessions from command line: %s", str);
 
@@ -963,9 +964,10 @@ void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
 
 TbError LbNetwork_Stop(void)
 {
-    NetFrame * frame, * nextframe;
+    NetFrame* frame;
+    NetFrame* nextframe;
 
-  /*//return _DK_LbNetwork_Stop();
+    /*//return _DK_LbNetwork_Stop();
   if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -1764,7 +1766,8 @@ TbError HostDataCollection(void)
   int exchngNeeded;
   TbBool keepExchng;
   unsigned long nRetries;
-  long i,k;
+  long i;
+  long k;
   ret = Lb_FAIL;
 
   keepExchng = true;

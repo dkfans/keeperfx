@@ -107,31 +107,28 @@ struct ComputerPlayerConfig comp_player_conf;
 
 int get_computer_process_config_list_index_prc(struct ComputerProcess *cproc)
 {
-  int i;
-  for (i=1; i <= comp_player_conf.processes_count; i++)
-  {
-    if (computer_process_config_list[i].process == cproc)
-      return i;
+    for (int i = 1; i <= comp_player_conf.processes_count; i++)
+    {
+        if (computer_process_config_list[i].process == cproc)
+            return i;
   }
   return 0;
 }
 
 int get_computer_process_config_list_index_mnem(const char *mnemonic)
 {
-  int i;
-  for (i=1; i <= comp_player_conf.processes_count; i++)
-  {
-    if (strcasecmp(computer_process_config_list[i].name, mnemonic) == 0)
-      return i;
+    for (int i = 1; i <= comp_player_conf.processes_count; i++)
+    {
+        if (strcasecmp(computer_process_config_list[i].name, mnemonic) == 0)
+            return i;
   }
   return 0;
 }
 
 int get_computer_check_config_list_index_mnem(const char *mnemonic)
 {
-  int i;
   const int arr_size = (int)(sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]));
-  for (i=1; i < arr_size; i++)
+  for (int i = 1; i < arr_size; i++)
   {
     if (strcasecmp(computer_check_config_list[i].name, mnemonic) == 0)
       return i;
@@ -141,9 +138,8 @@ int get_computer_check_config_list_index_mnem(const char *mnemonic)
 
 int get_computer_event_config_list_index_mnem(const char *mnemonic)
 {
-  int i;
   const int arr_size = (int)(sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]));
-  for (i=1; i < arr_size; i++)
+  for (int i = 1; i < arr_size; i++)
   {
     if (strcasecmp(computer_event_config_list[i].name, mnemonic) == 0)
       return i;
@@ -160,72 +156,66 @@ struct ComputerProcessTypes *get_computer_process_type_template(long cpt_idx)
 
 TbBool computer_type_clear_processes(struct ComputerProcessTypes *cpt)
 {
-  int i;
-  for (i=0; i<COMPUTER_PROCESSES_COUNT; i++)
-  {
-    cpt->processes[i] = NULL;
+    for (int i = 0; i < COMPUTER_PROCESSES_COUNT; i++)
+    {
+        cpt->processes[i] = NULL;
   }
   return true;
 }
 
 int computer_type_add_process(struct ComputerProcessTypes *cpt, struct ComputerProcess *cproc)
 {
-  int i;
-  for (i=0; i<COMPUTER_PROCESSES_COUNT; i++)
-  {
-      if (cpt->processes[i] == NULL)
-      {
-        cpt->processes[i] = cproc;
-        return i;
-      }
+    for (int i = 0; i < COMPUTER_PROCESSES_COUNT; i++)
+    {
+        if (cpt->processes[i] == NULL)
+        {
+            cpt->processes[i] = cproc;
+            return i;
+        }
   }
   return -1;
 }
 
 short computer_type_clear_checks(struct ComputerProcessTypes *cpt)
 {
-  int i;
-  for (i=0; i<COMPUTER_CHECKS_COUNT; i++)
-  {
-    LbMemorySet(&cpt->checks[i], 0, sizeof(struct ComputerCheck));
+    for (int i = 0; i < COMPUTER_CHECKS_COUNT; i++)
+    {
+        LbMemorySet(&cpt->checks[i], 0, sizeof(struct ComputerCheck));
   }
   return true;
 }
 
 int computer_type_add_check(struct ComputerProcessTypes *cpt, struct ComputerCheck *check)
 {
-  int i;
-  for (i=0; i<COMPUTER_CHECKS_COUNT; i++)
-  {
-      if (cpt->checks[i].name == NULL)
-      {
-        LbMemoryCopy(&cpt->checks[i], check, sizeof(struct ComputerCheck));
-        return i;
-      }
+    for (int i = 0; i < COMPUTER_CHECKS_COUNT; i++)
+    {
+        if (cpt->checks[i].name == NULL)
+        {
+            LbMemoryCopy(&cpt->checks[i], check, sizeof(struct ComputerCheck));
+            return i;
+        }
   }
   return -1;
 }
 
 short computer_type_clear_events(struct ComputerProcessTypes *cpt)
 {
-  int i;
-  for (i=0; i<COMPUTER_EVENTS_COUNT; i++)
-  {
-    LbMemorySet(&cpt->events[i], 0, sizeof(struct ComputerEvent));
+    for (int i = 0; i < COMPUTER_EVENTS_COUNT; i++)
+    {
+        LbMemorySet(&cpt->events[i], 0, sizeof(struct ComputerEvent));
   }
   return true;
 }
 
 int computer_type_add_event(struct ComputerProcessTypes *cpt, struct ComputerEvent *event)
 {
-  int i;
-  for (i=0; i<COMPUTER_EVENTS_COUNT; i++)
-  {
-      if (cpt->events[i].name == NULL)
-      {
-        LbMemoryCopy(&cpt->events[i], event, sizeof(struct ComputerEvent));
-        return i;
-      }
+    for (int i = 0; i < COMPUTER_EVENTS_COUNT; i++)
+    {
+        if (cpt->events[i].name == NULL)
+        {
+            LbMemoryCopy(&cpt->events[i], event, sizeof(struct ComputerEvent));
+            return i;
+        }
   }
   return -1;
 }
@@ -254,12 +244,7 @@ short init_computer_process_lists(void)
 
 TbBool parse_computer_player_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -269,9 +254,10 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
         comp_player_conf.computers_count = 1;
     }
     // Find the block
-    sprintf(block_buf,"common");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "common");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -282,10 +268,11 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,compp_common_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, compp_common_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // COMPUTERASSISTS
@@ -394,30 +381,25 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
 
 short parse_computer_player_process_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    struct ComputerProcess *cproc;
-    long pos;
-    int i,k,n;
-    int cmd_num;
     // Block name and parameter word store variable
-    char block_buf[32];
-    char word_buf[32];
-    for (i=1; i <= comp_player_conf.processes_count; i++)
+    for (int i = 1; i <= comp_player_conf.processes_count; i++)
     {
-      sprintf(block_buf,"process%d",i);
-      pos = 0;
-      k = find_conf_block(buf,&pos,len,block_buf);
-      if (k < 0)
-      {
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-          continue;
+        char block_buf[32];
+        sprintf(block_buf, "process%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
+            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            continue;
       }
-      cproc = computer_process_config_list[i].process;
+      struct ComputerProcess* cproc = computer_process_config_list[i].process;
       cproc->parent = NULL;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_process_commands,cmd_num)
       while (pos<len)
       {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,compp_process_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, compp_process_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
@@ -426,7 +408,8 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
                 cmd_num = 0;
             }
         }
-        n = 0;
+        int n = 0;
+        char word_buf[32];
         switch (cmd_num)
         {
         case 1: // NAME
@@ -576,12 +559,8 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
 short parse_computer_player_check_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ComputerCheck *ccheck;
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
-    char block_buf[32];
-    char word_buf[32];
     // Initialize the checks array
     const int arr_size = sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]);
     for (i=0; i < arr_size; i++)
@@ -596,20 +575,21 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
     // Load the file
     for (i=1; i < arr_size; i++)
     {
-      sprintf(block_buf,"check%d",i);
-      pos = 0;
-      k = find_conf_block(buf,&pos,len,block_buf);
-      if (k < 0)
-      {
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-          continue;
+        char block_buf[32];
+        sprintf(block_buf, "check%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
+            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            continue;
       }
       ccheck = computer_check_config_list[i].check;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_check_commands,cmd_num)
       while (pos<len)
       {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,compp_check_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, compp_check_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
@@ -618,7 +598,8 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
                 cmd_num = 0;
             }
         }
-        n = 0;
+        int n = 0;
+        char word_buf[32];
         switch (cmd_num)
         {
         case 1: // NAME
@@ -719,12 +700,8 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
 short parse_computer_player_event_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ComputerEvent *cevent;
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
-    char block_buf[32];
-    char word_buf[32];
     // Initialize the events array
     const int arr_size = (int)(sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]));
     for (i=0; i < arr_size; i++)
@@ -739,20 +716,21 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
     // Load the file
     for (i=1; i < arr_size; i++)
     {
-      sprintf(block_buf,"event%d",i);
-      pos = 0;
-      k = find_conf_block(buf,&pos,len,block_buf);
-      if (k < 0)
-      {
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-          continue;
+        char block_buf[32];
+        sprintf(block_buf, "event%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
+            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            continue;
       }
       cevent = computer_event_config_list[i].event;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_event_commands,cmd_num)
       while (pos<len)
       {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,compp_event_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, compp_event_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
@@ -761,7 +739,8 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
                 cmd_num = 0;
             }
         }
-        n = 0;
+        int n = 0;
+        char word_buf[32];
         switch (cmd_num)
         {
         case 1: // NAME
@@ -909,32 +888,27 @@ short write_computer_player_event_to_log(const struct ComputerEvent *event)
 
 short parse_computer_player_computer_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    struct ComputerProcessTypes *cpt;
-    long pos;
-    int i,k,n;
-    int cmd_num;
     // Block name and parameter word store variable
-    char block_buf[32];
-    char word_buf[32];
     // The -1 was possibly making the array size 1-too-small. It was originally
     // const int arr_size = (int)(sizeof(ComputerProcessLists)/sizeof(ComputerProcessLists[0]))-1;
     const int arr_size = (int)(sizeof(ComputerProcessLists)/sizeof(ComputerProcessLists[0]));
-    for (i=0; i < arr_size; i++)
+    for (int i = 0; i < arr_size; i++)
     {
-      sprintf(block_buf,"computer%d",i);
-      pos = 0;
-      k = find_conf_block(buf,&pos,len,block_buf);
-      if (k < 0)
-      {
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-          continue;
+        char block_buf[32];
+        sprintf(block_buf, "computer%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
+            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+            continue;
       }
-      cpt = &ComputerProcessLists[i];
+      struct ComputerProcessTypes* cpt = &ComputerProcessLists[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_computer_commands,cmd_num)
       while (pos<len)
       {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,compp_computer_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, compp_computer_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
@@ -943,7 +917,8 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
                 cmd_num = 0;
             }
         }
-        n = 0;
+        int n = 0;
+        char word_buf[32];
         switch (cmd_num)
         {
         case 1: // NAME
@@ -1112,13 +1087,10 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
 TbBool load_computer_player_config(unsigned short flags)
 {
     static const char *textname = "Computer Player";
-    const char *fname;
-    char *buf;
-    long len;
     init_computer_process_lists();
     // Load the config file
-    fname = prepare_file_path(FGrp_FxData,keeper_compplayer_file);
-    len = LbFileLengthRnc(fname);
+    const char* fname = prepare_file_path(FGrp_FxData, keeper_compplayer_file);
+    long len = LbFileLengthRnc(fname);
     if (len < 2)
     {
         ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
@@ -1129,7 +1101,7 @@ TbBool load_computer_player_config(unsigned short flags)
         ERRORLOG("Computer Player file \"%s\" is too large.",keeper_compplayer_file);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
       return false;
     // Loading file data

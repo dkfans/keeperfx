@@ -91,7 +91,8 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
     if (!is_power_available(plyr_idx, pwkind)) {
         return false;
     }
-    TbBool cast_at_xy,cast_on_tng;
+    TbBool cast_at_xy;
+    TbBool cast_on_tng;
     cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, 0);
     const struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
@@ -341,11 +342,14 @@ void update_power_sight_explored(struct PlayerInfo *player)
     struct Thing *thing;
     thing = thing_get(dungeon->sight_casted_thing_idx);
 
-    int shift_x, shift_y;
+    int shift_x;
+    int shift_y;
     int i;
-    int subshift_x, subshift_y;
+    int subshift_x;
+    int subshift_y;
     int revealed;
-    int stl_x, stl_y;
+    int stl_x;
+    int stl_y;
 
     for (shift_y=0; shift_y < 2*MAX_SOE_RADIUS; shift_y++)
     {
@@ -369,7 +373,8 @@ void update_power_sight_explored(struct PlayerInfo *player)
               ++i;
             }
 
-            int stl_x_beg, stl_x_end;
+            int stl_x_beg;
+            int stl_x_end;
             stl_x_beg = stl_x;
             stl_x_end = stl_x + revealed;
             if (stl_x_beg < 0) {
@@ -422,7 +427,8 @@ void update_power_sight_explored(struct PlayerInfo *player)
               ++i;
             }
 
-            int stl_y_beg, stl_y_end;
+            int stl_y_beg;
+            int stl_y_end;
             stl_y_beg = stl_y;
             stl_y_end = stl_y + revealed;
             if (stl_y_end < 0) {
@@ -468,7 +474,8 @@ TbBool power_sight_explored(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     if (thing_is_invalid(thing)) {
         return false;
     }
-    long soe_x, soe_y;
+    long soe_x;
+    long soe_y;
     soe_x = stl_x - thing->mappos.x.stl.num + MAX_SOE_RADIUS;
     soe_y = stl_y - thing->mappos.y.stl.num + MAX_SOE_RADIUS;
     if ((soe_x < 0) || (soe_x >= 2*MAX_SOE_RADIUS) || (soe_y < 0)  || (soe_y >= 2*MAX_SOE_RADIUS))
@@ -716,7 +723,8 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
     pwrdynst = get_power_dynamic_stats(pwkind);
     struct Thing * thing;
     thing = INVALID_THING;
-    unsigned long curr, total;
+    unsigned long curr;
+    unsigned long total;
     curr = 0;
     total = 0;
     switch (pwkind)
@@ -800,7 +808,8 @@ TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coo
 TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_flags)
 {
     SYNCDBG(6,"Starting");
-    unsigned long your_time_gap,enemy_time_gap;
+    unsigned long your_time_gap;
+    unsigned long enemy_time_gap;
     your_time_gap = game.armageddon.count_down + game.play_gameturn;
     enemy_time_gap = game.armageddon.count_down + game.play_gameturn;
     if (game.armageddon_cast_turn != 0) {
@@ -824,7 +833,8 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
     game.armageddon.mappos.z.val = heartng->mappos.z.val;
 
     struct Thing *thing;
-    int i,k;
+    int i;
+    int k;
     k = 0;
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
@@ -914,8 +924,12 @@ void turn_off_power_obey(PlayerNumber plyr_idx)
 void turn_off_power_sight_of_evil(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-    long spl_lev,cit;
-    long i,imax,k,n;
+    long spl_lev;
+    long cit;
+    long i;
+    long imax;
+    long k;
+    long n;
     dungeon = get_players_num_dungeon(plyr_idx);
     const struct MagicStats *pwrdynst;
     pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
@@ -1054,14 +1068,18 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
             return Lb_FAIL;
         }
     }
-    MapSlabCoord slb_x_start, slb_y_start, slb_x_end, slb_y_end;
+    MapSlabCoord slb_x_start;
+    MapSlabCoord slb_y_start;
+    MapSlabCoord slb_x_end;
+    MapSlabCoord slb_y_end;
     int i;
     slb_x_start = map_to_slab[stl_x] - 1;
     slb_y_start = map_to_slab[stl_y] - 1;
     slb_x_end = slb_x_start + 3;
     slb_y_end = slb_y_start + 3;
     i = 0;
-    MapSlabCoord slb_x, slb_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     for (slb_y=slb_y_start; slb_y < slb_y_end ; slb_y++)
     {
         for (slb_x=slb_x_start; slb_x < slb_x_end ; slb_x++,i++)
@@ -1296,7 +1314,8 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Thing *obtng;
     struct Thing *efftng;
     struct Coord3d pos;
-    long range,max_damage;
+    long range;
+    long max_damage;
     long i;
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
@@ -1359,7 +1378,10 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     struct Dungeon *dungeon;
     struct Thing *thing;
     struct Coord3d pos;
-    long cit,cdt,cgt,cdlimit;
+    long cit;
+    long cdt;
+    long cgt;
+    long cdlimit;
     long i;
     dungeon = get_dungeon(plyr_idx);
     pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
@@ -1420,7 +1442,8 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
 
 TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    MapSlabCoord slb_x, slb_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     slb_y = subtile_slab_fast(stl_y);
     slb_x = subtile_slab_fast(stl_x);
     struct Map *mapblk;
@@ -1735,7 +1758,8 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
 {
     struct Dungeon *dungeon;
     unsigned long k;
-    int i, n;
+    int i;
+    int n;
     SYNCDBG(8,"Starting");
     dungeon = get_players_num_dungeon(plyr_idx);
     n = 0;

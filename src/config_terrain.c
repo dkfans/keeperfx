@@ -282,8 +282,7 @@ struct SlabConfigStats *get_slab_stats(struct SlabMap *slb)
  */
 const char *slab_code_name(SlabKind slbkind)
 {
-    const char *name;
-    name = get_conf_parameter_text(slab_desc,slbkind);
+    const char* name = get_conf_parameter_text(slab_desc, slbkind);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -294,8 +293,7 @@ const char *slab_code_name(SlabKind slbkind)
  */
 const char *room_role_code_name(RoomRole rrole)
 {
-    const char *name;
-    name = get_conf_parameter_text(room_roles_desc,rrole);
+    const char* name = get_conf_parameter_text(room_roles_desc, rrole);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -313,8 +311,7 @@ struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind)
  */
 const char *room_code_name(RoomKind rkind)
 {
-    const char *name;
-    name = get_conf_parameter_text(room_desc,rkind);
+    const char* name = get_conf_parameter_text(room_desc, rkind);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -322,12 +319,7 @@ const char *room_code_name(RoomKind rkind)
 
 TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -335,9 +327,10 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
         slab_conf.room_types_count = 1;
     }
     // Find the block
-    sprintf(block_buf,"common");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "common");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -348,10 +341,11 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,terrain_common_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, terrain_common_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // SLABSCOUNT
@@ -406,7 +400,9 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
     struct SlabAttr *slbattr;
     struct SlabConfigStats *slabst;
     long pos;
-    int i,k,n;
+    int i;
+    int k;
+    int n;
     int cmd_num;
     // Block name and parameter word store variables
     char block_buf[COMMAND_WORD_LEN];
@@ -565,15 +561,10 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
 
 TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    struct RoomData *rdata;
     struct RoomStats *rstat;
     struct RoomConfigStats *roomst;
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize the rooms array
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -617,25 +608,27 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
     arr_size = slab_conf.room_types_count;
     for (i=0; i < arr_size; i++)
     {
-      sprintf(block_buf,"room%d",i);
-      pos = 0;
-      k = find_conf_block(buf,&pos,len,block_buf);
-      if (k < 0)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0) {
-              WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-              return false;
-          }
-          continue;
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "room%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
+            if ((flags & CnfLd_AcceptPartial) == 0)
+            {
+                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+                return false;
+            }
+            continue;
       }
       rstat = &game.room_stats[i];
       roomst = &slab_conf.room_cfgstats[i];
-      rdata = room_data_get_for_kind(i);
+      struct RoomData* rdata = room_data_get_for_kind(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_room_commands,cmd_num)
       while (pos<len)
       {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,terrain_room_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, terrain_room_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
@@ -644,7 +637,8 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                 cmd_num = 0;
             }
         }
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // NAME
@@ -940,11 +934,8 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
 
 TbBool load_terrain_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    char *buf;
-    long len;
-    TbBool result;
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
-    len = LbFileLengthRnc(fname);
+    long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -957,12 +948,12 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    result = (len > 0);
+    TbBool result = (len > 0);
     // Parse blocks of the config file
     if (result)
     {
@@ -997,10 +988,8 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global terrain config";
     static const char config_campgn_textname[] = "campaign terrain config";
-    char *fname;
-    TbBool result;
-    fname = prepare_file_path(FGrp_FxData,conf_fname);
-    result = load_terrain_config_file(config_global_textname,fname,flags);
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    TbBool result = load_terrain_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
@@ -1015,11 +1004,9 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
  */
 TbBool make_all_rooms_free(void)
 {
-    struct RoomStats *rstat;
-    long rkind;
-    for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
+    for (long rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        rstat = &game.room_stats[rkind];
+        struct RoomStats* rstat = &game.room_stats[rkind];
         rstat->cost = 0;
     }
     return true;
@@ -1030,14 +1017,12 @@ TbBool make_all_rooms_free(void)
  */
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    long rkind;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
+    for (long rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
         dungeon->room_resrchable[rkind] = 1;
     }
@@ -1049,10 +1034,9 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
  */
 TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch, long avail)
 {
-    struct Dungeon *dungeon;
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
@@ -1077,8 +1061,7 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
  */
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1103,15 +1086,13 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
  */
 TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    long i;
     SYNCDBG(0,"Starting");
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    for (i=0; i < ROOM_TYPES_COUNT; i++)
+    for (long i = 0; i < ROOM_TYPES_COUNT; i++)
     {
         if (dungeon->room_resrchable[i])
         {
@@ -1201,8 +1182,7 @@ TbBool slab_kind_is_room(SlabKind slbkind)
  */
 ThingModel get_room_create_creature_model(RoomKind rkind)
 {
-    const struct RoomConfigStats *roomst;
-    roomst = get_room_kind_stats(rkind);
+    const struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     return roomst->creature_creation_model;
 }
 
@@ -1213,8 +1193,7 @@ TbBool enemies_may_work_in_room(RoomKind rkind)
 
 RoomRole get_room_roles(RoomKind rkind)
 {
-    const struct RoomConfigStats *roomst;
-    roomst = get_room_kind_stats(rkind);
+    const struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     return roomst->roles;
 }
 
@@ -1236,8 +1215,7 @@ TbBool room_has_surrounding_flames(RoomKind rkind)
  */
 TbBool room_cannot_vandalise(RoomKind rkind)
 {
-    struct RoomConfigStats *roomst;
-    roomst = get_room_kind_stats(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     return ((roomst->flags & RoCFlg_CantVandalize) != 0);
 }
 
@@ -1259,8 +1237,7 @@ TbBool room_never_buildable(RoomKind rkind)
  */
 TbBool room_can_have_ensign(RoomKind rkind)
 {
-    struct RoomConfigStats *roomst;
-    roomst = get_room_kind_stats(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     return ((roomst->flags & RoCFlg_NoEnsign) == 0);
 }
 
@@ -1271,8 +1248,7 @@ TbBool room_can_have_ensign(RoomKind rkind)
  */
 SlabKind room_corresponding_slab(RoomKind rkind)
 {
-    struct RoomConfigStats *roomst;
-    roomst = get_room_kind_stats(rkind);
+    struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
     return roomst->assigned_slab;
 }
 
@@ -1283,11 +1259,9 @@ SlabKind room_corresponding_slab(RoomKind rkind)
  */
 RoomKind slab_corresponding_room(SlabKind slbkind)
 {
-    struct RoomConfigStats *roomst;
-    RoomKind rkind;
-    for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
-        roomst = get_room_kind_stats(rkind);
+        struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
         if (roomst->assigned_slab == slbkind)
             return rkind;
     }

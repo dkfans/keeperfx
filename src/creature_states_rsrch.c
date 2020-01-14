@@ -45,21 +45,16 @@ TbBool creature_can_do_research(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
-    struct CreatureStats *crstat;
-    struct Dungeon *dungeon;
-    crstat = creature_stats_get_from_thing(creatng);
-    dungeon = get_dungeon(creatng->owner);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
     return (crstat->research_value > 0) && (dungeon->current_research_idx >= 0);
 }
 
 short at_research_room(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    struct Room *room;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
-    dungeon = get_dungeon(thing->owner);
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
     if (!creature_can_do_research(thing))
     {
         if (!is_neutral_thing(thing) && (dungeon->current_research_idx < 0))
@@ -70,7 +65,7 @@ short at_research_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_RESEARCH), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
@@ -102,13 +97,11 @@ short at_research_room(struct Thing *thing)
  */
 int get_next_research_item(const struct Dungeon *dungeon)
 {
-    const struct ResearchVal *rsrchval;
-    long resnum;
     if (dungeon->research_num == 0)
         return -1;
-    for (resnum = 0; resnum < dungeon->research_num; resnum++)
+    for (long resnum = 0; resnum < dungeon->research_num; resnum++)
     {
-        rsrchval = &dungeon->research[resnum];
+        const struct ResearchVal* rsrchval = &dungeon->research[resnum];
         switch (rsrchval->rtyp)
         {
        case RsCat_Power:
@@ -138,11 +131,9 @@ int get_next_research_item(const struct Dungeon *dungeon)
 
 TbBool has_new_rooms_to_research(const struct Dungeon *dungeon)
 {
-    const struct ResearchVal *rsrchval;
-    long resnum;
-    for (resnum = 0; resnum < dungeon->research_num; resnum++)
+    for (long resnum = 0; resnum < dungeon->research_num; resnum++)
     {
-        rsrchval = &dungeon->research[resnum];
+        const struct ResearchVal* rsrchval = &dungeon->research[resnum];
         if (rsrchval->rtyp == RsCat_Room)
         {
             if ((dungeon->room_resrchable[rsrchval->rkind]) && (dungeon->room_buildable[rsrchval->rkind] == 0)) {
@@ -155,8 +146,7 @@ TbBool has_new_rooms_to_research(const struct Dungeon *dungeon)
 
 struct ResearchVal *get_players_current_research_val(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if ((dungeon->current_research_idx < 0) || (dungeon->current_research_idx >= DUNGEON_RESEARCH_COUNT))
         return NULL;
     return &dungeon->research[dungeon->current_research_idx];
@@ -164,10 +154,8 @@ struct ResearchVal *get_players_current_research_val(PlayerNumber plyr_idx)
 
 TbBool force_complete_current_research(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    struct ResearchVal *rsrchval;
-    dungeon = get_dungeon(plyr_idx);
-    rsrchval = get_players_current_research_val(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct ResearchVal* rsrchval = get_players_current_research_val(plyr_idx);
     if (rsrchval != NULL)
     {
         if ( research_needed(rsrchval, dungeon) ) {
@@ -192,9 +180,7 @@ TbBool force_complete_current_research(PlayerNumber plyr_idx)
  */
 CrCheckRet process_research_function(struct Thing *creatng)
 {
-    struct Dungeon *dungeon;
-    struct Room *room;
-    dungeon = get_dungeon(creatng->owner);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
     if (dungeon_invalid(dungeon)) {
         SYNCDBG(9,"The %s index %d cannot work as player %d has no dungeon",
             thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
@@ -205,15 +191,14 @@ CrCheckRet process_research_function(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    room = get_room_creature_works_in(creatng);
+    struct Room* room = get_room_creature_works_in(creatng);
     if ( !room_still_valid_as_type_for_thing(room, get_room_for_job(Job_RESEARCH), creatng) ) {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",
             room_code_name(room->kind), (int)room->owner, thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    long work_value;
-    work_value = compute_creature_work_value_for_room_role(creatng, RoRoF_Research, room->efficiency);
+    long work_value = compute_creature_work_value_for_room_role(creatng, RoRoF_Research, room->efficiency);
     SYNCDBG(19,"The %s index %d produced %d research points",thing_model_name(creatng),(int)creatng->index,(int)work_value);
     dungeon->total_research_points += work_value;
     dungeon->research_progress += work_value;
@@ -222,10 +207,8 @@ CrCheckRet process_research_function(struct Thing *creatng)
 
 short researching(struct Thing *thing)
 {
-    struct Dungeon *dungeon;
-    long i;
     TRACE_THING(thing);
-    dungeon = get_dungeon(thing->owner);
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
     if (is_neutral_thing(thing))
     {
         ERRORLOG("Neutral %s index %d cannot do research",thing_model_name(thing),(int)thing->index);
@@ -245,8 +228,7 @@ short researching(struct Thing *thing)
         return CrStRet_Unchanged;
     }
     // Get and verify working room
-    struct Room *room;
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (creature_job_in_room_no_longer_possible(room, Job_RESEARCH, thing))
     {
         remove_creature_from_work_room(thing);
@@ -262,8 +244,7 @@ short researching(struct Thing *thing)
         return CrStRet_ResetOk;
     }
     process_research_function(thing);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ( (game.play_gameturn - dungeon->field_AE5 < 50)
       && ((game.play_gameturn + thing->index) & 0x03) == 0)
     {
@@ -283,7 +264,7 @@ short researching(struct Thing *thing)
           // Do some random thinking
           if ((cctrl->field_82 % 16) == 0)
           {
-              i = ACTION_RANDOM(LbFPMath_PI) - LbFPMath_PI/2;
+              long i = ACTION_RANDOM(LbFPMath_PI) - LbFPMath_PI / 2;
               cctrl->long_9B = ((long)thing->move_angle_xy + i) & LbFPMath_AngleMask;
               cctrl->byte_9A = 4;
           }

@@ -41,32 +41,44 @@ unsigned char cap_palette[768];
 /******************************************************************************/
 long prepare_hsi_screenshot(unsigned char *buf,unsigned char *palette)
 {
-  long pos,i;
-  int w,h;
-  short lock_mem;
-  pos=0;
-  w=MyScreenWidth/pixel_size;
-  h=MyScreenHeight/pixel_size;
+    long i;
+    long pos = 0;
+    int w = MyScreenWidth / pixel_size;
+    int h = MyScreenHeight / pixel_size;
 
-  write_int8_buf(buf+pos,'m');pos++;
-  write_int8_buf(buf+pos,'h');pos++;
-  write_int8_buf(buf+pos,'w');pos++;
-  write_int8_buf(buf+pos,'a');pos++;
-  write_int8_buf(buf+pos,'n');pos++;
-  write_int8_buf(buf+pos,'h');pos++;
-  // pos=6
-  write_int16_be_buf(buf+pos, 4);pos+=2;
-  write_int16_be_buf(buf+pos, w);pos+=2;
-  write_int16_be_buf(buf+pos, h);pos+=2;
-  write_int16_be_buf(buf+pos, 256);pos+=2;
-  // pos=14
-  write_int16_be_buf(buf+pos, 256);pos+=2;
-  write_int16_be_buf(buf+pos, 256);pos+=2;
-  write_int16_be_buf(buf+pos, 256);pos+=2;
-  // pos=20
-  for (i=0; i<6; i++)
-  {
-    write_int16_be_buf(buf+pos, 0);pos+=2;
+    write_int8_buf(buf + pos, 'm');
+    pos++;
+    write_int8_buf(buf + pos, 'h');
+    pos++;
+    write_int8_buf(buf + pos, 'w');
+    pos++;
+    write_int8_buf(buf + pos, 'a');
+    pos++;
+    write_int8_buf(buf + pos, 'n');
+    pos++;
+    write_int8_buf(buf + pos, 'h');
+    pos++;
+    // pos=6
+    write_int16_be_buf(buf + pos, 4);
+    pos += 2;
+    write_int16_be_buf(buf + pos, w);
+    pos += 2;
+    write_int16_be_buf(buf + pos, h);
+    pos += 2;
+    write_int16_be_buf(buf + pos, 256);
+    pos += 2;
+    // pos=14
+    write_int16_be_buf(buf + pos, 256);
+    pos += 2;
+    write_int16_be_buf(buf + pos, 256);
+    pos += 2;
+    write_int16_be_buf(buf + pos, 256);
+    pos += 2;
+    // pos=20
+    for (i = 0; i < 6; i++)
+    {
+        write_int16_be_buf(buf + pos, 0);
+        pos += 2;
   }
   for (i=0; i<768; i+=3)
   {
@@ -74,7 +86,7 @@ long prepare_hsi_screenshot(unsigned char *buf,unsigned char *palette)
     write_int8_buf(buf+pos,4*palette[i+1]);pos++;
     write_int8_buf(buf+pos,4*palette[i+2]);pos++;
   }
-  lock_mem = LbScreenIsLocked();
+  short lock_mem = LbScreenIsLocked();
   if (!lock_mem)
   {
     if (LbScreenLock() != Lb_SUCCESS)
@@ -96,47 +108,67 @@ long prepare_hsi_screenshot(unsigned char *buf,unsigned char *palette)
 
 long prepare_bmp_screenshot(unsigned char *buf,unsigned char *palette)
 {
-  long pos,i,j;
-  int width,height;
-  short lock_mem;
-  long data_len,pal_len;
-  pos=0;
-  width=MyScreenWidth/pixel_size;
-  height=MyScreenHeight/pixel_size;
-  write_int8_buf(buf+pos,'B');pos++;
-  write_int8_buf(buf+pos,'M');pos++;
-  int padding_size=4-(width&3);
-  data_len = (width+padding_size)*height;
-  pal_len = 256*4;
-  write_int32_le_buf(buf+pos, data_len+pal_len+0x36);pos+=4;
-  write_int32_le_buf(buf+pos, 0);pos+=4;
-  write_int32_le_buf(buf+pos, pal_len+0x36);pos+=4;
-  write_int32_le_buf(buf+pos, 40);pos+=4;
-  write_int32_le_buf(buf+pos, width);pos+=4;
-  write_int32_le_buf(buf+pos, height);pos+=4;
-  write_int16_le_buf(buf+pos, 1);pos+=2;
-  write_int16_le_buf(buf+pos, 8);pos+=2;
-  write_int32_le_buf(buf+pos, 0);pos+=4;
-  write_int32_le_buf(buf+pos, 0);pos+=4;
-  write_int32_le_buf(buf+pos, 0);pos+=4;
-  write_int32_le_buf(buf+pos, 0);pos+=4;
-  write_int32_le_buf(buf+pos, 0);pos+=4;
-  write_int32_le_buf(buf+pos, 0);pos+=4;
-  for (i=0; i<768; i+=3)
-  {
-      unsigned int cval;
-      cval=4*(unsigned int)palette[i+2];
-      if (cval>255) cval=255;
-      write_int8_buf(buf+pos,cval);pos++;
-      cval=4*(unsigned int)palette[i+1];
-      if (cval>255) cval=255;
-      write_int8_buf(buf+pos,cval);pos++;
-      cval=4*(unsigned int)palette[i+0];
-      if (cval>255) cval=255;
-      write_int8_buf(buf+pos,cval);pos++;
-      write_int8_buf(buf+pos,0);pos++;
+    long i;
+    long j;
+    long pos = 0;
+    int width = MyScreenWidth / pixel_size;
+    int height = MyScreenHeight / pixel_size;
+    write_int8_buf(buf + pos, 'B');
+    pos++;
+    write_int8_buf(buf + pos, 'M');
+    pos++;
+    int padding_size = 4 - (width & 3);
+    long data_len = (width + padding_size) * height;
+    long pal_len = 256 * 4;
+    write_int32_le_buf(buf + pos, data_len + pal_len + 0x36);
+    pos += 4;
+    write_int32_le_buf(buf + pos, 0);
+    pos += 4;
+    write_int32_le_buf(buf + pos, pal_len + 0x36);
+    pos += 4;
+    write_int32_le_buf(buf + pos, 40);
+    pos += 4;
+    write_int32_le_buf(buf + pos, width);
+    pos += 4;
+    write_int32_le_buf(buf + pos, height);
+    pos += 4;
+    write_int16_le_buf(buf + pos, 1);
+    pos += 2;
+    write_int16_le_buf(buf + pos, 8);
+    pos += 2;
+    write_int32_le_buf(buf + pos, 0);
+    pos += 4;
+    write_int32_le_buf(buf + pos, 0);
+    pos += 4;
+    write_int32_le_buf(buf + pos, 0);
+    pos += 4;
+    write_int32_le_buf(buf + pos, 0);
+    pos += 4;
+    write_int32_le_buf(buf + pos, 0);
+    pos += 4;
+    write_int32_le_buf(buf + pos, 0);
+    pos += 4;
+    for (i = 0; i < 768; i += 3)
+    {
+        unsigned int cval = 4 * (unsigned int)palette[i + 2];
+        if (cval > 255)
+            cval = 255;
+        write_int8_buf(buf + pos, cval);
+        pos++;
+        cval = 4 * (unsigned int)palette[i + 1];
+        if (cval > 255)
+            cval = 255;
+        write_int8_buf(buf + pos, cval);
+        pos++;
+        cval = 4 * (unsigned int)palette[i + 0];
+        if (cval > 255)
+            cval = 255;
+        write_int8_buf(buf + pos, cval);
+        pos++;
+        write_int8_buf(buf + pos, 0);
+        pos++;
   }
-  lock_mem = LbScreenIsLocked();
+  short lock_mem = LbScreenIsLocked();
   if (!lock_mem)
   {
     if (LbScreenLock() != Lb_SUCCESS)
@@ -167,7 +199,6 @@ TbBool cumulative_screen_shot(void)
   static long frame_number=0;
   char fname[255];
   const char *fext;
-  int w,h;
   switch (screenshot_format)
   {
   case 1:
@@ -181,7 +212,6 @@ TbBool cumulative_screen_shot(void)
     return false;
   }
   long i;
-  unsigned char *buf;
   long ssize;
   for (i=frame_number; i<10000; i++)
   {
@@ -196,10 +226,10 @@ TbBool cumulative_screen_shot(void)
   }
   sprintf(fname, "scrshots/scr%05ld.%s", frame_number, fext);
 
-  w=MyScreenWidth/pixel_size;
-  h=MyScreenHeight/pixel_size;
+  int w = MyScreenWidth / pixel_size;
+  int h = MyScreenHeight / pixel_size;
 
-  buf = LbMemoryAlloc((w+3)*h+2048);
+  unsigned char* buf = LbMemoryAlloc((w + 3) * h + 2048);
   if (buf == NULL)
   {
     ERRORLOG("Can't allocate buffer");
@@ -248,16 +278,14 @@ TbBool movie_record_stop(void)
 
 TbBool movie_record_frame(void)
 {
-  short lock_mem;
-  short result;
-  lock_mem = LbScreenIsLocked();
-  if (!lock_mem)
-  {
-    if (LbScreenLock() != Lb_SUCCESS)
-      return false;
+    short lock_mem = LbScreenIsLocked();
+    if (!lock_mem)
+    {
+        if (LbScreenLock() != Lb_SUCCESS)
+            return false;
   }
   LbPaletteGet(cap_palette);
-  result=anim_record_frame(lbDisplay.WScreen, cap_palette);
+  short result = anim_record_frame(lbDisplay.WScreen, cap_palette);
   if (!lock_mem)
     LbScreenUnlock();
   return result;

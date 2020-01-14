@@ -52,8 +52,7 @@ void write_int32_le_buf (unsigned char *buff, unsigned long x)
  */
 long read_int32_le_buf (const unsigned char *buff)
 {
-    long l;
-    l = buff[0];
+    long l = buff[0];
     l += buff[1]<<8;
     l += buff[2]<<16;
     l += buff[3]<<24;
@@ -65,8 +64,7 @@ long read_int32_le_buf (const unsigned char *buff)
  */
 unsigned short read_int16_le_buf (const unsigned char *buff)
 {
-    long l;
-    l = buff[0];
+    long l = buff[0];
     l += buff[1]<<8;
     return l;
 }
@@ -76,8 +74,7 @@ unsigned short read_int16_le_buf (const unsigned char *buff)
  */
 long read_int32_be_buf (const unsigned char *buff)
 {
-    long l;
-    l =  buff[3];
+    long l = buff[3];
     l += buff[2]<<8;
     l += buff[1]<<16;
     l += buff[0]<<24;
@@ -89,8 +86,7 @@ long read_int32_be_buf (const unsigned char *buff)
  */
 unsigned short read_int16_be_buf (const unsigned char *buff)
 {
-    long l;
-    l = buff[1];
+    long l = buff[1];
     l += buff[0]<<8;
     return l;
 }

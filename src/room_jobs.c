@@ -51,8 +51,7 @@ extern "C" {
 /******************************************************************************/
 struct Room *get_room_creature_works_in(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     return room_get(cctrl->work_room_id);
 }
 
@@ -64,8 +63,7 @@ struct Room *get_room_creature_works_in(const struct Thing *thing)
  */
 TbBool creature_is_working_in_room(const struct Thing *creatng, const struct Room *room)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (creature_control_invalid(cctrl)) {
         return false;
     }
@@ -97,8 +95,7 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
         terminate_thing_spell_effect(creatng, SplK_Speed);
     if (creature_affected_by_spell(creatng, SplK_Invisibility))
         terminate_thing_spell_effect(creatng, SplK_Invisibility);
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(room->owner);
+    struct Dungeon* dungeon = get_dungeon(room->owner);
     dungeon->lvstats.creatures_tortured++;
     if (dungeon->tortured_creatures[creatng->model] == 0)
     {
@@ -123,16 +120,13 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
  */
 TbBool remove_creature_from_torture_room(struct Thing *creatng)
 {
-    struct Room *room;
-    PlayerNumber plyr_idx;
-    room = get_room_creature_works_in(creatng);
+    struct Room* room = get_room_creature_works_in(creatng);
     if (!room_exists(room)) {
         SYNCDBG(6,"The %s worked in a room which no longer exists",thing_model_name(creatng));
         return false;
     }
-    plyr_idx = room->owner;
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(plyr_idx);
+    PlayerNumber plyr_idx = room->owner;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon) || (dungeon->tortured_creatures[creatng->model] < 1)) {
         ERRORLOG("The %s is tortured by wrong player %d",thing_model_name(creatng),(int)plyr_idx);
         erstat_inc(ESE_BadCreatrState);
@@ -150,14 +144,11 @@ TbBool remove_creature_from_torture_room(struct Thing *creatng)
 
 TbBool add_creature_to_work_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
-    struct CreatureControl *cctrl;
-    struct Thing *nxtng;
     struct CreatureControl *nxctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->work_room_id != 0)
     {
-        const struct Room *wrkroom;
-        wrkroom = room_get(cctrl->work_room_id);
+        const struct Room* wrkroom = room_get(cctrl->work_room_id);
         WARNLOG("Attempt to add creature to %s index %d when he is a member of %s index %d",
             room_code_name(room->kind), (int)room->index, room_code_name(wrkroom->kind), (int)wrkroom->index);
         remove_creature_from_work_room(creatng);
@@ -167,8 +158,7 @@ TbBool add_creature_to_work_room(struct Thing *creatng, struct Room *room, Creat
         ERRORLOG("Attempt to add creature to a room when he is in the list of another");
         return false;
     }
-    int required_cap;
-    required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
+    int required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
     if (room->used_capacity + required_cap > room->total_capacity)
         return false;
     room->used_capacity += required_cap;
@@ -176,7 +166,7 @@ TbBool add_creature_to_work_room(struct Thing *creatng, struct Room *room, Creat
     cctrl->prev_in_room = 0;
     if (room->creatures_list != 0)
     {
-        nxtng = thing_get(room->creatures_list);
+        struct Thing* nxtng = thing_get(room->creatures_list);
         nxctrl = creature_control_get_from_thing(nxtng);
     } else
     {
@@ -197,17 +187,15 @@ TbBool add_creature_to_work_room(struct Thing *creatng, struct Room *room, Creat
 
 TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
-    struct CreatureControl *cctrl;
     struct Thing *sectng;
     struct CreatureControl *sectrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) == 0)
     {
         ERRORLOG("Attempt to remove a creature from room, but it isn't in any");
         return false;
     }
-    int required_cap;
-    required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
+    int required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
     if (room->used_capacity >= required_cap) {
         room->used_capacity -= required_cap;
     } else {
@@ -243,20 +231,17 @@ TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *ro
 
 TbBool remove_creature_from_work_room(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
-    struct Room *room;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) == 0)
         return false;
-    room = room_get(cctrl->work_room_id);
+    struct Room* room = room_get(cctrl->work_room_id);
     if (room_is_invalid(room))
     {
         WARNLOG("Creature had invalid room index %d",(int)cctrl->work_room_id);
         erstat_inc(ESE_BadCreatrState);
         return false;
     }
-    CreatureJob jobpref;
-    jobpref = get_job_for_creature_state(get_creature_state_besides_interruptions(creatng));
+    CreatureJob jobpref = get_job_for_creature_state(get_creature_state_besides_interruptions(creatng));
     return remove_creature_from_specific_room(creatng, room, jobpref);
 }
 
@@ -272,26 +257,21 @@ TbBool remove_creature_from_work_room(struct Thing *creatng)
  */
 struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing *creatng, const struct Room *room, Thing_Bool_Filter matcher_cb)
 {
-    struct Thing *rettng,*tmptng;
-    long selected;
-    unsigned long k;
-    long i;
-    rettng = INVALID_THING;
+    struct Thing* rettng = INVALID_THING;
     if (room->slabs_count <= 0)
     {
         WARNLOG("Room with no slabs detected!");
         return rettng;
     }
-    selected = ACTION_RANDOM(room->slabs_count);
-    k = 0;
-    i = room->slabs_list;
+    long selected = ACTION_RANDOM(room->slabs_count);
+    unsigned long k = 0;
+    long i = room->slabs_list;
     while (i != 0)
     {
-        MapSubtlCoord stl_x,stl_y;
-        stl_x = slab_subtile_center(slb_num_decode_x(i));
-        stl_y = slab_subtile_center(slb_num_decode_y(i));
+        MapSubtlCoord stl_x = slab_subtile_center(slb_num_decode_x(i));
+        MapSubtlCoord stl_y = slab_subtile_center(slb_num_decode_y(i));
         // Per room tile code
-        tmptng = get_object_around_owned_by_and_matching_bool_filter(
+        struct Thing* tmptng = get_object_around_owned_by_and_matching_bool_filter(
             subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, matcher_cb);
         if (!thing_is_invalid(tmptng))
         {
@@ -435,9 +415,8 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room, CreatureJo
 {
     SYNCDBG(16,"Starting for %s (owner %d) and room %s",thing_model_name(creatng),(int)creatng->owner,room_code_name(room->kind));
     // Job selection is based on subtile, not on room - so select a subtile within the room
-    MapSubtlCoord stl_x,stl_y;
-    stl_x = slab_subtile(slb_num_decode_x(room->slabs_list),0);
-    stl_y = slab_subtile(slb_num_decode_y(room->slabs_list),0);
+    MapSubtlCoord stl_x = slab_subtile(slb_num_decode_x(room->slabs_list), 0);
+    MapSubtlCoord stl_y = slab_subtile(slb_num_decode_y(room->slabs_list), 0);
     if (!creature_can_do_job_near_position(creatng, stl_x, stl_y, jobpref, JobChk_SetStateOnFail|JobChk_PlayMsgOnFail)) {
         SYNCDBG(16,"Cannot assign job %s in room %s to %s (owner %d)",creature_job_code_name(jobpref),room_code_name(room->kind),thing_model_name(creatng),(int)creatng->owner);
         return 0;
@@ -490,11 +469,9 @@ int worker_needed_in_dungeons_room_role(const struct Dungeon *dungeon, RoomRole 
     }
     if ((rrole & RoRoF_CratesManufctr) != 0)
     {
-        long amount;
-        GoldAmount net_gold;
         // When we have low gold, allow working on any manufacture - we'll sell the crates
-        amount = get_doable_manufacture_with_minimal_amount_available(dungeon, NULL, NULL);
-        net_gold = get_dungeon_money_less_cost(dungeon);
+        long amount = get_doable_manufacture_with_minimal_amount_available(dungeon, NULL, NULL);
+        GoldAmount net_gold = get_dungeon_money_less_cost(dungeon);
         if (amount >= MANUFACTURED_ITEMS_LIMIT)
             return 0;
         if (net_gold < 0)
@@ -508,8 +485,7 @@ int worker_needed_in_dungeons_room_role(const struct Dungeon *dungeon, RoomRole 
     }
     if ((rrole & RoRoF_CrTrainExp) != 0)
     {
-        GoldAmount net_gold;
-        net_gold = get_dungeon_money_less_cost(dungeon);
+        GoldAmount net_gold = get_dungeon_money_less_cost(dungeon);
         if (net_gold < 0)
             return 0;
         if (net_gold < dungeon->creatures_total_pay)
@@ -518,8 +494,7 @@ int worker_needed_in_dungeons_room_role(const struct Dungeon *dungeon, RoomRole 
     }
     if ((rrole & RoRoF_CrScavenge) != 0)
     {
-        GoldAmount net_gold;
-        net_gold = get_dungeon_money_less_cost(dungeon);
+        GoldAmount net_gold = get_dungeon_money_less_cost(dungeon);
         if (net_gold < dungeon->creatures_total_pay)
             return 0;
         if (net_gold < 2 * dungeon->creatures_total_pay)

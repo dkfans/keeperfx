@@ -46,11 +46,9 @@ DLLIMPORT void _DK_light_signal_update_in_area(long sx, long sy, long ex, long e
 /******************************************************************************/
 struct Light *light_allocate_light(void)
 {
-    struct Light *lgt;
-    long i;
-    for (i=1; i < LIGHTS_COUNT; i++)
+    for (long i = 1; i < LIGHTS_COUNT; i++)
     {
-        lgt = &game.lish.lights[i];
+        struct Light* lgt = &game.lish.lights[i];
         if ((lgt->flags & LgtF_Allocated) == 0)
         {
             lgt->flags |= LgtF_Allocated;
@@ -77,11 +75,9 @@ TbBool light_is_invalid(const struct Light *lgt)
 
 struct ShadowCache *light_allocate_shadow_cache(void)
 {
-    struct ShadowCache *shdc;
-    long i;
-    for (i=1; i < SHADOW_CACHE_COUNT; i++)
+    for (long i = 1; i < SHADOW_CACHE_COUNT; i++)
     {
-        shdc = &game.lish.shadow_cache[i];
+        struct ShadowCache* shdc = &game.lish.shadow_cache[i];
         if ((shdc->flags & ShCF_Allocated) == 0)
         {
             shdc->flags |= ShCF_Allocated;
@@ -102,10 +98,9 @@ TbBool light_shadow_cache_invalid(struct ShadowCache *shdc)
 
 long light_shadow_cache_index(struct ShadowCache *shdc)
 {
-    long i;
     if (light_shadow_cache_invalid(shdc))
         return 0;
-    i = ((char *)shdc - (char *)&game.lish.shadow_cache[0]);
+    long i = ((char*)shdc - (char*)&game.lish.shadow_cache[0]);
     return i / sizeof(struct ShadowCache);
 }
 
@@ -130,16 +125,13 @@ TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
 
 long light_create_light(struct InitLight *ilght)
 {
-    struct Light *lgt;
-    struct ShadowCache *shdc;
-    unsigned long k;
-    lgt = light_allocate_light();
+    struct Light* lgt = light_allocate_light();
     if (light_is_invalid(lgt)) {
         return 0;
     }
     if (ilght->is_dynamic)
     {
-        shdc = light_allocate_shadow_cache();
+        struct ShadowCache* shdc = light_allocate_shadow_cache();
         if (light_shadow_cache_invalid(shdc))
         {
             ERRORDBG(11,"Cannot allocate cache for dynamic light");
@@ -162,7 +154,7 @@ long light_create_light(struct InitLight *ilght)
     lgt->mappos.z.val = ilght->mappos.z.val;
     lgt->field_16 = ilght->field_0;
     lgt->field_2 = ilght->field_2;
-    k = 2 * ilght->field_3;
+    unsigned long k = 2 * ilght->field_3;
     lgt->field_1 = k ^ ((k ^ lgt->field_1) & 0x01);
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
     lgt->field_1A = ilght->field_8;
@@ -230,26 +222,20 @@ TbBool lights_stats_debug_dump(void)
     long lights[LIGHTS_COUNT];
     long lgh_things[THING_CLASSES_COUNT];
     long shadowcs[SHADOW_CACHE_COUNT];
-    long shdc_used,shdc_linked,shdc_free;
-    long lgh_used,lgh_free;
-    long lgh_sttc,lgh_dynm;
-    struct Thing * thing;
-    struct Light *lgt;
-    struct ShadowCache *shdc;
-    long i,n;
+    long i;
     for (i=0; i < SHADOW_CACHE_COUNT; i++)
     {
-        shdc = &game.lish.shadow_cache[i];
+        struct ShadowCache* shdc = &game.lish.shadow_cache[i];
         if ((shdc->flags & ShCF_Allocated) != 0)
             shadowcs[i] = -1;
         else
             shadowcs[i] = 0;
     }
-    lgh_sttc = 0;
-    lgh_dynm = 0;
+    long lgh_sttc = 0;
+    long lgh_dynm = 0;
     for (i=0; i < LIGHTS_COUNT; i++)
     {
-        lgt = &game.lish.lights[i];
+        struct Light* lgt = &game.lish.lights[i];
         if ((lgt->flags & LgtF_Allocated) != 0)
         {
             lights[i] = -1;
@@ -278,12 +264,12 @@ TbBool lights_stats_debug_dump(void)
     }
     for (i=1; i < THINGS_COUNT; i++)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_exists(thing))
         {
             if ((thing->light_id > 0) && (thing->light_id < LIGHTS_COUNT))
             {
-                n = 1000+(long)thing->class_id;
+                long n = 1000 + (long)thing->class_id;
                 if (lights[thing->light_id] == -1) {
                     lights[thing->light_id] = n;
                 } else
@@ -296,8 +282,8 @@ TbBool lights_stats_debug_dump(void)
 
         }
     }
-    lgh_used = 0;
-    lgh_free = 0;
+    long lgh_used = 0;
+    long lgh_free = 0;
     for (i=0; i < THING_CLASSES_COUNT; i++)
         lgh_things[i] = 0;
     for (i=0; i < LIGHTS_COUNT; i++)
@@ -312,9 +298,9 @@ TbBool lights_stats_debug_dump(void)
             lgh_free++;
         }
     }
-    shdc_free = 0;
-    shdc_used = 0;
-    shdc_linked = 0;
+    long shdc_free = 0;
+    long shdc_used = 0;
+    long shdc_linked = 0;
     for (i=0; i < SHADOW_CACHE_COUNT; i++)
     {
         if (shadowcs[i] != 0)
@@ -344,13 +330,12 @@ TbBool lights_stats_debug_dump(void)
 
 void light_set_light_never_cache(long lgt_id)
 {
-    struct Light *lgt;
     if (lgt_id <= 0)
     {
         ERRORLOG("Attempt to set size of invalid light %d",(int)lgt_id);
         return;
     }
-    lgt = &game.lish.lights[lgt_id];
+    struct Light* lgt = &game.lish.lights[lgt_id];
     if ((lgt->flags & LgtF_Allocated) == 0)
     {
         ERRORLOG("Attempt to set size of unallocated light structure %d",(int)lgt_id);
@@ -361,10 +346,9 @@ void light_set_light_never_cache(long lgt_id)
 
 long light_is_light_allocated(long lgt_id)
 {
-    struct Light *lgt;
     if (lgt_id <= 0)
         return false;
-    lgt = &game.lish.lights[lgt_id];
+    struct Light* lgt = &game.lish.lights[lgt_id];
     if ((lgt->flags & LgtF_Allocated) == 0)
         return false;
     return true;
@@ -392,20 +376,17 @@ void light_signal_update_in_area(long sx, long sy, long ex, long ey)
 
 void light_signal_stat_light_update_in_own_radius(struct Light *lgt)
 {
-    long start_x,end_x;
-    long start_y,end_y;
-    long radius;
-    radius = lgt->range;
-    end_y = (long)lgt->mappos.y.stl.num + radius;
+    long radius = lgt->range;
+    long end_y = (long)lgt->mappos.y.stl.num + radius;
     if (end_y >= 255)
         end_y = 255;
-    end_x = (long)lgt->mappos.x.stl.num + radius;
+    long end_x = (long)lgt->mappos.x.stl.num + radius;
     if (end_x >= 255)
         end_x = 255;
-    start_y = (long)lgt->mappos.y.stl.num - radius;
+    long start_y = (long)lgt->mappos.y.stl.num - radius;
     if (start_y <= 0)
         start_y = 0;
-    start_x = (long)lgt->mappos.x.stl.num - radius;
+    long start_x = (long)lgt->mappos.x.stl.num - radius;
     if (start_x <= 0)
       start_x = 0;
     if ((end_x <= start_x) || (end_y <= start_y))
@@ -415,13 +396,11 @@ void light_signal_stat_light_update_in_own_radius(struct Light *lgt)
 
 void light_turn_light_off(long idx)
 {
-    struct Light *lgt;
-
     if ((idx <= 0) || (idx >= LIGHTS_COUNT)) {
         ERRORLOG("Attempt to turn off light %d",(int)idx);
         return;
     }
-    lgt = &game.lish.lights[idx];
+    struct Light* lgt = &game.lish.lights[idx];
     if ((lgt->flags & LgtF_Allocated) == 0) {
         ERRORLOG("Attempt to turn off unallocated light structure");
         return;
@@ -441,13 +420,11 @@ void light_turn_light_off(long idx)
 
 void light_turn_light_on(long idx)
 {
-    struct Light *lgt;
-
     if ((idx <= 0) || (idx >= LIGHTS_COUNT)) {
         ERRORLOG("Attempt to turn on light %d",(int)idx);
         return;
     }
-    lgt = &game.lish.lights[idx];
+    struct Light* lgt = &game.lish.lights[idx];
     if ((lgt->flags & LgtF_Allocated) == 0) {
         ERRORLOG("Attempt to turn on unallocated light structure %d",(int)idx);
         return;
@@ -480,37 +457,33 @@ long light_set_light_intensity(long a1, long a2)
 
 void clear_stat_light_map(void)
 {
-    unsigned long x,y,i;
     game.lish.field_46149 = 32;
     game.lish.field_4614D = 0;
     game.lish.field_4614F = 0;
-    for (y=0; y < (map_subtiles_y+1); y++)
+    for (unsigned long y = 0; y < (map_subtiles_y + 1); y++)
     {
-        for (x=0; x < (map_subtiles_x+1); x++)
+        for (unsigned long x = 0; x < (map_subtiles_x + 1); x++)
         {
-          i = get_subtile_number(x,y);
-          game.lish.stat_light_map[i] = 0;
+            unsigned long i = get_subtile_number(x, y);
+            game.lish.stat_light_map[i] = 0;
         }
     }
 }
 
 void light_delete_light(long idx)
 {
-    struct Light *lgt;
-    struct ShadowCache *shdc;
-
     if ((idx <= 0) || (idx >= LIGHTS_COUNT)) {
         ERRORLOG("Attempt to delete light %d",(int)idx);
         return;
     }
-    lgt = &game.lish.lights[idx];
+    struct Light* lgt = &game.lish.lights[idx];
     if ((lgt->flags & LgtF_Allocated) == 0) {
         ERRORLOG("Attempt to delete unallocated light structure %d",(int)idx);
         return;
     }
     if (lgt->shadow_index > 0)
     {
-        shdc = &game.lish.shadow_cache[lgt->shadow_index];
+        struct ShadowCache* shdc = &game.lish.shadow_cache[lgt->shadow_index];
         light_shadow_cache_free(shdc);
     }
     if ((lgt->flags & LgtF_Dynamic) != 0)
@@ -533,11 +506,10 @@ void light_initialise_lighting_tables(void)
 
 void light_initialise(void)
 {
-    struct Light *lgt;
     int i;
     for (i=0; i < LIGHTS_COUNT; i++)
     {
-        lgt = &game.lish.lights[i];
+        struct Light* lgt = &game.lish.lights[i];
         if ((lgt->flags & LgtF_Allocated) != 0)
             light_delete_light(lgt->index);
     }
@@ -586,20 +558,20 @@ void light_render_area(int startx, int starty, int endx, int endy)
 
 void update_light_render_area(void)
 {
-    int subtile_x,subtile_y;
-    int delta_x,delta_y;
-    int startx,endx,starty,endy;
-    struct PlayerInfo *player;
+    int subtile_x;
+    int subtile_y;
+    int startx;
+    int starty;
     SYNCDBG(6,"Starting");
-    player=get_my_player();
+    struct PlayerInfo* player = get_my_player();
     if (player->view_mode >= PVM_CreatureView)
       if ((player->view_mode <= PVM_IsometricView) || (player->view_mode == PVM_FrontView))
       {
           game.field_14BB5D = LIGHT_MAX_RANGE;
           game.field_14BB59 = LIGHT_MAX_RANGE;
       }
-    delta_x=abs(game.field_14BB59);
-    delta_y=abs(game.field_14BB5D);
+    int delta_x = abs(game.field_14BB59);
+    int delta_y = abs(game.field_14BB5D);
     // Prepare the area constraints
     if (player->acamera != NULL)
     {
@@ -623,10 +595,10 @@ void update_light_render_area(void)
       if (startx > map_subtiles_x) startx = map_subtiles_x;
     } else
       startx = 0;
-    endy = subtile_y + delta_y;
+    int endy = subtile_y + delta_y;
     if (endy < starty) endy = starty;
     if (endy > map_subtiles_y) endy = map_subtiles_y;
-    endx = subtile_x + delta_x;
+    int endx = subtile_x + delta_x;
     if (endx < startx) endx = startx;
     if (endx > map_subtiles_x) endx = map_subtiles_x;
     // Set the area

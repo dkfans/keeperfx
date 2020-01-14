@@ -58,27 +58,22 @@ TbBool creature_can_do_scavenging(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     return (crstat->scavenge_value > 0);
 }
 
 short at_scavenger_room(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct Dungeon *dungeon;
-    struct Room *room;
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_SCAVENGE), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
         return 0;
     }
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    dungeon = get_dungeon(thing->owner);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
     if (crstat->scavenger_cost >= dungeon->total_money_owned)
     {
         if (is_my_player_number(thing->owner))
@@ -98,27 +93,21 @@ short at_scavenger_room(struct Thing *thing)
 
 struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
 {
-    struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    dungeon = get_players_num_dungeon(creatng->owner);
+    struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
     if (dungeon->num_active_creatrs <= 1)
     {
         SYNCDBG(19,"No other creatures");
         return INVALID_THING;
     }
-    int n;
-    n = ACTION_RANDOM(dungeon->num_active_creatrs-1);
-    unsigned long k;
-    int i;
-    k = 0;
-    i = dungeon->creatr_list_start;
+    int n = ACTION_RANDOM(dungeon->num_active_creatrs - 1);
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
     while (i != 0)
     {
-        struct Thing *thing;
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
             ERRORLOG("Jump to invalid creature detected");
@@ -128,8 +117,7 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         // Thing list loop body
         if ((n <= 0) && (thing->index != creatng->index))
         {
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
+            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             if (crstat->lair_enemy != creatng->model) {
                 return thing;
             }
@@ -148,10 +136,8 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
 
 short creature_being_scavenged(struct Thing *creatng)
 {
-    struct Thing *fellowtng;
     SYNCDBG(8,"Starting");
-    fellowtng = get_random_fellow_not_hated_creature(creatng);
-    struct Coord3d locpos;
+    struct Thing* fellowtng = get_random_fellow_not_hated_creature(creatng);
     if (thing_is_invalid(fellowtng)) {
         fellowtng = get_player_soul_container(creatng->owner);
     }
@@ -159,12 +145,12 @@ short creature_being_scavenged(struct Thing *creatng)
         SYNCDBG(19,"Cannot get thing to follow");
         return 0;
     }
+    struct Coord3d locpos;
     locpos.x.val = fellowtng->mappos.x.val;
     locpos.y.val = fellowtng->mappos.y.val;
     locpos.z.val = fellowtng->mappos.z.val;
     {
-        int angle;
-        angle = (((game.play_gameturn - creatng->creation_turn) >> 6) & 7)*LbFPMath_PI/4;
+        int angle = (((game.play_gameturn - creatng->creation_turn) >> 6) & 7) * LbFPMath_PI / 4;
         locpos.x.val += -LbSinL(angle)/128;
         locpos.y.val += LbCosL(angle)/128;
     }
@@ -182,13 +168,8 @@ short creature_being_scavenged(struct Thing *creatng)
 
 short creature_scavenged_disappear(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    struct Room *room;
     struct Coord3d pos;
-    MapSubtlCoord stl_x, stl_y;
-    long i;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->byte_9A--;
     if (cctrl->byte_9A > 0)
     {
@@ -200,10 +181,10 @@ short creature_scavenged_disappear(struct Thing *thing)
       return 0;
     }
     // We don't really have to convert coordinates into numbers and back to XY.
-    i = get_subtile_number(cctrl->scavenge.stl_9D_x, cctrl->scavenge.stl_9D_y);
-    stl_x = stl_num_decode_x(i);
-    stl_y = stl_num_decode_y(i);
-    room = subtile_room_get(stl_x, stl_y);
+    long i = get_subtile_number(cctrl->scavenge.stl_9D_x, cctrl->scavenge.stl_9D_y);
+    MapSubtlCoord stl_x = stl_num_decode_x(i);
+    MapSubtlCoord stl_y = stl_num_decode_y(i);
+    struct Room* room = subtile_room_get(stl_x, stl_y);
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrScavenge))
     {
         ERRORLOG("Room %s at (%d,%d) disappeared",room_code_name(RoK_SCAVENGER),(int)stl_x,(int)stl_y);
@@ -214,7 +195,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     {
         move_thing_in_map(thing, &pos);
         anger_set_creature_anger_all_types(thing, 0);
-        dungeon = get_dungeon(cctrl->byte_9B);
+        struct Dungeon* dungeon = get_dungeon(cctrl->byte_9B);
         dungeon->creatures_scavenge_gain++;
         if (is_my_player_number(thing->owner))
           output_message(SMsg_MinionScanvenged, 0, true);
@@ -242,10 +223,8 @@ short creature_scavenged_reappear(struct Thing *thing)
  */
 TbBool player_can_afford_to_scavenge_creature(const struct Thing *creatng)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(creatng->owner);
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     return (crstat->scavenger_cost < dungeon->total_money_owned);
 }
 
@@ -294,8 +273,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     if (is_neutral_thing(scavtng) && (!gameadd.scavenge_neutral_allowed)) {
         return false;
     }
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(scavtng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(scavtng);
     if (game.play_gameturn - cctrl->temple_cure_gameturn > game.temple_scavenge_protection_turns)
     {
         return true;
@@ -305,21 +283,15 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
 
 struct Thing *select_scavenger_target(const struct Thing *calltng)
 {
-    long weakpts;
-    struct Thing *weaktng;
-    weaktng = INVALID_THING;
-    weakpts = LONG_MAX;
-    unsigned long k;
-    int i;
+    struct Thing* weaktng = INVALID_THING;
+    long weakpts = LONG_MAX;
     SYNCDBG(18,"Starting");
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Creature);
-    k = 0;
-    i = slist->index;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    unsigned long k = 0;
+    int i = slist->index;
     while (i != 0)
     {
-        struct Thing *thing;
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -332,12 +304,10 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
             SYNCDBG(18,"The %s index %d owner %d is valid target for %s index %d owner %d",
                 thing_model_name(thing),(int)thing->index,(int)thing->owner,
                 thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
-            struct CreatureControl *cctrl;
-            cctrl = creature_control_get_from_thing(thing);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             if (game.play_gameturn - cctrl->temple_cure_gameturn > game.temple_scavenge_protection_turns)
             {
-                long thingpts;
-                thingpts = calculate_correct_creature_scavenge_required(thing, calltng->owner);
+                long thingpts = calculate_correct_creature_scavenge_required(thing, calltng->owner);
                 if (weakpts > thingpts)
                 {
                     weakpts = thingpts;
@@ -361,8 +331,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
 
 struct Thing *get_scavenger_target(const struct Thing *calltng)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(calltng->owner);
+    struct Dungeon* dungeon = get_dungeon(calltng->owner);
     { // Check if last scavenged creature of that kind is still good for scavenging
         struct Thing *lastng;
         if (dungeon->scavenge_targets[calltng->model] != 0) {
@@ -382,8 +351,7 @@ struct Thing *get_scavenger_target(const struct Thing *calltng)
 long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
 {
     //return _DK_turn_creature_to_scavenger(scavtng, calltng);
-    struct Room *room;
-    room = get_room_thing_is_on(calltng);
+    struct Room* room = get_room_thing_is_on(calltng);
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrScavenge) || (room->owner != calltng->owner))
     {
       ERRORLOG("The %s index %d is scavenging not on owned %s",thing_model_name(calltng),(int)calltng->index,room_code_name(RoK_SCAVENGER));
@@ -396,20 +364,17 @@ long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
         return 0;
     }
     {
-        struct Dungeon *calldngn;
-        calldngn = get_dungeon(calltng->owner);
+        struct Dungeon* calldngn = get_dungeon(calltng->owner);
         calldngn->creatures_scavenge_gain++;
         calldngn->creatures_scavenged[scavtng->model]++;
     }
     if (!is_neutral_thing(scavtng))
     {
-        struct Dungeon *scavdngn;
-        scavdngn = get_dungeon(scavtng->owner);
+        struct Dungeon* scavdngn = get_dungeon(scavtng->owner);
         scavdngn->creatures_scavenge_lost++;
     }
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(scavtng);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(scavtng);
         cctrl->byte_9A = 8;
         cctrl->byte_9B = calltng->owner;
         cctrl->byte_9D = pos.x.stl.num;
@@ -421,17 +386,15 @@ long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
 
 TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing *calltng, long work_value)
 {
-    struct Dungeon *calldngn;
     long num_prayers;
-    calldngn = get_dungeon(calltng->owner);
+    struct Dungeon* calldngn = get_dungeon(calltng->owner);
     if (dungeon_invalid(calldngn)) {
         ERRORLOG("The %s index %d owner %d can't do scavenging - has no dungeon",thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
         return false;
     }
     // Compute amount of creatures praying against the scavenge
     if (!is_neutral_thing(scavtng)) {
-        struct Dungeon *scavdngn;
-        scavdngn = get_dungeon(scavtng->owner);
+        struct Dungeon* scavdngn = get_dungeon(scavtng->owner);
         num_prayers = scavdngn->creatures_praying[scavtng->model];
     } else {
         num_prayers = 0;
@@ -452,8 +415,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
         if (calldngn->scavenge_targets[calltng->model] > 0)
         {
             // Stop scavenging old creature
-            struct Thing *thing;
-            thing = thing_get(calldngn->scavenge_targets[calltng->model]);
+            struct Thing* thing = thing_get(calldngn->scavenge_targets[calltng->model]);
             if (thing_is_creature(thing) && (thing->model == calltng->model))
             {
                 if (creature_is_being_scavenged(thing)) {
@@ -478,8 +440,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
             external_set_thing_state(scavtng, CrSt_CreatureBeingScavenged);
         }
     }
-    long scavpts;
-    scavpts = calculate_correct_creature_scavenge_required(scavtng, calltng->owner);
+    long scavpts = calculate_correct_creature_scavenge_required(scavtng, calltng->owner);
     if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
     {
         SYNCDBG(8,"The %s index %d owner %d accumulated enough points to turn to scavenger",thing_model_name(scavtng),(int)scavtng->index,(int)scavtng->owner);
@@ -492,9 +453,8 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
 
 TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
 {
-    struct Room *room;
     struct Coord3d pos;
-    room = get_room_thing_is_on(calltng);
+    struct Room* room = get_room_thing_is_on(calltng);
     if (!room_initially_valid_as_type_for_thing(room, RoK_SCAVENGER, calltng)) {
         WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
         return false;
@@ -507,8 +467,7 @@ TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
         ERRORLOG("Could not find valid position in %s for %s to be generated",room_code_name(room->kind),creature_code_name(calltng->model));
         return false;
     }
-    struct Thing *scavtng;
-    scavtng = create_creature(&pos, calltng->model, calltng->owner);
+    struct Thing* scavtng = create_creature(&pos, calltng->model, calltng->owner);
     if (thing_is_invalid(scavtng)) {
         ERRORLOG("Tried to generate %s but creation failed",thing_model_name(calltng));
         return false;
@@ -519,8 +478,7 @@ TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
         return false;
     }
     {
-        struct Dungeon *dungeon;
-        dungeon = get_dungeon(calltng->owner);
+        struct Dungeon* dungeon = get_dungeon(calltng->owner);
         dungeon->creatures_scavenge_gain++;
     }
     internal_set_thing_state(scavtng, CrSt_CreatureScavengedReappear);
@@ -529,11 +487,9 @@ TbBool creature_scavenge_from_creature_pool(struct Thing *calltng)
 
 TbBool process_scavenge_creature_from_pool(struct Thing *calltng, long work_value)
 {
-    struct Dungeon *calldngn;
-    calldngn = get_dungeon(calltng->owner);
+    struct Dungeon* calldngn = get_dungeon(calltng->owner);
     calldngn->scavenge_turn_points[calltng->model] += work_value;
-    long scavpts;
-    scavpts = calculate_correct_creature_scavenge_required(calltng, calltng->owner);
+    long scavpts = calculate_correct_creature_scavenge_required(calltng, calltng->owner);
     if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
     {
         creature_scavenge_from_creature_pool(calltng);
@@ -546,20 +502,16 @@ TbBool process_scavenge_creature_from_pool(struct Thing *calltng, long work_valu
 CrCheckRet process_scavenge_function(struct Thing *calltng)
 {
     SYNCDBG(18,"Starting for %s owner %d",thing_model_name(calltng),(int)calltng->owner);
-    struct CreatureControl *callctrl;
-    callctrl = creature_control_get_from_thing(calltng);
-    struct Dungeon *calldngn;
-    struct Room *room;
-    calldngn = get_dungeon(calltng->owner);
-    room = get_room_creature_works_in(calltng);
+    struct CreatureControl* callctrl = creature_control_get_from_thing(calltng);
+    struct Dungeon* calldngn = get_dungeon(calltng->owner);
+    struct Room* room = get_room_creature_works_in(calltng);
     if ( !room_still_valid_as_type_for_thing(room, RoK_SCAVENGER, calltng) )
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(calltng),(int)calltng->owner);
         set_start_state(calltng);
         return CrCkRet_Continue;
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(calltng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(calltng);
     if (!player_can_afford_to_scavenge_creature(calltng))
     {
         if (is_my_player_number(calltng->owner))
@@ -571,11 +523,9 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     {
         reset_scavenge_counts(calldngn);
     }
-    long work_value;
-    work_value = compute_creature_work_value_for_room_role(calltng, RoRoF_CrScavenge, room->efficiency);
+    long work_value = compute_creature_work_value_for_room_role(calltng, RoRoF_CrScavenge, room->efficiency);
     SYNCDBG(9,"The %s index %d owner %d produced %d scavenge points",thing_model_name(calltng),(int)calltng->index,(int)calltng->owner,(int)work_value);
-    struct Thing *scavtng;
-    scavtng = get_scavenger_target(calltng);
+    struct Thing* scavtng = get_scavenger_target(calltng);
     if (!thing_is_invalid(scavtng))
     {
         process_scavenge_creature_from_level(scavtng, calltng, work_value);
@@ -605,8 +555,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
 CrStateRet scavengering(struct Thing *creatng)
 {
     // Check if we're in correct room
-    struct Room *room;
-    room = get_room_thing_is_on(creatng);
+    struct Room* room = get_room_thing_is_on(creatng);
     if (creature_job_in_room_no_longer_possible(room, Job_SCAVENGE, creatng))
     {
         remove_creature_from_work_room(creatng);

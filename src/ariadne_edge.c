@@ -36,8 +36,7 @@ void edge_points_clean(void)
 
 long edge_point_add(long pt_x, long pt_y)
 {
-    long ept_id;
-    ept_id = ix_EdgePoints;
+    long ept_id = ix_EdgePoints;
     if (ept_id >= EDGE_POINTS_COUNT)
         return -1;
     EdgePoints[ept_id].field_0 = pt_x;

@@ -244,8 +244,7 @@ long get_special_description_strindex(int spckind)
 
 long get_power_index_for_work_state(long work_state)
 {
-    long i;
-    for (i=0; i < magic_conf.power_types_count; i++)
+    for (long i = 0; i < magic_conf.power_types_count; i++)
     {
         if (magic_conf.power_cfgstats[i].work_state == work_state) {
             return i;
@@ -291,8 +290,7 @@ struct MagicStats *get_power_dynamic_stats(PowerKind pwkind)
 
 TbBool power_is_instinctive(int pwkind)
 {
-    const struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(pwkind);
+    const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     // Invalid powers are instinctive (as this usually means skipping an action)
     if (power_model_stats_invalid(powerst))
         return true;
@@ -316,12 +314,7 @@ short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
 
 TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -331,9 +324,10 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
         magic_conf.special_types_count = 1;
     }
     // Find the block
-    sprintf(block_buf,"common");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "common");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -344,10 +338,11 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,magic_common_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, magic_common_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
         switch (cmd_num)
         {
         case 1: // SPELLSCOUNT
@@ -434,12 +429,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   struct SpellConfigStats *spellst;
   struct SpellConfig *splconf;
   struct SpellInfo *spinfo;
-  long pos;
-  int i,k,n;
-  int cmd_num;
+  int i;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
   int arr_size;
   if ((flags & CnfLd_AcceptPartial) == 0)
@@ -478,16 +469,18 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   arr_size = magic_conf.spell_types_count;
   for (i=0; i < arr_size; i++)
   {
-    sprintf(block_buf,"spell%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0) {
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-            return false;
-        }
-        continue;
+      char block_buf[COMMAND_WORD_LEN];
+      sprintf(block_buf, "spell%d", i);
+      long pos = 0;
+      int k = find_conf_block(buf, &pos, len, block_buf);
+      if (k < 0)
+      {
+          if ((flags & CnfLd_AcceptPartial) == 0)
+          {
+              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+              return false;
+          }
+          continue;
     }
     splconf = &game.spells_config[i];
     spinfo = get_magic_info(i);
@@ -496,7 +489,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
     while (pos<len)
     {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,magic_spell_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, magic_spell_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
@@ -505,7 +498,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               cmd_num = 0;
           }
       }
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // NAME
@@ -638,12 +632,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
 TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct ShotConfigStats *shotst;
-  long pos;
-  int i,k,n;
-  int cmd_num;
+  int i;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
   int arr_size;
   if ((flags & CnfLd_AcceptPartial) == 0)
@@ -678,23 +668,25 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
   arr_size = magic_conf.shot_types_count;
   for (i=0; i < arr_size; i++)
   {
-    sprintf(block_buf,"shot%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0) {
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-            return false;
-        }
-        continue;
+      char block_buf[COMMAND_WORD_LEN];
+      sprintf(block_buf, "shot%d", i);
+      long pos = 0;
+      int k = find_conf_block(buf, &pos, len, block_buf);
+      if (k < 0)
+      {
+          if ((flags & CnfLd_AcceptPartial) == 0)
+          {
+              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+              return false;
+          }
+          continue;
     }
     shotst = get_shot_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_shot_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,magic_shot_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, magic_shot_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
@@ -703,7 +695,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
               cmd_num = 0;
           }
       }
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // NAME
@@ -867,13 +860,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
 TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct PowerConfigStats *powerst;
-  struct MagicStats *pwrdynst;
-  long pos;
-  int i,k,n;
-  int cmd_num;
+  int i;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
   int arr_size;
   if ((flags & CnfLd_AcceptPartial) == 0)
@@ -915,24 +903,26 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   // Load the file
   for (i=0; i < arr_size; i++)
   {
-    sprintf(block_buf,"power%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0) {
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-            return false;
-        }
-        continue;
+      char block_buf[COMMAND_WORD_LEN];
+      sprintf(block_buf, "power%d", i);
+      long pos = 0;
+      int k = find_conf_block(buf, &pos, len, block_buf);
+      if (k < 0)
+      {
+          if ((flags & CnfLd_AcceptPartial) == 0)
+          {
+              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+              return false;
+          }
+          continue;
     }
-    pwrdynst = get_power_dynamic_stats(i);
+    struct MagicStats* pwrdynst = get_power_dynamic_stats(i);
     powerst = get_power_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,magic_power_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, magic_power_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
@@ -941,7 +931,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               cmd_num = 0;
           }
       }
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // NAME
@@ -1230,8 +1221,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
     for (i = 0; i < magic_conf.power_types_count; i++)
     {
         powerst = get_power_model_stats(i);
-        struct PowerConfigStats *parent_powerst;
-        parent_powerst = get_power_model_stats(powerst->parent_power);
+        struct PowerConfigStats* parent_powerst = get_power_model_stats(powerst->parent_power);
         if (!power_model_stats_invalid(parent_powerst)) {
             parent_powerst->config_flags |= PwCF_IsParent;
         }
@@ -1243,12 +1233,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
 TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct SpecialConfigStats *specst;
-  long pos;
-  int i,k,n;
-  int cmd_num;
+  int i;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
   int arr_size;
   if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1279,23 +1265,25 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
   // Load the file
   for (i=0; i < arr_size; i++)
   {
-    sprintf(block_buf,"special%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0) {
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-            return false;
-        }
-        continue;
+      char block_buf[COMMAND_WORD_LEN];
+      sprintf(block_buf, "special%d", i);
+      long pos = 0;
+      int k = find_conf_block(buf, &pos, len, block_buf);
+      if (k < 0)
+      {
+          if ((flags & CnfLd_AcceptPartial) == 0)
+          {
+              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+              return false;
+          }
+          continue;
     }
     specst = get_special_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_special_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,magic_special_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, magic_special_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
@@ -1304,7 +1292,8 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               cmd_num = 0;
           }
       }
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // NAME
@@ -1366,11 +1355,8 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
 
 TbBool load_magic_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    char *buf;
-    long len;
-    TbBool result;
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
-    len = LbFileLengthRnc(fname);
+    long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -1383,12 +1369,12 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
             WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    result = (len > 0);
+    TbBool result = (len > 0);
     // Parse blocks of the config file
     if (result)
     {
@@ -1439,10 +1425,8 @@ TbBool load_magic_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global magic config";
     static const char config_campgn_textname[] = "campaign magic config";
-    char *fname;
-    TbBool result;
-    fname = prepare_file_path(FGrp_FxData,conf_fname);
-    result = load_magic_config_file(config_global_textname,fname,flags);
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    TbBool result = load_magic_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
@@ -1457,8 +1441,7 @@ TbBool load_magic_config(const char *conf_fname, unsigned short flags)
  */
 const char *spell_code_name(SpellKind spmodel)
 {
-    const char *name;
-    name = get_conf_parameter_text(spell_desc,spmodel);
+    const char* name = get_conf_parameter_text(spell_desc, spmodel);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -1469,8 +1452,7 @@ const char *spell_code_name(SpellKind spmodel)
  */
 const char *shot_code_name(ThingModel tngmodel)
 {
-    const char *name;
-    name = get_conf_parameter_text(shot_desc,tngmodel);
+    const char* name = get_conf_parameter_text(shot_desc, tngmodel);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -1481,8 +1463,7 @@ const char *shot_code_name(ThingModel tngmodel)
  */
 const char *power_code_name(PowerKind pwkind)
 {
-    const char *name;
-    name = get_conf_parameter_text(power_desc,pwkind);
+    const char* name = get_conf_parameter_text(power_desc, pwkind);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -1496,8 +1477,7 @@ const char *power_code_name(PowerKind pwkind)
  */
 int power_model_id(const char * code_name)
 {
-    int i;
-    for (i = 0; i < magic_conf.power_types_count; ++i)
+    for (int i = 0; i < magic_conf.power_types_count; ++i)
     {
         if (strncmp(magic_conf.power_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
@@ -1518,20 +1498,18 @@ int power_model_id(const char * code_name)
  */
 TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    long i;
     if (pwkind >= KEEPER_POWERS_COUNT)
     {
         ERRORLOG("Can't add incorrect power %d to player %d",(int)pwkind, (int)plyr_idx);
         return false;
     }
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Can't add %s to player %d which has no dungeon",power_code_name(pwkind), (int)plyr_idx);
         return false;
     }
-    i = dungeon->magic_level[pwkind];
+    long i = dungeon->magic_level[pwkind];
     if (i >= 255)
     {
         ERRORLOG("Power %s has bad magic_level=%d for player %d, reset", power_code_name(pwkind), (int)i, (int)plyr_idx);
@@ -1544,15 +1522,13 @@ TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 
 void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    long i;
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Cannot remove spell %s from invalid dungeon %d!",power_code_name(pwkind),(int)plyr_idx);
         return;
     }
-    i = dungeon->magic_level[pwkind];
+    long i = dungeon->magic_level[pwkind];
     if (i < 1)
     {
         ERRORLOG("Cannot remove spell %s (%d) from player %d as he doesn't have it!",power_code_name(pwkind),(int)pwkind,(int)plyr_idx);
@@ -1586,13 +1562,11 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
  */
 TbBool make_all_powers_cost_free(void)
 {
-  struct MagicStats *pwrdynst;
-  long i,n;
-  for (i=0; i < magic_conf.power_types_count; i++)
-  {
-      pwrdynst = get_power_dynamic_stats(i);
-      for (n=0; n < MAGIC_OVERCHARGE_LEVELS; n++)
-          pwrdynst->cost[n] = 0;
+    for (long i = 0; i < magic_conf.power_types_count; i++)
+    {
+        struct MagicStats* pwrdynst = get_power_dynamic_stats(i);
+        for (long n = 0; n < MAGIC_OVERCHARGE_LEVELS; n++)
+            pwrdynst->cost[n] = 0;
   }
   return true;
 }
@@ -1602,10 +1576,8 @@ TbBool make_all_powers_cost_free(void)
  */
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    long i;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    for (i=0; i < KEEPER_POWERS_COUNT; i++)
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    for (long i = 0; i < KEEPER_POWERS_COUNT; i++)
     {
         dungeon->magic_resrchable[i] = 1;
     }
@@ -1617,11 +1589,10 @@ TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
  */
 TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch, long avail)
 {
-    struct Dungeon *dungeon;
     SYNCDBG(8,"Starting for power %d, player %d, state %ld,%ld",(int)pwkind,(int)plyr_idx,resrch,avail);
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORDBG(11,"Cannot set trap availability; player %d has no dungeon",(int)plyr_idx);
         return false;
@@ -1643,16 +1614,14 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch,
  */
 TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
     }
     //TODO POWERS Mapping child powers to their parent - remove that when magic_level array is enlarged
     {
-        const struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(pwkind);
+        const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
         if (powerst->parent_power != 0)
             pwkind = powerst->parent_power;
     }
@@ -1676,16 +1645,14 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
  */
 TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
     }
     //TODO POWERS Mapping child powers to their parent - remove that when magic_level array is enlarged
     {
-        const struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(pwkind);
+        const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
         if (powerst->parent_power != 0)
             pwkind = powerst->parent_power;
     }
@@ -1705,17 +1672,14 @@ TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind)
  */
 TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
 {
-  struct Dungeon *dungeon;
-  TbBool ret;
-  long i;
   SYNCDBG(0,"Starting");
-  ret = true;
-  dungeon = get_players_num_dungeon(plyr_idx);
+  TbBool ret = true;
+  struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
   if (dungeon_invalid(dungeon)) {
       ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
-  for (i=0; i < KEEPER_POWERS_COUNT; i++)
+  for (long i = 0; i < KEEPER_POWERS_COUNT; i++)
   {
     if (dungeon->magic_resrchable[i])
     {

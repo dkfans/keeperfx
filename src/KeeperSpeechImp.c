@@ -52,10 +52,7 @@ static void clean_up()
 
 KEEPERSPEECH_REASON KeeperSpeechInit(void)
 {
-    fpKeeperSpeechInit init;
-    KEEPERSPEECH_REASON reason;
-
-    init = NULL;
+    fpKeeperSpeechInit init = NULL;
 
 #ifdef _WIN32
     if (ks_lib) {
@@ -88,7 +85,7 @@ KEEPERSPEECH_REASON KeeperSpeechInit(void)
         return KSR_NO_LIB_INSTALLED;
     }
 
-    reason = init();
+    KEEPERSPEECH_REASON reason = init();
     if (reason != KSR_OK) {
         clean_up();
     }

@@ -42,15 +42,12 @@ long block_count_per_row = 8;
 /******************************************************************************/
 void setup_texture_block_mem(void)
 {
-    unsigned char **dst;
-    unsigned char *src;
-    unsigned long i,k,n;
-    dst = block_ptrs;
-    n = 0;
-    for (i=0; i < TEXTURE_BLOCKS_STAT_COUNT/block_count_per_row; i++)
+    unsigned char** dst = block_ptrs;
+    unsigned long n = 0;
+    for (unsigned long i = 0; i < TEXTURE_BLOCKS_STAT_COUNT / block_count_per_row; i++)
     {
-        src = block_mem + n;
-        for (k=0; k < block_count_per_row; k++)
+        unsigned char* src = block_mem + n;
+        for (unsigned long k = 0; k < block_count_per_row; k++)
         {
             *dst = src;
             src += block_dimension;
@@ -70,11 +67,10 @@ short init_animating_texture_maps(void)
 
 short update_animating_texture_maps(void)
 {
-  int i;
   SYNCDBG(18,"Starting");
   anim_counter = (anim_counter+1) % TEXTURE_BLOCKS_ANIM_FRAMES;
   short result=true;
-  for (i=0; i<TEXTURE_BLOCKS_ANIM_COUNT; i++)
+  for (int i = 0; i < TEXTURE_BLOCKS_ANIM_COUNT; i++)
   {
         short j = game.texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*i+anim_counter];
         if ((j>=0) && (j<TEXTURE_BLOCKS_STAT_COUNT))
@@ -92,9 +88,8 @@ long load_texture_anim_file(void)
 {
     SYNCDBG(8,"Starting");
     //return _DK_load_anim_file();
-    char *fname;
     static const char textname[] = "animated tmap";
-    fname = prepare_file_path(FGrp_StdData,"tmapanim.dat");
+    char* fname = prepare_file_path(FGrp_StdData, "tmapanim.dat");
     SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
     if (LbFileLoadAt(fname, game.texture_animation) != sizeof(game.texture_animation))
     {
@@ -105,12 +100,11 @@ long load_texture_anim_file(void)
 
 TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
 {
-    char *fname;
     SYNCDBG(7,"Starting");
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d-%d.dat",tmapidx,32);
 #else
-    fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d.dat",tmapidx);
+    char* fname = prepare_file_fmtpath(FGrp_StdData, "tmapa%03d.dat", tmapidx);
 #endif
     if (!wait_for_cd_to_be_available())
         return false;

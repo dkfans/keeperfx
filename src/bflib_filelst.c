@@ -39,8 +39,7 @@ short LbDataFree(struct TbLoadFiles *load_file)
 {
   if (load_file == NULL)
     return 0;
-  unsigned char **data;
-  data = load_file->SEnd;
+  unsigned char** data = load_file->SEnd;
   if (data != NULL)
   {
       (*data) = NULL;
@@ -63,13 +62,12 @@ short LbDataFree(struct TbLoadFiles *load_file)
 
 short LbDataFreeAll(struct TbLoadFiles load_files[])
 {
-  struct TbLoadFiles *t_lfile;
-  t_lfile = &load_files[0];
-  // note that t_lfile->Start is not NULL even if the buffer is allocated
-  while (t_lfile->Start != NULL)
-  {
-    LbDataFree(t_lfile);
-    t_lfile++;
+    struct TbLoadFiles* t_lfile = &load_files[0];
+    // note that t_lfile->Start is not NULL even if the buffer is allocated
+    while (t_lfile->Start != NULL)
+    {
+        LbDataFree(t_lfile);
+        t_lfile++;
   }
   return 1;
 }
@@ -124,22 +122,18 @@ short LbDataLoad(struct TbLoadFiles *load_file)
  */
 short LbDataLoadAll(struct TbLoadFiles load_files[])
 {
-  struct TbLoadFiles *t_lfile;
-  int ferror;
-  int ret_val;
-  int i;
   LbMemorySetup();
   LbDataFreeAll(load_files);
-  ferror = 0;
-  i = 0;
-  t_lfile = &load_files[i];
+  int ferror = 0;
+  int i = 0;
+  struct TbLoadFiles* t_lfile = &load_files[i];
   while (t_lfile->Start != NULL)
   {
-    ret_val = LbDataLoad(t_lfile);
-    if ( ret_val == -100 )
-    {
-      ERRORLOG("Can't allocate memory for \"%s\"", t_lfile->FName);
-      ferror++;
+      int ret_val = LbDataLoad(t_lfile);
+      if (ret_val == -100)
+      {
+          ERRORLOG("Can't allocate memory for \"%s\"", t_lfile->FName);
+          ferror++;
     } else
     if ( ret_val == -101 )
     {
@@ -166,32 +160,28 @@ char *defaultModifyDataLoadFilename(struct TbLoadFiles *ldfiles)
 
 int LbDataFindNameIndex(struct TbLoadFiles load_files[],char *fname)
 {
-  struct TbLoadFiles *t_lfile;
-  int i;
-  i = 0;
-  t_lfile = &load_files[i];
-  while (t_lfile->Start != NULL)
-  {
-    if (strcasecmp(t_lfile->FName,fname) == 0)
-      return i;
-    i++;
-    t_lfile = &load_files[i];
+    int i = 0;
+    struct TbLoadFiles* t_lfile = &load_files[i];
+    while (t_lfile->Start != NULL)
+    {
+        if (strcasecmp(t_lfile->FName, fname) == 0)
+            return i;
+        i++;
+        t_lfile = &load_files[i];
   }
   return -1;
 }
 
 int LbDataFindStartIndex(struct TbLoadFiles load_files[],unsigned char **start)
 {
-  struct TbLoadFiles *t_lfile;
-  int i;
-  i = 0;
-  t_lfile = &load_files[i];
-  while (t_lfile->Start != NULL)
-  {
-    if (*t_lfile->Start == *start)
-      return i;
-    i++;
-    t_lfile = &load_files[i];
+    int i = 0;
+    struct TbLoadFiles* t_lfile = &load_files[i];
+    while (t_lfile->Start != NULL)
+    {
+        if (*t_lfile->Start == *start)
+            return i;
+        i++;
+        t_lfile = &load_files[i];
   }
   return -1;
 }

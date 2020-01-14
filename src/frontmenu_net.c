@@ -82,7 +82,8 @@ const char *get_net_comport_text(int id)
 
 long frontnet_number_of_players_in_session(void)
 {
-    long i,nplyr;
+    long i;
+    long nplyr;
     nplyr = 0;
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
@@ -134,7 +135,8 @@ void frontnet_join_game_maintain(struct GuiButton *gbtn)
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
 {
-    long plyr_idx1, plyr_idx2;
+    long plyr_idx1;
+    long plyr_idx2;
     plyr_idx1 = gbtn->btype_value & LbBFeF_IntValueMask;
     plyr_idx2 = (long)gbtn->content - 74;
     if ( plyr_idx2 >= net_number_of_enum_players || net_number_of_enum_players <= plyr_idx1 || plyr_idx2 == plyr_idx1 )
@@ -258,7 +260,8 @@ void frontnet_draw_text_bar(struct GuiButton *gbtn)
 {
     struct TbSprite *spr;
     int i;
-    long pos_x, pos_y;
+    long pos_x;
+    long pos_y;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
     int fs_units_per_px;
@@ -386,7 +389,8 @@ void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
     units_per_px = (gbtn->width * 16 + 100/2) / 100;
 
     const struct TbSprite *spr;
-    int pos_x, pos_y;
+    int pos_x;
+    int pos_y;
 
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
@@ -478,7 +482,8 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
 {
     struct PlayerInfo *myplyr;
     myplyr = get_my_player();
-    int plyr1_idx, plyr2_idx;
+    int plyr1_idx;
+    int plyr2_idx;
     plyr1_idx = (long)gbtn->content - 74;
     plyr2_idx = gbtn->btype_value & LbBFeF_IntValueMask;
     if ( plyr1_idx == myplyr->id_number || plyr2_idx == myplyr->id_number )
@@ -496,7 +501,8 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
 
 void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 {
-    int pos_x, pos_y;
+    int pos_x;
+    int pos_y;
     pos_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
     int netplyr_idx;
@@ -542,7 +548,8 @@ void frontnet_draw_alliance_grid(struct GuiButton *gbtn)
 
 void frontnet_draw_alliance_button(struct GuiButton *gbtn)
 {
-    int plyr1_idx, plyr2_idx;
+    int plyr1_idx;
+    int plyr2_idx;
     struct TbSprite *spr;
     plyr2_idx = gbtn->btype_value & LbBFeF_IntValueMask;
     plyr1_idx = (long)gbtn->content - 74;
@@ -572,7 +579,8 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     int units_per_px;
     units_per_px = (gbtn->width * 16 + 240/2) / 240;
 
-    long pos_x, pos_y;
+    long pos_x;
+    long pos_y;
     struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
@@ -718,7 +726,8 @@ void frontnet_return_to_session_menu(struct GuiButton *gbtn)
 
 void frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn)
 {
-    long pos_x, pos_y;
+    long pos_x;
+    long pos_y;
     struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
@@ -741,7 +750,8 @@ void frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn)
 void frontnet_draw_small_scroll_selection_box(struct GuiButton *gbtn, long font_idx, const char *text)
 {
     struct TbSprite *spr;
-    int pos_x, pos_y;
+    int pos_x;
+    int pos_y;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
     spr = &frontend_sprite[55];
@@ -791,7 +801,8 @@ int small_scroll_box_get_units_per_px(struct GuiButton *gbtn)
 
 void frontnet_draw_small_scroll_box(struct GuiButton *gbtn)
 {
-    long pos_x, pos_y;
+    long pos_x;
+    long pos_y;
     struct TbSprite *spr;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
@@ -994,7 +1005,8 @@ void frontnet_draw_text_cont_bar(struct GuiButton *gbtn)
     int units_per_px;
     units_per_px = (gbtn->width * 16 + 165/2) / 165;
 
-    int pos_x, pos_y;
+    int pos_x;
+    int pos_y;
     pos_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
     int netplyr_idx;

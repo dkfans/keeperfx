@@ -67,8 +67,7 @@ DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *play
  */
 void set_chosen_power(PowerKind pwkind, TextStringId sptooltip)
 {
-    const struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(pwkind);
+    const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     if (power_model_stats_invalid(powerst))
       pwkind = 0;
     SYNCDBG(6,"Setting to %ld",pwkind);
@@ -87,22 +86,19 @@ void set_chosen_power_none(void)
 
 unsigned char general_expand_check(void)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     return (player->cast_expand_level != 0);
 }
 
 unsigned char sight_of_evil_expand_check(void)
 {
-    struct PlayerInfo *myplyr;
-    myplyr = get_my_player();
+    struct PlayerInfo* myplyr = get_my_player();
     return (myplyr->cast_expand_level != 0) && (!player_uses_power_sight(myplyr->id_number));
 }
 
 unsigned char call_to_arms_expand_check(void)
 {
-    struct PlayerInfo *myplyr;
-    myplyr = get_my_player();
+    struct PlayerInfo* myplyr = get_my_player();
     return (myplyr->cast_expand_level != 0) && (!player_uses_power_call_to_arms(myplyr->id_number));
 }
 
@@ -114,8 +110,6 @@ TbBool player_uses_power_armageddon(PlayerNumber plyr_idx)
 void process_armageddon(void)
 {
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    struct Thing *heartng;
     long i;
     SYNCDBG(6,"Starting");
     if (game.armageddon_cast_turn == 0)
@@ -147,14 +141,14 @@ void process_armageddon(void)
             player = get_player(i);
             if ( (player_exists(player)) && (player->field_2C == 1) )
             {
-                dungeon = get_dungeon(player->id_number);
+                struct Dungeon* dungeon = get_dungeon(player->id_number);
                 if ((player->victory_state == VicS_Undecided) && (dungeon->num_active_creatrs == 0))
                 {
                     event_kill_all_players_events(i);
                     set_player_as_lost_level(player);
                     if (is_my_player_number(i))
                         LbPaletteSet(engine_palette);
-                    heartng = get_player_soul_container(player->id_number);
+                    struct Thing* heartng = get_player_soul_container(player->id_number);
                     if (thing_exists(heartng)) {
                         heartng->health = -1;
                     }
@@ -168,8 +162,7 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
 {
     if (game.armageddon_cast_turn != 0)
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(creatng);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         // If Armageddon is on, teleport creature to its position
         if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
@@ -184,40 +177,32 @@ void process_disease(struct Thing *creatng)
 {
     SYNCDBG(18,"Starting");
     //_DK_process_disease(thing);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (!creature_affected_by_spell(creatng, SplK_Disease)) {
         return;
     }
     if (ACTION_RANDOM(100) < game.disease_transfer_percentage)
     {
-        SubtlCodedCoords stl_num;
-        long n;
-        stl_num = get_subtile_number(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num);
-        for (n=0; n < AROUND_MAP_LENGTH; n++)
+        SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+        for (long n = 0; n < AROUND_MAP_LENGTH; n++)
         {
-            struct Thing *thing;
-            struct Map *mapblk;
-            unsigned long k;
-            long i;
-            mapblk = get_map_block_at_pos(stl_num+around_map[n]);
-            k = 0;
-            i = get_mapwho_thing_index(mapblk);
+            struct Map* mapblk = get_map_block_at_pos(stl_num + around_map[n]);
+            unsigned long k = 0;
+            long i = get_mapwho_thing_index(mapblk);
             while (i != 0)
             {
-              thing = thing_get(i);
-              if (thing_is_invalid(thing))
-              {
-                WARNLOG("Jump out of things array");
-                break;
+                struct Thing* thing = thing_get(i);
+                if (thing_is_invalid(thing))
+                {
+                    WARNLOG("Jump out of things array");
+                    break;
               }
               i = thing->next_on_mapblk;
               // Per thing code
               if (thing_is_creature(thing) && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
                 && (thing->owner != cctrl->disease_caster_plyridx) && !creature_affected_by_spell(thing, SplK_Disease))
               {
-                  struct CreatureControl *tngcctrl;
-                  tngcctrl = creature_control_get_from_thing(thing);
+                  struct CreatureControl* tngcctrl = creature_control_get_from_thing(thing);
                   apply_spell_effect_to_thing(thing, SplK_Disease, cctrl->explevel);
                   tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
               }
@@ -240,8 +225,7 @@ void process_disease(struct Thing *creatng)
 
 void lightning_modify_palette(struct Thing *thing)
 {
-    struct PlayerInfo *myplyr;
-    myplyr = get_my_player();
+    struct PlayerInfo* myplyr = get_my_player();
 
     if (thing->health == 0)
     {
@@ -281,15 +265,13 @@ void lightning_modify_palette(struct Thing *thing)
 
 void update_god_lightning_ball(struct Thing *thing)
 {
-    struct Thing *target;
-    struct ShotConfigStats *shotst;
-    long i;
     if (thing->health <= 0)
     {
         lightning_modify_palette(thing);
         return;
     }
-    i = (game.play_gameturn - thing->creation_turn) % 16;
+    long i = (game.play_gameturn - thing->creation_turn) % 16;
+    struct Thing* target;
     switch (i)
     {
     case 0:
@@ -302,20 +284,21 @@ void update_god_lightning_ball(struct Thing *thing)
         draw_lightning(&thing->mappos,&target->mappos, 96, 60);
         break;
     case 2:
+    {
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        shotst = get_shot_model_stats(ShM_GodLightBall);
+        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodLightBall);
         apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
         if (target->health < 0)
         {
-            struct CreatureControl *cctrl;
-            cctrl = creature_control_get_from_thing(target);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(target);
             cctrl->shot_model = ShM_GodLightBall;
             kill_creature(target, INVALID_THING, thing->owner, CrDed_DiedInBattle);
         }
         thing->shot.target_idx = 0;
         break;
+    }
     }
 }
 
@@ -323,21 +306,15 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 {
     SYNCDBG(16,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
     //_DK_god_lightning_choose_next_creature(shotng); return;
-    long best_dist;
-    struct Thing *best_thing;
-    best_dist = LONG_MAX;
-    best_thing = INVALID_THING;
 
-    unsigned long k;
-    int i;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Creature);
-    k = 0;
-    i = slist->index;
+    long best_dist = LONG_MAX;
+    struct Thing* best_thing = INVALID_THING;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    unsigned long k = 0;
+    int i = slist->index;
     while (i != 0)
     {
-        struct Thing *thing;
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -349,14 +326,11 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
         if ((shotng->owner != thing->owner) && !thing_is_picked_up(thing)
             && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
         {
-            long dist;
-            dist = get_2d_distance(&shotng->mappos, &thing->mappos);
+            long dist = get_2d_distance(&shotng->mappos, &thing->mappos);
             if (dist < best_dist)
             {
-                const struct MagicStats *pwrdynst;
-                pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-                int spell_lev;
-                spell_lev = shotng->shot.byte_19;
+                const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
+                int spell_lev = shotng->shot.byte_19;
                 if (spell_lev > SPELL_MAX_LEVEL)
                     spell_lev = SPELL_MAX_LEVEL;
                 if (subtile_coord(pwrdynst->strength[spell_lev],0) > dist)
@@ -389,15 +363,12 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 void draw_god_lightning(struct Thing *shotng)
 {
     //_DK_draw_god_lightning(shotng); return;
-    struct PlayerInfo *player;
-    player = get_player(shotng->owner);
-    const struct Camera *cam;
-    cam = player->acamera;
+    struct PlayerInfo* player = get_player(shotng->owner);
+    const struct Camera* cam = player->acamera;
     if (cam == NULL) {
         return;
     }
-    int i;
-    for (i = LbFPMath_PI/4; i < 2*LbFPMath_PI; i += LbFPMath_PI/2)
+    for (int i = LbFPMath_PI / 4; i < 2 * LbFPMath_PI; i += LbFPMath_PI / 2)
     {
         struct Coord3d locpos;
         locpos.x.val = shotng->mappos.x.val;
@@ -412,15 +383,13 @@ void draw_god_lightning(struct Thing *shotng)
 
 TbBool player_uses_power_call_to_arms(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     return (dungeon->cta_start_turn != 0);
 }
 
 void creature_stop_affected_by_call_to_arms(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->spell_flags &= ~CSAfF_CalledToArms;
     if (!thing_is_picked_up(thing) && !creature_is_being_unconscious(thing))
     {
@@ -446,14 +415,11 @@ void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
     if (!player_uses_power_call_to_arms(plyr_idx)) {
         return;
     }
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     {
-        struct Thing *objtng;
-        objtng = thing_get(player->field_43C);
+        struct Thing* objtng = thing_get(player->field_43C);
         set_call_to_arms_as_dying(objtng);
-        struct Dungeon *dungeon;
-        dungeon = get_players_dungeon(player);
+        struct Dungeon* dungeon = get_players_dungeon(player);
         dungeon->cta_start_turn = 0;
     }
     reset_all_players_creatures_affected_by_cta(plyr_idx);
@@ -461,20 +427,16 @@ void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
 
 void store_backup_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
 {
-    struct Dungeon *dungeon;
-    MapSubtlCoord stl_x,stl_y;
-    long soe_x,soe_y;
-    dungeon = get_players_dungeon(player);
-    stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
-    for (soe_y=0; soe_y < 2*MAX_SOE_RADIUS; soe_y++,stl_y++)
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    MapSubtlCoord stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
+    for (long soe_y = 0; soe_y < 2 * MAX_SOE_RADIUS; soe_y++, stl_y++)
     {
-        stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
-        for (soe_x=0; soe_x < 2*MAX_SOE_RADIUS; soe_x++,stl_x++)
+        MapSubtlCoord stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
+        for (long soe_x = 0; soe_x < 2 * MAX_SOE_RADIUS; soe_x++, stl_x++)
         {
             if (dungeon->soe_explored_flags[soe_y][soe_x])
             {
-                struct Map *mapblk;
-                mapblk = get_map_block_at(stl_x, stl_y);
+                struct Map* mapblk = get_map_block_at(stl_x, stl_y);
                 if (!map_block_invalid(mapblk))
                 {
                     if (map_block_revealed(mapblk, player->id_number))
@@ -491,33 +453,27 @@ void store_backup_explored_flags_for_power_sight(struct PlayerInfo *player, stru
 
 void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
 {
-    struct Dungeon *dungeon;
-    MapSubtlCoord stl_x,stl_y;
-    long soe_x,soe_y;
-    long slb_x,slb_y;
-    long boundstl_x;
-    long delta;
-    long i;
-    dungeon = get_players_dungeon(player);
-    stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
-    for (soe_y=0; soe_y < 2*MAX_SOE_RADIUS; soe_y++,stl_y++)
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    MapSubtlCoord stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
+    for (long soe_y = 0; soe_y < 2 * MAX_SOE_RADIUS; soe_y++, stl_y++)
     {
         if ( (stl_y >= 0) && (stl_y <= 255) )
         {
-            stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
-            for (soe_x=0; soe_x <= MAX_SOE_RADIUS; soe_x++,stl_x++)
+            MapSubtlCoord stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
+            for (long soe_x = 0; soe_x <= MAX_SOE_RADIUS; soe_x++, stl_x++)
             {
                 if (dungeon->soe_explored_flags[soe_y][soe_x])
                 {
                     soe_x++;
                     // Find max value for delta
-                    delta = 0;
-                    for (i=1; soe_x < 2*MAX_SOE_RADIUS; soe_x++,i++)
+                    long delta = 0;
+                    long i;
+                    for (i = 1; soe_x < 2 * MAX_SOE_RADIUS; soe_x++, i++)
                     {
                         if (dungeon->soe_explored_flags[soe_y][soe_x])
                             delta = i;
                     }
-                    boundstl_x = stl_x + delta;
+                    long boundstl_x = stl_x + delta;
                     if (stl_x < 0)
                     {
                         stl_x = 0;
@@ -537,17 +493,14 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
                     if (boundstl_x >= stl_x)
                     {
                         delta = boundstl_x - stl_x + 1;
-                        slb_y = subtile_slab_fast(stl_y);
+                        long slb_y = subtile_slab_fast(stl_y);
                         for (i=0; i < delta; i++)
                         {
-                            struct Map *mapblk;
-                            struct SlabMap *slb;
-                            struct SlabAttr *slbattr;
-                            mapblk = get_map_block_at(stl_x+i, stl_y);
+                            struct Map* mapblk = get_map_block_at(stl_x + i, stl_y);
                             reveal_map_block(mapblk, player->id_number);
-                            slb_x = subtile_slab_fast(stl_x+i);
-                            slb = get_slabmap_block(slb_x, slb_y);
-                            slbattr = get_slab_attrs(slb);
+                            long slb_x = subtile_slab_fast(stl_x + i);
+                            struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+                            struct SlabAttr* slbattr = get_slab_attrs(slb);
                             if ( !slbattr->is_diggable )
                                 mapblk->flags &= ~(SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored);
                             mapblk++;
@@ -562,69 +515,57 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
 
 TbBool player_uses_power_sight(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (!player_exists(player)) {
         return false;
     }
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
+    struct Dungeon* dungeon = get_players_dungeon(player);
     return (dungeon->sight_casted_thing_idx > 0);
 }
 
 TbBool player_uses_power_obey(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (!player_exists(player)) {
         return false;
     }
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
+    struct Dungeon* dungeon = get_players_dungeon(player);
     return (dungeon->must_obey_turn != 0);
 }
 
 TbBool player_uses_power_hold_audience(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (!player_exists(player)) {
         return false;
     }
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
+    struct Dungeon* dungeon = get_players_dungeon(player);
     return (dungeon->hold_audience_cast_turn != 0);
 }
 
 void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
 {
-    struct Dungeon *dungeon;
-    long stl_x,stl_y;
-    long soe_x,soe_y;
-    long boundstl_y;
-    long slb_x,slb_y;
-    long delta;
-    long i;
-    dungeon = get_players_dungeon(player);
-    stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
-    for (soe_x=0; soe_x < 2*MAX_SOE_RADIUS; soe_x++,stl_x++)
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    long stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
+    for (long soe_x = 0; soe_x < 2 * MAX_SOE_RADIUS; soe_x++, stl_x++)
     {
         if ( (stl_x >= 0) && (stl_x <= 255) )
         {
-            stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
-            for (soe_y=0; soe_y <= MAX_SOE_RADIUS; soe_y++,stl_y++)
+            long stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
+            for (long soe_y = 0; soe_y <= MAX_SOE_RADIUS; soe_y++, stl_y++)
             {
                 if (dungeon->soe_explored_flags[soe_y][soe_x])
                 {
                     soe_y++;
                     // Find max value for delta
-                    delta = 0;
-                    for (i=1; soe_y < 2*MAX_SOE_RADIUS; soe_y++,i++)
+                    long delta = 0;
+                    long i;
+                    for (i = 1; soe_y < 2 * MAX_SOE_RADIUS; soe_y++, i++)
                     {
                         if (dungeon->soe_explored_flags[soe_y][soe_x])
                             delta = i;
                     }
-                    boundstl_y = stl_y + delta;
+                    long boundstl_y = stl_y + delta;
                     if (boundstl_y < 0)
                     {
                         boundstl_y = 0;
@@ -644,17 +585,14 @@ void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, 
                     if (stl_y <= boundstl_y)
                     {
                       delta = boundstl_y - stl_y + 1;
-                      slb_x = subtile_slab_fast(stl_x);
+                      long slb_x = subtile_slab_fast(stl_x);
                       for (i=0; i < delta; i++)
                       {
-                          struct Map *mapblk;
-                          slb_y = subtile_slab_fast(stl_y+i);
-                          mapblk = get_map_block_at(stl_x, stl_y+i);
+                          long slb_y = subtile_slab_fast(stl_y + i);
+                          struct Map* mapblk = get_map_block_at(stl_x, stl_y + i);
                           reveal_map_block(mapblk, player->id_number);
-                          struct SlabMap *slb;
-                          struct SlabAttr *slbattr;
-                          slb = get_slabmap_block(slb_x, slb_y);
-                          slbattr = get_slab_attrs(slb);
+                          struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+                          struct SlabAttr* slbattr = get_slab_attrs(slb);
                           if ( !slbattr->is_diggable )
                               mapblk->flags &= ~(SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored);
                       }
@@ -668,15 +606,13 @@ void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, 
 
 void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
-    struct Dungeon *dungeon;
-    struct Thing *thing;
     SYNCDBG(9,"Starting");
-    dungeon = get_players_dungeon(player);
+    struct Dungeon* dungeon = get_players_dungeon(player);
     LbMemorySet(backup_explored, 0, sizeof(backup_explored));
     if (dungeon->sight_casted_thing_idx == 0) {
         return;
     }
-    thing = thing_get(dungeon->sight_casted_thing_idx);
+    struct Thing* thing = thing_get(dungeon->sight_casted_thing_idx);
     if (!thing_is_object(thing)) {
         ERRORLOG("Sight thing index %d invalid", (int)dungeon->sight_casted_thing_idx);
         turn_off_power_sight_of_evil(player->id_number);

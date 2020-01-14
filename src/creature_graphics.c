@@ -147,8 +147,7 @@ extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
-    int crmodel;
-    crmodel = thing->model;
+    int crmodel = thing->model;
     if ((crmodel < 1) || (crmodel >= CREATURE_TYPES_COUNT))
         crmodel = 0;
     return &creature_picked_up_offset[crmodel];
@@ -156,37 +155,34 @@ struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing
 
 unsigned char keepersprite_frames(unsigned short n)
 {
-  unsigned long i;
   if (n >= CREATURE_FRAMELIST_LENGTH)
   {
       ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
   }
-  i = creature_list[n];
+  unsigned long i = creature_list[n];
   return creature_table[i].FramesCount;
 }
 
 unsigned char keepersprite_rotable(unsigned short n)
 {
-  unsigned long i;
   if (n >= CREATURE_FRAMELIST_LENGTH)
   {
       ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
   }
-  i = creature_list[n];
+  unsigned long i = creature_list[n];
   return creature_table[i].Rotable;
 }
 
 unsigned char previous_keeper_frame(unsigned short n, unsigned char c)
 {
-    unsigned long i;
     if (n >= CREATURE_FRAMELIST_LENGTH)
     {
         ERRORLOG("Frame %d out of range",(int)n);
         n = 0;
     }
-    i = creature_list[n];
+    unsigned long i = creature_list[n];
     if (c > 0)
         return c - 1;
     return creature_table[i].FramesCount - 1;
@@ -194,25 +190,23 @@ unsigned char previous_keeper_frame(unsigned short n, unsigned char c)
 
 unsigned char next_keeper_frame(unsigned short n, unsigned char c)
 {
-    unsigned long i;
     if (n >= CREATURE_FRAMELIST_LENGTH)
     {
         ERRORLOG("Frame %d out of range",(int)n);
         n = 0;
     }
-    i = creature_list[n];
+    unsigned long i = creature_list[n];
     return creature_table[i].FramesCount;
 }
 
 struct KeeperSprite * keepersprite_array(unsigned short n)
 {
-    unsigned long i;
     if (n >= CREATURE_FRAMELIST_LENGTH)
     {
         ERRORLOG("Frame %d out of range",(int)n);
         n = 0;
     }
-    i = creature_list[n];
+    unsigned long i = creature_list[n];
     return &creature_table[i];
 }
 
@@ -233,11 +227,9 @@ long get_lifespan_of_animation(long ani, long frameskip)
 
 void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h)
 {
-    struct KeeperSprite *kspr;
     TbBool val_in_range;
-    unsigned long i;
-    i = creature_list[kspr_frame];
-    kspr = &creature_table[i];
+    unsigned long i = creature_list[kspr_frame];
+    struct KeeperSprite* kspr = &creature_table[i];
     if ( ((a2 & 0x7FF) <= 1151) || ((a2 & 0x7FF) >= 1919) )
         val_in_range = 0;
     else
@@ -311,9 +303,8 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
 
 unsigned long get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
-  unsigned long idx;
-  idx = get_creature_model_graphics(thing->model, seq_idx);
-  return convert_td_iso(idx);
+    unsigned long idx = get_creature_model_graphics(thing->model, seq_idx);
+    return convert_td_iso(idx);
 }
 
 void untint_thing(struct Thing *thing)
@@ -330,8 +321,7 @@ void tint_thing(struct Thing *thing, TbPixel colour, unsigned char nframe)
 
 TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 {
-    unsigned long i;
-    i = get_creature_anim(thing, seq_idx);
+    unsigned long i = get_creature_anim(thing, seq_idx);
     if (i != thing->anim_sprite)
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, 2);
@@ -342,8 +332,7 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 
 TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 {
-    unsigned long i;
-    i = convert_td_iso(td_idx);
+    unsigned long i = convert_td_iso(td_idx);
     if (i != thing->anim_sprite)
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, 2);
@@ -384,13 +373,11 @@ void update_creature_graphic_field_4F(struct Thing *thing)
 
 void update_creature_graphic_anim(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
     long i;
 
     TRACE_THING(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
 
     if ((thing->field_50 & 0x01) != 0)
     {
@@ -408,8 +395,7 @@ void update_creature_graphic_anim(struct Thing *thing)
           {
               thing->field_4F &= ~(TF4F_Unknown20|TF4F_Unknown10);
           }
-          struct InstanceInfo *inst_inf;
-          inst_inf = creature_instance_info_get(cctrl->instance_id);
+          struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
         } else
         if ((cctrl->field_B1 != 0) || creature_is_dying(thing) || creature_affected_by_spell(thing, SplK_Freeze))
@@ -490,8 +476,7 @@ void update_creature_graphic_anim(struct Thing *thing)
 
 void update_creature_graphic_tint(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_affected_by_spell(thing, SplK_Freeze))
     {
         tint_thing(thing, colours[4][4][15], 1);

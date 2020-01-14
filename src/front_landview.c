@@ -100,11 +100,10 @@ void draw_map_screen(void)
 
 struct TbSprite *get_map_ensign(long idx)
 {
-  struct TbSprite *spr;
-  spr = &map_flag[idx];
-  if (spr < end_map_flag)
-    return spr;
-  return &dummy_sprite;
+    struct TbSprite* spr = &map_flag[idx];
+    if (spr < end_map_flag)
+        return spr;
+    return &dummy_sprite;
 }
 
 /**
@@ -116,13 +115,11 @@ struct TbSprite *get_map_ensign(long idx)
  */
 short is_over_ensign(const struct LevelInformation *lvinfo, long scr_x, long scr_y)
 {
-    const struct TbSprite *spr;
-    long map_x,map_y,spr_w,spr_h;
-    map_x = map_info.screen_shift_x + scr_x*16/units_per_pixel;
-    map_y = map_info.screen_shift_y + scr_y*16/units_per_pixel;
-    spr = get_map_ensign(10);
-    spr_w = spr->SWidth;
-    spr_h = spr->SHeight;
+    long map_x = map_info.screen_shift_x + scr_x * 16 / units_per_pixel;
+    long map_y = map_info.screen_shift_y + scr_y * 16 / units_per_pixel;
+    const struct TbSprite* spr = get_map_ensign(10);
+    long spr_w = spr->SWidth;
+    long spr_h = spr->SHeight;
     if ((map_x >= lvinfo->ensign_x-(spr_w>>1)) && (map_x < lvinfo->ensign_x+(spr_w>>1))
      && (map_y > lvinfo->ensign_y-spr_h) && (map_y < lvinfo->ensign_y-(spr_h/3)))
         return true;
@@ -147,26 +144,22 @@ short is_ensign_in_screen_rect(const struct LevelInformation *lvinfo)
  */
 void set_all_ensigns_state(unsigned short nstate)
 {
-  struct LevelInformation *lvinfo;
-  lvinfo = get_first_level_info();
-  while (lvinfo != NULL)
-  {
-    lvinfo->state = nstate;
-    lvinfo = get_next_level_info(lvinfo);
+    struct LevelInformation* lvinfo = get_first_level_info();
+    while (lvinfo != NULL)
+    {
+        lvinfo->state = nstate;
+        lvinfo = get_next_level_info(lvinfo);
   }
 }
 
 void update_ensigns_visibility(void)
 {
   struct LevelInformation *lvinfo;
-  struct PlayerInfo *player;
-  long lvnum,bn_lvnum;
-  short show_all_sp;
   SYNCDBG(18,"Starting");
   set_all_ensigns_state(LvSt_Hidden);
-  player = get_my_player();
-  show_all_sp = false;
-  lvnum = get_continue_level_number();
+  struct PlayerInfo* player = get_my_player();
+  short show_all_sp = false;
+  long lvnum = get_continue_level_number();
   if (lvnum > 0)
   {
     lvinfo = get_level_info(lvnum);
@@ -186,7 +179,7 @@ void update_ensigns_visibility(void)
       if (lvinfo != NULL)
         lvinfo->state = LvSt_Visible;
     }
-    bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
+    long bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
     if (is_bonus_level_visible(player, bn_lvnum))
     {
       lvinfo = get_level_info(bn_lvnum);
@@ -209,14 +202,12 @@ void update_ensigns_visibility(void)
 
 void update_net_ensigns_visibility(void)
 {
-    long lvnum;
     SYNCDBG(18,"Starting");
     set_all_ensigns_state(LvSt_Hidden);
-    lvnum = first_multiplayer_level();
+    long lvnum = first_multiplayer_level();
     while (lvnum > 0)
     {
-        struct LevelInformation *lvinfo;
-        lvinfo = get_level_info(lvnum);
+        struct LevelInformation* lvinfo = get_level_info(lvnum);
         if (lvinfo != NULL)
           lvinfo->state = LvSt_Visible;
         lvnum = next_multiplayer_level(lvnum);
@@ -225,21 +216,17 @@ void update_net_ensigns_visibility(void)
 
 int compute_sound_good_to_bad_factor(void)
 {
-    unsigned int onscr_bad,onscr_good;
-    LevelNumber sp_lvnum,continue_lvnum;
-    short lv_beaten;
     SYNCDBG(18,"Starting");
-    onscr_bad = 0;
-    onscr_good = 0;
-    continue_lvnum = get_continue_level_number();
-    lv_beaten = (continue_lvnum != SINGLEPLAYER_NOTSTARTED);
-    sp_lvnum = first_singleplayer_level();
+    unsigned int onscr_bad = 0;
+    unsigned int onscr_good = 0;
+    LevelNumber continue_lvnum = get_continue_level_number();
+    short lv_beaten = (continue_lvnum != SINGLEPLAYER_NOTSTARTED);
+    LevelNumber sp_lvnum = first_singleplayer_level();
     while (sp_lvnum > 0)
     {
         if (sp_lvnum == continue_lvnum)
           lv_beaten = false;
-        struct LevelInformation *lvinfo;
-        lvinfo = get_level_info(sp_lvnum);
+        struct LevelInformation* lvinfo = get_level_info(sp_lvnum);
         if (lvinfo != NULL)
         {
             if (is_ensign_in_screen_rect(lvinfo))
@@ -259,17 +246,15 @@ int compute_sound_good_to_bad_factor(void)
 
 void update_frontmap_ambient_sound(void)
 {
-  long lvidx;
-  long i;
   if (map_sound_fade)
   {
-    lvidx = array_index_for_singleplayer_level(get_continue_level_number());
-    if ((features_enabled & Ft_AdvAmbSound) != 0)
-    {
-      i = compute_sound_good_to_bad_factor();
-      SYNCDBG(18,"Volume factor is %ld",i);
-      SetSampleVolume(0, campaign.ambient_good, map_sound_fade*(i)/256, 0);
-      SetSampleVolume(0, campaign.ambient_bad, map_sound_fade*(127-i)/256, 0);
+      long lvidx = array_index_for_singleplayer_level(get_continue_level_number());
+      if ((features_enabled & Ft_AdvAmbSound) != 0)
+      {
+          long i = compute_sound_good_to_bad_factor();
+          SYNCDBG(18, "Volume factor is %ld", i);
+          SetSampleVolume(0, campaign.ambient_good, map_sound_fade * (i) / 256, 0);
+          SetSampleVolume(0, campaign.ambient_bad, map_sound_fade * (127 - i) / 256, 0);
     } else
     if (lvidx > 13)
     {
@@ -393,21 +378,17 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
  */
 void draw_map_level_ensigns(void)
 {
-    struct LevelInformation *lvinfo;
-    struct TbSprite *spr;
-    long x,y;
-    int k;
     SYNCDBG(18,"Starting");
-    k = LbTimerClock()/200;
-    lvinfo = get_last_level_info();
+    int k = LbTimerClock() / 200;
+    struct LevelInformation* lvinfo = get_last_level_info();
     while (lvinfo != NULL)
     {
       // the flag sprite
-      spr = get_ensign_sprite_for_level(lvinfo,k);
+      struct TbSprite* spr = get_ensign_sprite_for_level(lvinfo, k);
       if (spr != NULL)
       {
-          x = lvinfo->ensign_x - map_info.screen_shift_x - (int)(spr->SWidth>>1);
-          y = lvinfo->ensign_y - map_info.screen_shift_y -  (int)(spr->SHeight);
+          long x = lvinfo->ensign_x - map_info.screen_shift_x - (int)(spr->SWidth >> 1);
+          long y = lvinfo->ensign_y - map_info.screen_shift_y - (int)(spr->SHeight);
           LbSpriteDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, spr);
       }
       lvinfo = get_prev_level_info(lvinfo);
@@ -425,7 +406,8 @@ void set_map_info_screen_shift_raw(long map_x, long map_y)
     map_info.screen_shift_x = map_x;
     map_info.screen_shift_y = map_y;
     // Make sure the hotspot will not be too close to border to not be drawn correctly at full zoom
-    long delta_x, delta_y;
+    long delta_x;
+    long delta_y;
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0) {
         delta_x = (lbDisplay.PhysicalScreenWidth*(256 - map_info.fade_pos)*16/units_per_pixel) / 256;
         delta_y = (lbDisplay.PhysicalScreenHeight*(256 - map_info.fade_pos)*16/units_per_pixel) / 256;
@@ -450,26 +432,23 @@ void set_map_info_screen_shift_raw(long map_x, long map_y)
  */
 void set_map_info_screen_shift(long map_x, long map_y)
 {
-    long delta_x, delta_y;
-    delta_x = (lbDisplay.PhysicalScreenWidth*16/units_per_pixel) / 2;
-    delta_y = (lbDisplay.PhysicalScreenHeight*16/units_per_pixel) / 2;
-   set_map_info_screen_shift_raw(map_x - delta_x, map_y - delta_y);
-   // Reset precise shifts, which are often used for screen shift update
-   // The reset is here so that new values have correct clipping applied
-   map_info.precise_scrshift_x = map_info.screen_shift_x << 8;
-   map_info.precise_scrshift_y = map_info.screen_shift_y << 8;
+    long delta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel) / 2;
+    long delta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel) / 2;
+    set_map_info_screen_shift_raw(map_x - delta_x, map_y - delta_y);
+    // Reset precise shifts, which are often used for screen shift update
+    // The reset is here so that new values have correct clipping applied
+    map_info.precise_scrshift_x = map_info.screen_shift_x << 8;
+    map_info.precise_scrshift_y = map_info.screen_shift_y << 8;
 }
 
 void step_frontmap_info_screen_shift_zoom(void)
 {
-    long scr_x,scr_y;
     // Count the remaining shift
-    scr_x = map_info.hotspot_shift_x - map_info.screen_shift_aimed_x;
-    scr_y = map_info.hotspot_shift_y - map_info.screen_shift_aimed_y;
+    long scr_x = map_info.hotspot_shift_x - map_info.screen_shift_aimed_x;
+    long scr_y = map_info.hotspot_shift_y - map_info.screen_shift_aimed_y;
     if ((scr_x != 0) || (scr_y != 0))
     {
-        long step;
-        step = LbSinL(LbFPMath_PI/2 * map_info.fade_pos / FRONTMAP_ZOOM_LENGTH);
+        long step = LbSinL(LbFPMath_PI / 2 * map_info.fade_pos / FRONTMAP_ZOOM_LENGTH);
         map_info.precise_scrshift_x = (map_info.screen_shift_aimed_x << 8) + (scr_x * step) / 256;
         map_info.precise_scrshift_y = (map_info.screen_shift_aimed_y << 8) + (scr_y * step) / 256;
         set_map_info_screen_shift_raw(map_info.precise_scrshift_x >> 8, map_info.precise_scrshift_y >> 8);
@@ -492,16 +471,14 @@ void set_map_info_visible_hotspot_raw(long map_x,long map_y)
 
 void set_map_info_visible_hotspot(long map_x,long map_y)
 {
-    long delta_x, delta_y;
-    delta_x = (lbDisplay.PhysicalScreenWidth*16/units_per_pixel) / 2;
-    delta_y = (lbDisplay.PhysicalScreenHeight*16/units_per_pixel) / 2;
+    long delta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel) / 2;
+    long delta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel) / 2;
     set_map_info_visible_hotspot_raw(map_x - delta_x, map_y - delta_y);
 }
 
 void frontmap_zoom_skip_init(LevelNumber lvnum)
 {
-    struct LevelInformation *lvinfo;
-    lvinfo = get_level_info(lvnum);
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
     // Update hostspot to ensign position
     if (lvinfo != NULL)
     {
@@ -528,10 +505,8 @@ void frontmap_zoom_skip_init(LevelNumber lvnum)
 
 void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
 {
-    struct LevelInformation *prev_lvinfo;
-    prev_lvinfo = get_level_info(prev_lvnum);
-    struct LevelInformation *next_lvinfo;
-    next_lvinfo = get_level_info(next_lvnum);
+    struct LevelInformation* prev_lvinfo = get_level_info(prev_lvnum);
+    struct LevelInformation* next_lvinfo = get_level_info(next_lvnum);
     // Update hostspot to ensign position
     if (prev_lvinfo != NULL)
     {
@@ -549,16 +524,14 @@ void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
     {
         // Shift towards next flag, but not too much - old flag pos must be on screen all the time
         // otherwise draw function will clip its coordinates
-        long maxdelta_x, maxdelta_y;
-        maxdelta_x = (lbDisplay.PhysicalScreenWidth*16/units_per_pixel) / 2;
-        maxdelta_y = (lbDisplay.PhysicalScreenHeight*16/units_per_pixel) / 2;
-        long dt_x, dt_y;
-        dt_x = (next_lvinfo->ensign_zoom_x - map_info.hotspot_imgpos_x)/2;
+        long maxdelta_x = (lbDisplay.PhysicalScreenWidth * 16 / units_per_pixel) / 2;
+        long maxdelta_y = (lbDisplay.PhysicalScreenHeight * 16 / units_per_pixel) / 2;
+        long dt_x = (next_lvinfo->ensign_zoom_x - map_info.hotspot_imgpos_x) / 2;
         if (dt_x > maxdelta_x)
             dt_x = maxdelta_x;
         if (dt_x < -maxdelta_x)
             dt_x = -maxdelta_x;
-        dt_y = (next_lvinfo->ensign_zoom_y - map_info.hotspot_imgpos_y)/2;
+        long dt_y = (next_lvinfo->ensign_zoom_y - map_info.hotspot_imgpos_y) / 2;
         if (dt_y > maxdelta_y)
             dt_y = maxdelta_y;
         if (dt_y < -maxdelta_y)
@@ -580,8 +553,7 @@ void frontmap_zoom_out_init(LevelNumber prev_lvnum, LevelNumber next_lvnum)
 
 void frontmap_zoom_in_init(LevelNumber lvnum)
 {
-    struct LevelInformation *lvinfo;
-    lvinfo = get_level_info(lvnum);
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
     // Disable fade so that hostspot function fixes coords correctly
     map_info.fadeflags &= ~MLInfoFlg_Zooming;
     if (lvinfo != NULL)
@@ -608,8 +580,7 @@ void frontmap_zoom_in_init(LevelNumber lvnum)
 
 TbBool frontmap_input_active_ensign(long curr_mx, long curr_my)
 {
-    struct LevelInformation *lvinfo;
-    lvinfo = get_first_level_info();
+    struct LevelInformation* lvinfo = get_first_level_info();
     while (lvinfo != NULL)
     {
       if (lvinfo->state == LvSt_Visible)
@@ -626,8 +597,7 @@ TbBool frontmap_input_active_ensign(long curr_mx, long curr_my)
 
 short clicked_map_level_ensign(void)
 {
-    struct LevelInformation *lvinfo;
-    lvinfo = get_level_info(mouse_over_lvnum);
+    struct LevelInformation* lvinfo = get_level_info(mouse_over_lvnum);
     if (lvinfo != NULL)
     {
       set_selected_level_number(lvinfo->lvnum);
@@ -664,8 +634,7 @@ TbBool stop_description_speech(void)
 
 TbBool play_current_description_speech(short play_good)
 {
-    LevelNumber lvnum;
-    lvnum = get_continue_level_number();
+    LevelNumber lvnum = get_continue_level_number();
     if (!play_good)
         lvnum = prev_singleplayer_level(lvnum);
     return play_description_speech(lvnum,play_good);
@@ -673,11 +642,10 @@ TbBool play_current_description_speech(short play_good)
 
 TbBool play_description_speech(LevelNumber lvnum, short play_good)
 {
-    struct LevelInformation *lvinfo;
     char *fname;
     if (playing_speech_lvnum == lvnum)
       return true;
-    lvinfo = get_level_info(lvnum);
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
     if (lvinfo == NULL)
       return false;
     if (play_good)
@@ -703,8 +671,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
 
 TbBool set_pointer_graphic_spland(long frame)
 {
-    struct TbSprite *spr;
-    spr = get_map_ensign(1);
+    struct TbSprite* spr = get_map_ensign(1);
     if (spr == &dummy_sprite)
       ERRORLOG("Can't get Land view Mouse sprite");
     LbMouseChangeSprite(spr);
@@ -713,35 +680,30 @@ TbBool set_pointer_graphic_spland(long frame)
 
 void frontzoom_to_point(long map_x, long map_y, long zoom)
 {
-    unsigned char *dst_buf;
-    unsigned char *src_buf;
-    unsigned char *dst;
     unsigned char *src;
-    long scr_x,scr_y;
-    long src_delta,bpos_x,bpos_y;
-    long dst_width,dst_height,dst_scanln;
-    long x,y;
-    src_delta = (256 - zoom)*16/units_per_pixel;
-    long smap_x, smap_y;
-    smap_x = map_x*units_per_pixel/16;
-    smap_y = map_y*units_per_pixel/16;
+    long bpos_x;
+    long x;
+    long y;
+    long src_delta = (256 - zoom) * 16 / units_per_pixel;
+    long smap_x = map_x * units_per_pixel / 16;
+    long smap_y = map_y * units_per_pixel / 16;
     // Initializing variables used for all quadres of screen
     // First find a quadres division place - coords bounding the quadres
     // Make sure each quadre is at least one pixel wide and high
-    scr_x = smap_x - map_info.screen_shift_x*units_per_pixel/16;
+    long scr_x = smap_x - map_info.screen_shift_x * units_per_pixel / 16;
     if (scr_x > lbDisplay.PhysicalScreenWidth-1) scr_x = lbDisplay.PhysicalScreenWidth-1;
     if (scr_x < 1) scr_x = 1;
-    scr_y = smap_y - map_info.screen_shift_y*units_per_pixel/16;
+    long scr_y = smap_y - map_info.screen_shift_y * units_per_pixel / 16;
     if (scr_y > lbDisplay.PhysicalScreenHeight-1) scr_y = lbDisplay.PhysicalScreenHeight-1;
     if (scr_y < 1) scr_y = 1;
-    src_buf = &map_screen[LANDVIEW_MAP_WIDTH * map_y + map_x];
-    dst_scanln = lbDisplay.GraphicsScreenWidth;
-    dst_buf = &lbDisplay.WScreen[dst_scanln * scr_y + scr_x];
+    unsigned char* src_buf = &map_screen[LANDVIEW_MAP_WIDTH * map_y + map_x];
+    long dst_scanln = lbDisplay.GraphicsScreenWidth;
+    unsigned char* dst_buf = &lbDisplay.WScreen[dst_scanln * scr_y + scr_x];
     // Drawing first quadre
-    bpos_y = 0;
-    dst = dst_buf;
-    dst_width = scr_x;
-    dst_height = scr_y;
+    long bpos_y = 0;
+    unsigned char* dst = dst_buf;
+    long dst_width = scr_x;
+    long dst_height = scr_y;
     for (y=0; y <= dst_height; y++)
     {
         bpos_x = 0;
@@ -809,10 +771,9 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
 
 void compressed_window_draw(void)
 {
-    long xshift,yshift;
     SYNCDBG(18,"Starting");
-    xshift = map_info.screen_shift_x / 2;
-    yshift = map_info.screen_shift_y / 2;
+    long xshift = map_info.screen_shift_x / 2;
+    long yshift = map_info.screen_shift_y / 2;
     LbHugeSpriteDraw(&map_window, map_window_len,
         lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.PhysicalScreenHeight,
         xshift, yshift, units_per_pixel);
@@ -833,15 +794,10 @@ void unload_map_and_window(void)
 
 TbBool load_map_and_window(LevelNumber lvnum)
 {
-    struct LevelInformation *lvinfo;
-    char *land_view;
-    char *land_window;
-    char *fname;
-    long flen;
     SYNCDBG(8,"Starting");
     // Select proper land view image for the level
-    land_view = NULL;
-    land_window = NULL;
+    char* land_view = NULL;
+    char* land_window = NULL;
     if (lvnum == SINGLEPLAYER_NOTSTARTED)
     {
         land_view = campaign.land_view_start;
@@ -853,7 +809,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
         land_window = campaign.land_window_end;
     } else
     {
-        lvinfo = get_level_info(lvnum);
+        struct LevelInformation* lvinfo = get_level_info(lvnum);
         if (lvinfo != NULL)
         {
             land_view = lvinfo->land_view;
@@ -870,8 +826,8 @@ TbBool load_map_and_window(LevelNumber lvnum)
         return false;
     }
     // Prepare full file name and load the image
-    fname = prepare_file_fmtpath(FGrp_LandView,"%s.raw",land_view);
-    flen = LbFileLengthRnc(fname);
+    char* fname = prepare_file_fmtpath(FGrp_LandView, "%s.raw", land_view);
+    long flen = LbFileLengthRnc(fname);
     if (flen < 1024)
     {
         ERRORLOG("Land Map background \"%s.raw\" doesn't exist or is too small",land_view);
@@ -888,9 +844,8 @@ TbBool load_map_and_window(LevelNumber lvnum)
         return false;
     }
     map_screen = &game.land_map_start;
-    unsigned char *ptr;
     // Texture blocks memory isn't used here, so reuse it instead of allocating
-    ptr = block_mem;
+    unsigned char* ptr = block_mem;
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Now prepare window sprite file name and load the file
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
@@ -954,7 +909,6 @@ void frontnetmap_unload(void)
 
 TbBool frontnetmap_load(void)
 {
-    long i;
     SYNCDBG(8,"Starting");
     if (fe_network_active)
     {
@@ -1003,11 +957,10 @@ TbBool frontnetmap_load(void)
     SetMusicPlayerVolume(settings.redbook_volume);
     if (fe_network_active)
     {
-        struct ScreenPacket *nspck;
         net_number_of_players = 0;
-        for (i=0; i < 4; i++)
+        for (long i = 0; i < 4; i++)
         {
-            nspck = &net_screen_packet[i];
+            struct ScreenPacket* nspck = &net_screen_packet[i];
             if ((nspck->field_4 & 0x01) != 0)
               net_number_of_players++;
         }
@@ -1115,8 +1068,7 @@ TbBool frontmap_load(void)
         strcpy(map_flag_load_files[1].FName, "ldata/lndflag_ens.tab");
         break;
     }
-    LevelNumber lvnum;
-    lvnum = get_continue_level_number();
+    LevelNumber lvnum = get_continue_level_number();
     if (!load_map_and_window(lvnum))
     {
         frontend_load_data_reset();
@@ -1131,8 +1083,7 @@ TbBool frontmap_load(void)
     LbSpriteSetupAll(map_flag_setup_sprites);
     frontend_load_data_reset();
     PlayMusicPlayer(2);
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     lvnum = get_continue_level_number();
     if ((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0)
     {
@@ -1169,17 +1120,16 @@ TbBool frontmap_load(void)
 
 TbBool rectangle_intersects(struct TbRect *rcta, struct TbRect *rctb)
 {
-    long left, top, right, bottom;
-    left = rcta->left;
+    long left = rcta->left;
     if (rcta->left <= rctb->left)
       left = rctb->left;
-    top = rcta->top;
+    long top = rcta->top;
     if (top <= rctb->top)
       top = rctb->top;
-    right = rcta->right;
+    long right = rcta->right;
     if (right >= rctb->right)
       right = rctb->right;
-    bottom = rcta->bottom;
+    long bottom = rcta->bottom;
     if (bottom >= rctb->bottom)
       bottom = rctb->bottom;
     return (left < right) && (top < bottom);
@@ -1187,16 +1137,15 @@ TbBool rectangle_intersects(struct TbRect *rcta, struct TbRect *rctb)
 
 TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
 {
-  struct TbRect rcta;
   struct TbRect rctb;
-  struct ScreenPacket *nspck;
   if (is_my_player_number(plyr_idx))
     return false;
-  nspck = &net_screen_packet[my_player_number];
+  struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
   if ((nspck->field_4 >> 3) == 0x02)
     return false;
   // Rectangle of given player
   nspck = &net_screen_packet[(int)plyr_idx];
+  struct TbRect rcta;
   rcta.left = nspck->field_6 - 7;
   rcta.top = nspck->field_8 - 13;
   rcta.right = rcta.left + 30;
@@ -1247,15 +1196,14 @@ void frontmap_draw(void)
 
 void check_mouse_scroll(void)
 {
-  long mx,my;
-  mx = GetMouseX();
-  if (mx < 8)
-  {
-    map_info.velocity_x -= 8;
-    if (map_info.velocity_x < -48)
-      map_info.velocity_x = -48;
-    if (map_info.velocity_x > 48)
-      map_info.velocity_x = 48;
+    long mx = GetMouseX();
+    if (mx < 8)
+    {
+        map_info.velocity_x -= 8;
+        if (map_info.velocity_x < -48)
+            map_info.velocity_x = -48;
+        if (map_info.velocity_x > 48)
+            map_info.velocity_x = 48;
   } else
   if (mx >= lbDisplay.PhysicalScreenWidth-8)
   {
@@ -1265,7 +1213,7 @@ void check_mouse_scroll(void)
     if (map_info.velocity_x > 48)
       map_info.velocity_x = 48;
   }
-  my = GetMouseY();
+  long my = GetMouseY();
   if (my < 8)
   {
     map_info.velocity_y -= 8;
@@ -1324,8 +1272,13 @@ void draw_netmap_players_hands(void)
   const char *plyr_nam;
   struct TbSprite *spr;
   TbPixel colr;
-  long x,y,w,h;
-  long i,k,n;
+  long x;
+  long y;
+  long w;
+  long h;
+  long i;
+  long k;
+  long n;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
       nspck = &net_screen_packet[i];
@@ -1383,21 +1336,18 @@ void draw_netmap_players_hands(void)
  */
 void draw_map_level_descriptions(void)
 {
-  struct LevelInformation *lvinfo;
-  const char *lv_name;
-  LevelNumber lvnum;
-  long x,y,w,h;
   if ((fe_net_level_selected > 0) || (net_level_hilighted > 0))
   {
     lbDisplay.DrawFlags = 0;
-    lvnum = fe_net_level_selected;
+    LevelNumber lvnum = fe_net_level_selected;
     if (lvnum <= 0)
       lvnum = net_level_hilighted;
-    lvinfo = get_level_info(lvnum);
+    struct LevelInformation* lvinfo = get_level_info(lvnum);
     if (lvinfo == NULL)
       return;
+    const char* lv_name;
     if (lvinfo->name_stridx > 0)
-      lv_name = get_string(lvinfo->name_stridx);
+        lv_name = get_string(lvinfo->name_stridx);
     else
       lv_name = lvinfo->name;
     if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
@@ -1405,10 +1355,10 @@ void draw_map_level_descriptions(void)
     } else {
       snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
     }
-    w = LbTextStringWidth(level_name);
-    x = lvinfo->ensign_x - map_info.screen_shift_x;
-    y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
-    h = LbTextHeight(level_name);
+    long w = LbTextStringWidth(level_name);
+    long x = lvinfo->ensign_x - map_info.screen_shift_x;
+    long y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
+    long h = LbTextHeight(level_name);
     LbDrawBox((x-4)*units_per_pixel/16, y*units_per_pixel/16, (w+8)*units_per_pixel/16, h*units_per_pixel/16, 0);
     LbTextDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, level_name);
   }
@@ -1435,7 +1385,6 @@ void frontmap_input(void)
 {
     SYNCDBG(8,"Starting");
     short zoom_done;
-    long mouse_x,mouse_y;
     if ((map_info.fadeflags & MLInfoFlg_SpeechAfterZoom) != 0)
     {
         if ((map_info.fadeflags & MLInfoFlg_Zooming) == 0)
@@ -1451,8 +1400,7 @@ void frontmap_input(void)
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
         clear_key_pressed(KC_ESCAPE);
-        FrontendMenuState nstate;
-        nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
+        FrontendMenuState nstate = get_menu_state_when_back_from_substate(frontend_menu_state);
         frontend_set_state(nstate);
         LbPaletteStopOpenFade();
         return;
@@ -1500,8 +1448,8 @@ void frontmap_input(void)
         if (clicked_map_level_ensign())
           return;
       }
-      mouse_x = GetMouseX();
-      mouse_y = GetMouseY();
+      long mouse_x = GetMouseX();
+      long mouse_y = GetMouseY();
       frontmap_input_active_ensign(mouse_x, mouse_y);
     }
     update_velocity();
@@ -1509,7 +1457,6 @@ void frontmap_input(void)
 
 void frontnetmap_input(void)
 {
-  struct LevelInformation *lvinfo;
   if (lbKeyOn[KC_ESCAPE])
   {
       fe_net_level_selected = LEVELNUMBER_ERROR;
@@ -1520,16 +1467,17 @@ void frontnetmap_input(void)
 
   if (net_map_limp_time == 0)
   {
-    if (right_button_clicked)
-    {
-        right_button_clicked = 0;
-        if (fe_net_level_selected == SINGLEPLAYER_NOTSTARTED)
-        {
-            if ((!net_map_slap_frame) && (!net_map_limp_time))
-            {
-                net_map_slap_frame = 9;
-            }
-        } else
+      struct LevelInformation* lvinfo;
+      if (right_button_clicked)
+      {
+          right_button_clicked = 0;
+          if (fe_net_level_selected == SINGLEPLAYER_NOTSTARTED)
+          {
+              if ((!net_map_slap_frame) && (!net_map_limp_time))
+              {
+                  net_map_slap_frame = 9;
+              }
+          } else
         {
             lvinfo = get_level_info(fe_net_level_selected);
             if (lvinfo != NULL) {
@@ -1620,11 +1568,8 @@ long frontmap_update(void)
 
 TbBool frontmap_exchange_screen_packet(void)
 {
-    struct ScreenPacket *nspck;
-    struct LevelInformation *lvinfo;
-    struct TbSprite *spr;
     LbMemorySet(net_screen_packet, 0, sizeof(net_screen_packet));
-    nspck = &net_screen_packet[my_player_number];
+    struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
     nspck->field_4 |= 0x01;
     nspck->param1 = fe_net_level_selected;
     if (net_map_limp_time > 0)
@@ -1643,8 +1588,8 @@ TbBool frontmap_exchange_screen_packet(void)
     } else
     if (fe_net_level_selected > 0)
     {
-        spr = get_map_ensign(1);
-        lvinfo = get_level_info(fe_net_level_selected);
+        struct TbSprite* spr = get_map_ensign(1);
+        struct LevelInformation* lvinfo = get_level_info(fe_net_level_selected);
         if (lvinfo != NULL)
         {
             nspck->field_6 = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
@@ -1682,15 +1627,11 @@ TbBool frontmap_exchange_screen_packet(void)
 
 TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
 {
-    LevelNumber pckt_lvnum;
-    long i;
-    long tmp2;
     LbMemorySet(scratch, 0, PALETTE_SIZE);
-    tmp2 = -1;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    long tmp2 = -1;
+    for (long i = 0; i < NET_PLAYERS_COUNT; i++)
     {
-        struct ScreenPacket *nspck;
-        nspck = &net_screen_packet[i];
+        struct ScreenPacket* nspck = &net_screen_packet[i];
         if ((nspck->field_4 & 0x01) == 0)
           continue;
         if (nspck->param1 == LEVELNUMBER_ERROR)
@@ -1712,7 +1653,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
         } else
         {
             //TODO FRONTEND This is so wrong - remove casting when param1 is changed to int
-            pckt_lvnum = (unsigned char)nspck->param1;
+            LevelNumber pckt_lvnum = (unsigned char)nspck->param1;
             scratch[pckt_lvnum]++;
             if (scratch[pckt_lvnum] == tmp2)
             {
@@ -1744,7 +1685,6 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
 
 TbBool frontnetmap_update(void)
 {
-    struct NetMapPlayersState nmps;
     long i;
     SYNCDBG(8,"Starting");
     if (map_sound_fade > 0)
@@ -1756,6 +1696,7 @@ TbBool frontnetmap_update(void)
     }
     SetMusicPlayerVolume(i);
 
+    struct NetMapPlayersState nmps;
     nmps.tmp1 = 0;
     nmps.lvnum = SINGLEPLAYER_NOTSTARTED;
     nmps.is_selected = false;

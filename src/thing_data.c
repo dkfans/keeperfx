@@ -39,9 +39,8 @@ extern "C" {
 struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const char *func_name)
 {
     struct Thing *thing;
-    long i;
     // Get a thing from "free things list"
-    i = game.free_things_start_index;
+    long i = game.free_things_start_index;
     // If there is no free thing, try to free an effect
     if (i >= THINGS_COUNT-1)
     {
@@ -115,8 +114,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
  */
 TbBool is_in_free_things_list(long tng_idx)
 {
-    int i;
-    for (i=game.free_things_start_index; i < THINGS_COUNT-1; i++)
+    for (int i = game.free_things_start_index; i < THINGS_COUNT - 1; i++)
     {
         if (game.free_things[i] == tng_idx)
             return true;
@@ -137,8 +135,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
             thing->light_id = 0;
         }
     }
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (!creature_control_invalid(cctrl))
     {
       if ( !a2 )
@@ -185,8 +182,7 @@ struct Thing *thing_get_f(long tng_idx, const char *func_name)
 
 long thing_get_index(const struct Thing *thing)
 {
-    long tng_idx;
-    tng_idx = (thing - game.things.lookup[0]);
+    long tng_idx = (thing - game.things.lookup[0]);
     if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
         return tng_idx;
     return 0;

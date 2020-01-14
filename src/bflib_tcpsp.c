@@ -87,10 +87,9 @@ const struct NetSP tcpSP =
 
 static TbBool clear_peer(NetUserId id)
 {
-    unsigned i;
-
     if (spstate.ishost) {
-        for (i = 0; i < MAX_N_PEERS; ++i) {
+        for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
+        {
             if (spstate.peers[i].id == id) {
                 if (spstate.peers[i].socket != NULL) {
                     SDLNet_TCP_DelSocket(spstate.socketset, spstate.peers[i].socket);
@@ -121,10 +120,9 @@ static TbBool clear_peer(NetUserId id)
 
 static TCPsocket find_peer_socket(NetUserId id)
 {
-    unsigned i;
-
     if (spstate.ishost) {
-        for (i = 0; i < MAX_N_PEERS; ++i) {
+        for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
+        {
             if (spstate.peers[i].id == id) {
                 return spstate.peers[i].socket;
             }
@@ -142,10 +140,9 @@ static TCPsocket find_peer_socket(NetUserId id)
 
 static struct Msg * find_peer_message(NetUserId id)
 {
-    unsigned i;
-
     if (spstate.ishost) {
-        for (i = 0; i < MAX_N_PEERS; ++i) {
+        for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
+        {
             if (spstate.peers[i].id == id) {
                 return &spstate.peers[i].msg;
             }
@@ -316,10 +313,9 @@ static TbError tcpSP_init(NetDropCallback drop_callback)
 
 static void tcpSP_exit(void)
 {
-    unsigned i;
-
     if (spstate.ishost) {
-        for (i = 0; i < MAX_N_PEERS; ++i) {
+        for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
+        {
             SDLNet_TCP_Close(spstate.peers[i].socket);
             LbMemoryFree(spstate.peers[i].msg.buffer);
         }
@@ -337,13 +333,10 @@ static void tcpSP_exit(void)
 
 static TbError tcpSP_host(const char * session, void * options)
 {
-    IPaddress addr;
-    const char * portstr;
-
     assert(session);
     NETDBG(4, "Creating TCP server SP for session %s", session);
 
-    portstr = session;
+    const char* portstr = session;
     while (*portstr != 0 && *portstr != ':') {
         ++portstr;
     }
@@ -351,6 +344,7 @@ static TbError tcpSP_host(const char * session, void * options)
         ++portstr;
     }
 
+    IPaddress addr;
     addr.host = INADDR_ANY;
     SDLNet_Write16(atoi(portstr), &addr.port);
 
@@ -368,19 +362,14 @@ static TbError tcpSP_host(const char * session, void * options)
 
 static TbError tcpSP_join(const char * session, void * options)
 {
-    IPaddress addr;
-    char * hostname;
-    char * portstr;
-    size_t size;
-
     assert(session);
     NETDBG(4, "Creating TCP client SP for session %s", session);
 
-    size = LbStringLength(session) + 1;
-    hostname = (char*) LbMemoryAlloc(size);
+    size_t size = LbStringLength(session) + 1;
+    char* hostname = (char*)LbMemoryAlloc(size);
     LbStringCopy(hostname, session, size);
 
-    portstr = hostname;
+    char* portstr = hostname;
     while (*portstr != 0 && *portstr != ':') {
         ++portstr;
     }
@@ -389,6 +378,7 @@ static TbError tcpSP_join(const char * session, void * options)
         ++portstr;
     }
 
+    IPaddress addr;
     SDLNet_ResolveHost(&addr, hostname, atoi(portstr));
 
     spstate.socket = SDLNet_TCP_Open(&addr);
@@ -409,10 +399,6 @@ static TbError tcpSP_join(const char * session, void * options)
 
 static void tcpSP_update(NetNewUserCallback new_user)
 {
-    TCPsocket new_socket;
-    unsigned index;
-    NetUserId id;
-
     assert(new_user);
     NETDBG(8, "Starting");
 
@@ -420,14 +406,20 @@ static void tcpSP_update(NetNewUserCallback new_user)
         return; //clients don't need to do anything here
     }
 
-    while ((new_socket = SDLNet_TCP_Accept(spstate.socket)) != NULL) { //does not block
-        for (index = 0; index < MAX_N_PEERS; ++index) {
+    TCPsocket new_socket;
+    while ((new_socket = SDLNet_TCP_Accept(spstate.socket)) != NULL)
+    { //does not block
+        unsigned index;
+        for (index = 0; index < MAX_N_PEERS; ++index)
+        {
             if (spstate.peers[index].socket == NULL) {
                 break;
             }
         }
 
-        if (index < MAX_N_PEERS && new_user(&id)) {
+        NetUserId id;
+        if (index < MAX_N_PEERS && new_user(&id))
+        {
             spstate.peers[index].id = id;
             spstate.peers[index].socket = new_socket;
             SDLNet_TCP_AddSocket(spstate.socketset, new_socket);
@@ -459,23 +451,20 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
 
 static void tcpSP_sendmsg_all(const char * buffer, size_t size)
 {
-    unsigned i;
-    NetUserId id;
-
     assert(buffer);
     assert(size > 0);
     NETDBG(9, "Starting for buffer of %u bytes", size);
 
     if (spstate.ishost) {
-        for (i = 0; i < MAX_N_PEERS; ++i) {
+        for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
+        {
             if (spstate.peers[i].socket == NULL) {
                 continue;
             }
 
             if (    send_buffer(spstate.peers[i].socket, (const char*) &size, 4) == Lb_FAIL ||
                     send_buffer(spstate.peers[i].socket, buffer, size) == Lb_FAIL) {
-
-                id = spstate.peers[i].id;
+                NetUserId id = spstate.peers[i].id;
                 clear_peer(id);
                 if (spstate.drop_callback) {
                     spstate.drop_callback(id, NETDROP_ERROR);
@@ -496,11 +485,9 @@ static void tcpSP_sendmsg_all(const char * buffer, size_t size)
 
 static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
 {
-    struct Msg * msg;
-
     NETDBG(9, "Starting message ready check for user %u", source);
 
-    msg = find_peer_message(source);
+    struct Msg* msg = find_peer_message(source);
     if (!msg) {
         return 0;
     }
@@ -527,14 +514,13 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
 
 static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
 {
-    struct Msg * msg;
     size_t size;
 
     assert(buffer);
     assert(max_size > 0);
     NETDBG(9, "Starting read from user %u", source);
 
-    msg = find_peer_message(source);
+    struct Msg* msg = find_peer_message(source);
     if (!msg) {
         return 0;
     }

@@ -71,7 +71,8 @@ TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_
 TbResult LbMouseSetup(struct TbSprite *pointerSprite)
 {
   TbResult ret;
-  long x,y;
+  long x;
+  long y;
   if (lbMouseInstalled)
     LbMouseSuspend();
   y = (lbDisplay.MouseWindowHeight + lbDisplay.MouseWindowY) / 2;

@@ -29,10 +29,8 @@ struct Dungeon bad_dungeon;
 /******************************************************************************/
 struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name)
 {
-    struct PlayerInfo *player;
-    PlayerNumber plyr_num;
-    player = get_player(plyr_idx);
-    plyr_num = player->id_number;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    PlayerNumber plyr_num = player->id_number;
     if (player_invalid(player) || (plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
         ERRORMSG("%s: Tried to get players %d non-existing dungeon %d!",func_name,(int)plyr_idx,(int)plyr_num);
@@ -47,8 +45,7 @@ struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name)
 
 struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char *func_name)
 {
-    PlayerNumber plyr_num;
-    plyr_num = player->id_number;
+    PlayerNumber plyr_num = player->id_number;
     if (player_invalid(player) || (plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
         ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
@@ -77,8 +74,7 @@ TbBool dungeon_invalid(const struct Dungeon *dungeon)
 void clear_dungeons(void)
 {
   SYNCDBG(6,"Starting");
-  int i;
-  for (i=0; i < DUNGEONS_COUNT; i++)
+  for (int i = 0; i < DUNGEONS_COUNT; i++)
   {
       LbMemorySet(&game.dungeon[i], 0, sizeof(struct Dungeon));
       game.dungeon[i].owner = PLAYERS_COUNT;
@@ -92,10 +88,9 @@ void clear_dungeons(void)
 
 void decrease_dungeon_area(PlayerNumber plyr_idx, long value)
 {
-    struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
         return;
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon->total_area < value)
       dungeon->total_area = 0;
     else
@@ -104,20 +99,18 @@ void decrease_dungeon_area(PlayerNumber plyr_idx, long value)
 
 void increase_room_area(PlayerNumber plyr_idx, long value)
 {
-    struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
         return;
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     dungeon->room_manage_area += value;
     dungeon->total_area += value;
 }
 
 void decrease_room_area(PlayerNumber plyr_idx, long value)
 {
-    struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
         return;
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
 
     if (dungeon->room_manage_area < value)
       dungeon->room_manage_area = 0;
@@ -132,10 +125,9 @@ void decrease_room_area(PlayerNumber plyr_idx, long value)
 
 void increase_dungeon_area(PlayerNumber plyr_idx, long value)
 {
-    struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
         return;
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     dungeon->total_area += value;
 }
 
@@ -145,10 +137,9 @@ void player_add_offmap_gold(PlayerNumber plyr_idx, GoldAmount value)
         WARNLOG("Cannot give gold to neutral player %d",(int)plyr_idx);
         return;
     }
-    struct Dungeon *dungeon;
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("Cannot give gold player %d with no dungeon",(int)plyr_idx);
         return;
@@ -169,10 +160,9 @@ void player_add_offmap_gold(PlayerNumber plyr_idx, GoldAmount value)
  */
 TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
         return false;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     return (dungeon->room_kind[rkind] > 0);
 }
 
@@ -184,12 +174,10 @@ TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind)
  */
 TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
-    struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
         return false;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    RoomKind rkind;
-    for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
         {
@@ -202,8 +190,7 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
 
 struct Thing *get_player_soul_container(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon->dnheart_idx > 0) {
         return thing_get(dungeon->dnheart_idx);
     }
@@ -234,10 +221,9 @@ TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
 
 TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)
 {
-    const struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
         return false;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    const struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     switch (tend_type)
     {
     case CrTend_Imprison:
@@ -252,8 +238,7 @@ TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)
 
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(player->id_number);
+    struct Dungeon* dungeon = get_dungeon(player->id_number);
     switch (tend_type)
     {
     case CrTend_Imprison:
@@ -270,8 +255,7 @@ TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend
 
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(player->id_number);
+    struct Dungeon* dungeon = get_dungeon(player->id_number);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Can't set tendency; player %d has no dungeon.",(int)player->id_number);
         return false;
@@ -292,12 +276,11 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
 
 TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
 {
-    struct Dungeon *dungeon;
     if ( (tngmodel <= 0) || (tngmodel >= TRAP_TYPES_COUNT) ) {
         ERRORDBG(1,"Can't set trap availability; invalid trap kind %d.",(int)tngmodel);
         return false;
     }
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORDBG(11,"Can't set trap availability; player %d has no dungeon.",(int)plyr_idx);
         return false;
@@ -313,12 +296,11 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
 
 TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
 {
-    struct Dungeon *dungeon;
     if ( (tngmodel <= 0) || (tngmodel >= DOOR_TYPES_COUNT) ) {
         ERRORDBG(1,"Can't set door availability; invalid door kind %d.",(int)tngmodel);
         return false;
     }
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORDBG(11,"Can't set door availability; player %d has no dungeon.",(int)plyr_idx);
         return false;
@@ -338,8 +320,7 @@ TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
  */
 TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon)
 {
-    ThingModel tngmodel;
-    for (tngmodel = 1; tngmodel < trapdoor_conf.trap_types_count; tngmodel++)
+    for (ThingModel tngmodel = 1; tngmodel < trapdoor_conf.trap_types_count; tngmodel++)
     {
         if ((dungeon->trap_amount_stored[tngmodel] + dungeon->trap_amount_offmap[tngmodel]) > 0)
             return true;
@@ -354,8 +335,7 @@ TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon)
  */
 TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon)
 {
-    ThingModel tngmodel;
-    for (tngmodel = 1; tngmodel < trapdoor_conf.door_types_count; tngmodel++)
+    for (ThingModel tngmodel = 1; tngmodel < trapdoor_conf.door_types_count; tngmodel++)
     {
         if ((dungeon->door_amount_stored[tngmodel] + dungeon->door_amount_offmap[tngmodel]) > 0)
             return true;
@@ -366,12 +346,11 @@ TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon)
 
 TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
 {
-    struct Dungeon *dungeon;
     if ( (timer_id < 0) || (timer_id >= TURN_TIMERS_COUNT) ) {
         ERRORLOG("Can't restart timer; invalid timer id %d.",(int)timer_id);
         return false;
     }
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Can't restart timer; player %d has no dungeon.",(int)plyr_idx);
         return false;
@@ -383,12 +362,11 @@ TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
 
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)
 {
-    struct Dungeon *dungeon;
     if ( (flag_id < 0) || (flag_id >= SCRIPT_FLAGS_COUNT) ) {
         ERRORLOG("Can't set flag; invalid flag id %d.",(int)flag_id);
         return false;
     }
-    dungeon = get_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Can't set flag; player %d has no dungeon",(int)plyr_idx);
         return false;
@@ -403,8 +381,7 @@ TbBool mark_creature_joined_dungeon(struct Thing *creatng)
         // Neutral player has no dungeon
         return false;
     }
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(creatng->owner);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Can't mark; player %d has no dungeon",(int)creatng->owner);
         return false;
@@ -422,10 +399,8 @@ TbBool mark_creature_joined_dungeon(struct Thing *creatng)
 
 void init_dungeon_essential_position(struct Dungeon *dungeon)
 {
-    struct Room *room;
-    room = room_get(dungeon->room_kind[RoK_DUNGHEART]);
-    RoomKind rkind;
-    for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+    struct Room* room = room_get(dungeon->room_kind[RoK_DUNGHEART]);
+    for (RoomKind rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
     {
         if (!room_is_invalid(room))
             break;
@@ -444,22 +419,18 @@ void init_dungeon_essential_position(struct Dungeon *dungeon)
 
 void init_dungeons_essential_position(void)
 {
-    int i;
-    for (i=0; i < DUNGEONS_COUNT; i++)
+    for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
-        struct Dungeon *dungeon;
-        dungeon = get_dungeon(i);
+        struct Dungeon* dungeon = get_dungeon(i);
         init_dungeon_essential_position(dungeon);
     }
 }
 
 const struct Coord3d *dungeon_get_essential_pos(PlayerNumber plyr_idx)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon->dnheart_idx > 0) {
-        struct Thing *heartng;
-        heartng = thing_get(dungeon->dnheart_idx);
+        struct Thing* heartng = thing_get(dungeon->dnheart_idx);
         if (thing_exists(heartng)) {
             return &heartng->mappos;
         }
@@ -469,11 +440,9 @@ const struct Coord3d *dungeon_get_essential_pos(PlayerNumber plyr_idx)
 
 void init_dungeons(void)
 {
-    int i,k;
-    struct Dungeon *dungeon;
-    for (i=0; i < DUNGEONS_COUNT; i++)
+    for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
-        dungeon = get_dungeon(game.hero_player_num);
+        struct Dungeon* dungeon = get_dungeon(game.hero_player_num);
         dungeon->hates_player[i] = game.fight_max_hate;
         dungeon = get_dungeon(i);
         dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.fight_max_hate;
@@ -485,7 +454,7 @@ void init_dungeons(void)
         dungeon->max_creatures_attracted = game.default_max_crtrs_gen_entrance;
         dungeon->dead_creatures_count = 0;
         dungeon->dead_creature_idx = 0;
-        for (k=0; k < DUNGEONS_COUNT; k++)
+        for (int k = 0; k < DUNGEONS_COUNT; k++)
         {
           if (k == i)
             dungeon->hates_player[k] = game.fight_max_love;

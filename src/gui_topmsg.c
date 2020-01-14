@@ -49,8 +49,7 @@ int last_checked_stat_num = 0;
 /******************************************************************************/
 void erstats_clear(void)
 {
-    int stat_num;
-    for (stat_num=0; stat_num < sizeof(erstat)/sizeof(erstat[0]); stat_num++)
+    for (int stat_num = 0; stat_num < sizeof(erstat) / sizeof(erstat[0]); stat_num++)
     {
         erstat[stat_num].n = 0;
         erstat[stat_num].nprv = 0;
@@ -80,22 +79,20 @@ TbBool is_onscreen_msg_visible(void)
 
 TbBool show_onscreen_msg(int nturns, const char *fmt_str, ...)
 {
-    short result;
     va_list val;
     va_start(val, fmt_str);
-    result=show_onscreen_msg_va(nturns, fmt_str, val);
+    short result = show_onscreen_msg_va(nturns, fmt_str, val);
     va_end(val);
     return result;
 }
 
 TbBool erstat_check(void)
 {
-    int stat_num,sdiff;
     // Don't check more often than every 7 turns
     if ((game.play_gameturn & 0x07) != 0)
         return false;
-    stat_num = last_checked_stat_num;
-    sdiff = erstat[stat_num].n - erstat[stat_num].nprv;
+    int stat_num = last_checked_stat_num;
+    int sdiff = erstat[stat_num].n - erstat[stat_num].nprv;
     // Display an error if any things were not created in this game turn
     if (sdiff != 0)
     {
@@ -116,7 +113,6 @@ TbBool erstat_check(void)
  */
 TbBool draw_onscreen_direct_messages(void)
 {
-    unsigned int msg_pos;
     SYNCDBG(5,"Starting");
     // Display in-game message for debug purposes
     if ((onscreen_msg_turns > 0) || erstat_check())
@@ -125,7 +121,7 @@ TbBool draw_onscreen_direct_messages(void)
           LbTextDraw(260*units_per_pixel/16, 0*units_per_pixel/16, onscreen_msg_text);
         onscreen_msg_turns--;
     }
-    msg_pos = 200;
+    unsigned int msg_pos = 200;
     if ((game.system_flags & GSF_NetGameNoSync) != 0)
     {
         ERRORLOG("OUT OF SYNC (GameTurn %7d)", game.play_gameturn);

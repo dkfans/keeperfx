@@ -102,8 +102,7 @@ void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
-    long key_id;
-    key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
+    long key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < GAME_KEYS_COUNT)) & LbBtnF_Enabled;
 }
 
@@ -128,8 +127,7 @@ void frontend_define_key_scroll(struct GuiButton *gbtn)
 
 void frontend_define_key(struct GuiButton *gbtn)
 {
-    long key_id;
-    key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
+    long key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
     defining_a_key = 1;
     defining_a_key_id = key_id;
     lbInkey = 0;
@@ -142,23 +140,20 @@ void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
 {
-    long content, key_id;
-    content = (long)gbtn->content;
-    key_id = define_key_scroll_offset - content - 1;
+    long content = (long)gbtn->content;
+    long key_id = define_key_scroll_offset - content - 1;
     if (key_id >= GAME_KEYS_COUNT) {
         return;
     }
-    unsigned char code;
-    code = settings.kbkeys[key_id].code;
-    long i;
-    char chbuf[4];
+    unsigned char code = settings.kbkeys[key_id].code;
     const char * keyname;
-    i = key_to_string[code];
+    long i = key_to_string[code];
     if (i >= 0)
     {
         keyname = get_string(i);
     } else
     {
+        char chbuf[4];
         chbuf[0] = -(char)i;
         chbuf[1] = 0;
         keyname = chbuf;
@@ -169,15 +164,12 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         LbTextSetFont(frontend_font[1]);
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    int tx_units_per_px;
     // This text is a bit condensed - button size is smaller than text height
-    tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
+    int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    int height;
-    height = LbTextLineHeight() * tx_units_per_px / 16;
+    int height = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(definable_key_string[key_id]));
-    unsigned char mods;
-    mods = settings.kbkeys[key_id].mods;
+    unsigned char mods = settings.kbkeys[key_id].mods;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
 
     char text[255];
@@ -234,8 +226,7 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
-    struct Packet *pckt;
-    pckt = get_packet(my_player_number);
+    struct Packet* pckt = get_packet(my_player_number);
     if (settings.video_rotate_mode) {
         set_packet_action(pckt, PckA_SwitchView, 5, 0, 0, 0);
     } else {
@@ -246,15 +237,13 @@ void gui_video_rotate_mode(struct GuiButton *gbtn)
 
 void gui_video_cluedo_mode(struct GuiButton *gbtn)
 {
-    struct Packet *pckt;
-    pckt = get_packet(my_player_number);
+    struct Packet* pckt = get_packet(my_player_number);
     set_packet_action(pckt, PckA_SetCluedo, _DK_video_cluedo_mode, 0, 0, 0);
 }
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     video_gamma_correction = (video_gamma_correction + 1) % GAMMA_LEVELS_COUNT;
     set_players_packet_action(player, PckA_SetGammaLevel, video_gamma_correction, 0, 0, 0);
 }
@@ -281,8 +270,7 @@ void gui_set_music_volume(struct GuiButton *gbtn)
 
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo* player = get_my_player();
     if (player->view_mode == PVM_FrontView)
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
@@ -308,12 +296,10 @@ void frontend_invert_mouse(struct GuiButton *gbtn)
 
 void frontend_draw_invert_mouse(struct GuiButton *gbtn)
 {
-    int font_idx;
-    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
+    int font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    int tx_units_per_px;
-    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    int tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     const char *text;
     if (settings.first_person_move_invert) {
         text = get_string(GUIStr_On);

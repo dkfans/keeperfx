@@ -121,7 +121,8 @@ long find_in_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task
 
 long find_in_imp_stack_task_other_than_starting_at(SpDiggerTaskType excl_task_type, long start_pos, const struct Dungeon *dungeon)
 {
-    long i, n;
+    long i;
+    long n;
     long stack_len;
     stack_len = dungeon->digger_stack_length;
     n = start_pos;
@@ -139,7 +140,8 @@ long find_in_imp_stack_task_other_than_starting_at(SpDiggerTaskType excl_task_ty
 
 long find_in_imp_stack_starting_at(SpDiggerTaskType task_type, long start_pos, const struct Dungeon *dungeon)
 {
-    long i, n;
+    long i;
+    long n;
     long stack_len;
     stack_len = dungeon->digger_stack_length;
     n = start_pos;
@@ -210,7 +212,8 @@ TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSub
             {
               if ((cctrl->moveto_pos.x.stl.num == stl_x) && (cctrl->moveto_pos.y.stl.num == stl_y))
               {
-                  MapCoordDelta dist_other, dist_creatng;
+                  MapCoordDelta dist_other;
+                  MapCoordDelta dist_creatng;
                   dist_other = get_2d_box_distance(&thing->mappos, &pos2);
                   dist_creatng = get_2d_box_distance(&creatng->mappos, &pos2);
                   if (dist_other <= dist_creatng)
@@ -399,7 +402,8 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     int min_dist;
     int min_taskid;
     struct Coord3d min_pos;
-    MapSubtlCoord srcstl_x, srcstl_y;
+    MapSubtlCoord srcstl_x;
+    MapSubtlCoord srcstl_y;
     min_dist = 28;
     srcstl_x = thing->mappos.x.stl.num;
     srcstl_y = thing->mappos.y.stl.num;
@@ -410,8 +414,10 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
         if ((dstack->task_type != DigTsk_ImproveDungeon) && (dstack->task_type != DigTsk_ConvertDungeon)) {
             continue;
         }
-        MapSubtlCoord stl_x, stl_y;
-        MapSlabCoord slb_x, slb_y;
+        MapSubtlCoord stl_x;
+        MapSubtlCoord stl_y;
+        MapSlabCoord slb_x;
+        MapSlabCoord slb_y;
         stl_x = stl_num_decode_x(dstack->stl_num);
         stl_y = stl_num_decode_y(dstack->stl_num);
         slb_x = map_to_slab[stl_x];
@@ -496,7 +502,8 @@ long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSlabCoor
 
 TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     if ((slb_x < 0) || (slb_x >= map_tiles_x)) {
         return false;
     }
@@ -521,9 +528,13 @@ TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, Map
 long check_out_unconverted_spiral(struct Thing *thing, long nslabs)
 {
     const struct Around *arnd;
-    long slb_x,slb_y;
-    long slabi,arndi;
-    long i,imax,k;
+    long slb_x;
+    long slb_y;
+    long slabi;
+    long arndi;
+    long i;
+    long imax;
+    long k;
     SYNCDBG(9,"Starting");
     TRACE_THING(thing);
 
@@ -566,7 +577,8 @@ long check_out_unconverted_spiral(struct Thing *thing, long nslabs)
 
 TbBool check_out_unprettied_spot(struct Thing *creatng, long slb_x, long slb_y)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     if ((slb_x < 0) || (slb_x >= map_tiles_x)) {
         return false;
     }
@@ -591,9 +603,13 @@ TbBool check_out_unprettied_spot(struct Thing *creatng, long slb_x, long slb_y)
 long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
 {
     const struct Around *arnd;
-    long slb_x,slb_y;
-    long slabi,arndi;
-    long i,imax,k;
+    long slb_x;
+    long slb_y;
+    long slabi;
+    long arndi;
+    long i;
+    long imax;
+    long k;
     SYNCDBG(9,"Starting");
     TRACE_THING(thing);
 
@@ -770,8 +786,10 @@ long check_out_unreinforced_area(struct Thing *thing)
 
 TbBool check_out_unconverted_place(struct Thing *thing)
 {
-    long stl_x,stl_y;
-    long slb_x,slb_y;
+    long stl_x;
+    long stl_y;
+    long slb_x;
+    long slb_y;
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
@@ -796,22 +814,23 @@ TbBool check_out_unconverted_place(struct Thing *thing)
 
 long check_out_unprettied_place(struct Thing *thing)
 {
-  long stl_x,stl_y;
-  long slb_x,slb_y;
-  SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-  TRACE_THING(thing);
-  slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-  slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
-  stl_x = slab_subtile_center(slb_x);
-  stl_y = slab_subtile_center(slb_y);
-  if ( check_place_to_pretty_excluding(thing, slb_x, slb_y)
-    && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
-  {
-      if (setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
-      {
-          thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
-          return true;
-      }
+    long stl_x;
+    long stl_y;
+    long slb_x;
+    long slb_y;
+    SYNCDBG(19, "Starting for %s index %d", thing_model_name(thing), (int)thing->index);
+    TRACE_THING(thing);
+    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    stl_x = slab_subtile_center(slb_x);
+    stl_y = slab_subtile_center(slb_y);
+    if (check_place_to_pretty_excluding(thing, slb_x, slb_y) && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+    {
+        if (setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
+        {
+            thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
+            return true;
+        }
   }
   if ( check_out_unprettied_spiral(thing, 1) )
   {
@@ -829,7 +848,8 @@ TbBool is_digging_indestructible_place(const struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    MapSlabCoord slb_x,slb_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     slb_x = subtile_slab_fast(stl_num_decode_x(cctrl->digger.task_stl));
     slb_y = subtile_slab_fast(stl_num_decode_y(cctrl->digger.task_stl));
     SYNCDBG(19,"Starting for %s index %d at %d,%d",thing_model_name(creatng),(int)creatng->index,(int)slb_x,(int)slb_y);
@@ -851,8 +871,10 @@ TbBool is_digging_indestructible_place(const struct Thing *creatng)
 long check_out_undug_place(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    MapSubtlCoord base_stl_x,base_stl_y;
-    long i,n;
+    MapSubtlCoord base_stl_x;
+    MapSubtlCoord base_stl_y;
+    long i;
+    long n;
     SYNCDBG(19,"Starting");
     cctrl = creature_control_get_from_thing(creatng);
     base_stl_x = stl_num_decode_x(cctrl->digger.task_stl);
@@ -862,7 +884,8 @@ long check_out_undug_place(struct Thing *creatng)
     {
         struct MapTask* mtask;
         SubtlCodedCoords task_pos;
-        MapSlabCoord slb_x,slb_y;
+        MapSlabCoord slb_x;
+        MapSlabCoord slb_y;
         long task_idx;
         slb_x = subtile_slab_fast(base_stl_x)+small_around[n].delta_x;
         slb_y = subtile_slab_fast(base_stl_y)+small_around[n].delta_y;
@@ -870,7 +893,8 @@ long check_out_undug_place(struct Thing *creatng)
         task_idx = find_dig_from_task_list(creatng->owner, task_pos);
         if (task_idx != -1)
         {
-            long mv_x,mv_y;
+            long mv_x;
+            long mv_y;
             mv_x = 0; mv_y = 0;
             if (check_place_to_dig_and_get_position(creatng, task_pos, &mv_x, &mv_y)
                 && setup_person_move_to_position(creatng, mv_x, mv_y, NavRtF_Default))
@@ -897,7 +921,9 @@ long get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx
 {
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
-    long i,n,tsk_max;
+    long i;
+    long n;
+    long tsk_max;
     tsk_max = dungeon->field_AF7;
     if (tsk_max > MAPTASKS_COUNT)
         tsk_max = MAPTASKS_COUNT;
@@ -913,7 +939,8 @@ long get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx
             continue;
         if (mtask->kind == SDDigTask_MineGold)
         {
-            MapSubtlCoord tsk_stl_x,tsk_stl_y;
+            MapSubtlCoord tsk_stl_x;
+            MapSubtlCoord tsk_stl_y;
             if (check_place_to_dig_and_get_drop_position(plyr_idx, mtask->coords, &tsk_stl_x, &tsk_stl_y))
             {
                 if (can_drop_thing_here(tsk_stl_x, tsk_stl_y, plyr_idx, 1))
@@ -936,15 +963,18 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
     dungeon = get_dungeon(thing->owner);
     cctrl = creature_control_get_from_thing(thing);
     struct MapTask *mtask;
-    long i,tsk_max;
+    long i;
+    long tsk_max;
     tsk_max = dungeon->field_AF7;
     if (tsk_max > MAPTASKS_COUNT)
         tsk_max = MAPTASKS_COUNT;
-    MapSubtlCoord digstl_y, digstl_x;
+    MapSubtlCoord digstl_y;
+    MapSubtlCoord digstl_x;
     digstl_x = stl_num_decode_x(cctrl->digger.task_stl);
     digstl_y = stl_num_decode_y(cctrl->digger.task_stl);
     MapSubtlCoord best_dist;
-    MapSubtlCoord best_stl_x, best_stl_y;
+    MapSubtlCoord best_stl_x;
+    MapSubtlCoord best_stl_y;
     int best_tsk_id;
     best_dist = UNDUG_MAX_DIST;
     best_tsk_id = -1;
@@ -963,7 +993,8 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
             tsk_dist = get_2d_box_distance_xy(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
             if (tsk_dist < best_dist)
             {
-                MapSubtlCoord tsk_stl_x,tsk_stl_y;
+                MapSubtlCoord tsk_stl_x;
+                MapSubtlCoord tsk_stl_y;
                 if (check_place_to_dig_and_get_position(thing, tsk_stl_num, &tsk_stl_x, &tsk_stl_y))
                 {
                     best_dist = tsk_dist;
@@ -986,7 +1017,8 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
 long check_out_undug_area(struct Thing *thing)
 {
     SYNCDBG(19,"Starting");
-    MapSubtlCoord stl_x, stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     int tsk_id;
     stl_x = -1;
     stl_y = -1;
@@ -1016,7 +1048,8 @@ long check_out_undug_area(struct Thing *thing)
 int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     struct MapTask* mtask;
-    long stl_x, stl_y;
+    long stl_x;
+    long stl_y;
     long i;
     SYNCDBG(18,"Starting");
     int remain_num;
@@ -1047,7 +1080,8 @@ int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 int add_gems_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
 {
     struct MapTask* mtask;
-    long stl_x, stl_y;
+    long stl_x;
+    long stl_y;
     long i;
     SYNCDBG(18,"Starting");
     int remain_num;
@@ -1115,7 +1149,8 @@ long add_to_reinforce_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *d
 long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeon *dungeon, int *remain_num)
 {
     //return _DK_add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon);
-    MapSubtlCoord stl_x, stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     stl_x = slab_subtile_center(slb_x);
     stl_y = slab_subtile_center(slb_y);
     const struct SlabMap *slb;
@@ -1184,7 +1219,8 @@ enum SlabConnectedAreaOptions {
  */
 void add_pretty_and_convert_to_imp_stack_prepare(struct Dungeon *dungeon, unsigned char *slbopt)
 {
-    MapSlabCoord slb_x, slb_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     // Clear our slab options array and mark tall slabs with SlbCAOpt_Border
     for (slb_y=0; slb_y < map_tiles_y; slb_y++)
     {
@@ -1217,10 +1253,12 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
 {
     unsigned int slblicount;
     unsigned int slblipos;
-    MapSlabCoord slb_x, slb_y;
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
     slblipos = 0; // Current position in our list of slabs which should be checked around
     slblicount = 0; // Amount of items in our list of slabs which should be checked around
-    MapSlabCoord base_slb_x, base_slb_y;
+    MapSlabCoord base_slb_x;
+    MapSlabCoord base_slb_y;
     base_slb_x = subtile_slab(start_pos->x.stl.num);
     base_slb_y = subtile_slab(start_pos->y.stl.num);
     SlabCodedCoords slb_num;
@@ -1231,7 +1269,8 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
     {
         unsigned char around_flags;
         around_flags = 0;
-        long i,n;
+        long i;
+        long n;
         n = ACTION_RANDOM(4);
         for (i=0; i < SMALL_AROUND_LENGTH; i++)
         {
@@ -1436,7 +1475,8 @@ TbBool thing_can_be_picked_to_place_in_player_room(const struct Thing* thing, Pl
 struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owner, int start_idx)
 {
     struct Thing *thing;
-    int i,k;
+    int i;
+    int k;
     k = 0;
     i = start_idx;
     while (i > 0)
@@ -1893,7 +1933,8 @@ long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord s
 }
 int get_nearest_small_around_side_of_slab(MapCoord dstcor_x, MapCoord dstcor_y, MapCoord srccor_x, MapCoord srccor_y)
 {
-    MapCoordDelta delta_x,delta_y;
+    MapCoordDelta delta_x;
+    MapCoordDelta delta_y;
     delta_x = dstcor_x - (MapCoordDelta)srccor_x;
     delta_y = dstcor_y - (MapCoordDelta)srccor_y;
     // First check the nearest side
@@ -1916,14 +1957,17 @@ int get_nearest_small_around_side_of_slab(MapCoord dstcor_x, MapCoord dstcor_y, 
 
 long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y)
 {
-    MapSubtlCoord basestl_x,basestl_y;
+    MapSubtlCoord basestl_x;
+    MapSubtlCoord basestl_y;
     basestl_x = stl_num_decode_x(stl_num);
     basestl_y = stl_num_decode_y(stl_num);
-    int i,n;
+    int i;
+    int n;
     n = get_nearest_small_around_side_of_slab(subtile_coord_center(basestl_x), subtile_coord_center(basestl_y), thing->mappos.x.val, thing->mappos.y.val);  
     for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
-        MapSubtlCoord stl_x,stl_y;
+        MapSubtlCoord stl_x;
+        MapSubtlCoord stl_y;
         stl_x = basestl_x + 2 * (long)small_around[n].delta_x;
         stl_y = basestl_y + 2 * (long)small_around[n].delta_y;
         if (slab_is_players_land(thing->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
@@ -1953,10 +1997,16 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
 long check_place_to_dig_and_get_drop_position(PlayerNumber plyr_idx, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
 {
     struct SlabMap *place_slb;
-    MapSubtlCoord place_x,place_y;
-    long base_x,base_y;
-    long stl_x,stl_y;
-    long i,k,n,nstart;
+    MapSubtlCoord place_x;
+    MapSubtlCoord place_y;
+    long base_x;
+    long base_y;
+    long stl_x;
+    long stl_y;
+    long i;
+    long k;
+    long n;
+    long nstart;
     SYNCDBG(18,"Starting");
     place_x = stl_num_decode_x(stl_num);
     place_y = stl_num_decode_y(stl_num);
@@ -2004,10 +2054,16 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
 {
     struct SlabMap *place_slb;
     struct Coord3d pos;
-    MapSubtlCoord place_x,place_y;
-    long base_x,base_y;
-    long stl_x,stl_y;
-    long i,k,n,nstart;
+    MapSubtlCoord place_x;
+    MapSubtlCoord place_y;
+    long base_x;
+    long base_y;
+    long stl_x;
+    long stl_y;
+    long i;
+    long k;
+    long n;
+    long nstart;
     SYNCDBG(18,"Starting");
     place_x = stl_num_decode_x(stl_num);
     place_y = stl_num_decode_y(stl_num);
@@ -2420,7 +2476,8 @@ TbBool imp_stack_update(struct Thing *creatng)
 
 long check_out_worker_improve_dungeon(struct Thing *thing, struct DiggerStack *dstack)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     SYNCDBG(18,"Starting");
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
@@ -2447,7 +2504,8 @@ long check_out_worker_improve_dungeon(struct Thing *thing, struct DiggerStack *d
 
 long check_out_worker_convert_dungeon(struct Thing *thing, struct DiggerStack *dstack)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
     stl_x = stl_num_decode_x(dstack->stl_num);
@@ -2475,7 +2533,8 @@ long check_out_worker_convert_dungeon(struct Thing *thing, struct DiggerStack *d
 
 long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *dstack)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     struct CreatureControl *cctrl;
     SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(thing);
@@ -2512,7 +2571,8 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *ds
 
 long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack *dstack)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     SYNCDBG(18,"Starting");
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
@@ -2555,7 +2615,8 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
 
 long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *dstack)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
     if (!player_has_room_of_role(creatng->owner, RoRoF_DeadStorage)) {
@@ -2602,7 +2663,8 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *d
 
 long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *dstack)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
     if (!player_has_room_of_role(thing->owner, RoRoF_PowersStorage)) {
@@ -2642,7 +2704,8 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
 
 long check_out_worker_pickup_crate_to_arm(struct Thing *creatng, struct DiggerStack *dstack)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
     struct Thing *cratng;
@@ -2690,7 +2753,8 @@ long check_out_worker_pickup_crate_to_arm(struct Thing *creatng, struct DiggerSt
 
 long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct DiggerStack *dstack)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     long i;
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
@@ -2746,7 +2810,8 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
 
 long check_out_worker_dig_or_mine(struct Thing *thing, struct DiggerStack *dstack)
 {
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     long i;
     i = find_dig_from_task_list(thing->owner, dstack->stl_num);
     if (i == -1)
@@ -2797,7 +2862,8 @@ long check_out_worker_pickup_gold_pile(struct Thing *thing, struct DiggerStack *
         }
         return 1;
     }
-    MapSubtlCoord stl_x,stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
     if (!check_place_to_pickup_gold(thing, stl_x, stl_y))

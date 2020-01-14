@@ -382,7 +382,8 @@ TbBool a_menu_window_is_active(void)
 {
   if (no_of_active_menus <= 0)
     return false;
-  int i,k;
+  int i;
+  int k;
   for (i=0; i<no_of_active_menus; i++)
   {
       k = menu_stack[i];
@@ -417,7 +418,8 @@ TbBool frontend_font_string_draw(int scr_x, int scr_y, int dst_width, int dst_he
         units_per_px = 1;
     lbDisplay.DrawFlags = 0;
     LbTextSetFont(frontend_font[fnt_idx]);
-    int w,h;
+    int w;
+    int h;
     h = LbTextLineHeight() * units_per_px / 16;
     w = LbTextStringWidth(str) * units_per_px / 16;
     if (w > dst_width) w = dst_width;
@@ -516,7 +518,8 @@ void get_player_gui_clicks(void)
 void add_message(long plyr_idx, char *msg)
 {
     struct NetMessage *nmsg;
-    long i,k;
+    long i;
+    long k;
     i = net_number_of_messages;
     if (i >= NET_MESSAGES_COUNT)
     {
@@ -542,7 +545,8 @@ void add_message(long plyr_idx, char *msg)
 TbBool validate_versions(void)
 {
     struct PlayerInfo *player;
-    long i,ver;
+    long i;
+    long ver;
     ver = -1;
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
@@ -644,7 +648,8 @@ short game_is_busy_doing_gui(void)
 TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 {
     char *str;
-    int key,outchar;
+    int key;
+    int outchar;
     TbLocChar vischar[4];
     //return _DK_get_button_area_input(gbtn, a2);
     strcpy(vischar," ");
@@ -1038,7 +1043,9 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long first_elem, long last_elem)
 {
     struct TbSprite *spr;
-    long i,k,n;
+    long i;
+    long k;
+    long n;
     int units_per_px;
     units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, 78, 100);
     spr = &frontend_sprite[78];
@@ -1078,7 +1085,9 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
 {
     draw_bar64k(scr_x, scr_y, units_per_px, width);
     // Inner size
-    int base_x, base_y, base_w;
+    int base_x;
+    int base_y;
+    int base_w;
     base_w = width - 64*units_per_px/16;
     base_x = scr_x + 32*units_per_px/16;
     base_y = scr_y + 10*units_per_px/16;
@@ -1086,7 +1095,8 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
         ERRORLOG("Bar is too small");
         return;
     }
-    int cur_x, cur_y;
+    int cur_x;
+    int cur_y;
     cur_x = base_x;
     cur_y = base_y;
     int end_x;
@@ -1134,9 +1144,12 @@ void gui_area_slider(struct GuiButton *gbtn)
 TbBool fronttestfont_draw(void)
 {
   const struct TbSprite *spr;
-  unsigned long i,k;
-  long w,h;
-  long x,y;
+  unsigned long i;
+  unsigned long k;
+  long w;
+  long h;
+  long x;
+  long y;
   SYNCDBG(9,"Starting");
   for (y=0; y < lbDisplay.GraphicsScreenHeight; y++)
     for (x=0; x < lbDisplay.GraphicsScreenWidth; x++)
@@ -1209,7 +1222,8 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     }
     int fs_units_per_px;
     fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 93, 100);
-    int scr_x, scr_y;
+    int scr_x;
+    int scr_y;
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
@@ -1241,7 +1255,8 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
     }
     int fs_units_per_px;
     fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 93, 100);
-    int scr_x, scr_y;
+    int scr_x;
+    int scr_y;
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
     struct TbSprite *spr;
@@ -1458,7 +1473,8 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
 {
   struct TextScrollWindow *scrollwnd;
   unsigned short flg_mem;
-  long text_height,area_height;
+  long text_height;
+  long area_height;
   flg_mem = lbDisplay.DrawFlags;
   lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
   lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
@@ -2702,7 +2718,8 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
 
 TbBool frontmainmnu_input(void)
 {
-    int mouse_x,mouse_y;
+    int mouse_x;
+    int mouse_y;
     // check if mouse position has changed
     mouse_x = GetMouseX();
     mouse_y = GetMouseY();
@@ -3029,7 +3046,8 @@ void spangle_button(struct GuiButton *gbtn)
     spr = &button_sprite[176];
     int bs_units_per_px;
     bs_units_per_px = 50 * units_per_pixel / spr->SHeight;
-    long x,y;
+    long x;
+    long y;
     unsigned long i;
     x = gbtn->pos_x + (gbtn->width >> 1)  - ((spr->SWidth*bs_units_per_px/16) / 2);
     y = gbtn->pos_y + (gbtn->height >> 1) - ((spr->SHeight*bs_units_per_px/16) / 2);
@@ -3270,7 +3288,8 @@ void update_player_objectives(PlayerNumber plyr_idx)
 void display_objectives(PlayerNumber plyr_idx, long x, long y)
 {
     //_DK_display_objectives(plyr_idx,x,y);
-    long cor_x, cor_y;
+    long cor_x;
+    long cor_y;
     cor_y = 0;
     cor_x = 0;
     if ((x > 0) || (y > 0))

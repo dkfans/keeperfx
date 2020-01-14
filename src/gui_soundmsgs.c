@@ -321,10 +321,8 @@ struct SMessage messages[] = {
  */
 TbBool output_message(long msg_idx, long delay, TbBool queue)
 {
-    struct SMessage *smsg;
-    long i;
     SYNCDBG(5,"Message %ld, delay %ld, queue %s",msg_idx, delay, queue?"on":"off");
-    smsg = &messages[msg_idx];
+    struct SMessage* smsg = &messages[msg_idx];
     if (!message_can_be_played(msg_idx))
     {
         SYNCDBG(8,"Delay to turn %ld didn't passed, skipping",(long)smsg->end_time);
@@ -332,11 +330,11 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
     }
     if (!speech_sample_playing())
     {
-      i = get_phrase_sample(get_phrase_for_message(msg_idx));
-      if (i == 0)
-      {
-          SYNCDBG(8,"No phrase %d sample, skipping",(int)msg_idx);
-          return false;
+        long i = get_phrase_sample(get_phrase_for_message(msg_idx));
+        if (i == 0)
+        {
+            SYNCDBG(8, "No phrase %d sample, skipping", (int)msg_idx);
+            return false;
       }
       if (play_speech_sample(i))
       {
@@ -365,12 +363,9 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
 
 TbBool remove_message_from_queue(long queue_idx)
 {
-    struct MessageQueueEntry *mqprev;
-    struct MessageQueueEntry *mqentry;
-    long i;
     SYNCDBG(7,"Starting");
-    i = queue_idx;
-    mqentry = &message_queue[i];
+    long i = queue_idx;
+    struct MessageQueueEntry* mqentry = &message_queue[i];
     // If there's nothing to remove, don't bother trying
     if (mqentry->state != 1)
     {
@@ -378,7 +373,7 @@ TbBool remove_message_from_queue(long queue_idx)
     }
     for (i++; i < MESSAGE_QUEUE_COUNT; i++)
     {
-        mqprev = mqentry;
+        struct MessageQueueEntry* mqprev = mqentry;
         mqentry = &message_queue[i];
         mqprev->state = mqentry->state;
         mqprev->msg_idx = mqentry->msg_idx;
@@ -395,8 +390,6 @@ TbBool remove_message_from_queue(long queue_idx)
 
 void process_messages(void)
 {
-    unsigned long msg_idx;
-    long delay;
     SYNCDBG(17,"Starting");
     // If already playing, just wait for next time
     if (!speech_sample_playing())
@@ -410,8 +403,8 @@ void process_messages(void)
             return;
         }
         // Otherwise remove next message from queue and try to play it
-        msg_idx = message_queue[0].msg_idx;
-        delay = message_queue[0].delay;
+        unsigned long msg_idx = message_queue[0].msg_idx;
+        long delay = message_queue[0].delay;
         remove_message_from_queue(0);
         output_message(msg_idx, delay, true);
     }
@@ -427,13 +420,11 @@ TbBool message_can_be_played(long msg_idx)
 
 TbBool message_already_in_queue(long msg_idx)
 {
-  struct MessageQueueEntry *mqentry;
-  long i;
-  for (i=0; i < MESSAGE_QUEUE_COUNT; i++)
-  {
-    mqentry = &message_queue[i];
-    if ((mqentry->state == 1) && (msg_idx == mqentry->msg_idx))
-      return true;
+    for (long i = 0; i < MESSAGE_QUEUE_COUNT; i++)
+    {
+        struct MessageQueueEntry* mqentry = &message_queue[i];
+        if ((mqentry->state == 1) && (msg_idx == mqentry->msg_idx))
+            return true;
   }
   return false;
 }
@@ -445,11 +436,9 @@ TbBool message_queue_empty(void)
 
 TbBool add_message_to_queue(long msg_idx, long delay)
 {
-    struct MessageQueueEntry *mqentry;
-    long i;
-    for (i=0; i < MESSAGE_QUEUE_COUNT; i++)
+    for (long i = 0; i < MESSAGE_QUEUE_COUNT; i++)
     {
-        mqentry = &message_queue[i];
+        struct MessageQueueEntry* mqentry = &message_queue[i];
         if (mqentry->state == 0)
         {
           mqentry->state = 1;
@@ -464,13 +453,11 @@ TbBool add_message_to_queue(long msg_idx, long delay)
 /** Returns a random speech phrase for given message */
 long get_phrase_for_message(long msg_idx)
 {
-  struct SMessage *smsg;
-  long i;
-  smsg = &messages[msg_idx];
-  if (smsg->count <= 0)
-      return -1;
-  i = UNSYNC_RANDOM(smsg->count);
-  return smsg->start_idx + i;
+    struct SMessage* smsg = &messages[msg_idx];
+    if (smsg->count <= 0)
+        return -1;
+    long i = UNSYNC_RANDOM(smsg->count);
+    return smsg->start_idx + i;
 }
 
 /** Returns speech sample for given phrase index.
@@ -506,12 +493,10 @@ void clear_messages(void)
 
 void init_messages_turns(long delay)
 {
-    struct SMessage *smsg;
-    int i;
     // Set end turn for all messages
-    for (i=0; i < sizeof(messages)/sizeof(messages[0]); i++)
+    for (int i = 0; i < sizeof(messages) / sizeof(messages[0]); i++)
     {
-        smsg = &messages[i];
+        struct SMessage* smsg = &messages[i];
         smsg->end_time = game.play_gameturn + delay;
     }
 }
@@ -521,9 +506,9 @@ TbBool output_message_room_related_from_computer_or_player_action(PlayerNumber p
     if (!is_my_player_number(plyr_idx)) {
         return false;
     }
-    const struct RoomConfigStats *roomst;
-    roomst = get_room_kind_stats(rkind);
-    long delay, msg_idx;
+    const struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
+    long delay;
+    long msg_idx;
     switch (msg_kind)
     {
     case OMsg_RoomNeeded:

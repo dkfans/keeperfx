@@ -146,8 +146,7 @@ long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, uns
   // Note: reworked from beta and unchecked
   struct PlayerInfo *player=get_my_player();
   set_players_packet_action(player, PckA_SetPlyrState, tag[0], tag[1], 0, 0);
-  struct GuiBoxOption *guop;
-  guop=gbox->optn_list;
+  struct GuiBoxOption* guop = gbox->optn_list;
   while (guop->label[0] != '!')
   {
     guop->active = 0;
@@ -160,8 +159,7 @@ long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, uns
 long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   //TODO PACKET we should use packets! This way is unacceptable!
-  struct PlayerInfo *player;
-  player = get_my_player();
+  struct PlayerInfo* player = get_my_player();
   if (tag[0])
     set_player_as_won_level(player);
   else
@@ -171,105 +169,93 @@ long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 
 long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
-  struct PlayerInfo *player;
-  player=get_my_player();
-  set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, *tag, 0, 0, 0);
-  return 1;
+    struct PlayerInfo* player = get_my_player();
+    set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, *tag, 0, 0, 0);
+    return 1;
 }
 
 long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
-    return 0;
-  set_players_packet_action(player, PckA_CheatCrtSpells, 0, 0, 0, 0);
-  return 1;
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
+        return 0;
+    set_players_packet_action(player, PckA_CheatCrtSpells, 0, 0, 0, 0);
+    return 1;
 }
 
 long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatAllRooms, 0, 0, 0, 0);
-  return 1;
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatAllRooms, 0, 0, 0, 0);
+    return 1;
 }
 
 long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatAllResrchbl, 0, 0, 0, 0);
-  return 1;
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatAllResrchbl, 0, 0, 0, 0);
+    return 1;
 }
 
 long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatAllFree, 0, 0, 0, 0);
-  return 1;
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatAllFree, 0, 0, 0, 0);
+    return 1;
 }
 
 long gf_give_all_creatures_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatCrAllSpls, 0, 0, 0, 0);
-  return 1;
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatCrAllSpls, 0, 0, 0, 0);
+    return 1;
 }
 
 long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatRevealMap, 0, 0, 0, 0);
-  return 1;
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatRevealMap, 0, 0, 0, 0);
+    return 1;
 }
 
 long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  set_players_packet_action(player, PckA_CheatAllMagic, 0, 0, 0, 0);
-  return 1;
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    set_players_packet_action(player, PckA_CheatAllMagic, 0, 0, 0, 0);
+    return 1;
 }
 
 long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-//  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
-  if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
-    return false;
-  return true;
+    struct PlayerInfo* player = get_my_player();
+    //  if (player->cheat_mode == 0) return false; -- there's no cheat_mode flag yet
+    if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
+        return false;
+    return true;
 }
 
 long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
 {
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  player = get_my_player();
-  if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
-    return false;
-  thing = thing_get(player->controlled_thing_idx);
-  return creature_instance_is_available(thing, *tag);
+    struct PlayerInfo* player = get_my_player();
+    if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
+        return false;
+    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    return creature_instance_is_available(thing, *tag);
 }
 
 void gui_draw_all_boxes(void)
 {
-  struct GuiBox *gbox;
   SYNCDBG(5,"Starting");
   lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
   LbTextSetFont(font_sprites);
-  gbox = gui_get_lowest_priority_box();
+  struct GuiBox* gbox = gui_get_lowest_priority_box();
   while (gbox != NULL)
   {
     gui_draw_box(gbox);
@@ -301,48 +287,42 @@ void gui_insert_box_at_list_top(struct GuiBox *gbox)
 
 struct GuiBox *gui_allocate_box_structure(void)
 {
-  int i;
-  struct GuiBox *gbox;
-  for (i=1;i<3;i++)
-  {
-    gbox = &gui_boxes[i];
-    if (gui_box_is_not_valid(gbox))
+    for (int i = 1; i < 3; i++)
     {
-      gbox->field_1 = i;
-      gbox->field_0 |= 0x01;
-      gui_insert_box_at_list_top(gbox);
-      return gbox;
-    }
+        struct GuiBox* gbox = &gui_boxes[i];
+        if (gui_box_is_not_valid(gbox))
+        {
+            gbox->field_1 = i;
+            gbox->field_0 |= 0x01;
+            gui_insert_box_at_list_top(gbox);
+            return gbox;
+        }
   }
   return NULL;
 }
 
 long gui_calculate_box_width(struct GuiBox *gbox)
 {
-  struct GuiBoxOption *goptn;
-  int w,maxw;
-  maxw = 0;
-  goptn = gbox->optn_list;
-  while (goptn->label[0] != '!')
-  {
-    w = pixel_size * LbTextStringWidth(goptn->label);
-    if (w > maxw)
-      maxw = w;
-    goptn++;
+    int maxw = 0;
+    struct GuiBoxOption* goptn = gbox->optn_list;
+    while (goptn->label[0] != '!')
+    {
+        int w = pixel_size * LbTextStringWidth(goptn->label);
+        if (w > maxw)
+            maxw = w;
+        goptn++;
   }
   return maxw+16;
 }
 
 long gui_calculate_box_height(struct GuiBox *gbox)
 {
-  struct GuiBoxOption *goptn;
-  int i;
-  i = 0;
-  goptn = gbox->optn_list;
-  while (goptn->label[0] != '!')
-  {
-    i++;
-    goptn++;
+    int i = 0;
+    struct GuiBoxOption* goptn = gbox->optn_list;
+    while (goptn->label[0] != '!')
+    {
+        i++;
+        goptn++;
   }
   return i*(pixel_size*LbTextLineHeight()+2) + 16;
 }
@@ -375,18 +355,17 @@ void gui_delete_box(struct GuiBox *gbox)
 
 struct GuiBox *gui_create_box(long x, long y, struct GuiBoxOption *optn_list)
 {
-  struct GuiBox *gbox;
-  gbox = gui_allocate_box_structure();
-  if (gbox == NULL)
-    return NULL;
-  // Setting gui font - will be required to properly calculate box dimensions
-  LbTextSetFont(font_sprites);
-  gbox->optn_list = optn_list;
-  gbox->pos_x = x;
-  gbox->pos_y = y;
-  gbox->width = gui_calculate_box_width(gbox);
-  gbox->height = gui_calculate_box_height(gbox);
-  return gbox;
+    struct GuiBox* gbox = gui_allocate_box_structure();
+    if (gbox == NULL)
+        return NULL;
+    // Setting gui font - will be required to properly calculate box dimensions
+    LbTextSetFont(font_sprites);
+    gbox->optn_list = optn_list;
+    gbox->pos_x = x;
+    gbox->pos_y = y;
+    gbox->width = gui_calculate_box_width(gbox);
+    gbox->height = gui_calculate_box_height(gbox);
+    return gbox;
 }
 
 short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
@@ -540,14 +519,13 @@ struct GuiBox *gui_get_next_lowest_priority_box(struct GuiBox *gbox)
 
 struct GuiBox *gui_get_box_point_over(long x, long y)
 {
-  struct GuiBox *gbox;
-  gbox = gui_get_highest_priority_box();
-  while (gbox != NULL)
-  {
-    if ((y >= gbox->pos_y) && (y < gbox->pos_y+gbox->height))
-      if ((x >= gbox->pos_x) && (x < gbox->pos_x+gbox->width))
-        return gbox;
-    gbox = gui_get_next_lowest_priority_box(gbox);
+    struct GuiBox* gbox = gui_get_highest_priority_box();
+    while (gbox != NULL)
+    {
+        if ((y >= gbox->pos_y) && (y < gbox->pos_y + gbox->height))
+            if ((x >= gbox->pos_x) && (x < gbox->pos_x + gbox->width))
+                return gbox;
+        gbox = gui_get_next_lowest_priority_box(gbox);
   }
   return NULL;
 }
@@ -558,42 +536,36 @@ struct GuiBox *gui_get_box_point_over(long x, long y)
  */
 struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, long y)
 {
-  long sx,sy,lnheight;
-  long width,height;
-  struct GuiBoxOption *gboptn;
-  sx = gbox->pos_x + 8;
-  sy = gbox->pos_y + 8;
-  gboptn = gbox->optn_list;
-  lnheight = LbTextLineHeight()*((long)pixel_size) + 2;
-  while (gboptn->label[0] != '!')
-  {
-    height = LbTextStringHeight(gboptn->label)*((long)pixel_size);
-    if ((y >= sy) && (y < sy+height))
+    long sx = gbox->pos_x + 8;
+    long sy = gbox->pos_y + 8;
+    struct GuiBoxOption* gboptn = gbox->optn_list;
+    long lnheight = LbTextLineHeight() * ((long)pixel_size) + 2;
+    while (gboptn->label[0] != '!')
     {
-      width = LbTextStringWidth(gboptn->label)*((long)pixel_size);
-      if ((x >= sx) && (x < sx+width))
-      {
-        if ((gboptn->numfield_4 == 2) || (gboptn->field_26 == 0))
-          return NULL;
-        return gboptn;
-      }
-    }
-    gboptn++;
-    sy += lnheight;
+        long height = LbTextStringHeight(gboptn->label) * ((long)pixel_size);
+        if ((y >= sy) && (y < sy + height))
+        {
+            long width = LbTextStringWidth(gboptn->label) * ((long)pixel_size);
+            if ((x >= sx) && (x < sx + width))
+            {
+                if ((gboptn->numfield_4 == 2) || (gboptn->field_26 == 0))
+                    return NULL;
+                return gboptn;
+            }
+        }
+        gboptn++;
+        sy += lnheight;
   }
   return NULL;
 }
 
 struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
 {
-  int opt_num;
-  int opt_total;
-  struct GuiBoxOption *goptn;
   if (gbox == NULL)
     return NULL;
-  opt_num = -1;
-  opt_total = 0;
-  goptn = gbox->optn_list;
+  int opt_num = -1;
+  int opt_total = 0;
+  struct GuiBoxOption* goptn = gbox->optn_list;
   while (goptn->label[0] != '!')
   {
     if (goptn->active)
@@ -620,26 +592,21 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
 void gui_draw_box(struct GuiBox *gbox)
 {
     SYNCDBG(6,"Drawing box, first optn \"%s\"",gbox->optn_list->label);
-    struct GuiBox *gbox_over;
-    struct GuiBoxOption *goptn_over;
     struct GuiBoxOption *goptn;
-    long lnheight;
-    long mouse_x,mouse_y;
-    long pos_x,pos_y;
     LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    mouse_x = GetMouseX();
-    mouse_y = GetMouseY();
-    goptn_over = NULL;
-    gbox_over = gui_get_box_point_over(mouse_x, mouse_y);
+    long mouse_x = GetMouseX();
+    long mouse_y = GetMouseY();
+    struct GuiBoxOption* goptn_over = NULL;
+    struct GuiBox* gbox_over = gui_get_box_point_over(mouse_x, mouse_y);
     if (gbox_over != NULL)
     {
       goptn_over = gui_get_box_option_point_over(gbox_over, mouse_x, mouse_y);
     }
 
     LbTextSetFont(font_sprites);
-    lnheight = pixel_size * LbTextLineHeight() + 2;
-    pos_y = gbox->pos_y + 8;
-    pos_x = gbox->pos_x + 8;
+    long lnheight = pixel_size * LbTextLineHeight() + 2;
+    long pos_y = gbox->pos_y + 8;
+    long pos_x = gbox->pos_x + 8;
     if (gbox != gui_get_highest_priority_box())
     {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
@@ -714,13 +681,13 @@ void gui_draw_box(struct GuiBox *gbox)
 
 TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn)
 {
-  short button_num;
   if (left_button_released || right_button_released)
   {
-    if (left_button_released)
-    {
-      left_button_released = 0;
-      button_num = 1;
+      short button_num;
+      if (left_button_released)
+      {
+          left_button_released = 0;
+          button_num = 1;
     } else
     {
       right_button_released = 0;
@@ -742,17 +709,13 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
  */
 short gui_process_inputs(void)
 {
-    long mouse_y,mouse_x;
     struct GuiBox *gbox;
-    struct GuiBox *hpbox;
-    struct GuiBoxOption *goptn;
-    short result;
     SYNCDBG(8,"Starting");
-    mouse_x = GetMouseX();
-    mouse_y = GetMouseY();
-    result = false;
-    hpbox = gui_get_highest_priority_box();
-    goptn = NULL;
+    long mouse_x = GetMouseX();
+    long mouse_y = GetMouseY();
+    short result = false;
+    struct GuiBox* hpbox = gui_get_highest_priority_box();
+    struct GuiBoxOption* goptn = NULL;
     if (dragging_box.gbox != NULL)
     {
       if (left_button_held)

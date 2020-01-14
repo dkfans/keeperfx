@@ -39,20 +39,18 @@
 /******************************************************************************/
 int frontend_load_game_button_to_index(struct GuiButton *gbtn)
 {
-  struct CatalogueEntry *centry;
-  long gbidx;
-  int i,k;
-  gbidx = (unsigned long)gbtn->content;
-  k = -1;
-  for (i=gbidx+load_game_scroll_offset-45; i >= 0; i--)
-  {
-    do
+    long gbidx = (unsigned long)gbtn->content;
+    int k = -1;
+    for (int i = gbidx + load_game_scroll_offset - 45; i >= 0; i--)
     {
-      k++;
-      if (k >= TOTAL_SAVE_SLOTS_COUNT)
-        return -1;
-      centry = &save_game_catalogue[k];
-    } while ((centry->flags & CEF_InUse) == 0);
+        struct CatalogueEntry* centry;
+        do
+        {
+            k++;
+            if (k >= TOTAL_SAVE_SLOTS_COUNT)
+                return -1;
+            centry = &save_game_catalogue[k];
+        } while ((centry->flags & CEF_InUse) == 0);
   }
   return k;
 }
@@ -60,12 +58,11 @@ int frontend_load_game_button_to_index(struct GuiButton *gbtn)
 void gui_load_game_maintain(struct GuiButton *gbtn)
 {
   long slot_num;
-  struct CatalogueEntry *centry;
   if (gbtn != NULL)
       slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
   else
       slot_num = 0;
-  centry = &save_game_catalogue[slot_num];
+  struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
   if ((centry->flags & CEF_InUse) != 0)
       gbtn->flags |= LbBtnF_Enabled;
   else
@@ -74,17 +71,15 @@ void gui_load_game_maintain(struct GuiButton *gbtn)
 
 void gui_load_game(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  player=get_my_player();
-  long slot_num;
-  slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
-  if (!load_game(slot_num))
-  {
-      ERRORLOG("Loading game %d failed; quitting.",(int)slot_num);
-      // Even on quit, we still should unpause the game
-      set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
-      quit_game = 1;
-      return;
+    struct PlayerInfo* player = get_my_player();
+    long slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
+    if (!load_game(slot_num))
+    {
+        ERRORLOG("Loading game %d failed; quitting.", (int)slot_num);
+        // Even on quit, we still should unpause the game
+        set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
+        quit_game = 1;
+        return;
   }
   set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
 }
@@ -92,8 +87,7 @@ void gui_load_game(struct GuiButton *gbtn)
 void draw_load_button(struct GuiButton *gbtn)
 {
     if (gbtn == NULL) return;
-    int bs_units_per_px;
-    bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 94);
+    int bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, 2, 94);
     if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->width);
@@ -111,17 +105,15 @@ void draw_load_button(struct GuiButton *gbtn)
 
 void gui_save_game(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  long slot_num;
-  player = get_my_player();
-  if (strcasecmp((char *)gbtn->content, get_string(GUIStr_SlotUnused)) != 0)
-  {
-      slot_num = (gbtn->btype_value & LbBFeF_IntValueMask) % TOTAL_SAVE_SLOTS_COUNT;
-      fill_game_catalogue_slot(slot_num,(char *)gbtn->content);
-      if (save_game(slot_num))
-      {
-          output_message(SMsg_GameSaved, 0, true);
-      } else
+    struct PlayerInfo* player = get_my_player();
+    if (strcasecmp((char*)gbtn->content, get_string(GUIStr_SlotUnused)) != 0)
+    {
+        long slot_num = (gbtn->btype_value & LbBFeF_IntValueMask) % TOTAL_SAVE_SLOTS_COUNT;
+        fill_game_catalogue_slot(slot_num, (char*)gbtn->content);
+        if (save_game(slot_num))
+        {
+            output_message(SMsg_GameSaved, 0, true);
+        } else
       {
           ERRORLOG("Error in save!");
           create_error_box(GUIStr_ErrorSaving);
@@ -132,15 +124,13 @@ void gui_save_game(struct GuiButton *gbtn)
 
 void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
 {
-    struct CatalogueEntry *centry;
-    long slot_num;
-    const char *text;
     SYNCDBG(6,"Starting");
-    for (slot_num=0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
+    for (long slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
-        centry = &game_catalg[slot_num];
+        struct CatalogueEntry* centry = &game_catalg[slot_num];
+        const char* text;
         if ((centry->flags & CEF_InUse) != 0)
-          text = centry->textname;
+            text = centry->textname;
         else
           text = get_string(GUIStr_SlotUnused);
         strncpy(input_string[slot_num], text, SAVE_TEXTNAME_LEN);
@@ -149,14 +139,13 @@ void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
 
 void frontend_load_game(struct GuiButton *gbtn)
 {
-  int i;
-  i = frontend_load_game_button_to_index(gbtn);
-  if (i < 0)
-    return;
-  game.numfield_15 = i;
-  if (is_save_game_loadable(i))
-  {
-    frontend_set_state(FeSt_LOAD_GAME);
+    int i = frontend_load_game_button_to_index(gbtn);
+    if (i < 0)
+        return;
+    game.numfield_15 = i;
+    if (is_save_game_loadable(i))
+    {
+        frontend_set_state(FeSt_LOAD_GAME);
   } else
   {
     save_catalogue_slot_disable(i);
@@ -167,20 +156,16 @@ void frontend_load_game(struct GuiButton *gbtn)
 
 void frontend_draw_load_game_button(struct GuiButton *gbtn)
 {
-    int i;
-    i = frontend_load_game_button_to_index(gbtn);
+    int i = frontend_load_game_button_to_index(gbtn);
     if (i < 0)
         return;
     // Select font to draw
-    int font_idx;
-    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
+    int font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     // Set drawing window and draw the text
-    int tx_units_per_px;
-    tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
-    int height;
-    height = LbTextLineHeight() * tx_units_per_px / 16;
+    int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
+    int height = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
     LbTextDrawResized(0, 0, tx_units_per_px, save_game_catalogue[i].textname);
 }
@@ -247,9 +232,8 @@ void frontend_draw_games_scroll_tab(struct GuiButton *gbtn)
 
 void init_load_menu(struct GuiMenu *gmnu)
 {
-  struct PlayerInfo *player;
   SYNCDBG(6,"Starting");
-  player = get_my_player();
+  struct PlayerInfo* player = get_my_player();
   set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
@@ -257,9 +241,8 @@ void init_load_menu(struct GuiMenu *gmnu)
 
 void init_save_menu(struct GuiMenu *gmnu)
 {
-  struct PlayerInfo *player;
   SYNCDBG(6,"Starting");
-  player = get_my_player();
+  struct PlayerInfo* player = get_my_player();
   set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);

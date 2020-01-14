@@ -68,18 +68,16 @@ struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char 
 
 TbBool remove_key_on_door(struct Thing *thing)
 {
-  struct Thing *keytng;
-  keytng = find_base_thing_on_mapwho(TCls_Object, 44, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-  if (thing_is_invalid(keytng))
-    return false;
-  delete_thing_structure(keytng, 0);
-  return true;
+    struct Thing* keytng = find_base_thing_on_mapwho(TCls_Object, 44, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    if (thing_is_invalid(keytng))
+        return false;
+    delete_thing_structure(keytng, 0);
+    return true;
 }
 
 TbBool add_key_on_door(struct Thing *thing)
 {
-    struct Thing *keytng;
-    keytng = create_object(&thing->mappos, 44, thing->owner, 0);
+    struct Thing* keytng = create_object(&thing->mappos, 44, thing->owner, 0);
     if (thing_is_invalid(keytng))
       return false;
     keytng->mappos.x.stl.pos = COORD_PER_STL/2;
@@ -102,11 +100,9 @@ void unlock_door(struct Thing *thing)
 
 void lock_door(struct Thing *doortng)
 {
-    struct DoorStats *dostat;
-    long stl_x,stl_y;
-    dostat = &door_stats[doortng->model][doortng->door.orientation];
-    stl_x = doortng->mappos.x.stl.num;
-    stl_y = doortng->mappos.y.stl.num;
+    struct DoorStats* dostat = &door_stats[doortng->model][doortng->door.orientation];
+    long stl_x = doortng->mappos.x.stl.num;
+    long stl_y = doortng->mappos.y.stl.num;
     doortng->active_state = DorSt_Closed;
     doortng->door.word_16d = 0;
     doortng->door.is_locked = 1;
@@ -122,15 +118,13 @@ void lock_door(struct Thing *doortng)
 long destroy_door(struct Thing *doortng)
 {
     SYNCDBG(18,"Starting for %s index %d owned by player %d",thing_model_name(doortng),(int)doortng->index,(int)doortng->owner);
-    MapSubtlCoord stl_x, stl_y;
-    PlayerNumber plyr_idx;
     struct Coord3d pos;
     pos.x.val = doortng->mappos.x.val;
     pos.y.val = doortng->mappos.y.val;
     pos.z.val = doortng->mappos.z.val;
-    stl_x = pos.x.stl.num;
-    stl_y = pos.y.stl.num;
-    plyr_idx = doortng->owner;
+    MapSubtlCoord stl_x = pos.x.stl.num;
+    MapSubtlCoord stl_y = pos.y.stl.num;
+    PlayerNumber plyr_idx = doortng->owner;
     remove_key_on_door(doortng);
     ceiling_partially_recompute_heights(stl_x - 1, stl_y - 1, stl_x + 2, stl_y + 2);
     create_dirt_rubble_for_dug_block(stl_x, stl_y, 4, plyr_idx);
@@ -143,40 +137,32 @@ long destroy_door(struct Thing *doortng)
         create_dirt_rubble_for_dug_block(stl_x + 1, stl_y, 4, plyr_idx);
         create_dirt_rubble_for_dug_block(stl_x - 1, stl_y, 4, plyr_idx);
     }
-    struct Thing *efftng;
-    efftng = create_effect(&pos, TngEff_Unknown49, plyr_idx);
+    struct Thing* efftng = create_effect(&pos, TngEff_Unknown49, plyr_idx);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, 72 + UNSYNC_RANDOM(4), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
     if (plyr_idx != game.neutral_player_num)
     {
-        struct Dungeon * dungeon;
-        dungeon = get_players_num_dungeon(plyr_idx);
+        struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
         if (!dungeon_invalid(dungeon)) {
             dungeon->total_doors--;
             dungeon->doors_destroyed++;
         }
     }
     delete_thing_structure(doortng, 0);
-    MapSlabCoord slb_x, slb_y;
-    struct SlabMap *slb;
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
-    slb = get_slabmap_block(slb_x,slb_y);
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     place_slab_type_on_map(SlbT_CLAIMED, stl_x, stl_y, slabmap_owner(slb), 0);
     do_slab_efficiency_alteration(slb_x, slb_y);
-    struct PlayerInfo *player;
-    int i;
-    for (i=0; i < PLAYERS_COUNT; i++)
+    for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        player = get_player(i);
+        struct PlayerInfo* player = get_player(i);
         if (!player_exists(player))
             continue;
-        struct Thing *thing;
-        long dist, sight_stl;
-        thing = thing_get(player->controlled_thing_idx);
-        dist = get_2d_box_distance(&pos, &thing->mappos);
-        sight_stl = slab_subtile(get_explore_sight_distance_in_slabs(thing),0);
+        struct Thing* thing = thing_get(player->controlled_thing_idx);
+        long dist = get_2d_box_distance(&pos, &thing->mappos);
+        long sight_stl = slab_subtile(get_explore_sight_distance_in_slabs(thing), 0);
         if (dist <= subtile_coord(sight_stl,0)) {
             check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         }
@@ -186,15 +172,13 @@ long destroy_door(struct Thing *doortng)
 
 TbBool subtile_has_door_thing_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Thing *doortng;
-    doortng = get_door_for_position(stl_x, stl_y);
+    struct Thing* doortng = get_door_for_position(stl_x, stl_y);
     return !thing_is_invalid(doortng);
 }
 
 TbBool subtile_has_locked_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Thing *doortng;
-    doortng = get_door_for_position(stl_x, stl_y);
+    struct Thing* doortng = get_door_for_position(stl_x, stl_y);
     return (!thing_is_invalid(doortng) && doortng->door.is_locked);
 }
 
@@ -209,23 +193,16 @@ TbBool thing_is_deployed_door(const struct Thing *thing)
 
 TbBool door_can_stand(struct Thing *thing)
 {
-    struct SlabMap *slb;
-    struct SlabAttr *slbattr;
-    unsigned int wall_flags;
-    long slb_x,slb_y;
-    int i;
-    wall_flags = 0;
-    for (i = 0; i < 4; i++)
+    unsigned int wall_flags = 0;
+    for (int i = 0; i < 4; i++)
     {
         wall_flags *= 2;
-        slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (int)small_around[i].delta_x;
-        slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (int)small_around[i].delta_y;
-        slb = get_slabmap_block(slb_x,slb_y);
-        slbattr = get_slab_attrs(slb);
-      if ((slbattr->category == SlbAtCtg_FortifiedWall) || (slb->kind == SlbT_ROCK)
-          || (slbattr->category == SlbAtCtg_FriableDirt)
-          || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_GEMS))
-        wall_flags |= 0x01;
+        long slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (int)small_around[i].delta_x;
+        long slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (int)small_around[i].delta_y;
+        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+        struct SlabAttr* slbattr = get_slab_attrs(slb);
+        if ((slbattr->category == SlbAtCtg_FortifiedWall) || (slb->kind == SlbT_ROCK) || (slbattr->category == SlbAtCtg_FriableDirt) || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_GEMS))
+            wall_flags |= 0x01;
     }
     // The array needs to have 2^4 = 16 values
     return (build_door_angle[wall_flags] != -1);
@@ -233,13 +210,12 @@ TbBool door_can_stand(struct Thing *thing)
 
 TbBool check_door_should_open(struct Thing *thing)
 {
-    struct Thing *openertng;
     // If doors are locked, never should open
     if (thing->door.is_locked != 0)
     {
         return false;
     }
-    openertng = get_creature_in_range_and_owned_by_or_allied_with(thing->mappos.x.val, thing->mappos.y.val, 5, thing->owner);
+    struct Thing* openertng = get_creature_in_range_and_owned_by_or_allied_with(thing->mappos.x.val, thing->mappos.y.val, 5, thing->owner);
     if (thing_is_invalid(openertng))
     {
         return false;
@@ -278,13 +254,10 @@ long process_door_closed(struct Thing *thing)
 
 long process_door_opening(struct Thing *thing)
 {
-    struct DoorStats *dostat;
-    int new_frame,old_frame,delta_h;
-    int slbparam;
-    dostat = &door_stats[thing->model][thing->door.orientation];
-    old_frame = (thing->door.word_16d / 256);
-    delta_h = dostat->field_6;
-    slbparam = dostat->slbkind;
+    struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
+    int old_frame = (thing->door.word_16d / 256);
+    int delta_h = dostat->field_6;
+    int slbparam = dostat->slbkind;
     if (thing->door.word_16d+delta_h < 768)
     {
         thing->door.word_16d += delta_h;
@@ -294,7 +267,7 @@ long process_door_opening(struct Thing *thing)
         thing->door.byte_15d = 10;
         thing->door.word_16d = 768;
     }
-    new_frame = (thing->door.word_16d / 256);
+    int new_frame = (thing->door.word_16d / 256);
     if (new_frame != old_frame)
       place_animating_slab_type_on_map(slbparam, new_frame, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
     return 1;
@@ -302,13 +275,10 @@ long process_door_opening(struct Thing *thing)
 
 long process_door_closing(struct Thing *thing)
 {
-    struct DoorStats *dostat;
-    int new_frame,old_frame,delta_h;
-    int slbparam;
-    old_frame = (thing->door.word_16d / 256);
-    dostat = &door_stats[thing->model][thing->door.orientation];
-    delta_h = dostat->field_6;
-    slbparam = dostat->slbkind;
+    int old_frame = (thing->door.word_16d / 256);
+    struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
+    int delta_h = dostat->field_6;
+    int slbparam = dostat->slbkind;
     if ( check_door_should_open(thing) )
     {
         thing->active_state = DorSt_Opening;
@@ -322,7 +292,7 @@ long process_door_closing(struct Thing *thing)
         thing->active_state = DorSt_Closed;
         thing->door.word_16d = 0;
     }
-    new_frame = (thing->door.word_16d / 256);
+    int new_frame = (thing->door.word_16d / 256);
     if (new_frame != old_frame)
       place_animating_slab_type_on_map(slbparam, new_frame, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
     return 1;
@@ -368,17 +338,13 @@ TngUpdateRet process_door(struct Thing *thing)
 
 long count_player_deployed_doors_of_model(PlayerNumber owner, int model)
 {
-    struct Thing *thing;
-    long i, n;
-    n = 0;
-    unsigned long k;
-    k = 0;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Door);
-    i = slist->index;
+    long n = 0;
+    unsigned long k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Door);
+    long i = slist->index;
     while (i > 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
             break;
@@ -405,16 +371,12 @@ long count_player_deployed_doors_of_model(PlayerNumber owner, int model)
  */
 TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short locked)
 {
-    struct Thing *thing;
-    long i;
-    unsigned long k;
-    k = 0;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Door);
-    i = slist->index;
+    unsigned long k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Door);
+    long i = slist->index;
     while (i > 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
             break;
@@ -437,17 +399,13 @@ TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short lo
 
 long count_player_deployed_traps_of_model(PlayerNumber owner, int model)
 {
-    struct Thing *thing;
-    long i, n;
-    n = 0;
-    unsigned long k;
-    k = 0;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Trap);
-    i = slist->index;
+    long n = 0;
+    unsigned long k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
+    long i = slist->index;
     while (i > 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
             break;
@@ -468,16 +426,12 @@ long count_player_deployed_traps_of_model(PlayerNumber owner, int model)
 
 TbBool player_has_deployed_trap_of_model(PlayerNumber owner, int model)
 {
-    struct Thing *thing;
-    long i;
-    unsigned long k;
-    k = 0;
-    const struct StructureList *slist;
-    slist = get_list_for_thing_class(TCls_Trap);
-    i = slist->index;
+    unsigned long k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
+    long i = slist->index;
     while (i > 0)
     {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
             break;

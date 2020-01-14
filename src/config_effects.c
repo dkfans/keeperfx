@@ -83,12 +83,7 @@ short write_effects_effect_to_log(const struct EffectConfigStats *effcst, int nu
 
 TbBool parse_effects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     SYNCDBG(19,"Starting");
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -96,9 +91,10 @@ TbBool parse_effects_common_blocks(char *buf, long len, const char *config_textn
         effects_conf.effect_types_count = 1;
     }
     // Find the block
-    sprintf(block_buf,"common");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "common");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -109,14 +105,16 @@ TbBool parse_effects_common_blocks(char *buf, long len, const char *config_textn
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,effects_common_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, effects_common_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
         switch (cmd_num)
         {
         case 1: // EFFECTSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+        {
+            char word_buf[COMMAND_WORD_LEN];
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
               if ((k > 0) && (k <= EFFECTS_TYPES_MAX))
@@ -131,6 +129,7 @@ TbBool parse_effects_common_blocks(char *buf, long len, const char *config_textn
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
+        }
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -149,12 +148,8 @@ TbBool parse_effects_common_blocks(char *buf, long len, const char *config_textn
 TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct EffectConfigStats *effcst;
-  long pos;
-  int i,k,n;
-  int cmd_num;
+  int i;
   // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
   SYNCDBG(19,"Starting");
   // Initialize the effects array
   int arr_size;
@@ -184,24 +179,26 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
   arr_size = effects_conf.effect_types_count;
   for (i=0; i < arr_size; i++)
   {
-    sprintf(block_buf,"effect%d",i);
-    SYNCDBG(19,"Block [%s]",block_buf);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0) {
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-            return false;
-        }
-        continue;
+      char block_buf[COMMAND_WORD_LEN];
+      sprintf(block_buf, "effect%d", i);
+      SYNCDBG(19, "Block [%s]", block_buf);
+      long pos = 0;
+      int k = find_conf_block(buf, &pos, len, block_buf);
+      if (k < 0)
+      {
+          if ((flags & CnfLd_AcceptPartial) == 0)
+          {
+              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+              return false;
+          }
+          continue;
     }
     effcst = &effects_conf.effect_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(effects_effect_commands,cmd_num)
     while (pos<len)
     {
       // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,effects_effect_commands);
+      int cmd_num = recognize_conf_command(buf, &pos, len, effects_effect_commands);
       SYNCDBG(19,"Command %s",COMMAND_TEXT(cmd_num));
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
@@ -211,7 +208,8 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
               cmd_num = 0;
           }
       }
-      n = 0;
+      int n = 0;
+      char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
       case 1: // NAME
@@ -312,11 +310,8 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
 
 TbBool load_effects_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    char *buf;
-    long len;
-    TbBool result;
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
-    len = LbFileLengthRnc(fname);
+    long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -329,12 +324,12 @@ TbBool load_effects_config_file(const char *textname, const char *fname, unsigne
             WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    result = (len > 0);
+    TbBool result = (len > 0);
     // Parse blocks of the config file
     if (result)
     {
@@ -362,10 +357,8 @@ TbBool load_effects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global effects config";
     static const char config_campgn_textname[] = "campaign effects config";
-    char *fname;
-    TbBool result;
-    fname = prepare_file_path(FGrp_FxData,conf_fname);
-    result = load_effects_config_file(config_global_textname,fname,flags);
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    TbBool result = load_effects_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
@@ -380,8 +373,7 @@ TbBool load_effects_config(const char *conf_fname, unsigned short flags)
  */
 const char *effect_code_name(int tngmodel)
 {
-    const char *name;
-    name = get_conf_parameter_text(effect_desc,tngmodel);
+    const char* name = get_conf_parameter_text(effect_desc, tngmodel);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -395,9 +387,8 @@ const char *effect_code_name(int tngmodel)
  */
 int effect_model_id(const char * code_name)
 {
-    int i;
-
-    for (i = 0; i < effects_conf.effect_types_count; ++i) {
+    for (int i = 0; i < effects_conf.effect_types_count; ++i)
+    {
         if (strncasecmp(effects_conf.effect_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;

@@ -77,7 +77,8 @@ TbResult LbSpriteDrawRemapUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline
         if (ycurstep[1] != 0)
         {
             unsigned char *prevdata;
-            int xdup, ydup;
+            int xdup;
+            int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
             if (ycurstep[0]+ydup > outheight)
@@ -183,7 +184,8 @@ TbResult LbSpriteDrawRemapUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline
         if (ycurstep[1] != 0)
         {
             unsigned char *prevdata;
-            int xdup, ydup;
+            int xdup;
+            int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
             if (ycurstep[0]+ydup > outheight)
@@ -289,7 +291,8 @@ TbResult LbSpriteDrawRemapUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline
         if (ycurstep[1] != 0)
         {
             unsigned char *prevdata;
-            int xdup, ydup;
+            int xdup;
+            int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
             if (ycurstep[0]+ydup > outheight)
@@ -395,7 +398,8 @@ TbResult LbSpriteDrawRemapUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline
         if (ycurstep[1] != 0)
         {
             unsigned char *prevdata;
-            int xdup, ydup;
+            int xdup;
+            int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
             if (ycurstep[0]+ydup > outheight)
@@ -502,7 +506,8 @@ TbResult LbSpriteDrawRemapUsingScalingUpDataSolidRL(uchar *outbuf, int scanline,
             int ycur;
             int solid_len;
             TbPixel * out_line;
-            int xdup, ydup;
+            int xdup;
+            int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
             if (ycurstep[0]+ydup > outheight)
@@ -624,7 +629,8 @@ TbResult LbSpriteDrawRemapUsingScalingUpDataSolidLR(uchar *outbuf, int scanline,
             int ycur;
             int solid_len;
             TbPixel * out_line;
-            int xdup, ydup;
+            int xdup;
+            int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
             if (ycurstep[0]+ydup > outheight)
@@ -1270,7 +1276,8 @@ TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct Tb
     long *ystep;
     int scanline;
     {
-        long sposx, sposy;
+        long sposx;
+        long sposy;
         sposx = posx;
         sposy = posy;
         scanline = lbDisplay.GraphicsScreenWidth;
@@ -1287,7 +1294,8 @@ TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct Tb
     uchar *outbuf;
     int outheight;
     {
-        int gspos_x,gspos_y;
+        int gspos_x;
+        int gspos_y;
         gspos_y = ystep[0];
         if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0)
             gspos_y += ystep[1] - 1;

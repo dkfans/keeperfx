@@ -98,7 +98,6 @@ static void
 _backtrace(int depth , LPCONTEXT context)
 {
     STACKFRAME frame;
-    char module_name_raw[MAX_PATH];
     LbMemorySet(&frame,0,sizeof(frame));
 
     frame.AddrPC.Offset = context->Eip;
@@ -121,6 +120,7 @@ _backtrace(int depth , LPCONTEXT context)
         DWORD module_base = SymGetModuleBase(process, frame.AddrPC.Offset);
 
         const char * module_name = "[unknown module]";
+        char module_name_raw[MAX_PATH];
         if (module_base &&
             GetModuleFileNameA((HINSTANCE)module_base, module_name_raw, MAX_PATH))
         {

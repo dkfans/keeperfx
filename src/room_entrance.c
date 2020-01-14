@@ -46,12 +46,11 @@ extern "C" {
 struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
 {
     //return _DK_create_creature_at_entrance(room, crtr_kind);
-    struct Thing *creatng;
     struct Coord3d pos;
     pos.x.val = room->central_stl_x;
     pos.y.val = room->central_stl_y;
     pos.z.val = subtile_coord(1,0);
-    creatng = create_creature(&pos, crkind, room->owner);
+    struct Thing* creatng = create_creature(&pos, crkind, room->owner);
     if (thing_is_invalid(creatng)) {
         ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
         return INVALID_THING;
@@ -65,14 +64,12 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     move_thing_in_map(creatng, &pos);
     if (room->owner != game.neutral_player_num)
     {
-        struct Dungeon *dungeon;
-        dungeon = get_dungeon(room->owner);
+        struct Dungeon* dungeon = get_dungeon(room->owner);
         dungeon->lvstats.field_4++;
         dungeon->lvstats.field_8++;
         dungeon->lvstats.field_88 = crkind;
     }
-    struct Thing *heartng;
-    heartng = get_player_soul_container(room->owner);
+    struct Thing* heartng = get_player_soul_container(room->owner);
     TRACE_THING(heartng);
     if (!thing_is_invalid(heartng))
     {
@@ -122,13 +119,9 @@ TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
 
 long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_idx, int crmodel)
 {
-    struct Dungeon * dungeon;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    long slabs_count = get_room_slabs_count(plyr_idx, room_kind);
     long used_fraction;
-    long slabs_count;
-
-    dungeon = get_dungeon(plyr_idx);
-    slabs_count = get_room_slabs_count(plyr_idx, room_kind);
-
     switch (room_kind)
     {
     case RoK_LAIR:
@@ -167,17 +160,13 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
 
 long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerNumber plyr_idx)
 {
-    struct CreatureStats * stats;
-
     SYNCDBG(11, "Starting");
 
-    stats = creature_stats_get(crmodel);
+    struct CreatureStats* stats = creature_stats_get(crmodel);
     long excess_attraction = 0;
-    int i;
-    for (i=0; i < ENTRANCE_ROOMS_COUNT; i++)
+    for (int i = 0; i < ENTRANCE_ROOMS_COUNT; i++)
     {
-        RoomKind room_kind;
-        room_kind = stats->entrance_rooms[i];
+        RoomKind room_kind = stats->entrance_rooms[i];
         if ((room_kind != RoK_NONE) && (stats->entrance_slabs_req[i] > 0)) {
             // First room adds fully to attraction, second adds only 1/2, third adds 1/3
             excess_attraction += calculate_attractive_room_quantity(room_kind, plyr_idx, crmodel) / (i+1);
@@ -188,9 +177,6 @@ long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerNumber p
 
 TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crmodel)
 {
-    struct CreatureStats * stats;
-    int i;
-
     SYNCDBG(11, "Starting for creature model %s", creature_code_name(crmodel));
 
     if (game.pool.crtr_kind[crmodel] <= 0) {
@@ -211,17 +197,15 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
     }
 
     // Typical way is to allow creatures which meet attraction conditions
-    stats = creature_stats_get(crmodel);
+    struct CreatureStats* stats = creature_stats_get(crmodel);
 
     // Check if we've got rooms of enough size for attraction
-    for (i = 0; i < ENTRANCE_ROOMS_COUNT; ++i)
+    for (int i = 0; i < ENTRANCE_ROOMS_COUNT; ++i)
     {
-        RoomKind room_kind;
-        int slabs_count;
-        room_kind = stats->entrance_rooms[i];
+        RoomKind room_kind = stats->entrance_rooms[i];
 
         if (room_kind != RoK_NONE) {
-            slabs_count = get_room_slabs_count(dungeon->owner, room_kind);
+            int slabs_count = get_room_slabs_count(dungeon->owner, room_kind);
 
             if (slabs_count < stats->entrance_slabs_req[i]) {
                 SYNCDBG(11, "The %s needs more %s space for player %d", creature_code_name(crmodel),room_code_name(room_kind),(int)dungeon->owner);
@@ -245,29 +229,24 @@ TbBool remove_creature_from_generate_pool(ThingModel crmodel)
 
 int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
 {
-    long cum_freq; //cumulative frequency
-    long gen_count;
-    long crtr_freq[CREATURE_TYPES_COUNT];
-    long rnd;
-    long score;
+    //cumulative frequency
     long crmodel;
 
     SYNCDBG(9,"Starting");
 
-    cum_freq = 0;
-    gen_count = 0;
+    long cum_freq = 0;
+    long gen_count = 0;
+    long crtr_freq[CREATURE_TYPES_COUNT];
     crtr_freq[0] = 0;
     for (crmodel = 1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
     {
         if (creature_will_generate_for_dungeon(dungeon, crmodel))
         {
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get(crmodel);
+            struct CreatureStats* crstat = creature_stats_get(crmodel);
 
             gen_count += 1;
 
-            score = (long)crstat->entrance_score
-                + calculate_excess_attraction_for_creature(crmodel, dungeon->owner);
+            long score = (long)crstat->entrance_score + calculate_excess_attraction_for_creature(crmodel, dungeon->owner);
             if (score < 1) {
                 score = 1;
             }
@@ -286,7 +265,7 @@ int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
     {
         if (cum_freq > 0)
         {
-            rnd = ACTION_RANDOM(cum_freq);
+            long rnd = ACTION_RANDOM(cum_freq);
 
             crmodel = 1;
             while (rnd >= crtr_freq[crmodel])
@@ -310,18 +289,15 @@ int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
 
 TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel crmodel)
 {
-    struct Room * room;
-
     SYNCDBG(9,"Starting");
 
-    room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
+    struct Room* room = pick_random_room(dungeon->owner, RoK_ENTRANCE);
     if (room_is_invalid(room))
     {
         ERRORLOG("Could not get a random entrance for player %d",(int)dungeon->owner);
         return false;
     }
-    struct Thing *creatng;
-    creatng = create_creature_at_entrance(room, crmodel);
+    struct Thing* creatng = create_creature_at_entrance(room, crmodel);
     if (thing_is_invalid(creatng)) {
         return false;
     }
@@ -331,18 +307,14 @@ TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel
 
 void generate_creature_for_dungeon(struct Dungeon * dungeon)
 {
-    ThingModel crmodel;
-    long lair_space;
-
     SYNCDBG(9,"Starting");
 
-    crmodel = calculate_creature_to_generate_for_dungeon(dungeon);
+    ThingModel crmodel = calculate_creature_to_generate_for_dungeon(dungeon);
 
     if (crmodel > 0)
     {
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get(crmodel);
-        lair_space = calculate_free_lair_space(dungeon);
+        struct CreatureStats* crstat = creature_stats_get(crmodel);
+        long lair_space = calculate_free_lair_space(dungeon);
         if ((long)crstat->pay > dungeon->total_money_owned)
         {
             SYNCDBG(8,"The %s will not come as player %d has less than %d gold",creature_code_name(crmodel),(int)dungeon->owner,(int)crstat->pay);
@@ -381,9 +353,6 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 
 void process_entrance_generation(void)
 {
-    struct PlayerInfo *plyr;
-    struct Dungeon *dungeon;
-    long i;
     SYNCDBG(8,"Starting");
     //_DK_process_entrance_generation();
 
@@ -396,15 +365,15 @@ void process_entrance_generation(void)
         }
     }
 
-    for (i = 0; i < PLAYERS_COUNT; i++)
+    for (long i = 0; i < PLAYERS_COUNT; i++)
     {
-        plyr = get_player(i);
+        struct PlayerInfo* plyr = get_player(i);
         if (!player_exists(plyr)) {
             continue;
         }
         if ((plyr->field_2C == 1) && (plyr->victory_state != VicS_LostLevel) )
         {
-            dungeon = get_players_dungeon(plyr);
+            struct Dungeon* dungeon = get_players_dungeon(plyr);
             if (generation_due_for_dungeon(dungeon))
             {
                 if (generation_available_to_dungeon(dungeon)) {

@@ -44,7 +44,6 @@ unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 void setup_default_settings(void)
 {
     // CPU status variable
-    struct CPU_INFO cpu_info;
     const struct GameSettings default_settings = {
      0,                         // field_0
      4,                         // video_shadows
@@ -97,6 +96,7 @@ void setup_default_settings(void)
      6                          // first_person_move_sensitivity
     };
     LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
+    struct CPU_INFO cpu_info;
     cpu_detect(&cpu_info);
     settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
     if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
@@ -109,10 +109,8 @@ void setup_default_settings(void)
 TbBool load_settings(void)
 {
     SYNCDBG(6,"Starting");
-    char *fname;
-    long len;
-    fname = prepare_file_path(FGrp_Save,"settings.dat");
-    len = LbFileLengthRnc(fname);
+    char* fname = prepare_file_path(FGrp_Save, "settings.dat");
+    long len = LbFileLengthRnc(fname);
     if (len == sizeof(struct GameSettings))
     {
       if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
@@ -125,10 +123,9 @@ TbBool load_settings(void)
 
 short save_settings(void)
 {
-  char *fname;
-  fname=prepare_file_path(FGrp_Save,"settings.dat");
-  LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
-  return true;
+    char* fname = prepare_file_path(FGrp_Save, "settings.dat");
+    LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
+    return true;
 }
 
 int get_creature_can_see_subtiles(void)

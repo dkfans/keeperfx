@@ -39,11 +39,9 @@
 /******************************************************************************/
 short at_guard_post_room(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct Room *room;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, get_room_for_job(Job_GUARD), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
@@ -67,17 +65,15 @@ short at_guard_post_room(struct Thing *thing)
 
 CrStateRet guarding(struct Thing *thing)
 {
-    struct Room *room;
     TRACE_THING(thing);
-    room = get_room_thing_is_on(thing);
+    struct Room* room = get_room_thing_is_on(thing);
     if (creature_job_in_room_no_longer_possible(room, Job_GUARD, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetFail;
     }
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_move_to(thing, &cctrl->moveto_pos, cctrl->max_speed, 0, 0) == 0)
     {
         return CrStRet_Unchanged;

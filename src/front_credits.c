@@ -66,8 +66,7 @@ void frontstory_draw(void)
     LbTextSetWindow(70*units_per_pixel/16, 70*units_per_pixel/16, (640-2*70)*units_per_pixel/16, (480-2*70)*units_per_pixel/16);
     LbTextSetFont(frontstory_font);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    int tx_units_per_px;
-    tx_units_per_px = (26 * units_per_pixel) / LbTextLineHeight();
+    int tx_units_per_px = (26 * units_per_pixel) / LbTextLineHeight();
     LbTextDrawResized(0, 0, tx_units_per_px, get_string(frontstory_text_no));
 }
 
@@ -78,35 +77,29 @@ short frontstory_input(void)
 
 void frontcredits_draw(void)
 {
-    struct CreditsItem *credit;
-    TbBool did_draw;
-    int fontid;
-    long i;
-    long h;
-    const char *text;
     credits_offset -= credits_scroll_speed;
     frontend_copy_background();
 
     lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE | Lb_TEXT_HALIGN_CENTER;
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-    fontid = 1;
+    int fontid = 1;
     LbTextSetFont(frontend_font[fontid]);
-    h = credits_offset;
-    did_draw = h > 0;
-    for (i = 0; campaign.credits[i].kind != CIK_None; i++)
+    long h = credits_offset;
+    TbBool did_draw = h > 0;
+    for (long i = 0; campaign.credits[i].kind != CIK_None; i++)
     {
         if (h >= lbDisplay.PhysicalScreenHeight)
           break;
-        credit = &campaign.credits[i];
+        struct CreditsItem* credit = &campaign.credits[i];
         if (credit->font != fontid)
         {
           fontid = credit->font;
           LbTextSetFont(frontend_font[fontid]);
         }
-        int ln_height;
-        ln_height = LbTextLineHeight() * units_per_pixel / 16;
+        int ln_height = LbTextLineHeight() * units_per_pixel / 16;
         if (h > -ln_height)
         {
+            const char* text;
             switch (credit->kind)
             {
             case CIK_StringId:
@@ -133,9 +126,8 @@ void frontcredits_draw(void)
 
 TbBool frontcredits_input(void)
 {
-    int fontid;
     credits_scroll_speed = 1 * units_per_pixel / 16;
-    fontid = 1;
+    int fontid = 1;
     int speed;
     if ( lbKeyOn[KC_DOWN] )
     {

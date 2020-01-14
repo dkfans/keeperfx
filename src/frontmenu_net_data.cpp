@@ -218,7 +218,8 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
 {
     //_DK_frontnet_draw_session_selected(gbtn);
     struct TbSprite *spr;
-    long pos_x, pos_y;
+    long pos_x;
+    long pos_y;
     int i;
     pos_x = gbtn->scr_pos_x;
     pos_y = gbtn->scr_pos_y;
@@ -291,7 +292,8 @@ void frontnet_session_create(struct GuiButton *gbtn)
   void *conn_options;
   char *text;
   char *txpos;
-  long i,idx;
+  long i;
+  long idx;
   idx = 0;
   for (i=0; i < net_number_of_sessions; i++)
   {

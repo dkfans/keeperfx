@@ -42,19 +42,15 @@ DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng)
 /******************************************************************************/
 long calculate_free_lair_space(struct Dungeon * dungeon)
 {
-    long cap_total, cap_used, cap_required;
-    long i;
-    unsigned long k;
     SYNCDBG(9,"Starting");
     //return _DK_calculate_free_lair_space(dungeon);
-    cap_used = 0;
-    cap_total = 0;
-    k = 0;
-    i = dungeon->room_kind[RoK_LAIR];
+    long cap_used = 0;
+    long cap_total = 0;
+    unsigned long k = 0;
+    long i = dungeon->room_kind[RoK_LAIR];
     while (i != 0)
     {
-        struct Room *room;
-        room = room_get(i);
+        struct Room* room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -72,16 +68,14 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
             break;
         }
     }
-    cap_required = 0;
+    long cap_required = 0;
     k = 0;
     i = dungeon->creatr_list_start;
     while (i != 0)
     {
-        struct Thing *thing;
-        struct CreatureControl *cctrl;
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
-        cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
             ERRORLOG("Jump to invalid creature detected");
@@ -91,8 +85,7 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
         // Thing list loop body
         if (cctrl->lair_room_id == 0)
         {
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
+            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             cap_required += crstat->lair_size;
         }
         // Thing list loop body ends

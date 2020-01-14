@@ -63,20 +63,19 @@ DLLIMPORT int _DK_LbFilePosition(TbFileHandle handle);
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
 {
-    struct Coord3d rcpos;
-    long eidx;
     if (SoundDisabled)
         return;
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
     if (thing_is_invalid(thing))
         return;
+    struct Coord3d rcpos;
     rcpos.x.val = Receiver.pos.val_x;
     rcpos.y.val = Receiver.pos.val_y;
     rcpos.z.val = Receiver.pos.val_z;
     if (get_3d_box_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
     {
-        eidx = thing->snd_emitter_id;
+        long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
             S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, a7);
@@ -91,14 +90,11 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
 
 void play_thing_walking(struct Thing *thing)
 {
-    struct PlayerInfo *myplyr;
-    myplyr = get_my_player();
-    struct Camera *cam;
-    cam = myplyr->acamera;
+    struct PlayerInfo* myplyr = get_my_player();
+    struct Camera* cam = myplyr->acamera;
     { // Skip the thing if its distance to camera is too big
-        MapSubtlDelta dist_x, dist_y;
-        dist_x = coord_subtile(abs(cam->mappos.x.val - (MapCoordDelta)thing->mappos.x.val));
-        dist_y = coord_subtile(abs(cam->mappos.y.val - (MapCoordDelta)thing->mappos.y.val));
+        MapSubtlDelta dist_x = coord_subtile(abs(cam->mappos.x.val - (MapCoordDelta)thing->mappos.x.val));
+        MapSubtlDelta dist_y = coord_subtile(abs(cam->mappos.y.val - (MapCoordDelta)thing->mappos.y.val));
         if (dist_x <= dist_y)
           dist_x = dist_y;
         if (dist_x >= 10) {
@@ -109,8 +105,7 @@ void play_thing_walking(struct Thing *thing)
         // Spectators don't do sounds
         return;
     }
-    long loudness;
-    loudness = (myplyr->view_mode == PVM_CreatureView) ? (FULL_LOUDNESS) : (FULL_LOUDNESS/5);
+    long loudness = (myplyr->view_mode == PVM_CreatureView) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
     // Flying diptera has a buzzing noise sound
     if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->movement_flags & TMvF_Flying) != 0) && (thing->field_60 < (int)thing->mappos.z.val))
     {
@@ -123,18 +118,15 @@ void play_thing_walking(struct Thing *thing)
         if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
             S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
         }
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->field_9) && get_foot_creature_has_down(thing))
         {
-            int smpl_variant;
-            smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->field_67 & 0x1F)];
+            int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->field_67 & 0x1F)];
             long smpl_idx;
             if ((thing->movement_flags & TMvF_Unknown80) != 0) {
                 smpl_idx = 181 + smpl_variant;
             } else {
-                struct CreatureSound *crsound;
-                crsound = get_creature_sound(thing, CrSnd_Foot);
+                struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
                 smpl_idx = crsound->index + smpl_variant;
             }
             cctrl->field_67 = (cctrl->field_67 ^ (cctrl->field_67 ^ (cctrl->field_67 + 1))) & 0x1F;
@@ -145,16 +137,19 @@ void play_thing_walking(struct Thing *thing)
                 cctrl->field_67 &= ~0x1F;
             }
 
-            int v15;
-            unsigned short smpl_delay;
             //TODO CONFIG creature model dependency; remove, add config file option for this
-            v15 = thing->model;
-            if ( v15 == 19 || v15 == 24 ) {//FLY or BUG
+            int v15 = thing->model;
+            unsigned short smpl_delay;
+            if (v15 == 19 || v15 == 24)
+            { //FLY or BUG
                 smpl_delay = 400;
-            } else
-            if ( v15 == 27 ) {//HELL_HOUND
+            }
+            else if (v15 == 27)
+            { //HELL_HOUND
                 smpl_delay = 300;
-            } else {
+            }
+            else
+            {
                 smpl_delay = 100;
             }
             thing_play_sample(thing, smpl_idx, smpl_delay, 0, 3, 3, 1, loudness);
@@ -167,14 +162,13 @@ void play_thing_walking(struct Thing *thing)
 
 void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
 {
-    struct Thing *thing;
     long i;
     if (game.ambient_sound_thing_idx == 0)
     {
         ERRORLOG("No room ambient sound object");
         return;
     }
-    thing = thing_get(game.ambient_sound_thing_idx);
+    struct Thing* thing = thing_get(game.ambient_sound_thing_idx);
     if ( thing_is_invalid(thing) )
     {
         ERRORLOG("Invalid room ambient sound object");
@@ -208,43 +202,35 @@ void set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx)
 
 void find_nearest_rooms_for_ambient_sound(void)
 {
-    struct PlayerInfo *player;
-    struct Room *room;
-    struct MapOffset *sstep;
-    struct Coord3d pos;
-    long slb_x,slb_y;
-    MapSubtlCoord stl_x,stl_y;
-    long i,k;
     SYNCDBG(8,"Starting");
     if ((SoundDisabled) || (GetCurrentSoundMasterVolume() <= 0))
         return;
-    player = get_my_player();
-    struct Camera *cam;
-    cam = player->acamera;
+    struct PlayerInfo* player = get_my_player();
+    struct Camera* cam = player->acamera;
     if (cam == NULL)
     {
         ERRORLOG("No active camera");
         set_room_playing_ambient_sound(NULL, 0);
         return;
     }
-    slb_x = subtile_slab(cam->mappos.x.stl.num);
-    slb_y = subtile_slab(cam->mappos.y.stl.num);
-    for (i = 0; i < 11*11; i++)
+    long slb_x = subtile_slab(cam->mappos.x.stl.num);
+    long slb_y = subtile_slab(cam->mappos.y.stl.num);
+    for (long i = 0; i < 11 * 11; i++)
     {
-        sstep = &spiral_step[i];
-        stl_x = slab_subtile_center(slb_x + sstep->h);
-        stl_y = slab_subtile_center(slb_y + sstep->v);
+        struct MapOffset* sstep = &spiral_step[i];
+        MapSubtlCoord stl_x = slab_subtile_center(slb_x + sstep->h);
+        MapSubtlCoord stl_y = slab_subtile_center(slb_y + sstep->v);
         if (subtile_is_player_room(player->id_number,stl_x,stl_y))
         {
-            room = subtile_room_get(stl_x, stl_y);
+            struct Room* room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            struct RoomConfigStats *roomst;
-            roomst = &slab_conf.room_cfgstats[room->kind];
-            k = roomst->ambient_snd_smp_id;
+            struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[room->kind];
+            long k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
                 SYNCDBG(8,"Playing ambient for %s at (%d,%d)",room_code_name(room->kind),(int)stl_x,(int)stl_y);
+                struct Coord3d pos;
                 pos.x.val = subtile_coord_center(stl_x);
                 pos.y.val = subtile_coord_center(stl_y);
                 pos.z.val = subtile_coord(1,0);
@@ -258,9 +244,8 @@ void find_nearest_rooms_for_ambient_sound(void)
 
 TbBool update_3d_sound_receiver(struct PlayerInfo *player)
 {
-    struct Camera *cam;
     SYNCDBG(7,"Starting");
-    cam = player->acamera;
+    struct Camera* cam = player->acamera;
     if (cam == NULL)
         return false;
     S3DSetSoundReceiverPosition(cam->mappos.x.val,cam->mappos.y.val,cam->mappos.z.val);
@@ -270,12 +255,10 @@ TbBool update_3d_sound_receiver(struct PlayerInfo *player)
 
 void update_player_sounds(void)
 {
-    int k;
-    struct PlayerInfo *player;
     SYNCDBG(7,"Starting");
     if ((game.operation_flags & GOF_Paused) == 0)
     {
-        player = get_my_player();
+        struct PlayerInfo* player = get_my_player();
         process_messages();
         if (!SoundDisabled)
         {
@@ -289,7 +272,7 @@ void update_player_sounds(void)
     }
     find_nearest_rooms_for_ambient_sound();
     process_3d_sounds();
-    k = (game.bonus_time-game.play_gameturn) / 2;
+    int k = (game.bonus_time - game.play_gameturn) / 2;
     if (bonus_timer_enabled())
     {
       if ((game.bonus_time == game.play_gameturn) ||
@@ -356,8 +339,6 @@ void process_3d_sounds(void)
 
 void process_sound_heap(void)
 {
-    struct SampleInfo *smpinfo;
-    struct SampleInfo *smpinfo_last;
     struct SampleTable *satab;
     struct HeapMgrHandle *hmhndl;
     long i;
@@ -383,8 +364,8 @@ void process_sound_heap(void)
             }
         }
     }
-    smpinfo_last = GetLastSampleInfoStructure();
-    for (smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
+    struct SampleInfo* smpinfo_last = GetLastSampleInfoStructure();
+    for (struct SampleInfo* smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
     {
       if ( (smpinfo->field_0 != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
       {
@@ -418,15 +399,7 @@ void process_sound_heap(void)
 
 long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, long buf_len, long a5)
 {
-    struct SoundBankHead bhead;
-    struct SoundBankEntry bentries[9];
-    struct SoundBankSample bsample;
-
-    unsigned char rbuf[8];
-    struct SampleTable *smpl;
-    struct SoundBankEntry *bentry;
-    long fsize;
-    long i,k;
+    long k;
 
     // TODO SOUND use rewritten version when sound routines are rewritten
 
@@ -463,14 +436,17 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
         return 0;
     }
     _DK_LbFileSeek(fileh, 0, Lb_FILE_SEEK_END);
-    fsize = _DK_LbFilePosition(fileh);
+    long fsize = _DK_LbFilePosition(fileh);
     _DK_LbFileSeek(fileh, fsize-4, Lb_FILE_SEEK_BEGINNING);
+    unsigned char rbuf[8];
     _DK_LbFileRead(fileh, &rbuf, 4);
-    i = read_int32_le_buf(rbuf);
+    long i = read_int32_le_buf(rbuf);
     _DK_LbFileSeek(fileh, i, Lb_FILE_SEEK_BEGINNING);
+    struct SoundBankHead bhead;
     _DK_LbFileRead(fileh, &bhead, sizeof(bhead));
+    struct SoundBankEntry bentries[9];
     _DK_LbFileRead(fileh, bentries, sizeof(bentries));
-    bentry = &bentries[k];
+    struct SoundBankEntry* bentry = &bentries[k];
     if (bentry->field_0 == 0) {
         return 0;
     }
@@ -483,10 +459,11 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
         return 0;
     }
     _DK_LbFileSeek(fileh, bentry->field_0, Lb_FILE_SEEK_BEGINNING);
-    smpl = (struct SampleTable *)buf;
+    struct SampleTable* smpl = (struct SampleTable*)buf;
     k = bentry->field_4;
     for (i=0; i < *nsamples; i++)
     {
+        struct SoundBankSample bsample;
         _DK_LbFileRead(fileh, &bsample, sizeof(struct SoundBankSample));
         smpl->file_pos = k + bsample.field_12;
         smpl->data_size = bsample.data_size;
@@ -500,12 +477,10 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
 
 TbBool init_sound(void)
 {
-    struct SoundSettings *snd_settng;
-    unsigned long i;
     SYNCDBG(8,"Starting");
     if (SoundDisabled)
       return false;
-    snd_settng = &game.sound_settings;
+    struct SoundSettings* snd_settng = &game.sound_settings;
     SetupAudioOptionDefaults(snd_settng);
     snd_settng->field_E = 3;
     snd_settng->sound_type = 1622;
@@ -513,7 +488,7 @@ TbBool init_sound(void)
     snd_settng->dir3 = sound_dir;
     snd_settng->field_12 = 1;
     snd_settng->stereo = 1;
-    i = get_best_sound_heap_size(mem_size);
+    unsigned long i = get_best_sound_heap_size(mem_size);
     if (i < 1048576)
       snd_settng->max_number_of_samples = 10;
     else
@@ -543,9 +518,6 @@ TbBool init_sound(void)
 
 TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5)
 {
-    long i;
-    long buf_len;
-    unsigned char *buf;
     SYNCDBG(8,"Starting");
     LbMemorySet(heap_mem, 0, heap_size);
     using_two_banks = 0;
@@ -559,9 +531,9 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
         ERRORLOG("Couldn't open primary sound bank file \"%s\"",snd_fname);
         return false;
     }
-    buf = heap_mem;
-    buf_len = heap_size;
-    i = parse_sound_file(sound_file, buf, &samples_in_bank, buf_len, a5);
+    unsigned char* buf = heap_mem;
+    long buf_len = heap_size;
+    long i = parse_sound_file(sound_file, buf, &samples_in_bank, buf_len, a5);
     if (i == 0)
     {
         ERRORLOG("Couldn't parse sound bank file \"%s\"",snd_fname);
@@ -637,14 +609,13 @@ void randomize_sound_font(void)
 
 struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
-    struct Thing *thing;
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
         ERRORDBG(3,"Cannot create ambient sound %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate ambient sound %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -662,10 +633,9 @@ struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, 
 
 TbBool ambient_sound_prepare(void)
 {
-    struct Thing *thing;
     struct Coord3d pos;
     memset(&pos,0,sizeof(struct Coord3d)); // ambient sound position
-    thing = create_ambient_sound(&pos, 1, game.neutral_player_num);
+    struct Thing* thing = create_ambient_sound(&pos, 1, game.neutral_player_num);
     if (thing_is_invalid(thing))
     {
         game.ambient_sound_thing_idx = 0;
@@ -678,8 +648,7 @@ TbBool ambient_sound_prepare(void)
 
 TbBool ambient_sound_stop(void)
 {
-    struct Thing *thing;
-    thing = thing_get(game.ambient_sound_thing_idx);
+    struct Thing* thing = thing_get(game.ambient_sound_thing_idx);
     if (thing_is_invalid(thing))
     {
         return false;
@@ -713,8 +682,7 @@ void sound_reinit_after_load(void)
 
 void stop_thing_playing_sample(struct Thing *heartng, short a2)
 {
-    unsigned char eidx;
-    eidx = heartng->snd_emitter_id;
+    unsigned char eidx = heartng->snd_emitter_id;
     if (eidx > 0)
     {
         if (S3DEmitterIsPlayingSample(eidx, a2, 0)) {

@@ -122,7 +122,8 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
 {
     Gf_Btn_Callback callback;
     int mouse_x;
-    int slide_start,slide_end;
+    int slide_start;
+    int slide_end;
     struct GuiButton *gbtn;
     if (gbtn_idx < 0)
       return false;
@@ -166,7 +167,8 @@ TbBool gui_slider_button_mouse_over_slider_tracker(int gbtn_idx)
     int slider_pos_x;
     slider_pos_x = gbtn->scr_pos_x + 32*bs_units_per_px/16 + ((gbtn->slide_val)*(gbtn->width-64*bs_units_per_px/16) >> 8);
 
-    int mouse_x, mouse_y;
+    int mouse_x;
+    int mouse_y;
     mouse_x = GetMouseX();
     if ((mouse_x >= (slider_pos_x-11*bs_units_per_px/16)) && (mouse_x <= (slider_pos_x+11*bs_units_per_px/16)))
     {
@@ -441,7 +443,8 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
                 fade_h = 0;
         }
     }
-    long px,py;
+    long px;
+    long py;
     switch (gmnu->visual_state)
     {
     case 3:
@@ -465,7 +468,8 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
 void gui_pretty_background(struct GuiMenu *gmnu)
 {
     SYNCDBG(9,"Starting");
-    int fade_w,fade_h;
+    int fade_w;
+    int fade_h;
     int i;
     fade_w = 0;
     fade_h = 0;
@@ -490,8 +494,10 @@ void gui_pretty_background(struct GuiMenu *gmnu)
                 fade_h = 0;
         }
     }
-    long px,py;
-    int width, height;
+    long px;
+    long py;
+    int width;
+    int height;
     switch (gmnu->visual_state)
     {
     case 1:
@@ -742,7 +748,8 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     unsigned int febtn_idx;
     unsigned int spridx;
     int fntidx;
-    long x,y;
+    long x;
+    long y;
     int h;
     SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
     febtn_idx = (unsigned int)gbtn->content;
@@ -823,7 +830,8 @@ void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
 void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
 {
     struct TbSprite *spr;
-    long pos_x,pos_y;
+    long pos_x;
+    long pos_y;
     int fs_units_per_px;
     fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 75, 100);
     spr = &frontend_sprite[75];
@@ -846,10 +854,14 @@ void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
 void frontend_draw_scroll_box(struct GuiButton *gbtn)
 {
     struct TbSprite *spr;
-    long pos_x,pos_y;
-    long height_lines,draw_scrollbar;
-    long spr_idx,secspr_idx;
-    long i,delta;
+    long pos_x;
+    long pos_y;
+    long height_lines;
+    long draw_scrollbar;
+    long spr_idx;
+    long secspr_idx;
+    long i;
+    long delta;
     pos_y = gbtn->scr_pos_y;
     switch ( (long)gbtn->content )
     {
@@ -964,7 +976,8 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
 
 void frontend_draw_slider_button(struct GuiButton *gbtn)
 {
-    long spr_idx,btn_id;
+    long spr_idx;
+    long btn_id;
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
         btn_id = (long)gbtn->content;

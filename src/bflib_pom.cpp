@@ -32,49 +32,47 @@ using namespace std;
  */
 double PhaseOfMoon::Calculate(void)
 {
-  int nph;
-  nph=0; // 0 means full moon
+    int nph = 0; // 0 means full moon
 
-  long n;
-  long jul_now;
-  double frac_now = 0.0;
-  // Compute the current julian date and moon period index
-  jul_now = JulToday(frac_now,n);
-  // And make sure we're before the current date with the period
-  n -= 8;
+    long n;
 
-  long jul_prev = 0;
-  double frac_prev = 0.0;
+    double frac_now = 0.0;
+    // Compute the current julian date and moon period index
+    long jul_now = JulToday(frac_now, n);
+    // And make sure we're before the current date with the period
+    n -= 8;
 
-  long jul_next = 0;
-  double frac_next = 0.0;
-  PhaseOfMoon::FlMoon(n, nph, jul_next, frac_next);
+    long jul_prev = 0;
+    double frac_prev = 0.0;
 
-  unsigned long iter_num = 0;
-  short found_phase = 0;
-  do
-  {
-    iter_num++;
-    if ( iter_num > 16 )
-    {
-      pom_error("POM_Calculate: Too many iterations.");
-      return 0.0;
-    }
-    n++;
-    jul_prev = jul_next;
-    frac_prev = frac_next;
+    long jul_next = 0;
+    double frac_next = 0.0;
     PhaseOfMoon::FlMoon(n, nph, jul_next, frac_next);
-    if ( jul_now <= jul_prev )
+    unsigned long iter_num = 0;
+    short found_phase = 0;
+    do
     {
-      if ((jul_now!=jul_prev)||(frac_now<frac_prev))
-        continue;
-    }
-    if ( jul_now >= jul_next )
-    {
-      if ((jul_now!=jul_next)||(frac_now>=frac_next))
-        continue;
-    }
-    found_phase = 1;
+        iter_num++;
+        if (iter_num > 16)
+        {
+            pom_error("POM_Calculate: Too many iterations.");
+            return 0.0;
+        }
+        n++;
+        jul_prev = jul_next;
+        frac_prev = frac_next;
+        PhaseOfMoon::FlMoon(n, nph, jul_next, frac_next);
+        if (jul_now <= jul_prev)
+        {
+            if ((jul_now != jul_prev) || (frac_now < frac_prev))
+                continue;
+        }
+        if (jul_now >= jul_next)
+        {
+            if ((jul_now != jul_next) || (frac_now >= frac_next))
+                continue;
+        }
+        found_phase = 1;
   }
   while ( !found_phase );
 
@@ -102,22 +100,20 @@ void PhaseOfMoon::pom_error(const char *msg)
 void PhaseOfMoon::FlMoon(const long n, const short nph, long &jd, double &frac)
 {
   const double RAD=PI/180.0;
-  int i;
-  double am,as,fml,c,t,t2,t3,xtra;
 
-  c=n+nph/4.0;
-  t=c/1236.85; // time in Julian centuries from 1900 January 0.5
-  t2=t*t;      // square for frequent use
-  t3=t2*t;      // cube for frequent use
+  double c = n + nph / 4.0;
+  double t = c / 1236.85; // time in Julian centuries from 1900 January 0.5
+  double t2 = t * t;      // square for frequent use
+  double t3 = t2 * t;     // cube for frequent use
   // Sun's mean anomaly
-  as = 359.2242 + 29.10535608*c - 0.0000333*t2 - 0.00000347*t3;
+  double as = 359.2242 + 29.10535608 * c - 0.0000333 * t2 - 0.00000347 * t3;
   // Moon's mean anomaly
-  am = 306.0253 + 385.81691806*c + 0.010730*t2 + 0.00001236*t3;
+  double am = 306.0253 + 385.81691806 * c + 0.010730 * t2 + 0.00001236 * t3;
   jd=2415020+28*n+7*nph;
   // Moon's argument of latitude
-  fml = 21.2964 + 390.67050646*c - 0.0016528*t2 - 0.00000239*t3;
+  double fml = 21.2964 + 390.67050646 * c - 0.0016528 * t2 - 0.00000239 * t3;
   // Mean time of phase
-  xtra=0.75933+1.53058868*c+((1.178e-4)-(1.55e-7)*t)*t2;
+  double xtra = 0.75933 + 1.53058868 * c + ((1.178e-4) - (1.55e-7) * t) * t2;
   if ((nph==0) || (nph==2))
   {
     // Corrections for New and Full Moon
@@ -142,7 +138,7 @@ void PhaseOfMoon::FlMoon(const long n, const short nph, long &jd, double &frac)
          - 0.0003*sin(RAD*(2*as+am));
   } else
     pom_error("FlMoon: nph is not recognized.");
-  i=int(xtra >= 0.0 ? floor(xtra) : ceil(xtra-1.0));
+  int i = int(xtra >= 0.0 ? floor(xtra) : ceil(xtra - 1.0));
   jd += i;
   frac=xtra-i;
 }
@@ -153,9 +149,8 @@ void PhaseOfMoon::FlMoon(const long n, const short nph, long &jd, double &frac)
 long PhaseOfMoon::JulDay(const short mm, const short id, const int iyyy)
 {
   const int IGREG=15+31*(10+12*1582);
-  long jul;
   int jy=iyyy;
-  int ja,jm;
+  int jm;
 
   if (jy == 0) pom_error("JulDay: there is no year zero.");
   if (jy < 0) ++jy;
@@ -167,11 +162,11 @@ long PhaseOfMoon::JulDay(const short mm, const short id, const int iyyy)
     --jy;
     jm=mm+13;
   }
-  jul = long(floor(JULIAN_DAYS_PER_YEAR*jy)+floor(JULIAN_DAYS_PER_AVGMONTH*jm)+id+1720995);
+  long jul = long(floor(JULIAN_DAYS_PER_YEAR * jy) + floor(JULIAN_DAYS_PER_AVGMONTH * jm) + id + 1720995);
   if (id+31*(mm+12*iyyy) >= IGREG)
   {
-    ja = int(0.01*jy);
-    jul += 2-ja+int(0.25*ja);
+      int ja = int(0.01 * jy);
+      jul += 2 - ja + int(0.25 * ja);
   }
   return jul;
 }
@@ -184,13 +179,11 @@ long PhaseOfMoon::JulToday(double &daypart,long &moon_periods_n)
   //moon periods per Julian year, computed assuming
   // constant orbit orientation with respect to the stars
   const double MOON_CNSTORBIT_YEAR_CYCLES=JULIAN_DAYS_PER_YEAR/SYNODIC_MONTH_IN_DAYS;
-  long tdjul;
   time_t rawtime;
   time(&rawtime);
-  tm *ptm;
-  ptm = gmtime(&rawtime);
+  tm* ptm = gmtime(&rawtime);
   long jul=JulDay(ptm->tm_mon,ptm->tm_mday,ptm->tm_year+1900);
-  tdjul = jul;
+  long tdjul = jul;
   // Approximate number of full moons since january 1900
   moon_periods_n=int(MOON_CNSTORBIT_YEAR_CYCLES*(ptm->tm_year+((ptm->tm_mon-0.5)/12.0)));
   long jul2;

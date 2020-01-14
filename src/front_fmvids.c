@@ -61,8 +61,7 @@ const struct DemoItem demo_item[] = {
 short play_smacker_file(char *filename, FrontendMenuState nstate)
 {
   unsigned int movie_flags = 0;
-  char *bullfrog;
-  bullfrog = "./ldata/bullfrog.smk";
+  char* bullfrog = "./ldata/bullfrog.smk";
   if (resize_movies_enabled())
   {
     // bullfrog.smk cannot be played resized //todo: Exclude movies that cannot be doubled in size, instead of calling it by name.
@@ -73,9 +72,8 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
   }
   if ( SoundDisabled )
     movie_flags |= 0x01;
-  short result;
 
-  result = 1;
+  short result = 1;
   if ((result)&&(nstate>-2))
   {
     if ( setup_screen_mode_minimal(get_movies_vidmode()) )
@@ -126,16 +124,14 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
 
 TbBool intro(void)
 {
-    char *fname;
-    fname = prepare_file_path(FGrp_LoData, "intromix.smk");
+    char* fname = prepare_file_path(FGrp_LoData, "intromix.smk");
     SYNCDBG(0,"Playing intro movie \"%s\"",fname);
     return play_smacker_file(fname, FeSt_MAIN_MENU);
 }
 
 TbBool intro_replay(void)
 {
-    char *fname;
-    fname = prepare_file_path(FGrp_LoData, "intromix.smk");
+    char* fname = prepare_file_path(FGrp_LoData, "intromix.smk");
     SYNCDBG(0,"Playing intro movie \"%s\"",fname);
     return play_smacker_file(fname, -2);
 }
@@ -147,8 +143,7 @@ TbBool campaign_intro(void)
         frontend_set_state(FeSt_LAND_VIEW);
         return 0;
     }
-    char *fname;
-    fname = prepare_file_path(FGrp_CmpgMedia, campaign.movie_intro_fname);
+    char* fname = prepare_file_path(FGrp_CmpgMedia, campaign.movie_intro_fname);
     SYNCDBG(0,"Playing intro movie \"%s\"",fname);
     return play_smacker_file(fname, FeSt_LAND_VIEW);
 }
@@ -159,24 +154,21 @@ TbBool campaign_outro(void)
         SYNCDBG(0,"No outro movie defined");
         return 0;
     }
-    char *fname;
-    fname = prepare_file_path(FGrp_CmpgMedia, campaign.movie_outro_fname);
+    char* fname = prepare_file_path(FGrp_CmpgMedia, campaign.movie_outro_fname);
     SYNCDBG(0,"Playing outro movie \"%s\"",fname);
     return play_smacker_file(fname, FeSt_LEVEL_STATS);
 }
 
 TbBool moon_video(void)
 {
-    char *fname;
-    fname = prepare_file_path(FGrp_LoData, "bullfrog.smk");
+    char* fname = prepare_file_path(FGrp_LoData, "bullfrog.smk");
     SYNCDBG(0,"Playing outro movie \"%s\"",fname);
     return play_smacker_file(fname, -2);
 }
 
 TbBool drag_video(void)
 {
-    char *fname;
-    fname = prepare_file_path(FGrp_LoData, "drag.smk");
+    char* fname = prepare_file_path(FGrp_LoData, "drag.smk");
     SYNCDBG(0,"Playing outro movie \"%s\"",fname);
     return play_smacker_file(fname, FeSt_TORTURE);
 }

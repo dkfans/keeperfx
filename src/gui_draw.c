@@ -44,9 +44,9 @@ char gui_textbuf[TEXT_BUFFER_LENGTH];
 
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
 {
-    int w,h,m;
-    w = 0;
-    h = 0;
+    int m;
+    int w = 0;
+    int h = 0;
     for (m=0; m < 5; m++)
     {
         w += img_w;
@@ -66,21 +66,18 @@ int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
 
 void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width)
 {
-    long body_end;
-    long x;
     if (width < 72*units_per_px/16)
     {
         ERRORLOG("Bar is too small");
         return;
     }
     // Button opening sprite
-    struct TbSprite *spr;
-    spr = &button_sprite[1];
-    x = pos_x;
+    struct TbSprite* spr = &button_sprite[1];
+    long x = pos_x;
     LbSpriteDrawResized(x, pos_y, units_per_px, spr);
     x += (spr->SWidth * units_per_px + 8) / 16;
     // Button body
-    body_end = pos_x + width - 2 * ((32*units_per_px+8) / 16);
+    long body_end = pos_x + width - 2 * ((32 * units_per_px + 8) / 16);
     while (x < body_end)
     {
         spr = &button_sprite[2];
@@ -98,21 +95,18 @@ void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width)
 
 void draw_lit_bar64k(long pos_x, long pos_y, int units_per_px, long width)
 {
-    long body_end;
-    long x;
     if (width < 32*units_per_px/16)
     {
         ERRORLOG("Bar is too small");
         return;
     }
     // opening sprite
-    struct TbSprite *spr;
-    x = pos_x;
-    spr = &button_sprite[7];
+    long x = pos_x;
+    struct TbSprite* spr = &button_sprite[7];
     LbSpriteDrawResized(x, pos_y, units_per_px, spr);
     x += (spr->SWidth * units_per_px + 8) / 16;
     // body
-    body_end = pos_x + width - 2 * ((32*units_per_px+8) / 16);
+    long body_end = pos_x + width - 2 * ((32 * units_per_px + 8) / 16);
     while (x < body_end)
     {
         spr = &button_sprite[8];
@@ -130,13 +124,11 @@ void draw_lit_bar64k(long pos_x, long pos_y, int units_per_px, long width)
 
 void draw_slab64k_background(long pos_x, long pos_y, long width, long height)
 {
-    long scr_x, scr_y;
-    long scr_w, scr_h;
     long i;
-    scr_x = pos_x / pixel_size;
-    scr_y = pos_y / pixel_size;
-    scr_h = height / pixel_size;
-    scr_w = width / pixel_size;
+    long scr_x = pos_x / pixel_size;
+    long scr_y = pos_y / pixel_size;
+    long scr_h = height / pixel_size;
+    long scr_w = width / pixel_size;
     if (scr_x < 0)
     {
         i = scr_x + width / pixel_size;
@@ -155,17 +147,16 @@ void draw_slab64k_background(long pos_x, long pos_y, long width, long height)
     i = MyScreenHeight;
     if (scr_y + scr_h > i)
         scr_h = i - scr_y;
-    TbPixel *out;
-    out = &lbDisplay.WScreen[scr_x + lbDisplay.GraphicsScreenWidth * scr_y];
+    TbPixel* out = &lbDisplay.WScreen[scr_x + lbDisplay.GraphicsScreenWidth * scr_y];
     for (i=0; scr_h > i; i++)
     {
-        TbPixel *inp;
-        inp = &gui_slab[GUI_SLAB_DIMENSION * (i % GUI_SLAB_DIMENSION)];
+        TbPixel* inp = &gui_slab[GUI_SLAB_DIMENSION * (i % GUI_SLAB_DIMENSION)];
         if (scr_w >= GUI_SLAB_DIMENSION)
         {
-            int k;
             memcpy(out, inp, GUI_SLAB_DIMENSION);
-            for (k=GUI_SLAB_DIMENSION; k < scr_w-GUI_SLAB_DIMENSION; k+=GUI_SLAB_DIMENSION) {
+            int k;
+            for (k = GUI_SLAB_DIMENSION; k < scr_w - GUI_SLAB_DIMENSION; k += GUI_SLAB_DIMENSION)
+            {
                 memcpy(out + k, inp, GUI_SLAB_DIMENSION);
             }
             if (width - k > 0) {
@@ -183,8 +174,7 @@ void draw_slab64k(long pos_x, long pos_y, int units_per_px, long width, long hei
 {
     // Draw one pixel more, to make sure we won't get empty area after scaling
     draw_slab64k_background(pos_x, pos_y, width+1, height+1);
-    struct TbSprite *spr;
-    spr = &button_sprite[206];
+    struct TbSprite* spr = &button_sprite[206];
     int bs_units_per_spr = 16*units_per_px/spr->SWidth;
     int border_shift = 6*units_per_px/16;
     int i;
@@ -215,8 +205,7 @@ void draw_slab64k(long pos_x, long pos_y, int units_per_px, long width, long hei
 void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height)
 {
     draw_slab64k_background(pos_x, pos_y, width, height);
-    struct TbSprite *spr;
-    spr = &button_sprite[10];
+    struct TbSprite* spr = &button_sprite[10];
     int bs_units_per_spr = 128*units_per_px/spr->SWidth;
     int i;
     for (i=10*units_per_px/16; i < width-12*units_per_px/16; i+=32*units_per_px/16)
@@ -255,12 +244,10 @@ void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, l
 
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long width, long height)
 {
-    long x, y;
-    struct TbSprite *spr;
-    spr = &button_sprite[10];
+    struct TbSprite* spr = &button_sprite[10];
     int bs_units_per_spr = 128*units_per_px/spr->SWidth;
-    x = pos_x;
-    y = pos_y;
+    long x = pos_x;
+    long y = pos_y;
     int i;
     for (i=10*units_per_px/16; i < width - 12*units_per_px/16; i+=32*units_per_px/16)
     {
@@ -299,15 +286,14 @@ void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long 
 
 void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height)
 {
-    unsigned short drwflags_mem;
-    drwflags_mem = lbDisplay.DrawFlags;
+    unsigned short drwflags_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbDrawBox(pos_x + 4*units_per_px/16, pos_y + 4*units_per_px/16, width - 8*units_per_px/16, height - 8*units_per_px/16, 1);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    int x,y;
-    struct TbSprite *spr;
-    spr = &gui_panel_sprites[242];
+    int x;
+    int y;
+    struct TbSprite* spr = &gui_panel_sprites[242];
     int ps_units_per_spr = 26*units_per_px/spr->SWidth;
     long i;
     for (i = 0; i < width - 68*units_per_px/16; i += 26*units_per_px/16)
@@ -352,12 +338,10 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
  */
 int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    int units_per_px;
-    struct TbSprite *spr;
-    spr = &gui_panel_sprites[spridx];
+    struct TbSprite* spr = &gui_panel_sprites[spridx];
     if ((spr <= gui_panel_sprites) || (spr >= end_gui_panel_sprites) || (spr->SHeight < 1))
         return 16;
-    units_per_px = ((gbtn->height*fraction/100) * 16 + spr->SHeight/2) / spr->SHeight;
+    int units_per_px = ((gbtn->height * fraction / 100) * 16 + spr->SHeight / 2) / spr->SHeight;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -372,12 +356,10 @@ int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, lo
  */
 int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    int units_per_px;
-    struct TbSprite *spr;
-    spr = &gui_panel_sprites[spridx];
+    struct TbSprite* spr = &gui_panel_sprites[spridx];
     if ((spr <= gui_panel_sprites) || (spr >= end_gui_panel_sprites) || (spr->SWidth < 1))
         return 16;
-    units_per_px = ((gbtn->width*fraction/100) * 16 + spr->SWidth/2) / spr->SWidth;
+    int units_per_px = ((gbtn->width * fraction / 100) * 16 + spr->SWidth / 2) / spr->SWidth;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -392,12 +374,10 @@ int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, lon
  */
 int simple_button_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    int units_per_px;
-    struct TbSprite *spr;
-    spr = &button_sprite[spridx];
+    struct TbSprite* spr = &button_sprite[spridx];
     if ((spr <= button_sprite) || (spr >= end_button_sprites) || (spr->SHeight < 1))
         return 16;
-    units_per_px = ((gbtn->height*fraction/100) * 16 + spr->SHeight/2) / spr->SHeight;
+    int units_per_px = ((gbtn->height * fraction / 100) * 16 + spr->SHeight / 2) / spr->SHeight;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -412,12 +392,10 @@ int simple_button_sprite_height_units_per_px(const struct GuiButton *gbtn, long 
  */
 int simple_button_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    int units_per_px;
-    struct TbSprite *spr;
-    spr = &button_sprite[spridx];
+    struct TbSprite* spr = &button_sprite[spridx];
     if ((spr <= button_sprite) || (spr >= end_button_sprites) || (spr->SWidth < 1))
         return 16;
-    units_per_px = ((gbtn->width*fraction/100) * 16 + spr->SWidth/2) / spr->SWidth;
+    int units_per_px = ((gbtn->width * fraction / 100) * 16 + spr->SWidth / 2) / spr->SWidth;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -432,12 +410,10 @@ int simple_button_sprite_width_units_per_px(const struct GuiButton *gbtn, long s
  */
 int simple_frontend_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    int units_per_px;
-    struct TbSprite *spr;
-    spr = &frontend_sprite[spridx];
+    struct TbSprite* spr = &frontend_sprite[spridx];
     if ((spr <= frontend_sprite) || (spr >= frontend_end_sprite) || (spr->SHeight < 1))
         return 16;
-    units_per_px = ((gbtn->height*fraction/100) * 16 + spr->SHeight/2) / spr->SHeight;
+    int units_per_px = ((gbtn->height * fraction / 100) * 16 + spr->SHeight / 2) / spr->SHeight;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -452,12 +428,10 @@ int simple_frontend_sprite_height_units_per_px(const struct GuiButton *gbtn, lon
  */
 int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    int units_per_px;
-    struct TbSprite *spr;
-    spr = &frontend_sprite[spridx];
+    struct TbSprite* spr = &frontend_sprite[spridx];
     if ((spr <= frontend_sprite) || (spr >= frontend_end_sprite) || (spr->SWidth < 1))
         return 16;
-    units_per_px = ((gbtn->width*fraction/100) * 16 + spr->SWidth/2) / spr->SWidth;
+    int units_per_px = ((gbtn->width * fraction / 100) * 16 + spr->SWidth / 2) / spr->SWidth;
     if (units_per_px < 1)
         units_per_px = 1;
     return units_per_px;
@@ -471,12 +445,11 @@ int simple_frontend_sprite_width_units_per_px(const struct GuiButton *gbtn, long
  */
 void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text)
 {
-    unsigned long flgmem;
     static unsigned char cursor_type = 0;
-    static char dtext[TEXT_BUFFER_LENGTH];
-    flgmem = lbDisplay.DrawFlags;
+    unsigned long flgmem = lbDisplay.DrawFlags;
     long cursor_pos = -1;
-    LbStringCopy(dtext,text,TEXT_BUFFER_LENGTH);
+    static char dtext[TEXT_BUFFER_LENGTH];
+    LbStringCopy(dtext, text, TEXT_BUFFER_LENGTH);
     if ((gbtn->gbtype == LbBtnT_EditBox) && (gbtn == input_button))
     {
         cursor_type++;
@@ -494,13 +467,10 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         LbLocTextStringInsert(dtext, "\x0B", cursor_pos+1, TEXT_BUFFER_LENGTH);
         LbLocTextStringInsert(dtext, "\x0B", cursor_pos, TEXT_BUFFER_LENGTH);
     }
-    int units_per_px;
-    units_per_px = (gbtn->width * 16 + base_width/2) / base_width;
-    int tx_units_per_px;
-    tx_units_per_px = units_per_px*22/LbTextLineHeight();
-    unsigned long w,h;
-    w = 4 * units_per_px / 16;
-    h = (gbtn->height - text_string_height(tx_units_per_px, dtext))/2 - 3*units_per_px/16;
+    int units_per_px = (gbtn->width * 16 + base_width / 2) / base_width;
+    int tx_units_per_px = units_per_px * 22 / LbTextLineHeight();
+    unsigned long w = 4 * units_per_px / 16;
+    unsigned long h = (gbtn->height - text_string_height(tx_units_per_px, dtext)) / 2 - 3 * units_per_px / 16;
     LbTextDrawResized(w, h, tx_units_per_px, dtext);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
@@ -511,12 +481,11 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
 void draw_message_box_at(long startx, long starty, long box_width, long box_height, long spritesx, long spritesy)
 {
     struct TbSprite *spr;
-    long x,y;
     long n;
 
     // Draw top line of sprites
-    x = startx;
-    y = starty;
+    long x = startx;
+    long y = starty;
     {
         spr = &frontend_sprite[25];
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
@@ -585,12 +554,10 @@ void draw_message_box_at(long startx, long starty, long box_width, long box_heig
 
 TbBool draw_text_box(const char *text)
 {
-    long spritesy,spritesx;
-    long box_width,box_height;
-    long startx,starty;
-    long n;
+    long spritesy;
+    long spritesx;
     LbTextSetFont(frontend_font[1]);
-    n = LbTextStringWidth(text);
+    long n = LbTextStringWidth(text);
     if (n < (4*108)) {
         spritesy = 1;
         spritesx = n / 108;
@@ -607,15 +574,14 @@ TbBool draw_text_box(const char *text)
     if (spritesx > 4) {
         spritesx = 4;
     }
-    box_width = (108 * spritesx + 18) * units_per_pixel / 16;
-    box_height = 92 * units_per_pixel / 16;
-    startx = (lbDisplay.PhysicalScreenWidth - box_width) / 2;
-    starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
+    long box_width = (108 * spritesx + 18) * units_per_pixel / 16;
+    long box_height = 92 * units_per_pixel / 16;
+    long startx = (lbDisplay.PhysicalScreenWidth - box_width) / 2;
+    long starty = (lbDisplay.PhysicalScreenHeight - box_height) / 2;
     draw_message_box_at(startx, starty, box_width, box_height, spritesx, spritesy);
     // Draw the text inside box
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    int tx_units_per_px;
-    tx_units_per_px = ((box_height/4)*13/11) * 16 / LbTextLineHeight();
+    int tx_units_per_px = ((box_height / 4) * 13 / 11) * 16 / LbTextLineHeight();
     LbTextSetWindow(startx, starty, box_width, box_height);
     n = LbTextLineHeight() * tx_units_per_px / 16;
     return LbTextDrawResized(0, (box_height - spritesy * n) / 2, tx_units_per_px, text);
@@ -623,14 +589,10 @@ TbBool draw_text_box(const char *text)
 
 int scroll_box_get_units_per_px(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
-    int width;
-    int spridx;
-    int i;
-    width = 0;
-    spridx = 40;
-    spr = &frontend_sprite[spridx];
-    for (i = 6; i > 0; i--)
+    int width = 0;
+    int spridx = 40;
+    struct TbSprite* spr = &frontend_sprite[spridx];
+    for (int i = 6; i > 0; i--)
     {
         width += spr->SWidth;
         spr++;
@@ -641,12 +603,10 @@ int scroll_box_get_units_per_px(struct GuiButton *gbtn)
 void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
 {
     struct TbSprite *spr;
-    int pos_x,pos_y;
-    int spridx;
-    int delta;
+    int pos_x;
     int i;
     lbDisplay.DrawFlags = 0;
-    pos_y = gbtn->scr_pos_y;
+    int pos_y = gbtn->scr_pos_y;
     { // First row
         pos_x = gbtn->scr_pos_x;
         spr = &frontend_sprite[25];
@@ -662,7 +622,7 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
     // Further rows
     while (num_rows > 0)
     {
-        spridx = 40;
+        int spridx = 40;
         if (num_rows < 3)
           spridx = 33;
         spr = &frontend_sprite[spridx];
@@ -675,7 +635,7 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
         }
         spr = &frontend_sprite[spridx];
         pos_y += spr->SHeight * units_per_px / 16;
-        delta = 3;
+        int delta = 3;
         if (num_rows < 3)
             delta = 1;
         num_rows -= delta;
@@ -693,37 +653,33 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
 
 void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx)
 {
-    struct TbSprite *spr;
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
       return;
-    spr = &gui_panel_sprites[spridx];
+    struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 
 void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap)
 {
-    struct TbSprite *spr;
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
       return;
-    spr = &gui_panel_sprites[spridx];
+    struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
 }
 
 void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color)
 {
-    struct TbSprite *spr;
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
       return;
-    spr = &gui_panel_sprites[spridx];
+    struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
 }
 
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx)
 {
-    struct TbSprite *spr;
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
       return;
-    spr = &gui_panel_sprites[spridx];
+    struct TbSprite* spr = &gui_panel_sprites[spridx];
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
     LbSpriteDrawResized(x, y, units_per_px, spr);
@@ -731,10 +687,9 @@ void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long sprid
 
 void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color)
 {
-    struct TbSprite *spr;
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT))
       return;
-    spr = &gui_panel_sprites[spridx];
+    struct TbSprite* spr = &gui_panel_sprites[spridx];
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
     LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
@@ -742,8 +697,7 @@ void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spr
 
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx)
 {
-    struct TbSprite *spr;
-    spr = &button_sprite[spridx];
+    struct TbSprite* spr = &button_sprite[spridx];
     if ((spr <= button_sprite) || (spr >= end_button_sprites))
       return;
     LbSpriteDrawResized(x, y, units_per_px, spr);
@@ -751,8 +705,7 @@ void draw_button_sprite_left(long x, long y, int units_per_px, long spridx)
 
 void draw_button_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap)
 {
-    struct TbSprite *spr;
-    spr = &button_sprite[spridx];
+    struct TbSprite* spr = &button_sprite[spridx];
     if ((spr <= button_sprite) || (spr >= end_button_sprites))
       return;
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
@@ -760,8 +713,7 @@ void draw_button_sprite_rmleft(long x, long y, int units_per_px, long spridx, un
 
 void draw_frontend_sprite_left(long x, long y, int units_per_px, long spridx)
 {
-    struct TbSprite *spr;
-    spr = &frontend_sprite[spridx];
+    struct TbSprite* spr = &frontend_sprite[spridx];
     if ((spr <= frontend_sprite) || (spr >= frontend_end_sprite))
         return;
     LbSpriteDrawResized(x, y, units_per_px, spr);
@@ -769,8 +721,7 @@ void draw_frontend_sprite_left(long x, long y, int units_per_px, long spridx)
 
 void draw_string64k(long x, long y, int units_per_px, const char * text)
 {
-    unsigned short drwflags_mem;
-    drwflags_mem = lbDisplay.DrawFlags;
+    unsigned short drwflags_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextDrawResized(x, y, units_per_px, text);
     lbDisplay.DrawFlags = drwflags_mem;
@@ -778,9 +729,8 @@ void draw_string64k(long x, long y, int units_per_px, const char * text)
 
 TbBool frontmenu_copy_background_at(const struct TbRect *bkgnd_area, int units_per_px)
 {
-    int img_width, img_height;
-    img_width = 640;
-    img_height = 480;
+    int img_width = 640;
+    int img_height = 480;
     const unsigned char *srcbuf = frontend_background;
     // Only 8bpp supported for now
     if (LbGraphicsScreenBPP() != 8)
@@ -794,13 +744,11 @@ TbBool frontmenu_copy_background_at(const struct TbRect *bkgnd_area, int units_p
 
 long get_frontmenu_background_area_rect(int rect_x, int rect_y, int rect_w, int rect_h, struct TbRect *bkgnd_area)
 {
-    int img_width, img_height;
-    img_width = 640;
-    img_height = 480;
+    int img_width = 640;
+    int img_height = 480;
     // Parchment bitmap scaling
-    int units_per_px, units_per_px_max;
-    units_per_px = max(16*rect_w/img_width, 16*rect_h/img_height);
-    units_per_px_max = min(16*7*rect_w/(6*img_width), 16*4*rect_h/(3*img_height));
+    int units_per_px = max(16 * rect_w / img_width, 16 * rect_h / img_height);
+    int units_per_px_max = min(16 * 7 * rect_w / (6 * img_width), 16 * 4 * rect_h / (3 * img_height));
     if (units_per_px > units_per_px_max)
         units_per_px = units_per_px_max;
     // The image width can't be larger than video resolution
@@ -832,8 +780,7 @@ void draw_frontmenu_background(int rect_x,int rect_y,int rect_w,int rect_h)
     if (rect_h<0) rect_h=0;
     // Get background area rectangle
     struct TbRect bkgnd_area;
-    int units_per_px;
-    units_per_px = get_frontmenu_background_area_rect(rect_x, rect_y, rect_w, rect_h, &bkgnd_area);
+    int units_per_px = get_frontmenu_background_area_rect(rect_x, rect_y, rect_w, rect_h, &bkgnd_area);
     // Draw it
     frontmenu_copy_background_at(&bkgnd_area, units_per_px);
     SYNCDBG(9,"Done");

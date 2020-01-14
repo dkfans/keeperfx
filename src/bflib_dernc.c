@@ -79,8 +79,7 @@ const char *rnc_error (long errcode) {
         "Huffman decode leads outside buffers",
         "Unknown error"
     };
-    long errlimit;
-    errlimit = sizeof(errors)/sizeof(*errors) - 1;
+    long errlimit = sizeof(errors) / sizeof(*errors) - 1;
     errcode = -errcode;
     if (errcode < 0)
         errcode = 0;
@@ -103,24 +102,18 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 {
     unsigned char *input = (unsigned char *)packed;
     unsigned char *output = (unsigned char *)unpacked;
-    unsigned char *inputend, *outputend;
-    bit_stream bs;
-    huf_table raw, dist, len;
-    unsigned long ch_count;
-    unsigned long ret_len, inp_len;
-    long out_crc;
 #ifdef COMPRESSOR
     long lee = 0;
 #endif
     if (blong(input) != RNC_SIGNATURE)
         if (!(flags&RNC_IGNORE_HEADER_VAL_ERROR)) return RNC_HEADER_VAL_ERROR;
-    ret_len = blong (input+4);
-    inp_len = blong (input+8);
+    unsigned long ret_len = blong(input + 4);
+    unsigned long inp_len = blong(input + 8);
     if ((ret_len>(1<<30))||(inp_len>(1<<30)))
         return RNC_HEADER_VAL_ERROR;
 
-    outputend = output + ret_len;
-    inputend = input + 18 + inp_len;
+    unsigned char* outputend = output + ret_len;
+    unsigned char* inputend = input + 18 + inp_len;
 
     input += 18;               // skip header
 
@@ -129,9 +122,10 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 
     if (rnc_crc(input, inputend-input) != (long)bword(input-4))
         if (!(flags&RNC_IGNORE_PACKED_CRC_ERROR)) return RNC_PACKED_CRC_ERROR;
-    out_crc = bword(input-6);
+    long out_crc = bword(input - 6);
 
-    bitread_init (&bs, &input, inputend);
+    bit_stream bs;
+    bitread_init(&bs, &input, inputend);
     bit_advance (&bs, 2, &input, inputend);      // discard first two bits
 
    // Process chunks.
@@ -141,29 +135,35 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 #ifdef COMPRESSOR
       long this_lee;
 #endif
-      if (inputend-input<6)
+      unsigned long ch_count;
+      if (inputend - input < 6)
       {
           if (!(flags&RNC_IGNORE_HUF_EXCEEDS_RANGE))
               return RNC_HUF_EXCEEDS_RANGE;
             else
               {output=outputend;ch_count=0;break;}
       }
-      read_huftable (&raw,  &bs, &input, inputend);
-      read_huftable (&dist, &bs, &input, inputend);
-      read_huftable (&len,  &bs, &input, inputend);
+      huf_table raw;
+      read_huftable(&raw, &bs, &input, inputend);
+      huf_table dist;
+      read_huftable(&dist, &bs, &input, inputend);
+      huf_table len;
+      read_huftable(&len, &bs, &input, inputend);
       ch_count = bit_read (&bs, 0xFFFF, 16, &input, inputend);
 
       while (1)
       {
-        long length, posn;
-
-        length = huf_read (&raw, &bs, &input,inputend);
-        if (length == -1)
-            {
-            if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR))
-                return RNC_HUF_DECODE_ERROR;
-            else
-                {output=outputend;ch_count=0;break;}
+          long length = huf_read(&raw, &bs, &input, inputend);
+          if (length == -1)
+          {
+              if (!(flags & RNC_IGNORE_HUF_DECODE_ERROR))
+                  return RNC_HUF_DECODE_ERROR;
+              else
+              {
+                  output = outputend;
+                  ch_count = 0;
+                  break;
+              }
             }
         if (length)
         {
@@ -183,7 +183,7 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
         if (--ch_count <= 0)
             break;
 
-        posn = huf_read (&dist, &bs, &input,inputend);
+        long posn = huf_read(&dist, &bs, &input, inputend);
         if (posn == -1)
         {
             if (!(flags&RNC_IGNORE_HUF_DECODE_ERROR))
@@ -250,16 +250,15 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 static void read_huftable (huf_table *h, bit_stream *bs,
                           unsigned char **p, unsigned char *pend)
 {
-    int i, j, k, num;
-    int leaflen[32];
-    int leafmax;
-    unsigned long codeb;           // big-endian form of code
+    int i;
 
-    num = bit_read (bs, 0x1F, 5, p, pend);
+    int leaflen[32];
+    // big-endian form of code
+    int num = bit_read(bs, 0x1F, 5, p, pend);
     if (!num)
         return;
 
-    leafmax = 1;
+    int leafmax = 1;
     for (i=0; i<num; i++)
     {
         leaflen[i] = bit_read (bs, 0x0F, 4, p, pend);
@@ -267,19 +266,19 @@ static void read_huftable (huf_table *h, bit_stream *bs,
             leafmax = leaflen[i];
     }
 
-    codeb = 0L;
-    k = 0;
+    unsigned long codeb = 0L;
+    int k = 0;
     for (i=1; i<=leafmax; i++)
     {
-    for (j=0; j<num; j++)
-        if (leaflen[j] == i)
-        {
-            h->table[k].code = mirror (codeb, i);
-            h->table[k].codelen = i;
-            h->table[k].value = j;
-            codeb++;
-            k++;
-        }
+        for (int j = 0; j < num; j++)
+            if (leaflen[j] == i)
+            {
+                h->table[k].code = mirror(codeb, i);
+                h->table[k].codelen = i;
+                h->table[k].value = j;
+                codeb++;
+                k++;
+            }
     codeb <<= 1;
     }
 
@@ -291,7 +290,6 @@ static long huf_read (huf_table *h, bit_stream *bs,
                    unsigned char **p,unsigned char *pend)
 {
     int i;
-    unsigned long val;
 
     for (i=0; i<h->num; i++)
     {
@@ -303,7 +301,7 @@ static long huf_read (huf_table *h, bit_stream *bs,
         return -1;
     bit_advance (bs, h->table[i].codelen, p, pend);
 
-    val = h->table[i].value;
+    unsigned long val = h->table[i].value;
 
     if (val >= 2)
     {
@@ -369,7 +367,8 @@ static unsigned long bit_read (bit_stream *bs, unsigned long mask,
 
 // Mirror the bottom n bits of x.
 static unsigned long mirror (unsigned long x, int n) {
-    unsigned long top = 1 << (n-1), bottom = 1;
+    unsigned long top = 1 << (n - 1);
+    unsigned long bottom = 1;
     while (top > bottom)
     {
         unsigned long mask = top | bottom;
@@ -389,23 +388,22 @@ short crctab_ready=false;
 long rnc_crc(void *data, unsigned long len)
 {
   unsigned short val;
-  int i, j;
   unsigned char *p = (unsigned char *)data;
   //computing CRC table
   if (!crctab_ready)
   {
-    for (i=0; i<256; i++)
-    {
-        val = i;
+      for (int i = 0; i < 256; i++)
+      {
+          val = i;
 
-        for (j=0; j<8; j++)
-        {
-          if (val & 1)
-               val = (val >> 1) ^ 0xA001;
-          else
-            val = (val >> 1);
-        }
-        crctab[i] = val;
+          for (int j = 0; j < 8; j++)
+          {
+              if (val & 1)
+                  val = (val >> 1) ^ 0xA001;
+              else
+                  val = (val >> 1);
+          }
+          crctab[i] = val;
     }
   crctab_ready=true;
   }

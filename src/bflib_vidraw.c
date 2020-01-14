@@ -371,7 +371,10 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
     }
     x += lbDisplay.GraphicsWindowX;
     y += lbDisplay.GraphicsWindowY;
-    short left,right,top,btm;
+    short left;
+    short right;
+    short top;
+    short btm;
     short sprWd = spr->SWidth;
     short sprHt = spr->SHeight;
     //Coordinates range checking - x coords
@@ -1753,7 +1756,8 @@ void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth,
     long w = swidth;
     do {
         tmp += factor;
-        long pxstart,pxend;
+        long pxstart;
+        long pxend;
         pxstart = pxpos;
         pxend = tmp>>16;
         // Remember unclipped difference
@@ -1887,7 +1891,8 @@ void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheigh
     long h = sheight;
     do {
         tmp += factor;
-        long lnstart,lnend;
+        long lnstart;
+        long lnend;
         lnstart = lnpos;
         lnend = tmp>>16;
         // Remember unclipped difference
@@ -2156,7 +2161,8 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
             int ycur;
             int solid_len;
             TbPixel * out_line;
-            int xdup, ydup;
+            int xdup;
+            int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
             if (ycurstep[0]+ydup > outheight)
@@ -2255,9 +2261,12 @@ TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
  */
 void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite)
 {
-    long x, y;
-    int delta_x, delta_y;
-    int spnum_x, spnum_y;
+    long x;
+    long y;
+    int delta_x;
+    int delta_y;
+    int spnum_x;
+    int spnum_y;
     delta_y = 0;
     y = start_y;
     for (spnum_y = 0; spnum_y < bigspr->y_num; spnum_y++)
@@ -2340,8 +2349,10 @@ void LbDrawPixelClip(long x, long y, TbPixel colour)
 void LbDrawCircleFilled(long x, long y, long radius, TbPixel colour)
 {
     long r;
-    long i,n;
-    long dx,dy;
+    long i;
+    long n;
+    long dx;
+    long dy;
     if (radius < 1)
     {
         LbDrawPixelClip(x, y, colour);
@@ -2435,7 +2446,9 @@ static inline void LbDrawPixelClipSolid(long x, long y, TbPixel colour)
 
 void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
 {
-    int na,nb,n;
+    int na;
+    int nb;
+    int n;
     if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
     {
         nb = radius;

@@ -49,21 +49,17 @@ struct NamedCommand creatrstate_desc[CREATURE_STATES_MAX];
 /******************************************************************************/
 TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int k,n;
-    int cmd_num;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         //TODO CONFIG We will need to make some cleaning here
     }
     // Find the block
-    sprintf(block_buf,"common");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
+    char block_buf[COMMAND_WORD_LEN];
+    sprintf(block_buf, "common");
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
@@ -74,14 +70,16 @@ TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *confi
     while (pos<len)
     {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,creatstate_common_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, creatstate_common_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
-        n = 0;
+        int n = 0;
         switch (cmd_num)
         {
         case 1: // STATESCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+        {
+            char word_buf[COMMAND_WORD_LEN];
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
               if ((k > 0) && (k <= CREATURE_STATES_MAX))
@@ -96,6 +94,7 @@ TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *confi
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
+        }
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -118,11 +117,8 @@ TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *confi
 
 TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    long pos;
-    int i,k,n;
-    int cmd_num;
+    int i;
     // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
     // Initialize the array
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
@@ -146,22 +142,24 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
     arr_size = crtr_conf.states_count;
     for (i=0; i < arr_size; i++)
     {
-      sprintf(block_buf,"state%d",i);
-      pos = 0;
-      k = find_conf_block(buf,&pos,len,block_buf);
-      if (k < 0)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0) {
-              WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-              return false;
-          }
-          continue;
+        char block_buf[COMMAND_WORD_LEN];
+        sprintf(block_buf, "state%d", i);
+        long pos = 0;
+        int k = find_conf_block(buf, &pos, len, block_buf);
+        if (k < 0)
+        {
+            if ((flags & CnfLd_AcceptPartial) == 0)
+            {
+                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+                return false;
+            }
+            continue;
       }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatstate_state_commands,cmd_num)
       while (pos<len)
       {
         // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,creatstate_state_commands);
+        int cmd_num = recognize_conf_command(buf, &pos, len, creatstate_state_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
         if ((flags & CnfLd_ListOnly) != 0) {
@@ -170,7 +168,7 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
                 cmd_num = 0;
             }
         }
-        n = 0;
+        int n = 0;
         switch (cmd_num)
         {
         case 1: // NAME
@@ -200,11 +198,8 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
 
 TbBool load_creaturestates_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    char *buf;
-    long len;
-    TbBool result;
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
-    len = LbFileLengthRnc(fname);
+    long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
@@ -217,12 +212,12 @@ TbBool load_creaturestates_config_file(const char *textname, const char *fname, 
             WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
-    buf = (char *)LbMemoryAlloc(len+256);
+    char* buf = (char*)LbMemoryAlloc(len + 256);
     if (buf == NULL)
         return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
-    result = (len > 0);
+    TbBool result = (len > 0);
     // Parse blocks of the config file
     if (result)
     {
@@ -249,10 +244,8 @@ TbBool load_creaturestates_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature states config";
     static const char config_campgn_textname[] = "campaign creature states config";
-    char *fname;
-    TbBool result;
-    fname = prepare_file_path(FGrp_FxData,conf_fname);
-    result = load_creaturestates_config_file(config_global_textname,fname,flags);
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    TbBool result = load_creaturestates_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
@@ -264,8 +257,7 @@ TbBool load_creaturestates_config(const char *conf_fname, unsigned short flags)
 
 const char *creature_state_code_name(long crstate)
 {
-    const char *name;
-    name = get_conf_parameter_text(creatrstate_desc,crstate);
+    const char* name = get_conf_parameter_text(creatrstate_desc, crstate);
     if (name[0] != '\0')
         return name;
     return "INVALID";

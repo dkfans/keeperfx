@@ -151,10 +151,8 @@ const char *creatrtng_realstate_name(const struct Thing *thing)
 
 TbBool things_stats_debug_dump(void)
 {
-    struct Thing * thing;
     int count[THING_CLASSES_COUNT];
     int realcnt[THING_CLASSES_COUNT];
-    int total,rltotal,rldiffers;
     int i;
     for (i=0; i < THING_CLASSES_COUNT; i++) {
         count[i] = 0;
@@ -171,7 +169,7 @@ TbBool things_stats_debug_dump(void)
     count[TCls_Door] = game.thing_lists[TngList_Doors].count;
     count[TCls_AmbientSnd] = game.thing_lists[TngList_AmbientSnds].count;
     count[TCls_CaveIn] = game.thing_lists[TngList_CaveIns].count;
-    total = 0;
+    int total = 0;
     for (i=0; i < THING_CLASSES_COUNT; i++) {
         total += count[i];
     }
@@ -188,13 +186,13 @@ TbBool things_stats_debug_dump(void)
         total
         );
     for (i=1; i < THINGS_COUNT; i++) {
-        thing = thing_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_exists(thing)) {
             realcnt[thing->class_id]++;
         }
     }
-    rltotal = 0;
-    rldiffers = 0;
+    int rltotal = 0;
+    int rldiffers = 0;
     for (i=0; i < THING_CLASSES_COUNT; i++) {
         rltotal += realcnt[i];
         if (realcnt[i] != count[i])
@@ -250,8 +248,7 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
 
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 {
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get(crkind);
+    struct CreatureStats* crstat = creature_stats_get(crkind);
     return compute_creature_max_health(crstat->health,crlevel)
         + compute_creature_max_defense(crstat->defense,crlevel)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
@@ -264,14 +261,13 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
  */
 long compute_creature_max_health(long base_health,unsigned short crlevel)
 {
-  long max_health;
   if (base_health < -100000)
     base_health = -100000;
   if (base_health > 100000)
     base_health = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_health = base_health + (crtr_conf.exp.health_increase_on_exp*base_health*(long)crlevel)/100;
+  long max_health = base_health + (crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
   return saturate_set_signed(max_health, 16);
 }
 
@@ -280,14 +276,13 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
  */
 long compute_creature_max_pay(long base_param,unsigned short crlevel)
 {
-  long max_param;
   if (base_param <= 0)
     return 0;
   if (base_param > 100000)
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (crtr_conf.exp.pay_increase_on_exp*base_param*(long)crlevel)/100;
+  long max_param = base_param + (crtr_conf.exp.pay_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -296,14 +291,13 @@ long compute_creature_max_pay(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_defense(long base_param,unsigned short crlevel)
 {
-    long max_param;
     if (base_param <= 0)
       return 0;
     if (base_param > 10000)
       base_param = 10000;
     if (crlevel >= CREATURE_MAX_LEVEL)
       crlevel = CREATURE_MAX_LEVEL-1;
-    max_param = base_param + (crtr_conf.exp.defense_increase_on_exp*base_param*(long)crlevel)/100;
+    long max_param = base_param + (crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
     return saturate_set_unsigned(max_param, 8);
 }
 
@@ -312,14 +306,13 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
 {
-  long max_param;
   if (base_param <= 0)
     return 0;
   if (base_param > 10000)
     base_param = 10000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (crtr_conf.exp.dexterity_increase_on_exp*base_param*(long)crlevel)/100;
+  long max_param = base_param + (crtr_conf.exp.dexterity_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_unsigned(max_param, 8);
 }
 
@@ -328,12 +321,11 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_strength(long base_param,unsigned short crlevel)
 {
-  long max_param;
   if ((base_param <= 0) || (base_param > 60000))
     base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (crtr_conf.exp.strength_increase_on_exp*base_param*(long)crlevel)/100;
+  long max_param = base_param + (crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_unsigned(max_param, 15);
 }
 
@@ -342,12 +334,11 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
 {
-  long max_param;
   if ((base_param <= 0) || (base_param > 60000))
     base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (crtr_conf.exp.loyalty_increase_on_exp*base_param*(long)crlevel)/100;
+  long max_param = base_param + (crtr_conf.exp.loyalty_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_unsigned(max_param, 24);
 }
 
@@ -356,12 +347,11 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool armour_spell)
 {
-  long max_param;
   if ((base_param <= 0) || (base_param > 60000))
     base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (crtr_conf.exp.armour_increase_on_exp*base_param*(long)crlevel)/100;
+  long max_param = base_param + (crtr_conf.exp.armour_increase_on_exp * base_param * (long)crlevel) / 100;
   if (armour_spell)
       max_param = (320 * max_param) / 256;
   // This limit makes armor absorb up to 80% of damage, never more
@@ -383,12 +373,11 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool
  */
 long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel)
 {
-    long max_param;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
         base_param = 60000;
-    max_param = base_param;
+    long max_param = base_param;
     if (luck > 0)
     {
         if (luck > 100) luck = 100;
@@ -408,14 +397,13 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
  */
 long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel)
 {
-    long max_param;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    max_param = base_param + (crtr_conf.exp.spell_damage_increase_on_exp*base_param*(long)crlevel)/100;
+    long max_param = base_param + (crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (luck > 0)
     {
         if (luck > 100) luck = 100;
@@ -432,12 +420,11 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
  */
 long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel)
 {
-    long max_param;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
         base_param = 60000;
-    max_param = base_param;
+    long max_param = base_param;
     if (luck > 0)
     {
         if (ACTION_RANDOM(100) < luck)
@@ -454,14 +441,13 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
  */
 long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel)
 {
-    long max_param;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    max_param = base_param + (crtr_conf.exp.spell_damage_increase_on_exp*base_param*(long)crlevel)/100;
+    long max_param = base_param + (crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (luck > 0)
     {
         if (ACTION_RANDOM(100) < luck)
@@ -475,14 +461,13 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
  */
 long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel)
 {
-  long max_param;
   if (base_param <= 0)
     return 0;
   if (base_param > 100000)
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (crtr_conf.exp.range_increase_on_exp*base_param*(long)crlevel)/100;
+  long max_param = base_param + (crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -495,7 +480,6 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
  */
 long compute_creature_work_value(long base_param,long efficiency,unsigned short crlevel)
 {
-  long max_param;
   if (base_param < -100000)
       base_param = -100000;
   if (base_param > 100000)
@@ -504,18 +488,15 @@ long compute_creature_work_value(long base_param,long efficiency,unsigned short 
       crlevel = CREATURE_MAX_LEVEL-1;
   if (efficiency > 1024)
       efficiency = 1024;
-  max_param = base_param + (crtr_conf.exp.job_value_increase_on_exp*base_param*(long)crlevel)/100;
+  long max_param = base_param + (crtr_conf.exp.job_value_increase_on_exp * base_param * (long)crlevel) / 100;
   return (max_param * efficiency) / ROOM_EFFICIENCY_MAX;
 }
 
 long compute_creature_work_value_for_room_role(const struct Thing *creatng, RoomRole rrole, long efficiency)
 {
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    crstat = creature_stats_get_from_thing(creatng);
-    cctrl = creature_control_get_from_thing(creatng);
-    long i;
-    i = 256;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    long i = 256;
     if ((rrole & RoRoF_Research) != 0)
     {
         i = compute_creature_work_value(crstat->research_value*256, efficiency, cctrl->explevel);
@@ -568,10 +549,8 @@ long compute_controlled_speed_decrease(long prev_speed, long speed_limit)
 
 long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
-    struct CreatureStats *crstat;
-    long speed;
-    crstat = creature_stats_get_from_thing(thing);
-    speed = crstat->base_speed;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long speed = crstat->base_speed;
     if (creature_affected_by_slap(thing))
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Speed))
@@ -580,8 +559,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
         speed /= 2;
     if (!is_neutral_thing(thing))
     {
-        struct Dungeon *dungeon;
-        dungeon = get_dungeon(thing->owner);
+        struct Dungeon* dungeon = get_dungeon(thing->owner);
         if (dungeon->tortured_creatures[thing->model] > 0)
             speed = 5 * speed / 4;
         if (player_uses_power_obey(thing->owner))
@@ -592,14 +570,10 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
 
 long calculate_correct_creature_pay(const struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(thing->owner);
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    long pay;
-    pay = compute_creature_max_pay(crstat->pay,cctrl->explevel);
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
     // If torturing creature of that model, halve the salary
     if (dungeon->tortured_creatures[thing->model] > 0)
         pay /= 2;
@@ -608,15 +582,11 @@ long calculate_correct_creature_pay(const struct Thing *thing)
 
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(callplyr_idx);
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    long scavngpts;
-    scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) *
-      compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
+    struct Dungeon* dungeon = get_dungeon(callplyr_idx);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) *
+        compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
     return scavngpts;
 }
 
@@ -682,10 +652,8 @@ long compute_value_8bpercentage(long base_val, short npercent)
  */
 TbBool update_creature_health_to_max(struct Thing *thing)
 {
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
     thing->health = cctrl->max_health;
     return true;
@@ -693,10 +661,8 @@ TbBool update_creature_health_to_max(struct Thing *thing)
 
 TbBool apply_health_to_thing(struct Thing *thing, long amount)
 {
-    struct CreatureControl *cctrl;
-    HitPoints new_health;
-    cctrl = creature_control_get_from_thing(thing);
-    new_health = thing->health;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    HitPoints new_health = thing->health;
     if ((cctrl->max_health != new_health) && (amount > 0))
     {
         new_health += amount;
@@ -724,20 +690,15 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
  */
 static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    long carmor;
-    HitPoints cdamage;
-    long i;
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
         return 0;
     }
     // Compute armor value
-    carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(thing, SplK_Armour));
+    long carmor = compute_creature_max_armour(crstat->armour, cctrl->explevel, creature_affected_by_spell(thing, SplK_Armour));
     // Now compute damage
-    cdamage = (dmg * (256 - carmor)) / 256;
+    HitPoints cdamage = (dmg * (256 - carmor)) / 256;
     if (cdamage <= 0)
       cdamage = 1;
     // Apply damage to the thing
@@ -746,13 +707,11 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     // Red palette if the possessed creature is hit very strong
     if (is_thing_some_way_controlled(thing))
     {
-        struct PlayerInfo *player;
-        player = get_player(thing->owner);
-        HitPoints max_health;
-        max_health = cctrl->max_health;
+        struct PlayerInfo* player = get_player(thing->owner);
+        HitPoints max_health = cctrl->max_health;
         if (max_health < 1)
             max_health = 1;
-        i = (10 * cdamage) / max_health;
+        long i = (10 * cdamage) / max_health;
         if (i > 10) {
             i = 10;
         } else
@@ -766,8 +725,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 
 static HitPoints apply_damage_to_object(struct Thing *thing, HitPoints dmg)
 {
-    HitPoints cdamage;
-    cdamage = dmg;
+    HitPoints cdamage = dmg;
     thing->health -= cdamage;
     thing->field_4F |= TF4F_Unknown80;
     return cdamage;
@@ -775,8 +733,7 @@ static HitPoints apply_damage_to_object(struct Thing *thing, HitPoints dmg)
 
 static HitPoints apply_damage_to_door(struct Thing *thing, HitPoints dmg)
 {
-    HitPoints cdamage;
-    cdamage = dmg;
+    HitPoints cdamage = dmg;
     thing->health -= cdamage;
     return cdamage;
 }
@@ -784,10 +741,8 @@ static HitPoints apply_damage_to_door(struct Thing *thing, HitPoints dmg)
 HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng)
 {
     HitPoints dmg;
-    const struct ShotConfigStats *shotst;
-    shotst = get_shot_model_stats(shotng->model);
-    const struct ObjectConfig *objconf;
-    objconf = get_object_model_stats2(door_crate_object_model(doortng->model));
+    const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
+    const struct ObjectConfig* objconf = get_object_model_stats2(door_crate_object_model(doortng->model));
     //TODO CONFIG replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn)
     if ( !objconf->resistant_to_nonmagic || shotst->old->deals_magic_damage )
     {
@@ -839,8 +794,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     }
     if ((thing->class_id == TCls_Creature) && (thing->health < 0))
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
         {
             cctrl->fighting_player_idx = dealing_plyr_idx;
@@ -861,8 +815,7 @@ long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng,
 
 long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb)
 {
-    long gold;
-    gold = (damage_did_to_slab * (long)game.gold_per_gold_block) / game.block_health[1];
+    long gold = (damage_did_to_slab * (long)game.gold_per_gold_block) / game.block_health[1];
     if (slb->kind == SlbT_GEMS)
       gold /= 6;
     if (gold <= 1)
@@ -872,13 +825,11 @@ long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, 
 
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)
 {
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    static char loc_text[16];
     const char *text;
-    crstat = creature_stats_get_from_thing(creatng);
-    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long i;
+    static char loc_text[16];
     switch (clstat_id)
     {
     case CrLStat_FirstName:

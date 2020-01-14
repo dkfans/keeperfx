@@ -66,14 +66,12 @@ long get_smaller_memory_amount(long amount)
 TbBool setup_heap_manager(void)
 {
     SYNCDBG(8,"Starting");
-    const char *fname;
-    long i;
     if (heap == NULL)
     {
         ERRORLOG("Graphics Heap not allocated");
         return false;
     }
-    i = heap_size / 512;
+    long i = heap_size / 512;
     if (i >= KEEPSPRITE_LENGTH)
       i = KEEPSPRITE_LENGTH-1;
     graphics_heap = heapmgr_init(heap, heap_size, i);
@@ -86,7 +84,7 @@ TbBool setup_heap_manager(void)
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);
 #else
-    fname = prepare_file_path(FGrp_StdData,"creature.jty");
+    const char* fname = prepare_file_path(FGrp_StdData, "creature.jty");
 #endif
     //TODO CREATURE_SPRITE Use rewritten file handling when reading is rewritten
     file_handle = _DK_LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
@@ -106,7 +104,6 @@ TbBool setup_heap_manager(void)
  */
 TbBool setup_heap_memory(void)
 {
-  long i;
   SYNCDBG(8,"Starting");
   if (heap != NULL)
   {
@@ -114,7 +111,7 @@ TbBool setup_heap_memory(void)
     LbMemoryFree(heap);
     heap = NULL;
   }
-  i = mem_size;
+  long i = mem_size;
   heap_size = get_best_sound_heap_size(i);
   while ( 1 )
   {
@@ -165,12 +162,9 @@ void reset_heap_memory(void)
 
 TbBool setup_heaps(void)
 {
-    TbBool low_memory;
-    char snd_fname[2048];
-    char *spc_fname;
     long i;
     SYNCDBG(8,"Starting");
-    low_memory = false;
+    TbBool low_memory = false;
     if (!SoundDisabled)
     {
       StopAllSamples();
@@ -281,9 +275,10 @@ TbBool setup_heaps(void)
     {
       SYNCMSG("SoundHeap Size %d", sound_heap_size);
       // Prepare sound sample bank file names
-      prepare_file_path_buf(snd_fname,FGrp_LrgSound,sound_fname);
+      char snd_fname[2048];
+      prepare_file_path_buf(snd_fname, FGrp_LrgSound, sound_fname);
       // language-specific speech file
-      spc_fname = prepare_file_fmtpath(FGrp_LrgSound,"speech_%s.dat",get_language_lwrstr(install_info.lang_id));
+      char* spc_fname = prepare_file_fmtpath(FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(install_info.lang_id));
       // default speech file
       if (!LbFileExists(spc_fname))
         spc_fname = prepare_file_path(FGrp_LrgSound,speech_fname);

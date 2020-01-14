@@ -262,7 +262,8 @@ unsigned short find_column_height(struct Column *col)
 long get_map_floor_height(const struct Map *mapblk)
 {
     const struct Column *colmn;
-    long i,cubes_height;
+    long i;
+    long cubes_height;
     colmn = get_map_column(mapblk);
     i = get_column_floor_filled_subtiles(colmn);
     if (i > 0) {
@@ -287,7 +288,8 @@ long get_floor_height_at(const struct Coord3d *pos)
 long get_map_ceiling_height(const struct Map *mapblk)
 {
     const struct Column *colmn;
-    long i,cubes_height;
+    long i;
+    long cubes_height;
     colmn = get_map_column(mapblk);
     i = get_column_ceiling_filled_subtiles(colmn);
     if (i > 0) {

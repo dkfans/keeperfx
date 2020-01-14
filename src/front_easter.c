@@ -78,8 +78,7 @@ const char *get_team_birthday(void)
 {
   struct TbDate curr_date;
   LbDate(&curr_date);
-  int i;
-  for (i=0;team_birthdays[i].day!=0;i++)
+  for (int i = 0; team_birthdays[i].day != 0; i++)
   {
       if ((team_birthdays[i].day==curr_date.Day) &&
           (team_birthdays[i].month==curr_date.Month))
@@ -99,8 +98,7 @@ void frontbirthday_draw(void)
     const char *name=get_team_birthday();
     if ( name != NULL )
     {
-        unsigned short line_pos;
-        line_pos = LbTextLineHeight();
+        unsigned short line_pos = LbTextLineHeight();
         LbTextDraw(0, 170-line_pos, get_string(GUIStr_HappyBirthday));
         LbTextDraw(0, 170, name);
     } else
@@ -111,26 +109,24 @@ void frontbirthday_draw(void)
 
 unsigned short input_eastegg_keycodes(unsigned char *counter,short allow,struct KeycodeString const *codes)
 {
-    TbKeyCode currkey;
-    unsigned short result;
     if (!allow)
     {
       (*counter) = 0;
       return 0;
     }
-    result = 0;
+    unsigned short result = 0;
     if ((*counter) < codes->length)
     {
-      currkey = codes->keys[(*counter)];
-      if (lbKeyOn[currkey])
-      {
-        (*counter)++;
-        result = 1;
-        if ((*counter) > 2)
+        TbKeyCode currkey = codes->keys[(*counter)];
+        if (lbKeyOn[currkey])
         {
-          clear_key_pressed(currkey);
-          result = 2;
-        }
+            (*counter)++;
+            result = 1;
+            if ((*counter) > 2)
+            {
+                clear_key_pressed(currkey);
+                result = 2;
+            }
       }
     }
     if ((*counter) == codes->length)
@@ -145,11 +141,9 @@ unsigned short input_eastegg_keycodes(unsigned char *counter,short allow,struct 
 
 void input_eastegg(void)
 {
-    short allow;
-    unsigned short state;
     // Maintain the FECKOFF cheat
-    allow = (lbKeyOn[KC_LSHIFT] != 0);
-    state = input_eastegg_keycodes(&game.eastegg01_cntr,allow,&eastegg_feckoff_codes);
+    short allow = (lbKeyOn[KC_LSHIFT] != 0);
+    unsigned short state = input_eastegg_keycodes(&game.eastegg01_cntr, allow, &eastegg_feckoff_codes);
     if ((state == 2) || (state == 3))
       play_non_3d_sample(60);
     // Maintain the JLW cheat
@@ -173,19 +167,22 @@ void input_eastegg(void)
 void draw_eastegg(void)
 {
   char *text;
-  static long px[2]={0,0},py[2]={0,0};
-  static long vx[2]={0,0},vy[2]={0,0};
-  long i,k;
+  static long px[2] = {0, 0};
+  static long py[2] = {0, 0};
+  static long vx[2] = {0, 0};
+  static long vy[2] = {0, 0};
+  long i;
+  long k;
   SYNCDBG(5,"Starting");
   LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
   if (eastegg_skeksis_cntr >= eastegg_skeksis_codes.length)
   {
-      unsigned char pos;
       eastegg_skeksis_cntr++;
       LbTextSetFont(winfont);
       text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
       lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
-      for (i=0; i<30; i+=2)
+      unsigned char pos;
+      for (i = 0; i < 30; i += 2)
       {
         pos = game.play_gameturn - i;
         lbDisplay.DrawColour = pos;
