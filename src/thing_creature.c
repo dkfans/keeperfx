@@ -1829,7 +1829,7 @@ long move_creature(struct Thing *thing)
     int velo_z = thing->velocity.z.val;
     cctrl->flgfield_1 &= ~CCFlg_Unknown08;
     struct Coord3d nxpos;
-    if (thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_throgh_wall_at(thing, &thing->mappos))
+    if (thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_through_wall_at(thing, &thing->mappos))
     {
         nxpos.x.val = tngpos->x.val;
         nxpos.y.val = tngpos->y.val;
@@ -1872,7 +1872,7 @@ long move_creature(struct Thing *thing)
         nxpos.z.val = velo_z + tngpos->z.val;
         if ((thing->movement_flags & TMvF_Flying) != 0)
         {
-            if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_throgh_wall_at(thing, &nxpos))
+            if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_through_wall_at(thing, &nxpos))
             {
                 long blocked_flags = get_thing_blocked_flags_at(thing, &nxpos);
                 if (cctrl->collided_door_subtile == 0) {
@@ -1883,7 +1883,7 @@ long move_creature(struct Thing *thing)
         }
         else
         {
-            if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_throgh_wall_at(thing, &nxpos))
+            if (thing_in_wall_at(thing, &nxpos) && !creature_can_pass_through_wall_at(thing, &nxpos))
             {
                 if (creature_cannot_move_directly_to(thing, &nxpos))
                 {

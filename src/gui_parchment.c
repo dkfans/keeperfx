@@ -431,7 +431,7 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                     }
                 }
                 n++;
-            }
+            } else
             // Special tunneler code
             if (is_hero_tunnelling_to_attack(thing))
             {
