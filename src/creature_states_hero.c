@@ -993,9 +993,34 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     }
     if (dist > 768)
     {
+        if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+        {
+            creatng->continue_state = CrSt_TunnellerDoingNothing;
+        }
         ERRORLOG("Move %s index %d to (%d,%d) reset - wallhug distance %d too large",thing_model_name(creatng),(int)creatng->index,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)dist);
-        clear_wallhugging_path(&cctrl->navi);
-        creature_set_speed(creatng, speed);
+        return 0;
+    }
+    // If the tunneler tries to tunnel the same distance for 150 times, he must be stuck. So push him.
+    static struct TunnelDistance tunnel;
+    tunnel.creatid = creatng->index;
+    tunnel.newdist = dist;
+    static unsigned long identical[CREATURES_COUNT];
+    if (tunnel.olddist == tunnel.newdist)
+    {
+        identical[creatng->ccontrol_idx] += 1;
+    }
+    else
+    {
+        tunnel.olddist = tunnel.newdist;
+        identical[creatng->ccontrol_idx] = 0;
+    }
+    if ( identical[creatng->ccontrol_idx] >= 150)
+    {
+        if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+        {
+            creatng->continue_state = CrSt_TunnellerDoingNothing;
+            ERRORLOG("%s index %d stuck - attempt %d to dislodge",thing_model_name(creatng),(int)creatng->index,identical[creatng->ccontrol_idx]-149);
+        }
         return 0;
     }
     if (creature_turn_to_face(creatng, &cctrl->navi.pos_next) > 0)

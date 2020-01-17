@@ -2011,7 +2011,9 @@ unsigned short i_can_allocate_free_room_structure(void)
 {
   unsigned short ret = _DK_i_can_allocate_free_room_structure();
   if (ret == 0)
+  {
       SYNCDBG(3,"No slot for next room");
+  }
   return ret;
 }
 
