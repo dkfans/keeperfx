@@ -30,13 +30,13 @@
 static HINSTANCE ks_lib;
 #endif
 
-struct
+static struct
 {
     fpKeeperSpeechErrorMessage  error_message;
     fpKeeperSpeechExit          exit;
     fpKeeperSpeechPopEvent      pop_event;
     fpKeeperSpeechClearEvents   clear_events;
-} static ks_fn;
+} ks_fn;
 
 static void clean_up()
 {

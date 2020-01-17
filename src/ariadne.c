@@ -3291,9 +3291,9 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
  * @param subroute Random factor for determining position within route, or negative special value.
  * @param nav_size
  */
-static void path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size)
+static void path_init8_wide(struct Path* path, long start_x, long start_y, long end_x, long end_y, long subroute, unsigned char nav_size)
 {
-    path_init8_wide_f(path, start_x, start_y, end_x, end_y, a6, nav_size, "path_init8_wide called from keeperfx.dll");
+    path_init8_wide_f(path, start_x, start_y, end_x, end_y, subroute, nav_size, "path_init8_wide called from keeperfx.dll");
 }
 HOOK_DK_FUNC(path_init8_wide)
 
