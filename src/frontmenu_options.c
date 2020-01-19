@@ -145,19 +145,6 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     if (key_id >= GAME_KEYS_COUNT) {
         return;
     }
-    unsigned char code = settings.kbkeys[key_id].code;
-    const char * keyname;
-    long i = key_to_string[code];
-    if (i >= 0)
-    {
-        keyname = get_string(i);
-    } else
-    {
-        char chbuf[4];
-        chbuf[0] = -(char)i;
-        chbuf[1] = 0;
-        keyname = chbuf;
-    }
     if (frontend_mouse_over_button == content) {
         LbTextSetFont(frontend_font[2]);
     } else {
@@ -190,7 +177,9 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         strcat(text, " ");
     }
 
-    const char *keytext;
+    unsigned char code = settings.kbkeys[key_id].code;
+    const char* keytext;
+    char chbuf[2];
     switch (code)
     {
       case KC_LSHIFT:
@@ -206,8 +195,18 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         keytext = get_string(GUIStr_KeyAlt);
         break;
       default:
-        keytext = keyname;
+      {
+        long i = key_to_string[code];
+        if (i >= 0)
+            keytext = get_string(i);
+        else
+        {
+            chbuf[0] = -(char)i;
+            chbuf[1] = 0;
+            keytext = chbuf;
+        }
         break;
+      }
     }
     strcat(text, keytext);
     height = LbTextLineHeight() * tx_units_per_px / 16;
