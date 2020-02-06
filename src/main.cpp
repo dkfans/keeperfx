@@ -157,7 +157,6 @@ DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_door(unsigned char a1, long 
 DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
-DLLIMPORT void _DK_check_players_won(void);
 DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
 DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
@@ -2278,7 +2277,36 @@ void set_mouse_light(struct PlayerInfo *player)
 void check_players_won(void)
 {
   SYNCDBG(8,"Starting");
-  _DK_check_players_won();
+
+    if (!(game.system_flags & GSF_NetworkActive))
+        return;
+
+    unsigned int playerIdx = 0;
+    for (; playerIdx < PLAYERS_COUNT; ++playerIdx)
+    {
+        PlayerInfo* curPlayer = get_player(playerIdx);
+        if (!player_exists(curPlayer) || curPlayer->field_2C != 1 || curPlayer->victory_state != VicS_Undecided)
+            continue;
+
+        // check if any other player is still alive
+        for (unsigned int secondPlayerIdx = 0; secondPlayerIdx < PLAYERS_COUNT; ++secondPlayerIdx)
+        {
+            if (secondPlayerIdx == playerIdx)
+                continue;
+
+            PlayerInfo* otherPlayer = get_player(secondPlayerIdx);
+            if (player_exists(otherPlayer) && otherPlayer->field_2C == 1)
+            {
+                Thing* heartng = get_player_soul_container(secondPlayerIdx);
+                if (heartng->active_state != ObSt_BeingDestroyed)
+                    goto continueouterloop;
+            }
+        }
+        break;
+    continueouterloop:
+        ;
+    }
+    set_player_as_won_level(&game.players[playerIdx]);
 }
 
 void check_players_lost(void)
