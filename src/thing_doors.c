@@ -302,7 +302,7 @@ TngUpdateRet process_door(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    if ( !door_can_stand(thing) || (thing->health < 0) )
+    if ( !door_can_stand(thing) || (thing->health <= 0) )
     {
         thing->health = -1;
         destroy_door(thing);

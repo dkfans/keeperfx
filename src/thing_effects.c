@@ -1302,6 +1302,30 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     }
     return affected;
 }
+TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner)
+{
+    TbBool affected = false;
+    SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
+    if (tngdst->class_id != TCls_Door)
+    {
+        ERRORLOG("%s is trying to damage %s which is not a door",thing_model_name(tngsrc),thing_model_name(tngdst));
+        return false;
+    }
+    if (line_of_sight_3d_ignoring_specific_door(&tngsrc->mappos, &tngdst->mappos,tngdst))
+    {
+        MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
+        if (distance < max_dist)
+        {
+            long move_angle = get_angle_xy_to(pos, &tngdst->mappos);
+            HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
+            SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+            apply_damage_to_thing(tngdst, damage, damage_type, -1);
+            affected = true;
+        }
+    }
+    return affected;
+}
 
 /**
  * Computes and applies damage the effect associated to a spell makes to things at given map block.
@@ -1335,11 +1359,19 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         }
         i = thing->next_on_mapblk;
         // Per thing processing block
-        if (effect_can_affect_thing(efftng, thing)
-          || ((thing->class_id == TCls_Door) && (thing->owner != owner)))
+        if ((thing->class_id == TCls_Door) && (efftng->shot.hit_type != 4)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
+        {
+            if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
+            {
+                num_affected++;
+            }
+        } else
+        if (effect_can_affect_thing(efftng, thing))
         {
             if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
+            {
                 num_affected++;
+            }
         }
         // Per thing processing block ends
         k++;
@@ -1370,7 +1402,15 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
     if (efftng->creation_turn != game.play_gameturn) {
         return;
     }
-    struct ShotConfigStats* shotst = get_shot_model_stats(31); //SHOT_TRAP_WORD_OF_POWER
+    struct ShotConfigStats* shotst;
+    if (efftng->shot.hit_type == 4) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
+    {
+        shotst = get_shot_model_stats(31); //SHOT_TRAP_WORD_OF_POWER
+    }
+    else
+    {
+        shotst = get_shot_model_stats(30); //SHOT_WORD_OF_POWER
+    }
     if ((shotst->area_range <= 0) || ((shotst->area_damage == 0) && (shotst->area_blow == 0))) {
         ERRORLOG("Word of power shot configuration does not include area influence.");
         return;
