@@ -656,7 +656,7 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
             TRACE_THING(attcktng);
             if (!thing_is_invalid(attcktng) && ((attcktng->index == tng1->index) || (attcktng->index == tng2->index)))
             {
-                return true;              
+                return true;
             }
         }
         // Per battle creature code ends
@@ -2084,8 +2084,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
         return thing_in_field_of_view(thing, enmtng);
     }
     cctrl->field_AA = 0;
-    if (thing_in_field_of_view(thing, enmtng)
-      && creature_has_ranged_weapon(thing))
+    if (thing_in_field_of_view(thing, enmtng))
     {
         if ((cctrl->combat_flags & (CmbtF_DoorFight|CmbtF_ObjctFight)) == 0)
         {
@@ -2106,11 +2105,15 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
         // If cannot move to enemy, and not waiting for ranged weapon cooldown, then retreat from him
         if (!creature_has_ranged_weapon(thing))
         {
+            CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
+            if (inst_id > CrInst_NULL)
+            {
+                set_creature_instance(thing, inst_id, 1, 0, 0);
+            } else
             if (creature_retreat_from_combat(thing, enmtng, nstat, 0) == Lb_FAIL)
             {
                 // If cannot move at all, reset
                 set_start_state(thing);
-                return false;
             }
         }
     }
@@ -2292,9 +2295,9 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
           if (cctrl->opponents_ranged[i] > 0)
           {
               creatng = thing_get(cctrl->opponents_ranged[i]);
-              struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+              struct CreatureControl* crctrl = creature_control_get_from_thing(creatng);
               dist = get_2d_box_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
-              score = get_combat_score(creatng, enemy, cctrl->combat.attack_type, dist);
+              score = get_combat_score(creatng, enemy, crctrl->combat.attack_type, dist);
               if (creature_is_actually_scared(creatng, enemy)) {
                   score -= 512;
               }
@@ -2314,9 +2317,9 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
             if (cctrl->opponents_melee[i] > 0)
             {
                 creatng = thing_get(cctrl->opponents_melee[i]);
-                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                struct CreatureControl* csctrl = creature_control_get_from_thing(creatng);
                 dist = get_2d_box_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
-                score = get_combat_score(creatng, enemy, cctrl->combat.attack_type, dist);
+                score = get_combat_score(creatng, enemy, csctrl->combat.attack_type, dist);
                 if (creature_is_actually_scared(creatng, enemy)) {
                     score -= 512;
                 }
@@ -2769,12 +2772,18 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
             return false;
         }
+        CrInstance inst_id = get_best_self_preservation_instance_to_use(creatng);
+        if (inst_id > CrInst_NULL)
+        {
+            set_creature_instance(creatng, inst_id, 0, 0, 0);
+            return false;
+        } else
         if (!external_set_thing_state(creatng, CrSt_CreatureCombatFlee)) {
             return false;
         }
         setup_combat_flee_position(creatng);
         cctrl->start_turn_28E = game.play_gameturn;
-        return 1;
+        return true;
     }
 
     if (cctrl->combat_flags != 0)
