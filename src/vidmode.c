@@ -712,13 +712,15 @@ TbBool setup_screen_mode(unsigned short nmode)
 
 TbBool update_screen_mode_data(long width, long height)
 {
-  if ((width >= 640) && (height >= 400))
-  {
+  // if ((width >= 640) && (height >= 400))
+  // {
     pixel_size = 1;
+    /*
   } else
   {
     pixel_size = 2;
   }
+  */
   long psize = pixel_size;
   MyScreenWidth = width * psize;
   MyScreenHeight = height * psize;
