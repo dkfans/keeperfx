@@ -489,8 +489,8 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
             {
                 if ( (thing->byte_18) || (thing->owner == plyr_idx) )
                 {
-                    long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB;
-                    long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
+                    long pos_x = map_area->left + (block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
+                    long pos_y = map_area->top + (block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
                     LbDrawPixel(pos_x, pos_y, 60);
                     LbDrawPixel(pos_x + 1, pos_y, 60);
                     LbDrawPixel(pos_x - 1, pos_y, 60);
@@ -533,8 +533,8 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
             {
               if ( thing_is_special_box(thing) || thing_is_spellbook(thing) )
               {
-                  long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB;
-                  long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
+                  long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB  + ((block_size + 1)/5);
+                  long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB + ((block_size + 1)/5);
                   LbDrawPixel(pos_x, pos_y, colours[15][0][15]);
                   n++;
               }
@@ -656,31 +656,32 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
                     break;
                 struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(thing->class_id, thing->model));
                 spridx = manufctr->medsym_sprite_idx;
-                draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                //This line and all cases below used to be: draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx); 
+                draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y /2), ps_units_per_px, spridx);
                 break;
             }
             case TCls_Object:
                 if (thing_is_dungeon_heart(thing))
                 {
                     spridx = 512;
-                    draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                    draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y /2), ps_units_per_px, spridx);
                 } else
                 if (object_is_gold(thing))
                 {
                     spridx = 511;
-                    draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                    draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y /2), ps_units_per_px, spridx);
                 } else
                 if (thing_is_special_box(thing))
                 {
                     spridx = 164;
-                    draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                    draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y /2), ps_units_per_px, spridx);
                 } else
                 if (thing_is_spellbook(thing))
                 {
                     struct PowerConfigStats *powerst;
                     powerst = get_power_model_stats(book_thing_to_power_kind(thing));
                     spridx = powerst->medsym_sprite_idx;
-                    draw_gui_panel_sprite_centered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx);
+                    draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y /2), ps_units_per_px, spridx);
                 }
                 break;
             default:
