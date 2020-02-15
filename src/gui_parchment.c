@@ -492,10 +492,13 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
                     long pos_x = map_area->left + (block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
                     long pos_y = map_area->top + (block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
                     LbDrawPixel(pos_x, pos_y, 60);
-                    LbDrawPixel(pos_x + 1, pos_y, 60);
-                    LbDrawPixel(pos_x - 1, pos_y, 60);
-                    LbDrawPixel(pos_x, pos_y + 1, 60);
-                    LbDrawPixel(pos_x, pos_y - 1, 60);
+                    if (block_size > 4)
+                    {
+                        LbDrawPixel(pos_x + 1, pos_y, 60);
+                        LbDrawPixel(pos_x - 1, pos_y, 60);
+                        LbDrawPixel(pos_x, pos_y + 1, 60);
+                        LbDrawPixel(pos_x, pos_y - 1, 60);
+                    }
                     n++;
                 }
             }
