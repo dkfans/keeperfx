@@ -313,6 +313,10 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
     HitPoints crmaxhealth = cctrl->max_health;
     HitPoints enmaxhealth = enmctrl->max_health;
+    if (enmaxhealth > 15000)
+    {
+        enmaxhealth = 15000;
+    }
     if (creatng->health < (fear * (long long)crmaxhealth) / 1000)
     {
         SYNCDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
