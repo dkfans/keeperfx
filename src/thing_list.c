@@ -2352,21 +2352,23 @@ struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer
     long i = thing_idx;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
+      struct Thing* thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
       }
       i = thing->next_on_mapblk;
       // Begin per-loop code
       long n = filter(thing, param, *maximizer);
-      if (n > *maximizer)
+      if (n >= *maximizer)
       {
           retng = thing;
           *maximizer = n;
           if (*maximizer == LONG_MAX)
+          {
               break;
+          }
       }
       // End of per-loop code
       k++;
@@ -2539,9 +2541,11 @@ long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long
             {
                 maximizer = n;
                 if (maximizer == LONG_MAX)
+                {
                     count++;
+                }
             }
-      }
+        }
     }
     return count;
 }

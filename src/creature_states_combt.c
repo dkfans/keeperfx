@@ -328,13 +328,16 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     long long ownstrength = LbSqrL(project_melee_damage(creatng)) * (crstat->fearsome_factor) / 100 * ((long long)crmaxhealth + (long long)creatng->health) / 2;
     if (enmstrength >= (fear * ownstrength) / 100)
     {
-        // check if there are allied creatures nearby; assume that such creatures are multiplying strength of the creature we're checking
-        long support_count = count_creatures_near_and_owned_by_or_allied_with(creatng->mappos.x.val, creatng->mappos.y.val, 9, creatng->owner);
-        ownstrength *= support_count;
-        if (enmstrength >= (fear * ownstrength) / 100)
+        // check if there are allied creatures nearby enemy; assume that such creatures are multiplying strength of the creature we're checking
+        long support_count = count_creatures_near_and_owned_by_or_allied_with(enmtng->mappos.x.val, enmtng->mappos.y.val, 12, creatng->owner);
+        if (support_count <= 3) // Never flee when in groups of 4 or bigger
         {
-            SYNCDBG(8,"The %s index %d is scared due to enemy %s strength (%d vs. %d)",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)ownstrength,(int)enmstrength);
-            return true;
+            ownstrength *= support_count;
+            if (enmstrength >= (fear * ownstrength) / 100)
+            {
+                SYNCDBG(8,"The %s index %d is scared due to enemy %s strength (%d vs. %d)",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)ownstrength,(int)enmstrength);
+                return true;
+            }
         }
     }
     return false;
