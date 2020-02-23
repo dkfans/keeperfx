@@ -91,6 +91,9 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"MELEE_ATTACK",         InstPF_MeleeAttack},
   {"RANGED_DEBUFF",        InstPF_RangedDebuff},
   {"SELF_BUFF",            InstPF_SelfBuff},
+  {"DANGEROUS",            InstPF_Dangerous},
+  {"DESTRUCTIVE",          InstPF_Destructive},
+  {"QUICK",                InstPF_Quick},
   {NULL,                     0},
   };
 

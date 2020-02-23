@@ -43,6 +43,8 @@ struct CombatWeapon {
     long range_max;
 };
 
+int atktyp;
+
 #pragma pack()
 /******************************************************************************/
 extern const CombatState combat_state[];
