@@ -50,8 +50,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-DLLIMPORT struct InstanceInfo _DK_instance_info[48];
-#define instance_info _DK_instance_info
+// DLLIMPORT struct InstanceInfo _DK_instance_info[48];
+// #define instance_info _DK_instance_info
 /******************************************************************************/
 long instf_attack_room_slab(struct Thing *creatng, long *param);
 long instf_creature_cast_spell(struct Thing *creatng, long *param);
@@ -104,7 +104,6 @@ Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
 };
 
-/* 
 struct InstanceInfo instance_info[] = {
     {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                       0,  0}, //0
     {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,  21,  0},
@@ -146,7 +145,8 @@ struct InstanceInfo instance_info[] = {
     {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_attack_room_slab,     0,  0},
     {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_damage_wall,         21,  0},
     {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_first_person_do_imp_task,0,0},
-    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  6, instf_creature_cast_spell, 29,  0}, // 40
+//    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  6, instf_creature_cast_spell, 29,  0}, // 40 GROUP
+    {0, 10,  5,  6,  3,  60,  20,  3,  0,  1,  3, instf_creature_cast_spell, 29,  0}, //40 LIZARD
     {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell, 26,  0},
     {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell, 27,  0},
     {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell, 28,  0},
@@ -154,7 +154,7 @@ struct InstanceInfo instance_info[] = {
     {0, 16,  8,  8,  4,   1,   1, 14,  0,  0,  3, instf_tortured,     0,  0}, // 45
     {0, 16,  4,  4,  2,   1,   1,  5,  0,  0,  3, NULL,               0,  0},
     {0,  8,  4,  4,  2,   1,   1,  6,  0,  0,  3, NULL,               0,  0},
-};*/
+};
 
 /******************************************************************************/
 #ifdef __cplusplus

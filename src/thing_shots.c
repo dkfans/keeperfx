@@ -113,7 +113,8 @@ TbBool detonate_shot(struct Thing *shotng)
         PaletteSetPlayerPalette(myplyr, engine_palette);
         break;
     case ShM_Grenade:
-	case ShM_Firebomb:
+    case ShM_Lizard:
+    case ShM_Firebomb:
         create_effect(&shotng->mappos, TngEff_Unknown50, shotng->owner);
         create_effect(&shotng->mappos,  TngEff_Unknown09, shotng->owner);
         break;
@@ -265,26 +266,26 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
 
     // You can only dig your own tiles or non-fortified neutral ground (dirt/gold)
     // If you're not the tile owner, unless the classic bug mode is enabled.
-	if (!(gameadd.classic_bugs_flags & ClscBug_BreakNeutralWalls))
-	{
-		if (slabmap_owner(slb) != diggertng->owner)
-		{
+    if (!(gameadd.classic_bugs_flags & ClscBug_BreakNeutralWalls))
+    {
+        if (slabmap_owner(slb) != diggertng->owner)
+        {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
             // and if it's fortified
-			if (slbattr->category == SlbAtCtg_FortifiedWall)
-			{
-				// digging not allowed
-				return;
-			}
-		}
-	}
-	else
-	{
-		if ((slabmap_owner(slb) != game.neutral_player_num) && (slabmap_owner(slb) != diggertng->owner))
-		{
-			return;
-		}
-	}
+            if (slbattr->category == SlbAtCtg_FortifiedWall)
+            {
+                // digging not allowed
+                return;
+            }
+        }
+    }
+    else
+    {
+        if ((slabmap_owner(slb) != game.neutral_player_num) && (slabmap_owner(slb) != diggertng->owner))
+        {
+            return;
+        }
+    }
 
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     // Doors cannot be dug
@@ -406,6 +407,18 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     {
         if ((blocked_flags & (SlbBloF_WalledX|SlbBloF_WalledY)) != 0)
         {
+            if (shotng->model == ShM_Lizard)
+            {
+                if (shotng->shot.dexterity >= ACTION_RANDOM(90))
+                {
+                    struct Coord3d target_pos;
+                    target_pos.x.val = shotng->price.number;
+                    target_pos.y.val = shotng->shot.byte_19 * 300;
+                    target_pos.z.val = pos->z.val;
+                    const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
+                    if (dist <= 800) return detonate_shot(shotng);
+                }
+            }
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
             if (!thing_is_invalid(doortng))
             {
@@ -782,10 +795,10 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       }
       if ( shotst->old->push_on_hit || creature_is_being_unconscious(trgtng))
       {
-		  if (creature_is_being_unconscious(trgtng)) {
+          if (creature_is_being_unconscious(trgtng)) {
               throw_strength++;
               throw_strength *= 10;
-		  }
+          }
           trgtng->veloc_push_add.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
           trgtng->veloc_push_add.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
           trgtng->state_flags |= TF1_PushAdd;
@@ -943,17 +956,17 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             WARNDBG(8,"The %s index %d owner %d cannot group; invalid parent",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
         }
     }
-	if (shotst->old->push_on_hit != 0 || creature_is_being_unconscious(trgtng))
+    if (shotst->old->push_on_hit != 0 || creature_is_being_unconscious(trgtng))
     {
-		if (creature_is_being_unconscious(trgtng)) {
+        if (creature_is_being_unconscious(trgtng)) {
             amp ++;
             amp *= 5;
-		}
-		i = amp * (long)shotng->velocity.x.val;
-		trgtng->veloc_push_add.x.val += i / 16;
-		i = amp * (long)shotng->velocity.y.val;
-		trgtng->veloc_push_add.y.val += i / 16;
-		trgtng->state_flags |= TF1_PushAdd;
+        }
+        i = amp * (long)shotng->velocity.x.val;
+        trgtng->veloc_push_add.x.val += i / 16;
+        i = amp * (long)shotng->velocity.y.val;
+        trgtng->veloc_push_add.y.val += i / 16;
+        trgtng->state_flags |= TF1_PushAdd;
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->old->is_boulder != 0)
@@ -970,7 +983,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             check_hit_when_attacking_door(trgtng);
         }
     }
-	if (shotst->area_range != 0) detonate_shot(shotng);
+    if (shotst->area_range != 0) detonate_shot(shotng);
 
 
     if (shotst->old->destroy_on_first_hit != 0) {
@@ -1253,8 +1266,31 @@ TngUpdateRet update_shot(struct Thing *thing)
             draw_god_lightning(thing);
             lightning_modify_palette(thing);
             break;
-        case ShM_Vortex:
+        /**case ShM_Vortex:
+            //Not implemented, due to limited amount of shots, replaced by Lizard
             affect_nearby_stuff_with_vortex(thing);
+            break;
+            **/
+        case ShM_Lizard:
+            thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
+            int skill = thing->shot.dexterity;
+            target = thing_get(thing->shot.target_idx);
+            if (thing_is_invalid(target)) break;
+            MapCoordDelta dist;
+            if (skill <= 35)
+            {
+                dist = get_2d_distance(&thing->mappos, &target->mappos);
+                if (dist <= 260) hit = true;
+            }
+            else
+            {
+                struct Coord3d target_pos;
+                target_pos.x.val = thing->price.number;
+                target_pos.y.val = thing->shot.byte_19 * 300;
+                target_pos.z.val = target->mappos.z.val;
+                dist = get_2d_distance(&thing->mappos, &target_pos);
+                if (dist <= 260) hit = true;
+            }
             break;
         case ShM_Alarm:
             affect_nearby_friends_with_alarm(thing);

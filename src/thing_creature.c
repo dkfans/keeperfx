@@ -2599,9 +2599,8 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     struct Thing* shotng = NULL;
     long target_idx = 0;
     // Set target index for navigating shots
-    if (shot_model_is_navigable(shot_model))
+    if (!thing_is_invalid(target))
     {
-      if (!thing_is_invalid(target))
         target_idx = target->index;
     }
     struct ComponentVector cvect;
@@ -2674,6 +2673,23 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng->parent_idx = firing->index;
         shotng->shot.target_idx = target_idx;
         shotng->shot.dexterity = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+            if (shot_model == ShM_Lizard)
+            {
+                if (!thing_is_invalid(target))
+                {
+                    long range = 2200 - ((crstat->dexterity + ((cctrl->explevel + 1) * 5)) * 15);
+                    range = range < 1 ? 1 : range;
+                    long rnd = (ACTION_RANDOM(2 * range) - range);
+                    rnd = rnd < (range / 3) && rnd > 0 ? (ACTION_RANDOM(range / 2) + (range / 2)) + 200 : rnd + 200;
+                    rnd = rnd > -(range / 3) && rnd < 0 ? -(ACTION_RANDOM(range / 3) + (range / 3)) : rnd;
+                    long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
+                    long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
+                    int posint = y / 300;
+                    shotng->price.number = x;
+                    shotng->shot.byte_19 = posint;
+                    shotng->shot.dexterity = range / 10;
+                }
+            }
         break;
     }
     if (!thing_is_invalid(shotng))

@@ -69,8 +69,9 @@ enum CreatureInstances {
     CrInst_ATTACK_ROOM_SLAB,
     CrInst_DAMAGE_WALL,
     CrInst_FIRST_PERSON_DIG,
-    CrInst_CAST_SPELL_GROUP, // 40
-    CrInst_CAST_SPELL_DISEASE,
+    CrInst_LIZARD, // 40
+    //CrInst_CAST_SPELL_GROUP,
+    CrInst_CAST_SPELL_DISEASE, // 41
     CrInst_CAST_SPELL_CHICKEN,
     CrInst_CAST_SPELL_TIME_BOMB,
     CrInst_MOAN,

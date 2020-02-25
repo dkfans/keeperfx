@@ -47,7 +47,7 @@ enum ShotModels {
     ShM_Boulder, // 15
     ShM_GodLightning,
     ShM_Spike,
-    ShM_Vortex,
+    ShM_Lizard,
     ShM_Alarm,
     ShM_SolidBoulder, // 20
     ShM_SwingSword,

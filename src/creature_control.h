@@ -69,7 +69,7 @@ enum CreatureSoundTypes {
 enum CreatureControlFlags {
     CCFlg_Exists        = 0x01,
     CCFlg_NoCompControl = 0x02,
-    CCFlg_PreventDamage      = 0x04,
+    CCFlg_PreventDamage = 0x04,
     CCFlg_Unknown08     = 0x08,
     CCFlg_Unknown10     = 0x10,
     CCFlg_IsInRoomList  = 0x20,

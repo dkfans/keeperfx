@@ -644,10 +644,17 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst = get_shot_model_stats(i);
           LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
           shotst->model_flags = 0;
+          if (i == 18)
+          {
+              shotst->old = &shot_stats[11];
+          } else
           if (i < 30)
+          {
               shotst->old = &shot_stats[i];
-          else
+          } else
+          {
               shotst->old = &shot_stats[0];
+          }
           if (i < magic_conf.shot_types_count)
           {
             shot_desc[i].name = shotst->code_name;
@@ -661,7 +668,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->area_range = 0;
           shotst->area_damage = 0;
           shotst->area_blow = 0;
-		  shotst->old->push_on_hit = 0;
+          shotst->old->push_on_hit = 0;
       }
   }
   // Load the file
