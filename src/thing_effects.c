@@ -1118,7 +1118,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
         SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
-        struct Thing* elemtng = create_effect_element(&pos, egenstat->field_C, thing->owner);
+        struct Thing* elemtng = create_effect_element(&pos, egenstat->effect_sound, thing->owner);
         TRACE_THING(elemtng);
         if (thing_is_invalid(elemtng))
             break;
@@ -1210,8 +1210,9 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
-    if (ieffect->field_C != 0) {
-        thing_play_sample(thing, ieffect->field_C, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+    if ((ieffect->effect_sound != 0) && (ieffect->area_affect_type != AAffT_WOPDamage)) //Excluding WOP effect, taking shot sound instead
+    {
+        thing_play_sample(thing, ieffect->effect_sound, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
     return thing;
 }

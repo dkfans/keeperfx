@@ -2705,14 +2705,14 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
       }
 #endif
       shotng->shot.hit_type = hit_type;
-      if (shotst->old->firing_sound > 0)
+      if (shotst->firing_sound > 0)
       {
-        thing_play_sample(firing, shotst->old->firing_sound + UNSYNC_RANDOM(shotst->old->firing_sound_variants),
+        thing_play_sample(firing, shotst->firing_sound + UNSYNC_RANDOM(shotst->firing_sound_variants),
             100, 0, 3, 0, 3, FULL_LOUDNESS);
       }
-      if (shotst->old->shot_sound > 0)
+      if (shotst->shot_sound > 0)
       {
-        thing_play_sample(shotng, shotst->old->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->old->field_20, FULL_LOUDNESS);
+        thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->old->field_20, FULL_LOUDNESS);
       }
       set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
     }

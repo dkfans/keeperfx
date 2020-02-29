@@ -227,6 +227,9 @@ struct ShotConfigStats {
     /** Type of the damage inflicted by this shot. */
     DamageType damage_type;
     struct ShotStats *old;
+    short firing_sound;
+    short shot_sound;
+    unsigned char firing_sound_variants;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -307,9 +310,9 @@ struct ShotStats // sizeof = 101
   short damage;
   unsigned char destroy_on_first_hit;
   short speed;
-  short firing_sound;
-  unsigned char firing_sound_variants;
-  short shot_sound;
+  short firing_sound_UNUSED;
+  unsigned char firing_sound_variants_UNUSED;
+  short shot_sound_UNUSED;
   short field_20;
   short hit_sound;
   unsigned char field_24;

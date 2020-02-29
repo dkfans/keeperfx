@@ -1167,10 +1167,10 @@ TngUpdateRet update_shot(struct Thing *thing)
     TbBool hit = false;
     struct ShotConfigStats* shotst = get_shot_model_stats(thing->model);
     struct PlayerInfo* myplyr = get_my_player();
-    if (shotst->old->shot_sound != 0)
+    if (shotst->shot_sound != 0)
     {
-        if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->old->shot_sound, 0))
-            thing_play_sample(thing, shotst->old->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->shot_sound, 0))
+            thing_play_sample(thing, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     if (shotst->old->field_47)
         thing->health--;

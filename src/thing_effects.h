@@ -134,7 +134,7 @@ struct EffectGeneratorStats { // sizeof = 57
     long genation_delay_min;
     long genation_delay_max;
     long genation_amount;
-    long field_C;
+    long effect_sound;
     unsigned char field_10;
     long field_11;
     long acc_x_min;
@@ -207,7 +207,7 @@ struct InitEffect { // sizeof = 39
   short accel_z_min;
   short accel_z_max;
   unsigned char field_B;
-  short field_C;
+  short effect_sound;
   unsigned char kind_min;
   unsigned char kind_max;
   unsigned char area_affect_type;
