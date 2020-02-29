@@ -2534,7 +2534,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long damage;
-    if ( shotst->old->is_melee )
+    if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
     {
         // Project melee damage
         long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
@@ -2580,7 +2580,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         pos2.y.val = target->mappos.y.val;
         pos2.z.val = target->mappos.z.val;
         pos2.z.val += (target->clipbox_size_yz >> 1);
-        if ((shotst->old->is_melee) && (target->class_id != TCls_Door))
+        if (((shotst->model_flags & ShMF_StrengthBased) != 0) && (target->class_id != TCls_Door))
         {
           flag1 = true;
           pos1.z.val = pos2.z.val;
@@ -2589,7 +2589,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
     // Compute shot damage
-    if (shotst->old->is_melee)
+    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
     {
         damage = calculate_melee_damage(firing);
     } else

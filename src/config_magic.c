@@ -110,6 +110,13 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"SLAPPABLE",         1},
   {"NAVIGABLE",         2},
   {"BOULDER",           3},
+  {"REBOUND_IMMUNE",    4},
+  {"DIGGING",           5},
+  {"LIFE_DRAIN",        6},
+  {"GROUP_UP",          7},
+  {"NO_STUN",           8},
+  {"NO_HIT",            9},
+  {"STRENGTH_BASED",   10},
   {NULL,                0},
   };
 
@@ -311,7 +318,7 @@ short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
 {
   JUSTMSG("[shot%d]",(int)num);
   JUSTMSG("Name = %s",shotst->code_name);
-  JUSTMSG("Values = %d %d",(int)shotst->old->deals_magic_damage,(int)shotst->old->experience_given_to_shooter);
+  JUSTMSG("Values = %d %d",(int)shotst->damage_type,(int)shotst->old->experience_given_to_shooter);
   return true;
 }
 
@@ -755,8 +762,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              CONFWRNLOG("Incorrect shot model \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+              //CONFWRNLOG("Incorrect shot model \"%s\" in [%s] block of %s file.",word_buf,block_buf,config_textname);
+              shotst->damage_type = 0; //Default damage type to "none", to allow empty values in config.
               break;
           }
           break;
@@ -828,6 +835,34 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 3: // BOULDER
                 shotst->model_flags |= ShMF_Boulder;
+                n++;
+                break;
+            case 4: // REBOUND_IMMUNE
+                shotst->model_flags |= ShMF_ReboundImmune;
+                n++;
+                break;
+            case 5: // DIGGING
+                shotst->model_flags |= ShMF_Digging;
+                n++;
+                break;
+            case 6: // LIFE_DRAIN
+                shotst->model_flags |= ShMF_LifeDrain;
+                n++;
+                break;
+            case 7: // GROUP_UP
+                shotst->model_flags |= ShMF_GroupUp;
+                n++;
+                break;
+            case 8: // NO_STUN
+                shotst->model_flags |= ShMF_NoStun;
+                n++;
+                break;
+            case 9: // NO_HIT
+                shotst->model_flags |= ShMF_NoHit;
+                n++;
+                break;
+            case 10: // STRENGTH_BASED
+                shotst->model_flags |= ShMF_StrengthBased;
                 n++;
                 break;
             default:

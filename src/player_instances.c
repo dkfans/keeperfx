@@ -52,6 +52,7 @@
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "config_magic.h"
+#include "thing_shots.h"
 
 #include "keeperfx.hpp"
 
@@ -264,6 +265,9 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       if (thing->model == 20) //TODO CONFIG shot model dependency, make config option instead
       {
           thing->move_angle_xy = player->acamera->orient_a;
+      } else
+      {
+          detonate_shot(thing);
       }
       break;
   case TCls_Trap:
@@ -1004,8 +1008,9 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
         return false;
     struct PlayerInfo* player = get_player(thing->owner);
     if ((player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_FreeCtrlDirect))
+    {
         return false;
-	char playerInstanceNum = player->instance_num;
+    }
     switch (player->instance_num)
     {
     case PI_DirctCtrl:
@@ -1018,8 +1023,8 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     case PI_Whip: // Whip can be used at any time by comp. assistant
     case PI_WhipEnd:
         return (thing->index == player->controlled_thing_idx);
-	case PI_PsngrCtLeave: // Leaving the possessed creature
-		break;
+    case PI_PsngrCtLeave: // Leaving the possessed creature
+        break;
     default:
         ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);
         break;

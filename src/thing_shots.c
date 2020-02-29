@@ -76,9 +76,10 @@ TbBool shot_model_is_navigable(long tngmodel)
     return ((shotst->model_flags & ShMF_Navigable) != 0);
 }
 
-TbBool shot_is_boulder(const struct Thing *thing)
+TbBool shot_is_boulder(const struct Thing *shotng)
 {
-    return (thing->model == ShM_Boulder); //TODO CONFIG shot model dependency, make config option instead
+    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
+    return ((shotst->model_flags & ShMF_Boulder) != 0);
 }
 
 TbBool detonate_shot(struct Thing *shotng)
@@ -364,7 +365,8 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool shot_explodes = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     unsigned long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
-    if ( shotst->old->field_49 ) {
+    if (shotst->model_flags & ShMF_Digging)
+    {
         process_dig_shot_hit_wall(shotng, blocked_flags);
     }
 
@@ -585,14 +587,14 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     if (!thing_is_object(target)) {
         return 0;
     }
-    if (shotst->old->cannot_hit_thing) {
+    if (shotst->model_flags & ShMF_NoHit) {
         return 0;
     }
     if (target->health < 0) {
         return 0;
     }
     struct ObjectConfig* objconf = get_object_model_stats2(target->model);
-    if (objconf->resistant_to_nonmagic && !shotst->old->deals_magic_damage) {
+    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
         return 0;
     }
     struct Thing* creatng = INVALID_THING;
@@ -625,7 +627,8 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     if (shotng->word_14)
     {
         // Drain allows caster to regain half of damage
-        if (shotst->old->health_drain && thing_is_creature(creatng)) {
+        if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(creatng)) 
+        {
             apply_health_to_thing(creatng, shotng->word_14/2);
         }
         apply_damage_to_thing(target, shotng->word_14, shotst->damage_type, -1);
@@ -757,7 +760,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle;
     } else {
         killertng = thing_get(shotng->parent_idx);
-        dieflags = CrDed_DiedInBattle | (shotst->old->cannot_make_target_unconscious?CrDed_NoUnconscious:0);
+        dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0);
     }
     // Friendly fire should kill the creature, not knock out
     if (shotng->owner == creatng->owner) {
@@ -861,14 +864,14 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
     }
-    if (shotst->old->is_melee != 0)
+    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
-    if ((shotst->old->cannot_hit_thing != 0) || (trgtng->health < 0)) {
+    if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
         return 0;
     }
-    if (creature_affected_by_spell(trgtng, SplK_Rebound) && (shotst->old->field_29 == 0))
+    if (creature_affected_by_spell(trgtng, SplK_Rebound) && !(shotst->model_flags & ShMF_ReboundImmune))
     {
         struct Thing* killertng = INVALID_THING;
         if (shotng->index != shotng->parent_idx) {
@@ -918,7 +921,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (shotng->shot.damage != 0)
     {
-        if (shotst->old->health_drain) {
+        if (shotst->model_flags & ShMF_LifeDrain)
+        {
             give_shooter_drained_health(shooter, shotng->shot.damage / 2);
         }
         if (!thing_is_invalid(shooter)) {
@@ -944,7 +948,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         apply_spell_effect_to_thing(trgtng, shotst->old->cast_spell_kind, n);
     }
-    if (shotst->old->group_with_shooter)
+    if (shotst->model_flags & ShMF_GroupUp)
     {
         if (thing_is_creature(shooter))
         {
@@ -1131,7 +1135,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
     struct Coord3d pos;
     TbBool move_allowed = get_thing_next_position(&pos, shotng);
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    if (!shotst->old->cannot_hit_thing)
+    if (!(shotst->model_flags & ShMF_NoHit))
     {
         if (shot_hit_something_while_moving(shotng, &pos)) {
             return TUFRet_Deleted;
@@ -1139,7 +1143,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
     }
     if ((shotng->movement_flags & TMvF_Unknown10) != 0)
     {
-      if ((shotst->old->is_melee) && thing_in_wall_at(shotng, &pos)) {
+      if ((shotst->model_flags & ShMF_StrengthBased) && thing_in_wall_at(shotng, &pos)) {
           if (shot_hit_door_at(shotng, &pos)) {
               return TUFRet_Deleted;
           }
@@ -1180,35 +1184,7 @@ TngUpdateRet update_shot(struct Thing *thing)
     } else
     {
         long i;
-        switch (thing->model)
-        {
-        case ShM_Firebomb:
-            for (i = 2; i > 0; i--)
-            {
-              pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(127) + 63;
-              pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(127) + 63;
-              pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(127) + 63;
-              create_thing(&pos1, TCls_EffectElem, 1, thing->owner, -1);
-            }
-            break;
-        case ShM_Lightning:
-        {
-            struct PlayerInfo* player;
-            if (lightning_is_close_to_player(myplyr, &thing->mappos))
-            {
-              if (is_my_player_number(thing->owner))
-              {
-                  player = get_player(thing->owner);
-                  if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
-                  {
-                      PaletteSetPlayerPalette(player, lightning_palette);
-                      myplyr->field_3 |= Pf3F_Unkn08;
-                  }
-              }
-            }
-            break;
-        }
-        case ShM_NaviMissile:
+        if (shotst->model_flags & ShMF_Navigable) //Navigable shot property combines with other shots.
         {
             target = thing_get(thing->shot.target_idx);
             struct ComponentVector cvect;
@@ -1241,6 +1217,33 @@ TngUpdateRet update_shot(struct Thing *thing)
                 thing->veloc_push_add.y.val += cvect.y;
                 thing->veloc_push_add.z.val += cvect.z;
                 thing->state_flags |= TF1_PushAdd;
+            }
+        }
+        switch (thing->model)
+        {
+        case ShM_Firebomb:
+            for (i = 2; i > 0; i--)
+            {
+              pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(127) + 63;
+              pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(127) + 63;
+              pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(127) + 63;
+              create_thing(&pos1, TCls_EffectElem, 1, thing->owner, -1);
+            }
+            break;
+        case ShM_Lightning:
+        {
+            struct PlayerInfo* player;
+            if (lightning_is_close_to_player(myplyr, &thing->mappos))
+            {
+              if (is_my_player_number(thing->owner))
+              {
+                  player = get_player(thing->owner);
+                  if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
+                  {
+                      PaletteSetPlayerPalette(player, lightning_palette);
+                      myplyr->field_3 |= Pf3F_Unkn08;
+                  }
+              }
             }
             break;
         }
@@ -1366,15 +1369,15 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->shot.damage = shotst->old->damage;
     thing->shot.dexterity = 255;
     thing->health = shotst->health;
-    if (shotst->old->field_50)
+    if (shotst->old->lightf_50)
     {
         struct InitLight ilght;
         LbMemorySet(&ilght, 0, sizeof(struct InitLight));
         memcpy(&ilght.mappos,&thing->mappos,sizeof(struct Coord3d));
-        ilght.field_0 = shotst->old->field_50;
-        ilght.field_2 = shotst->old->field_52;
+        ilght.field_0 = shotst->old->lightf_50;
+        ilght.field_2 = shotst->old->lightf_52;
         ilght.is_dynamic = 1;
-        ilght.field_3 = shotst->old->field_53;
+        ilght.field_3 = shotst->old->lightf_53;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id == 0) {
             // Being out of free lights is quite common - so info instead of warning here
