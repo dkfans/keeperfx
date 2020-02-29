@@ -104,56 +104,57 @@ Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
 };
 
+//field_0,time,fp_time,action_time,fp_action_time,long reset_time,fp_reset_time,graphics_idx,flags,force_visibility,field_1D,func_cb,func_params[2];
 struct InstanceInfo instance_info[] = {
-    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                       0,  0}, //0
-    {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,  21,  0},
-    {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,  22,  0},
-    {0,  0,  0,  0,  0,   0,   0,  3,  0,  0,  3, NULL,                       0,  0},
-    {0, 10,  5,  5,  2,  16,   8,  3,  0,  1,  3, instf_creature_fire_shot,  14,  0},
-    {0, 10,  4,  6,  2,  32,   4,  3,  0,  1,  3, instf_creature_cast_spell,  1,  0}, //5
-    {0, 10,  5,  6,  3, 100,  16,  3,  0,  1,  3, instf_creature_cast_spell,  2,  0},
-    {0, 10,  5,  6,  3, 100,  16,  3,  0,  1,  3, instf_creature_cast_spell,  3,  0},
-    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,  4,  0},
-    {0, 10,  5,  6,  3,   4,   1,  3,  0,  1,  3, instf_creature_cast_spell,  5,  0},
-    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,  6,  0}, //10
-    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,  7,  0},
-    {0, 10,  5,  6,  3,  80,  20,  3,  0,  1,  4, instf_creature_cast_spell,  8,  0},
-    {1, 10,  5,  6,  3, 500, 200,  3,  0,  1,  3, instf_creature_cast_spell,  9,  0},
-    {1, 10,  5,  6,  3,  10, 200,  3,  0,  1,  3, instf_creature_cast_spell, 10,  0},
-    {1, 10,  5,  6,  3, 300, 200,  3,  0,  1,  3, instf_creature_cast_spell, 11,  0}, //15
-    {0, 10,  5,  6,  3, 400,  20,  3,  0,  1,  3, instf_creature_cast_spell, 12,  0},
-    {0, 10,  5,  6,  3,   5,   3,  3,  0,  1,  3, instf_creature_cast_spell, 13,  0},
-    {0, 10,  5,  6,  3,  10,  40,  3,  0,  1,  3, instf_creature_cast_spell, 14,  0},
-    {0, 10,  5,  6,  3,  25,   2,  3,  0,  1,  3, instf_creature_cast_spell, 15,  0},
-    {0, 10,  5,  6,  3,  50,   2,  3,  0,  1,  3, instf_creature_cast_spell, 16,  0}, //20
-    {0, 10,  5, 10,  5,   8,   4,  3,  1,  1,  3, instf_creature_cast_spell, 17,  0},
-    {0, 10,  5,  6,  3,  50,  40,  3,  0,  1,  3, instf_creature_cast_spell, 18,  0},
-    {0, 10,  5,  6,  3,   8,   3,  3,  0,  1,  3, instf_creature_cast_spell, 19,  0},
-    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell, 20,  0},
-    {0, 10,  5,  6,  3,   8,   4,  3,  0,  1,  3, instf_creature_cast_spell, 21,  0}, //25
-    {0, 10,  5,  6,  3,  60,  20,  3,  0,  1,  3, instf_creature_cast_spell, 22,  0},
-    {0, 10,  5,  6,  3, 100,  20,  3,  0,  1,  3, instf_creature_cast_spell, 23,  0},
-    {0, 10,  5,  6,  3,   8, 200,  3,  0,  1,  3, instf_creature_cast_spell, 24,  0},
-    {0,  8,  4,  4,  2, 100,  10,  3,  0,  1,  3, instf_fart,         0,  0},
-    {0,  8,  4,  4,  2,   1,   1,  3,  0,  0,  3, instf_dig,          0,  0}, //30
-    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_pretty_path,  0,  0},
-    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_destroy,      0,  0},
-    {0,  8,  4,  4,  2,   1,   1,  3,  0,  0,  3, instf_tunnel,       0,  0},
-    {0,  8,  4,  1,  1,   1,   1, 11,  0,  0,  3, NULL,               3,  0},
-    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_reinforce,    0,  0}, //35
-    {0, 16,  8,  8,  4,   1,   1, 13,  0,  0,  3, instf_eat,          0,  0},
-    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_attack_room_slab,     0,  0},
-    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_damage_wall,         21,  0},
-    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_first_person_do_imp_task,0,0},
-//    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  6, instf_creature_cast_spell, 29,  0}, // 40 GROUP
-    {0, 10,  5,  6,  3,  60,  20,  3,  0,  1,  3, instf_creature_cast_spell, 29,  0}, //40 LIZARD
-    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell, 26,  0},
-    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell, 27,  0},
-    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell, 28,  0},
-    {0,  8,  4,  1,  1,   1,   1, 15,  0,  0,  3, NULL,               4,  0},
-    {0, 16,  8,  8,  4,   1,   1, 14,  0,  0,  3, instf_tortured,     0,  0}, // 45
-    {0, 16,  4,  4,  2,   1,   1,  5,  0,  0,  3, NULL,               0,  0},
-    {0,  8,  4,  4,  2,   1,   1,  6,  0,  0,  3, NULL,               0,  0},
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                              {0,0}}, //0
+    {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,         {21,0}},
+    {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,         {22,0}},
+    {0,  0,  0,  0,  0,   0,   0,  3,  0,  0,  3, NULL,                              {0,0}},
+    {0, 10,  5,  5,  2,  16,   8,  3,  0,  1,  3, instf_creature_fire_shot,         {14,0}},
+    {0, 10,  4,  6,  2,  32,   4,  3,  0,  1,  3, instf_creature_cast_spell,         {1,0}}, //5
+    {0, 10,  5,  6,  3, 100,  16,  3,  0,  1,  3, instf_creature_cast_spell,         {2,0}},
+    {0, 10,  5,  6,  3, 100,  16,  3,  0,  1,  3, instf_creature_cast_spell,         {3,0}},
+    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,         {4,0}},
+    {0, 10,  5,  6,  3,   4,   1,  3,  0,  1,  3, instf_creature_cast_spell,         {5,0}},
+    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,         {6,0}}, //10
+    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,         {7,0}},
+    {0, 10,  5,  6,  3,  80,  20,  3,  0,  1,  4, instf_creature_cast_spell,         {8,0}},
+    {1, 10,  5,  6,  3, 500, 200,  3,  0,  1,  3, instf_creature_cast_spell,         {9,0}},
+    {1, 10,  5,  6,  3,  10, 200,  3,  0,  1,  3, instf_creature_cast_spell,        {10,0}},
+    {1, 10,  5,  6,  3, 300, 200,  3,  0,  1,  3, instf_creature_cast_spell,        {11,0}}, //15
+    {0, 10,  5,  6,  3, 400,  20,  3,  0,  1,  3, instf_creature_cast_spell,        {12,0}},
+    {0, 10,  5,  6,  3,   5,   3,  3,  0,  1,  3, instf_creature_cast_spell,        {13,0}},
+    {0, 10,  5,  6,  3,  10,  40,  3,  0,  1,  3, instf_creature_cast_spell,        {14,0}},
+    {0, 10,  5,  6,  3,  25,   2,  3,  0,  1,  3, instf_creature_cast_spell,        {15,0}},
+    {0, 10,  5,  6,  3,  50,   2,  3,  0,  1,  3, instf_creature_cast_spell,        {16,0}}, //20
+    {0, 10,  5, 10,  5,   8,   4,  3,  1,  1,  3, instf_creature_cast_spell,        {17,0}},
+    {0, 10,  5,  6,  3,  50,  40,  3,  0,  1,  3, instf_creature_cast_spell,        {18,0}},
+    {0, 10,  5,  6,  3,   8,   3,  3,  0,  1,  3, instf_creature_cast_spell,        {19,0}},
+    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,        {20,0}},
+    {0, 10,  5,  6,  3,   8,   4,  3,  0,  1,  3, instf_creature_cast_spell,        {21,0}}, //25
+    {0, 10,  5,  6,  3,  60,  20,  3,  0,  1,  3, instf_creature_cast_spell,        {22,0}},
+    {0, 10,  5,  6,  3, 100,  20,  3,  0,  1,  3, instf_creature_cast_spell,        {23,0}},
+    {0, 10,  5,  6,  3,   8, 200,  3,  0,  1,  3, instf_creature_cast_spell,        {24,0}},
+    {0,  8,  4,  4,  2, 100,  10,  3,  0,  1,  3, instf_fart,                        {0,0}},
+    {0,  8,  4,  4,  2,   1,   1,  3,  0,  0,  3, instf_dig,                         {0,0}}, //30
+    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_pretty_path,                 {0,0}},
+    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_destroy,                     {0,0}},
+    {0,  8,  4,  4,  2,   1,   1,  3,  0,  0,  3, instf_tunnel,                      {0,0}},
+    {0,  8,  4,  1,  1,   1,   1, 11,  0,  0,  3, NULL,                              {3,0}},
+    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_reinforce,                   {0,0}}, //35
+    {0, 16,  8,  8,  4,   1,   1, 13,  0,  0,  3, instf_eat,                         {0,0}},
+    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_attack_room_slab,            {0,0}},
+    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_damage_wall,                {21,0}},
+    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_first_person_do_imp_task,    {0,0}},
+//  {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  6, instf_creature_cast_spell,        {29,0}}, // 40 GROUP
+    {0, 10,  5,  6,  3,  60,  20,  3,  0,  1,  3, instf_creature_cast_spell,        {29,0}}, //40 LIZARD
+    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell,        {26,0}},
+    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell,        {27,0}},
+    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell,        {28,0}},
+    {0,  8,  4,  1,  1,   1,   1, 15,  0,  0,  3, NULL,                              {4,0}},
+    {0, 16,  8,  8,  4,   1,   1, 14,  0,  0,  3, instf_tortured,                    {0,0}}, // 45
+    {0, 16,  4,  4,  2,   1,   1,  5,  0,  0,  3, NULL,                              {0,0}},
+    {0,  8,  4,  4,  2,   1,   1,  6,  0,  0,  3, NULL,                              {0,0}},
 };
 
 /******************************************************************************/
