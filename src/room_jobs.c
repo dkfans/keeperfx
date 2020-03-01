@@ -153,7 +153,7 @@ TbBool add_creature_to_work_room(struct Thing *creatng, struct Room *room, Creat
             room_code_name(room->kind), (int)room->index, room_code_name(wrkroom->kind), (int)wrkroom->index);
         remove_creature_from_work_room(creatng);
     }
-    if ((cctrl->flgfield_1 & 0x20) != 0)
+    if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) != 0)
     {
         ERRORLOG("Attempt to add creature to a room when he is in the list of another");
         return false;
@@ -181,7 +181,7 @@ TbBool add_creature_to_work_room(struct Thing *creatng, struct Room *room, Creat
         cctrl->next_in_room = 0;
     }
     room->creatures_list = creatng->index;
-    cctrl->flgfield_1 |= 0x20;
+    cctrl->flgfield_1 |= CCFlg_IsInRoomList;
     return true;
 }
 

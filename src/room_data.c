@@ -3749,7 +3749,7 @@ void reset_creatures_rooms(struct Room *room)
             struct Room* nroom = get_room_thing_is_on(thing);
             if (room_is_invalid(nroom))
             {
-                cctrl->flgfield_1 &= ~0x20;
+                cctrl->flgfield_1 &= ~CCFlg_IsInRoomList;
                 cctrl->work_room_id = 0;
                 set_start_state(thing);
             } else

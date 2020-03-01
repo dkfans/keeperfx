@@ -2130,7 +2130,7 @@ short setup_creature_leaves_or_dies(struct Thing *creatng)
     }
     creatng->continue_state = CrSt_LeavesBecauseOwnerLost;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->flgfield_1 |= 0x02;
+    cctrl->flgfield_1 |= CCFlg_NoCompControl;
     return 1;
 }
 
