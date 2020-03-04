@@ -2796,10 +2796,10 @@ long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
     long delta = (long)game.play_gameturn - (long)cctrl->instance_use_turn[inst_idx];
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-        ritime = inst_inf->fp_reset_time + inst_inf->fp_time - inst_inf->fp_action_time;
+        ritime = inst_inf->fp_reset_time + cctrl->inst_total_turns - cctrl->inst_action_turns;
     } else
     {
-        ritime = inst_inf->reset_time + inst_inf->time - inst_inf->action_time;
+        ritime = inst_inf->reset_time + cctrl->inst_total_turns - cctrl->inst_action_turns;
     }
     return (delta >= ritime);
 }
