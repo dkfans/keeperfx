@@ -35,6 +35,7 @@
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "creature_jobs.h"
 #include "engine_arrays.h"
 #include "game_legacy.h"
@@ -81,7 +82,9 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"SYMBOLSPRITES",  10},
   {"GRAPHICS",       11},
   {"FUNCTION",       12},
-  {"PROPERTIES",     13},
+  {"RANGEMIN",       13},
+  {"RANGEMAX",       14},
+  {"PROPERTIES",     15},
   {NULL,              0},
   };
 
@@ -1047,7 +1050,59 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 13: // PROPERTIES
+        case 13: //RANGEMIN
+                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              int j = 0;
+              int l = 0;
+              for (j=0; j < 23; j++) // Size of offensive_weapon
+              {
+                  if (offensive_weapon[j].inst_id == i)
+                  {
+                      l = 1;
+                      break;
+                  }
+              }
+              if (l == 1)
+              {
+                  k = atoi(word_buf);
+                  offensive_weapon[j].range_min = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+                   break;
+        case 14: //RANGEMAX
+                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              int j = 0;
+              int l = 0;
+              for (j=0; j < 23; j++) // Size of offensive_weapon
+              {
+                  if (offensive_weapon[j].inst_id == i)
+                  {
+                      l = 1;
+                      break;
+                  }
+              }
+              if (l == 1)
+              {
+                  k = atoi(word_buf);
+                  offensive_weapon[j].range_max = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+                   break;
+        case 15: // PROPERTIES
             inst_inf->flags = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {

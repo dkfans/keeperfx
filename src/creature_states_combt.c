@@ -75,7 +75,7 @@ const CombatState combat_door_state[] = {
     combat_door_state_ranged_combat,
 };
 
-const struct CombatWeapon offensive_weapon[] = {
+struct CombatWeapon offensive_weapon[] = {
     {CrInst_FREEZE,                 156, LONG_MAX},
     {CrInst_FEAR,                   156, LONG_MAX},
     {CrInst_CAST_SPELL_DISEASE,     156, LONG_MAX},

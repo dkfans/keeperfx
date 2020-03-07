@@ -919,7 +919,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           if (n < 1)
           {
-              shotst->firing_sound_variants = 1;
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
                    break;
       case 0: // comment
