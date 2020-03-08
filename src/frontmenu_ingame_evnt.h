@@ -47,6 +47,8 @@ void gui_open_event(struct GuiButton *gbtn);
 void gui_kill_event(struct GuiButton *gbtn);
 void turn_on_event_info_panel_if_necessary(EventIndex evidx);
 void activate_event_box(EventIndex evidx);
+void gui_next_battle(struct GuiButton *gbtn);
+void gui_previous_battle(struct GuiButton *gbtn);
 
 short zoom_to_fight(PlayerNumber plyr_idx);
 

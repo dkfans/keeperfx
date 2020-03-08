@@ -1406,9 +1406,24 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
         {
             if (wheel_scrolled_up)
-                {set_packet_control(pckt, PCtr_ViewZoomIn);}
+            {
+                set_packet_control(pckt, PCtr_ViewZoomIn);
+            }
             if (wheel_scrolled_down)
-                {set_packet_control(pckt, PCtr_ViewZoomOut);}
+            {
+                set_packet_control(pckt, PCtr_ViewZoomOut);
+            }
+        }
+    }
+    if (menu_is_active(GMnu_BATTLE) && lbKeyOn[KC_LCONTROL])
+    {
+        if (wheel_scrolled_up)
+        {
+            gui_previous_battle(0);
+        }
+        if (wheel_scrolled_down)
+        {
+            gui_next_battle(0);
         }
     }
     // Only pan the camera as often as normal despite frameskip
