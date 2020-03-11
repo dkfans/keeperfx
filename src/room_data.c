@@ -302,6 +302,39 @@ void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rki
     *used_cap = used_capacity;
 }
 
+void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, RoomKind rkind, long *total_cap, long *used_cap, long *storaged_cap)
+{
+    int total_capacity = 0;
+    int used_capacity = 0;
+    int storaged_capacity = 0;
+    long i = dungeon->room_kind[rkind];
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Room* room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        used_capacity += room->used_capacity;
+        total_capacity += room->total_capacity;
+        storaged_capacity += room->capacity_used_for_storage;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    *total_cap = total_capacity;
+    *used_cap = used_capacity;
+    *storaged_cap = storaged_capacity;
+}
+
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);

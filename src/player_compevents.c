@@ -427,24 +427,45 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             continue;
         }
         struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[bldroom->rkind];
-        if (emergency_state && ((roomst->flags & RoCFlg_BuildToBroke) == 0)) {
-            continue;
-        }
-        SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
-        // Find the corresponding build process and mark it as needed
-        for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
+        int tiles = get_room_slabs_count(comp->dungeon->owner,bldroom->rkind);
+        if ((tiles >= cevent->param3) && !(cevent->param3 == 0)) // Room has reached the preconfigured maximum size
         {
-            struct ComputerProcess* cproc = &comp->processes[i];
-            if ((cproc->flags & ComProc_Unkn0002) != 0)
-                break;
-            if (cproc->parent == bldroom->process)
+            SYNCDBG(8,"Player %d reached maximum size %d for %s",(int)comp->dungeon->owner,tiles,room_code_name(bldroom->rkind));
+            if (bldroom->rkind == RoK_WORKSHOP)
             {
-                SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
-                ret = 1;
-                cproc->flags &= ~ComProc_Unkn0008;
-                cproc->flags &= ~ComProc_Unkn0001;
-                cproc->last_run_turn = 0;
-                cproc->param_3 = 0;
+                struct Dungeon* dungeon = comp->dungeon;
+                long used_capacity;
+                long total_capacity;
+                long storaged_capacity;
+                get_room_kind_total_used_and_storage_capacity(dungeon, RoK_WORKSHOP, &total_capacity, &used_capacity, &storaged_capacity);
+                if (storaged_capacity > (used_capacity / 2))
+                {
+                create_task_sell_traps_and_doors(comp, storaged_capacity/3*2 ,100000,false);
+                SYNCDBG(8,"Player %d to sell crates to free up space in %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
+                }
+            }
+            continue;
+        } else 
+        {
+            if (emergency_state && ((roomst->flags & RoCFlg_BuildToBroke) == 0)) {
+                continue;
+            }
+            SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
+            // Find the corresponding build process and mark it as needed
+            for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
+            {
+                struct ComputerProcess* cproc = &comp->processes[i];
+                if ((cproc->flags & ComProc_Unkn0002) != 0)
+                    break;
+                if (cproc->parent == bldroom->process)
+                {
+                    SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
+                    ret = 1;
+                    cproc->flags &= ~ComProc_Unkn0008;
+                    cproc->flags &= ~ComProc_Unkn0001;
+                    cproc->last_run_turn = 0;
+                    cproc->param_3 = 0;
+                }
             }
         }
     }

@@ -167,10 +167,6 @@ IF(PLAYER1,PRISON >= 9)
 	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
 ENDIF
 
-IF(PLAYER1,WORKSHOP >= 72)
-	ROOM_AVAILABLE(PLAYER1,WORKSHOP,0,0)
-ENDIF
-
 IF_ACTION_POINT(1,PLAYER0)
 	REM "This region of the underworld is riddled with tunnels and many heroes explore their labyrinthine ways. No-one said being evil would be easy."
 	DISPLAY_INFORMATION(157,ALL_PLAYERS)
