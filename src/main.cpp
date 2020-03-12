@@ -4151,6 +4151,11 @@ void startup_saved_packet_game(void)
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
+    if (is_key_pressed(KC_LALT, KMod_NONE))
+    {
+        struct PlayerInfo* player = get_my_player();
+        set_engine_view(player, PVM_FrontView);
+    }
 }
 
 void faststartup_saved_packet_game(void)
