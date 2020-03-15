@@ -4180,7 +4180,7 @@ void startup_network_game(TbBool local)
     setup_count_players();
     player = get_my_player();
     flgmem = player->field_2C;
-    if ((campaign.human_player >= 0) && (!force_player_num))
+    if (local && (campaign.human_player >= 0) && (!force_player_num))
     {
         default_loc_player = campaign.human_player;
         game.local_plyr_idx = default_loc_player;
