@@ -519,6 +519,10 @@ TbBool output_message_room_related_from_computer_or_player_action(PlayerNumber p
         msg_idx = roomst->msg_too_small;
         delay = MESSAGE_DELAY_ROOM_SMALL;
         break;
+    case OMsg_RoomFull:
+        msg_idx = roomst->msg_too_small;
+        delay = MESSAGE_DELAY_WORSHOP_FULL;
+        break;
     case OMsg_RoomNoRoute:
         msg_idx = roomst->msg_no_route;
         delay = MESSAGE_DELAY_ROOM_NEED;

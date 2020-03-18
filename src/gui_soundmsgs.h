@@ -31,14 +31,15 @@ extern "C" {
 
 #define MESSAGE_QUEUE_COUNT     4
 
-#define MESSAGE_DELAY_ROOM_NEED  500
-#define MESSAGE_DELAY_ROOM_SMALL 500
-#define MESSAGE_DELAY_TREASURY   500
-#define MESSAGE_DELAY_FIGHT      400
-#define MESSAGE_DELAY_BATTLE      40
-#define MESSAGE_DELAY_CRTR_MOOD  500
-#define MESSAGE_DELAY_SPECIAL    100
-#define MESSAGE_DELAY_LORD       100
+#define MESSAGE_DELAY_ROOM_NEED     500
+#define MESSAGE_DELAY_ROOM_SMALL    500
+#define MESSAGE_DELAY_WORSHOP_FULL 1750
+#define MESSAGE_DELAY_TREASURY      500
+#define MESSAGE_DELAY_FIGHT         400
+#define MESSAGE_DELAY_BATTLE         40
+#define MESSAGE_DELAY_CRTR_MOOD     500
+#define MESSAGE_DELAY_SPECIAL       100
+#define MESSAGE_DELAY_LORD          100
 
 enum TbSpeechMessages {
         SMsg_None = 0,
@@ -177,6 +178,7 @@ enum OutputMessageKinds {
     OMsg_RoomNeeded,
     OMsg_RoomTooSmall,
     OMsg_RoomNoRoute,
+    OMsg_RoomFull,
 };
 
 typedef unsigned int OutputMessageKind;
