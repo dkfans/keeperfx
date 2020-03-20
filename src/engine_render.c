@@ -1924,60 +1924,60 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
 */
 static void create_line_const_z(unsigned char color, long pos_z, long beg_x, long end_x, long beg_y, long end_y)
 {
-	struct EngineCoord end;
-	struct EngineCoord start;
+    struct EngineCoord end;
+    struct EngineCoord start;
     long vec_x;
     long vec_y;
     long pos_x;
     long pos_y;
     vec_x = end_x - beg_x;
-	vec_y = end_y - beg_y;
-	create_box_coords(&start, beg_x, beg_y, pos_z);
+    vec_y = end_y - beg_y;
+    create_box_coords(&start, beg_x, beg_y, pos_z);
 
-	if (abs(vec_y) > abs(vec_x))
-	{
-		if (vec_y < 0)
-		{
-			long vec_tmp;
-			vec_tmp = beg_x;
-			beg_x = end_x;
-			end_x = vec_tmp;
-			vec_tmp = beg_y;
-			beg_y = end_y;
-			end_y = vec_tmp;
-			vec_x = -vec_x;
-			vec_y = -vec_y;
-		}
-		for (pos_y = beg_y + COORD_PER_STL; pos_y <= end_y; pos_y += COORD_PER_STL)
-		{
-			pos_x = beg_x + vec_x * abs(pos_y - beg_y) / abs(vec_y);
-			create_box_coords(&end, pos_x, pos_y, pos_z);
-			create_line_segment(&start, &end, color);
-			memcpy(&start, &end, sizeof(struct EngineCoord));
-		}
-	}
-	else
-	{
-		if (vec_x < 0)
-		{
-			long vec_tmp;
-			vec_tmp = beg_x;
-			beg_x = end_x;
-			end_x = vec_tmp;
-			vec_tmp = beg_y;
-			beg_y = end_y;
-			end_y = vec_tmp;
-			vec_x = -vec_x;
-			vec_y = -vec_y;
-		}
-		for (pos_x = beg_x + COORD_PER_STL; pos_x <= end_x; pos_x += COORD_PER_STL)
-		{
-			pos_y = beg_y + vec_y * abs(pos_x - beg_x) / abs(vec_x);
-			create_box_coords(&end, pos_x, pos_y, pos_z);
-			create_line_segment(&start, &end, color);
-			memcpy(&start, &end, sizeof(struct EngineCoord));
-		}
-	}
+    if (abs(vec_y) > abs(vec_x))
+    {
+        if (vec_y < 0)
+        {
+            long vec_tmp;
+            vec_tmp = beg_x;
+            beg_x = end_x;
+            end_x = vec_tmp;
+            vec_tmp = beg_y;
+            beg_y = end_y;
+            end_y = vec_tmp;
+            vec_x = -vec_x;
+            vec_y = -vec_y;
+        }
+        for (pos_y = beg_y + COORD_PER_STL; pos_y <= end_y; pos_y += COORD_PER_STL)
+        {
+            pos_x = beg_x + vec_x * abs(pos_y - beg_y) / abs(vec_y);
+            create_box_coords(&end, pos_x, pos_y, pos_z);
+            create_line_segment(&start, &end, color);
+            memcpy(&start, &end, sizeof(struct EngineCoord));
+        }
+    }
+    else
+    {
+        if (vec_x < 0)
+        {
+            long vec_tmp;
+            vec_tmp = beg_x;
+            beg_x = end_x;
+            end_x = vec_tmp;
+            vec_tmp = beg_y;
+            beg_y = end_y;
+            end_y = vec_tmp;
+            vec_x = -vec_x;
+            vec_y = -vec_y;
+        }
+        for (pos_x = beg_x + COORD_PER_STL; pos_x <= end_x; pos_x += COORD_PER_STL)
+        {
+            pos_y = beg_y + vec_y * abs(pos_x - beg_x) / abs(vec_x);
+            create_box_coords(&end, pos_x, pos_y, pos_z);
+            create_line_segment(&start, &end, color);
+            memcpy(&start, &end, sizeof(struct EngineCoord));
+        }
+    }
 }
 
 /**
@@ -5615,38 +5615,38 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *js
 
 void draw_mapwho_ariadne_path(struct Thing *thing)
 {
-	// Don't draw debug pathfinding lines in Possession to avoid crash
-	struct PlayerInfo *player;
-	player = get_my_player();
-	if (player->view_mode == PVM_CreatureView)
-		return;
+    // Don't draw debug pathfinding lines in Possession to avoid crash
+    struct PlayerInfo *player;
+    player = get_my_player();
+    if (player->view_mode == PVM_CreatureView)
+        return;
 
-	struct Ariadne *arid;
-	{
-		struct CreatureControl *cctrl;
-		cctrl = creature_control_get_from_thing(thing);
-		arid = &cctrl->arid;
-	}
-	SYNCDBG(16, "Starting for (%d,%d) to (%d,%d)", (int)arid->startpos.x.val, (int)arid->startpos.y.val, (int)arid->endpos.x.val, (int)arid->endpos.y.val);
-	int i;
-	struct Coord2d *wp_next;
-	struct Coord2d *wp_prev;
-	wp_prev = (struct Coord2d *)&arid->startpos;
-	for (i = 0; i < arid->stored_waypoints; i++)
-	{
-		wp_next = &arid->waypoints[i];
+    struct Ariadne *arid;
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        arid = &cctrl->arid;
+    }
+    SYNCDBG(16, "Starting for (%d,%d) to (%d,%d)", (int)arid->startpos.x.val, (int)arid->startpos.y.val, (int)arid->endpos.x.val, (int)arid->endpos.y.val);
+    int i;
+    struct Coord2d *wp_next;
+    struct Coord2d *wp_prev;
+    wp_prev = (struct Coord2d *)&arid->startpos;
+    for (i = 0; i < arid->stored_waypoints; i++)
+    {
+        wp_next = &arid->waypoints[i];
 
         long beg_x;
         long end_x;
         long beg_y;
         long end_y;
         beg_x = (long)wp_prev->x.val - map_x_pos;
-		end_x = (long)wp_next->x.val - map_x_pos;
-		beg_y = map_y_pos - (long)wp_prev->y.val;
-		end_y = map_y_pos - (long)wp_next->y.val;
-		create_line_const_z(1, (long)arid->startpos.z.val + COORD_PER_STL / 16 - map_z_pos, beg_x, end_x, beg_y, end_y);
-		wp_prev = wp_next;
-	}
+        end_x = (long)wp_next->x.val - map_x_pos;
+        beg_y = map_y_pos - (long)wp_prev->y.val;
+        end_y = map_y_pos - (long)wp_next->y.val;
+        create_line_const_z(1, (long)arid->startpos.z.val + COORD_PER_STL / 16 - map_z_pos, beg_x, end_x, beg_y, end_y);
+        wp_prev = wp_next;
+    }
 }
 
 void draw_jonty_mapwho(struct JontySpr *jspr)
@@ -5713,11 +5713,12 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
     } else
     {
+        struct TrapConfigStats *trapst;
         switch (thing->class_id)
         {
         case TCls_Object:
             //TODO CONFIG object model dependency, move to config
-            if ((thing->model == 2) || (thing->model == 4) || (thing->model == 28))
+            if ((thing->model == 2) || (thing->model == 4) || (thing->model == 28)) //torchflames
             {
                 process_keeper_speedup_sprite(jspr, angle, scale);
                 break;
@@ -5725,8 +5726,8 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
             break;
         case TCls_Trap:
-            //TODO CONFIG trap model dependency, make config option instead
-            if ((thing->model != 1) && (player->id_number != thing->owner) && (thing->trap.byte_18t == 0))
+            trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+            if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;
             }
@@ -6117,14 +6118,14 @@ static void do_map_who_for_thing(struct Thing *thing)
             }
         }
         ecor.y = thing->mappos.z.val - map_z_pos;
-		if (thing->class_id == TCls_Creature)
-		{
-			create_status_box(thing, &ecor);
-			// Draw path the creature is following
-			if ((start_params.debug_flags & DFlg_CreatrPaths) != 0) {
-				draw_mapwho_ariadne_path(thing);
-			}
-		}
+        if (thing->class_id == TCls_Creature)
+        {
+            create_status_box(thing, &ecor);
+            // Draw path the creature is following
+            if ((start_params.debug_flags & DFlg_CreatrPaths) != 0) {
+                draw_mapwho_ariadne_path(thing);
+            }
+        }
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {

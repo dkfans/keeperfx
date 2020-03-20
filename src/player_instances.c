@@ -224,6 +224,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
 {
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SLAP);
     struct Thing* thing = thing_get(player->influenced_thing_idx);
+    struct TrapConfigStats *trapst;
     if (!thing_exists(thing) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
     {
         player->influenced_thing_creation = 0;
@@ -271,8 +272,11 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       }
       break;
   case TCls_Trap:
-      if (thing->model == 1) //TODO CONFIG trap model dependency, make config option instead
-        external_activate_trap_shot_at_angle(thing, player->acamera->orient_a);
+      trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+      if ((trapst->slappable == 1) && trap_is_active(thing))
+      {
+          external_activate_trap_shot_at_angle(thing, player->acamera->orient_a);
+      }
       break;
   case TCls_Object:
   {
@@ -1168,7 +1172,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         return false;
     }
     traptng->mappos.z.val = get_thing_height_at(traptng, &traptng->mappos);
-    traptng->trap.byte_18t = 0;
+    traptng->trap.revealed = 0;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, tngmodel);
     if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel)) {

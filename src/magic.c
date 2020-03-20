@@ -254,8 +254,9 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((powerst->can_cast_flags & PwCast_OwnedBoulders) != 0)
         {
             if (thing->owner == plyr_idx) {
-                //TODO TRAPS Remove hardcoded trap model
-                if ((thing->model == 1) && trap_is_active(thing)) {
+                struct TrapConfigStats *trapst;
+                trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+                if ((trapst->slappable == 1) && trap_is_active(thing)) {
                     return true;
                 }
             }

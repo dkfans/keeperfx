@@ -62,6 +62,9 @@ struct TrapConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
+    long hidden;
+    long slappable;
+    long notify;
 };
 
 /**

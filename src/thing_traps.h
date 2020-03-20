@@ -50,7 +50,7 @@ struct TrapStats {  // sizeof=54
 unsigned long field_0;
   unsigned long sprite_anim_idx;
   unsigned long sprite_size_max;
-unsigned char field_C;
+unsigned char unanimated;
   unsigned long anim_speed;
 unsigned char field_11;
   unsigned char field_12;
@@ -73,8 +73,8 @@ short field_34;
 
 /******************************************************************************/
 DLLIMPORT extern unsigned char _DK_trap_to_object[8];
-DLLIMPORT struct TrapStats _DK_trap_stats[7]; //not sure - maybe it's 8?
-#define trap_stats _DK_trap_stats
+//DLLIMPORT struct TrapStats _DK_trap_stats[7];
+//#define trap_stats _DK_trap_stats
 
 #pragma pack()
 /******************************************************************************/
@@ -97,6 +97,8 @@ long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
 TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+
+extern struct TrapStats trap_stats[];
 /******************************************************************************/
 #ifdef __cplusplus
 }
