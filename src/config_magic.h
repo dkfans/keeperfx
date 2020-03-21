@@ -238,6 +238,7 @@ struct ShotConfigStats {
     short firing_sound;
     short shot_sound;
     unsigned char firing_sound_variants;
+    short max_range;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
