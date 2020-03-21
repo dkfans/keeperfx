@@ -117,6 +117,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"NO_STUN",           8},
   {"NO_HIT",            9},
   {"STRENGTH_BASED",   10},
+  {"ALARMS_UNITS",     11},
   {NULL,                0},
   };
 
@@ -863,6 +864,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 10: // STRENGTH_BASED
                 shotst->model_flags |= ShMF_StrengthBased;
+                n++;
+                break;
+            case 11: // ALARMS_UNITS
+                shotst->model_flags |= ShMF_AlarmsUnits;
                 n++;
                 break;
             default:

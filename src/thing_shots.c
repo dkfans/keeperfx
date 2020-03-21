@@ -1219,6 +1219,10 @@ TngUpdateRet update_shot(struct Thing *thing)
                 thing->state_flags |= TF1_PushAdd;
             }
         }
+        if (shotst->model_flags & ShMF_AlarmsUnits)
+        {
+            affect_nearby_friends_with_alarm(thing);
+        }
         switch (thing->model)
         {
         case ShM_Firebomb:
@@ -1294,9 +1298,6 @@ TngUpdateRet update_shot(struct Thing *thing)
                 dist = get_2d_distance(&thing->mappos, &target_pos);
                 if (dist <= 260) hit = true;
             }
-            break;
-        case ShM_Alarm:
-            affect_nearby_friends_with_alarm(thing);
             break;
         case ShM_GodLightBall:
             update_god_lightning_ball(thing);
