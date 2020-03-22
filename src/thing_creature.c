@@ -253,6 +253,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
 {
     struct CreatureStats *crstat;
     struct Camera *cam;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     //return _DK_control_creature_as_controller(player, thing);
     if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
       || !thing_can_be_controlled_as_controller(thing))
@@ -261,10 +262,9 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         return false;
       cam = player->acamera;
       crstat = creature_stats_get(get_players_special_digger_model(player->id_number));
-      cam->mappos.z.val += crstat->eye_height;
+      cam->mappos.z.val += (crstat->eye_height+(crstat->eye_height / 20 * cctrl->explevel));
       return true;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->moveto_pos.x.val = 0;
     cctrl->moveto_pos.y.val = 0;
     cctrl->moveto_pos.z.val = 0;
@@ -2564,11 +2564,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
-    pos1.x.val += distance_with_angle_to_coord_x(cctrl->shot_shift_x, firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.y.val += distance_with_angle_to_coord_y(cctrl->shot_shift_x, firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.x.val += distance_with_angle_to_coord_x(cctrl->shot_shift_y, firing->move_angle_xy);
-    pos1.y.val += distance_with_angle_to_coord_y(cctrl->shot_shift_y, firing->move_angle_xy);
-    pos1.z.val += (cctrl->shot_shift_z);
+    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x +(cctrl->shot_shift_x /20 * cctrl->explevel)), firing->move_angle_xy+LbFPMath_PI/2);
+    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x +(cctrl->shot_shift_x /20 * cctrl->explevel)), firing->move_angle_xy+LbFPMath_PI/2);
+    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y +(cctrl->shot_shift_y /20 * cctrl->explevel)), firing->move_angle_xy);
+    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y +(cctrl->shot_shift_y /20 * cctrl->explevel)), firing->move_angle_xy);
+    pos1.z.val += ((cctrl->shot_shift_z +(cctrl->shot_shift_z /20 * cctrl->explevel)));
     // Compute launch angles
     if (thing_is_invalid(target))
     {

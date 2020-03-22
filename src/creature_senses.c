@@ -592,6 +592,7 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
 TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct Coord3d* srcpos = &creatng->mappos;
     struct Coord3d eyepos;
     eyepos.x.val = srcpos->x.val;
@@ -601,7 +602,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
     tgtpos.x.val = thing->mappos.x.val;
     tgtpos.y.val = thing->mappos.y.val;
     tgtpos.z.val = thing->mappos.z.val;
-    eyepos.z.val += crstat->eye_height;
+    eyepos.z.val += (crstat->eye_height + (crstat->eye_height / 20 * cctrl->explevel));
     if (thing->class_id == TCls_Door)
     {
         // If we're immune to lava, or we're already on it - don't care, travel over it

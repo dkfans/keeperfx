@@ -2553,6 +2553,10 @@ void process_level_script(void)
 
 void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 {
+    struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height / 20 * cctrl->explevel);
     _DK_update_player_camera_fp(cam, thing);
 }
 
