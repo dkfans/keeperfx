@@ -66,6 +66,7 @@ const struct NamedCommand creaturetype_experience_commands[] = {
   {"DEFENSEINCREASEONEXP",  8},
   {"LOYALTYINCREASEONEXP",  9},
   {"ARMOURINCREASEONEXP",  10},
+  {"SIZEINCREASEONEXP",    11},
   {NULL,                    0},
   };
 
@@ -609,6 +610,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
+        crtr_conf.exp.size_increase_on_exp = 0;
         crtr_conf.exp.pay_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         crtr_conf.exp.spell_damage_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         crtr_conf.exp.range_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
@@ -770,6 +772,19 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 11: // SIZEINCREASEONEXP
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crtr_conf.exp.size_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case 0: // comment

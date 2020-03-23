@@ -262,7 +262,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         return false;
       cam = player->acamera;
       crstat = creature_stats_get(get_players_special_digger_model(player->id_number));
-      cam->mappos.z.val += (crstat->eye_height+(crstat->eye_height / 20 * cctrl->explevel));
+      cam->mappos.z.val += (crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
       return true;
     }
     cctrl->moveto_pos.x.val = 0;
@@ -2564,11 +2564,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
-    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x +(cctrl->shot_shift_x /20 * cctrl->explevel)), firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x +(cctrl->shot_shift_x /20 * cctrl->explevel)), firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y +(cctrl->shot_shift_y /20 * cctrl->explevel)), firing->move_angle_xy);
-    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y +(cctrl->shot_shift_y /20 * cctrl->explevel)), firing->move_angle_xy);
-    pos1.z.val += ((cctrl->shot_shift_z +(cctrl->shot_shift_z /20 * cctrl->explevel)));
+    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy+LbFPMath_PI/2);
+    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy+LbFPMath_PI/2);
+    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
+    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
+    pos1.z.val += (cctrl->shot_shift_z +(cctrl->shot_shift_z * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) /100);
     // Compute launch angles
     if (thing_is_invalid(target))
     {
@@ -2677,7 +2677,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             {
                 if (!thing_is_invalid(target))
                 {
-                    long range = 2200 - ((crstat->dexterity + ((cctrl->explevel + 1) * 5)) * 15);
+                    long range = 2200 - ((crstat->dexterity + ((cctrl->explevel + 1) * 5)) * 15); //TODO: Integrate Dexterity growth on XP
                     range = range < 1 ? 1 : range;
                     long rnd = (ACTION_RANDOM(2 * range) - range);
                     rnd = rnd < (range / 3) && rnd > 0 ? (ACTION_RANDOM(range / 2) + (range / 2)) + 200 : rnd + 200;

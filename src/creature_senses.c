@@ -602,7 +602,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
     tgtpos.x.val = thing->mappos.x.val;
     tgtpos.y.val = thing->mappos.y.val;
     tgtpos.z.val = thing->mappos.z.val;
-    eyepos.z.val += (crstat->eye_height + (crstat->eye_height / 20 * cctrl->explevel));
+    eyepos.z.val += (crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
     if (thing->class_id == TCls_Door)
     {
         // If we're immune to lava, or we're already on it - don't care, travel over it

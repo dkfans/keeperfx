@@ -396,7 +396,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         // Now mv_a becomes a circle radius
-        mv_a = crstat->eye_height + (crstat->eye_height / 20 * cctrl->explevel) + thing->mappos.z.val;
+        mv_a = crstat->eye_height + (crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) + thing->mappos.z.val;
         long mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.x.val;
         long mv_y = thing->mappos.y.val + distance_with_angle_to_coord_y(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.y.val;
         if (mv_x < -128)
@@ -925,7 +925,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     long i = player->acamera->orient_a;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long k = thing->mappos.z.val + crstat->eye_height + (crstat->eye_height / 20 * cctrl->explevel);
+    long k = thing->mappos.z.val + (crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
     player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
     player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
     player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
@@ -971,7 +971,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   long i = player->acamera->orient_a;
   struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-  long k = thing->mappos.z.val + crstat->eye_height + (crstat->eye_height / 20 * cctrl->explevel);
+  long k = thing->mappos.z.val + (crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
   player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
   player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
   player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);

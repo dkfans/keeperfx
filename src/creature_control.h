@@ -43,6 +43,8 @@ extern "C" {
 #define CREATURE_INSTANCES_COUNT          48
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
+/** Size of the sprites before modifyers. */
+#define DEFAULT_SPRITE_SIZE                300
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/

@@ -1506,10 +1506,12 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
 void set_creature_size_stuff(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (creature_affected_by_spell(creatng, SplK_Chicken)) {
-      creatng->sprite_size = 300;
-    } else {
-      creatng->sprite_size = 300 + (300 * cctrl->explevel) / 20;
+    if (creature_affected_by_spell(creatng, SplK_Chicken))
+    {
+      creatng->sprite_size = DEFAULT_SPRITE_SIZE;
+    } else
+    {
+      creatng->sprite_size = DEFAULT_SPRITE_SIZE + (DEFAULT_SPRITE_SIZE * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 }
 
@@ -1527,7 +1529,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         struct Thing* efftng = create_effect_element(&creatng->mappos, 0x3Bu, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            long n = (10 - cctrl->countdown_282) * (300 * cctrl->explevel / 20 + 300) / 10;
+            long n = (10 - cctrl->countdown_282) * (DEFAULT_SPRITE_SIZE + (DEFAULT_SPRITE_SIZE * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, 2);
             efftng->field_4F &= ~TF4F_Unknown20;
