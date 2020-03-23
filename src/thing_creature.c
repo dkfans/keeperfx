@@ -2677,7 +2677,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             {
                 if (!thing_is_invalid(target))
                 {
-                    long range = 2200 - ((crstat->dexterity + ((cctrl->explevel + 1) * 5)) * 15); //TODO: Integrate Dexterity growth on XP
+                    long range = 2200 - ((crstat->dexterity + (crstat->dexterity * cctrl->explevel * crtr_conf.exp.dexterity_increase_on_exp)/100) * 19);
                     range = range < 1 ? 1 : range;
                     long rnd = (ACTION_RANDOM(2 * range) - range);
                     rnd = rnd < (range / 3) && rnd > 0 ? (ACTION_RANDOM(range / 2) + (range / 2)) + 200 : rnd + 200;
