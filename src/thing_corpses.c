@@ -393,17 +393,17 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     case 2:
         thing->active_state = DCrSt_Unknown02;
         k = get_creature_anim(thing, 17);
-        set_thing_draw(thing, k, 256, 300, 0, 0, 2);
+        set_thing_draw(thing, k, 256, crtr_conf.sprite_size, 0, 0, 2);
         break;
     default:
         thing->active_state = DCrSt_Unknown01;
         k = get_creature_anim(thing, 15);
-        set_thing_draw(thing, k, 128, 300, 0, 0, 2);
+        set_thing_draw(thing, k, 128, crtr_conf.sprite_size, 0, 0, 2);
         thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->field_3E);
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
     }
-    thing->sprite_size = (300 * (long)thing->byte_13) / 20 + 300;
+    thing->sprite_size = (crtr_conf.sprite_size * (long)thing->byte_13) / 20 + crtr_conf.sprite_size;
     return thing;
 }
 

@@ -2684,7 +2684,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
                     rnd = rnd > -(range / 3) && rnd < 0 ? -(ACTION_RANDOM(range / 3) + (range / 3)) : rnd;
                     long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
                     long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
-                    int posint = y / 300;
+                    int posint = y / crtr_conf.sprite_size;
                     shotng->price.number = x;
                     shotng->shot.byte_19 = posint;
                     shotng->shot.dexterity = range / 10;
@@ -3273,7 +3273,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->shot_shift_y = creatures[model].shot_shift_y;
     cctrl->shot_shift_z = creatures[model].shot_shift_z;
     long i = get_creature_anim(crtng, 0);
-    set_thing_draw(crtng, i, 256, 300, 0, 0, 2);
+    set_thing_draw(crtng, i, 256, crtr_conf.sprite_size, 0, 0, 2);
     cctrl->explevel = 1;
     crtng->health = crstat->health;
     cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel);

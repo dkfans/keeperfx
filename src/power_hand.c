@@ -317,10 +317,10 @@ void set_power_hand_graphic(long plyr_idx, long a2, long a3)
       thing = thing_get(player->hand_thing_idx);
       if ((a2 == 782) || (a2 == 781))
       {
-        set_thing_draw(thing, a2, a3, 300, 0, 0, 2);
+        set_thing_draw(thing, a2, a3, crtr_conf.sprite_size, 0, 0, 2);
       } else
       {
-        set_thing_draw(thing, a2, a3, 300, 1, 0, 2);
+        set_thing_draw(thing, a2, a3, crtr_conf.sprite_size, 1, 0, 2);
       }
       thing = get_first_thing_in_power_hand(player);
       set_power_hand_offset(player,thing);

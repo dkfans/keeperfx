@@ -1562,7 +1562,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + 300, -1, 0, 2);
+          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + crtr_conf.sprite_size, -1, 0, 2);
           efftng->field_4F &= ~TF4F_Unknown20;
           efftng->field_4F |= TF4F_Unknown10;
       }
