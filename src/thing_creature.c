@@ -905,7 +905,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 {
                     cctrl->spell_tngidx_armour[k] = ntng->index;
                     ntng->health = pwrdynst->strength[spell_lev] + 1;
-                    ntng->word_13 = thing->index;
+                    ntng->belongs_to = thing->index;
                     ntng->byte_15 = k;
                     ntng->move_angle_xy = thing->move_angle_xy;
                     ntng->move_angle_z = thing->move_angle_z;
@@ -1016,7 +1016,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
               {
                 cctrl->spell_tngidx_disease[k] = ntng->index;
                 ntng->health = pwrdynst->strength[spell_lev] + 1;
-                ntng->word_13 = thing->index;
+                ntng->belongs_to = thing->index;
                 ntng->byte_15 = k;
                 ntng->move_angle_xy = thing->move_angle_xy;
                 ntng->move_angle_z = thing->move_angle_z;

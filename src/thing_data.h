@@ -153,9 +153,9 @@ struct Thing {
       long long_15;
       };
       struct {
-      short word_13;
+      short belongs_to;
       short word_15;
-      short word_17;
+      short size;
       };
       struct {
       unsigned char byte_13b;

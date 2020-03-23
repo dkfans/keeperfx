@@ -115,7 +115,7 @@ short cleanup_torturing(struct Thing *creatng)
     {
         struct Thing* thing = thing_get(cctrl->word_A6);
         if (thing_exists(thing)) {
-            thing->word_13 = 0;
+            thing->belongs_to = 0;
             thing->field_4F &= ~TF4F_Unknown01;
         }
         cctrl->word_A6 = 0;
@@ -149,7 +149,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
         struct Thing* tortrtng = find_base_thing_on_mapwho(TCls_Object, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if (!thing_is_invalid(tortrtng) && (tortrtng->word_13 == 0))
+        if (!thing_is_invalid(tortrtng) && (tortrtng->belongs_to == 0))
         {
             if (!setup_person_move_to_coord(creatng, &tortrtng->mappos, NavRtF_Default))
             {
@@ -158,7 +158,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
             }
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             creatng->continue_state = get_continue_state_for_job(jobpref);
-            tortrtng->word_13 = creatng->index;
+            tortrtng->belongs_to = creatng->index;
             tortrtng->word_15 = tortrtng->sprite_size;
             cctrl->word_A6 = tortrtng->index;
             return 1;

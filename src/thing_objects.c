@@ -516,7 +516,7 @@ void destroy_food(struct Thing *foodtng)
     create_effect(&pos, TngEff_Unknown07, plyr_idx);
     if (!is_neutral_thing(foodtng))
     {
-        if (foodtng->word_13 == -1)
+        if (foodtng->belongs_to == -1)
         {
             struct Room* room = get_room_thing_is_on(foodtng);
             if (!room_is_invalid(room))
@@ -526,7 +526,7 @@ void destroy_food(struct Thing *foodtng)
                     int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
                     if (room->used_capacity >= required_cap)
                         room->used_capacity -= required_cap;
-                    foodtng->word_13 = game.food_life_out_of_hatchery;
+                    foodtng->belongs_to = game.food_life_out_of_hatchery;
                 }
           }
         }
@@ -911,7 +911,7 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
 
 TbBool delete_lair_totem(struct Thing *lairtng)
 {
-    struct Thing* creatng = thing_get(lairtng->word_13);
+    struct Thing* creatng = thing_get(lairtng->belongs_to);
     if (thing_is_creature(creatng)) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         cctrl->lair_room_id = 0;
@@ -1571,7 +1571,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 TngUpdateRet object_update_armour(struct Thing *objtng)
 {
     //return _DK_object_update_armour(objtng);
-    struct Thing* thing = thing_get(objtng->word_13);
+    struct Thing* thing = thing_get(objtng->belongs_to);
     if (thing_is_picked_up(thing))
     {
         objtng->field_4F |= TF4F_Unknown01;
@@ -1623,18 +1623,18 @@ TngUpdateRet object_update_armour(struct Thing *objtng)
 TngUpdateRet object_update_object_scale(struct Thing *objtng)
 {
     //return _DK_object_update_object_scale(objtng);
-    struct Thing* creatng = thing_get(objtng->word_13);
+    struct Thing* creatng = thing_get(objtng->belongs_to);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Objects* objdat = get_objects_data_for_thing(objtng);
     int spr_size;
     int start_frame = objtng->field_48;
-    if (objtng->word_13) {
+    if (objtng->belongs_to) {
         spr_size = crtr_conf.sprite_size + (crtr_conf.sprite_size * cctrl->explevel * crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
         spr_size = objdat->sprite_size_max;
     }
     int cssize = objtng->word_15;
-    objtng->word_17 = spr_size;
+    objtng->size = spr_size;
     long i;
     if (cssize+32 < spr_size)
     {

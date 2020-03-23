@@ -1114,7 +1114,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
     for (long i = 0; i < egenstat->genation_amount; i++)
     {
         long deviation_angle = ACTION_RANDOM(0x800);
-        long deviation_mag = ACTION_RANDOM(thing->word_13 + 1);
+        long deviation_mag = ACTION_RANDOM(thing->belongs_to + 1);
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
         SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);

@@ -3194,7 +3194,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         h_add += h;
     }
-    if ((thing->word_17 > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
+    if ((thing->size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_owner;
         if (is_neutral_thing(thing)) {
@@ -3212,7 +3212,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
       if ( (myplyr->thing_under_hand == thing->index)
         || ((myplyr->id_number != thing->owner) && !creature_is_invisible(thing))
         || (cctrl->combat_flags != 0)
-        || (thing->word_17 > 0)
+        || (thing->size > 0)
         || (mycam->view_mode == PVM_ParchmentView))
       {
           if (health_spridx > 0) {

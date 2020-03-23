@@ -128,7 +128,7 @@ long destroy_door(struct Thing *doortng)
     remove_key_on_door(doortng);
     ceiling_partially_recompute_heights(stl_x - 1, stl_y - 1, stl_x + 2, stl_y + 2);
     create_dirt_rubble_for_dug_block(stl_x, stl_y, 4, plyr_idx);
-    if (doortng->word_13)
+    if (doortng->belongs_to)
     {
         create_dirt_rubble_for_dug_block(stl_x, stl_y + 1, 4, plyr_idx);
         create_dirt_rubble_for_dug_block(stl_x, stl_y - 1, 4, plyr_idx);
