@@ -52,22 +52,23 @@ const struct NamedCommand creaturetype_common_commands[] = {
   {"JOBSCOUNT",              3},
   {"ANGERJOBSCOUNT",         4},
   {"ATTACKPREFERENCESCOUNT", 5},
+  {"SPRITESIZE",             6},
   {NULL,                     0},
   };
 
 const struct NamedCommand creaturetype_experience_commands[] = {
-  {"PAYINCREASEONEXP",      1},
-  {"SPELLDAMAGEINCREASEONEXP",2},
-  {"RANGEINCREASEONEXP",    3},
-  {"JOBVALUEINCREASEONEXP", 4},
-  {"HEALTHINCREASEONEXP",   5},
-  {"STRENGTHINCREASEONEXP", 6},
-  {"DEXTERITYINCREASEONEXP",7},
-  {"DEFENSEINCREASEONEXP",  8},
-  {"LOYALTYINCREASEONEXP",  9},
-  {"ARMOURINCREASEONEXP",  10},
-  {"SIZEINCREASEONEXP",    11},
-  {NULL,                    0},
+  {"PAYINCREASEONEXP",         1},
+  {"SPELLDAMAGEINCREASEONEXP", 2},
+  {"RANGEINCREASEONEXP",       3},
+  {"JOBVALUEINCREASEONEXP",    4},
+  {"HEALTHINCREASEONEXP",      5},
+  {"STRENGTHINCREASEONEXP",    6},
+  {"DEXTERITYINCREASEONEXP",   7},
+  {"DEFENSEINCREASEONEXP",     8},
+  {"LOYALTYINCREASEONEXP",     9},
+  {"ARMOURINCREASEONEXP",     10},
+  {"SIZEINCREASEONEXP",       11},
+  {NULL,                       0},
   };
 
 const struct NamedCommand creaturetype_instance_commands[] = {
@@ -465,6 +466,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         crtr_conf.special_digger_good = 0;
         crtr_conf.special_digger_evil = 0;
         crtr_conf.spectator_breed = 0;
+        crtr_conf.sprite_size = 300;
     }
     int k = sizeof(crtr_conf.model) / sizeof(crtr_conf.model[0]);
     for (int i = 0; i < k; i++)
@@ -582,6 +584,22 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 6: // SPRITESIZE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if ((k > 0) && (k <= 1024))
+                {
+                    crtr_conf.sprite_size = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case 0: // comment

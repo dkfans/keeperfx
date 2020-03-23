@@ -1629,7 +1629,7 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     int spr_size;
     int start_frame = objtng->field_48;
     if (objtng->word_13) {
-        spr_size = DEFAULT_SPRITE_SIZE + (DEFAULT_SPRITE_SIZE * cctrl->explevel * crtr_conf.exp.size_increase_on_exp) / 100;
+        spr_size = crtr_conf.sprite_size + (crtr_conf.sprite_size * cctrl->explevel * crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
         spr_size = objdat->sprite_size_max;
     }

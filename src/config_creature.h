@@ -260,6 +260,7 @@ struct CreatureConfig {
     ThingModel special_digger_good;
     ThingModel special_digger_evil;
     ThingModel spectator_breed;
+    long sprite_size;
 };
 
 /******************************************************************************/
