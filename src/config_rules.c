@@ -77,6 +77,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"NO_HAND_PURGE_ON_DEFEAT",     5},
   {"MUST_OBEY_KEEPS_NOT_DO_JOBS", 6},
   {"BREAK_NEUTRAL_WALLS",         7},
+  {"ALWAYS_TUNNEL_TO_RED",        8},
   {NULL,                          0},
   };
 
@@ -608,6 +609,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   break;
               case 7: // BREAK_NEUTRAL_WALLS
                   gameadd.classic_bugs_flags |= ClscBug_BreakNeutralWalls;
+                  n++;
+                  break;
+              case 8: // ALWAYS_TUNNEL_TO_RED
+                  gameadd.classic_bugs_flags |= ClscBug_AlwaysTunnelToRed;
                   n++;
                   break;
               default:

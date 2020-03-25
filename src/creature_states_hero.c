@@ -868,8 +868,10 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
         if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
         {
             long score = dungeon->total_score - 20 * dungeon->total_score * dungeon->field_F7D / 100;
-            if (score <= 0)
+            if ((score <= 0) || (gameadd.classic_bugs_flags & ClscBug_BreakNeutralWalls))
+            {
                 score = 0;
+            }
             if (best_score < score)
             {
                 best_score = score;

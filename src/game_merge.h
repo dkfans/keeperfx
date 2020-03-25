@@ -67,6 +67,7 @@ enum ClassicBugFlags {
     ClscBug_NoHandPurgeOnDefeat    = 0x0010,
     ClscBug_MustObeyKeepsNotDoJobs = 0x0020,
     ClscBug_BreakNeutralWalls      = 0x0040,
+    ClscBug_AlwaysTunnelToRed      = 0x0080,
 };
 
 /******************************************************************************/
