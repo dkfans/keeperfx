@@ -897,7 +897,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
             n = 0;
             cctrl->spell_flags |= CSAfF_Armour;
-            for (k=0; k < 3; k++)
+            for (k=0; k < 2; k++)
             {
                 set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->clipbox_size_yz >> 1) );
                 ntng = create_object(&pos, 51, thing->owner, -1);
