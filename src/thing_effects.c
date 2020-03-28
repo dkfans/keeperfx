@@ -611,7 +611,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = (thing->clipbox_size_yz >> 2) + thing->clipbox_size_yz;
+        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
 
         struct EffectElementStats* eestat = get_effect_element_model_stats(16);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
@@ -639,7 +639,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_Slow) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = (thing->clipbox_size_yz >> 2) + thing->clipbox_size_yz;
+        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
         int i = cor_z_max / 64;
         if (i <= 1)
           i = 1;

@@ -277,7 +277,7 @@ void process_dungeon_destroy(struct Thing *heartng)
             efftng = create_effect(central_pos, TngEff_Unknown04, plyr_idx);
             if (!thing_is_invalid(efftng))
               efftng->byte_16 = 8;
-            efftng = create_effect(central_pos, TngEff_Unknown14, plyr_idx);
+            efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
             if (!thing_is_invalid(efftng))
                 efftng->byte_16 = 8;
             destroy_dungeon_heart_room(plyr_idx, heartng);
