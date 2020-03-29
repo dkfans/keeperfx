@@ -1635,6 +1635,18 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
                 }
+            case AAffT_GasSlowDamage:
+                if (max_damage > 0) {
+                    HitPoints damage;
+                    damage = get_radially_decaying_value(max_damage, 3 * max_dist / 4, max_dist / 4, distance) + 1;
+                    SYNCDBG(7, "Causing %d damage to %s at distance %d", (int)damage, thing_model_name(tngdst), (int)distance);
+                    apply_damage_to_thing_and_display_health(tngdst, damage, damage_type, tngsrc->owner);
+                }
+                if (!creature_affected_by_spell(tngdst, SplK_Slow)) {
+                    struct CreatureControl* srcctrl;
+                    srcctrl = creature_control_get_from_thing(tngsrc);
+                    apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
+                }
                 break;
             }
             affected = true;
@@ -1761,6 +1773,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
     {
     case AAffT_GasDamage:
     case AAffT_GasSlow:
+    case AAffT_GasSlowDamage:
         poison_cloud_affecting_area(subtng, &efftng->mappos, 5*COORD_PER_STL, 120, effnfo->area_affect_type);
         break;
     case AAffT_WOPDamage:

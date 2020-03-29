@@ -49,6 +49,7 @@ enum AreaAffectTypes {
     AAffT_Unkn2,
     AAffT_GasSlow,
     AAffT_WOPDamage,
+    AAffT_GasSlowDamage,
 };
 
 enum ThingEffectKind {
