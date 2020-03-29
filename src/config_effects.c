@@ -48,6 +48,8 @@ const struct NamedCommand effects_effect_commands[] = {
   {"GENERATIONACCELZRANGE",   5},
   {"GENERATIONKINDRANGE",     6},
   {"AREAAFFECTTYPE",          7},
+  {"SOUND",                   8},
+  {"AFFECTEDBYWIND",          9},
   {NULL,                      0},
   };
 
@@ -315,6 +317,32 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 8: // SOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              effcst->old->effect_sound = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 9: // AFFECTEDBYWIND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              effcst->old->affected_by_wind = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment
