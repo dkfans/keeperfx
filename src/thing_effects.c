@@ -1648,6 +1648,12 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
                 }
                 break;
+            case AAffT_GasDisease:
+                if (!creature_affected_by_spell(tngdst, SplK_Disease)) {
+                    struct CreatureControl* srcctrl;
+                    srcctrl = creature_control_get_from_thing(tngsrc);
+                    apply_spell_effect_to_thing(tngdst, SplK_Disease, srcctrl->explevel);
+                }
             }
             affected = true;
         }
@@ -1774,6 +1780,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
     case AAffT_GasDamage:
     case AAffT_GasSlow:
     case AAffT_GasSlowDamage:
+    case AAffT_GasDisease:
         poison_cloud_affecting_area(subtng, &efftng->mappos, 5*COORD_PER_STL, 120, effnfo->area_affect_type);
         break;
     case AAffT_WOPDamage:

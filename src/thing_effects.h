@@ -50,6 +50,7 @@ enum AreaAffectTypes {
     AAffT_GasSlow,
     AAffT_WOPDamage,
     AAffT_GasSlowDamage,
+    AAffT_GasDisease,
 };
 
 enum ThingEffectKind {
