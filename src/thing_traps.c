@@ -38,6 +38,7 @@
 #include "gui_topmsg.h"
 
 #include "keeperfx.hpp"
+#include "creature_senses.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -514,6 +515,18 @@ TbBool update_trap_trigger_pressure(struct Thing *traptng)
     return false;
 }
 
+TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
+{
+    struct Thing* trgtng = get_nearest_enemy_creature_possible_to_attack_by(traptng);
+
+    if (line_of_sight_2d(&traptng->mappos, &trgtng->mappos))
+    {
+        activate_trap(traptng, trgtng);
+        return true;
+    }
+    return false;
+}
+
 TngUpdateRet update_trap_trigger(struct Thing *traptng)
 {
     if (traptng->trap.num_shots <= 0) {
@@ -527,6 +540,9 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
         break;
     case 2:
         do_trig = update_trap_trigger_pressure(traptng);
+        break;
+    case 3:
+        do_trig = update_trap_trigger_line_of_sight(traptng);
         break;
     default:
         ERRORLOG("Illegal trap trigger type %d",(int)trap_stats[traptng->model].trigger_type);

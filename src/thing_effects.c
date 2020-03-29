@@ -65,7 +65,7 @@ struct EffectGeneratorStats effect_generator_stats[] = {
     { 2,  5,  1, 37, 0,  0,-15, 15,-15, 15,  0,  0,  0,  0, 0}
 };
 
-//start_health;generation_type;accel_xy_min; accel_xy_max;accel_z_min;accel_z_max;field_B;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
+//start_health;generation_type;accel_xy_min;accel_xy_max;accel_z_min;accel_z_max;field_B;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
 struct InitEffect effect_info[] = {
     { 0, 1,   0,   0,  0,    0,  0,   0,  0,  0,  AAffT_None, 0, {0}, 0},
     { 1, 1,  32,  32, -32,  32,  1,  47,  1,  1,  AAffT_None, 1, { 512, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
