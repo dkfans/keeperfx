@@ -142,6 +142,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PCAN    ", Cmd_LEVEL_UP_CREATURE},
   {"CHANGE_CREATURE_OWNER",             "PCAP    ", Cmd_CHANGE_CREATURE_OWNER},
   {"SET_TRAP_CONFIGURATION",            "ANNNNNNN", Cmd_SET_TRAP_CONFIGURATION},
+  {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION},
   {NULL,                                "        ", Cmd_NONE},
 };
 
@@ -1904,7 +1905,7 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
         SCRPTERRLOG("Shots '%d' out of range", val1);
     }
     int validval2 = 1;
-    if (val2 <= 0)
+    if (val2 < 0)
     {
         validval2 = 0;
         SCRPTERRLOG("Model '%d' out of range", val2);
@@ -1973,8 +1974,38 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
     {
         return;
     }
-   }
-
+}
+                                              //Name,  ManufactureLevel, ManufactureRequired,SellingValue,Health
+void command_set_door_configuration(const char* doorname, long val1, long val2, long val3, long val4)
+{
+    if (script_current_condition != -1)
+    {
+        SCRPTWRNLOG("Door configured inside conditional block; condition ignored");
+    }
+    long door_id = get_rid(door_desc, doorname);
+    if (door_id == -1)
+    {
+        SCRPTERRLOG("Unknown door, '%s'", doorname);
+    }
+    if (!((val1 < 0) || (val2 < 0) || (val3 < 0) || (val4 < 0)))
+    {
+        struct DoorConfigStats* doorst;
+        struct ManfctrConfig* mconf;
+        doorst = &trapdoor_conf.door_cfgstats[door_id];
+        mconf = &game.doors_config[door_id];
+        SCRIPTDBG(7, "Changing door %d configuration from (%d,%d,%d,%d) to (%d,%d,%d,%d)", door_id, mconf->manufct_level, mconf->manufct_required, mconf->selling_value, door_stats[door_id][0].health, val1, val2, val3, val4);
+        mconf->manufct_level = val1;
+        mconf->manufct_required = val2;
+        mconf->selling_value = val3;
+        door_stats[door_id][0].health = val4;
+        door_stats[door_id][1].health = val4;
+    }
+    else
+    {
+        SCRPTERRLOG("Negative values not allowed when setting door '%d' to (%d,%d,%d,%d)", door_id, val1, val2, val3, val4);
+        return;
+    }
+}
 
 void command_set_computer_events(long plr_range_id, const char *evntname, long val1, long val2, long val3, long val4, long val5)
 {
@@ -2705,6 +2736,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_TRAP_CONFIGURATION:
         command_set_trap_configuration(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6], scline->np[7]);
+        break;
+    case Cmd_SET_DOOR_CONFIGURATION:
+        command_set_door_configuration(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
