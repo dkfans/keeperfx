@@ -431,19 +431,19 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     thing_play_sample(traptng, 176, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     switch (trapstat->activation_type)
     {
-    case 1:
+    case TrpAcT_HeadforTarget90:
         activate_trap_shot_head_for_target90(traptng, creatng);
         break;
-    case 2:
+    case TrpAcT_EffectonTrap:
         activate_trap_effect_on_trap(traptng, creatng);
         break;
-    case 3:
+    case TrpAcT_ShotonTrap:
         activate_trap_shot_on_trap(traptng, creatng);
         break;
-    case 4:
+    case TrpAcT_SlapChange:
         activate_trap_slab_change(traptng, creatng);
         break;
-    case 5:
+    case TrpAcT_CreatureShot:
         creature_fire_shot(traptng, creatng,trapstat->created_itm_model,1,1);
         break;
     default:
@@ -535,13 +535,13 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     TbBool do_trig;
     switch (trap_stats[traptng->model].trigger_type)
     {
-    case 1:
+    case TrpTrg_LineOfSight90:
         do_trig = update_trap_trigger_line_of_sight_90(traptng);
         break;
-    case 2:
+    case TrpTrg_Pressure:
         do_trig = update_trap_trigger_pressure(traptng);
         break;
-    case 3:
+    case TrpTrg_LineOfSight:
         do_trig = update_trap_trigger_line_of_sight(traptng);
         break;
     default:

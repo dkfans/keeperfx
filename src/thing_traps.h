@@ -44,6 +44,21 @@ enum ThingTrapModels {
     TngTrp_Unknown10,
 };
 
+enum TrapTriggerTypes {
+    TrpTrg_None = 0,
+    TrpTrg_LineOfSight90,
+    TrpTrg_Pressure,
+    TrpTrg_LineOfSight,
+};
+enum TrapActivationTypes {
+    TrpAcT_None = 0,
+    TrpAcT_HeadforTarget90,
+    TrpAcT_EffectonTrap,
+    TrpAcT_ShotonTrap,
+    TrpAcT_SlapChange,
+    TrpAcT_CreatureShot,
+};
+
 struct Thing;
 
 struct TrapStats {  // sizeof=54
