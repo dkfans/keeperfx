@@ -159,7 +159,7 @@ struct Thing {
       };
       struct {
       unsigned char byte_13b;
-      short word_14;
+      short damagepoints;
       short word_16;
       unsigned char byte_18b;
       unsigned char byte_19b;

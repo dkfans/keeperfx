@@ -1989,9 +1989,7 @@ void command_set_door_configuration(const char* doorname, long val1, long val2, 
     }
     if (!((val1 < 0) || (val2 < 0) || (val3 < 0) || (val4 < 0)))
     {
-        struct DoorConfigStats* doorst;
         struct ManfctrConfig* mconf;
-        doorst = &trapdoor_conf.door_cfgstats[door_id];
         mconf = &game.doors_config[door_id];
         SCRIPTDBG(7, "Changing door %d configuration from (%d,%d,%d,%d) to (%d,%d,%d,%d)", door_id, mconf->manufct_level, mconf->manufct_required, mconf->selling_value, door_stats[door_id][0].health, val1, val2, val3, val4);
         mconf->manufct_level = val1;
@@ -2375,7 +2373,7 @@ void command_level_up_creature(long plr_range_id, const char *crtr_name, const c
   }
   if (count < 1)
   {
-    SCRPTERRLOG("Parameter has no positive value; discarding command", count);
+    SCRPTERRLOG("Parameter has no positive value; discarding command");
     return;
   }
   if (count > 9)

@@ -2695,7 +2695,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     if (!thing_is_invalid(shotng))
     {
 #if (BFDEBUG_LEVEL > 0)
-      damage = shotng->word_14;
+      damage = shotng->damagepoints;
       // Special debug code that shows amount of damage the shot will make
       if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
           create_price_effect(&pos1, my_player_number, damage);

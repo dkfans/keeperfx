@@ -298,7 +298,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
     {
         return;
     }
-    int damage = thing->word_14;
+    int damage = thing->damagepoints;
     if ((damage >= slb->health) && !slab_kind_is_indestructible(slb->kind))
     {
         if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
@@ -624,14 +624,14 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
             thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
     }
-    if (shotng->word_14)
+    if (shotng->damagepoints)
     {
         // Drain allows caster to regain half of damage
         if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(creatng)) 
         {
-            apply_health_to_thing(creatng, shotng->word_14/2);
+            apply_health_to_thing(creatng, shotng->damagepoints/2);
         }
-        apply_damage_to_thing(target, shotng->word_14, shotst->damage_type, -1);
+        apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
         target->byte_13 = 20;
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
@@ -656,9 +656,11 @@ long get_damage_of_melee_shot(const struct Thing *shotng, const struct Thing *ta
     if (hitchance > 96) {
         hitchance = 96;
     }
-    if (ACTION_RANDOM(256) < (128+hitchance))
-      return shotng->shot.damage;
-    return 0;
+    if (ACTION_RANDOM(256) < (128 + hitchance))
+    {
+        return shotng->shot.damage;
+    }
+    return -1;
 }
 
 long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target)
