@@ -503,16 +503,33 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     // After that, every time broke chance is hit, do something
     if (ACTION_RANDOM(100) < compute_torture_broke_chance(creatng))
     {
-        SYNCDBG(4,"The %s has been broken",thing_model_name(creatng));
-        if (ACTION_RANDOM(100) < (int)gameadd.torture_convert_chance)
-        { // converting creature and ending the torture
-            convert_tortured_creature_owner(creatng, room->owner);
-            return CrCkRet_Continue;
+        if (ACTION_RANDOM(100) >= (int)gameadd.torture_death_chance)
+        {
+            SYNCDBG(4, "The %s has been broken", thing_model_name(creatng));
+            
+            if (ACTION_RANDOM(100) < (int)gameadd.torture_convert_chance)
+            { // converting creature and ending the torture
+                convert_tortured_creature_owner(creatng, room->owner);
+                return CrCkRet_Continue;
+            }
+            else
+            { // revealing information about enemy and continuing the torture
+                cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crstat->torture_break_time / 2;
+                reveal_players_map_to_player(creatng, room->owner);
+                return CrCkRet_Available;
+            }
         } else
-        { // revealing information about enemy and continuing the torture
-            cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crstat->torture_break_time / 2;
-            reveal_players_map_to_player(creatng, room->owner);
-            return CrCkRet_Available;
+        {
+            SYNCDBG(4, "The %s died from torture", thing_model_name(creatng));
+            if (ACTION_RANDOM(100) < game.ghost_convert_chance)
+            {
+                convert_creature_to_ghost(room, creatng);
+                return CrCkRet_Deleted;
+            }
+            else
+            {
+                creatng->health = -1;
+            }
         }
     }
     return CrCkRet_Available;

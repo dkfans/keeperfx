@@ -141,6 +141,7 @@ const struct CommandDesc command_desc[] = {
   {"RUN_AFTER_VICTORY",                 "N       ", Cmd_RUN_AFTER_VICTORY},
   {"LEVEL_UP_CREATURE",                 "PCAN    ", Cmd_LEVEL_UP_CREATURE},
   {"CHANGE_CREATURE_OWNER",             "PCAP    ", Cmd_CHANGE_CREATURE_OWNER},
+  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE},
   {"SET_TRAP_CONFIGURATION",            "ANNNNNNN", Cmd_SET_TRAP_CONFIGURATION},
   {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION},
   {NULL,                                "        ", Cmd_NONE},
@@ -379,6 +380,22 @@ const struct NamedCommand creature_select_criteria_desc[] = {
   {"ON_FRIENDLY_GROUND",   CSelCrit_OnFriendlyGround},
   {"ANYWHERE",             CSelCrit_Any},
   {NULL,                   0},
+};
+
+const struct NamedCommand game_rule_desc[] = {
+  {"BodiesForVampire",        1},
+  {"PrisonSkeletonChance",    2},
+  {"GhostConvertChance",      3},
+  {"TortureConvertChance",    4},
+  {"TortureDeathChance",      5},
+  {"FoodGenerationSpeed",     6},
+  {"StunEvilEnemyChance",     7},
+  {"StunGoodEnemyChance",     8},
+  {"BodyRemainsFor",          9},
+  {"FightHateKillValue",     10},
+  {"PreserveClassicBugs",    11},
+  {"DungeonHeartHealHealth", 12},
+  {NULL,                      0},
 };
 
 /**
@@ -2494,6 +2511,17 @@ void command_export_variable(long plr_range_id, const char *varib_name, const ch
     command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, varib_type, varib_id, flg_id);
 }
 
+void command_set_game_rule(const char* objectv, unsigned long roomvar)
+{
+    long ruledesc = get_id(game_rule_desc, objectv);
+    if (ruledesc == -1)
+    {
+        SCRPTERRLOG("Unknown room variable");
+        return;
+    }
+    command_add_value(Cmd_SET_GAME_RULE, 0, ruledesc, roomvar, 0);
+}
+
 /** Adds a script command to in-game structures.
  *
  * @param cmd_desc
@@ -2726,11 +2754,15 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_EXPORT_VARIABLE:
         command_export_variable(scline->np[0], scline->tp[1], scline->tp[2]);
+        break;
     case Cmd_RUN_AFTER_VICTORY:
         if (scline->np[0] == 1)
         {
             game.system_flags |= GSF_RunAfterVictory;
         }
+        break;
+    case Cmd_SET_GAME_RULE:
+        command_set_game_rule(scline->tp[0], scline->np[1]);
         break;
     case Cmd_SET_TRAP_CONFIGURATION:
         command_set_trap_configuration(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6], scline->np[7]);
@@ -4582,6 +4614,132 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       {
           SYNCDBG(8, "Setting campaign flag[%ld][%ld] to %ld.", i, val4, get_condition_value(i, val2, val3));
           intralvl.campaign_flags[i][val4] = get_condition_value(i, val2, val3);
+      }
+      break;
+  case Cmd_SET_GAME_RULE:
+      switch (val2)
+      {
+      case 1: //BodiesForVampire
+          if (val3 >= 0)
+          {
+              SCRIPTDBG(7,"Changing rule %d from %d to %d", val2, game.bodies_for_vampire, val3);
+              game.bodies_for_vampire = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 2: //PrisonSkeletonChance
+          if (val3 >= 0 && val3 <= 100)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.prison_skeleton_chance, val3);
+              game.prison_skeleton_chance = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 3: //GhostConvertChance
+          if (val3 >= 0 && val3 <= 100)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.ghost_convert_chance, val3);
+              game.ghost_convert_chance = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 4: //TortureConvertChance
+          if (val3 >= 0 && val3 <= 100)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.torture_convert_chance, val3);
+              gameadd.torture_convert_chance = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 5: //TortureDeathChance
+          if (val3 >= 0 && val3 <= 100)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.torture_death_chance, val3);
+              gameadd.torture_death_chance = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 6: //FoodGenerationSpeed
+          if (val3 >= 0)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.food_generation_speed, val3);
+              game.food_generation_speed = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 7: //StunEvilEnemyChance
+          if (val3 >= 0 && val3 <= 100)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.stun_enemy_chance_evil, val3);
+              gameadd.stun_enemy_chance_evil = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 8: //StunGoodEnemyChance
+          if (val3 >= 0 && val3 <= 100)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.stun_enemy_chance_good, val3);
+              gameadd.stun_enemy_chance_good = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 9: //BodyRemainsFor
+          if (val3 >= 0)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.body_remains_for, val3);
+              game.body_remains_for = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 10: //FightHateKillValue
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.fight_hate_kill_value, val3);
+          game.fight_hate_kill_value = val3;
+          break;
+      case 11: //PreserveClassicBugs
+          if (val3 >= 0 && val3 <= 100)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.classic_bugs_flags, val3);
+              gameadd.classic_bugs_flags = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 12: //DungeonHeartHealHealth
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_heal_health, val3);
+          game.dungeon_heart_heal_health = val3;
+          break;
+      default:
+          WARNMSG("Unsupported Game RULE, command %d.", val2);
+          break;
       }
       break;
   default:
