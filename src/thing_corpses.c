@@ -273,12 +273,13 @@ TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmode
     }
     // Check if the creature of same type is in list
     long i = find_item_in_dead_creature_list(dungeon, crmodel, crlevel);
+    struct CreatureStorage* cstore;
     if (i >= 0)
     {
-        // This creature is already in list
+        cstore = &dungeon->dead_creatures[i];
+        cstore->count++;
         SYNCDBG(18,"Already in list");
-        //TODO RESURRECT Introduce a counter of creatures in CreatureStorage.
-        return false;
+        return true;
     }
     // Find a slot for the new creature
     if (dungeon->dead_creatures_count < DEAD_CREATURES_MAX_COUNT)
@@ -292,9 +293,10 @@ TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmode
         if (dungeon->dead_creature_idx >= DEAD_CREATURES_MAX_COUNT)
           dungeon->dead_creature_idx = 0;
     }
-    struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
+    cstore = &dungeon->dead_creatures[i];
     cstore->model = crmodel;
     cstore->explevel = crlevel;
+    cstore->count = 0;
     SYNCDBG(19,"Finished");
     return true;
 }
@@ -307,20 +309,36 @@ TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel c
         WARNLOG("Invalid dungeon");
         return false;
     }
+    struct CreatureStorage* cstore;
     long rmpos = find_item_in_dead_creature_list(dungeon, crmodel, crlevel);
     if (rmpos < 0)
-        return false;
-    for (long i = rmpos; i < DEAD_CREATURES_MAX_COUNT - 1; i++)
     {
-        LbMemoryCopy(&dungeon->dead_creatures[i], &dungeon->dead_creatures[i+1], sizeof(struct CreatureStorage));
+        return false;
     }
-    struct CreatureStorage* cstore = &dungeon->dead_creatures[DEAD_CREATURES_MAX_COUNT - 1];
-    cstore->model = 0;
-    cstore->explevel = 0;
-    if (dungeon->dead_creature_idx > 0)
-        dungeon->dead_creature_idx--;
-    if (dungeon->dead_creatures_count > 0)
-        dungeon->dead_creatures_count--;
+    cstore = &dungeon->dead_creatures[rmpos];
+    if (cstore->count >= 1)
+    {
+        cstore->count--;
+
+    }
+    else
+    {
+        for (long i = rmpos; i < DEAD_CREATURES_MAX_COUNT - 1; i++)
+        {
+            LbMemoryCopy(&dungeon->dead_creatures[i], &dungeon->dead_creatures[i + 1], sizeof(struct CreatureStorage));
+        }
+        cstore = &dungeon->dead_creatures[DEAD_CREATURES_MAX_COUNT - 1];
+        cstore->model = 0;
+        cstore->explevel = 0;
+        if (dungeon->dead_creature_idx > 0)
+        {
+            dungeon->dead_creature_idx--;
+        }
+        if (dungeon->dead_creatures_count > 0)
+        {
+            dungeon->dead_creatures_count--;
+        }
+    }
     SYNCDBG(19,"Finished");
     return true;
 }

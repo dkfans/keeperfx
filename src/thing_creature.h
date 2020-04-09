@@ -65,7 +65,8 @@ enum CreatureDeathFlags {
 
 struct CreatureStorage {
   unsigned char model;
-  unsigned char explevel;
+  unsigned char explevel : 4;
+  unsigned char count : 4;
 };
 
 #pragma pack()
