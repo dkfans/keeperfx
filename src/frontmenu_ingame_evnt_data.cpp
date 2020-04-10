@@ -57,7 +57,6 @@ struct GuiButtonInit text_info_buttons[] = {
 
 struct GuiButtonInit battle_buttons[] = {
   { 0,  0, 0, 1, gui_close_objective,NULL,        NULL,               0,   4,  72,   4,  72, 30, 24,                gui_area_new_normal_button,274,GUIStr_CloseWindow,  0,       {0},            0, NULL },
-  { 1, 63, 0, 0, gui_go_to_event,    NULL,        NULL,               0,   4,   4,   4,   4, 30, 24,                gui_area_new_normal_button,276,GUIStr_ZoomToArea,   0,       {0},            0, maintain_zoom_to_event },
   { 1,  0, 0, 0, gui_previous_battle,NULL,        NULL,               0, 446,   4, 446,   4, 30, 24,                gui_area_new_normal_button,486,GUIStr_KeyUp,        0,       {0},            0, NULL },
   { 1,  0, 0, 0, gui_next_battle    ,NULL,        NULL,               0, 446,  72, 446,  72, 30, 24,                gui_area_new_normal_button,272,GUIStr_KeyDown,      0,       {0},            0, NULL },
   { 0,  0, 0, 0, gui_get_creature_in_battle,gui_go_to_person_in_battle,gui_setup_friend_over,0, 42,12, 42,12,160,24,gui_area_friendly_battlers,  0,GUIStr_Empty,        0,       {0},            0, NULL },

@@ -319,7 +319,6 @@ TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel c
     if (cstore->count >= 1)
     {
         cstore->count--;
-
     }
     else
     {
