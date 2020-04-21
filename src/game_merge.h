@@ -123,6 +123,7 @@ struct GameAdd {
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
+    long digger_work_experience;
 };
 
 #pragma pack()

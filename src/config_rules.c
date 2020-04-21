@@ -162,6 +162,7 @@ const struct NamedCommand rules_workers_commands[] = {
   {"DEFAULTIMPDIGDAMAGE",        6},
   {"DEFAULTIMPDIGOWNDAMAGE",     7},
   {"PERIMPGOLDDIGSIZE",          8},
+  {"IMPWORKEXPERIENCE",          9},
   {NULL,                         0},
   };
 
@@ -1607,6 +1608,19 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 9: // IMPWORKEXPERIENCE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              gameadd.digger_work_experience = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment

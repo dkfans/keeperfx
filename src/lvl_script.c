@@ -395,6 +395,7 @@ const struct NamedCommand game_rule_desc[] = {
   {"FightHateKillValue",     10},
   {"PreserveClassicBugs",    11},
   {"DungeonHeartHealHealth", 12},
+  {"ImpWorkExperience",      13},
   {NULL,                      0},
 };
 
@@ -4736,6 +4737,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 12: //DungeonHeartHealHealth
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_heal_health, val3);
           game.dungeon_heart_heal_health = val3;
+          break;
+      case 13: //ImpWorkExperience
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.digger_work_experience, val3);
+          gameadd.digger_work_experience = val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

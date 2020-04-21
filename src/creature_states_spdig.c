@@ -861,6 +861,11 @@ short imp_converts_dungeon(struct Thing *spdigtng)
             }
           }
       }
+      if (gameadd.digger_work_experience != 0)
+      {
+          cctrl->exp_points += (gameadd.digger_work_experience / 6);
+          check_experience_upgrade(spdigtng);
+      }
       return 1;
     }
     if ( !check_place_to_pretty_excluding(spdigtng, slb_x, slb_y) )
@@ -886,6 +891,11 @@ short imp_digs_mines(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
+    if (gameadd.digger_work_experience != 0)
+    {
+        cctrl->exp_points += gameadd.digger_work_experience;
+        check_experience_upgrade(spdigtng);
+    }
     struct MapTask* mtask = get_task_list_entry(spdigtng->owner, cctrl->digger.task_idx);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->digger.task_stl);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->digger.task_stl);
@@ -1022,6 +1032,12 @@ short imp_drops_gold(struct Thing *spdigtng)
             spdigtng->creature.gold_carried -= gldtng->valuable.gold_stored;
     }
     thing_play_sample(spdigtng, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    if (gameadd.digger_work_experience != 0)
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
+        cctrl->exp_points += gameadd.digger_work_experience;
+        check_experience_upgrade(spdigtng);
+    }
     if ((spdigtng->creature.gold_carried != 0) && (room->used_capacity < room->total_capacity))
     {
         if (setup_head_for_empty_treasure_space(spdigtng, room)) {
@@ -1038,6 +1054,11 @@ short imp_improves_dungeon(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
+    if (gameadd.digger_work_experience != 0)
+    {
+        cctrl->exp_points += (gameadd.digger_work_experience / 6);
+        check_experience_upgrade(spdigtng);
+    }
     // Check if we've arrived at the destination
     MapSubtlDelta delta_x = abs(spdigtng->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
     MapSubtlDelta delta_y = abs(spdigtng->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
@@ -1159,6 +1180,11 @@ short imp_reinforces(struct Thing *thing)
         clear_creature_instance(thing);
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 0;
+    }
+    if (gameadd.digger_work_experience != 0)
+    {
+        cctrl->exp_points += gameadd.digger_work_experience;
+        check_experience_upgrade(thing);
     }
     if (creature_turn_to_face(thing, &pos) > 0) {
         return 1;
@@ -1556,6 +1582,11 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     add_body_to_graveyard(deadtng, room);
     // The action of moving object is now finished
     set_start_state(creatng);
+    if (gameadd.digger_work_experience != 0)
+    {
+        cctrl->exp_points += gameadd.digger_work_experience;
+        check_experience_upgrade(creatng);
+    }
     return 1;
 }
 
@@ -1611,6 +1642,11 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     }
     // The action of moving object is now finished
     set_start_state(thing);
+    if (gameadd.digger_work_experience != 0)
+    {
+        cctrl->exp_points += gameadd.digger_work_experience;
+        check_experience_upgrade(thing);
+    }
     return 1;
 }
 
@@ -1674,6 +1710,11 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     }
     // The action of moving object is now finished
     set_start_state(creatng);
+    if (gameadd.digger_work_experience != 0)
+    {
+        cctrl->exp_points += gameadd.digger_work_experience;
+        check_experience_upgrade(creatng);
+    }
     return 1;
 }
 
@@ -1710,6 +1751,11 @@ short creature_arms_trap(struct Thing *thing)
     delete_thing_structure(cratetng, 0);
     // The action of moving object is now finished
     set_start_state(thing);
+    if (gameadd.digger_work_experience != 0)
+    {
+        cctrl->exp_points += gameadd.digger_work_experience;
+        check_experience_upgrade(thing);
+    }
     return 1;
 }
 
