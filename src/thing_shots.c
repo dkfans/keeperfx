@@ -692,24 +692,24 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
     {
         switch (shotng->model)
         {
-        case 1:
-        case 2:
-        case 4:
+        case ShM_Fireball:
+        case ShM_Firebomb:
+        case ShM_Lightning:
             efftng = create_effect(&shotng->mappos, TngEff_Unknown01, shotng->owner);
             break;
-        case 5:
+        case ShM_PoisonCloud:
             efftng = create_effect(&shotng->mappos, TngEff_Unknown13, shotng->owner);
             if ( !thing_is_invalid(efftng) ) {
                 efftng->byte_16 = 2;
             }
             break;
-        case 6:
-        case 9:
+        case ShM_NaviMissile:
+        case ShM_Missile:
             efftng = create_effect(&shotng->mappos, TngEff_Unknown08, shotng->owner);
             break;
-        case 14:
-        case 21:
-        case 22:
+        case ShM_Arrow:
+        case ShM_SwingSword:
+        case ShM_SwingFist:
             if (creature_affected_by_spell(target, SplK_Freeze)) {
                 efftng = create_effect(&shotng->mappos, TngEff_Unknown22, shotng->owner);
             } else
@@ -1362,7 +1362,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->field_23 = shotst->old->field_11;
     thing->field_24 = shotst->old->field_12;
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;
-    set_thing_draw(thing, shotst->old->sprite_anim_idx, 256, shotst->old->sprite_size_max, 0, 0, 2);
+    set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & TF4F_Unknown02;
     thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Unknown10 * shotst->old->field_8) & (TF4F_Unknown10|TF4F_Unknown20));
     thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;

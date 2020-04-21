@@ -69,6 +69,8 @@ struct CreatureStorage {
   unsigned char count : 4;
 };
 
+static_assert(sizeof(struct CreatureStorage) == 2, "");
+
 #pragma pack()
 /******************************************************************************/
 extern struct TbSprite *swipe_sprites;

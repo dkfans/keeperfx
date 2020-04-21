@@ -239,6 +239,8 @@ struct ShotConfigStats {
     short shot_sound;
     unsigned char firing_sound_variants;
     short max_range;
+    unsigned short sprite_anim_idx;
+    unsigned short sprite_size_max;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -301,8 +303,8 @@ struct ShotHitConfig {
 
 struct ShotStats // sizeof = 101
 {
-  short sprite_anim_idx;
-  short sprite_size_max;
+  short sprite_anim_idx_UNUSED;
+  short sprite_size_max_UNUSED;
   unsigned char field_4[2];
   unsigned char field_6;
   unsigned char field_7;
