@@ -82,7 +82,14 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     {
         dungeon->field_14BC = thing->index;
         GoldAmount gold_req;
-        gold_req = thing->long_13 / 4 + 1;
+        if (lbKeyOn[KC_LCONTROL])
+        {
+            gold_req = thing->long_13;
+        }
+        else
+        {
+            gold_req = thing->long_13 / 4 + 1;
+        }
         if (gold_req <= 100)
             gold_req = 100;
         dungeon->field_14BE = gold_req;
