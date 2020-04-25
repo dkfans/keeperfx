@@ -312,6 +312,8 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *thing);
 short state_cleanup_in_room(struct Thing *creatng);
 short set_start_state_f(struct Thing *thing,const char *func_name);
 #define set_start_state(thing) set_start_state_f(thing,__func__)
+short patrol_here(struct Thing* creatng);
+short patrolling(struct Thing* creatng);
 /******************************************************************************/
 TbBool creature_model_bleeds(unsigned long crmodel);
 TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist);
