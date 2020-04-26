@@ -27,6 +27,7 @@
 #include "thing_physics.h"
 #include "creature_control.h"
 #include "creature_states.h"
+#include "creature_states_hero.h"
 #include "config_creature.h"
 #include "room_jobs.h"
 #include "ariadne_wallhug.h"
@@ -315,16 +316,93 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
     return true;
 }
 
-TbBool remove_creature_from_group(struct Thing *creatng)
+struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
+    CrtrExpLevel best_explevel = 0;
+    long best_score = 0;
+    struct Thing* best_creatng = INVALID_THING;
+    long i = cctrl->group_info & TngGroup_LeaderIndex;
+    if (i == 0) {
+        // One creature is not a group, but we may still get its experience
+        i = grptng->index;
+    }
+    unsigned long k = 0;
+    while (i > 0)
+    {
+        struct Thing* ctng = thing_get(i);
+        TRACE_THING(ctng);
+        cctrl = creature_control_get_from_thing(ctng);
+        struct CreatureControl* bcctrl = creature_control_get_from_thing(best_creatng);
+        if (creature_control_invalid(cctrl))
+        {
+            break;
+        }
+        // Per-thing code
+        long score = get_creature_thing_score(ctng);
+        // Units who are supposed to defend the party, are considered for party leadership last.
+        if (cctrl->party_objective != CHeroTsk_DefendParty)
+        {
+            // If the current unit does not defend party, overwrite any unit that does.
+            if (bcctrl->party_objective == CHeroTsk_DefendParty)
+            {
+                best_explevel = cctrl->explevel;
+                best_score = score;
+                best_creatng = ctng;
+            } else
+            {
+                // Otherwise the level needs to be at least as high
+                if (best_explevel <= cctrl->explevel)
+                {
+                    // For equal levels, the score is most important
+                    if ((score > best_score) || (cctrl->explevel > best_explevel))
+                    {
+                        best_explevel = cctrl->explevel;
+                        best_score = score;
+                        best_creatng = ctng;
+                    }
+                }
+            }
+        }
+        else // so party_objective == CHeroTsk_DefendParty)
+        {
+            // Only look to overwrite other defending unit, or noexisting unit, with this defending unit
+            if ((bcctrl->party_objective == CHeroTsk_DefendParty) || (best_creatng == INVALID_THING))
+            {
+                if (best_explevel <= cctrl->explevel)
+                {
+                    // For equal levels, the score is most important
+                    if ((score > best_score) || (cctrl->explevel > best_explevel))
+                    {
+                        best_explevel = cctrl->explevel;
+                        best_score = score;
+                        best_creatng = ctng;
+                    }
+                }
+            }
+        }
+        // Per-thing code ends
+        i = cctrl->next_in_group;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures group");
+            break;
+        }
+    }
+    return best_creatng;
+}
+
+TbBool remove_creature_from_group(struct Thing* creatng)
 {
     struct Thing* grptng = get_first_follower_creature_in_group(creatng);
     if (!remove_creature_from_group_without_leader_consideration(creatng)) {
-        SYNCDBG(5,"Removing %s index %d and disbanding the party",thing_model_name(creatng),(int)creatng->index);
+        SYNCDBG(5, "Removing %s index %d and disbanding the party", thing_model_name(creatng), (int)creatng->index);
         // Last creature removed - party disbanded
         return false;
     }
-    SYNCDBG(5,"Removing %s index %d",thing_model_name(creatng),(int)creatng->index);
-    struct Thing* leadtng = get_highest_experience_and_score_creature_in_group(grptng);
+    SYNCDBG(5, "Removing %s index %d", thing_model_name(creatng), (int)creatng->index);
+    struct Thing* leadtng = get_best_creature_to_lead_group(grptng);
     make_group_member_leader(leadtng);
     return true;
 }

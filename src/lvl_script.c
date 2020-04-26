@@ -3680,13 +3680,30 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
                   grptng = thing;
               } else
               {
-                  struct Thing* bestng = get_highest_experience_and_score_creature_in_group(grptng);
+                  struct Thing* bestng = get_best_creature_to_lead_group(grptng);
                   struct CreatureControl* bestctrl = creature_control_get_from_thing(bestng);
-                  if ((cctrl->explevel >= bestctrl->explevel) && (get_creature_thing_score(thing) > get_creature_thing_score(bestng)))
+                  // If current leader wants to defend, and current unit has an objective, new unit will be group leader.
+                  if ((cctrl->party_objective != CHeroTsk_DefendParty) && (bestctrl->party_objective == CHeroTsk_DefendParty))
                   {
                       add_creature_to_group_as_leader(thing, grptng);
                       leadtng = thing;
                   } else
+                  // if best and current unit want to defend party, or neither do, the strongest will be leader
+                  if (((cctrl->party_objective == CHeroTsk_DefendParty) && (bestctrl->party_objective == CHeroTsk_DefendParty)) || ((cctrl->party_objective != CHeroTsk_DefendParty) && (bestctrl->party_objective != CHeroTsk_DefendParty)))
+                  {
+                      if ((cctrl->explevel > bestctrl->explevel) || ((cctrl->explevel == bestctrl->explevel) && (get_creature_thing_score(thing) > get_creature_thing_score(bestng))))
+                      {
+                          add_creature_to_group_as_leader(thing, grptng);
+                          leadtng = thing;
+                      }
+                      else
+                      // If it's weaker than the current leader, joind as a group
+                      {
+                          add_creature_to_group(thing, grptng);
+                      }
+                  }
+                  else
+                  // If it wants to defend, but the group leader has an objective, just add it to group
                   {
                       add_creature_to_group(thing, grptng);
                   }
