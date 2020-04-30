@@ -56,6 +56,12 @@ struct AsianFont dbcChtFonts[] = {
   {"font16f.fon", 0, 265792, 0x1FF2, 0, 16, 0x1000, 32, 1, 8, 16, 16, 16, 0, 1, 1, 4, 2},
 };
 
+struct AsianFont dbcKorFonts[] = {
+  {"font12k.fon", 0, 199344, 0x1FF2, 0, 12, 0x0C00, 24, 1, 6, 12, 12, 12, 0, 1, 1, 1, 1},
+  {"font16k.fon", 0, 271712, 0x20AB, 0, 16, 0x1000, 32, 1, 8, 16, 16, 16, 0, 1, 1, 4, 2},
+  {"font16k.fon", 0, 271712, 0x20AB, 0, 16, 0x1000, 32, 1, 8, 16, 16, 16, 0, 1, 1, 4, 2},
+};
+
 struct AsianFont *active_dbcfont = &dbcJapFonts[0];
 long dbc_colour0 = 0;
 long dbc_colour1 = 0;
@@ -80,6 +86,8 @@ TbBool is_wide_charcode(unsigned long chr)
     case 2:
         return ((chr > 0x80) && (chr <= 0xFF));
     case 3:
+        return ((chr > 0x80) && (chr <= 0xFF));
+    case 4:
         return ((chr > 0x80) && (chr <= 0xFF));
     }
   }
@@ -150,6 +158,7 @@ unsigned short dbc_char_to_font_char(unsigned long chr)
     }
     case 2://Chinese - int. and traditional
     case 3:
+    case 4:
         i = ((chr)&0xFF);
         k = ((chr>>8)&0xFF);
         font_char = 94 * (short)k + i - 15295;
@@ -175,7 +184,7 @@ int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
           return 6;
         adraw->draw_char = chr;
         adraw->bits_width = active_dbcfont->bits_width;
-        adraw->field_8 = active_dbcfont->field_30;
+        adraw->bits_height = active_dbcfont->bits_height;
         i = active_dbcfont->field_3C;
         adraw->field_C = i;
         adraw->field_10 = active_dbcfont->field_40;
@@ -188,7 +197,7 @@ int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
         adraw->draw_char = chr;
         c = chr;
         adraw->bits_width = active_dbcfont->field_24;
-        adraw->field_8 = active_dbcfont->field_28;
+        adraw->bits_height = active_dbcfont->field_28;
         if ((c < 0xA0) || (c > 0xDF))
           i = active_dbcfont->field_34;
         else
@@ -206,7 +215,7 @@ long dbc_char_height(unsigned long chr)
 {
   if (is_wide_charcode(chr))
   {
-    return active_dbcfont->field_44 + active_dbcfont->field_40 + active_dbcfont->field_30;
+    return active_dbcfont->field_44 + active_dbcfont->field_40 + active_dbcfont->bits_height;
   } else
   {
     return active_dbcfont->field_44 + active_dbcfont->field_40 + active_dbcfont->field_28;
@@ -280,6 +289,8 @@ int dbc_fonts_count(void)
        return (sizeof(dbcChiFonts)/sizeof(dbcChiFonts[0]));
   case 3:
        return (sizeof(dbcChtFonts)/sizeof(dbcChtFonts[0]));
+  case 4:
+      return (sizeof(dbcKorFonts) / sizeof(dbcKorFonts[0]));
   }
   return 0;
 }
@@ -294,6 +305,8 @@ struct AsianFont *dbc_fonts_list(void)
        return dbcChiFonts;
   case 3:
        return dbcChtFonts;
+  case 4:
+      return dbcKorFonts;
   }
   return NULL;
 }
@@ -320,7 +333,7 @@ int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct 
       scr_y = adraw->field_10 + pos_y + 1;
       scr_x = pos_x + 1;
       width = adraw->bits_width;
-      height = adraw->field_8;
+      height = adraw->bits_height;
       if (scr_x < 0)
       {
         width += scr_x;
@@ -368,7 +381,7 @@ LABEL_21:
       y = 0;
       x = 0;
       width = adraw->bits_width;
-      height = adraw->field_8;
+      height = adraw->bits_height;
       scr_y = pos_y + adraw->field_10;
       scr_x = pos_x;
       if (pos_x >= 0)
@@ -504,7 +517,7 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
               dbc_draw_font_sprite_text(&awind, &adraw, x, y, colour, -1, dbc_colour1);
               w = adraw.field_C + adraw.bits_width;
               if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0) {
-                  h = adraw.field_8;
+                  h = adraw.bits_height;
                   LbDrawCharUnderline(x,y,w,h,colour,lbDisplayEx.ShadowColour);
               }
               x += w;
@@ -609,7 +622,7 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
               dbc_draw_font_sprite_text(&awind, &adraw, x, y, colour, -1, dbc_colour1);
               w = (adraw.field_C + adraw.bits_width) * units_per_px / 16;
               if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0) {
-                  h = adraw.field_8 * units_per_px / 16;
+                  h = adraw.bits_height * units_per_px / 16;
                   LbDrawCharUnderline(x,y,w,h,colour,lbDisplayEx.ShadowColour);
               }
               x += w;

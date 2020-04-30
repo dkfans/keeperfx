@@ -19,28 +19,31 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/POT-Creation-"
+"Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:21+0100\n"
+"PO-Revision-Date: 2020-04-28 15:46+0900\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: ko_KR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 2.3\n"
 
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
 msgid "Success! The land is yours. Press Space to proceed to the next realm."
 msgstr ""
+"성공하셨군요! 이 땅은 당신의 것입니다. 스페이스 키를 눌러 다음 영역으로 진행"
+"하십시오."
 
 #. Level Eversmile information soon after start
 #: guitext:1
 msgctxt "In-game message"
 msgid "This is a message. Right click to delete it."
-msgstr ""
+msgstr "이건 메시지입니다. 마우스 오른쪽 단추 클릭으로 삭제할 수 있습니다."
 
 #. Level Eversmile first objective
 #: guitext:2
@@ -51,6 +54,9 @@ msgid ""
 "Treasure Room icon from the Rooms Panel and fill the empty area to the west "
 "with Treasure Room tiles."
 msgstr ""
+"키퍼가 가장 먼저 필요로 하는 것은 임프들이 금광에서 체취한 금을 보관하는 것입"
+"니다. 보물 창고를 만들려면 방 패널에서 보물 창고 아이콘을 선택하고 선택된 보"
+"물 창고 타일로 던전 코어 서쪽의 빈 공간을 채우도록 합니다."
 
 #. Level Eversmile information when started building Treasure Room
 #: guitext:3
@@ -59,6 +65,8 @@ msgid ""
 "Use the cursor keys to see other areas of the underworld. Rotate and zoom "
 "the view with the right ctrl key and cursor keys."
 msgstr ""
+"마우스 커서를 사용하여 지하 세계의 다른 영역을 확인할 수 있습니다. 오른쪽 "
+"ctrl 키와 마우스 커서로 뷰를 회전하고 확대/축소 할 수 있습니다."
 
 #. Level Eversmile objective when built Treasure Room
 #: guitext:4
@@ -69,6 +77,9 @@ msgid ""
 "left mouse button. Your Imps will dig out the gold and carry it back to your "
 "Treasure Room."
 msgstr ""
+"잘 하셨습니다. 마우스 오른쪽 버튼을 눌러 포인터를 다시 악마의 손으로 되돌립니"
+"다. 마우스 왼쪽 버튼으로 영역에 태그를 지정하여 던전 코어 동쪽의 금을 채굴하"
+"도록 하죠. 임프들은 금을 체굴하여 보물 창고로 가져갈 것입니다."
 
 #. Level Eversmile information while digging gold
 #: guitext:5
@@ -77,6 +88,8 @@ msgid ""
 "If you want to make your creatures work harder, slap them by right clicking "
 "the Hand of Evil on them. Slapping will harm your creatures."
 msgstr ""
+"만약 피조물을 더 열심히 일하게 하고 싶다면, 마우스 오른 버튼 클릭하여 악마의 "
+"손으로 때리도록 하십시오. 때리는 것은 그 피조물들에게 피해를 줄것입니다."
 
 #. Level Eversmile information while digging gold
 #: guitext:6
@@ -87,6 +100,9 @@ msgid ""
 "dungeon. Creatures perform the task most relevant to the situation they're "
 "dropped into."
 msgstr ""
+"왼쪽 마우스 버튼을 사용하여 던전에서 생명체를 꺼냅니다. 오른쪽 마우스 버튼을 "
+"사용하여 던전에 속한 방이나 타일 위에 놓도록 합니다. 그럼 생명체는 자신이 처"
+"한 상황에 가장 적합한 임무를 수행합니다."
 
 #. Level Eversmile objective after digging gold
 #: guitext:7
@@ -97,6 +113,10 @@ msgid ""
 "mined out would be an ideal spot for some creatures to lurk. Select the Lair "
 "icon from the Rooms Panel."
 msgstr ""
+"탐욕스럽게 끝냈군요, 키퍼. 이제, 당신은 당신의 지하감옥의 일부를 보금자리로 "
+"만들어야 합니다. 보금자리는 생명체가 쉬고 회복하는 곳입니다. 방금 당신의 임프"
+"가 채굴한 지역은 몇몇 생명체들이 숨어있기에 이상적인 장소일 것입니다. 방 패널"
+"에서 보금자리 아이콘을 선택합니다."
 
 #. Level Eversmile objective after Lair built
 #: guitext:8
@@ -107,6 +127,9 @@ msgid ""
 "claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
 "dungeon."
 msgstr ""
+"포털과 북쪽을 연결하는 터널을 파세요. 포털은 점령될 때까지 지도에 깜박이는 사"
+"각형으로 나타납니다. 피조물은 키퍼가 점령한 포털만 사용합니다. 당신의 임프는 "
+"포털이 던전에 연결되는 즉시 점령합니다."
 
 #. Level Eversmile objective when digging w/o Treasure Room
 #: guitext:9
@@ -116,6 +139,8 @@ msgid ""
 "the Rooms Panel and left click on the tiles in the area to the west of your "
 "Dungeon Heart."
 msgstr ""
+"보물 창고를 먼저 지어야 합니다. 방 패널에서 보물 창고 아이콘을 선택한 후 던"
+"전 하트 서쪽 영역의 타일을 마우스 왼쪽 단추로 클릭합니다."
 
 #. Level Eversmile information after some digging
 #: guitext:10
@@ -125,6 +150,9 @@ msgid ""
 "a room or tile belonging to your dungeon. Creatures perform tasks relevant "
 "to the situation they're dropped into."
 msgstr ""
+"마우스 왼쪽 버튼을 클릭하여 피조물을 선택합니다. 던전에 속한 방이나 타일을 마"
+"우스 오른쪽 단추로 클릭하여 피조물을 떨어뜨립니다. 피조물은 자신이 처한 상황"
+"과 관련된 작업을 수행합니다."
 
 #. Level Eversmile information after some digging
 #: guitext:11
@@ -133,6 +161,8 @@ msgid ""
 "If you want your creatures to work harder, slap them with a right click of "
 "the hand. Your creatures take damage from each slap they receive."
 msgstr ""
+"만약 여러분의 생명체가 더 열심히 일하기를 원한다면, 오른쪽 클릭으로 그들을 때"
+"리세요. 여러분의 생명체는 한 번씩 찰싹 때릴 때마다 피해를 입습니다."
 
 #. Level Eversmile objective after digging gold w/o Treasure Room
 #: guitext:12
@@ -142,6 +172,9 @@ msgid ""
 "be unable to pay any creatures. Only imps give their loyalty freely. No "
 "other creatures will serve you unpaid."
 msgstr ""
+"아직 보물 창고를 짓지 않았습니다. 이 방을 짓기 전에는 어떤 피조물에게도 봉급"
+"을 지급 할 수 없습니다. 오직 임프만이 공짜입니다. 다른 어떤 피조물도 봉급을 "
+"받지 않고는 당신을 섬기지 않을 것입니다."
 
 #. Level Eversmile objective after getting first creature
 #: guitext:13
@@ -151,6 +184,9 @@ msgid ""
 "at your enemies and its wings grant the hideous insect the speed to "
 "intercept the most nimble trespassers."
 msgstr ""
+"당신의 첫 번째 하수인이 도착했습니다. 거대한 플라이입니다. 적들에게 부식성 토"
+"사를 뱉을 수 있고 그 날개는 가장 민첩한 침입자들을 요격할 수 있는 속도를 그 "
+"흉측한 곤충에게 부여합니다."
 
 #. Level Eversmile objective after getting first beetle
 #: guitext:14
@@ -161,16 +197,23 @@ msgid ""
 "select the Hatchery icon and create your Hatchery. Tasty snacks will soon "
 "emerge from its enchanted soil."
 msgstr ""
+"비틀이 당신의 영역으로 뛰어들었습니다. 많은 피해를 흡수하기에 충분히 강합니"
+"다. 대부분의 피조물처럼, 딱정벌레는 음식을 필요로 합니다. 새 영역을 발굴하고 "
+"부화장 아이콘을 선택한 후 부화장을 만듭니다. 곧 맛있는 간식이 마법이 걸린 땅"
+"에서 나올 것입니다."
 
 #. Level Eversmile objective after Hatchery built
 #: guitext:15
 msgctxt "In-game message"
 msgid ""
-"Imps fortify your walls to prevent intruders tunnelling in. If you want to "
+"Imps fortify your walls to prevent intruders tunneling in. If you want to "
 "create more imps, go to the Research Panel, select the Imp icon and left "
 "click anywhere in your dungeon. Each Imp you create costs more than the "
 "previous one."
 msgstr ""
+"임프는 침입자가 터널을 통과하지 못하도록 벽을 강화합니다. 더 많은 임프를 만들"
+"려면 연구 패널로 이동하여 임프 아이콘을 선택하고 던전 내 아무 곳이나 마우스 "
+"왼쪽 단추로 클릭합니다. 임프는 만들수록 더 많은 비용이 들어갑니다."
 
 #. Level Eversmile information after having few creatures
 #: guitext:16
@@ -180,6 +223,9 @@ msgid ""
 "pick up creatures quickly, left click on them from within the Creatures "
 "Panel. You can only drop creatures within the confines of your own dungeon."
 msgstr ""
+"한 움쿰의 피조물을 침입자 위에 떨어뜨리는게 어떨까요? 피조물을 빠르게 선택하"
+"려면 피조물 패널 내에서 마우스 왼쪽 단추로 클릭합니다. 자신의 던전 안에만 피"
+"조물을 투하할 수 있습니다."
 
 #. Level Eversmile objective some time after all rooms are built
 #: guitext:17
@@ -189,6 +235,9 @@ msgid ""
 "entry to your dungeon. A white trail on the map indicates their progress. "
 "Click the icon at the top of the Control Panel to see a bigger map."
 msgstr ""
+"침입자가 접근합니다. 침입자들은 당신의 던전에 들어가기 위해 요새의 빈틈을 찾"
+"고 있습니다. 지도에 흰색 자국이 진행 상황 표시합니다. 제어 패널 맨 위에 있는 "
+"아이콘을 클릭하면 더 큰 지도가 표시됩니다."
 
 #. Level Eversmile objective after first wave defeat
 #: guitext:18
@@ -197,6 +246,8 @@ msgid ""
 "Savour your first victory while you can. You have attracted the wrath of the "
 "Lord of this realm. His party will soon be here."
 msgstr ""
+"할 수 있을 때 첫 승을 맛보세요. 당신은 이 왕국의 지배자의 분노를 이끌어냈습니"
+"다. 그의 일행이 곧 올 것입니다."
 
 #. Levels Eversmile and Tickle objective, when LOTL comes
 #: guitext:19
@@ -205,6 +256,8 @@ msgid ""
 "The Lord of the Land has arrived. I can smell his fear. Defeat him and the "
 "realm is yours."
 msgstr ""
+"이 땅의 영주가 도착했습니다. 그의 공포심을 느낄 수 있어요. 그를 물리치면 왕국"
+"은 당신의 것입니다."
 
 #. Level Eversmile objective after LOTL defeat
 #: guitext:20
@@ -214,6 +267,8 @@ msgid ""
 "this nauseating realm and expanding your empire into a neighbouring land. "
 "Nice."
 msgstr ""
+"여기 일은 끝났어요. 이제 당신이 이 구역질나는 영역을 없애고 당신의 제국을 이"
+"웃나라로 확장하는 것을 막을 사람은 아무도 없습니다. 좋아요."
 
 #. Level Eversmile objective when having no Imps
 #: guitext:21
@@ -222,6 +277,8 @@ msgid ""
 "You require more Imps. Use the Create Imp spell to conjure them into your "
 "domain. Remember, each Imp you create is more expensive than the last."
 msgstr ""
+"임프가 더 필요합니다. 임프 생성 주문을 사용하여 당신의 영역으로 소환합니다. "
+"각 임프는 마지막 임프보다 더 비싸다는 걸 기억하세요."
 
 #. Level Cosyton information soon after start
 #: guitext:22
@@ -231,6 +288,9 @@ msgid ""
 "Fortified walls keep out intruders. Rooms with reinforced walls make your "
 "creatures feel more at home and heroes more terrified."
 msgstr ""
+"임프는 다른 명령이 없을 때 던전을 보강하기 위해 뛰어다닙니다. 방호벽은 침입자"
+"를 막아줍니다. 강화된 벽이 있는 방은 여러분의 피조물들을 더 편안하게 해주고 "
+"영웅들은 더 공포에 떨게 합니다."
 
 #. Level Cosyton information soon after start
 #: guitext:23
@@ -240,6 +300,8 @@ msgid ""
 "left-clicking on the creature you want to control. Right-click to leave the "
 "creature again."
 msgstr ""
+"피조물을 지배 하려면 연구 패널에서 지배 주문을 선택하고 제어하려는 피조물을 "
+"마우스 왼쪽 단추로 클릭합니다. 마우스 오른쪽 버튼을 클릭하여 해제 합니다."
 
 #. Level Cosyton first objective
 #: guitext:24
@@ -249,6 +311,9 @@ msgid ""
 "Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms "
 "in squares of at least nine tiles to increase the efficiency of the room."
 msgstr ""
+"브라나 호크에서 배운 교훈을 기억하세요. 보물 창고, 보금자리, 부화장을 지어야 "
+"하며 포털을 점령해야 합니다. 최소 9개의 타일 정사각형으로 방을 만들어 방의 효"
+"율성을 높입니다."
 
 #. Level Cosyton objective after basic rooms built
 #: guitext:25
@@ -258,6 +323,8 @@ msgid ""
 "creatures can hone their fighting skills, gain new abilities and learn more "
 "powerful spells."
 msgstr ""
+"여러분은 피조물을 더 강하게 만들어야 할 것입니다. 훈련실에서 피조물들은 싸움 "
+"기술을 연마하고, 새로운 능력을 얻고, 더 강력한 주문을 배울 수 있습니다."
 
 #. Level Cosyton objective after Training Room built
 #: guitext:26
@@ -267,6 +334,8 @@ msgid ""
 "walls of your dungeon. This increases the efficiency of rooms and repels "
 "would-be invaders."
 msgstr ""
+"계획이 순조롭게 진행되네요, 키퍼. 임프가 던전의 벽을 강화할 수 있도록 시간을 "
+"줍시다. 방의 효율성을 높이고 침략자를 물리칩니다."
 
 #. Level Cosyton information after Training Room built
 #: guitext:27
@@ -275,6 +344,8 @@ msgid ""
 "The Training Room attracts ever more ferocious creatures, such as Demon "
 "Spawn. Build it and they will come."
 msgstr ""
+"훈련실은 데몬 스폰과 같은 더 사나운 생물들을 유혹합니다. 훈련소를 지으면 그들"
+"이 올 것입니다."
 
 #. Level Cosyton information after attracting Demon Spawn
 #: guitext:28
@@ -284,6 +355,8 @@ msgid ""
 "occasionally appears above a creature's head indicates how much gold it has "
 "cost for that creature to train."
 msgstr ""
+"생물을 훈련시키려면 훈련실에 떨어뜨립니다. 가끔 피조물의 머리 위에 나타나는 "
+"숫자는 훈련하는 데 드는 금의 양을 나타냅니다."
 
 #. Level Cosyton information some time after Demon Spawn
 #: guitext:29
@@ -292,6 +365,8 @@ msgid ""
 "You can train creatures more rapidly by slapping them as they work out in "
 "the Training Room."
 msgstr ""
+"훈련실에서 훈련할 때 해당 피조물을 찰싹찰싹 때려서 보다 신속하게 훈련시킬 수 "
+"있습니다."
 
 #. Level Cosyton objective soon after 2nd Demon Spawn
 #: guitext:30
@@ -301,6 +376,9 @@ msgid ""
 "and ready for the attack. The heroes you will face in this realm are tougher "
 "than those you met beneath Brana Hauk."
 msgstr ""
+"영웅들이 벌써 오고 있어요. 여러분의 피조물들이 잘 훈련되어 있고 공격에 대비하"
+"고 있는지 확인하세요. 이 영역에서 마주하게 될 영웅들은 브라나 호크에서 만난 "
+"영웅들보다 더 강합니다."
 
 #. Level Cosyton objective after defeating LOTL (option 1)
 #: guitext:31
@@ -309,6 +387,8 @@ msgid ""
 "Harder the heroes may have been but they were obviously no match for your "
 "forces."
 msgstr ""
+"영웅들이 전보다 더 강했을지 모르지만 분명히 당신네 부대에 상대가 되지 않았습"
+"니다."
 
 #. Level Cosyton objective after AP reached
 #: guitext:32
@@ -317,12 +397,14 @@ msgid ""
 "The heroes are on their way. Make sure your creatures are well trained and "
 "ready for the attack."
 msgstr ""
+"영웅들이 오고 있어요 여러분의 피조물들이 잘 훈련되어 있고 공격에 대비하고 있"
+"는지 확인하세요."
 
 #. Level Cosyton objective after defeating LOTL (option 2)
 #: guitext:33
 msgctxt "In-game message"
 msgid "Congratulations. You have conquered the enemy hordes."
-msgstr ""
+msgstr "축하해요. 당신은 적의 무리를 정복했습니다."
 
 #. Level Waterdream Warm first objective
 #: guitext:34
@@ -332,6 +414,8 @@ msgid ""
 "Room. Make sure they're all big enough. Cramped conditions do nothing for "
 "the morale of your minions."
 msgstr ""
+"보물 창고, 보금자리, 부화실, 훈련실이 있는 던전을 지어야 합니다. 모두 충분히 "
+"큰지 확인하세요. 비좁은 환경은 하수인들의 사기를 떨어뜨립니다."
 
 #. Level Waterdream Warm objective after basic 5 rooms are built/claimed
 #: guitext:35
@@ -342,6 +426,9 @@ msgid ""
 "the other rooms. Researchers like quiet too, so try to build your Library "
 "off the side of a corridor."
 msgstr ""
+"도서관을 지을 때가 왔습니다. 도서관은 새로운 기기, 방 디자인, 마법 주문 등이 "
+"연구되는 곳입니다. 적어도 다른 방만큼 큰 도서관을 만들어 주세요. 연구원들도 "
+"조용한 것을 좋아하니, 통로에서 떨어진 곳에 도서관을 세워보세요."
 
 #. Level Waterdream Warm information after started building library
 #: guitext:36
@@ -351,6 +438,9 @@ msgid ""
 "researching magic and dungeon designs. These evil mages are real bookworms, "
 "as well as being magically proficient themselves."
 msgstr ""
+"새로운 도서관은 마법과 던전 디자인 연구에 관심이 있는 워록과 같은 생물들을 끌"
+"어들일 것입니다. 이 사악한 마법사들은 마법에 능숙할 뿐만 아니라 진짜 책벌레이"
+"다."
 
 #. Level Waterdream Warm objective after finished building library
 #: guitext:37
@@ -361,6 +451,10 @@ msgid ""
 "researchers. Stupid Trolls have trouble holding books the right way up and "
 "sometimes even chew the pages."
 msgstr ""
+"당신이 모은 양피지와 두꺼운 책은 훌륭한 수집품입니다. 대부분의 피조물들은 연"
+"구에 참여할 수 있지만, 워록은 가장 뛰어나고 예리한 연구자입니다. 멍청한 트롤"
+"들은 책을 제대로 들고 있는 데 어려움을 겪기도 하고 때로는 페이지를 씹기도 합"
+"니다."
 
 #. Level Waterdream Warm objective after attracting warlock
 #: guitext:38
@@ -370,6 +464,9 @@ msgid ""
 "Don't forget to train your Warlocks occasionally. Their spell casting "
 "abilities make them fine long range fighters."
 msgstr ""
+"난해한 지식의 향기가 탐욕스러운 워록을 당신의 던전으로 유인했습니다. 가끔 워"
+"록 훈련하는 것을 잊지 마세요. 그들의 스펠 캐스팅 능력은 그들을 훌륭한 장거리 "
+"투사로 만듭니다."
 
 #. Level Waterdream Warm objective
 #: guitext:39
@@ -379,6 +476,8 @@ msgid ""
 "domain that lived in feeling but it surely won't be long before their kin "
 "launch another assault."
 msgstr ""
+"첫 번째 공격자들은 바닥에 산산조각 나뒹굴고 당신의 영역을 안정되었지만 그들"
+"의 동료들이 또 다른 공격을 감행할 날이 머지 않았습니다."
 
 #. Level Waterdream Warm objective
 #: guitext:40
@@ -388,6 +487,8 @@ msgid ""
 "Hatchery's topsoil fertile. They also serve as warnings to other foolhardy "
 "adventurers, of course."
 msgstr ""
+"또 성공했군요, 키퍼. 모든 시체들은 부화장의 상토를 비옥하게 유지할 것입니다. "
+"물론 다른 바보 같은 모험가들에게 경고의 역할을 하기도 합니다."
 
 #. Level Waterdream Warm objective
 #: guitext:41
@@ -396,19 +497,21 @@ msgid ""
 "All is quiet again. Use this time to ready yourself for the next attacks. "
 "The enemy is only regrouping. It is not yet defeated."
 msgstr ""
+"모든 것이 다시 조용해졌습니다. 이 시간을 사용하여 다음 공격에 대비할 수 있습"
+"니다. 적은 재편성 하고 있을 뿐입니다. 아직 패배하지 않았습니다."
 
 #. Level Waterdream Warm information
 #: guitext:42
 msgctxt "In-game message"
 msgid ""
 "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
-msgstr ""
+msgstr "잘린 머리로 축구를 하는 임프인가요? 정신 바짝 차리세요, 키퍼."
 
 #. Level Waterdream Warm objective
 #: guitext:43
 msgctxt "In-game message"
 msgid "Now would be an excellent time to train a Warlock."
-msgstr ""
+msgstr "지금은 워록 훈련을 하기에 아주 좋은 때입니다."
 
 #. Level Waterdream Warm information
 #: guitext:44
@@ -418,6 +521,9 @@ msgid ""
 "perfected. Cast it on a creature and observe the dramatic increase in its "
 "speed. The effect wears off after a while."
 msgstr ""
+"당신의 연구는 결실을 맺었습니다. 가속 주문이 완료되었습니다. 피조물에게 주문"
+"을 걸고 속도가 극적으로 증가하는 것을 관찰하세요. 효과는 잠시 후에 사라집니"
+"다."
 
 #. Level Flowerhat objective
 #: guitext:45
@@ -427,6 +533,9 @@ msgid ""
 "nearby but do not yet venture north. Powerful adversaries lurk there. It "
 "would be wiser not to disturb them until you are prepared."
 msgstr ""
+"이용 가능한 방으로 던전을 구축하고 가까운 포탈을 점령했지만 아직 북쪽으로는 "
+"모험을 하지 않습니다. 강력한 적들이 그곳에 숨어 있습니다. 준비가 될 때까지 그"
+"들을 방해하지 않는 것이 더 현명할 것입니다."
 
 #. Level Flowerhat information
 #: guitext:46
@@ -435,6 +544,8 @@ msgid ""
 "Clever research has given your Imps the engineering skill to build Bridges. "
 "You will need Bridges to cross some of the more hazardous underworld terrain."
 msgstr ""
+"교묘한 연구로 임프는 다리를 건설할 수 있는 엔지니어링 기술을 갖게 되었습니"
+"다. 더 위험한 지하세계를 건너기 위해 다리가 필요할것입니다."
 
 #. Level Flowerhat objective
 #: guitext:47
@@ -445,6 +556,9 @@ msgid ""
 "least nine tiles, its mere presence will lure the underworld's finest "
 "artisans into your dungeon."
 msgstr ""
+"던전 디자인을 조사한 결과, 공방에서 문과 함정과 같은 필수 가구를 제조한다는 "
+"사실이 밝혀졌습니다. 공방이 최소 9개의 타일을 가진 정사각형을 가진다면, 그 존"
+"재만으로도 저승의 가장 훌륭한 장인들을 당신의 지하감옥으로 유인할 것입니다."
 
 #. Level Flowerhat information
 #: guitext:48
@@ -454,6 +568,8 @@ msgid ""
 "creatures to it, by dropping them into the room. Manufactured items can be "
 "selected from the Workshop Panel as soon as they're ready."
 msgstr ""
+"공방에서 함정과 문을 제조하려면 공방에 피조물을 떨어뜨려 일을 할당해야 합니"
+"다. 제조된 품목은 준비되는 즉시 공방 패널에서 선택할 수 있습니다."
 
 #. Level Flowerhat objective
 #: guitext:49
@@ -462,6 +578,8 @@ msgid ""
 "When your troops are sufficient in number and have had some training, lead "
 "them north and crush any who oppose you."
 msgstr ""
+"군대가 수적으로 충분하고, 약간의 훈련을 받았으면, 그들을 이끌고 북쪽으로 가"
+"서, 당신에게 반대하는 사람을 쳐부수세요."
 
 #. Level Flowerhat objective
 #: guitext:50
@@ -469,7 +587,7 @@ msgctxt "In-game message"
 msgid ""
 "You will have to find a way to cross the river of molten lava that bars your "
 "way."
-msgstr ""
+msgstr "길을 막는 용암의 강을 건너는 방법을 찾아야 합니다."
 
 #. Level Flowerhat objective
 #: guitext:51
@@ -478,6 +596,8 @@ msgid ""
 "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
 "and administer the coup de grace."
 msgstr ""
+"적의 던전 하트가 당신 앞에 고동치고 있습니다. 근처의 수하인들을 모아 우아하"
+"게 처리하도록 하죠."
 
 #. Level Flowerhat information
 #: guitext:52
@@ -487,6 +607,9 @@ msgid ""
 "best employed doing dark deeds in your Workshop. They don't complain about "
 "the hours, because their labours keep them away from combat."
 msgstr ""
+"트롤이 당신과 합류했습니다. 제조 기술에 능숙한 트롤은 공방에서 어두운 행동을 "
+"하는 데 가장 적합합니다. 일하는 것으로 전투로부터 멀어 지기 때문에 노동 시간"
+"에 대해 불평하지 않습니다."
 
 #. Level Flowerhat objective
 #: guitext:53
@@ -495,6 +618,8 @@ msgid ""
 "With the enemy Dungeon Heart in ruins, you have trounced the once proud "
 "opposition. Rule your new domain with terror and loathing, for a laugh."
 msgstr ""
+"적 던전 하트를 폐허로 만들어 한때 영광스러웠던 반대파를 격퇴했습니다. 조롱하"
+"며 새로운 영역을 공포와 증오으로 다스리세요."
 
 #. Level Flowerhat information
 #: guitext:54
@@ -504,6 +629,9 @@ msgid ""
 "access to the enemy. Your creatures may pass freely. Lock or unlock Doors by "
 "clicking over them with the left mouse button."
 msgstr ""
+"공방에서 목재 문을 만들었습니다. 복도에 배치되어 적에 대한 접근을 제한합니"
+"다. 여러분의 피조물은 자유롭게 지나갈 수 있습니다. 왼쪽 마우스 버튼으로 도어 "
+"위를 클릭하여 도어를 잠그거나 잠금 해제합니다."
 
 #. Level Flowerhat information
 #: guitext:55
@@ -512,6 +640,8 @@ msgid ""
 "Your Workshop has produced a Poison Gas trap. Position it and, when an "
 "intruder sets it off, it will envelop the area in deadly vapours."
 msgstr ""
+"공방에서 독가스 함정을 생산했습니다. 설치하고 침입자가 걸리면 치명적인 증기"
+"로 주변을 감싸게 됩니다."
 
 #. Level Flowerhat information
 #: guitext:56
@@ -519,9 +649,13 @@ msgctxt "In-game message"
 msgid ""
 "You have researched the Call to Arms spell. The first time you cast it, your "
 "creatures gather around a banner created by the spell. Cast it again in a "
-"target area. Call to Arms only costs gold when it's targetted beyond your "
+"target area. Call to Arms only costs gold when it's targeted beyond your "
 "territory."
 msgstr ""
+"긴급 소집 주문을 연구했습니다. 처음 주문을 시전하면, 여러분의 피조물들은 주문"
+"에 의해 만들어진 깃발 주위에 모입니다. 대상 영역에 다시 캐스팅합니다. 긴급 소"
+"집은 당신의 영역을 벗어난 타겟이 될 경우에만 소집 비용을 피조물에게 지불합니"
+"다."
 
 #. Level Lushmeadow-on-Down objective
 #: guitext:57
@@ -531,6 +665,9 @@ msgid ""
 "north. If you are to entice creatures to work for you instead of him, you "
 "will have to build a more magnificent dungeon. Get on with it then."
 msgstr ""
+"또 다른 키퍼가 이 지하세계를 지배합니다. 그의 던전은 북쪽에 있습니다. 만약 당"
+"신이 다른 키퍼 대신 여러분을 위해 일하도록 피조물을 유혹한다면, 여러분은 더 "
+"웅장한 지하 감옥을 만들 수 있을 것입니다. 그럼 계속하세요."
 
 #. Level Lushmeadow-on-Down objective
 #: guitext:58
@@ -539,6 +676,8 @@ msgid ""
 "You have slain your rival. His defeat is a testimony to your clever dungeon "
 "design. You have the makings of a Dungeon Keeper worthy of the name."
 msgstr ""
+"당신은 당신의 경쟁자를 죽였습니다. 그의 패배는 당신의 영리한 던전 디자인에 대"
+"한 증거입니다. 당신은 그 이름에 걸맞은 던전 키퍼의 자질을 갖추고 있습니다."
 
 #. Level Lushmeadow-on-Down information
 #: guitext:59
@@ -548,6 +687,8 @@ msgid ""
 "ample Hatcheries. These corpulent monstrosities attack somewhat "
 "unconventionally."
 msgstr ""
+"바일 데몬이 당신 편을 들어주기로 했어요. 바일 데몬은 큰 보금자리와 풍부한 부"
+"화실을 요구합니다. 이런 뚱뚱한 흉물들은 다소 색다른 공격을 합니다."
 
 #. Level Lushmeadow-on-Down information
 #: guitext:60
@@ -556,6 +697,8 @@ msgid ""
 "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
 "unexplored area and it will be revealed to you for a moment."
 msgstr ""
+"충실한 연구원들이 악마의 시야 주문을 완성했습니다. 미개척 지역에 캐스팅하면 "
+"잠시 동안 공개됩니다."
 
 #. Level Lushmeadow-on-Down information
 #: guitext:61
@@ -566,6 +709,9 @@ msgid ""
 "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
 "warriors for you to command."
 msgstr ""
+"당신은 감옥을 점령했습니다. 정보 패널에서 생포를 선택하면 피조물이 적을 제압"
+"하고 임프가 제압된 적을 감옥으로 끌고 갑니다. 굶어 죽은 죄수들은 당신의 명령"
+"에의해 스켈레톤 워리어로 부활할지도 모릅니다."
 
 #. Level Lushmeadow-on-Down information
 #: guitext:62
@@ -575,6 +721,8 @@ msgid ""
 "a strategically important area and assign creatures to occupy it by dropping "
 "them there."
 msgstr ""
+"당신의 헌신적인 사서들이 초소를 설계했습니다. 전략적으로 중요한 지역에 초소"
+"를 배치하고 피조물 투하하여 초소에서 근무하도록 지정합니다."
 
 #. Level Lushmeadow-on-Down information
 #: guitext:63
@@ -584,6 +732,9 @@ msgid ""
 "endeavour to keep them apart. Overcoming such obstacles will temper your "
 "mettle - whatever that means."
 msgstr ""
+"스파이더가 던전에 합류했습니다. 파리의 천적이니, 둘을 떼어놓기 위해 노력하세"
+"요. 그러한 장애물을 극복하는 것으로 당신의 근성을 담금질 할 것입니다 - 그것"
+"이 무엇을 의미하든 말이죠."
 
 #. Level Snuggledell objective
 #: guitext:64
@@ -593,6 +744,8 @@ msgid ""
 "challenge you for this corner of your subterranean empire. The price of "
 "failure shall be oblivion."
 msgstr ""
+"당신의 지하 제국의 일각을 탈취하기위해 도전하는 키퍼에게 최후의 벌을 내릴 때"
+"입니다. 실패의 대가는 세상에서 잊혀지는 것이 될 것입니다."
 
 #. Level Snuggledell objective
 #: guitext:65
@@ -602,6 +755,8 @@ msgid ""
 "dissipate. There'll be no controversy over this year's hall of infamy "
 "nomination."
 msgstr ""
+"적 키퍼의 던전이 무너지고 그의 힘이 소멸되는 것을 보는 것은 얼마나 만족스러"
+"운 일입니까. 올해 사악함의 전당에 대한 논란은 없을 것입니다."
 
 #. Level Snuggledell information
 #: guitext:66
@@ -612,6 +767,9 @@ msgid ""
 "Alternatively, place your own creatures within the room whenever "
 "disciplinary measures become necessary."
 msgstr ""
+"고문실을 점령했습니다. 포로가 된 영웅들과 생명체들을 이 공포의 방에 배치하"
+"여, 그들을 여러분의 극악무도한 방식으로 바꾸어 놓으세요. 또는 징계 조치가 필"
+"요할 때마다 방에 자신의 피조물을 배치합니다."
 
 #. Level Snuggledell information
 #: guitext:67
@@ -621,6 +779,9 @@ msgid ""
 "Mistress. You must discipline these wicked wenches frequently. They respond "
 "particularly well to a good slapping."
 msgstr ""
+"마침내 다크 미스트리스을 끌어들이기에 충분히 인상적인 던전을 건설했습니다. 당"
+"신은 이 사악한 년들을 자주 징계해야 합니다. 특히 찰지게 때리는 것에 잘 반응한"
+"답니다."
 
 #. Level Snuggledell information
 #: guitext:68
@@ -630,6 +791,9 @@ msgid ""
 "be sure when you buy a Braced Door. You couldn't be certain with only a "
 "curtain and a hole in the wall is no help at all."
 msgstr ""
+"공방에서 보강 문을 만들었습니다. 보안이 중요한 경우 보강 문를 구입하는걸 고려"
+"하세요. 커튼만으론 안심할 수 없고 벽에 구멍이 뚫리면 전혀 도움이 되지 않습니"
+"다."
 
 #. Level Snuggledell information
 #: guitext:69
@@ -639,6 +803,8 @@ msgid ""
 "thunderstorm on the target of your choice. Select the spell, aim at a "
 "hostile creature and flash-fry him with a Lightning Strike."
 msgstr ""
+"연구원들은 선택한 목표에 뇌우의 에너지를 발산하는 주문을 고안했습니다. 주문"
+"을 선택하고 적대적인 피조물을 조준한 후 번개로 튀겨 버립니다."
 
 #. Level Snuggledell information
 #: guitext:70
@@ -647,6 +813,8 @@ msgid ""
 "You have manufactured a powerful Lightning Trap. Try it out. It's bound to "
 "give someone a shock."
 msgstr ""
+"공방에서 강력한 번개 함정을 제조했습니다. 한번 해보세요. 누군가 충격을 먹고 "
+"껑충 뛰겠네요."
 
 #. Level Wishvale objective
 #: guitext:71
@@ -656,6 +824,8 @@ msgid ""
 "would be wise to stay out of the way until you are strong enough to "
 "eliminate both sides."
 msgstr ""
+"격렬한 전투의 한가운데에 도착하신 것 같습니다. 아마도 양쪽을 모두 제거할 수 "
+"있을 만큼 강해질 때까지 피하는 것이 현명한 방법입니다."
 
 #. Level Wishvale information
 #: guitext:72
@@ -664,6 +834,8 @@ msgid ""
 "An Orc warlord joins you and brings with him the plans for building a "
 "Barracks. In this room you can form creatures into teams."
 msgstr ""
+"오크 워로드가 병영 건설 계획을 가지고 당신에게 가세하였습니다. 병영에서는 피"
+"조물을 팀으로 구성할 수 있습니다."
 
 #. Level Wishvale objective
 #: guitext:73
@@ -673,6 +845,8 @@ msgid ""
 "finally roused himself from the fireside to find out where all his loyal "
 "servants have gone."
 msgstr ""
+"판금 갑옷이 부딪치는 소리가 들리는 것 같아요. 네, 마침내 이 땅의 지배자는 충"
+"직한 신하들이 어디로 갔는지 알아내기 위해 난롯가에서 몸을 일으켰습니다."
 
 #. Level Wishvale objective
 #: guitext:74
@@ -681,6 +855,8 @@ msgid ""
 "You have turned local heroes into something of an endangered species, now "
 "make the enemy Dungeon Keeper extinct."
 msgstr ""
+"당신은 지역 영웅들을 멸종위기 종으로 만들었고, 이제 적 던전 키퍼를 멸종시킬 "
+"차례입니다."
 
 #. Level Wishvale objective
 #: guitext:75
@@ -690,6 +866,8 @@ msgid ""
 "forlorn alcoves of your domain, in tribute to their futile efforts to keep "
 "you at bay."
 msgstr ""
+"당신이 이겼어요, 키퍼. 당신을 막으려한 무리의 헛된 노력을 칭찬하며 적의 시체"
+"가 당신의 영토 가장 구석의 쓰레기가 되도록 하죠."
 
 #. Level Tickle objective
 #: guitext:76
@@ -699,6 +877,9 @@ msgid ""
 "Explain the concept of early retirement to him. On the other hand, string "
 "him up. It's in the only language he understands."
 msgstr ""
+"지하세계에서 당신의 라이벌이 될 사람을 찾아보세요. 그에게 조기 퇴직의 개념을 "
+"설명해 주세요. 다른 한편으론, 그를 목을 매세요. 그게 그가 이해하는 유일한 언"
+"어니까요."
 
 #. Level Tickle information
 #: guitext:77
@@ -707,6 +888,7 @@ msgid ""
 "You have researched the power of Invisibility. Cast it on a creature to hide "
 "it from enemy eyes."
 msgstr ""
+"당신은 투명화를 연구했습니다. 적의 눈에서 숨기기 위해 피조물에 주문을 겁니다."
 
 #. Level Tickle information
 #: guitext:78
@@ -715,6 +897,8 @@ msgid ""
 "The Protect Creature spell has been researched at last. Cast it on a "
 "creature to increase its toughness."
 msgstr ""
+"마침내 피조물 보호 주문이 연구되었습니다. 방어력을 높이기 위해 생물에 마법을 "
+"겁니다."
 
 #. Level Tickle objective
 #: guitext:79
@@ -724,6 +908,8 @@ msgid ""
 "of the land above bow down before your depraved presence. As if that will "
 "save them..."
 msgstr ""
+"성공적으로 또 다른 적을 물리쳤습니다. 이 땅의 무력한 주민들은, 당신의 타락한 "
+"존재 앞에 엎드려 절합니다. 그렇게 하면 그들을 구할 수 있을 것처럼요."
 
 #. Level Tickle information
 #: guitext:80
@@ -734,6 +920,10 @@ msgid ""
 "You might have to experiment with the offerings you make. The dark gods are "
 "not easy to please."
 msgstr ""
+"연구원들은 어둠의 신들에게 사원을 짓기 위한 지침을 발견했습니다. 신들의 선물"
+"을 받기 위해 신전의 웅덩이에 피조물을 희생시켜야 합니다. 신의 선물이 뭔지 확"
+"인하기 위해선 실험이 필요 할 수도 있습니다. 어둠의 신들의 비위를 맞추기가 쉽"
+"지 않습니다."
 
 #. Level Moonbrush Wood objective
 #: guitext:81
@@ -743,6 +933,9 @@ msgid ""
 "everything under control, because their feeble magical power impresses the "
 "locals. But you're not from these parts..."
 msgstr ""
+"이 영역은 네 명의 오만한 마법사들에 의해 지배되고 있습니다. 그들은 모든 것을 "
+"통제했다고 생각합니다. 그들의 미약한 마법의 힘은 지역 주민들에게 깊은 인상을 "
+"주기 때문입니다. 하지만 당신은 이 지역 출신이 아니잖아요."
 
 #. Level Moonbrush Wood objective
 #: guitext:82
@@ -751,6 +944,8 @@ msgid ""
 "Well, you're done down here. Time to introduce yourself to the locals and re-"
 "organise their nice little lives."
 msgstr ""
+"잘 하셨습니다, 여기 할일은 끝났네요. 지역 주민들에게 당신 자신을 소개하고 그"
+"들의 멋진 작은 삶을 다시 정리할 시간입니다."
 
 #. Levels Tickle and Moonbrush Wood information
 #: guitext:83
@@ -761,6 +956,10 @@ msgid ""
 "make sure that everything near it is an enemy creature when it finally goes "
 "ballistic."
 msgstr ""
+"보세요, 당신은 혼드 리퍼를 소환했습니다. 혼드 리퍼를 심기를 건드리면 안되지"
+"만 당신은 그러지 못 할 것입니다. 왜냐면 모든것이 혼드 리퍼의 심기를 건드리기 "
+"때문이죠. 하지만 적어도 혼드 리퍼의 화가 폭발할때 그 근처에 있는게 적의 피조"
+"물이야 한다는걸 확실히 알아두세요."
 
 #. Level Moonbrush Wood information
 #: guitext:84
@@ -769,6 +968,8 @@ msgid ""
 "Your researchers have concocted a Disease spell. Cast it on enemy creatures "
 "and watch the affliction spread like the plague."
 msgstr ""
+"당신의 연구원들이 질병 주문을 만들었습니다. 적에게 주문을 걸어주고 재앙처럼 "
+"전염병이 퍼지는 것을 지켜보세요."
 
 #. Level Moonbrush Wood information
 #: guitext:85
@@ -779,6 +980,9 @@ msgid ""
 "in a huff, but they're extremely powerful and fearsome underlings to have in "
 "your employ."
 msgstr ""
+"뱀파이어 당신의 묘지에서 일어났습니다. 죽은 사람들의 영혼에 의해 영양분을 공"
+"급받았죠. 뱀파이어에게 잘 보여야 합니다. 그렇지 않으면 화를 내며 떠나버립니"
+"다. 뱀파이어는 당신의 피조물중에 매우 강력하고 무시무시한 부하들이죠."
 
 #. Level Moonbrush Wood information
 #: guitext:86
@@ -788,13 +992,15 @@ msgid ""
 "rot... And possibly to rise again as Vampires, ready to do your bidding. "
 "That's style."
 msgstr ""
+"당신은 묘지에 대해 조사했습니다. 임프가 시체를 여기로 끌고와서 썩게 할 거예"
+"요 그리고 뱀파이어로 다시 부활할 수도 있습니다. 그렇게 돌아가는거에요."
 
 #. Levels Tickle and Moonbrush Wood information
 #: guitext:87
 msgctxt "In-game message"
 msgid ""
 "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
-msgstr ""
+msgstr "철문을 제조했습니다. 가공할만한 성능의 장벽입니다. 잘 쓰세요."
 
 #. Level Elf's Dance objective
 #: guitext:88
@@ -805,6 +1011,9 @@ msgid ""
 "before they join the other keepers, you will be unstoppable, unless you do "
 "something stupid."
 msgstr ""
+"남쪽 동굴에는 강력한 피조물이 살고 있습니다. 당신과 남쪽 피조물 사이에는 영웅"
+"들의 파티가 있지만, 만약 당신이 다른 키퍼들보다 빨리 당신의 편으로 바꾼다면, "
+"어리석은 행동을 하지 않는 한, 당신을 멈추게 할 수 없을 것입니다."
 
 #. Level Elf's Dance objective
 #: guitext:89
@@ -813,6 +1022,8 @@ msgid ""
 "You have overcome all resistance to your rule, O despicable one. It's time "
 "to flex the old misery muscle on the pathetic inhabitants of the land above."
 msgstr ""
+"비열한자시여, 당신의 지배에 대한 모든 난관을 극복했습니다. 위쪽의 한심한 땅 "
+"주민에게 재앙의 힘을 펴야 할 때입니다."
 
 #. Level Nevergrim information
 #: guitext:90
@@ -821,6 +1032,8 @@ msgid ""
 "You have a manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
+"당신은 제조한 바위 함정을 가지고 있습니다. 복도에 놓으면 무단침입자들을 향해 "
+"미친듯 큰소리를 내며 거침없이 굴러갑니다."
 
 #. Level Nevergrim information
 #: guitext:91
@@ -830,6 +1043,9 @@ msgid ""
 "block off passages and repair dungeon breaches. Interestingly, the rockfall "
 "will crush to death any creatures caught beneath it."
 msgstr ""
+"뛰어난 두뇌로 낙반 주문을 연구했습니다. 통로를 차단하고 던전 침범을 수리할 "
+"때 사용합니다. 흥미롭게도, 낙반으로 떨어지는 암석은 그 아래에서 잡힌 모든 생"
+"명체들을 박살낼 것입니다."
 
 #. Level Nevergrim information
 #: guitext:92
@@ -839,6 +1055,9 @@ msgid ""
 "placed within a Scavenger Room will lure their kin from other dungeons and "
 "the outside world, into your domain."
 msgstr ""
+"당신의 지칠 줄 모르는 사서들이 추적실을 조사했습니다. 추적실에 있는 피조물들"
+"은 다른 던전들과 외부 세계로부터 당신의 영역으로 그들과 같은 피조물을 유인해 "
+"올 것입니다."
 
 #. Level Nevergrim information
 #: guitext:93
@@ -847,12 +1066,14 @@ msgid ""
 "Your great wealth has bought the loyalty of a passing Dragon. They are "
 "fickle creatures. Keep your eye on this one."
 msgstr ""
+"당신의 엄청난 재산이 지나가는 드래곤의 충성을 샀어요. 드래곤은 변덕스러운 동"
+"물입니다. 그들을 주시하세요."
 
 #. Level Nevergrim information
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
-msgstr ""
+msgstr "헬하운드가 추적실에 이끌려 당신의 영역으로 왔습니다."
 
 #. Level Buffy Oak objective
 #: guitext:95
@@ -862,6 +1083,9 @@ msgid ""
 "the moment and joined forces, in an effort to destroy you. That's almost a "
 "compliment. Kill the creeps."
 msgstr ""
+"이 지역에 있는 다른 두 명의 키퍼들은 그들의 이견을 잠시 접어두고 당신을 파괴"
+"하기 위해 힘을 합쳤습니다. 이건 거의 칭찬이네요. 그럼 이 소름끼치는 것들 죽입"
+"시다."
 
 #. Level Buffy Oak objective
 #: guitext:96
@@ -870,6 +1094,8 @@ msgid ""
 "You have won a magnificent victory, Master. You have a talent for twisted "
 "mercilessness that makes other Keepers look well behaved by comparison."
 msgstr ""
+"훌륭한 승리를 거두었습니다, 주인님. 당신은 왜곡된 무자비함에 재능이 있습니"
+"다. 당신과 비교한다면 다른 키퍼들은 자비로워보이네요."
 
 #. Level Hearth information
 #: guitext:97
@@ -878,6 +1104,8 @@ msgid ""
 "You have discovered a devastating magical power. Target it against a "
 "creature to transform a fearsome monster into a clucking chicken. Marvellous."
 msgstr ""
+"당신은 파괴적인 마법의 힘을 발견했습니다. 무시무시한 괴물을 꼬꼬댁 닭으로 변"
+"신시키려면 생물에 마법을 걸도록 하세요. 기막힌 일이죠."
 
 #. Level Hearth information
 #: guitext:98
@@ -886,6 +1114,8 @@ msgid ""
 "Your manufacturers have built an Alarm Trap. It will warn you of your "
 "enemies' approach and summon nearby creatures to deal with the intruders."
 msgstr ""
+"공방에서 경보 함정을 만들었습니다. 적의 접근을 경고하고 침입자를 처리하기 위"
+"해 근처에 있는 피조물들을 소환할 것입니다."
 
 #. Level Buffy Oak information
 #: guitext:99
@@ -894,6 +1124,8 @@ msgid ""
 "You have created a Magic Door. These are almost impregnable to all but "
 "magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
 msgstr ""
+"마법의 문을 만들었습니다. 이건 마법의 공격을 제외하고는 거의 난공불락입니다. "
+"보물 창고나 던전하트를 봉인하는 것을 추천합니다."
 
 #. Level Nevergrim objective
 #: guitext:100
@@ -902,6 +1134,8 @@ msgid ""
 "Elsewhere in this fiery realm you have a rival Keeper to contend with. I "
 "advise extreme antisocial behaviour on your part."
 msgstr ""
+"이 불같은 지역에서는 다른 키퍼와 경쟁해야 합니다. 저는 당신이 극단적인 반사회"
+"적 행동(선빵을 날려)을 할것을 충고합니다."
 
 #. Level Nevergrim objective
 #: guitext:101
@@ -910,6 +1144,8 @@ msgid ""
 "Notch up another victory, most malicious one. You have another land to add "
 "to your dismal collection."
 msgstr ""
+"가장 악의적인 승리를 또 한 번 거머쥐세요. 당신의 음산한 수집품에 더할 땅이 "
+"또 있습니다."
 
 #. Level Hearth objective
 #: guitext:102
@@ -919,13 +1155,16 @@ msgid ""
 "demons from the fifth plane of hell. Train your creatures and prepare for "
 "another battle. You're attracting quite an audience."
 msgstr ""
+"당신이 첫번째 공세의 전멸시킨 것이 지옥의 다섯번째 층계에서 나온 한 무리의 악"
+"마들에게 인정 받았습니다. 여러분의 피조물을 훈련시키고 또 다른 전투를 준비하"
+"세요. 당신은 꽤 많은 청중을 끌어 모으고 있군요."
 
 #. Level Hearth objective
 #: guitext:103
 msgctxt "In-game message"
 msgid ""
 "The enemy are upon us. I'm just telling you in case you were having a doze."
-msgstr ""
+msgstr "적이 우리 앞에 있습니다. 혹시나 졸고 계실까봐 말씀드리는 거예요."
 
 #. Level Hearth objective
 #: guitext:104
@@ -934,6 +1173,8 @@ msgid ""
 "All the heroes are dead, which is as it should be. This land and all its "
 "spoils are yours. May I suggest that you waste everything?"
 msgstr ""
+"영웅들은 모두 죽었습니다. 그래야 할 일이죠. 이 땅과 그 모든 약탈품은 당신의 "
+"것입니다. 제가 당신에게 모든 것을 낭비하라고 제안해도 될까요?"
 
 #. Level Hearth objective
 #: guitext:105
@@ -944,6 +1185,9 @@ msgid ""
 "opportunity to practise unspeakable evil on a massive scale. Go for it, "
 "master."
 msgstr ""
+"만약 땅에 다리가 있다면, 당신에게 무릎을 꿇을 것입니다. 절망적인 거주자들은 "
+"당신의 던전에 대한 전면적인 공격을 준비하고 있습니다. 말로 표현 할 수 없는 악"
+"을 대규모로 행할 수 있는 이상적인 기회가 될 것입니다. 해보세요, 주인님."
 
 #. Level Woodly Rhyme information
 #: guitext:106
@@ -953,6 +1197,9 @@ msgid ""
 "triggers an expanding ring of demonic energy that incinerates anything "
 "caught in its area of effect. What a scream that should be."
 msgstr ""
+"최근에 발견한 것은 절대언령 함정입니다. 함정이 활성화되면, 그 효과 영역에서 "
+"포착된 모든 것을 소각하는 악마적인 에너지의 고리를 발생시킵니다. 어떤 비명을 "
+"들려 줄까요."
 
 #. Level Moonbrush Wood information
 #: guitext:107
@@ -962,6 +1209,8 @@ msgid ""
 "all of your creatures back to your Dungeon Heart. Let's hope you never need "
 "it."
 msgstr ""
+"긴급 행동보류 마법이 연구되었습니다. 모든 피조물을 던전 하트로 즉시 순간 이동"
+"시킬 수 있습니다. 쓸일이 없으시길 바랍니다."
 
 #. Level Sleepiburgh objective
 #: guitext:108
@@ -970,6 +1219,8 @@ msgid ""
 "You can't swing a cat for Dungeon Keepers fighting over the destiny of this "
 "region. It should fall to you to settle the disagreement once and for all."
 msgstr ""
+"이 지역의 운명을 두고 싸우는 던전 키퍼들을 두고 볼 수 없습니다. 의견 차이를 "
+"완전히 해결하는 것은 당신에게 달려 있을 것입니다."
 
 #. Level Buffy Oak information
 #: guitext:109
@@ -979,6 +1230,8 @@ msgid ""
 "any creature to instantly transform the target into poultry. It's a fowl "
 "weapon."
 msgstr ""
+"연구원들이 치명적인 닭 주문을 발견했습니다. 피조물에게 마법을 걸면 즉시 닭으"
+"로 바꿀 수 있습니다. 치느님은 무기입니다."
 
 #. Level Sleepiburgh information
 #: guitext:110
@@ -988,6 +1241,9 @@ msgid ""
 "to cast and it's also possible that your enemies possess the same magic "
 "power. This could still turn out to be one of those days."
 msgstr ""
+"자, 이제 요새화된 벽을 먼지로 바꾸는 주문을 가지게 되었습니다. 캐스팅을 하는 "
+"것은 비용이 많이 들고 여러분의 적들이 같은 마법의 힘을 가지고 있을 수도 있습"
+"니다. 이미 가지고 있을 수도 있죠."
 
 #. Level Sleepiburgh objective
 #: guitext:111
@@ -996,12 +1252,14 @@ msgid ""
 "Only the Lord of this Land stands between you and hectares of desolation and "
 "woe. I bet you can't wait to meet him."
 msgstr ""
+"당신과 이 땅의 군주 사이엔 오직 1핵타르 크기의 황량하고 슬픈 대지 밖에 없습니"
+"다. 그를 빨리 만나고 싶으실 거예요."
 
 #. Level Sleepiburgh objective
 #: guitext:112
 msgctxt "In-game message"
 msgid "Your continued success makes me sick. Thank you, your wickedness."
-msgstr ""
+msgstr "당신의 계속되는 성공은 나를 구역질 나게 해요. 고마워요, 당신의 사악함."
 
 #. Level Woodly Rhyme objective
 #: guitext:113
@@ -1010,13 +1268,16 @@ msgid ""
 "You seem to have started a trend. Two other Dungeon Keepers also have "
 "designs on this dark domain. Expect no quarter from your rivals."
 msgstr ""
+"유행을 시작 시키신것 같네요. 다른 두 명의 던전 키퍼들도 이 어두운 영역에 대"
+"한 당신의 디자인을 가지고 있습니다. 경쟁자들로부터 라이센스 비용을 받을 기대"
+"는 하지마세요."
 
 #. Level Woodly Rhyme information
 #: guitext:114
 msgctxt "In-game message"
 msgid ""
 "Can you see how vulnerable one of your opponents has become? Then kill him."
-msgstr ""
+msgstr "적 중 하나가 얼마나 취약해졌는지 보이나요? 그럼 죽이도록 하죠."
 
 #. Level Woodly Rhyme information
 #: guitext:115
@@ -1025,6 +1286,8 @@ msgid ""
 "I spy a keeper with hardly any creatures left under his control. I spy a "
 "Keeper who's about to die."
 msgstr ""
+"저는 제어하는 피조물이 거의 없는 키퍼를 감시하고 있습니다. 전 곧 죽을 키퍼를 "
+"염탐해요."
 
 #. Level Woodly Rhyme information
 #: guitext:116
@@ -1034,6 +1297,9 @@ msgid ""
 "simply means there should be some interesting treasure worth stealing. Now "
 "that's what I call practical archaeology."
 msgstr ""
+"이 고대 던전은 고고학적으로 큰 의미를 가지고 있습니다. 단순히 훔칠 가치가 있"
+"는 흥미로운 보물이 있어야 한다는 것을 의미하죠. 이게 제가 실용적인 고고학이라"
+"고 부르는 것입니다."
 
 #. Level Woodly Rhyme information
 #: guitext:117
@@ -1042,6 +1308,8 @@ msgid ""
 "Your librarians have learned a spell that can break through fortified walls. "
 "Give them a slap for not learning it earlier."
 msgstr ""
+"사서들이 요새화된 벽을 뚫을 수 있는 주문을 배웠습니다. 더 일찍 배우지 못한 것"
+"을 나무라며 그들을 쥐어 박으세요."
 
 #. Level Woodly Rhyme information
 #: guitext:118
@@ -1050,6 +1318,8 @@ msgid ""
 "One of your opponents has developed a spell that can break through fortified "
 "walls. Typical. Be on your guard."
 msgstr ""
+"상대편 중 한 명이 요새화된 벽을 뚫을 수 있는 주문을 개발했습니다. 일반적이네"
+"요. 조심해요."
 
 #. Level Woodly Rhyme information
 #: guitext:119
@@ -1058,6 +1328,9 @@ msgid ""
 "You have developed the Armageddon spell. That's quite a name to live up to. "
 "Make sure you're the most powerful force in the region before casting it."
 msgstr ""
+"아마겟돈 마법을 개발했습니다. 이름이에 걸맞는 마지막 결전을 부르는 주문이군"
+"요. 주문을 걸기 전에 이 지역에서 가장 강력한 영향력을 발휘해야 하는걸 명심 하"
+"세요."
 
 #. Level Tulipscent information
 #: guitext:120
@@ -1067,6 +1340,9 @@ msgid ""
 "hard to gain any advantage. But, if you intend to rule the world, you've "
 "simply got to get through days like this."
 msgstr ""
+"이 지역을 통과하는 쉬운 경로를 찾을 수 없습니다. 어떤 이점을 얻기선 위해 열심"
+"히 싸워야 할 것입니다. 하지만, 세상을 지배할 생각이라면, 이런 날들도 그저 견"
+"뎌야 합니다."
 
 #. Level Elf's Dance information
 #: guitext:121
@@ -1076,6 +1352,8 @@ msgid ""
 "it, the area around changes into molten lava, which most creatures won't "
 "even try to pass."
 msgstr ""
+"공방 일꾼들이 용암 함정을 만들었어요. 적 피조물이 밟고 지나면 주변이 녹은 용"
+"암으로 변하는데, 대부분의 피조물들은 이 용암을 지나갈 생각도 못하죠."
 
 #. Level Mirthshire objective
 #: guitext:122
@@ -1085,6 +1363,9 @@ msgid ""
 "quickly to mobilise their forces against you. It's pathetic. They deserve to "
 "have their heads impaled on lances for such impudence."
 msgstr ""
+"당신의 위치는 이 땅의 영웅들에게 이미 알려져 있습니다. 그들은 당신에 대항하"
+"여 병력을 동원하기 위해 재빨리 움직였습니다. 애처롭습니다. 그런 뻔뻔스러움은 "
+"창으로 머리를 뚫어버리는게 마땅해요."
 
 #. Level Mirthshire objective
 #: guitext:123
@@ -1092,7 +1373,7 @@ msgctxt "In-game message"
 msgid ""
 "You've upset the local Lord. He's on his way right now. Shall I alert the "
 "media?"
-msgstr ""
+msgstr "당신은 지역 영주을 화나게 했어요. 지금 오고 있어요. 경보를 울릴까요?"
 
 #. Level Mirthshire information
 #: guitext:124
@@ -1102,6 +1383,9 @@ msgid ""
 "should belong to you. I'm certain you will settle the matter of their "
 "ownership in your own way."
 msgstr ""
+"이 왕국의 영웅들은 위대한 힘의 보물을 가지고 있습니다. 당연히, 그건 당신의 것"
+"이어야 합니다. 나는 당신이 그들의 소유권 문제를 당신만의 방식으로 해결할거라 "
+"확신합니다."
 
 #. Level Tulipscent objective
 #: guitext:125
@@ -1110,12 +1394,14 @@ msgid ""
 "It appears you have a rival. Another Keeper believes he is more ruthless and "
 "evil than you. We shall soon see."
 msgstr ""
+"경쟁자가 있는 것 같군요. 또 다른 키퍼는 그가 당신보다 더 무자비하고 악하다고 "
+"믿고 있습니다. 곧 알게 될 것입니다."
 
 #. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
-msgstr ""
+msgstr "이 고대 왕국에는 마법의 유물이 풍부합니다. 어서 가서 약탈하세요."
 
 #. Level Blaise End objective
 #: guitext:127
@@ -1125,6 +1411,9 @@ msgid ""
 "you can or they'll be breakfasted, wide awake and inherently more difficult "
 "to slaughter."
 msgstr ""
+"이 나라의 수호자들은 지금 잠들어 있습니다. 가능한 한 빨리 공격하세요. 그렇지 "
+"않으면 아침 식사를 하고, 깨어있게 되어 완전히 썰어버리기가 더 어려워질 것입니"
+"다."
 
 #. Level Blaise End information
 #: guitext:128
@@ -1134,6 +1423,8 @@ msgid ""
 "escape. Otherwise your presence will be revealed and then you will be in "
 "trouble."
 msgstr ""
+"영웅의 순찰과 조우 한 경우, 잔당이 도망가지 않도록 해야 합니다. 그렇지 않으"
+"면 당신의 존재가 드러나서 곤경에 처하게 될 것입니다."
 
 #. Level Blaise End information
 #: guitext:129
@@ -1142,6 +1433,8 @@ msgid ""
 "You're taking forever over this. Attack and destroy the heroes' stronghold "
 "soon, preferably before hell freezes over."
 msgstr ""
+"당신은 이 일을 영원히 하고 있어요. 영웅들의 거점을 공격하고 파괴해야 합니다. "
+"지옥이 얼기 전에 말이죠."
 
 #. Level Blaise End information
 #: guitext:130
@@ -1149,6 +1442,8 @@ msgctxt "In-game message"
 msgid ""
 "Enemy reinforcements have arrived. So what? Let's hear it for more killing."
 msgstr ""
+"적의 지원군이 도착했습니다. 그래서 어쩌라고? 더 많은 살인에 대해 들어보겠습니"
+"다."
 
 #. Level Blaise End objective
 #: guitext:131
@@ -1158,6 +1453,8 @@ msgid ""
 "underground stronghold of their own. Who do they think they are? Sorry, "
 "master, that was a rhetorical question."
 msgstr ""
+"이 왕국의 영웅들은 지하의 요새를 건설해서 당신이 올 것을 준비했습니다. 그들"
+"은 자신들이 누구라고 생각하는걸까요? 죄송합니다, 주인님, 답없는 질문이었군요."
 
 #. Level Bonus 6 information
 #: guitext:132
@@ -1166,6 +1463,8 @@ msgid ""
 "You are about to face the greatest challenge yet to your evil aspirations. "
 "Here it comes, ready or not."
 msgstr ""
+"당신의 사악한 열망에 대한 가장 큰 도전에 직면하려고 합니다. 준비가 되든 안 되"
+"든 당면했군요."
 
 #. Level Bonus 6 objective
 #: guitext:133
@@ -1175,6 +1474,9 @@ msgid ""
 "their empires into this realm. Ultimately, only the one who rules the "
 "underworld can conquer the realms above."
 msgstr ""
+"세 명의 다른 던전 키퍼들은 당신처럼 사악하고 강력한 자신의 제국을 이 영역으"
+"로 확장시켰습니다. 궁극적으로, 지하세계를 지배하는 자만이 위쪽의 영역을 정복"
+"할 수 있습니다."
 
 #. Level Skybird Trill objective
 #: guitext:134
@@ -1183,6 +1485,8 @@ msgid ""
 "This realm is begging to be plunged into darkness. The Avatar himself has a "
 "castle here. Another Keeper also seeks his soul. This could get messy."
 msgstr ""
+"이 영역은 어둠에 잠기고 있습니다. 아바타 자신이 이곳에 성을 가지고 있습니다. "
+"또 다른 키퍼도 그의 영혼을 찾고 있습니다. 이건 참 엉망진창이군요."
 
 #. Level Skybird Trill objective
 #: guitext:135
@@ -1193,6 +1497,9 @@ msgid ""
 "can destroy this legendary hero, so ransack your rival's dungeon and take "
 "the prize."
 msgstr ""
+"당신은 아바타의 성을 파괴했지만 당신의 경쟁자는 이미 아바타를 포로를 빼앗았습"
+"니다. 그렇지만, 가장 검은 심장을 가진 키퍼만이 이 전설적인 영웅을 파괴할 수 "
+"있습니다. 그러니 경쟁자의 던전을 뒤져서 목표를 달성하세요."
 
 #. Level Skybird Trill objective
 #: guitext:136
@@ -1203,6 +1510,10 @@ msgid ""
 "those who would stand against you. It's time you gave this self-righteous "
 "oaf a proper kicking, master."
 msgstr ""
+"아바타는 숨어있던 충성스런 부관들에 의해 부활했습니다. 하지만 그 행동은, 여"
+"기 이 영역에 드러나게 했습니다. 이제 아바타는 여러분에게 대항할 모든 사람들"
+"을 모으고 있습니다. 이 독선적인 놈에게 제대로 발길질을 해야 할 때예요, 주인"
+"님."
 
 #. Level Bonus 5 objective
 #: guitext:137
@@ -1212,6 +1523,8 @@ msgid ""
 "dungeon from being constructed here. You will have to conquer this realm "
 "another way."
 msgstr ""
+"위쪽의 영역으로부터 바위를 통해 스며드는 강력한 마법이 이곳에 던전이 건설되"
+"는 것을 방해합니다. 다른 방식으로 이 영역을 정복해야 할 것입니다."
 
 #. Level Bonus 5 information
 #: guitext:138
@@ -1221,6 +1534,8 @@ msgid ""
 "transfer your soul to a more appropriate creature when the situation demands "
 "it."
 msgstr ""
+"이 드래곤을 지배하면 불타는 구덩이를 넘을 수 있지만, 상황에 따라 더 적합한 피"
+"조물로 영혼을 옮길 수 있습니다."
 
 #. Level Bonus 5 objective
 #: guitext:139
@@ -1229,6 +1544,8 @@ msgid ""
 "Possess the Vampire below. Should you succeed in killing every hero in this "
 "region, the Vampire will accompany you to the realm beyond."
 msgstr ""
+"아래에 있는 뱀파이어를 지배합니다. 이 지역의 모든 영웅을 죽이는 데 성공한다"
+"면, 뱀파이어가 여러분과 함께 저 너머의 영역으로 갈 것입니다."
 
 #. Level Bonus 2 objective
 #: guitext:140
@@ -1238,12 +1555,14 @@ msgid ""
 "which you accomplish their destruction will determine your fitness for "
 "greater tasks ahead."
 msgstr ""
+"이 임프들은 모두 불량하게 변했으므로 죽어야 합니다. 이러한 파멸을 수행하는 속"
+"도가 앞으로 더 큰 작업에 대한 적합성을 결정할 것입니다."
 
 #. Level Bonus 2 information
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
-msgstr ""
+msgstr "세월은 유수와 같이 빠르게 흘러요, 키퍼. 경고했습니다."
 
 #. Level Bonus 2 objective
 #: guitext:142
@@ -1252,16 +1571,20 @@ msgid ""
 "You have failed. Perhaps you're not the harbinger of doom the forces of "
 "darkness were hoping for."
 msgstr ""
+"실패했습니다. 어쩌면 당신은 어둠의 힘이 바라던 파멸의 전조가 아닐지도 모르겠"
+"네요."
 
 #. Level Bonus 2 objective
 #: guitext:143
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with "
-"panache which certain females find very attractive. A Dark Mistress has "
-"devoted herself to helping you achieve your next goal. You may proceed to "
-"your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with such "
+"panache that not one but two Dark Mistresses have devoted themselves to "
+"helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
+"주인님, 당신은 정말 뒤틀린 영혼입니다. 한 사람도 아닌 두 명의 다크 미스트리스"
+"가 당신의 다음 목표를 달성하는데 도움을 주기 위해 헌신할 정도로 공황상태로 임"
+"프를 멸종시켰습니다. 다음 번 정복으로 넘어갈 수 있습니다."
 
 #. Level Bonus 3 objective
 #: guitext:144
@@ -1270,18 +1593,20 @@ msgid ""
 "You must have lightning reflexes to complete the task ahead of you. Kill "
 "these Imps as quickly as you can."
 msgstr ""
+"당신은 번개같은 반사경으로 앞에 놓인 임무를 수행해야 합니다. 가능한 한 빨리 "
+"이 임프들을 처치하세요."
 
 #. Level Bonus 3 information
 #: guitext:145
 msgctxt "In-game message"
 msgid "Half your allotted time has elapsed."
-msgstr ""
+msgstr "할당된 시간의 절반이 경과되었습니다."
 
 #. Level Bonus 3 objective
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
-msgstr ""
+msgstr "시간이 다 됐네요. 충격적인 쇼었어요."
 
 #. Level Bonus 3 objective
 #: guitext:147
@@ -1291,6 +1616,9 @@ msgid ""
 "certainly had your finger on the pulse this time. The dark gods will send "
 "you a vicious creature to help you conquer the next realm."
 msgstr ""
+"끝났어요. 임프들이 서 있던 자리에 검게 그을린 살덩이가 피어오릅니다. 이번에"
+"는 확실히 당신의 손가락이 열나게 움직였겠군요. 어둠의 신들은 당신이 다음 영역"
+"을 정복하는 것을 돕기 위해 당신에게 악랄한 피조물을 보낼 것입니다."
 
 #. Level Bonus 3 objective
 #: guitext:148
@@ -1298,7 +1626,7 @@ msgctxt "In-game message"
 msgid ""
 "You have no gold left. It pays to keep your head in such a charged "
 "environment."
-msgstr ""
+msgstr "당신은 남은 금이 없어요. 이런 긴장된 환경에서도 정신 차려야 됩니다."
 
 #: guitext:149
 msgctxt "In-game message"
@@ -1307,12 +1635,15 @@ msgid ""
 "Demons by crushing them with Boulder Traps scattered around the perimeter of "
 "the dungeon. You have very little time, so rock and roll!"
 msgstr ""
+"여러분은 던전 둘레에 흩어져 있는 바위 함정으로 반란을 일으킨 바일 데몬 무리"
+"를 격파함으로써 벌하기 위해 이 영역으로 불려졌습니다. 당신은 시간이 거의 없어"
+"요, 그러니 굴려보자구요!"
 
 #. Level Bonus 4 objective
 #: guitext:150
 msgctxt "In-game message"
 msgid "Half your time has expired."
-msgstr ""
+msgstr "주어진 시간의 절반이 경과했습니다."
 
 #. Level Bonus 4 objective
 #: guitext:151
@@ -1321,6 +1652,8 @@ msgid ""
 "Your time is up. You have failed. I'm embarrassed to come from the same "
 "inter-dimensional void as you."
 msgstr ""
+"시간이 다 됐어요. 실패했습니다. 당신과 같은 차원의 허무에서 온 제가 부끄럽네"
+"요."
 
 #. Level Bonus 4 objective
 #: guitext:152
@@ -1330,6 +1663,9 @@ msgid ""
 "the dark gods will repay you, by allowing you to use the warrior you found "
 "when you reach the next realm."
 msgstr ""
+"잘 했어요 큰 돌덩어리를 써서 어둠의 신들이 여러분에게 보상할 만큼, 큰 돌덩어"
+"리를 사용하는 데 뛰어났습니다. 여러분이 다음 영역에 이르렀을 때 전사를 찾아 "
+"사용할 수 있게 해주실거에요."
 
 #. Level Bonus 4 objective
 #: guitext:153
@@ -1340,6 +1676,9 @@ msgid ""
 "where a legendary warrior is imprisoned. That warrior will serve you well in "
 "the future."
 msgstr ""
+"지하세계의 이 지역은 동굴망을 가로지르는 당신의 능력을 시험해 볼 것입니다. 사"
+"실, 시간은 여기서 당신의 적입니다. 무찌르면 전설적인 전사가 수감된 곳을 찾을 "
+"수 있습니다. 저 전사는 장차 당신에게 잘 받들어 모실 것입니다."
 
 #. Level Mistle objective
 #: guitext:154
@@ -1350,6 +1689,9 @@ msgid ""
 "history. This will be no mean feat. Resources are scarce because of his "
 "activities."
 msgstr ""
+"이 왕국의 사람들은 당신의 발목을 잡을 수 있는 위젤이라는 던전 키퍼에 대해 말"
+"합니다. 그렇다면, 당신은 그를 역사가 되도록해야 할 것입니다. 이것은 비열한 위"
+"업이 아닐 것입니다. 그의 활동 때문에 자원이 부족하니까요."
 
 #. Level Mistle objective
 #: guitext:155
@@ -1358,6 +1700,8 @@ msgid ""
 "Wisel is defeated. The land is yours to plunder and despoil for all "
 "eternity. Give 'em hell, master."
 msgstr ""
+"위젤은 패배했습니다. 그 땅은 영원히 약탈하고 약탈할 당신의 땅입니다. 지옥을 "
+"선사하세요, 주인님."
 
 #. Level Mistle information
 #: guitext:156
@@ -1368,6 +1712,9 @@ msgid ""
 "even call upon his brothers in arms to offer assistance. How kind. How "
 "stupid!"
 msgstr ""
+"당신의 악이 사무라이 전사를 타락시켰고, 그는 명예를 버리고 당신의 대의에 동참"
+"했습니다. 만약 당신의 하수인들이 큰 사상자를 낸다면, 이 전사는 그의 형제들에"
+"게 도움을 청할 것입니다. 참~ 친절하시네요. 어리석은 존재라 다행이군요!"
 
 #. Level Mistle information
 #: guitext:157
@@ -1376,6 +1723,8 @@ msgid ""
 "This region of the underworld is riddled with tunnels and many heroes "
 "explore their labyrinthine ways. No-one said being evil would be easy."
 msgstr ""
+"지하세계의 이 지역은 터널로 뒤덮여 있고 많은 영웅들이 미로 같은 길을 탐험합니"
+"다. 아무도 악마가 되는 것이 쉽다고 말하지 않았어요."
 
 #. Level Mistle information
 #: guitext:158
@@ -1384,6 +1733,8 @@ msgid ""
 "It is rumoured that two Dragons are held captive somewhere east of here. "
 "Were you to find them and free them, they would make powerful servants."
 msgstr ""
+"드래곤 두 마리가 이곳 동쪽 어딘가에서 포로로 잡혀 있다는 소문입니다. 당신이 "
+"그들을 찾아서 풀어준다면, 강력한 하수인이 될 것입니다."
 
 #. Level Mistle information
 #: guitext:159
@@ -1393,6 +1744,8 @@ msgid ""
 "guarded well. It might be wise to direct the humans' attention towards your "
 "subterranean enemy."
 msgstr ""
+"북쪽으로 가는 터널은 왕국의 영주로 이어집니다. 이 문은 경비가 잘 되어 있어"
+"요. 지하의 적을 향해 인간들의 주의를 분산시키는 것이 현명할지도 모릅니다."
 
 #. Level Mistle information
 #: guitext:160
@@ -1401,11 +1754,13 @@ msgid ""
 "These Boulder Traps are ideal for crushing the foe but there are only three "
 "of them at your disposal, so use them wisely."
 msgstr ""
+"이 바위 함정은 적을 격파하는 데 이상적이지만 세 개밖에 없으니 현명하게 사용하"
+"세요."
 
 #: guitext:161
 msgctxt "In-game message"
 msgid "May I suggest that you kill or imprison anything that gets in your way?"
-msgstr ""
+msgstr "당신을 방해하는 것은 모두 죽이거나 감옥에 가두라고 제안해도 될까요?"
 
 #. Level Blaise End objective
 #: guitext:162
@@ -1414,12 +1769,14 @@ msgid ""
 "Another realm falls under your evil reign. Another cloud of misery and "
 "despair gathers. Lovely."
 msgstr ""
+"또 다른 영역은 당신의 악의 지배 아래에 있습니다. 불행과 절망의 또 다른 구름"
+"이 모입니다. 좋네요."
 
 #. Level Skybird Trill objective
 #: guitext:163
 msgctxt "In-game message"
 msgid "You have failed. This is a grim day for evil."
-msgstr ""
+msgstr "실패했습니다. 오늘은 악마에겐 암울한 날입니다."
 
 #: guitext:164
 msgctxt "In-game message"
@@ -1428,6 +1785,9 @@ msgid ""
 "region and recruit as many Bile Demons as you can. If you free the Wizard "
 "held captive in this realm, he will serve you for some time to come."
 msgstr ""
+"이 지역을 배회하고 있는 겁나 불쾌한 드워프들의 와해하고 가능한 한 많은 바일 "
+"데몬들을 고용하세요. 이 영역에 포로가 된 마법사를 풀어주면 얼마간 당신을 섬"
+"길 것입니다."
 
 #: guitext:165
 msgctxt "In-game message"
@@ -1435,12 +1795,14 @@ msgid ""
 "Take more care of your Bile Demons or you will never make it beyond this "
 "realm."
 msgstr ""
+"당신의 바일 데몬을 더 많이 신경쓰세세요. 그렇지 않으면 결코 이 영역을 넘어서"
+"지 못할 것입니다."
 
 #. Level Bonus 1 objective
 #: guitext:166
 msgctxt "In-game message"
 msgid "How time flies... hurry!"
-msgstr ""
+msgstr "시간이 참 빠르네요. 서두르세요!"
 
 #. Level Skybird Trill information
 #: guitext:167
@@ -1449,6 +1811,8 @@ msgid ""
 "You will meet your nemesis, the Avatar, in this subterranean place. This is "
 "your ultimate test. Remember, mercy is for losers."
 msgstr ""
+"이 지하에서 여러분의 적 아바타를 만날 것입니다. 이것이 당신의 궁극적인 시험입"
+"니다. 기억하세요, 자비는 패배자들을 위한 것입니다."
 
 #: guitext:168
 msgctxt "In-game message"
@@ -1456,6 +1820,8 @@ msgid ""
 "The Avatar and his allies are defeated, yet his power over this land "
 "lingers. Prepare thyself..."
 msgstr ""
+"아바타와 그의 동맹국들은 패배했지만, 이 땅에 대한 그의 힘은 여전히 남아 있습"
+"니다. 마음의 준비를 하세요."
 
 #. Level Skybird Trill objective
 #: guitext:169
@@ -1464,18 +1830,20 @@ msgid ""
 "You got rid of that Keeper easily. Now all that stands between you and total "
 "world domination is that ponce in shining armour. Let's get him."
 msgstr ""
+"키퍼를 쉽게 없앴잖아요. 이제 여러분과 완전한 세계 정복 사이에 서 있는 것은 빛"
+"나는 갑옷을 걸친 낭자애같은 사람입니다. 그를 잡아요."
 
 #. Level Mirthshire objective
 #: guitext:170
 msgctxt "In-game message"
 msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
-msgstr ""
+msgstr "성공은 그 자체이다. 던전 키퍼라는 타이틀을 획득했습니다."
 
 #. Level Skybird Trill objective
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
-msgstr ""
+msgstr "이게 뭐죠? 아바타가 살아있어요!"
 
 #. Level Skybird Trill win objective, also used in DD Level Belial
 #: guitext:172
@@ -1484,6 +1852,8 @@ msgid ""
 "Finally, you stand unchallenged. The world is yours to waste and despoil. I "
 "bet you have never felt so bad."
 msgstr ""
+"마침내, 당신에게 도전하는 것은 아무것도 남지 않았습니다. 세상은 낭비하고 파괴"
+"하는 당신의 것입니다. 그렇게 기분 나빴던 적은 없었을 거예요."
 
 #. Level Skybird Trill objective
 #: guitext:173
@@ -1493,6 +1863,8 @@ msgid ""
 "There's only one Keeper to get rid of before becoming the absolute master! "
 "So, what are you waiting for?"
 msgstr ""
+"놀랍군요, 키퍼! 아바타와 그의 애처로운 군대가 마침내 죽었습니다! 절대 군주가 "
+"되기 전에 없애야 할 키퍼는 단 한 명 뿐입니다! 자, 무엇을 기다리고 있나요?"
 
 #. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
@@ -1501,6 +1873,8 @@ msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
 "to reduces your enemies into ashes!"
 msgstr ""
+"봤어요? 당신의 데몬 스폰이 당신의 적을 잿더미로 만들 준비가 된 강력한 드래곤"
+"으로 진화했습니다!"
 
 #. Level Bonus 6 objective
 #: guitext:175
@@ -1509,6 +1883,8 @@ msgid ""
 "Well done! Your immense wealth has drew the attention of a Thief. He will "
 "serve you well in the next realm!"
 msgstr ""
+"잘했어요! 당신의 막대한 재산이 도둑의 관심을 끌었습니다. 그는 다음 지역에서 "
+"당신을 잘 섬길 거예요!"
 
 #. Level Flowerhat information
 #: guitext:176
@@ -1518,6 +1894,8 @@ msgid ""
 "replenish the health of your creatures and keep them from dying for a while "
 "longer."
 msgstr ""
+"여러분의 연구원들이 여러분의 피조물들의 건강을 보충하고 그들이 잠시 동안 죽"
+"는 것을 막을 수 있는 피조물 회복 주문을 발견했습니다."
 
 #. Level Tulipscent information
 #: guitext:177
@@ -1528,6 +1906,10 @@ msgid ""
 "possibility for them to take a nap. Be sure to have plenty of money so that "
 "the spell will stay activated."
 msgstr ""
+"절대 명령 주문을 써보세요. 활성화되면, 여러분의 모든 명령에 여러분의 생명체들"
+"이 복종하도록 끊임없이 강요하고, 모든 생명체들이 낮잠을 잘 가능성 없이 더 빨"
+"리 일하도록 만듭니다. 주문이 계속 활성화될 수 있도록 충분한 돈을 가지고 있어"
+"야 합니다."
 
 #. Level Tulipscent information
 #: guitext:178
@@ -1537,6 +1919,9 @@ msgid ""
 "in water and their spine can even pierce the most solid armors and paralyze "
 "your enemies! Marvellous!"
 msgstr ""
+"촉수생물이 당신의 던전에 합류했습니다. 이 희귀한 작은 피조물들은 물 속에 있"
+"는 것을 즐깁니다. 그리고 그들의 가시는 심지어 가장 견고한 무기들을 뚫고 적을 "
+"마비시킬 수 있습니다! 놀랍군요!"
 
 #. Level Bonus 1 objective
 #: guitext:179
@@ -1546,6 +1931,9 @@ msgid ""
 "got the creature from start, so you must only keep it safe. And the only way "
 "to make this place safe is to kill every hero in the realm."
 msgstr ""
+"당신은 앞으로의 활동을 위한 피조물을 얻기 위해 이 영역에 들어왔습니다. 당신"
+"은 처음부터 그 피조물을 얻었으니, 당신은 그것을 안전하게만 지켜야 합니다. 이"
+"곳을 안전하게 만드는 유일한 방법은 왕국의 모든 영웅을 죽이는 것입니다."
 
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
@@ -1553,107 +1941,107 @@ msgstr ""
 #: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr ""
+msgstr "음메"
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Eversmile"
-msgstr ""
+msgstr "에버스마일"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Cosyton"
-msgstr ""
+msgstr "코지톤"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Waterdream Warm"
-msgstr ""
+msgstr "워터드림 웜"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Flowerhat"
-msgstr ""
+msgstr "플라워햇"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Lushmeadow-on-Down"
-msgstr ""
+msgstr "러쉬매도우 온 다운"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Snuggledell"
-msgstr ""
+msgstr "스너글벨"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Wishvale"
-msgstr ""
+msgstr "위시베일"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Tickle"
-msgstr ""
+msgstr "티클"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Moonbrush Wood"
-msgstr ""
+msgstr "문브러쉬 우드"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "Nevergrim"
-msgstr ""
+msgstr "네버그림"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Hearth"
-msgstr ""
+msgstr "하스"
 
 #: guitext:213
 msgctxt "Level name"
 msgid "Elf's Dance"
-msgstr ""
+msgstr "엘프스 댄스"
 
 #: guitext:214
 msgctxt "Level name"
 msgid "Buffy Oak"
-msgstr ""
+msgstr "버피 오크"
 
 #: guitext:215
 msgctxt "Level name"
 msgid "Sleepiburgh"
-msgstr ""
+msgstr "슬리피버그"
 
 #: guitext:216
 msgctxt "Level name"
 msgid "Woodly Rhyme"
-msgstr ""
+msgstr "우들리 라임"
 
 #: guitext:217
 msgctxt "Level name"
 msgid "Tulipscent"
-msgstr ""
+msgstr "튤립센트"
 
 #: guitext:218
 msgctxt "Level name"
 msgid "Mirthshire"
-msgstr ""
+msgstr "미쓰샤이어"
 
 #: guitext:219
 msgctxt "Level name"
 msgid "Blaise End"
-msgstr ""
+msgstr "블레이즈 엔드"
 
 #: guitext:220
 msgctxt "Level name"
 msgid "Mistle"
-msgstr ""
+msgstr "미슬"
 
 #: guitext:221
 msgctxt "Level name"
 msgid "Skybird Trill"
-msgstr ""
+msgstr "스카이버드 트릴"
 
 #: guitext:222
 msgctxt "In-game interface description"
@@ -1661,6 +2049,9 @@ msgid ""
 "Name and Health: Each creature has its own name. Behind is the creature "
 "health bar. The higher the red bar, the better health the creature is in."
 msgstr ""
+"이름과 생명력: 각각의 피조물은 자신만의 이름을 가지고 있습니다. 뒤에는 피조"
+"물 생명력 막대기가 있습니다. 붉은 막대가 높을수록 피조물의 생명력은 더 좋아집"
+"니다."
 
 #: guitext:223
 msgctxt "In-game interface description"
@@ -1668,21 +2059,24 @@ msgid ""
 "Experience: The creature's experience level. Behind the level number is a "
 "bar indicating the creatures progress towards attaining more experience."
 msgstr ""
+"경험치 : 그 피조물의 레벨의 경험치이죠. 레벨 번호 뒤에는 생물들이 더 많은 경"
+"험을 쌓기 위해 나아갔음을 나타내는 막대가 있습니다."
 
 #: guitext:224
 msgctxt "In-game interface description"
 msgid "Hunger: How badly a creature needs to suck down a chicken or two."
 msgstr ""
+"배고픔: 한 피조물이 닭 한두 마리를 먹어 치워야야 한다는 것을 나타냅니다."
 
 #: guitext:225
 msgctxt "In-game interface description"
 msgid "Cancel"
-msgstr ""
+msgstr "취소"
 
 #: guitext:226
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
-msgstr ""
+msgstr "화살: 원거리에서 효과적인 기본 원거리 무기입니다."
 
 #: guitext:227
 msgctxt "Creature spell"
@@ -1690,6 +2084,8 @@ msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
 "animation and can be shattered with a well-aimed blow."
 msgstr ""
+"동결: 대상 피조물을 얼음으로 바꿉니다. 주문에 걸리면 가사상태가 되고 타격으"
+"로 산산조각이 날 수 있습니다."
 
 #: guitext:228
 msgctxt "Creature spell"
@@ -1697,6 +2093,8 @@ msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
 "hit, and provides complete immunity to electric shocks."
 msgstr ""
+"갑옷: 생물체가 쳐 맞을때 걸리는 피해를 줄이고, 전기 충격에 대한 완전한 내성"
+"을 제공합니다."
 
 #: guitext:229
 msgctxt "Creature spell"
@@ -1704,25 +2102,28 @@ msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
 "lighting from the creature."
 msgstr ""
+"번개: 전기 공격을 가진 강력한 마법 무기입니다. 피조물이 빛 볼트를 던집니다."
 
 #: guitext:230
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
-msgstr ""
+msgstr "반사: 사용자에게 발사된 모든 주문이 공격자에게 되돌아가게 합니다."
 
 #: guitext:231
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
-msgstr ""
+msgstr "공포: 상대편이 공포에 떨게 하고 전투에 피하게 합니다."
 
 #: guitext:232
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
 msgstr ""
+"시각: 피조물이 일시적으로 인지도를 높여 보이지 않는 것을 알아차릴 수 있습니"
+"다."
 
 #: guitext:233
 msgctxt "Creature spell"
@@ -1730,6 +2131,8 @@ msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
 "invaders. Very disconcerting."
 msgstr ""
+"미사일 : 소리지르는 마법의 파충류를 침략자들에게 보내는 간단한 주문입니다. 당"
+"황스럽네요."
 
 #: guitext:234
 msgctxt "Creature spell"
@@ -1737,13 +2140,17 @@ msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
 "bounce off walls and has the traditional delayed fuse."
 msgstr ""
+"수류탄 : 다가오는 적을 향해 강력한 폭발물을 던집니다. 또한 벽에 튕길 수 있으"
+"며 일반적인 지연 퓨즈를 가지고 있습니다."
 
 #: guitext:235
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: This homes in on the nearest hero or enemy creature and "
-"explodes with devastating force."
+"Navigating Missile: A spell that sends a screaming magic reptile homing in "
+"on the nearest hero or enemy creature for double damage. Nice."
 msgstr ""
+"추적 미사일: 가장 가까운 영웅이나 적에게 이중 피해를 입히기 위해 소리지르며 "
+"추적하는 마법의 파충류를 보내는 주문입니다. 좋아요."
 
 #: guitext:236
 msgctxt "Creature spell"
@@ -1751,6 +2158,7 @@ msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
 "tasks really quickly."
 msgstr ""
+"속도: 피조물의 전투 및 작업을 매우 빠르게 수행할 수 있도록 속도를 높입니다."
 
 #: guitext:237 guitext:253
 msgctxt "Creature spell"
@@ -1758,11 +2166,13 @@ msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
 msgstr ""
+"독 구름: 적과 여러분의 생명체 모두를 해칠 수 있는 유해한 가스의 구름을 형성합"
+"니다. 가스는 숨쉬는 모든 것에게 영향을 미칩니다."
 
 #: guitext:238
 msgctxt "Creature spell"
 msgid "Group: Not used"
-msgstr ""
+msgstr "그룹 : 사용 안함"
 
 #: guitext:239
 msgctxt "Creature spell"
@@ -1770,6 +2180,8 @@ msgid ""
 "Invisibility: Cast on one of your minions, it makes the host creature "
 "invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr ""
+"투명화: 여러분의 하수인들 중 하나에 던져지면, 모든 적에게 해당 피조물이 보이"
+"지 않게 됩니다. 특이 시야가 없는 한 말이죠."
 
 #: guitext:240
 msgctxt "Creature spell"
@@ -1778,11 +2190,14 @@ msgid ""
 "you are Possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
 msgstr ""
+"순간이동 : 이 주문으로, 피조물은 지도상의 어느 곳이나 순간이동할 수 있습니"
+"다. 만약 당신이 생물을 지배하고 있다면, 보금자리 또는 던전 하트로 순간이동합"
+"니다."
 
 #: guitext:241
 msgctxt "Creature spell"
-msgid "Flame Breath: The devasting constant stream of searing fire."
-msgstr ""
+msgid "Flame Breath: The devastating constant stream of searing fire."
+msgstr "화염의 호흡 : 끊임없이 뿜어져 나오는 파괴적인 불길입니다."
 
 #: guitext:242
 msgctxt "Creature spell"
@@ -1790,31 +2205,34 @@ msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
 msgstr ""
+"조명: 빛을 어둠에 가져와서, 그 피조물이 볼 수 있게 하지만 다른 피조물들도 볼 "
+"수 있게 합니다."
 
 #: guitext:243
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
+"from the air or cross lava unharmed."
 msgstr ""
+"비행: 피조물이 땅에서 날아올라 공중에 있거나 용암을 건너는 생물을 공격합니다."
 
 #: guitext:244
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
-msgstr ""
+msgid "Hail Storm: Creates a fury of hailstones."
+msgstr "우박 폭풍: 우박이 맹위를 떨칩니다."
 
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
 "Slow: Slows down the target creature, making it attacks and movement delayed."
-msgstr ""
+msgstr "느려림: 대상 피조물의 속도가 느려져 공격 및 이동이 지연됩니다."
 
 #: guitext:246
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a fair part of its health and "
-"magical abilities."
-msgstr ""
+"Drain: This spell drains the target creature a part of its health and gives "
+"it to the caster."
+msgstr "흡혈: 이 마법은 대상 피조물의 생명치 일부를 뽑아 시전자에게 줍니다."
 
 #: guitext:247
 msgctxt "Creature spell"
@@ -1823,27 +2241,32 @@ msgid ""
 "body and inflicts massive damage on the vicinity. Very effective against "
 "crowded hordes of enemies, also pushes them back."
 msgstr ""
+"언령: 대상 피조물의 몸에서 악마적인 에너지의 고리가 뿜어져 나오고, 그 근처에 "
+"엄청난 피해를 입힙니다. 붐비는 적군에 매우 효과적이기도 하고, 그들을 뒤로 밀"
+"어내기도 합니다."
 
 #: guitext:248
 msgctxt "Creature spell"
-msgid ""
-"Heal: When this is cast, the creature is massively healed. Also, any nearby "
-"creatures are healed by a quarter."
-msgstr ""
+msgid "Heal: When this is cast, the creature is massively healed."
+msgstr "치유: 마법이 시전되면, 대상 피조물물은 대량으로 치유됩니다."
 
 #: guitext:249
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you."
+"away from you. And nasty smells of course."
 msgstr ""
+"바람: 던전에 12등급의 강풍을 일으켜 모든 피조물을 멀리 날려버립니다. 그리고 "
+"물론 고약한 냄새도 납니다."
 
 #: guitext:250
 msgctxt "Creature spell"
 msgid ""
-"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"Meteor: More powerful than the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
 msgstr ""
+"유성: 불덩이보다 더 강력한 이 주문은 적에게 많은 피해를 주는 단단한 불덩어리"
+"를 던집니다."
 
 #: guitext:251
 msgctxt "Creature spell"
@@ -1851,6 +2274,8 @@ msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
 "inflicts minor damage to a Dungeon's walls and doors."
 msgstr ""
+"불덩이 : 가장 가까운 적에게 하나의 불덩이를 발사합니다. 또한 던전의 벽과 문"
+"에 가벼운 손상을 입힙니다."
 
 #: guitext:252
 msgctxt "Creature spell"
@@ -1858,13 +2283,14 @@ msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
 msgstr ""
+"육탄공격 : 맨손이나 검으로 적을 공격할 수 있는 기본적인 전투 능력입니다."
 
 #: guitext:254
 msgctxt "Creature spell"
 msgid ""
 "Dig: This is the basic ability of the Imp and allows it to tunnel through "
 "earth."
-msgstr ""
+msgstr "구멍파기: 임프의 기본 능력이고 그것이 지구를 관통할 수 있게 해줍니다."
 
 #: guitext:255
 msgctxt "Creature spell"
@@ -1873,6 +2299,8 @@ msgid ""
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
 msgstr ""
+"질병 : 적에게 발사되면 다른 피조물에게 전염되는 병을 얻게 됩니다. 감염된 피조"
+"물들은 서서히 죽어가고 사원 안에서만 치유될 수 있습니다."
 
 #: guitext:256
 msgctxt "Creature spell"
@@ -1881,156 +2309,158 @@ msgid ""
 "attack but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
 msgstr ""
+"닭 : 한동안 적을 닭으로 바꿉니다. 적은 공격을 할 수 없지만 동일한 강함을 가지"
+"고 있기 때문에 일반 닭처럼 죽이기가 쉽지 않을 것입니다."
 
 #: guitext:257
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr ""
+msgstr "시한 폭탄 : 당신의 피조물을 자살 폭탄 테러범으로 만들어요."
 
 #: guitext:258
 msgctxt "Creature name"
 msgid "Fairy"
-msgstr ""
+msgstr "패어리"
 
 #: guitext:259
 msgctxt "Creature name"
 msgid "Imp"
-msgstr ""
+msgstr "임프"
 
 #: guitext:260
 msgctxt "Creature name"
 msgid "Beetle"
-msgstr ""
+msgstr "비틀"
 
 #: guitext:261
 msgctxt "Creature name"
 msgid "Troll"
-msgstr ""
+msgstr "트롤"
 
 #: guitext:262
 msgctxt "Creature name"
 msgid "Demon Spawn"
-msgstr ""
+msgstr "데몬 스폰"
 
 #: guitext:263
 msgctxt "Creature name"
 msgid "Warlock"
-msgstr ""
+msgstr "워록"
 
 #: guitext:264
 msgctxt "Creature name"
 msgid "Fly"
-msgstr ""
+msgstr "플라이"
 
 #: guitext:265
 msgctxt "Creature name"
 msgid "Spider"
-msgstr ""
+msgstr "스파이더"
 
 #: guitext:266
 msgctxt "Creature name"
 msgid "Skeleton"
-msgstr ""
+msgstr "스켈레톤"
 
 #: guitext:267
 msgctxt "Creature name"
 msgid "Horned Reaper"
-msgstr ""
+msgstr "혼드 리퍼"
 
 #: guitext:268
 msgctxt "Creature name"
 msgid "Dragon"
-msgstr ""
+msgstr "드래곤"
 
 #: guitext:269
 msgctxt "Creature name"
 msgid "Tentacle"
-msgstr ""
+msgstr "텐타클"
 
 #: guitext:270
 msgctxt "Creature name"
 msgid "Hound"
-msgstr ""
+msgstr "하운드"
 
 #: guitext:271
 msgctxt "Creature name"
 msgid "Ghost"
-msgstr ""
+msgstr "고스트"
 
 #: guitext:272
 msgctxt "Creature name"
 msgid "Mistress"
-msgstr ""
+msgstr "미스트리스"
 
 #: guitext:273
 msgctxt "Creature name"
 msgid "Bile Demon"
-msgstr ""
+msgstr "바일 데몬"
 
 #: guitext:274
 msgctxt "Creature name"
 msgid "Vampire"
-msgstr ""
+msgstr "뱀파이어"
 
 #: guitext:275
 msgctxt "Creature name"
 msgid "Barbarian"
-msgstr ""
+msgstr "바바리안"
 
 #: guitext:276
 msgctxt "Creature name"
 msgid "Knight"
-msgstr ""
+msgstr "나이트"
 
 #: guitext:277
 msgctxt "Creature name"
 msgid "Wizard"
-msgstr ""
+msgstr "위자드"
 
 #: guitext:278
 msgctxt "Creature name"
 msgid "Orc"
-msgstr ""
+msgstr "오크"
 
 #: guitext:279
 msgctxt "Creature name"
 msgid "Mountain Dwarf"
-msgstr ""
+msgstr "마운틴 드워프"
 
 #: guitext:280
 msgctxt "Creature name"
 msgid "Valley Dwarf"
-msgstr ""
+msgstr "벨리 드워프"
 
 #: guitext:281
 msgctxt "Creature name"
 msgid "Thief"
-msgstr ""
+msgstr "씨프"
 
 #: guitext:282
 msgctxt "Creature name"
 msgid "Samurai"
-msgstr ""
+msgstr "사무라이"
 
 #: guitext:283
 msgctxt "Creature name"
 msgid "Priestess"
-msgstr ""
+msgstr "프리스티스"
 
 #: guitext:284
 msgctxt "Creature name"
 msgid "Giant"
-msgstr ""
+msgstr "자이언트"
 
 #: guitext:285
 msgctxt "Creature name"
 msgid "Archer"
-msgstr ""
+msgstr "아쳐"
 
 #: guitext:286
 msgctxt "Creature name"
 msgid "Monk"
-msgstr ""
+msgstr "몽크"
 
 #: guitext:287
 msgctxt "In-game interface description"
@@ -2038,26 +2468,28 @@ msgid ""
 "Query: Select this and left click on a creature to view information on that "
 "creature and track it on screen. LMB select."
 msgstr ""
+"조회 : 이 옵션을 선택하고 마우스 왼쪽 단추를 클릭하여 해당 생물에 대한 정보"
+"를 보고 화면에서 추적합니다. 왼쪽 마우스 단추로 대상을 선택합니다."
 
 #: guitext:288
 msgctxt "Menu interface item"
 msgid "Select game"
-msgstr ""
+msgstr "게임 선택"
 
 #: guitext:289
 msgctxt "Menu interface item"
 msgid "Network Menu"
-msgstr ""
+msgstr "네트워크 메뉴"
 
 #: guitext:290
 msgctxt "Menu interface item"
 msgid "Main Menu"
-msgstr ""
+msgstr "매인 메뉴"
 
 #: guitext:343
 msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
-msgstr ""
+msgstr "매인 메뉴"
 
 #: guitext:291
 msgctxt "In-game interface description"
@@ -2065,28 +2497,30 @@ msgid ""
 "Anger: How angry the creature is. The higher the bar is, the angrier the "
 "creature is."
 msgstr ""
+"분노: 해당 피조물이 얼마나 화가 났는지 알려줍니다. 막대가 높을수록 그 생물은 "
+"더 화가난 상태입니다."
 
 #: guitext:292
 msgctxt "In-game interface description"
 msgid "Creature Kills: The total number of enemies the creature has slain."
-msgstr ""
+msgstr "전적 : 해당 피조물이 죽인 적들의 총 개수입니다."
 
 #: guitext:293
 msgctxt "In-game interface description"
 msgid ""
-"Strength: The amount of damage the creature inflicts upon it's enemies with "
+"Strength: The amount of damage the creature inflicts upon its enemies with "
 "each hit."
-msgstr ""
+msgstr "힘 : 이 피조물이 매 번 공격할 때마다 적에게 가해지는 피해의 양입니다."
 
 #: guitext:294
 msgctxt "In-game interface description"
 msgid "Wage: The creature's salary in gold which it takes on each payday."
-msgstr ""
+msgstr "임금: 각 급여일에 받는 금괴의 급여 액수입니다."
 
 #: guitext:295
 msgctxt "In-game interface description"
 msgid "Gold Held: The amount of gold the creature is carrying."
-msgstr ""
+msgstr "골드 소지 : 대상 피조물이 가지고 있는 금의 양입니다."
 
 #: guitext:296
 msgctxt "In-game interface description"
@@ -2094,6 +2528,8 @@ msgid ""
 "Defence: The chance a creature will avoid a blow. The higher the number, the "
 "greater the chance of avoidance."
 msgstr ""
+"방어 : 생명체가 타격을 피할 수 있는 기회입니다. 숫자가 높을수록 회피 가능성"
+"이 커집니다."
 
 #: guitext:297
 msgctxt "In-game interface description"
@@ -2101,11 +2537,13 @@ msgid ""
 "Skill: The creature's ability to perform tasks. The higher the Skill level, "
 "the better the creature's performance."
 msgstr ""
+"스킬: 피조물물의 작업 수행 능력입니다. 스킬 수준이 높을수록 생물의 성능이 향"
+"상됩니다."
 
 #: guitext:298
 msgctxt "In-game interface description"
 msgid "Age/Time In Dungeon: The length of time you have employed the creature."
-msgstr ""
+msgstr "던전에서 연령/시간: 해당 피조물을 고용한 기간입니다."
 
 #: guitext:299
 msgctxt "In-game interface description"
@@ -2113,6 +2551,8 @@ msgid ""
 "Dexterity: The chance of a successful attack. Used to break enemy defence. "
 "The higher the number, the greater the chance of hitting."
 msgstr ""
+"손재주 : 공격이 성공할 가능성입니다. 적의 방어를 뚫는 데 사용됩니다. 숫자가 "
+"높을수록 타격 가능성이 커집니다."
 
 #: guitext:300
 msgctxt "In-game interface description"
@@ -2120,11 +2560,13 @@ msgid ""
 "Luck: The chance that a creature will do a double attack or a double defence "
 "in combat. Taken into account only when the hit is not avoided."
 msgstr ""
+"행운: 생물이 전투에서 이중 공격이나 이중 방어를 할 가능성입니다. 대상이 공격"
+"을 피하지 않는 경우에만 고려됩니다."
 
 #: guitext:301
 msgctxt "In-game interface description"
 msgid "Blood type: As if you care. Blood is blood, right?"
-msgstr ""
+msgstr "혈액형 : 당신이 알고 싶다면요. 피는 피죠?"
 
 #: guitext:302
 msgctxt "In-game interface description"
@@ -2132,6 +2574,9 @@ msgid ""
 "Idle: The creature is either sleeping or not working. It's not involved in "
 "anything constructive or useful. LMB pick up creature. RMB zoom."
 msgstr ""
+"유휴상태: 피조물이 잠을 자고 있거나 움직이지 않습니다. 그건 건설적이거나 유용"
+"하지 못하죠. 왼쪽 마우스 단추가 생물을 주워 듭니다. 오른쪽 마우스 단추로 대상"
+"을 주목합니다."
 
 #: guitext:303
 msgctxt "In-game interface description"
@@ -2139,17 +2584,23 @@ msgid ""
 "Working: The creature is performing tasks and doing work for you. LMB pick "
 "up creature. RMB zoom."
 msgstr ""
+"작업중 : 대상 피조물은 당신을 위해 일을 하고 있습니다. 왼쪽 마우스 단추가 생"
+"물을 주워 듭니다. 오른쪽 마우스 단추로 대상을 주목합니다."
 
 #: guitext:304
 msgctxt "In-game interface description"
 msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom."
 msgstr ""
+"전투중 : 대상 피조물은 전투 중입니다. 왼쪽 마우스 단추가 생물을 주워 듭니다. "
+"오른쪽 마우스 단추로 대상을 주목합니다."
 
 #: guitext:305
 msgctxt "In-game interface description"
 msgid ""
 "Fight: Your creatures always attack and not avoid any combat. LMB select."
 msgstr ""
+"공격 : 여러분의 피조물은 항상 공격을 하며 어떠한 전투도 피하지 않습니다. 왼"
+"쪽 마우스 단추로 대상을 선택합니다."
 
 #: guitext:306
 msgctxt "In-game interface description"
@@ -2157,6 +2608,8 @@ msgid ""
 "Flee: Your creatures attempt to preserve their lives, running away if they "
 "are too badly injured. LMB select."
 msgstr ""
+"피신: 여러분의 생명체들은 너무 심하게 다치면 도망치면서 생명을 보존하려고 합"
+"니다. 왼쪽 마우스 단추로 대상을 선택합니다."
 
 #: guitext:307
 msgctxt "In-game interface description"
@@ -2164,37 +2617,41 @@ msgid ""
 "Imprison: Your creatures stun their enemies in battle and imprison those "
 "they defeat. LMB select."
 msgstr ""
+"투옥 : 당신의 피조물들은 전투에서 적들을 기절시키고 패배한 자들을 감옥에 가둡"
+"니다. 왼쪽 마우스 단추로 대상을 선택합니다."
 
 #: guitext:308
 msgctxt "In-game interface description"
 msgid ""
 "Defending: The creature is concentrating on avoiding its adversary's blows."
-msgstr ""
+msgstr "방어 중 : 대상 피조물은 상대의 타격을 피하는데 집중하고 있습니다."
 
 #: guitext:309
 msgctxt "In-game interface item"
 msgid "Are you sure?"
-msgstr ""
+msgstr "진짜루?"
 
 #: guitext:310
 msgctxt "In-game interface item"
 msgid "Yes"
-msgstr ""
+msgstr "응"
 
 #: guitext:311
 msgctxt "In-game interface item"
 msgid "No"
-msgstr ""
+msgstr "아니야"
 
 #: guitext:312
 msgctxt "In-game interface item"
 msgid "For"
-msgstr ""
+msgstr "For"
 
 #: guitext:313
 msgctxt "In-game interface description"
 msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
 msgstr ""
+"그림자 : 각 피조물이 투영 할 수 있는 그림자의 개수입니다. 왼쪽 마우스 단추로 "
+"전환합니다."
 
 #: guitext:314
 msgctxt "In-game interface description"
@@ -2203,6 +2660,9 @@ msgid ""
 "view has warped walls and can be rotated, forced perspective shows larger "
 "area but can only be rotated 90 degrees. LMB toggle."
 msgstr ""
+"보기 유형: 기본 원근법과 강제 원근법 보기 간을 바꿉니다. 기본 보기는 벽이 휘"
+"어져 회전할 수 있으며, 강제 원근법이 더 큰 영역이 표시되지만 90도만 회전할 "
+"수 있습니다. 왼쪽 마우스 단추로 전환합니다."
 
 #: guitext:315
 msgctxt "In-game interface description"
@@ -2210,6 +2670,8 @@ msgid ""
 "Wall Height: Swap between high or low walls. If you make the walls one block "
 "high, they are easier to see over. LMB toggle."
 msgstr ""
+"벽 높이: 벽의 높낮이를 바꿉니다. 벽을 한 블록 높이로 만들면, 벽 넘어를 보다 "
+"쉽게 볼 수 있습니다. 왼쪽 마우스 단추로 전환합니다."
 
 #: guitext:316
 msgctxt "In-game interface description"
@@ -2217,26 +2679,28 @@ msgid ""
 "View Distance: The amount of dungeon drawn. This directly affects the speed "
 "of the game. LMB toggle."
 msgstr ""
+"보이는 거리 : 그려지는 던전의 양입니다. 이것은 게임 속도에 직접적인 영향을 미"
+"칩니다. 왼쪽 마우스 단추로 전환합니다."
 
 #: guitext:317
 msgctxt "In-game interface description"
 msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
-msgstr ""
+msgstr "감마 보정 : 게임의 밝기를 조정합니다. 왼쪽 마우스 단추로 전환합니다."
 
 #: guitext:318
 msgctxt "In-game interface item"
 msgid "Of"
-msgstr ""
+msgstr "Of"
 
 #: guitext:319
 msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
-msgstr ""
+msgstr "빈 보금자리 : 순회하는 피조물에 적합합니다."
 
 #: guitext:320
 msgctxt "Menu interface item"
 msgid "Paused"
-msgstr ""
+msgstr "일시정지"
 
 #: guitext:321
 msgctxt "In-game interface description"
@@ -2244,6 +2708,8 @@ msgid ""
 "Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
 "select."
 msgstr ""
+"확대: 동적 지도를 확대합니다. 이렇게 하면 지도 크기가 증가합니다. 왼쪽 마우"
+"스 단추로 선택합니다."
 
 #: guitext:322
 msgctxt "In-game interface description"
@@ -2251,6 +2717,8 @@ msgid ""
 "Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
 "select."
 msgstr ""
+"축소: 동적 지도를 축소합니다. 이렇게 하면 지도 크기가 줄어듭니다. 왼쪽 마우"
+"스 단추로 선택합니다."
 
 #: guitext:323
 msgctxt "In-game interface description"
@@ -2258,6 +2726,8 @@ msgid ""
 "Full Screen Map: Takes you to the Map Screen which displays your entire "
 "Dungeon and the surrounding area. LMB select."
 msgstr ""
+"전체 화면 지도: 던전 전체와 주변 지역을 표시하는 지도 화면으로 이동합니다. 왼"
+"쪽 마우스 단추로 선택합니다."
 
 #: guitext:324
 msgctxt "Slab description"
@@ -2265,6 +2735,8 @@ msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
 "to go round. It is visible even if far from your territory."
 msgstr ""
+"뚫을 수 없는 바위: 당신의 임프는 이것을 파헤칠 수 없습니다. 유일한 해결책은 "
+"돌아가는 것입니다. 그건 영토에서 멀리 떨어져 있어도 보입니다."
 
 #: guitext:325
 msgctxt "Slab description"
@@ -2272,6 +2744,8 @@ msgid ""
 "Earth: You can excavate this. To dig out some new caverns, choose a location "
 "and tag for digging with LMB. Press LMB again to untag."
 msgstr ""
+"땅 : 당신은 여기를 파낼 수 있습니다. 새 동굴을 파려면 마우스 왼쪽 단추로 파"
+"낼 위치와 태그 할 수 있고 마우스 왼쪽 단추를 다시 눌러 태그를 해제합니다."
 
 #: guitext:326
 msgctxt "Slab description"
@@ -2280,6 +2754,8 @@ msgid ""
 "your Treasure Room. You can also pick up the lumps of treasure left on the "
 "ground."
 msgstr ""
+"금맥 : 당신의 부의 원천입니다. 이걸 파내면 임프가 보물 창고로 가져갈 거예요 "
+"땅 위에 남아 있는 보물 덩어리도 주울 수 있습니다."
 
 #: guitext:327
 msgctxt "Slab description"
@@ -2287,6 +2763,8 @@ msgid ""
 "Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
 "or building a Bridge."
 msgstr ""
+"용암: 밟는 생명체를 태웁니다. 낙반 마법을 걸거나 다리를 건설하여 용암을 넘어"
+"갑니다."
 
 #: guitext:328
 msgctxt "Slab description"
@@ -2294,6 +2772,8 @@ msgid ""
 "Water: Creatures move more slowly through water. Build the Bridge to make "
 "new land on the water."
 msgstr ""
+"물: 생물은 물을 통해 더 천천히 움직입니다. 다리를 건설하여 물 위에 새 땅을 만"
+"듭니다."
 
 #: guitext:329
 msgctxt "Slab description"
@@ -2301,11 +2781,13 @@ msgid ""
 "Wall: A reinforced stone wall that enemies cannot break through. At least "
 "without the Destroy Walls spell."
 msgstr ""
+"벽: 적이 뚫을 수 없는 보강된 돌담입니다. 적어도 장벽 파괴 마법이 없다면 말이"
+"죠."
 
 #: guitext:330
 msgctxt "Slab description"
 msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
-msgstr ""
+msgstr "손상된 벽: 수리하지 않으면 이 벽은 결국 무너집니다."
 
 #: guitext:331
 msgctxt "Slab description"
@@ -2313,6 +2795,8 @@ msgid ""
 "Path: Unclaimed earth floor. You can claim it if it is connected to already "
 "claimed territory."
 msgstr ""
+"경로: 정복 되지 않은 대지 바닥입니다. 이미 정복된 영역에 연결되어 있는 경우 "
+"정복할 수 있습니다."
 
 #: guitext:332
 msgctxt "Slab description"
@@ -2320,577 +2804,581 @@ msgid ""
 "Claimed area: Your dungeon territory. You can build rooms and drop your "
 "creatures on it."
 msgstr ""
+"정복된 영역 : 당신의 던전 영역입니다. 당신은 방을 만들고 그 위에 당신의 피조"
+"물을 떨어뜨릴 수 있습니다."
 
 #: guitext:333
 msgctxt "In-game interface item"
 msgid "More..."
-msgstr ""
+msgstr "More."
 
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr ""
+msgstr "레벨 완료 - Escape를 눌러 계속합니다"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr ""
+msgstr "당신은 패배했습니다. 스페이스를 눌러 다시 시작합니다."
 
 #: guitext:336
 msgctxt "On-screen message"
 msgid "Recording FLIC"
-msgstr ""
+msgstr "Recording FLIC"
 
 #: guitext:337
 msgctxt "On-screen message"
 msgid "Error recording FLIC"
-msgstr ""
+msgstr "Error recording FLIC"
 
 #: guitext:338
 msgctxt "On-screen message"
 msgid "Finished recording FLIC"
-msgstr ""
+msgstr "Finished recording FLIC"
 
 #: guitext:339
 msgctxt "Unused"
 msgid "Time Bomb"
-msgstr ""
+msgstr "시한 폭탄"
 
 #: guitext:340
 msgctxt "In-game interface item"
 msgid "Sound FX"
-msgstr ""
+msgstr "효과음"
 
 #: guitext:341
 msgctxt "In-game interface item"
 msgid "Music"
-msgstr ""
+msgstr "배경음악"
 
 #: guitext:342
 msgctxt "In-game interface item"
 msgid "UNUSED"
-msgstr ""
+msgstr "UNUSED"
 
 #: guitext:344
 msgctxt "Menu interface item"
 msgid "Load Menu"
-msgstr ""
+msgstr "불러오기 메뉴"
 
 #: guitext:345
 msgctxt "Menu interface, Main Menu item"
 msgid "Load Game"
-msgstr ""
+msgstr "게임 불러오기"
 
 #: guitext:346
 msgctxt "Menu interface, Main Menu item"
 msgid "Continue Game"
-msgstr ""
+msgstr "게임 계속하기"
 
 #: guitext:347
 msgctxt "Menu interface, Main Menu item"
 msgid "Multiplayer"
-msgstr ""
+msgstr "멀티플레이"
 
 #: guitext:348
 msgctxt "Menu interface item"
 msgid "Return to Main Menu"
-msgstr ""
+msgstr "매인 메뉴로 돌아가기"
 
 #: guitext:349
 msgctxt "Menu interface item"
 msgid "Play Intro"
-msgstr ""
+msgstr "오프닝 보기"
 
 #: guitext:350
 msgctxt "Menu interface item"
 msgid "Service Menu"
-msgstr ""
+msgstr "서비스 매뉴"
 
 #: guitext:351
 msgctxt "Menu interface item"
 msgid "Session Menu"
-msgstr ""
+msgstr "세션 매뉴"
 
 #: guitext:352
 msgctxt "Menu interface item"
 msgid "Speed"
-msgstr ""
+msgstr "속도"
 
 #: guitext:353
 msgctxt "Menu interface item"
 msgid "COM Port"
-msgstr ""
+msgstr "COM Port"
 
 #: guitext:354
 msgctxt "Menu interface item"
 msgid "Phone Number"
-msgstr ""
+msgstr "전화 번호"
 
 #: guitext:355
 msgctxt "Menu interface item"
 msgid "IRQ"
-msgstr ""
+msgstr "IRQ"
 
 #: guitext:356
 msgctxt "Menu interface item"
 msgid "Statistics"
-msgstr ""
+msgstr "통계"
 
 #: guitext:357
 msgctxt "Menu interface item"
 msgid "Level Completed"
-msgstr ""
+msgstr "Level Completed"
 
 #: guitext:358
 msgctxt "Menu interface item"
 msgid "UNUSED"
-msgstr ""
+msgstr "UNUSED"
 
 #: guitext:359
 msgctxt "Menu interface, Main Menu item"
 msgid "Quit"
-msgstr ""
+msgstr "나가기"
 
 #: guitext:360
 msgctxt "Menu interface, Main Menu item"
 msgid "Start New Game"
-msgstr ""
+msgstr "새 게임 시작"
 
 #: guitext:361
 msgctxt "Unused"
 msgid "This is a tale of valour and honour and how tasty heroes are...."
-msgstr ""
+msgstr "이것은 용맹과 명예 그리고 영웅들이 얼마나 맛있는지에 대한 이야기이다."
 
 #: guitext:362
 msgctxt "Credits"
 msgid "Designed By"
-msgstr ""
+msgstr "Designed By"
 
 #: guitext:363
 msgctxt "Credits"
 msgid "Project Leader"
-msgstr ""
+msgstr "Project Leader"
 
 #: guitext:364
 msgctxt "Credits"
 msgid "Lead Programmer"
-msgstr ""
+msgstr "Lead Programmer"
 
 #: guitext:365
 msgctxt "Credits"
 msgid "Lead Artist"
-msgstr ""
+msgstr "Lead Artist"
 
 #: guitext:366
 msgctxt "Credits"
 msgid "Programming"
-msgstr ""
+msgstr "Programming"
 
 #: guitext:367
 msgctxt "Credits"
 msgid "Engine Design"
-msgstr ""
+msgstr "Engine Design"
 
 #: guitext:368
 msgctxt "Credits"
 msgid "Music and Sfx"
-msgstr ""
+msgstr "Music and Sfx"
 
 #: guitext:369
 msgctxt "Credits"
 msgid "Graphics Programmers"
-msgstr ""
+msgstr "Graphics Programmers"
 
 #: guitext:370
 msgctxt "Credits"
 msgid "Artists"
-msgstr ""
+msgstr "Artists"
 
 #: guitext:371
 msgctxt "Credits"
 msgid "Network Programming"
-msgstr ""
+msgstr "Network Programming"
 
 #: guitext:372
 msgctxt "Credits"
 msgid "Testing Manager"
-msgstr ""
+msgstr "Testing Manager"
 
 #: guitext:373
 msgctxt "Credits"
 msgid "Lead Testers"
-msgstr ""
+msgstr "Lead Testers"
 
 #: guitext:374
 msgctxt "Credits"
 msgid "Lead Tester"
-msgstr ""
+msgstr "Lead Tester"
 
 #: guitext:375
 msgctxt "Credits"
 msgid "Management"
-msgstr ""
+msgstr "Management"
 
 #: guitext:376
 msgctxt "Credits"
 msgid "Marketing and PR"
-msgstr ""
+msgstr "Marketing and PR"
 
 #: guitext:377
 msgctxt "Credits"
 msgid "Tech Support"
-msgstr ""
+msgstr "Tech Support"
 
 #: guitext:378
 msgctxt "Credits"
 msgid "Administration"
-msgstr ""
+msgstr "Administration"
 
 #: guitext:379
 msgctxt "Credits"
 msgid "Thanks To"
-msgstr ""
+msgstr "Thanks To"
 
 #: guitext:380
 msgctxt "Credits"
 msgid "Producer"
-msgstr ""
+msgstr "Producer"
 
 #: guitext:381
 msgctxt "Credits"
 msgid "Level Design"
-msgstr ""
+msgstr "Level Design"
 
 #: guitext:382
 msgctxt "Credits"
 msgid "Script By"
-msgstr ""
+msgstr "Script By"
 
 #: guitext:383
 msgctxt "Credits"
 msgid "Libraries and Tools"
-msgstr ""
+msgstr "Libraries and Tools"
 
 #: guitext:384
 msgctxt "Credits"
 msgid "Playtesters"
-msgstr ""
+msgstr "Playtesters"
 
 #: guitext:385
 msgctxt "Credits"
 msgid "Localisation"
-msgstr ""
+msgstr "Localisation 한국어화 mu mu"
 
 #: guitext:386
 msgctxt "Credits"
 msgid "Special Thanks To"
-msgstr ""
+msgstr "Special Thanks To"
 
 #: guitext:387
 msgctxt "Credits"
 msgid "Package Design"
-msgstr ""
+msgstr "Package Design"
 
 #: guitext:388
 msgctxt "Credits"
 msgid "Documentation"
-msgstr ""
+msgstr "Documentation"
 
 #: guitext:389
 msgctxt "Credits"
 msgid "Documentation Layout"
-msgstr ""
+msgstr "Documentation Layout"
 
 #: guitext:390
 msgctxt "Credits"
 msgid "Production"
-msgstr ""
+msgstr "Production"
 
 #: guitext:391
 msgctxt "Credits"
 msgid "Quality Assurance"
-msgstr ""
+msgstr "Quality Assurance"
 
 #: guitext:392
 msgctxt "Credits"
 msgid "Lead Level Design"
-msgstr ""
+msgstr "Lead Level Design"
 
 #: guitext:393
 msgctxt "Credits"
 msgid "Intro"
-msgstr ""
+msgstr "Intro"
 
 #: guitext:394
 msgctxt "Credits"
 msgid "Testers"
-msgstr ""
+msgstr "Testers"
 
 #: guitext:395
 msgctxt "Menu interface item"
 msgid "Sessions"
-msgstr ""
+msgstr "세션들"
 
 #: guitext:396
 msgctxt "Menu interface item"
 msgid "Name"
-msgstr ""
+msgstr "이름"
 
 #: guitext:397
 msgctxt "Menu interface item"
 msgid "Services"
-msgstr ""
+msgstr "서비스"
 
 #: guitext:398
 msgctxt "Menu interface item"
 msgid "Messages"
-msgstr ""
+msgstr "메시지"
 
 #: guitext:399
 msgctxt "Menu interface item"
 msgid "Create Game"
-msgstr ""
+msgstr "게임 만들기"
 
 #: guitext:400
 msgctxt "Menu interface item"
 msgid "Join Game"
-msgstr ""
+msgstr "게임에 참여"
 
 #: guitext:401
 msgctxt "Menu interface item"
 msgid "Start Game"
-msgstr ""
+msgstr "게임 시작"
 
 #: guitext:402
 msgctxt "Menu interface item"
 msgid "Game Menu"
-msgstr ""
+msgstr "게임 매뉴"
 
 #: guitext:403
 msgctxt "Menu interface item"
 msgid "Cancel"
-msgstr ""
+msgstr "취소"
 
 #: guitext:404
 msgctxt "Menu interface item"
 msgid "No Name"
-msgstr ""
+msgstr "No Name"
 
 #: guitext:405
 msgctxt "Menu interface item"
 msgid "Players"
-msgstr ""
+msgstr "플레이어"
 
 #. Creature experience level
 #: guitext:406
 msgctxt "Menu interface item"
 msgid "Level"
-msgstr ""
+msgstr "레벨"
 
 #: guitext:407
 msgctxt "Menu interface item"
 msgid "Levels"
-msgstr ""
+msgstr "레벨들"
 
 #: guitext:408
 msgctxt "Menu interface item"
 msgid "Games"
-msgstr ""
+msgstr "게임들"
 
 #: guitext:409
 msgctxt "Menu interface item"
 msgid "Modem Menu"
-msgstr ""
+msgstr "모뎀 메뉴"
 
 #: guitext:410
 msgctxt "Menu interface item"
 msgid "Serial Menu"
-msgstr ""
+msgstr "시리얼 메뉴"
 
 #: guitext:411
 msgctxt "Menu interface item"
 msgid "Init"
-msgstr ""
+msgstr "초기화"
 
 #: guitext:412
 msgctxt "Menu interface item"
 msgid "Hangup"
-msgstr ""
+msgstr "전화걸기"
 
 #: guitext:413
 msgctxt "Menu interface item"
 msgid "Clear"
-msgstr ""
+msgstr "지우기"
 
 #: guitext:414
 msgctxt "Menu interface item"
 msgid "Answer"
-msgstr ""
+msgstr "응답"
 
 #: guitext:415
 msgctxt "Menu interface item"
 msgid "Start"
-msgstr ""
+msgstr "시작"
 
 #: guitext:416
 msgctxt "Menu interface item"
 msgid "Ally"
-msgstr ""
+msgstr "동맹국"
 
 #: guitext:417
 msgctxt "Menu interface item"
 msgid "Alliance"
-msgstr ""
+msgstr "동맹"
 
 #: guitext:418
 msgctxt "Menu interface item"
 msgid "Credits"
-msgstr ""
+msgstr "제작자"
 
 #: guitext:419
 msgctxt "Menu interface item"
 msgid "Ok"
-msgstr ""
+msgstr "확인"
 
 #: guitext:420
 msgctxt "Dungeon special decription"
 msgid "Reveal Map: Reveals the entire underground realm to you."
-msgstr ""
+msgstr "지도 공개: 지하의 전체 영역을 표시합니다."
 
 #: guitext:421
 msgctxt "Dungeon special decription"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
-msgstr ""
+msgstr "피조물 부활 : 죽음에 떨어진 하수인 하나를 소생 시킬수 있습니다."
 
 #: guitext:422
 msgctxt "Dungeon special decription"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
-msgstr ""
+msgstr "피조물 전송 : 다음 영역으로 동행할 피조물 중 하나를 선택하세요."
 
 #: guitext:423
 msgctxt "Dungeon special decription"
 msgid "Steal Hero: Subvert a hero to your cause."
-msgstr ""
+msgstr "영웅 훔치기: 영웅을 당신의 대의를 위해 타락시키세요."
 
 #: guitext:424
 msgctxt "Dungeon special decription"
 msgid "Multiply Creatures: Create a double of each of your creatures."
-msgstr ""
+msgstr "피조물 불리기 : 각 피조물을 두 배로 만듭니다."
 
 #: guitext:425
 msgctxt "Dungeon special decription"
 msgid "Increase Level: Bestows greater skill on all your creatures."
-msgstr ""
+msgstr "레벨 향상: 모든 피조물에게 더 큰 기술을 부여합니다."
 
 #: guitext:426
 msgctxt "Dungeon special decription"
 msgid "Make Safe: Reinforces your entire dungeon."
-msgstr ""
+msgstr "안전하게 만들기: 던전 전체를 강화합니다."
 
 #: guitext:427
 msgctxt "Dungeon special decription"
 msgid ""
-"Locate Hidden World: You will be transported to a secret realm after you "
-"have conquered this one."
+"Locate Hidden World: You will get access to a secret realm after you have "
+"conquered this one."
 msgstr ""
+"숨겨진 세계 찾기: 여러분은 이 세계를 정복한 후에 비밀의 영역에 접근할 수 있습"
+"니다."
 
 #: guitext:428
 msgctxt "Dungeon special name"
 msgid "Resurrect Creature"
-msgstr ""
+msgstr "피조물 부활"
 
 #: guitext:429
 msgctxt "Dungeon special name"
 msgid "Transfer Creature"
-msgstr ""
+msgstr "피조물 전송"
 
 #: guitext:430
 msgctxt "Menu interface item"
 msgid "Bonus"
-msgstr ""
+msgstr "보너스"
 
 #: guitext:431
 msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
-msgstr ""
+msgstr "최고 득점판"
 
 #: guitext:432
 msgctxt "Menu interface item"
 msgid "Go to Query Mode"
-msgstr ""
+msgstr "조회 모드로 가기"
 
 #: guitext:433
 msgctxt "Menu interface item"
 msgid "More information"
-msgstr ""
+msgstr "더 많은 정보"
 
 #: guitext:434
 msgctxt "Menu interface item"
 msgid "Back to main Query Screen"
-msgstr ""
+msgstr "주 조회 화면으로 돌아가기"
 
 #: guitext:435
 msgctxt "Menu interface item"
 msgid "Selected action"
-msgstr ""
+msgstr "선택된 행동"
 
 #: guitext:436
 msgctxt "Menu interface item"
 msgid "Choose party"
-msgstr ""
+msgstr "파티 선택"
 
 #: guitext:437
 msgctxt "Menu interface item"
 msgid "Enter dungeon"
-msgstr ""
+msgstr "던던에 들어가기"
 
 #: guitext:438
 msgctxt "Menu interface item"
 msgid "Party members"
-msgstr ""
+msgstr "파티 구성원"
 
 #: guitext:439
 msgctxt "Menu interface item"
 msgid "Available creatures"
-msgstr ""
+msgstr "사용가능 피조물"
 
 #: guitext:440
 msgctxt "Menu interface item"
 msgid "Creature"
-msgstr ""
+msgstr "피조물"
 
 #: guitext:441
 msgctxt "Menu interface item"
 msgid "Money available"
-msgstr ""
+msgstr "사용가능 재화"
 
 #: guitext:442
 msgctxt "Menu interface item"
 msgid "Leader"
-msgstr ""
+msgstr "리더"
 
 #: guitext:443
 msgctxt "Menu interface item"
 msgid "Hire"
-msgstr ""
+msgstr "고용"
 
 #: guitext:444
 msgctxt "Menu interface item"
 msgid "Fire"
-msgstr ""
+msgstr "해고"
 
 #: guitext:445
 msgctxt "Menu interface item"
 msgid "Cost"
-msgstr ""
+msgstr "비용"
 
 #: guitext:446
 msgctxt "Menu interface item"
 msgid "Type"
-msgstr ""
+msgstr "형식"
 
 #: guitext:447
 msgctxt "In-game interface description"
@@ -2898,6 +3386,8 @@ msgid ""
 "Information Panel: Miscellaneous information. Shows your and enemy progress "
 "and allows changing creature tendencies."
 msgstr ""
+"정보 패널: 기타 정보입니다. 사용자 및 적의 진행 상황을 보여주고 피조물의 경향"
+"의 변화가 가능합니다."
 
 #: guitext:448
 msgctxt "In-game interface description"
@@ -2905,6 +3395,8 @@ msgid ""
 "Room Panel: The rooms available for you to build. Here you can center map on "
 "rooms or build new ones."
 msgstr ""
+"방 패널 : 사용자가 만들 수 있는 방입니다. 여기서 방을 지도를 중앙에 보이게 하"
+"거나 새로운 방을 작성할 수 있습니다."
 
 #: guitext:449
 msgctxt "In-game interface description"
@@ -2912,6 +3404,8 @@ msgid ""
 "Research Panel: The spells available to you. Here you can cast or cancel "
 "them."
 msgstr ""
+"연구 패널 : 주문을 여기서 사용할 수 있습니다. 여기서 주문을 시전하거나 취소"
+"할 수 있습니다."
 
 #: guitext:450
 msgctxt "In-game interface description"
@@ -2919,6 +3413,8 @@ msgid ""
 "Workshop Panel: The traps and doors available to you. You can center the map "
 "on them, place new ones or sell existing."
 msgstr ""
+"공방 패널 : 사용가능한 함정과 문이 있습니다. 해당 아이템을 지도를 중앙에 보이"
+"게하거나 새 아이템을 배치하거나 기존 아이템을 판매할 수 있습니다."
 
 #: guitext:451
 msgctxt "In-game interface description"
@@ -2926,6 +3422,8 @@ msgid ""
 "Creature Panel: Information on your creatures. Shows activity of your "
 "creatures and allows picking them up."
 msgstr ""
+"피조물 패널 : 당신의 피조물에 대한 정보입니다. 피조물의 활동을 보여 주고 피조"
+"물을 잡을 수 있도록 합니다."
 
 #: guitext:452
 msgctxt "In-game interface description"
@@ -2933,6 +3431,8 @@ msgid ""
 "Research Time: The time until a new spell is researched. Scholars in your "
 "Library are making progress on this bar."
 msgstr ""
+"연구 시간 : 새로운 주문이 연구될 때까지의 시간입니다. 도서관의 학자들이 이 곳"
+"에서 진전을 보이고 있습니다."
 
 #: guitext:453
 msgctxt "In-game interface description"
@@ -2940,13 +3440,18 @@ msgid ""
 "Workshop Time: The time until a new trap is manufactured. Workers in your "
 "Workshop are making progress on this bar."
 msgstr ""
+"공방 시간 : 새 트랩이 제조될 때까지의 시간입니다. 공방의 작업자들이 이 곳에"
+"서 대해 진전을 보이고 있습니다."
 
 #: guitext:454
 msgctxt "In-game interface description"
 msgid ""
-"Time: The time until the next Creature Payday. This bar increases over time "
-"and, when it reaches its peak, all of your creatures receive their wages."
+"Payday Time: The time until the next Creature Payday. This bar increases "
+"over time and, when it reaches its peak, all of your creatures will want "
+"their wages."
 msgstr ""
+"급여일 시간 : 다음 피조물의 월급날까지의 시간입니다. 이 막대는 시간이 지남에 "
+"따라 증가하며, 마지막에 이르면 당신의 모든 피조물들이 급여를 원할 것입니다."
 
 #: guitext:455
 msgctxt "In-game interface description"
@@ -2954,6 +3459,7 @@ msgid ""
 "Number of Rooms: The number of rooms held by this Keeper. Allows you to "
 "compare your dungeon with the competitors."
 msgstr ""
+"방의 수 : 키퍼가 보유한 방 개수입니다. 던전을 경쟁자와 비교할 수 있습니다."
 
 #: guitext:456
 msgctxt "In-game interface description"
@@ -2961,36 +3467,40 @@ msgid ""
 "Number of Creatures: The number of creatures owned by this Keeper. Allows "
 "you to compare your army with other Keepers."
 msgstr ""
+"피조물의 수 : 키퍼가 소유한 피조물의 개수입니다. 군대를 다른 키퍼와 비교할 "
+"수 있습니다."
 
 #: guitext:457
 msgctxt "Menu interface item"
 msgid "Choose game"
-msgstr ""
+msgstr "게임 선택"
 
 #: guitext:458
 msgctxt "Menu interface item"
 msgid "Game type"
-msgstr ""
+msgstr "게임 형식"
 
 #: guitext:459
 msgctxt "Menu interface item"
 msgid "Keeper vs keeper"
-msgstr ""
+msgstr "키퍼 대 키퍼"
 
 #: guitext:460
 msgctxt "Menu interface item"
 msgid "Keeper vs heroes"
-msgstr ""
+msgstr "키퍼 대 영웅"
 
 #: guitext:461
 msgctxt "Menu interface item"
 msgid "Deathmatch"
-msgstr ""
+msgstr "데스매치"
 
 #: guitext:462
 msgctxt "In-game interface description"
 msgid "Sell Room: Sell a room tile for half the building price. LMB select."
 msgstr ""
+"방 판매: 방 타일을 만드는 가격의 절반에 판매합니다. 왼쪽 마우스 단추로 선택합"
+"니다."
 
 #: guitext:463
 msgctxt "In-game interface description"
@@ -2998,406 +3508,408 @@ msgid ""
 "Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. "
 "LMB select."
 msgstr ""
+"아이템 판매 : 함정 또는 문을 판매합니다. 제조 시 금을 획득할 수 있습니다. 왼"
+"쪽 마우스 단추로 선택합니다."
 
 #: guitext:464
 msgctxt "In-game interface description"
 msgid "Next Battle: Zoom to the next battle. LMB select."
-msgstr ""
+msgstr "다음 전투: 다음 전투를 조명합니다. 왼쪽 마우스 단추로 선택합니다."
 
 #: guitext:465
 msgctxt "In-game interface item"
 msgid "Close Window"
-msgstr ""
+msgstr "윈도우 닫기"
 
 #: guitext:466
 msgctxt "In-game interface item"
 msgid "Zoom to area"
-msgstr ""
+msgstr "지역으로 가보기"
 
 #: guitext:467
 msgctxt "Menu interface item"
 msgid "No mouse installed"
-msgstr ""
+msgstr "마우스가 설치 되지 않음"
 
 #: guitext:468
 msgctxt "Menu interface item"
 msgid "Define keys"
-msgstr ""
+msgstr "키 정의"
 
 #: guitext:469
 msgctxt "Game controls"
 msgid "Ally with player"
-msgstr ""
+msgstr "동맹 플레이어"
 
 #: guitext:470
 msgctxt "Game controls"
 msgid "Press a key"
-msgstr ""
+msgstr "아무키나 누르라구"
 
 #: guitext:471
 msgctxt "Game controls"
 msgid "UP"
-msgstr ""
+msgstr "위"
 
 #: guitext:472
 msgctxt "Game controls"
 msgid "DOWN"
-msgstr ""
+msgstr "아래"
 
 #: guitext:473
 msgctxt "Game controls"
 msgid "LEFT"
-msgstr ""
+msgstr "왼쪽"
 
 #: guitext:474
 msgctxt "Game controls"
 msgid "RIGHT"
-msgstr ""
+msgstr "오른쪽"
 
 #: guitext:475
 msgctxt "Game controls"
 msgid "ROTATE"
-msgstr ""
+msgstr "회전"
 
 #: guitext:476
 msgctxt "Game controls"
 msgid "SPEED"
-msgstr ""
+msgstr "속도"
 
 #: guitext:477
 msgctxt "Game controls"
 msgid "ROTATE LEFT"
-msgstr ""
+msgstr "왼쪽으로 회전"
 
 #: guitext:478
 msgctxt "Game controls"
 msgid "ROTATE RIGHT"
-msgstr ""
+msgstr "오른쪽으로 회전"
 
 #: guitext:479
 msgctxt "Game controls"
 msgid "ZOOM IN"
-msgstr ""
+msgstr "확대"
 
 #: guitext:480
 msgctxt "Game controls"
 msgid "ZOOM OUT"
-msgstr ""
+msgstr "축소"
 
 #: guitext:481
 msgctxt "Keyboard"
 msgid "LEFT CONTROL"
-msgstr ""
+msgstr "LEFT CONTROL"
 
 #: guitext:482
 msgctxt "Keyboard"
 msgid "RIGHT CONTROL"
-msgstr ""
+msgstr "RIGHT CONTROL"
 
 #: guitext:483
 msgctxt "Keyboard"
 msgid "LEFT SHIFT"
-msgstr ""
+msgstr "LEFT SHIFT"
 
 #: guitext:484
 msgctxt "Keyboard"
 msgid "RIGHT SHIFT"
-msgstr ""
+msgstr "RIGHT SHIFT"
 
 #: guitext:485
 msgctxt "Keyboard"
 msgid "LEFT ALT"
-msgstr ""
+msgstr "LEFT ALT"
 
 #: guitext:486
 msgctxt "Keyboard"
 msgid "RIGHT ALT"
-msgstr ""
+msgstr "RIGHT ALT"
 
 #: guitext:487
 msgctxt "Keyboard"
 msgid "SPACE"
-msgstr ""
+msgstr "SPACE"
 
 #: guitext:488
 msgctxt "Keyboard"
 msgid "RETURN"
-msgstr ""
+msgstr "RETURN"
 
 #: guitext:489
 msgctxt "Keyboard"
 msgid "TAB"
-msgstr ""
+msgstr "TAB"
 
 #: guitext:490
 msgctxt "Keyboard"
 msgid "CAPS LOCK"
-msgstr ""
+msgstr "CAPS LOCK"
 
 #: guitext:491
 msgctxt "Keyboard"
 msgid "BACKSPACE"
-msgstr ""
+msgstr "BACKSPACE"
 
 #: guitext:492
 msgctxt "Keyboard"
 msgid "INSERT"
-msgstr ""
+msgstr "INSERT"
 
 #: guitext:493
 msgctxt "Keyboard"
 msgid "DELETE"
-msgstr ""
+msgstr "DELETE"
 
 #: guitext:494
 msgctxt "Keyboard"
 msgid "HOME"
-msgstr ""
+msgstr "HOME"
 
 #: guitext:495
 msgctxt "Keyboard"
 msgid "END"
-msgstr ""
+msgstr "END"
 
 #: guitext:496
 msgctxt "Keyboard"
 msgid "PAGE UP"
-msgstr ""
+msgstr "PAGE UP"
 
 #: guitext:497
 msgctxt "Keyboard"
 msgid "PAGE DOWN"
-msgstr ""
+msgstr "PAGE DOWN"
 
 #: guitext:498
 msgctxt "Keyboard"
 msgid "NUM LOCK"
-msgstr ""
+msgstr "NUM LOCK"
 
 #: guitext:499
 msgctxt "Keyboard"
 msgid "NUM /"
-msgstr ""
+msgstr "NUM /"
 
 #: guitext:500
 msgctxt "Keyboard"
 msgid "NUM *"
-msgstr ""
+msgstr "NUM *"
 
 #: guitext:501
 msgctxt "Keyboard"
 msgid "NUM -"
-msgstr ""
+msgstr "NUM -"
 
 #: guitext:502
 msgctxt "Keyboard"
 msgid "NUM +"
-msgstr ""
+msgstr "NUM +"
 
 #: guitext:503
 msgctxt "Keyboard"
 msgid "NUM ENTER"
-msgstr ""
+msgstr "NUM ENTER"
 
 #: guitext:504
 msgctxt "Keyboard"
 msgid "NUM DELETE"
-msgstr ""
+msgstr "NUM DELETE"
 
 #: guitext:505
 msgctxt "Keyboard"
 msgid "NUM 1"
-msgstr ""
+msgstr "NUM 1"
 
 #: guitext:506
 msgctxt "Keyboard"
 msgid "NUM 2"
-msgstr ""
+msgstr "NUM 2"
 
 #: guitext:507
 msgctxt "Keyboard"
 msgid "NUM 3"
-msgstr ""
+msgstr "NUM 3"
 
 #: guitext:508
 msgctxt "Keyboard"
 msgid "NUM 4"
-msgstr ""
+msgstr "NUM 4"
 
 #: guitext:509
 msgctxt "Keyboard"
 msgid "NUM 5"
-msgstr ""
+msgstr "NUM 5"
 
 #: guitext:510
 msgctxt "Keyboard"
 msgid "NUM 6"
-msgstr ""
+msgstr "NUM 6"
 
 #: guitext:511
 msgctxt "Keyboard"
 msgid "NUM 7"
-msgstr ""
+msgstr "NUM 7"
 
 #: guitext:512
 msgctxt "Keyboard"
 msgid "NUM 8"
-msgstr ""
+msgstr "NUM 8"
 
 #: guitext:513
 msgctxt "Keyboard"
 msgid "NUM 9"
-msgstr ""
+msgstr "NUM 9"
 
 #: guitext:514
 msgctxt "Keyboard"
 msgid "NUM 0"
-msgstr ""
+msgstr "NUM 0"
 
 #: guitext:515
 msgctxt "Keyboard"
 msgid "F1"
-msgstr ""
+msgstr "F1"
 
 #: guitext:516
 msgctxt "Keyboard"
 msgid "F2"
-msgstr ""
+msgstr "F2"
 
 #: guitext:517
 msgctxt "Keyboard"
 msgid "F3"
-msgstr ""
+msgstr "F3"
 
 #: guitext:518
 msgctxt "Keyboard"
 msgid "F4"
-msgstr ""
+msgstr "F4"
 
 #: guitext:519
 msgctxt "Keyboard"
 msgid "F5"
-msgstr ""
+msgstr "F5"
 
 #: guitext:520
 msgctxt "Keyboard"
 msgid "F6"
-msgstr ""
+msgstr "F6"
 
 #: guitext:521
 msgctxt "Keyboard"
 msgid "F7"
-msgstr ""
+msgstr "F7"
 
 #: guitext:522
 msgctxt "Keyboard"
 msgid "F8"
-msgstr ""
+msgstr "F8"
 
 #: guitext:523
 msgctxt "Keyboard"
 msgid "F9"
-msgstr ""
+msgstr "F9"
 
 #: guitext:524
 msgctxt "Keyboard"
 msgid "F10"
-msgstr ""
+msgstr "F10"
 
 #: guitext:525
 msgctxt "Keyboard"
 msgid "F11"
-msgstr ""
+msgstr "F11"
 
 #: guitext:526
 msgctxt "Keyboard"
 msgid "F12"
-msgstr ""
+msgstr "F12"
 
 #: guitext:527
 msgctxt "Keyboard"
 msgid "UP"
-msgstr ""
+msgstr "위"
 
 #: guitext:528
 msgctxt "Keyboard"
 msgid "DOWN"
-msgstr ""
+msgstr "아래"
 
 #: guitext:529
 msgctxt "Keyboard"
 msgid "LEFT"
-msgstr ""
+msgstr "왼쪽"
 
 #: guitext:530
 msgctxt "Keyboard"
 msgid "RIGHT"
-msgstr ""
+msgstr "오른쪽"
 
 #: guitext:531
 msgctxt "Network game message"
 msgid "Initialising Modem"
-msgstr ""
+msgstr "Initialising Modem"
 
 #: guitext:532
 msgctxt "Network game message"
 msgid "Connecting Modem"
-msgstr ""
+msgstr "Connecting Modem"
 
 #: guitext:533
 msgctxt "Network game message"
 msgid "Dial"
-msgstr ""
+msgstr "Dial"
 
 #: guitext:534
 msgctxt "Network game message"
 msgid "Continue"
-msgstr ""
+msgstr "Continue"
 
 #: guitext:535
 msgctxt "Network game message"
 msgid "Line Engaged"
-msgstr ""
+msgstr "Line Engaged"
 
 #: guitext:536
 msgctxt "Network game message"
 msgid "Unknown Error"
-msgstr ""
+msgstr "Unknown Error"
 
 #: guitext:537
 msgctxt "Network game message"
 msgid "No Carrier"
-msgstr ""
+msgstr "No Carrier"
 
 #: guitext:538
 msgctxt "Network game message"
 msgid "No Dial Tone"
-msgstr ""
+msgstr "No Dial Tone"
 
 #: guitext:539
 msgctxt "Network game message"
 msgid "No Response"
-msgstr ""
+msgstr "No Response"
 
 #: guitext:540
 msgctxt "Network game message"
 msgid "No Server"
-msgstr ""
+msgstr "No Server"
 
 #: guitext:541
 msgctxt "Network game message"
 msgid "Unable to initialise"
-msgstr ""
+msgstr "Unable to initialise"
 
 #: guitext:542
 msgctxt "Network game message"
 msgid "Unable to create game"
-msgstr ""
+msgstr "Unable to create game"
 
 #: guitext:543
 msgctxt "Network game message"
 msgid "Unable to join game"
-msgstr ""
+msgstr "Unable to join game"
 
 #: guitext:544
 msgctxt "Slab description"
@@ -3405,6 +3917,8 @@ msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
 "takes longer to mine than Gold."
 msgstr ""
+"보석 : 임프가 추출할 수 있는 무한한 재산입니다. 파괴할 수는 없지만, 골드보다 "
+"채굴하는 데 시간이 더 오래 걸립니다."
 
 #: guitext:545
 msgctxt "Object description"
@@ -3412,194 +3926,200 @@ msgid ""
 "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
 "closed on your side."
 msgstr ""
+"영웅 게이트 : 영웅들은 이 포탈을 이용하여 당신의 던전을 침입합니다. 당신 쪽에"
+"서는 닫을 수 없습니다."
 
 #: guitext:546
 msgctxt "Creature name"
 msgid "Tunneller"
-msgstr ""
+msgstr "터넬러"
 
 #: guitext:547
 msgctxt "Creature name"
 msgid "Avatar"
-msgstr ""
+msgstr "아바타"
 
 #: guitext:548
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr ""
+"컴퓨터 길잡이 전환 : 현재 - 공격적입니다. 왼쪽 마우스 단추로 전환됩니다."
 
 #: guitext:549
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr ""
+"컴퓨터 길잡이 전환 : 현재 - 방어적입니다. 왼쪽 마우스 단추로 전환됩니다."
 
 #: guitext:550
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr ""
+"컴퓨터 길잡이 전환 : 현재 - 공구리만 칩니다. 왼쪽 마우스 단추로 전환됩니다."
 
 #: guitext:551
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr ""
+"컴퓨터 길잡이 전환 : 현재 - 이동만입니다. 왼쪽 마우스 단추로 전환됩니다."
 
 #: guitext:552
 msgctxt "In-game tab with rooms"
 msgid "Treasure Room"
-msgstr ""
+msgstr "보물 창고"
 
 #: guitext:553
 msgctxt "In-game tab with rooms"
 msgid "Library"
-msgstr ""
+msgstr "도서관"
 
 #: guitext:554
 msgctxt "In-game tab with rooms"
 msgid "Lair"
-msgstr ""
+msgstr "보금자리"
 
 #: guitext:555
 msgctxt "In-game tab with rooms"
 msgid "Prison"
-msgstr ""
+msgstr "감옥"
 
 #: guitext:556
 msgctxt "In-game tab with rooms"
 msgid "Torture Room"
-msgstr ""
+msgstr "고문실"
 
 #: guitext:557
 msgctxt "In-game tab with rooms"
 msgid "Training Room"
-msgstr ""
+msgstr "훈련장"
 
 #: guitext:558
 msgctxt "In-game tab with rooms"
 msgid "Dungeon Heart"
-msgstr ""
+msgstr "던전 하트"
 
 #: guitext:559
 msgctxt "In-game tab with rooms"
 msgid "Workshop"
-msgstr ""
+msgstr "공방"
 
 #: guitext:560
 msgctxt "In-game tab with rooms"
 msgid "Scavenger Room"
-msgstr ""
+msgstr "추적실"
 
 #: guitext:561
 msgctxt "In-game tab with rooms"
 msgid "Temple"
-msgstr ""
+msgstr "사원"
 
 #: guitext:562
 msgctxt "In-game tab with rooms"
 msgid "Graveyard"
-msgstr ""
+msgstr "묘지"
 
 #: guitext:563
 msgctxt "In-game tab with rooms"
 msgid "Barracks"
-msgstr ""
+msgstr "병영"
 
 #: guitext:564
 msgctxt "In-game tab with rooms"
 msgid "Hatchery"
-msgstr ""
+msgstr "부화장"
 
 #: guitext:565
 msgctxt "In-game tab with rooms"
 msgid "Guard Post"
-msgstr ""
+msgstr "초소"
 
 #: guitext:566
 msgctxt "In-game tab with rooms"
 msgid "Bridge"
-msgstr ""
+msgstr "다리"
 
 #: guitext:567
 msgid "Fight"
-msgstr ""
+msgstr "전투"
 
 #: guitext:568
 msgid "Annoyed"
-msgstr ""
+msgstr "까다로운 피조물"
 
 #: guitext:569
 msgctxt "Keyboard"
 msgid "Shift"
-msgstr ""
+msgstr "Shift"
 
 #: guitext:570
 msgctxt "Keyboard"
 msgid "Control"
-msgstr ""
+msgstr "Control"
 
 #: guitext:571
 msgctxt "Keyboard"
 msgid "Alt"
-msgstr ""
+msgstr "Alt"
 
 #: guitext:572
 msgctxt "Credits"
 msgid "Additional Artwork"
-msgstr ""
+msgstr "Additional Artwork"
 
 #: guitext:573
 msgctxt "Credits"
 msgid "Additional Programming"
-msgstr ""
+msgstr "Additional Programming"
 
 #: guitext:574
 msgctxt "Credits"
 msgid "Manual And Documentation"
-msgstr ""
+msgstr "Manual And Documentation"
 
 #: guitext:575
 msgctxt "Credits"
 msgid "Installer"
-msgstr ""
+msgstr "Installer"
 
 #: guitext:576
 msgctxt "Credits"
 msgid "Additional Level Design"
-msgstr ""
+msgstr "Additional Level Design"
 
 #: guitext:577 guitext:863
 msgctxt "Credits"
 msgid "Additional Thanks"
-msgstr ""
+msgstr "Additional Thanks"
 
 #: guitext:578
 msgctxt "Trap names"
 msgid "Boulder Trap"
-msgstr ""
+msgstr "바위 함정"
 
 #: guitext:579
 msgctxt "Trap names"
 msgid "Alarm Trap"
-msgstr ""
+msgstr "경보 함정"
 
 #: guitext:580
 msgctxt "Trap names"
 msgid "Poison Gas Trap"
-msgstr ""
+msgstr "독가스 함정"
 
 #: guitext:581
 msgctxt "Trap names"
 msgid "Lightning Trap"
-msgstr ""
+msgstr "번개 함정"
 
 #: guitext:582
 msgctxt "Trap names"
 msgid "Word of Power Trap"
-msgstr ""
+msgstr "언령 함정"
 
 #: guitext:583
 msgctxt "Trap names"
 msgid "Lava Trap"
-msgstr ""
+msgstr "용암 함정"
 
 #: guitext:584
 msgctxt "Trap description"
@@ -3608,6 +4128,9 @@ msgid ""
 "when enemy creature is close and within line of sight, or when slapped by a "
 "Keeper. LMB select. RMB zoom."
 msgstr ""
+"바위 함정: 지나가는 모든 것을 찌그러뜨리는 구르는 바위입니다. 적 피조물이 근"
+"접하여 시야에 들어오거나 키퍼에 의해 찰싹 맞았을 때 굴러갑니다. 왼쪽 마우스 "
+"단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다."
 
 #: guitext:585
 msgctxt "Trap description"
@@ -3615,6 +4138,9 @@ msgid ""
 "Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
 "summoned to it. LMB select. RMB zoom."
 msgstr ""
+"경보 함정: 해당 지역의 생물들이 경보 함정으로 호출되도록 긴급 소집 주문을 발"
+"사합니다. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니"
+"다."
 
 #: guitext:586
 msgctxt "Trap description"
@@ -3622,6 +4148,9 @@ msgid ""
 "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
 "hurt owner creatures if they inhale it. LMB select. RMB zoom."
 msgstr ""
+"독가스 함정: 적들에 의해 촉발되는 유해한 증기의 구름입니다. 당신의 피조물들"
+"이 들이마시면 다칠 수 있습니다. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 "
+"단추로 대상을 주목합니다."
 
 #: guitext:587
 msgctxt "Trap description"
@@ -3629,6 +4158,9 @@ msgid ""
 "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
 "tripped. Does no harm to owner creatures. LMB select. RMB zoom."
 msgstr ""
+"번개 함정: 지나갈때 번개 볼트로 근처의 적 생물을 타격합니다. 당신의 피조물에"
+"게 해를 끼치지 않습니다. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 단추로 "
+"대상을 주목합니다."
 
 #: guitext:588
 msgctxt "Trap description"
@@ -3636,6 +4168,9 @@ msgid ""
 "Word of Power Trap: Radiates devastating rings of demonic energy, pushing "
 "and damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr ""
+"언령 함정: 파괴적인 악령 에너지 고리를 방사하여 사정권의 모든 적군 생물을 뒤"
+"로 밀치고 손상시킵니다. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 단추로 "
+"대상을 주목합니다."
 
 #: guitext:589
 msgctxt "Trap description"
@@ -3644,26 +4179,29 @@ msgid ""
 "are irreversible, so Bridge is needed to be able to step on affected area "
 "again. LMB select. RMB zoom."
 msgstr ""
+"용암 함정 : 타일은 녹은 용암덩어리를 드러내며 분해됩니다. 효과는 되돌릴 수 없"
+"으므로 영향을 받는 부위를 다시 밟으려면 다리가 필요합니다. 왼쪽 마우스 단추"
+"로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다."
 
 #: guitext:590
 msgctxt "Door name"
 msgid "Wooden Door"
-msgstr ""
+msgstr "나무문"
 
 #: guitext:591
 msgctxt "Door name"
 msgid "Braced Door"
-msgstr ""
+msgstr "강화문"
 
 #: guitext:592
 msgctxt "Door name"
 msgid "Iron Door"
-msgstr ""
+msgstr "강철문"
 
 #: guitext:593
 msgctxt "Door name"
 msgid "Magic Door"
-msgstr ""
+msgstr "마법문"
 
 #: guitext:594
 msgctxt "Door description"
@@ -3671,6 +4209,8 @@ msgid ""
 "Wooden Door: The simplest means of restricting access. Can be broken down "
 "easily. LMB select. RMB zoom."
 msgstr ""
+"나무문 : 접근을 제한하는 가장 간단한 방법입니다. 쉽게 망가집니다. 왼쪽 마우"
+"스 단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다."
 
 #: guitext:595
 msgctxt "Door description"
@@ -3678,6 +4218,8 @@ msgid ""
 "Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
 "RMB zoom."
 msgstr ""
+"강화문 : 철로 보강된 나무문이 더 오래 지속됩니다. 왼쪽 마우스 단추로 선택합니"
+"다. 오른쪽 마우스 단추로 대상을 주목합니다."
 
 #: guitext:596
 msgctxt "Door description"
@@ -3685,6 +4227,8 @@ msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
 "select. RMB zoom."
 msgstr ""
+"철문 : 강력하고 무거운 문으로 막대한 피해를 지탱할 수 있습니다. 왼쪽 마우스 "
+"단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다."
 
 #: guitext:597
 msgctxt "Door description"
@@ -3692,102 +4236,108 @@ msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
 "susceptible to magical damage. LMB select. RMB zoom."
 msgstr ""
+"마법의 문: 물리적 손상에 매우 강하지만 마법의 손상에 취약한 특수 문입니다. 왼"
+"쪽 마우스 단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다."
 
 #: guitext:598
 msgctxt "Room name"
 msgid "Portal"
-msgstr ""
+msgstr "포탈"
 
 #: guitext:599
 msgctxt "Room name"
 msgid "Treasure Room"
-msgstr ""
+msgstr "보물 창고"
 
 #: guitext:600
 msgctxt "Room name"
 msgid "Library"
-msgstr ""
+msgstr "도서관"
 
 #: guitext:601
 msgctxt "Room name"
 msgid "Prison"
-msgstr ""
+msgstr "감옥"
 
 #: guitext:602
 msgctxt "Room name"
 msgid "Torture Chamber"
-msgstr ""
+msgstr "고문실"
 
 #: guitext:603
 msgctxt "Room name"
 msgid "Training Room"
-msgstr ""
+msgstr "훈련장"
 
 #: guitext:604
 msgctxt "Room name"
 msgid "Dungeon Heart"
-msgstr ""
+msgstr "던전 하트"
 
 #: guitext:605
 msgctxt "Room name"
 msgid "Workshop"
-msgstr ""
+msgstr "공방"
 
 #: guitext:606
 msgctxt "Room name"
 msgid "Graveyard"
-msgstr ""
+msgstr "묘지"
 
 #: guitext:607
 msgctxt "Room name"
 msgid "Barracks"
-msgstr ""
+msgstr "병영"
 
 #: guitext:608
 msgctxt "Room name"
 msgid "Hatchery"
-msgstr ""
+msgstr "부화장"
 
 #: guitext:609
 msgctxt "Room name"
 msgid "Lair"
-msgstr ""
+msgstr "보금자리"
 
 #: guitext:610
 msgctxt "Room name"
 msgid "Bridge"
-msgstr ""
+msgstr "다리"
 
 #: guitext:611
 msgctxt "Room name"
 msgid "Guard Post"
-msgstr ""
+msgstr "초소"
 
 #: guitext:612
 msgctxt "Room name"
 msgid "Temple"
-msgstr ""
+msgstr "사원"
 
 #: guitext:613
 msgctxt "Room name"
 msgid "Scavenger Room"
-msgstr ""
+msgstr "추적실"
 
 #: guitext:614
 msgctxt "Object name"
 msgid "Hero Gate"
-msgstr ""
+msgstr "영웅 게이트"
 
 #: guitext:615
 msgctxt "Room description"
 msgid "Treasure Room: Your gold is stored here. LMB select. RMB zoom. [17.1]"
 msgstr ""
+"보물 창고 : 당신의 금은 여기에 보관되어 있습니다. 왼쪽 마우스 단추로 선택합니"
+"다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.1]"
 
 #: guitext:616
 msgctxt "Room description"
 msgid ""
 "Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
 msgstr ""
+"도서실 : 주문을 연구하는 방입니다. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우"
+"스 단추로 대상을 주목합니다. [17.4]"
 
 #: guitext:617
 msgctxt "Room description"
@@ -3795,6 +4345,8 @@ msgid ""
 "Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. "
 "[17.10]"
 msgstr ""
+"감옥 : 적 피조물을 안전하게 보관할 수 있도록 이곳에 배치합니다. 왼쪽 마우스 "
+"단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.10]"
 
 #: guitext:618
 msgctxt "Room description"
@@ -3802,6 +4354,8 @@ msgid ""
 "Training Room: Place creatures in here to improve their experience. LMB "
 "select. RMB zoom. [17.5]"
 msgstr ""
+"훈련실 : 경험치를 쌓기 위해 이곳에 피조물들을 배치하세요. 왼쪽 마우스 단추로 "
+"선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.5]"
 
 #: guitext:619
 msgctxt "Room description"
@@ -3809,11 +4363,13 @@ msgid ""
 "Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB "
 "zoom. [17.11]"
 msgstr ""
+"고문실 : 당신 자신의 악한 목적을 위해 피조물을 고문 합니다. 왼쪽 마우스 단추"
+"로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.11]"
 
 #: guitext:620
 msgctxt "Room description"
 msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
-msgstr ""
+msgstr "던전 하트: 당신의 던전의 생명력. [11.2]"
 
 #: guitext:621
 msgctxt "Room description"
@@ -3821,6 +4377,8 @@ msgid ""
 "Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. "
 "RMB zoom. [17.8]"
 msgstr ""
+"공방 : 함정과 도어를 제조할 수 있도록 내부에 피조물을 배치합니다. 왼쪽 마우"
+"스 단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.8]"
 
 #: guitext:622
 msgctxt "Room description"
@@ -3828,6 +4386,8 @@ msgid ""
 "Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB "
 "zoom. [17.13]"
 msgstr ""
+"묘지: 죽은 생물들은 썩기 위해 이 방으로 끌려갑니다. 왼쪽 마우스 단추로 선택합"
+"니다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.13]"
 
 #: guitext:623
 msgctxt "Room description"
@@ -3835,6 +4395,8 @@ msgid ""
 "Barracks: Group creatures by placing them into the room. LMB select. RMB "
 "zoom. [17.9]"
 msgstr ""
+"병영 : 방에 놓아 생물을 그룹화합니다. 왼쪽 마우스 단추로 선택합니다. 오른쪽 "
+"마우스 단추로 대상을 주목합니다. [17.9]"
 
 #: guitext:624
 msgctxt "Room description"
@@ -3842,13 +4404,17 @@ msgid ""
 "Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
 "RMB zoom. [17.3]"
 msgstr ""
+"부화장 : 피조물들이 귀엽고 무력한 작은 병아리를 먹고 있는 곳입니다. 왼쪽 마우"
+"스 단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.3]"
 
 #: guitext:625
 msgctxt "Room description"
 msgid ""
-"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"Lair: Where your creatures sleep and replenish their health. LMB select. RMB "
 "zoom. [17.2]"
 msgstr ""
+"보금자리: 여러분의 피조물들이 잠을 자고 건강을 보충하는 곳입니다. 왼쪽 마우"
+"스 단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.2]"
 
 #: guitext:626
 msgctxt "Room description"
@@ -3856,6 +4422,8 @@ msgid ""
 "Bridge: Place this on water and lava to allow creatures to cross. LMB "
 "select. RMB zoom. [17.6]"
 msgstr ""
+"다리 : 피조물들이 건너갈 수 있도록 물과 용암 위에 이것을 놓으세요. 왼쪽 마우"
+"스 단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.6]"
 
 #: guitext:627
 msgctxt "Room description"
@@ -3863,13 +4431,18 @@ msgid ""
 "Guard Post: Your creatures keep watch over your dungeon when placed on this "
 "room. LMB select. RMB zoom. [17.7]"
 msgstr ""
+"초소 : 당신의 피조물들은 이 방에 있을 때 던전을 감시합니다. 왼쪽 마우스 단추"
+"로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [17.7]"
 
 #: guitext:628
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
 msgstr ""
+"사원: 어두운 신들을 숭배하는 것은 피조물들을 더 행복하게 만듭니다. 피조물을 "
+"분수대에 떨어뜨려 희생시키세요. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 "
+"단추로 대상을 주목합니다. [17.12]"
 
 #: guitext:629
 msgctxt "Room description"
@@ -3877,96 +4450,100 @@ msgid ""
 "Scavenger Room: Creatures placed onto the room lure their kin away from "
 "other dungeons or through portals. LMB select. RMB zoom. [17.14]"
 msgstr ""
+"추적실: 방에 놓여진 피조물들은 다른 던전이나 포탈을 통해 그들의 친척들을 유인"
+"합니다. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니"
+"다. [17.14]"
 
 #: guitext:630
 msgctxt "Keeper spell name"
 msgid "Possess Creature"
-msgstr ""
+msgstr "피조물 지배"
 
 #: guitext:631
 msgctxt "Keeper spell name"
 msgid "Create Imp"
-msgstr ""
+msgstr "임프 생성"
 
 #: guitext:632
 msgctxt "Keeper spell name"
 msgid "Sight of Evil"
-msgstr ""
+msgstr "악마의 시야"
 
 #: guitext:633
 msgctxt "Keeper spell name"
 msgid "Call To Arms"
-msgstr ""
+msgstr "긴급 소환"
 
 #: guitext:634
 msgctxt "Keeper spell name"
 msgid "Hold Audience"
-msgstr ""
+msgstr "긴급 행동정지 소환"
 
 #: guitext:635
 msgctxt "Keeper spell name"
 msgid "Cave-In"
-msgstr ""
+msgstr "낙반"
 
 #: guitext:636
 msgctxt "Keeper spell name"
 msgid "Must Obey"
-msgstr ""
+msgstr "절대 명령"
 
 #: guitext:637
 msgctxt "Keeper spell name"
 msgid "Speed Monster"
-msgstr ""
+msgstr "몬스터 가속"
 
 #: guitext:638
 msgctxt "Keeper spell name"
 msgid "Protect Monster"
-msgstr ""
+msgstr "몬스터 보호"
 
 #: guitext:639
 msgctxt "Keeper spell name"
 msgid "Conceal Monster"
-msgstr ""
+msgstr "몬스터 은닉"
 
 #: guitext:640
 msgctxt "Keeper spell name"
 msgid "Lightning Strike"
-msgstr ""
+msgstr "라이트닝 스트라이크"
 
 #: guitext:641
 msgctxt "Keeper spell name"
 msgid "Chicken"
-msgstr ""
+msgstr "닭"
 
 #: guitext:642
 msgctxt "Keeper spell name"
 msgid "Disease"
-msgstr ""
+msgstr "질병"
 
 #: guitext:643
 msgctxt "Keeper spell name"
 msgid "Destroy Walls"
-msgstr ""
+msgstr "장벽 파괴"
 
 #: guitext:644
 msgctxt "Keeper spell name"
 msgid "Heal"
-msgstr ""
+msgstr "치유"
 
 #: guitext:645
 msgctxt "Keeper spell name"
 msgid "Time Bomb"
-msgstr ""
+msgstr "시한 폭탄"
 
 #: guitext:646
 msgctxt "Keeper spell name"
 msgid "Armageddon"
-msgstr ""
+msgstr "아마게돈"
 
 #: guitext:647
 msgctxt "Keeper spell description"
 msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
 msgstr ""
+"피조물 지배 : 피조물을 직접 제어합니다. 왼쪽 마우스 단추로 선택합니다. [18.1]"
 
 #: guitext:648
 msgctxt "Keeper spell description"
@@ -3974,6 +4551,8 @@ msgid ""
 "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
 "[18.2]"
 msgstr ""
+"임프 생성 : 던전 어디에든 새로운 임프를 만듭니다. 왼쪽 마우스 단추로 선택합니"
+"다. [18.2]"
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -3981,13 +4560,19 @@ msgid ""
 "Sight of Evil: Reveal a hidden area of the map for a limited time. LMB "
 "select. RMB zoom. [18.3]"
 msgstr ""
+"악마의 시야: 지도에 숨겨진 영역을 제한된 시간 동안 노출합니다. 왼쪽 마우스 단"
+"추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [18.3]"
 
 #: guitext:650
 msgctxt "Keeper spell description"
 msgid ""
-"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
-"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+"Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
+"in range of creatures to gather, cast again for destination. RMB zoom. LMB "
+"Cancel. [18.6]"
 msgstr ""
+"긴급소집 : 범위안의 피조물을 목적지로 호출합니다. 왼쪽 마우스 단추로 선택합니"
+"다. 모일 생물 범위에 캐스팅하고 목적지로 다시 캐스팅합니다. 오른쪽 마우스 단"
+"추로 대상을 주목합니다. 왼쪽 마우스 단추로 취소합니다. [18.6]"
 
 #: guitext:651
 msgctxt "Keeper spell description"
@@ -3995,11 +4580,14 @@ msgid ""
 "Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. "
 "RMB zoom. [18.8]"
 msgstr ""
+"긴급 행동정지 소환 : 모든 피조물을 던전 하트로 호출합니다. 왼쪽 마우스 단추"
+"로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [18.8]"
 
 #: guitext:652
 msgctxt "Keeper spell description"
 msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
 msgstr ""
+"낙반: 던전의 지붕을 무너트립니다. 왼쪽 마우스 단추로 선택합니다. [18.13]"
 
 #: guitext:653
 msgctxt "Keeper spell description"
@@ -4007,17 +4595,23 @@ msgid ""
 "Must Obey: Forces your creatures to obey your every command. LMB select. "
 "[18.5]"
 msgstr ""
+"절대 명령 : 당신의 모든 명령을 따르도록 당신의 피조물들을 강제합니다. 왼쪽 마"
+"우스 단추로 선택합니다. [18.5]"
 
 #: guitext:654
 msgctxt "Keeper spell description"
 msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
 msgstr ""
+"몬스터 가속 : 몬스터의 속도가 빨라집니다. 왼쪽 마우스 단추로 선택합니다. "
+"[18.4]"
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid ""
 "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
 msgstr ""
+"몬스터 보호 : 여러분의 피조물을 공격으로부터 보호합니다. 왼쪽 마우스 단추로 "
+"선택합니다. [18.11]"
 
 #: guitext:656
 msgctxt "Keeper spell description"
@@ -4025,6 +4619,8 @@ msgid ""
 "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
 "[18.7]"
 msgstr ""
+"몬스터 은닉: 적에게 당신의 생명체를 보이지 않게 만듭니다. 왼쪽 마우스 단추로 "
+"선택합니다. [18.7]"
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -4032,35 +4628,42 @@ msgid ""
 "Lightning Strike: Strikes an area of the dungeon with a devastating bolt of "
 "lightning. LMB select. [18.10]"
 msgstr ""
+"라이트닝 스트라이크 : 파괴적인 번개로 던전의 한 지역을 강타합니다. 왼쪽 마우"
+"스 단추로 선택합니다. [18.10]"
 
 #: guitext:658
 msgctxt "Keeper spell description"
 msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
 msgstr ""
+"닭 : 적을 맛있는 몰골로 변신시킵니다. 왼쪽 마우스 단추로 선택합니다. [18.12]"
 
 #: guitext:659
 msgctxt "Keeper spell description"
 msgid ""
 "Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
 msgstr ""
+"질병 : 적에게 치명적인 전염병을 가합니다. 왼쪽 마우스 단추로 선택합니다. "
+"[18.14]"
 
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
-"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
 msgstr ""
+"장벽 파괴: 강화된 적의 방어벽을 파괴합니다. 왼쪽 마우스 단추로 선택합니다. "
+"[18.16]"
 
 #: guitext:661
 msgctxt "Keeper spell description"
-msgid ""
-"Heal: Cast on an area of the dungeon to improve the health of your "
-"creatures. LMB select. [18.9]"
+msgid "Heal: Cast on a creature to improve its health. LMB select. [18.9]"
 msgstr ""
+"치유: 피조물의 생명력을 증진시키기 위해 생물에 주문을 겁니다. 왼쪽 마우스 단"
+"추로 선택합니다. [18.9]"
 
 #: guitext:662
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr ""
+msgstr "시한 폭탄 : 당신의 피조물을 자살 폭탄 테러범으로 만들어요."
 
 #: guitext:663
 msgctxt "Keeper spell description"
@@ -4068,331 +4671,341 @@ msgid ""
 "Armageddon: Transports all the creatures in the land to your Dungeon Heart "
 "for a final, decisive battle. LMB select. [18.15]"
 msgstr ""
+"아마게돈 : 이 땅의 모든 생명체를 던전 하트로 수송하여 최후의 결전을 벌입니"
+"다. 왼쪽 마우스 단추로 선택합니다. [18.15]"
 
 #: guitext:664
 msgctxt "Game event name"
 msgid "Treasure Room full"
-msgstr ""
+msgstr "보물 창고가 가득 참"
 
 #: guitext:665
 msgctxt "Game event name"
 msgid "Scavenging detected"
-msgstr ""
+msgstr "피조물을 탐색함"
 
 #: guitext:666
 msgctxt "Game event name"
 msgid "Creature Payday"
-msgstr ""
+msgstr "월급날"
 
 #: guitext:667
 msgctxt "Game event name"
 msgid "New spell picked up"
-msgstr ""
+msgstr "새로운 주문을 발견함"
 
 #: guitext:668
 msgctxt "Game event name"
 msgid "New room taken over"
-msgstr ""
+msgstr "새로운 방을 인수함"
 
 #: guitext:669
 msgctxt "Game event name"
 msgid "New area discovered"
-msgstr ""
+msgstr "새로운 지역을 탐색함"
 
 #: guitext:670
 msgctxt "Game event name"
 msgid "Information"
-msgstr ""
+msgstr "정보"
 
 #: guitext:671
 msgctxt "Game event name"
 msgid "Room lost"
-msgstr ""
+msgstr "방을 잃음"
 
 #: guitext:672
 msgctxt "Game event name"
 msgid "Heart attacked"
-msgstr ""
+msgstr "던전 하트가 공격당함"
 
 #: guitext:673
 msgctxt "Game event name"
 msgid "Fight"
-msgstr ""
+msgstr "전투"
 
 #: guitext:674
 msgctxt "Game event name"
 msgid "Objective"
-msgstr ""
+msgstr "목적"
 
 #: guitext:675
 msgctxt "Game event name"
 msgid "Breach"
-msgstr ""
+msgstr "돌파구"
 
 #: guitext:676
 msgctxt "Game event name"
 msgid "New spell researched"
-msgstr ""
+msgstr "새로운 주문을 연구함"
 
 #: guitext:677
 msgctxt "Game event name"
 msgid "New room researched"
-msgstr ""
+msgstr "새로운 방을 연구함"
 
 #: guitext:678
 msgctxt "Game event name"
 msgid "New Trap"
-msgstr ""
+msgstr "새 함정"
 
 #: guitext:679
 msgctxt "Game event name"
 msgid "New Door"
-msgstr ""
+msgstr "새 문"
 
 #: guitext:680
 msgctxt "Game event name"
 msgid "New creature in dungeon"
-msgstr ""
+msgstr "새로운 피조물이 던전에 도착"
 
 #: guitext:681
 msgctxt "Game event name"
 msgid "Creature annoyed"
-msgstr ""
+msgstr "피조물이 짜증남"
 
 #: guitext:682
 msgctxt "Game event name"
 msgid "No more living space"
-msgstr ""
+msgstr "더 이상 살수 있는 공간이 없음"
 
 #: guitext:683
 msgctxt "Game event name"
 msgid "Alarm triggered"
-msgstr ""
+msgstr "경보가 울림"
 
 #: guitext:684
 msgctxt "Game event name"
 msgid "Room under attack"
-msgstr ""
+msgstr "방이 공격 당함"
 
 #: guitext:685
 msgctxt "Game event name"
 msgid "Treasure Room needed"
-msgstr ""
+msgstr "보물 창고가 필요함"
 
 #: guitext:686
 msgctxt "Game event name"
 msgid "Creatures becoming hungry"
-msgstr ""
+msgstr "피조물이 배고파짐"
 
 #: guitext:687
 msgctxt "Game event name"
 msgid "Trap crate found"
-msgstr ""
+msgstr "함정 상자 발견"
 
 #: guitext:688
 msgctxt "Game event name"
 msgid "Door crate found"
-msgstr ""
+msgstr "문 상자 발견"
 
 #: guitext:689
 msgctxt "Game event name"
 msgid "Dungeon Special found"
-msgstr ""
+msgstr "던전 스페셜 발견"
 
 #: guitext:690
 msgctxt "Game event description"
 msgid "Treasure Room full: LMB toggle. RMB delete."
 msgstr ""
+"보물 창고가 가득참 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:691
 msgctxt "Game event description"
 msgid "Creature being scavenged: LMB toggle. RMB delete."
-msgstr ""
+msgstr "피조물이 탐색됨 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:692
 msgctxt "Game event description"
 msgid "Creature Payday: LMB toggle. RMB delete."
-msgstr ""
+msgstr "월급날 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:693
 msgctxt "Game event description"
 msgid "New spell picked up: LMB toggle. RMB delete."
-msgstr ""
+msgstr "새 주문을 발견함 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:694
 msgctxt "Game event description"
 msgid "New room taken over: LBM toggle. RMB delete."
-msgstr ""
+msgstr "새 방을 인수함 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:695
 msgctxt "Game event description"
 msgid "New area discovered: LMB toggle. RMB delete."
-msgstr ""
+msgstr "새 지역을 발견함 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:696
 msgctxt "Game event description"
 msgid "Information: LMB toggle. RMB delete."
-msgstr ""
+msgstr "정보 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:697
 msgctxt "Game event description"
 msgid "Room lost: LMB toggle. RMB delete."
-msgstr ""
+msgstr "방을 잃음 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:698
 msgctxt "Game event description"
 msgid "Dungeon Heart Attacked: LMB toggle. RMB delete."
 msgstr ""
+"던전 하트가 공격당함 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:699
 msgctxt "Game event description"
 msgid "Fight: LMB toggle. RMB delete. [10.5]"
-msgstr ""
+msgstr "전투 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제. [10.5]"
 
 #: guitext:700
 msgctxt "Game event description"
 msgid "Objective: LMB toggle. [11.3]"
-msgstr ""
+msgstr "목적 : 왼쪽 마우스 단추로 전환. [11.3]"
 
 #: guitext:701
 msgctxt "Game event description"
 msgid "Breach: LMB toggle. RMB delete."
-msgstr ""
+msgstr "돌파구 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:702
 msgctxt "Game event description"
 msgid "New spell researched: LMB toggle. RMB delete."
-msgstr ""
+msgstr "새 주문을 연구함 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:703
 msgctxt "Game event description"
 msgid "New room researched: LMB toggle. RMB delete."
-msgstr ""
+msgstr "새 방을 연구함 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:704
 msgctxt "Game event description"
 msgid "New trap: LMB toggle. RMB delete."
-msgstr ""
+msgstr "새 함정 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:705
 msgctxt "Game event description"
 msgid "New door: LMB toggle. RMB delete."
-msgstr ""
+msgstr "새 문 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:706
 msgctxt "Game event description"
 msgid "New creature in dungeon: LMB toggle. RMB delete."
 msgstr ""
+"새로운 피조물이 던전에 도착 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 "
+"삭제."
 
 #: guitext:707
 msgctxt "Game event description"
 msgid "Creature is annoyed: LMB toggle. RMB delete."
-msgstr ""
+msgstr "피조물이 짜증남 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:708
 msgctxt "Game event description"
 msgid "No more living set: LMB toggle. RMB delete."
 msgstr ""
+"더 이상 살수 있는 공간이 없음 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추"
+"로 삭제."
 
 #: guitext:709
 msgctxt "Game event description"
 msgid "Alarm triggered: LMB toggle. RMB delete."
-msgstr ""
+msgstr "경보가 울림 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:710
 msgctxt "Game event description"
 msgid "Room under attack: LMB toggle. RMB delete."
-msgstr ""
+msgstr "방이 공격 당함 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:711
 msgctxt "Game event description"
 msgid "Need Treasure Room: LMB toggle. RMB delete."
 msgstr ""
+"보물 창고가 필요함 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:712
 msgctxt "Game event description"
 msgid "Creatures becoming hungry: LMB toggle. RMB delete."
 msgstr ""
+"피조물이 배고파짐 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:713
 msgctxt "Game event description"
 msgid "Trap crate found: LMB toggle. RMB delete."
-msgstr ""
+msgstr "함정 상자 발견 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:714
 msgctxt "Game event description"
 msgid "Door crate found: LMB toggle. RMB delete."
-msgstr ""
+msgstr "문 상자 발견 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:715
 msgctxt "Game event description"
 msgid "Dungeon special found: LMB toggle. RMB delete."
-msgstr ""
+msgstr "던전 스페셜 발견 : 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:716
 msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
-msgstr ""
+msgstr "옵션"
 
 #: guitext:717
 msgctxt "In-game interface item"
 msgid "Graphics Options"
-msgstr ""
+msgstr "화면 옵션"
 
 #: guitext:718
 msgctxt "In-game interface item"
 msgid "Sound Options"
-msgstr ""
+msgstr "소리 옵션"
 
 #: guitext:719
 msgctxt "In-game interface item"
 msgid "Load"
-msgstr ""
+msgstr "불러오기"
 
 #: guitext:720
 msgctxt "In-game interface item"
 msgid "Save"
-msgstr ""
+msgstr "저장하기"
 
 #: guitext:721
 msgctxt "In-game interface item"
 msgid "Computer Assistance"
-msgstr ""
+msgstr "컴퓨터 보조"
 
 #: guitext:722
 msgctxt "In-game interface description"
 msgid "Options: Open Options Panel. LMB open panel. [3.2]"
-msgstr ""
+msgstr "옵션 : 옵션 패널을 엽니다. 왼쪽 마우스 단추로 패널 열기."
 
 #: guitext:723
 msgctxt "In-game interface description"
 msgid "Graphics Menu: Customise the graphics. [3.2.2]"
-msgstr ""
+msgstr "화면 메뉴 : 화면 조정. [3.2.2]"
 
 #: guitext:724
 msgctxt "In-game interface description"
 msgid "Sound Menu: Adjust the sound and music volumes. [3.2.3]"
-msgstr ""
+msgstr "소리 메뉴 : 음성과 음악의 크기를 조정. [3.2.3]"
 
 #: guitext:725
 msgctxt "In-game interface description"
 msgid "Load Game: Load a previously saved game. [3.2.1]"
-msgstr ""
+msgstr "게임 불러오기 : 이전에 저장한 게임을 불러옴. [3.2.1]"
 
 #: guitext:726
 msgctxt "In-game interface description"
 msgid "Save Game: Save your current game. [3.2.1]"
-msgstr ""
+msgstr "게임 저장하기 : 현재 게임을 저정함. [3.2.1]"
 
 #: guitext:727
 msgctxt "In-game interface description"
 msgid "Quit Game: Quit back to the Level Map. [3.2.5]"
-msgstr ""
+msgstr "게임 나가기 : 레벨 지도로 돌아감. [3.2.5]"
 
 #: guitext:728
 msgctxt "In-game interface description"
 msgid "Computer Assistance Menu: Customise the Computer Assistant. [3.2.4]"
-msgstr ""
+msgstr "컴퓨터 보조 메뉴 : 컴퓨터 보조를 조정. [3.2.4]"
 
 #: guitext:729
 msgctxt "In-game interface description"
@@ -4400,6 +5013,8 @@ msgid ""
 "Aggressive Computer Assistant: Constructs your dungeon and always trys to "
 "attack the enemy. LMB select. [3.2.4]"
 msgstr ""
+"공격적인 컴퓨터 보조: 던전을 구성하고 항상 적을 공격는걸 시도합니다. 왼쪽 마"
+"우스 단추로 선택합니다. [3.2.4]"
 
 #: guitext:730
 msgctxt "In-game interface description"
@@ -4407,6 +5022,8 @@ msgid ""
 "Defensive Computer Assistant: Constructs your dungeon but does not attack "
 "the enemy. LMB select. [3.2.4]"
 msgstr ""
+"방어적인 컴퓨터 보조: 던전을 구성하지만 적을 공격하지 않습니다. 왼쪽 마우스 "
+"단추로 선택합니다. [3.2.4]"
 
 #: guitext:731
 msgctxt "In-game interface description"
@@ -4414,6 +5031,8 @@ msgid ""
 "Construction Only Computer Assistant: Digs, places rooms and traps but does "
 "not move creatures. LMB select. [3.2.4]"
 msgstr ""
+"공구리만치는 컴퓨터 보조: 굴을 파고 방을 만들고 함정을 설치 하지만 피조물을 "
+"움직이지 않습니다. 왼쪽 마우스 단추로 선택합니다. [3.2.4]"
 
 #: guitext:732
 msgctxt "In-game interface description"
@@ -4421,27 +5040,39 @@ msgid ""
 "Move Only Computer Assistant: Moves and slaps your creatures. LMB select. "
 "[3.2.4]"
 msgstr ""
+"이동만 컴퓨터 보조: 피조물을 움직이고 쳐바릅니다. 왼쪽 마우스 단추로 선택합니"
+"다. [3.2.4]"
 
 #: guitext:733
 msgctxt "In-game interface description"
 msgid ""
-"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
+"Zoom. [22.2.1]"
 msgstr ""
+"피조물을 집어듦 : 왼쪽 마우스 단추로 모든 피조물을 선택합니다. Ctrl + 왼쪽 마"
+"우스 단추로 레벨 높은 피조물을 선택합니다. 오른쪽 마우스 단추로 조명합니다. "
+"[22.2.1]"
 
 #: guitext:734
 msgctxt "In-game interface description"
 msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
+"휴식중인 피조물 집어들기 : 왼쪽 마우스 단추로 피조물을 집어듭니다. 오른쪽 마"
+"우스 단추로 조명합니다. [22.2.1]"
 
 #: guitext:735
 msgctxt "In-game interface description"
 msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
+"일하는 중인 피조물 집어들기 : 왼쪽 마우스 단추로 집어듭니다. 오른쪽 마우스 단"
+"추로 조명합니다. [22.2.1]"
 
 #: guitext:736
 msgctxt "In-game interface description"
 msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
+"전투중인 피조물 집어들기 : 왼쪽 마우스 단추로 집어듭니다. 오른쪽 마우스 단추"
+"로 조명합니다. [22.2.1]"
 
 #: guitext:737
 msgctxt "In-game interface description"
@@ -4449,6 +5080,8 @@ msgid ""
 "Invert Mouse: Inverts the vertical mouse movements while Possessing a "
 "creature. LMB toggle."
 msgstr ""
+"마우스 반전 : 피조물 지배시 마우스 상하 이동을 반전합니다. 왼쪽 마우스 단추"
+"로 전환합니다."
 
 #: guitext:738
 msgctxt "In-game interface description"
@@ -4456,326 +5089,328 @@ msgid ""
 "Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse "
 "movements when in Possess Creature mode. LMB toggle."
 msgstr ""
+"피조물 지배 마우스 감도 : 피조물 지배 상태에서 마우스 이동 감도를 조정합니"
+"다. 왼쪽 마우스 단추로 전환합니다."
 
 #: guitext:739
 msgctxt "In-game interface description"
 msgid "More sensitive."
-msgstr ""
+msgstr "보다 민감하게."
 
 #: guitext:740
 msgctxt "In-game interface description"
 msgid "Less sensitive."
-msgstr ""
+msgstr "덜 민감하게."
 
 #: guitext:741
 msgctxt "Statistic name"
 msgid "Number of Creatures"
-msgstr ""
+msgstr "피조물 수"
 
 #: guitext:742
 msgctxt "Statistic name"
 msgid "Gold Mined"
-msgstr ""
+msgstr "체굴된 금"
 
 #: guitext:743
 msgctxt "Statistic name"
 msgid "Efficiency"
-msgstr ""
+msgstr "효율"
 
 #: guitext:744
 msgctxt "Statistic name"
 msgid "Secrets"
-msgstr ""
+msgstr "비밀"
 
 #: guitext:745
 msgctxt "Statistic name"
 msgid "Money"
-msgstr ""
+msgstr "제화"
 
 #: guitext:746
 msgctxt "Statistic name"
 msgid "Time"
-msgstr ""
+msgstr "시간"
 
 #: guitext:747
 msgctxt "Statistic name"
 msgid "Style"
-msgstr ""
+msgstr "스타일"
 
 #: guitext:748
 msgctxt "Statistic name"
 msgid "Rating"
-msgstr ""
+msgstr "평가"
 
 #: guitext:749
 msgctxt "Statistic name"
 msgid "Creatures Attracted"
-msgstr ""
+msgstr "하수인이된 피조물"
 
 #: guitext:750
 msgctxt "Statistic name"
 msgid "Battles Won"
-msgstr ""
+msgstr "승리 전적"
 
 #: guitext:751
 msgctxt "Statistic name"
 msgid "Battles Lost"
-msgstr ""
+msgstr "패배 전적"
 
 #: guitext:752
 msgctxt "Statistic name"
 msgid "Times Dungeon Breached"
-msgstr ""
+msgstr "던전에 침입한 횟수"
 
 #: guitext:753
 msgctxt "Statistic name"
 msgid "Imps Deployed"
-msgstr ""
+msgstr "생성된 임프"
 
 #: guitext:754
 msgctxt "Statistic name"
 msgid "Creatures Left"
-msgstr ""
+msgstr "남은 피조물"
 
 #: guitext:755
 msgctxt "Statistic name"
 msgid "Doors Destroyed"
-msgstr ""
+msgstr "부서진 문"
 
 #: guitext:756
 msgctxt "Statistic name"
 msgid "Rooms Destroyed"
-msgstr ""
+msgstr "파괴된 방"
 
 #: guitext:757
 msgctxt "Statistic name"
 msgid "Dungeon Area"
-msgstr ""
+msgstr "던전 면적"
 
 #: guitext:758
 msgctxt "Statistic name"
 msgid "Ideas Researched"
-msgstr ""
+msgstr "완성된 연구"
 
 #: guitext:759
 msgctxt "Statistic name"
 msgid "Creatures Scavenged"
-msgstr ""
+msgstr "탐색된 피조물"
 
 #: guitext:760
 msgctxt "Statistic name"
 msgid "Creatures Summoned"
-msgstr ""
+msgstr "소환된 피조물"
 
 #: guitext:761
 msgctxt "Statistic name"
 msgid "Creatures Sacrificed"
-msgstr ""
+msgstr "희생된 피조물"
 
 #: guitext:762
 msgctxt "Statistic name"
 msgid "Creatures Tortured"
-msgstr ""
+msgstr "고문한 피조물"
 
 #: guitext:763
 msgctxt "Statistic name"
 msgid "Creatures Trained"
-msgstr ""
+msgstr "훈련한 피조물"
 
 #: guitext:764
 msgctxt "Statistic name"
 msgid "Gold Pots Stolen"
-msgstr ""
+msgstr "훔친 골드"
 
 #: guitext:765
 msgctxt "Statistic name"
 msgid "Spells Stolen"
-msgstr ""
+msgstr "훔친 주문"
 
 #: guitext:766
 msgctxt "Statistic name"
 msgid "Traps Manufactured"
-msgstr ""
+msgstr "생산한 함정"
 
 #: guitext:767
 msgctxt "Statistic name"
 msgid "Traps Unused"
-msgstr ""
+msgstr "미사용 함정"
 
 #: guitext:768
 msgctxt "Statistic name"
 msgid "Doors Manufactured"
-msgstr ""
+msgstr "생산한 문"
 
 #: guitext:769
 msgctxt "Statistic name"
 msgid "Doors Unused"
-msgstr ""
+msgstr "미사용 문"
 
 #: guitext:770
 msgctxt "Statistic name"
 msgid "Number of Rooms"
-msgstr ""
+msgstr "방의 수"
 
 #: guitext:771
 msgctxt "Statistic name"
 msgid "Number of Portals"
-msgstr ""
+msgstr "포탈의 수"
 
 #: guitext:772
 msgctxt "Statistic name"
 msgid "Slaps"
-msgstr ""
+msgstr "싸다구"
 
 #: guitext:773
 msgctxt "Statistic name"
 msgid "Cave-Ins"
-msgstr ""
+msgstr "낙반"
 
 #: guitext:774
 msgctxt "Statistic name"
 msgid "Skeletons Raised"
-msgstr ""
+msgstr "스켈레톤 부활"
 
 #: guitext:775
 msgctxt "Statistic name"
 msgid "Bridges Built"
-msgstr ""
+msgstr "다리 건설"
 
 #: guitext:776
 msgctxt "Statistic name"
 msgid "Rock Dug Out"
-msgstr ""
+msgstr "파낸 바위"
 
 #: guitext:777
 msgctxt "Statistic name"
 msgid "Salary Cost"
-msgstr ""
+msgstr "급여 비용"
 
 #: guitext:778
 msgctxt "Statistic name"
 msgid "Flies Eaten By Spiders"
-msgstr ""
+msgstr "스파이더가 먹은 플라이"
 
 #: guitext:779
 msgctxt "Statistic name"
 msgid "Territory Destroyed"
-msgstr ""
+msgstr "멸망시킨 영토"
 
 #: guitext:780
 msgctxt "Statistic name"
 msgid "Rooms Constructed"
-msgstr ""
+msgstr "구성한 방"
 
 #: guitext:781
 msgctxt "Statistic name"
 msgid "Traps Used"
-msgstr ""
+msgstr "사용한 함정"
 
 #: guitext:782
 msgctxt "Statistic name"
 msgid "Keepers Destroyed"
-msgstr ""
+msgstr "멸망시킨 키퍼"
 
 #: guitext:783
 msgctxt "Statistic name"
 msgid "Area Claimed"
-msgstr ""
+msgstr "지배한 영역"
 
 #: guitext:784
 msgctxt "Statistic name"
 msgid "Backs Stabbed"
-msgstr ""
+msgstr "배신"
 
 #: guitext:785
 msgctxt "Statistic name"
 msgid "Chickens Hatched"
-msgstr ""
+msgstr "부화한 닭"
 
 #: guitext:786
 msgctxt "Statistic name"
 msgid "Chickens Eaten"
-msgstr ""
+msgstr "먹은 닭"
 
 #: guitext:787
 msgctxt "Statistic name"
 msgid "Hopes Dashed"
-msgstr ""
+msgstr "무너진 희망"
 
 #: guitext:788
 msgctxt "Statistic name"
 msgid "Promises Broken"
-msgstr ""
+msgstr "깨진 약속"
 
 #: guitext:789
 msgctxt "Statistic name"
 msgid "Ghosts Raised"
-msgstr ""
+msgstr "고스트 부활"
 
 #: guitext:790
 msgctxt "Statistic name"
 msgid "Doors Used"
-msgstr ""
+msgstr "사용된 문"
 
 #: guitext:791
 msgctxt "Statistic name"
 msgid "Your Creatures Killed By You"
-msgstr ""
+msgstr "당신이 죽인 당신의 피조물"
 
 #: guitext:792
 msgctxt "Statistic name"
 msgid "Things Researched"
-msgstr ""
+msgstr "연구된 물건"
 
 #: guitext:793
 msgctxt "Statistic name"
 msgid "Last Creature Attracted"
-msgstr ""
+msgstr "마지막 방문한 피조물"
 
 #: guitext:794
 msgctxt "Statistic name"
 msgid "Items Manufactured"
-msgstr ""
+msgstr "생산한 아이템"
 
 #: guitext:795
 msgctxt "Statistic name"
 msgid "Creatures Converted"
-msgstr ""
+msgstr "변환된 피조물"
 
 #: guitext:796
 msgctxt "Statistic name"
 msgid "Territory Lost"
-msgstr ""
+msgstr "빼앗긴 영역"
 
 #: guitext:797
 msgctxt "Statistic name"
 msgid "Traps Armed"
-msgstr ""
+msgstr "설치된 함정"
 
 #: guitext:798
 msgctxt "Statistic name"
 msgid "Chickens Wasted"
-msgstr ""
+msgstr "낭비된 닭"
 
 #: guitext:799
 msgctxt "Statistic name"
 msgid "Lies Told"
-msgstr ""
+msgstr "거짓말 함"
 
 #: guitext:800
 msgctxt "Statistic name"
 msgid "Creatures Annoyed"
-msgstr ""
+msgstr "짜증난 피조물"
 
 #: guitext:801
 msgctxt "Statistic name"
 msgid "Graveyard Body Count"
-msgstr ""
+msgstr "묘지의 시체"
 
 #: guitext:802
 msgctxt "Statistic name"
 msgid "Vampires Created"
-msgstr ""
+msgstr "생성된 뱀파이어"
 
 #: guitext:803
 msgctxt "Easter egg"
@@ -4783,71 +5418,81 @@ msgid ""
 "When night does not give way to day, And children are too scared to play, "
 "Abandon hope, embrace despair, You're destined for my Dragon's lair"
 msgstr ""
+"밤이 낮의 길을 양보하지 않고 아이들이 놀기엔 너무 무서울 때, 희망을 버리고 절"
+"망을 품을 때, 당신은 나의 드래곤의 은신처로 오게 운명지어진 것입니다"
 
 #: guitext:804
 msgctxt "Easter egg"
 msgid "If thou art bold and pure of heart, Come down here, be torn apart."
 msgstr ""
+"만약 당신의 용맹하고 순수한 마음을 가지고 있다면, 이리로 내려오세요, 산산조"
+"각 내죠."
 
 #: guitext:805
 msgctxt "Easter egg"
 msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
 msgstr ""
+"내 던전을 디딤돌로 나아갈 수 있지만, 확신하는데. 당신은 결국 죽게 될 거예요."
 
 #: guitext:806
 msgctxt "Easter egg"
 msgid "If you find you lose it all, Why not play Theme Hospital?"
 msgstr ""
+"만약 여러분이 모든 것을 잃는 것을 발견한다면, 테마 병원을 하는 것은 어떨까요?"
 
 #: guitext:807
 msgctxt "Easter egg"
 msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
-msgstr ""
+msgstr "진정한 용기를 가진 기갑 기사들, 침으로 더 빨리 구우세요."
 
 #: guitext:808
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, I think you'll find they're here to stay."
 msgstr ""
+"악, 악의, 죽음, 부패, 당신은 그들이 여기 머무르러 온 것을 알게 될 것이라고 생"
+"각합니다."
 
 #: guitext:809
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, Just another working day."
-msgstr ""
+msgstr "악, 악의, 죽음, 타락, 그저 다른 근무일일 뿐입니다."
 
 #: guitext:810
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, There really is no better way."
-msgstr ""
+msgstr "악, 악의, 죽음, 부패, 이보다 더 좋은 방법은 없습니다."
 
 #: guitext:811
 msgctxt "Easter egg"
 msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
-msgstr ""
+msgstr "자이언트, 드워프, 씨프, 페어리, 당신들 중 아무도 그렇게 무섭지 않아요."
 
 #: guitext:812
 msgctxt "Easter egg"
 msgid "The denizens of your domain, Just cannot wait to kill again."
-msgstr ""
+msgstr "당신의 주민은 다시 살인을 할 때까지 기다릴 수 없습니다."
 
 #: guitext:813
 msgctxt "Easter egg"
 msgid "The better creatures you employ, The greater carnage you enjoy."
-msgstr ""
+msgstr "더 나은 피조물을 고용할수록 더 큰 대학살을 즐길 수 있습니다."
 
 #: guitext:814
 msgctxt "Easter egg"
 msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
-msgstr ""
+msgstr "하크! 아바타가 없으니 겁먹은 군주의 냄새가 나요."
 
 #: guitext:815
 msgctxt "Easter egg"
 msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
 msgstr ""
+"무단침입자들은 그들의 파멸을 맞이할 것입니다, 당신의 던전의 고문실에서요."
 
 #: guitext:816
 msgctxt "Easter egg"
 msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
 msgstr ""
+"침입자의 마음은 순수하지만, 결국 당신의 던전 바닥으로 가게 될 것입니다."
 
 #: guitext:817
 msgctxt "Easter egg"
@@ -4855,16 +5500,18 @@ msgid ""
 "Your tunnels will be dark and cold, And no place for a Knight of old, Even "
 "if he claims he's bold."
 msgstr ""
+"당신의 터널은 어둡고 차가울 거예요 그리고 그가 대담하다고 해도 나이든 기사가 "
+"있을 곳은 없어요."
 
 #: guitext:818
 msgctxt "Easter egg"
 msgid "The fools who enter your domain, Will never see the light again."
-msgstr ""
+msgstr "당신의 영역에 들어온 바보들은 다시는 빛을 보지 못할 것입니다."
 
 #: guitext:819
 msgctxt "Easter egg"
 msgid "Pain and anguish are your tools, To use upon intruding fools."
-msgstr ""
+msgstr "고통과 번뇌는 당신의 도구입니다. 어리석은 자들을 방해할 때 사용합니다."
 
 #: guitext:820
 msgctxt "Easter egg"
@@ -4872,47 +5519,56 @@ msgid ""
 "When good guys head right for your treasure, Hunt and kill them at your "
 "leisure."
 msgstr ""
+"좋은 사람들이 당신의 보물로 바로 향하면, 심심풀이로 사냥을 해서 그들을 죽입니"
+"다."
 
 #: guitext:821
 msgctxt "Easter egg"
 msgid ""
 "Protect your gold and Dungeon Heart, And slap your minions till they fart."
 msgstr ""
+"여러분의 금과 던전 하트을 보호하고, 여러분의 하수인들이 방귀를 지리도록 패세"
+"요."
 
 #: guitext:822
 msgctxt "Easter egg"
 msgid "Use your creatures' fear of you. To make them do what you want them to."
 msgstr ""
+"당신에 대한 당신의 피조물들의 두려움을 이용하세요. 당신이 원하는 걸 하게 만들"
+"려고요."
 
 #: guitext:823
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
 msgstr ""
+"당신의 던전의 위저드가 암울하다고요? 덫이 그에게 짧은 작업을 줄 것입니다."
 
 #: guitext:824
 msgctxt "Easter egg"
 msgid "When your creatures give you hell, Stick them in your Prison Cell."
 msgstr ""
+"당신의 피조물들이 당신에게 지옥을 선사할 때, 그들을 당신의 감옥 감방에 가두세"
+"요."
 
 #: guitext:825
 msgctxt "Easter egg"
 msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
-msgstr ""
+msgstr "고문은 던전 키퍼의 이야기 중 가장 큰 영광입니다."
 
 #: guitext:826
 msgctxt "Easter egg"
 msgid "You are the Keeper, chosen one, And being evil is great fun."
-msgstr ""
+msgstr "당신은 선택된 키퍼이고 악마가 되는 것은 매우 재미있습니다."
 
 #: guitext:827
 msgctxt "Easter egg"
 msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
-msgstr ""
+msgstr "당신의 군대가 굶주릴 때, 당신의 부화장에는 맛있는 닭고기가 있었습니다."
 
 #: guitext:828
 msgctxt "Easter egg"
 msgid "Fill the Avatar with dread. Really make him wet the bed."
-msgstr ""
+msgstr "아바타를 공포로 가득 채우세요. 정말 침대에 오줌을 싸게 만들었어요."
 
 #: guitext:829
 msgctxt "In-game hint message"
@@ -4920,6 +5576,7 @@ msgid ""
 "Imps are the lifeblood of your dungeon. Like blood, they must be allowed to "
 "circulate."
 msgstr ""
+"임프는 던전의 생명줄입니다. 혈액과 같이, 그들은 순환하도록 해야 합니다."
 
 #: guitext:830
 msgctxt "In-game hint message"
@@ -4927,6 +5584,8 @@ msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
 "spend some time torturing..."
 msgstr ""
+"심술궂은가요? 하수인들을 감옥에 가두게 하고 감방이 꽉 차면 고문하는데 시간을 "
+"좀 보내세요."
 
 #: guitext:831
 msgctxt "In-game hint message"
@@ -4934,6 +5593,8 @@ msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
 "realise how lucky they are."
 msgstr ""
+"만약 여러분의 생명체가 불행해진다면, 조금 처발라 보세요. 그들은 곧 자신이 얼"
+"마나 운이 좋은지 깨닫게 될 거예요."
 
 #: guitext:832
 msgctxt "In-game hint message"
@@ -4941,6 +5602,8 @@ msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
 "show pity, even when the intruders are defenceless and pathetic."
 msgstr ""
+"지하세계는 당신의 영역이고 모험가들이 그것을 훔치러 옵니다. 침입자들이 무력하"
+"고 한심해도 절대 동정심을 보이지 마세요."
 
 #: guitext:833
 msgctxt "In-game hint message"
@@ -4948,6 +5611,8 @@ msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
 "Only evil ones."
 msgstr ""
+"동정심은 선한 키퍼의 특징입니다. 하지만 좋은 키퍼들은 절대 이기지 못합니다. "
+"사악한 놈들만 이기죠."
 
 #: guitext:834
 msgctxt "In-game hint message"
@@ -4955,6 +5620,8 @@ msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
 "queuing up to enter your dungeon. So stop reading this and get going."
 msgstr ""
+"한시도 허비할 틈이 없습니다. 이미 용감한 자들이 당신의 던전에 들어가기 위해 "
+"줄을 서 있습니다. 그러니 그만 읽고 가세요."
 
 #: guitext:835
 msgctxt "In-game hint message"
@@ -4962,6 +5629,8 @@ msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
 "the intruders."
 msgstr ""
+"건설을 서두르세요. 침입자들을 위해 가능한 가장 큰 환영 위원회가 준비되기를 원"
+"할 것입니다."
 
 #: guitext:836
 msgctxt "In-game hint message"
@@ -4969,16 +5638,19 @@ msgid ""
 "Keep your Imps digging. There are always surprises to be found deep in the "
 "earth."
 msgstr ""
+"임프가 계속 굴을 파게하세요. 땅 깊은 곳에서는 항상 놀라운 일이 발견됩니다."
 
 #: guitext:837
 msgctxt "In-game hint message"
 msgid "He who controls the most gold controls the entire Underworld."
-msgstr ""
+msgstr "가장 많은 금을 지배하는 자는 지하세계 전체를 지배합니다."
 
 #: guitext:838
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
 msgstr ""
+"두려움 없음과 무자비가 당신의 가장 큰 무기입니다. 그것들을 현명하게 사용하세"
+"요."
 
 #: guitext:839
 msgctxt "In-game hint message"
@@ -4986,261 +5658,263 @@ msgid ""
 "Foolish is the Keeper who sells all his rooms and refuses to pay his "
 "creatures."
 msgstr ""
+"어리석은 키퍼는 사람은 자기 방을 다 팔고 자기 생물에 급여를 주지 않는 키퍼이"
+"다."
 
 #: guitext:840
 msgctxt "Menu interface item"
 msgid "Return to options menu"
-msgstr ""
+msgstr "옵션 메뉴로 돌아가기"
 
 #: guitext:841
 msgctxt "Menu interface item"
 msgid "Exit"
-msgstr ""
+msgstr "나가기"
 
 #: guitext:842
 msgctxt "Menu interface item"
 msgid "Audio"
-msgstr ""
+msgstr "오디오"
 
 #: guitext:843
 msgctxt "Menu interface item"
 msgid "Invert Mouse"
-msgstr ""
+msgstr "마우스 반전"
 
 #: guitext:844
 msgctxt "Menu interface item"
 msgid "Mouse Sensitivity"
-msgstr ""
+msgstr "마우스 감도"
 
 #: guitext:845
 msgctxt "Menu interface item"
 msgid "Computer"
-msgstr ""
+msgstr "컴퓨터"
 
 #: guitext:846
 msgctxt "Menu interface item"
 msgid "Computer Players"
-msgstr ""
+msgstr "컴퓨터 플레이어"
 
 #: guitext:847
 msgctxt "Menu interface item"
 msgid "On"
-msgstr ""
+msgstr "켜기"
 
 #: guitext:848
 msgctxt "Menu interface item"
 msgid "Off"
-msgstr ""
+msgstr "끄기"
 
 #: guitext:849
 msgctxt "Menu interface item"
 msgid "Sensitivity"
-msgstr ""
+msgstr "감도"
 
 #: guitext:850
 msgctxt "Menu interface item"
 msgid "Mouse Options"
-msgstr ""
+msgstr "마우스 옵션"
 
 #: guitext:851
 msgctxt "Menu interface item"
 msgid "Mouse"
-msgstr ""
+msgstr "마우스"
 
 #: guitext:852
 msgctxt "Menu interface item"
 msgid "Undo Pickup"
-msgstr ""
+msgstr "픽업 취소"
 
 #: guitext:853
 msgctxt "Menu interface item"
 msgid "Pause"
-msgstr ""
+msgstr "일시정지"
 
 #: guitext:854
 msgctxt "Menu interface item"
 msgid "Map"
-msgstr ""
+msgstr "지도"
 
 #: guitext:855
 msgctxt "On-screen message"
 msgid "Insufficient Memory"
-msgstr ""
+msgstr "메모리 부족"
 
 #: guitext:856
 msgctxt "On-screen message"
 msgid "Unable To Change Screen Resolution"
-msgstr ""
+msgstr "화면 해상도를 변경 할 수 없습니다"
 
 #: guitext:857
 msgctxt "Menu interface item"
 msgid "Query"
-msgstr ""
+msgstr "조회"
 
 #: guitext:858
 msgctxt "Credits"
 msgid "Support Art"
-msgstr ""
+msgstr "Support Art"
 
 #: guitext:859
 msgctxt "Credits"
 msgid "Navigation System"
-msgstr ""
+msgstr "Navigation System"
 
 #: guitext:860
 msgctxt "Credits"
 msgid "Script"
-msgstr ""
+msgstr "Script"
 
 #: guitext:861
 msgctxt "Credits"
 msgid "Voice Over"
-msgstr ""
+msgstr "Voice Over"
 
 #: guitext:862
 msgctxt "Credits"
 msgid "Finance"
-msgstr ""
+msgstr "Finance"
 
 #: guitext:864
 msgctxt "Credits"
 msgid "Localisation Management"
-msgstr ""
+msgstr "Localisation Management"
 
 #: guitext:865
 msgctxt "Credits"
 msgid "Language Test Supervisor"
-msgstr ""
+msgstr "Language Test Supervisor"
 
 #: guitext:866
 msgctxt "Credits"
 msgid "Language Testers"
-msgstr ""
+msgstr "Language Testers"
 
 #: guitext:867
 msgctxt "Credits"
 msgid "Localisation Audio Management"
-msgstr ""
+msgstr "Localisation Audio Management"
 
 #: guitext:868
 msgctxt "Network game message"
 msgid "Attempting To Join"
-msgstr ""
+msgstr "연결중"
 
 #: guitext:869
 msgctxt "Network game message"
 msgid "Resyncing"
-msgstr ""
+msgstr "동기화중"
 
 #: guitext:870
 msgctxt "Menu interface item"
 msgid "1 Player"
-msgstr ""
+msgstr "1 플레이어"
 
 #: guitext:871
 msgctxt "Menu interface item"
 msgid "2 Players"
-msgstr ""
+msgstr "2 플레이어"
 
 #: guitext:872
 msgctxt "Menu interface item"
 msgid "3 Players"
-msgstr ""
+msgstr "3 플레이어"
 
 #: guitext:873
 msgctxt "Menu interface item"
 msgid "4 Players"
-msgstr ""
+msgstr "4 플레이어"
 
 #: guitext:874
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Serial"
-msgstr ""
+msgstr "시리얼"
 
 #: guitext:875
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Modem"
-msgstr ""
+msgstr "모뎀"
 
 #: guitext:876
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "IPX"
-msgstr ""
+msgstr "IPX"
 
 #: guitext:877
 msgctxt "World direction"
 msgid "N"
-msgstr ""
+msgstr "N"
 
 #: guitext:878
 msgctxt "World direction"
 msgid "E"
-msgstr ""
+msgstr "E"
 
 #: guitext:879
 msgctxt "World direction"
 msgid "S"
-msgstr ""
+msgstr "S"
 
 #: guitext:880
 msgctxt "World direction"
 msgid "W"
-msgstr ""
+msgstr "W"
 
 #: guitext:881
 msgctxt "Menu interface item"
 msgid "Vs"
-msgstr ""
+msgstr "Vs"
 
 #: guitext:882
 msgctxt "Credits"
 msgid "Game design"
-msgstr ""
+msgstr "Game design"
 
 #: guitext:883
 msgctxt "Credits"
 msgid "Associate Producer"
-msgstr ""
+msgstr "Associate Producer"
 
 #: guitext:884
 msgctxt "Credits"
 msgid "Additional Script"
-msgstr ""
+msgstr "Additional Script"
 
 #: guitext:885
 msgctxt "Easter egg"
 msgid "Happy Birthday"
-msgstr ""
+msgstr "생일 축하합니다"
 
 #: guitext:886
 msgctxt "Menu interface message"
 msgid "Error"
-msgstr ""
+msgstr "오류"
 
 #: guitext:887
 msgctxt "Menu interface message"
 msgid "Error Saving"
-msgstr ""
+msgstr "오류 저장"
 
 #: guitext:888
 msgctxt "Menu interface message"
 msgid "New Levels"
-msgstr ""
+msgstr "신규 레벨"
 
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Please insert Data Disk CD-ROM"
-msgstr ""
+msgstr "데이터 디스크 CD좀 넣어줘"
 
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr ""
+msgstr "던전 키퍼 CD좀 넣어주라"
 
 #: guitext:891
 msgctxt "Menu interface message"
 msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr ""
+msgstr "던전 키퍼 CD좀 넣어 달라구"
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -5250,6 +5924,9 @@ msgid ""
 "Decimate them both to achieve total domination, but beware of bands of "
 "heroes hidden in the caverns."
 msgstr ""
+"강력한 두 라이벌 던전 키퍼는 이 영역에 대한 당신의 지배에 도전합니다. 그들 완"
+"전한 지배를 위해 그들을 소멸시켜야 하지만, 동굴에 숨어 있는 영웅들의 무리들"
+"을 조심하세요."
 
 #. DD Level Kari-Mar first objective
 #: guitext:893
@@ -5259,6 +5936,9 @@ msgid ""
 "destroy him and take what is rightfully yours. Great riches lie in the "
 "caverns around the land; explore to gain more power."
 msgstr ""
+"다른 키퍼는 이미 이 영역을 지배했습니다. 그는 통치하기에 부적합합니다. 그러"
+"니 그를 파괴하고 당신의 정당한 것을 가져가도록 하죠. 거대한 보화는 이 땅의 동"
+"굴에 있습니다. 더 많은 권력을 얻기 위해 탐험하세요."
 
 #. DD Level Belbata first objective
 #: guitext:894
@@ -5268,6 +5948,9 @@ msgid ""
 "Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for "
 "any rogue bands of heroes waiting to ambush a careless Keeper."
 msgstr ""
+"이 땅은 악당들이 매우 탐내는 지역이며, 세 명의 던전 키퍼들과 싸워야 패권을 주"
+"장할 수 있습니다. 부주의한 키퍼를 털기위해 기다리는 불량 영웅들의 무리를 주시"
+"해야 합니다."
 
 #. DD Level Pladitz waypoint objective
 #: guitext:895
@@ -5277,6 +5960,9 @@ msgid ""
 "riddance to them and their sad, happy lives. Now seize your chance and "
 "attack your rival Keeper. Domination awaits."
 msgstr ""
+"이 땅의 군주와 그의 가엾은 추종자들이 죽은 채로 누워 있습니다. 그들의 슬프고 "
+"행복한 삶은 좋은 결말을 맞았군요. 이제 기회를 잡고 경쟁자인 키퍼를 공격하세"
+"요. 지배가 기다리고 있습니다."
 
 #. DD Level Pladitz first objective
 #: guitext:896
@@ -5286,6 +5972,9 @@ msgid ""
 "Lord of the Land has constructed his own dungeon between you to halt your "
 "conquest. Destroy him and the enemy Keeper to reign supreme."
 msgstr ""
+"당신과 경쟁자인 던전 키퍼는 이 지역을 장악하기 위해 경쟁하고 있지만, 이 땅의 "
+"군주는 당신의 정복을 멈추기 위해 자신만의 던전을 건설했습니다. 그와 적 키퍼"
+"를 파괴하여 최고 통치자가 되어야 합니다."
 
 #. DD Level Pladitz waypoint objective
 #: guitext:897
@@ -5294,6 +5983,8 @@ msgid ""
 "You have done well to come this far but further hardships await. Search the "
 "map carefully and you may find many secrets to aid your conquest."
 msgstr ""
+"여기까지 오셔서 잘 오셨지만 앞으로 더 많은 고난이 기다리고 있습니다. 지도를 "
+"주의 깊게 확인하면 정복에 도움이 되는 많은 비밀을 발견할 수 있습니다."
 
 #. DD Level Abbadon first objective
 #: guitext:898
@@ -5303,6 +5994,8 @@ msgid ""
 "gain more power. Keep an eye out for any loathsome heroes who may try to "
 "thwart your progress."
 msgstr ""
+"약간의 도움으로 이 지역에 올 수 있었 지만 더 많은 힘을 얻기 위해 탐험해야 합"
+"니다. 당신의 발전을 방해할 수 있는 혐오스러운 영웅들을 조심하세요."
 
 #. DD Level Daka-Gorn first objective
 #: guitext:899
@@ -5311,6 +6004,8 @@ msgid ""
 "Beware Keeper. This realm is infested with the sickly goodness of heroes and "
 "fairies. Hunt them down and feed them their own entrails."
 msgstr ""
+"조심하세요 키퍼. 이 영역은 영웅과 요정의 병적인 선량함으로 들끓고 있습니다. "
+"사냥해서 그들의 내장을 그들의 밥으로 줍시다."
 
 #. DD Level Morkardar first objective
 #: guitext:900
@@ -5319,6 +6014,8 @@ msgid ""
 "Your opponent for this realm has foolishly challenged your superior skill. "
 "Such disrespect should be punished so make an example of his insolence."
 msgstr ""
+"이 영역에 적은 어리석게도 당신의 우월한 기술에 도전했습니다. 그런 무례한 행동"
+"은 처벌받아야 하니 그를 본보기로 보여주세요."
 
 #. DD Level Morkardar information soon after start
 #: guitext:901
@@ -5327,6 +6024,8 @@ msgid ""
 "Ancient powers lie hidden in this realm. Seek them out and use them for your "
 "own evil purposes."
 msgstr ""
+"고대 힘들이 이 영역에 숨겨져 있습니다. 그것들을 찾아내어 당신 자신의 나쁜 목"
+"적에 사용하세요."
 
 #. DD Level Abbadon objective after rooms built
 #: guitext:902
@@ -5335,6 +6034,8 @@ msgid ""
 "A foolish challenger stands between you and total dominance. Annihilate his "
 "forces and feed his body to your ravenous minions."
 msgstr ""
+"어리석은 도전자는 당신과 완전한 지배 사이에 서 있습니다. 그의 군대를 섬멸하"
+"고 그의 몸을 당신의 굶주린 하수인들에게 먹입니다."
 
 #. DD Level Daka-Gorn information after AP reached
 #: guitext:903
@@ -5344,6 +6045,8 @@ msgid ""
 "this land. Tread carefully Keeper and rid the land of goodness once and for "
 "all."
 msgstr ""
+"이 땅을 지배하고 있는 영웅의 성의 성벽 너머에서 발자국 소리가 들립니다. 조심"
+"히 발을 디디세요 키퍼, 그리고 그 땅을 영원히 없애세요."
 
 #. DD Level Netzcaro first objective
 #: guitext:904
@@ -5352,6 +6055,8 @@ msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
 "down it's walls and let your creatures feast on the heroes within."
 msgstr ""
+"한때 이 왕국의 강력한 영웅 요새는 썩고 약해졌습니다. 성벽을 허물고 안에 있는 "
+"영웅으로 당신의 피조물들에게 잔치를 베풀도록 하세요."
 
 #. DD Level Netzcaro information after AP reached
 #: guitext:905
@@ -5360,6 +6065,8 @@ msgid ""
 "This realm will be a test of your cunning and deviousness. Your dungeon has "
 "been fortified with seven steel doors to aid you in your conquest."
 msgstr ""
+"이 영역은 당신의 교활함과 일탈의 시험대가 될 것입니다. 당신의 던전은 정복에 "
+"도움을 주기 위해 7개의 강철 문으로 요새화되었습니다."
 
 #. DD Level Netzcaro objective after AP reached
 #: guitext:906
@@ -5369,6 +6076,8 @@ msgid ""
 "boost. You can now construct Bridges that enable you to traverse water and "
 "fire."
 msgstr ""
+"축하해요 키퍼. 이 물약병은 연구자들에게 많은 도움을 주었습니다. 이제 물과 불"
+"을 건널 수 있는 다리를 구성할 수 있습니다."
 
 #. DD Level Belial information soon after start
 #: guitext:907
@@ -5377,6 +6086,8 @@ msgid ""
 "Food is scarce in this land and the only Hatchery available to you is inside "
 "a hero dungeon. Find this food before your creatures turn against you."
 msgstr ""
+"이 땅에는 식량이 부족하고 영웅의 던전 안에 유일하게 부화장이 있습니다. 여러분"
+"의 피조물들이 여러분에게 등을 돌리기 전에 이 식량을 찾으세요."
 
 #. DD Level Belial information after getting vampire
 #: guitext:908
@@ -5386,6 +6097,8 @@ msgid ""
 "demands revenge for his imprisonment. His anger will make him a valuable "
 "asset to your army of evil."
 msgstr ""
+"잔인한 영웅들의 무리에 의해 돌로 둘러싸여 갇혔 뱀파이어는 갇힌것에 대한 복수"
+"를 요구합니다. 그의 분노는 그를 당신의 악한 군대의 귀중한 전력이됩니다."
 
 #. DD Level Batezek first objective
 #: guitext:909
@@ -5394,6 +6107,8 @@ msgid ""
 "You are surrounded on all sides by valiant heroes so show them the true "
 "meaning of evil and terror."
 msgstr ""
+"여러분은 사방에 용맹한 영웅들로 둘러싸여 있으니 그들에게 악과 공포의 진정한 "
+"의미를 보여주세요."
 
 #. DD Level Batezek objective after cleaning all good creatures
 #: guitext:910
@@ -5402,6 +6117,8 @@ msgid ""
 "The Lord of the Land has sent his fiercest warriors against you. Show them "
 "no mercy and flay them alive."
 msgstr ""
+"이 땅의 군주는 가장 맹렬한 전사를 보내어 당신을 공격했습니다. 그들에게 자비"
+"를 베풀지 말고 생포하세요."
 
 #. DD Level Benetzaron first objective
 #: guitext:911
@@ -5410,6 +6127,8 @@ msgid ""
 "Explore this realm to uncover riches and secrets. Tread carefully Keeper, or "
 "you could be burned."
 msgstr ""
+"이 영역을 탐색하여 부와 비밀을 밝혀냅시다. 조심히 발을 디디세요 키퍼, 그렇치 "
+"않으면 화상을 입을 수 있습니다."
 
 #. DD Level Svatona first objective
 #: guitext:912
@@ -5418,6 +6137,8 @@ msgid ""
 "Only one Dungeon Keeper can reign victorious over this land. Do not suffer a "
 "humiliating defeat Keeper, the penalty for such failure is torture and death."
 msgstr ""
+"오직 한 명의 던전 키퍼만 이 땅에서 승리할 수 있습니다. 키퍼에게 굴욕적인 패배"
+"를 당하지 마십시오. 실패에 대한 처벌은 고문과 죽음입니다."
 
 #. DD Level Caddis Fell first objective
 #: guitext:913
@@ -5426,6 +6147,8 @@ msgid ""
 "Choices, choices Keeper. Choose your path wisely. Some routes are more "
 "perilous than others ..."
 msgstr ""
+"선택, 선택이에요 키퍼. 현명하게 길을 선택하세요. 어떤 노선은 다른 노선보다 "
+"더 위험합니다."
 
 #. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
@@ -5434,6 +6157,8 @@ msgid ""
 "Congratulations Keeper, you have a powerful army indeed. Do not grow "
 "complacent though, you still have another challenger to the north ..."
 msgstr ""
+"축하해요 키퍼, 당신은 정말 강력한 군대를 가지고 있어요. 그러나 현실에 안주하"
+"지 마십시오. 북쪽에 도전자가 또 있습니다."
 
 #. DD Level Caddis Fell objective after player1 destroyed
 #: guitext:915
@@ -5442,6 +6167,8 @@ msgid ""
 "Congratulations Keeper, you have a powerful army indeed. Do not grow "
 "complacent though, you still have another challenger to the south ..."
 msgstr ""
+"축하해요 키퍼, 당신은 정말 강력한 군대를 가지고 있어요. 그러나 현실에 안주하"
+"지 마십시오. 남쪽에 도전자가 또 있습니다."
 
 #. DD Level Caddis Fell objective after entrance claimed
 #: guitext:916
@@ -5451,6 +6178,8 @@ msgid ""
 "Pound him into the ground and then destroy the rival Keeper to achieve total "
 "domination."
 msgstr ""
+"이 땅의 군주는 솜털 같은 토끼를 키우는 한심한 놈입니다. 그를 땅으로 쳐박고 라"
+"이벌 키퍼를 처치하여 완전한 지배를 달성합니다."
 
 #. DD Level Kanasko first objective
 #: guitext:917
@@ -5459,6 +6188,8 @@ msgid ""
 "Make haste Keeper. The heroes of this realm are many and strong. Prepare "
 "your forces well or face a humiliating defeat ..."
 msgstr ""
+"서두르세요. 키퍼. 이 지역의 영웅들은 많고 강합니다. 병력을 잘 준비하세요 그러"
+"치 않으면 굴욕적인 패배를 당합니다."
 
 #. DD Level Belial first objective
 #: guitext:918
@@ -5469,6 +6200,9 @@ msgid ""
 "Destroy his mighty fortress and wipe the smile from his face before your "
 "creatures turn against you."
 msgstr ""
+"아바타는 행복과 환호로 가득 찬 비참한 존재이다. 그의 땅에는 식량이 부족하고 "
+"그의 던전 안에 유일하게 부화장이 있습니다. 당신의 피조물들이 등을 돌리기 전"
+"에, 그의 강력한 요새를 파괴하고, 그 얼굴에서 미소를 지워버리세요."
 
 #. DD Level Belial objective after AP reached
 #: guitext:919
@@ -5477,12 +6211,14 @@ msgid ""
 "The Avatar has massed an army of heroic Lords to confront you. Prepare to be "
 "attacked!"
 msgstr ""
+"아바타는 영웅적인 군주의 군대를 모아 당신과 맞서게 했습니다. 공격에 대비를 하"
+"세요!"
 
 #. DD Level Belial objective after AP reached
 #: guitext:920
 msgctxt "In-game message"
 msgid "Decimate this outpost and send fear into the heart of the Avatar."
-msgstr ""
+msgstr "이 전초기지를 소멸시키고 아바타의 심장부로 공포를 보내세요."
 
 #. DD Level Belial objective after AP reached
 #: guitext:921
@@ -5491,6 +6227,8 @@ msgid ""
 "The Avatar's castle is ripe for the taking. Train your forces well, Keeper. "
 "The ultimate battle awaits ..."
 msgstr ""
+"아바타의 성은 가져가기 좋군요. 병력을 잘 훈련시키세요, 키퍼. 최후의 결전이 기"
+"다리고 있습니다."
 
 #. DD Level Belial objective when adding Avatar
 #: guitext:922
@@ -5500,13 +6238,16 @@ msgid ""
 "goodness still hangs in the air. Kill the Avatar and send his soul to "
 "eternal damnation."
 msgstr ""
+"당신은 지금 아바타의 성의 중심부에 있습니다. 역겹도록 달콤한 선한 냄새가 아직"
+"도 공기 중에 맴돌고 있습니다. 아바타를 죽이고 그의 영혼을 영원한 지옥으로 보"
+"내세요."
 
 #. DD Levels generic information after finding a Mistress
 #: guitext:923
 msgctxt "In-game message"
 msgid ""
 "Well done, Keeper. The Mistress you have discovered is an excellent prize."
-msgstr ""
+msgstr "잘했어요, 키퍼 당신이 발견한 미스트리스는 훌륭한 상입니다."
 
 #. DD Levels generic information after finding a Bile Demon
 #: guitext:924
@@ -5515,6 +6256,8 @@ msgid ""
 "The Bile Demon you have rescued will be a valuable but hungry asset to your "
 "dungeon. Make sure your Hatchery can satisfy his voracious appetite."
 msgstr ""
+"당신이 구출한 바일 데몬은 던전에 가치가 있지만 굶주린 자산이 될 것입니다. 당"
+"신의 부화장이 그의 왕성한 식욕을 만족시킬 수 있는지 확인하세요."
 
 #. DD Level Dixaroc first objective
 #: guitext:925
@@ -5524,19 +6267,21 @@ msgid ""
 "Spider and explore the realm. Find the Wizard, kill him and make an example "
 "of his foolishness."
 msgstr ""
+"사악한 마법사가 당신의 마법의 힘을 속였어요. 유일한 스파이더를 사용하여 영역"
+"을 탐색합니다. 마법사를 찾아서 죽이고 그의 어리석음을 본보기로 삼아야 합니다."
 
 #. DD Level Dixaroc information after getting Imps
 #: guitext:926
 msgctxt "In-game message"
 msgid "You have found some Imps who consider it a great honour to serve you."
-msgstr ""
+msgstr "당신을 섬기는 것을 큰 영광으로 여기는 몇몇 임프를 발견했습니다."
 
 #. DD Levels Dixaroc information after finding Bile Demons
 #: guitext:927
 msgctxt "In-game message"
 msgid ""
 "You have discovered a group of Bile Demons who will aid you in your fight."
-msgstr ""
+msgstr "여러분은 여러분의 싸움을 도와줄 바일 데몬 무리를 발견했습니다."
 
 #. DD Level Dixaroc information just after PLAYER1 destroyed
 #: guitext:928
@@ -5546,12 +6291,15 @@ msgid ""
 "now have the ability to build Bridges. Dig deeper and you may find more "
 "secrets to strengthen your powers."
 msgstr ""
+"이 불쌍한 키퍼의 파괴는 유용한 보너스를 가져다 줍니다. 이제 다리를 건설할 수 "
+"있습니다. 더 깊이 파고들면 힘을 강화할 수 있는 더 많은 비밀을 찾을 수 있습니"
+"다."
 
 #. DD Level Dixaroc information some time after PLAYER1 destroyed
 #: guitext:929
 msgctxt "In-game message"
 msgid "A warning, Keeper. There is a stench of hero in the air."
-msgstr ""
+msgstr "경고입니다, 키퍼. 허공에서 영웅의 악취가 풍깁니다."
 
 #. DD Level Dixaroc information after AP reached
 #: guitext:930
@@ -5560,6 +6308,8 @@ msgid ""
 "You have done well to get this far Keeper. Do not become complacent, "
 "however. A great struggle lies ahead."
 msgstr ""
+"여기까지 오다니 잘했어요 키퍼. 하지만 현실에 안주하지 마세요. 위대한 투쟁이 "
+"앞에 놓여 있습니다."
 
 #. DD Level Dixaroc information after AP reached
 #: guitext:931
@@ -5568,6 +6318,8 @@ msgid ""
 "Before you lies the Wizard's domain. Defeat him and you will regain your "
 "powers."
 msgstr ""
+"마법사의 영역에서 죽어 눕기전에 그를 물리치세요. 그럼 당신은 힘을 되찾을 것입"
+"니다."
 
 #. DD Level Dixaroc objective after wizard is dead
 #: guitext:932
@@ -5576,6 +6328,8 @@ msgid ""
 "Your magical powers are restored Keeper. You can finally show these fools "
 "what you are made of."
 msgstr ""
+"당신의 마법의 힘은 키퍼를 회복합니다. 여러분은 마침내 이 바보들에게 여러분이 "
+"무엇으로 구성되어 있는지 보여줄 수 있습니다."
 
 #. DD Level Caddis Fell objective after AP reached
 #: guitext:933
@@ -5585,6 +6339,9 @@ msgid ""
 "control of your Vampire and use him to find and kill the Lord of the Land. "
 "If you succeed, the Vampire will join you in the next realm."
 msgstr ""
+"이 땅 위로 검은 그림자가 어른거리고 있습니다. 지금이 속공할 때입니다. 뱀파이"
+"어들을 통제하고 그를 이용하여 이 땅의 군주을 찾아 죽이세요. 만약 여러분이 성"
+"공한다면, 뱀파이어는 다음 영역에 합류할 것입니다."
 
 #. DD Level Belial information after winning
 #: guitext:934
@@ -5593,51 +6350,56 @@ msgid ""
 "Your achievements are legendary Keeper. Tales of your evil and cunning will "
 "become the horror stories of generations."
 msgstr ""
+"당신은 전설적인 키퍼입니다. 당신의 사악하고 교활한 이야기는 세대에 걸쳐 공포"
+"의 이야기가 될 것입니다."
 
 #: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
-msgstr ""
+msgstr "음매2"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
-msgstr ""
+msgstr "레벨 자유 탐험"
 
 #: guitext:942
 msgctxt "Menu interface item"
 msgid "Land selection"
-msgstr ""
+msgstr "지역 선택"
 
 #: guitext:943
 msgctxt "Menu interface item"
 msgid "Campaigns"
-msgstr ""
+msgstr "캠패인"
 
 #: guitext:944
 msgctxt "Menu interface item"
 msgid "Add computer"
-msgstr ""
+msgstr "컴퓨터 추가"
 
 #: guitext:945
 msgctxt "Game event name"
 msgid "Your creature cannot reach the room it needs"
-msgstr ""
+msgstr "당신의 피조물은 필요한 방에 도착할 수 없습니다"
 
 #: guitext:946
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
 msgstr ""
+"공방에 닿을 수 없습니다. 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭제."
 
 #: guitext:947
 msgctxt "Game event name"
 msgid "Your Imp cannot reach a room to drag something into"
-msgstr ""
+msgstr "임프는 끌고갈 수 있는 방에 도달할 수 없습니다"
 
 #: guitext:948
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr ""
+"창고에 도달할 수 없습니다. 왼쪽 마우스 단추로 전환. 오른쪽 마우스 단추로 삭"
+"제."
 
 #: guitext:949
 msgctxt "In-game interface description"
@@ -5645,21 +6407,28 @@ msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
 msgstr ""
+"갑옷: 피조물의 생명력에 영향을 미치지 않는 데미지의 일부입니다. 숫자가 높을수"
+"록 데미지의 많은 부분이 무효화됩니다."
 
 #: guitext:950
 msgctxt "In-game interface description"
 msgid "Speed: How fast the creature moves and perform its dungeon tasks."
 msgstr ""
+"속도: 이 생물이 얼마나 빨리 움직이며 던전 작업을 수행하는지를 나타냅니다."
 
 #: guitext:951
 msgctxt "In-game interface description"
 msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
-msgstr ""
+msgstr "충성도 : 피조물이 얼마나 적의 수색에 저항하는 정도 입니다."
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: unused."
+msgid ""
+"Research Skill: How fast the creature works in Library. The higher the Skill "
+"level, the better the creature's performance."
 msgstr ""
+"연구 기술: 피조물이 도서관에서 얼마나 빨리 일하는 정도입니다. 스킬 수준이 높"
+"을수록 성능이 향상됩니다."
 
 #: guitext:953
 msgctxt "In-game interface description"
@@ -5667,6 +6436,8 @@ msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
 "Skill level, the better the creature's performance."
 msgstr ""
+"제조 기술: 피조물이 공방에서 얼마나 빨리 일하는지 알 수 있습니다. 스킬 수준"
+"이 높을수록 성능이 향상됩니다."
 
 #: guitext:954
 msgctxt "In-game interface description"
@@ -5674,6 +6445,8 @@ msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
 msgstr ""
+"훈련 기술: 이 피조물이 얼마나 빨리 훈련을 받는지 알 수 있습니다. 스킬 수준이 "
+"높을수록 성능이 향상됩니다."
 
 #: guitext:955
 msgctxt "In-game interface description"
@@ -5681,23 +6454,27 @@ msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
 msgstr ""
+"수색 스킬: 그 생물이 얼마나 빨리 수색하는지 알 수 있습니다. 스킬 수준이 높을"
+"수록 성능이 향상됩니다."
 
 #: guitext:956
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr ""
+msgstr "훈련 비용: 금은 피조물을 훈련시키는 데 사용됩니다."
 
 #: guitext:957
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr ""
+msgstr "수색 비용: 그 피조물이 수색하는 데 사용되는 금입니다."
 
 #: guitext:958
 msgctxt "In-game interface description"
 msgid ""
-"Best Damage: How much harm can be made by the strongest attack the creature "
+"Best Damage: How much harm can be done by the strongest attack the creature "
 "has."
 msgstr ""
+"가장 큰 피해 : 그 피조물이 가진 가장 강력한 공격에 의해 얼마나 많은 해를 끼"
+"칠 수 있는지 나타냅니다."
 
 #: guitext:959
 msgctxt "In-game interface description"
@@ -5705,50 +6482,57 @@ msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
 msgstr ""
+"무게: 피조물의 질량입니다. 어떤 사람들은 과체중이 심장마비로 이어질 수 있다"
+"고 말합니다."
 
 #: guitext:960
-msgctxt "Keeper spell name"
-msgid "Hand Of Evil"
+msgctxt "In-game interface description"
+msgid ""
+"Score: Estimate of an overall creature value. Added to player score when "
+"finishing the level."
 msgstr ""
+"점수: 피조물 전체 값의 추정치입니다. 레벨을 마칠 때 플레이어 점수에 추가됩니"
+"다."
 
 #: guitext:961
 msgctxt "Keeper spell name"
-msgid "Slap"
-msgstr ""
+msgid "Hand Of Evil"
+msgstr "악마의 손"
 
 #: guitext:962
+msgctxt "Keeper spell name"
+msgid "Slap"
+msgstr "싸다구"
+
+#: guitext:963
 msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr ""
+"악마의 손: 여러분의 피조물을 집어서 손에 쥐는 능력입니다. 그냥 그들을 영원히 "
+"붙잡고 있지 마세요. 그들이 짜증을 낼지도 몰라요."
 
-#: guitext:963
+#: guitext:964
 msgctxt "Keeper spell description"
 msgid ""
 "Slap: Makes your creatures work harder, for some time. Your creatures take "
 "some damage from each slap they receive."
 msgstr ""
-
-#: guitext:964
-msgctxt "Keeper spell description"
-msgid "Slap: Makes your creatures work harder, for some time. "
-"Your creatures take some damage from each slap they receive."
-msgstr ""
+"싸다구 : 여러분의 피조물들이 얼마 동안 더 열심히 일하도록 합니다. 여러분의 피"
+"조물들은 매 한 번의 싸다구질마다 피해를 입습니다."
 
 #: guitext:965
 msgctxt "In-game interface description"
-msgid ""
-"Health: How much health points the creature has left to lose."
-msgstr ""
+msgid "Health: How much health points the creature has left to lose."
+msgstr "생명력: 이 피조물이 잃을 건강 포인트가 얼마나 남은 정도 입니다."
 
 #: guitext:966
 msgctxt "In-game interface description"
-msgid ""
-"Health: The maximum amount of health points for this creature."
-msgstr ""
+msgid "Health: The maximum amount of health points for this creature."
+msgstr "생명력: 이 피조물의 최대 생명력입니다."
 
 #: guitext:967
 msgctxt "Menu interface item"
 msgid "Toggle Message"
-msgstr ""
+msgstr "메시지 전환"

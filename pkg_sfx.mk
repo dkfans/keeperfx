@@ -27,6 +27,7 @@ speech_fre \
 speech_ger \
 speech_ita \
 speech_jpn \
+speech_kor \
 speech_lat \
 speech_pol \
 speech_rus \
@@ -49,7 +50,7 @@ $(foreach lng,eng fre ger,evilkeep_$(lng)) \
 $(foreach lng,eng,grkreign_$(lng)) \
 $(foreach lng,eng,jdkmaps8_$(lng)) \
 $(foreach lng,eng,kdklvpck_$(lng)) \
-$(foreach lng,eng chi cht dut fre ger ita jpn pol rus spa swe,keeporig_$(lng)) \
+$(foreach lng,eng chi cht dut fre ger ita jpn kor pol rus spa swe,keeporig_$(lng)) \
 $(foreach lng,eng dut,lqizgood_$(lng)) \
 $(foreach lng,eng,lrdvexer_$(lng)) \
 $(foreach lng,eng,ncastles_$(lng)) \
@@ -74,6 +75,7 @@ pkg/sound/speech_fre.dat: sfx/speech_fre/filelist.txt $(WAVTODAT)
 pkg/sound/speech_ger.dat: sfx/speech_ger/filelist.txt $(WAVTODAT)
 pkg/sound/speech_ita.dat: sfx/speech_ita/filelist.txt $(WAVTODAT)
 pkg/sound/speech_jpn.dat: sfx/speech_jpn/filelist.txt $(WAVTODAT)
+pkg/sound/speech_kor.dat: sfx/speech_kor/filelist.txt $(WAVTODAT)
 pkg/sound/speech_lat.dat: sfx/speech_lat/filelist.txt $(WAVTODAT)
 pkg/sound/speech_pol.dat: sfx/speech_pol/filelist.txt $(WAVTODAT)
 pkg/sound/speech_rus.dat: sfx/speech_rus/filelist.txt $(WAVTODAT)

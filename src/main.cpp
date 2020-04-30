@@ -4692,7 +4692,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
       if ((install_info.lang_id == Lang_Japanese) ||
           (install_info.lang_id == Lang_ChineseInt) ||
-          (install_info.lang_id == Lang_ChineseTra))
+          (install_info.lang_id == Lang_ChineseTra) ||
+          (install_info.lang_id == Lang_Korean))
       {
         switch (install_info.lang_id)
         {
@@ -4704,6 +4705,9 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
             break;
         case Lang_ChineseTra:
             dbc_set_language(3);
+            break;
+        case Lang_Korean:
+            dbc_set_language(4);
             break;
         }
         if (dbc_initialize("fxdata"))

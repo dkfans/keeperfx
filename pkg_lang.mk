@@ -27,6 +27,7 @@ pkg/fxdata/gtext_fre.dat \
 pkg/fxdata/gtext_ger.dat \
 pkg/fxdata/gtext_ita.dat \
 pkg/fxdata/gtext_jpn.dat \
+pkg/fxdata/gtext_kor.dat \
 pkg/fxdata/gtext_lat.dat \
 pkg/fxdata/gtext_pol.dat \
 pkg/fxdata/gtext_rus.dat \
@@ -88,6 +89,12 @@ pkg/fxdata/gtext_chi.dat: lang/gtext_chi.po tools/po2ngdat/res/char_encoding_tbl
 	-$(ECHO) ' '
 
 pkg/fxdata/gtext_cht.dat: lang/gtext_cht.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $(POTONGDAT)
+	-$(ECHO) 'Building language file: $@'
+	$(POTONGDAT) -o "$@" -e "$(word 2,$^)" "$<"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/fxdata/gtext_kor.dat: lang/gtext_kor.po tools/po2ngdat/res/char_encoding_tbl_kr.txt $(POTONGDAT)
 	-$(ECHO) 'Building language file: $@'
 	$(POTONGDAT) -o "$@" -e "$(word 2,$^)" "$<"
 	-$(ECHO) 'Finished building: $@'

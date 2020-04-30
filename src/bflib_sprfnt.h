@@ -54,7 +54,7 @@ struct AsianFont {
   unsigned long field_24;
   unsigned long field_28;
   unsigned long bits_width;
-  unsigned long field_30;
+  unsigned long bits_height;
   unsigned long field_34;
   unsigned long field_38;
   unsigned long field_3C;
@@ -65,7 +65,7 @@ struct AsianFont {
 struct AsianDraw {
   unsigned long draw_char;
   unsigned long bits_width;
-  unsigned long field_8;
+  unsigned long bits_height;
   unsigned long field_C;
   unsigned long field_10;
   unsigned long field_14;

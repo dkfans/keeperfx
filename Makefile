@@ -350,7 +350,7 @@ questfth \
 twinkprs \
 undedkpr
 
-LANGS = eng chi cht cze dut fre ger ita jpn lat pol rus spa swe
+LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 
 # load program version
 include version.mk
