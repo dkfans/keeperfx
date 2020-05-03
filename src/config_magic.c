@@ -78,6 +78,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"MAXRANGE",            13},
   {"ANIMATION",           14},
   {"ANIMATIONSIZE",       15},
+  {"SPELLEFFECT",         16},
   {NULL,                   0},
   };
 
@@ -963,6 +964,19 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->sprite_size_max = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 16: //SPELLEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->cast_spell_kind = k;
               n++;
           }
           if (n < 1)
