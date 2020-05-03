@@ -101,6 +101,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"FEMALE",           21},
   {"INSECT",           22},
   {"ONE_OF_KIND",      23},
+  {"NO_IMPRISONMENT",  24},
   {NULL,                0},
   };
 
@@ -703,6 +704,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 23: // ONE_OF_KIND
                 crconf->model_flags |= CMF_OneOfKind;
+                n++;
+                break;
+            case 24: // NO_INPRISONMENT
+                crconf->model_flags |= CMF_NoImprisonment;
                 n++;
                 break;
             default:

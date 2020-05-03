@@ -1636,6 +1636,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     srcctrl = creature_control_get_from_thing(tngsrc);
                     apply_spell_effect_to_thing(tngdst, SplK_Slow, srcctrl->explevel);
                 }
+                break;
             case AAffT_GasSlowDamage:
                 if (max_damage > 0) {
                     HitPoints damage;

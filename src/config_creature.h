@@ -50,7 +50,8 @@ enum CreatureModelFlags {
     CMF_TremblingFat     = 0x0400, // Creature causes ground to tremble when dropped
     CMF_Female           = 0x0800, // Creature is female
     CMF_Insect           = 0x1000, // Creature is kind of insect
-    CMF_OneOfKind        = 0x2000, // Only one creature of that kind may exist on one level
+    CMF_OneOfKind        = 0x2000, // Only one creature of that kind may exist on one level. Unit name is type name.
+    CMF_NoImprisonment   = 0x4000, // Creature will not faint.
 };
 
 enum CreatureJobFlags {
