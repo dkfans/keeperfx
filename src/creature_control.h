@@ -560,7 +560,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char lair_size;
     unsigned char hurt_by_lava;
     unsigned char sleep_exp_slab;
-    unsigned char sleep_experience;
+    short sleep_experience;
     short exp_for_hitting;
     short gold_hold;
     short training_cost;
