@@ -976,7 +976,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         trgtng->state_flags |= TF1_PushAdd;
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
-    if (shotst->old->is_boulder != 0)
+    if (shotst->model_flags & ShMF_Boulder)
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(trgtng);
         shotng->health -= crstat->damage_to_boulder;

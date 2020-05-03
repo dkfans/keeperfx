@@ -342,7 +342,7 @@ struct ShotStats // sizeof = 101
   unsigned char hit_lava_destroyed;
   short area_range_UNUSED;
   short area_damage_UNUSED;
-  short is_boulder;
+  short is_boulder_UNUSED;
   unsigned char field_47;
   unsigned char is_melee_UNUSED;
   unsigned char is_digging_UNUSED;
