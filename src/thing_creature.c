@@ -4164,8 +4164,8 @@ void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx)
     struct Thing* creatng = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, my_player_number, 0);
     if (!thing_is_invalid(creatng))
     {
-        struct Packet* pckt = get_packet_direct(my_player_number);
-        set_packet_action(pckt, PckA_Unknown087, creatng->mappos.x.val, creatng->mappos.y.val, 0, 0);
+        struct PlayerInfo* player = get_my_player();
+        set_players_packet_action(player, PckA_ZoomToLocation, creatng->mappos.x.val, creatng->mappos.y.val, 0, 0);
     }
 }
 

@@ -1863,7 +1863,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           set_player_state(player, PSt_PlaceDoor, thing->model);
       }
       return 0;
-  case PckA_Unknown087:
+  case PckA_ZoomToLocation:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       player->zoom_to_pos_x = pckt->actn_par1;

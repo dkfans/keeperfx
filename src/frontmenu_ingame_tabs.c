@@ -1238,7 +1238,7 @@ void go_to_my_next_room_of_type(RoomKind rkind)
     struct PlayerInfo* player = get_my_player();
     if (room_idx > 0) {
         struct Room* room = room_get(room_idx);
-        set_players_packet_action(player, PckA_Unknown087, subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y), 0, 0);
+        set_players_packet_action(player, PckA_ZoomToLocation, subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y), 0, 0);
     }
 }
 

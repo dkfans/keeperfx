@@ -1540,7 +1540,7 @@ short zoom_to_next_annoyed_creature(void)
     {
       return false;
     }
-    set_players_packet_action(player, PckA_Unknown087, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+    set_players_packet_action(player, PckA_ZoomToLocation, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
     return true;
 }
 
