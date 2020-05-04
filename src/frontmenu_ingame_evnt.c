@@ -165,7 +165,7 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
     if (thing_exists(thing))
     {
         struct Packet* pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_ZoomToLocation, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+        set_packet_action(pckt, PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
     }
 }
 

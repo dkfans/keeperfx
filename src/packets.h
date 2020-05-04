@@ -114,7 +114,7 @@ enum TbPacketAction {
         PckA_ZoomToRoom,
         PckA_ZoomToTrap,//85
         PckA_ZoomToDoor,
-        PckA_ZoomToLocation,
+        PckA_ZoomToPosition,
         PckA_Unknown088,
         PckA_PwrCTADis,
         PckA_UsePwrHandPick,//90

@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 enum MousePointerGraphics {
-    MousePG_Unkn00 = 0,
+    MousePG_Invisible = 0,
     MousePG_Arrow,
     MousePG_Pickaxe,
     MousePG_Sell,

@@ -382,7 +382,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   }
   switch (ptr_idx)
   {
-  case MousePG_Unkn00:
+  case MousePG_Invisible:
   case MousePG_Arrow:
   case MousePG_Pickaxe:
   case MousePG_Query:

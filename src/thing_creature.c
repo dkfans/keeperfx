@@ -4165,7 +4165,7 @@ void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx)
     if (!thing_is_invalid(creatng))
     {
         struct PlayerInfo* player = get_my_player();
-        set_players_packet_action(player, PckA_ZoomToLocation, creatng->mappos.x.val, creatng->mappos.y.val, 0, 0);
+        set_players_packet_action(player, PckA_ZoomToPosition, creatng->mappos.x.val, creatng->mappos.y.val, 0, 0);
     }
 }
 

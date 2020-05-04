@@ -692,7 +692,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
     {
-        set_pointer_graphic(MousePG_Unkn00);
+        set_pointer_graphic(MousePG_Invisible);
         return false;
     }
     struct PlayerInfo* player = get_my_player();
@@ -728,20 +728,20 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     if (dungeon_invalid(dungeon))
     {
-        set_pointer_graphic(MousePG_Unkn00);
+        set_pointer_graphic(MousePG_Invisible);
         return;
     }
     // During fade
     if (player->instance_num == PI_MapFadeFrom)
     {
-        set_pointer_graphic(MousePG_Unkn00);
+        set_pointer_graphic(MousePG_Invisible);
         return;
     }
     // Mouse over panel map
     if (((game.operation_flags & GOF_ShowGui) != 0) && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
         if (game.small_map_state == 2) {
-            set_pointer_graphic(MousePG_Unkn00);
+            set_pointer_graphic(MousePG_Invisible);
         } else {
             set_pointer_graphic(MousePG_Arrow);
         }
@@ -810,7 +810,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 if ((player->field_3 & Pf3F_Unkn02) != 0) {
                   set_pointer_graphic(MousePG_Pickaxe);
                 } else {
-                  set_pointer_graphic(MousePG_Unkn00);
+                  set_pointer_graphic(MousePG_Invisible);
                 }
             }
             break;
@@ -818,7 +818,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             if (player->hand_busy_until_turn <= game.play_gameturn)
               set_pointer_graphic(MousePG_Arrow);
             else
-              set_pointer_graphic(MousePG_Unkn00);
+              set_pointer_graphic(MousePG_Invisible);
             break;
         }
         break;
@@ -828,7 +828,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_HoldInHand:
     case PSt_Slap:
-        set_pointer_graphic(MousePG_Unkn00);
+        set_pointer_graphic(MousePG_Invisible);
         break;
     case PSt_CallToArms:
     case PSt_CaveIn:
@@ -887,7 +887,7 @@ void process_pointer_graphic(void)
         if ((game.numfield_D & GNFldD_Unkn08) != 0)
           set_pointer_graphic(MousePG_Arrow);
         else
-          set_pointer_graphic(MousePG_Unkn00);
+          set_pointer_graphic(MousePG_Invisible);
         break;
     case PVT_MapScreen:
     case PVT_MapFadeIn:
