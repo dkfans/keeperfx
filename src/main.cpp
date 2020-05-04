@@ -4650,7 +4650,16 @@ short process_command_line(unsigned short argc, char *argv[])
   }
 
   if (level_num == LEVELNUMBER_ERROR)
-    level_num = first_singleplayer_level();
+  {
+      if (first_singleplayer_level() > 0)
+      {
+          level_num = first_singleplayer_level();
+      }
+      else
+      {
+          level_num = 1;
+      }
+  }
   start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
   return (bad_param==0);
