@@ -4391,6 +4391,46 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
 }
 
 /**
+ * Function used for claiming room owned by another player by the level script.
+ * @param room The room to be claimed.
+ * @param newowner The player which will receive the room.
+ * @return
+ */
+long take_over_room(struct Room* room, PlayerNumber newowner)
+{
+    SYNCDBG(7, "Starting for %s index %d claimed by player %d", room_code_name(room->kind), (int)room->index, newowner);
+    PlayerNumber oldowner = room->owner;
+    if (oldowner == game.neutral_player_num)
+    {
+        room->owner = newowner;
+        room->health = compute_room_max_health(room->slabs_count, room->efficiency);
+        add_room_to_players_list(room, newowner);
+        change_room_map_element_ownership(room, newowner);
+        redraw_room_map_elements(room);
+        do_room_unprettying(room, newowner);
+        do_room_integration(room);
+        return 1;
+    } else
+    if (oldowner != newowner)
+    {
+        reset_state_of_creatures_working_in_room(room);
+        remove_room_from_players_list(room, oldowner);
+        room->owner = newowner;
+        room->health = compute_room_max_health(room->slabs_count, room->efficiency);
+        add_room_to_players_list(room, newowner);
+        change_room_map_element_ownership(room, newowner);
+        redraw_room_map_elements(room);
+        do_room_unprettying(room, newowner);
+        do_room_integration(room);
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+/**
  * Destroys all slabs of given room, creating gold rubble effect in the place.
  * @param room The room structure which slabs are to be destroyed.
  * @note The room structure is freed before this function end.
