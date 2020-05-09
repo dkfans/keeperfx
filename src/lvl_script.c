@@ -68,7 +68,7 @@ extern "C" {
 /******************************************************************************/
 /**
  * Descriptions of script commands for parser.
- * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator
+ * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
  * Lower case letters are optional arguments.
  */
 const struct CommandDesc command_desc[] = {
@@ -148,6 +148,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION},
   {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER},
+  {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE},
   {NULL,                                "        ", Cmd_NONE},
 };
 
@@ -1461,7 +1462,17 @@ void command_if_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, long plr_rang
         SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
         return;
     }
-    command_add_condition(slb_x, 1, SVar_SLAB_LOCATION, slb_y, plr_range_id);
+    command_add_condition(slb_x, 1, SVar_SLAB_OWNER, slb_y, plr_range_id);
+}
+
+void command_if_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y, long slab_type)
+{
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    {
+        SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
+        return;
+    }
+    command_add_condition(slb_x, 1, SVar_SLAB_TYPE, slb_y, slab_type);
 }
 
 void command_computer_player(long plr_range_id, long comp_model)
@@ -2691,6 +2702,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_IF_SLAB_OWNER:
         command_if_slab_owner(scline->np[0], scline->np[1], scline->np[2]);
         break;
+    case Cmd_IF_SLAB_TYPE:
+        command_if_slab_type(scline->np[0], scline->np[1], scline->np[2]);
+        break;
     case Cmd_SET_COMPUTER_GLOBALS:
         command_set_computer_globals(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
         break;
@@ -2843,6 +2857,15 @@ TbBool script_command_param_to_number(char type_chr, struct ScriptLine *scline, 
         }
         scline->np[idx] = room_id;
         };break;
+    case 'S': {
+        long slab_id = get_rid(slab_desc, scline->tp[idx]);
+        if (slab_id == -1)
+        {
+            SCRPTERRLOG("Unknown slab kind, \"%s\"", scline->tp[idx]);
+            return false;
+        }
+        scline->np[idx] = slab_id;
+    }; break;
     case 'L':{
         TbMapLocation loc;
         if (!get_map_location_id(scline->tp[idx], &loc)) {
@@ -4135,11 +4158,17 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
             return min(game.pool.crtr_kind[validx%CREATURE_TYPES_COUNT],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
         }
         return 0;
-    case SVar_SLAB_LOCATION: //IF_SLAB_OWNER
+    case SVar_SLAB_OWNER: //IF_SLAB_OWNER
     {
         long varib_id = get_slab_number(plyr_idx, validx);
         struct SlabMap* slb = get_slabmap_direct(varib_id);
         return slabmap_owner(slb);
+    }
+    case SVar_SLAB_TYPE: //IF_SLAB_TYPE
+    {
+        long varib_id = get_slab_number(plyr_idx, validx);
+        struct SlabMap* slb = get_slabmap_direct(varib_id);
+        return slb->kind;
     }
     case SVar_CONTROLS_CREATURE: // IF_CONTROLS(CREATURE)
         dungeon = get_dungeon(plyr_idx);
@@ -4228,7 +4257,7 @@ void process_condition(struct Condition *condt)
         set_flag_byte(&condt->status, 0x01, false);
         return;
     }
-    if (condt->variabl_type == SVar_SLAB_LOCATION)
+    if ((condt->variabl_type == SVar_SLAB_OWNER) || (condt->variabl_type == SVar_SLAB_TYPE)) //These variable types abuse the plyr_range, since all slabs don't fit in an unsigned short
     {
         new_status = false;
         long k = get_condition_value(condt->plyr_range, condt->variabl_type, condt->variabl_idx);
