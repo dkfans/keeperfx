@@ -228,6 +228,7 @@ const struct NamedCommand player_desc[] = {
   {"PLAYER3",          PLAYER3},
   {"PLAYER_GOOD",      PLAYER_GOOD},
   {"ALL_PLAYERS",      ALL_PLAYERS},
+  {"PLAYER_NEUTRAL",   PLAYER_NEUTRAL},
   {NULL,               0},
 };
 
@@ -4636,10 +4637,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
   case Cmd_CHANGE_SLAB_OWNER:
       slb = get_slabmap_block(val2, val3);
-      if (plr_range_id == ALL_PLAYERS) // TODO: Remove when proper support for neutral player is there.
-      {
-          plr_range_id = PLAYER_NEUTRAL;
-      }
       if (slb->room_index)
       {
           struct Room* room = room_get(slb->room_index);
