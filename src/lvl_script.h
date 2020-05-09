@@ -168,6 +168,7 @@ enum ScriptVariables {
   SVar_CONTROLS_GOOD_CREATURES         = 43,
   SVar_CONTROLS_EVIL_CREATURES         = 44,
   SVar_CAMPAIGN_FLAG                   = 45,
+  SVar_SLAB_LOCATION                   = 46,
 };
 
 enum MapLocationTypes {

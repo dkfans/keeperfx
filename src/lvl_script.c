@@ -147,6 +147,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_TRAP_CONFIGURATION",            "ANNNNNNN", Cmd_SET_TRAP_CONFIGURATION},
   {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION},
   {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER},
+  {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER},
   {NULL,                                "        ", Cmd_NONE},
 };
 
@@ -1452,6 +1453,16 @@ void command_if_action_point(long apt_num, long plr_range_id)
     command_add_condition(plr_range_id, 0, SVar_ACTION_POINT_TRIGGERED, apt_idx, 0);
 }
 
+void command_if_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, long plr_range_id)
+{
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    {
+        SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
+        return;
+    }
+    command_add_condition(slb_x, 1, SVar_SLAB_LOCATION, slb_y, plr_range_id);
+}
+
 void command_computer_player(long plr_range_id, long comp_model)
 {
     if (script_current_condition != -1)
@@ -2675,6 +2686,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_IF_CONTROLS:
         command_if_controls(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_IF_SLAB_OWNER:
+        command_if_slab_owner(scline->np[0], scline->np[1], scline->np[2]);
         break;
     case Cmd_SET_COMPUTER_GLOBALS:
         command_set_computer_globals(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
@@ -4120,6 +4134,12 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
             return min(game.pool.crtr_kind[validx%CREATURE_TYPES_COUNT],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
         }
         return 0;
+    case SVar_SLAB_LOCATION: //IF_SLAB_OWNER
+    {
+        long varib_id = get_slab_number(plyr_idx, validx);
+        struct SlabMap* slb = get_slabmap_direct(varib_id);
+        return slabmap_owner(slb);
+    }
     case SVar_CONTROLS_CREATURE: // IF_CONTROLS(CREATURE)
         dungeon = get_dungeon(plyr_idx);
         return dungeon->owned_creatures_of_model[validx%CREATURE_TYPES_COUNT]
@@ -4207,27 +4227,37 @@ void process_condition(struct Condition *condt)
         set_flag_byte(&condt->status, 0x01, false);
         return;
     }
-    if (get_players_range(condt->plyr_range, &plr_start, &plr_end) < 0)
+    if (condt->variabl_type == SVar_SLAB_LOCATION)
     {
-        WARNLOG("Invalid player range %d in CONDITION command %d.",(int)condt->plyr_range,(int)condt->variabl_type);
-        return;
+        new_status = false;
+        long k = get_condition_value(condt->plyr_range, condt->variabl_type, condt->variabl_idx);
+        new_status = get_condition_status(condt->operation, k, condt->rvalue);
     }
-    if (condt->variabl_type == SVar_ACTION_POINT_TRIGGERED)
+    else
     {
-        new_status = false;
-        for (i=plr_start; i < plr_end; i++)
+        if (get_players_range(condt->plyr_range, &plr_start, &plr_end) < 0)
         {
-            new_status = action_point_activated_by_player(condt->variabl_idx,i);
-            if (new_status) break;
+            WARNLOG("Invalid player range %d in CONDITION command %d.", (int)condt->plyr_range, (int)condt->variabl_type);
+            return;
         }
-    } else
-    {
-        new_status = false;
-        for (i=plr_start; i < plr_end; i++)
+        if (condt->variabl_type == SVar_ACTION_POINT_TRIGGERED)
         {
-            long k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
-            new_status = get_condition_status(condt->operation, k, condt->rvalue);
-            if (new_status != false) break;
+            new_status = false;
+            for (i = plr_start; i < plr_end; i++)
+            {
+                new_status = action_point_activated_by_player(condt->variabl_idx, i);
+                if (new_status) break;
+            }
+        }
+        else
+        {
+            new_status = false;
+            for (i = plr_start; i < plr_end; i++)
+            {
+                long k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
+                new_status = get_condition_status(condt->operation, k, condt->rvalue);
+                if (new_status != false) break;
+            }
         }
     }
     SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
