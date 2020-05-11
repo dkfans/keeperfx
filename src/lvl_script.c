@@ -147,6 +147,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_TRAP_CONFIGURATION",            "ANNNNNNN", Cmd_SET_TRAP_CONFIGURATION},
   {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION},
   {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER},
+  {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE},
   {NULL,                                "        ", Cmd_NONE},
@@ -2336,6 +2337,11 @@ void command_change_slab_owner(long x, long y, long plr_range_id)
     command_add_value(Cmd_CHANGE_SLAB_OWNER, plr_range_id, x, y, 0);
 }
 
+void command_change_slab_type(long x, long y, long slab_type)
+{
+    command_add_value(Cmd_CHANGE_SLAB_TYPE, 0, x, y, slab_type);
+}
+
 void command_reveal_map_location(long plr_range_id, const char *locname, long range)
 {
     TbMapLocation location;
@@ -2813,6 +2819,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_CHANGE_SLAB_OWNER:
         command_change_slab_owner(scline->np[0], scline->np[1], scline->np[2]);
+        break;
+    case Cmd_CHANGE_SLAB_TYPE:
+        command_change_slab_type(scline->np[0], scline->np[1], scline->np[2]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -4665,25 +4674,52 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_CHANGE_SLAB_OWNER:
-      slb = get_slabmap_block(val2, val3);
-      if (slb->room_index)
+      if (val2 < 0 || val2 > 85)
       {
-          struct Room* room = room_get(slb->room_index);
-          take_over_room(room, plr_range_id);
+          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val2);
       } else
-        if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
-        {
-            short slbkind;
-            if (slb->kind == SlbT_PATH)
-            {
-                slbkind = SlbT_CLAIMED;
-            }
-            else
-            {
-                slbkind = slb->kind;
-            }
-            place_slab_type_on_map(slbkind, slab_subtile(val2, 0), slab_subtile(val3, 0), plr_range_id, 0);
-        }
+      if (val3 < 0 || val3 > 85)
+      {
+          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val3);
+      } else
+      {
+          slb = get_slabmap_block(val2, val3);
+          if (slb->room_index)
+          {
+              struct Room* room = room_get(slb->room_index);
+              take_over_room(room, plr_range_id);
+          } else
+          if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
+          {
+              short slbkind;
+              if (slb->kind == SlbT_PATH)
+              {
+                  slbkind = SlbT_CLAIMED;
+              }
+              else
+              {
+                  slbkind = slb->kind;
+              }
+              place_slab_type_on_map(slbkind, slab_subtile(val2, 0), slab_subtile(val3, 0), plr_range_id, 0);
+          }
+      }
+      break;
+  case Cmd_CHANGE_SLAB_TYPE:
+      if (val2 < 0 || val2 > 85)
+      {
+          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val2); 
+      } else
+      if (val3 < 0 || val3 > 85)
+      {
+          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val3);
+      } else
+      if (val4 < 0 || val4 > 41)
+      {
+          SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-41 allowed.", val4);
+      } else
+      {
+          replace_slab_from_script(val2, val3, val4);
+      }
       break;
   case Cmd_KILL_CREATURE:
       for (i=plr_start; i < plr_end; i++)

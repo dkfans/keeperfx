@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "room_data.h"
 #include "map_utils.h"
+#include "map_blocks.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
@@ -276,6 +277,66 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char is
         replace_room_slab(room, slb_x, slb_y, room->owner, is_destroyed);
         // Create a new room from slabs left in old one
         recreate_rooms_from_room_slabs(room, is_destroyed);
+        reset_creatures_rooms(room);
+        free_room_structure(room);
+    }
+    return true;
+}
+
+TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char slabkind)
+{
+    struct Room* room = slab_room_get(slb_x, slb_y);
+    struct SlabMap* slb = get_slabmap_for_subtile(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
+    short plyr_idx = slabmap_owner(slb);
+    RoomKind rkind = slab_corresponding_room(slabkind);
+    //When the slab to be replaced does not have a room yes, simply place the room/slab.
+    if (room_is_invalid(room))
+    {
+        // If we're looking to place a non-room slab, simply place it.
+        if (rkind == 0)
+        {
+            place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+            return true;
+        }
+        else
+        {
+            // Create the new one-slab room
+            if (place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0)))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    //Otherwise the old room needs modification too.
+    SYNCDBG(7, "Room on (%d,%d) had %d slabs", (int)slb_x, (int)slb_y, (int)room->slabs_count);
+    decrease_room_area(room->owner, 1);
+    kill_room_slab_and_contents(room->owner, slb_x, slb_y);
+    if (room->slabs_count <= 1)
+    {
+        delete_room_flag(room);
+        // Create a new one-slab room
+        place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
+        //Clean up old room
+        kill_all_room_slabs_and_contents(room);
+        free_room_structure(room);
+        do_slab_efficiency_alteration(slb_x, slb_y);
+    }
+    else
+    {
+        // Remove the slab from room tiles list
+        remove_slab_from_room_tiles_list(room, slb_x, slb_y);
+        // check again if it's a room or other slab
+        if (rkind == 0)
+        {
+            place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+        }
+        else
+        {
+            place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
+        }
+        // Create a new room from slabs left in old one
+        recreate_rooms_from_room_slabs(room, 0);
         reset_creatures_rooms(room);
         free_room_structure(room);
     }
