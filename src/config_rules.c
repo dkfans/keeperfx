@@ -653,9 +653,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                JUSTMSG("TESTLOG: sell percent = %d", gameadd.room_sale_percent);
                 gameadd.room_sale_percent = k;
-                JUSTMSG("TESTLOG: sell percent now = %d", gameadd.room_sale_percent);
                 n++;
             }
             if (n < 1)

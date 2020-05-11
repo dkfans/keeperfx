@@ -408,6 +408,7 @@ const struct NamedCommand game_rule_desc[] = {
   {"ImpWorkExperience",       13},
   {"GemEffectiveness",        14},
   {"RoomSellGoldBackPercent", 15},
+  {"PayDayGap",               16},
   {NULL,                      0},
 };
 
@@ -4900,6 +4901,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 15: //RoomSellGoldBackPercent
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.room_sale_percent, val3);
           gameadd.room_sale_percent = val3;
+          break;
+      case 16: //PayDayGap
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
+          game.pay_day_gap = val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
