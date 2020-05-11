@@ -62,7 +62,6 @@ enum RoomAreaChoose {
 };
 
 #define ROOM_EFFICIENCY_MAX 256
-#define ROOM_SELL_REVENUE_PERCENT  50
 /******************************************************************************/
 #pragma pack(1)
 

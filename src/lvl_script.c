@@ -393,19 +393,21 @@ const struct NamedCommand creature_select_criteria_desc[] = {
 };
 
 const struct NamedCommand game_rule_desc[] = {
-  {"BodiesForVampire",        1},
-  {"PrisonSkeletonChance",    2},
-  {"GhostConvertChance",      3},
-  {"TortureConvertChance",    4},
-  {"TortureDeathChance",      5},
-  {"FoodGenerationSpeed",     6},
-  {"StunEvilEnemyChance",     7},
-  {"StunGoodEnemyChance",     8},
-  {"BodyRemainsFor",          9},
-  {"FightHateKillValue",     10},
-  {"PreserveClassicBugs",    11},
-  {"DungeonHeartHealHealth", 12},
-  {"ImpWorkExperience",      13},
+  {"BodiesForVampire",         1},
+  {"PrisonSkeletonChance",     2},
+  {"GhostConvertChance",       3},
+  {"TortureConvertChance",     4},
+  {"TortureDeathChance",       5},
+  {"FoodGenerationSpeed",      6},
+  {"StunEvilEnemyChance",      7},
+  {"StunGoodEnemyChance",      8},
+  {"BodyRemainsFor",           9},
+  {"FightHateKillValue",      10},
+  {"PreserveClassicBugs",     11},
+  {"DungeonHeartHealHealth",  12},
+  {"ImpWorkExperience",       13},
+  {"GemEffectiveness",        14},
+  {"RoomSellGoldBackPercent", 15},
   {NULL,                      0},
 };
 
@@ -4890,6 +4892,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 13: //ImpWorkExperience
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.digger_work_experience, val3);
           gameadd.digger_work_experience = val3;
+          break;
+      case 14: //GemEffectiveness
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.gem_effectiveness, val3);
+          gameadd.gem_effectiveness = val3;
+          break;
+      case 15: //RoomSellGoldBackPercent
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.room_sale_percent, val3);
+          gameadd.room_sale_percent = val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

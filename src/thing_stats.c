@@ -818,7 +818,7 @@ long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, 
 {
     long gold = (damage_did_to_slab * (long)game.gold_per_gold_block) / game.block_health[1];
     if (slb->kind == SlbT_GEMS)
-      gold /= 6;
+      gold = gold * gameadd.gem_effectiveness / 100;
     if (gold <= 1)
       return 1;
     return gold;

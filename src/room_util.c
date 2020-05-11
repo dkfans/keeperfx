@@ -175,7 +175,7 @@ void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, 
 {
     delete_room_slab_when_no_free_room_structures(slb_x, slb_y, gnd_slab);
     struct RoomStats* rstat = &game.room_stats[room->kind];
-    long revenue = compute_value_percentage(rstat->cost, ROOM_SELL_REVENUE_PERCENT);
+    long revenue = compute_value_percentage(rstat->cost, gameadd.room_sale_percent);
     if (revenue != 0)
     {
         struct Coord3d pos;
