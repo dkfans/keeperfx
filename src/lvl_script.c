@@ -409,6 +409,8 @@ const struct NamedCommand game_rule_desc[] = {
   {"GemEffectiveness",        14},
   {"RoomSellGoldBackPercent", 15},
   {"PayDayGap",               16},
+  {"PayDaySpeed",             17},
+  {"PayDayProgress",          18},
   {NULL,                      0},
 };
 
@@ -765,7 +767,7 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
     long i = get_rid(player_desc, locname);
     if (i != -1)
     {
-      if (i != ALL_PLAYERS) {
+      if ((i != ALL_PLAYERS) && (i != PLAYER_NEUTRAL)) {
           if (!player_has_heart(i)) {
               WARNMSG("%s(line %lu): Target player %d has no heart",func_name,ln_num, (int)i);
           }
@@ -3477,10 +3479,13 @@ long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngcla
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct Thing* heartng = get_player_soul_container(thing->owner);
-    if ( thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner) )
+    if (thing->owner != PLAYER_NEUTRAL)
     {
-        cctrl->field_AE |= 0x01;
+        struct Thing* heartng = get_player_soul_container(thing->owner);
+        if (thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner))
+        {
+            cctrl->field_AE |= 0x01;
+        }
     }
 
     if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
@@ -4905,6 +4910,28 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 16: //PayDayGap
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
           game.pay_day_gap = val3;
+          break;
+      case 17: //PayDaySpeed
+          if (val3 >= 0)
+          {
+              SCRIPTDBG(7, "Changing rule %s from %d to %d", val2, gameadd.pay_day_speed, val3);
+              gameadd.pay_day_speed = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 18: //PayDayProgress
+          if (val3 >= 0)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_progress, val3);
+              game.pay_day_progress = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

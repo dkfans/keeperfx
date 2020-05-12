@@ -2454,7 +2454,7 @@ void count_players_creatures_being_paid(int *creatures_count)
 void process_payday(void)
 {
     //_DK_process_payday();
-    game.field_15033A++;
+    game.pay_day_progress = game.pay_day_progress + (gameadd.pay_day_speed / 100);
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -2468,10 +2468,10 @@ void process_payday(void)
             compute_and_update_player_payday_total(plyr_idx);
         }
     }
-    if (game.pay_day_gap <= game.field_15033A)
+    if (game.pay_day_gap <= game.pay_day_progress)
     {
         output_message(SMsg_Payday, 0, true);
-        game.field_15033A = 0;
+        game.pay_day_progress = 0;
         // Prepare a list which counts how many creatures of each owner needs pay
         int player_paid_creatures_count[PLAYERS_EXT_COUNT];
         PlayerNumber plyr_idx;
@@ -4074,7 +4074,7 @@ void init_level(void)
     init_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
-    game.field_15033A = 0;
+    game.pay_day_progress = 0;
     game.chosen_room_kind = 0;
     game.chosen_room_spridx = 0;
     game.chosen_room_tooltip = 0;

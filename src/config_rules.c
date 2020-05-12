@@ -58,6 +58,7 @@ const struct NamedCommand rules_game_commands[] = {
   {"MAXGOLDLOOKUP",              16},
   {"MINGOLDTORECORD",            17},
   {"PAYDAYGAP",                  18},
+  {"PAYDAYSPEED",                19},
   {"SLABCOLLAPSETIME",           20},
   {"DUNGEONHEARTHEALTH",         21},
   {"DUNGEONHEARTHEALTIME",       22},
@@ -291,6 +292,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         gameadd.classic_bugs_flags = ClscBug_None;
         gameadd.room_sale_percent = 50;
         gameadd.gem_effectiveness = 17;
+        gameadd.pay_day_speed = 100;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -526,6 +528,19 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 19: // PAYDAYSPEED
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.pay_day_speed = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case 20: // SLABCOLLAPSETIME

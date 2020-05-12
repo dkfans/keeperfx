@@ -298,7 +298,7 @@ char field_14EA4B;
     struct CreaturePool pool;
     long frame_skip;
     unsigned long pay_day_gap;
-unsigned long field_15033A;
+unsigned long pay_day_progress;
     unsigned long power_hand_gold_grab_amount;
     unsigned char no_intro;
     unsigned long hero_door_wait_time;

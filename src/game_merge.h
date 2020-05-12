@@ -126,6 +126,7 @@ struct GameAdd {
     long digger_work_experience;
     unsigned long gem_effectiveness;
     long room_sale_percent;
+    unsigned long pay_day_speed;
 };
 
 #pragma pack()
