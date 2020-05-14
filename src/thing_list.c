@@ -1620,7 +1620,7 @@ long creature_of_model_find_first(ThingModel crmodel)
     return 0;
 }
 
-long creature_of_model_in_prison_or_tortured(ThingModel crmodel)
+struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel)
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
     long i = slist->index;
@@ -1638,7 +1638,7 @@ long creature_of_model_in_prison_or_tortured(ThingModel crmodel)
         if ((crmodel <= 0) || (thing->model == crmodel))
         {
           if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
-              return i;
+              return thing;
         }
         // Thing list loop body ends
         k++;
@@ -1658,8 +1658,14 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
         struct CreatureModelConfig* crconf = &crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
-            if (creature_of_model_in_prison_or_tortured(crtr_model) > 0)
-                return true;
+            struct Thing* thing = creature_of_model_in_prison_or_tortured(crtr_model);
+            if (thing > 0)
+            {
+                if (player_keeping_creature_in_custody(thing) == my_player_number)
+                {
+                    return true;
+                }
+            }
         }
     }
     return false;

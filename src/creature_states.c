@@ -856,6 +856,43 @@ TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNu
     return false;
 }
 
+short player_keeping_creature_in_custody(const struct Thing* thing)
+{
+    for (int plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        if (thing_is_picked_up_by_player(thing, plyr_idx))
+        {
+            if (thing->owner != plyr_idx)
+            {
+                // The enemy keeps it in hand - the fact is clear
+                return plyr_idx;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+    if (creature_is_kept_in_prison(thing) ||
+        creature_is_being_tortured(thing) ||
+        creature_is_being_sacrificed(thing) ||
+        creature_is_being_dropped(thing))
+    {
+        struct Room* room = get_room_thing_is_on(thing);
+        if (room_is_invalid(room)) {
+            // This must mean we're being dropped outside of room, or sold/destroyed the room
+            // so not kept in custody - freed
+            return -1;
+        }
+        if (room->owner != thing->owner) {
+            // We're in a room, and it's not the unit owner
+            return room->owner;
+        }
+    }
+    return -1;
+}
+
+
 TbBool creature_state_is_unset(const struct Thing *thing)
 {
     CrtrStateId crstate = get_creature_state_besides_move(thing);
