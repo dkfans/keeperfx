@@ -917,11 +917,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             return 1;
         }
     }
-    if (shotst->old->hit_sound != 0)
-    {
-        play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
-        thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    }
     if (shotng->shot.damage != 0)
     {
         if (shotst->model_flags & ShMF_LifeDrain)
@@ -963,34 +958,83 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             WARNDBG(8,"The %s index %d owner %d cannot group; invalid parent",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
         }
     }
-    if (shotst->old->push_on_hit != 0 || creature_is_being_unconscious(trgtng))
+    if (shotst->old->push_on_hit != 0 )
     {
-        if (creature_is_being_unconscious(trgtng)) {
-            amp ++;
-            amp *= 5;
-        }
         i = amp * (long)shotng->velocity.x.val;
         trgtng->veloc_push_add.x.val += i / 16;
         i = amp * (long)shotng->velocity.y.val;
         trgtng->veloc_push_add.y.val += i / 16;
         trgtng->state_flags |= TF1_PushAdd;
     }
+    if (creature_is_being_unconscious(trgtng))
+    {
+        amp ++;
+        if (shotst->model_flags & ShMF_Boulder) //Boulders move units slightly but without purpose
+        {
+            if (abs(shotng->velocity.x.val) >= abs(shotng->velocity.y.val))
+            {
+                i = amp * (long)shotng->velocity.x.val;
+                trgtng->veloc_push_add.x.val += i / 64;
+                i = amp * (long)shotng->velocity.x.val * (ACTION_RANDOM(3) - 1);
+                trgtng->veloc_push_add.y.val += i / 64;
+            }
+            else
+            {
+                i = amp * (long)shotng->velocity.y.val;
+                trgtng->veloc_push_add.y.val += i / 64;
+                i = amp * (long)shotng->velocity.y.val * (ACTION_RANDOM(3) - 1);
+                trgtng->veloc_push_add.x.val += i / 64;
+            }
+            trgtng->state_flags |= TF1_PushAdd;
+        }
+        else // Normal shots blast unconscious units out of the way
+        {
+            amp *= 5;
+            i = amp * (long)shotng->velocity.x.val;
+            trgtng->veloc_push_add.x.val += i / 16;
+            i = amp * (long)shotng->velocity.y.val;
+            trgtng->veloc_push_add.y.val += i / 16;
+            trgtng->state_flags |= TF1_PushAdd;
+        }
+    }
+    else // not for unconscious units
+    {
+        if (shotst->old->hit_sound != 0)
+        {
+            play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
+            thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        }
+    }
+
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->model_flags & ShMF_Boulder)
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(trgtng);
-        shotng->health -= crstat->damage_to_boulder;
+        if (creature_is_being_unconscious(trgtng)) //We're not actually hitting the unconscious units with a boulder
+        {
+            return 0;
+        } 
+        else
+        {
+            struct CreatureStats* crstat = creature_stats_get_from_thing(trgtng);
+            shotng->health -= crstat->damage_to_boulder;
+        }
+
     }
     if (trgtng->health < 0)
     {
         shot_kill_creature(shotng, trgtng);
     } else
     {
-        if (trgtng->owner != shotng->owner) {
+        if (trgtng->owner != shotng->owner) 
+        {
             check_hit_when_attacking_door(trgtng);
         }
     }
-    if (shotst->area_range != 0) detonate_shot(shotng);
+
+    if (shotst->area_range != 0)
+    {
+        detonate_shot(shotng);
+    }
 
 
     if (shotst->old->destroy_on_first_hit != 0) {
