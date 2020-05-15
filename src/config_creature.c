@@ -2096,9 +2096,6 @@ unsigned long get_flags_for_job(CreatureJob jobpref)
 int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel)
 {
     struct CreatureJobConfig* jobcfg = get_config_for_job(jobpref);
-    if ((jobcfg->job_flags & JoKF_NeedsCapacity) == 0) {
-        return 0;
-    }
     switch (jobcfg->room_role)
     {
     case RoRoF_None:
@@ -2111,9 +2108,13 @@ int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel)
         return crstat->lair_size;
     }
     default:
-        return 1;
+        break;
     }
-    return 0;
+    if ((jobcfg->job_flags & JoKF_NeedsCapacity) == 0)
+    {
+        return 0;
+    }
+    return 1;
 }
 
 CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref)
