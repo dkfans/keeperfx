@@ -36,7 +36,7 @@ enum CreatureHeroTasks {
     CHeroTsk_AttackDnHeart   = 3,
     CHeroTsk_StealGold       = 4,
     CHeroTsk_StealSpells     = 5,
-    CHeroTsk_DefendParty     = 6,
+    CHeroTsk_DefendParty     = 6, // Objectives without target players start here
     CHeroTsk_DefendSpawn     = 7,
     CHeroTsk_DefendHeart     = 8,
     CHeroTsk_DefendRooms     = 9,

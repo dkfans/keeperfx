@@ -754,7 +754,16 @@ short good_doing_nothing(struct Thing *creatng)
             cctrl->party.target_plyr_idx = -1;
         }
     }
-    target_plyr_idx = cctrl->party.target_plyr_idx;
+    if (cctrl->party_objective > CHeroTsk_DefendParty) // Defensive objectives don't need a target
+    {
+        if (good_creature_setup_task_in_dungeon(creatng, target_plyr_idx)) {
+            return 1;
+        }
+    }
+    else
+    {
+        target_plyr_idx = cctrl->party.target_plyr_idx;
+    }
     if (target_plyr_idx == -1)
     {
         nturns = game.play_gameturn - cctrl->long_91;
