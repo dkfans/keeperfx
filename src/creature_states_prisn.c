@@ -21,6 +21,7 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
+#include "creature_states_spdig.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
@@ -133,7 +134,11 @@ short creature_drop_body_in_prison(struct Thing *thing)
         return 0;
     }
     struct Room* room = get_room_thing_is_on(thing);
-    if ((room->owner != thing->owner) || !room_role_matches(room->kind, RoRoF_Prison)) {
+    if ((room->owner != thing->owner) || !room_role_matches(room->kind, RoRoF_Prison) || (room->used_capacity >= room->total_capacity)) {
+        if (creature_drop_thing_to_another_room(thing, room, RoK_PRISON)) {
+            thing->continue_state = CrSt_CreatureDropBodyInPrison;
+            return 1;
+        }
         set_start_state(thing);
         return 0;
     }
