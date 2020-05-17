@@ -30,7 +30,7 @@ extern "C" {
 #pragma pack(1)
 
 struct Thing;
-
+struct Room;
 #pragma pack()
 /******************************************************************************/
 short imp_arrives_at_convert_dungeon(struct Thing *thing);

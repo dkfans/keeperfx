@@ -29,6 +29,7 @@
 
 #include "front_simple.h"
 #include "config.h"
+#include "config_crtrmodel.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
 #include "config_rules.h"
@@ -68,7 +69,7 @@ extern "C" {
 /******************************************************************************/
 /**
  * Descriptions of script commands for parser.
- * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
+ * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind, X- creature property
  * Lower case letters are optional arguments.
  */
 const struct CommandDesc command_desc[] = {
@@ -113,6 +114,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_ARMOUR",               "CN      ", Cmd_SET_CREATURE_ARMOUR},
   {"SET_CREATURE_FEAR_WOUNDED",         "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
   {"SET_CREATURE_FEAR_STRONGER",        "CN      ", Cmd_SET_CREATURE_FEAR_STRONGER},
+  {"SET_CREATURE_PROPERTY",             "CXN     ", Cmd_SET_CREATURE_PROPERTY},
   {"IF_AVAILABLE",                      "PAON    ", Cmd_IF_AVAILABLE},
   {"IF_CONTROLS",                       "PAON    ", Cmd_IF_CONTROLS},
   {"SET_COMPUTER_GLOBALS",              "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
@@ -2241,6 +2243,17 @@ void command_set_creature_fear_stronger(const char *crtr_name, long val)
   command_add_value(Cmd_SET_CREATURE_FEAR_STRONGER, ALL_PLAYERS, crtr_id, val, 0);
 }
 
+void command_set_creature_property(const char* crtr_name, long property, short val)
+{
+    long crtr_id = get_rid(creature_desc, crtr_name);
+    if (crtr_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+        return;
+    }
+    command_add_value(Cmd_SET_CREATURE_PROPERTY, ALL_PLAYERS, crtr_id, property, val);
+}
+
 /**
  * Enables or disables an alliance between two players.
  *
@@ -2701,6 +2714,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_SET_CREATURE_FEAR_STRONGER:
         command_set_creature_fear_stronger(scline->tp[0], scline->np[1]);
         break;
+    case Cmd_SET_CREATURE_PROPERTY:
+        command_set_creature_property(scline->tp[0], scline->np[1], scline->np[2]);
+        break;
     case Cmd_DISPLAY_OBJECTIVE_WITH_POS:
         command_display_objective(scline->np[0], NULL, scline->np[1], scline->np[2]);
         break;
@@ -2895,6 +2911,15 @@ TbBool script_command_param_to_number(char type_chr, struct ScriptLine *scline, 
         }
         scline->np[idx] = opertr_id;
         };break;
+    case 'X': {
+        long prop_id = get_rid(creatmodel_properties_commands, scline->tp[idx]);
+        if (prop_id == -1)
+        {
+            SCRPTERRLOG("Unknown creature property kind, \"%s\"", scline->tp[idx]);
+            return false;
+        }
+        scline->np[idx] = prop_id;
+    }; break;
     case 'A':
         break;
     default:
@@ -4451,6 +4476,7 @@ void process_values(void)
 void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
   struct CreatureStats *crstat;
+  struct CreatureModelConfig *crconf;
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct SlabMap *slb;
@@ -4607,6 +4633,191 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       if (creature_stats_invalid(crstat))
           break;
       crstat->fear_stronger = saturate_set_unsigned(val3, 16);
+      creature_stats_updated(val2);
+      break;
+  case Cmd_SET_CREATURE_PROPERTY:
+      crconf = &crtr_conf.model[val2];
+      crstat = creature_stats_get(val2);
+      switch (val3)
+      {
+      case 1: // BLEEDS
+          crstat->bleeds = val4;
+          break;
+      case 2: // UNAFFECTED_BY_WIND
+          crstat->affected_by_wind = val4;
+          break;
+      case 3: // IMMUNE_TO_GAS
+          crstat->immune_to_gas = val4;
+          break;
+      case 4: // HUMANOID_SKELETON
+          crstat->humanoid_creature = val4;
+          break;
+      case 5: // PISS_ON_DEAD
+          crstat->piss_on_dead = val4;
+          break;
+      case 7: // FLYING
+          crstat->flying = val4;
+          break;
+      case 8: // SEE_INVISIBLE
+          crstat->can_see_invisible = val4;
+          break;
+      case 9: // PASS_LOCKED_DOORS
+          crstat->can_go_locked_doors = val4;
+          break;
+      case 10: // SPECIAL_DIGGER
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_IsSpecDigger;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_IsSpecDigger;
+          }
+          break;
+      case 11: // ARACHNID
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_IsArachnid;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_IsArachnid;
+          }
+          break;
+      case 12: // DIPTERA
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_IsDiptera;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_IsDiptera;
+          }
+          break;
+      case 13: // LORD
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_IsLordOTLand;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_IsLordOTLand;
+          }
+          break;
+      case 14: // SPECTATOR
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_IsSpectator;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_IsSpectator;
+          }
+          break;
+      case 15: // EVIL
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_IsEvil;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_IsEvil;
+          }
+          break; 
+      case 16: // NEVER_CHICKENS
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_NeverChickens;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_NeverChickens;
+          }
+          break; 
+      case 17: // IMMUNE_TO_BOULDER
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_ImmuneToBoulder;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_ImmuneToBoulder;
+          }
+          break; 
+      case 18: // NO_CORPSE_ROTTING
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_NoCorpseRotting;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_NoCorpseRotting;
+          }
+          break; 
+      case 19: // NO_ENMHEART_ATTCK
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_NoEnmHeartAttack;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_NoEnmHeartAttack;
+          }
+          break; 
+      case 20: // TREMBLING_FAT
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_TremblingFat;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_TremblingFat;
+          }
+          break; 
+      case 21: // FEMALE
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_Female;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_Female;
+          }
+          break; 
+      case 22: // INSECT
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_Insect;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_Insect;
+          }
+          break; 
+      case 23: // ONE_OF_KIND
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_OneOfKind;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_OneOfKind;
+          }
+          break; 
+      case 24: // NO_INPRISONMENT
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_NoImprisonment;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_NoImprisonment;
+          }
+          break; 
+      default:
+          SCRPTERRLOG("Unknown creature property '%d'", val3);
+          break;
+      }
       creature_stats_updated(val2);
       break;
   case Cmd_ALLY_PLAYERS:

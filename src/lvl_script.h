@@ -123,6 +123,7 @@ enum TbScriptCommands {
     Cmd_SET_GAME_RULE                     = 103,
     Cmd_SET_TRAP_CONFIGURATION            = 104,
     Cmd_SET_DOOR_CONFIGURATION            = 105,
+    Cmd_SET_CREATURE_PROPERTY             = 106,
 };
 
 enum ScriptVariables {

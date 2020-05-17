@@ -32,6 +32,7 @@ TbBool load_creaturemodel_config(long crmodel,unsigned short flags);
 
 TbBool make_all_creatures_free(void);
 TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max);
+extern const struct NamedCommand creatmodel_properties_commands[];
 /******************************************************************************/
 #ifdef __cplusplus
 }
