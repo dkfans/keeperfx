@@ -81,6 +81,8 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"MUST_OBEY_KEEPS_NOT_DO_JOBS", 6},
   {"BREAK_NEUTRAL_WALLS",         7},
   {"ALWAYS_TUNNEL_TO_RED",        8},
+  {"FULLY_HAPPY_WITH_GOLD",       9},
+  {"FAINTED_IMMUNE_TO_BOULDER",  10},
   {NULL,                          0},
   };
 
@@ -636,6 +638,14 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   break;
               case 8: // ALWAYS_TUNNEL_TO_RED
                   gameadd.classic_bugs_flags |= ClscBug_AlwaysTunnelToRed;
+                  n++;
+                  break;
+              case 9: // FULLY_HAPPY_WITH_GOLD
+                  gameadd.classic_bugs_flags |= ClscBug_FullyHappyWithGold;
+                  n++;
+                  break;
+              case 10: // FAINTED_IMMUNE_TO_BOULDER
+                  gameadd.classic_bugs_flags |= ClscBug_FaintedImmuneToBoulder;
                   n++;
                   break;
               default:

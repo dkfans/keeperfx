@@ -2744,7 +2744,10 @@ short creature_take_salary(struct Thing *creatng)
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, salary);
-        anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage);
+        if (!(gameadd.classic_bugs_flags & ClscBug_FullyHappyWithGold))
+        {
+            anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage);
+        }
         thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     dungeon->lvstats.salary_cost += salary;

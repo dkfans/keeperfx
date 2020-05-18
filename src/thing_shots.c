@@ -969,25 +969,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (creature_is_being_unconscious(trgtng))
     {
         amp ++;
-        if (shotst->model_flags & ShMF_Boulder) //Boulders move units slightly but without purpose
-        {
-            if (abs(shotng->velocity.x.val) >= abs(shotng->velocity.y.val))
-            {
-                i = amp * (long)shotng->velocity.x.val;
-                trgtng->veloc_push_add.x.val += i / 64;
-                i = amp * (long)shotng->velocity.x.val * (ACTION_RANDOM(3) - 1);
-                trgtng->veloc_push_add.y.val += i / 64;
-            }
-            else
-            {
-                i = amp * (long)shotng->velocity.y.val;
-                trgtng->veloc_push_add.y.val += i / 64;
-                i = amp * (long)shotng->velocity.y.val * (ACTION_RANDOM(3) - 1);
-                trgtng->veloc_push_add.x.val += i / 64;
-            }
-            trgtng->state_flags |= TF1_PushAdd;
-        }
-        else // Normal shots blast unconscious units out of the way
+        if (gameadd.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
             amp *= 5;
             i = amp * (long)shotng->velocity.x.val;
@@ -995,6 +977,41 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             i = amp * (long)shotng->velocity.y.val;
             trgtng->veloc_push_add.y.val += i / 16;
             trgtng->state_flags |= TF1_PushAdd;
+            if (shotst->old->hit_sound != 0)
+            {
+                play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
+                thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            }
+        }
+        else
+        {
+            if (shotst->model_flags & ShMF_Boulder) //Boulders move units slightly but without purpose
+            {
+                if (abs(shotng->velocity.x.val) >= abs(shotng->velocity.y.val))
+                {
+                    i = amp * (long)shotng->velocity.x.val;
+                    trgtng->veloc_push_add.x.val += i / 64;
+                    i = amp * (long)shotng->velocity.x.val * (ACTION_RANDOM(3) - 1);
+                    trgtng->veloc_push_add.y.val += i / 64;
+                }
+                else
+                {
+                    i = amp * (long)shotng->velocity.y.val;
+                    trgtng->veloc_push_add.y.val += i / 64;
+                    i = amp * (long)shotng->velocity.y.val * (ACTION_RANDOM(3) - 1);
+                    trgtng->veloc_push_add.x.val += i / 64;
+                }
+                trgtng->state_flags |= TF1_PushAdd;
+            }
+            else // Normal shots blast unconscious units out of the way
+            {
+                amp *= 5;
+                i = amp * (long)shotng->velocity.x.val;
+                trgtng->veloc_push_add.x.val += i / 16;
+                i = amp * (long)shotng->velocity.y.val;
+                trgtng->veloc_push_add.y.val += i / 16;
+                trgtng->state_flags |= TF1_PushAdd;
+            }
         }
     }
     else // not for unconscious units
@@ -1009,7 +1026,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->model_flags & ShMF_Boulder)
     {
-        if (creature_is_being_unconscious(trgtng)) //We're not actually hitting the unconscious units with a boulder
+        if (creature_is_being_unconscious(trgtng)  && !(gameadd.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
         {
             return 0;
         } 

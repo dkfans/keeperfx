@@ -68,6 +68,8 @@ enum ClassicBugFlags {
     ClscBug_MustObeyKeepsNotDoJobs = 0x0020,
     ClscBug_BreakNeutralWalls      = 0x0040,
     ClscBug_AlwaysTunnelToRed      = 0x0080,
+    ClscBug_FullyHappyWithGold     = 0x0100,
+    ClscBug_FaintedImmuneToBoulder = 0x0200,
 };
 
 /******************************************************************************/
