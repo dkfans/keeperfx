@@ -199,7 +199,7 @@ void process_disease(struct Thing *creatng)
               }
               i = thing->next_on_mapblk;
               // Per thing code
-              if (thing_is_creature(thing) && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
+              if (thing_is_creature(thing) && ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
                 && (thing->owner != cctrl->disease_caster_plyridx) && !creature_affected_by_spell(thing, SplK_Disease))
               {
                   struct CreatureControl* tngcctrl = creature_control_get_from_thing(thing);

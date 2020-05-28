@@ -79,30 +79,31 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   };
 
 const struct NamedCommand creatmodel_properties_commands[] = {
-  {"BLEEDS",            1},
-  {"UNAFFECTED_BY_WIND",2},
-  {"IMMUNE_TO_GAS",     3},
-  {"HUMANOID_SKELETON", 4},
-  {"PISS_ON_DEAD",      5},
-  {"FLYING",            7},
-  {"SEE_INVISIBLE",     8},
-  {"PASS_LOCKED_DOORS", 9},
-  {"SPECIAL_DIGGER",   10},
-  {"ARACHNID",         11},
-  {"DIPTERA",          12},
-  {"LORD",             13},
-  {"SPECTATOR",        14},
-  {"EVIL",             15},
-  {"NEVER_CHICKENS",   16},
-  {"IMMUNE_TO_BOULDER",17},
-  {"NO_CORPSE_ROTTING",18},
-  {"NO_ENMHEART_ATTCK",19},
-  {"TREMBLING_FAT",    20},
-  {"FEMALE",           21},
-  {"INSECT",           22},
-  {"ONE_OF_KIND",      23},
-  {"NO_IMPRISONMENT",  24},
-  {NULL,                0},
+  {"BLEEDS",             1},
+  {"UNAFFECTED_BY_WIND", 2},
+  {"IMMUNE_TO_GAS",      3},
+  {"HUMANOID_SKELETON",  4},
+  {"PISS_ON_DEAD",       5},
+  {"FLYING",             7},
+  {"SEE_INVISIBLE",      8},
+  {"PASS_LOCKED_DOORS",  9},
+  {"SPECIAL_DIGGER",    10},
+  {"ARACHNID",          11},
+  {"DIPTERA",           12},
+  {"LORD",              13},
+  {"SPECTATOR",         14},
+  {"EVIL",              15},
+  {"NEVER_CHICKENS",    16},
+  {"IMMUNE_TO_BOULDER", 17},
+  {"NO_CORPSE_ROTTING", 18},
+  {"NO_ENMHEART_ATTCK", 19},
+  {"TREMBLING_FAT",     20},
+  {"FEMALE",            21},
+  {"INSECT",            22},
+  {"ONE_OF_KIND",       23},
+  {"NO_IMPRISONMENT",   24},
+  {"IMMUNE_TO_DISEASE", 25},
+  {NULL,                 0},
   };
 
 const struct NamedCommand creatmodel_attraction_commands[] = {
@@ -706,8 +707,12 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crconf->model_flags |= CMF_OneOfKind;
                 n++;
                 break;
-            case 24: // NO_INPRISONMENT
+            case 24: // NO_IMPRISONMENT
                 crconf->model_flags |= CMF_NoImprisonment;
+                n++;
+                break;
+            case 25: // IMMUNE_TO_DISEASE
+                crconf->model_flags |= CMF_NeverSick;
                 n++;
                 break;
             default:
