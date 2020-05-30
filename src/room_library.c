@@ -313,14 +313,21 @@ void process_player_research(PlayerNumber plyr_idx)
                 return;
             }
             pos.z.val = get_thing_height_at(spelltng, &pos);
-            add_power_to_player(pwkind, plyr_idx);
-            move_thing_in_map(spelltng, &pos);
-            add_item_to_room_capacity(room, true);
-            event_create_event(spelltng->mappos.x.val, spelltng->mappos.y.val, EvKind_NewSpellResrch, spelltng->owner, pwkind);
-            create_effect(&pos, TngEff_Unknown53, spelltng->owner);
+            if (add_power_to_player(pwkind, plyr_idx))
+            {
+                move_thing_in_map(spelltng, &pos);
+                add_item_to_room_capacity(room, true);
+                event_create_event(spelltng->mappos.x.val, spelltng->mappos.y.val, EvKind_NewSpellResrch, spelltng->owner, pwkind);
+                create_effect(&pos, TngEff_Unknown53, spelltng->owner);
+            }
+            else
+            {
+                dungeon->magic_level[pwkind]++;
+            }
             if (is_my_player_number(plyr_idx))
+            {
                 output_message(SMsg_ResearchedSpell, 0, true);
-            dungeon->magic_level[pwkind]++;
+            }
         }
         break;
     }
