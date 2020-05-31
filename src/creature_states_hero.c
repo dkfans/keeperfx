@@ -844,6 +844,9 @@ short good_leave_through_exit_door(struct Thing *thing)
     thing->creature.gold_carried = 0;
     cctrl->countdown_282 = game.hero_door_wait_time;
     cctrl->byte_8A = tmptng->creation_turn;
+    struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+    creature_drop_dragged_object(thing, dragtng);
+    destroy_object(dragtng);
     place_thing_in_creature_controlled_limbo(thing);
     internal_set_thing_state(thing, CrSt_GoodWaitInExitDoor);
     return 1;

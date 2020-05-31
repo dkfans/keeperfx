@@ -1661,7 +1661,6 @@ TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
         i = 0;
     }
     dungeon->magic_level[pwkind] = i+1;
-    dungeon->magic_resrchable[pwkind] = 1;
     return true;
 }
 
