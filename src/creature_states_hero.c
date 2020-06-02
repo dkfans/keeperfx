@@ -25,6 +25,7 @@
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
+#include "creature_states_spdig.h"
 #include "creature_jobs.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
@@ -104,6 +105,30 @@ long good_find_enemy_dungeon(struct Thing *thing)
 TbBool good_setup_wander_to_exit(struct Thing *creatng)
 {
     SYNCDBG(7,"Starting");
+    if (creature_is_dragging_spellbook(creatng))
+    {
+        struct Coord3d pos;
+        struct Room* dstroom = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LIBRARY, NavRtF_Default, 1);
+        if (!(room_is_invalid(dstroom)) && find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos))
+        {
+            SYNCLOG("Can't find a library for hero %s index %d to place stolen spellbook", thing_model_name(creatng), (int)creatng->index);
+            if (dstroom == get_room_thing_is_on(creatng))
+            {
+                if (dstroom->owner == creatng->owner)
+                {
+                    creature_drops_spell_object_in_library(creatng);
+                    return true;
+                }
+            }
+            else
+            {
+                if (setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
+                {
+                    return true;
+                }
+            }
+        }
+    }
     struct Thing* gatetng = find_hero_door_hero_can_navigate_to(creatng);
     if (thing_is_invalid(gatetng))
     {
