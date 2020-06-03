@@ -2702,7 +2702,6 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     // Create event to inform player about the spell or special (need to be done before pickup due to ownership changes)
     update_library_object_pickup_event(creatng, picktng);
     creature_drag_object(creatng, picktng);
-    //TODO STEAL_SPELLS Maybe better than CrSt_GoodLeaveThroughExitDoor set continue_state to CrSt_GoodReturnsToStart?
     if (!good_setup_wander_to_exit(creatng)) {
         set_start_state(creatng);
         return 0;
