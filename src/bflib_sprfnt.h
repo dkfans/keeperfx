@@ -111,6 +111,8 @@ int LbTextStringHeight(const char *str);
 int LbTextWordWidth(const char *str);
 int LbTextCharWidth(const long chr);
 int LbTextCharHeight(const long chr);
+int LbTextCharWidthM(const long chr, long units_per_px);
+int LbTextStringWidthM(const char *str, long units_per_px);
 
 int LbTextNumberDraw(int pos_x, int pos_y, int units_per_px, long number, unsigned short fdflags);
 int LbTextStringDraw(int pos_x, int pos_y, int units_per_px, const char *text, unsigned short fdflags);
