@@ -65,6 +65,7 @@
 #include "power_hand.h"
 #include "room_util.h"
 #include "room_workshop.h"
+#include "room_data.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "magic.h"
@@ -853,7 +854,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     short influence_own_creatures = false;
-
+    struct SlabMap *slb;
     long i;
     switch (player->work_state)
     {
@@ -1201,6 +1202,87 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, i, PwMod_CastForFree);
                 break;
             }
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        break;
+    case PSt_StealRoom:
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {          
+            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            if (slb->room_index)
+                {
+                    struct Room* room = room_get(slb->room_index);
+                    take_over_room(room, plyr_idx);
+                }
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        break;
+    case PSt_DestroyRoom:
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {          
+            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            if (slb->room_index)
+                {
+                    struct Room* room = room_get(slb->room_index);
+                    destroy_room_leaving_unclaimed_ground(room);
+                }
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        break;
+    case PSt_KillCreatr:
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+        thing = get_creature_near(x, y);
+        if (thing_is_creature(thing))
+            {
+                kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
+            }
+        unset_packet_control(pckt, PCtr_LBtnRelease);    
+        }
+        break;
+    case PSt_ConvertCreatr:
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+        thing = get_creature_near(x, y);
+        if (thing_is_creature(thing))
+            {
+                change_creature_owner(thing, plyr_idx);
+            }
+        unset_packet_control(pckt, PCtr_LBtnRelease);    
+        }
+        break;
+    case PSt_StealSlab:
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {          
+            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+        if (slb->kind >= SlbT_EARTH && slb->kind <= SlbT_CLAIMED)
+          {
+              short slbkind;
+              switch(slb->kind)
+              {
+              case SlbT_PATH:
+              {
+                  slbkind = SlbT_CLAIMED;
+                  break;
+              }
+              case SlbT_EARTH:
+              {
+                  slbkind = rand() % (5) + 4;
+                  break;
+              }
+              case SlbT_TORCHDIRT:
+              {
+                  slbkind = SlbT_WALLTORCH;
+                  break;
+              }
+              default:
+              {
+                  slbkind = slb->kind;
+                  break;
+              }
+              }
+              place_slab_type_on_map(slbkind, slab_subtile(subtile_slab_fast(stl_x), 0), slab_subtile(subtile_slab_fast(stl_y), 0), plyr_idx, 0);
+          }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;

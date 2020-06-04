@@ -66,7 +66,12 @@ const struct NamedCommand player_state_commands[] = {
     {"PLAYER_STATE_FREETURNCHICKEN",  PSt_FreeTurnChicken},
     {"PLAYER_STATE_FREECTRLPASSNGR",  PSt_FreeCtrlPassngr},
     {"PLAYER_STATE_FREECTRLDIRECT",   PSt_FreeCtrlDirect},
-    {NULL,                            0},
+    {"PLAYER_STATE_STEALROOM",        PSt_StealRoom},
+    {"PLAYER_STATE_DESTROYROOM",      PSt_DestroyRoom},
+    {"PLAYER_STATE_KILLCREATURE",     PSt_KillCreatr},
+    {"PLAYER_STATE_CONVERTCREATURE",  PSt_ConvertCreatr},
+    {"PLAYER_STATE_STEALSLAB",        PSt_StealSlab},
+    {NULL,                            0},  
 };
 /******************************************************************************/
 /******************************************************************************/

@@ -66,17 +66,22 @@ long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Null mode",                1,           NULL,      gf_change_player_state, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
-  {"Place tunneler mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_MkGoodDigger, 0, 0, 0, 0},
+  {"Place tunneller mode",     1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_MkGoodDigger, 0, 0, 0, 0},
   {"Place creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_MkBadCreatr, 0, 0, 0, 0},
   {"Place hero mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_MkGoodCreatr, 0, 0, 0, 0},
   {"Destroy walls mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_FreeDestroyWalls, 0, 0, 0, 0},
   {"Disease mode",             1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeCastDisease, 0, 0, 0, 0},
   {"Peter mode",               1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeTurnChicken, 0, 0, 0, 0},
   {"Create gold mode",         1,           NULL,      gf_change_player_state, 0, 0, 0,       PSt_MkGoldPot, 0, 0, 0, 0},
+  {"Steal room mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,       PSt_StealRoom, 0, 0, 0, 0},
+  {"Destroy room mode",        1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_DestroyRoom, 0, 0, 0, 0},
+  {"Steal slab mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,       PSt_StealSlab, 0, 0, 0, 0},
   {"",                         2,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
   {"Passenger control mode",   1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeCtrlPassngr, 0, 0, 0, 0},
   {"Direct control mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,  PSt_FreeCtrlDirect, 0, 0, 0, 0},
   {"Order creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_OrderCreatr, 0, 0, 0, 0},
+  {"Kill creature mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,      PSt_KillCreatr, 0, 0, 0, 0},
+  {"Turncoat mode",            1,           NULL,      gf_change_player_state, 0, 0, 0,   PSt_ConvertCreatr, 0, 0, 0, 0},
   {"",                         2,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
   {"!",                        0,           NULL,                        NULL, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
 };
