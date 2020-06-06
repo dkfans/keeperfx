@@ -2499,7 +2499,7 @@ void process_packets(void)
             for (i = 0; i < 4; i++)
             {
                 player = get_player(i);
-                if (network_player_active(player->packet_num))
+                if (!network_player_active(player->packet_num))
                 {
                     player->allocflags |= PlaF_CompCtrl;
                     toggle_computer_player(i);
