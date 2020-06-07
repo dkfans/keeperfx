@@ -1219,7 +1219,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
-    if ((ieffect->effect_sound != 0) && (ieffect->area_affect_type != AAffT_WOPDamage)) //Excluding WOP effect, taking shot sound instead
+    if (ieffect->effect_sound != 0)
     {
         thing_play_sample(thing, ieffect->effect_sound, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
