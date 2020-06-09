@@ -73,6 +73,13 @@ enum PlayerStates {
     PSt_KillCreatr,
     PSt_ConvertCreatr,
     PSt_StealSlab,
+    PSt_LevelCreatureUp,
+    PSt_KillPlayer,
+    PSt_HeartHealth,
+    PSt_CreatrQueryAll,
+    PSt_MkHappy,
+    PSt_MkAngry,
+    PSt_PlaceTerrain,
     PSt_ListEnd
 };
 

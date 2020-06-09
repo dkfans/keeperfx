@@ -26,6 +26,7 @@
 
 #include "player_data.h"
 #include "player_instances.h"
+#include "player_states.h"
 #include "player_utils.h"
 #include "dungeon_data.h"
 #include "thing_list.h"
@@ -91,6 +92,13 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
     if (!is_power_available(plyr_idx, pwkind)) {
         return false;
     }
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player->work_state == PSt_FreeCtrlDirect)
+    {
+        return true;
+    }
+    else
+    {
     TbBool cast_at_xy;
     TbBool cast_on_tng;
     cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, 0);
@@ -157,6 +165,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
         }
     }
     return true;
+    }
 }
 
 /**

@@ -49,6 +49,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
+#include "kjm_input.h"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -925,5 +926,43 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
     SYNCDBG(15,"Starting for player %d",(int)plyr_idx);
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->creatures_total_pay = compute_player_payday_total(dungeon);
+}
+
+PlayerNumber get_selected_player_for_cheat(PlayerNumber defplayer)
+{
+          if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
+            {
+                return 0;
+                clear_key_pressed(KC_NUMPAD0);
+            }
+          else if (is_key_pressed(KC_NUMPAD1, KMod_DONTCARE))
+            {
+                return 1;
+                clear_key_pressed(KC_NUMPAD1);
+            }
+          else if (is_key_pressed(KC_NUMPAD2, KMod_DONTCARE))
+            {
+                return 2;
+                clear_key_pressed(KC_NUMPAD2);
+            }
+          else if (is_key_pressed(KC_NUMPAD3, KMod_DONTCARE))
+            {
+                return 3;
+                clear_key_pressed(KC_NUMPAD3);
+            }
+          else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
+            {
+                return 4;
+                clear_key_pressed(KC_NUMPAD4);
+            }
+          else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
+            {
+                return 5;
+                clear_key_pressed(KC_NUMPAD5);
+            }
+          else
+          {
+              return defplayer;
+          }
 }
 /******************************************************************************/
