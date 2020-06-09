@@ -4932,9 +4932,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       {
           SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val3);
       } else
-      if (val4 < 0 || val4 > 41)
+      if (val4 < 0 || val4 > 53)
       {
-          SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-41 allowed.", val4);
+          SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-53 allowed.", val4);
       } else
       {
           replace_slab_from_script(val2, val3, val4);

@@ -99,72 +99,72 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
     }
     else
     {
-    TbBool cast_at_xy;
-    TbBool cast_on_tng;
-    cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, 0);
-    const struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(pwkind);
-    cast_on_tng = true;
-    if (((powerst->can_cast_flags & PwCast_AllThings) != 0) && ((flags & CastChk_SkipThing) == 0))
-    {
-        if (thing_exists(thing)) {
-            cast_on_tng = can_cast_power_on_thing(plyr_idx, thing, pwkind);
-        } else {
-            cast_on_tng = false;
-        }
-    }
-    if ((powerst->can_cast_flags & PwCast_ThingOrMap) != 0)
-    {
-        // Fail only if both functions have failed - one is enough
-        if (!cast_at_xy && !cast_on_tng) {
-            if ((flags & CastChk_Final) != 0) {
-                WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                    power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
-            }
-            return false;
-        }
-    } else
-    {
-        // Fail if any of the functions has failed - we need both
-        if (!cast_at_xy || !cast_on_tng) {
-            if ((flags & CastChk_Final) != 0) {
-                WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                    power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
-            }
-            return false;
-        }
-    }
-    if ((powerst->config_flags & PwCF_IsParent) != 0)
-    {
-        // If the power is a parent, then at least one child must allow casting it in given conditions
-        TbBool can_cast_child;
-        can_cast_child = false;
-        int i;
-        for (i = 0; i < magic_conf.power_types_count; i++)
+        TbBool cast_at_xy;
+        TbBool cast_on_tng;
+        cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, 0);
+        const struct PowerConfigStats *powerst;
+        powerst = get_power_model_stats(pwkind);
+        cast_on_tng = true;
+        if (((powerst->can_cast_flags & PwCast_AllThings) != 0) && ((flags & CastChk_SkipThing) == 0))
         {
-            const struct PowerConfigStats *child_powerst;
-            child_powerst = get_power_model_stats(i);
-            if (child_powerst->parent_power == pwkind)
+            if (thing_exists(thing)) {
+                cast_on_tng = can_cast_power_on_thing(plyr_idx, thing, pwkind);
+            } else {
+                cast_on_tng = false;
+            }
+        }
+        if ((powerst->can_cast_flags & PwCast_ThingOrMap) != 0)
+        {
+            // Fail only if both functions have failed - one is enough
+            if (!cast_at_xy && !cast_on_tng) {
+                if ((flags & CastChk_Final) != 0) {
+                    WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
+                        power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+                }
+                return false;
+            }
+        } else
+        {
+            // Fail if any of the functions has failed - we need both
+            if (!cast_at_xy || !cast_on_tng) {
+                if ((flags & CastChk_Final) != 0) {
+                    WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
+                        power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+                }
+                return false;
+            }
+        }
+        if ((powerst->config_flags & PwCF_IsParent) != 0)
+        {
+            // If the power is a parent, then at least one child must allow casting it in given conditions
+            TbBool can_cast_child;
+            can_cast_child = false;
+            int i;
+            for (i = 0; i < magic_conf.power_types_count; i++)
             {
-                if (can_cast_spell_f(plyr_idx, i, stl_x, stl_y, thing, flags&(~CastChk_Final), func_name)) {
-                    if ((flags & CastChk_Final) != 0) {
-                        SYNCDBG(7,"%s: Player %d can cast %s; child power %s allows that",func_name,(int)plyr_idx,
-                            power_code_name(pwkind),power_code_name(i));
+                const struct PowerConfigStats *child_powerst;
+                child_powerst = get_power_model_stats(i);
+                if (child_powerst->parent_power == pwkind)
+                {
+                    if (can_cast_spell_f(plyr_idx, i, stl_x, stl_y, thing, flags&(~CastChk_Final), func_name)) {
+                        if ((flags & CastChk_Final) != 0) {
+                            SYNCDBG(7,"%s: Player %d can cast %s; child power %s allows that",func_name,(int)plyr_idx,
+                                power_code_name(pwkind),power_code_name(i));
+                        }
+                        can_cast_child = true;
+                        break;
                     }
-                    can_cast_child = true;
-                    break;
                 }
             }
-        }
-        if (!can_cast_child) {
-            if ((flags & CastChk_Final) != 0) {
-                WARNLOG("%s: Player %d tried to cast %s; child powers do not allow that",func_name,(int)plyr_idx,
-                    power_code_name(pwkind));
+            if (!can_cast_child) {
+                if ((flags & CastChk_Final) != 0) {
+                    WARNLOG("%s: Player %d tried to cast %s; child powers do not allow that",func_name,(int)plyr_idx,
+                        power_code_name(pwkind));
+                }
+                return false;
             }
-            return false;
         }
-    }
-    return true;
+        return true;
     }
 }
 

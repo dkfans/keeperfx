@@ -1223,7 +1223,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                         create_effects_on_room_slabs(room, imp_spangle_effects[i], 0, i);
                     }
                     {
-                    take_over_room(room, i);
+                        take_over_room(room, i);
                     }
                 }
             unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -1242,119 +1242,131 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_KillCreatr:
-            thing = get_creature_near(x, y);
-            if (!thing_is_creature(thing))
+        thing = get_creature_near(x, y);
+        if (!thing_is_creature(thing))
+        {
             player->thing_under_hand = 0;
+        }
         else
+        {
             player->thing_under_hand = thing->index;
+        }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-             if (player->thing_under_hand > 0)
+            if (player->thing_under_hand > 0)
             {
                 kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
             }
-        unset_packet_control(pckt, PCtr_LBtnRelease);    
+            unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
         break;
     case PSt_ConvertCreatr:
-            thing = get_creature_near(x, y);
-            if (!thing_is_creature(thing))
+        thing = get_creature_near(x, y);
+        if (!thing_is_creature(thing))
+        {
             player->thing_under_hand = 0;
+        }
         else
+        {
             player->thing_under_hand = thing->index;
+        }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-             if (player->thing_under_hand > 0)
+            if (player->thing_under_hand > 0)
             {
                 change_creature_owner(thing, get_selected_player_for_cheat(plyr_idx));
             }
-        unset_packet_control(pckt, PCtr_LBtnRelease);    
+            unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
         break;
     case PSt_StealSlab:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
             slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
-        if (slb->kind >= SlbT_EARTH && slb->kind <= SlbT_CLAIMED)
-          {
-              short slbkind;
-              switch(slb->kind)
-              {
-              case SlbT_PATH:
-              {
-                  slbkind = SlbT_CLAIMED;
-                  break;
-              }
-              case SlbT_EARTH:
-              {
-                  slbkind = rand() % (5) + 4;
-                  break;
-              }
-              case SlbT_TORCHDIRT:
-              {
-                  slbkind = SlbT_WALLTORCH;
-                  break;
-              }
-              default:
-              {
-                  slbkind = slb->kind;
-                  break;
-              }
-              }
-              i = get_selected_player_for_cheat(plyr_idx);
-              if ((slbkind == SlbT_CLAIMED) || ((slbkind >= SlbT_WALLDRAPE) && (slbkind <= SlbT_WALLPAIRSHR)))
-              {
+            if (slb->kind >= SlbT_EARTH && slb->kind <= SlbT_CLAIMED)
+            {
+                short slbkind;
+                switch(slb->kind)
+                {
+                    case SlbT_PATH:
+                    {
+                        slbkind = SlbT_CLAIMED;
+                        break;
+                    }
+                    case SlbT_EARTH:
+                    {
+                        slbkind = rand() % (5) + 4;
+                        break;
+                    }
+                    case SlbT_TORCHDIRT:
+                    {
+                        slbkind = SlbT_WALLTORCH;
+                        break;
+                    }
+                    default:
+                    {
+                        slbkind = slb->kind;
+                        break;
+                    }
+                }
+                i = get_selected_player_for_cheat(plyr_idx);
+                if ((slbkind == SlbT_CLAIMED) || ((slbkind >= SlbT_WALLDRAPE) && (slbkind <= SlbT_WALLPAIRSHR)))
+                {
                     if (is_key_pressed(KC_RALT, KMod_DONTCARE))
                     {
                         struct Coord3d pos;                    
                         if (slbkind == SlbT_CLAIMED)
                         {
-                        pos.x.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_x)));
-                        pos.y.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_y))); 
-                        pos.z.val = subtile_coord_center(1);
-                        play_non_3d_sample(76);
-                        create_effect(&pos, imp_spangle_effects[i], i);
+                            pos.x.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_x)));
+                            pos.y.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_y))); 
+                            pos.z.val = subtile_coord_center(1);
+                            play_non_3d_sample(76);
+                            create_effect(&pos, imp_spangle_effects[i], i);
                         }
                         else
                         {
                             play_non_3d_sample(41);
                             for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
                             {
-                            pos.x.stl.pos = 128;
-                            pos.y.stl.pos = 128;
-                            pos.z.stl.pos = 128;
-                            pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
-                            pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
-                            struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
-                            if (map_block_revealed(mapblk, i) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
-                            {
-                            pos.z.val = get_floor_height_at(&pos);
-                            create_effect(&pos, imp_spangle_effects[i], i);
-                        // thing = thing_get(player->hand_thing_idx);
-                        // pos.z.val = get_thing_height_at(thing, &pos);   
-                            }
+                                pos.x.stl.pos = 128;
+                                pos.y.stl.pos = 128;
+                                pos.z.stl.pos = 128;
+                                pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
+                                pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
+                                struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+                                if (map_block_revealed(mapblk, i) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
+                                {
+                                    pos.z.val = get_floor_height_at(&pos);
+                                    create_effect(&pos, imp_spangle_effects[i], i);
+                                    // thing = thing_get(player->hand_thing_idx);
+                                    // pos.z.val = get_thing_height_at(thing, &pos);   
+                                }
                             }
                         }
                     }
-              }
-              place_slab_type_on_map(slbkind, slb_x, slb_y, i, 0);
-              do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
-          }
+                }
+                place_slab_type_on_map(slbkind, slb_x, slb_y, i, 0);
+                do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+            }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
     case PSt_LevelCreatureUp:
-            thing = get_creature_near(x, y);
-            if (!thing_is_creature(thing))
+        thing = get_creature_near(x, y);
+        if (!thing_is_creature(thing))
+        {
             player->thing_under_hand = 0;
+        }
         else
+        {
             player->thing_under_hand = thing->index;
+        }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
              if (player->thing_under_hand > 0)
-          {
+             {
                 creature_increase_level(thing);
-          }
+             }
         unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
         break;
@@ -1363,89 +1375,93 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           struct PlayerInfo* PlayerToKill = get_player(i);
           if (player_exists(PlayerToKill))
           {
-          thing = get_player_soul_container(PlayerToKill->id_number);
-          if (thing_is_dungeon_heart(thing))
-            {
-                thing->health = -1;
-            }
+              thing = get_player_soul_container(PlayerToKill->id_number);
+              if (thing_is_dungeon_heart(thing))
+              {
+                    thing->health = -1;
+              }
           }
         break;
     case PSt_HeartHealth:
-          thing = get_player_soul_container(plyr_idx);
-            if (is_key_pressed(KC_ADD, KMod_ALT))
+        thing = get_player_soul_container(plyr_idx);
+        if (is_key_pressed(KC_ADD, KMod_ALT))
+        {
+            if (thing_is_dungeon_heart(thing))
             {
-                if (thing_is_dungeon_heart(thing))
-                    {
-                        thing->health++;
-                    }
+                thing->health++;
             }
-            else if (is_key_pressed(KC_EQUALS, KMod_SHIFT))
+        }
+        else if (is_key_pressed(KC_EQUALS, KMod_SHIFT))
+        {
+            if (thing_is_dungeon_heart(thing))
             {
-                if (thing_is_dungeon_heart(thing))
-                    {
-                        thing->health++;
-                    }
+                thing->health++;
             }
-            else if (is_key_pressed(KC_PERIOD, KMod_SHIFT))
+        }
+        else if (is_key_pressed(KC_PERIOD, KMod_SHIFT))
+        {
+            if (thing_is_dungeon_heart(thing))
             {
-                if (thing_is_dungeon_heart(thing))
-                    {
-                        thing->health = thing->health + 100;
-                    }
+                thing->health = thing->health + 100;
             }
-            else if (is_key_pressed(KC_COMMA, KMod_SHIFT))
+        }
+        else if (is_key_pressed(KC_COMMA, KMod_SHIFT))
+        {
+            if (thing_is_dungeon_heart(thing))
             {
-                if (thing_is_dungeon_heart(thing))
-                    {
-                        thing->health = thing->health - 100;
-                    }
+                thing->health = thing->health - 100;
             }
-            else if (is_key_pressed(KC_SUBTRACT, KMod_ALT))
+        }
+        else if (is_key_pressed(KC_SUBTRACT, KMod_ALT))
+        {
+            if (thing_is_dungeon_heart(thing))
             {
-                if (thing_is_dungeon_heart(thing))
-                    {
-                        thing->health--;
-                    }
+                thing->health--;
             }
-            else if (is_key_pressed(KC_MINUS, KMod_NONE))
+        }
+        else if (is_key_pressed(KC_MINUS, KMod_NONE))
+        {
+            if (thing_is_dungeon_heart(thing))
             {
-                if (thing_is_dungeon_heart(thing))
-                    {
-                        thing->health--;
-                    }
+                thing->health--;
             }
-            else if (is_key_pressed(KC_SLASH, KMod_SHIFT))
+        }
+        else if (is_key_pressed(KC_SLASH, KMod_SHIFT))
+        {
+            if (thing_is_dungeon_heart(thing))
             {
-                if (thing_is_dungeon_heart(thing))
-                    {
-                        char hhealth[5];
-                        itoa(thing->health, hhealth, 10);
-                        message_add(plyr_idx, hhealth);
-                        clear_key_pressed(KC_SLASH);
-                    }
+                char hhealth[5];
+                itoa(thing->health, hhealth, 10);
+                message_add(plyr_idx, hhealth);
+                clear_key_pressed(KC_SLASH);
             }
+        }
         break;
     case PSt_CreatrQueryAll:
         influence_own_creatures = 1;
         thing = get_creature_near(x, y);
         if (thing_is_invalid(thing))
+        {
             player->thing_under_hand = 0;
+        }
         else
+        {
             player->thing_under_hand = thing->index;
+        }
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          if (player->thing_under_hand > 0)
-          {
-            if (player->controlled_thing_idx != player->thing_under_hand)
+            if (player->thing_under_hand > 0)
             {
-              turn_off_all_panel_menus();
-              initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
-              turn_on_menu(GMnu_CREATURE_QUERY1);
-              player->influenced_thing_idx = player->thing_under_hand;
-              set_player_instance(player, PI_QueryCrtr, 0);
-            }
+                if (player->controlled_thing_idx != player->thing_under_hand)
+                {
+                    turn_off_all_panel_menus();
+                    initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
+                    turn_on_menu(GMnu_CREATURE_QUERY1);
+                    player->influenced_thing_idx = player->thing_under_hand;
+                    set_player_instance(player, PI_QueryCrtr, 0);
+                }
             unset_packet_control(pckt, PCtr_LBtnRelease);
-          }
+            }
         }
         break;
     case PSt_MkHappy:
@@ -1453,23 +1469,27 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         influence_own_creatures = 1;
         thing = get_creature_near(x, y);
         if (!thing_is_creature(thing))
+        {
             player->thing_under_hand = 0;
+        }
         else
+        {
             player->thing_under_hand = thing->index;
+        }
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          if (player->thing_under_hand > 0)
-          {
-            if (player->work_state == PSt_MkHappy)
+            if (player->thing_under_hand > 0)
             {
-            anger_set_creature_anger_all_types(thing, 0);
+                if (player->work_state == PSt_MkHappy)
+                {
+                    anger_set_creature_anger_all_types(thing, 0);
+                }
+                else if (player->work_state == PSt_MkAngry)
+                {
+                    anger_set_creature_anger_all_types(thing, 10000);
+                }
+                unset_packet_control(pckt, PCtr_LBtnRelease);
             }
-            else if (player->work_state == PSt_MkAngry)
-            {
-            anger_set_creature_anger_all_types(thing, 10000);
-            }
-            unset_packet_control(pckt, PCtr_LBtnRelease);
-          }
         }
         break;
     case PSt_PlaceTerrain:
@@ -1522,77 +1542,77 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
             else
             {
-          if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
-            {
-                slbkind = SlbT_ROCK;
-                clear_key_pressed(KC_NUMPAD0);
-            }
-          else if (is_key_pressed(KC_NUMPAD1, KMod_NONE))
-            {
-                slbkind = SlbT_GOLD;
-                clear_key_pressed(KC_NUMPAD1);
-            }
-          else if (is_key_pressed(KC_NUMPAD2, KMod_NONE))
-            {
-                slbkind = SlbT_GEMS;
-                clear_key_pressed(KC_NUMPAD2);
-            }
-          else if (is_key_pressed(KC_NUMPAD3, KMod_NONE))
-            {
-                slbkind = SlbT_EARTH;
-                clear_key_pressed(KC_NUMPAD3);
-            }
-          else if (is_key_pressed(KC_NUMPAD4, KMod_NONE))
-            {
-                slbkind = SlbT_TORCHDIRT;
-                clear_key_pressed(KC_NUMPAD4);
-            }
-          else if (is_key_pressed(KC_NUMPAD5, KMod_NONE))
-            {
-                slbkind = SlbT_PATH;
-                clear_key_pressed(KC_NUMPAD5);
-            }
-          else if (is_key_pressed(KC_NUMPAD6, KMod_NONE))
-            {
-                slbkind = SlbT_CLAIMED;
-                clear_key_pressed(KC_NUMPAD6);
-            }
-          else if (is_key_pressed(KC_NUMPAD7, KMod_NONE))
-            {
-                slbkind = SlbT_LAVA;
-                clear_key_pressed(KC_NUMPAD7);
-            }
-          else if (is_key_pressed(KC_NUMPAD8, KMod_NONE))
-            {
-                slbkind = SlbT_WATER;
-                clear_key_pressed(KC_NUMPAD8);
-            }
-          else if (is_key_pressed(KC_NUMPAD9, KMod_NONE))
-            {
-                slbkind = rand() % (5) + 4;
-                clear_key_pressed(KC_NUMPAD9);
-            }
-          else
-            {
-                  slbkind = 0;
-            }
+                if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
+                {
+                    slbkind = SlbT_ROCK;
+                    clear_key_pressed(KC_NUMPAD0);
+                }
+                else if (is_key_pressed(KC_NUMPAD1, KMod_NONE))
+                {
+                    slbkind = SlbT_GOLD;
+                    clear_key_pressed(KC_NUMPAD1);
+                }
+                else if (is_key_pressed(KC_NUMPAD2, KMod_NONE))
+                {
+                    slbkind = SlbT_GEMS;
+                    clear_key_pressed(KC_NUMPAD2);
+                }
+                else if (is_key_pressed(KC_NUMPAD3, KMod_NONE))
+                {
+                    slbkind = SlbT_EARTH;
+                    clear_key_pressed(KC_NUMPAD3);
+                }
+                else if (is_key_pressed(KC_NUMPAD4, KMod_NONE))
+                {
+                    slbkind = SlbT_TORCHDIRT;
+                    clear_key_pressed(KC_NUMPAD4);
+                }
+                else if (is_key_pressed(KC_NUMPAD5, KMod_NONE))
+                {
+                    slbkind = SlbT_PATH;
+                    clear_key_pressed(KC_NUMPAD5);
+                }
+                else if (is_key_pressed(KC_NUMPAD6, KMod_NONE))
+                {
+                    slbkind = SlbT_CLAIMED;
+                    clear_key_pressed(KC_NUMPAD6);
+                }
+                else if (is_key_pressed(KC_NUMPAD7, KMod_NONE))
+                {
+                    slbkind = SlbT_LAVA;
+                    clear_key_pressed(KC_NUMPAD7);
+                }
+                else if (is_key_pressed(KC_NUMPAD8, KMod_NONE))
+                {
+                    slbkind = SlbT_WATER;
+                    clear_key_pressed(KC_NUMPAD8);
+                }
+                else if (is_key_pressed(KC_NUMPAD9, KMod_NONE))
+                {
+                    slbkind = rand() % (5) + 4;
+                    clear_key_pressed(KC_NUMPAD9);
+                }
+                else
+                {
+                    slbkind = 0;
+                }
                 if (subtile_is_room(stl_x, stl_y)) 
                 {
                     room = subtile_room_get(stl_x, stl_y);
                     delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), true);
                 }
-            if (slab_kind_is_animated(slbkind))
-            {
-              place_animating_slab_type_on_map(slbkind, 0, slb_x, slb_y, game.neutral_player_num);  
+                if (slab_kind_is_animated(slbkind))
+                {
+                    place_animating_slab_type_on_map(slbkind, 0, slb_x, slb_y, game.neutral_player_num);  
+                }
+                else
+                {
+                    place_slab_type_on_map(slbkind, slb_x, slb_y, game.neutral_player_num, 0);
+                }
+                do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
             }
-            else
-            {
-              place_slab_type_on_map(slbkind, slb_x, slb_y, game.neutral_player_num, 0);
-            }
-            do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
-            }
-          }
-            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        unset_packet_control(pckt, PCtr_LBtnRelease);
         break;
     default:
         ERRORLOG("Unrecognized player %d work state: %d", (int)plyr_idx, (int)player->work_state);

@@ -930,39 +930,39 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
 
 PlayerNumber get_selected_player_for_cheat(PlayerNumber defplayer)
 {
-          if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
-            {
-                return 0;
-                clear_key_pressed(KC_NUMPAD0);
-            }
-          else if (is_key_pressed(KC_NUMPAD1, KMod_DONTCARE))
-            {
-                return 1;
-                clear_key_pressed(KC_NUMPAD1);
-            }
-          else if (is_key_pressed(KC_NUMPAD2, KMod_DONTCARE))
-            {
-                return 2;
-                clear_key_pressed(KC_NUMPAD2);
-            }
-          else if (is_key_pressed(KC_NUMPAD3, KMod_DONTCARE))
-            {
-                return 3;
-                clear_key_pressed(KC_NUMPAD3);
-            }
-          else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
-            {
-                return 4;
-                clear_key_pressed(KC_NUMPAD4);
-            }
-          else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
-            {
-                return 5;
-                clear_key_pressed(KC_NUMPAD5);
-            }
-          else
-          {
-              return defplayer;
-          }
+        if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
+        {
+            return 0;
+            clear_key_pressed(KC_NUMPAD0);
+        }
+        else if (is_key_pressed(KC_NUMPAD1, KMod_DONTCARE))
+        {
+            return 1;
+            clear_key_pressed(KC_NUMPAD1);
+        }
+        else if (is_key_pressed(KC_NUMPAD2, KMod_DONTCARE))
+        {
+            return 2;
+            clear_key_pressed(KC_NUMPAD2);
+        }
+        else if (is_key_pressed(KC_NUMPAD3, KMod_DONTCARE))
+        {
+            return 3;
+            clear_key_pressed(KC_NUMPAD3);
+        }
+        else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
+        {
+            return 4;
+            clear_key_pressed(KC_NUMPAD4);
+        }
+        else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
+        {
+            return 5;
+            clear_key_pressed(KC_NUMPAD5);
+        }
+        else
+        {
+            return defplayer;
+        }
 }
 /******************************************************************************/
