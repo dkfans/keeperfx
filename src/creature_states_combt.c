@@ -2829,7 +2829,8 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
         }
     }
     heartng = get_enemy_soul_container_creature_can_see(thing);
-    if (thing_is_invalid(heartng)) {
+    if (thing_is_invalid(heartng) || !(creature_can_navigate_to(thing,&heartng->mappos, NavRtF_Default)))
+    {
         return false;
     }
     TRACE_THING(heartng);
