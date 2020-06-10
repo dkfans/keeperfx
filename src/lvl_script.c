@@ -254,6 +254,7 @@ const struct NamedCommand variable_desc[] = {
     {"SPELLS_STOLEN",               SVar_SPELLS_STOLEN},
     {"TIMES_BROKEN_INTO",           SVar_TIMES_BROKEN_INTO},
     {"GOLD_POTS_STOLEN",            SVar_GOLD_POTS_STOLEN},
+    {"HEART_HEALTH",                SVar_HEART_HEALTH},
     //{"TIMER",                     SVar_TIMER},
     {"DUNGEON_DESTROYED",           SVar_DUNGEON_DESTROYED},
     {"TOTAL_GOLD_MINED",            SVar_TOTAL_GOLD_MINED},
@@ -4107,6 +4108,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
 {
     SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
     struct Dungeon* dungeon;
+    struct Thing* thing;
     switch (valtype)
     {
     case SVar_MONEY:
@@ -4158,6 +4160,13 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_GOLD_POTS_STOLEN:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->gold_pots_stolen;
+    case SVar_HEART_HEALTH:
+        thing = get_player_soul_container(plyr_idx);
+        if (thing_is_dungeon_heart(thing))
+        {
+            return thing->health;
+        }
+        return 0;
     case SVar_TIMER:
         dungeon = get_dungeon(plyr_idx);
         if (dungeon->turn_timers[validx].state)

@@ -171,6 +171,7 @@ enum ScriptVariables {
   SVar_CAMPAIGN_FLAG                   = 45,
   SVar_SLAB_OWNER                      = 46,
   SVar_SLAB_TYPE                       = 47,
+  SVar_HEART_HEALTH                    = 48,
 };
 
 enum MapLocationTypes {
