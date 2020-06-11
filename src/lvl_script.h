@@ -172,7 +172,23 @@ enum ScriptVariables {
   SVar_SLAB_OWNER                      = 46,
   SVar_SLAB_TYPE                       = 47,
   SVar_HEART_HEALTH                    = 48,
-};
+  SVar_GHOSTS_RAISED                   = 49,
+  SVar_SKELETONS_RAISED                = 50,
+  SVar_VAMPIRES_RAISED                 = 51,
+  SVar_CREATURES_CONVERTED             = 52,
+  SVar_TIMES_ANNOYED_CREATURE          = 53,
+  SVar_TIMES_TORTURED_CREATURE         = 54,
+  SVar_TOTAL_DOORS_MANUFACTURED        = 55,
+  SVar_TOTAL_TRAPS_MANUFACTURED        = 56,
+  SVar_TOTAL_MANUFACTURED              = 57,
+  SVar_TOTAL_TRAPS_USED                = 58,
+  SVar_TOTAL_DOORS_USED                = 59,
+  SVar_KEEPERS_DESTROYED               = 60,
+  SVar_CREATURES_SACRIFICED            = 61,
+  SVar_CREATURES_FROM_SACRIFICE        = 62,
+  SVar_TIMES_LEVELUP_CREATURE          = 63,
+  SVar_TOTAL_SALARY                    = 64,
+ };
 
 enum MapLocationTypes {
     MLoc_NONE = 0,

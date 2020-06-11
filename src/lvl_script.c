@@ -255,6 +255,22 @@ const struct NamedCommand variable_desc[] = {
     {"TIMES_BROKEN_INTO",           SVar_TIMES_BROKEN_INTO},
     {"GOLD_POTS_STOLEN",            SVar_GOLD_POTS_STOLEN},
     {"HEART_HEALTH",                SVar_HEART_HEALTH},
+    {"GHOSTS_RAISED",               SVar_GHOSTS_RAISED},
+    {"SKELETONS_RAISED",            SVar_SKELETONS_RAISED},
+    {"VAMPIRES_RAISED",             SVar_VAMPIRES_RAISED},
+    {"CREATURES_CONVERTED",         SVar_CREATURES_CONVERTED},
+    {"TIMES_ANNOYED_CREATURE",      SVar_TIMES_ANNOYED_CREATURE},
+    {"TIMES_TORTURED_CREATURE",     SVar_TIMES_TORTURED_CREATURE},
+    {"TOTAL_DOORS_MANUFACTURED",    SVar_TOTAL_DOORS_MANUFACTURED},
+    {"TOTAL_TRAPS_MANUFACTURED",    SVar_TOTAL_TRAPS_MANUFACTURED},
+    {"TOTAL_MANUFACTURED",          SVar_TOTAL_MANUFACTURED},
+    {"TOTAL_TRAPS_USED",            SVar_TOTAL_TRAPS_USED},
+    {"TOTAL_DOORS_USED",            SVar_TOTAL_DOORS_USED},
+    {"KEEPERS_DESTROYED",           SVar_KEEPERS_DESTROYED},
+    {"CREATURES_SACRIFICED",        SVar_CREATURES_SACRIFICED},
+    {"CREATURES_FROM_SACRIFICE",    SVar_CREATURES_FROM_SACRIFICE},
+    {"TIMES_LEVELUP_CREATURE",      SVar_TIMES_LEVELUP_CREATURE},
+    {"TOTAL_SALARY",                SVar_TOTAL_SALARY},
     //{"TIMER",                     SVar_TIMER},
     {"DUNGEON_DESTROYED",           SVar_DUNGEON_DESTROYED},
     {"TOTAL_GOLD_MINED",            SVar_TOTAL_GOLD_MINED},
@@ -4157,6 +4173,54 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_TIMES_BROKEN_INTO:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->times_broken_into;
+    case SVar_GHOSTS_RAISED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.ghosts_raised;
+    case SVar_SKELETONS_RAISED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.skeletons_raised;
+    case SVar_VAMPIRES_RAISED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.vamps_created;
+    case SVar_CREATURES_CONVERTED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.creatures_converted;
+    case SVar_TIMES_ANNOYED_CREATURE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.lies_told;
+    case SVar_TOTAL_DOORS_MANUFACTURED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.manufactured_doors;
+    case SVar_TOTAL_TRAPS_MANUFACTURED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.manufactured_traps;
+    case SVar_TOTAL_MANUFACTURED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.manufactured_items;
+    case SVar_TOTAL_TRAPS_USED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.traps_used;
+    case SVar_TOTAL_DOORS_USED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.doors_used;
+    case SVar_KEEPERS_DESTROYED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.keepers_destroyed;
+    case SVar_TIMES_LEVELUP_CREATURE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.creatures_trained;
+    case SVar_TIMES_TORTURED_CREATURE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.creatures_tortured;
+    case SVar_CREATURES_SACRIFICED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.creatures_sacrificed;
+    case SVar_CREATURES_FROM_SACRIFICE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.creatures_from_sacrifice;
+    case SVar_TOTAL_SALARY:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.salary_cost;
     case SVar_GOLD_POTS_STOLEN:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->gold_pots_stolen;
