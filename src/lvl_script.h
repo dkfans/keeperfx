@@ -188,6 +188,7 @@ enum ScriptVariables {
   SVar_CREATURES_FROM_SACRIFICE        = 62,
   SVar_TIMES_LEVELUP_CREATURE          = 63,
   SVar_TOTAL_SALARY                    = 64,
+  SVar_CURRENT_SALARY                  = 65,
  };
 
 enum MapLocationTypes {

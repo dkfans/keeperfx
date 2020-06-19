@@ -176,7 +176,7 @@ struct Dungeon {
     int total_score;
     unsigned long max_gameplay_score;
     short field_AF5;
-    short field_AF7;
+    short task_count;
     int total_money_owned;
     int offmap_money_owned;
     short hates_player[DUNGEONS_COUNT];

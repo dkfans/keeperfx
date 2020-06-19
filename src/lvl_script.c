@@ -271,6 +271,7 @@ const struct NamedCommand variable_desc[] = {
     {"CREATURES_FROM_SACRIFICE",    SVar_CREATURES_FROM_SACRIFICE},
     {"TIMES_LEVELUP_CREATURE",      SVar_TIMES_LEVELUP_CREATURE},
     {"TOTAL_SALARY",                SVar_TOTAL_SALARY},
+    {"CURRENT_SALARY",              SVar_CURRENT_SALARY},
     //{"TIMER",                     SVar_TIMER},
     {"DUNGEON_DESTROYED",           SVar_DUNGEON_DESTROYED},
     {"TOTAL_GOLD_MINED",            SVar_TOTAL_GOLD_MINED},
@@ -4221,6 +4222,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_TOTAL_SALARY:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.salary_cost;
+    case SVar_CURRENT_SALARY:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->creatures_total_pay;
     case SVar_GOLD_POTS_STOLEN:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->gold_pots_stolen;
