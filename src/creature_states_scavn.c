@@ -87,7 +87,7 @@ short at_scavenger_room(struct Thing *thing)
         return 0;
     }
     internal_set_thing_state(thing, get_continue_state_for_job(Job_SCAVENGE));
-    cctrl->field_82 = 0;
+    cctrl->turns_at_job = 0;
     return 1;
 }
 
@@ -536,14 +536,14 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     } else
     {
         if (crstat->entrance_force) {
-          calldngn->field_1485++;
+          calldngn->portal_scavenge_boost++;
         }
         return 0;
     }
-    callctrl->field_82++;
-    if (callctrl->field_82 > game.scavenge_cost_frequency)
+    callctrl->turns_at_job++;
+    if (callctrl->turns_at_job > game.scavenge_cost_frequency)
     {
-        callctrl->field_82 -= game.scavenge_cost_frequency;
+        callctrl->turns_at_job -= game.scavenge_cost_frequency;
         if (take_money_from_dungeon(calltng->owner, crstat->scavenger_cost, 1) < 0) {
             ERRORLOG("Cannot take %d gold from dungeon %d",(int)crstat->scavenger_cost,(int)calltng->owner);
         }

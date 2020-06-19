@@ -230,7 +230,7 @@ unsigned char field_F7D;
     short zoom_annoyed_creature_idx;
     long total_experience_creatures_gained;
     long total_research_points;
-long field_1181;
+    long total_manufacture_points;
     long manufacture_progress;
     unsigned char manufacture_class;
     unsigned char manufacture_kind;
@@ -247,7 +247,7 @@ long manufacture_level;
     unsigned short tortured_creatures[CREATURE_TYPES_COUNT];
     unsigned char bodies_rotten_for_vampire;
 unsigned char field_1461[36];
-    long field_1485;
+    long portal_scavenge_boost;
     /** Stores how many creatures of each kind of has joined the dungeon during the level.
      * Values are saturated at 255. */
     unsigned char creature_models_joined[CREATURE_TYPES_COUNT];

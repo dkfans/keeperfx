@@ -215,7 +215,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     unsigned long max_manage_efficiency = 0;
     {
         manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeon->room_slabs_count[RoK_ENTRANCE],
-            dungeon->room_manage_area, dungeon->field_1485);
+            dungeon->room_manage_area, dungeon->portal_scavenge_boost);
         max_manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(LONG_MAX, LONG_MAX, LONG_MAX);
     }
     {
@@ -236,7 +236,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     }
     {
         manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(dungeon->total_experience_creatures_gained,
-            dungeon->total_research_points, dungeon->field_1181, dungeon->total_money_owned);
+            dungeon->total_research_points, dungeon->total_manufacture_points, dungeon->total_money_owned);
         max_manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX);
     }
     unsigned long creatures_efficiency;

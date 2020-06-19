@@ -2071,7 +2071,7 @@ short creature_in_hold_audience(struct Thing *creatng)
     TRACE_THING(creatng);
     int speed = get_creature_speed(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->field_82 == -1) && (cctrl->instance_id == CrInst_NULL))
+    if ((cctrl->turns_at_job == -1) && (cctrl->instance_id == CrInst_NULL))
     {
         struct Room* room = get_room_thing_is_on(creatng);
         if (room_is_invalid(room)) {
@@ -2084,7 +2084,7 @@ short creature_in_hold_audience(struct Thing *creatng)
         }
         setup_person_move_to_coord(creatng, &pos, NavRtF_Default);
         creatng->continue_state = CrSt_CreatureInHoldAudience;
-        cctrl->field_82 = 0;
+        cctrl->turns_at_job = 0;
         return 1;
     }
     long ret = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
@@ -2098,14 +2098,14 @@ short creature_in_hold_audience(struct Thing *creatng)
         }
         return 1;
     }
-    if (cctrl->field_82 != 0)
+    if (cctrl->turns_at_job != 0)
     {
-        if ((cctrl->field_82 != 1) || (cctrl->instance_id != CrInst_NULL))
+        if ((cctrl->turns_at_job != 1) || (cctrl->instance_id != CrInst_NULL))
             return 1;
-        cctrl->field_82 = -1;
+        cctrl->turns_at_job = -1;
     } else
     {
-        cctrl->field_82 = 1;
+        cctrl->turns_at_job = 1;
         set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
     }
     return 1;
@@ -2890,8 +2890,8 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     anger_apply_anger_to_creature(creatng, crstat->annoy_queue, AngR_NotPaid, 1);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing *doortng;
-    if (cctrl->field_86 > 0) {
-        doortng = thing_get(cctrl->field_86);
+    if (cctrl->blocking_door_id > 0) {
+        doortng = thing_get(cctrl->blocking_door_id);
     } else {
         doortng = INVALID_THING;
     }
@@ -3347,7 +3347,7 @@ short person_sulk_at_lair(struct Thing *creatng)
     }
     process_lair_enemy(creatng, room);
     internal_set_thing_state(creatng, CrSt_PersonSulking);
-    cctrl->field_82 = 0;
+    cctrl->turns_at_job = 0;
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_sulking);
     return 1;
@@ -3400,14 +3400,14 @@ short person_sulking(struct Thing *creatng)
         return 0;
     }
     process_lair_enemy(creatng, room);
-    cctrl->field_82++;
-    if (cctrl->field_82 - 200 > 0)
+    cctrl->turns_at_job++;
+    if (cctrl->turns_at_job - 200 > 0)
     {
-        if ((cctrl->field_82 % 32) == 0) {
+        if ((cctrl->turns_at_job % 32) == 0) {
             play_creature_sound(creatng, 4, 2, 0);
         }
-        if (cctrl->field_82 - 250 >= 0) {
-          cctrl->field_82 = 0;
+        if (cctrl->turns_at_job - 250 >= 0) {
+          cctrl->turns_at_job = 0;
         } else
         if (cctrl->instance_id == CrInst_NULL) {
             set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);

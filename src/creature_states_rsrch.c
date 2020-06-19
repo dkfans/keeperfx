@@ -85,7 +85,7 @@ short at_research_room(struct Thing *thing)
         return 0;
     }
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
-    cctrl->field_82 = 0;
+    cctrl->turns_at_job = 0;
     cctrl->byte_9A = 3;
     return 1;
 }
@@ -255,14 +255,14 @@ short researching(struct Thing *thing)
     }
     if (cctrl->instance_id != CrInst_NULL)
       return 1;
-    cctrl->field_82++;
+    cctrl->turns_at_job++;
     // Shall we do some "Standing and thinking"
-    if (cctrl->field_82 <= 128)
+    if (cctrl->turns_at_job <= 128)
     {
       if (cctrl->byte_9A == 3)
       {
           // Do some random thinking
-          if ((cctrl->field_82 % 16) == 0)
+          if ((cctrl->turns_at_job % 16) == 0)
           {
               long i = ACTION_RANDOM(LbFPMath_PI) - LbFPMath_PI / 2;
               cctrl->long_9B = ((long)thing->move_angle_xy + i) & LbFPMath_AngleMask;
@@ -286,7 +286,7 @@ short researching(struct Thing *thing)
         return 1;
     }
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
-    cctrl->field_82 = 0;
+    cctrl->turns_at_job = 0;
     cctrl->byte_9A = 3;
     if (cctrl->explevel < 3)
     {

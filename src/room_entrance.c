@@ -381,7 +381,7 @@ void process_entrance_generation(void)
                 }
                 dungeon->last_entrance_generation_gameturn = game.play_gameturn;
             }
-            dungeon->field_1485 = 0;
+            dungeon->portal_scavenge_boost = 0;
         }
     }
 }

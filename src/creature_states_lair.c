@@ -387,7 +387,7 @@ short at_lair_to_sleep(struct Thing *thing)
     if (creature_turn_to_face_angle(thing, lairtng->move_angle_xy) <= 0)
     {
         internal_set_thing_state(thing, CrSt_CreatureSleep);
-        cctrl->field_82 = 200;
+        cctrl->turns_at_job = 200;
         thing->movement_flags &= ~TMvF_Flying;
     }
     process_lair_enemy(thing, room);
@@ -464,8 +464,8 @@ short creature_sleep(struct Thing *thing)
     }
     anger_set_creature_anger(thing, 0, AngR_NoLair);
     anger_apply_anger_to_creature(thing, crstat->annoy_sleeping, AngR_Other, 1);
-    if (cctrl->field_82 > 0) {
-        cctrl->field_82--;
+    if (cctrl->turns_at_job > 0) {
+        cctrl->turns_at_job--;
     }
     if (((game.play_gameturn + thing->index) & 0x3F) == 0)
     {
@@ -483,7 +483,7 @@ short creature_sleep(struct Thing *thing)
         }
     }
     {
-        if ((thing->health >= crstat->heal_threshold * cctrl->max_health / 256) && (!cctrl->field_82))
+        if ((thing->health >= crstat->heal_threshold * cctrl->max_health / 256) && (!cctrl->turns_at_job))
         {
             set_start_state(thing);
             return 1;

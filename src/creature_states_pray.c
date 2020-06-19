@@ -65,7 +65,7 @@ CrStateRet process_temple_visuals(struct Thing *creatng, struct Room *room)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id != CrInst_NULL)
         return CrStRet_Unchanged;
-    long turns_in_temple = cctrl->field_82;
+    long turns_in_temple = cctrl->turns_at_job;
     if (turns_in_temple <= 120)
     {
         // Walk for 120 turns
@@ -80,7 +80,7 @@ CrStateRet process_temple_visuals(struct Thing *creatng, struct Room *room)
     } else
     {
         // Then start from the beginning
-        cctrl->field_82 = 0;
+        cctrl->turns_at_job = 0;
     }
     return CrStRet_Modified;
 }
@@ -106,7 +106,7 @@ short at_temple(struct Thing *thing)
     }
     internal_set_thing_state(thing, get_continue_state_for_job(Job_TEMPLE_PRAY));
     dungeon->creatures_praying[thing->model]++;
-    cctrl->field_82 = 0;
+    cctrl->turns_at_job = 0;
     return 1;
 }
 
@@ -162,7 +162,7 @@ CrCheckRet process_temple_function(struct Thing *thing)
     process_temple_cure(thing);
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        cctrl->field_82++;
+        cctrl->turns_at_job++;
     }
     return CrCkRet_Available;
 }

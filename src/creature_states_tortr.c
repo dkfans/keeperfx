@@ -65,7 +65,7 @@ short at_kinky_torture_room(struct Thing *thing)
     }
     add_creature_to_torture_room(thing, room);
     cctrl->word_A6 = 0;
-    cctrl->field_82 = game.play_gameturn;
+    cctrl->turns_at_job = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->tortured.long_9Ex = game.play_gameturn;
     cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
@@ -99,7 +99,7 @@ short at_torture_room(struct Thing *thing)
     add_creature_to_torture_room(thing, room);
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     cctrl->word_A6 = 0;
-    cctrl->field_82 = game.play_gameturn;
+    cctrl->turns_at_job = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->tortured.long_9Ex = game.play_gameturn;
     cctrl->tortured.vis_state = CTVS_TortureGoToDevice;
@@ -245,7 +245,7 @@ short kinky_torturing(struct Thing *thing)
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (game.play_gameturn-cctrl->field_82 > crstat->torture_break_time)
+    if (game.play_gameturn-cctrl->turns_at_job > crstat->torture_break_time)
     {
         set_start_state(thing);
         return CrStRet_ResetOk;
@@ -478,11 +478,11 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
-    if ((long)game.play_gameturn >= cctrl->field_82 + game.turns_per_torture_health_loss)
+    if ((long)game.play_gameturn >= cctrl->turns_at_job + game.turns_per_torture_health_loss)
     {
         i = compute_creature_max_health(game.torture_health_loss,cctrl->explevel);
         remove_health_from_thing_and_display_health(creatng, i);
-        cctrl->field_82 = (long)game.play_gameturn;
+        cctrl->turns_at_job = (long)game.play_gameturn;
     }
     // Check if we should convert the creature into ghost
     if ((creatng->health < 0) && (game.ghost_convert_chance > 0))

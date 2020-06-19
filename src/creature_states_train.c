@@ -531,7 +531,7 @@ short at_training_room(struct Thing *thing)
     }
     internal_set_thing_state(thing, get_continue_state_for_job(Job_TRAIN));
     setup_move_to_new_training_position(thing, room, 1);
-    cctrl->field_82 = 0;
+    cctrl->turns_at_job = 0;
     return 1;
 }
 
@@ -568,10 +568,10 @@ CrStateRet training(struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     // Pay for the training
-    cctrl->field_82++;
-    if (cctrl->field_82 >= game.train_cost_frequency)
+    cctrl->turns_at_job++;
+    if (cctrl->turns_at_job >= game.train_cost_frequency)
     {
-        cctrl->field_82 -= game.train_cost_frequency;
+        cctrl->turns_at_job -= game.train_cost_frequency;
         if (take_money_from_dungeon(thing->owner, crstat->training_cost, 1) < 0) {
             ERRORLOG("Cannot take %d gold from dungeon %d",(int)crstat->training_cost,(int)thing->owner);
         }
