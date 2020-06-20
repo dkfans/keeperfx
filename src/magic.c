@@ -1000,7 +1000,7 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
             pos = dungeon_get_essential_pos(thing->owner);
             move_thing_in_map(thing, pos);
             initialise_thing_state(thing, CrSt_CreatureInHoldAudience);
-            cctrl->field_82 = -1;
+            cctrl->turns_at_job = -1;
         }
         // Thing list loop body ends
         k++;
@@ -1670,7 +1670,7 @@ TbResult magic_use_power_slap_thing(PlayerNumber plyr_idx, struct Thing *thing, 
     }
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
-    if ((player->instance_num == PI_Whip) || (game.play_gameturn - dungeon->field_14AE <= 10)) {
+    if ((player->instance_num == PI_Whip) || (game.play_gameturn - dungeon->last_creature_dropped_gameturn <= 10)) {
         return Lb_OK;
     }
     player->influenced_thing_idx = thing->index;

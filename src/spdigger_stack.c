@@ -924,7 +924,7 @@ long get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx
     long i;
     long n;
     long tsk_max;
-    tsk_max = dungeon->task_count;
+    tsk_max = dungeon->highest_task_number;
     if (tsk_max > MAPTASKS_COUNT)
         tsk_max = MAPTASKS_COUNT;
     if (tsk_max > 1)
@@ -965,7 +965,7 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
     struct MapTask *mtask;
     long i;
     long tsk_max;
-    tsk_max = dungeon->task_count;
+    tsk_max = dungeon->highest_task_number;
     if (tsk_max > MAPTASKS_COUNT)
         tsk_max = MAPTASKS_COUNT;
     MapSubtlCoord digstl_y;

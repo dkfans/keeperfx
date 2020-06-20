@@ -57,17 +57,17 @@ void add_task_list_entry(PlayerNumber plyr_idx, unsigned char kind, SubtlCodedCo
     // Find free task index
     int task_idx;
     struct MapTask  *mtask;
-    for (task_idx=0; task_idx < dungeon->task_count; task_idx++)
+    for (task_idx=0; task_idx < dungeon->highest_task_number; task_idx++)
     {
         mtask = &dungeon->task_list[task_idx];
         if (mtask->kind == 0)
           break;
     }
-    if (task_idx == dungeon->task_count)
+    if (task_idx == dungeon->highest_task_number)
     {
         if (task_idx >= MAPTASKS_COUNT)
             return;
-        dungeon->task_count++;
+        dungeon->highest_task_number++;
     }
     // Fill the task
     MapSubtlCoord taskstl_x = stl_slab_center_subtile(stl_num_decode_x(stl_num));
@@ -75,13 +75,13 @@ void add_task_list_entry(PlayerNumber plyr_idx, unsigned char kind, SubtlCodedCo
     mtask = &dungeon->task_list[task_idx];
     mtask->kind = kind;
     mtask->coords = get_subtile_number(taskstl_x, taskstl_y);
-    dungeon->field_E8F++;
+    dungeon->task_count++;
 }
 
 long find_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long imax = dungeon->task_count;
+    long imax = dungeon->highest_task_number;
     if (imax > MAPTASKS_COUNT)
         imax = MAPTASKS_COUNT;
     for (long i = 0; i < imax; i++)
@@ -97,7 +97,7 @@ long find_from_task_list_by_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
 {
     SubtlCodedCoords srch_tsk = get_subtile_number_at_slab_center(slb_x, slb_y);
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long imax = dungeon->task_count;
+    long imax = dungeon->highest_task_number;
     if (imax > MAPTASKS_COUNT)
         imax = MAPTASKS_COUNT;
     for (long i = 0; i < imax; i++)
@@ -113,7 +113,7 @@ long find_from_task_list_by_subtile(PlayerNumber plyr_idx, MapSlabCoord stl_x, M
 {
     SubtlCodedCoords srch_tsk = get_subtile_number(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long imax = dungeon->task_count;
+    long imax = dungeon->highest_task_number;
     if (imax > MAPTASKS_COUNT)
         imax = MAPTASKS_COUNT;
     for (long i = 0; i < imax; i++)
@@ -128,7 +128,7 @@ long find_from_task_list_by_subtile(PlayerNumber plyr_idx, MapSlabCoord stl_x, M
 long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long imax = dungeon->task_count;
+    long imax = dungeon->highest_task_number;
     if (imax > MAPTASKS_COUNT)
         imax = MAPTASKS_COUNT;
     for (long i = 0; i < imax; i++)
@@ -142,7 +142,7 @@ long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 
 long find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, long last_dig)
 {
-    long mtasks_num = dungeon->task_count;
+    long mtasks_num = dungeon->highest_task_number;
     if (mtasks_num > MAPTASKS_COUNT)
         mtasks_num = MAPTASKS_COUNT;
     for (long i = last_dig + 1; i < mtasks_num; i++)
@@ -164,15 +164,15 @@ TbBool task_list_entry_invalid(struct MapTask *task)
 long remove_from_task_list(long plyr_idx, long stack_pos)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if ((stack_pos < 0) || (dungeon->task_count <= stack_pos)) {
+    if ((stack_pos < 0) || (dungeon->highest_task_number <= stack_pos)) {
       ERRORLOG("Invalid stack pos");
       return 0;
     }
     struct MapTask* mtask = &dungeon->task_list[stack_pos];
     mtask->kind = 0;
     mtask->coords = 0;
-    dungeon->field_E8F--;
-    if (dungeon->task_count - stack_pos == 1)
+    dungeon->task_count--;
+    if (dungeon->highest_task_number - stack_pos == 1)
     {
         long i;
         for (i = stack_pos; i >= 0; i--)
@@ -181,7 +181,7 @@ long remove_from_task_list(long plyr_idx, long stack_pos)
             if (mtask->kind != 0)
               break;
         }
-        dungeon->task_count = i + 1;
+        dungeon->highest_task_number = i + 1;
     }
     return 1;
 }

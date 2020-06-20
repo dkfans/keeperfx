@@ -245,7 +245,7 @@ short researching(struct Thing *thing)
     }
     process_research_function(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ( (game.play_gameturn - dungeon->field_AE5 < 50)
+    if ( (game.play_gameturn - dungeon->last_research_complete_gameturn < 50)
       && ((game.play_gameturn + thing->index) & 0x03) == 0)
     {
         external_set_thing_state(thing, CrSt_CreatureBeHappy);

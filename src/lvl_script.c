@@ -4135,7 +4135,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return game.play_gameturn;
     case SVar_BREAK_IN:
         dungeon = get_dungeon(plyr_idx);
-        return dungeon->field_AF5;
+        return dungeon->times_breached_dungeon;
     case SVar_CREATURE_NUM:
         return count_player_creatures_of_model(plyr_idx, validx);
     case SVar_TOTAL_DIGGERS:

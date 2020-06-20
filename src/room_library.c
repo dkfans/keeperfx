@@ -363,7 +363,7 @@ void process_player_research(PlayerNumber plyr_idx)
         break;
     }
     dungeon->research_progress -= (rsrchval->req_amount << 8);
-    dungeon->field_AE5 = game.play_gameturn;
+    dungeon->last_research_complete_gameturn = game.play_gameturn;
 
     dungeon->current_research_idx = get_next_research_item(dungeon);
     dungeon->lvstats.things_researched++;

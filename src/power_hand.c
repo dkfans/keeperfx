@@ -871,7 +871,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         if (is_my_player_number(dungeon->owner)) {
             play_creature_sound(droptng, 6, 3, 0);
         }
-        dungeon->field_14AE = game.play_gameturn;
+        dungeon->last_creature_dropped_gameturn = game.play_gameturn;
     } else
     if (thing_is_object(droptng))
     {

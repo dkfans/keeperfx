@@ -1458,7 +1458,7 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
     int task_idx;
-    for (task_idx = 0; task_idx < dungeon->task_count; task_idx++)
+    for (task_idx = 0; task_idx < dungeon->highest_task_number; task_idx++)
     {
         struct MapTask  *mtask;
         mtask = &dungeon->task_list[task_idx];
