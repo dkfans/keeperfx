@@ -1236,6 +1236,11 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
     }
     if (varib_id == -1)
     {
+        varib_id = get_id(trap_desc, varib_name);
+        varib_type = SVar_TRAP_NUM;
+    }
+    if (varib_id == -1)
+    {
       varib_id = get_id(campaign_flag_desc, varib_name);
       varib_type = SVar_CAMPAIGN_FLAG;
     }
