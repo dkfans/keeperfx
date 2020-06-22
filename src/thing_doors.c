@@ -411,7 +411,7 @@ long count_player_deployed_traps_of_model(PlayerNumber owner, int model)
             break;
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->owner == owner) && ((thing->model == model) || (model == -1)))
+        if ((thing->owner == owner) && ((thing->model == model) || (model == -1)) && (thing->trap.num_shots > 0))
             n++;
         // Per-thing code ends
         k++;
