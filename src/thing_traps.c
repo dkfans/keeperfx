@@ -566,8 +566,18 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
                 }
                 traptng->field_4F &= TF4F_Unknown10;
                 traptng->field_4F |= TF4F_Unknown20;
-                if (!is_neutral_thing(traptng) && !is_hero_thing(traptng)) {
-                    remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+                if (!is_neutral_thing(traptng) && !is_hero_thing(traptng)) 
+                {
+                    if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
+                    {
+                        //When there's only offmap traps, destroy the disarmed one so the player can place a new one.
+                        traptng->health = -1;
+                    }
+                    else
+                    {
+                        //Trap is available to be rearmed, so earmark a workshop crate for it.
+                        remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+                    }
                 }
             }
         }
