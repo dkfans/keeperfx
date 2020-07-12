@@ -3801,10 +3801,47 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
     return 1;
 }
 
-unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3)
+TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(7,"Starting");
-    return _DK_tag_cursor_blocks_place_door(a1, a2, a3);
+    // return _DK_tag_cursor_blocks_place_door(a1, a2, a3);
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    signed int parl;
+    TbBool allowed = false;
+    if (!subtile_revealed(stl_x, stl_y, plyr_idx) || ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+    {
+        parl = temp_cluedo_mode < 1u ? 5 : 2;
+    }
+    else if (slab_kind_is_liquid(slb->kind))
+    {
+        parl = 0;
+    }
+    else 
+    {
+        if ( ( (slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) )
+            && (find_door_angle(stl_x, stl_y, plyr_idx) != -1)
+            && ( (!slab_has_trap_on(slb_x, slb_y) ) && (!slab_has_door_thing_on(stl_x, stl_y) ) ) )
+        {
+            allowed = true;
+        }
+        parl = 1;
+    }
+    if ( is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && game.small_map_state != 2 )
+    {
+        map_volume_box.visible = 1;
+        map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
+        map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
+        map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 3), 0);
+        map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 3), 0);
+        map_volume_box.field_13 = parl;
+        map_volume_box.color = allowed;
+    }
+    return allowed;
 }
 
 TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4)
