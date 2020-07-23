@@ -431,6 +431,7 @@ const struct NamedCommand game_rule_desc[] = {
   {"PayDayGap",               16},
   {"PayDaySpeed",             17},
   {"PayDayProgress",          18},
+  {"PlaceTrapsOnSubtiles",    19},
   {NULL,                      0},
 };
 
@@ -5225,6 +5226,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
+          break;
+    case 19: //PlaceTrapsOnSubtiles
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.place_traps_on_subtiles, val3);
+          gameadd.place_traps_on_subtiles = (TbBool)val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

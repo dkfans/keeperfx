@@ -3741,7 +3741,7 @@ int can_thing_be_queried(struct Thing *thing, long a2)
   return _DK_can_thing_be_queried(thing, a2);
 }
 
-TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4)
+TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4, TbBool Subtile)
 {
     SYNCDBG(7,"Starting");
     // _DK_tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, a4);
@@ -3766,8 +3766,9 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     else
     {
-        if ( ( ((subtile_is_sellable_room(plyr_idx, stl_x, stl_y)) || ( (slabmap_owner(slb) == plyr_idx) && ( (subtile_is_door(stl_x, stl_y)) || (slab_has_trap_on(slb_x, slb_y)) ) ) ) )
-          && ( slb->kind != SlbT_ENTRANCE && slb->kind != SlbT_DUNGHEART ) )
+        if ( ( ((subtile_is_sellable_room(plyr_idx, stl_x, stl_y)) || ( (slabmap_owner(slb) == plyr_idx) && ( (slab_is_door(slb_x, slb_y)) 
+            || (Subtile ? (subtile_has_trap_on(stl_x, stl_y)) : (slab_has_trap_on(slb_x, slb_y))) ) ) ) )
+            && ( slb->kind != SlbT_ENTRANCE && slb->kind != SlbT_DUNGHEART ) )
         {
             allowed = true;
         }
@@ -3776,12 +3777,12 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if ( is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && game.small_map_state != 2 )
     {
         map_volume_box.visible = 1;
-        map_volume_box.beg_x = v6 << 8;
-        map_volume_box.beg_y = v7 << 8;
+        map_volume_box.beg_x = Subtile ? (subtile_coord(stl_x,0)) : (v6 << 8);
+        map_volume_box.beg_y = Subtile ? (subtile_coord(stl_y,0)) : (v7 << 8);
         map_volume_box.field_13 = parl;
-        map_volume_box.end_x = (v6 + 2 * a4 + 1) << 8;
+        map_volume_box.end_x = Subtile ? (subtile_coord(stl_x+1,0)) : ((v6 + 2 * a4 + 1) << 8);
         map_volume_box.color = allowed;
-        map_volume_box.end_y = (v7 + 2 * a4 + 1) << 8;
+        map_volume_box.end_y = Subtile ? (subtile_coord(stl_y+1,0)) : ((v7 + 2 * a4 + 1) << 8);
     }
     return allowed;
 }
@@ -3813,6 +3814,8 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     slbattr = get_slab_attrs(slb);
     signed int parl;
     TbBool allowed = false;
+    char Orientation;
+    TbBool Check = false;
     if (!subtile_revealed(stl_x, stl_y, plyr_idx) || ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
     {
         parl = temp_cluedo_mode < 1u ? 5 : 2;
@@ -3823,9 +3826,27 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     }
     else 
     {
+        Orientation = find_door_angle(stl_x, stl_y, plyr_idx);
+        if (gameadd.place_traps_on_subtiles)
+        {
+            switch(Orientation)
+            {
+                case 0:
+                {
+                    Check = (!slab_middle_row_has_trap_on(slb_x, slb_y) );
+                    break;
+                }
+                case 1:
+                {
+                    Check = (!slab_middle_column_has_trap_on(slb_x, slb_y) );
+                    break;
+                }
+            }
+        }
         if ( ( (slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) )
-            && (find_door_angle(stl_x, stl_y, plyr_idx) != -1)
-            && ( (!slab_has_trap_on(slb_x, slb_y) ) && (!slab_has_door_thing_on(stl_x, stl_y) ) ) )
+            && (Orientation != -1)
+            && ( ( (gameadd.place_traps_on_subtiles) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(stl_x, stl_y) ) ) 
+            )
         {
             allowed = true;
         }

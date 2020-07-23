@@ -129,6 +129,7 @@ struct GameAdd {
     unsigned long gem_effectiveness;
     long room_sale_percent;
     unsigned long pay_day_speed;
+    TbBool place_traps_on_subtiles;
 };
 
 #pragma pack()

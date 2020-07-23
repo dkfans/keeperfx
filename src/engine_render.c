@@ -39,6 +39,7 @@
 #include "creature_states_gardn.h"
 #include "creature_states_lair.h"
 #include "thing_stats.h"
+#include "thing_traps.h"
 #include "game_lghtshdw.h"
 #include "game_heap.h"
 #include "kjm_input.h"
@@ -52,6 +53,7 @@
 #include "config_creature.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "player_states.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -6025,7 +6027,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     }
 }
 
-static void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width)
+void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width)
 {
     struct Coord3d pos;
     long coord_x;
@@ -6038,7 +6040,6 @@ static void create_frontview_map_volume_box(struct Camera *cam, unsigned char st
     long vstart;
     long vend;
     long delta[4];
-
     pos.y.val = map_volume_box.beg_y;
     pos.x.val = map_volume_box.beg_x;
     pos.z.val = subtile_coord(5,0);
@@ -6344,6 +6345,7 @@ void draw_frontview_engine(struct Camera *cam)
     long long zoom;
     long long lbbb;
     long i;
+    unsigned char BoxWidth;
     SYNCDBG(9,"Starting");
     player = get_my_player();
     if (cam->zoom > 65536)
@@ -6414,7 +6416,14 @@ void draw_frontview_engine(struct Camera *cam)
 
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
     if (map_volume_box.visible)
-        create_frontview_map_volume_box(cam, (zoom >> 8) & 0xFF);
+    {
+        BoxWidth = (zoom >> 8) & 0xFF;
+        if ( ( (gameadd.place_traps_on_subtiles) && ((player->work_state == PSt_PlaceTrap) && (player->chosen_trap_kind != TngTrp_Boulder)) ) || ((player->work_state == PSt_Sell) && (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))) )
+        {
+            BoxWidth /= 3;
+        }
+        create_frontview_map_volume_box(cam, BoxWidth);
+    }
     map_volume_box.visible = 0;
 
     h = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;

@@ -61,6 +61,46 @@ char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr
     return _DK_find_door_angle(stl_x, stl_y, plyr_idx);
 }
 
+char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    if (!slab_is_door(slb_x, slb_y))
+    {
+        return -1;
+    }
+    else if ( ((slab_is_wall(slb_x-1, slb_y))) && ((slab_is_wall(slb_x+1, slb_y))) && ((!slab_is_wall(slb_x, slb_y-1))) && ((!slab_is_wall(slb_x, slb_y+1))) )
+    {
+        return 0;    
+    }
+    else if ( ((slab_is_wall(slb_x-1, slb_y))) && ((slab_is_wall(slb_x+1, slb_y))) && ((slab_is_wall(slb_x, slb_y-1))) && ((!slab_is_wall(slb_x, slb_y+1))) )
+    {
+        return 0;    
+    }
+    else if ( ((slab_is_wall(slb_x-1, slb_y))) && ((slab_is_wall(slb_x+1, slb_y))) && ((!slab_is_wall(slb_x, slb_y-1))) && ((slab_is_wall(slb_x, slb_y+1))) )
+    {
+        return 0;    
+    }
+    else if ( ((slab_is_wall(slb_x, slb_y-1))) && ((slab_is_wall(slb_x, slb_y+1))) && ((!slab_is_wall(slb_x-1, slb_y))) && ((!slab_is_wall(slb_x+1, slb_y))) )
+    {
+        return 1;    
+    }
+    else if ( ((slab_is_wall(slb_x, slb_y-1))) && ((slab_is_wall(slb_x, slb_y+1))) && ((slab_is_wall(slb_x-1, slb_y))) && ((!slab_is_wall(slb_x+1, slb_y))) )
+    {
+        return 1;    
+    }
+    else if ( ((slab_is_wall(slb_x, slb_y-1))) && ((slab_is_wall(slb_x, slb_y+1))) && ((!slab_is_wall(slb_x-1, slb_y))) && ((slab_is_wall(slb_x+1, slb_y))) )
+    {
+        return 1;    
+    }
+    else if ( ((slab_is_wall(slb_x, slb_y-1))) && ((slab_is_wall(slb_x, slb_y+1))) && ((slab_is_wall(slb_x-1, slb_y))) && ((slab_is_wall(slb_x+1, slb_y))) )
+    {
+        return -1;    
+    }
+    else
+    {
+        return -1;
+    }
+}
+
 struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4)
 {
   return _DK_create_door(pos, a1, a2, a3, a4);
@@ -174,6 +214,48 @@ TbBool subtile_has_door_thing_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing* doortng = get_door_for_position(stl_x, stl_y);
     return !thing_is_invalid(doortng);
+}
+
+TbBool subtile_has_door_thing_on_for_trap_placement(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Thing* doortng = get_door_for_position_for_trap_placement(stl_x, stl_y);
+    return !thing_is_invalid(doortng);
+}
+
+TbBool slab_row_has_door_thing_on(MapSlabCoord slb_x, MapSubtlCoord stl_y)
+{
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    if (subtile_has_door_thing_on_for_trap_placement(stl_x, stl_y))
+    {
+        return true;
+    }
+    if (subtile_has_door_thing_on_for_trap_placement(stl_x-1, stl_y))
+    {
+        return true;
+    }
+    if (subtile_has_door_thing_on_for_trap_placement(stl_x+1, stl_y))
+    {
+        return true;
+    }
+    return false;
+}
+
+TbBool slab_column_has_door_thing_on(MapSubtlCoord stl_x, MapSlabCoord slb_y)
+{
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    if (subtile_has_door_thing_on_for_trap_placement(stl_x, stl_y))
+    {
+        return true;
+    }
+    if (subtile_has_door_thing_on_for_trap_placement(stl_x, stl_y-1))
+    {
+        return true;
+    }
+    if (subtile_has_door_thing_on_for_trap_placement(stl_x, stl_y+1))
+    {
+        return true;
+    }
+    return false;
 }
 
 TbBool subtile_has_locked_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
