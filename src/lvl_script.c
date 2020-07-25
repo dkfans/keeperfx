@@ -114,6 +114,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_ARMOUR",               "CN      ", Cmd_SET_CREATURE_ARMOUR},
   {"SET_CREATURE_FEAR_WOUNDED",         "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
   {"SET_CREATURE_FEAR_STRONGER",        "CN      ", Cmd_SET_CREATURE_FEAR_STRONGER},
+  {"SET_CREATURE_FEARSOME_FACTOR",      "CN      ", Cmd_SET_CREATURE_FEARSOME_FACTOR},
   {"SET_CREATURE_PROPERTY",             "CXN     ", Cmd_SET_CREATURE_PROPERTY},
   {"IF_AVAILABLE",                      "PAON    ", Cmd_IF_AVAILABLE},
   {"IF_CONTROLS",                       "PAON    ", Cmd_IF_CONTROLS},
@@ -2267,6 +2268,22 @@ void command_set_creature_fear_stronger(const char *crtr_name, long val)
   command_add_value(Cmd_SET_CREATURE_FEAR_STRONGER, ALL_PLAYERS, crtr_id, val, 0);
 }
 
+void command_set_creature_fearsome_factor(const char* crtr_name, long val)
+{
+    long crtr_id = get_rid(creature_desc, crtr_name);
+    if (crtr_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+        return;
+    }
+    if ((val < 0) || (val > 32767))
+    {
+        SCRPTERRLOG("Invalid '%s' fearsome value, %d", crtr_name, val);
+        return;
+    }
+    command_add_value(Cmd_SET_CREATURE_FEARSOME_FACTOR, ALL_PLAYERS, crtr_id, val, 0);
+}
+
 void command_set_creature_property(const char* crtr_name, long property, short val)
 {
     long crtr_id = get_rid(creature_desc, crtr_name);
@@ -2737,6 +2754,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_CREATURE_FEAR_STRONGER:
         command_set_creature_fear_stronger(scline->tp[0], scline->np[1]);
+        break;
+    case Cmd_SET_CREATURE_FEARSOME_FACTOR:
+        command_set_creature_fearsome_factor(scline->tp[0], scline->np[1]);
         break;
     case Cmd_SET_CREATURE_PROPERTY:
         command_set_creature_property(scline->tp[0], scline->np[1], scline->np[2]);
@@ -4716,6 +4736,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       if (creature_stats_invalid(crstat))
           break;
       crstat->fear_stronger = saturate_set_unsigned(val3, 16);
+      creature_stats_updated(val2);
+      break;
+  case Cmd_SET_CREATURE_FEARSOME_FACTOR:
+      crstat = creature_stats_get(val2);
+      if (creature_stats_invalid(crstat))
+          break;
+      crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
       creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_PROPERTY:
