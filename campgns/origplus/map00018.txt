@@ -282,6 +282,12 @@ ENDIF
 
 REM Action point at entrance to hero fortress
 IF_ACTION_POINT(1,PLAYER0)
+	SET_FLAG(PLAYER_GOOD,FLAG1,1)
+ENDIF
+IF_ACTION_POINT(12,PLAYER0)
+	SET_FLAG(PLAYER_GOOD,FLAG1,1)
+ENDIF
+IF(PLAYER_GOOD,FLAG1 == 1)
 	REM "The heroes of this realm have prepared for your coming by building an underground stronghold of their own."
 	DISPLAY_OBJECTIVE(131,PLAYER_GOOD)
 	REM Disable the gold mining events chain attack

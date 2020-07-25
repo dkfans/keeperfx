@@ -104,6 +104,13 @@ REM ****************************************************************************
 REM "Seek out the one who would be your rival in this region of the underworld. Explain the concept of early retirement to him. On the other hand, string him up. It's in the only language he understands."
 DISPLAY_OBJECTIVE(76,ALL_PLAYERS)
 
+IF(PLAYER0,GAME_TURN <= 20)
+	IF(PLAYER0,TOTAL_CREATURES >= 1)
+		ADD_CREATURE_TO_LEVEL(PLAYER1,DARK_MISTRESS,PLAYER1,1,7,0)
+		ADD_CREATURE_TO_LEVEL(PLAYER1,SPIDER,PLAYER1,2,4,0)
+	ENDIF
+ENDIF
+
 IF(PLAYER1,PRISON >= 9)
 	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
 ENDIF
