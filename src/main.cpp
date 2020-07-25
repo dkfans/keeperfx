@@ -2431,12 +2431,12 @@ void count_players_creatures_being_paid(int *creatures_count)
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
-                if (cctrl->field_49 > 0)
+                if (cctrl->prepayments_received > 0)
                 {
-                    cctrl->field_49--;
+                    cctrl->prepayments_received--;
                 } else
                 {
-                    cctrl->field_48++;
+                    cctrl->paydays_owed++;
                     creatures_count[thing->owner]++;
                 }
             }

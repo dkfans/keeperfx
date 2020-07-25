@@ -3132,7 +3132,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
                 {
                     stati = &states[CrSt_CreatureSleep];
                 } else
-                if (cctrl->field_48)
+                if (cctrl->paydays_owed)
                 {
                     stati = &states[CrSt_CreatureWantsSalary];
                 } else
