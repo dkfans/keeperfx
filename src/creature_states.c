@@ -76,7 +76,6 @@
 #include "creature_states_pray.h"
 #include "creature_states_tresr.h"
 #include "creature_states_barck.h"
-#include "creature_states_combt.h"
 
 #include "keeperfx.hpp"
 
