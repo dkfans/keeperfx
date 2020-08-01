@@ -1353,7 +1353,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     slb = get_slabmap_block(slb_x, slb_y);
     slb->kind = slbkind;
     pannel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
-    if ((slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE))
+    if ((slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
     {
         MapSubtlCoord stl_xb;
         MapSubtlCoord stl_yb;
@@ -1409,6 +1409,10 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
                 set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
             }
         }
+    }
+    if (slbkind == SlbT_GEMS)
+    {
+        delete_all_object_things_from_slab(slb_x, slb_y, 0);
     }
 }
 
