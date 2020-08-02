@@ -1840,7 +1840,7 @@ CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist
     CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
     if (inst_id == CrInst_NULL)
     {
-        atktyp = InstPF_RangedAttack;
+        int atktyp = InstPF_RangedAttack;
         inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
     }
     return inst_id;
@@ -1851,7 +1851,7 @@ CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
     CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
     if (inst_id == CrInst_NULL)
     {
-        atktyp = InstPF_MeleeAttack;
+        int atktyp = InstPF_MeleeAttack;
         inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
     }
     return inst_id;
@@ -1859,14 +1859,14 @@ CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
 
 long get_best_melee_object_offensive_weapon(const struct Thing *thing, long dist)
 {
-    atktyp = (InstPF_MeleeAttack | InstPF_Destructive | InstPF_Dangerous);
+    int atktyp = (InstPF_MeleeAttack | InstPF_Destructive | InstPF_Dangerous);
     CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
     return inst_id;
 }
 
 long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dist)
 {
-    atktyp = (InstPF_RangedAttack | InstPF_Destructive | InstPF_Dangerous);
+    int atktyp = (InstPF_RangedAttack | InstPF_Destructive | InstPF_Dangerous);
     CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist,atktyp);
     return inst_id;
 }

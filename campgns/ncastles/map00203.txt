@@ -2,12 +2,6 @@ REM ********************************************
 REM  Nikolai's Castles campaign for KeeperFX
 REM  Script for Level 2, Castle Kandro
 REM  Version 1.10
-REM  Map altered by dayokay
-REM  due to pathfinding issues
-REM  map has been reduced in complexity
-REM  by converting corridors to rock
-REM  this allowed most of the intricate
-REM  design to be maintained
 REM ********************************************
 
 LEVEL_VERSION(1)

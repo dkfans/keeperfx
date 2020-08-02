@@ -13,6 +13,8 @@ REM it under the terms of the GNU General Public License as published by
 REM the Free Software Foundation; either version 2 of the License, or
 REM (at your option) any later version.
 REM ****************************************************************************
+LEVEL_VERSION(1)
+RUN_AFTER_VICTORY(1)
 
 START_MONEY(PLAYER0,120000)
 
@@ -23,44 +25,99 @@ MAGIC_AVAILABLE(PLAYER0,POWER_POSSESS,0,0)
 SET_CREATURE_HEALTH(HELL_HOUND,10)
 SET_CREATURE_HEALTH(SORCEROR,10)
 
-REM "You must have lightning reflexes to complete the task ahead of you. Kill these Imps as quickly as you can."
-DISPLAY_OBJECTIVE(144,PLAYER0)
-
-SET_TIMER(PLAYER0,TIMER0)
-BONUS_LEVEL_TIME(2500)
-
-IF(PLAYER0,TIMER0 == 1250)
-	IF(PLAYER0,FLAG1 == 0)
-		REM "Half your allotted time has elapsed."
-		DISPLAY_INFORMATION(145)
+IF(PLAYER0,CAMPAIGN_FLAG4 <= 0)
+	IF(PLAYER0,FLAG4 <=0)
+		IF(PLAYER0,GAME_TURN >= 40)
+			ADD_CREATURE_TO_LEVEL(PLAYER_NEUTRAL,SORCEROR,1,1,1,0)
+			SET_FLAG(PLAYER0,FLAG4,1)
+		ENDIF
+	ENDIF
+ENDIF
+IF(PLAYER0,CAMPAIGN_FLAG4 == 1)
+	IF(PLAYER0,GAME_TURN >= 40)
+		IF(PLAYER0,FLAG4 <=0)
+			ADD_CREATURE_TO_LEVEL(PLAYER0,SORCEROR,1,1,1,0)
+			SET_FLAG(PLAYER0,FLAG4,1)
+		ENDIF
 	ENDIF
 ENDIF
 
-IF(PLAYER0,IMP == 0)
-	SET_FLAG(PLAYER0,FLAG1,1)
-	REM "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time."
-	DISPLAY_OBJECTIVE(147,PLAYER0)
-	ADD_CREATURE_TO_LEVEL(PLAYER0,HELL_HOUND,PLAYER0,1,2,10000)
-	ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,PLAYER0,1,5,10000)
-	ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
-	MAGIC_AVAILABLE(PLAYER0,POWER_POSSESS,1,1)
-	REM Using a timer to make sure add creature command will be executed
-	SET_TIMER(PLAYER0,TIMER1)
-ENDIF
+IF(PLAYER0,CAMPAIGN_FLAG3 <= 2)
 
-IF(PLAYER0,TIMER0 >= 2500)
-	IF(PLAYER0,FLAG1 == 0)
-		REM "You are out of time. That was a shocking performance."
-		DISPLAY_OBJECTIVE(146,PLAYER0)
-		LOSE_GAME 
+	REM "You must have lightning reflexes to complete the task ahead of you. Kill these Imps as quickly as you can."
+	DISPLAY_OBJECTIVE(144,PLAYER0)
+
+	SET_TIMER(PLAYER0,TIMER0)
+	BONUS_LEVEL_TIME(2500)
+
+	IF(PLAYER0,TIMER0 == 1250)
+		IF(PLAYER0,FLAG1 == 0)
+			REM "Half your allotted time has elapsed."
+			DISPLAY_INFORMATION(145,ALL_PLAYERS)
+		ENDIF
 	ENDIF
-ENDIF
 
-IF(PLAYER0,MONEY < 600)
-	REM "You have no gold left. It pays to keep your head in such a charged environment."
-	DISPLAY_OBJECTIVE(148,PLAYER0)
+	IF(PLAYER0,IMP == 0)
+		REM "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time."
+		DISPLAY_OBJECTIVE(147,PLAYER0)
+		ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,PLAYER0,1,5,10000)
+		ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
+		MAGIC_AVAILABLE(PLAYER0,POWER_POSSESS,1,1)
+		REM Using a timer to make sure add creature command will be executed
+		SET_TIMER(PLAYER0,TIMER1)
+		SET_FLAG(PLAYER0,FLAG1,1)
+	ENDIF
+
+	IF(PLAYER0,FLAG1 == 1)
+		IF(PLAYER0,CAMPAIGN_FLAG3 <= 1)
+			ADD_CREATURE_TO_LEVEL(PLAYER0,HELL_HOUND,PLAYER0,1,2,10000)
+		ENDIF
+	ENDIF
+
+	IF(PLAYER0,TIMER0 >= 2500)
+		IF(PLAYER0,FLAG1 == 0)
+			REM "You are out of time. That was a shocking performance."
+			DISPLAY_OBJECTIVE(146,PLAYER0)
+			LOSE_GAME 
+		ENDIF
+	ENDIF
+
+	IF(PLAYER0,MONEY < 600)
+		REM "You have no gold left. It pays to keep your head in such a charged environment."
+		DISPLAY_OBJECTIVE(148,PLAYER0)
+	ENDIF
 ENDIF
 
 IF(PLAYER0,TIMER1 >= 100)
+	IF(PLAYER0,CAMPAIGN_FLAG3 <= 0)
+		SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG3,1)
+	ENDIF
+	WIN_GAME
+	BONUS_LEVEL_TIME(0)
+	IF(PLAYER0,HELL_HOUND <= 0)
+		SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG3,2)
+	ENDIF
+ENDIF
+
+IF(PLAYER0,SORCEROR >= 1)
+	SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG4,1)
+ENDIF
+IF(PLAYER0,CAMPAIGN_FLAG4 >= 1)
+	IF(PLAYER0,GAME_TURN >= 60)
+		IF(PLAYER0,SORCEROR <= 0)
+			SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG4,2)
+		ENDIF
+	ENDIF
+ENDIF
+
+REM If both the hound and the sorceror are gone, the level if pointless.
+IF(PLAYER0,CAMPAIGN_FLAG3 == 2)
+	IF(PLAYER0,CAMPAIGN_FLAG4 >= 2)
+		SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG3,3)
+	ENDIF
+ENDIF
+IF(PLAYER0,CAMPAIGN_FLAG3 >= 3)
+	KILL_CREATURE(PLAYER0,IMP,MOST_EXPERIENCED,50)
+	BONUS_LEVEL_TIME(0)
 	WIN_GAME
 ENDIF

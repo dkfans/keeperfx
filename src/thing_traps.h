@@ -32,7 +32,7 @@ extern "C" {
 
 enum ThingTrapModels {
     TngTrp_None = 0,
-    TngTrp_Unknown01,
+    TngTrp_Boulder,
     TngTrp_Unknown02,
     TngTrp_Unknown03,
     TngTrp_Unknown04,
@@ -94,6 +94,9 @@ DLLIMPORT extern unsigned char _DK_trap_to_object[8];
 #pragma pack()
 /******************************************************************************/
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
+TbBool subtile_has_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool slab_middle_row_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
+TbBool slab_middle_column_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool destroy_trap(struct Thing *thing);
@@ -108,6 +111,8 @@ TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);
 void activate_trap(struct Thing *traptng, struct Thing *creatng);
 
+long remove_trap(struct Thing *traptng, long *sell_value);
+long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2);

@@ -2343,11 +2343,17 @@ TbBool toggle_first_person_menu(TbBool visible)
   static unsigned char creature_query_on = 0;
   if (visible)
   {
-    if (creature_query_on & 0x01)
+    if (creature_query_on == 1)
         set_menu_visible_on(GMnu_CREATURE_QUERY1);
     else
-    if ( creature_query_on & 0x02)
+        if (creature_query_on == 2)
       set_menu_visible_on(GMnu_CREATURE_QUERY2);
+    else
+        if (creature_query_on == 3)
+        set_menu_visible_on(GMnu_CREATURE_QUERY3);
+    else
+        if (creature_query_on == 4)
+        set_menu_visible_on(GMnu_CREATURE_QUERY4);
     else
     {
       WARNMSG("No active query for first person menu; assuming query 1.");
@@ -2360,13 +2366,23 @@ TbBool toggle_first_person_menu(TbBool visible)
     // CREATURE_QUERY1
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY1);
     if (menu_num >= 0)
-      set_flag_byte(&creature_query_on, 0x01, get_active_menu(menu_num)->is_turned_on);
+        creature_query_on = 1;
     set_menu_visible_off(GMnu_CREATURE_QUERY1);
     // CREATURE_QUERY2
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY2);
     if (menu_num >= 0)
-      set_flag_byte(&creature_query_on, 0x02, get_active_menu(menu_num)->is_turned_on);
+        creature_query_on = 2;
     set_menu_visible_off(GMnu_CREATURE_QUERY2);
+    // CREATURE_QUERY3
+    menu_num = menu_id_to_number(GMnu_CREATURE_QUERY3);
+    if (menu_num >= 0)
+        creature_query_on = 3;
+    set_menu_visible_off(GMnu_CREATURE_QUERY3);
+    // CREATURE_QUERY4
+    menu_num = menu_id_to_number(GMnu_CREATURE_QUERY4);
+    if (menu_num >= 0)
+        creature_query_on = 4;
+    set_menu_visible_off(GMnu_CREATURE_QUERY4);
     return true;
   }
 }
@@ -2393,9 +2409,20 @@ void set_gui_visible(TbBool visible)
       break;
   }
   if (((game.numfield_D & GNFldD_Unkn20) != 0) && ((game.operation_flags & GOF_ShowGui) != 0))
-    setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
+  {
+      setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
+  }
   else
-    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+  {
+      setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+  }
+  // Adjust the bounds of zoom of the camera when the side-menu is toggled (in Isometric view) to hide graphical glitches
+  // Without the gui sidebar, the camera cannot be zoomed in as much.
+  // NOTE: This should be reverted if the render array is ever increased (i.e. can see more things on screen)
+  if (player->acamera && player->acamera->view_mode == PVM_IsometricView)
+  {
+      update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, adjust_min_camera_zoom(player->acamera, game.operation_flags & GOF_ShowGui));
+  }
 }
 
 void toggle_gui(void)
