@@ -238,6 +238,7 @@ struct Thing *get_food_at_subtile_available_to_eat_and_owned_by(MapSubtlCoord st
 struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx);
 struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, long model, PlayerNumber plyr_idx);
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Thing *get_door_for_position_for_trap_placement(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool slab_has_door_thing_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void remove_dead_creatures_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y);

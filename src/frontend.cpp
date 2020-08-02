@@ -2343,11 +2343,17 @@ TbBool toggle_first_person_menu(TbBool visible)
   static unsigned char creature_query_on = 0;
   if (visible)
   {
-    if (creature_query_on & 0x01)
+    if (creature_query_on == 1)
         set_menu_visible_on(GMnu_CREATURE_QUERY1);
     else
-    if ( creature_query_on & 0x02)
+        if (creature_query_on == 2)
       set_menu_visible_on(GMnu_CREATURE_QUERY2);
+    else
+        if (creature_query_on == 3)
+        set_menu_visible_on(GMnu_CREATURE_QUERY3);
+    else
+        if (creature_query_on == 4)
+        set_menu_visible_on(GMnu_CREATURE_QUERY4);
     else
     {
       WARNMSG("No active query for first person menu; assuming query 1.");
@@ -2360,13 +2366,23 @@ TbBool toggle_first_person_menu(TbBool visible)
     // CREATURE_QUERY1
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY1);
     if (menu_num >= 0)
-      set_flag_byte(&creature_query_on, 0x01, get_active_menu(menu_num)->is_turned_on);
+        creature_query_on = 1;
     set_menu_visible_off(GMnu_CREATURE_QUERY1);
     // CREATURE_QUERY2
     menu_num = menu_id_to_number(GMnu_CREATURE_QUERY2);
     if (menu_num >= 0)
-      set_flag_byte(&creature_query_on, 0x02, get_active_menu(menu_num)->is_turned_on);
+        creature_query_on = 2;
     set_menu_visible_off(GMnu_CREATURE_QUERY2);
+    // CREATURE_QUERY3
+    menu_num = menu_id_to_number(GMnu_CREATURE_QUERY3);
+    if (menu_num >= 0)
+        creature_query_on = 3;
+    set_menu_visible_off(GMnu_CREATURE_QUERY3);
+    // CREATURE_QUERY4
+    menu_num = menu_id_to_number(GMnu_CREATURE_QUERY4);
+    if (menu_num >= 0)
+        creature_query_on = 4;
+    set_menu_visible_off(GMnu_CREATURE_QUERY4);
     return true;
   }
 }

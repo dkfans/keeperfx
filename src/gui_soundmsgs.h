@@ -43,7 +43,7 @@ extern "C" {
 
 enum TbSpeechMessages {
         SMsg_None = 0,
-        SMsg_CreatrAngryAnyReson,
+        SMsg_CreatrAngryAnyReason,
         SMsg_CreatrAngryNoLair,
         SMsg_CreatrAngryNotPaid,
         SMsg_CreatrAngryNoFood,

@@ -1130,8 +1130,11 @@ TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist
     struct GameCampaign* campgn = &clist->items[clist->items_num];
     if (load_campaign(cmpgn_fname,campgn,CnfLd_ListOnly))
     {
-      clist->items_num++;
-      return true;
+        if (campgn->single_levels_count > 0)
+        {
+            clist->items_num++;
+            return true;
+        }
     }
     return false;
 }
@@ -1185,7 +1188,9 @@ void sort_campaigns(struct CampaignsList *clist,const char *fname_first)
         if (strcasecmp(clist->items[i].fname,fname_first) == 0)
         {
             if (i > 0)
+            {
                 swap_campaigns_in_list(clist, 0, i);
+            }
             beg++;
             break;
         }
@@ -1206,8 +1211,10 @@ TbBool load_campaigns_list(void)
     long cnum_ok = 0;
     while (rc != -1)
     {
-      if (load_campaign_to_list(fileinfo.Filename,&campaigns_list))
-        cnum_ok++;
+        if (load_campaign_to_list(fileinfo.Filename, &campaigns_list))
+        {
+            cnum_ok++;
+        }
       rc = LbFileFindNext(&fileinfo);
       cnum_all++;
     }

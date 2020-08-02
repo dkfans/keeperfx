@@ -55,7 +55,10 @@ DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
 #pragma pack()
 /******************************************************************************/
 TbBool subtile_has_door_thing_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_has_door_thing_on_for_trap_placement(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_has_locked_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool slab_row_has_door_thing_on(MapSlabCoord slb_x, MapSubtlCoord stl_y);
+TbBool slab_column_has_door_thing_on(MapSubtlCoord stl_x, MapSlabCoord slb_y);
 
 struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
 TbBool thing_is_deployed_door(const struct Thing *thing);
@@ -65,6 +68,7 @@ long destroy_door(struct Thing *thing);
 TngUpdateRet process_door(struct Thing *thing);
 
 char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
+char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short locked);
 long count_player_deployed_doors_of_model(PlayerNumber owner, int model);

@@ -43,6 +43,7 @@
 #include "power_hand.h"
 #include "room_data.h"
 #include "game_legacy.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1512,6 +1513,10 @@ void setup_computer_players2(void)
             skirmish_AI_type = 7;
         }
         setup_a_computer_player(i, skirmish_AI_type);
+        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        {
+            message_add_fmt(i, "ai model %d", skirmish_AI_type);
+        }
         if (i != game.local_plyr_idx)
         {
             JUSTMSG("No model defined for Player %d, assigned computer model %d", i, skirmish_AI_type);

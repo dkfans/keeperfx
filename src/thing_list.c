@@ -3458,6 +3458,25 @@ struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     const struct Map* mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    // const struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+    {
+        return INVALID_THING;
+    }
+    long i = get_mapwho_thing_index(mapblk);
+    long n = 0;
+    return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+}
+
+struct Thing *get_door_for_position_for_trap_placement(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    SYNCDBG(19,"Starting");
+    Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Door;
+    param.model_id = -1;
+    param.plyr_idx = -1;
+    const struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
     {
         return INVALID_THING;

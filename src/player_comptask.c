@@ -49,6 +49,7 @@
 
 #include "dungeon_data.h"
 #include "map_blocks.h"
+#include "map_data.h"
 #include "map_utils.h"
 #include "ariadne_wallhug.h"
 #include "slab_data.h"
@@ -1945,6 +1946,48 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
             }
         }
         ctask->dig.valuable_slabs_tagged = 0;
+    }
+
+    {
+        MapSubtlCoord stl_x = stl_slab_center_subtile(ctask->dig.pos_next.x.stl.num);
+        MapSubtlCoord stl_y = stl_slab_center_subtile(ctask->dig.pos_next.y.stl.num);
+        MapSlabCoord slb_x = subtile_slab(stl_x);
+        MapSlabCoord slb_y = subtile_slab(stl_y);
+        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+
+        if (slb->kind == SlbT_GEMS)
+        {
+            SYNCDBG(7, "Player %d is digging around gems (%d %d)", (int)dungeon->owner, slb_x, slb_y);
+            const char *func_name = "task_dig_to_gold";
+
+            for (int y = -1; y < 2; y++)
+            {
+                for (int x = -1; x < 2; x++)
+                {
+                    if ((x != 0) || (y != 0))
+                    {
+                        stl_x = slab_subtile_center(slb_x + x);
+                        stl_y = slab_subtile_center(slb_y + y);
+                        slb = get_slabmap_block(slb_x + x, slb_y + y);
+
+                        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+                        struct SlabAttr *slbattr = get_slab_attrs(slb);
+                        if ( (slbattr->is_diggable != 0)
+                          || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) == dungeon->owner)) )
+                        {
+                            TbResult res = game_action(dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1);
+                            if (res <= Lb_OK)
+                            {
+                                ERRORLOG("%s: Couldn't do game action - cannot dig around gems (%d %d) %d %d -> %d",
+                                  func_name,
+                                  stl_x, stl_y,
+                                  slb_x + x, slb_y + y, res);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowValuable);
