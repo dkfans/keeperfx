@@ -1,0 +1,354 @@
+REM ****************+****************************
+REM  Hero campaign by Alexsa
+REM  map 1235, level 2 - Sparkleforest
+REM  Script for the map
+REM  Version 1.00
+REM ********************************************
+REM Fairy and archer realm. Monks at Abbeystone seem to have run into problems too.
+REM Your enemies here are good ol' orcs and trolls en masse. The goal is to kill all the Bile Demons despoiling this land.
+REM The attack strength rapidly ramps up; capturing training rooms reduces level, capturing lairs reduces amount.
+REM If you don't act, expect hordes of level 10 orcs and trolls.
+REM Each color is separate.
+REM Rules: 10 points of Barracks are required to launch a party at all.
+REM Large Lairs and Training and Workshop support the small attack parties.
+REM Destroying all Lairs, Training and Workshop, or destroying the Barracks, will stop the attacks from a player.
+REM ********************************************
+REM Update 1.00, august 2018: lowered difficulty. The most powerful monster attacks are delayed further.
+REM Note: someone better proofread my texts!
+REM ********************************************
+
+REM Total party count: 
+REM White - 3 basic + 3 workshop + 1 mech, total 20
+REM Yellow - 3 basic + 2 training + 1 elite, total 20
+REM Green - 3 basic +2 workshop  +1 mech, total 20
+REM Blue - 3 basic +2 training +1 elite total 20
+
+LEVEL_VERSION(1)
+
+SET_GENERATE_SPEED(400)
+
+START_MONEY(PLAYER0,10000)
+MAX_CREATURES(PLAYER0,20)
+
+REM Ally heroes and green wall-support
+ALLY_PLAYERS(PLAYER1,PLAYER_GOOD,1)
+ALLY_PLAYERS(PLAYER2,PLAYER_GOOD,1)
+ALLY_PLAYERS(PLAYER3,PLAYER_GOOD,1)
+
+REM SET_CREATURE_MAX_LEVEL(PLAYER0,THIEF,10)
+REM Thiefs, dwarfs, archers and fairies. You can train up knights, but it'll take too much time so stick to Fairies/Archers.
+REM Biles also tend to kill off tanking dwarfs etc; fairies are the saving grace cause they're immune to gas.
+REM ...you know something is wrong when dwarfs are tanking, don't you?
+REM Overall... your creatures are CRAP, and killing Reapers guarding the barracks is legitimately difficult task. It's also nigh impossible to defeat 80ish attackers if you let it get that bad.
+ADD_CREATURE_TO_POOL(THIEF,10)
+ADD_CREATURE_TO_POOL(DWARFA,20)
+ADD_CREATURE_TO_POOL(ARCHER,10)
+ADD_CREATURE_TO_POOL(FAIRY,10)
+ADD_CREATURE_TO_POOL(BARBARIAN,5)
+CREATURE_AVAILABLE(ALL_PLAYERS,THIEF,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DWARFA,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ARCHER,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,FAIRY,1,0)
+REM Room permissions: treasure/lair/hatchery/training/bridge/workshop, and a lotofgold.
+REM No researching rooms here; you don't get any fancy creatures anyway and Barracks can be captured.
+    ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+    ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,1,0)
+
+REM Most magic powers available. Note that you can conceal the imps and claim the ground because there are no warlocks etc. to spot them; just don't claim all guard posts at once during attack.
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,0,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HOLD_AUDIENCE,1,0)
+REM Alarm, gas, lightning, braced and magic door. You can run the magic door economy if necessary.
+TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
+
+REM Parties are simple and really small this time. Most target your troops, other rooms, the strongest orcs target heart.
+REM Hint: Blue and Yellow are priority targets, since they provide orc attacks. White/Green trolls are just plentiful, and Green barracks are highly vulnerable.
+REM White can't be accessed without bridge, or destroying rooms via CTA.
+CREATE_PARTY(WAVE_ONE)
+CREATE_PARTY(WAVE_TWO)
+CREATE_PARTY(WAVE_THREE)
+CREATE_PARTY(WAVE_TRAINING)
+CREATE_PARTY(WAVE_WORKSHOP)
+CREATE_PARTY(WAVE_ELITE)
+CREATE_PARTY(WAVE_MECHANIC)
+
+ADD_TO_PARTY(WAVE_ONE,FLY,5,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_ONE,FLY,5,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_TWO,BUG,4,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_TWO,BUG,4,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_TWO,BUG,7,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_THREE,BILE_DEMON,4,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_THREE,BILE_DEMON,4,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_THREE,BILE_DEMON,4,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_TRAINING,ORC,4,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_TRAINING,ORC,4,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_TRAINING,ORC,4,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_WORKSHOP,TROLL,4,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_WORKSHOP,TROLL,4,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_WORKSHOP,TROLL,4,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_ELITE,ORC,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_ELITE,ORC,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_ELITE,FLY,6,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_ELITE,FLY,6,0,ATTACK_DUNGEON_HEART,200)
+
+REM Bugs are support freezers; rebound 'em all.
+ADD_TO_PARTY(WAVE_MECHANIC,TROLL,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_MECHANIC,TROLL,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_MECHANIC,BUG,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_MECHANIC,BUG,7,0,ATTACK_DUNGEON_HEART,200)
+
+REM ACtion points:
+REM 1, 2, 3, 4 - barracks
+REM Hero gates:
+REM None on the map.
+REM Start the primary timer.
+
+REM Startup
+    SET_TIMER(PLAYER0,TIMER0)
+    QUICK_OBJECTIVE(1,"The orcs and trolls are plundering the beautiful forest of fairies and elves, located above this underground riverstream. With the aid of your subjects from Dwarfton, you are to drive out all and every evil creature from their own dungeons. They mostly gather at four barracks, but every other room under their control is a home to monsters.", PLAYER0)
+
+REM Inital flag setup
+IF(PLAYER0,TIMER0 >= 200)
+REM Flags:
+REM PLAYER_GOOD
+    SET_TIMER(PLAYER1,TIMER1)
+    SET_TIMER(PLAYER2,TIMER1)
+    SET_TIMER(PLAYER3,TIMER1)
+    SET_TIMER(PLAYER_GOOD,TIMER1)
+	QUICK_INFORMATION(2,"Make haste, my liege: the longer you let the vile monsters breed, the harder it will be to overcome their numbers.", PLAYER0)
+ENDIF
+
+REM Start weak attacks and add a tunneller to breach the turtling player (who doesn't make use of really plentiful gold, that is).
+IF(PLAYER0,TIMER0 >= 6000)
+    QUICK_INFORMATION(3,"It seems the first monsters are already headed towards your dungeon, my liege - mostly overgrown vermin which breeds within piles of scrap, but your presence will surely be noticed by the sounds of combat.", PLAYER0)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TWO,5,1)
+    ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,5,1,2,500)
+ENDIF
+
+REM Start medium attacks on third payday.
+IF(PLAYER0,TIMER0 >= 31000)
+    QUICK_INFORMATION(4,"While monsters still continue plundering the surface lands, your presence seems to have caught the attention of their leaders. Prepare for their counterattack.", PLAYER0)
+	SET_FLAG(PLAYER_GOOD,FLAG1,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TRAINING,5,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WORKSHOP,5,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,5,1,4,500)
+	SET_TIMER(PLAYER1,TIMER2)
+	SET_TIMER(PLAYER2,TIMER2)
+	SET_TIMER(PLAYER3,TIMER2)
+	SET_TIMER(PLAYER_GOOD,TIMER2)
+ENDIF
+
+REM Start strong attacks on sixth payday. You should've get all lv 10 by this point, shouldn't you?
+IF(PLAYER0,TIMER0 >= 61000)
+    QUICK_INFORMATION(5,"The rallying cries of orcs and trolls can be heard all across the underground river. They are preparing for an all-out onslaught!", PLAYER0)
+	SET_FLAG(PLAYER_GOOD,FLAG1,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_MECHANIC,5,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ELITE,5,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,5,1,6,500)
+	SET_TIMER(PLAYER1,TIMER3)
+	SET_TIMER(PLAYER2,TIMER3)
+	SET_TIMER(PLAYER3,TIMER3)
+	SET_TIMER(PLAYER_GOOD,TIMER3)
+ENDIF
+
+IF(PLAYER1, BARRACKS >= 10)
+	IF(PLAYER1,TIMER1 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER1,TIMER1)
+		IF(PLAYER1,LAIR >= 25)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ONE,1,1)
+		ENDIF
+	ENDIF
+	IF(PLAYER1,TIMER2 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER1,TIMER2)
+		IF(PLAYER1,LAIR >= 15)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TWO,1,1)
+		ENDIF
+		IF(PLAYER1,TRAINING >= 8)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TRAINING,1,1)
+		ENDIF
+	ENDIF
+	IF(PLAYER1,TIMER3 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER1,TIMER3)
+		IF(PLAYER1,LAIR >= 8)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_THREE,1,1)
+		ENDIF
+		IF(PLAYER1,TRAINING >= 15)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TRAINING,1,1)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ELITE,1,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER3, BARRACKS >= 10)
+	IF(PLAYER3,TIMER1 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER3,TIMER1)
+		IF(PLAYER3,LAIR >= 25)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ONE,3,1)
+		ENDIF
+	ENDIF
+	IF(PLAYER3,TIMER2 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER3,TIMER2)
+		IF(PLAYER3,LAIR >= 15)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TWO,3,1)
+		ENDIF
+		IF(PLAYER3,TRAINING >= 8)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TRAINING,3,1)
+		ENDIF
+	ENDIF
+	IF(PLAYER3,TIMER3 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER3,TIMER3)
+		IF(PLAYER3,LAIR >= 8)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_THREE,3,1)
+		ENDIF
+		IF(PLAYER3,TRAINING >= 15)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TRAINING,3,1)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ELITE,3,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+
+IF(PLAYER2, BARRACKS >= 10)
+	IF(PLAYER2,TIMER1 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER2,TIMER1)
+		IF(PLAYER2,LAIR >= 25)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ONE,2,1)
+		ENDIF
+	ENDIF
+	IF(PLAYER2,TIMER2 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER2,TIMER2)
+		IF(PLAYER2,LAIR >= 15)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TWO,2,1)
+		ENDIF
+		IF(PLAYER2,WORKSHOP >= 8)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WORKSHOP,2,1)
+		ENDIF
+	ENDIF
+	IF(PLAYER2,TIMER3 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER2,TIMER3)
+		IF(PLAYER2,LAIR >= 8)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_THREE,2,1)
+		ENDIF
+		IF(PLAYER2,WORKSHOP >= 15)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WORKSHOP,2,1)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_MECHANIC,2,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+
+IF(PLAYER_GOOD, BARRACKS >= 10)
+	IF(PLAYER_GOOD,TIMER1 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER_GOOD,TIMER1)
+		IF(PLAYER_GOOD,LAIR >= 25)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ONE,4,1)
+		ENDIF
+	ENDIF
+	IF(PLAYER_GOOD,TIMER2 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER_GOOD,TIMER2)
+		IF(PLAYER_GOOD,LAIR >= 15)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TWO,4,1)
+		ENDIF
+		IF(PLAYER_GOOD,WORKSHOP >= 8)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WORKSHOP,4,1)
+		ENDIF
+	ENDIF
+	IF(PLAYER_GOOD,TIMER3 >= 10000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER_GOOD,TIMER3)
+		IF(PLAYER_GOOD,LAIR >= 8)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_THREE,4,1)
+		ENDIF
+		IF(PLAYER_GOOD,WORKSHOP >= 15)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WORKSHOP,4,1)
+			NEXT_COMMAND_REUSABLE
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_MECHANIC,4,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+REM Capture of entrances expands the max creatures count.
+
+IF(PLAYER0,ENTRANCE >= 10)
+    MAX_CREATURES(PLAYER0,25)
+ENDIF
+IF(PLAYER0,ENTRANCE >= 20)
+    MAX_CREATURES(PLAYER0,30)
+	QUICK_INFORMATION(8,"Hearing of your victory at Dwarfton, several barbarians from eastern Widerwilds have arrived to this underground. They have lost their families to raiders from Sparkleforest and thirst for revenge against the orcs.", PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,BARBARIAN,PLAYER0,2,4,0)
+	CREATURE_AVAILABLE(ALL_PLAYERS,BARBARIAN,1,0)
+ENDIF
+
+IF(PLAYER0,BRIDGE >= 1)
+    QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+    NEXT_COMMAND_REUSABLE
+    ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
+ENDIF
+
+IF(PLAYER0,BRIDGE < 1)
+	NEXT_COMMAND_REUSABLE
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+ENDIF
+REM Should insert some mention of monks
+
+REM Win when all hostile creatures are dead
+    IF(PLAYER_GOOD,TOTAL_CREATURES <= 0)
+            QUICK_OBJECTIVE(16,"All of the monsters are dead, and the people of Sparkleforest are now safe. But it is now time to head towards besieged Abbeystone, where the evil keeper seeks to quash one of the last few bastions of virtue in Dominus.", PLAYER0)
+            WIN_GAME
+    ENDIF

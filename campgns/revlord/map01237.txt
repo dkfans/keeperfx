@@ -1,0 +1,317 @@
+REM ****************+****************************
+REM  Hero campaign by Alexsa
+REM  map 1237, level 4 - Widerwilds
+REM  Script for the map
+REM  Version 1.00
+REM ********************************************
+REM Update 1.00, august 2018: lowered difficulty. 
+REM AI gets fewer gold, but still has a prebuilt dungeon.
+REM AI only has max 24 creatures as opposed to old 30, but gets 2 extra Archers when you get a Samurai.
+REM Also, reduced non-dwarfs/barbs/giants to 8.
+REM Tentacle respawn is disabled. Note: AI is allowed to build library once it captures temple.
+REM Note: someone better proofread my texts!
+REM Reduced AI-side hero parties spawn, some appear at treasury and not over at green side.
+REM ********************************************
+LEVEL_VERSION(1)
+
+SET_GENERATE_SPEED(400)
+
+REM AI keeper gets WAY more creatures than you do, but those are all filthy barbarians you can kill easily. Prebuilt dungeon and gems are more concerning; you'll probably have to wall for safety.
+REM Using Coldamned secret level transfer won't help much, since there's a lot of tentalces and barbs get trained really fast.
+START_MONEY(PLAYER0,12000)
+START_MONEY(PLAYER2,8000)
+MAX_CREATURES(PLAYER0,18)
+MAX_CREATURES(PLAYER2,25)
+
+REM The AI will try attacking you. Maybe. If you don't wall in.
+COMPUTER_PLAYER(PLAYER2,0)
+
+REM Creature diversity got seriously expanded... now you have nearly full lineup. Wizards/witches are still shy though, so Fairies are still the fashion.
+ADD_CREATURE_TO_POOL(THIEF,8)
+ADD_CREATURE_TO_POOL(DWARFA,20)
+ADD_CREATURE_TO_POOL(ARCHER,8)
+ADD_CREATURE_TO_POOL(FAIRY,8)
+ADD_CREATURE_TO_POOL(MONK,8)
+ADD_CREATURE_TO_POOL(SAMURAI,8)
+ADD_CREATURE_TO_POOL(BARBARIAN,20)
+ADD_CREATURE_TO_POOL(GIANT,20)
+REM Some odd Orcs for AI to use. Foreshadows the plot twist
+ADD_CREATURE_TO_POOL(ORC,2)
+CREATURE_AVAILABLE(ALL_PLAYERS,THIEF,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DWARFA,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ARCHER,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,FAIRY,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,MONK,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,SAMURAI,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,BARBARIAN,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,GIANT,1,0)
+CREATURE_AVAILABLE(PLAYER2,ORC,1,0)
+REM ROOMS: AI can build barracks, you cannot. If the AI gets torture chamber and 2nd portal, he'll start drawing upon samurai.
+    ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+    ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
+    ROOM_AVAILABLE(PLAYER2,BARRACKS,1,1)
+    ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
+    ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
+    ROOM_AVAILABLE(PLAYER0,TEMPLE,1,0)
+
+REM The AI has no access to library, but gets more creatures and (largely) endless gold to train them. Expect archers/barbs/giants to be plentiful.
+REM It'd be worse if he loses troops and replaces them with orcs.
+    MAGIC_AVAILABLE(PLAYER0,POWER_SLAP,0,0)
+    MAGIC_AVAILABLE(PLAYER2,POWER_SLAP,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+    MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HOLD_AUDIENCE,1,0)
+REM Alarm, gas, lightning, braced and magic door. Nice economy here.
+TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
+
+REM Since it's vs_keeper map, attacking parties arrive rarely but are fairly strong.
+CREATE_PARTY(WAVE_BALANCED)
+CREATE_PARTY(WAVE_FIGHTERS)
+CREATE_PARTY(WAVE_MAGICAL)
+CREATE_PARTY(WAVE_CORRUPT)
+CREATE_PARTY(WAVE_FINAL)
+
+ADD_TO_PARTY(WAVE_BALANCED,HELL_HOUND,3,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_BALANCED,SORCEROR,3,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_BALANCED,ORC,3,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_BALANCED,TROLL,3,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_BALANCED,DARK_MISTRESS,3,200,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_FIGHTERS,TROLL,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_FIGHTERS,TROLL,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_FIGHTERS,ORC,6,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_FIGHTERS,ORC,6,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_FIGHTERS,ORC,6,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_MAGICAL,SORCEROR,7,0,STEAL_GOLD,200)
+ADD_TO_PARTY(WAVE_MAGICAL,SORCEROR,7,0,STEAL_GOLD,200)
+ADD_TO_PARTY(WAVE_MAGICAL,DARK_MISTRESS,6,0,STEAL_GOLD,200)
+ADD_TO_PARTY(WAVE_MAGICAL,DARK_MISTRESS,6,0,STEAL_GOLD,200)
+ADD_TO_PARTY(WAVE_MAGICAL,DARK_MISTRESS,6,0,STEAL_GOLD,200)
+
+ADD_TO_PARTY(WAVE_CORRUPT,BARBARIAN,8,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_CORRUPT,GIANT,10,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_CORRUPT,TROLL,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_CORRUPT,TROLL,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_CORRUPT,DARK_MISTRESS,6,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_CORRUPT,ORC,6,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_CORRUPT,ORC,6,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_FINAL,DARK_MISTRESS,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_FINAL,DARK_MISTRESS,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_FINAL,DARK_MISTRESS,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_FINAL,DARK_MISTRESS,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_FINAL,DARK_MISTRESS,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_FINAL,DARK_MISTRESS,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_FINAL,HORNY,8,0,ATTACK_DUNGEON_HEART,200)
+
+REM Tougher Horny since he's kinda boss here
+SET_CREATURE_HEALTH(HORNY, 3000)
+SET_CREATURE_ARMOUR(HORNY, 150)
+REM ACtion points:
+REM 1 is tentacle temple
+REM 2 triggers AI harrassment
+REM 3 spawns AI harrassment
+REM 4 is library party
+REM 5 is training party
+REM 6 is treasury spawn
+REM Hero gates:
+REM 1 at hero heart
+REM 2 at north-eastern portal.
+REM When you defeat your opponent, a Horned Reaper attack with extreme prejudice and 3 fighter groups extra; 1 arrives at heart chamber and 2 northern portal.
+REM If you haven't yet destroyed hero heart, you've got easier time since the reaper's locked in... 
+REM though it's probably safe to admit 20 lv 10 hellhounds guarding Multiply box are slightly dangerous. Do try to guardpost off the lava river.
+
+REM Startup
+    SET_TIMER(PLAYER0,TIMER0)
+    QUICK_OBJECTIVE(1,"Here in the Widerwilds, a local chieftain rules the land with an iron fist. Upon your arrival, he has challenged you for supremacy, despite the monsters running wild in this land. Build up your army and prove your strength to this filthy barbarian.", PLAYER0)
+
+REM Inital samurai messages
+IF(PLAYER0,TIMER0 >= 500)
+	QUICK_INFORMATION(7,"You have received a message from the clan of samurai, neutral to your cause. They are willing to join your forces if you can win your contest with barbarian chieftain, be it through battle or by trickery and sleight of hand.", PLAYER0)
+ENDIF
+IF(PLAYER0,TIMER0 >= 5000)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,SAMURAI,PLAYER0,1,3,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER2,ARCHER,PLAYER2,2,4,0)
+	QUICK_INFORMATION(2,"One of Samurai has joined your cause. His clan is looking for their bretheren, imprisoned by the evil monsters in the region. It's possible they might join the barbarian clans if you do not find them first.", PLAYER0)
+ENDIF
+
+REM On second payday, add imp+party attack if treasury isn't yet captured, and start southern monster harrassment.
+REM Using Transferred creature, it's possible to avert the attack.
+IF(PLAYER0,TIMER0 >= 20000)
+	IF(PLAYER_GOOD,TREASURE >= 10)
+		ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,6,2,5,500)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_BALANCED,6,1)
+	ENDIF
+	SET_TIMER(PLAYER0,TIMER1)
+ENDIF
+
+REM Starting northern AI harrassment. Player can trigger it, too.
+IF_ACTION_POINT(2,PLAYER2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_BALANCED,3,1)
+	SET_TIMER(PLAYER0,TIMER2)
+ENDIF
+IF_ACTION_POINT(2,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_BALANCED,3,1)
+	SET_TIMER(PLAYER0,TIMER2)
+ENDIF
+
+IF(PLAYER0,TIMER1 >= 10000)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER1)
+	IF(PLAYER_GOOD, RESEARCH >= 9)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_MAGICAL,4,1)
+	ENDIF
+	IF(PLAYER_GOOD, TRAINING >= 9)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FIGHTERS,5,1)
+	ENDIF
+	IF(PLAYER_GOOD, TREASURE >= 9)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_BALANCED,6,1)
+	ENDIF
+ENDIF
+
+IF(PLAYER0,TIMER2 >= 10000)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER2)
+	IF(PLAYER_GOOD, LAIR >= 20)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_BALANCED,3,1)
+	ENDIF
+	IF(PLAYER_GOOD, HORNY >= 1)
+		SET_TIMER(PLAYER0,TIMER3)
+	ENDIF
+ENDIF
+
+IF(PLAYER0,TIMER3 >= 5000)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER3)
+REM The imps are here to breach your walls if AI keeper was stupid enough to get himself killed. In this case, you'll face quite a LOT of troops (whoever survived the attack).
+	IF(PLAYER_GOOD, HORNY >= 1)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,3,1)
+		NEXT_COMMAND_REUSABLE
+		ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,3,1,5,500)
+	ENDIF
+	IF(PLAYER_GOOD, TOTAL_CREATURES <= 30)
+		ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BILE_DEMON,-1,2,10,0)
+	ENDIF
+ENDIF
+
+REM Punish walling in with gems by adding attacking parties through portals, to the point when Corrupt harrasment is started despite keeper still being alive. And kills it obviously.
+IF(PLAYER0,TOTAL_GOLD_MINED >= 50000)
+	QUICK_INFORMATION(5,"Grave news, my liege! Some crazed barbarians have allied with the monsters and are sowing chaos across the land.", PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,-1,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,6,1)
+ENDIF
+IF(PLAYER0,TOTAL_GOLD_MINED >= 65000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,-1,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,6,1)
+ENDIF
+IF(PLAYER0,TOTAL_GOLD_MINED >= 85000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,-1,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,-2,1)
+	SET_TIMER(PLAYER0,TIMER3)
+ENDIF
+
+REM Capture of second and third entrances expands the max creatures count. Its loss lowers it.
+
+IF(PLAYER0,ENTRANCE <= 9)
+	NEXT_COMMAND_REUSABLE
+	MAX_CREATURES(PLAYER0,18)
+ENDIF
+IF(PLAYER0,ENTRANCE >= 10)
+	NEXT_COMMAND_REUSABLE
+	MAX_CREATURES(PLAYER0,22)
+	IF(PLAYER0,ENTRANCE >= 20)
+		NEXT_COMMAND_REUSABLE
+		MAX_CREATURES(PLAYER0,26)
+		IF(PLAYER0,ENTRANCE >= 30)
+			NEXT_COMMAND_REUSABLE
+			MAX_CREATURES(PLAYER0,30)
+		ENDIF
+	ENDIF
+ENDIF
+
+REM Yes, AI also gets more creatures - and nearly twice more than you do at that, since you've got free fairies/monks to draw from.
+REM Given a chance, it'll suck up all barbs/giants/samurai. And yes, you can end up at 1:3 disadvantage if you wall yourself in the wrong way.
+
+IF(PLAYER2,ENTRANCE <= 9)
+	NEXT_COMMAND_REUSABLE
+	MAX_CREATURES(PLAYER2,25)
+ENDIF
+IF(PLAYER2,ENTRANCE >= 10)
+	NEXT_COMMAND_REUSABLE
+	MAX_CREATURES(PLAYER2,32)
+	IF(PLAYER0,ENTRANCE >= 20)
+		NEXT_COMMAND_REUSABLE
+		MAX_CREATURES(PLAYER2,40)
+	ENDIF
+ENDIF
+
+
+IF(PLAYER2,TEMPLE >= 1)
+    ROOM_AVAILABLE(PLAYER2,RESEARCH,1,1)
+    ROOM_AVAILABLE(PLAYER2,TEMPLE,1,1)
+ENDIF
+
+IF(PLAYER0,BRIDGE >= 1)
+    QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+    NEXT_COMMAND_REUSABLE
+    ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
+ENDIF
+
+IF(PLAYER0,BRIDGE < 1)
+	NEXT_COMMAND_REUSABLE
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+ENDIF
+
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
+            QUICK_OBJECTIVE(19,"Well done, my liege! You have utterly destroyed the fortress of an evil keeper. You're now free to finish your contest against the barbarian chieftain.", PLAYER0)
+ENDIF
+
+REM If the keeper's Dungeon heart is destroyed, start Horny sequence. If you destroyed white and secured gems first, well, now reap the whirlwind!
+IF(PLAYER2,DUNGEON_DESTROYED >= 1)
+	QUICK_OBJECTIVE(16,"Congratulations, my liege! You have defeated the barbarian chieftain fair and square.", PLAYER0)
+	SET_TIMER(PLAYER1,TIMER6)
+ENDIF
+IF(PLAYER1,TIMER6 >= 200)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FINAL,-1,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,-1,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,-2,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FIGHTERS,-2,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_MAGICAL,-2,1)
+	IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
+		QUICK_OBJECTIVE(17,"Treachery! The barbarian who challenged you has turned out to have been a demon all along! Put him and his remaining minions down, quickly!", PLAYER0)
+	ENDIF
+	IF(PLAYER_GOOD,DUNGEON_DESTROYED == 0)
+		QUICK_OBJECTIVE(18,"Treachery! The barbarian who challenged you has turned out to have been a demon all along! You now must breach into his fortress and destroy both the dungeon heart and the monster himself.", PLAYER0)
+	ENDIF
+ENDIF
+
+IF(PLAYER1,TIMER6 >= 400)
+	IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
+		IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+			QUICK_OBJECTIVE(20,"It's done at last. Widerwilds are safe from depredations of its vile demon overlord. Now it's time to take revenge for siege upon Dwarfston and Abbeystone and stake some vampires in the Misty Bog.", PLAYER0)
+			WIN_GAME
+		ENDIF
+	ENDIF
+ENDIF

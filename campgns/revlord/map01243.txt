@@ -1,0 +1,191 @@
+REM ********************************************
+REM  Hero campaign by Alexsa
+REM  Secret Map 2 - 1243, Thiefhaven.
+REM  Script for the map
+REM  Version 0.00
+REM ********************************************
+REM No room construction; Thiefs are limited by level 10.
+REM The goal is to 1) stealthily reach the Dungeon Heart before Demon Spawn attacks get unbearable, and/or timer runs out and 2) kill Horny with all patrols who'll come.
+REM ********************************************
+REM Update 1.00, august 2018: lowered difficulty. 
+REM Weaker final Demonspawn waves, 
+REM Stronger thief attack
+REM More time for heart destroying
+REM Slower demonspawn attacks (was too often)
+REM Two extra archers spawned for final
+REM ********************************************
+REM LEVEL_VERSION(1)
+
+SET_GENERATE_SPEED(1000)
+
+START_MONEY(PLAYER0,5000)
+MAX_CREATURES(PLAYER0,8)
+
+SET_CREATURE_MAX_LEVEL(PLAYER0,THIEF,10)
+REM Just thiefs.
+ADD_CREATURE_TO_POOL(THIEF,8)
+CREATURE_AVAILABLE(ALL_PLAYERS,THIEF,1,1)
+
+REM Room permissions: Nothing can be built.
+
+REM Only possession, not even summoning imps. So take care of your five pretties.
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,0,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+
+REM Soften Horny so that he isn't all that scary. You'll still have to kill quite a few attacking orcs and trolls first!
+SET_CREATURE_STRENGTH(HORNY, 70)
+SET_CREATURE_HEALTH(HORNY, 1500)
+SET_CREATURE_ARMOUR(HORNY, 10)
+REM Beef up Thiefs attack strength. That way, the map's easier a little.
+SET_CREATURE_STRENGTH(THIEF, 50)
+
+REM Enemy arrives through two action points: at portal and at barracks.
+REM When you destroy the Hero Heart, you must kill the all remaining creatures including the Horned Reaper. 
+REM The attackers are one vampire, and 20 level 1 trolls with 10 orc commanders, but Horny is your primary target.
+
+REM Patrols are comprised of 2 lv 1 trolls and 1 lv 4 orc. They exist to open doors in the labyrinthine part of map, and punish not using Invis by damaging thief.
+CREATE_PARTY(WAVE_PATROL)
+REM Scout is 1 lv 10 Fly; it's sent with every wave of attackers as a kind of warning.
+CREATE_PARTY(WAVE_SCOUT)
+REM Attack waves are 3 DEMONSPAWNs each, with attack_rooms behaviour; they add up and in the end you're attacked by ten or so mobs. Level 10 thiefs kills them.
+CREATE_PARTY(WAVE_FIRST)
+CREATE_PARTY(WAVE_SECOND)
+CREATE_PARTY(WAVE_THIRD)
+CREATE_PARTY(WAVE_FOURTH)
+CREATE_PARTY(WAVE_FIFTH)
+
+ADD_TO_PARTY(WAVE_PATROL,TROLL,1,0,DEFEND_PARTY,200)
+ADD_TO_PARTY(WAVE_PATROL,TROLL,1,0,DEFEND_PARTY,200)
+ADD_TO_PARTY(WAVE_PATROL,ORC,1,0,DEFEND_PARTY,200)
+
+ADD_TO_PARTY(WAVE_SCOUT,FLY,10,0,ATTACK_DUNGEON_HEART,200)
+
+ADD_TO_PARTY(WAVE_FIRST,DEMONSPAWN,1,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_FIRST,DEMONSPAWN,1,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_FIRST,DEMONSPAWN,1,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_SECOND,DEMONSPAWN,1,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_SECOND,DEMONSPAWN,1,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_SECOND,DEMONSPAWN,2,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_THIRD,DEMONSPAWN,1,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_THIRD,DEMONSPAWN,2,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_THIRD,DEMONSPAWN,3,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_FOURTH,DEMONSPAWN,2,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_FOURTH,DEMONSPAWN,3,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_FOURTH,DEMONSPAWN,4,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_FIFTH,DEMONSPAWN,3,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_FIFTH,DEMONSPAWN,4,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_FIFTH,DEMONSPAWN,5,0,ATTACK_ROOMS,200)
+
+REM Start the primary timer.
+SET_TIMER(PLAYER0,TIMER0)
+BONUS_LEVEL_TIME(22000)
+SET_TIMER(PLAYER0,TIMER1)
+QUICK_OBJECTIVE(1,"A fearsome Horned Reaper commands the forces of evil in this land, hidden beyond labyrinthine maze of traps and many bodyguards. Find a way into his fortress using your Thiefs and kill the demon.",PLAYER0)
+
+IF(PLAYER0,TIMER0>=22000)
+	IF(PLAYER_GOOD,DUNGEON_DESTROYED==0)
+	QUICK_OBJECTIVE(9,"The forces of evil have grown immensely strong. It is no longer possible to prevail.",PLAYER0)
+		LOSE_GAME
+	ENDIF
+ENDIF
+
+REM Add orcs to barracks and lair if some die to boulders; they'll be walking around and opening doors.
+IF(PLAYER_GOOD,DUNGEON_DESTROYED <= 0)
+	IF(PLAYER_GOOD,ORC<=10)
+	NEXT_COMMAND_REUSABLE
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_PATROL,1,1)
+	NEXT_COMMAND_REUSABLE
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_PATROL,2,1)
+	ENDIF
+ENDIF
+REM Primary timer is looped.
+IF(PLAYER0,TIMER1>=3000)
+REM Attack increase intensity over time. Eventually, they'll be strong enough to kill your thiefs.
+    NEXT_COMMAND_REUSABLE
+    SET_TIMER(PLAYER0,TIMER1)
+    NEXT_COMMAND_REUSABLE
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SCOUT,3,1)
+	QUICK_INFORMATION(2,"Beware - the first attackers are approaching the Thiefhaven.",PLAYER0)
+    IF(PLAYER0,FLAG1>=7)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FIFTH,3,2)
+        SET_FLAG(PLAYER0,FLAG1,8)
+	QUICK_INFORMATION(3,"The forces of evil are attacking once again.",PLAYER0)
+    ENDIF
+    IF(PLAYER0,FLAG1>=6)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FOURTH,3,2)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FOURTH,3,1)
+        SET_FLAG(PLAYER0,FLAG1,7)
+    ENDIF
+    IF(PLAYER0,FLAG1>=5)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_THIRD,3,2)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_THIRD,3,1)
+        SET_FLAG(PLAYER0,FLAG1,6)
+	QUICK_INFORMATION(4,"More demonspawns departed from their lair.",PLAYER0)
+    ENDIF
+    IF(PLAYER0,FLAG1==4)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SECOND,3,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_THIRD,3,1)
+        SET_FLAG(PLAYER0,FLAG1,5)
+    ENDIF
+    IF(PLAYER0,FLAG1==3)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SECOND,3,2)
+        SET_FLAG(PLAYER0,FLAG1,4)
+	QUICK_INFORMATION(5,"The forces of evil are attacking once again.",PLAYER0)
+    ENDIF
+    IF(PLAYER0,FLAG1==2)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FIRST,3,2)
+        SET_FLAG(PLAYER0,FLAG1,3)
+    ENDIF
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FIRST,3,1)
+    SET_FLAG(PLAYER0,FLAG1,2)
+ENDIF
+
+REM If the dungeon heart is destroyed, add creatures; when unleashed horny has been killed, win.
+IF(PLAYER_GOOD,DUNGEON_DESTROYED>=1)
+        ADD_CREATURE_TO_LEVEL(PLAYER0,THIEF,-1,6,10,500)
+        ADD_CREATURE_TO_LEVEL(PLAYER0,ARCHER,-1,2,8,500)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_PATROL,3,2)
+        SET_FLAG(PLAYER0,FLAG2,1)
+	QUICK_OBJECTIVE(6,"The fortress of the Horned Reaper is demolished with its heart shattered. Brace yourself, for the demon is really angry with your defiance and his minions will soon attack.",PLAYER0)
+REM Action points 4 and 5 for post-victory Avatar shtick (which doesn't work, btw; I'll probably put a lv 10 dragon nearby instead, it's more plausible than vamp).
+REM 4 at Steal Hero box, 5 at Destroy Walls, 6 and 7 are spellbooks
+REM You have 30 heroes total, who all demand some salary, and several other including 1 knight hiding far in the secret region with other heroes.
+REM Without exploring, thief/dwarf/barb/giant/archer/wizard is all you get.
+    IF(PLAYER_GOOD,HORNY<=0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DARK_MISTRESS,5,2,10,0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HELL_HOUND,5,3,10,0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,VAMPIRE,5,3,10,0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DARK_MISTRESS,4,3,10,0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HELL_HOUND,4,4,10,0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,VAMPIRE,4,4,10,0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HELL_HOUND,6,6,10,0)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HELL_HOUND,7,8,10,0)
+	MAX_CREATURES(PLAYER0,30)
+	ADD_CREATURE_TO_POOL(DWARFA,5)
+	ADD_CREATURE_TO_POOL(ARCHER,5)
+	ADD_CREATURE_TO_POOL(GIANT,5)
+	ADD_CREATURE_TO_POOL(BARBARIAN,5)
+	ADD_CREATURE_TO_POOL(WIZARD,5)
+	CREATURE_AVAILABLE(ALL_PLAYERS,FAIRY,1,1)
+	CREATURE_AVAILABLE(ALL_PLAYERS,GIANT,1,1)
+	CREATURE_AVAILABLE(ALL_PLAYERS,WIZARD,1,1)
+	CREATURE_AVAILABLE(ALL_PLAYERS,DWARFA,1,1)
+	CREATURE_AVAILABLE(ALL_PLAYERS,BARBARIAN,1,1)
+	DOOR_AVAILABLE(PLAYER0,WOOD,1,0)
+	MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,1)
+	SET_TIMER(PLAYER0,TIMER2)
+	QUICK_OBJECTIVE(15,"The Horned Reaper is dead, and you now can enlist any hero to accompany you into the next realm. But be wary - this land isn't safe even now.",PLAYER0)
+    ENDIF
+ENDIF
+
+IF(PLAYER0,TIMER2>200)
+            WIN_GAME
+ENDIF

@@ -1,0 +1,433 @@
+REM ********************************************
+REM  Hero campaign by Alexsa
+REM  Map 1234, level 1 - Dwarfton
+REM  Script for the map
+REM  Version 1.00
+REM ********************************************
+REM A trap defense map. Boulders are your friend, for the attacks shape up to use Hornies and such.
+REM Thiefs are not limited by level 10... but frankly? You don't have the luxury, you need dwarves in workshop.
+REM First version of the map was running into things limit of all things, and constantly.
+REM Second version was stuck because ALLY_PLAYERS was written wrong way and once again suffered from things limit.
+REM This version is third.
+REM ********************************************
+REM Update 1.00, august 2018: lowered difficulty. That's first level after all.
+REM Most of preset monsters guarding posts are lower-level, and removed a few.
+REM Playthrough exhibited no bugs, and it's possible to win without cleaning up all lieutenants.
+REM Note: someone better proofread my texts!
+REM ********************************************
+LEVEL_VERSION(1)
+
+SET_GENERATE_SPEED(400)
+
+START_MONEY(PLAYER0,10000)
+MAX_CREATURES(PLAYER0,20)
+
+REM Thiefs can be converted to Knights here, but the map is fairly fast and you'll need superior Fairy or Dwarf firepower much sooner.
+REM Also, the easiest way to stop some attackers is to use boulders. 
+REM Even late parties are reasonable enough to be killed, but HP loss seriously hampers production, and you are likely to suffer casualties.
+REM Thiefs, dwarfs, monks and fairies.
+ADD_CREATURE_TO_POOL(THIEF,10)
+ADD_CREATURE_TO_POOL(DWARFA,20)
+ADD_CREATURE_TO_POOL(MONK,10)
+ADD_CREATURE_TO_POOL(FAIRY,10)
+CREATURE_AVAILABLE(ALL_PLAYERS,THIEF,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DWARFA,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,MONK,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,FAIRY,1,0)
+REM Room permissions: treasure/lair/hatchery/training/ridge/workshop, and a lotofgold.
+REM Capturing a Library will unlock it, so that you can rebuild it just in case.
+REM If some nasty mob steals your Destroy Walls and drops it to lava, well, re-research it once again!
+    ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,1,1)
+
+REM You don't get the library immediately, but a lot of spells is available.
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,0,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HOLD_AUDIENCE,1,0)
+REM Alarm, gas, boulder, and steel door. Your primary weapon are boulders.
+TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+TRAP_AVAILABLE(PLAYER0,BOULDER,1,0)
+DOOR_AVAILABLE(PLAYER0,STEEL,1,0)
+
+REM You've got boulders and gas. Gas does nothing to skeletons and boulders don't work all that well against Hellhounds you'd like to shut down. Still, capturing the main hallway with skeletons/spiders enables you to use boulders to clear it.
+
+REM Initially, only dozen of 'weak' lv 3 monsters attack. That's quite enough to cause your undertrained dwarves and fairies much grief.
+REM If you stall, stronger waves start coming, including the really powerful Dark Mistresses and Vampires (for all the Mistresses aren't hasted) 
+REM Level 5 hellhounds aren't that weak either.
+REM Toned down the parties - horny don;t exist, and orcs are rarer. First level is first, after all!
+CREATE_PARTY(WAVE_UNDEADONE)
+CREATE_PARTY(WAVE_UNDEADTWO)
+CREATE_PARTY(WAVE_GHOST)
+CREATE_PARTY(WAVE_WEAK_ORCS)
+CREATE_PARTY(WAVE_ORCS)
+CREATE_PARTY(WAVE_SPIDERONE)
+CREATE_PARTY(WAVE_SPIDERTWO)
+CREATE_PARTY(WAVE_HOUNDONE)
+CREATE_PARTY(WAVE_HOUNDTWO)
+CREATE_PARTY(WAVE_WARLOCK)
+CREATE_PARTY(BOSS_HEART)
+CREATE_PARTY(BOSS_SPIDER)
+CREATE_PARTY(BOSS_UNDEAD)
+CREATE_PARTY(BOSS_WARLOCK)
+
+ADD_TO_PARTY(WAVE_SPIDERONE,SPIDER,2,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_SPIDERONE,SPIDER,2,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_SPIDERONE,SPIDER,2,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_SPIDERONE,SPIDER,2,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_SPIDERTWO,DARK_MISTRESS,6,400,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SPIDERTWO,SPIDER,2,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_SPIDERTWO,SPIDER,4,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_UNDEADONE,SKELETON,2,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_UNDEADONE,SKELETON,2,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_UNDEADONE,GHOST,3,0,STEAL_SPELLS,200)
+ADD_TO_PARTY(WAVE_UNDEADONE,GHOST,3,0,STEAL_SPELLS,200)
+
+ADD_TO_PARTY(WAVE_UNDEADTWO,SKELETON,3,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_UNDEADTWO,SKELETON,5,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_UNDEADTWO,VAMPIRE,5,400,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_GHOST,GHOST,6,0,STEAL_SPELLS,200)
+ADD_TO_PARTY(WAVE_GHOST,GHOST,6,0,STEAL_SPELLS,200)
+
+ADD_TO_PARTY(WAVE_HOUNDONE,HELL_HOUND,1,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HOUNDONE,HELL_HOUND,1,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HOUNDONE,HELL_HOUND,1,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HOUNDONE,HELL_HOUND,1,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_HOUNDTWO,HELL_HOUND,3,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HOUNDTWO,HELL_HOUND,3,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HOUNDTWO,HELL_HOUND,5,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_WARLOCK,SORCEROR,5,200,STEAL_SPELLS,200)
+ADD_TO_PARTY(WAVE_WARLOCK,SORCEROR,5,200,STEAL_SPELLS,200)
+
+ADD_TO_PARTY(WAVE_WEAK_ORCS,ORC,5,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_WEAK_ORCS,ORC,5,200,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_WEAK_ORCS,TROLL,4,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_WEAK_ORCS,TROLL,4,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_WEAK_ORCS,TROLL,4,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_WEAK_ORCS,TROLL,4,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_ORCS,TROLL,8,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_ORCS,ORC,8,200,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_ORCS,TROLL,8,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_ORCS,TROLL,8,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_ORCS,TROLL,8,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_ORCS,TROLL,8,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(BOSS_SPIDER,SPIDER,9,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(BOSS_SPIDER,SPIDER,9,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(BOSS_SPIDER,SPIDER,9,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(BOSS_SPIDER,SPIDER,9,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(BOSS_SPIDER,SPIDER,9,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(BOSS_SPIDER,SPIDER,9,0,ATTACK_DUNGEON_HEART,200)
+
+ADD_TO_PARTY(BOSS_WARLOCK,HELL_HOUND,9,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(BOSS_WARLOCK,HELL_HOUND,9,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(BOSS_WARLOCK,HELL_HOUND,9,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(BOSS_WARLOCK,HELL_HOUND,9,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(BOSS_WARLOCK,HELL_HOUND,9,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(BOSS_WARLOCK,HELL_HOUND,9,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(BOSS_UNDEAD,SKELETON,10,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(BOSS_UNDEAD,SKELETON,10,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(BOSS_UNDEAD,SKELETON,10,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(BOSS_UNDEAD,GHOST,10,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(BOSS_UNDEAD,GHOST,10,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(BOSS_UNDEAD,GHOST,10,0,ATTACK_ENEMIES,200)
+
+REM ACtion points:
+REM 1, 3, 4 - all summon heart protectors
+REM 2 - gem harvesting, turns on harrassment orcs/trolls.
+REM 5 - gold seam triggering tunnelling orcs attack; two parties of lv10 orcs/trolls will spoil your life shortly afterwards.
+REM 6 - same deal
+REM 7 - your portal for fairy + mok
+REM Hero gates:
+REM 1 - hellhound spawn
+REM 2 - spider spawn (west wing)
+REM 3 - skeleton spawn (east wing)
+REM 4 - gold seams to the east
+REM 5 - extra orc parties during endgame, who arrive every 5000 to screw you.
+REM Start the primary timer.
+
+REM Startup
+    SET_TIMER(PLAYER0,TIMER0)
+REM The hint about hell hounds attacking you from south is here. I mean seriously, lava does give you a hint.
+    QUICK_OBJECTIVE(1,"An evil keeper has laid siege over the Dwarfton. Lazy and overconfident, he delegated command over lowly creatures like spiders, hell hounds and skeletons to his lieutenants - Dark Mistresses, Warlocks and Vampires. Kill all of the enemy leadership, then find the keeper's heart and destroy it.", PLAYER0)
+
+REM Inital flag setup
+IF(PLAYER0,TIMER0 >= 200)
+REM Flags:
+REM PLAYER_GOOD
+REM Flag0 - kill counter
+REM Flag1 - Mistress
+REM Flag2 - Vampire
+REM Flag2 - Warlock
+REM Flag4 - hero heart under attack, 1 - entrance breached.
+REM FLAG5 - increase kill counter
+REM Add Fairy
+	    QUICK_INFORMATION(2,"You have received an ambassador from fairies of Sparkleforest. They are express interest in studying the knowledge of malicious warlocks to further their prowess against evil.", PLAYER0)
+	    ADD_CREATURE_TO_LEVEL(PLAYER0,FAIRY,7,1,3,0)
+	    SET_FLAG(PLAYER_GOOD,FLAG0,0)
+	    SET_FLAG(PLAYER_GOOD,FLAG1,0)
+	    SET_FLAG(PLAYER_GOOD,FLAG2,0)
+	    SET_FLAG(PLAYER_GOOD,FLAG3,0)
+	    SET_FLAG(PLAYER_GOOD,FLAG4,0)
+	    SET_FLAG(PLAYER_GOOD,FLAG5,0)
+	    SET_FLAG(PLAYER_GOOD,FLAG6,0)
+REM Messages upon killing something; they work correctly.
+	IF_CONTROLS(PLAYER_GOOD,DARK_MISTRESS <= 0)
+	    SET_FLAG(PLAYER_GOOD,FLAG5,1)
+	    SET_FLAG(PLAYER_GOOD,FLAG1,1)
+	    QUICK_INFORMATION(4,"The Dark Mistresses are all killed; their subservient spiders are dispersed and will not bother you any longer.", PLAYER0)
+	ENDIF
+	IF_CONTROLS(PLAYER_GOOD,VAMPIRE <= 0)
+	    SET_FLAG(PLAYER_GOOD,FLAG5,1)
+	    SET_FLAG(PLAYER_GOOD,FLAG2,1)
+	    QUICK_INFORMATION(5,"The Vampires and their undead minions are all annihilated; they will no longer threaten the Dwarfton.", PLAYER0)
+	ENDIF
+	IF_CONTROLS(PLAYER_GOOD,SORCEROR <= 0)
+	    SET_FLAG(PLAYER_GOOD,FLAG5,1)
+	    SET_FLAG(PLAYER_GOOD,FLAG3,1)
+	    QUICK_INFORMATION(6,"The evil Warlocks are executed; their infernal portal is no longer active and Hell Hounds will not attack anymore.", PLAYER0)
+	ENDIF
+ENDIF
+REM Start weak attacks
+IF(PLAYER0,TIMER0 >= 10000)
+    SET_TIMER(PLAYER0,TIMER1)
+    QUICK_INFORMATION(3,"My liege, one of the fleeing monks from besieged Abbeystone has joined your cause. He seeks to restore the toppled temples of Dwarfton, a noble goal the success of which will surely attract more of his surviving brothers.", PLAYER0)
+    ADD_CREATURE_TO_LEVEL(PLAYER0,MONK,7,1,3,0)
+ENDIF
+
+REM Start stronger attacks. Delayed it some more.
+IF(PLAYER0,TIMER0 >= 45000)
+        SET_TIMER(PLAYER0,TIMER2)
+ENDIF
+
+REM Start gem harrassment
+IF_ACTION_POINT(2,PLAYER0)
+        SET_TIMER(PLAYER0,TIMER3)
+ENDIF
+REM Delayed orc invasion, when you go east. Weakened as to not be unstoppable.
+IF_ACTION_POINT(5,PLAYER0)
+        SET_TIMER(PLAYER0,TIMER5)
+ENDIF
+IF_ACTION_POINT(6,PLAYER0)
+        SET_TIMER(PLAYER0,TIMER5)
+ENDIF
+
+REM Increase boss kill count. Works correctly.
+IF(PLAYER_GOOD,FLAG5 >= 1)
+REM All three boss monsters are all dead.
+    IF(PLAYER_GOOD,FLAG0 == 3)
+        SET_FLAG(PLAYER_GOOD,FLAG5,0)
+        SET_FLAG(PLAYER_GOOD,FLAG0,4)
+        QUICK_INFORMATION(7,"My liege, you shouldn't have heard that!", PLAYER0)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG0 == 2)
+        SET_FLAG(PLAYER_GOOD,FLAG5,0)
+        SET_FLAG(PLAYER_GOOD,FLAG0,3)
+        QUICK_INFORMATION(8,"The besieging forces of an evil keeper are broken, and only his personal orcish guards remain. It's time to finish this coward - strike its heart!", PLAYER0)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG0 == 1)
+        SET_FLAG(PLAYER_GOOD,FLAG5,0)
+        SET_FLAG(PLAYER_GOOD,FLAG0,2) 
+        QUICK_INFORMATION(9,"The second lieutenant of the evil keeper is dead. Keep up with good work, my liege!", PLAYER0)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG0 <= 1)
+        SET_FLAG(PLAYER_GOOD,FLAG5,0)
+        SET_FLAG(PLAYER_GOOD,FLAG0,1)
+        QUICK_INFORMATION(10,"The first lieutenant of the evil keeper is dead. This has surely enraged other survivors!", PLAYER0)
+    ENDIF
+ENDIF
+
+REM First timer; runs weak creatures twice per payday; starts halfway throuh payday and first attack comes after first payday.
+REM Works until first lieutenant is down. Extremely annoying since they waste a lot of boulders.
+
+IF(PLAYER0,TIMER1 >= 5000)
+    IF(PLAYER_GOOD,FLAG0 <= 3)
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER0,TIMER1)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG1 == 0)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SPIDERONE,-2,1)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG2 == 0)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_UNDEADONE,-3,1)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG3 == 0)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUNDONE,-1,1)
+    ENDIF
+ENDIF
+
+REM Second timer, runs stonger creatures. Starts on third payday, works until all bosses are down
+REM Fires 4 times per 5 payday
+IF(PLAYER0,TIMER2 >= 10000)
+        QUICK_INFORMATION(17,"My liege, there is mad cackling heard in the distance! Something terrible is about to happen.", PLAYER0)
+    IF(PLAYER_GOOD,FLAG0 <= 3)
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER0,TIMER2)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG1 == 0)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SPIDERTWO,-2,1)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG2 == 0)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_UNDEADTWO,-3,1)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_GHOST,-3,1)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG3 == 0)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUNDTWO,-1,1)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WARLOCK,-1,1)
+    ENDIF
+ENDIF
+
+REM Third timer, for orc harrassment. Triggered by gems, other lieutenants should be dealt with, so it's intense.
+IF(PLAYER0,TIMER3 >= 5000)
+    NEXT_COMMAND_REUSABLE
+    SET_TIMER(PLAYER0,TIMER3)
+    NEXT_COMMAND_REUSABLE
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS,2,1)
+ENDIF
+
+REM Fourth timer, for orc harrassment in the endgame; combat must be closed fast. If some bosses still aren't shot down, more elite parties respawn
+IF(PLAYER0,TIMER4 >= 3000)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER4)
+	IF(PLAYER_GOOD,TOTAL_CREATURES<50)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS,-5,1)
+	IF(PLAYER_GOOD,FLAG1 == 0)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SPIDERTWO,1,1)
+	ENDIF
+	IF(PLAYER_GOOD,FLAG2 == 0)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_UNDEADTWO,-5,1)
+	ENDIF
+	IF(PLAYER_GOOD,FLAG3 == 0)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUNDTWO,1,1)
+	ENDIF
+	ENDIF
+ENDIF
+
+REM Fifth timer, for tunnelling orcs attack one payday after you've went for eastern gold. They're really strong... 
+IF(PLAYER0,TIMER5 >= 15000)
+    QUICK_INFORMATION(18,"My liege, bands of orcs and trolls from Widerwilds have arrived to these lands, lured by promise of wealth! Their vanguard is already here, tunnelling towards our fortress.", PLAYER0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WEAK_ORCS,-4,1)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-4,2,4,0)
+ENDIF
+
+REM Second tunnellers' wave
+IF(PLAYER0,TIMER5 >= 27500)
+    QUICK_INFORMATION(19,"Once again the orcs and trolls from Widerwilds are attacking our fortress. They follow the well-trod roads, a mistake which may see them crushed.", PLAYER0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WEAK_ORCS,-4,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS,-4,1)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-4,2,4,0)
+ENDIF
+
+REM Last tunnellers' wave, arrives with some spare trolls to absorb more boulders.
+IF(PLAYER0,TIMER5 >= 40000)
+    QUICK_INFORMATION(19,"Another band of orcs from Widerwilds arrived to our fortress. It's hopefully the last we've seen of them, for now.", PLAYER0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WEAK_ORCS,-4,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS,-4,2)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-4,2,4,0)
+ENDIF
+
+
+REM First approaching Hero Heart from the north spawns extra orc party, still easier than dealing with eight southern orcs/trolls.
+IF(PLAYER_GOOD,FLAG4 <= 1)
+    IF_ACTION_POINT(1,PLAYER0)
+        SET_FLAG(PLAYER_GOOD,FLAG4,1)
+    ENDIF
+    IF_ACTION_POINT(3,PLAYER0)
+        SET_FLAG(PLAYER_GOOD,FLAG4,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS,1,1)
+    ENDIF
+    IF_ACTION_POINT(4,PLAYER0)
+        SET_FLAG(PLAYER_GOOD,FLAG4,1)
+    ENDIF
+ENDIF
+REM When the Hero Heart is under attack of any kind, the remaining assets are checked. 
+REM If the Destroy Walls was used prematurely, level 10 boss parties are spawned. With frail Fairies/etc, multiple Mistresses/Warlocks/Vampires are bad news
+REM The only party which always spawns are 15 orcs and trolls, on heart, on top of sentries, and to the south.
+REM With well-trained heroes and 4 increase levels, you'll easily beat orcs/trolls. Just... try to do the job before more reinforcements start arriving.
+IF(PLAYER_GOOD,FLAG4 == 1)
+    QUICK_OBJECTIVE(12,"Here it is, the heart of evil Keeper who laid siege to Dwarfton, bared to your eyes. In an effort to stop you, he will surely summon all his surviving minions!", PLAYER0)
+    SET_TIMER(PLAYER0,TIMER4)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS,1,1)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS,-4,1)
+    ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-4,2,4,0)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS,-5,1)
+    IF(PLAYER_GOOD,FLAG1 == 0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,BOSS_SPIDER,1,1)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG2 == 0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,BOSS_UNDEAD,1,1)
+    ENDIF
+    IF(PLAYER_GOOD,FLAG3 == 0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,BOSS_WARLOCK,1,1)
+    ENDIF
+ENDIF
+
+REM The capture of enough library/temple allows to research those rooms, as well as attract fairies/monks who're a great deal better in combat than measly dwarves.
+
+IF(PLAYER0,RESEARCH >= 1)
+    QUICK_INFORMATION(13,"Your discovery of this arcane library will attract more of the Fairies from Sparkleforest. Just ensure nothing chews on the tomes.", PLAYER0)
+    ROOM_AVAILABLE(PLAYER0,RESEARCH,1,0)
+ENDIF
+
+IF(PLAYER0,TEMPLE >= 8)
+    ROOM_AVAILABLE(PLAYER0,TEMPLE,1,0)
+    QUICK_INFORMATION(14,"Those temples took quite a lot of refurbishing, but monks from Abbeystone managed the task with the aid of your dwarves.", PLAYER0)
+ENDIF
+
+REM Capture of entrances expands the max creatures count.
+
+IF(PLAYER0,ENTRANCE >= 10)
+    MAX_CREATURES(PLAYER0,25)
+ENDIF
+IF(PLAYER0,ENTRANCE >= 20)
+    MAX_CREATURES(PLAYER0,30)
+ENDIF
+
+REM If the Dungeon heart is destroyed, win, regardless of everything.
+    IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
+            QUICK_OBJECTIVE(16,"The evil keeper is no more and inhabitants of Dwarfton are now safe, my liege. But your revenge upon the evil has only started - a long way towards Wickedridge lies ahead.", PLAYER0)
+            SET_TIMER(PLAYER0,TIMER6)
+            WIN_GAME
+    ENDIF
+
+IF(PLAYER0,BRIDGE >= 1)
+    QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+    NEXT_COMMAND_REUSABLE
+    ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
+ENDIF
+
+IF(PLAYER0,BRIDGE<1)
+    NEXT_COMMAND_REUSABLE
+    ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+ENDIF

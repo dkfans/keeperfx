@@ -1,0 +1,417 @@
+REM ********************************************
+REM  Hero campaign by Alexsa
+REM  Map 1240, Hellspring
+REM  Script for the map
+REM  Version 0.00
+REM ********************************************
+REM Lava river
+REM No library building allowed, Wizards allowed at 25 library as well as rebuilding damaged room; Scavenger allows Priestesses though.
+REM ********************************************
+REM Update 1.00, august 2018: adjusted difficulty. 
+REM Lowered limit of all creature pools. 
+REM Otherwise, still just as difficult
+REM (because reapers+mistress+dragons are strong)
+REM ********************************************
+LEVEL_VERSION(1)
+
+SET_GENERATE_SPEED(400)
+
+MAX_CREATURES(PLAYER0,24)
+
+START_MONEY(PLAYER0,5000)
+
+REM All creature pools are limited by hand.
+REM In some circumstances that's an advantage.
+ADD_CREATURE_TO_POOL(THIEF,7)
+ADD_CREATURE_TO_POOL(DWARFA,7)
+ADD_CREATURE_TO_POOL(MONK,7)
+ADD_CREATURE_TO_POOL(FAIRY,7)
+ADD_CREATURE_TO_POOL(BARBARIAN,7)
+ADD_CREATURE_TO_POOL(GIANT,7)
+ADD_CREATURE_TO_POOL(ARCHER,7)
+ADD_CREATURE_TO_POOL(WITCH,7)
+ADD_CREATURE_TO_POOL(SAMURAI,7)
+ADD_CREATURE_TO_POOL(WIZARD,7)
+CREATURE_AVAILABLE(PLAYER0,THIEF,1,0)
+CREATURE_AVAILABLE(PLAYER0,DWARFA,1,0)
+CREATURE_AVAILABLE(PLAYER0,ARCHER,1,0)
+CREATURE_AVAILABLE(PLAYER0,FAIRY,1,0)
+CREATURE_AVAILABLE(PLAYER0,BARBARIAN,1,0)
+CREATURE_AVAILABLE(PLAYER0,GIANT,1,0)
+CREATURE_AVAILABLE(PLAYER0,MONK,1,0)
+CREATURE_AVAILABLE(PLAYER0,SAMURAI,1,0)
+CREATURE_AVAILABLE(PLAYER0,WITCH,1,0)
+REM Wizard unavailable from start, needs library captured.
+REM Building Temple/Guard Post/Workshop is not allowed to player, to prevent water abuse.
+    ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+REM    ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+REM    ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
+REM    ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
+    ROOM_AVAILABLE(ALL_PLAYERS,BARRACKS,1,0)
+    ROOM_AVAILABLE(ALL_PLAYERS,SCAVENGER,1,0)
+
+REM Spells are to be captured here, not researched. No Destroy Walls.
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,0,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+    MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
+    MAGIC_AVAILABLE(PLAYER0,POWER_SIGHT,1,0)
+    MAGIC_AVAILABLE(PLAYER0,POWER_HOLD_AUDIENCE,1,0)
+REM Alarm, gas, and steel door. No lightning here, so undead are dangerous.
+TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+DOOR_AVAILABLE(PLAYER0,STEEL,1,0)
+
+
+REM Only braced doors, alarm and gas for you - reduced sustainability of workshop economy (on top of scarce gold)
+
+REM There are no AIs, so attacks are strong.
+REM Wave once per payday.
+REM First waves are Hellhounds and Demonspawns and Warlocks.
+REM Third waves are big HH and demonspawns. timer 2
+REM Fifth small and gld dark mistress. timer 3
+REM Seventh are big mistresses and dragons. timer 4
+REM Ninth are horny mistresses and more warlocks. timer 5
+REM Demonspawns/dragons attack as long as there are training rooms.
+REM Hell Hounds attack as long as there are scavenger rooms (hint: Fairies and CTA can help). They spawn at hellhole.
+REM Horny and Dark attack always until the end of game (which means you'll be bleeding heroes to 8 Mistresses and a Horny.
+REM Small and gold Dark Mistress attack from closest portal; big and horny from furthest.
+REM Warlock attack as long as any library still present; they walk all the way from furthest portal.
+
+CREATE_PARTY(WAVE_WARLOCK)
+CREATE_PARTY(WAVE_DEMON_SML)
+CREATE_PARTY(WAVE_DEMON_BIG)
+CREATE_PARTY(WAVE_DRAGON)
+CREATE_PARTY(WAVE_HOUND_SML)
+CREATE_PARTY(WAVE_HOUND_BIG)
+CREATE_PARTY(WAVE_DARK_SML)
+CREATE_PARTY(WAVE_DARK_BIG)
+CREATE_PARTY(WAVE_DARK_GLD)
+CREATE_PARTY(WAVE_HORNY)
+CREATE_PARTY(WAVE_GEMDRAGON)
+
+ADD_TO_PARTY(WAVE_WARLOCK,SORCEROR,7,0,STEAL_GOLD,200)
+
+ADD_TO_PARTY(WAVE_DEMON_SML,DEMONSPAWN,4,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_DEMON_SML,DEMONSPAWN,4,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_DEMON_SML,DEMONSPAWN,4,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_DEMON_SML,DEMONSPAWN,4,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_DEMON_BIG,DEMONSPAWN,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_DEMON_BIG,DEMONSPAWN,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_DEMON_BIG,DEMONSPAWN,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_DEMON_BIG,DEMONSPAWN,7,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_DRAGON,DRAGON,10,400,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_DRAGON,DRAGON,10,400,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_DRAGON,DEMONSPAWN,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_DRAGON,DEMONSPAWN,7,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_HOUND_SML,HELL_HOUND,3,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_HOUND_SML,HELL_HOUND,3,0,ATTACK_DUNGEON_HEART,200)
+
+ADD_TO_PARTY(WAVE_HOUND_BIG,HELL_HOUND,6,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HOUND_BIG,HELL_HOUND,6,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_DARK_SML,DARK_MISTRESS,6,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_DARK_SML,DARK_MISTRESS,6,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_DARK_SML,DARK_MISTRESS,6,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_DARK_GLD,DARK_MISTRESS,10,0,STEAL_GOLD,200)
+
+ADD_TO_PARTY(WAVE_DARK_BIG,DARK_MISTRESS,7,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_DARK_BIG,DARK_MISTRESS,7,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_DARK_BIG,DARK_MISTRESS,7,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_HORNY,HORNY,9,1000,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HORNY,DARK_MISTRESS,8,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HORNY,DARK_MISTRESS,8,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HORNY,DARK_MISTRESS,8,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_GEMDRAGON,DRAGON,10,0,STEAL_GOLD,200)
+ADD_TO_PARTY(WAVE_GEMDRAGON,DRAGON,10,0,STEAL_GOLD,200)
+ADD_TO_PARTY(WAVE_GEMDRAGON,DRAGON,10,0,STEAL_GOLD,200)
+ADD_TO_PARTY(WAVE_GEMDRAGON,DRAGON,10,0,STEAL_GOLD,200)
+ADD_TO_PARTY(WAVE_GEMDRAGON,HORNY,7,0,STEAL_GOLD,200)
+
+REM ACtion points:
+REM 1 - ??? second portal, run attacks 3 ahead of schedule
+REM 2 - ??? third portal, run attacks 1-3
+REM 3 - portal room, run attacks 4 ahead of schedule
+REM 4 - heart guard start, run attacks 5 ahead of schedule
+REM Hero gates:
+REM 1 - central 12-strong guardpost
+REM 2 - western last steel door
+REM 3 - eastern spawn if no breaches
+REM 4 - northern hellspawn gate
+REM 5 - treasury
+REM 6 - transfer creature
+
+REM Startup
+    SET_TIMER(PLAYER0,TIMER0)
+    QUICK_OBJECTIVE(1,"The Hellspring is home to many monsters we'd rather see dead. Yet the reason we're here is to destroy enchantments upon the magma streams which bar your way upwards to Wickedridge. It's best to search the local keeper's sanctum.", PLAYER0)
+
+IF(PLAYER0,TIMER0 >= 200)
+    QUICK_INFORMATION(2,"It turs out we have forgotten to pack the library books and workshop schemes, thus we'll likely have to rely on the few scriptures provided by local shrine.", PLAYER0)
+ENDIF
+REM First timer; runs weaker creatures once per payday.
+
+IF(PLAYER0,TIMER1 >=10000)
+    QUICK_INFORMATION(4,"The enemy keeper gathers his hellhounds and demonspawns at the Scavenger and Training rooms, while Warlocks reside within Library. Capture or destroy those rooms, and the tide of attackers will be lessened.", PLAYER0)
+    IF(PLAYER_GOOD,TRAINING >= 25)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEMON_SML,-3,1)
+    ENDIF
+    IF(PLAYER_GOOD,SCAVENGER >= 25)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUND_SML,-4,2)
+    ENDIF
+    IF(PLAYER_GOOD,RESEARCH >= 25)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WARLOCK,-2,1)
+    ENDIF
+    NEXT_COMMAND_REUSABLE
+    SET_TIMER(PLAYER0,TIMER1)
+ENDIF
+
+REM Second timer, runs stonger creatures. Starts on third payday, works until all bosses are down
+REM Fires once per payday
+IF(PLAYER0,TIMER2 >= 10000)
+    IF(PLAYER_GOOD,TRAINING >= 20)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEMON_BIG,-3,1)
+    ENDIF
+    IF(PLAYER_GOOD,RESEARCH >= 15)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WARLOCK,-2,2)
+    ENDIF
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER0,TIMER2)
+ENDIF
+
+REM Mistresses without haste and teleporting thief
+IF(PLAYER0,TIMER3 >= 10000)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DARK_SML,-1,1)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DARK_GLD,-1,1)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUND_BIG,-2,1)
+    IF(PLAYER_GOOD,SCAVENGER >= 15)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUND_BIG,-2,1)
+    ENDIF
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER0,TIMER3)
+ENDIF
+
+REM Mistresses with haste and dragons
+IF(PLAYER0,TIMER4 >= 10000)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DARK_BIG,-2,1)
+    IF(PLAYER_GOOD,TRAINING >= 15)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DRAGON,-3,1)
+    ENDIF
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUND_SML,-2,1)
+    IF(PLAYER_GOOD,SCAVENGER >= 8)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUND_SML,-2,1)
+    ENDIF
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER0,TIMER4)
+ENDIF
+
+REM Horny and some more stuff
+IF(PLAYER0,TIMER5 >= 10000)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER5)
+	NEXT_COMMAND_REUSABLE
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HORNY,-2,1)
+	NEXT_COMMAND_REUSABLE
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUND_BIG,-4,1)
+	IF(PLAYER_GOOD,SCAVENGER >= 5)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUND_BIG,-4,1)
+	ENDIF
+	IF(PLAYER_GOOD,GUARD_POST < 8)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HORNY,-1,1)
+	ENDIF
+	IF(PLAYER_GOOD,RESEARCH >= 8)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WARLOCK,-2,2)
+	ENDIF
+ENDIF
+
+REM Gem harrassment; when you start mining them, these attacks happen fairly often (4 dragons lv 10 every time, just like the treasury contains).
+REM Added horny so that there's some challenge (dragons do little damage without Word of Power
+IF(PLAYER0,TIMER6 >= 5000)
+    QUICK_INFORMATION(5,"Some dragons were attracted by the recently unearthed treasures. It might be wise to destroy the enemy keeper as quickly as possible, for these beasts will not relent otherwise.", PLAYER0)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER6)
+	NEXT_COMMAND_REUSABLE
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_GEMDRAGON,-5,2)
+ENDIF
+
+REM Once-off attack; you should've trained up your troops by this time. If you didn't properly fortify the outer rooms taken over, you'll get more breaches.
+IF(PLAYER0,TIMER0 >= 10000)
+	SET_FLAG(PLAYER0,FLAG1,1)
+ENDIF
+
+REM Upgrade attacks: bigger hounds/spawns
+IF(PLAYER0,TIMER0 >= 31000)
+	SET_FLAG(PLAYER0,FLAG2,1)
+ENDIF
+
+REM Upgrade attacks: mistresses
+IF(PLAYER0,TIMER0 >= 52000)
+	SET_FLAG(PLAYER0,FLAG3,1)
+ENDIF
+
+REM Upgrade attacks: dragons/mistresses
+IF(PLAYER0,TIMER0 >= 73000)
+	SET_FLAG(PLAYER0,FLAG4,1)
+ENDIF
+
+REM Upgrade attacks: horny
+IF(PLAYER0,TIMER0 >= 94000)
+	SET_FLAG(PLAYER0,FLAG5,1)
+ENDIF
+
+REM Approaching those action points triggers associated flags, too.
+IF_ACTION_POINT(1,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG1,1)
+ENDIF
+IF_ACTION_POINT(2,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG2,1)
+ENDIF
+REM Attacking portal room
+IF_ACTION_POINT(3,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG2,1)
+	SET_FLAG(PLAYER0,FLAG3,1)
+	SET_FLAG(PLAYER0,FLAG4,1)
+ENDIF
+REM Attacking Hero Heart
+IF_ACTION_POINT(4,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG5,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DARK_MISTRESS,6,8,10,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HELL_HOUND,6,8,10,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,SORCEROR,6,2,10,0)
+ENDIF
+IF_ACTION_POINT(5,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG5,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DARK_MISTRESS,4,8,10,0)
+ENDIF
+REM Added 8 dragons to final battle; against 8 knights+8 samurai + supports they're still unlikely to do much. I had that many in playtest, yes.
+IF_ACTION_POINT(8,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG5,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HORNY,7,8,10,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DRAGON,7,8,10,0)
+ENDIF
+IF_ACTION_POINT(10,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG2,1)
+	SET_FLAG(PLAYER0,FLAG3,1)
+	SET_FLAG(PLAYER0,FLAG4,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HELL_HOUND,9,6,10,0)
+ENDIF
+IF_ACTION_POINT(11,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,SORCEROR,11,5,10,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DRAGON,11,2,10,0)
+ENDIF
+REM Gem dragons at gems; easily stopped with a door, but a nuisance nonetheless
+IF_ACTION_POINT(12,PLAYER0)
+	SET_TIMER(PLAYER0,TIMER6)
+ENDIF
+IF_ACTION_POINT(13,PLAYER0)
+	SET_TIMER(PLAYER0,TIMER6)
+ENDIF
+
+IF(PLAYER0,FLAG1 == 1)
+	QUICK_INFORMATION(3,"My liege, the infernal baying and frenzied shrieks sound across the river of lava. It means your presence here has been already discovered, and an attack is incoming.", PLAYER0)
+	SET_TIMER(PLAYER0,TIMER1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HOUND_SML,-4,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEMON_SML,-3,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-3,2,2,0)
+ENDIF
+IF(PLAYER0,FLAG2==1)
+	SET_TIMER(PLAYER0,TIMER2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WARLOCK,-1,2)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-3,3,3,0)
+ENDIF
+IF(PLAYER0,FLAG3==1)
+	SET_TIMER(PLAYER0,TIMER3)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DARK_SML,-2,1)
+ENDIF
+IF(PLAYER0,FLAG4==1)
+	SET_TIMER(PLAYER0,TIMER4)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DRAGON,-3,1)
+ENDIF
+IF(PLAYER0,FLAG5==1)
+	SET_TIMER(PLAYER0,TIMER5)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DARK_BIG,-4,1)
+ENDIF
+
+REM Destruction of hero heart ends the game.
+IF(PLAYER_GOOD, DUNGEON_DESTROYED>=1)
+	QUICK_OBJECTIVE(16,"No longer agitated by demons of Wickedridge, the volcanoes of Hellspring stop flooding the land with fiery death. It is safe to pass towards Verminfeast.", PLAYER0)
+	WIN_GAME
+ENDIF
+
+REM No skeletons allowed, despite prison available. 
+REM Vampire attack is MASSIVE. As in, ungodly massive - 20 vampires all told, even if over half is low-levelled they're strong meleers all the same.
+IF(PLAYER0, SKELETON>=1)
+	QUICK_INFORMATION(9,"My liege, the captured monster has been interrogated. While largely ignorant of Verminfeast, it revealed a last refuge of Vampires from Misty Bog. Those bloodsuckers thirst for revenge - now that you are aware of their presence, expect them to arrive shortly.", PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-6,3,3,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,VAMPIRE,-6,12,4,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,VAMPIRE,-6,8,10,0)
+	NEXT_COMMAND_REUSABLE
+	KILL_CREATURE(PLAYER0,SKELETON,MOST_EXPERIENCED,1)
+ENDIF
+
+IF(PLAYER0, RESEARCH>=25)
+	QUICK_OBJECTIVE(10,"Multitude of magical tomes and arcane grimoires, hidden within this library, provide you with evidence that enchantments protecting Wickedridge are of ancient origin and have nothing to do with the local keeper. It changes nothing, since the only way through to the vale of Verminfeast is beyond the enemy's inner sanctum.", PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,WIZARD,PLAYER0,1,5,0)
+	CREATURE_AVAILABLE(PLAYER0,WIZARD,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_DISEASE,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_CHICKEN,1,0)
+	IF(PLAYER0, PRISON>=1)
+		SET_TIMER(PLAYER0,TIMER7)
+	ENDIF
+ENDIF
+IF(PLAYER0, TIMER7>=200)
+	QUICK_INFORMATION(8,"So far, we know next to nothing about vale of Verminfeast. Capture one of the monsters to learn about this realm.", PLAYER0)
+ENDIF
+REM Capture of entrances increases the max creatures count.
+
+IF(PLAYER0,ENTRANCE <= 9)
+    MAX_CREATURES(PLAYER0,24)
+ENDIF
+
+IF(PLAYER0,ENTRANCE >= 10)
+	MAX_CREATURES(PLAYER0,29)
+	SET_FLAG(PLAYER0,FLAG3,1)
+	IF(PLAYER0,ENTRANCE >= 20)
+		MAX_CREATURES(PLAYER0,35)
+		SET_FLAG(PLAYER0,FLAG4,1)
+	ENDIF
+ENDIF
+
+IF(PLAYER0,BRIDGE >= 1)
+    QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+    NEXT_COMMAND_REUSABLE
+    ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
+ENDIF
+
+IF(PLAYER0,BRIDGE < 1)
+	NEXT_COMMAND_REUSABLE
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+ENDIF

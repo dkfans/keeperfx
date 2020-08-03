@@ -1,0 +1,353 @@
+REM ****************+****************************
+REM  Hero campaign by Alexsa
+REM  map 1236, level 3 - Abbeystone
+REM  Script for the map
+REM  Version 1.00
+REM ********************************************
+REM Abbeystone. Once again a besieged dungeon, but... not yours this time.
+REM Until you break open your dungeon, you're comparatively safe, but then again what will keep the poor non-building AI alive?
+REM After tuning up the attack strength of monsters, I had to increase total monk and blue creature count- they perish way too easily.
+REM REMOVE THE IMPS LITTERING THE BLUE DUNGEON - they allow mining without opening up your dungeon.
+REM ********************************************
+REM Update 1.00, august 2018: lowered difficulty. Final Reaper stack is lower levelled. Some more hints.
+REM Note: someone better proofread my texts!
+REM ********************************************
+LEVEL_VERSION(1)
+
+SET_GENERATE_SPEED(400)
+
+START_MONEY(PLAYER0,10000)
+START_MONEY(PLAYER1,550000)
+MAX_CREATURES(PLAYER0,20)
+MAX_CREATURES(PLAYER1,12)
+
+REM Ally with the Abbeystone and run the move only computer assist (so it doesn't breach its own rooms and whatever).
+COMPUTER_PLAYER(PLAYER1,9)
+ALLY_PLAYERS(PLAYER0,PLAYER1,1)
+
+REM SET_CREATURE_MAX_LEVEL(PLAYER0,THIEF,10)
+REM All the same creatures.
+REM Overall... your creatures are CRAP, and killing Reapers guarding the Dungeon Heart is legitimately difficult. Using the backdoor isn't cakewalk either.
+REM Sneaking an invisible thief/fairy won't work out all that well because there are warlocks on watch.
+REM Barracks are useless to you, so there you can bypass warlock outpost and use CTA to destroy it.
+REM The monk pool is so small because of 12 starting within Abbeystone.
+ADD_CREATURE_TO_POOL(THIEF,10)
+ADD_CREATURE_TO_POOL(DWARFA,20)
+ADD_CREATURE_TO_POOL(ARCHER,10)
+ADD_CREATURE_TO_POOL(FAIRY,10)
+ADD_CREATURE_TO_POOL(MONK,3)
+ADD_CREATURE_TO_POOL(BARBARIAN,3)
+CREATURE_AVAILABLE(PLAYER0,BARBARIAN,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,THIEF,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,DWARFA,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,ARCHER,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,FAIRY,1,0)
+CREATURE_AVAILABLE(ALL_PLAYERS,MONK,1,0)
+REM Room permissions: treasure/lair/hatchery/training/library + other rooms for research.
+REM 
+    ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
+    ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+    ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,1,0)
+    ROOM_AVAILABLE(ALL_PLAYERS,TEMPLE,1,0)
+
+REM Most basic magical powers.
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,0,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+    MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HOLD_AUDIENCE,1,0)
+REM Alarm, gas, lightning, braced and magic door. Nice economy here.
+TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
+
+REM Parties are simple once again. The attacks are small, but relentless once started (go off twice per payday).
+CREATE_PARTY(WAVE_ORCS_WEST)
+CREATE_PARTY(WAVE_ORCS_EAST)
+CREATE_PARTY(WAVE_TROLLS)
+CREATE_PARTY(WAVE_DEMONS)
+CREATE_PARTY(WAVE_WARLOCKS)
+CREATE_PARTY(WAVE_SOUTH)
+CREATE_PARTY(WAVE_DEATH)
+CREATE_PARTY(WAVE_HEART)
+CREATE_PARTY(WAVE_VAMPIRES)
+
+ADD_TO_PARTY(WAVE_SOUTH,BILE_DEMON,4,200,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SOUTH,DRAGON,4,400,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SOUTH,ORC,4,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SOUTH,TROLL,4,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SOUTH,DEMONSPAWN,4,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SOUTH,SORCEROR,4,0,ATTACK_DUNGEON_HEART,200)
+
+ADD_TO_PARTY(WAVE_DEATH,BILE_DEMON,7,200,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_DEATH,DRAGON,7,400,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_DEATH,ORC,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_DEATH,TROLL,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_DEATH,DEMONSPAWN,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_DEATH,SORCEROR,7,0,ATTACK_DUNGEON_HEART,200)
+
+ADD_TO_PARTY(WAVE_ORCS_WEST,ORC,7,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_ORCS_WEST,ORC,5,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_ORCS_WEST,ORC,6,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_ORCS_EAST,ORC,4,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_ORCS_EAST,ORC,2,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_ORCS_EAST,ORC,3,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_TROLLS,TROLL,5,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_TROLLS,TROLL,6,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_TROLLS,TROLL,7,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_DEMONS,DEMONSPAWN,4,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_DEMONS,DEMONSPAWN,5,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_DEMONS,DEMONSPAWN,6,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_DEMONS,DEMONSPAWN,7,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_WARLOCKS,SORCEROR,5,0,STEAL_SPELLS,200)
+ADD_TO_PARTY(WAVE_WARLOCKS,SORCEROR,6,0,STEAL_SPELLS,200)
+ADD_TO_PARTY(WAVE_WARLOCKS,SORCEROR,7,0,STEAL_SPELLS,200)
+
+ADD_TO_PARTY(WAVE_HEART,HORNY,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_HEART,HORNY,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_HEART,HORNY,6,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HEART,HORNY,6,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_HEART,HORNY,5,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_HEART,HORNY,5,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_VAMPIRES,SKELETON,10,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_VAMPIRES,TENTACLE,5,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_VAMPIRES,VAMPIRE,3,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_VAMPIRES,VAMPIRE,3,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_VAMPIRES,VAMPIRE,3,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_VAMPIRES,VAMPIRE,3,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_VAMPIRES,VAMPIRE,3,0,ATTACK_DUNGEON_HEART,200)
+
+
+REM ACtion points:
+REM 1 to 6, east to west.
+REM Hero gates:
+REM None on the map.
+REM Start the primary timer.
+REM Hero Gate: one at SE.
+
+REM Startup
+    SET_TIMER(PLAYER0,TIMER0)
+    SET_TIMER(PLAYER0,TIMER1)
+    QUICK_OBJECTIVE(1,"Monastery of Abbeystone is under attack by forces of evil. Marshal your forces quickly and crush the heart of the evil keeper before he breaks into the walls of the sacred keep and slaughters the defenders. The enemy forces seem to be gathering at the various rooms across the region. If you can kill the guards and capture these rooms, the flow of attackers will abate.", PLAYER0)
+
+REM Basic orcs parties since half the payday.
+IF(PLAYER0,TIMER0 >= 5300)
+	QUICK_INFORMATION(2,"The attack upon the monastery is already underway, while you are as of yet unprepared. The monsters will not hesitate to crush your unskilled troops. Do not rush into the fray, my liege - as long as all the monks are alive, they can take care of themselves for a while longer.", PLAYER0)
+    SET_TIMER(PLAYER0,TIMER2)
+ENDIF
+
+REM Demonspawn parties since 1,5x the payday. If you broke to lava, they'll be harassing you instead of Abbeystone, and it'll end poorly if you didn't train up your troops.
+IF(PLAYER0,TIMER0 >= 15400)
+	QUICK_INFORMATION(9,"The monks of Abbeystone are holding steady, but they warn you that the besieging forces are only gathering their strength for a final assault. It may be unwise to expose yourself just yet.", PLAYER0)
+	SET_TIMER(PLAYER0,TIMER3)
+ENDIF
+
+REM Trolls are next.
+IF(PLAYER0,TIMER0 >= 25500)
+	QUICK_INFORMATION(6,"My liege, it is probably wise to prepare for an eventual attack from besieging forces. Your presence is unaccounted for, but it won't last forever. We might not receive any warning when the enemy keeper finally turns attention to your forces.", PLAYER0)
+	SET_TIMER(PLAYER0,TIMER4)
+ENDIF
+
+REM Orc western parties since 1,5x the payday, by this point monks are level 10 but start to die off
+IF(PLAYER0,TIMER0 >= 30600)
+	QUICK_INFORMATION(7,"My liege, the monks have sent a missive. They sensed the presence of multiple Horned Reapers among besieging forces earlier, but very few have been sighted recently. It is possible they are bound with powerful magic, awaiting your counterattack to be unleashed.", PLAYER0)
+	SET_TIMER(PLAYER0,TIMER5)
+ENDIF
+
+REM Orc western parties since 1,5x the payday, by this point monks are level 10 but start to die off
+IF(PLAYER0,TIMER0 >= 40000)
+    QUICK_INFORMATION(3,"My liege, I have divined that a force of vampires from Misty Bog is approaching from south-east, and will arrive shortly after the next payday. I fear that they will support the final assault upon Abbeystone, necessitating your involvement.", PLAYER0)
+ENDIF
+
+REM Final increase of attack strength, and lots of Vampires. Also, lots of imps start digging around; if you haven't reinforced your walls, or have white walls, you'll get a breach.
+IF(PLAYER0,TIMER0 >= 50700)
+    QUICK_INFORMATION(8,"It is time! The monks of Abbeystone sound the alarms, the forces of evil battering at their walls. It is likely the last pitched attempt to bring them down.", PLAYER0)
+    SET_TIMER(PLAYER0,TIMER6)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPIRES,-1,2)
+	IF(PLAYER_GOOD, BARRACKS >= 10)
+		ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,1,2,4,500)
+	ENDIF
+	IF(PLAYER_GOOD, LAIR >= 10)
+		ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,3,2,4,500)
+	ENDIF
+	IF(PLAYER_GOOD, TRAINING >= 10)
+		ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,4,2,4,500)
+	ENDIF
+ENDIF
+
+REM Total creature count: 9 from wave 1
+
+IF(PLAYER0,TIMER1 >= 6000)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER1)
+	IF(PLAYER_GOOD, GUARD_POST >= 30)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SOUTH,6,1)
+	ENDIF
+	IF(PLAYER_GOOD, GUARD_POST >= 40)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS_EAST,6,1)
+	ENDIF
+ENDIF
+
+REM Total creature count: 15 from wave 2
+
+IF(PLAYER0,TIMER2 >= 6000)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER2)
+	IF(PLAYER_GOOD, BARRACKS >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS_EAST,1,1)
+	ENDIF
+	IF(PLAYER_GOOD, TRAINING >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS_EAST,4,1)
+	ENDIF
+ENDIF
+
+REM Total creature count: 21 from wave 3
+
+IF(PLAYER0,TIMER3 >= 6000)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER3)
+	IF(PLAYER_GOOD, WORKSHOP >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TROLLS,2,1)
+	ENDIF
+	IF(PLAYER_GOOD, RESEARCH >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WARLOCKS,5,1)
+	ENDIF
+ENDIF
+
+REM Total creature count: 28 from wave 4
+
+IF(PLAYER0,TIMER4 >= 6000)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER4)
+	IF(PLAYER_GOOD, LAIR >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEMONS,3,1)
+ENDIF
+	IF(PLAYER_GOOD, BARRACKS >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS_EAST,1,1)
+	ENDIF
+ENDIF
+
+REM Total creature count: 34 from wave 5
+
+IF(PLAYER0,TIMER5 >= 6000)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER0,TIMER5)
+	IF(PLAYER_GOOD, TRAINING >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS_WEST,4,1)
+	ENDIF
+	IF(PLAYER_GOOD, RESEARCH >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WARLOCKS,5,1)
+	ENDIF
+ENDIF
+
+REM Total creature count: 47 (!!!) from wave 6
+REM ...okay, 9 from library, 6 from workshop, 8 from lair, 9 weak orcs from barracks, 6 from training, 9 weak monsters from guardposts.
+
+IF(PLAYER0,TIMER6 >= 6000)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER6)
+	IF(PLAYER_GOOD, RESEARCH >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WARLOCKS,5,1)
+	ENDIF
+	IF(PLAYER_GOOD, BARRACKS >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS_WEST,1,1)
+	ENDIF
+	IF(PLAYER_GOOD, WORKSHOP >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TROLLS,2,1)
+	ENDIF
+	IF(PLAYER_GOOD, LAIR >= 10)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEMONS,3,1)
+	ENDIF
+REM Inform the player that the last, strongest wave has been enabled, and he hasn't captured quite enough rooms.
+	IF(PLAYER_GOOD, GUARD_POST >= 45)
+		QUICK_INFORMATION(5,"Grave news, my liege, - the enemy forces are gathering in great numbers!", PLAYER0)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEATH,6,1)
+	ENDIF
+ENDIF
+
+REM Heart welcome party; if you don't take care, it can kill.
+IF_ACTION_POINT(5,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HEART,5,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEATH,5,2)
+	IF(PLAYER_GOOD, TRAINING >= 10)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS_WEST,6,2)
+	ENDIF
+	IF(PLAYER_GOOD, BARRACKS >= 10)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ORCS_WEST,6,1)
+	ENDIF
+	IF(PLAYER_GOOD, WORKSHOP >= 10)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TROLLS,6,2)
+	ENDIF
+	IF(PLAYER_GOOD, LAIR >= 10)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEMONS,6,2)
+	ENDIF
+	IF(PLAYER_GOOD, GUARD_POST >= 30)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SOUTH,6,2)
+	ENDIF
+ENDIF
+
+REM Capture of entrances expands the max creatures count.
+
+IF(PLAYER0,ENTRANCE >= 10)
+	MAX_CREATURES(PLAYER0,25)
+ENDIF
+IF(PLAYER0,ENTRANCE >= 20)
+	MAX_CREATURES(PLAYER0,30)
+ENDIF
+
+IF(PLAYER0,BRIDGE >= 1)
+	QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+	NEXT_COMMAND_REUSABLE
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
+ENDIF
+
+IF(PLAYER0,BRIDGE < 1)
+	NEXT_COMMAND_REUSABLE
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+ENDIF
+
+REM If the blue Dungeon heart is destroyed, lose, regardless of everything.
+IF(PLAYER1,DUNGEON_DESTROYED >= 1)
+	QUICK_OBJECTIVE(16,"The Abbeystone has fallen, my liege!.. It is grim day indeed.", PLAYER0)
+	LOSE_GAME
+ENDIF
+
+REM If the white Dungeon heart is destroyed, win, regardless of everything.
+REM Hint: if you go the long route killing cavern guardposts via CTA, you can sneak the fairies and such to evade the final mega-big party of Reapers with 14 supporting creatures.
+IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
+	QUICK_OBJECTIVE(17,"We are victorious, my liege - the siege upon Abbeystone is broken. While the undead of Misty Bog is still a threat, you first head towards the Widerwilds, where the barbarians resist the demonic incursions from underground realm.", PLAYER0)
+	WIN_GAME
+ENDIF
