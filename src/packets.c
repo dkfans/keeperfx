@@ -881,8 +881,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     struct SlabMap *slb;
     long i;
     struct Room* room;
-    MapSlabCoord slb_x = slab_subtile(subtile_slab_fast(stl_x), 0);
-    MapSlabCoord slb_y = slab_subtile(subtile_slab_fast(stl_y), 0);
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     switch (player->work_state)
     {
     case PSt_CtrlDungeon:
@@ -1117,7 +1117,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
             if ((pckt->control_flags & PCtr_LBtnClick) != 0)
             {
-              k = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+              k = get_slab_number(slb_x, slb_y);
               delete_room_slabbed_objects(k);
               packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, i);
             }
@@ -1235,7 +1235,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_StealRoom:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
-            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            slb = get_slabmap_block(slb_x, slb_y);
             if (slb->room_index)
                 {
                     room = room_get(slb->room_index);
@@ -1255,7 +1255,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_DestroyRoom:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
-            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            slb = get_slabmap_block(slb_x, slb_y);
             if (slb->room_index)
                 {
                     room = room_get(slb->room_index);
@@ -1305,7 +1305,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_StealSlab:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
-            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            slb = get_slabmap_block(slb_x, slb_y);
             if (slb->kind >= SlbT_EARTH && slb->kind <= SlbT_CLAIMED)
             {
                 short slbkind;
@@ -1368,7 +1368,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                         }
                     }
                 }
-                place_slab_type_on_map(slbkind, slb_x, slb_y, i, 0);
+                place_slab_type_on_map(slbkind, stl_x, stl_y, i, 0);
                 do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -1518,7 +1518,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_PlaceTerrain:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
-            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            slb = get_slabmap_block(slb_x, slb_y);
             short slbkind;
             char s[3];
             if (is_key_pressed(KC_SLASH, KMod_NONE))
@@ -1622,15 +1622,15 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 if (subtile_is_room(stl_x, stl_y)) 
                 {
                     room = subtile_room_get(stl_x, stl_y);
-                    delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), true);
+                    delete_room_slab(slb_x, slb_y, true);
                 }
                 if (slab_kind_is_animated(slbkind))
                 {
-                    place_animating_slab_type_on_map(slbkind, 0, slb_x, slb_y, game.neutral_player_num);  
+                    place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, game.neutral_player_num);  
                 }
                 else
                 {
-                    place_slab_type_on_map(slbkind, slb_x, slb_y, game.neutral_player_num, 0);
+                    place_slab_type_on_map(slbkind, stl_x, stl_y, game.neutral_player_num, 0);
                 }
                 do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
             }
