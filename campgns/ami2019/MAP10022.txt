@@ -1,0 +1,44 @@
+REM Thieves Den Detour
+LEVEL_VERSION(1)
+QUICK_OBJECTIVE(4,"A den of thieves. Or at least it used to be. Now it's training grounds for crusaders. FIX IT",ALL_PLAYERS)
+QUICK_INFORMATION(2,"Hint: bridge becomes available once you gather some gold. There is no need for library in this scenario: touch a spellbook to learn a spell. ",ALL_PLAYERS)
+QUICK_INFORMATION(3,"Hint: this scenario is a challenge that you can succeed only if you do not sell any rooms. ",ALL_PLAYERS)
+REVEAL_MAP_LOCATION(PLAYER0,2,15)
+IF(PLAYER0,GAME_TURN>530)
+	QUICK_OBJECTIVE(5,"Eliminate the knight and dungeon heart located southward to win this scenario. But first... reach them...",ALL_PLAYERS)
+ENDIF
+IF(PLAYER0,MONEY>=30)
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+	TUTORIAL_FLASH_BUTTON(18,200)
+ENDIF
+IF(PLAYER0,ROOMS_DESTROYED>0)
+IF(PLAYER_GOOD,DUNGEON_DESTROYED==0)
+	LOSE_GAME
+ENDIF
+ENDIF
+
+IF(PLAYER_GOOD,KNIGHT==0)
+	KILL_CREATURE(PLAYER0,DWARFA,LEAST_EXPERIENCED,5)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,WITCH,3,2,9,0)
+	IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
+		QUICK_OBJECTIVE(6,"Good job. Use transfer creature special to transfer a creature of your choice to the next realm.",ALL_PLAYERS)
+		WIN_GAME
+	ENDIF
+ENDIF
+
+IF_ACTION_POINT(1,PLAYER0)
+	QUICK_INFORMATION(1,"Look! That wall can be dug through!",1)
+ENDIF
+
+IF_ACTION_POINT(2,PLAYER0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,1)
+	SET_FLAG(PLAYER0,FLAG7,1)
+	TUTORIAL_FLASH_BUTTON(23,200)
+ENDIF
+
+IF(PLAYER0,FLAG7>0)
+IF(PLAYER0,MONEY<20)
+	NEXT_COMMAND_REUSABLE
+	ADD_GOLD_TO_PLAYER(PLAYER0,10)
+ENDIF
+ENDIF
