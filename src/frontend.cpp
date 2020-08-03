@@ -2409,9 +2409,20 @@ void set_gui_visible(TbBool visible)
       break;
   }
   if (((game.numfield_D & GNFldD_Unkn20) != 0) && ((game.operation_flags & GOF_ShowGui) != 0))
-    setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
+  {
+      setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
+  }
   else
-    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+  {
+      setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+  }
+  // Adjust the bounds of zoom of the camera when the side-menu is toggled (in Isometric view) to hide graphical glitches
+  // Without the gui sidebar, the camera cannot be zoomed in as much.
+  // NOTE: This should be reverted if the render array is ever increased (i.e. can see more things on screen)
+  if (player->acamera && player->acamera->view_mode == PVM_IsometricView)
+  {
+      update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, adjust_min_camera_zoom(player->acamera, game.operation_flags & GOF_ShowGui));
+  }
 }
 
 void toggle_gui(void)

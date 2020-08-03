@@ -879,8 +879,8 @@ unsigned long update_cave_in_things(void)
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
         }
-  }
-  return k;
+    }
+    return k;
 }
 
 /**

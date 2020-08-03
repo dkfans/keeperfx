@@ -1958,8 +1958,6 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         if (slb->kind == SlbT_GEMS)
         {
             SYNCDBG(7, "Player %d is digging around gems (%d %d)", (int)dungeon->owner, slb_x, slb_y);
-            const char *func_name = "task_dig_to_gold";
-
             for (int y = -1; y < 2; y++)
             {
                 for (int x = -1; x < 2; x++)
@@ -1978,10 +1976,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
                             TbResult res = game_action(dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1);
                             if (res <= Lb_OK)
                             {
-                                ERRORLOG("%s: Couldn't do game action - cannot dig around gems (%d %d) %d %d -> %d",
-                                  func_name,
-                                  stl_x, stl_y,
-                                  slb_x + x, slb_y + y, res);
+                                WARNLOG("Game action GA_MarkDig returned code %d - location %d,%d around gem not marked for digging", res, slb_x + x, slb_y + y);
                             }
                         }
                     }
@@ -2103,7 +2098,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         comp->task_state = CTaskSt_Select;
         suspend_task_process(comp, ctask);
         break;
-      case 0:
+    case 0:
         for (i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
         {
             MapSubtlCoord stl_x;
@@ -2116,8 +2111,10 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
             }
         }
         if (i == SMALL_AROUND_MID_LENGTH)
+        {
             break;
-        // no break
+        }
+        // fall through
     case -1:
         {
             struct ComputerProcess *cproc;
