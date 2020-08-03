@@ -496,6 +496,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, going_postal_job, room, &combt_dist, &combt_thing))
     {
         SYNCDBG(8,"The %s index %d goes postal on %s index %d during %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(combt_thing),(int)combt_thing->index,creature_job_code_name(going_postal_job));
+        EVM_CREATURE_EVENT_WITH_TARGET("postal", creatng->owner, creatng, combt_thing->index);
         set_creature_instance(creatng, inst_use, 0, combt_thing->index, 0);
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
         struct CreatureControl* combctrl = creature_control_get_from_thing(combt_thing);

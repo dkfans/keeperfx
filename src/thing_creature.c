@@ -2340,6 +2340,10 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
     //return _DK_kill_creature(creatng, killertng, killer_plyr_idx, (flags&CrDed_NoEffects)!=0, (flags&CrDed_DiedInBattle)!=0, (flags&CrDed_NoUnconscious)!=0);
+    if ((flags & CrDed_NotReallyDying) == 0)
+    {
+        EVM_CREATURE_EVENT("died", creatng->owner, creatng);
+    }
     struct Dungeon* dungeon = INVALID_DUNGEON;
     cleanup_creature_state_and_interactions(creatng);
     if (!thing_is_invalid(killertng))

@@ -61,7 +61,7 @@ struct Proportion { // sizeof = 8
 
 //extern struct Proportion proportions[513];
 /******************************************************************************/
-#define LB_RANDOM(range,seed) LbRandomSeries(range, seed, __func__, __LINE__)
+#define LB_RANDOM(range,seed) LbRandomSeries(range, seed, __func__, __LINE__, "lb")
 /******************************************************************************/
 
 long LbSinL(long x);
@@ -70,7 +70,7 @@ long LbSqrL(long x);
 long LbArcTanL(long arg);
 long LbArcTanAngle(long x,long n);
 long LbMathOperation(unsigned char opkind, long val1, long val2);
-unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
+unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place, const char *tag);
 TbBool LbNumberSignsSame(long num_a, long num_b);
 char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b);
 long LbDiagonalLength(long a, long b);

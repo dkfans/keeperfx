@@ -228,7 +228,7 @@ static char *cmd_strtok(char *tail)
 
 TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
 {
-    SYNCDBG(2,"Command %d: %s",(int)plyr_idx,text);
+    SYNCDBG(2,"Command %d: %s",(int)plyr_idx, msg);
     const char * parstr = msg + 1;
     const char * pr2str = cmd_strtok(msg + 1);
     if (strcmp(parstr, "stats") == 0)
@@ -240,6 +240,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     {
         quit_game = 1;
         exit_keeper = 1;
+        return true;
+    } else if (strcmp(parstr, "turn") == 0)
+    {
+        message_add_fmt(plyr_idx, "turn %ld", game.play_gameturn);
         return true;
     } else if ((game.flags_font & FFlg_AlexCheat) != 0)
     {
