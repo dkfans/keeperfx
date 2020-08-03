@@ -60,6 +60,7 @@
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_groups.h"
+#include "console_cmd.h"
 #include "dungeon_data.h"
 #include "tasks_list.h"
 #include "power_specials.h"
@@ -2126,7 +2127,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_PlyrMsgEnd:
       player->allocflags &= ~PlaF_NewMPMessage;
-      if (player->mp_message_text[0] != '\0')
+      if (player->mp_message_text[0] == '!')
+        if (!cmd_exec(player->id_number, player->mp_message_text))
+          message_add(player->id_number, player->mp_message_text);
+      else if (player->mp_message_text[0] != '\0')
         message_add(player->id_number, player->mp_message_text);
       LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;

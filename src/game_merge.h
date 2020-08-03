@@ -56,6 +56,7 @@ enum GameSystemFlags {
 
 enum GameGUIFlags {
     GGUI_CountdownTimer  = 0x0002,
+    GGUI_SoloChatEnabled = 0x0080
 };
 
 enum ClassicBugFlags {

@@ -447,7 +447,8 @@ short get_global_inputs(void)
     return true;
   }
   if ((player->view_type == PVT_DungeonTop)
-  && ((game.system_flags & GSF_NetworkActive) != 0))
+  && (((game.system_flags & GSF_NetworkActive) != 0) ||
+     ((game.flags_gui & GGUI_SoloChatEnabled) != 0)))
   {
       if (is_key_pressed(KC_RETURN,KMod_NONE))
       {

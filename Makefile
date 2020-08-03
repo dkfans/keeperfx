@@ -139,6 +139,7 @@ obj/config_strings.o \
 obj/config_terrain.o \
 obj/config_cubes.o \
 obj/config_trapdoor.o \
+obj/console_cmd.o \
 obj/creature_battle.o \
 obj/creature_control.o \
 obj/creature_graphics.o \
