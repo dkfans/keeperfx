@@ -290,6 +290,21 @@ long get_camera_zoom(struct Camera *cam)
     }
 }
 
+/** When the menu is hidden in Isometric view, show less of the map (at max zoom out)
+    because the increased view exceeds the render array, and we want to hide the graphical glitches it causes)
+    otherwise this function just sets zoom_min = CAMERA_ZOOM_MIN
+ *
+ * @param cam The current player's camera.\
+ * @param showgui Whether the side-menu is visible or not (you should pass "game.operation_flags & GOF_ShowGui".\
+ */
+unsigned long adjust_min_camera_zoom(struct Camera *cam, int showgui)
+{
+  unsigned long zoom_min = CAMERA_ZOOM_MIN;
+  if (showgui == 0 && cam->view_mode == PVM_IsometricView)
+    zoom_min += 300; // a higher value is a nearer zoom
+  return zoom_min;
+}
+
 /** Scales camera zoom for current screen resolution.
  *
  * @param zoom_lvl Unscaled zoom level.
@@ -299,12 +314,6 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 {
     unsigned long size_narr = ((pixel_size * units_per_pixel_min) << 7) / 10;
     unsigned long size_wide = (pixel_size * units_per_pixel) << 3;
-    // Currently, the side menu isn't scaled. We have to take that into account. Side menu takes approx 0.22 of the screen.
-    // Note that this is temporary - it would be better to scale the side menu. Not to mention making larger rendering arrays.
-    if (units_per_pixel+units_per_pixel_min > 35) // this means resolution over 800x600
-        size_wide += size_wide>>3;
-    if (units_per_pixel+units_per_pixel_min > 55) // this means resolution over 1200x1024
-        size_wide += size_wide>>4;
     return  ((zoom_lvl*size_wide) >> 8) + ((zoom_lvl*size_narr) >> 8);
 }
 
