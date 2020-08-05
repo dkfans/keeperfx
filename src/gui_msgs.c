@@ -45,8 +45,8 @@ void message_draw(void)
     {
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
-        LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, game.messages[i].text);
-        draw_gui_panel_sprite_left(x, y, ps_units_per_px, 488+game.messages[i].plyr_idx);
+        LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
+        draw_gui_panel_sprite_left(x, y, ps_units_per_px, 488+gameadd.messages[i].plyr_idx);
         y += h*units_per_pixel/16;
     }
 }
@@ -58,11 +58,11 @@ void message_update(void)
     // Set end turn for all messages
     while (i >= 0)
     {
-        struct GuiMessage* gmsg = &game.messages[i];
-        if (gmsg->creation_turn + 400 < game.play_gameturn)
+        struct GuiMessage* gmsg = &gameadd.messages[i];
+        if (gmsg->creation_turn < game.play_gameturn)
         {
             game.active_messages_count--;
-            game.messages[game.active_messages_count].text[0] = 0;
+            gameadd.messages[game.active_messages_count].text[0] = 0;
         }
         i--;
     }
@@ -73,7 +73,7 @@ void zero_messages(void)
     game.active_messages_count = 0;
     for (int i = 0; i < 3; i++)
     {
-      memset(&game.messages[i], 0, sizeof(struct GuiMessage));
+      memset(&gameadd.messages[i], 0, sizeof(struct GuiMessage));
     }
 }
 
@@ -82,11 +82,11 @@ void message_add(PlayerNumber plyr_idx, const char *text)
     SYNCDBG(2,"Player %d: %s",(int)plyr_idx,text);
     for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
     {
-        memcpy(&game.messages[i], &game.messages[i-1], sizeof(struct GuiMessage));
+        memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessage));
     }
-    strncpy(game.messages[0].text, text,sizeof(game.messages[0].text));
-    game.messages[0].plyr_idx = plyr_idx;
-    game.messages[0].creation_turn = game.play_gameturn;
+    strncpy(gameadd.messages[0].text, text, sizeof(gameadd.messages[0].text) - 1);
+    gameadd.messages[0].plyr_idx = plyr_idx;
+    gameadd.messages[0].creation_turn = game.play_gameturn + GUI_MESSAGES_DELAY;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
