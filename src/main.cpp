@@ -4630,6 +4630,8 @@ short process_command_line(unsigned short argc, char *argv[])
       endpos=strrchr( keeper_runtime_directory, '/');
   if (endpos!=NULL)
       *endpos='\0';
+  else
+      strcpy(keeper_runtime_directory, ".");
 
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
@@ -4790,6 +4792,7 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "tests") == 0)
       {
         set_flag_byte(&start_params.autotest_flags, ATF_TestsCampaign, true);
+
         if (!change_campaign("../tests/campaign.cfg"))
         {
           ERRORLOG("Unable to load tests campaign");
