@@ -250,7 +250,15 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
 
             if ((strcmp(pr2str,"scarce") == 0) || (strcmp(pr2str,"1") == 0))
             {
-                message_add_fmt(plyr_idx, "%s", pr2str);
+                for (int i = 0; i < PLAYERS_COUNT; i++)
+                {
+                    if ((i == game.hero_player_num)
+                        || (plyr_idx == game.neutral_player_num))
+                        continue;
+                    struct Computer2* comp = get_computer_player(i);
+                    if (player_exists(get_player(i)) && (!computer_player_invalid(comp)))
+                        message_add_fmt(i, "Ai model %d", (int)comp->model);
+                }
                 gameadd.computer_chat_flags = CChat_TasksScarce;
             } else
             if ((strcmp(pr2str,"frequent") == 0) || (strcmp(pr2str,"2") == 0))
