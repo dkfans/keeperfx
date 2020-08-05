@@ -2156,8 +2156,7 @@ void input(void)
       pckt->field_10 &= ~PCAdV_CrtrQueryPressed;
 
     get_inputs();
-    // Debug code to write a savegame on given turn
-    //if (game.play_gameturn == 141940) { save_game(0); }
+
     SYNCDBG(7,"Finished");
 }
 
