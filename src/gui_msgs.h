@@ -22,7 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#define GUI_MESSAGES_COUNT      3
+#define GUI_MESSAGES_COUNT      7
+#define GUI_MESSAGES_DELAY      400
 
 #ifdef __cplusplus
 extern "C" {
