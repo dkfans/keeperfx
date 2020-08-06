@@ -74,7 +74,7 @@ void evm_stat(int force_new, const char *event_fmt, ...)
 
     char *packet_data = ((char*)evm_packet->data) + evm_packet->len;
 
-    if (force_new)
+    if (force_new && (evm_packet->len > 0))
     {
         // Send old data
         SDLNet_UDP_Send(evm_socket, -1, evm_packet);
