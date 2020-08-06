@@ -21,6 +21,11 @@
 
 #include "bflib_basics.h"
 
+#ifdef AUTOTESTING
+
+#include "event_monitoring.h"
+
+#endif
 /******************************************************************************/
 unsigned short const lbSqrTable[] = {
    0x0001, 0x0002, 0x0002, 0x0004, 0x0005, 0x0008, 0x000B, 0x0010,
@@ -738,7 +743,7 @@ long LbMathOperation(unsigned char opkind, long val1, long val2)
   }
 }
 
-unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place)
+unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place, const char *tag)
 {
   if (range == 0)
     return 0;
@@ -746,6 +751,9 @@ unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const cha
   *seed = _lrotr(i, 13);
   i = (*seed) % range;
 //  SYNCMSG("%s: at %d, random val %d", func_name, place, i);
+#ifdef AUTOTESTING
+  evm_stat("rnd.%s,fn=%s,range=%ld val=%ld,range=%ld", tag, func_name, range, i, range);
+#endif
   return i;
 }
 

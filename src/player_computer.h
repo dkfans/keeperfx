@@ -324,9 +324,9 @@ struct ComputerDig { // sizeof = 78
     long subfield_30;
     long subfield_34;
     long subfield_38;
-    long subfield_3C;
+    long subfield_3C; // dig direction index
     long subfield_40;
-    long subfield_44;
+    long subfield_44; // marked tiles so far
     long subfield_48;
     long sub4C_stl_x;
     long sub4C_stl_y;
@@ -354,7 +354,7 @@ struct ComputerTask { // sizeof = 148
     };
     long lastrun_turn;
     long field_60;
-    struct Coord3d pos_64;
+    struct Coord3d pos_64; // new room position?
     struct Coord3d pos_6A;
     union {
     struct {

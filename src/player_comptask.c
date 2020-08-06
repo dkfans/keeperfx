@@ -1367,7 +1367,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     long area_buildable;
     int i;
     int n;
-    n = ACTION_RANDOM(4);
+    n = AI_RANDOM(4);
     if (perfect) {
         area_total = (width_slabs + 1) * (height_slabs + 1);
     } else {
@@ -3189,8 +3189,8 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
 TbBool create_task_move_creature_to_subtile(struct Computer2 *comp, const struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CrtrStateId dst_state)
 {
     struct Coord3d pos;
-    pos.x.val = subtile_coord(stl_x,ACTION_RANDOM(256));
-    pos.y.val = subtile_coord(stl_y,ACTION_RANDOM(256));
+    pos.x.val = subtile_coord(stl_x,AI_RANDOM(256));
+    pos.y.val = subtile_coord(stl_y,AI_RANDOM(256));
     pos.z.val = subtile_coord(1,0);
     return create_task_move_creature_to_pos(comp, thing, pos, dst_state);
 }
