@@ -25,7 +25,7 @@ extern "C" {
 
 extern void evm_init(char *hostport);
 extern void evm_done();
-extern void evm_stat(const char *event_fmt, ...);
+extern void evm_stat(int force_new, const char *event_fmt, ...);
 
 #ifdef __cplusplus
 }

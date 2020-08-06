@@ -750,9 +750,8 @@ unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const cha
   unsigned long i = 9377 * (*seed) + 9439;
   *seed = _lrotr(i, 13);
   i = (*seed) % range;
-//  SYNCMSG("%s: at %d, random val %d", func_name, place, i);
 #ifdef AUTOTESTING
-  evm_stat("rnd.%s,fn=%s,range=%ld val=%ld,range=%ld", tag, func_name, range, i, range);
+  evm_stat(0, "rnd.%s,fn=%s,range=%ld val=%ld,range=%ld", tag, func_name, range, i, range);
 #endif
   return i;
 }

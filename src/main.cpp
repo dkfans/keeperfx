@@ -3704,7 +3704,7 @@ void keeper_gameplay_loop(void)
             exit_keeper = true;
             break;
         }
-        evm_stat("turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
+        evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
         if (start_params.autotest_flags & ATF_FixedSeed)
         {
             game.action_rand_seed = game.play_gameturn;

@@ -5,7 +5,7 @@
 
 #include <SDL/SDL_net.h>
 
-const int MAX_PACKET_SIZE = 512;
+const int MAX_PACKET_SIZE = 1024;
 
 static UDPsocket evm_socket = 0;
 static UDPpacket * evm_packet = NULL;
@@ -47,6 +47,7 @@ void evm_init(char *hostport)
         return;
     }
     evm_packet->channel = -1;
+    evm_packet->len = 0;
 }
 
 void evm_done()
@@ -63,22 +64,54 @@ void evm_done()
     }
 }
 
-void evm_stat(const char *event_fmt, ...)
+void evm_stat(int force_new, const char *event_fmt, ...)
 {
-    int len;
+    int len, remain;
     if (evm_packet == NULL)
     {
         return;
     }
 
-    char *packet_data = (char*)evm_packet->data;
-    va_list lst;
+    char *packet_data = ((char*)evm_packet->data) + evm_packet->len;
+
+    if (force_new)
+    {
+        // Send old data
+        SDLNet_UDP_Send(evm_socket, -1, evm_packet);
+        evm_packet->len = 0;
+        packet_data = (char*)evm_packet->data;
+    }
+
+    va_list lst, lst2;
     va_start(lst, event_fmt);
+    va_copy(lst2, lst);
 
-    len = vsnprintf(packet_data, MAX_PACKET_SIZE, event_fmt, lst);
+    remain = MAX_PACKET_SIZE - evm_packet->len - 1;
+    len = vsnprintf(packet_data, remain, event_fmt, lst);
+    if (len >= MAX_PACKET_SIZE)
+    {
+        ERRORMSG("Packet too big");
+        return;
+    }
+    else if (len >= remain)
+    {
+        // Not enough remaining space. Send old data and try again
+        SDLNet_UDP_Send(evm_socket, -1, evm_packet);
+        remain = MAX_PACKET_SIZE - 1;
+        evm_packet->len = 0;
+        packet_data = (char*)evm_packet->data;
+
+        len = vsnprintf(packet_data, remain, event_fmt, lst2);
+    }
     va_end(lst);
+    va_end(lst2);
 
-    len += snprintf(packet_data + len, MAX_PACKET_SIZE - len, "\n");
-    evm_packet->len = len;
-    SDLNet_UDP_Send(evm_socket, -1, evm_packet);
+    packet_data[len] = '\n';
+    evm_packet->len += len + 1;
+
+    if (MAX_PACKET_SIZE - evm_packet->len < 16)
+    {
+        SDLNet_UDP_Send(evm_socket, -1, evm_packet);
+        evm_packet->len = 0;
+    }
 }
