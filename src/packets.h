@@ -60,7 +60,7 @@ enum TbPacketAction {
         PckA_Unknown030,//30
         PckA_Unknown031,
         PckA_PasngrCtrlExit,
-        PckA_Unknown033,
+        PckA_Unknown033, // Exit from possession
         PckA_Unknown034,
         PckA_Unknown035,//35
         PckA_SetPlyrState,
@@ -149,6 +149,7 @@ enum TbPacketAction {
         PckA_SaveViewType,
         PckA_LoadViewType,//120
         PckA_PlyrMsgChar    =  121,
+        PckA_PlyrMsgClear
 };
 
 /** Packet flags for non-action player operation. */

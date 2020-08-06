@@ -26,6 +26,7 @@
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_rules.h"
+#include "gui_msgs.h"
 #include "thing_creature.h"
 #include "creature_control.h"
 #include "light_data.h"
@@ -125,6 +126,7 @@ struct GameAdd {
     /** The creature model used for determining amount of sacrifices which decrease digger cost. */
     ThingModel cheaper_diggers_sacrifice_model;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
+    struct GuiMessage messages[GUI_MESSAGES_COUNT];
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
     long digger_work_experience;
