@@ -2670,7 +2670,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
   {
-  case PckA_Unknown033:
+  case PckA_DirectCtrlExit:
       player->influenced_thing_idx = pckt->actn_par1;
       set_player_instance(player, PI_DirctCtLeave, 0);
       break;

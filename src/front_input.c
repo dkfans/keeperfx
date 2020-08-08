@@ -667,12 +667,12 @@ TbBool get_level_lost_inputs(void)
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
               if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
               {
-                  set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx, 0, 0, 0);
+                  set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
                   inp_done = true;
               }
           } else
         {
-          set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
+          set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx,0,0,0);
           inp_done = true;
         }
         break;
@@ -1018,7 +1018,7 @@ short get_creature_control_action_inputs(void)
         {
             right_button_released = 0;
             clear_key_pressed(KC_ESCAPE);
-            set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
+            set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx,0,0,0);
         }
     }
     // Use the Query/Message keys and mouse wheel to scroll through query pages and go to correct query page when selecting an instance.
