@@ -97,6 +97,8 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
     long spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
 
 long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbkind);
+
+TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
