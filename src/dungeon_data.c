@@ -26,6 +26,7 @@
 
 /******************************************************************************/
 struct Dungeon bad_dungeon;
+struct DungeonAdd bad_dungeonadd;
 /******************************************************************************/
 struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name)
 {
@@ -64,11 +65,28 @@ struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name)
     return &(game.dungeon[(int)plyr_num]);
 }
 
+struct DungeonAdd *get_dungeonadd_f(PlayerNumber plyr_num,const char *func_name)
+{
+    if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
+    {
+        ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
+        return INVALID_DUNGEON_ADD;
+    }
+    return &(gameadd.dungeon[(int)plyr_num]);
+}
+
 TbBool dungeon_invalid(const struct Dungeon *dungeon)
 {
     if (dungeon == INVALID_DUNGEON)
         return true;
     return (dungeon < &game.dungeon[0]);
+}
+
+TbBool dungeonadd_invalid(const struct DungeonAdd *dungeon)
+{
+    if (dungeon == INVALID_DUNGEON_ADD)
+        return true;
+    return (dungeon < &gameadd.dungeon[0]);
 }
 
 void clear_dungeons(void)
@@ -77,9 +95,11 @@ void clear_dungeons(void)
   for (int i = 0; i < DUNGEONS_COUNT; i++)
   {
       LbMemorySet(&game.dungeon[i], 0, sizeof(struct Dungeon));
+      LbMemorySet(&gameadd.dungeon[i], 0, sizeof(struct DungeonAdd));
       game.dungeon[i].owner = PLAYERS_COUNT;
   }
   LbMemorySet(&bad_dungeon, 0, sizeof(struct Dungeon));
+  LbMemorySet(&bad_dungeonadd, 0, sizeof(struct DungeonAdd));
   bad_dungeon.owner = PLAYERS_COUNT;
   game.field_14E4A4 = 0;
   game.field_14E4A0 = 0;
@@ -276,41 +296,42 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
 
 TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
 {
-    if ( (tngmodel <= 0) || (tngmodel >= TRAP_TYPES_COUNT) ) {
+    if ( (tngmodel <= 0) || (tngmodel >= trapdoor_conf.trap_types_count) ) {
         ERRORDBG(1,"Can't set trap availability; invalid trap kind %d.",(int)tngmodel);
         return false;
     }
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(11,"Can't set trap availability; player %d has no dungeon.",(int)plyr_idx);
         return false;
     }
     if (buildable)
-        dungeon->trap_build_flags[tngmodel] |= MnfBldF_Manufacturable;
-    dungeon->trap_amount_offmap[tngmodel] += amount;
-    dungeon->trap_amount_placeable[tngmodel] += amount;
+        dungeonadd->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Manufacturable;
+    dungeonadd->mnfct_info.trap_amount_offmap[tngmodel] += amount;
+    dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] += amount;
     if (amount > 0)
-        dungeon->trap_build_flags[tngmodel] |= MnfBldF_Built;
+      dungeonadd->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Built;
     return true;
 }
 
 TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
 {
-    if ( (tngmodel <= 0) || (tngmodel >= DOOR_TYPES_COUNT) ) {
+    if ( (tngmodel <= 0) || (tngmodel >= trapdoor_conf.door_types_count) ) {
         ERRORDBG(1,"Can't set door availability; invalid door kind %d.",(int)tngmodel);
         return false;
     }
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(11,"Can't set door availability; player %d has no dungeon.",(int)plyr_idx);
         return false;
     }
     if (buildable)
-        dungeon->door_build_flags[tngmodel] |= MnfBldF_Manufacturable;
-    dungeon->door_amount_offmap[tngmodel] += amount;
-    dungeon->door_amount_placeable[tngmodel] += amount;
+        dungeonadd->mnfct_info.door_build_flags[tngmodel] |= MnfBldF_Manufacturable;
+    dungeonadd->mnfct_info.door_amount_offmap[tngmodel] += amount;
+    dungeonadd->mnfct_info.door_amount_placeable[tngmodel] += amount;
     if (amount > 0)
-      dungeon->door_build_flags[tngmodel] |= MnfBldF_Built;
+      dungeonadd->mnfct_info.door_build_flags[tngmodel] |= MnfBldF_Built;
     return true;
 }
 
@@ -320,9 +341,10 @@ TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
  */
 TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon)
 {
+    struct DungeonAdd *dungeonadd = get_dungeonadd(dungeon->owner);
     for (ThingModel tngmodel = 1; tngmodel < trapdoor_conf.trap_types_count; tngmodel++)
     {
-        if ((dungeon->trap_amount_stored[tngmodel] + dungeon->trap_amount_offmap[tngmodel]) > 0)
+        if ((dungeonadd->mnfct_info.trap_amount_stored[tngmodel] + dungeonadd->mnfct_info.trap_amount_offmap[tngmodel]) > 0)
             return true;
 
     }
@@ -335,9 +357,10 @@ TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon)
  */
 TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon)
 {
+    struct DungeonAdd *dungeonadd = get_dungeonadd(dungeon->owner);
     for (ThingModel tngmodel = 1; tngmodel < trapdoor_conf.door_types_count; tngmodel++)
     {
-        if ((dungeon->door_amount_stored[tngmodel] + dungeon->door_amount_offmap[tngmodel]) > 0)
+        if ((dungeonadd->mnfct_info.door_amount_stored[tngmodel] + dungeonadd->mnfct_info.door_amount_offmap[tngmodel]) > 0)
             return true;
 
     }

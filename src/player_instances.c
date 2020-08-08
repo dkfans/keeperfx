@@ -178,7 +178,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     }
     player->influenced_thing_creation = 0;
     player->influenced_thing_idx = 0;
-    if (!magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng)) {
+    if (!magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default)) {
         WARNLOG("Cannot pick up %s index %d",thing_model_name(dsttng),(int)dsttng->index);
         return 0;
     }
@@ -275,7 +275,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       trapst = &trapdoor_conf.trap_cfgstats[thing->model];
       if ((trapst->slappable == 1) && trap_is_active(thing))
       {
-          external_activate_trap_shot_at_angle(thing, player->acamera->orient_a);
+          external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, thing_get(player->hand_thing_idx));
       }
       break;
   case TCls_Object:
@@ -1185,6 +1185,8 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     traptng->mappos.z.val = get_thing_height_at(traptng, &traptng->mappos);
     traptng->trap.revealed = 0;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+
     remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, tngmodel);
     if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel)) {
         remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoStored);
@@ -1211,6 +1213,7 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     create_door(&pos, tngmodel, orient, plyr_idx, 0);
     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     int crate_source = remove_workshop_item_from_amount_stored(plyr_idx, TCls_Door, tngmodel, WrkCrtF_Default);
     switch (crate_source)
     {
@@ -1223,7 +1226,7 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         break;
     default:
         WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(tngmodel),(int)dungeon->owner);
-        dungeon->door_amount_placeable[tngmodel] = 0;
+        dungeonadd->mnfct_info.door_amount_placeable[tngmodel] = 0;
         break;
     }
     dungeon->camera_deviate_jump = 192;

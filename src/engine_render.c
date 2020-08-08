@@ -5671,15 +5671,15 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     EngineSpriteDrawUsingAlpha = 0;
     switch (thing->field_4F & (TF4F_Unknown10|TF4F_Unknown20))
     {
-    case 0x10:
+    case TF4F_Unknown10:
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
         lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
         break;
-    case 0x20:
+    case TF4F_Unknown20:
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
         lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
         break;
-    case 0x30:
+    case (TF4F_Unknown10|TF4F_Unknown20):
         EngineSpriteDrawUsingAlpha = 1;
         break;
     }

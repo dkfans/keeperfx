@@ -4129,6 +4129,10 @@ void init_level(void)
     load_computer_player_config(CnfLd_Standard);
     load_stats_files();
     check_and_auto_fix_stats();
+
+    // We should do this after 'load stats'
+    update_trap_tab_to_config();
+
     init_creature_scores();
 
     init_good_player_as(hero_player_number);

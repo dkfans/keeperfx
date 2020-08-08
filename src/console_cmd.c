@@ -22,6 +22,7 @@
 #include "bflib_datetm.h"
 #include "dungeon_data.h"
 #include "frontend.h"
+#include "frontmenu_ingame_tabs.h"
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "gui_boxmenu.h"
@@ -321,6 +322,26 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 message_add(plyr_idx, "unable to become a computer");
             } else
                 message_add(plyr_idx, "computer player activated");
+            return true;
+        } else if (strcmp(parstr, "give.trap") == 0)
+        {
+            message_add(plyr_idx, "computer player activated");
+            int id = atoi(pr2str);
+            if (id <= 0 || id > trapdoor_conf.trap_types_count)
+                return false;
+            command_add_value(Cmd_TRAP_AVAILABLE, plyr_idx, id, 1, 1);
+            update_trap_tab_to_config();
+            message_add(plyr_idx, "done!");
+            return true;
+        } else if (strcmp(parstr, "give.door") == 0)
+        {
+            message_add(plyr_idx, "computer player activated");
+            int id = atoi(pr2str);
+            if (id <= 0 || id > trapdoor_conf.door_types_count)
+                return false;
+            script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, 1);
+            update_trap_tab_to_config();
+            message_add(plyr_idx, "done!");
             return true;
         }
     }

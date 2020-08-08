@@ -771,7 +771,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           && (dungeon->things_in_hand[0] != player->thing_under_hand))
         {
             set_player_state(player, PSt_CtrlDirect, 0);
-            if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing) == Lb_FAIL) {
+            if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default) == Lb_FAIL) {
                 set_player_state(player, player->continue_work_state, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -839,7 +839,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
           if (player->field_454 == P454_Unkn3) {
               thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
-              magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
+              magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
           }
           player->field_4AF = 0;
           unset_packet_control(pckt, PCtr_RBtnRelease);
@@ -934,7 +934,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
+            magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -982,7 +982,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->thing_under_hand > 0)
           {
-              magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing);
+              magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default);
               unset_packet_control(pckt, PCtr_LBtnRelease);
           }
         }
@@ -1149,7 +1149,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing);
+            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1178,7 +1178,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing);
+            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1195,7 +1195,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing);
+            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -2313,7 +2313,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_UsePwrHandPick:
       thing = thing_get(pckt->actn_par1);
-      magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing);
+      magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
       return 0;
   case PckA_UsePwrHandDrop:
       dump_first_held_thing_on_map(plyr_idx, pckt->actn_par1, pckt->actn_par2, 1);
@@ -2328,10 +2328,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_UsePwrObey:
-      magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, 0);
+      magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, 0, PwMod_Default);
       return 0;
   case PckA_UsePwrArmageddon:
-      magic_use_available_power_on_level(plyr_idx, PwrK_ARMAGEDDON, 0);
+      magic_use_available_power_on_level(plyr_idx, PwrK_ARMAGEDDON, 0, PwMod_Default);
       return 0;
   case PckA_Unknown099:
       turn_off_query(plyr_idx);
@@ -2503,7 +2503,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     switch (pckt->action)
     {
     case PckA_HoldAudience:
-        magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, 0);
+        magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, 0, PwMod_Default);
         break;
     case PckA_UseSpecialBox:
         activate_dungeon_special(thing_get(pckt->actn_par1), player);
