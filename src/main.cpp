@@ -4728,11 +4728,21 @@ short process_command_line(unsigned short argc, char *argv[])
           return -1;
       char parstr[CMDLN_MAXLEN+1];
       char pr2str[CMDLN_MAXLEN+1];
+      char pr3str[CMDLN_MAXLEN+1];
       strncpy(parstr, par+1, CMDLN_MAXLEN);
-      if (narg+1 < argc)
-        strncpy(pr2str,  argv[narg+1], CMDLN_MAXLEN);
+      if (narg + 1 < argc)
+      {
+          strncpy(pr2str,  argv[narg+1], CMDLN_MAXLEN);
+          if (narg + 2 < argc)
+              strncpy(pr3str,  argv[narg+2], CMDLN_MAXLEN);
+          else
+              pr3str[0]='\0';
+      }
       else
-        pr2str[0]='\0';
+      {
+          pr2str[0]='\0';
+          pr3str[0]='\0';
+      }
 
       if (strcasecmp(parstr, "nointro") == 0)
       {
@@ -4881,8 +4891,11 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "monitoring") == 0)
       {
-          evm_init(pr2str);
+          int instance_no = atoi(pr3str);
+          evm_init(pr2str, instance_no);
           narg++;
+          if ((instance_no > 0) || (strcmp(pr3str, "0") == 0))
+              narg++;
       }
 #endif
       else

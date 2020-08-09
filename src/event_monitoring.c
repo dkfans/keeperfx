@@ -5,19 +5,28 @@
 
 #include <SDL/SDL_net.h>
 
-const int MAX_PACKET_SIZE = 1024;
+static const int MAX_PACKET_SIZE = 1024;
+#define SUFFIX_SIZE 4
+
+static char evm_suffix[SUFFIX_SIZE+1] = {0};
 
 static UDPsocket evm_socket = 0;
 static UDPpacket * evm_packet = NULL;
 
-void evm_init(char *hostport)
+void evm_init(char *hostport, int client_no)
 {
     int port = 8089;
     char *portptr = strchr(hostport, ':');
 
     if (SDLNet_Init() < 0)
     {
-        WARNLOG("Unable to init SDL: %s", SDLNet_GetError());
+        WARNLOG("Unable to init SDLNet: %s", SDLNet_GetError());
+        return;
+    }
+
+    if (client_no < 0 || client_no > 9)
+    {
+        WARNLOG("Invalid suffix: %d", client_no);
         return;
     }
 
@@ -46,6 +55,9 @@ void evm_init(char *hostport)
         evm_done();
         return;
     }
+
+    sprintf(evm_suffix, ",s=%d", client_no);
+
     evm_packet->channel = -1;
     evm_packet->len = 0;
 }
@@ -88,12 +100,17 @@ void evm_stat(int force_new, const char *event_fmt, ...)
 
     remain = MAX_PACKET_SIZE - evm_packet->len - 1;
     len = vsnprintf(packet_data, remain, event_fmt, lst);
-    if (len >= MAX_PACKET_SIZE)
+    if (len < 0)
+    {
+        // That means `Truncated` under old libc
+        len = remain;
+    }
+    if (len + SUFFIX_SIZE + 1>= MAX_PACKET_SIZE)
     {
         ERRORMSG("Packet too big");
         return;
     }
-    else if (len >= remain)
+    else if (len + SUFFIX_SIZE + 1 >= remain)
     {
         // Not enough remaining space. Send old data and try again
         SDLNet_UDP_Send(evm_socket, -1, evm_packet);
@@ -105,12 +122,14 @@ void evm_stat(int force_new, const char *event_fmt, ...)
     }
     va_end(lst);
     va_end(lst2);
-
+    memcpy(packet_data + len, evm_suffix, SUFFIX_SIZE); // Here we add suffix for different clients
+    len += SUFFIX_SIZE;
     packet_data[len] = '\n';
     evm_packet->len += len + 1;
 
     if (MAX_PACKET_SIZE - evm_packet->len < 16)
     {
+        packet_data[evm_packet->len] = 0;
         SDLNet_UDP_Send(evm_socket, -1, evm_packet);
         evm_packet->len = 0;
     }
