@@ -27,6 +27,7 @@
 #include "config_crtrmodel.h"
 #include "config_rules.h"
 #include "gui_msgs.h"
+#include "dungeon_data.h"
 #include "thing_creature.h"
 #include "creature_control.h"
 #include "light_data.h"
@@ -134,6 +135,11 @@ struct GameAdd {
     long room_sale_percent;
     unsigned long pay_day_speed;
     TbBool place_traps_on_subtiles;
+
+    struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
+    struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
+
+    struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };
 
 #pragma pack()

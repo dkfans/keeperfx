@@ -22,6 +22,7 @@
 #include "bflib_datetm.h"
 #include "dungeon_data.h"
 #include "frontend.h"
+#include "frontmenu_ingame_tabs.h"
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "gui_boxmenu.h"
@@ -254,7 +255,15 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
 
             if ((strcmp(pr2str,"scarce") == 0) || (strcmp(pr2str,"1") == 0))
             {
-                message_add_fmt(plyr_idx, "%s", pr2str);
+                for (int i = 0; i < PLAYERS_COUNT; i++)
+                {
+                    if ((i == game.hero_player_num)
+                        || (plyr_idx == game.neutral_player_num))
+                        continue;
+                    struct Computer2* comp = get_computer_player(i);
+                    if (player_exists(get_player(i)) && (!computer_player_invalid(comp)))
+                        message_add_fmt(i, "Ai model %d", (int)comp->model);
+                }
                 gameadd.computer_chat_flags = CChat_TasksScarce;
             } else
             if ((strcmp(pr2str,"frequent") == 0) || (strcmp(pr2str,"2") == 0))
@@ -314,9 +323,27 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             if (pr2str == NULL)
                 return false;
             if (!setup_a_computer_player(plyr_idx, atoi(pr2str))) {
-                message_add(plyr_idx, "unable to become a computer");
+                message_add(plyr_idx, "unable to set assistant");
             } else
-                message_add(plyr_idx, "computer player activated");
+                message_add_fmt(plyr_idx, "computer assistant is %d", atoi(pr2str));
+            return true;
+        } else if (strcmp(parstr, "give.trap") == 0)
+        {
+            int id = atoi(pr2str);
+            if (id <= 0 || id > trapdoor_conf.trap_types_count)
+                return false;
+            command_add_value(Cmd_TRAP_AVAILABLE, plyr_idx, id, 1, 1);
+            update_trap_tab_to_config();
+            message_add(plyr_idx, "done!");
+            return true;
+        } else if (strcmp(parstr, "give.door") == 0)
+        {
+            int id = atoi(pr2str);
+            if (id <= 0 || id > trapdoor_conf.door_types_count)
+                return false;
+            script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, 1);
+            update_trap_tab_to_config();
+            message_add(plyr_idx, "done!");
             return true;
         }
     }

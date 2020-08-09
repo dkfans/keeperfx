@@ -60,7 +60,7 @@ enum TbPacketAction {
         PckA_Unknown030,//30
         PckA_Unknown031,
         PckA_PasngrCtrlExit,
-        PckA_Unknown033, // Exit from possession
+        PckA_DirectCtrlExit,
         PckA_Unknown034,
         PckA_Unknown035,//35
         PckA_SetPlyrState,

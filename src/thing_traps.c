@@ -28,7 +28,9 @@
 #include "config_terrain.h"
 #include "creature_states.h"
 #include "thing_effects.h"
+#include "thing_physics.h"
 #include "thing_shots.h"
+#include "magic.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_util.h"
@@ -46,14 +48,14 @@ extern "C" {
 /******************************************************************************/
 
 //field_0; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; field_11; field_12; field_13; size_xy; field_16; trigger_type; activation_type; created_itm_model;  field_1B; etc
-struct TrapStats trap_stats[] = {
-{0,           0,              0,                0,            0,        0,          0,      0,          0,      0,          0,          0,               0, 0, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0},
-{128,       861,            384,                1,            0,        0,          0,      1,        640,    512,          1,          1,              15, 9, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Boulder
-{1,         844,            256,                0,          256,        0,          0,      1,          0,      0,          2,          3,              19, 2, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Alarm
-{1,         845,            256,                0,          256,        0,          0,      1,          0,      0,          2,          2,              13, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Gas
-{1,         846,            256,                0,          256,        0,          0,      1,          0,      0,          2,          3,              29, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Lightning
-{1,         844,            256,                0,          256,        0,          0,      1,          0,      0,          2,          2,              14, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //WoP
-{1,         845,            256,                0,          256,        0,          0,      1,          0,      0,          2,          4,              12, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Lava
+struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX] = {
+{0,           0, 0, 0, 0,        0, 0, 0,          0,      0,          0,          0,               0, 0, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0},
+{128,       861, 384, 1, 0,        0, 0, 1,        640,    512,          1, 1, 15, 9, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Boulder
+{1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 19, 2, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Alarm
+{1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 13, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Gas
+{1,         846, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 29, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Lightning
+{1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 14, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //WoP
+{1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 4, 12, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Lava
 };
 
 TbBool destroy_trap(struct Thing *traptng)
@@ -448,7 +450,60 @@ void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
         delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), true);
     }
     place_slab_type_on_map(trap_stats[traptng->model].created_itm_model, stl_x, stl_y, game.neutral_player_num, 0);
+    // TODO
+    //remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
+    //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
     do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+}
+
+void activate_trap_spawn_creature(struct Thing *traptng, const struct TrapStats *trapstat)
+{
+    struct Thing *thing = create_creature(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct CreatureControl* cctrl;
+
+    if (thing_is_invalid(thing))
+    {
+        return;
+    }
+    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+// Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        ERRORLOG("Trap has to create creature, but creation failed");
+        delete_thing_structure(thing, 0);
+        return;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    thing->veloc_push_add.x.val += ACTION_RANDOM(161) - 80;
+    thing->veloc_push_add.y.val += ACTION_RANDOM(161) - 80;
+    thing->veloc_push_add.z.val += 0;
+    thing->state_flags |= TF1_PushAdd;
+    cctrl->spell_flags |= CSAfF_MagicFall;
+    thing->move_angle_xy = 0;
+    // EVM_CREATURE_EVENT("joined.trap", thing->owner, thing);
+}
+
+
+void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, PowerKind pwkind)
+{
+    struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
+
+    if (powerst->can_cast_flags & PwCast_AllThings)
+    {
+        magic_use_power_on_thing(traptng->owner, pwkind, SPELL_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
+    }
+    else if (powerst->can_cast_flags & PwCast_AllGround)
+    {
+        magic_use_power_on_subtile(traptng->owner, pwkind, SPELL_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, PwMod_CastForFree);
+    }
+    else if (powerst->can_cast_flags & PwCast_Anywhere)
+    {
+        magic_use_power_on_level(traptng->owner, pwkind, SPELL_MAX_LEVEL, PwMod_CastForFree);
+    }
+    else
+    {
+        ERRORLOG("Illegal trap Power %d/%s (idx=%d)", pwkind, get_string(powerst->name_stridx), traptng->index);
+    }
 }
 
 void activate_trap(struct Thing *traptng, struct Thing *creatng)
@@ -456,6 +511,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     traptng->trap.revealed = 1;
     const struct TrapStats *trapstat = &trap_stats[traptng->model];
     struct TrapConfigStats *trapst = &trapdoor_conf.trap_cfgstats[traptng->model];
+    // EVM_TRAP_EVENT("trap.actiated", traptng->owner, thing)
     if (trapst->notify == 1)
     {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
@@ -472,14 +528,20 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     case TrpAcT_ShotonTrap:
         activate_trap_shot_on_trap(traptng, creatng);
         break;
-    case TrpAcT_SlapChange:
+    case TrpAcT_SlabChange:
         activate_trap_slab_change(traptng, creatng);
         break;
     case TrpAcT_CreatureShot:
-        creature_fire_shot(traptng, creatng,trapstat->created_itm_model,1,1);
+        creature_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, 1);
+        break;
+    case TrpAcT_CreatureSpawn:
+        activate_trap_spawn_creature(traptng, trapstat);
+        break;
+    case TrpAcT_Power:
+        activate_trap_god_spell(traptng, creatng, trapstat->created_itm_model);
         break;
     default:
-        ERRORLOG("Illegal trap activation type %d",(int)trapstat->activation_type);
+        ERRORLOG("Illegal trap activation type %d (idx=%d)",(int)trapstat->activation_type, traptng->index);
         break;
     }
 }
@@ -576,6 +638,9 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     case TrpTrg_LineOfSight:
         do_trig = update_trap_trigger_line_of_sight(traptng);
         break;
+    case TrpTrg_None: // for manually activated traps
+        do_trig = false;
+        break;
     default:
         ERRORLOG("Illegal trap trigger type %d",(int)trap_stats[traptng->model].trigger_type);
         do_trig = false;
@@ -583,7 +648,7 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     }
     if (do_trig)
     {
-        const struct ManfctrConfig* mconf = &game.traps_config[traptng->model];
+        const struct ManfctrConfig* mconf = &gameadd.traps_config[traptng->model];
         traptng->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
         int n = traptng->trap.num_shots;
         if ((n > 0) && (n != 255))
@@ -596,7 +661,7 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
                 if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                     traptng->health = -1;
                 }
-                traptng->field_4F &= TF4F_Unknown10;
+                traptng->field_4F &= TF4F_Unknown10; // Transparency
                 traptng->field_4F |= TF4F_Unknown20;
                 if (!is_neutral_thing(traptng) && !is_hero_thing(traptng)) 
                 {
@@ -620,7 +685,7 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
 
 TbBool rearm_trap(struct Thing *traptng)
 {
-    struct ManfctrConfig* mconf = &game.traps_config[traptng->model];
+    struct ManfctrConfig* mconf = &gameadd.traps_config[traptng->model];
     struct TrapStats* trapstat = &trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
     traptng->field_4F ^= (traptng->field_4F ^ (trapstat->field_12 << 4)) & (TF4F_Unknown10|TF4F_Unknown20);
@@ -699,15 +764,15 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->field_4F |= TF4F_Unknown20;
     thing->byte_13 = 0;
     thing->long_14 = game.play_gameturn;
-    if (trapstat->field_1C != 0)
+    if (trapstat->light_1C != 0)
     {
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;
-        ilght.field_0 = trapstat->field_1C;
-        ilght.field_2 = trapstat->field_1E;
+        ilght.field_0 = trapstat->light_1C;
+        ilght.field_2 = trapstat->light_1E;
         ilght.is_dynamic = 1;
-        ilght.field_3 = trapstat->field_1F;
+        ilght.field_3 = trapstat->light_1F;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id <= 0) {
             SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));
@@ -766,7 +831,7 @@ long remove_trap(struct Thing *traptng, long *sell_value)
         if (sell_value != NULL)
         {
             // Do the refund only if we were able to sell armed trap
-            long i = game.traps_config[traptng->model].selling_value;
+            long i = gameadd.traps_config[traptng->model].selling_value;
             if (traptng->trap.num_shots == 0)
             {
                 // Trap not armed - try selling crate from workshop
@@ -806,11 +871,26 @@ long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
     return total;
 }
 
-void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
+void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand)
 {
     struct TrapStats* trapstat = &trap_stats[thing->model];
     if (trapstat->created_itm_model <= 0) {
         ERRORLOG("Cannot activate trap with shot model %d",(int)trapstat->created_itm_model);
+        return;
+    }
+    if ((trapstat->activation_type != TrpAcT_CreatureShot)
+        && (trapstat->activation_type != TrpAcT_HeadforTarget90))
+    {
+        activate_trap(thing, hand);
+        if (thing->byte_13 != 255)
+        {
+            if (thing->byte_13 > 0) {
+                thing->byte_13--;
+            }
+            if (thing->byte_13 <= 0) {
+                thing->health = -1;
+            }
+        }
         return;
     }
     struct Thing* shotng = create_shot(&thing->mappos, trapstat->created_itm_model, thing->owner);
@@ -827,7 +907,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
     shotng->veloc_push_add.z.val += cvect.z;
     shotng->state_flags |= TF1_PushAdd;
     shotng->byte_16 = trapstat->field_1B;
-    const struct ManfctrConfig* mconf = &game.traps_config[thing->model];
+    const struct ManfctrConfig* mconf = &gameadd.traps_config[thing->model];
     thing->long_14 = game.play_gameturn + mconf->shots_delay;
     if (thing->byte_13 != 255)
     {

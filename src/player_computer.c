@@ -643,11 +643,13 @@ long count_diggers_in_dungeon(const struct Dungeon *dungeon)
  */
 long buildable_traps_amount(struct Dungeon *dungeon, ThingModel trmodel)
 {
-    if ((trmodel < 1) || (trmodel >= TRAP_TYPES_COUNT))
+    if ((trmodel < 1) || (trmodel >= trapdoor_conf.trap_types_count))
         return 0;
-    if ((dungeon->trap_build_flags[trmodel] & MnfBldF_Manufacturable) != 0)
+
+    struct DungeonAdd *dungeonadd = get_dungeonadd(dungeon->owner);
+    if ((dungeonadd->mnfct_info.trap_build_flags[trmodel] & MnfBldF_Manufacturable) != 0)
     {
-        return dungeon->trap_amount_stored[trmodel];
+        return dungeonadd->mnfct_info.trap_amount_stored[trmodel];
     }
     return 0;
 }
@@ -1513,9 +1515,9 @@ void setup_computer_players2(void)
             skirmish_AI_type = 7;
         }
         setup_a_computer_player(i, skirmish_AI_type);
-        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0)
         {
-            message_add_fmt(i, "ai model %d", skirmish_AI_type);
+            message_add_fmt(i, "Ai model %d", skirmish_AI_type);
         }
         if (i != game.local_plyr_idx)
         {

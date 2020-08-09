@@ -771,7 +771,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           && (dungeon->things_in_hand[0] != player->thing_under_hand))
         {
             set_player_state(player, PSt_CtrlDirect, 0);
-            if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing) == Lb_FAIL) {
+            if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default) == Lb_FAIL) {
                 set_player_state(player, player->continue_work_state, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -839,7 +839,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
           if (player->field_454 == P454_Unkn3) {
               thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
-              magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
+              magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
           }
           player->field_4AF = 0;
           unset_packet_control(pckt, PCtr_RBtnRelease);
@@ -881,8 +881,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     struct SlabMap *slb;
     long i;
     struct Room* room;
-    MapSlabCoord slb_x = slab_subtile(subtile_slab_fast(stl_x), 0);
-    MapSlabCoord slb_y = slab_subtile(subtile_slab_fast(stl_y), 0);
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     switch (player->work_state)
     {
     case PSt_CtrlDungeon:
@@ -934,7 +934,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
+            magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -982,7 +982,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->thing_under_hand > 0)
           {
-              magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing);
+              magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default);
               unset_packet_control(pckt, PCtr_LBtnRelease);
           }
         }
@@ -1117,7 +1117,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
             if ((pckt->control_flags & PCtr_LBtnClick) != 0)
             {
-              k = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+              k = get_slab_number(slb_x, slb_y);
               delete_room_slabbed_objects(k);
               packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, i);
             }
@@ -1149,7 +1149,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing);
+            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1178,7 +1178,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing);
+            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1195,7 +1195,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing);
+            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1235,7 +1235,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_StealRoom:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
-            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            slb = get_slabmap_block(slb_x, slb_y);
             if (slb->room_index)
                 {
                     room = room_get(slb->room_index);
@@ -1255,7 +1255,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_DestroyRoom:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
-            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            slb = get_slabmap_block(slb_x, slb_y);
             if (slb->room_index)
                 {
                     room = room_get(slb->room_index);
@@ -1305,7 +1305,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_StealSlab:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
-            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            slb = get_slabmap_block(slb_x, slb_y);
             if (slb->kind >= SlbT_EARTH && slb->kind <= SlbT_CLAIMED)
             {
                 short slbkind;
@@ -1368,7 +1368,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                         }
                     }
                 }
-                place_slab_type_on_map(slbkind, slb_x, slb_y, i, 0);
+                place_slab_type_on_map(slbkind, stl_x, stl_y, i, 0);
                 do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -1518,7 +1518,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_PlaceTerrain:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
-            slb = get_slabmap_block(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+            slb = get_slabmap_block(slb_x, slb_y);
             short slbkind;
             char s[3];
             if (is_key_pressed(KC_SLASH, KMod_NONE))
@@ -1622,15 +1622,15 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 if (subtile_is_room(stl_x, stl_y)) 
                 {
                     room = subtile_room_get(stl_x, stl_y);
-                    delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), true);
+                    delete_room_slab(slb_x, slb_y, true);
                 }
                 if (slab_kind_is_animated(slbkind))
                 {
-                    place_animating_slab_type_on_map(slbkind, 0, slb_x, slb_y, game.neutral_player_num);  
+                    place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, game.neutral_player_num);  
                 }
                 else
                 {
-                    place_slab_type_on_map(slbkind, slb_x, slb_y, game.neutral_player_num, 0);
+                    place_slab_type_on_map(slbkind, stl_x, stl_y, game.neutral_player_num, 0);
                 }
                 do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
             }
@@ -2319,7 +2319,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_UsePwrHandPick:
       thing = thing_get(pckt->actn_par1);
-      magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing);
+      magic_use_available_power_on_thing(plyr_idx, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
       return 0;
   case PckA_UsePwrHandDrop:
       dump_first_held_thing_on_map(plyr_idx, pckt->actn_par1, pckt->actn_par2, 1);
@@ -2334,10 +2334,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_UsePwrObey:
-      magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, 0);
+      magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, 0, PwMod_Default);
       return 0;
   case PckA_UsePwrArmageddon:
-      magic_use_available_power_on_level(plyr_idx, PwrK_ARMAGEDDON, 0);
+      magic_use_available_power_on_level(plyr_idx, PwrK_ARMAGEDDON, 0, PwMod_Default);
       return 0;
   case PckA_Unknown099:
       turn_off_query(plyr_idx);
@@ -2509,7 +2509,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     switch (pckt->action)
     {
     case PckA_HoldAudience:
-        magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, 0);
+        magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, 0, PwMod_Default);
         break;
     case PckA_UseSpecialBox:
         activate_dungeon_special(thing_get(pckt->actn_par1), player);
@@ -2676,7 +2676,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
   {
-  case PckA_Unknown033:
+  case PckA_DirectCtrlExit:
       player->influenced_thing_idx = pckt->actn_par1;
       set_player_instance(player, PI_DirctCtLeave, 0);
       break;

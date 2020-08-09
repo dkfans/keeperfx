@@ -149,7 +149,8 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
             pos->z.val = gatetng->mappos.z.val;
             return 1;
         }
-    } else
+    }
+    else
     // Neutral creatures don't have flee place
     if (is_neutral_thing(creatng))
     {
@@ -170,17 +171,18 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
         return 0;
     }
     // Other creatures can flee to heart or their lair
-    if (cctrl->lairtng_idx > 0)
+    struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
+    if ( (!thing_is_invalid(lairtng)) && (creature_can_navigate_to_with_storage(creatng, &lairtng->mappos, NavRtF_Default)) )
     {
-        struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
         TRACE_THING(lairtng);
         pos->x.val = lairtng->mappos.x.val;
         pos->y.val = lairtng->mappos.y.val;
         pos->z.val = lairtng->mappos.z.val;
-    } else
-    if (dungeon->dnheart_idx > 0)
+    }
+    else
+    if (creature_can_get_to_dungeon(creatng, creatng->owner))
     {
-        struct Thing* heartng = thing_get(dungeon->dnheart_idx);
+        struct Thing* heartng = get_player_soul_container(creatng->owner);
         TRACE_THING(heartng);
         pos->x.val = heartng->mappos.x.val;
         pos->y.val = heartng->mappos.y.val;
@@ -193,27 +195,29 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
             ERRORLOG("The %s index %d has no dungeon heart or lair to flee to",thing_model_name(creatng),(int)creatng->index);
             return 0;
         }
-        pos->x.val = creatng->mappos.x.val;
-        pos->y.val = creatng->mappos.y.val;
-        pos->z.val = creatng->mappos.z.val;
+        pos->x.stl.pos = creatng->mappos.x.stl.pos;
+        pos->y.stl.pos = creatng->mappos.y.stl.pos;
+        pos->z.stl.pos = creatng->mappos.z.stl.pos;
     }
     return 1;
 }
 
-void setup_combat_flee_position(struct Thing *thing)
+TbBool setup_combat_flee_position(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl)) {
         ERRORLOG("Invalid creature control");
-        return;
+        return false;
     }
     if (!get_flee_position(thing, &cctrl->flee_pos))
     {
         ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
-        cctrl->flee_pos.x.val = thing->mappos.x.val;
-        cctrl->flee_pos.y.val = thing->mappos.y.val;
-        cctrl->flee_pos.z.val = thing->mappos.z.val;
+        cctrl->flee_pos.x.stl.pos = thing->mappos.x.stl.pos;
+        cctrl->flee_pos.y.stl.pos = thing->mappos.y.stl.pos;
+        cctrl->flee_pos.z.stl.pos = thing->mappos.z.stl.pos;
+        return false;
     }
+    return true;
 }
 
 long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, CrAttackType attack_pref)

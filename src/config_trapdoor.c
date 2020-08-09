@@ -256,7 +256,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       arr_size = trapdoor_conf.trap_types_count;
       for (i=0; i < arr_size; i++)
       {
-          mconf = &game.traps_config[i];
+          mconf = &gameadd.traps_config[i];
           mconf->manufct_level = 0;
           mconf->manufct_required = 0;
           mconf->shots = 0;
@@ -282,7 +282,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           continue;
     }
-    mconf = &game.traps_config[i];
+    mconf = &gameadd.traps_config[i];
     trapst = &trapdoor_conf.trap_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(trapdoor_trap_commands,cmd_num)
     while (pos<len)
@@ -309,6 +309,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
             break;
           }
+          trap_desc[i].name = trapst->code_name;
+          trap_desc[i].num = i;
           break;
       case 2: // MANUFACTURELEVEL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -704,7 +706,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           continue;
     }
-    struct ManfctrConfig* mconf = &game.doors_config[i];
+    struct ManfctrConfig* mconf = &gameadd.doors_config[i];
     doorst = &trapdoor_conf.door_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(trapdoor_door_commands,cmd_num)
     while (pos<len)
@@ -762,8 +764,12 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            door_stats[i][0].health = k;
-            door_stats[i][1].health = k;
+            if (i < DOOR_TYPES_COUNT)
+            {
+              door_stats[i][0].health = k;
+              door_stats[i][1].health = k;
+            }
+            //TODO: set stats
             n++;
           }
           if (n < 1)
@@ -1108,6 +1114,7 @@ int trap_model_id(const char * code_name)
 TbBool is_trap_placeable(PlayerNumber plyr_idx, long tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1116,11 +1123,11 @@ TbBool is_trap_placeable(PlayerNumber plyr_idx, long tngmodel)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if ((tngmodel <= 0) || (tngmodel >= TRAP_TYPES_COUNT)) {
+    if ((tngmodel <= 0) || (tngmodel >= trapdoor_conf.trap_types_count)) {
         ERRORLOG("Incorrect trap %d (player %d)",(int)tngmodel, (int)plyr_idx);
         return false;
     }
-    if (dungeon->trap_amount_placeable[tngmodel] > 0) {
+    if (dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] > 0) {
         return true;
     }
     return false;
@@ -1134,6 +1141,7 @@ TbBool is_trap_placeable(PlayerNumber plyr_idx, long tngmodel)
 TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1142,31 +1150,32 @@ TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if ((tngmodel <= 0) || (tngmodel >= TRAP_TYPES_COUNT)) {
+    if ((tngmodel <= 0) || (tngmodel >= trapdoor_conf.trap_types_count)) {
         ERRORLOG("Incorrect trap %d (player %d)",(int)tngmodel, (int)plyr_idx);
         return false;
     }
-    if ((dungeon->trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) {
+    if ((dungeonadd->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) {
         return true;
     }
     return false;
 }
 
 /**
- * Returns if the trap was at least one built by a player.
+ * Returns if the trap was at least once built by a player.
  */
 TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
     }
-    if ((tngmodel <= 0) || (tngmodel >= TRAP_TYPES_COUNT)) {
+    if ((tngmodel <= 0) || (tngmodel >= trapdoor_conf.trap_types_count)) {
         ERRORLOG("Incorrect trap %d (player %d)",(int)tngmodel, (int)plyr_idx);
         return false;
     }
-    if ((dungeon->trap_build_flags[tngmodel] & MnfBldF_Built) != 0) {
+    if ((dungeonadd->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Built) != 0) {
         return true;
     }
     return false;
@@ -1180,6 +1189,7 @@ TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel)
 TbBool is_door_placeable(PlayerNumber plyr_idx, long tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1188,11 +1198,11 @@ TbBool is_door_placeable(PlayerNumber plyr_idx, long tngmodel)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if ((tngmodel <= 0) || (tngmodel >= DOOR_TYPES_COUNT)) {
+    if ((tngmodel <= 0) || (tngmodel >= trapdoor_conf.door_types_count)) {
         ERRORLOG("Incorrect door %d (player %d)",(int)tngmodel, (int)plyr_idx);
         return false;
     }
-    if (dungeon->door_amount_placeable[tngmodel] > 0) {
+    if (dungeonadd->mnfct_info.door_amount_placeable[tngmodel] > 0) {
         return true;
     }
     return false;
@@ -1206,6 +1216,7 @@ TbBool is_door_placeable(PlayerNumber plyr_idx, long tngmodel)
 TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1214,11 +1225,11 @@ TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if ((door_idx <= 0) || (door_idx >= DOOR_TYPES_COUNT)) {
+    if ((door_idx <= 0) || (door_idx >= trapdoor_conf.door_types_count)) {
         ERRORLOG("Incorrect door %d (player %d)",(int)door_idx, (int)plyr_idx);
         return false;
     }
-    if ((dungeon->door_build_flags[door_idx] & MnfBldF_Manufacturable) != 0) {
+    if ((dungeonadd->mnfct_info.door_build_flags[door_idx] & MnfBldF_Manufacturable) != 0) {
         return true;
     }
     return false;
@@ -1230,6 +1241,7 @@ TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
 TbBool is_door_built(PlayerNumber plyr_idx, long door_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1238,11 +1250,11 @@ TbBool is_door_built(PlayerNumber plyr_idx, long door_idx)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if ((door_idx <= 0) || (door_idx >= DOOR_TYPES_COUNT)) {
+    if ((door_idx <= 0) || (door_idx >= trapdoor_conf.door_types_count)) {
         ERRORLOG("Incorrect door %d (player %d)",(int)door_idx, (int)plyr_idx);
         return false;
     }
-    if ((dungeon->door_build_flags[door_idx] & MnfBldF_Built) != 0) {
+    if ((dungeonadd->mnfct_info.door_build_flags[door_idx] & MnfBldF_Built) != 0) {
         return true;
     }
     return false;

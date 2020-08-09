@@ -2001,6 +2001,7 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
     case TrpTrg_LineOfSight90:
     case TrpTrg_Pressure:
     case TrpTrg_LineOfSight:
+    case TrpTrg_None:
         validval4 = 1;
         break;
     default:
@@ -2011,8 +2012,10 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
     case TrpAcT_HeadforTarget90:
     case TrpAcT_EffectonTrap:
     case TrpAcT_ShotonTrap:
-    case TrpAcT_SlapChange:
+    case TrpAcT_SlabChange:
     case TrpAcT_CreatureShot:
+    case TrpAcT_CreatureSpawn:
+    case TrpAcT_Power:
         validval5 = 1;
         break;
     default: 
@@ -2021,8 +2024,11 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
     int validval6 = 1;
     if ((val6 <= 0) || 
         ((val6 > magic_conf.shot_types_count) && (val5 == (TrpAcT_HeadforTarget90 || TrpAcT_ShotonTrap || TrpAcT_CreatureShot))) ||
-        ((val6 > slab_conf.slab_types_count ) && (val5 == TrpAcT_SlapChange)) ||
-        ((val6 > effects_conf.effect_types_count) && (val5 == TrpAcT_EffectonTrap)))
+        ((val6 > slab_conf.slab_types_count ) && (val5 == TrpAcT_SlabChange)) ||
+        ((val6 > effects_conf.effect_types_count) && (val5 == TrpAcT_EffectonTrap)) ||
+        ((val6 >= CREATURE_TYPES_COUNT) && (val5 == TrpAcT_CreatureSpawn)) ||
+        ((val6 >= magic_conf.power_types_count) && (val5 == TrpAcT_Power))
+        )
     {
         validval6 = 0;
         SCRPTERRLOG("EffectType '%d' out of range", val6);
@@ -2039,7 +2045,7 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
         struct TrapConfigStats* trapst;
         struct ManfctrConfig* mconf;
         trapst = &trapdoor_conf.trap_cfgstats[trap_id];   
-        mconf = &game.traps_config[trap_id];
+        mconf = &gameadd.traps_config[trap_id];
         SCRIPTDBG(7, "Changing trap %d configuration from (%d,%d,%d,%d,%d,%d,%d)", trap_id, mconf->shots, mconf->shots_delay, trap_stats[trap_id].sprite_anim_idx, trap_stats[trap_id].trigger_type, trap_stats[trap_id].activation_type, trap_stats[trap_id].created_itm_model,trapst->hidden);
         SCRIPTDBG(7, "Changing trap %d configuration to (%d,%d,%d,%d,%d,%d,%d)", trap_id, val1, val2, val3, val4, val5, val6, val7);
         mconf->shots = val1;
@@ -2070,7 +2076,7 @@ void command_set_door_configuration(const char* doorname, long val1, long val2, 
     if (!((val1 < 0) || (val2 < 0) || (val3 < 0) || (val4 < 0)))
     {
         struct ManfctrConfig* mconf;
-        mconf = &game.doors_config[door_id];
+        mconf = &gameadd.doors_config[door_id];
         SCRIPTDBG(7, "Changing door %d configuration from (%d,%d,%d,%d) to (%d,%d,%d,%d)", door_id, mconf->manufct_level, mconf->manufct_required, mconf->selling_value, door_stats[door_id][0].health, val1, val2, val3, val4);
         mconf->manufct_level = val1;
         mconf->manufct_required = val2;
@@ -4151,6 +4157,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
 {
     SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
     struct Dungeon* dungeon;
+    struct DungeonAdd* dungeonadd;
     struct Thing* thing;
     switch (valtype)
     {
@@ -4289,11 +4296,13 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
         return is_power_available(plyr_idx, validx);
     case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->trap_amount_stored[validx%TRAP_TYPES_COUNT] + dungeon->trap_amount_offmap[validx%TRAP_TYPES_COUNT];
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->mnfct_info.trap_amount_stored[validx%trapdoor_conf.trap_types_count]
+              + dungeonadd->mnfct_info.trap_amount_offmap[validx%trapdoor_conf.trap_types_count];
     case SVar_AVAILABLE_DOOR: // IF_AVAILABLE(DOOR)
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->door_amount_stored[validx%DOOR_TYPES_COUNT] + dungeon->door_amount_offmap[validx%DOOR_TYPES_COUNT];
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->mnfct_info.door_amount_stored[validx%trapdoor_conf.door_types_count]
+              + dungeonadd->mnfct_info.door_amount_offmap[validx%trapdoor_conf.door_types_count];
     case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
         dungeon = get_dungeon(plyr_idx);
         return dungeon->room_buildable[validx%ROOM_TYPES_COUNT];
