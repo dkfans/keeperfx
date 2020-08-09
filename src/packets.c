@@ -2856,11 +2856,14 @@ void process_packets(void)
         }
         if (j != k)
         {
+            EVM_GLOBAL_EVENT("desync");
             for (i = 0; i < 4; i++)
             {
                 player = get_player(i);
                 if (!network_player_active(player->packet_num))
                 {
+                    // Here we can pause the game
+                    message_add_fmt(i, "AI in control!");
                     player->allocflags |= PlaF_CompCtrl;
                     toggle_computer_player(i);
                 }
@@ -2898,6 +2901,7 @@ void process_packets(void)
   for (i=0; i<PACKETS_COUNT; i++)
   {
     player = get_player(i);
+    // Here we can restore player when he get back
     if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
       process_players_packet(i);
   }
