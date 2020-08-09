@@ -3754,6 +3754,12 @@ void keeper_gameplay_loop(void)
     PaletteSetPlayerPalette(player, engine_palette);
     if ((game.operation_flags & GOF_SingleLevel) != 0)
         initialise_eye_lenses();
+
+    if ((start_params.autotest_flags & ATF_AI_Player) != 0)
+    {
+        toggle_computer_player(player->id_number);
+    }
+
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
 
     KeeperSpeechClearEvents();
