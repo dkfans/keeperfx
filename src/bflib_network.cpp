@@ -49,9 +49,6 @@ DLLIMPORT TbError _DK_LbNetwork_Create(char *nsname_str, char *plyr_name, unsign
 DLLIMPORT TbError _DK_LbNetwork_ChangeExchangeBuffer(void *, unsigned long);
 DLLIMPORT TbError _DK_LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
 DLLIMPORT TbError _DK_LbNetwork_EnableNewPlayers(unsigned long allow);
-DLLIMPORT TbError _DK_LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
-DLLIMPORT TbError _DK_LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
-DLLIMPORT TbError _DK_LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 /******************************************************************************/
 // Local functions definition
 TbError ClearClientData(void);
@@ -1329,7 +1326,6 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
 
   SYNCDBG(7, "Starting");
 
-  //return _DK_LbNetwork_EnumerateServices(callback, ptr);
 /*
   local_init = false;
   if (!network_initialized)
@@ -1410,7 +1406,6 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
     SYNCDBG(9, "Starting");
 
   //char ret;
-  //return _DK_LbNetwork_EnumerateSessions(callback, ptr);
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
