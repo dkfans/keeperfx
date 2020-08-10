@@ -40,14 +40,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT TbError _DK_LbNetwork_Exchange(void *buf);
-DLLIMPORT TbError _DK_LbNetwork_Startup(void);
-DLLIMPORT TbError _DK_LbNetwork_Shutdown(void);
-DLLIMPORT TbError _DK_LbNetwork_Stop(void);
-DLLIMPORT TbError _DK_LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, unsigned long *plyr_num);
-DLLIMPORT TbError _DK_LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num);
-DLLIMPORT TbError _DK_LbNetwork_EnableNewPlayers(unsigned long allow);
-/******************************************************************************/
 // Local functions definition
 TbError ClearClientData(void);
 TbError GetPlayerInfo(void);
@@ -229,20 +221,6 @@ static struct TbNetworkSessionNameEntry sessions[SESSION_COUNT]; //using origina
 
 // New network code data definitions end here =================================
 
-/*
- * The following two functions are not exported from this module.
- *
-TbError LbNetwork_Startup(void)
-{
-  return _DK_LbNetwork_Startup();
-}
-
-TbError LbNetwork_Shutdown(void)
-{
-  return _DK_LbNetwork_Shutdown();
-}
-*/
-
 //debug function to find out reason for mutating peer ids
 static TbBool UserIdentifiersValid(void)
 {
@@ -314,7 +292,7 @@ static void SendClientFrame(const char * frame_buffer, int seq_nbr) //seq_nbr be
 {
     char * ptr;
 
-    NETDBG(9, "Starting");
+    NETDBG(10, "Starting");
 
     ptr = netstate.msg_buffer;
 
@@ -360,7 +338,7 @@ static void SendServerFrame(void)
     char * ptr;
     size_t size;
 
-    NETDBG(9, "Starting");
+    NETDBG(10, "Starting");
 
     ptr = netstate.msg_buffer;
     *ptr = NETMSG_FRAME;
@@ -747,7 +725,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
       }
       break;
   case NS_TCP_IP:
-      NETMSG("Selecting TCP/IP SP");
+      NETMSG("Selecting UDP SP");
 
       netstate.sp = &tcpSP;
 
@@ -770,7 +748,6 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 {
   /*TbError ret;
   TbClockMSec tmStart;
-  //return _DK_LbNetwork_Join(nsname, plyr_name, plyr_num);
   ret = Lb_FAIL;
   tmStart = LbTimerClock();
   if (spPtr == NULL)
@@ -838,7 +815,9 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
     netstate.my_id = 23456;
 
+    NETDBG(8, "Sending login request");
     SendLoginRequest(plyr_name, netstate.password);
+    NETDBG(8, "Waiting for response");
     ProcessMessagesUntilNextLoginReply(WAIT_FOR_SERVER_TIMEOUT_IN_MS);
     if (netstate.msg_buffer[0] != NETMSG_LOGIN) {
         NETMSG("Network login rejected");
@@ -858,7 +837,6 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
-  //return _DK_LbNetwork_Create(nsname_str, plyr_name, plyr_num);
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -973,7 +951,7 @@ TbError LbNetwork_Stop(void)
     NetFrame* frame;
     NetFrame* nextframe;
 
-    /*//return _DK_LbNetwork_Stop();
+    /*
   if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -1021,7 +999,7 @@ TbError LbNetwork_Stop(void)
     }
 
     LbMemorySet(&netstate, 0, sizeof(netstate));
-
+    NETDBG(9, "Done");
     return Lb_OK;
 }
 
@@ -1101,6 +1079,7 @@ static void ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
     while (timeout == 0 || netstate.sp->msgready(id,
             timeout /*- (min(LbTimerClock() - start, max(timeout - 1, 0)))*/) != 0) {
         if (ProcessMessage(id) == Lb_FAIL) {
+            NETDBG(8, "Failed");
             break;
         }
 
@@ -1124,14 +1103,17 @@ static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout)
     while (timeout == 0 || netstate.sp->msgready(SERVER_ID,
             timeout - (min(LbTimerClock() - start, max(timeout - 1, 0l)))) != 0) {
         if (ProcessMessage(SERVER_ID) == Lb_FAIL) {
+            NETDBG(8, "Failed");
             break;
         }
 
         if (netstate.msg_buffer[0] == NETMSG_LOGIN) {
+            NETDBG(9, "Done");
             break;
         }
 
         if (LbTimerClock() - start > timeout) {
+            NETDBG(8, "Timeout");
             break;
         }
     }
@@ -1142,6 +1124,7 @@ static void ProcessPendingMessages(NetUserId id)
     //process as many messages as possible
     while (netstate.sp->msgready(id, 0) != 0) {
         if (ProcessMessage(id) == Lb_FAIL) {
+            NETDBG(8, "Failed");
             return;
         }
     }
@@ -1165,8 +1148,7 @@ TbError LbNetwork_Exchange(void *buf)
 {
     NetUserId id;
 
-    NETDBG(7, "Starting");
-  //return _DK_LbNetwork_Exchange(buf);
+    NETDBG(11, "Starting");
   /*spPtr->update();
   if (LbNetwork_StartExchange(buf) != Lb_OK)
   {
@@ -1244,7 +1226,7 @@ TbError LbNetwork_Exchange(void *buf)
 
     assert(UserIdentifiersValid());
 
-    NETDBG(7, "Ending");
+    NETDBG(11, "Ending");
 
     return Lb_OK;
 }
@@ -1363,7 +1345,7 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *ptr)
   callback(&netcdat, ptr);
   strcpy(netcdat.svc_name, "IPX");
   callback(&netcdat, ptr);
-  strcpy(netcdat.svc_name, "TCP");
+  strcpy(netcdat.svc_name, "UDP");
   callback(&netcdat, ptr);
   NETMSG("Enumerate Services called");
   return Lb_OK;

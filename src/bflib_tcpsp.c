@@ -25,38 +25,54 @@
 #include <assert.h>
 #include <SDL/SDL_net.h>
 
-enum MsgReadState
+#define MAX_PACKET_SIZE   1024
+#define MAX_PACKETS       32
+#define TOKEN_SIZE        2
+
+struct PacketListNode
 {
-    READ_HEADER,
-    READ_BODY,
-    READ_FINISHED
+    struct PacketListNode *next;
+    UDPpacket *packet;
 };
 
-struct Msg
+enum SPMode
 {
-    enum MsgReadState state;
-    size_t msg_size;
-    //size_t bytes_left; //not necessary with SDL_net
-    char * buffer;
-    size_t buffer_size;
+    SPM_INACTIVE = 0,
+    SPM_WAITING_FOR_TOKEN,
+    SPM_CONNECTED,
 };
 
 struct Peer
 {
-    TCPsocket   socket;
-    NetUserId   id; //corresponding user
-    struct Msg  msg; //last msg received
+    NetUserId               id; //corresponding user
+    short                   token;
+    Uint32                  last_packet_time_ms;
+    struct PacketListNode   *head;
+    struct PacketListNode   *tail;
+    enum SPMode             mode;
+    IPaddress               address;
 };
 
 struct SPState
 {
-    TbBool              ishost;
-    struct Msg          servermsg; //message from server
-    TCPsocket           socket; //server socket or client peer
-    SDLNet_SocketSet    socketset;
-    struct Peer         peers[MAX_N_PEERS];
-    NetDropCallback     drop_callback;
+    TbBool                  ishost;
+    UDPsocket               socket; //socket
+    struct Peer             peers[MAX_N_PEERS];
+    NetDropCallback         drop_callback;
+
+    struct PacketListNode   *msg_head; // incoming requests goes here
+    struct PacketListNode   *msg_tail;
+
+    struct PacketListNode   *free_node;
+
+    IPaddress               address; // client only
+    short                   client_token;
+    enum SPMode             mode;
+
+    UDPpacket               *outpacket;
 };
+
+struct PacketListNode all_nodes[MAX_PACKETS] = {0};
 
 static struct SPState spstate;
 
@@ -90,210 +106,24 @@ static TbBool clear_peer(NetUserId id)
     if (spstate.ishost) {
         for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
         {
-            if (spstate.peers[i].id == id) {
-                if (spstate.peers[i].socket != NULL) {
-                    SDLNet_TCP_DelSocket(spstate.socketset, spstate.peers[i].socket);
-                    SDLNet_TCP_Close(spstate.peers[i].socket);
-                }
-
-                LbMemoryFree(spstate.peers[i].msg.buffer);
+            if (spstate.peers[i].id == id)
+            {
+                spstate.peers[i].tail->next = spstate.free_node->next; // Join lists
+                spstate.free_node = spstate.peers[i].head;
                 LbMemorySet(&spstate.peers[i], 0, sizeof(spstate.peers[i]));
-
                 return 1;
             }
         }
-
         return 0;
     }
     else {
         if (spstate.socket != NULL) {
-            SDLNet_TCP_Close(spstate.socket);
+            SDLNet_UDP_Close(spstate.socket);
             spstate.socket = NULL; //assume disconnected
+            spstate.client_token = 0;
         }
-
-        LbMemoryFree(spstate.servermsg.buffer);
-        LbMemorySet(&spstate.servermsg, 0, sizeof(spstate.servermsg));
-
         return 1;
     }
-}
-
-static TCPsocket find_peer_socket(NetUserId id)
-{
-    if (spstate.ishost) {
-        for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
-        {
-            if (spstate.peers[i].id == id) {
-                return spstate.peers[i].socket;
-            }
-        }
-    }
-    else {
-        assert(id == SERVER_ID);
-
-        return spstate.socket;
-    }
-
-    ERRORLOG("No user with ID %u", id);
-    return NULL;
-}
-
-static struct Msg * find_peer_message(NetUserId id)
-{
-    if (spstate.ishost) {
-        for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
-        {
-            if (spstate.peers[i].id == id) {
-                return &spstate.peers[i].msg;
-            }
-        }
-    }
-    else {
-        assert(id == SERVER_ID);
-
-        return &spstate.servermsg;
-    }
-
-    ERRORLOG("No user with ID %u", id);
-    return NULL;
-}
-
-static TbError send_buffer(TCPsocket socket, const char * buffer, size_t size)
-{
-    int retval;
-
-    assert(buffer);
-
-    if (socket == NULL) {
-        return Lb_OK;
-    }
-
-    NETDBG(9, "Trying to send %u bytes", size);
-
-    if ((retval = SDLNet_TCP_Send(socket, buffer, size)) != size) {
-        NETMSG("Failure to send to socket: %d", retval);
-        return Lb_FAIL;
-    }
-
-    return Lb_OK;
-}
-
-static void reset_msg(struct Msg * msg)
-{
-    NETDBG(9, "Starting");
-    msg->state = READ_HEADER;
-    msg->msg_size = 0;
-}
-
-static void inflate_msg(struct Msg * msg)
-{
-    NETDBG(9, "Inflating to %u bytes", msg->msg_size);
-
-    msg->state = READ_BODY;
-
-    if (msg->msg_size > msg->buffer_size) {
-        msg->buffer_size = msg->msg_size;
-        msg->buffer = (char*) LbMemoryGrow(msg->buffer, msg->buffer_size);
-    }
-}
-
-static TbError read_stage(TCPsocket socket, char * buffer, size_t size)
-{
-    int retval;
-
-    assert(buffer);
-    assert(socket);
-
-    NETDBG(9, "Trying to read %u bytes", size);
-
-    if ((retval = SDLNet_TCP_Recv(socket, buffer, size)) != size) {
-        NETMSG("Failure to read from socket: %d", retval);
-        return Lb_FAIL;
-    }
-
-    return Lb_OK;
-}
-
-static TbError read_full(TCPsocket socket, struct Msg * msg)
-{
-    NETDBG(8, "Starting");
-
-    assert(msg);
-
-    if (socket == NULL) {
-        return Lb_OK;
-    }
-
-    if (msg->state == READ_FINISHED) {
-        reset_msg(msg);
-    }
-
-    if (msg->state == READ_HEADER) {
-        if (read_stage(socket, (char*) &msg->msg_size, 4) == Lb_FAIL) {
-            return Lb_FAIL;
-        }
-
-        inflate_msg(msg);
-    }
-
-    if (msg->state == READ_BODY) {
-        if (read_stage(socket, msg->buffer, msg->msg_size) == Lb_FAIL) {
-            return Lb_FAIL;
-        }
-    }
-
-    assert(msg->state == READ_BODY);
-    msg->state = READ_FINISHED;
-
-    NETDBG(8, "Read of %u bytes finished", msg->msg_size);
-
-    return Lb_OK;
-}
-
-static TbError read_partial(TCPsocket socket, struct Msg * msg, unsigned timeout)
-{
-    NETDBG(8, "Starting");
-
-    assert(msg);
-
-    if (socket == NULL) {
-        return Lb_OK;
-    }
-
-    if (msg->state == READ_FINISHED) {
-        reset_msg(msg);
-    }
-
-    if (msg->state == READ_HEADER) {
-        SDLNet_CheckSockets(spstate.socketset, timeout);
-        if (!SDLNet_SocketReady(socket)) {
-            return Lb_OK;
-        }
-
-        if (read_stage(socket, (char*) &msg->msg_size, 4) == Lb_FAIL) {
-            return Lb_FAIL;
-        }
-
-        inflate_msg(msg);
-    }
-
-    if (msg->state == READ_BODY) {
-        SDLNet_CheckSockets(spstate.socketset, timeout);
-        if (!SDLNet_SocketReady(socket)) {
-            return Lb_OK;
-        }
-
-        if (read_stage(socket, msg->buffer, msg->msg_size) == Lb_FAIL) {
-            return Lb_FAIL;
-        }
-    }
-
-    assert(msg->state == READ_BODY);
-    msg->state = READ_FINISHED;
-
-    NETDBG(8, "Read of %u bytes finished", msg->msg_size);
-
-    return Lb_OK;
 }
 
 static TbError tcpSP_init(NetDropCallback drop_callback)
@@ -306,6 +136,16 @@ static TbError tcpSP_init(NetDropCallback drop_callback)
         return Lb_FAIL;
     }
 
+    for (unsigned int i = 0; i < MAX_PACKETS; ++i)
+    {
+        all_nodes[i].packet = SDLNet_AllocPacket(MAX_PACKET_SIZE);
+        all_nodes[i].next = &all_nodes[i+1];
+    }
+    spstate.free_node = &all_nodes[0];
+    all_nodes[MAX_PACKETS - 1].next = NULL;
+
+    spstate.outpacket = SDLNet_AllocPacket(MAX_PACKET_SIZE);
+
     spstate.drop_callback = drop_callback;
 
     return Lb_OK;
@@ -313,22 +153,38 @@ static TbError tcpSP_init(NetDropCallback drop_callback)
 
 static void tcpSP_exit(void)
 {
-    if (spstate.ishost) {
+    NETDBG(9, "Starting");
+    if (spstate.ishost)
+    {
         for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
         {
-            SDLNet_TCP_Close(spstate.peers[i].socket);
-            LbMemoryFree(spstate.peers[i].msg.buffer);
+            spstate.peers[i].head = NULL;
+            spstate.peers[i].tail = NULL;
         }
     }
-
-    SDLNet_TCP_Close(spstate.socket);
-    LbMemoryFree(spstate.servermsg.buffer);
-
-    SDLNet_FreeSocketSet(spstate.socketset);
+    for (unsigned int i = 0; i < MAX_PACKETS; ++i)
+    {
+        if (all_nodes[i].packet)
+        {
+            SDLNet_FreePacket(all_nodes[i].packet);
+            all_nodes[i].packet = NULL;
+        }
+    }
+    if (spstate.outpacket)
+    {
+        SDLNet_FreePacket(spstate.outpacket);
+        spstate.outpacket = NULL;
+    }
+    if (spstate.socket)
+    {
+        SDLNet_UDP_Close(spstate.socket);
+        spstate.socket = NULL;
+    }
 
     SDLNet_Quit();
 
     LbMemorySet(&spstate, 0, sizeof(spstate));
+    NETDBG(9, "Done");
 }
 
 static TbError tcpSP_host(const char * session, void * options)
@@ -337,6 +193,7 @@ static TbError tcpSP_host(const char * session, void * options)
     NETDBG(4, "Creating TCP server SP for session %s", session);
 
     const char* portstr = session;
+
     while (*portstr != 0 && *portstr != ':') {
         ++portstr;
     }
@@ -344,20 +201,20 @@ static TbError tcpSP_host(const char * session, void * options)
         ++portstr;
     }
 
-    IPaddress addr;
-    addr.host = INADDR_ANY;
-    SDLNet_Write16(atoi(portstr), &addr.port);
-
-    spstate.socket = SDLNet_TCP_Open(&addr);
+    spstate.socket = SDLNet_UDP_Open(atoi(portstr));
     if (spstate.socket == NULL) {
         ERRORLOG("Failed to initialize TCP server socket to port %s", portstr);
         return Lb_FAIL;
     }
 
-    spstate.socketset = SDLNet_AllocSocketSet(MAX_N_PEERS);
     spstate.ishost = 1;
 
     return Lb_OK;
+}
+
+static TbBool null_fn(NetUserId *id)
+{
+    return 0;
 }
 
 static TbError tcpSP_join(const char * session, void * options)
@@ -378,175 +235,332 @@ static TbError tcpSP_join(const char * session, void * options)
         ++portstr;
     }
 
-    IPaddress addr;
-    SDLNet_ResolveHost(&addr, hostname, atoi(portstr));
+    if (SDLNet_ResolveHost(&spstate.address, hostname, atoi(portstr)) != 0)
+    {
+        LbMemoryFree(hostname);
+        NETMSG("Failed to resolve %s: %d", hostname, atoi(portstr));
+        return Lb_FAIL;
+    }
 
-    spstate.socket = SDLNet_TCP_Open(&addr);
+    spstate.socket = SDLNet_UDP_Open(0);
     if (spstate.socket == NULL) {
         LbMemoryFree(hostname);
-        NETMSG("Failed to initialize TCP client socket to host %s and port %s", hostname, portstr);
+        NETMSG("Failed to initialize UDP client socket");
         return Lb_FAIL;
     }
     LbMemoryFree(hostname);
 
-    spstate.socketset = SDLNet_AllocSocketSet(1);
-    SDLNet_TCP_AddSocket(spstate.socketset, spstate.socket);
-    reset_msg(&spstate.servermsg);
     spstate.ishost = 0;
+    spstate.mode = SPM_WAITING_FOR_TOKEN;
 
+    spstate.peers[0].id = SERVER_ID; // server
+    spstate.peers[0].token = (short) -1; // server
+    spstate.peers[0].mode = SPM_CONNECTED;
+    spstate.peers[0].last_packet_time_ms = SDL_GetTicks() + 5000; // We have to connect after 5 sec
+
+    short *short_ptr = (short*)spstate.outpacket->data;
+    short_ptr[0] = 0;
+    spstate.outpacket->address = spstate.address;
+    spstate.outpacket->len = TOKEN_SIZE;
+    SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
+    for (int i = 0; i < 20; i++)
+    {
+        SDL_Delay(20);
+        tcpSP_update(&null_fn); // A bit of hope
+        if (spstate.mode != SPM_WAITING_FOR_TOKEN)
+        {
+            NETDBG(4, "got token 0x%x", spstate.client_token);
+            return Lb_OK;
+        }
+    }
+    NETDBG(4, "no token");
     return Lb_OK;
 }
 
-static void tcpSP_update(NetNewUserCallback new_user)
+static short get_token(Uint32 now)
 {
-    assert(new_user);
-    NETDBG(8, "Starting");
+    short token = (short)(9377 * (now) + 9439); // pseudorandom token
+    int index;
+    if (((short)now) == 0)
+        now = 103; // any number;
 
-    if (!spstate.ishost) {
-        return; //clients don't need to do anything here
-    }
-
-    TCPsocket new_socket;
-    while ((new_socket = SDLNet_TCP_Accept(spstate.socket)) != NULL)
-    { //does not block
-        unsigned index;
+    while (1)
+    {
         for (index = 0; index < MAX_N_PEERS; ++index)
         {
-            if (spstate.peers[index].socket == NULL) {
+            if ((spstate.peers[index].mode != SPM_INACTIVE)
+                && (spstate.peers[index].token == token))
+            {
+                token += (short)now;
                 break;
             }
         }
+        if (index != MAX_N_PEERS)
+            continue;
+        if (token == 0)
+        {
+            token += (short)now;
+            continue;
+        }
+        if (token == (short)-1)
+        {
+            token += (short)now;
+            continue;
+        }
+        break;
+    }
+    return token;
+}
 
-        NetUserId id;
+static void process_packet(Uint32 now, struct PacketListNode *node, NetNewUserCallback new_user)
+{
+    NetUserId id;
+    int index;
+    short *short_ptr;
+    short_ptr = (short *)node->packet->data;
+    if (short_ptr[0] == 0)
+    {
+        assert(spstate.ishost);
+
+        // This is a new client
+        for (index = 0; index < MAX_N_PEERS; ++index)
+        {
+            if (spstate.peers[index].mode == SPM_INACTIVE)
+                break;
+        }
+
         if (index < MAX_N_PEERS && new_user(&id))
         {
+            spstate.peers[index].last_packet_time_ms = now;
             spstate.peers[index].id = id;
-            spstate.peers[index].socket = new_socket;
-            SDLNet_TCP_AddSocket(spstate.socketset, new_socket);
-            reset_msg(&spstate.peers[index].msg);
+            spstate.peers[index].token = get_token(now);
+            spstate.peers[index].address = node->packet->address;
+            spstate.peers[index].mode = SPM_WAITING_FOR_TOKEN;
+            NETDBG(8, "Assigning new id:%d for index:%d, token:%x", id, index, spstate.peers[index].token);
+
+            short_ptr = (short*)spstate.outpacket->data;
+            short_ptr[0] = (short) -1;
+            short_ptr[1] = spstate.peers[index].token;
+            spstate.outpacket->len = 2 * TOKEN_SIZE;
+            spstate.outpacket->address = node->packet->address;
+            SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
         }
         else {
-            SDLNet_TCP_Close(new_socket);
             NETMSG("Socket dropped because server is full");
         }
     }
+    else
+    {
+        if (spstate.mode == SPM_WAITING_FOR_TOKEN)
+        {
+            NETDBG(8, "Storing a token:0x%0x", short_ptr[1]);
+            spstate.client_token = short_ptr[1];
+            node->next = spstate.free_node;
+            spstate.free_node = node;
+            spstate.mode = SPM_CONNECTED;
+            return;
+        }
+        for (int i = 0; i < MAX_N_PEERS; ++i)
+        {
+            if (spstate.peers[i].token == short_ptr[0])
+            {
+                NETDBG(9, "Packet for token:0x%0x i:%d id:%d len=%d",
+                    short_ptr[0], i, spstate.peers[i].id, node->packet->len);
+
+                if (spstate.peers[i].mode == SPM_WAITING_FOR_TOKEN)
+                {   // we already assigned a token, but we should not spam to client 
+                    // BEFORE it send a message with payload
+                    spstate.peers[i].mode = SPM_CONNECTED;
+                }
+                spstate.peers[i].address = node->packet->address;
+                spstate.peers[i].last_packet_time_ms = now;
+                // Add to list of packets
+                if (spstate.peers[i].tail == NULL)
+                {
+                    spstate.peers[i].tail = node;
+                    node->next = NULL;
+                }
+                else
+                {
+                    spstate.peers[i].tail->next = node;
+                    spstate.peers[i].tail = node;
+                }
+            }
+        }
+    }
+}
+
+// Here we drain and dispatch packets from network
+static void tcpSP_update(NetNewUserCallback new_user)
+{
+    assert(new_user);
+    Uint32 now;
+    now = SDL_GetTicks();
+
+    struct PacketListNode *node = spstate.free_node;
+    spstate.free_node = node->next;
+    if (spstate.free_node == NULL)
+    {
+        ERRORLOG("Too many packets are waiting");
+        return;
+    }
+    for (
+        int ret = SDLNet_UDP_Recv(spstate.socket, node->packet);
+        ret != 0;
+        ret = SDLNet_UDP_Recv(spstate.socket, node->packet))
+    {
+        NETDBG(8, "Got a packet len=%d", node->packet->len);
+        if (ret < 0)
+        {
+            NETMSG("Recv error");
+            break;
+        }
+        node->next = NULL;
+        process_packet(now, node, new_user);
+
+        node = spstate.free_node;
+        spstate.free_node = node->next;
+        if (spstate.free_node == NULL)
+        {
+            ERRORLOG("Too many packets are waiting");
+            return;
+        }
+    }
+    node->next = spstate.free_node; // return node to the list
+    spstate.free_node = node;
 }
 
 static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, size_t size)
 {
     assert(buffer);
     assert(size > 0);
+    assert(size + TOKEN_SIZE < MAX_PACKET_SIZE);
     assert(!(spstate.ishost && destination == SERVER_ID));
 
     NETDBG(9, "Starting for buffer of %u bytes to user %u", size, destination);
 
-    if (    send_buffer(find_peer_socket(destination), (const char*) &size, 4) == Lb_FAIL ||
-            send_buffer(find_peer_socket(destination), buffer, size) == Lb_FAIL) {
-        clear_peer(destination);
-        if (spstate.drop_callback) {
-            spstate.drop_callback(destination, NETDROP_ERROR);
+    memcpy(spstate.outpacket->data + TOKEN_SIZE, buffer, size);
+    spstate.outpacket->len = size + TOKEN_SIZE;
+
+    if (spstate.ishost)
+    {
+        ((short *)spstate.outpacket->data)[0] = (short)-1;
+        int i;
+        for (i = 0; i < MAX_N_PEERS; ++i)
+        {
+            if ((spstate.peers[i].id == destination) && (spstate.peers[i].mode != SPM_INACTIVE))
+            {
+                NETDBG(9, "Token:0x%0x i:%d id:%d len=%d",
+                    spstate.peers[i].token, i, spstate.peers[i].id, spstate.outpacket->len);
+                spstate.outpacket->address = spstate.peers[i].address;
+            }
+        }
+        if (i == MAX_N_PEERS)
+        {
+            ERRORLOG("Unable to find dest:%d", destination);
+            return;
         }
     }
+    else
+    {
+        ((short *)spstate.outpacket->data)[0] = spstate.client_token;
+        spstate.outpacket->address = spstate.address;
+    }
+    SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
 }
 
 static void tcpSP_sendmsg_all(const char * buffer, size_t size)
 {
     assert(buffer);
     assert(size > 0);
-    NETDBG(9, "Starting for buffer of %u bytes", size);
+    assert(size + TOKEN_SIZE < MAX_PACKET_SIZE);
+    NETDBG(10, "Starting for buffer of %u bytes", size);
 
-    if (spstate.ishost) {
-        for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
+    memcpy(spstate.outpacket->data + TOKEN_SIZE, buffer, size);
+    spstate.outpacket->len = size + TOKEN_SIZE;
+
+    if (spstate.ishost)
+    {
+        ((short *)spstate.outpacket->data)[0] = (short)-1;
+        for (int i = 0; i < MAX_N_PEERS; ++i)
         {
-            if (spstate.peers[i].socket == NULL) {
+            if ((spstate.peers[i].mode == SPM_INACTIVE)
+                || (spstate.peers[i].mode == SPM_WAITING_FOR_TOKEN))
+            {
                 continue;
             }
+            NETDBG(9, "Token:0x%0x i:%d id:%d", spstate.peers[i].token, i, spstate.peers[i].id);
 
-            if (    send_buffer(spstate.peers[i].socket, (const char*) &size, 4) == Lb_FAIL ||
-                    send_buffer(spstate.peers[i].socket, buffer, size) == Lb_FAIL) {
-                NetUserId id = spstate.peers[i].id;
-                clear_peer(id);
-                if (spstate.drop_callback) {
-                    spstate.drop_callback(id, NETDROP_ERROR);
-                }
-            }
+            spstate.outpacket->address = spstate.peers[i].address;
+            SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
         }
     }
-    else {
-        if (    send_buffer(spstate.socket, (const char*) &size, 4) == Lb_FAIL ||
-                send_buffer(spstate.socket, buffer, size) == Lb_FAIL) {
-            clear_peer(SERVER_ID);
-            if (spstate.drop_callback) {
-                spstate.drop_callback(SERVER_ID, NETDROP_ERROR);
-            }
-        }
+    else
+    {
+        ((short *)spstate.outpacket->data)[0] = spstate.client_token;
+        spstate.outpacket->address = spstate.address;
+        SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
     }
 }
 
 static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
 {
-    NETDBG(9, "Starting message ready check for user %u", source);
+    NETDBG(10, "Starting message ready check for user %u", source);
 
-    struct Msg* msg = find_peer_message(source);
-    if (!msg) {
-        return 0;
-    }
-
-    if (msg->state == READ_FINISHED) {
-        return msg->msg_size;
-    }
-
-    if (read_partial(find_peer_socket(source), msg, timeout) == Lb_FAIL) {
-        clear_peer(source);
-        if (spstate.drop_callback) {
-            spstate.drop_callback(source, NETDROP_ERROR);
+    for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
+    {
+        if ((spstate.peers[i].id == source) && (spstate.peers[i].mode != SPM_INACTIVE))
+        {
+            if (spstate.peers[i].last_packet_time_ms + timeout < SDL_GetTicks()) // timeout
+            {
+                NETDBG(8, "Timed out %u", source);
+                clear_peer(source);
+                if (spstate.drop_callback)
+                {
+                    spstate.drop_callback(source, NETDROP_ERROR);
+                }
+                return 0;
+            }
+            struct PacketListNode *node = spstate.peers[i].head;
+            if (node == NULL)
+            {
+                NETDBG(9, "No data for %u", source);
+                return 0;
+            }
+            return node->packet->len - TOKEN_SIZE;
         }
-
-        return 0;
     }
-
-    if (msg->state == READ_FINISHED) {
-        return msg->msg_size;
-    }
-
+    NETDBG(8, "Source %u not found", source);
     return 0;
 }
 
 static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
 {
-    size_t size;
-
     assert(buffer);
     assert(max_size > 0);
-    NETDBG(9, "Starting read from user %u", source);
+    NETDBG(10, "Starting read from user %u", source);
 
-    struct Msg* msg = find_peer_message(source);
-    if (!msg) {
-        return 0;
-    }
-
-    if (msg->state == READ_FINISHED) {
-        size = min(msg->msg_size, max_size);
-        LbMemoryCopy(buffer, msg->buffer, size);
-        reset_msg(msg);
-        return size;
-    }
-
-    if (read_full(find_peer_socket(source), msg) == Lb_FAIL) {
-        clear_peer(source);
-        if (spstate.drop_callback) {
-            spstate.drop_callback(source, NETDROP_ERROR);
+    for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
+    {
+        if ((spstate.peers[i].id == source) && (spstate.peers[i].mode != SPM_INACTIVE))
+        {
+            struct PacketListNode *node = spstate.peers[i].head;
+            if (node == NULL)
+            {
+                NETDBG(9, "No data for %u", source);
+                return 0;
+            }
+            memcpy(buffer, node->packet->data + TOKEN_SIZE, min(max_size, node->packet->len - TOKEN_SIZE));
+            if (node == spstate.peers[i].tail)
+                spstate.peers[i].tail = NULL;
+            spstate.peers[i].head = node->next;
+            node->next = spstate.free_node;
+            spstate.free_node = node;
+            return node->packet->len - TOKEN_SIZE;
         }
-
-        return 0;
     }
-
-    assert(msg->state == READ_FINISHED);
-
-    size = min(msg->msg_size, max_size);
-    LbMemoryCopy(buffer, msg->buffer, size);
-    reset_msg(msg);
-    return size;
+    NETDBG(8, "Source %u not found", source);
+    return 0;
 }
 
 static void tcpSP_drop_user(NetUserId id)
