@@ -169,14 +169,14 @@ extern "C" {
     evm_stat(0, "map.%s,x=%d,y=%d,plyr=%d,opt=%s cnt=1,x=%d,y=%d", event_name, x, y, plyr_idx, opt, x,y)
   #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val) \
     evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d %s=%d", event_name, get_string(creature_data_get(thing->model)->namestr_idx), thing->index, plyr_id, stat_name, stat_val)
-  #define EVM_GLOBAL_EVENT(event_name, ...) \
-    evm_stat(0, "%s", ...)
+  #define EVM_GLOBAL_EVENT(event_fmt, ...) \
+    evm_stat(0, event_fmt __VA_OPT__(,) __VA_ARGS__)
 #else
   #define EVM_CREATURE_EVENT(event_name, plyr_id, thing)
   #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val)
   #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val)
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
-  #define EVM_GLOBAL_EVENT(event_name, ...)
+  #define EVM_GLOBAL_EVENT(event_fmt, ...)
 #endif
 
 void replaceFn(void* oldFn, void* newFn);

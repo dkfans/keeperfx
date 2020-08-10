@@ -256,6 +256,7 @@ static TbBool UserIdentifiersValid(void)
     for (i = 0; i < MAX_N_USERS; ++i) {
         if (netstate.users[i].id != i) {
             NETMSG("Bad peer ID on index %i", i);
+            EVM_GLOBAL_EVENT("mp.bad_peer,id=%d,n=%d cnt=1", netstate.users[i].id, i);
             return 0;
         }
     }
