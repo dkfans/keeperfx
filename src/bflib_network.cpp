@@ -58,7 +58,6 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname);
 static TbError GenericSerialInit(void *init_data);
 static TbError GenericModemInit(void *init_data);
 static TbError GenericIPXInit(void *init_data);
-static TbError GenericTCPInit(void *init_data);
 TbError StartTwoPlayerExchange(void *buf);
 TbError StartMultiPlayerExchange(void *buf);
 TbError CompleteTwoPlayerExchange(void *buf);
@@ -732,13 +731,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
       break;
   case NS_TCP_IP:
       NETMSG("Selecting TCP/IP SP");
-      /*if (GenericTCPInit(init_data) == Lb_OK) {
-          res = Lb_OK;
-      }
-      else {
-          WARNLOG("Failure on TCP/IP Initialization");
-          res = Lb_FAIL;
-      }*/
 
       netstate.sp = &tcpSP;
 
@@ -1044,6 +1036,8 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
 
     assert(id >= 0);
     assert(id < MAX_N_USERS);
+
+    EVM_GLOBAL_EVENT("mp.dropped_user cnt=1,id=%d,reason=%d", id, reason);
 
     if (netstate.my_id == id) {
         NETMSG("Warning: Trying to drop local user. There's a bug in code somewhere, probably server trying to send message to itself.");
@@ -1662,27 +1656,6 @@ TbError GenericIPXInit(void *init_data)
     WARNLOG("Failure on SP::Init()");
     return Lb_FAIL;
   }
-  return Lb_OK;
-}
-
-static TbError GenericTCPInit(void *init_data)
-{
-    if (spPtr != NULL) {
-        spPtr->Release();
-        delete spPtr;
-        spPtr = NULL;
-    }
-
-    spPtr = new TCPServiceProvider();
-    if (spPtr == NULL) {
-        WARNLOG("Failure on SP construction");
-        return Lb_FAIL;
-    }
-    if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK) {
-        WARNLOG("Failure on SP::Init()");
-        return Lb_FAIL;
-    }
-
   return Lb_OK;
 }
 
