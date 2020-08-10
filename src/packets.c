@@ -2856,16 +2856,18 @@ void process_packets(void)
         }
         if (j != k)
         {
-            EVM_GLOBAL_EVENT("desync");
             for (i = 0; i < 4; i++)
             {
                 player = get_player(i);
                 if (!network_player_active(player->packet_num))
                 {
                     // Here we can pause the game
-                    message_add_fmt(i, "AI in control!");
-                    player->allocflags |= PlaF_CompCtrl;
-                    toggle_computer_player(i);
+                    EVM_GLOBAL_EVENT("mp.desync,plyr=%d cnt=1", i);
+
+                    game.operation_flags |= GOF_Paused;
+                    //message_add_fmt(i, "AI in control!");
+                    //player->allocflags |= PlaF_CompCtrl;
+                    //toggle_computer_player(i);
                 }
             }
         }
@@ -2911,6 +2913,7 @@ void process_packets(void)
    || ((game.system_flags & GSF_NetSeedNoSync) != 0))
   {
     SYNCDBG(0,"Resyncing");
+    EVM_GLOBAL_EVENT("mp.resync,system_flags=%0x cnt=1", game.system_flags);
     resync_game();
   }
   SYNCDBG(7,"Finished");
