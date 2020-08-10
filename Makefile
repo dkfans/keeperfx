@@ -322,7 +322,7 @@ endif
 
 # logging level flags
 STLOGFLAGS = -DBFDEBUG_LEVEL=0 
-HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DAUTOTESTING=1
+HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DNETDBG_LEVEL=10 -DAUTOTESTING=1
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
 # disabled warnings: -Wextra -Wtype-limits

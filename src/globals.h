@@ -140,9 +140,6 @@ extern "C" {
   #define NAVIDBG(dblv,format, ...) {\
     if (BFDEBUG_LEVEL > dblv)\
       LbNaviLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define NETDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbNetLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
   #define SCRIPTDBG(dblv,format, ...) {\
     if (BFDEBUG_LEVEL > dblv)\
       LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__); }
@@ -154,9 +151,20 @@ extern "C" {
   #define WARNDBG(dblv,format, ...)
   #define ERRORDBG(dblv,format, ...)
   #define NAVIDBG(dblv,format, ...)
-  #define NETDBG(dblv,format, ...)
   #define SCRIPTDBG(dblv,format, ...)
   #define AIDBG(dblv,format, ...)
+#endif
+
+#ifndef NETDBG_LEVEL
+#define NETDBG BFDEBUG_LEVEL
+#endif
+
+#if (NETDBG_LEVEL > 0)
+  #define NETDBG(dblv,format, ...) {\
+    if (NETDBG_LEVEL > dblv)\
+      LbNetLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
+#else
+  #define NETDBG(dblv,format, ...)
 #endif
 
 #if AUTOTESTING
