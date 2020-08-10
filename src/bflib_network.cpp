@@ -46,8 +46,6 @@ DLLIMPORT TbError _DK_LbNetwork_Shutdown(void);
 DLLIMPORT TbError _DK_LbNetwork_Stop(void);
 DLLIMPORT TbError _DK_LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, unsigned long *plyr_num);
 DLLIMPORT TbError _DK_LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num);
-DLLIMPORT TbError _DK_LbNetwork_ChangeExchangeBuffer(void *, unsigned long);
-DLLIMPORT TbError _DK_LbNetwork_Init(unsigned long,struct _GUID guid, unsigned long, void *, unsigned long, struct TbNetworkPlayerInfo *netplayr, void *);
 DLLIMPORT TbError _DK_LbNetwork_EnableNewPlayers(unsigned long allow);
 /******************************************************************************/
 // Local functions definition
@@ -215,7 +213,7 @@ struct NetState
     NetUserId               my_id;              //id for user representing this machine
     int                     seq_nbr;            //sequence number of next frame to be issued
     unsigned                max_players;        //max players that will actually be used
-    size_t                  user_frame_size;    //sizeof(Packet) most probably
+    size_t                  user_frame_size;    //sizeof(struct ScreenPacket) OR sizeof(struct Packet)
     char *                  exchg_buffer;
     TbBool                  enable_lag;         //enable scheduled lag mode in exchange (in the best case this would always be true but other parts of code expects perfect sync for now)
     char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct Packet)) * PACKETS_COUNT + 1]; //completely estimated for now
@@ -303,6 +301,15 @@ static void SendUserUpdate(NetUserId dest, NetUserId updated_user)
         ptr - netstate.msg_buffer);
 }
 
+/*
+Send something like this:
+
+    char type = NETMSG_FRAME;
+    int  seq_number = netstate.seq_nbr;
+    struct { // user_frame_size == sizeof(struct ScreenPacket) OR sizeof(struct Packet)
+
+    } msg_buffer;
+*/
 static void SendClientFrame(const char * frame_buffer, int seq_nbr) //seq_nbr because it isn't necessarily determined
 {
     char * ptr;
@@ -338,6 +345,16 @@ static unsigned CountLoggedInClients(void)
     return count;
 }
 
+/*
+Send something like this:
+
+    char type = NETMSG_FRAME;
+    int  seq_number = netstate.seq_nbr;
+    char logged_players; // + server
+    struct { // user_frame_size == sizeof(struct ScreenPacket) OR sizeof(struct Packet)
+
+    } exchg_buffer[logged_players];
+*/
 static void SendServerFrame(void)
 {
     char * ptr;
@@ -649,7 +666,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
 
   localPlayerInfoPtr = locplayr; //TODO NET try to get rid of dependency on external player list, makes things 2x more complicated
 
-  /*//return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
+  /*
   exchangeSize = exchng_size;
   maximumPlayers = maxplayrs;
   //thread_data_mem = _wint_thread_data;
@@ -902,7 +919,6 @@ TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
 {
   /*void *cbuf;
   long comps_size;
-  //return _DK_LbNetwork_ChangeExchangeBuffer(buf, buf_size);
   exchangeBuffer = buf;
   exchangeSize = buf_size;
   comps_size = buf_size * maximumPlayers;

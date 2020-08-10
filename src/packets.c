@@ -2913,7 +2913,7 @@ void process_packets(void)
    || ((game.system_flags & GSF_NetSeedNoSync) != 0))
   {
     SYNCDBG(0,"Resyncing");
-    EVM_GLOBAL_EVENT("mp.resync,system_flags=%0x cnt=1", game.system_flags);
+    EVM_GLOBAL_EVENT("mp.resync,system_flags=0x%0x cnt=1", game.system_flags);
     resync_game();
   }
   SYNCDBG(7,"Finished");
