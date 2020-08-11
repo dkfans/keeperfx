@@ -37,6 +37,7 @@ enum CastCheckFlags {
     CastChk_Default = 0, /*< Default all flags. */
     CastChk_Final = 0x0001, /*< Final check - should be only a formality, as there were checks before. */
     CastChk_SkipThing = 0x0002, /*< While checking, skip the conditions related to specific thing. */
+    CastChk_SkipAvailiabilty = 0x0004, /*< While checking, skip check if spell is availiable */
 };
 
 enum PowerModFlags {
@@ -82,11 +83,17 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
 TbResult magic_use_power_obey(PlayerNumber plyr_idx, unsigned long mod_flags);
 
 TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing);
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind spl_idx,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
-TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel);
+TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel, unsigned long allow_flags);
 void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, ThingIndex thing_idx, long splevel);
+
+TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
+TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind spl_idx,
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
+TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel, unsigned long allow_flags);
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 void update_power_sight_explored(struct PlayerInfo *player);

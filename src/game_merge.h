@@ -26,6 +26,7 @@
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_rules.h"
+#include "dungeon_data.h"
 #include "thing_creature.h"
 #include "creature_control.h"
 #include "light_data.h"
@@ -56,6 +57,7 @@ enum GameSystemFlags {
 
 enum GameGUIFlags {
     GGUI_CountdownTimer  = 0x0002,
+    GGUI_SoloChatEnabled = 0x0080
 };
 
 enum ClassicBugFlags {
@@ -130,6 +132,11 @@ struct GameAdd {
     long room_sale_percent;
     unsigned long pay_day_speed;
     TbBool place_traps_on_subtiles;
+
+    struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
+    struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
+
+    struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };
 
 #pragma pack()

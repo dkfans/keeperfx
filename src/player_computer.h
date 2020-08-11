@@ -128,11 +128,11 @@ enum ToolDigFlags {
 
 enum CompProcessFlags {
     ComProc_Unkn0001 = 0x0001,
-    ComProc_Unkn0002 = 0x0002,
-    ComProc_Unkn0004 = 0x0004,
-    ComProc_Unkn0008 = 0x0008,
+    ComProc_Unkn0002 = 0x0002, /* Last? */
+    ComProc_Unkn0004 = 0x0004, /* Finished */
+    ComProc_Unkn0008 = 0x0008, /* Done (for subprocesses) */
     ComProc_Unkn0010 = 0x0010,
-    ComProc_Unkn0020 = 0x0020,
+    ComProc_Unkn0020 = 0x0020, /* Suspended */
     ComProc_Unkn0040 = 0x0040,
     ComProc_Unkn0080 = 0x0080,
     ComProc_Unkn0100 = 0x0100,
@@ -142,8 +142,8 @@ enum CompProcessFlags {
 };
 
 enum CompCheckFlags {
-    ComChk_Unkn0001 = 0x0001,
-    ComChk_Unkn0002 = 0x0002,
+    ComChk_Unkn0001 = 0x0001, /* Disabled */
+    ComChk_Unkn0002 = 0x0002, /* Last */
     ComChk_Unkn0004 = 0x0004,
     ComChk_Unkn0008 = 0x0008,
     ComChk_Unkn0010 = 0x0010,
@@ -157,7 +157,7 @@ enum CompCheckFlags {
 };
 
 enum CompTaskFlags {
-    ComTsk_Unkn0001 = 0x0001,
+    ComTsk_Unkn0001 = 0x0001, /** task is disabled**/
     ComTsk_Unkn0002 = 0x0002,
     ComTsk_Unkn0004 = 0x0004,
     ComTsk_Unkn0008 = 0x0008,
@@ -177,10 +177,10 @@ enum CompTaskStates {
 /** Return values for computer task functions. */
 enum CompTaskRet {
     CTaskRet_Unk0 = 0,
-    CTaskRet_Unk1,
+    CTaskRet_Unk1, /* CONTINUE */
     CTaskRet_Unk2,
     CTaskRet_Unk3,
-    CTaskRet_Unk4,
+    CTaskRet_Unk4, /* FAIL? Wait? */
 };
 
 /** Return values for computer process functions. */
@@ -497,7 +497,7 @@ struct ComputerTask { // sizeof = 148
         short word_8A;
     } create_room;
     };
-    unsigned short field_8C;
+    unsigned short field_8C; /* CProcessId */
     long field_8E;
     unsigned short next_task;
 };

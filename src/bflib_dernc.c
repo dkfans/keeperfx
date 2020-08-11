@@ -423,13 +423,13 @@ long LbFileLengthRnc(const char *fname)
   if ( handle == -1 )
       return -1;
 #if (BFDEBUG_LEVEL > 19)
-    LbSyncLog("%s: file opened\n",func_name);
+    LbSyncLog("%s: file opened\n", fname);
 #endif
   unsigned char buffer[RNC_HEADER_LEN+1];
   if ( LbFileRead(handle,buffer,RNC_HEADER_LEN) == -1 )
   {
   #if (BFDEBUG_LEVEL > 19)
-      LbSyncLog("%s: cannot read even %d bytes\n",func_name,RNC_HEADER_LEN);
+      LbSyncLog("%s: cannot read even %d bytes\n", fname, RNC_HEADER_LEN);
   #endif
       LbFileClose(handle);
       return -1;
@@ -439,13 +439,13 @@ long LbFileLengthRnc(const char *fname)
   {
       flength = blong(buffer+4);
   #if (BFDEBUG_LEVEL > 19)
-      LbSyncLog("%s: file size from RNC header: %ld bytes\n",func_name,RNC_HEADER_LEN,flength);
+      LbSyncLog("%s: file size from RNC header: %ld bytes\n", fname, RNC_HEADER_LEN, flength);
   #endif
   } else
   {
       flength = LbFileLengthHandle(handle);
   #if (BFDEBUG_LEVEL > 19)
-      LbSyncLog("%s: file is not RNC, size: %ld bytes\n",func_name,RNC_HEADER_LEN,flength);
+      LbSyncLog("%s: file is not RNC, size: %ld bytes\n", fname, RNC_HEADER_LEN, flength);
   #endif
   }
   LbFileClose(handle);

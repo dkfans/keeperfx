@@ -33,7 +33,7 @@ extern "C" {
 
 /******************************************************************************/
 #pragma pack(1)
-
+// TODO: join it with TrapConfigStats and DoorConfigStats and TrapStats
 struct ManfctrConfig { // sizeof=0x14
   int manufct_level;
   int manufct_required;

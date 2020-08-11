@@ -55,8 +55,10 @@ enum TrapActivationTypes {
     TrpAcT_HeadforTarget90,
     TrpAcT_EffectonTrap,
     TrpAcT_ShotonTrap,
-    TrpAcT_SlapChange,
+    TrpAcT_SlabChange,
     TrpAcT_CreatureShot,
+    TrpAcT_CreatureSpawn,
+    TrpAcT_Power
 };
 
 struct Thing;
@@ -75,10 +77,10 @@ short field_16;
   unsigned char trigger_type;
   unsigned char activation_type;
   unsigned char created_itm_model; // Shot model, effect model, slab kind
-  unsigned char field_1B;
-short field_1C;
-unsigned char field_1E;
-unsigned char field_1F;
+  unsigned char field_1B; // goes to byte_16 of shot or effect == hit_type
+short light_1C; // creates light if not null
+unsigned char light_1E;
+unsigned char light_1F;
 unsigned char field_20[8];
 unsigned char field_28[8];
 short field_30;
@@ -87,7 +89,7 @@ short field_34;
 };
 
 /******************************************************************************/
-DLLIMPORT extern unsigned char _DK_trap_to_object[8];
+//DLLIMPORT extern unsigned char _DK_trap_to_object[8];
 //DLLIMPORT struct TrapStats _DK_trap_stats[7];
 //#define trap_stats _DK_trap_stats
 
@@ -115,7 +117,7 @@ long remove_trap(struct Thing *traptng, long *sell_value);
 long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 
-void external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
+void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand);
 TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 extern struct TrapStats trap_stats[];

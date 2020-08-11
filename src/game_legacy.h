@@ -140,8 +140,8 @@ char numfield_1A;
 struct ObjectConfig objects_config_UNUSED[103];
 char field_117DA[14];
     // Traps and doors config; note that eventually we'll want to merge it with trapdoor_conf
-    struct ManfctrConfig traps_config[TRAP_TYPES_COUNT];
-    struct ManfctrConfig doors_config[DOOR_TYPES_COUNT];
+    struct ManfctrConfig traps_config_[TRAP_TYPES_COUNT];
+    struct ManfctrConfig doors_config_[DOOR_TYPES_COUNT];
     struct SpellConfig spells_config[30];
     struct Things things;
     struct Persons persons;
