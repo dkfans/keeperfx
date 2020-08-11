@@ -314,7 +314,7 @@ static short get_token(Uint32 now)
     return token;
 }
 
-static void process_packet(Uint32 now, struct PacketListNode *node, NetNewUserCallback new_user)
+static void process_packet(Uint32 now, struct PacketListNode * const node, NetNewUserCallback new_user)
 {
     NetUserId id;
     int index;
@@ -372,6 +372,7 @@ static void process_packet(Uint32 now, struct PacketListNode *node, NetNewUserCa
                 if (spstate.peers[i].mode == SPM_WAITING_FOR_TOKEN)
                 {   // we already assigned a token, but we should not spam to client 
                     // BEFORE it send a message with payload
+                    NETDBG(9, "Client is now connected");
                     spstate.peers[i].mode = SPM_CONNECTED;
                 }
                 spstate.peers[i].address = node->packet->address;
@@ -404,24 +405,26 @@ static void tcpSP_update(NetNewUserCallback new_user)
     node = spstate.msg_head;
     if (node != NULL)
     {   // Lets check all buffered messages first
+        NETDBG(9, "Draining stored packets");
         process_packet(now, node, new_user);
-        prev = node;
         node = node->next;
         while (node != NULL)
         {
             process_packet(now, node, new_user);
-            prev = node;
             node = node->next;
         }
+        // free all buffered packets
+        spstate.msg_tail->next = spstate.free_node;
+        spstate.free_node = spstate.msg_head;
         spstate.msg_head = NULL;
         spstate.msg_tail = NULL;
     }
-
+    NETDBG(10, "Waiting for more packets");
     node = spstate.free_node;
     spstate.free_node = node->next;
     if (spstate.free_node == NULL)
     {
-        ERRORLOG("Too many packets are waiting");
+        ERRORLOG("Too many packets are in queue");
         return;
     }
     for (
@@ -448,10 +451,16 @@ static void tcpSP_update(NetNewUserCallback new_user)
     }
     node->next = spstate.free_node; // return node to the list
     spstate.free_node = node;
+    NETDBG(10, "done");
 }
 
+/*
+    timeout 0 means wait infinite
+    returns NULL or "floating node" - not contained in any list
+*/
 static struct PacketListNode *wait_for_message(Token token, unsigned timeout)
 {
+    NETDBG(9, "Starting for 0x%0x timeout=%u", token, timeout);
     Token *short_ptr;
     struct PacketListNode *node, *prev;
     Uint32 late = SDL_GetTicks() + timeout;
@@ -468,13 +477,14 @@ static struct PacketListNode *wait_for_message(Token token, unsigned timeout)
             {
                 spstate.msg_tail = NULL;
             }
+            NETDBG(9, "first from buffer");
             return node;
         }
         prev = node;
         node = node->next;
         while (node != NULL)
         {
-            short_ptr = (Token*)node->data;
+            short_ptr = (Token*)node->packet->data;
             if (short_ptr[0] == token)
             {
                 if (spstate.msg_tail == node)
@@ -483,6 +493,7 @@ static struct PacketListNode *wait_for_message(Token token, unsigned timeout)
                 }
                 prev->next = node->next;
                 node->next = NULL;
+                NETDBG(9, "some from buffer");
                 return node;
             }
             prev = node;
@@ -515,16 +526,17 @@ static struct PacketListNode *wait_for_message(Token token, unsigned timeout)
             NETMSG("Recv error");
             break;
         }
-        NETDBG(8, "Got a packet len=%d", node->packet->len);
+        node->next = NULL;
         short_ptr = (Token*)node->packet->data;
+        NETDBG(8, "Got a packet len=%d token=0x%0x", node->packet->len, short_ptr[0]);
         if (short_ptr[0] == token)
         {
-            node->next = NULL;
+            NETDBG(9, "processing this packet");
             return node;
         }
         else
         {
-            node->next = NULL;
+            NETDBG(9, "storing this packet");
             spstate.msg_tail->next = node;
             spstate.msg_tail = node;
         }
@@ -539,6 +551,7 @@ static struct PacketListNode *wait_for_message(Token token, unsigned timeout)
     }
     node->next = spstate.free_node; // return node to the list
     spstate.free_node = node;
+    NETDBG(8, "Timeout?");
     return NULL;
 }
 
@@ -560,11 +573,19 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
         int i;
         for (i = 0; i < MAX_N_PEERS; ++i)
         {
-            if ((spstate.peers[i].id == destination) && (spstate.peers[i].mode != SPM_INACTIVE))
+            if ((spstate.peers[i].id == destination)
+                && (spstate.peers[i].mode != SPM_INACTIVE)
+                )
             {
-                NETDBG(9, "Token:0x%0x i:%d id:%d len=%d",
-                    spstate.peers[i].token, i, spstate.peers[i].id, spstate.outpacket->len);
+                if (spstate.peers[i].mode == SPM_WAITING_FOR_TOKEN)
+                {
+                    WARNLOG("Semiconnected response for id:%d token:0x%0x",
+                        spstate.peers[i].id, spstate.peers[i].token);
+                }
+                NETDBG(9, "Token:0x%0x i:%d id:%d",
+                    spstate.peers[i].token, i, spstate.peers[i].id);
                 spstate.outpacket->address = spstate.peers[i].address;
+                break;
             }
         }
         if (i == MAX_N_PEERS)
@@ -614,7 +635,9 @@ static void tcpSP_sendmsg_all(const char * buffer, size_t size)
         SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
     }
 }
-
+/*
+    timeout 0 means nonblocking
+*/
 static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
 {
     NETDBG(10, "Starting message ready check for user %u", source);
@@ -624,22 +647,38 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
         if ((spstate.peers[i].id == source) && (spstate.peers[i].mode != SPM_INACTIVE))
         {
             struct PacketListNode *node = spstate.peers[i].head;
-            if (node == NULL)
+            if (node != NULL)
             {
-                if (timeout == 0)
-                {
-                    NETDBG(9, "No data for %u", source);
-                    return 0;
-                }
-
+                return node->packet->len - TOKEN_SIZE;
+            }
+            else if (timeout == 0)
+            {
+                NETDBG(9, "No data for %u", source);
+                return 0;
+            }
+            else
+            {   // No data but we have to wait
                 node = wait_for_message(spstate.peers[i].token, timeout);
                 if (node == NULL)
                 {
                     NETDBG(9, "No data for %u", source);
                     return 0;
                 }
+                if (spstate.peers[i].mode == SPM_WAITING_FOR_TOKEN)
+                {   // we already assigned a token, but we should not spam to client 
+                    // BEFORE it send a message with payload
+                    spstate.peers[i].mode = SPM_CONNECTED;
+                    NETDBG(9, "Client id:%u is now connected token:%0x", source, spstate.peers[i].token);
+                }
+                else
+                {
+                    NETDBG(9, "Client id:%u token:%0x is in mode %d", source, spstate.peers[i].token, spstate.peers[i].mode);
+                }
+                // We already knew that there is no nodes in list
+                spstate.peers[i].head = node;
+                spstate.peers[i].tail = node;
+                return node->packet->len - TOKEN_SIZE;
             }
-            return node->packet->len - TOKEN_SIZE;
         }
     }
     NETDBG(8, "Source %u not found", source);

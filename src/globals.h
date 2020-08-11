@@ -156,7 +156,7 @@ extern "C" {
 #endif
 
 #ifndef NETDBG_LEVEL
-#define NETDBG BFDEBUG_LEVEL
+#define NETDBG_LEVEL BFDEBUG_LEVEL
 #endif
 
 #if (NETDBG_LEVEL > 0)

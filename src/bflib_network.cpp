@@ -165,7 +165,7 @@ struct NetFrame
 
 enum NetMessageType
 {
-    NETMSG_LOGIN,           //to server: username and pass, from server: assigned id
+    NETMSG_LOGIN = 0,           //to server: username and pass, from server: assigned id
     NETMSG_USERUPDATE,      //changed player from server
     NETMSG_FRAME,           //to server: ACK of frame + packets, from server: the frame itself
     NETMSG_LAGWARNING,      //from server: notice that some client is lagging¨
@@ -400,6 +400,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     netstate.users[source].progress = USER_LOGGEDIN;
 
     //send reply
+    NETDBG(9, "Sending reply");
     ptr = netstate.msg_buffer;
     ptr += 1; //skip header byte which should still be ok
     LbMemoryCopy(ptr, &source, 1); //assumes LE
@@ -426,6 +427,8 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     //TODO NET try to get rid of this because it makes understanding code much more complicated
     localPlayerInfoPtr[source].active = 1;
     strcpy(localPlayerInfoPtr[source].name, netstate.users[source].name);
+
+    NETDBG(9, "Done");
 }
 
 static void HandleLoginReply(char * ptr, char * end)
@@ -567,6 +570,7 @@ static void HandleMessage(NetUserId source)
 static TbError ProcessMessage(NetUserId source)
 {
     size_t rcount;
+    NETDBG(8, "Blocking read %u", source);
 
     rcount = netstate.sp->readmsg(source, netstate.msg_buffer,
         sizeof(netstate.msg_buffer));
@@ -1096,26 +1100,32 @@ static void ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
 
 static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout)
 {
-    TbClockMSec start;
+    TbClockMSec start, now;
+    assert(timeout > 0);
     start = LbTimerClock();
-
+    unsigned remain = timeout - (min(LbTimerClock() - start, max(timeout - 1, 0l)));
+    netstate.msg_buffer[0] = -1;
     //read all messages up to next frame
-    while (timeout == 0 || netstate.sp->msgready(SERVER_ID,
-            timeout - (min(LbTimerClock() - start, max(timeout - 1, 0l)))) != 0) {
-        if (ProcessMessage(SERVER_ID) == Lb_FAIL) {
-            NETDBG(8, "Failed");
-            break;
-        }
+    while (1)
+    {
+        if (netstate.sp->msgready(SERVER_ID, remain) != 0)
+        {
+            if (ProcessMessage(SERVER_ID) == Lb_FAIL) {
+                NETDBG(8, "Failed");
+                break;
+            }
 
-        if (netstate.msg_buffer[0] == NETMSG_LOGIN) {
-            NETDBG(9, "Done");
-            break;
+            if (netstate.msg_buffer[0] == NETMSG_LOGIN) {
+                NETDBG(9, "Done");
+                break;
+            }
         }
-
-        if (LbTimerClock() - start > timeout) {
+        now = LbTimerClock();
+        if (now - start > timeout) {
             NETDBG(8, "Timeout");
             break;
         }
+        remain = timeout - min(now - start, 0L);
     }
 }
 
