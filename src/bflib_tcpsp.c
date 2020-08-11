@@ -42,10 +42,12 @@ enum SPMode
     SPM_CONNECTED,
 };
 
+typedef short Token;
+
 struct Peer
 {
     NetUserId               id; //corresponding user
-    short                   token;
+    Token                   token;
     Uint32                  last_packet_time_ms;
     struct PacketListNode   *head;
     struct PacketListNode   *tail;
@@ -60,7 +62,7 @@ struct SPState
     struct Peer             peers[MAX_N_PEERS];
     NetDropCallback         drop_callback;
 
-    struct PacketListNode   *msg_head; // incoming requests goes here
+    struct PacketListNode   *msg_head; // not parsed yet packets goes here
     struct PacketListNode   *msg_tail;
 
     struct PacketListNode   *free_node;
@@ -397,7 +399,25 @@ static void tcpSP_update(NetNewUserCallback new_user)
     Uint32 now;
     now = SDL_GetTicks();
 
-    struct PacketListNode *node = spstate.free_node;
+    struct PacketListNode *node;
+    // Lets first drain all stored packets
+    node = spstate.msg_head;
+    if (node != NULL)
+    {   // Lets check all buffered messages first
+        process_packet(now, node, new_user);
+        prev = node;
+        node = node->next;
+        while (node != NULL)
+        {
+            process_packet(now, node, new_user);
+            prev = node;
+            node = node->next;
+        }
+        spstate.msg_head = NULL;
+        spstate.msg_tail = NULL;
+    }
+
+    node = spstate.free_node;
     spstate.free_node = node->next;
     if (spstate.free_node == NULL)
     {
@@ -428,6 +448,98 @@ static void tcpSP_update(NetNewUserCallback new_user)
     }
     node->next = spstate.free_node; // return node to the list
     spstate.free_node = node;
+}
+
+static struct PacketListNode *wait_for_message(Token token, unsigned timeout)
+{
+    Token *short_ptr;
+    struct PacketListNode *node, *prev;
+    Uint32 late = SDL_GetTicks() + timeout;
+
+    node = spstate.msg_head;
+    if (node != NULL)
+    {   // Lets check all buffered messages first
+        short_ptr = (Token*)node->packet->data;
+        if (short_ptr[0] == token)
+        {
+            spstate.msg_head = node->next;
+            node->next = NULL;
+            if (spstate.msg_tail == node)
+            {
+                spstate.msg_tail = NULL;
+            }
+            return node;
+        }
+        prev = node;
+        node = node->next;
+        while (node != NULL)
+        {
+            short_ptr = (Token*)node->data;
+            if (short_ptr[0] == token)
+            {
+                if (spstate.msg_tail == node)
+                {
+                    spstate.msg_tail = prev;
+                }
+                prev->next = node->next;
+                node->next = NULL;
+                return node;
+            }
+            prev = node;
+            node = node->next;
+        }
+    }
+
+    node = spstate.free_node;
+    spstate.free_node = node->next;
+    if (spstate.free_node == NULL)
+    {
+        spstate.free_node = node;
+        ERRORLOG("Too many packets are waiting");
+        return NULL;
+    }
+    while  (true)
+    {
+        int ret = SDLNet_UDP_Recv(spstate.socket, node->packet);
+        if (ret == 0)
+        {
+            if ((timeout > 0)  && (SDL_GetTicks() > late))
+            {
+                break;
+            }
+            SDL_Delay(0);
+            continue;
+        }
+        else if (ret < 0)
+        {
+            NETMSG("Recv error");
+            break;
+        }
+        NETDBG(8, "Got a packet len=%d", node->packet->len);
+        short_ptr = (Token*)node->packet->data;
+        if (short_ptr[0] == token)
+        {
+            node->next = NULL;
+            return node;
+        }
+        else
+        {
+            node->next = NULL;
+            spstate.msg_tail->next = node;
+            spstate.msg_tail = node;
+        }
+
+        node = spstate.free_node;
+        spstate.free_node = node->next;
+        if (spstate.free_node == NULL)
+        {
+            ERRORLOG("Too many packets are waiting");
+            break;
+        }
+    }
+    node->next = spstate.free_node; // return node to the list
+    spstate.free_node = node;
+    return NULL;
 }
 
 static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, size_t size)
@@ -511,21 +623,21 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
     {
         if ((spstate.peers[i].id == source) && (spstate.peers[i].mode != SPM_INACTIVE))
         {
-            if (spstate.peers[i].last_packet_time_ms + timeout < SDL_GetTicks()) // timeout
-            {
-                NETDBG(8, "Timed out %u", source);
-                clear_peer(source);
-                if (spstate.drop_callback)
-                {
-                    spstate.drop_callback(source, NETDROP_ERROR);
-                }
-                return 0;
-            }
             struct PacketListNode *node = spstate.peers[i].head;
             if (node == NULL)
             {
-                NETDBG(9, "No data for %u", source);
-                return 0;
+                if (timeout == 0)
+                {
+                    NETDBG(9, "No data for %u", source);
+                    return 0;
+                }
+
+                node = wait_for_message(spstate.peers[i].token, timeout);
+                if (node == NULL)
+                {
+                    NETDBG(9, "No data for %u", source);
+                    return 0;
+                }
             }
             return node->packet->len - TOKEN_SIZE;
         }
@@ -547,8 +659,8 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
             struct PacketListNode *node = spstate.peers[i].head;
             if (node == NULL)
             {
-                NETDBG(9, "No data for %u", source);
-                return 0;
+                NETDBG(9, "No data for %u, waiting", source);
+                node = wait_for_message(spstate.peers[i].token, 0);
             }
             memcpy(buffer, node->packet->data + TOKEN_SIZE, min(max_size, node->packet->len - TOKEN_SIZE));
             if (node == spstate.peers[i].tail)
