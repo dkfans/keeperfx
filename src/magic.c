@@ -33,6 +33,7 @@
 #include "game_merge.h"
 #include "power_specials.h"
 #include "power_hand.h"
+#include "thing_creature.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_stats.h"
@@ -1706,6 +1707,8 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
+    teleport_destination = 0;
+    battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     return Lb_SUCCESS;

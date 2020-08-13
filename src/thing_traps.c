@@ -952,26 +952,26 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
         }
         else
         {
-                HasTrap = subtile_has_trap_on(stl_x, stl_y);
-                switch(get_door_orientation(slb_x, slb_y))
+            HasTrap = subtile_has_trap_on(stl_x, stl_y);
+            switch(get_door_orientation(slb_x, slb_y))
+            {
+                case -1:
                 {
-                    case -1:
-                    {
-                        HasDoor = false;
-                        break;
-                    }
-                    case 0:
-                    {
-                        HasDoor = slab_row_has_door_thing_on(slb_x, stl_y);
-                        break;
-                    }
-                    case 1:
-                    {
-                        HasDoor = slab_column_has_door_thing_on(stl_x, slb_y);
-                        break;
-                    }
+                    HasDoor = false;
+                    break;
                 }
-                // HasDoor = ((subtile_has_door_thing_on(stl_x, stl_y)) || (subtile_is_door(stl_x, stl_y)) );
+                case 0:
+                {
+                    HasDoor = slab_row_has_door_thing_on(slb_x, stl_y);
+                    break;
+                }
+                case 1:
+                {
+                    HasDoor = slab_column_has_door_thing_on(stl_x, slb_y);
+                    break;
+                }
+            }
+            // HasDoor = ((subtile_has_door_thing_on(stl_x, stl_y)) || (subtile_is_door(stl_x, stl_y)) );
         }
         if (!HasTrap && !HasDoor)
         {

@@ -62,6 +62,7 @@
 #include "thing_physics.h"
 #include "lens_api.h"
 #include "light_data.h"
+#include "room_list.h"
 #include "room_jobs.h"
 #include "map_utils.h"
 #include "map_blocks.h"
@@ -78,6 +79,10 @@
 #include "engine_redraw.h"
 #include "sounds.h"
 #include "game_legacy.h"
+#include "kjm_input.h"
+#include "front_input.h"
+#include "frontmenu_ingame_tabs.h"
+#include "thing_navigate.h"
 
 #include "keeperfx.hpp"
 
@@ -87,6 +92,8 @@ extern "C" {
 
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_COUNT];
+unsigned char teleport_destination = 0;
+BattleIndex battleid = 1;
 
 struct Creatures creatures_NEW[] = {
   { 0,  0, 0, 0, 0, 0, 0, 0, 0, 0x0000, 1},
@@ -1232,6 +1239,14 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct SpellConfig* splconf = &game.spells_config[SplK_Teleport];
+    struct Room* room = NULL;
+    const struct Thing* desttng = NULL;
+    long distance = LONG_MAX;
+    struct Dungeon *dungeon = get_players_num_dungeon(thing->owner);
+    TbBool nearest = is_key_pressed(KC_LALT,KMod_DONTCARE);
+    RoomKind rkind = 0;
+    long i;
+    TbBool allowed = true;
     if (cspell->duration == splconf->duration / 2)
     {
         struct Coord3d pos;
@@ -1241,19 +1256,172 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         if (thing_in_wall_at(thing, &pos))
         {
             const struct Coord3d* newpos = NULL;
+            struct Coord3d room_pos;
+            switch(teleport_destination)
             {
-                const struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
-                if (thing_is_object(lairtng)) {
-                    newpos = &lairtng->mappos;
+                case 0:
+                {
+                    desttng = thing_get(cctrl->lairtng_idx);
+                    break;
+                }
+                case 7: // Dungeon Heart
+                {
+                    newpos = dungeon_get_essential_pos(thing->owner);
+                    break;
+                }
+                case 15: // Fight
+                {
+                    if (active_battle_exists(thing->owner))
+                    {
+                        long count = 0;
+                        if (battleid > BATTLES_COUNT)
+                        {
+                            battleid = 1;
+                        }
+                        for (i = battleid; i <= BATTLES_COUNT; i++)
+                        {
+                            if (i > BATTLES_COUNT)
+                            {
+                                i = 1;
+                                battleid = 1;
+                            }
+                            count++;
+                            struct CreatureBattle* battle = creature_battle_get(i);
+                            if ( (battle->fighters_num != 0) && (battle_with_creature_of_player(thing->owner, i)) )
+                            {
+                                struct Thing* tng = thing_get(battle->first_creatr);
+                                TRACE_THING(tng);
+                                if (creature_can_navigate_to(thing, &tng->mappos, NavRtF_NoOwner))
+                                {
+                                    pos.x.val = tng->mappos.x.val;
+                                    pos.y.val = tng->mappos.y.val;
+                                    battleid = i + 1;
+                                    break;
+                                }
+                            }
+                            if (count >= BATTLES_COUNT)
+                            {
+                                battleid = 1;
+                                break;
+                            }
+                            if (i >= BATTLES_COUNT)
+                            {
+                                i = 0;
+                                battleid = 1;
+                                continue;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        allowed = false;
+                    }
+                    break;
+                }
+                case 16: // Last work room
+                {
+                    room = room_get(cctrl->last_work_room_id);
+                    break;
+                }
+                case 17: // Call to Arms
+                {
+                    struct Coord3d cta_pos;
+                    cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
+                    cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
+                    cta_pos.z.val = subtile_coord(1,0);
+                    if (creature_can_navigate_to(thing, &cta_pos, NavRtF_NoOwner))
+                    {
+                        pos = cta_pos;
+                    }
+                    else
+                    {
+                        allowed = false;
+                    }
+                    break;
+                }
+                default:
+                {
+                    rkind = zoom_key_room_order[teleport_destination];
                 }
             }
-            if (newpos == NULL)
+            if (rkind > 0)
             {
-                newpos = dungeon_get_essential_pos(thing->owner);
+                long count = 0;
+                if (nearest)
+                {
+                    room = find_room_nearest_to_position(thing->owner, rkind, &thing->mappos, &distance); 
+                }
+                else
+                {
+                    do
+                    {
+                        if (count >= count_player_rooms_of_type(thing->owner, rkind))
+                        {
+                            break;
+                        }
+                        room = room_get(find_next_room_of_type(thing->owner, rkind));
+                        find_first_valid_position_for_thing_anywhere_in_room(thing, room, &room_pos);
+                        count++;
+                    }
+                    while (!creature_can_navigate_to(thing, &room_pos, NavRtF_NoOwner));
+                }
             }
-            pos.x.val = newpos->x.val;
-            pos.y.val = newpos->y.val;
-            pos.z.val = newpos->z.val;
+            if (!room_is_invalid(room))
+            {
+                room_pos.x.val = subtile_coord_center(room->central_stl_x);
+                room_pos.y.val = subtile_coord_center(room->central_stl_y);
+                allowed = creature_can_navigate_to(thing, &room_pos, NavRtF_NoOwner);
+                if (!allowed)
+                {
+                    if (find_random_valid_position_for_thing_in_room(thing, room, &room_pos))
+                    {
+                        allowed = (creature_can_navigate_to(thing, &room_pos, NavRtF_NoOwner) || rkind == RoK_DUNGHEART);
+                    }
+                }
+            }
+            if (!allowed)
+            {
+                desttng = thing_get(cctrl->lairtng_idx);
+                if (thing_is_object(desttng))
+                {
+                    newpos = &desttng->mappos;
+                }
+                else
+                {
+                    newpos = dungeon_get_essential_pos(thing->owner);
+                }
+                pos.x.val = newpos->x.val;
+                pos.y.val = newpos->y.val;
+                pos.z.val = newpos->z.val;
+            }
+            else
+            {
+                if ( (pos.x.val == subtile_coord_center(cctrl->teleport_x)) && (pos.y.val == subtile_coord_center(cctrl->teleport_y)) )
+                {
+                    if (thing_is_object(desttng))
+                    {
+                        newpos = &desttng->mappos;
+                    }
+                    if (newpos != NULL)
+                    {
+                        pos.x.val = newpos->x.val;
+                        pos.y.val = newpos->y.val;
+                        pos.z.val = newpos->z.val;
+                    }
+                    else if (!room_is_invalid(room))
+                    {
+                        pos = room_pos;
+                    }
+                    else if ( (room_is_invalid(room)) && (newpos == NULL) )
+                    {
+                        newpos = dungeon_get_essential_pos(thing->owner);
+                        pos.x.val = newpos->x.val;
+                        pos.y.val = newpos->y.val;
+                        pos.z.val = newpos->z.val;
+                    }
+                }
+            }
+
         }
         pos.z.val += subtile_coord(2,0);
         move_thing_in_map(thing, &pos);
@@ -1266,6 +1434,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             thing->veloc_push_add.z.val += ACTION_RANDOM(96) + 40;
             thing->state_flags |= TF1_PushAdd;
         }
+        teleport_destination = 0;
     }
 }
 
