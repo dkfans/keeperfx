@@ -100,6 +100,8 @@ struct Packet bad_packet;
 #ifdef __cplusplus
 }
 #endif
+
+static TbBool first_resync = true;
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
@@ -2756,6 +2758,7 @@ void post_init_packets(void)
         game.pckt_gameturn = 0;
     }
     clear_packets();
+    first_resync = true;
 }
 
 short save_packets(void)
@@ -2873,24 +2876,10 @@ void process_packets(void)
         }
   }
   // Setting checksum problem flags
-  switch (checksums_different())
+  if (checksums_different())
   {
-  case 1:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
-    break;
-  case 2:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
-    break;
-  case 3:
       set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
       set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
-    break;
-  default:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
-    break;
   }
   // Write packets into file, if requested
   if ((game.packet_save_enable) && (game.packet_fopened))
@@ -2899,22 +2888,38 @@ void process_packets(void)
 #if DEBUG_NETWORK_PACKETS
   write_debug_packets();
 #endif
-  // Process the packets
-  for (i=0; i<PACKETS_COUNT; i++)
-  {
-    player = get_player(i);
-    // Here we can restore player when he get back
-    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-      process_players_packet(i);
-  }
-  // Clear all packets
-  clear_packets();
   if (((game.system_flags & GSF_NetGameNoSync) != 0)
    || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+
   {
-    SYNCDBG(0,"Resyncing");
-    EVM_GLOBAL_EVENT("mp.resync,system_flags=0x%0x cnt=1", game.system_flags);
-    resync_game();
+      if (first_resync)
+      {
+          SYNCDBG(0,"Resyncing");
+          EVM_GLOBAL_EVENT("mp.resync,system_flags=0x%0x cnt=1", game.system_flags);
+      }
+      if (resync_game(first_resync))
+      {
+          set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
+          set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+          first_resync = true;
+      }
+      else
+      {
+          first_resync = false;
+      }
+  }
+  else
+  {
+      // Process the packets
+      for (i=0; i<PACKETS_COUNT; i++)
+      {
+        player = get_player(i);
+        // Here we can restore player when he get back
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+          process_players_packet(i);
+      }
+      // Clear all packets
+      clear_packets();
   }
   SYNCDBG(7,"Finished");
 }

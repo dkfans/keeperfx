@@ -71,28 +71,46 @@ long get_resync_sender(void)
   return -1;
 }
 
-TbBool send_resync_game(void)
+// Return true when we have finished sending sync data
+static TbBool send_resync_game(TbBool first_resync)
 {
-  //TODO NET see if it is necessary to dump to file... probably superfluous
-  char* fname = prepare_file_path(FGrp_Save, "resync.dat");
-  TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-  if (fh == -1)
+  TbBool ret;
+  if (first_resync)
   {
-    ERRORLOG("Can't open resync file.");
-    return false;
+      NETLOG("Initiating re-synchronization of network game");
+      //TODO NET see if it is necessary to dump to file... probably superfluous
+      char* fname = prepare_file_path(FGrp_Save, "resync.dat");
+      TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
+      if (fh == -1)
+      {
+        ERRORLOG("Can't open resync file.");
+        return true;
+      }
+
+      LbFileWrite(fh, &game, sizeof(game));
+      LbFileClose(fh);
   }
-
-  LbFileWrite(fh, &game, sizeof(game));
-  LbFileClose(fh);
-
-  NETLOG("Initiating re-synchronization of network game");
-  return LbNetwork_Resync(&game, sizeof(game));
+  ret = LbNetwork_Resync(first_resync, &game, sizeof(game));
+  if (ret)
+  {
+      NETLOG("Done syncing");
+  }
+  return ret;
 }
 
-TbBool receive_resync_game(void)
+static TbBool receive_resync_game(TbBool first_resync)
 {
-    NETLOG("Initiating re-synchronization of network game");
-    return LbNetwork_Resync(&game, sizeof(game));
+    TbBool ret;
+    if (first_resync)
+    {
+        NETLOG("Initiating re-synchronization of network game");
+    }
+    ret = LbNetwork_Resync(first_resync, &game, sizeof(game));
+    if (ret)
+    {
+        NETLOG("Done syncing");
+    }
+    return ret;
 }
 
 void store_localised_game_structure(void)
@@ -139,9 +157,10 @@ void recall_localised_game_structure(void)
     game.manufactr_tooltip = boing.manufactr_tooltip;
 }
 
-void resync_game(void)
+TbBool resync_game(TbBool first_resync)
 {
     SYNCDBG(2,"Starting");
+    TbBool done;
     struct PlayerInfo* player = get_my_player();
     draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
     reset_eye_lenses();
@@ -149,15 +168,11 @@ void resync_game(void)
     int i = get_resync_sender();
     if (is_my_player_number(i))
     {
-        send_resync_game();
+        return send_resync_game(first_resync);
     } else
     {
-        receive_resync_game();
+        return receive_resync_game(first_resync);
     }
-    recall_localised_game_structure();
-    reinit_level_after_load();
-    set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-    set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
 }
 
 /**

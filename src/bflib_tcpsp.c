@@ -5,7 +5,7 @@
 /** @file bflib_tcpsp.c
  *     Part of network support library.
  * @par Purpose:
- *     Low level TCP service provider routines.
+ *     Low level TCP service provider routines. Implements abstract network API.
  * @par Comment:
  *     None.
  * @author   The KeeperFX Team
@@ -267,7 +267,7 @@ static TbError tcpSP_join(const char * session, void * options)
     SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
     for (int i = 0; i < 20; i++)
     {
-        SDL_Delay(20);
+        SDL_Delay(25);
         tcpSP_update(&null_fn); // A bit of hope
         if (spstate.mode != SPM_WAITING_FOR_TOKEN)
         {
@@ -276,7 +276,7 @@ static TbError tcpSP_join(const char * session, void * options)
         }
     }
     NETDBG(4, "no token");
-    return Lb_OK;
+    return Lb_FAIL;
 }
 
 static short get_token(Uint32 now)

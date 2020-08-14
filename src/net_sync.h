@@ -32,7 +32,12 @@ extern "C" {
 
 #pragma pack()
 /******************************************************************************/
-void resync_game(void);
+/**
+ * This is a polling function
+ * When desync detected after synced state first time first_resync is set to true 
+ * returns true when resync is complete
+ */
+TbBool resync_game(TbBool first_resync);
 short perform_checksum_verification(void);
 
 /******************************************************************************/

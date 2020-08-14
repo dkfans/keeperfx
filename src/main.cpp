@@ -4299,7 +4299,6 @@ void init_level(void)
 void post_init_level(void)
 {
     SYNCDBG(8,"Starting");
-    //_DK_post_init_level(); return;
     if (game.packet_save_enable)
         open_new_packet_file_for_save();
     calculate_dungeon_area_scores();
@@ -4322,7 +4321,6 @@ void post_init_level(void)
 void startup_saved_packet_game(void)
 {
     struct CatalogueEntry centry;
-    //_DK_startup_saved_packet_game(); return;
     clear_packets();
     open_packet_file_for_load(game.packet_fname,&centry);
     if (!change_campaign(centry.campaign_fname))
