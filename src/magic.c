@@ -2086,25 +2086,25 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
         switch (pwkind)
         {
         case PwrK_MKDIGGER:
-            ret = magic_use_power_imp(plyr_idx, stl_x, stl_y, PwMod_Default);
+            ret = magic_use_power_imp(plyr_idx, stl_x, stl_y, allow_flags);
             break;
         case PwrK_SIGHT:
-            ret = magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel, PwMod_Default);
+            ret = magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_CALL2ARMS:
-            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, PwMod_Default);
+            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_CAVEIN:
-            ret = magic_use_power_cave_in(plyr_idx, stl_x, stl_y, splevel, PwMod_Default);
+            ret = magic_use_power_cave_in(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_LIGHTNING:
-            ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel, PwMod_Default);
+            ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_DESTRWALLS:
-            ret = magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel, PwMod_Default);
+            ret = magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_TIMEBOMB:
-            ret = magic_use_power_time_bomb(plyr_idx, stl_x, stl_y, splevel, PwMod_Default);
+            ret = magic_use_power_time_bomb(plyr_idx, stl_x, stl_y, splevel, allow_flags);
             break;
         default:
             ERRORLOG("Power not supported here: %d", (int)pwkind);
