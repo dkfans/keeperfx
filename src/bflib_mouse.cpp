@@ -52,6 +52,7 @@ struct DevInput joy;
 */
 volatile TbBool lbMouseAutoReset = true;
 volatile TbDisplayStructEx lbDisplayEx;
+extern volatile TbBool lbAppActive;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_x, long hot_y)
 {
@@ -188,7 +189,10 @@ void MouseToScreen(struct TbPoint *pos)
       {
           mx = (clip.right-clip.left)/2 + clip.left;
           my = (clip.bottom-clip.top)/2 + clip.top;
-          SDL_WarpMouse(mx, my);
+          if (lbAppActive)
+          {
+              SDL_WarpMouse(mx, my);
+          }
       }
   } else
   {

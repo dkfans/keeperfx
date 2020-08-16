@@ -33,6 +33,12 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+/******************************************************************************/
+/*
+ * Network have to be more integrated with game objects.
+ */
+/******************************************************************************/
+
 // New Declarations Here ======================================================
 
 #define MAX_N_USERS 4
@@ -40,6 +46,13 @@ extern "C" {
 #define SERVER_ID   0
 
 typedef int NetUserId;
+
+enum NetResponse
+{
+    NR_OK,
+    NR_FAIL,
+    NR_RESYNC
+};
 
 enum NetDropReason
 {
@@ -260,8 +273,9 @@ void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, unsigned long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
-TbError LbNetwork_Exchange(void *buf);
-TbBool  LbNetwork_Resync(TbBool first_resync,void * buf, size_t len);
+enum NetResponse LbNetwork_Exchange(void *buf);
+TbBool  LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, void * buf, size_t len);
+void    LbNetwork_GetResyncProgress(int *now, int *max);
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long a2);
 void    LbNetwork_EnableLag(TbBool lag); //new addition to enable/disable scheduled lag mode
@@ -270,7 +284,6 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

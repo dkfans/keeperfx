@@ -143,6 +143,8 @@ struct GameAdd {
 };
 
 #pragma pack()
+
+extern unsigned long ui_turn;
 /******************************************************************************/
 extern struct GameAdd gameadd;
 extern struct IntralevelData intralvl;

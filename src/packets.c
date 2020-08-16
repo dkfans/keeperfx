@@ -2829,6 +2829,7 @@ void write_debug_screenpackets(void)
 void process_packets(void)
 {
     int i;
+    int player_status;
     struct PlayerInfo* player;
     SYNCDBG(5, "Starting");
     // Do the network data exchange
@@ -2837,35 +2838,45 @@ void process_packets(void)
     if (game.game_kind != GKind_LocalGame)
     {
         player = get_my_player();
-        int j = 0;
+        player_status = 0;
         for (i = 0; i < 4; i++)
         {
             if (network_player_active(i))
-                j++;
+                player_status ^= (1 << i);
         }
         if (!game.packet_load_enable || game.numfield_149F47)
         {
             struct Packet* pckt = get_packet_direct(player->packet_num);
-            if (LbNetwork_Exchange(pckt) != 0)
+            switch(LbNetwork_Exchange(pckt))
             {
+            case NR_FAIL:
                 ERRORLOG("LbNetwork_Exchange failed");
+                break;
+            case NR_RESYNC:
+                set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
+                set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
+                break;
+            case NR_OK:
+                break;
             }
         }
-        int k = 0;
+
         for (i = 0; i < 4; i++)
         {
             if (network_player_active(i))
-                k++;
+                player_status ^= (1 << i);
         }
-        if (j != k)
+        if (player_status != 0) // Someone connected or disconnected
         {
             for (i = 0; i < 4; i++)
             {
+                if ((player_status & (1 << i)) == 0)
+                    continue;
                 player = get_player(i);
                 if (!network_player_active(player->packet_num))
                 {
                     // Here we can pause the game
-                    EVM_GLOBAL_EVENT("mp.desync,plyr=%d cnt=1", i);
+                    EVM_GLOBAL_EVENT("mp.disconnect,plyr=%d cnt=1", i);
 
                     game.operation_flags |= GOF_Paused;
                     //message_add_fmt(i, "AI in control!");
@@ -2894,7 +2905,8 @@ void process_packets(void)
   {
       if (first_resync)
       {
-          SYNCDBG(0,"Resyncing");
+          game.operation_flags |= GOF_Paused;
+          SYNCDBG(0, "Resyncing");
           EVM_GLOBAL_EVENT("mp.resync,system_flags=0x%0x cnt=1", game.system_flags);
       }
       if (resync_game(first_resync))

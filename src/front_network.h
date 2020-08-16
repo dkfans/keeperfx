@@ -52,7 +52,7 @@ DLLIMPORT char _DK_tmp_net_modem_answer[20];
 long modem_initialise_callback(void);
 long modem_connect_callback(void);
 void process_network_error(long errcode);
-void draw_out_of_sync_box(long a1, long a2, long box_width);
+void gui_draw_network_state();
 void display_attempting_to_join_message(void);
 void setup_alliances(void);
 void frontnet_service_setup(void);

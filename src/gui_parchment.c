@@ -29,6 +29,7 @@
 
 #include "frontend.h"
 #include "front_simple.h"
+#include "front_network.h"
 #include "config.h"
 #include "gui_boxmenu.h"
 #include "gui_tooltips.h"
@@ -827,6 +828,7 @@ void redraw_parchment_view(void)
   // Draw on-screen GUIs and boxes
   draw_gui();
   gui_draw_all_boxes();
+  gui_draw_network_state();
   // Put zoom box, map name and tooltips
   draw_zoom_box();
   draw_map_level_name();

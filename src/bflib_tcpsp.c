@@ -314,7 +314,7 @@ static short get_token(Uint32 now)
     return token;
 }
 
-static void process_packet(Uint32 now, struct PacketListNode * const node, NetNewUserCallback new_user)
+static void process_packet(Uint32 now, struct PacketListNode *node, NetNewUserCallback new_user)
 {
     NetUserId id;
     int index;
@@ -380,6 +380,7 @@ static void process_packet(Uint32 now, struct PacketListNode * const node, NetNe
                 // Add to list of packets
                 if (spstate.peers[i].tail == NULL)
                 {
+                    spstate.peers[i].head = node;
                     spstate.peers[i].tail = node;
                     node->next = NULL;
                 }
@@ -400,22 +401,21 @@ static void tcpSP_update(NetNewUserCallback new_user)
     Uint32 now;
     now = SDL_GetTicks();
 
-    struct PacketListNode *node;
+    struct PacketListNode *node, *next;
     // Lets first drain all stored packets
-    node = spstate.msg_head;
-    if (node != NULL)
+    next = spstate.msg_head;
+    if (next != NULL)
     {   // Lets check all buffered messages first
         NETDBG(9, "Draining stored packets");
-        process_packet(now, node, new_user);
-        node = node->next;
-        while (node != NULL)
+
+        while (next != NULL)
         {
+            node = next;
+            next = next->next;
+            node->next = NULL;
             process_packet(now, node, new_user);
-            node = node->next;
         }
         // free all buffered packets
-        spstate.msg_tail->next = spstate.free_node;
-        spstate.free_node = spstate.msg_head;
         spstate.msg_head = NULL;
         spstate.msg_tail = NULL;
     }
@@ -562,7 +562,7 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
     assert(size + TOKEN_SIZE < MAX_PACKET_SIZE);
     assert(!(spstate.ishost && destination == SERVER_ID));
 
-    NETDBG(9, "Starting for buffer of %u bytes to user %u", size, destination);
+    NETDBG(9, "buffer of %u bytes to user %u", size, destination);
 
     memcpy(spstate.outpacket->data + TOKEN_SIZE, buffer, size);
     spstate.outpacket->len = size + TOKEN_SIZE;
@@ -653,7 +653,7 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
             }
             else if (timeout == 0)
             {
-                NETDBG(9, "No data for %u", source);
+                NETDBG(9, "No data from i:%d id:%u", i, source);
                 return 0;
             }
             else
@@ -661,7 +661,7 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
                 node = wait_for_message(spstate.peers[i].token, timeout);
                 if (node == NULL)
                 {
-                    NETDBG(9, "No data for %u", source);
+                    NETDBG(9, "No data from id:%u", source);
                     return 0;
                 }
                 if (spstate.peers[i].mode == SPM_WAITING_FOR_TOKEN)
@@ -703,7 +703,7 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
             }
             memcpy(buffer, node->packet->data + TOKEN_SIZE, min(max_size, node->packet->len - TOKEN_SIZE));
             if (node == spstate.peers[i].tail)
-                spstate.peers[i].tail = NULL;
+                spstate.peers[i].tail = node->next;
             spstate.peers[i].head = node->next;
             node->next = spstate.free_node;
             spstate.free_node = node;

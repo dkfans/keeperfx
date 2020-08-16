@@ -149,7 +149,6 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         min_width = 0;
     }
     int units_per_px = units_per_pixel;
-    if (LbScreenLock() == Lb_SUCCESS)
     {
         long ornate_width = 200 * units_per_px / 16;
         long ornate_height = 100 * units_per_px / 16;
@@ -166,8 +165,22 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         LbTextDrawResized(0, 50*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
         LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_px/16, 0);
         LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_px/16, 133);
-        LbScreenUnlock();
-        LbScreenSwap();
+
+        int a, b;
+        LbNetwork_GetResyncProgress(&a, &b);
+        if (b == 0) b = 1;
+
+        LbDrawBox(text_x, text_y, 2 * max_width * a / b, 16*units_per_px/16, 
+              player_flash_colours[0]);
+    }
+}
+
+void gui_draw_network_state()
+{
+    if (((game.system_flags & GSF_NetGameNoSync) != 0)
+      || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+    {
+      draw_out_of_sync_box(0, 32*units_per_pixel/16, get_my_player()->engine_window_x);
     }
 }
 

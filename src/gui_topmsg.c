@@ -122,19 +122,31 @@ TbBool draw_onscreen_direct_messages(void)
         onscreen_msg_turns--;
     }
     unsigned int msg_pos = 200;
+    static unsigned long prev_turn = 0;
     if ((game.system_flags & GSF_NetGameNoSync) != 0)
     {
-        ERRORLOG("OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
+        if (prev_turn != game.play_gameturn)
+        {
+            ERRORLOG("OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
+        }
         if ( LbScreenIsLocked() )
           LbTextDraw(260*units_per_pixel/16, msg_pos*units_per_pixel/16, "OUT OF SYNC");
         msg_pos += 20;
     }
     if ((game.system_flags & GSF_NetSeedNoSync) != 0)
     {
-        ERRORLOG("SEED OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
+        if (prev_turn != game.play_gameturn)
+        {
+            prev_turn = game.play_gameturn;
+            ERRORLOG("SEED OUT OF SYNC (GameTurn %7d)", game.play_gameturn);
+        }
         if ( LbScreenIsLocked() )
           LbTextDraw(260*units_per_pixel/16, msg_pos*units_per_pixel/16, "SEED OUT OF SYNC");
         msg_pos += 20;
+    }
+    else
+    {
+        prev_turn = 0;
     }
     SYNCDBG(18,"Finished");
     return true;

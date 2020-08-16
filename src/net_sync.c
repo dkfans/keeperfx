@@ -77,7 +77,7 @@ static TbBool send_resync_game(TbBool first_resync)
   TbBool ret;
   if (first_resync)
   {
-      NETLOG("Initiating re-synchronization of network game");
+      NETLOG("%s: Initiating re-synchronization of network game", __func__);
       //TODO NET see if it is necessary to dump to file... probably superfluous
       char* fname = prepare_file_path(FGrp_Save, "resync.dat");
       TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
@@ -90,7 +90,7 @@ static TbBool send_resync_game(TbBool first_resync)
       LbFileWrite(fh, &game, sizeof(game));
       LbFileClose(fh);
   }
-  ret = LbNetwork_Resync(first_resync, &game, sizeof(game));
+  ret = LbNetwork_Resync(first_resync, game.play_gameturn, &game, sizeof(game));
   if (ret)
   {
       NETLOG("Done syncing");
@@ -103,12 +103,12 @@ static TbBool receive_resync_game(TbBool first_resync)
     TbBool ret;
     if (first_resync)
     {
-        NETLOG("Initiating re-synchronization of network game");
+        NETLOG("%s: Initiating re-synchronization of network game", __func__);
     }
-    ret = LbNetwork_Resync(first_resync, &game, sizeof(game));
+    ret = LbNetwork_Resync(first_resync, game.play_gameturn, &game, sizeof(game));
     if (ret)
     {
-        NETLOG("Done syncing");
+        NETLOG("%s: Done syncing", __func__);
     }
     return ret;
 }
@@ -160,9 +160,8 @@ void recall_localised_game_structure(void)
 TbBool resync_game(TbBool first_resync)
 {
     SYNCDBG(2,"Starting");
-    TbBool done;
     struct PlayerInfo* player = get_my_player();
-    draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
+
     reset_eye_lenses();
     store_localised_game_structure();
     int i = get_resync_sender();

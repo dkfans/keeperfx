@@ -3170,6 +3170,7 @@ void update(void)
     update_all_players_cameras();
     update_player_sounds();
     game.field_14EA4B = 0;
+    ui_turn++;
     SYNCDBG(6,"Finished");
 }
 
