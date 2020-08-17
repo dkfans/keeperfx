@@ -90,6 +90,15 @@ enum DebugFlags {
     DFlg_CreatrPaths        =  0x02,
 };
 
+#ifdef AUTOTESTING
+enum AutotestFlags {
+    ATF_ExitOnTurn          = 0x01, // Exit from a game after some time
+    ATF_FixedSeed           = 0x02, // Set randomseed to 1 on game start
+    ATF_AI_Player           = 0x04, // Activate Ai player on level start
+    ATF_TestsCampaign       = 0x08  // Switch to testing levels
+};
+#endif
+
 #pragma pack(1)
 
 struct TbLoadFiles;
@@ -120,6 +129,11 @@ struct StartupParameters {
     char packet_fname[150];
     unsigned char packet_checksum_verify;
     unsigned char force_ppro_poly;
+    int frame_skip;
+#ifdef AUTOTESTING
+    unsigned char autotest_flags;
+    unsigned long autotest_exit_turn;
+#endif
 };
 
 // Global variables migration between DLL and the program

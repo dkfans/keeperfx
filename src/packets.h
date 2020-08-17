@@ -149,6 +149,7 @@ enum TbPacketAction {
         PckA_SaveViewType,
         PckA_LoadViewType,//120
         PckA_PlyrMsgChar    =  121,
+        PckA_PlyrMsgClear
 };
 
 /** Packet flags for non-action player operation. */

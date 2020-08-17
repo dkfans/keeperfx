@@ -126,6 +126,10 @@
 
 #include "music_player.h"
 
+#ifdef AUTOTESTING
+#include "event_monitoring.h"
+#endif
+
 #ifdef _MSC_VER
 #define strcasecmp _stricmp
 #endif
@@ -1164,6 +1168,9 @@ short setup_game(void)
       draw_clear_screen();
       result = wait_for_cd_to_be_available();
   }
+
+  game.frame_skip = start_params.frame_skip;
+
   if ( result && (!game.no_intro) )
   {
       result = intro_replay();
@@ -2474,7 +2481,7 @@ void process_payday(void)
         game.pay_day_progress = 0;
         // Prepare a list which counts how many creatures of each owner needs pay
         int player_paid_creatures_count[PLAYERS_EXT_COUNT];
-        PlayerNumber plyr_idx;
+
         for (plyr_idx=0; plyr_idx < PLAYERS_EXT_COUNT; plyr_idx++)
         {
             player_paid_creatures_count[plyr_idx] = 0;
@@ -3747,6 +3754,14 @@ void keeper_gameplay_loop(void)
     PaletteSetPlayerPalette(player, engine_palette);
     if ((game.operation_flags & GOF_SingleLevel) != 0)
         initialise_eye_lenses();
+
+#ifdef AUTOTESTING
+    if ((start_params.autotest_flags & ATF_AI_Player) != 0)
+    {
+        toggle_computer_player(player->id_number);
+    }
+#endif
+
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
 
     KeeperSpeechClearEvents();
@@ -3761,6 +3776,21 @@ void keeper_gameplay_loop(void)
               LbNetwork_ChangeExchangeTimeout(0);
         }
 
+#ifdef AUTOTESTING
+        if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
+        {
+            quit_game = true;
+            exit_keeper = true;
+            break;
+        }
+        evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
+        if (start_params.autotest_flags & ATF_FixedSeed)
+        {
+            game.action_rand_seed = game.play_gameturn;
+            game.unsync_rand_seed = game.play_gameturn;
+            srand(game.play_gameturn);
+        }
+#endif
         // Check if we should redraw screen in this turn
         do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
 
@@ -4220,9 +4250,19 @@ void init_level(void)
     init_navigation();
     clear_messages();
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+#ifdef AUTOTESTING
+    if (start_params.autotest_flags & ATF_FixedSeed)
+    {
+      game.action_rand_seed = 1;
+      game.unsync_rand_seed = 1;
+      srand(1);
+    }
+    else
+#else
     // Initialize unsynchronized random seed (the value may be different
     // on computers in MP, as it shouldn't affect game actions)
     game.unsync_rand_seed = (unsigned long)LbTimeSec();
+#endif
     if (!SoundDisabled)
     {
         game.field_14BB54 = (UNSYNC_RANDOM(67) % 3 + 1);
@@ -4673,6 +4713,8 @@ short process_command_line(unsigned short argc, char *argv[])
       endpos=strrchr( keeper_runtime_directory, '/');
   if (endpos!=NULL)
       *endpos='\0';
+  else
+      strcpy(keeper_runtime_directory, ".");
 
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
@@ -4694,11 +4736,21 @@ short process_command_line(unsigned short argc, char *argv[])
           return -1;
       char parstr[CMDLN_MAXLEN+1];
       char pr2str[CMDLN_MAXLEN+1];
+      char pr3str[CMDLN_MAXLEN+1];
       strncpy(parstr, par+1, CMDLN_MAXLEN);
-      if (narg+1 < argc)
-        strncpy(pr2str,  argv[narg+1], CMDLN_MAXLEN);
+      if (narg + 1 < argc)
+      {
+          strncpy(pr2str,  argv[narg+1], CMDLN_MAXLEN);
+          if (narg + 2 < argc)
+              strncpy(pr3str,  argv[narg+2], CMDLN_MAXLEN);
+          else
+              pr3str[0]='\0';
+      }
       else
-        pr2str[0]='\0';
+      {
+          pr2str[0]='\0';
+          pr3str[0]='\0';
+      }
 
       if (strcasecmp(parstr, "nointro") == 0)
       {
@@ -4814,6 +4866,47 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          set_flag_byte(&start_params.flags_font,FFlg_AlexCheat,true);
       } else
+      if (strcasecmp(parstr,"frameskip") == 0)
+      {
+         start_params.frame_skip = atoi(pr2str);
+         narg++;
+      }
+#ifdef AUTOTESTING
+      else if (strcasecmp(parstr, "exit_at_turn") == 0)
+      {
+         set_flag_byte(&start_params.autotest_flags, ATF_ExitOnTurn, true);
+         start_params.autotest_exit_turn = atol(pr2str);
+         narg++;
+      } else
+      if (strcasecmp(parstr, "fixed_seed") == 0)
+      {
+         set_flag_byte(&start_params.autotest_flags, ATF_FixedSeed, true);
+      } else
+      if (strcasecmp(parstr, "tests") == 0)
+      {
+        set_flag_byte(&start_params.autotest_flags, ATF_TestsCampaign, true);
+
+        if (!change_campaign("../tests/campaign.cfg"))
+        {
+          ERRORLOG("Unable to load tests campaign");
+          bad_param=narg;
+        }
+      } else
+      if (strcasecmp(parstr, "ai_player") == 0)
+      {
+         set_flag_byte(&start_params.autotest_flags, ATF_AI_Player, true);
+         fe_computer_players = 1;
+      } else
+      if (strcasecmp(parstr, "monitoring") == 0)
+      {
+          int instance_no = atoi(pr3str);
+          evm_init(pr2str, instance_no);
+          narg++;
+          if ((instance_no > 0) || (strcmp(pr3str, "0") == 0))
+              narg++;
+      }
+#endif
+      else
       {
         WARNMSG("Unrecognized command line parameter '%s'.",parstr);
         bad_param=narg;
@@ -4859,7 +4952,15 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
+#ifdef AUTOTESTING
+    if (start_params.autotest_flags & ATF_FixedSeed)
+    {
+      srand(1);
+    }
+    else
+#else
     srand(LbTimerClock());
+#endif
     if (!retval)
     {
         static const char *msg_text="Basic engine initialization failed.\n";
@@ -4901,6 +5002,9 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         game_loop();
     }
+#ifdef AUTO_TESTING
+    ev_done();
+#endif
     reset_game();
     LbScreenReset();
     if ( !retval )

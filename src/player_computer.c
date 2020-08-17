@@ -244,7 +244,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
             unsigned int look_kind = look_randstart;
             if (look_randstart < 0)
             {
-                look_kind = ACTION_RANDOM(arr_length);
+                look_kind = AI_RANDOM(arr_length);
             }
             for (i=0; i < arr_length; i++)
             {
@@ -706,7 +706,7 @@ long computer_choose_best_trap_kind_to_place(struct Dungeon *dungeon, long allow
     long kinds_multiple = get_number_of_trap_kinds_with_amount_at_least(dungeon, 2);
     if (kinds_multiple > 0) {
         SYNCDBG(18,"Returning one of %d plentiful traps",(int)kinds_multiple);
-        return get_nth_of_trap_kinds_with_amount_at_least(dungeon, 2, ACTION_RANDOM(kinds_multiple));
+        return get_nth_of_trap_kinds_with_amount_at_least(dungeon, 2, AI_RANDOM(kinds_multiple));
     }
     // If there are no multiple traps, and we're not allowing to spend last one
     if (!allow_last)
@@ -717,7 +717,7 @@ long computer_choose_best_trap_kind_to_place(struct Dungeon *dungeon, long allow
     long kinds_single = get_number_of_trap_kinds_with_amount_at_least(dungeon, 1);
     if (kinds_single > 0) {
         SYNCDBG(18,"Returning one of %d single traps",(int)kinds_single);
-        return get_nth_of_trap_kinds_with_amount_at_least(dungeon, 1, ACTION_RANDOM(kinds_single));
+        return get_nth_of_trap_kinds_with_amount_at_least(dungeon, 1, AI_RANDOM(kinds_single));
     }
     return 0;
 }
@@ -733,7 +733,7 @@ int computer_find_more_trap_place_locations(struct Computer2 *comp)
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
     int num_added = 0;
-    RoomKind rkind = ACTION_RANDOM(ROOM_TYPES_COUNT);
+    RoomKind rkind = AI_RANDOM(ROOM_TYPES_COUNT);
     for (int m = 0; m < ROOM_TYPES_COUNT; m++, rkind = (rkind + 1) % ROOM_TYPES_COUNT)
     {
         unsigned long k = 0;
@@ -977,7 +977,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Power hand tasks are exclusive, so select randomly
-    int pwhand_task_choose = ACTION_RANDOM(100);
+    int pwhand_task_choose = AI_RANDOM(100);
     // Cautious selling of traps can be used as base for stable economy.
     // If we were able to use it, do not try to move creatures from their jobs.
     if ((ret == CTaskRet_Unk1) && (pwhand_task_choose < 33)) {

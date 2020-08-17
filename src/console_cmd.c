@@ -229,7 +229,7 @@ static char *cmd_strtok(char *tail)
 
 TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
 {
-    SYNCDBG(2,"Command %d: %s",(int)plyr_idx,text);
+    SYNCDBG(2,"Command %d: %s",(int)plyr_idx, msg);
     const char * parstr = msg + 1;
     const char * pr2str = cmd_strtok(msg + 1);
     if (strcmp(parstr, "stats") == 0)
@@ -241,6 +241,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     {
         quit_game = 1;
         exit_keeper = 1;
+        return true;
+    } else if (strcmp(parstr, "turn") == 0)
+    {
+        message_add_fmt(plyr_idx, "turn %ld", game.play_gameturn);
         return true;
     } else if ((game.flags_font & FFlg_AlexCheat) != 0)
     {
@@ -319,13 +323,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             if (pr2str == NULL)
                 return false;
             if (!setup_a_computer_player(plyr_idx, atoi(pr2str))) {
-                message_add(plyr_idx, "unable to become a computer");
+                message_add(plyr_idx, "unable to set assistant");
             } else
-                message_add(plyr_idx, "computer player activated");
+                message_add_fmt(plyr_idx, "computer assistant is %d", atoi(pr2str));
             return true;
         } else if (strcmp(parstr, "give.trap") == 0)
         {
-            message_add(plyr_idx, "computer player activated");
             int id = atoi(pr2str);
             if (id <= 0 || id > trapdoor_conf.trap_types_count)
                 return false;
@@ -335,7 +338,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             return true;
         } else if (strcmp(parstr, "give.door") == 0)
         {
-            message_add(plyr_idx, "computer player activated");
             int id = atoi(pr2str);
             if (id <= 0 || id > trapdoor_conf.door_types_count)
                 return false;

@@ -152,16 +152,21 @@ short get_players_message_inputs(void)
         set_players_packet_action(player, PckA_PlyrMsgEnd, 0, 0, 0, 0);
         clear_key_pressed(KC_RETURN);
         return true;
-  }
-  LbTextSetFont(winfont);
-  int msg_width = pixel_size * LbTextStringWidth(player->mp_message_text);
-  if ( (is_key_pressed(KC_BACK,KMod_DONTCARE)) || (msg_width < 450) )
-  {
-      set_players_packet_action(player,PckA_PlyrMsgChar,lbInkey,key_modifiers,0,0);
-      clear_key_pressed(lbInkey);
-      return true;
-  }
-  return false;
+    } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    {
+        set_players_packet_action(player, PckA_PlyrMsgClear, 0, 0, 0, 0);
+        clear_key_pressed(KC_ESCAPE);
+        return true;
+    }
+    LbTextSetFont(winfont);
+    int msg_width = pixel_size * LbTextStringWidth(player->mp_message_text);
+    if ( (is_key_pressed(KC_BACK,KMod_DONTCARE)) || (msg_width < 450) )
+    {
+        set_players_packet_action(player,PckA_PlyrMsgChar,lbInkey,key_modifiers,0,0);
+        clear_key_pressed(lbInkey);
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -2174,8 +2179,7 @@ void input(void)
       pckt->field_10 &= ~PCAdV_CrtrQueryPressed;
 
     get_inputs();
-    // Debug code to write a savegame on given turn
-    //if (game.play_gameturn == 141940) { save_game(0); }
+
     SYNCDBG(7,"Finished");
 }
 

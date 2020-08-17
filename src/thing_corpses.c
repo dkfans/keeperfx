@@ -204,12 +204,14 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                     thing->health--;
                 if (thing->health <= 0) {
                     remove_body_from_graveyard(thing);
+                    EVM_CREATURE_EVENT("remove.decomposed", thing->owner, thing);
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
             } else
             {
                 if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
+                    EVM_CREATURE_EVENT("remove", thing->owner, thing);
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
@@ -217,6 +219,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         } else
         {
             if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
+                EVM_CREATURE_EVENT("remove", thing->owner, thing);
                 delete_thing_structure(thing, 0);
                 return TUFRet_Deleted;
             }
@@ -233,11 +236,13 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
       && !thing_is_dragged_or_pulled(thing) )
     {
+        EVM_CREATURE_EVENT("remove.melted", thing->owner, thing);
         delete_thing_structure(thing, 0);
         return TUFRet_Deleted;
     }
     if (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
+        EVM_CREATURE_EVENT("remove.squished", thing->owner, thing);
         delete_thing_structure(thing, 0);
         create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->byte_13);
         return TUFRet_Deleted;

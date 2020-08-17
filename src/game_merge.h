@@ -26,6 +26,7 @@
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_rules.h"
+#include "gui_msgs.h"
 #include "dungeon_data.h"
 #include "thing_creature.h"
 #include "creature_control.h"
@@ -41,9 +42,10 @@ extern "C" {
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
 
-#define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__)
-#define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__)
-#define ACTION_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
+#define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
+#define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
+#define ACTION_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
+#define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
@@ -125,6 +127,7 @@ struct GameAdd {
     /** The creature model used for determining amount of sacrifices which decrease digger cost. */
     ThingModel cheaper_diggers_sacrifice_model;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
+    struct GuiMessage messages[GUI_MESSAGES_COUNT];
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
     long digger_work_experience;

@@ -2291,6 +2291,7 @@ void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_
     unsigned char pretty_type;
     pretty_type = choose_pretty_type(creatng->owner, slb_x, slb_y);
     place_slab_type_on_map(pretty_type, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 0);
+    EVM_MAP_EVENT("reinforced", creatng->owner, slb_x, slb_y, "");
     do_slab_efficiency_alteration(slb_x, slb_y);
     MapSubtlCoord wrkstl_x;
     MapSubtlCoord wrkstl_y;
