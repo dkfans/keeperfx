@@ -1485,7 +1485,7 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->class_id == TCls_EffectElem) && (thing->model == 46)) {
+        if ((thing->class_id == TCls_EffectElem) && (thing->model == TngEff_Unknown46)) {
             break;
         }
         // Per thing code end
