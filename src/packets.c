@@ -47,6 +47,7 @@
 #include "config_terrain.h"
 #include "config_players.h"
 #include "config_settings.h"
+#include "hist_actions.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "player_states.h"
@@ -727,12 +728,14 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
               if ((player->allocflags & PlaF_Unknown20) != 0)
               {
+                hist_map_action(HAT_Untag, plyr_idx, cx, cy);
                 untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
               if (dungeon->task_count < 300)
               {
                 if (tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx))
                 {
+                  hist_map_action(HAT_Tag, plyr_idx, cx, cy);
                 }
               } else
               if (is_my_player(player))
@@ -744,6 +747,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
               if ((player->allocflags & PlaF_Unknown20) != 0)
               {
+                hist_map_action(HAT_Untag, plyr_idx, cx, cy);
                 untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
               if (dungeon->task_count < 300)
@@ -752,6 +756,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 {
                   if (tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx))
                   {
+                    hist_map_action(HAT_Tag, plyr_idx, cx, cy);
                   }
                 }
               } else

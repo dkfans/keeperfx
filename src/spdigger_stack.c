@@ -30,6 +30,7 @@
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_terrain.h"
+#include "hist_actions.h"
 #include "thing_corpses.h"
 #include "thing_navigate.h"
 #include "thing_stats.h"
@@ -899,6 +900,7 @@ long check_out_undug_place(struct Thing *creatng)
             if (check_place_to_dig_and_get_position(creatng, task_pos, &mv_x, &mv_y)
                 && setup_person_move_to_position(creatng, mv_x, mv_y, NavRtF_Default))
             {
+                hist_take_task(creatng->owner, task_idx, creatng->index);
                 cctrl->digger.task_idx = task_idx;
                 cctrl->digger.task_stl = task_pos;
                 mtask = get_task_list_entry(creatng->owner, cctrl->digger.task_idx);
@@ -1029,6 +1031,7 @@ long check_out_undug_area(struct Thing *thing)
     if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default)) {
         return 0;
     }
+    hist_take_task(thing->owner, tsk_id, thing->index);
     struct Dungeon *dungeon;
     dungeon = get_dungeon(thing->owner);
     struct CreatureControl *cctrl;
@@ -2321,6 +2324,7 @@ long check_out_imp_last_did(struct Thing *creatng)
       { 
         // If we were digging gems, after 5 repeats of this job, a 1 in 20 chance to select another dungeon job.
         // This allows to switch to other important tasks and not consuming all the diggers workforce forever
+        // TODO: ACTION_RANDOM?
         if ((( rand( ) % 20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
         {
           // Set position in digger tasks list to a random place
@@ -2830,6 +2834,7 @@ long check_out_worker_dig_or_mine(struct Thing *thing, struct DiggerStack *dstac
         // Do not delete the task - another digger might be able to reach it
         return 0;
     }
+    hist_take_task(thing->owner, i, thing->index);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->digger.task_idx = i;

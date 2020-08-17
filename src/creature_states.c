@@ -157,6 +157,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng);
 }
 #endif
 /******************************************************************************/
+// Indexed by enum CreatureStates
 struct StateInfo states[] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},

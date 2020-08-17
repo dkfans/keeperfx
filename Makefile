@@ -208,6 +208,7 @@ obj/game_legacy.o \
 obj/game_lghtshdw.o \
 obj/game_merge.o \
 obj/game_saves.o \
+obj/hist_actions.o \
 obj/gui_boxmenu.o \
 obj/gui_draw.o \
 obj/gui_frontbtns.o \
