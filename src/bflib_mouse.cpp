@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -50,7 +50,7 @@ long volatile mouse_dy;
 unsigned long mouse_pos_change_saved;
 struct DevInput joy;
 */
-volatile TbBool lbMouseAutoReset = true;
+volatile TbBool lbMouseGrab = true;
 volatile TbDisplayStructEx lbDisplayEx;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_x, long hot_y)
@@ -161,46 +161,6 @@ TbResult LbMouseOnMove(struct TbPoint shift)
   return Lb_SUCCESS;
 }
 
-/** Converts mouse coordinates into relative shift coordinates.
- *
- * @param pos Pointer to the structure with source point, and where result is placed.
- */
-void MouseToScreen(struct TbPoint *pos)
-{
-  // Static variables for storing last mouse coordinated; needed
-  // because lbDisplay.MMouse? coords are scaled
-  static long mx = 0;
-  static long my = 0;
-  struct TbRect clip;
-  struct TbPoint orig;
-  if ( lbMouseAutoReset )
-  {
-      if (!pointerHandler.GetMouseWindow(&clip))
-          return;
-      orig.x = pos->x;
-      orig.y = pos->y;
-      pos->x = ((pos->x - mx) * (long)lbDisplay.MouseMoveRatio)/256;
-      pos->y = ((pos->y - my) * (long)lbDisplay.MouseMoveRatio)/256;
-      mx = orig.x;
-      my = orig.y;
-      if ((mx < clip.left + 50) || (mx > clip.right - 50)
-       || (my < clip.top + 50) || (my > clip.bottom - 50))
-      {
-          mx = (clip.right-clip.left)/2 + clip.left;
-          my = (clip.bottom-clip.top)/2 + clip.top;
-          SDL_WarpMouse(mx, my);
-      }
-  } else
-  {
-      orig.x = pos->x;
-      orig.y = pos->y;
-      pos->x = ((pos->x - mx) * (long)lbDisplay.MouseMoveRatio)/256;
-      pos->y = ((pos->y - my) * (long)lbDisplay.MouseMoveRatio)/256;
-      mx = orig.x;
-      my = orig.y;
-  }
-}
-
 TbResult LbMouseSuspend(void)
 {
   if (!lbMouseInstalled)
@@ -232,14 +192,12 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
     switch ( action )
     {
     case MActn_MOUSEMOVE:
-        MouseToScreen(&dstPos);
         LbMouseOnMove(dstPos);
         break;
     case MActn_LBUTTONDOWN:
         lbDisplay.MLeftButton = 1;
         if ( !lbDisplay.LeftButton )
         {
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
             lbDisplay.MouseX = lbDisplay.MMouseX;
             lbDisplay.MouseY = lbDisplay.MMouseY;
@@ -251,7 +209,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         lbDisplay.MLeftButton = 0;
         if ( !lbDisplay.RLeftButton )
         {
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
@@ -262,7 +219,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         lbDisplay.MRightButton = 1;
         if ( !lbDisplay.RightButton )
         {
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
             lbDisplay.MouseX = lbDisplay.MMouseX;
             lbDisplay.MouseY = lbDisplay.MMouseY;
@@ -274,7 +230,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         lbDisplay.MRightButton = 0;
         if ( !lbDisplay.RRightButton )
         {
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
@@ -285,7 +240,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         lbDisplay.MMiddleButton = 1;
         if ( !lbDisplay.MiddleButton )
         {
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
             lbDisplay.MouseX = lbDisplay.MMouseX;
             lbDisplay.MouseY = lbDisplay.MMouseY;
@@ -297,7 +251,6 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
         lbDisplay.MMiddleButton = 0;
         if ( !lbDisplay.RMiddleButton )
         {
-            MouseToScreen(&dstPos);
             LbMouseOnMove(dstPos);
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;

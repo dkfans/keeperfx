@@ -115,7 +115,7 @@ struct DevInput {
 
 #pragma pack()
 /******************************************************************************/
-extern volatile TbBool lbMouseAutoReset;
+extern volatile TbBool lbMouseGrab;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y);
 TbResult LbMouseSetup(struct TbSprite *mouseSprite);

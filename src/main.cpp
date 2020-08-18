@@ -1109,11 +1109,11 @@ short setup_game(void)
   }
 
   result = init_actv_bitmap_screen(RBmp_SplashLegal);
-  if ( result )
-  {
-      result = show_actv_bitmap_screen(3000);
-      free_actv_bitmap_screen();
-  } else
+ if ( result )
+ {
+     result = show_actv_bitmap_screen(3000);
+     free_actv_bitmap_screen();
+ } else
       SYNCLOG("Legal image skipped");
 
   // Now do more setup
@@ -1131,11 +1131,11 @@ short setup_game(void)
 
   // View second splash screen
   result = init_actv_bitmap_screen(RBmp_SplashFx);
-  if ( result )
-  {
-      result = show_actv_bitmap_screen(4000);
-      free_actv_bitmap_screen();
-  } else
+ if ( result )
+ {
+     result = show_actv_bitmap_screen(4000);
+     free_actv_bitmap_screen();
+ } else
       SYNCLOG("startup_fx image skipped");
   draw_clear_screen();
 
@@ -1173,7 +1173,7 @@ short setup_game(void)
 
   if ( result && (!game.no_intro) )
   {
-      result = intro_replay();
+     result = intro_replay();
   }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
@@ -3867,7 +3867,7 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     else
     {
-        if ( ( ((subtile_is_sellable_room(plyr_idx, stl_x, stl_y)) || ( (slabmap_owner(slb) == plyr_idx) && ( (slab_is_door(slb_x, slb_y)) 
+        if ( ( ((subtile_is_sellable_room(plyr_idx, stl_x, stl_y)) || ( (slabmap_owner(slb) == plyr_idx) && ( (slab_is_door(slb_x, slb_y))
             || (Subtile ? (subtile_has_trap_on(stl_x, stl_y)) : (slab_has_trap_on(slb_x, slb_y))) ) ) ) )
             && ( slb->kind != SlbT_ENTRANCE && slb->kind != SlbT_DUNGHEART ) )
         {
@@ -3925,7 +3925,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     {
         parl = 0;
     }
-    else 
+    else
     {
         Orientation = find_door_angle(stl_x, stl_y, plyr_idx);
         if (gameadd.place_traps_on_subtiles)
@@ -3946,7 +3946,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         }
         if ( ( (slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) )
             && (Orientation != -1)
-            && ( ( (gameadd.place_traps_on_subtiles) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(stl_x, stl_y) ) ) 
+            && ( ( (gameadd.place_traps_on_subtiles) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(stl_x, stl_y) ) )
             )
         {
             allowed = true;
@@ -4801,7 +4801,7 @@ short process_command_line(unsigned short argc, char *argv[])
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
           SYNCLOG("Mouse auto reset disabled");
-          lbMouseAutoReset = false;
+          lbMouseGrab = false;
       } else
       if ( strcasecmp(parstr,"vidriver") == 0 )
       {

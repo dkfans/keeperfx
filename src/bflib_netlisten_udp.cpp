@@ -32,7 +32,7 @@ UDP_NetListener::UDP_NetListener() :
 	sessionsMutex(SDL_CreateMutex()),
 	criticalError(false)
 {
-	thread = SDL_CreateThread(reinterpret_cast<int (*)(void *)>(threadFunc), this);
+	thread = SDL_CreateThread(reinterpret_cast<int (*)(void *)>(threadFunc), "UDP_NetListener", this);
 	if (thread == NULL) {
 		ERRORLOG("Failure to create session listener thread");
 		criticalError = true; //would be better with exception handling but...

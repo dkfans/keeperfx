@@ -22,7 +22,7 @@
 #ifndef BFLIB_NETHOST_UDP_HPP
 #define BFLIB_NETHOST_UDP_HPP
 
-#include <SDL/SDL_net.h>
+#include <SDL2/SDL_net.h>
 #include <string>
 #include <vector>
 

@@ -30,7 +30,7 @@ UDP_NetHost::UDP_NetHost(const StringVector & broadcastAddresses) :
 	broadcastAddr(broadcastAddresses),
 	errorFlag(false)
 {
-	thread = SDL_CreateThread(reinterpret_cast<int (*)(void *)>(threadFunc), this);
+	thread = SDL_CreateThread(reinterpret_cast<int (*)(void *)>(threadFunc), "UDP_NetHost", this);
 	if (thread == NULL) {
 		ERRORLOG("Failure to create session host thread");
 		errorFlag = true; //would be better with exception handling but...

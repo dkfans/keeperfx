@@ -23,7 +23,7 @@
 #include "bflib_memory.h"
 
 #include <assert.h>
-#include <SDL/SDL_net.h>
+#include <SDL2/SDL_net.h>
 
 enum MsgReadState
 {

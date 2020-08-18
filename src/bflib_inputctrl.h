@@ -31,7 +31,6 @@ extern "C" {
 extern volatile int lbUserQuit;
 /******************************************************************************/
 TbBool LbWindowsControl(void);
-TbResult LbInputRestate(void);
 TbBool LbIsActive(void);
 
 /******************************************************************************/
