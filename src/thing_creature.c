@@ -92,7 +92,7 @@ extern "C" {
 
 /******************************************************************************/
 int creature_swap_idx[CREATURE_TYPES_COUNT];
-unsigned char teleport_destination = 0;
+unsigned char teleport_destination = 18;
 BattleIndex battleid = 1;
 
 struct Creatures creatures_NEW[] = {
@@ -1259,12 +1259,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             struct Coord3d room_pos;
             switch(teleport_destination)
             {
-                case 0:
-                {
-                    desttng = thing_get(cctrl->lairtng_idx);
-                    break;
-                }
-                case 7: // Dungeon Heart
+                case 6: // Dungeon Heart
                 {
                     newpos = dungeon_get_essential_pos(thing->owner);
                     break;
@@ -1337,6 +1332,11 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     {
                         allowed = false;
                     }
+                    break;
+                }
+                case 18: // Lair
+                {
+                    desttng = thing_get(cctrl->lairtng_idx);
                     break;
                 }
                 default:
@@ -1434,7 +1434,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             thing->veloc_push_add.z.val += ACTION_RANDOM(96) + 40;
             thing->state_flags |= TF1_PushAdd;
         }
-        teleport_destination = 0;
+        teleport_destination = 18;
     }
 }
 

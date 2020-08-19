@@ -1258,7 +1258,7 @@ short get_creature_control_action_inputs(void)
         }
         else if (is_key_pressed(KC_COMMA,KMod_DONTCARE))
         {
-            teleport_destination = 0;
+            teleport_destination = 18;
         }
     // In possession sets the screen blue when frozen, and to default when not.
     if (creature_affected_by_spell(thing, SplK_Freeze)) 
