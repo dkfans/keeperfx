@@ -4464,12 +4464,17 @@ void wait_at_frontend(void)
       game.packet_load_enable = 0;
     }
     game.numfield_15 = -1;
-    // Make sure campaign is loaded
+    // Make sure campaigns are loaded
     if (!load_campaigns_list())
     {
       ERRORLOG("No valid campaign files found");
       exit_keeper = 1;
       return;
+    }
+    // Make sure mappacks are loaded
+    if (!load_mappacks_list())
+    {
+      WARNMSG("No valid mappack files found");
     }
     // Init load/save catalogue
     initialise_load_game_slots();

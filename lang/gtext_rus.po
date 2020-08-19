@@ -6679,3 +6679,43 @@ msgstr "Здоровье: Количество очков, которое мож
 msgctxt "Menu interface item"
 msgid "Toggle Message"
 msgstr ""
+
+#: guitext:968
+msgctxt "Menu interface item"
+msgid "Return to Free Play levels"
+msgstr ""
+
+#: guitext:969
+msgctxt "Menu interface item"
+msgid "Map packs"
+msgstr ""
+
+#: guitext:970
+msgctxt "Menu interface item"
+msgid "The Deeper Dungeons"
+msgstr ""
+
+#: guitext:971
+msgctxt "Menu interface item"
+msgid "Standard Levels"
+msgstr ""
+
+#: guitext:972
+msgctxt "Menu interface item"
+msgid "Classic Levels"
+msgstr ""
+
+#: guitext:973
+msgctxt "Menu interface item"
+msgid "Legacy Levels"
+msgstr ""
+
+#: guitext:974
+msgctxt "Menu interface item"
+msgid "Personal Levels"
+msgstr ""
+
+#: guitext:975
+msgctxt "Menu interface item"
+msgid "Lost Levels"
+msgstr ""

@@ -979,14 +979,12 @@ short file_group_needs_cd(short fgroup)
   }
 }
 
+/**
+ * Returns the folder specified by LEVELS_LOCATION
+ */
 short get_level_fgroup(LevelNumber lvnum)
 {
-    struct LevelInformation* lvinfo = get_level_info(lvnum);
-    if (lvinfo == NULL)
-        return FGrp_VarLevels;
-    if (lvinfo->location == LvLc_Campaign)
-        return FGrp_CmpgLvls;
-    return FGrp_VarLevels;
+    return FGrp_CmpgLvls;
 }
 
 /**
@@ -1343,6 +1341,8 @@ struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo)
 
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions)
 {
+    if (campaign.lvinfos == NULL)
+        init_level_info_entries(&campaign, 0);
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;

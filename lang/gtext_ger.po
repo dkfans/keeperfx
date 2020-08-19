@@ -6574,13 +6574,13 @@ msgstr "Moo2"
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
-msgstr "DEEPER DUNGEONS"
+msgstr ""
 
 #: guitext:942
 #, fuzzy
 msgctxt "Menu interface item"
 msgid "Land selection"
-msgstr "Deeper Dungeons"
+msgstr ""
 
 #: guitext:943
 msgctxt "Menu interface item"
@@ -6637,7 +6637,8 @@ msgstr ""
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: unused."
+msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
+"the better the creature's performance."
 msgstr ""
 
 #: guitext:953
@@ -6740,6 +6741,46 @@ msgstr ""
 msgctxt "Menu interface item"
 msgid "Toggle Message"
 msgstr "NACHRICHT WECHSELN"
+
+#: guitext:968
+msgctxt "Menu interface item"
+msgid "Return to Free Play levels"
+msgstr ""
+
+#: guitext:969
+msgctxt "Menu interface item"
+msgid "Map packs"
+msgstr ""
+
+#: guitext:970
+msgctxt "Menu interface item"
+msgid "The Deeper Dungeons"
+msgstr ""
+
+#: guitext:971
+msgctxt "Menu interface item"
+msgid "Standard Levels"
+msgstr ""
+
+#: guitext:972
+msgctxt "Menu interface item"
+msgid "Classic Levels"
+msgstr ""
+
+#: guitext:973
+msgctxt "Menu interface item"
+msgid "Legacy Levels"
+msgstr ""
+
+#: guitext:974
+msgctxt "Menu interface item"
+msgid "Personal Levels"
+msgstr ""
+
+#: guitext:975
+msgctxt "Menu interface item"
+msgid "Lost Levels"
+msgstr ""
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."

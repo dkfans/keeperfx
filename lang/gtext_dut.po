@@ -1662,7 +1662,6 @@ msgstr "Je bent te laat. Dit was een schokkende ervaring."
 
 #. Level Bonus 3 objective
 #: guitext:147
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You "
@@ -1670,7 +1669,7 @@ msgid ""
 "you a vicious creature to help you conquer the next realm."
 msgstr ""
 "Het is gebeurd. Kleine stukjes verkoold vlees smeulen na op de plek waar "
-"eens Dondersteentjes stonden. De duistere goden sturen een Reus om je te "
+"eens Dondersteentjes stonden. De duistere goden sturen vals wezen om je te "
 "helpen bij de volgende verovering."
 
 #. Level Bonus 3 objective
@@ -1712,7 +1711,6 @@ msgstr ""
 
 #. Level Bonus 4 objective
 #: guitext:152
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Well done. You have excelled in your use of large balls of stone for which "
@@ -1720,8 +1718,8 @@ msgid ""
 "when you reach the next realm."
 msgstr ""
 "Goed gedaan. Je hebt je onderscheiden in het gebruik van grote stenen "
-"ballen. De duistere goden belonen je in het volgende rijk met drie "
-"superieure Dondersteentjes."
+"ballen. De duistere goden belonen je door je de krijger die je gevonden "
+"hebt mee te geven naar het volgende rijk."
 
 #. Level Bonus 4 objective
 #: guitext:153
@@ -1735,8 +1733,7 @@ msgid ""
 msgstr ""
 "Dit gebied van de onderwereld test je vaardigheid een doolhof van grotten te "
 "doorkruisen. Tijd is hier je grootste vijand. Versla de tijd en je vindt de "
-"gevangen legendarische krijger, LE SQUALE de barbaar. LE SQUALE zal je in de "
-"toekomst goed dienen."
+"gevangen legendarische krijger. Deze krijger zal je in de toekomst goed dienen."
 
 #. Level Mistle objective
 #: guitext:154
@@ -2504,29 +2501,28 @@ msgid ""
 "Query: Select this and left click on a creature to view information on that "
 "creature and track it on screen. LMB select."
 msgstr ""
-"INFO: Selecteer dit en klik op een wezen voor meer informatie over dat "
+"Info: Selecteer dit en klik op een wezen voor meer informatie over dat "
 "wezen. LMK: Selecteren. [5.9]"
 
 #: guitext:288
 msgctxt "Menu interface item"
 msgid "Select game"
-msgstr "SELECTEER SPEL"
+msgstr "Selecteer spel"
 
 #: guitext:289
 msgctxt "Menu interface item"
 msgid "Network Menu"
-msgstr "NETWERK"
+msgstr "Netwerk"
 
 #: guitext:290
 msgctxt "Menu interface item"
 msgid "Main Menu"
-msgstr "HOOFDMENU"
+msgstr "Hoofdmenu"
 
 #: guitext:343
-#, fuzzy
 msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
-msgstr "HOOFDMENU"
+msgstr "Hoofdmenu"
 
 #: guitext:291
 #, fuzzy
@@ -2552,13 +2548,11 @@ msgstr ""
 "Kracht: De hoeveelheid schade die het wezen zijn vijanden toebrengt. [23.12]"
 
 #: guitext:294
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Wage: The creature's salary in gold which it takes on each payday."
-msgstr "Beloning: Het loon van het wezen in goud. [23.13]"
+msgstr "Salaris: De hoeveelheid goud die het wezen elke betaalddag opeist."
 
 #: guitext:295
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "Goud op zak: De hoeveelheid goud die het wezen bij zich heeft. [23.8]"
@@ -3506,12 +3500,12 @@ msgstr "Aantal wezens: Aantal slaafjes waarover deze Keeper heerst. [5.9]"
 #: guitext:457
 msgctxt "Menu interface item"
 msgid "Choose game"
-msgstr "SPEL KIEZEN"
+msgstr "Spel kiezen"
 
 #: guitext:458
 msgctxt "Menu interface item"
 msgid "Game type"
-msgstr "SPELTYPE"
+msgstr "Speltype"
 
 #: guitext:459
 msgctxt "Menu interface item"
@@ -3562,22 +3556,22 @@ msgstr "Ga naar gebied"
 #: guitext:467
 msgctxt "Menu interface item"
 msgid "No mouse installed"
-msgstr "GEEN MUIS GEÏNSTALLEERD"
+msgstr "Geen muis geinstalleerd"
 
 #: guitext:468
 msgctxt "Menu interface item"
 msgid "Define keys"
-msgstr "TOETSEN DEFINIËREN"
+msgstr "Toetsen definiëren"
 
 #: guitext:469
 msgctxt "Game controls"
 msgid "Ally with player"
-msgstr "MET SPELER VERZOENEN"
+msgstr "Bondgenootschap sluiten"
 
 #: guitext:470
 msgctxt "Game controls"
 msgid "Press a key"
-msgstr "DRUK OP EEN TOETS"
+msgstr "Druk op een toets"
 
 #: guitext:471
 msgctxt "Game controls"
@@ -3897,7 +3891,7 @@ msgstr "KIEZEN"
 #: guitext:534
 msgctxt "Network game message"
 msgid "Continue"
-msgstr "DOORGAAN"
+msgstr "Doorgaan"
 
 #: guitext:535
 msgctxt "Network game message"
@@ -3907,7 +3901,7 @@ msgstr "IN GESPREK"
 #: guitext:536
 msgctxt "Network game message"
 msgid "Unknown Error"
-msgstr "ONBEKENDE FOUT"
+msgstr "Onbekende fout"
 
 #: guitext:537
 msgctxt "Network game message"
@@ -3937,7 +3931,7 @@ msgstr "KAN NIET INITIALISEREN"
 #: guitext:542
 msgctxt "Network game message"
 msgid "Unable to create game"
-msgstr "KAN SPEL NIET CREËREN"
+msgstr "Kan spel niet creëren"
 
 #: guitext:543
 msgctxt "Network game message"
@@ -3997,100 +3991,100 @@ msgstr "Computerhulp bladeren: Nu: Alleen Verplaatsen. LMK: bladeren. [3.2.4]"
 #: guitext:552
 msgctxt "In-game tab with rooms"
 msgid "Treasure Room"
-msgstr "SCHATKAMER"
+msgstr "Schatkamer"
 
 #: guitext:553
 msgctxt "In-game tab with rooms"
 msgid "Library"
-msgstr "BIBLIOTHEEK"
+msgstr "Bibliotheek"
 
 #: guitext:554
 msgctxt "In-game tab with rooms"
 msgid "Lair"
-msgstr "HOL"
+msgstr "Hol"
 
 #: guitext:555
 msgctxt "In-game tab with rooms"
 msgid "Prison"
-msgstr "GEVANGENIS"
+msgstr "Gevangenis"
 
 #: guitext:556
 msgctxt "In-game tab with rooms"
 msgid "Torture Room"
-msgstr "FOLTERKAMER"
+msgstr "Folterkamer"
 
 #: guitext:557
 msgctxt "In-game tab with rooms"
 msgid "Training Room"
-msgstr "TRAININGSRUIMTE"
+msgstr "Trainingsruimte"
 
 #: guitext:558
 msgctxt "In-game tab with rooms"
 msgid "Dungeon Heart"
-msgstr "HART VAN DE KERKER"
+msgstr "Hart van de Kerker"
 
 #: guitext:559
 msgctxt "In-game tab with rooms"
 msgid "Workshop"
-msgstr "WERKPLAATS"
+msgstr "Werkplaats"
 
 #: guitext:560
 msgctxt "In-game tab with rooms"
 msgid "Scavenger Room"
-msgstr "AASKAMER"
+msgstr "Aaskamer"
 
 #: guitext:561
 msgctxt "In-game tab with rooms"
 msgid "Temple"
-msgstr "TEMPEL"
+msgstr "Tempel"
 
 #: guitext:562
 msgctxt "In-game tab with rooms"
 msgid "Graveyard"
-msgstr "MAUSOLEUM"
+msgstr "Mausoleum"
 
 #: guitext:563
 msgctxt "In-game tab with rooms"
 msgid "Barracks"
-msgstr "BARAKKEN"
+msgstr "Barakken"
 
 #: guitext:564
 msgctxt "In-game tab with rooms"
 msgid "Hatchery"
-msgstr "BROEDPLAATS"
+msgstr "Broedplaats"
 
 #: guitext:565
 msgctxt "In-game tab with rooms"
 msgid "Guard Post"
-msgstr "WACHTPOST"
+msgstr "Wachtpost"
 
 #: guitext:566
 msgctxt "In-game tab with rooms"
 msgid "Bridge"
-msgstr "BRUG"
+msgstr "Brug"
 
 #: guitext:567
 msgid "Fight"
-msgstr "VECHTEN"
+msgstr "vechten"
 
 #: guitext:568
 msgid "Annoyed"
-msgstr "GEÏRRITEERD"
+msgstr "Geïrriteerd"
 
 #: guitext:569
 msgctxt "Keyboard"
 msgid "Shift"
-msgstr "SHIFT"
+msgstr "Shift"
 
 #: guitext:570
 msgctxt "Keyboard"
 msgid "Control"
-msgstr "CTRL"
+msgstr "Ctrl"
 
 #: guitext:571
 msgctxt "Keyboard"
 msgid "Alt"
-msgstr "ALT"
+msgstr "Alt"
 
 #: guitext:572
 msgctxt "Credits"
@@ -4950,7 +4944,7 @@ msgstr "Schatkamer nodig: LMK: bladeren. RMK: wissen."
 #: guitext:712
 msgctxt "Game event description"
 msgid "Creatures becoming hungry: LMB toggle. RMB delete."
-msgstr "Slaafjes hebben honger: LMK: bladeren. RMK: wissen."
+msgstr "Wezens hebben honger: LMK: bladeren. RMK: wissen."
 
 #: guitext:713
 msgctxt "Game event description"
@@ -5671,7 +5665,7 @@ msgstr ""
 #: guitext:840
 msgctxt "Menu interface item"
 msgid "Return to options menu"
-msgstr "TERUG NAAR OPTIEMENU"
+msgstr "Terug naar optiemenu"
 
 #: guitext:841
 msgctxt "Menu interface item"
@@ -5731,17 +5725,17 @@ msgstr "Muis"
 #: guitext:852
 msgctxt "Menu interface item"
 msgid "Undo Pickup"
-msgstr "TAAK ANNULEREN"
+msgstr "Oppakken ongedaanmaken"
 
 #: guitext:853
 msgctxt "Menu interface item"
 msgid "Pause"
-msgstr "PAUZE"
+msgstr "Pauze"
 
 #: guitext:854
 msgctxt "Menu interface item"
 msgid "Map"
-msgstr "KAART"
+msgstr "Kaart"
 
 #: guitext:855
 msgctxt "On-screen message"
@@ -5756,7 +5750,7 @@ msgstr "De scherm resolutie kan niet worden veranderd"
 #: guitext:857
 msgctxt "Menu interface item"
 msgid "Query"
-msgstr "ONDERSTEUNING"
+msgstr "Info"
 
 #: guitext:858
 msgctxt "Credits"
@@ -5811,7 +5805,7 @@ msgstr "BEZIG VERBINDING TE MAKEN"
 #: guitext:869
 msgctxt "Network game message"
 msgid "Resyncing"
-msgstr "SYNCHRONISEER"
+msgstr "Hersynchroniseren"
 
 #: guitext:870
 msgctxt "Menu interface item"
@@ -5841,7 +5835,7 @@ msgstr "Serieel"
 #: guitext:875
 msgctxt "Menu interface item"
 msgid "Modem"
-msgstr "MODEM"
+msgstr "Modem"
 
 #: guitext:876
 msgctxt "Menu interface item"
@@ -6378,26 +6372,24 @@ msgid "Moo2"
 msgstr "Moo2"
 
 #: guitext:941
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
-msgstr "DEEPER DUNGEONS"
+msgstr "Losse levels"
 
 #: guitext:942
-#, fuzzy
 msgctxt "Menu interface item"
 msgid "Land selection"
-msgstr "Deeper Dungeons"
+msgstr "Wereld keuze"
 
 #: guitext:943
 msgctxt "Menu interface item"
 msgid "Campaigns"
-msgstr "Campaigns"
+msgstr "Campagnes"
 
 #: guitext:944
 msgctxt "Menu interface item"
 msgid "Add computer"
-msgstr "Add computer"
+msgstr "Voeg computer toe"
 
 #: guitext:945
 msgctxt "Game event name"
@@ -6405,10 +6397,9 @@ msgid "Your creature cannot reach the room it needs"
 msgstr ""
 
 #: guitext:946
-#, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
-msgstr "Work room unreachable: LMK: bladeren. RMK: wissen."
+msgstr "Werk kamer onbereikbaar: LMK: bladeren. RMK: wissen."
 
 #: guitext:947
 msgctxt "Game event name"
@@ -6416,10 +6407,9 @@ msgid "Your Imp cannot reach a room to drag something into"
 msgstr ""
 
 #: guitext:948
-#, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
-msgstr "Work room unreachable: LMK: bladeren. RMK: wissen."
+msgstr "Opslagkamer onbereikbaar: LMK: bladeren. RMK: wissen."
 
 #: guitext:949
 msgctxt "In-game interface description"
@@ -6440,32 +6430,27 @@ msgstr ""
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: unused."
-msgstr ""
+msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
+"the better the creature's performance."
+msgstr "Onderzoek vaardigheid: Hoe snel het wezen werkt in de bibliotheek. Hoger is beter."
 
 #: guitext:953
-#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Manufacture Skill: How fast the creature works in Workshop. The higher the "
-"Skill level, the better the creature's performance."
-msgstr "Vaardigheid: Taken die het wezen kan uitvoeren. [23.14]"
+msgid "Manufacture Skill: How fast the creature works in Workshop. The higher the Skill level, "
+"the better the creature's performance."
+msgstr "Werkplaats vaardigheid: Hoe snel het wezen werkt in de werkplaats. Hoger is beter."
 
 #: guitext:954
-#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Training Skill: How fast the creature works on training. The higher the "
-"Skill level, the better the creature's performance."
-msgstr "Vaardigheid: Taken die het wezen kan uitvoeren. [23.14]"
+msgid "Training Skill: How fast the creature works on training. The higher the Skill level, "
+"the better the creature's performance."
+msgstr "Training vaardigheid: Hoe snel het wezen sterker wordt door trainen."
 
 #: guitext:955
-#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Scavenge Skill: How fast the creature works on scavenging. The higher the "
-"Skill level, the better the creature's performance."
-msgstr "Vaardigheid: Taken die het wezen kan uitvoeren. [23.14]"
+msgid "Scavenge Skill: How fast the creature works on scavenging. The higher the Skill level, "
+"the better the creature's performance."
+msgstr "Aaskamer vaardigheid: Hoe snel het wezen werkt in de aaskamer."
 
 #: guitext:956
 msgctxt "In-game interface description"
@@ -6497,10 +6482,9 @@ msgid "Hand Of Evil"
 msgstr ""
 
 #: guitext:961
-#, fuzzy
 msgctxt "Keeper spell name"
 msgid "Slap"
-msgstr "Klappen"
+msgstr "Slaan"
 
 #: guitext:962
 msgctxt "Keeper spell description"
@@ -6540,7 +6524,48 @@ msgstr ""
 #: guitext:967
 msgctxt "Menu interface item"
 msgid "Toggle Message"
-msgstr "BERICHT AANZETTEN"
+msgstr "Bericht aan/uit zetten"
+
+
+#: guitext:968
+msgctxt "Menu interface item"
+msgid "Return to Free Play levels"
+msgstr "Terug naar selectiescherm"
+
+#: guitext:969
+msgctxt "Menu interface item"
+msgid "Map packs"
+msgstr "Level pakketten"
+
+#: guitext:970
+msgctxt "Menu interface item"
+msgid "The Deeper Dungeons"
+msgstr "Deeper Dungeons"
+
+#: guitext:971
+msgctxt "Menu interface item"
+msgid "Standard Levels"
+msgstr "Standaard Levels"
+
+#: guitext:972
+msgctxt "Menu interface item"
+msgid "Classic Levels"
+msgstr "Traditionele Levels"
+
+#: guitext:973
+msgctxt "Menu interface item"
+msgid "Legacy Levels"
+msgstr "Levels met oude bugs"
+
+#: guitext:974
+msgctxt "Menu interface item"
+msgid "Personal Levels"
+msgstr "Persoonlijke Levels"
+
+#: guitext:975
+msgctxt "Menu interface item"
+msgid "Lost Levels"
+msgstr "Verloren Levels"
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."

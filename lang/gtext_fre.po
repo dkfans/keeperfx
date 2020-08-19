@@ -6592,7 +6592,7 @@ msgid "Score: Estimate of an overall creature value. Added to player score when 
 msgstr "Score: Estimation de la valeur globale des créatures. Ajouté au score du joueur à "
 "la fin du niveau."
 
-#: guitext:961		  
+#: guitext:961
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
 msgstr "Main du mal"
@@ -6634,6 +6634,46 @@ msgstr "Vie: La quantité maximum de points de vie pour cette créature"
 msgctxt "Menu interface item"
 msgid "Toggle Message"
 msgstr "Activer les Messages"
+
+#: guitext:968
+msgctxt "Menu interface item"
+msgid "Return to Free Play levels"
+msgstr ""
+
+#: guitext:969
+msgctxt "Menu interface item"
+msgid "Map packs"
+msgstr ""
+
+#: guitext:970
+msgctxt "Menu interface item"
+msgid "The Deeper Dungeons"
+msgstr ""
+
+#: guitext:971
+msgctxt "Menu interface item"
+msgid "Standard Levels"
+msgstr ""
+
+#: guitext:972
+msgctxt "Menu interface item"
+msgid "Classic Levels"
+msgstr ""
+
+#: guitext:973
+msgctxt "Menu interface item"
+msgid "Legacy Levels"
+msgstr ""
+
+#: guitext:974
+msgctxt "Menu interface item"
+msgid "Personal Levels"
+msgstr ""
+
+#: guitext:975
+msgctxt "Menu interface item"
+msgid "Lost Levels"
+msgstr ""
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
