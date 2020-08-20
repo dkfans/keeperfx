@@ -415,11 +415,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     SDL_Surface* prevScreenSurf = lbScreenSurface;
     LbMouseChangeSprite(NULL);
 
-    if (lbWindow != NULL) {
-        SDL_DestroyWindow(lbWindow);
-        lbWindow = NULL;
-    }
-
     if (lbHasSecondSurface) {
         SDL_FreeSurface(lbDrawSurface);
     }
@@ -444,8 +439,18 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
         sdlFlags |= SDL_WINDOW_FULLSCREEN;
     }
-
-    lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mdinfo->Width, mdinfo->Height, sdlFlags);
+    if (lbWindow != NULL) {
+        int cw, ch, cflags;
+        cflags = SDL_GetWindowFlags(lbWindow);
+        SDL_GetWindowSize(lbWindow, &cw, &ch); //We only need to create a new window if we now have a different resolution/mode to the last
+        if (!(mdinfo->Width == cw && mdinfo->Height == ch && (cflags & sdlFlags != 0))) { //So only destroy the exisiting one if the res/mode has changed
+            SDL_DestroyWindow(lbWindow);
+            lbWindow = NULL;
+        }
+    }
+    if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
+        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mdinfo->Width, mdinfo->Height, sdlFlags);
+    }
     if (lbWindow == NULL) {
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
         return Lb_FAIL;
@@ -651,10 +656,6 @@ TbResult LbScreenReset(void)
         SDL_FreeSurface(lbDrawSurface);
     }
     //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
-    if (lbWindow != NULL) {
-        SDL_DestroyWindow(lbWindow);
-        lbWindow = NULL;
-    }
     lbHasSecondSurface = false;
     lbDrawSurface = NULL;
     lbScreenSurface = NULL;
