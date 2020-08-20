@@ -1106,7 +1106,7 @@ TbBool is_campaign_loaded(void)
 {
     if (campaign.fname[0]=='\0')
         return false;
-    return (campaign.single_levels_count > 0) || (campaign.multi_levels_count > 0);
+    return (campaign.single_levels_count > 0) || (campaign.multi_levels_count > 0) || (campaign.freeplay_levels_count > 0);
 }
 
 /**
