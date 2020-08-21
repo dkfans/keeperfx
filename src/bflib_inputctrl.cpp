@@ -255,7 +255,7 @@ static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
 
 static void process_event(const SDL_Event *ev)
 {
-    struct TbPoint mousePos;
+    struct TbPoint mouseDelta;
     int x;
     int y;
     SYNCDBG(10, "Starting");
@@ -275,22 +275,30 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEMOTION:
-        mousePos.x = ev->motion.xrel;
-        mousePos.y = ev->motion.yrel;
-        mouseControl(MActn_MOUSEMOVE, &mousePos);
+        if (lbMouseGrab)
+        {
+            mouseDelta.x = ev->motion.xrel * lbDisplay.MouseMoveRatio / 256;
+            mouseDelta.y = ev->motion.yrel * lbDisplay.MouseMoveRatio / 256;
+        }
+        else
+        {
+            mouseDelta.x = ev->motion.xrel;
+            mouseDelta.y = ev->motion.yrel;
+        }
+        mouseControl(MActn_MOUSEMOVE, &mouseDelta);
         break;
 
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
-        mousePos.x = 0;
-        mousePos.y = 0;
-        mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mousePos);
+        mouseDelta.x = 0;
+        mouseDelta.y = 0;
+        mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mouseDelta);
         break;
 
     case SDL_MOUSEWHEEL:
-        mousePos.x = 0;
-        mousePos.y = 0;
-        mouseControl(ev->wheel.y > 0 ? MActn_WHEELMOVEUP : MActn_WHEELMOVEDOWN, &mousePos);
+        mouseDelta.x = 0;
+        mouseDelta.y = 0;
+        mouseControl(ev->wheel.y > 0 ? MActn_WHEELMOVEUP : MActn_WHEELMOVEDOWN, &mouseDelta);
         break;
 
     case SDL_WINDOWEVENT:
