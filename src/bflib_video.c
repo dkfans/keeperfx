@@ -439,10 +439,17 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         sdlFlags |= SDL_WINDOW_FULLSCREEN;
     }
     if (lbWindow != NULL) {
+        // We only need to create a new window if we now have a different resolution/mode to the existing window, so check new/old resolution and mode...
         int cw, ch, cflags;
         cflags = SDL_GetWindowFlags(lbWindow);
-        SDL_GetWindowSize(lbWindow, &cw, &ch); //We only need to create a new window if we now have a different resolution/mode to the last
-        if (!(mdinfo->Width == cw && mdinfo->Height == ch && (cflags & sdlFlags != 0))) { //So only destroy the exisiting one if the res/mode has changed
+        SDL_GetWindowSize(lbWindow, &cw, &ch);
+        TbBool sameResolution = mdinfo->Width == cw && mdinfo->Height == ch;
+        TbBool sameWindowMode = (cflags & sdlFlags) != 0;
+        TbBool stillInWindowedMode = (int)(sdlFlags & 1) == 0 && (int)(cflags & 1) == 0; // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
+        if (stillInWindowedMode) {
+            sameWindowMode = sameWindowMode || stillInWindowedMode;
+        }
+        if (!sameResolution || !sameWindowMode) { //.. and only destroy the exisiting one if the res/mode has changed
             SDL_DestroyWindow(lbWindow);
             lbWindow = NULL;
         }
