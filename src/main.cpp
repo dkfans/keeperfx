@@ -4827,11 +4827,6 @@ short process_command_line(unsigned short argc, char *argv[])
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
       } else
-      if ( strcasecmp(parstr,"vidriver") == 0 )
-      {
-          LbScreenHardwareConfig(pr2str,8);
-          narg++;
-      } else
       if (strcasecmp(parstr,"packetload") == 0)
       {
          if (start_params.packet_save_enable)
@@ -4959,7 +4954,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     short retval;
     retval=0;
     LbErrorLogSetup("/", log_file_name, 5);
-    LbScreenHardwareConfig("directx",8);
 
     retval = process_command_line(argc,argv);
     if (retval < 1)

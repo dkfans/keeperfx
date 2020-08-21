@@ -52,7 +52,6 @@ volatile TbBool lbHasSecondSurface;
 TbBool lbDoubleBufferingRequested;
 /** Name of the video driver to be used. Must be set before LbScreenInitialize().
  * Under Win32 and with SDL, choises are windib or directx. */
-char lbVideoDriver[16];
 /** Colour palette buffer, to be used inside lbDisplay. */
 unsigned char lbPalette[PALETTE_SIZE];
 /** Driver-specific colour palette buffer. */
@@ -620,19 +619,6 @@ TbResult LbSetIcon(unsigned short nicon)
 {
   lbIconIndex = nicon;
   return Lb_SUCCESS;
-}
-
-TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp)
-{
-    if (driver != NULL)
-    {
-        if (strlen(driver) > sizeof(lbVideoDriver)-1)
-            return Lb_FAIL;
-        strcpy(lbVideoDriver,driver);
-    }
-    if (engine_bpp != 0)
-        lbEngineBPP = engine_bpp;
-    return Lb_SUCCESS;
 }
 
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)
