@@ -33,6 +33,9 @@ enum SmackerPlayFlags {
     SMK_InterlaceLine      = 0x08,
     SMK_WriteStatusFile    = 0x40,
     SMK_PixelDoubleWidth   = 0x80,
+    SMK_FullscreenFit      = 0x10,
+    SMK_FullscreenStretch  = 0x20,
+    SMK_FullscreenCrop     = 0x40,
 };
 
 /******************************************************************************/

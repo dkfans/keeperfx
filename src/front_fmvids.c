@@ -61,14 +61,9 @@ const struct DemoItem demo_item[] = {
 short play_smacker_file(char *filename, FrontendMenuState nstate)
 {
   unsigned int movie_flags = 0;
-  char* bullfrog = "./ldata/bullfrog.smk";
   if (resize_movies_enabled())
   {
-    // bullfrog.smk cannot be played resized //todo: Exclude movies that cannot be doubled in size, instead of calling it by name.
-    if (strcmp(filename,bullfrog) != 0)
-    {
-      movie_flags |= 0x84;
-    }
+    movie_flags |= vid_scale_flags; // get new scaling settings from command line
   }
   if ( SoundDisabled )
     movie_flags |= 0x01;
