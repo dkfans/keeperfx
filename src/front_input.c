@@ -2068,7 +2068,7 @@ short get_inputs(void)
     }
     if (player->victory_state == VicS_LostLevel)
     {
-        if (player->field_2C != 1)
+        if (player->is_active != 1)
         {
             get_level_lost_inputs();
             return true;

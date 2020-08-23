@@ -1729,7 +1729,7 @@ void init_keepers_map_exploration(void)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if (player_exists(player) && (player->field_2C == 1))
+      if (player_exists(player) && (player->is_active == 1))
       {
           // Additional init - the main one is in init_player()
           if ((player->allocflags & PlaF_CompCtrl) != 0) {
@@ -1752,12 +1752,12 @@ void clear_players_for_save(void)
     {
       player = get_player(i);
       id_mem = player->id_number;
-      mem2 = player->field_2C;
+      mem2 = player->is_active;
       memflg = player->allocflags;
       LbMemoryCopy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = id_mem;
-      player->field_2C = mem2;
+      player->is_active = mem2;
       set_flag_byte(&player->allocflags,PlaF_Allocated,((memflg & PlaF_Allocated) != 0));
       set_flag_byte(&player->allocflags,PlaF_CompCtrl,((memflg & PlaF_CompCtrl) != 0));
       LbMemoryCopy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
@@ -2151,7 +2151,7 @@ short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
       swplyr = get_player(i);
       if (player_exists(swplyr))
       {
-        if (swplyr->field_2C == 1)
+        if (swplyr->is_active == 1)
         {
           k++;
           if (swplyr->victory_state == VicS_LostLevel)
@@ -2290,7 +2290,7 @@ void check_players_won(void)
     for (; playerIdx < PLAYERS_COUNT; ++playerIdx)
     {
         PlayerInfo* curPlayer = get_player(playerIdx);
-        if (!player_exists(curPlayer) || curPlayer->field_2C != 1 || curPlayer->victory_state != VicS_Undecided)
+        if (!player_exists(curPlayer) || curPlayer->is_active != 1 || curPlayer->victory_state != VicS_Undecided)
             continue;
 
         // check if any other player is still alive
@@ -2300,7 +2300,7 @@ void check_players_won(void)
                 continue;
 
             PlayerInfo* otherPlayer = get_player(secondPlayerIdx);
-            if (player_exists(otherPlayer) && otherPlayer->field_2C == 1)
+            if (player_exists(otherPlayer) && otherPlayer->is_active == 1)
             {
                 Thing* heartng = get_player_soul_container(secondPlayerIdx);
                 if (heartng->active_state != ObSt_BeingDestroyed)
@@ -2323,7 +2323,7 @@ void check_players_lost(void)
   {
       struct PlayerInfo *player;
       player = get_player(i);
-      if (player_exists(player) && (player->field_2C == 1))
+      if (player_exists(player) && (player->is_active == 1))
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
@@ -2332,7 +2332,7 @@ void check_players_lost(void)
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
             //this would easily prevent computer player activities on dead player, but it also makes dead player unable to use
-            //floating spirit, so it can't be done this way: player->field_2C = 0;
+            //floating spirit, so it can't be done this way: player->is_active = 0;
             if (is_my_player_number(i)) {
                 LbPaletteSet(engine_palette);
             }
@@ -2468,7 +2468,7 @@ void process_payday(void)
         }
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (player_exists(player) && (player->field_2C == 1))
+        if (player_exists(player) && (player->is_active == 1))
         {
             compute_and_update_player_payday_total(plyr_idx);
         }
@@ -2667,7 +2667,7 @@ void update_research(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
       player = get_player(i);
-      if (player_exists(player) && (player->field_2C == 1))
+      if (player_exists(player) && (player->is_active == 1))
       {
           process_player_research(i);
       }
@@ -2682,7 +2682,7 @@ void update_manufacturing(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
       player = get_player(i);
-      if (player_exists(player) && (player->field_2C == 1))
+      if (player_exists(player) && (player->is_active == 1))
       {
           process_player_manufacturing(i);
       }
@@ -4393,7 +4393,7 @@ void startup_network_game(TbBool local)
     struct PlayerInfo *player;
     setup_count_players();
     player = get_my_player();
-    flgmem = player->field_2C;
+    flgmem = player->is_active;
     if (local && (campaign.human_player >= 0) && (!force_player_num))
     {
         default_loc_player = campaign.human_player;
@@ -4402,7 +4402,7 @@ void startup_network_game(TbBool local)
     }
     init_level();
     player = get_my_player();
-    player->field_2C = flgmem;
+    player->is_active = flgmem;
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
     if (local)
     {
@@ -4442,7 +4442,7 @@ void faststartup_network_game(void)
         ERRORLOG("Unable to load campaign");
     }
     player = get_my_player();
-    player->field_2C = 1;
+    player->is_active = 1;
     startup_network_game(true);
     player = get_my_player();
     player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
@@ -4604,14 +4604,14 @@ void wait_at_frontend(void)
           game.game_kind = GKind_LocalGame;
           set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
           player = get_my_player();
-          player->field_2C = 1;
+          player->is_active = 1;
           startup_network_game(true);
           break;
     case FeSt_START_MPLEVEL:
           set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
           game.game_kind = GKind_MultiGame;
           player = get_my_player();
-          player->field_2C = 1;
+          player->is_active = 1;
           startup_network_game(false);
           break;
     case FeSt_LOAD_GAME:

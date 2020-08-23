@@ -5198,7 +5198,7 @@ TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng)
     for (PlayerNumber plyr_idx = 0; plyr_idx < game.neutral_player_num; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->field_2C == 1) && (player->victory_state != VicS_LostLevel) )
+        if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->is_active == 1) && (player->victory_state != VicS_LostLevel) )
         {
             struct Thing* heartng = get_player_soul_container(plyr_idx);
             if (thing_exists(heartng) && (get_2d_box_distance(&creatng->mappos, &heartng->mappos) < subtile_coord(6,0)))

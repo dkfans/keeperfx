@@ -1450,7 +1450,7 @@ void process_computer_players2(void)
             continue;
         if (((player->allocflags & PlaF_CompCtrl) != 0) || ((dungeon->computer_enabled & 0x01) != 0))
         {
-          if (player->field_2C == 1)
+          if (player->is_active == 1)
           {
 #ifdef PETTER_AI
             SAI_run_for_player(i);
@@ -1498,7 +1498,7 @@ void setup_computer_players2(void)
       struct PlayerInfo* player = get_player(i);
       if (player_exists(player))
       {
-          if (player->field_2C == 1)
+          if (player->is_active == 1)
           {
 #ifdef PETTER_AI
         SAI_init_for_player(i);
@@ -1545,7 +1545,7 @@ void restore_computer_player_after_load(void)
             comp->dungeon = INVALID_DUNGEON;
             continue;
         }
-        if (player->field_2C != 1)
+        if (player->is_active != 1)
         {
             LbMemorySet(comp, 0, sizeof(struct Computer2));
             comp->dungeon = get_players_dungeon(player);
