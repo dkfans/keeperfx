@@ -6,7 +6,7 @@ REM  Campaign: New game plus
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
 REM            Loobinex
-REM  Date:     17 Dec 1996 - 14 Mar 2018
+REM  Date:     17 Dec 1996 - 15 Aug 2020
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ REM Nothing new for the player
 REM Flags used:
 REM   PLAYER0,FLAG2 - State of party TWO continuous spawning; 0-before; 2-spawning; 3-after.
 REM   PLAYER0,FLAG4 - Disables attack of the gold mining events chain; 0-attack allowed; 1-final attack disabled.
+REM   PLAYER_GOOD,FLAG1 - Allows for the Lord to be spawned
+REM   PLAYER_GOOD,FLAG2 - Starts GOOD Timer 2
 REM Timers used:
 REM   PLAYER0,TIMER2 - Continuous spawning of party TWO after AP1 is activated
 REM   PLAYER0,TIMER4 - Allows delayed spawning of small party when AP3 is activated
@@ -233,6 +235,10 @@ ENDIF
 REM If mined so much gold, the dungeon is quite advanced. Start timer for a large attack.
 IF(PLAYER0,TOTAL_GOLD_MINED >= 35000)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,TWO,-2,DUNGEON_HEART,0,5,250)
+	SET_FLAG(PLAYER_GOOD,FLAG2,1)
+ENDIF
+
+IF(PLAYER_GOOD,FLAG2 == 1)
 	SET_TIMER(PLAYER_GOOD,TIMER2)
 ENDIF
 
@@ -286,6 +292,7 @@ IF_ACTION_POINT(1,PLAYER0)
 ENDIF
 IF_ACTION_POINT(12,PLAYER0)
 	SET_FLAG(PLAYER_GOOD,FLAG1,1)
+	SET_FLAG(PLAYER_GOOD,FLAG2,1)
 ENDIF
 IF(PLAYER_GOOD,FLAG1 == 1)
 	REM "The heroes of this realm have prepared for your coming by building an underground stronghold of their own."

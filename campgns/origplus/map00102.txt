@@ -6,7 +6,7 @@ REM  Campaign: New game plus
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
 REM            Loobinex
-REM  Date:   17 Aug 1997 - 14 Nov 2014
+REM  Date:   17 Aug 1997 - 24 Aug 2020
 REM  Copying and copyrights:
 REM This program is free software; you can redistribute it and/or modify
 REM it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ IF(PLAYER0,CAMPAIGN_FLAG3 <= 2)
 	IF(PLAYER0,IMP == 0)
 		REM "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time."
 		DISPLAY_OBJECTIVE(147,PLAYER0)
-		ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,PLAYER0,1,5,10000)
+		ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,PLAYER0,1,1,10000)
 		ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
 		MAGIC_AVAILABLE(PLAYER0,POWER_POSSESS,1,1)
 		REM Using a timer to make sure add creature command will be executed

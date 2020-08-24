@@ -6,7 +6,7 @@ REM  Campaign: New game plus
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
 REM            Loobinex
-REM  Date:     17 Dec 1996 - 14 Mar 2015
+REM  Date:     17 Dec 1996 - 15 Aug 2020
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
@@ -135,20 +135,28 @@ IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	ENDIF
 ENDIF
 
-REM Access to transfer special revoked when a hero is killed before a single keeper is destroyed.
+REM Access to transfer special revoked when a hero is killed before a single keeper is destroyed, or when transfering a unit into this level.
 IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES < 27)
 	IF(PLAYER1,DUNGEON_DESTROYED == 0)
 		IF(PLAYER2,DUNGEON_DESTROYED == 0)
 			IF(PLAYER0,FLAG7 <= 0)
-				PLAY_MESSAGE(PLAYER0,SOUND,927)
-				CHANGE_SLAB_TYPE(1,44,HARD)
-				REVEAL_MAP_RECT(PLAYER0,3,132,1,1)
+				SET_FLAG(PLAYER0,FLAG7,1)
 			ENDIF
 		ENDIF
 	ENDIF
 ENDIF
+IF(PLAYER0,GAME_TURN <= 10)
+	IF(PLAYER0,TOTAL_CREATURES >= 1)
+		SET_FLAG(PLAYER0,FLAG7,1)
+	ENDIF
+ENDIF
+IF(PLAYER0,FLAG7 == 1)
+	PLAY_MESSAGE(PLAYER0,SOUND,927)
+	CHANGE_SLAB_TYPE(1,44,HARD)
+	REVEAL_MAP_RECT(PLAYER0,3,132,1,1)
+ENDIF
 IF_SLAB_OWNER(1,44,PLAYER0)
-	SET_FLAG(PLAYER0,FLAG7,1)
+	SET_FLAG(PLAYER0,FLAG7,2)
 ENDIF
 
 REM If one computer takes heart damage, the other one will remove the door.
