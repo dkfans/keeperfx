@@ -275,7 +275,7 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEMOTION:
-        if (lbMouseGrab)
+        if (lbMouseGrab && lbDisplay.MouseMoveRatio > 0)
         {
             mouseDelta.x = ev->motion.xrel * lbDisplay.MouseMoveRatio / 256;
             mouseDelta.y = ev->motion.yrel * lbDisplay.MouseMoveRatio / 256;
