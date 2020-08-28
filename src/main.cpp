@@ -4404,16 +4404,20 @@ void startup_network_game(TbBool local)
     player = get_my_player();
     player->is_active = flgmem;
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
+    TbBool ShouldAssignCpuKeepers = 0;
     if (local)
     {
         game.game_kind = GKind_LocalGame;
         init_players_local_game();
+        if (AssignCpuKeepers || campaign.assignCpuKeepers) {
+            ShouldAssignCpuKeepers = 1;
+        }
     } else
     {
         game.game_kind = GKind_MultiGame;
         init_players_network_game();
     }
-    if (fe_computer_players)
+    if (fe_computer_players || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");
         setup_computer_players();
@@ -4476,12 +4480,19 @@ void wait_at_frontend(void)
     }
     //Set level number and campaign (for single level mode: GOF_SingleLevel)
     if ((start_params.operation_flags & GOF_SingleLevel) != 0) {
-        if (!change_campaign(strcat(start_params.selected_campaign,".cfg"))) {
+        TbBool result = false;
+        if (start_params.selected_campaign[0] != '\0') {
+            result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
+        }
+        if (!result) {
             if (!change_campaign("")) {
-                ERRORLOG("Unable to load default campaign for the specified level CMD Line parameter");
+                WARNMSG("Unable to load default campaign for the specified level CMD Line parameter");
+            }
+            else if (start_params.selected_campaign[0] != '\0') { // only show this log message if the user actually specified a campaign
+                WARNMSG("Unable to load campaign associated with the specified level CMD Line parameter, default loaded.");
             }
             else {
-                ERRORLOG("Unable to load campaign associated with the specified level CMD Line parameter, default loaded.");
+                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%d).", start_params.selected_level_number);
             }
         }
         set_selected_level_number(start_params.selected_level_number);
@@ -4735,6 +4746,7 @@ short process_command_line(unsigned short argc, char *argv[])
   else
       strcpy(keeper_runtime_directory, ".");
 
+  AssignCpuKeepers = 0;
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
   LbErrorLogSetup(0, 0, 1);
@@ -4746,6 +4758,7 @@ short process_command_line(unsigned short argc, char *argv[])
   bad_param = 0;
   unsigned short narg;
   level_num = LEVELNUMBER_ERROR;
+  TbBool one_player_mode = 0;
   narg = 1;
   while ( narg < argc )
   {
@@ -4782,6 +4795,7 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "1player") == 0)
       {
           start_params.one_player = 1;
+          one_player_mode = 1;
       } else
       if ((strcasecmp(parstr, "s") == 0) || (strcasecmp(parstr, "nosound") == 0))
       {
@@ -4942,6 +4956,11 @@ short process_command_line(unsigned short argc, char *argv[])
       else
       {
           level_num = 1;
+      }
+  }
+  else {
+      if (one_player_mode) {
+          AssignCpuKeepers = 1;
       }
   }
   start_params.selected_level_number = level_num;

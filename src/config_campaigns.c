@@ -60,6 +60,7 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"LAND_MARKERS",       18},
   {"HUMAN_PLAYER",       19},
   {"NAME_TEXT_ID",       20},
+  {"ASSIGN_CPU_KEEPERS", 21},
   {NULL,                  0},
   };
 
@@ -207,6 +208,7 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   campgn->credits_data = NULL;
   reset_credits(campgn->credits);
   campgn->human_player = -1;
+  campgn->assignCpuKeepers = 0;
   return true;
 }
 
@@ -653,6 +655,16 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
                     CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file. Not a valid number.",
                       COMMAND_TEXT(cmd_num),config_textname);
                 }
+          }
+          break;
+      case 21: // ASSIGN_CPU_KEEPERS
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0) {
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+          }
+          else if (i < 2) { // ASSIGN_CPU_KEEPERS = ON
+              campgn->assignCpuKeepers = 1;
           }
           break;
       case 0: // comment
