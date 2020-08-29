@@ -60,7 +60,7 @@ enum ThingEffectKind {
     TngEff_Unknown03,
     TngEff_Unknown04,
     TngEff_Unknown05,
-    TngEff_Unknown06,
+    TngEff_Unknown06, /* Blood */
     TngEff_Unknown07,
     TngEff_Unknown08,
     TngEff_Unknown09,
