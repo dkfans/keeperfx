@@ -177,7 +177,7 @@ void setup_count_players(void)
 void init_players_network_game(void)
 {
   SYNCDBG(4,"Starting");
-  if (LbNetwork_ChangeExchangeBuffer(game.packets, sizeof(struct Packet)))
+  if (LbNetwork_ChangeExchangeBuffer(ex_packets, sizeof(struct PacketEx)))
       ERRORLOG("Unable to reinitialize ExchangeBuffer");
   setup_select_player_number();
   setup_exchange_player_number();

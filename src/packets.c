@@ -94,8 +94,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct Packet) + sizeof(TbBigChecksum))
-struct Packet bad_packet;
+#define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct PacketEx) + sizeof(TbBigChecksum))
+struct PacketEx bad_packet;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -162,12 +162,21 @@ struct Packet *get_packet(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player))
+        return &INVALID_PACKET->packet;
+    if (player->packet_num >= PACKETS_COUNT)
+        return &INVALID_PACKET->packet;
+    return &ex_packets[player->packet_num].packet;
+}
+
+struct PacketEx *get_packet_ex(long plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_invalid(player))
         return INVALID_PACKET;
     if (player->packet_num >= PACKETS_COUNT)
         return INVALID_PACKET;
-    return &game.packets[player->packet_num];
+    return &ex_packets[player->packet_num];
 }
-
 /**
  * Gives a pointer to packet of given index.
  * @param pckt_idx Packet index in the array. Note that it may differ from player index.
@@ -176,15 +185,23 @@ struct Packet *get_packet(long plyr_idx)
 struct Packet *get_packet_direct(long pckt_idx)
 {
     if ((pckt_idx < 0) || (pckt_idx >= PACKETS_COUNT))
+        return &INVALID_PACKET->packet;
+    return &ex_packets[pckt_idx].packet;
+}
+
+struct PacketEx *get_packet_ex_direct(long pckt_idx)
+{
+    if ((pckt_idx < 0) || (pckt_idx >= PACKETS_COUNT))
         return INVALID_PACKET;
-    return &game.packets[pckt_idx];
+    return &ex_packets[pckt_idx];
 }
 
 void clear_packets(void)
 {
     for (int i = 0; i < PACKETS_COUNT; i++)
     {
-        LbMemorySet(&game.packets[i], 0, sizeof(struct Packet));
+        LbMemorySet(&game.packets_OLD[i], 0, sizeof(struct Packet));
+        LbMemorySet(&ex_packets[i], 0, sizeof(struct PacketEx));
     }
 }
 
@@ -1698,8 +1715,8 @@ void load_packets_for_turn(GameTurn nturn)
     }
     game.packet_file_pos += turn_data_size;
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
-        LbMemoryCopy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
-    TbBigChecksum tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT * sizeof(struct Packet)]);
+        LbMemoryCopy(&ex_packets[i], &pckt_buf[i * sizeof(struct PacketEx)], sizeof(struct PacketEx));
+    TbBigChecksum tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT * sizeof(struct PacketEx)]);
     if (game.turns_fastforward > 0)
         game.turns_fastforward--;
     if (game.packet_checksum_verify)
@@ -2705,8 +2722,8 @@ short save_packets(void)
     LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
     // Prepare data in the buffer
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-        LbMemoryCopy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[i], sizeof(struct Packet));
-    LbMemoryCopy(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)], &chksum, sizeof(TbBigChecksum));
+        LbMemoryCopy(&pckt_buf[i*sizeof(struct PacketEx)], &ex_packets[i], sizeof(struct PacketEx));
+    LbMemoryCopy(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct PacketEx)], &chksum, sizeof(TbBigChecksum));
     // Write buffer into file
     if (LbFileWrite(game.packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
     {
@@ -2744,7 +2761,7 @@ void write_debug_packets(void)
     //be several players writing to same directory if testing on local machine
     char filename[32];
     snprintf(filename, sizeof(filename), "%s%u.%s", "keeperd", my_player_number, "pck");
-    dump_memory_to_file(filename, (char*) game.packets, sizeof(game.packets));
+    dump_memory_to_file(filename, (char*) ex_packets, sizeof(ex_packets));
 }
 
 void write_debug_screenpackets(void)
@@ -2777,7 +2794,7 @@ void process_packets(void)
         }
         if (!game.packet_load_enable || game.numfield_149F47)
         {
-            struct Packet* pckt = get_packet_direct(player->packet_num);
+            struct PacketEx* pckt = get_packet_ex_direct(player->packet_num);
             switch(LbNetwork_Exchange(pckt))
             {
             case NR_FAIL:

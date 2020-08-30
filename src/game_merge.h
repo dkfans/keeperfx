@@ -26,11 +26,13 @@
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_rules.h"
-#include "gui_msgs.h"
-#include "dungeon_data.h"
-#include "thing_creature.h"
 #include "creature_control.h"
+#include "dungeon_data.h"
+#include "gui_msgs.h"
 #include "light_data.h"
+#include "net_game.h"
+#include "packets.h"
+#include "thing_creature.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,6 +160,7 @@ extern int net_max_failed_login_turns;
 /******************************************************************************/
 extern struct GameAdd gameadd;
 extern struct IntralevelData intralvl;
+extern struct PacketEx ex_packets[PACKETS_COUNT];
 /******************************************************************************/
 LevelNumber get_loaded_level_number(void);
 LevelNumber set_loaded_level_number(LevelNumber lvnum);

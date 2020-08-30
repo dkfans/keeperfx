@@ -191,6 +191,7 @@ enum ChecksumKind {
   CKS_Creatures,
   CKS_Things,
   CKS_Rooms,
+  CKS_MAX
 };
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
 #define PCtr_RBtnAnyAction (PCtr_RBtnClick | PCtr_RBtnHeld | PCtr_RBtnRelease)
@@ -230,11 +231,18 @@ struct PacketSaveHead { // sizeof=0xF (15)
     TbBool chksum_available; // if needed, this can be replaced with flags
 };
 
+struct PacketEx
+{
+    struct Packet packet;
+    TbBigChecksum sums[CKS_MAX];
+};
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
 struct Packet *get_packet_direct(long pckt_idx);
 struct Packet *get_packet(long plyr_idx);
+struct PacketEx *get_packet_ex(long plyr_idx);
+struct PacketEx *get_packet_ex_direct(long pckt_idx);
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
 void set_packet_control(struct Packet *pckt, unsigned long flag);

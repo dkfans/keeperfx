@@ -235,10 +235,10 @@ struct NetState
     int                     seq_nbr;            //sequence number of next frame to be issued
     unsigned                max_players;        //max players that will actually be used
     unsigned                active_players;     //how many active players
-    size_t                  user_frame_size;    //sizeof(struct ScreenPacket) OR sizeof(struct Packet)
+    size_t                  user_frame_size;    //sizeof(struct ScreenPacket) OR sizeof(struct PacketEx)
     char *                  exchg_buffer;
     TbBool                  enable_lag;         //enable scheduled lag mode in exchange (in the best case this would always be true but other parts of code expects perfect sync for now)
-    char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct Packet)) * PACKETS_COUNT + 1]; //completely estimated for now
+    char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct PacketEx)) * PACKETS_COUNT + 1]; //completely estimated for now
     char                    msg_buffer_null;    //theoretical safe guard vs non-terminated strings
     TbBool                  locked;             //if set, no players may join
 
@@ -328,7 +328,7 @@ Send something like this:
 
     char type = NETMSG_FRAME;
     int  seq_number = netstate.seq_nbr;
-    struct { // user_frame_size == sizeof(struct ScreenPacket) OR sizeof(struct Packet)
+    struct { // user_frame_size == sizeof(struct ScreenPacket) OR sizeof(struct PacketEx)
 
     } msg_buffer;
 */
@@ -373,7 +373,7 @@ Send something like this:
     char type = NETMSG_FRAME;
     int  seq_number = netstate.seq_nbr;
     char logged_players; // + server
-    struct { // user_frame_size == sizeof(struct ScreenPacket) OR sizeof(struct Packet)
+    struct { // user_frame_size == sizeof(struct ScreenPacket) OR sizeof(struct PacketEx)
 
     } exchg_buffer[logged_players];
 */
@@ -1279,8 +1279,8 @@ NetResponse LbNetwork_Exchange(void *buf)
 
             SendClientFrame((char *) buf, netstate.exchg_queue->seq_nbr);
         }
-
-        if (!netstate.enable_lag) {
+        else
+        {
             SendClientFrame((char *) buf, netstate.seq_nbr);
             ProcessMessagesUntilNextFrame(SERVER_ID, 0);
 

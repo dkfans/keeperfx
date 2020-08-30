@@ -146,13 +146,13 @@ TbBool checksums_different(void)
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            struct Packet* pckt = get_packet_direct(player->packet_num);
+            struct PacketEx* pckt = get_packet_ex_direct(player->packet_num);
             if (!is_set)
             {
-                checksum = pckt->chksum;
+                checksum = pckt->packet.chksum;
                 is_set = true;
             }
-            else if (checksum != pckt->chksum)
+            else if (checksum != pckt->packet.chksum)
             {
                 return true;
             }
@@ -202,10 +202,12 @@ TbBigChecksum compute_players_checksum(void)
  */
 void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, enum ChecksumKind kind)
 {
-    struct Packet* pckt = get_packet(plyr_idx);
-    pckt->chksum ^= sum;
+    struct PacketEx* pckt = get_packet_ex(plyr_idx);
+    pckt->packet.chksum ^= sum;
+    pckt->sums[(int)kind] ^= sum;
     SYNCDBG(9,"Checksum updated kind:%d amount:%06lX", kind,(unsigned long)sum);
 }
+/******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus
 }
