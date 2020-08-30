@@ -2801,6 +2801,7 @@ void process_packets(void)
                 ERRORLOG("LbNetwork_Exchange failed");
                 break;
             case NR_RESYNC:
+                // It is possible to get duplicate resync packet from server here
                 set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
                 set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
                 break;
@@ -2872,6 +2873,7 @@ void process_packets(void)
           {
               SYNCDBG(0, "Done resyncing, unpausing");
           }
+          EVM_GLOBAL_EVENT("mp.done_resync cnt=1");
       }
       else
       {
