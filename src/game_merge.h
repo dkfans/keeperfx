@@ -77,6 +77,9 @@ enum ClassicBugFlags {
     ClscBug_FaintedImmuneToBoulder = 0x0200,
 };
 
+enum GameFlags2 {
+    GF2_ClearPauseOnSync          = 0x0001,
+};
 /******************************************************************************/
 #pragma pack(1)
 
@@ -144,6 +147,8 @@ struct GameAdd {
 };
 
 #pragma pack()
+
+extern unsigned long game_flags2; // Should be reset to zero on new level
 
 extern unsigned long ui_turn;
 extern TbClockMSec tick_time; // time of a tick in ms

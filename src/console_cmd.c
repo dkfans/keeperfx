@@ -251,7 +251,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         return true;
     } else if (strcmp(parstr, "show.ticks") == 0)
     {
-        game.flags_gui ^= GGUI_ShowTickTime;
+        if (is_my_player_number(plyr_idx))
+        {
+            game.flags_gui ^= GGUI_ShowTickTime;
+        }
         return true;
     } else if ((game.flags_font & FFlg_AlexCheat) != 0)
     {

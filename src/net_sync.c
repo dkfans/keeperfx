@@ -74,28 +74,28 @@ long get_resync_sender(void)
 // Return true when we have finished sending sync data
 static TbBool send_resync_game(TbBool first_resync)
 {
-  TbBool ret;
-  if (first_resync)
-  {
-      NETLOG("%s: Initiating re-synchronization of network game", __func__);
-      //TODO NET see if it is necessary to dump to file... probably superfluous
-      char* fname = prepare_file_path(FGrp_Save, "resync.dat");
-      TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-      if (fh == -1)
-      {
-        ERRORLOG("Can't open resync file.");
-        return true;
-      }
+    TbBool ret;
+    if (first_resync)
+    {
+        NETLOG("Initiating resync turn: %ld", game.play_gameturn);
+        //TODO NET see if it is necessary to dump to file... probably superfluous
+        char* fname = prepare_file_path(FGrp_Save, "resync.dat");
+        TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
+        if (fh == -1)
+        {
+            ERRORLOG("Can't open resync file.");
+            return true;
+        }
 
-      LbFileWrite(fh, &game, sizeof(game));
-      LbFileClose(fh);
-  }
-  ret = LbNetwork_Resync(first_resync, game.play_gameturn, &game, sizeof(game));
-  if (ret)
-  {
-      NETLOG("Done syncing");
-  }
-  return ret;
+        LbFileWrite(fh, &game, sizeof(game));
+        LbFileClose(fh);
+    }
+    ret = LbNetwork_Resync(first_resync, game.play_gameturn, &game, sizeof(game));
+    if (ret)
+    {
+        NETLOG("Done syncing");
+    }
+    return ret;
 }
 
 static TbBool receive_resync_game(TbBool first_resync)

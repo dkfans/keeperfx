@@ -4230,6 +4230,7 @@ void init_level(void)
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
+    game_flags2 = 0;
     clear_game();
     reset_heap_manager();
     lens_mode = 0;

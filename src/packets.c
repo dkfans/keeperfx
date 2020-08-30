@@ -2909,6 +2909,7 @@ void process_packets(void)
       if (first_resync)
       {
           game.operation_flags |= GOF_Paused;
+          game_flags2 |= GF2_ClearPauseOnSync;
           SYNCDBG(0, "Resyncing");
           EVM_GLOBAL_EVENT("mp.resync,system_flags=0x%0x cnt=1", game.system_flags);
       }
@@ -2917,6 +2918,15 @@ void process_packets(void)
           set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
           set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
           first_resync = true;
+          if (game_flags2 & GF2_ClearPauseOnSync)
+          {
+              SYNCDBG(0, "Done resyncing, unpausing");
+              game.operation_flags &= ~GOF_Paused;
+          }
+          else
+          {
+              SYNCDBG(0, "Done resyncing, unpausing");
+          }
       }
       else
       {

@@ -33,6 +33,7 @@ unsigned long ui_turn;
 TbClockMSec tick_time;
 /******************************************************************************/
 int net_max_failed_login_turns = 10;
+unsigned long game_flags2 = 0;
 /******************************************************************************/
 /**
  * Informs if we're going to emulate overflow for integer values with given amount of bits.
