@@ -136,6 +136,51 @@ void process_network_error(long errcode)
   create_frontend_error_box(3000, text);
 }
 
+void gui_draw_tick_time()
+{
+    if ((game.flags_gui & GGUI_ShowTickTime) == 0)
+    {
+      return;
+    }
+    int val = tick_time;
+    TbClockMSec now = LbTimerClock();
+
+    static int max_time_val = 0;
+    static int max_time_t = 0;
+    if (now > max_time_t)
+    {
+        max_time_val = 0;
+    }
+    if (val > max_time_val)
+    {
+        max_time_val = val;
+        max_time_t = now + 5000;
+    }
+    
+    if (winfont != NULL)
+    {
+        LbTextSetFont(winfont);
+    }
+    char* text = buf_sprintf("now %02d", val);
+    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    long scr_y = 3 * 16 * units_per_pixel / 16;
+    LbTextSetWindow(scr_x, scr_y, width, height);
+    if (winfont != NULL)
+    {
+        draw_slab64k(scr_x, scr_y, units_per_pixel, width, height * 2);
+    }
+    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextSetWindow(scr_x, scr_y + height, width, height);
+    
+    text = buf_sprintf("max %02d", max_time_val);
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
 void draw_out_of_sync_box(long a1, long a2, long box_width)
 {
     long min_width = 2 * a1;
@@ -182,6 +227,7 @@ void gui_draw_network_state()
     {
       draw_out_of_sync_box(0, 32*units_per_pixel/16, get_my_player()->engine_window_x);
     }
+    gui_draw_tick_time();
 }
 
 void setup_alliances(void)

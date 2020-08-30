@@ -3117,6 +3117,8 @@ void update(void)
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
+    TbClockMSec tick_start = LbTimerClock();
+
     if ((game.operation_flags & GOF_Paused) == 0)
         update_light_render_area();
     process_packets();
@@ -3171,6 +3173,7 @@ void update(void)
     update_player_sounds();
     game.field_14EA4B = 0;
     ui_turn++;
+    tick_time = LbTimerClock() - tick_start;
     SYNCDBG(6,"Finished");
 }
 
@@ -3755,6 +3758,11 @@ void keeper_gameplay_loop(void)
     PaletteSetPlayerPalette(player, engine_palette);
     if ((game.operation_flags & GOF_SingleLevel) != 0)
         initialise_eye_lenses();
+
+    if (start_params.show_ticks)
+    {
+        game.flags_gui |= GGUI_ShowTickTime;
+    }
 
 #ifdef AUTOTESTING
     if ((start_params.autotest_flags & ATF_AI_Player) != 0)
@@ -4805,6 +4813,11 @@ short process_command_line(unsigned short argc, char *argv[])
       if ( strcasecmp(parstr,"vidriver") == 0 )
       {
           LbScreenHardwareConfig(pr2str,8);
+          narg++;
+      } else
+      if ( strcasecmp(parstr,"show.ticks") == 0 )
+      {
+          start_params.show_ticks = 1;
           narg++;
       } else
       if (strcasecmp(parstr,"packetload") == 0)

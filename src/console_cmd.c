@@ -245,9 +245,13 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             exit_keeper = 1;
         }
         return true;
-    } else if (strcmp(parstr, "turn") == 0)
+    } else if (strcmp(parstr, "show.turn") == 0)
     {
         message_add_fmt(plyr_idx, "turn %ld", game.play_gameturn);
+        return true;
+    } else if (strcmp(parstr, "show.ticks") == 0)
+    {
+        game.flags_gui ^= GGUI_ShowTickTime;
         return true;
     } else if ((game.flags_font & FFlg_AlexCheat) != 0)
     {

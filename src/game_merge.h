@@ -59,6 +59,7 @@ enum GameSystemFlags {
 
 enum GameGUIFlags {
     GGUI_CountdownTimer  = 0x0002,
+    GGUI_ShowTickTime    = 0x0040,
     GGUI_SoloChatEnabled = 0x0080
 };
 
@@ -145,6 +146,9 @@ struct GameAdd {
 #pragma pack()
 
 extern unsigned long ui_turn;
+extern TbClockMSec tick_time; // time of a tick in ms
+/******************************************************************************/
+extern int net_max_failed_login_turns;
 /******************************************************************************/
 extern struct GameAdd gameadd;
 extern struct IntralevelData intralvl;

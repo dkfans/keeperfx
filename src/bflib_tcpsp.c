@@ -27,6 +27,7 @@
 
 #define MAX_PACKET_SIZE   1024
 #define MAX_PACKETS       32
+#define MAX_UNBLOCKED_READ 1000
 #define TOKEN_SIZE        2
 
 struct PacketListNode
@@ -699,7 +700,13 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
             if (node == NULL)
             {
                 NETDBG(9, "No data for %u, waiting", source);
-                node = wait_for_message(spstate.peers[i].token, 0);
+                node = wait_for_message(spstate.peers[i].token, MAX_UNBLOCKED_READ);
+
+                if (node == 0)
+                {
+                    JUSTLOG("unblocked read more than %d ms", MAX_UNBLOCKED_READ);
+                    return 0;
+                }
             }
             memcpy(buffer, node->packet->data + TOKEN_SIZE, min(max_size, node->packet->len - TOKEN_SIZE));
             if (node == spstate.peers[i].tail)

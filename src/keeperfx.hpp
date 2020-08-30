@@ -134,6 +134,7 @@ struct StartupParameters {
     unsigned char autotest_flags;
     unsigned long autotest_exit_turn;
 #endif
+    unsigned char show_ticks;
 };
 
 // Global variables migration between DLL and the program

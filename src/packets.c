@@ -2942,6 +2942,7 @@ void process_packets(void)
 void process_frontend_packets(void)
 {
   long i;
+  static int failed_net_times = 0;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
     net_screen_packet[i].field_4 &= ~0x01;
@@ -2954,7 +2955,32 @@ void process_frontend_packets(void)
   nspckt->field_6 = VersionMajor;
   nspckt->field_8 = VersionMinor;
   if (LbNetwork_Exchange(nspckt))
-    ERRORLOG("LbNetwork_Exchange failed");
+  {
+    ERRORLOG("LbNetwork_Exchange failed %d", failed_net_times);
+    failed_net_times++;
+    if (failed_net_times > net_max_failed_login_turns)
+    {
+      if (LbNetwork_Stop())
+      {
+        ERRORLOG("LbNetwork_Stop() failed");
+        return;
+      }
+      if (setup_network_service(net_service_index_selected))
+      {
+        frontend_set_state(FeSt_NET_SESSION);
+      } else
+      {
+        frontend_set_state(FeSt_MAIN_MENU);
+      }
+      process_network_error(-1);
+      return;
+    }
+  }
+  else
+  {
+    failed_net_times = 0;
+  }
+
   if (frontend_should_all_players_quit())
   {
     i = frontnet_number_of_players_in_session();

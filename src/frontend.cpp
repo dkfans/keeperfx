@@ -2642,6 +2642,10 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_NET_START:
           turn_on_menu(GMnu_FENET_START);
           frontnet_start_setup();
+          if (start_params.show_ticks)
+          {
+              game.flags_gui |= GGUI_ShowTickTime;
+          }
           set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
           set_pointer_graphic_menu();
           break;
