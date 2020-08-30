@@ -38,7 +38,10 @@ extern "C" {
  * returns true when resync is complete
  */
 TbBool resync_game(TbBool first_resync);
-short perform_checksum_verification(void);
+/*
+    Validate checksum of all players
+*/
+void perform_checksum_verification(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

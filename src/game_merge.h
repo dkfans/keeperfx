@@ -144,6 +144,7 @@ struct GameAdd {
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
+    unsigned long action_turn_rand_seed; // This is a base for action_rand_seed each turn
 };
 
 #pragma pack()

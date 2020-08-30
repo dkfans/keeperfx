@@ -3797,9 +3797,16 @@ void keeper_gameplay_loop(void)
         {
             game.action_rand_seed = game.play_gameturn;
             game.unsync_rand_seed = game.play_gameturn;
-            srand(game.play_gameturn);
+            srand(game.play_gameturn); // It shouldnt change anything
         }
+        else
 #endif
+        {
+            // make randomness of next turn independent of this one
+            game.action_rand_seed = gameadd.action_turn_rand_seed;
+            gameadd.action_turn_rand_seed++;
+        }
+
         // Check if we should redraw screen in this turn
         do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
 
@@ -4226,7 +4233,6 @@ void init_level(void)
     //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
-    game.action_rand_seed = 1;
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
@@ -4260,18 +4266,22 @@ void init_level(void)
     init_navigation();
     clear_messages();
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+
 #ifdef AUTOTESTING
     if (start_params.autotest_flags & ATF_FixedSeed)
     {
-      game.action_rand_seed = 1;
+      gameadd.action_turn_rand_seed = 1;
       game.unsync_rand_seed = 1;
       srand(1);
     }
     else
 #else
-    // Initialize unsynchronized random seed (the value may be different
-    // on computers in MP, as it shouldn't affect game actions)
-    game.unsync_rand_seed = (unsigned long)LbTimeSec();
+    {
+        // Initialize unsynchronized random seed (the value may be different
+        // on computers in MP, as it shouldn't affect game actions)
+        game.unsync_rand_seed = (unsigned long)LbTimeSec();
+        gameadd.action_turn_rand_seed = (unsigned long)LbTimeSec();
+    }
 #endif
     if (!SoundDisabled)
     {
