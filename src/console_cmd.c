@@ -256,6 +256,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             game.flags_gui ^= GGUI_ShowTickTime;
         }
         return true;
+    } else if (strcmp(parstr, "turn") == 0)
+    {
+        message_add_fmt(plyr_idx, "turn %ld", game.play_gameturn);
+        return true;
     } else if ((game.flags_font & FFlg_AlexCheat) != 0)
     {
         if (strcmp(parstr, "compuchat") == 0)

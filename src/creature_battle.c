@@ -190,7 +190,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
     } else
     {
         struct PlayerInfo* player = get_player(creatng->owner);
-        if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->field_2C == 1) && (player->victory_state != VicS_LostLevel) )
+        if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->is_active == 1) && (player->victory_state != VicS_LostLevel) )
         {
             ERRORLOG("The %s index %d has no dungeon heart or lair to flee to",thing_model_name(creatng),(int)creatng->index);
             return 0;

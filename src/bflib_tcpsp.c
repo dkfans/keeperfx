@@ -23,7 +23,7 @@
 #include "bflib_memory.h"
 
 #include <assert.h>
-#include <SDL/SDL_net.h>
+#include <SDL2/SDL_net.h>
 
 #define MAX_PACKET_SIZE   1024
 #define MAX_PACKETS       32

@@ -24,8 +24,8 @@
 #include "bflib_vidsurface.h"
 #include "bflib_sprfnt.h"
 #include "bflib_inputctrl.h"
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 #define SCREEN_MODES_COUNT 40
 
@@ -52,7 +52,6 @@ volatile TbBool lbHasSecondSurface;
 TbBool lbDoubleBufferingRequested;
 /** Name of the video driver to be used. Must be set before LbScreenInitialize().
  * Under Win32 and with SDL, choises are windib or directx. */
-char lbVideoDriver[16];
 /** Colour palette buffer, to be used inside lbDisplay. */
 unsigned char lbPalette[PALETTE_SIZE];
 /** Driver-specific colour palette buffer. */
@@ -61,6 +60,7 @@ SDL_Color lbPaletteColors[PALETTE_COLORS];
 char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
 volatile unsigned long lbIconIndex = 0;
+SDL_Window *lbWindow = NULL;
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
 {
@@ -114,6 +114,9 @@ TbResult LbScreenSwap(void)
     TbResult ret = LbMouseOnBeginSwap();
     // Put the data from Draw Surface onto Screen Surface
     if ((ret == Lb_SUCCESS) && (lbHasSecondSurface)) {
+        // Update pointer to window surface on every frame
+        // to avoid problems with alt tab
+        lbScreenSurface = SDL_GetWindowSurface(lbWindow);
         blresult = SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL);
         if (blresult < 0) {
             ERRORLOG("Blit failed: %s",SDL_GetError());
@@ -123,7 +126,7 @@ TbResult LbScreenSwap(void)
     // Flip the image displayed on Screen Surface
     if (ret == Lb_SUCCESS) {
         // calls SDL_UpdateRect for entire screen if not double buffered
-        blresult = SDL_Flip(lbScreenSurface);
+        blresult = SDL_UpdateWindowSurface(lbWindow);
         if (blresult < 0) {
             // In some cases this situation seems to be quite common
             ERRORDBG(11,"Flip failed: %s",SDL_GetError());
@@ -294,16 +297,10 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode)
 {
     TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
     unsigned long sdlFlags = 0;
-    if (mdinfo->BitsPerPixel == lbEngineBPP)
-    {
-        sdlFlags |= SDL_HWPALETTE | SDL_DOUBLEBUF;
-  }
   if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
-      sdlFlags |= SDL_FULLSCREEN;
+      sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
   }
-
-  int closestBPP = SDL_VideoModeOK(mdinfo->Width, mdinfo->Height, mdinfo->BitsPerPixel, sdlFlags);
-  return (closestBPP == mdinfo->BitsPerPixel);
+  return true;
 }
 
 TbResult LbScreenFindVideoModes(void)
@@ -379,12 +376,6 @@ TbResult LbScreenInitialize(void)
     if (lbScreenModeInfoNum == 0) {
         LbRegisterStandardVideoModes();
     }
-    // SDL environment variables
-    if (lbVideoDriver[0] != '\0') {
-        char buf[32];
-        sprintf(buf, "SDL_VIDEODRIVER=%s", lbVideoDriver);
-        putenv(buf);
-    }
     // Initialize SDL library
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE|SDL_INIT_AUDIO) < 0) {
         ERRORLOG("SDL init: %s",SDL_GetError());
@@ -407,48 +398,6 @@ static LPCTSTR MsResourceMapping(int index)
   }
 }
 
-static TbResult LbScreenActivationUpdate(void)
-{
-    SDL_Event ev;
-    ev.type = SDL_ACTIVEEVENT;
-    ev.active.state = SDL_APPACTIVE;
-    ev.active.gain = ((SDL_GetAppState() & ev.active.state) != 0);
-    SDL_PushEvent(&ev);
-    return Lb_SUCCESS;
-}
-
-/** Updates icon of the application.
- *  Icon index is stored in lbIconIndex global variable; this function maps
- *  the index into OS-specific resource and applies it to engine process.
- *
- * @return If icon was updated, Lb_SUCCESS is returned.
- */
-TbResult LbScreenUpdateIcon(void)
-{
-    //TODO BFLIB replace with portable version
-/*
-    Uint32          colorkey;
-    SDL_Surface     *image;
-    image = SDL_LoadBMP("keeperfx_icon.bmp");
-    colorkey = SDL_MapRGB(image->format, 255, 0, 255);
-    SDL_SetColorKey(image, SDL_SRCCOLORKEY, colorkey);
-    SDL_WM_SetIcon(image,NULL);
- */
-    SDL_SysWMinfo wmInfo;
-
-    SDL_VERSION(&wmInfo.version);
-    if (SDL_GetWMInfo(&wmInfo) < 0) {
-        WARNLOG("Couldn't get SDL window info, therefore cannot set icon");
-        return Lb_FAIL;
-    }
-
-    HINSTANCE lbhInstance = GetModuleHandle(NULL);
-    HICON hIcon = LoadIcon(lbhInstance, MsResourceMapping(lbIconIndex));
-    SendMessage(wmInfo.window, WM_SETICON, ICON_BIG,  (LPARAM)hIcon);
-    SendMessage(wmInfo.window, WM_SETICON, ICON_SMALL,(LPARAM)hIcon);
-    return Lb_SUCCESS;
-}
-
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
@@ -464,6 +413,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     }
     SDL_Surface* prevScreenSurf = lbScreenSurface;
     LbMouseChangeSprite(NULL);
+
     if (lbHasSecondSurface) {
         SDL_FreeSurface(lbDrawSurface);
     }
@@ -485,31 +435,50 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     // SDL video mode flags
     unsigned long sdlFlags = 0;
     sdlFlags |= SDL_SWSURFACE;
-    if (mdinfo->BitsPerPixel == lbEngineBPP) {
-        sdlFlags |= SDL_HWPALETTE;
-    }
-    if (lbDoubleBufferingRequested) {
-        sdlFlags |= SDL_DOUBLEBUF;
-    }
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
-        sdlFlags |= SDL_FULLSCREEN;
+        sdlFlags |= SDL_WINDOW_FULLSCREEN;
+    }
+    if (lbWindow != NULL) {
+        // We only need to create a new window if we now have a different resolution/mode to the existing window, so check new/old resolution and mode...
+        int cw, ch, cflags;
+        cflags = SDL_GetWindowFlags(lbWindow);
+        SDL_GetWindowSize(lbWindow, &cw, &ch);
+        TbBool sameResolution = mdinfo->Width == cw && mdinfo->Height == ch;
+        TbBool sameWindowMode = (cflags & sdlFlags) != 0;
+        TbBool stillInWindowedMode = (int)(sdlFlags & 1) == 0 && (int)(cflags & 1) == 0; // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
+        if (stillInWindowedMode) {
+            sameWindowMode = sameWindowMode || stillInWindowedMode;
+        }
+        if (!sameResolution || !sameWindowMode) { //.. and only destroy the exisiting one if the res/mode has changed
+            SDL_DestroyWindow(lbWindow);
+            lbWindow = NULL;
+        }
+    }
+    if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
+        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mdinfo->Width, mdinfo->Height, sdlFlags);
+    }
+    if (lbWindow == NULL) {
+        ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
+        return Lb_FAIL;
+    }
+    if (lbMouseGrab)
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+    else {
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        SDL_ShowCursor(SDL_DISABLE);
     }
 
-    // Set SDL video mode (also creates window).
-    lbScreenSurface = lbDrawSurface = SDL_SetVideoMode(mdinfo->Width, mdinfo->Height, mdinfo->BitsPerPixel, sdlFlags);
+    lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
 
     if (lbScreenSurface == NULL) {
         ERRORLOG("Failed to initialize mode %d: %s",(int)mode,SDL_GetError());
         return Lb_FAIL;
     }
 
-    SDL_WM_SetCaption(lbDrawAreaTitle, lbDrawAreaTitle);
-    LbScreenUpdateIcon();
-
     // Create secondary surface if necessary, that is if BPP != lbEngineBPP.
     if (mdinfo->BitsPerPixel != lbEngineBPP)
     {
-        lbDrawSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, mdinfo->Width, mdinfo->Height, lbEngineBPP, 0, 0, 0, 0);
+        lbDrawSurface = SDL_CreateRGBSurface(0, mdinfo->Width, mdinfo->Height, lbEngineBPP, 0, 0, 0, 0);
         if (lbDrawSurface == NULL) {
             ERRORLOG("Can't create secondary surface: %s",SDL_GetError());
             LbScreenReset();
@@ -530,7 +499,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     lbDisplay.GraphicsScreenHeight = mdinfo->Height;
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;
-
+    lbScreenInitialised = true;
     SYNCLOG("Mode %dx%dx%d setup succeeded",(int)lbScreenSurface->w,(int)lbScreenSurface->h,(int)lbScreenSurface->format->BitsPerPixel);
     if (palette != NULL)
     {
@@ -546,9 +515,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         if (msspr != NULL)
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }
-    LbInputRestate();
-    lbScreenInitialised = true;
-    LbScreenActivationUpdate();
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
 }
@@ -606,11 +572,7 @@ TbResult LbPaletteSet(unsigned char *palette)
         bufColors += 3;
     }
     //if (SDL_SetPalette(lbDrawSurface, SDL_LOGPAL | SDL_PHYSPAL,
-    if (SDL_SetColors(lbDrawSurface,
-        lbPaletteColors, 0, PALETTE_COLORS) != 1) {
-        SYNCDBG(8,"SDL SetPalette failed.");
-        ret = Lb_FAIL;
-    }
+    SDL_SetPaletteColors(lbDrawSurface->format->palette, lbPaletteColors, 0, PALETTE_COLORS);
     //free(destColors);
     lbDisplay.Palette = lbPalette;
     return ret;
@@ -664,19 +626,6 @@ TbResult LbSetIcon(unsigned short nicon)
 {
   lbIconIndex = nicon;
   return Lb_SUCCESS;
-}
-
-TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp)
-{
-    if (driver != NULL)
-    {
-        if (strlen(driver) > sizeof(lbVideoDriver)-1)
-            return Lb_FAIL;
-        strcpy(lbVideoDriver,driver);
-    }
-    if (engine_bpp != 0)
-        lbEngineBPP = engine_bpp;
-    return Lb_SUCCESS;
 }
 
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)
@@ -831,7 +780,7 @@ TbResult LbScreenSetDoubleBuffering(TbBool state)
  */
 TbBool LbScreenIsDoubleBufferred(void)
 {
-    return ((lbScreenSurface->flags & SDL_DOUBLEBUF) != 0);
+    return lbHasSecondSurface;
 }
 
 TbScreenMode LbRecogniseVideoModeString(const char *desc)

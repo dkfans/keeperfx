@@ -22,7 +22,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_planar.h"
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +51,7 @@ TbResult LbScreenSurfaceCreate(struct SSurface *surf,unsigned long w,unsigned lo
         format = lbDrawSurface->format;
     }
     //SDL_HWSURFACE
-    surf->surf_data = SDL_CreateRGBSurface(SDL_SRCCOLORKEY , w, h, format->BitsPerPixel,
+    surf->surf_data = SDL_CreateRGBSurface(0 , w, h, format->BitsPerPixel,
         format->Rmask, format->Gmask, format->Bmask, format->Amask);
 
     if (surf->surf_data == NULL) {
@@ -106,7 +106,7 @@ TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned lo
 
     if ((blflags & 0x04) != 0) {
         //enable color key
-        SDL_SetColorKey(surf->surf_data, SDL_SRCCOLORKEY, 255);
+        SDL_SetColorKey(surf->surf_data, SDL_TRUE, 255);
     }
     else {
         //disable color key

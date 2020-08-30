@@ -300,7 +300,7 @@ long update_dungeons_scores(void)
         struct PlayerInfo* player = get_player(i);
         if (!player_exists(player))
             continue;
-        if (player->field_2C == 1)
+        if (player->is_active == 1)
         {
             if (update_dungeon_scores_for_player(player)) {
                 k++;

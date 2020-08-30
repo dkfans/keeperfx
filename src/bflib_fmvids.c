@@ -19,6 +19,7 @@
 /******************************************************************************/
 #include "bflib_fmvids.h"
 
+#include <math.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -176,6 +177,121 @@ void SmackSimulate(unsigned long sim)
     if (proc==NULL)
     { ERRORLOG("Can't get address of SmackSimulate function; skipped."); return; }
     ((FARPROCU_V)proc)(sim);
+}
+
+void copy_to_screen_px_ar_scale(unsigned char *src_buf, unsigned char *dst_buf, int src_width, int src_height, int flags)
+{
+    // Compute scaling ratio -> Output co-ordinates and output size
+    int scanline = lbDisplay.GraphicsScreenWidth;
+    int nlines = lbDisplay.GraphicsScreenHeight;
+    int spw = 0;
+    int sph = 0;
+    int dst_width = 0;
+    int dst_height = 0;
+
+    if ((flags & SMK_FullscreenStretch) != 0 && !((flags & SMK_FullscreenFit) != 0)) // Use full screen resolution and fill the whole canvas by "stretching"
+    {
+        dst_width = scanline;
+        dst_height = nlines;
+    }
+    else // Otherwise, calculate the correct output size
+    {
+        int in_width = src_width;
+        int in_height = src_height;
+        float units_per_px = 0;
+        float relative_ar_difference = (in_width * 1.0 / in_height * 1.0) / (scanline * 1.0 / nlines * 1.0); // relative aspect ratio difference between the source frame and destination frame
+        float comparison_ratio = 1; // when keeping aspect ratio, instead of stretching, this is inverted depending on if we want to crop or fit
+        if (((flags & SMK_FullscreenStretch) != 0) && ((flags & SMK_FullscreenFit) != 0)) // stretch source from 320x200(16:10) to 320x240 (4:3) (i.e. vertical x 1.2) - "preserve *original* aspect ratio mode"
+        {
+            if (src_width == 320 && src_height == 200) {// make sure the source is 320x200
+                in_height = (int)(in_height * 1.2);
+            }
+        }
+        
+        if ((flags & SMK_FullscreenCrop) != 0 && !((flags & SMK_FullscreenFit) != 0)) // fill screen (will crop)
+        {
+            comparison_ratio = relative_ar_difference;
+        }
+        else // fit to full screen, preserve aspect ratio (pillar/letter boxed)
+        {
+            comparison_ratio = 1.0 / relative_ar_difference;
+        }
+        if (comparison_ratio <= 1.0) // take either the destination width or height, depending on if the destination is wider or narrower than the source (same aspect ratio is treated the same as wider), and also if we want to crop or fit
+        {
+            units_per_px = (scanline>nlines?scanline:nlines)/((in_width>in_height?in_width:in_height)/16.0);
+        }
+        else
+        {
+            units_per_px = (scanline>nlines?nlines:scanline)/((in_width>in_height?in_height:in_width)/16.0);
+        }
+        if ((flags & SMK_FullscreenCrop) != 0 && ((flags & SMK_FullscreenFit) != 0)) // Find the highest integer scale possible
+        {
+            if ((flags & SMK_FullscreenStretch) != 0) { //4:3 stretch mode (crop off to the nearest 5x/6x scale
+                if (src_width == 320 && src_height == 200) {// make sure the source is 320x200
+                    units_per_px = (max(5, (int)(units_per_px / 16.0 / 5.0) * 5) * 16); // make sure the multiple is integer divisible by 5. Use 5x as a minimum, otherwise there will be no video (resolutions smaller than 1600x1200 will have a cropped image from a buffer of that size).
+                }
+            }
+            units_per_px = ((int)(units_per_px / 16.0) * 16); // scale to the nearest integer multiple of the source resolution.
+        }
+        // Starting point coords and width for the destination buffer (based on desired aspect ratio)
+        spw = (int)((scanline - in_width * units_per_px / 16.0) / 2.0);
+        sph = (int)((nlines - in_height * units_per_px / 16.0) / 2.0);
+        dst_width = (int)(in_width * units_per_px / 16.0);
+        dst_height = (int)(in_height * units_per_px / 16.0);
+    }
+
+    unsigned char* dst;
+    // Source pixel coords
+    int sw = 0;
+    int sh = 0;
+    // Clearing top of the canvas
+    for (sh = 0; sh < sph; sh++)
+    {
+        dst = dst_buf + (sh)*scanline;
+        LbMemorySet(dst, 0, scanline);
+    }
+    // Clearing bottom of the canvas
+    // (Note: it must be done before drawing, to make sure we won't overwrite last line)
+    for (sh=sph+dst_height; sh<nlines; sh++)
+    {
+        dst = dst_buf + (sh)*scanline;
+        LbMemorySet(dst, 0, scanline);
+    }
+    // Now drawing
+    int dhstart = sph;
+    for (sh=0; sh<src_height; sh++)
+    {
+        int dhend = sph + (dst_height * (sh + 1) / src_height);
+        const unsigned char* src = src_buf + sh * src_width;
+        // make for(k=0;k<dhend-dhstart;k++) but restrict k to draw area
+        int mhmin = max(0, -dhstart);
+        int mhmax = min(dhend - dhstart, nlines - dhstart);
+        for (int k = mhmin; k < mhmax; k++)
+        {
+            dst = dst_buf + (dhstart+k)*scanline;
+            int dwstart = spw;
+            if (dwstart > 0) {
+               LbMemorySet(dst, 0, dwstart);
+            }
+            for (sw=0; sw<src_width; sw++)
+            {
+                int dwend = spw + (dst_width * (sw + 1) / src_width);
+                // make for(i=0;i<dwend-dwstart;i++) but restrict i to draw area
+                int mwmin = max(0, -dwstart);
+                int mwmax = min(dwend - dwstart, scanline - dwstart);
+                for (int i = mwmin; i < mwmax; i++)
+                {
+                    dst[dwstart+i] = src[sw];
+                }
+                dwstart = dwend;
+            }
+            if (dwstart < scanline) {
+              LbMemorySet(dst+dwstart, 0, scanline-dwstart);
+            }
+        }
+        dhstart = dhend;
+    }
+
 }
 
 void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, long width, long dst_shift)
@@ -345,6 +461,16 @@ void copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long he
     }
 }
 
+void copy_to_screen_scaled(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags)
+{
+    unsigned char *dstbuf;
+    dstbuf = &lbDisplay.WScreen[0];
+    copy_to_screen_px_ar_scale(srcbuf, dstbuf, width, height, flags);
+    if (smack_draw_callback != NULL) {
+      smack_draw_callback(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);
+    }
+}
+
 short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
 {
     SYNCDBG(7,"Starting");
@@ -382,7 +508,14 @@ short play_smk_via_buffer(char *fname, int smkflags, int plyflags)
         SmackDoFrame(smktag);
         if (LbScreenLock() == Lb_SUCCESS)
         {
-          copy_to_screen(buf, smktag->Width, smktag->Height, plyflags);
+          if ( (plyflags & SMK_FullscreenFit) != 0 || (plyflags & SMK_FullscreenStretch) != 0 || (plyflags & SMK_FullscreenCrop) != 0 ) // new scaling mode
+          {
+              copy_to_screen_scaled(buf, smktag->Width, smktag->Height, plyflags);
+          }
+          else
+          {
+              copy_to_screen(buf, smktag->Width, smktag->Height, plyflags);
+          }
           LbScreenUnlock();
           //LbDoMultitasking();
           if ( reset_pal )

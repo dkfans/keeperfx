@@ -338,7 +338,7 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->field_2C == 1))
+        if (player_exists(player) && (player->is_active == 1))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->total_score > max_manage_score)
@@ -349,7 +349,7 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->field_2C == 1))
+        if (player_exists(player) && (player->is_active == 1))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->manage_score > 0)
@@ -547,7 +547,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         }
         break;
     case GKind_MultiGame:
-        if (player->field_2C != 1)
+        if (player->is_active != 1)
         {
           ERRORLOG("Non Keeper in Keeper game");
           break;
@@ -593,7 +593,7 @@ void init_players(void)
             if ((player->allocflags & PlaF_CompCtrl) == 0)
             {
               game.active_players_count++;
-              player->field_2C = 1;
+              player->is_active = 1;
               game.game_kind = GKind_MultiGame;
               init_player(player, 0);
             }
@@ -840,7 +840,7 @@ void process_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (player_exists(player) && (player->field_2C == 1))
+        if (player_exists(player) && (player->is_active == 1))
         {
             SYNCDBG(6,"Doing updates for player %d",i);
             wander_point_update(&player->wandr_within);

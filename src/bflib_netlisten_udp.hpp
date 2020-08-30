@@ -23,7 +23,7 @@
 #ifndef BFLIB_NETLISTEN_UDP_HPP
 #define BFLIB_NETLISTEN_UDP_HPP
 
-#include <SDL/SDL_net.h>
+#include <SDL2/SDL_net.h>
 //TODO NET remove reliance on string and vector, MinGW 3.4.5 compiler is FUBAR
 #include <string>
 #include <vector>
