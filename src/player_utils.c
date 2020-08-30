@@ -851,7 +851,7 @@ void process_players(void)
     }
     TbBigChecksum sum = compute_players_checksum();
     SHIFT_CHECKSUM(sum);
-    sum ^= game.action_rand_seed;
+    player_packet_checksum_add(my_player_number, game.action_rand_seed, CKS_Action);
     player_packet_checksum_add(my_player_number, sum, CKS_Players);
     SYNCDBG(17,"Finished");
 }

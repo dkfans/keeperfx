@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
- * @date     11 Mar 2010 - 09 Oct 2010
+ * @date     11 Mar 2010 - 30 Aug 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -37,7 +37,19 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-
+static char desync_info[(2 * CKS_MAX ) + 1] = ".....................";
+static const char desync_letters[CKS_MAX] = {
+  'A', // CKS_Action
+  'P', // CKS_Players
+  '1', // CKS_Creatures_1
+  '2', // CKS_Creatures_2
+  '3', // CKS_Creatures_3
+  '4', // CKS_Creatures_4
+  '5', // CKS_Creatures_5
+  '6', // CKS_Creatures_6
+  'O', // CKS_Things
+  'R', // CKS_Rooms
+};
 /******************************************************************************/
 long get_resync_sender(void)
 {
@@ -133,6 +145,17 @@ void perform_checksum_verification(void)
         ERRORLOG("Level checksums different for network players");
     }
 }
+
+static void update_desync_info(struct PacketEx* v1, struct PacketEx* v2)
+{
+  for (int i = 0; i < (int)CKS_MAX; i++)
+  {
+      if (v1->sums[i] != v2->sums[i])
+      {
+          desync_info[i*2] = desync_letters[i];
+      }
+  }
+}
 /**
  * Checks if all active players packets have same checksums.
  * @return Returns false if all checksums are same; true if there's mismatch.
@@ -140,25 +163,31 @@ void perform_checksum_verification(void)
 TbBool checksums_different(void)
 {
     TbChecksum checksum = 0;
-    TbBool is_set = false;
+    struct PacketEx* base = NULL;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
             struct PacketEx* pckt = get_packet_ex_direct(player->packet_num);
-            if (!is_set)
+            if (!base)
             {
                 checksum = pckt->packet.chksum;
-                is_set = true;
+                base = pckt;
             }
             else if (checksum != pckt->packet.chksum)
             {
+                update_desync_info(base, pckt);
                 return true;
             }
         }
   }
   return false;
+}
+
+const char *get_desync_info()
+{
+    return desync_info;
 }
 
 static TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
@@ -191,6 +220,25 @@ TbBigChecksum compute_players_checksum(void)
       }
     }
     return sum;
+}
+
+TbBigChecksum get_thing_checksum(const struct Thing *thing)
+{
+    SYNCDBG(18,"Starting");
+    if (!thing_exists(thing))
+        return 0;
+    TbBigChecksum csum = (ulong)thing->class_id +
+        (ulong)thing->mappos.z.val +
+        (ulong)thing->mappos.x.val +
+        (ulong)thing->mappos.y.val +
+        (ulong)thing->health + (ulong)thing->model + (ulong)thing->owner;
+    if (thing->class_id == TCls_Creature)
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
+            + (ulong)thing->field_49 + (ulong)thing->field_48;
+    }
+    return csum * thing->index;
 }
 
 /**

@@ -8,7 +8,7 @@
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     11 Mar 2010 - 09 Oct 2010
+ * @date     11 Mar 2010 - 30 Aug 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ TbBool resync_game(TbBool first_resync);
 */
 void perform_checksum_verification(void);
 
+const char *get_desync_info();
 /******************************************************************************/
 #ifdef __cplusplus
 }

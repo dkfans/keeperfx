@@ -186,9 +186,14 @@ enum TbPacketAddValues {
 };
 
 enum ChecksumKind {
-  CKS_None = 0,
+  CKS_Action = 0,
   CKS_Players,
-  CKS_Creatures,
+  CKS_Creatures_1,
+  CKS_Creatures_2,
+  CKS_Creatures_3,
+  CKS_Creatures_4,
+  CKS_Creatures_5,  // Heroes
+  CKS_Creatures_6,  // Neutral
   CKS_Things,
   CKS_Rooms,
   CKS_MAX

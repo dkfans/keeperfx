@@ -914,7 +914,46 @@ unsigned long update_things_sounds_in_list(struct StructureList *list)
     return k;
 }
 
-unsigned long update_creatures_not_in_list(void)
+static unsigned long update_leading_creatures()
+{
+    SYNCDBG(18,"Starting");
+    TbBigChecksum sum = 0;
+    unsigned long k = 0;
+    int i = game.thing_lists[TngList_Creatures].index;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+      }
+      i = thing->next_of_class;
+      // Per-thing code
+      if ((thing->alloc_flags & TAlF_IsFollowingLeader) == 0)
+      {
+          if ((thing->alloc_flags & TAlF_IsInLimbo) != 0) {
+              update_thing_animation(thing);
+          } else {
+              update_thing(thing);
+          }
+      }
+      sum = get_thing_checksum(thing);
+      player_packet_checksum_add(my_player_number, sum, (int)CKS_Creatures_1 + thing->owner);
+
+      // Per-thing code ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
+    }
+    SYNCDBG(19,"Finished, %d items, checksum %06lX",(int)k,(unsigned long)sum);
+    return sum;
+}
+
+static unsigned long update_follower_creatures(void)
 {
   SYNCDBG(18,"Starting");
   unsigned long k = 0;
@@ -957,14 +996,17 @@ unsigned long update_creatures_not_in_list(void)
 void update_things(void)
 {
     SYNCDBG(7,"Starting");
+    unsigned long followers;
     optimised_lights = 0;
     total_lights = 0;
     do_lights = game.lish.field_4614D;
+    update_leading_creatures();
+    followers = update_follower_creatures();
+    if (followers > 0)
+    {
+        SYNCDBG(7, "Updated %ld followers", followers);
+    }
     TbBigChecksum sum = 0;
-    sum += update_things_in_list(&game.thing_lists[TngList_Creatures]);
-    update_creatures_not_in_list();
-    player_packet_checksum_add(my_player_number, sum, CKS_Creatures);
-    sum = 0;
     sum += update_things_in_list(&game.thing_lists[TngList_Traps]);
     sum += update_things_in_list(&game.thing_lists[TngList_Shots]);
     sum += update_things_in_list(&game.thing_lists[TngList_Objects]);
@@ -2535,7 +2577,7 @@ struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y
     SYNCDBG(19,"Starting");
     struct Thing* retng = INVALID_THING;
     long maximizer = 0;
-    for (int around_idx = 0; around < spiral_len; around_idx++)
+    for (int around_idx = 0; around_idx < spiral_len; around_idx++)
     {
         struct MapOffset* sstep = &spiral_step[around_idx];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
@@ -2774,25 +2816,6 @@ TbBool update_thing(struct Thing *thing)
     }
     SYNCDBG(18,"Finished");
     return true;
-}
-
-TbBigChecksum get_thing_checksum(const struct Thing *thing)
-{
-    SYNCDBG(18,"Starting");
-    if (!thing_exists(thing))
-        return 0;
-    TbBigChecksum csum = (ulong)thing->class_id +
-        (ulong)thing->mappos.z.val +
-        (ulong)thing->mappos.x.val +
-        (ulong)thing->mappos.y.val +
-        (ulong)thing->health + (ulong)thing->model + (ulong)thing->owner;
-    if (thing->class_id == TCls_Creature)
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
-            + (ulong)thing->field_49 + (ulong)thing->field_48;
-    }
-    return csum * thing->index;
 }
 
 short update_thing_sound(struct Thing *thing)

@@ -38,6 +38,7 @@
 #include "frontend.h"
 #include "player_data.h"
 #include "net_game.h"
+#include "net_sync.h"
 #include "packets.h"
 #include "config.h"
 #include "config_strings.h"
@@ -196,7 +197,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     int units_per_px = units_per_pixel;
     {
         long ornate_width = 200 * units_per_px / 16;
-        long ornate_height = 100 * units_per_px / 16;
+        long ornate_height = 110 * units_per_px / 16;
         long x = box_width + (MyScreenWidth - box_width - ornate_width) / 2;
         long y = (MyScreenHeight - ornate_height) / 2;
         draw_ornate_slab64k(x, y, units_per_px, ornate_width, ornate_height);
@@ -206,17 +207,20 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
         long text_h = LbTextLineHeight() * tx_units_per_px / 16;
         long text_x = x + 100 * units_per_px / 16 - max_width;
-        long text_y = y + 58 * units_per_px / 16;
-        LbTextDrawResized(0, 50*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
-        LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_px/16, 0);
+        long text_y = 48 * units_per_px / 16;
+        LbTextDrawResized(0, 40*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
         LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_px/16, 133);
 
         int a, b;
         LbNetwork_GetResyncProgress(&a, &b);
         if (b == 0) b = 1;
 
-        LbDrawBox(text_x, text_y, 2 * max_width * a / b, 16*units_per_px/16, 
+        LbDrawBox(text_x, y + text_y, 2 * max_width * a / b, 16*units_per_px/16,
               player_flash_colours[0]);
+              
+        text_y += text_h + 16 * units_per_px / 16;
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+        LbTextDrawResized(10, text_y - text_h, tx_units_per_px, get_desync_info());
     }
 }
 
