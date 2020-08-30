@@ -26,7 +26,7 @@
 #include "bflib_video.h"
 #include "bflib_vidsurface.h"
 #include "bflib_planar.h"
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 using namespace std;
 
@@ -57,8 +57,6 @@ static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseB
         case SDL_BUTTON_LEFT: return MActn_LBUTTONDOWN;
         case SDL_BUTTON_MIDDLE: return MActn_MBUTTONDOWN;
         case SDL_BUTTON_RIGHT: return MActn_RBUTTONDOWN;
-        case SDL_BUTTON_WHEELUP: return MActn_WHEELMOVEUP;
-        case SDL_BUTTON_WHEELDOWN: return MActn_WHEELMOVEDOWN;
         }
     }
     else if (eventType == SDL_MOUSEBUTTONUP) {
@@ -66,8 +64,6 @@ static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseB
         case SDL_BUTTON_LEFT: return MActn_LBUTTONUP;
         case SDL_BUTTON_MIDDLE: return MActn_MBUTTONUP;
         case SDL_BUTTON_RIGHT: return MActn_RBUTTONUP;
-        case SDL_BUTTON_WHEELUP: return MActn_NONE;
-        case SDL_BUTTON_WHEELDOWN: return MActn_NONE;
         }
     }
     WARNMSG("Unidentified event, type %d button %d",(int)eventType,(int)button->button);
@@ -162,16 +158,16 @@ void prepare_keys_mapping(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDERSCORE, KC_UNDERLINE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_BACKQUOTE, KC_GRAVE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_DELETE, KC_DELETE));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP0, KC_NUMPAD0));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP1, KC_NUMPAD1));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP2, KC_NUMPAD2));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP3, KC_NUMPAD3));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP4, KC_NUMPAD4));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP5, KC_NUMPAD5));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP6, KC_NUMPAD6));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP7, KC_NUMPAD7));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP8, KC_NUMPAD8));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP9, KC_NUMPAD9));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_0, KC_NUMPAD0));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_1, KC_NUMPAD1));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_2, KC_NUMPAD2));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_3, KC_NUMPAD3));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_4, KC_NUMPAD4));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_5, KC_NUMPAD5));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_6, KC_NUMPAD6));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_7, KC_NUMPAD7));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_8, KC_NUMPAD8));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_9, KC_NUMPAD9));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_PERIOD, KC_DECIMAL));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_DIVIDE, KC_DIVIDE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_MULTIPLY, KC_MULTIPLY));
@@ -188,28 +184,23 @@ void prepare_keys_mapping(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_END, KC_END));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PAGEUP, KC_PGUP));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PAGEDOWN, KC_PGDOWN));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_NUMLOCK, KC_NUMLOCK));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_NUMLOCKCLEAR, KC_NUMLOCK));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_CAPSLOCK, KC_CAPITAL));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_SCROLLOCK, KC_SCROLL));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_SCROLLLOCK, KC_SCROLL));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RSHIFT, KC_RSHIFT));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LSHIFT, KC_LSHIFT));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RCTRL, KC_RCONTROL));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LCTRL, KC_LCONTROL));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RALT, KC_RALT));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LALT, KC_LALT));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RMETA, KC_UNASSIGNED));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LMETA, KC_UNASSIGNED));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LSUPER, KC_LWIN));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RSUPER, KC_RWIN));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LGUI, KC_LWIN));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RGUI, KC_RWIN));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MODE, KC_UNASSIGNED));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_COMPOSE, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_HELP, KC_UNASSIGNED));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PRINT, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PRINTSCREEN, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_SYSREQ, KC_SYSRQ));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_BREAK, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MENU, KC_APPS));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_POWER, KC_POWER));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_EURO, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
 }
 
@@ -245,10 +236,8 @@ static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
     case SDLK_LCTRL:
     case SDLK_RALT:
     case SDLK_LALT:
-    case SDLK_RMETA:
-    case SDLK_LMETA:
-    case SDLK_LSUPER:
-    case SDLK_RSUPER:
+    case SDLK_LGUI:
+    case SDLK_RGUI:
         keymod = KMod_DONTCARE;
         break;
     // If pressed any other key, mind the modifiers, to allow keyboard control fixes.
@@ -266,7 +255,7 @@ static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
 
 static void process_event(const SDL_Event *ev)
 {
-    struct TbPoint mousePos;
+    struct TbPoint mouseDelta;
     int x;
     int y;
     SYNCDBG(10, "Starting");
@@ -306,29 +295,38 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEMOTION:
-        SDL_GetMouseState(&x, &y);
-        mousePos.x = x;
-        mousePos.y = y;
-        mouseControl(MActn_MOUSEMOVE, &mousePos);
+        if (lbMouseGrab && lbDisplay.MouseMoveRatio > 0)
+        {
+            mouseDelta.x = ev->motion.xrel * lbDisplay.MouseMoveRatio / 256;
+            mouseDelta.y = ev->motion.yrel * lbDisplay.MouseMoveRatio / 256;
+        }
+        else
+        {
+            mouseDelta.x = ev->motion.xrel;
+            mouseDelta.y = ev->motion.yrel;
+        }
+        mouseControl(MActn_MOUSEMOVE, &mouseDelta);
         break;
 
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
-        SDL_GetMouseState(&x, &y);
-        mousePos.x = x;
-        mousePos.y = y;
-        mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mousePos);
+        mouseDelta.x = 0;
+        mouseDelta.y = 0;
+        mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mouseDelta);
         break;
 
-    case SDL_ACTIVEEVENT:
-        if (ev->active.state & SDL_APPACTIVE) {
-            lbAppActive = (ev->active.gain != 0);
-            //SYNCDBG(10, "Active = %d",(int)lbAppActive);
-            LbInputRestate();
+    case SDL_MOUSEWHEEL:
+        mouseDelta.x = 0;
+        mouseDelta.y = 0;
+        mouseControl(ev->wheel.y > 0 ? MActn_WHEELMOVEUP : MActn_WHEELMOVEDOWN, &mouseDelta);
+        break;
+
+    case SDL_WINDOWEVENT:
+        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+            lbAppActive = true;
         }
-        if ((lbAppActive) && (lbDisplay.Palette != NULL)) {
-            // Below is the faster version of LbPaletteSet(lbDisplay.Palette);
-            SDL_SetColors(lbDrawSurface,lbPaletteColors, 0, PALETTE_COLORS);
+        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+            lbAppActive = false;
         }
         break;
 
@@ -341,10 +339,7 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_SYSWMEVENT:
-    case SDL_VIDEORESIZE:
-        break;
-
-    case SDL_VIDEOEXPOSE:
+    case SDL_WINDOWEVENT_RESIZED:
         break;
 
     case SDL_QUIT:
@@ -361,17 +356,6 @@ TbBool LbWindowsControl(void)
         process_event(&ev);
     }
     return (lbUserQuit < 1);
-}
-
-TbResult LbInputRestate(void)
-{
-    SDL_ShowCursor(lbAppActive ? SDL_DISABLE : SDL_ENABLE);
-    if ( lbMouseAutoReset ) {
-        SDL_WM_GrabInput(lbAppActive ? SDL_GRAB_ON : SDL_GRAB_OFF);
-    } else {
-        SDL_WM_GrabInput(SDL_GRAB_OFF);
-    }
-    return Lb_SUCCESS;
 }
 
 TbBool LbIsActive(void)

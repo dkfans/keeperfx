@@ -30,8 +30,8 @@ extern "C" {
 /******************************************************************************/
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        86
-#define MENU_LIST_ITEMS_COUNT       45
-#define FRONTEND_BUTTON_INFO_COUNT 111
+#define MENU_LIST_ITEMS_COUNT       48
+#define FRONTEND_BUTTON_INFO_COUNT 119
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
 // Sprite limits
@@ -60,7 +60,7 @@ enum FrontendMenuStates {
   FeSt_START_KPRLEVEL,
   FeSt_START_MPLEVEL,
   FeSt_UNKNOWN09,
-  FeSt_LOAD_GAME,
+  FeSt_LOAD_GAME, // 10
   FeSt_INTRO,
   FeSt_STORY_POEM,
   FeSt_CREDITS,
@@ -70,7 +70,7 @@ enum FrontendMenuStates {
   FeSt_LEVEL_STATS,
   FeSt_HIGH_SCORES,
   FeSt_TORTURE,
-  FeSt_UNKNOWN20,
+  FeSt_UNKNOWN20, // 20
   FeSt_OUTRO,
   FeSt_UNKNOWN22,
   FeSt_UNKNOWN23,
@@ -80,10 +80,11 @@ enum FrontendMenuStates {
   FeSt_FEOPTIONS,
   FeSt_UNKNOWN28,
   FeSt_STORY_BIRTHDAY,
-  FeSt_LEVEL_SELECT,
+  FeSt_LEVEL_SELECT, //30
   FeSt_CAMPAIGN_SELECT,
   FeSt_DRAG,
   FeSt_CAMPAIGN_INTRO,
+  FeSt_MAPPACK_SELECT,
   // Special testing states
   FeSt_FONT_TEST          = 255,
 };
@@ -352,10 +353,12 @@ void gui_scroll_text_down(struct GuiButton *gbtn);
 void frontend_ldcampaign_change_state(struct GuiButton *gbtn);
 void frontend_netservice_change_state(struct GuiButton *gbtn);
 void frontend_start_new_game(struct GuiButton *gbtn);
+void frontend_load_mappacks(struct GuiButton *gbtn);
 void frontend_load_continue_game(struct GuiButton *gbtn);
 short frontend_save_continue_game(short allow_lvnum_grow);
 void frontend_continue_game_maintain(struct GuiButton *gbtn);
 void frontend_main_menu_load_game_maintain(struct GuiButton *gbtn);
+void frontend_mappacks_maintain(struct GuiButton *gbtn);
 void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn);
 void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn);
 void frontend_load_data_from_cd(void);

@@ -48,6 +48,7 @@ int max_track = 7;
 unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
+extern TbBool AssignCpuKeepers = 0;
 
 /**
  * Language 3-char abbreviations.
@@ -130,6 +131,19 @@ const struct NamedCommand logicval_type[] = {
   {"NO",       2},
   {NULL,       0},
   };
+
+  const struct NamedCommand vidscale_type[] = {
+  {"OFF",          256}, // = 0x100 = No scaling of Smacker Video
+  {"FIT",           16}, // = 0x10 = SMK_FullscreenFit - fit to fullscreen, using letterbox and pillarbox as necessary
+  {"ON",            16}, // Duplicate of FIT, for legacy reasons
+  {"STRETCH",       32}, // = 0x20 = SMK_FullscreenStretch  - stretch to fullscreen - ignores aspect ratio difference between source and destination
+  {"CROP",          64}, // = 0x40 = SMK_FullscreenCrop - fill fullscreen and crop - no letterbox or pillarbox
+  {"4BY3",          48}, // = 0x10 & 0x20 = [Aspect Ratio correction mode] - stretch 320x200 to 4:3 (i.e. increase height by 1.2)
+  {"PIXELPERFECT",  80}, // = 0x10 & 0x40 = integer multiple scale only (FIT)
+  {"4BY3PP",       112}, // = 0x10 & 0x20 & 0x40 = integer multiple scale only (4BY3)
+  {NULL,             0},
+  };
+unsigned int vid_scale_flags = 0;
 
 unsigned long features_enabled = 0;
 /** Line number, used when loading text files. */
@@ -675,7 +689,7 @@ short load_configuration(void)
           {
             i = atoi(word_buf);
           }
-          if ((i > 0) && (i <= 1000)) {
+          if ((i >= 0) && (i <= 1000)) {
               base_mouse_sensitivity = i*256/100;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
@@ -747,16 +761,19 @@ short load_configuration(void)
           }
           break;
       case 14: // Resize Movies
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
+          i = recognize_conf_parameter(buf,&pos,len,vidscale_type);
+          if (i <= 0 || i > 256)
           {
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
-          if (i == 1)
-              features_enabled |= Ft_Resizemovies;
-          else
-              features_enabled &= ~Ft_Resizemovies;
+          if (i < 256) {
+            features_enabled |= Ft_Resizemovies;
+            vid_scale_flags = i;
+          }
+          else {
+            features_enabled &= ~Ft_Resizemovies;
+          }
           break;
       case 15: // MUSIC_TRACKS
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -979,14 +996,12 @@ short file_group_needs_cd(short fgroup)
   }
 }
 
+/**
+ * Returns the folder specified by LEVELS_LOCATION
+ */
 short get_level_fgroup(LevelNumber lvnum)
 {
-    struct LevelInformation* lvinfo = get_level_info(lvnum);
-    if (lvinfo == NULL)
-        return FGrp_VarLevels;
-    if (lvinfo->location == LvLc_Campaign)
-        return FGrp_CmpgLvls;
-    return FGrp_VarLevels;
+    return FGrp_CmpgLvls;
 }
 
 /**
@@ -1343,6 +1358,8 @@ struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo)
 
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions)
 {
+    if (campaign.lvinfos == NULL)
+        init_level_info_entries(&campaign, 0);
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;

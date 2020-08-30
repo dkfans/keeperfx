@@ -3,7 +3,7 @@
 #include "bflib_basics.h"
 #include "event_monitoring.h"
 
-#include <SDL/SDL_net.h>
+#include <SDL2/SDL_net.h>
 
 static const int MAX_PACKET_SIZE = 1024;
 #define SUFFIX_SIZE 4

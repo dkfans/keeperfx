@@ -1727,7 +1727,7 @@ void process_pause_packet(long curr_pause, long new_pause)
   for (long i = 0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    if (player_exists(player) && (player->field_2C == 1))
+    if (player_exists(player) && (player->is_active == 1))
     {
         if ((player->allocflags & PlaF_CompCtrl) == 0)
         {
@@ -1927,7 +1927,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
                 swplyr = get_player(i);
                 if (player_exists(swplyr))
                 {
-                    if (swplyr->field_2C == 1)
+                    if (swplyr->is_active == 1)
                         if (swplyr->victory_state == VicS_Undecided)
                             swplyr->victory_state = VicS_WonLevel;
                 }

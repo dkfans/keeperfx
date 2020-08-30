@@ -22,7 +22,7 @@
 #ifndef BFLIB_THREADCOND_HPP
 #define BFLIB_THREADCOND_HPP
 
-#include <SDL/SDL_thread.h>
+#include <SDL2/SDL_thread.h>
 
 class ThreadCond
 {

@@ -22,7 +22,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "globals.h"
 #include "bflib_mouse.h"
 
@@ -95,7 +95,6 @@ short LbIKeyboardClose(void)
 short LbIKeyboardOpen(void)
 {
     prepare_keys_mapping();
-    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
     return 1;
 }
 

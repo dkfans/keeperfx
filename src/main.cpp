@@ -136,8 +136,6 @@
 
 int test_variable;
 
-// Max length of the command line
-#define CMDLN_MAXLEN 259
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
@@ -1109,11 +1107,11 @@ short setup_game(void)
   }
 
   result = init_actv_bitmap_screen(RBmp_SplashLegal);
-  if ( result )
-  {
-      result = show_actv_bitmap_screen(3000);
-      free_actv_bitmap_screen();
-  } else
+ if ( result )
+ {
+     result = show_actv_bitmap_screen(3000);
+     free_actv_bitmap_screen();
+ } else
       SYNCLOG("Legal image skipped");
 
   // Now do more setup
@@ -1131,11 +1129,11 @@ short setup_game(void)
 
   // View second splash screen
   result = init_actv_bitmap_screen(RBmp_SplashFx);
-  if ( result )
-  {
-      result = show_actv_bitmap_screen(4000);
-      free_actv_bitmap_screen();
-  } else
+ if ( result )
+ {
+     result = show_actv_bitmap_screen(4000);
+     free_actv_bitmap_screen();
+ } else
       SYNCLOG("startup_fx image skipped");
   draw_clear_screen();
 
@@ -1173,7 +1171,7 @@ short setup_game(void)
 
   if ( result && (!game.no_intro) )
   {
-      result = intro_replay();
+     result = intro_replay();
   }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
@@ -1731,7 +1729,7 @@ void init_keepers_map_exploration(void)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if (player_exists(player) && (player->field_2C == 1))
+      if (player_exists(player) && (player->is_active == 1))
       {
           // Additional init - the main one is in init_player()
           if ((player->allocflags & PlaF_CompCtrl) != 0) {
@@ -1754,12 +1752,12 @@ void clear_players_for_save(void)
     {
       player = get_player(i);
       id_mem = player->id_number;
-      mem2 = player->field_2C;
+      mem2 = player->is_active;
       memflg = player->allocflags;
       LbMemoryCopy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = id_mem;
-      player->field_2C = mem2;
+      player->is_active = mem2;
       set_flag_byte(&player->allocflags,PlaF_Allocated,((memflg & PlaF_Allocated) != 0));
       set_flag_byte(&player->allocflags,PlaF_CompCtrl,((memflg & PlaF_CompCtrl) != 0));
       LbMemoryCopy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
@@ -2153,7 +2151,7 @@ short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
       swplyr = get_player(i);
       if (player_exists(swplyr))
       {
-        if (swplyr->field_2C == 1)
+        if (swplyr->is_active == 1)
         {
           k++;
           if (swplyr->victory_state == VicS_LostLevel)
@@ -2292,7 +2290,7 @@ void check_players_won(void)
     for (; playerIdx < PLAYERS_COUNT; ++playerIdx)
     {
         PlayerInfo* curPlayer = get_player(playerIdx);
-        if (!player_exists(curPlayer) || curPlayer->field_2C != 1 || curPlayer->victory_state != VicS_Undecided)
+        if (!player_exists(curPlayer) || curPlayer->is_active != 1 || curPlayer->victory_state != VicS_Undecided)
             continue;
 
         // check if any other player is still alive
@@ -2302,7 +2300,7 @@ void check_players_won(void)
                 continue;
 
             PlayerInfo* otherPlayer = get_player(secondPlayerIdx);
-            if (player_exists(otherPlayer) && otherPlayer->field_2C == 1)
+            if (player_exists(otherPlayer) && otherPlayer->is_active == 1)
             {
                 Thing* heartng = get_player_soul_container(secondPlayerIdx);
                 if (heartng->active_state != ObSt_BeingDestroyed)
@@ -2325,7 +2323,7 @@ void check_players_lost(void)
   {
       struct PlayerInfo *player;
       player = get_player(i);
-      if (player_exists(player) && (player->field_2C == 1))
+      if (player_exists(player) && (player->is_active == 1))
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
@@ -2334,7 +2332,7 @@ void check_players_lost(void)
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
             //this would easily prevent computer player activities on dead player, but it also makes dead player unable to use
-            //floating spirit, so it can't be done this way: player->field_2C = 0;
+            //floating spirit, so it can't be done this way: player->is_active = 0;
             if (is_my_player_number(i)) {
                 LbPaletteSet(engine_palette);
             }
@@ -2470,7 +2468,7 @@ void process_payday(void)
         }
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (player_exists(player) && (player->field_2C == 1))
+        if (player_exists(player) && (player->is_active == 1))
         {
             compute_and_update_player_payday_total(plyr_idx);
         }
@@ -2481,7 +2479,7 @@ void process_payday(void)
         game.pay_day_progress = 0;
         // Prepare a list which counts how many creatures of each owner needs pay
         int player_paid_creatures_count[PLAYERS_EXT_COUNT];
-        PlayerNumber plyr_idx;
+
         for (plyr_idx=0; plyr_idx < PLAYERS_EXT_COUNT; plyr_idx++)
         {
             player_paid_creatures_count[plyr_idx] = 0;
@@ -2669,7 +2667,7 @@ void update_research(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
       player = get_player(i);
-      if (player_exists(player) && (player->field_2C == 1))
+      if (player_exists(player) && (player->is_active == 1))
       {
           process_player_research(i);
       }
@@ -2684,7 +2682,7 @@ void update_manufacturing(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
       player = get_player(i);
-      if (player_exists(player) && (player->field_2C == 1))
+      if (player_exists(player) && (player->is_active == 1))
       {
           process_player_manufacturing(i);
       }
@@ -3883,7 +3881,7 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     else
     {
-        if ( ( ((subtile_is_sellable_room(plyr_idx, stl_x, stl_y)) || ( (slabmap_owner(slb) == plyr_idx) && ( (slab_is_door(slb_x, slb_y)) 
+        if ( ( ((subtile_is_sellable_room(plyr_idx, stl_x, stl_y)) || ( (slabmap_owner(slb) == plyr_idx) && ( (slab_is_door(slb_x, slb_y))
             || (Subtile ? (subtile_has_trap_on(stl_x, stl_y)) : (slab_has_trap_on(slb_x, slb_y))) ) ) ) )
             && ( slb->kind != SlbT_ENTRANCE && slb->kind != SlbT_DUNGHEART ) )
         {
@@ -3941,7 +3939,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     {
         parl = 0;
     }
-    else 
+    else
     {
         Orientation = find_door_angle(stl_x, stl_y, plyr_idx);
         if (gameadd.place_traps_on_subtiles)
@@ -3962,7 +3960,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         }
         if ( ( (slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) )
             && (Orientation != -1)
-            && ( ( (gameadd.place_traps_on_subtiles) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(stl_x, stl_y) ) ) 
+            && ( ( (gameadd.place_traps_on_subtiles) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(stl_x, stl_y) ) )
             )
         {
             allowed = true;
@@ -4413,7 +4411,7 @@ void startup_network_game(TbBool local)
     struct PlayerInfo *player;
     setup_count_players();
     player = get_my_player();
-    flgmem = player->field_2C;
+    flgmem = player->is_active;
     if (local && (campaign.human_player >= 0) && (!force_player_num))
     {
         default_loc_player = campaign.human_player;
@@ -4422,18 +4420,22 @@ void startup_network_game(TbBool local)
     }
     init_level();
     player = get_my_player();
-    player->field_2C = flgmem;
+    player->is_active = flgmem;
     //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
+    TbBool ShouldAssignCpuKeepers = 0;
     if (local)
     {
         game.game_kind = GKind_LocalGame;
         init_players_local_game();
+        if (AssignCpuKeepers || campaign.assignCpuKeepers) {
+            ShouldAssignCpuKeepers = 1;
+        }
     } else
     {
         game.game_kind = GKind_MultiGame;
         init_players_network_game();
     }
-    if (fe_computer_players)
+    if (fe_computer_players || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");
         setup_computer_players();
@@ -4462,7 +4464,7 @@ void faststartup_network_game(void)
         ERRORLOG("Unable to load campaign");
     }
     player = get_my_player();
-    player->field_2C = 1;
+    player->is_active = 1;
     startup_network_game(true);
     player = get_my_player();
     player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
@@ -4482,12 +4484,40 @@ void wait_at_frontend(void)
       game.packet_load_enable = 0;
     }
     game.numfield_15 = -1;
-    // Make sure campaign is loaded
+    // Make sure campaigns are loaded
     if (!load_campaigns_list())
     {
       ERRORLOG("No valid campaign files found");
       exit_keeper = 1;
       return;
+    }
+    // Make sure mappacks are loaded
+    if (!load_mappacks_list())
+    {
+      WARNMSG("No valid mappack files found");
+    }
+    //Set level number and campaign (for single level mode: GOF_SingleLevel)
+    if ((start_params.operation_flags & GOF_SingleLevel) != 0) {
+        TbBool result = false;
+        if (start_params.selected_campaign[0] != '\0') {
+            result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
+        }
+        if (!result) {
+            if (!change_campaign("")) {
+                WARNMSG("Unable to load default campaign for the specified level CMD Line parameter");
+            }
+            else if (start_params.selected_campaign[0] != '\0') { // only show this log message if the user actually specified a campaign
+                WARNMSG("Unable to load campaign associated with the specified level CMD Line parameter, default loaded.");
+            }
+            else {
+                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%d).", start_params.selected_level_number);
+            }
+        }
+        set_selected_level_number(start_params.selected_level_number);
+        //game.selected_level_number = start_params.selected_level_number;
+    }
+    else {
+        set_selected_level_number(first_singleplayer_level());
     }
     // Init load/save catalogue
     initialise_load_game_slots();
@@ -4603,14 +4633,14 @@ void wait_at_frontend(void)
           game.game_kind = GKind_LocalGame;
           set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
           player = get_my_player();
-          player->field_2C = 1;
+          player->is_active = 1;
           startup_network_game(true);
           break;
     case FeSt_START_MPLEVEL:
           set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
           game.game_kind = GKind_MultiGame;
           player = get_my_player();
-          player->field_2C = 1;
+          player->is_active = 1;
           startup_network_game(false);
           break;
     case FeSt_LOAD_GAME:
@@ -4734,6 +4764,7 @@ short process_command_line(unsigned short argc, char *argv[])
   else
       strcpy(keeper_runtime_directory, ".");
 
+  AssignCpuKeepers = 0;
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
   LbErrorLogSetup(0, 0, 1);
@@ -4745,6 +4776,7 @@ short process_command_line(unsigned short argc, char *argv[])
   bad_param = 0;
   unsigned short narg;
   level_num = LEVELNUMBER_ERROR;
+  TbBool one_player_mode = 0;
   narg = 1;
   while ( narg < argc )
   {
@@ -4781,6 +4813,7 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr, "1player") == 0)
       {
           start_params.one_player = 1;
+          one_player_mode = 1;
       } else
       if ((strcasecmp(parstr, "s") == 0) || (strcasecmp(parstr, "nosound") == 0))
       {
@@ -4811,6 +4844,11 @@ short process_command_line(unsigned short argc, char *argv[])
         level_num = atoi(pr2str);
         narg++;
       } else
+      if ( strcasecmp(parstr,"campaign") == 0 )
+      {
+        strcpy(start_params.selected_campaign, pr2str);
+        narg++;
+      } else
       if ( strcasecmp(parstr,"ppropoly") == 0 )
       {
           start_params.force_ppro_poly = atoi(pr2str);
@@ -4819,12 +4857,7 @@ short process_command_line(unsigned short argc, char *argv[])
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
           SYNCLOG("Mouse auto reset disabled");
-          lbMouseAutoReset = false;
-      } else
-      if ( strcasecmp(parstr,"vidriver") == 0 )
-      {
-          LbScreenHardwareConfig(pr2str,8);
-          narg++;
+          lbMouseGrab = false;
       } else
       if ( strcasecmp(parstr,"show.ticks") == 0 )
       {
@@ -4948,6 +4981,11 @@ short process_command_line(unsigned short argc, char *argv[])
           level_num = 1;
       }
   }
+  else {
+      if (one_player_mode) {
+          AssignCpuKeepers = 1;
+      }
+  }
   start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
   return (bad_param==0);
@@ -4958,7 +4996,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     short retval;
     retval=0;
     LbErrorLogSetup("/", log_file_name, 5);
-    LbScreenHardwareConfig("directx",8);
 
     retval = process_command_line(argc,argv);
     if (retval < 1)

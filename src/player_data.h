@@ -157,7 +157,7 @@ unsigned char field_14;
     unsigned char victory_state;
     unsigned char allied_players;
     unsigned char id_number;
-    unsigned char field_2C;
+    unsigned char is_active;
     unsigned char field_2D[2];
     short controlled_thing_idx;
     long controlled_thing_creatrn;

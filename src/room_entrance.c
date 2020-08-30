@@ -371,7 +371,7 @@ void process_entrance_generation(void)
         if (!player_exists(plyr)) {
             continue;
         }
-        if ((plyr->field_2C == 1) && (plyr->victory_state != VicS_LostLevel) )
+        if ((plyr->is_active == 1) && (plyr->victory_state != VicS_LostLevel) )
         {
             struct Dungeon* dungeon = get_players_dungeon(plyr);
             if (generation_due_for_dungeon(dungeon))

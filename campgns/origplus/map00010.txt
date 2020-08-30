@@ -6,7 +6,7 @@ REM  Campaign: New game plus
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
 REM            Loobinex
-REM  Date:     17 Dec 1996 - 14 Mar 2015
+REM  Date:     17 Dec 1996 - 08 Jul 2020
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ CREATURE_AVAILABLE(ALL_PLAYERS,BILE_DEMON,1,0)
 CREATURE_AVAILABLE(ALL_PLAYERS,HELL_HOUND,1,0)
 CREATURE_AVAILABLE(ALL_PLAYERS,DRAGON,1,0)
 CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,0)
-	
+
 REM	Room availability
 ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
 ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)

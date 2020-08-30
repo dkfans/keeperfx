@@ -553,7 +553,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
         if (is_my_player_number(shotng->owner))
         {
             struct PlayerInfo* player = get_player(target->owner);
-            if (player_exists(player) && (player->field_2C == 1))
+            if (player_exists(player) && (player->is_active == 1))
             {
                 output_message(SMsg_DefeatedKeeper, 0, true);
             }
@@ -612,7 +612,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
             thing_play_sample(target, 144+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
         event_create_event_or_update_nearby_existing_event(
-          target->mappos.x.val, target->mappos.y.val,
+            creatng->mappos.x.val, creatng->mappos.y.val,
           EvKind_HeartAttacked, target->owner, 0);
         if (is_my_player_number(target->owner)) {
             output_message(SMsg_HeartUnderAttack, 400, true);

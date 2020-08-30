@@ -114,6 +114,7 @@ struct GameCampaign {
   unsigned long hiscore_count;
   // Human player color
   short human_player;
+  TbBool assignCpuKeepers;
 };
 
 struct HighScore {
@@ -149,11 +150,12 @@ struct CampaignsList {
 /******************************************************************************/
 extern struct GameCampaign campaign;
 extern struct CampaignsList campaigns_list;
+extern struct CampaignsList mappacks_list;
 extern const struct NamedCommand cmpgn_map_commands[];
 extern const struct NamedCommand cmpgn_map_cmnds_options[];
 extern const struct NamedCommand cmpgn_map_cmnds_kind[];
 /******************************************************************************/
-TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigned short flags);
+TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigned short flags, short fgroup);
 TbBool free_campaign(struct GameCampaign *campgn);
 long add_single_level_to_campaign(struct GameCampaign *campgn, LevelNumber lvnum);
 long add_multi_level_to_campaign(struct GameCampaign *campgn, LevelNumber lvnum);
@@ -171,8 +173,11 @@ TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries
 TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries);
 TbBool free_campaigns_list_entries(struct CampaignsList *clist);
 TbBool load_campaigns_list(void);
+TbBool load_mappacks_list(void);
 TbBool change_campaign(const char *cmpgn_fname);
 TbBool is_campaign_loaded(void);
+TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist);
+TbBool check_lif_files_in_mappack(struct GameCampaign *campgn);
 /******************************************************************************/
 #ifdef __cplusplus
 }

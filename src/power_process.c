@@ -129,7 +129,7 @@ void process_armageddon(void)
             player = get_player(i);
             if (player_exists(player))
             {
-              if (player->field_2C == 1)
+              if (player->is_active == 1)
                 reveal_whole_map(player);
             }
         }
@@ -139,7 +139,7 @@ void process_armageddon(void)
         for (i=0; i < PLAYERS_COUNT; i++)
         {
             player = get_player(i);
-            if ( (player_exists(player)) && (player->field_2C == 1) )
+            if ( (player_exists(player)) && (player->is_active == 1) )
             {
                 struct Dungeon* dungeon = get_dungeon(player->id_number);
                 if ((player->victory_state == VicS_Undecided) && (dungeon->num_active_creatrs == 0))

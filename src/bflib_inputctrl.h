@@ -29,9 +29,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 extern volatile int lbUserQuit;
+extern volatile TbBool lbMouseGrab;
 /******************************************************************************/
 TbBool LbWindowsControl(void);
-TbResult LbInputRestate(void);
 TbBool LbIsActive(void);
 
 /******************************************************************************/

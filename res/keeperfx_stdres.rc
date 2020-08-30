@@ -18,10 +18,15 @@
  */
 /******************************************************************************/
 
+#define CREATEPROCESS_MANIFEST_RESOURCE_ID 1 //Defined manifest file
+#define RT_MANIFEST                       24 // Manifest Resource Type
+
 #include <windows.h> // include for version info constants
 #include "../src/version.h" // define values for version info
 
 A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "keeperfx_icon.ico"
+
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "keeperfx.exe.manifest" //Add manifest to declare that keeperfx is "dpiAware"
 
 // Create version info block, using defines from the header file
 1 VERSIONINFO

@@ -28,14 +28,14 @@ deep-clean-libexterns: deep-clean-libsdl
 
 ifneq (,$(findstring .tar.gz,$(SDL_PACKAGE)))
 
-libsdl: sdl/lib/libSDLmain.a
+libsdl: sdl/lib/libSDL2main.a
 
 # If we have tar gzip prebuild, download and extract it
-sdl/lib/libSDLmain.a: sdl/$(SDL_PACKAGE)
+sdl/lib/libSDL2main.a: sdl/$(SDL_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	# Grep is used to remove bogus error messages, return state of tar is also ignored
 	-cd "$(<D)"; \
-	tar --strip-components=1 -zxmUf "$(<F)" --no-anchored bin include lib share 2>&1 | \
+	tar --strip-components=2 -zxmUf "$(<F)" SDL2-2.0.12/i686-w64-mingw32/bin SDL2-2.0.12/i686-w64-mingw32/include SDL2-2.0.12/i686-w64-mingw32/lib SDL2-2.0.12/i686-w64-mingw32/share 2>&1 | \
 	grep -v '^.*: Archive value .* is out of .* range.*$$'
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
@@ -57,15 +57,15 @@ endif
 
 ifneq (,$(findstring .zip,$(SDL_NET_PACKAGE)))
 
-libsdlnet: sdl/lib/SDL_net.lib
+libsdlnet: sdl/lib/SDL2_net.lib
 
-sdl/lib/SDL_net.lib: sdl/$(SDL_NET_PACKAGE)
+sdl/lib/SDL2_net.lib: sdl/$(SDL_NET_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include/SDL
+	$(MKDIR) sdl/lib sdl/include/SDL2
 	cd "$(<D)"; \
 	unzip -DD -qo "$(<F)"
-	$(MV) sdl/SDL_net-*/include/* sdl/include/SDL/
-	$(MV) sdl/SDL_net-*/lib/* sdl/lib/
+	$(MV) sdl/SDL2_net-*/include/* sdl/include/SDL2/
+	$(MV) sdl/SDL2_net-*/lib/x86/* sdl/lib/
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
@@ -86,15 +86,15 @@ endif
 
 ifneq (,$(findstring .zip,$(SDL_MIXER_PACKAGE)))
 
-libsdlmixer: sdl/lib/SDL_mixer.lib
+libsdlmixer: sdl/lib/SDL2_mixer.lib
 
-sdl/lib/SDL_mixer.lib: sdl/$(SDL_MIXER_PACKAGE)
+sdl/lib/SDL2_mixer.lib: sdl/$(SDL_MIXER_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include/SDL
+	$(MKDIR) sdl/lib sdl/include/SDL2
 	cd "$(<D)"; \
 	unzip -DD -qo "$(<F)"
-	$(MV) sdl/SDL_mixer-*/include/* sdl/include/SDL/
-	$(MV) sdl/SDL_mixer-*/lib/x86/* sdl/lib/
+	$(MV) sdl/SDL2_mixer-*/include/* sdl/include/SDL2/
+	$(MV) sdl/SDL2_mixer-*/lib/x86/* sdl/lib/
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 

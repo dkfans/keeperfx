@@ -289,7 +289,7 @@ obj/main.o \
 $(RES)
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDLmain -lSDL -lSDL_mixer -lSDL_net 
+LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net 
 INCS =  -I"sdl/include"
 CXXINCS =  -I"sdl/include"
 

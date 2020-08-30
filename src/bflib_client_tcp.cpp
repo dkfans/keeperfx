@@ -33,7 +33,7 @@ TCP_NetClient::TCP_NetClient(const char hostname[], ushort port) : TCP_NetBase()
 		return;
 	}
 
-	recvThread = SDL_CreateThread(reinterpret_cast<int (*)(void *)>(recvThreadFunc), this);
+	recvThread = SDL_CreateThread(reinterpret_cast<int (*)(void *)>(recvThreadFunc), "TCP_NetClient", this);
 	if (recvThread == NULL) {
 		NETMSG("Failed to initialize TCP client receive thread");
 		setErrorFlag();

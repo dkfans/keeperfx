@@ -112,7 +112,7 @@ void setup_exchange_player_number(void)
   clear_packets();
   struct PlayerInfo* player = get_my_player();
   struct Packet* pckt = get_packet_direct(my_player_number);
-  set_packet_action(pckt, PckA_InitPlayerNum, player->field_2C, settings.video_rotate_mode, 0, 0);
+  set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
   if (LbNetwork_Exchange(pckt))
       ERRORLOG("Network Exchange failed");
   int k = 0;
@@ -128,7 +128,7 @@ void setup_exchange_player_number(void)
             player->view_mode_restore = PVM_IsometricView;
           else
             player->view_mode_restore = PVM_FrontView;
-          player->field_2C = pckt->actn_par1;
+          player->is_active = pckt->actn_par1;
           init_player(player, 0);
           strncpy(player->field_15,net_player[i].name,sizeof(struct TbNetworkPlayerName));
           k++;
