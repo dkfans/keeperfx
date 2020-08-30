@@ -849,10 +849,10 @@ void process_players(void)
             update_player_objectives(i);
         }
     }
-    TbBigChecksum sum = 0;
-    sum += compute_players_checksum();
+    TbBigChecksum sum = compute_players_checksum();
+    SHIFT_CHECKSUM(sum);
     sum ^= game.action_rand_seed;
-    player_packet_checksum_add(my_player_number,sum,"players");
+    player_packet_checksum_add(my_player_number, sum, CKS_Players);
     SYNCDBG(17,"Finished");
 }
 

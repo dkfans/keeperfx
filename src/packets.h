@@ -185,6 +185,13 @@ enum TbPacketAddValues {
     PCAdV_Unknown80         = 0x80, //!< Seem unused
 };
 
+enum ChecksumKind {
+  CKS_None = 0,
+  CKS_Players,
+  CKS_Creatures,
+  CKS_Things,
+  CKS_Rooms,
+};
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
 #define PCtr_RBtnAnyAction (PCtr_RBtnClick | PCtr_RBtnHeld | PCtr_RBtnRelease)
 #define PCtr_HeldAnyButton (PCtr_LBtnHeld | PCtr_RBtnHeld)
@@ -249,8 +256,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
 void clear_packets(void);
 TbBigChecksum compute_players_checksum(void);
-void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const char *area_name);
-short checksums_different(void);
+TbBool checksums_different(void);
 void post_init_packets(void);
 
 TbBool open_new_packet_file_for_save(void);
@@ -259,6 +265,9 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
 void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
+
+#define SHIFT_CHECKSUM(X) {X = (X << 1) | (X >> 31);}
+void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, enum ChecksumKind kind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -247,7 +247,7 @@ TbBool is_in_free_things_list(long tng_idx);
 struct Thing *thing_get_f(long tng_idx, const char *func_name);
 TbBool thing_exists_idx(long tng_idx);
 TbBool thing_exists(const struct Thing *thing);
-short thing_is_invalid(const struct Thing *thing);
+TbBool thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
 
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);

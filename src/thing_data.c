@@ -193,7 +193,7 @@ long thing_get_index(const struct Thing *thing)
     return 0;
 }
 
-short thing_is_invalid(const struct Thing *thing)
+TbBool thing_is_invalid(const struct Thing *thing)
 {
     return (thing <= game.things.lookup[0]) || (thing > game.things.lookup[THINGS_COUNT-1]) || (thing == NULL);
 }

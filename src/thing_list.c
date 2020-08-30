@@ -839,7 +839,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
               update_thing(thing);
           }
       }
-      sum += get_thing_checksum(thing);
+      sum ^= get_thing_checksum(thing);
       // Per-thing code ends
       k++;
       if (k > THINGS_COUNT)
@@ -963,7 +963,7 @@ void update_things(void)
     TbBigChecksum sum = 0;
     sum += update_things_in_list(&game.thing_lists[TngList_Creatures]);
     update_creatures_not_in_list();
-    player_packet_checksum_add(my_player_number,sum,"creatures");
+    player_packet_checksum_add(my_player_number, sum, CKS_Creatures);
     sum = 0;
     sum += update_things_in_list(&game.thing_lists[TngList_Traps]);
     sum += update_things_in_list(&game.thing_lists[TngList_Shots]);
@@ -975,7 +975,7 @@ void update_things(void)
     sum += update_things_in_list(&game.thing_lists[TngList_Doors]);
     update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
     update_cave_in_things();
-    player_packet_checksum_add(my_player_number,sum,"things");
+    player_packet_checksum_add(my_player_number, sum, CKS_Things);
     SYNCDBG(9,"Finished");
 }
 
@@ -1648,7 +1648,7 @@ struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel)
             break;
         }
     }
-    return 0;
+    return INVALID_THING;
 }
 
 TbBool lord_of_the_land_in_prison_or_tortured(void)
@@ -1659,7 +1659,7 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             struct Thing* thing = creature_of_model_in_prison_or_tortured(crtr_model);
-            if (thing > 0)
+            if (thing != NULL)
             {
                 if (player_keeping_creature_in_custody(thing) == my_player_number)
                 {
@@ -2496,10 +2496,10 @@ struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord
     SYNCDBG(19,"Starting");
     struct Thing* retng = INVALID_THING;
     long maximizer = 0;
-    for (int around = 0; around < sizeof(mid_around) / sizeof(mid_around[0]); around++)
+    for (int around_idx = 0; around_idx < sizeof(mid_around) / sizeof(mid_around[0]); around_idx++)
     {
-        MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)mid_around[around].delta_x;
-        MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)mid_around[around].delta_y;
+        MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)mid_around[around_idx].delta_x;
+        MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)mid_around[around_idx].delta_y;
         struct Map* mapblk = get_map_block_at(sx, sy);
         if (!map_block_invalid(mapblk))
         {
@@ -2535,9 +2535,9 @@ struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y
     SYNCDBG(19,"Starting");
     struct Thing* retng = INVALID_THING;
     long maximizer = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_idx = 0; around < spiral_len; around_idx++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_idx];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);
@@ -2569,9 +2569,9 @@ long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long
     SYNCDBG(19,"Starting");
     long count = 0;
     long maximizer = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_idx = 0; around_idx < spiral_len; around_idx++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_idx];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);
@@ -2601,9 +2601,9 @@ long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len,
 {
     SYNCDBG(19,"Starting");
     long count = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_idx = 0; around_idx < spiral_len; around_idx++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_idx];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);
@@ -2624,9 +2624,9 @@ long do_to_things_with_param_around_map_block(const struct Coord3d *center_pos, 
 {
     SYNCDBG(19,"Starting");
     long count = 0;
-    for (int around = 0; around < sizeof(mid_around) / sizeof(mid_around[0]); around++)
+    for (int around_idx = 0; around_idx < sizeof(mid_around) / sizeof(mid_around[0]); around_idx++)
     {
-        const struct Around* caround = &mid_around[around];
+        const struct Around* caround = &mid_around[around_idx];
         MapSubtlCoord sx = coord_subtile(center_pos->x.val) + caround->delta_x;
         MapSubtlCoord sy = coord_subtile(center_pos->y.val) + caround->delta_y;
         SYNCDBG(18,"Doing on (%d,%d)",(int)sx,(int)sy);
@@ -2649,9 +2649,9 @@ long do_to_things_with_param_spiral_near_map_block(const struct Coord3d *center_
     }
     SYNCDBG(19,"Starting");
     long count = 0;
-    for (int around = 0; around < spiral_range * spiral_range; around++)
+    for (int around_idx = 0; around_idx < spiral_range * spiral_range; around_idx++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_idx];
         MapSubtlCoord sx = coord_subtile(center_pos->x.val) + sstep->h;
         MapSubtlCoord sy = coord_subtile(center_pos->y.val) + sstep->v;
         SYNCDBG(18,"Doing on (%d,%d)",(int)sx,(int)sy);

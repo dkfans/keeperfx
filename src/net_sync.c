@@ -95,8 +95,6 @@ static TbBool receive_resync_game(TbBool first_resync)
 TbBool resync_game(TbBool first_resync)
 {
     SYNCDBG(2,"Starting");
-    struct PlayerInfo* player = get_my_player();
-
     reset_eye_lenses();
     int i = get_resync_sender();
     if (is_my_player_number(i))
@@ -114,7 +112,6 @@ TbBool resync_game(TbBool first_resync)
  */
 void perform_checksum_verification(void)
 {
-    short result = true;
     unsigned long checksum_mem = 0;
     for (int i = 1; i < THINGS_COUNT; i++)
     {
@@ -135,6 +132,79 @@ void perform_checksum_verification(void)
     {
         ERRORLOG("Level checksums different for network players");
     }
+}
+/**
+ * Checks if all active players packets have same checksums.
+ * @return Returns false if all checksums are same; true if there's mismatch.
+ */
+TbBool checksums_different(void)
+{
+    TbChecksum checksum = 0;
+    TbBool is_set = false;
+    for (int i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        {
+            struct Packet* pckt = get_packet_direct(player->packet_num);
+            if (!is_set)
+            {
+                checksum = pckt->chksum;
+                is_set = true;
+            }
+            else if (checksum != pckt->chksum)
+            {
+                return true;
+            }
+        }
+  }
+  return false;
+}
+
+static TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
+{
+    TbBigChecksum sum = 0;
+    if (((player->allocflags & PlaF_CompCtrl) == 0) && (player->acamera != NULL))
+    {
+        struct Coord3d* mappos = &(player->acamera->mappos);
+        sum ^= (TbBigChecksum)player->instance_remain_rurns + (TbBigChecksum)player->instance_num;
+        SHIFT_CHECKSUM(sum);
+        sum ^= (TbBigChecksum)mappos->x.val + (TbBigChecksum)mappos->z.val + (TbBigChecksum)mappos->y.val;
+    }
+    return sum;
+}
+
+/**
+ * Computes checksum of current state of all existing players.
+ * @return The checksum value.
+ */
+TbBigChecksum compute_players_checksum(void)
+{
+    TbBigChecksum sum = 0;
+    for (int i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if (player_exists(player))
+        {
+            SHIFT_CHECKSUM(sum);
+            sum ^= compute_player_checksum(player);
+      }
+    }
+    return sum;
+}
+
+/**
+ * Adds given value to checksum at current game turn stored in packet file.
+ *
+ * @param plyr_idx The player whose checksum is computed.
+ * @param sum Checksum increase.
+ * @param area_name Name of the area from which the checksum increase comes, for logging purposes.
+ */
+void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, enum ChecksumKind kind)
+{
+    struct Packet* pckt = get_packet(plyr_idx);
+    pckt->chksum ^= sum;
+    SYNCDBG(9,"Checksum updated kind:%d amount:%06lX", kind,(unsigned long)sum);
 }
 /******************************************************************************/
 #ifdef __cplusplus
