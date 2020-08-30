@@ -6806,6 +6806,86 @@ msgctxt "Menu interface item"
 msgid "Lost Levels"
 msgstr "Niveaux Perdus"
 
+#: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
+msgctxt "Unused"
+msgid "Moo3"
+msgstr ""
+
+#: guitext:981
+msgctxt "Trap names"
+msgid "Special Trap"
+msgstr ""
+
+#: guitext:982
+msgctxt "Trap names"
+msgid "Freeze Trap"
+msgstr ""
+
+#: guitext:983
+msgctxt "Trap names"
+msgid "Fear Trap"
+msgstr ""
+
+#: guitext:984
+msgctxt "Trap names"
+msgid "Sentry Trap"
+msgstr ""
+
+#: guitext:985
+msgctxt "Trap names"
+msgid "Mimic Trap"
+msgstr ""
+
+#: guitext:986
+msgctxt "Trap names"
+msgid "Spawn Trap"
+msgstr ""
+
+#: guitext:987
+msgctxt "Trap names"
+msgid "Wind Trap"
+msgstr ""
+
+#: guitext:988
+msgctxt "Trap names"
+msgid "Spitfire Trap"
+msgstr ""
+
+#: guitext:989
+msgctxt "Trap names"
+msgid "Chicken Trap"
+msgstr ""
+
+#: guitext:990
+msgctxt "Trap names"
+msgid "Disease Trap"
+msgstr ""
+
+#: guitext:991
+msgctxt "Trap names"
+msgid "Power Trap"
+msgstr ""
+
+#: guitext:992
+msgctxt "Trap names"
+msgid "Switch"
+msgstr ""
+
+#: guitext:993
+msgctxt "Trap names"
+msgid "Hidden Switch"
+msgstr ""
+
+#: guitext:994
+msgctxt "Door name"
+msgid "Special Door"
+msgstr ""
+
+#: guitext:995
+msgctxt "Door name"
+msgid "Hidden Door"
+msgstr ""
+
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
 #~ msgstr "Vos artisans ont fabriqué le piège à Lave."

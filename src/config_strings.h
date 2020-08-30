@@ -408,6 +408,7 @@ enum GUIStrings {
     GUIStr_MnuReturnToFreePlay = STRINGS_MAX + 968,
     GUIStr_MnuMapPacks = STRINGS_MAX + 969,
     GUIStr_MnuDungeonKeeperLevels = STRINGS_MAX+970, // range 970..975
+    GUIStr_TrapDoorNames = STRINGS_MAX + 981, // range 981..995
 };
 
 enum CampaignStrings {
