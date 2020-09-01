@@ -160,9 +160,15 @@ extern "C" {
 #endif
 
 #if (NETDBG_LEVEL > 0)
+#ifdef UDP_LOG
+  #define NETDBG(dblv,format, ...) {\
+    if (NETDBG_LEVEL > dblv)\
+      evm_stat(0, "netdbg %s:" format, __func__ , ##__VA_ARGS__); }
+#else
   #define NETDBG(dblv,format, ...) {\
     if (NETDBG_LEVEL > dblv)\
       LbNetLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
+#endif
 #else
   #define NETDBG(dblv,format, ...)
 #endif
