@@ -49,7 +49,7 @@ SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-d
 SDL_MIXER_PACKAGE=$(notdir $(SDL_MIXER_DOWNLOAD))
 
 # Assets which are sources of data files are platform-independent
-GFXSRC_DOWNLOAD=https://github.com/Loobinex/keeperfx-unofficial/releases/download/v1850/gfx_sources_v11.zip
+GFXSRC_DOWNLOAD=https://github.com/dkfans/keeperfx/releases/download/v2154/gfx_sources_v11.zip
 GFXSRC_PACKAGE=$(notdir $(GFXSRC_DOWNLOAD))
-SFXSRC_DOWNLOAD=https://github.com/Loobinex/keeperfx-unofficial/releases/download/v1913/sfx_sources_v4.7z
+SFXSRC_DOWNLOAD=https://github.com/dkfans/keeperfx/releases/download/v2154/sfx_sources_v5.7z
 SFXSRC_PACKAGE=$(notdir $(SFXSRC_DOWNLOAD))
