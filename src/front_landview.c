@@ -7,8 +7,8 @@
  *     Functions for displaying and maintaining the land view.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
- * @date     16 Mar 2009 - 01 Apr 2009
+ * @author   KeeperFX Team
+ * @date     16 Mar 2009 - 04 Sep 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -63,7 +63,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct NetMapPlayersState {
-    long tmp1;
     LevelNumber lvnum;
     TbBool is_selected;
 };
@@ -1574,7 +1573,7 @@ TbBool frontmap_exchange_screen_packet(void)
     LbMemorySet(net_screen_packet_NEW, 0, sizeof(net_screen_packet_NEW));
     struct ScreenPacket* nspck = &net_screen_packet_NEW[my_player_number];
     nspck->flags_4 |= SPF_PlayerActive;
-    nspck->param1 = fe_net_level_selected;
+    nspck->selected_level = fe_net_level_selected;
     if (net_map_limp_time > 0)
     {
       nspck->flags_4 = (nspck->flags_4 & SPF_Unknown07) | SPF_Unknown08;
@@ -1630,13 +1629,16 @@ TbBool frontmap_exchange_screen_packet(void)
 
 TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
 {
-    LbMemorySet(scratch, 0, PALETTE_SIZE);
-    long tmp2 = -1;
+    int scratch;
+    int lvl_vote = 0;
+    int lvl_vote_count = 0;
+    int players_count = 0;
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         struct ScreenPacket* nspck = &net_screen_packet_NEW[i];
         if ((nspck->flags_4 & SPF_PlayerActive) == 0)
           continue;
+        players_count++; // TODO: just put it into packet
         if (nspck->param1 == LEVELNUMBER_ERROR)
         {
             if (fe_network_active)
@@ -1650,24 +1652,16 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             }
             return false;
         }
-        if ((nspck->param1 == SINGLEPLAYER_NOTSTARTED) 
-            || ((nspck->flags_4 & ~SPF_Unknown07) == SPF_Unknown08))
+        if ((nspck->flags_4 & ~SPF_Unknown07) != SPF_Unknown08)
         {
-            nmps->tmp1++;
-        } else
-        {
-            //TODO FRONTEND This is so wrong - remove casting when param1 is changed to int
-            LevelNumber pckt_lvnum = (unsigned char)nspck->param1;
-            scratch[pckt_lvnum]++;
-            if (scratch[pckt_lvnum] == tmp2)
+            if (lvl_vote_count == 0)
             {
-                nmps->is_selected = false;
-            } else
-            if (scratch[pckt_lvnum] > tmp2)
+                lvl_vote = nspck->selected_level;
+                lvl_vote_count++;
+            }
+            else if (lvl_vote == nspck->selected_level)
             {
-                nmps->lvnum = pckt_lvnum;
-                tmp2 = scratch[pckt_lvnum];
-                nmps->is_selected = true;
+                lvl_vote_count++;
             }
         }
         if (((nspck->flags_4 & ~SPF_Unknown07) == SPF_Unknown08) && (nspck->param1 == 13))
@@ -1683,6 +1677,19 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
                 SYNCLOG("Slapped out of level");
             }
         }
+    }
+
+    if ((lvl_vote_count != players_count) || (lvl_vote == 0))
+    {    
+        nmps->is_selected = false;
+    }
+    else
+    {
+        nmps->lvnum = lvl_vote;
+        if (fe_network_active) // No single start with disconnected player
+          nmps->is_selected = lvl_vote_count > 1;
+        else
+          nmps->is_selected = true;
     }
     return true;
 }
@@ -1701,7 +1708,6 @@ TbBool frontnetmap_update(void)
     SetMusicPlayerVolume(i);
 
     struct NetMapPlayersState nmps;
-    nmps.tmp1 = 0;
     nmps.lvnum = SINGLEPLAYER_NOTSTARTED;
     nmps.is_selected = false;
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
@@ -1716,7 +1722,7 @@ TbBool frontnetmap_update(void)
         frontmap_exchange_screen_packet();
         frontnetmap_update_players(&nmps);
     }
-    if ((!nmps.tmp1) && (nmps.lvnum > 0) && (nmps.is_selected))
+    if ((nmps.lvnum > 0) && (nmps.is_selected))
     {
         set_selected_level_number(nmps.lvnum);
         sprintf(level_name, "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.lvnum);

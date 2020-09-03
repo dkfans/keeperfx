@@ -65,7 +65,7 @@ enum ScreenPacketFlags
 {
   SPF_PlayerActive = 0x01,
   SPF_Unknown07 = 0x07,
-  SPF_Unknown08 = 0x08, // Update mouse?
+  SPF_Unknown08 = 0x08, // Update mouse? Slapped?
   SPF_Unknown10 = 0x10, // param2 = icon_offset
   SPF_Unknown20 = 0x20, // Change Aliance
   SPF_Unknown40 = 0x40, // Chat letter
@@ -77,9 +77,9 @@ struct ScreenPacket { // sizeof = 12
   char field_5;
   short mouse_x;
   short mouse_y;
-  //TODO LANDVIEW This is unacceptable - level number won't fit in 8 bits; this causes zoom area to be invalid. Change to int when possible.
-  char param1; // 0x09  Frame OR Level
-  unsigned char param2;
+  int param1;
+  int param2;
+  int selected_level;
 };
 
 /******************************************************************************/

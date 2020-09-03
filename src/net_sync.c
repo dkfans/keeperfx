@@ -131,7 +131,11 @@ void perform_checksum_verification(void)
     {
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing)) {
-            checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
+            SHIFT_CHECKSUM(checksum_mem);
+            checksum_mem ^= (thing->mappos.z.val << 16)
+                ^ (thing->mappos.y.val << 8)
+                ^ thing->mappos.x.val
+                ^ thing->model;
         }
     }
     clear_packets();

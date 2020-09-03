@@ -3067,7 +3067,7 @@ void process_frontend_packets(void)
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
     nspckt = &net_screen_packet_NEW[i];
-    if ((nspckt->flags_4 & 0x01) == 0)
+    if ((nspckt->flags_4 & SPF_PlayerActive) == 0)
     {
       if (frontend_is_player_allied(my_player_number, i))
         frontend_set_alliance(my_player_number, i);
