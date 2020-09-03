@@ -20,17 +20,22 @@
 #define DK_NETSYNC_H
 
 #include "globals.h"
+
 #include "bflib_basics.h"
+#include "creature_control.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /******************************************************************************/
-#pragma pack(1)
 
+struct ChecksumStorage
+{
+    unsigned long checksum_creatures[CREATURES_COUNT];
+};
 
-#pragma pack()
 /******************************************************************************/
 /**
  * This is a polling function
@@ -43,7 +48,11 @@ TbBool resync_game(TbBool first_resync);
 */
 void perform_checksum_verification(void);
 
+void resync_reset_storage();
+
 const char *get_desync_info();
+/******************************************************************************/
+extern struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT];
 /******************************************************************************/
 #ifdef __cplusplus
 }

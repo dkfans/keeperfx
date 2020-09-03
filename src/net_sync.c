@@ -50,6 +50,8 @@ static const char desync_letters[CKS_MAX] = {
   'O', // CKS_Things
   'R', // CKS_Rooms
 };
+
+struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT] = {0};
 /******************************************************************************/
 long get_resync_sender(void)
 {
@@ -227,20 +229,32 @@ TbBigChecksum get_thing_checksum(const struct Thing *thing)
     SYNCDBG(18,"Starting");
     if (!thing_exists(thing))
         return 0;
-    TbBigChecksum csum = (ulong)thing->class_id +
-        (ulong)thing->mappos.z.val +
-        (ulong)thing->mappos.x.val +
-        (ulong)thing->mappos.y.val +
-        (ulong)thing->health + (ulong)thing->model + (ulong)thing->owner;
+    TbBigChecksum csum = ((ulong)thing->class_id << 24);
+    csum ^= (((ulong)thing->mappos.z.val) << 16) ^
+            (((ulong)thing->mappos.x.val) << 8) ^
+            (ulong)thing->mappos.y.val;
+    csum ^= (ulong)thing->health ^
+            (((ulong)thing->model) << 4) ^
+            (((ulong)thing->owner) << 12);
+    csum ^= thing->index;
     if (thing->class_id == TCls_Creature)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
-            + (ulong)thing->field_49 + (ulong)thing->field_48;
+        SHIFT_CHECKSUM(csum);
+        csum ^= (ulong)cctrl->inst_turn ^
+            (((ulong)cctrl->instance_id) << 4) ^
+            (((ulong)thing->field_49) << 12) ^
+            (ulong)thing->field_48;
+
+        player_checksum_storage[thing->owner].checksum_creatures[thing->index] = (thing->index << 16) | ((csum & 0xFFFF) ^ (csum >> 16));
     }
-    return csum * thing->index;
+    return csum;
 }
 
+void resync_reset_storage()
+{
+    memset(player_checksum_storage, 0, sizeof(player_checksum_storage));
+}
 /**
  * Adds given value to checksum at current game turn stored in packet file.
  *
