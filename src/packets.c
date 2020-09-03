@@ -2768,7 +2768,7 @@ void write_debug_screenpackets(void)
 {
     char filename[32];
     snprintf(filename, sizeof(filename), "%s%u.%s", "keeperd", my_player_number, "spck");
-    dump_memory_to_file(filename, (char*) net_screen_packet, sizeof(net_screen_packet));
+    dump_memory_to_file(filename, (char*) net_screen_packet_NEW, sizeof(net_screen_packet_NEW));
 }
 
 /**
@@ -2902,15 +2902,15 @@ void process_frontend_packets(void)
   static int failed_net_times = 0;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    net_screen_packet[i].field_4 &= ~0x01;
+    net_screen_packet_NEW[i].flags_4 &= ~SPF_PlayerActive;
   }
-  struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
-  set_flag_byte(&nspckt->field_4, 0x01, true);
+  struct ScreenPacket* nspckt = &net_screen_packet_NEW[my_player_number];
+  set_flag_byte(&nspckt->flags_4, 0x01, true);
   nspckt->field_5 = frontend_alliances;
-  set_flag_byte(&nspckt->field_4, 0x01, true);
-  nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
-  nspckt->field_6 = VersionMajor;
-  nspckt->field_8 = VersionMinor;
+  set_flag_byte(&nspckt->flags_4, 0x01, true);
+  nspckt->flags_4 ^= ((nspckt->flags_4 ^ (fe_computer_players << 1)) & 0x06);
+  nspckt->mouse_x = VersionMajor;
+  nspckt->mouse_y = VersionMinor;
   if (LbNetwork_Exchange(nspckt))
   {
     ERRORLOG("LbNetwork_Exchange failed %d", failed_net_times);
@@ -2978,12 +2978,12 @@ void process_frontend_packets(void)
 #endif
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    nspckt = &net_screen_packet[i];
+    nspckt = &net_screen_packet_NEW[i];
     struct PlayerInfo* player = get_player(i);
-    if ((nspckt->field_4 & 0x01) != 0)
+    if ((nspckt->flags_4 & SPF_PlayerActive) != 0)
     {
         long k;
-        switch (nspckt->field_4 >> 3)
+        switch (nspckt->flags_4 >> 3)
         {
         case 2:
             add_message(i, (char*)&nspckt->param1);
@@ -3054,20 +3054,20 @@ void process_frontend_packets(void)
       }
       if (fe_computer_players == 2)
       {
-        k = ((nspckt->field_4 & 0x06) >> 1);
+        k = ((nspckt->flags_4 & 0x06) >> 1);
         if (k != 2)
           fe_computer_players = k;
       }
-      player->field_4E7 = nspckt->field_8 + (nspckt->field_6 << 8);
+      player->field_4E7 = nspckt->mouse_y + (nspckt->mouse_x << 8);
     }
-    nspckt->field_4 &= 0x07;
+    nspckt->flags_4 &= 0x07;
   }
   if (frontend_alliances == -1)
     frontend_alliances = 0;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    nspckt = &net_screen_packet[i];
-    if ((nspckt->field_4 & 0x01) == 0)
+    nspckt = &net_screen_packet_NEW[i];
+    if ((nspckt->flags_4 & 0x01) == 0)
     {
       if (frontend_is_player_allied(my_player_number, i))
         frontend_set_alliance(my_player_number, i);
