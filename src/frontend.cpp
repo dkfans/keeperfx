@@ -373,6 +373,46 @@ unsigned char *testfont_palette[3];
 long num_chars_in_font = 128;
 #endif
 
+static const char *frontend_menu_state_name[] =
+{
+  "INITIAL",
+  "MAIN_MENU",
+  "FELOAD_GAME",
+  "LAND_VIEW",
+  "NET_SERVICE", /**< Network service selection", wgere player can select Serial/Modem/IPX/TCP IP/1 player. */
+  "NET_SESSION", /**< Network session selection screen", where list of games is displayed", with possibility to join or create own game. */
+  "NET_START", /**< Network game start screen (the menu with chat)", when created new session or joined existing session. */
+  "START_KPRLEVEL",
+  "START_MPLEVEL",
+  "UNKNOWN09",
+  "LOAD_GAME", // 10
+  "INTRO",
+  "STORY_POEM",
+  "CREDITS",
+  "DEMO",
+  "NET_MODEM",
+  "NET_SERIAL",
+  "LEVEL_STATS",
+  "HIGH_SCORES",
+  "TORTURE",
+  "UNKNOWN20", // 20
+  "OUTRO",
+  "UNKNOWN22",
+  "UNKNOWN23",
+  "NETLAND_VIEW",
+  "PACKET_DEMO",
+  "FEDEFINE_KEYS",
+  "FEOPTIONS",
+  "UNKNOWN28",
+  "STORY_BIRTHDAY",
+  "LEVEL_SELECT", //30
+  "CAMPAIGN_SELECT",
+  "DRAG",
+  "CAMPAIGN_INTRO",
+  "MAPPACK_SELECT",
+  NULL
+};
+
 int status_panel_width = 140;
 
 /******************************************************************************/
@@ -2789,7 +2829,9 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
     if ( frontend_menu_state )
       fade_out();
     fade_palette_in = 1;
-    SYNCMSG("Frontend state change from %d into %d",(int)frontend_menu_state,(int)nstate);
+    SYNCMSG("Frontend state change from %s into %s",
+        frontend_menu_state_name[(int)frontend_menu_state],
+        frontend_menu_state_name[(int)nstate]);
     frontend_menu_state = frontend_setup_state(nstate);
     return frontend_menu_state;
 }
