@@ -6634,7 +6634,7 @@ msgstr "Schakelaar"
 #: guitext:993
 msgctxt "Trap names"
 msgid "Hidden Switch"
-msgstr "Verboren schakelaar"
+msgstr "Verborgen schakelaar"
 
 #: guitext:994
 msgctxt "Door name"
@@ -6644,7 +6644,7 @@ msgstr "Speciale deur"
 #: guitext:995
 msgctxt "Door name"
 msgid "Hidden Door"
-msgstr "Verboren deur"
+msgstr "Verborgen deur"
 
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
