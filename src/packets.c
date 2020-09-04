@@ -2799,7 +2799,7 @@ void process_packets(void)
             {
             case NR_FAIL:
                 ERRORLOG("LbNetwork_Exchange failed");
-                break;
+                return;
             case NR_RESYNC:
                 // It is possible to get duplicate resync packet from server here
                 set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
@@ -2807,6 +2807,9 @@ void process_packets(void)
                 break;
             case NR_OK:
                 break;
+            case NR_DISCONNECT:
+                ERRORLOG("LbNetwork_Exchange failed");
+                return;
             }
         }
 
@@ -2905,17 +2908,20 @@ void process_frontend_packets(void)
     net_screen_packet_NEW[i].flags_4 &= ~SPF_PlayerActive;
   }
   struct ScreenPacket* nspckt = &net_screen_packet_NEW[my_player_number];
-  set_flag_byte(&nspckt->flags_4, 0x01, true);
+  nspckt->flags_4 |= 0x01;
   nspckt->field_5 = frontend_alliances;
-  set_flag_byte(&nspckt->flags_4, 0x01, true);
   nspckt->flags_4 ^= ((nspckt->flags_4 ^ (fe_computer_players << 1)) & 0x06);
   nspckt->mouse_x = VersionMajor;
   nspckt->mouse_y = VersionMinor;
-  if (LbNetwork_Exchange(nspckt))
+  if (LbNetwork_Exchange(nspckt) != NR_OK)
   {
     ERRORLOG("LbNetwork_Exchange failed %d", failed_net_times);
     failed_net_times++;
-    if (failed_net_times > net_max_failed_login_turns)
+    if (failed_net_times < net_max_failed_login_turns)
+    {
+      return; // nothing to process
+    }
+    else
     {
       if (LbNetwork_Stop())
       {

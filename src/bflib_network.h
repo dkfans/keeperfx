@@ -51,7 +51,8 @@ enum NetResponse
 {
     NR_OK,
     NR_FAIL,
-    NR_RESYNC
+    NR_RESYNC,
+    NR_DISCONNECT, // TODO: Use it
 };
 
 enum NetDropReason

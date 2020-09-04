@@ -284,8 +284,11 @@ void fronttorture_input(void)
     // Exchange packet with other players
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-        if (LbNetwork_Exchange(pckt))
+        if (LbNetwork_Exchange(pckt) != NR_OK)
+        {
             ERRORLOG("LbNetwork_Exchange failed");
+            return;
+        }
     }
     // Determine the controlling player and get his mouse coords
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)

@@ -1618,7 +1618,7 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     if (fe_network_active)
     {
-      if ( LbNetwork_Exchange(nspck) )
+      if (LbNetwork_Exchange(nspck) != NR_OK)
       {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;
