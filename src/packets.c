@@ -1370,6 +1370,14 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 }
                 place_slab_type_on_map(slbkind, stl_x, stl_y, i, 0);
                 do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                slb = get_slabmap_block(slb_x, slb_y);
+                for (i = 0; i < PLAYERS_COUNT; i++)
+                {
+                    if (i != slabmap_owner(slb))
+                    {
+                        untag_blocks_for_digging_in_area(stl_x, stl_y, i);
+                    }
+                }
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
