@@ -112,7 +112,7 @@ short LbKeyCodeValid(TbKeyCode key)
   return true;
 }
 
-void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers)
+void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, int ScanCode)
 {
     // Set the key code action value
     switch ( action )
@@ -173,7 +173,7 @@ void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers)
     {
         if (lbIInkey == 0)
         {
-            lbIInkey = lbInkey;
+            lbIInkey = ScanCode;
             lbIInkeyFlags = lbInkeyFlags;
         }
     }
