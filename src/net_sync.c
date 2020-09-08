@@ -54,6 +54,7 @@ static const char desync_letters[CKS_MAX] = {
   '4', // CKS_Creatures_5
   '5', // CKS_Creatures_6
   'O', // CKS_Things
+  'E', // CKS_Effects
   'R', // CKS_Rooms
 };
 

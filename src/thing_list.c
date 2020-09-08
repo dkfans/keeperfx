@@ -1007,18 +1007,20 @@ void update_things(void)
         SYNCDBG(7, "Updated %ld followers", followers);
     }
     TbBigChecksum sum = 0;
+    TbBigChecksum sum2 = 0;
     sum += update_things_in_list(&game.thing_lists[TngList_Traps]);
     sum += update_things_in_list(&game.thing_lists[TngList_Shots]);
     sum += update_things_in_list(&game.thing_lists[TngList_Objects]);
-    sum += update_things_in_list(&game.thing_lists[TngList_Effects]);
+    sum2 += update_things_in_list(&game.thing_lists[TngList_Effects]);
     //TODO: move cavein source from TngList_EffectElems
     update_things_in_list(&game.thing_lists[TngList_EffectElems]);
     sum += update_things_in_list(&game.thing_lists[TngList_DeadCreatrs]);
-    sum += update_things_in_list(&game.thing_lists[TngList_EffectGens]);
+    sum2 += update_things_in_list(&game.thing_lists[TngList_EffectGens]);
     sum += update_things_in_list(&game.thing_lists[TngList_Doors]);
     update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
     update_cave_in_things();
     player_packet_checksum_add(my_player_number, sum, CKS_Things);
+    player_packet_checksum_add(my_player_number, sum2, CKS_Effects);
     SYNCDBG(9,"Finished");
 }
 

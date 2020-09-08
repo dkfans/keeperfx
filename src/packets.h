@@ -194,7 +194,8 @@ enum ChecksumKind {
   CKS_Creatures_4,
   CKS_Creatures_5,  // Heroes
   CKS_Creatures_6,  // Neutral
-  CKS_Things,
+  CKS_Things, //Objects, Traps, Shots etc
+  CKS_Effects,
   CKS_Rooms,
   CKS_MAX
 };
