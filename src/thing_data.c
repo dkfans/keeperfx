@@ -47,15 +47,16 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     {
         if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
         {
+#if (BFDEBUG_LEVEL > 5)
+            JUSTLOG("%s: Trying to free effect element", func_name);
+#endif
             thing = thing_get(game.thing_lists[TngList_EffectElems].index);
             if (!thing_is_invalid(thing))
             {
                 delete_thing_structure(thing, 0);
             } else
             {
-#if (BFDEBUG_LEVEL > 0)
-                ERRORMSG("%s: Cannot free up effect element to allocate new thing!",func_name);
-#endif
+                ERRORMSG("%s: Cannot free up effect element to allocate new thing!", func_name);
             }
         }
         i = game.free_things_start_index;
@@ -63,9 +64,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     // Now, if there is still no free thing (we couldn't free any)
     if (i >= THINGS_COUNT-1)
     {
-#if (BFDEBUG_LEVEL > 0)
         ERRORMSG("%s: Cannot allocate new thing, no free slots!",func_name);
-#endif
         return INVALID_THING;
     }
     // And if there is free one, allocate it
