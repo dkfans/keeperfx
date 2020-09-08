@@ -704,7 +704,7 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
 
                 if (node == 0)
                 {
-                    JUSTLOG("unblocked read more than %d ms", MAX_UNBLOCKED_READ);
+                    JUSTLOG("net read blocked for %d ms", MAX_UNBLOCKED_READ);
                     return 0;
                 }
             }

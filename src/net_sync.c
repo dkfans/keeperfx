@@ -36,17 +36,23 @@
 extern "C" {
 #endif
 /******************************************************************************/
+struct SyncPartCommon
+{
+    unsigned long play_gameturn;
+    unsigned long action_turn_rand_seed;
+};
+
 /******************************************************************************/
 static char desync_info[(2 * CKS_MAX ) + 1] = ".....................";
 static const char desync_letters[CKS_MAX] = {
   'A', // CKS_Action
   'P', // CKS_Players
-  '1', // CKS_Creatures_1
-  '2', // CKS_Creatures_2
-  '3', // CKS_Creatures_3
-  '4', // CKS_Creatures_4
-  '5', // CKS_Creatures_5
-  '6', // CKS_Creatures_6
+  '0', // CKS_Creatures_1
+  '1', // CKS_Creatures_2
+  '2', // CKS_Creatures_3
+  '3', // CKS_Creatures_4
+  '4', // CKS_Creatures_5
+  '5', // CKS_Creatures_6
   'O', // CKS_Things
   'R', // CKS_Rooms
 };
@@ -83,7 +89,19 @@ static TbBool send_resync_game(TbBool first_resync)
         LbFileWrite(fh, &game, sizeof(game));
         LbFileClose(fh);
     }
-    ret = LbNetwork_Resync(first_resync, game.play_gameturn, &game, sizeof(game));
+
+    struct SyncPartCommon part1 = {
+        .play_gameturn = game.play_gameturn,
+        .action_turn_rand_seed = gameadd.action_turn_rand_seed
+    };
+
+    struct SyncArrayItem data[] =
+    {
+        { &part1, sizeof(part1) },
+        { &game, sizeof(game) },
+        { NULL, 0 },
+    };
+    ret = LbNetwork_Resync(first_resync, game.play_gameturn, data);
     if (ret)
     {
         NETLOG("Done syncing");
@@ -96,19 +114,28 @@ static TbBool receive_resync_game(TbBool first_resync)
     TbBool ret;
     if (first_resync)
     {
-        NETLOG("%s: Initiating re-synchronization of network game", __func__);
+        NETLOG("Initiating resync turn:%ld", game.play_gameturn);
     }
-    ret = LbNetwork_Resync(first_resync, game.play_gameturn, &game, sizeof(game));
+    struct SyncPartCommon part1;
+    struct SyncArrayItem data[] =
+    {
+        { &part1, sizeof(part1) },
+        { &game, sizeof(game) },
+        { NULL, 0 },
+    };
+    ret = LbNetwork_Resync(first_resync, game.play_gameturn, data);
     if (ret)
     {
-        NETLOG("%s: Done syncing", __func__);
+        game.play_gameturn = part1.play_gameturn;
+        gameadd.action_turn_rand_seed = part1.action_turn_rand_seed;
+        NETLOG("Done syncing");
     }
     return ret;
 }
 
 TbBool resync_game(TbBool first_resync)
 {
-    SYNCDBG(2,"Starting");
+    SYNCDBG(2, "Starting");
     reset_eye_lenses();
     int i = get_resync_sender();
     if (is_my_player_number(i))

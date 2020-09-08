@@ -102,6 +102,17 @@ struct PacketEx bad_packet;
 #endif
 
 static TbBool first_resync = true;
+
+/******************************************************************************/
+static void loss_wait()
+{
+    if ((game.operation_flags & GOF_Paused) == 0)
+    {
+        JUSTLOG("micro wait turn:%lu ui_turn:%lu", (unsigned long)game.play_gameturn, ui_turn);
+        game.operation_flags |= GOF_Paused;
+        game_flags2 |= GF2_ClearPauseOnPacket;
+    }
+}
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
@@ -2799,6 +2810,7 @@ void process_packets(void)
             {
             case NR_FAIL:
                 ERRORLOG("LbNetwork_Exchange failed");
+                loss_wait();
                 return;
             case NR_RESYNC:
                 // It is possible to get duplicate resync packet from server here

@@ -81,6 +81,7 @@ enum ClassicBugFlags {
 
 enum GameFlags2 {
     GF2_ClearPauseOnSync          = 0x0001,
+    GF2_ClearPauseOnPacket        = 0x0002,
 };
 /******************************************************************************/
 #pragma pack(1)

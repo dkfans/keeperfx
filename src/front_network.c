@@ -184,6 +184,8 @@ void gui_draw_tick_time()
 
 void draw_out_of_sync_box(long a1, long a2, long box_width)
 {
+    static char old_data[32] = {0};
+
     long min_width = 2 * a1;
     long max_width = 2 * a2;
     if (min_width > max_width)
@@ -220,7 +222,15 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
               
         text_y += text_h + 16 * units_per_px / 16;
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-        LbTextDrawResized(10, text_y - text_h, tx_units_per_px, get_desync_info());
+
+        const char *desync_info = get_desync_info();
+        LbTextDrawResized(10, text_y - text_h, tx_units_per_px, desync_info);
+
+        if (strcmp(old_data, desync_info) != 0)
+        {
+            JUSTLOG("desync turn:%lu ui_turn:%lu %s", (unsigned long)game.play_gameturn, ui_turn, desync_info);
+            strcpy(old_data, desync_info);
+        }
     }
 }
 

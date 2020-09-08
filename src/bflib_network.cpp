@@ -1134,7 +1134,7 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     }
 }
 
-static void ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
+static TbBool ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
 {
     /*TbClockMSec start;
     start = LbTimerClock();*/
@@ -1144,7 +1144,7 @@ static void ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
             timeout /*- (min(LbTimerClock() - start, max(timeout - 1, 0)))*/) != 0) {
         if (ProcessMessage(id) == Lb_FAIL) {
             NETDBG(8, "Failed");
-            break;
+            return false;
         }
 
         if (    netstate.msg_buffer[0] == NETMSG_FRAME ||
@@ -1156,6 +1156,7 @@ static void ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
             break;
         }*/
     }
+    return true;
 }
 
 static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout)
@@ -1274,6 +1275,7 @@ NetResponse LbNetwork_Exchange(void *buf)
 
             if (netstate.exchg_queue == NULL) {
                 //connection lost
+                netstate.sp->update(OnNewUser);
                 return NR_FAIL;
             }
 
@@ -1282,7 +1284,12 @@ NetResponse LbNetwork_Exchange(void *buf)
         else
         {
             SendClientFrame((char *) buf, netstate.seq_nbr);
-            ProcessMessagesUntilNextFrame(SERVER_ID, 0);
+            if (!ProcessMessagesUntilNextFrame(SERVER_ID, 0))
+            {
+                netstate.sp->update(OnNewUser);
+                NETDBG(11, "No message");
+                return NR_FAIL;
+            }
 
             if (netstate.exchg_queue == NULL) {
                 //connection lost
@@ -1327,11 +1334,11 @@ void LbNetwork_GetResyncProgress(int *now, int *max)
         *max = netstate.resync_packet_count;
     }
 }
-static TbBool resync_server(TbBool first_resync, unsigned long game_turn, void *buf, size_t len)
+static TbBool resync_server(TbBool first_resync, unsigned long game_turn, struct SyncArrayItem sync_data[])
 {
     unsigned char *byte_ptr;
     short         *short_ptr;
-    struct SyncPacket *packet, *packet2;
+    struct SyncPacket *packet;
     struct PacketNode *node, *node2;
     size_t remain;
     short packet_num;
@@ -1343,38 +1350,41 @@ static TbBool resync_server(TbBool first_resync, unsigned long game_turn, void *
     {   // We want to prepare all packets with parts of sync data
         assert(netstate.sync_packets == NULL);
         netstate.resync_mode = true;
-        remain = len;
-        byte_ptr = (unsigned char *)buf;
         packet_num = 0;
-
         node = (struct PacketNode*)LbMemoryAlloc(BF_SYNC_DATA_SIZE + sizeof(struct SyncPacket) + sizeof(struct PacketNode));
         netstate.sync_packets = node;
-        for (;remain > BF_SYNC_DATA_SIZE; remain -= BF_SYNC_DATA_SIZE)
-        {
+        for (struct SyncArrayItem *src_node = sync_data; src_node->buf != NULL; src_node++)
+        {   // for each part of incoming data
+            byte_ptr = (unsigned char *)src_node->buf;
+            remain = src_node->size;
+
+            for (;remain > BF_SYNC_DATA_SIZE; remain -= BF_SYNC_DATA_SIZE)
+            {   // for each acceptable chunk of data
+                packet = (struct SyncPacket*)&node->data[0];
+                packet->message_type = NETMSG_RESYNC;
+                packet->sync_turn = (long) game_turn;
+                packet->packet_num = packet_num;
+                packet->len = BF_SYNC_DATA_SIZE;
+                node->len = packet->len + sizeof(struct SyncPacket);
+
+                LbMemoryCopy(packet->data, byte_ptr, packet->len);
+                byte_ptr += packet->len;
+
+                node->next = (struct PacketNode*)LbMemoryAlloc(BF_SYNC_DATA_SIZE + sizeof(struct SyncPacket) + sizeof(struct PacketNode));
+                node = node->next;
+                packet_num++;
+            }
             packet = (struct SyncPacket*)&node->data[0];
             packet->message_type = NETMSG_RESYNC;
             packet->sync_turn = (long) game_turn;
             packet->packet_num = packet_num;
-            packet->len = BF_SYNC_DATA_SIZE;
+            packet->len = remain;
             node->len = packet->len + sizeof(struct SyncPacket);
-
             LbMemoryCopy(packet->data, byte_ptr, packet->len);
             byte_ptr += packet->len;
-
-            node->next = (struct PacketNode*)LbMemoryAlloc(BF_SYNC_DATA_SIZE + sizeof(struct SyncPacket) + sizeof(struct PacketNode));
-            node = node->next;
             packet_num++;
         }
-        packet = (struct SyncPacket*)&node->data[0];
-        packet->message_type = NETMSG_RESYNC;
-        packet->sync_turn = (long) game_turn;
-        packet->packet_num = packet_num;
-        packet->len = remain;
-        node->len = packet->len + sizeof(struct SyncPacket);
         node->next = NULL;
-        LbMemoryCopy(packet->data, byte_ptr, packet->len);
-        byte_ptr += packet->len;
-        packet_num++;
 
         netstate.resync_total_packets = packet_num * netstate.active_players;
         netstate.resync_sent_packets = 0;
@@ -1479,7 +1489,7 @@ static TbBool resync_server(TbBool first_resync, unsigned long game_turn, void *
 /*
     This is a update function. It is called each tick when game is in resync state.
 */
-TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, void *buf, size_t len)
+TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct SyncArrayItem sync_data[])
 {
     short *short_ptr;
     unsigned char *byte_ptr;
@@ -1495,7 +1505,7 @@ TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, void *buf,
 
     if (netstate.users[netstate.my_id].progress == USER_SERVER)
     {
-        return resync_server(first_resync, game_turn, buf, len);
+        return resync_server(first_resync, game_turn, sync_data);
     }
     else
     {
@@ -1535,16 +1545,29 @@ TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, void *buf,
             netstate.resync_packet_count = 0;
             netstate.resync_last_packet = 0;
             netstate.resync_next_message_time = 0;
-            byte_ptr = (unsigned char *)buf;
-            for (node2 = netstate.cli_sync_packets; node2 != NULL; node2 = node3)
+            node2 = netstate.cli_sync_packets;
+            for (struct SyncArrayItem *src_node = sync_data; src_node->buf != NULL; src_node++)
             {
-                node3 = node2->next;
-                packet = (struct SyncPacket*)&node2->data[0];
-                LbMemoryCopy(byte_ptr, packet->data, packet->len);
-                byte_ptr += packet->len;
-                LbMemoryFree(node2);
+                byte_ptr = (unsigned char *)src_node->buf;
+                int remain = src_node->size;
+                for (; node2 != NULL; node2 = node3)
+                {
+                    if (remain < 0)
+                    {
+                        NETLOG("Unexpected sync size remain: %d", remain);
+                        break;
+                    }
+                    else if (remain == 0)
+                        break; // I assume that sizeborder
+                    node3 = node2->next;
+                    packet = (struct SyncPacket*)&node2->data[0];
+                    LbMemoryCopy(byte_ptr, packet->data, packet->len);
+                    byte_ptr += packet->len;
+                    remain -= packet->len;
+                    LbMemoryFree(node2);
+                }
             }
-            assert(byte_ptr == (((unsigned char*)buf) + len));
+            assert (node2 == NULL);
             netstate.resync_mode = false;
             NETDBG(6, "resync complete");
             return true;
