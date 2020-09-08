@@ -439,7 +439,7 @@ TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
     } else
     if (thing->class_id == TCls_EffectElem)
     {
-        if (!thing_is_picked_up(thing))
+        if (!thing_is_picked_up(thing))  // What EffectElem is ever possible to pick up?
         {
             struct EffectElementStats *eestat;
             eestat = get_effect_element_model_stats(thing->model);
@@ -2934,6 +2934,7 @@ TbBool setup_move_out_of_cave_in(struct Thing *thing)
             {
                 tng = thing_get(n);
                 TRACE_THING(tng);
+                // This is single case where TCls_EffectElem is ever synced in multiplayer?
                 if ( tng->class_id == TCls_EffectElem && tng->model == 46 )
                 {
                     break;

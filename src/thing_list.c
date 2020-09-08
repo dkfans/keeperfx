@@ -1011,7 +1011,8 @@ void update_things(void)
     sum += update_things_in_list(&game.thing_lists[TngList_Shots]);
     sum += update_things_in_list(&game.thing_lists[TngList_Objects]);
     sum += update_things_in_list(&game.thing_lists[TngList_Effects]);
-    sum += update_things_in_list(&game.thing_lists[TngList_EffectElems]);
+    //TODO: move cavein source from TngList_EffectElems
+    update_things_in_list(&game.thing_lists[TngList_EffectElems]);
     sum += update_things_in_list(&game.thing_lists[TngList_DeadCreatrs]);
     sum += update_things_in_list(&game.thing_lists[TngList_EffectGens]);
     sum += update_things_in_list(&game.thing_lists[TngList_Doors]);
