@@ -4005,7 +4005,7 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
         map_volume_box.field_13 = par1;
         map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 2*a4+1), 0);
-        map_volume_box.color = allowed;
+        map_volume_box.color = box_color;
         map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 2*a4+1), 0);
     }
     return allowed;

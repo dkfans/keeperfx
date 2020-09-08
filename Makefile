@@ -171,6 +171,7 @@ obj/engine_camera.o \
 obj/engine_lenses.o \
 obj/engine_redraw.o \
 obj/engine_render.o \
+obj/engine_render_data.o \
 obj/engine_textures.o \
 obj/event_monitoring.o \
 obj/front_credits.o \

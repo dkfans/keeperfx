@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "front_input.h"
 
+#include "engine_render.h"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_planar.h"
@@ -1428,6 +1429,34 @@ int global_frameskipTurn = 0;
 
 void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,int speed_pressed)
 {
+    if (lbKeyOn[KC_LSHIFT])
+    {
+        if (wheel_scrolled_up)
+        {
+            if (box_color != STRIPEY_LINE_COLOR_COUNT - 1)
+            {
+                box_color++;
+            }
+            else
+            {
+                box_color = 0;
+            }
+            show_onscreen_msg(game.num_fps, "Current colour number is: %d", box_color);
+        }
+        if (wheel_scrolled_down)
+        {
+            
+            if (box_color != 0)
+            {
+                box_color--;
+            }
+            else
+            {
+                box_color = STRIPEY_LINE_COLOR_COUNT - 1;
+            }
+            show_onscreen_msg(game.num_fps, "Current colour number is: %d", box_color);
+        }
+    }
     // Reserve the scroll wheel for the resurrect and transfer creature specials
     if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_LCONTROL]) == 0)
     {
