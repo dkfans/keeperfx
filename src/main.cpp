@@ -27,6 +27,7 @@
 #include "bflib_mouse.h"
 #include "bflib_filelst.h"
 #include "bflib_network.h"
+#include "bflib_basics.h"
 
 #include "version.h"
 #include "front_simple.h"
@@ -103,6 +104,7 @@
 #include "creature_states_rsrch.h"
 #include "creature_states_lair.h"
 #include "creature_states_mood.h"
+#include "creature_states_hero.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "magic.h"
@@ -2906,33 +2908,63 @@ TbBool setup_move_out_of_cave_in(struct Thing *thing)
     {
         struct CreatureControl* cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if ( setup_person_move_to_coord(thing, &cctrl->flee_pos, 0) )
+        long dist = LbDiagonalLength(abs(thing->mappos.x.val - cctrl->flee_pos.x.val), abs(thing->mappos.y.val - cctrl->flee_pos.y.val));
+        // If you're too close to the flee position, no point in going there to escape cave in damage.
+        if (dist <= 200)
         {
-            return true;
+            // Heroes that are near to a hero gate, should escape through it if they can.
+            if (is_hero_thing(thing))
+            {
+                if (good_leave_through_exit_door(thing))
+                {
+                    return true;
+                }
+                if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
+                {
+                    return true;
+                }
+            }
+            // Creatures (or weird heroes) at their flee position should find a random space in the dungeon.
+            struct Coord3d pos;
+            if (get_random_position_in_dungeon_for_creature(thing->owner, CrWaS_WithinDungeon, thing, &pos))
+            {
+                if (setup_person_move_to_coord(thing, &pos, 0))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else
+        {
+            if (setup_person_move_to_coord(thing, &cctrl->flee_pos, 0))
+            {
+                return true;
+            }
         }
     }
     else
     {
         MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
         MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
-        for (signed int i=0; i < 32; i++)
+        for (signed int i = 0; i < 32; i++)
         {
             sstep = &spiral_step[i];
             bx = sstep->h + slb_x;
             by = sstep->v + slb_y;
-            struct SlabMap *slb;
+            struct SlabMap* slb;
             slb = get_slabmap_block(bx, by);
-            if ( slabmap_block_invalid(slb) )
+            if (slabmap_block_invalid(slb))
             {
                 continue;
             }
             blk = get_map_block_at(slab_subtile(bx, 0), slab_subtile(by, 0));
             long n = get_mapwho_thing_index(blk);
-            while ( n != 0 )
+            while (n != 0)
             {
                 tng = thing_get(n);
                 TRACE_THING(tng);
-                if ( tng->class_id == TCls_EffectElem && tng->model == 46 )
+                if (tng->class_id == TCls_EffectElem && tng->model == 46)
                 {
                     break;
                 }
@@ -2947,16 +2979,16 @@ TbBool setup_move_out_of_cave_in(struct Thing *thing)
             cx = slab_subtile_center(bx);
             cy = slab_subtile_center(by);
             long j = ACTION_RANDOM(AROUND_TILES_COUNT);
-            for (long k=0; k < AROUND_TILES_COUNT; k++, j=(j + 1) % AROUND_TILES_COUNT)
+            for (long k = 0; k < AROUND_TILES_COUNT; k++, j = (j + 1) % AROUND_TILES_COUNT)
             {
                 MapSubtlCoord stl_x = cx + around[j].delta_x;
                 MapSubtlCoord stl_y = cy + around[j].delta_y;
-                struct Map *mapblk = get_map_block_at(stl_x,stl_y);
+                struct Map* mapblk = get_map_block_at(stl_x, stl_y);
                 if (!map_block_invalid(mapblk))
                 {
                     if (subtile_is_blocking_wall_or_lava(stl_x, stl_y, thing->owner) == 0)
                     {
-                        if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) 
+                        if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
                         {
                             return true;
                         }
