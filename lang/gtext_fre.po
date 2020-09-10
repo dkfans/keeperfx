@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/POT-Creation-"
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2020-09-10 23:43+0200\n"
+"PO-Revision-Date: 2020-09-10 23:59+0200\n"
 "Last-Translator: Vosa G Thomas <vosathomas@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: fr_FR\n"
@@ -6810,7 +6810,7 @@ msgstr "Niveaux Perdus"
 #: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
-msgstr "Moo3"
+msgstr ""
 
 #: guitext:981
 msgctxt "Trap names"
