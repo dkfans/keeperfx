@@ -169,6 +169,7 @@ struct NetLevelDesc { // sizeof = 14
 extern unsigned short AtmosRepeat;
 extern unsigned short AtmosStart;
 extern unsigned short AtmosEnd;
+extern TbBool AssignCpuKeepers;
 
 extern unsigned int vid_scale_flags;
 /******************************************************************************/
@@ -192,6 +193,7 @@ extern short is_new_moon;
 extern short is_near_new_moon;
 extern unsigned long text_line_number;
 extern const struct NamedCommand lang_type[];
+extern const struct NamedCommand logicval_type[];
 /******************************************************************************/
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
 char *prepare_file_path(short fgroup,const char *fname);

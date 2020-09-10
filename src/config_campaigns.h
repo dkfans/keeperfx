@@ -114,6 +114,7 @@ struct GameCampaign {
   unsigned long hiscore_count;
   // Human player color
   short human_player;
+  TbBool assignCpuKeepers;
 };
 
 struct HighScore {
