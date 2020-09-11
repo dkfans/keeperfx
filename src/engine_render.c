@@ -3486,7 +3486,7 @@ static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
         player = get_my_player();
         if ((x1 < player->engine_window_width) || (x2 < player->engine_window_width))
         {
-          if ((y1 < player->engine_window_width) || (y2 < player->engine_window_width))
+          if ((y1 < player->engine_window_height) || (y2 < player->engine_window_height))
           {
             draw_stripey_line(x1, y1, x2, y2, color);
           }
