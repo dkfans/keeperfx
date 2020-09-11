@@ -140,7 +140,7 @@ unsigned char const height_masks[] = {
   8, 8, 8, 8, 8, 8, 8, 8,
 };
 
-int box_color = SLC_PURPLE;
+int box_color = SLC_GREEN;
 static int water_wibble_angle = 0;
 //static unsigned char temp_cluedo_mode;
 static unsigned long render_problems;
@@ -3321,132 +3321,158 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
 {
     //_DK_draw_stripey_line(x1, y1, x2, y2, line_color);
 
-    // Set initial extents and color_index value
-    float x_coord_start = x1;
-    float x_coord_end = x2;
-    float y_coord_start = y1;
-    float y_coord_end = y2;
-    float distance_x = x_coord_end - x_coord_start;
-    float distance_y = y_coord_end - y_coord_start;
-    unsigned char color_index = game.play_gameturn & 0xf; // get the 4 least significant bits of game.play_gameturn, to loop through the starting index of the color array, using numbers 0-15.
-
-    // Set direction of stripey line animation
-    if (!((((distance_y < distance_x) && (x_coord_start < x_coord_end)) || ((distance_x < distance_y && (y_coord_start < y_coord_end)))) || ((distance_x == distance_y && (x_coord_start < x_coord_end)))))
-    {
-        // swap direction of stripey line amimation
-        x_coord_start = x2;
-        x_coord_end = x1;
-        y_coord_start = y2;
-        y_coord_end = y1;
-        color_index = 0xf - color_index; // invert the color index 
-        distance_x = x_coord_end - x_coord_start;
-        distance_y = y_coord_end - y_coord_start;
-    }
+    // get the 4 least significant bits of game.play_gameturn, to loop through the starting index of the color array, using numbers 0-15.
+    unsigned char color_index = game.play_gameturn & 0xf;
 
     // get engine window width and height
     struct PlayerInfo *player;
     player = get_my_player();
-    float relative_window_width = (float)player->engine_window_width / (float)pixel_size;
-    float relative_window_height = (float)player->engine_window_height / (float)pixel_size;
+    long relative_window_width = ((player->engine_window_width * 256) / (pixel_size * 256)) - 1;
+    long relative_window_height = ((player->engine_window_height * 256) / (pixel_size * 256)) - 1;
 
-    // Force start/end X/Y to be within the engine window, and adjust other values accodingly
-    if (y_coord_start < 0)
-    {
-        x_coord_start = x_coord_start - ((distance_x * y_coord_start) / distance_y);
-        y_coord_start = 0;
-    }
-    else if (y_coord_start >= relative_window_height)
-    {
-        x_coord_start = x_coord_start + ((distance_x / distance_y) * ((relative_window_height - y_coord_start) - 1));
-        y_coord_start = relative_window_height - 1;
-    }
-    if (y_coord_end < 0)
-    {
-        x_coord_end = x_coord_end - ((distance_x * y_coord_end) / distance_y);
-        y_coord_end = 0;
-    }
-    else if (y_coord_end >= relative_window_height)
-    {
-        x_coord_end = x_coord_end + ((distance_x / distance_y) * ((relative_window_height - y_coord_end) - 1));
-        y_coord_end = relative_window_height - 1;
-    }
-    if (x_coord_start < 0)
-    {
-        y_coord_start = y_coord_start - ((distance_y * x_coord_start) / distance_x);
-        x_coord_start = 0;
-    }
-    else if (x_coord_start >= relative_window_width)
-    {
-        y_coord_start = y_coord_start + ((distance_y / distance_x) * ((relative_window_width - x_coord_start) - 1));
-        x_coord_start = relative_window_width - 1;
-    }
-    if (x_coord_end < 0)
-    {
-        y_coord_end = y_coord_end - ((distance_y * x_coord_end) / distance_x);
-        x_coord_end = 0;
-    }
-    else if (x_coord_end >= relative_window_width)
-    {
-        y_coord_end = y_coord_end + ((distance_y / distance_x) * ((relative_window_width - x_coord_end) - 1));
-        x_coord_end = relative_window_width - 1;
-    }
-    //idiot check - maybe the above IFs can be altered to remove the need for this...
-    x_coord_start = max(0, min(relative_window_width-1, x_coord_start));
-    x_coord_end = max(0, min(relative_window_width-1, x_coord_end));
-    y_coord_start = max(0, min(relative_window_height-1, y_coord_start));
-    y_coord_end = max(0, min(relative_window_height-1, y_coord_end));
+    // Bresenham’s Line Drawing Algorithm - handles all octants
+    // A and B are relative, and are set to be either X (shallow curves) or Y (steep curves).
+    // A1 and A2, and B1 and B2, are swapped when the line is directed towards -1 X/Y.
+    // A and B are incremented, apart from when the slope of the lines goes from 0 to -1 in A, where B will decrement instead
+    long distance_a, distance_b, a, b, a1, b1, a2, b2, relative_window_a, relative_window_b, remainder, remainder_limit;
+    long *x_coord, *y_coord; // Maintain a reference to the actual X/Y coordinates, even after swapping A and B
 
-    //Update distances with altered coordinates
-    distance_x = x_coord_end - x_coord_start;
-    distance_y = y_coord_end - y_coord_start;
-    if ((distance_x == 0) && (distance_y == 0)) // if the line has zero length in X or Y
+    if (abs(y2 - y1) < abs(x2 - x1))
     {
-        return;
+        x_coord = &a;
+        y_coord = &b;
+        relative_window_a = relative_window_width;
+        relative_window_b = relative_window_height;
+        if (x1 < x2)
+        {   
+            a1 = x1;
+            b1 = y1;
+            a2 = x2;
+            b2 = y2;
+        }
+        else // Swap n1 with n2
+        {
+            a1 = x2;
+            b1 = y2;
+            a2 = x1;
+            b2 = y1;
+            color_index = 0xf - color_index; // invert the color index
+        }
+    }
+    else // Reverse X and Y
+    {
+        x_coord = &b;
+        y_coord = &a;
+        relative_window_a = relative_window_height;
+        relative_window_b = relative_window_width;
+        if (y1 < y2)
+        {
+            a1 = y1;
+            b1 = x1;
+            a2 = y2;
+            b2 = x2;
+        }
+        else // Swap n1 with n2
+        {
+            a1 = y2;
+            b1 = x2;
+            a2 = y1;
+            b2 = x1;
+            color_index = 0xf - color_index; // invert the color index
+        }
     }
 
-    // Calculate angle of line, and adjust X and Y offsets for the DrawPixel loop
-    float offset_x = 0;
-    float offset_y = 0;
-    if (x_coord_end == x_coord_start) // Vertical Line
+    distance_a = a2 - a1;
+    distance_b = b2 - b1;
+
+    if (distance_b == 0)
     {
-        offset_x = 0;
-        offset_y = 1;
+        if ((b1 < 0) || (b1 > relative_window_b))
+        {
+            return; // line is off the screen
+        }
     }
-    else if (y_coord_end == y_coord_start) // Horizontal Line
+    if (distance_a == 0)
     {
-        offset_x = 1;
-        offset_y = 0;
-    }
-    else if (distance_x == distance_y) // 45 degree angled line
-    {
-        offset_x = 1;
-        offset_y = 1;
-    }
-    else if (distance_y + distance_x == 0) // 135 degree angled line (i.e. opposite direction to 45)
-    {
-        offset_x = 1;
-        offset_y = -1;
-    }
-    else if (distance_y < distance_x) // Angle is biased to horizontal axis
-    {
-        offset_x = 1;
-        offset_y = (float)distance_y / (float)distance_x;
-    }
-    else if (distance_y > distance_x) // Angle is biased to vertical axis
-    {
-        offset_x = (float)distance_x / (float)distance_y; 
-        offset_y = 1;
+        if ((a1 < 0) || (a1 > relative_window_a))
+        {
+            return; // line is off the screen
+        }
     }
 
-    float current_x = x_coord_start;
-    float current_y = y_coord_start;
-    // Draw a stripey line of pixels along the X or Y axis
-    while (((offset_x == 1 && (current_x <= x_coord_end)) || ((offset_y == 1 && (current_y <= y_coord_end)))))
+    long start_b_dist_from_window = 0 - b1; // For window clipping
+    long end_b_dist_from_window = b2 - relative_window_b; // For window clipping
+
+    // Handle going towards 0 in B (i.e. B counts down, not up)
+    long b_increment = 1;
+    if (distance_b < 0) 
     {
-        color_index = (color_index + 1) & 0xf; // increment color_index looping back to 0 after 15
-        LbDrawPixel((long)current_x, (long)current_y, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
-        current_x = current_x + offset_x;
-        current_y = current_y + offset_y;
+        b_increment = -1;
+        distance_b = -distance_b;
+        start_b_dist_from_window = b1 - relative_window_b;
+        end_b_dist_from_window = 0 - b2;
+    }
+
+    // Clip line within engine_window
+    remainder_limit = (distance_b+1)/2;
+    // Find starting A coord
+    remainder = start_b_dist_from_window * distance_a % distance_b;
+    long min_a_start = 0;
+    if ((b1 < 0 || b1 > relative_window_b))
+    {
+        min_a_start = a1 + ( (start_b_dist_from_window) * distance_a / distance_b );
+        if (remainder >= remainder_limit)
+        {
+            min_a_start++;
+        }
+        min_a_start = max(min_a_start, 0);
+    }
+    long a_start = max(a1, min_a_start);
+    // Find ending A coord
+    remainder = end_b_dist_from_window * distance_a % distance_b;
+    long max_a_end = relative_window_a;
+    if (b2 < 0 || b2 > relative_window_b)
+    {
+        max_a_end = a2 - ( (end_b_dist_from_window) * distance_a / distance_b );
+        if (remainder >= remainder_limit)
+        {
+            max_a_end--;
+        }
+        max_a_end = min(max_a_end, relative_window_a);
+        
+    }
+    long a_end = min(a2, max_a_end);
+    // Find starting B coord
+    remainder_limit = (distance_a+1)/2;
+    remainder = (a_start - a1) * distance_b % distance_a; // initialise remainder for loop
+    long b_start =  b1 + ( b_increment * (a_start - a1) * distance_b / distance_a );
+    if (remainder >= remainder_limit)
+    {
+        remainder -= distance_a;
+        b_start += b_increment;
+    }
+    b = b_start;
+
+    // Draw the line
+    for (a = a_start; a <= a_end; a ++)
+    {
+        if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b)) 
+        {
+            // Temporary Error message, should never happen
+            WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
+        }
+        // Draw a pixel with the correct colour from the stripey line's color array.
+        LbDrawPixel(*x_coord, *y_coord, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
+        // Increment color_index, looping back to 0 after 15
+        color_index = (color_index + 1) & 0xf;
+        // The remainder is used to know when to round up B to the next increment
+        if (remainder >= remainder_limit)
+        {
+            
+            b += b_increment;
+            remainder -= distance_a;
+        }
+        remainder += distance_b;
     }
 }
 
