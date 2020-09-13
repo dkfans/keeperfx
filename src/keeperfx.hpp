@@ -79,7 +79,7 @@ enum ModeFlags {
 
 enum FFlags {
     FFlg_unk01              =  0x01,
-    FFlg_unk02              =  0x02,
+    FFlg_unk02              =  0x02, /* Bonus level activated */
     FFlg_unk04              =  0x04,
     FFlg_unk08              =  0x08,
     FFlg_unk10              =  0x10, /* Multiplayer? */

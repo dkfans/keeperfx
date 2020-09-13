@@ -173,8 +173,8 @@ unsigned char field_37[2];
     * depending on how high the highest value is.
     */
     long annoyance_level[5];
-    unsigned char mood_flags;
-unsigned char field_67;
+    unsigned char mood_flags; /* also hold foot sound sample variation */
+unsigned char field_67; /* foot sound variation timer (0x1F) */
     /** Lair room index, that is the room which holds creature's lair object. */
     unsigned short lair_room_id;
     /** Lair object thing index. */

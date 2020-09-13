@@ -161,9 +161,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
         game.free_things_start_index--;
         game.free_things[game.free_things_start_index] = thing->index;
     } else {
-#if (BFDEBUG_LEVEL > 0)
         ERRORMSG("%s: Performed deleting of thing with bad index %d!",func_name,(int)thing->index);
-#endif
     }
     LbMemorySet(thing, 0, sizeof(struct Thing));
 }

@@ -278,6 +278,7 @@ obj/thing_list.o \
 obj/thing_navigate.o \
 obj/thing_objects.o \
 obj/thing_physics.o \
+obj/thing_serde.o \
 obj/thing_shots.o \
 obj/thing_stats.o \
 obj/thing_traps.o \
@@ -321,7 +322,7 @@ else
 endif
 
 # logging level flags
-STLOGFLAGS = -DBFDEBUG_LEVEL=0 
+STLOGFLAGS = -DBFDEBUG_LEVEL=0
 HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DNETDBG_LEVEL=10 -DAUTOTESTING=1
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas

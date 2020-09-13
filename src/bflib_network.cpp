@@ -139,7 +139,7 @@ struct UnidirectionalRTSMessage rtsMessage;
 #define SESSION_COUNT 32 //not arbitrary, it's what code calling EnumerateSessions expects
 
 // Should be less than max packet size from bflib_tcpsp.c
-#define BF_SYNC_DATA_SIZE 1000
+#define BF_SYNC_DATA_SIZE 980
 
 enum NetUserProgress
 {
@@ -243,7 +243,7 @@ struct NetState
     TbBool                  locked;             //if set, no players may join
 
     TbBool                  resync_mode;        //if set we are in process of resync
-    long                    resync_prev_turn;   //we want to skip old messages
+    unsigned long           resync_prev_turn;   //we want to skip old messages
     long                    resync_turn;        //game turn to sync game with
     short                   resync_last_packet; // # of last packet from server
     short                   resync_packet_count;// total amount of packets to receive
@@ -424,7 +424,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     len = LbStringLength(ptr) + 1;
     ptr += len;
     if (len > sizeof(netstate.password)) {
-        NETDBG(6, "Connected peer attempted to flood password");
+        NETDBG(3, "Connected peer attempted to flood password");
         netstate.sp->drop_user(source);
         return;
     }
@@ -433,7 +433,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     if (!isalnum(netstate.users[source].name[0])) {
         //TODO NET drop player for bad name
         //also replace isalnum with something that considers foreign non-ASCII chars
-        NETDBG(6, "Connected peer had bad name starting with %c",
+        NETDBG(3, "Connected peer had bad name starting with %c",
             netstate.users[source].name[0]);
         netstate.sp->drop_user(source);
         return;
@@ -749,7 +749,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
   netstate.exchg_buffer = (char *) exchng_buf;
   netstate.user_frame_size = exchng_size;
   netstate.resync_mode = false;
-  netstate.resync_prev_turn = -1;
+  netstate.resync_prev_turn = 0;
   VerifyBufferSize();
 
   // Initialising the service provider object
@@ -1314,7 +1314,7 @@ NetResponse LbNetwork_Exchange(void *buf)
 /*
     Read data if availiable
 */
-static TbBool try_read_buf(NetUserId user_id, void *buf, size_t len)
+static int try_read_buf(NetUserId user_id, void *buf, size_t len)
 {
     if (!netstate.sp->msgready(user_id, 0))
         return 0;
@@ -1337,8 +1337,8 @@ void LbNetwork_GetResyncProgress(int *now, int *max)
 
 static void resync_server_init(unsigned long game_turn, struct SyncArrayItem sync_data[])
 {
-    struct SyncPacket *packet;
-    struct PacketNode *node;
+    struct SyncPacket *packet = NULL;
+    struct PacketNode *node, *prev_node = NULL;
     int i;
     size_t remain = 0;
     unsigned char *byte_ptr;
@@ -1348,36 +1348,44 @@ static void resync_server_init(unsigned long game_turn, struct SyncArrayItem syn
     netstate.resync_mode = true;
     packet_num = 0;
     node = (struct PacketNode*)LbMemoryAlloc(BF_SYNC_DATA_SIZE + sizeof(struct SyncPacket) + sizeof(struct PacketNode));
+    prev_node = node;
     netstate.sync_packets = node;
     for (struct SyncArrayItem *src_node = sync_data; src_node->buf != NULL; src_node++)
     {   // for each part of incoming data
         byte_ptr = (unsigned char *)src_node->buf;
         remain = src_node->size;
+        if (src_node->size <= 0)
+        {
+            JUSTLOG("WTF src_node->size:%d", src_node->size);
+        }
+        NETDBG(7, "next sync_item size:%d", src_node->size);
 
-        for (;remain > BF_SYNC_DATA_SIZE; remain -= BF_SYNC_DATA_SIZE)
+        while (remain > 0)
         {   // for each acceptable chunk of data
             packet = (struct SyncPacket*)&node->data[0];
             packet->message_type = NETMSG_RESYNC;
             packet->sync_turn = game_turn;
             packet->packet_num = packet_num;
             packet->len = (remain > BF_SYNC_DATA_SIZE)? BF_SYNC_DATA_SIZE : remain;
+            remain -= packet->len;
             node->len = packet->len + sizeof(struct SyncPacket);
 
             LbMemoryCopy(packet->data, byte_ptr, packet->len);
             byte_ptr += packet->len;
 
             node->next = (struct PacketNode*)LbMemoryAlloc(BF_SYNC_DATA_SIZE + sizeof(struct SyncPacket) + sizeof(struct PacketNode));
+            prev_node = node;
             node = node->next;
             packet_num++;
         }
     }
-    LbMemoryFree(node->next);
-    node->next = NULL;
+    LbMemoryFree(prev_node->next);
+    prev_node->next = NULL;
 
     netstate.resync_total_packets = packet_num * netstate.active_players;
     netstate.resync_sent_packets = 0;
     netstate.resync_done_players = 0;
-    NETDBG(6, "Have %d packets, remainder:%d", packet_num, remain);
+    NETDBG(5, "Have %d packets, last:%d", packet_num, packet->len);
 
 
     for (node = netstate.sync_packets; node != NULL; node = node->next)
@@ -1386,11 +1394,13 @@ static void resync_server_init(unsigned long game_turn, struct SyncArrayItem syn
         packet->packet_count = packet_num;
     }
 
-    for (i = 0; i < MAX_N_USERS; ++i) {
-        if (netstate.users[i].progress != USER_LOGGEDIN) {
+    for (i = 0; i < MAX_N_USERS; ++i)
+    {
+        if (netstate.users[i].progress != USER_LOGGEDIN)
+        {
             continue;
         }
-        NETDBG(7, "Sending to %d id:%d", i, netstate.users[i].id);
+        NETDBG(7, "Sending to %d id:%d len:%d", i, netstate.users[i].id, netstate.sync_packets->len);
         netstate.sp->sendmsg_single(netstate.users[i].id, netstate.sync_packets->data, netstate.sync_packets->len);
     }
 }
@@ -1448,7 +1458,7 @@ static TbBool resync_server(TbBool first_resync, unsigned long game_turn, struct
                 if (node != NULL)
                 {
                     packet = (struct SyncPacket*)&node->data[0];
-                    NETDBG(7, "sending part #%d", packet->packet_num);
+                    NETDBG(7, "sending part #%d len: %d", packet->packet_num, node->len);
                     netstate.sp->sendmsg_single(netstate.users[i].id, node->data, node->len);
                 }
                 else
@@ -1473,7 +1483,7 @@ static TbBool resync_server(TbBool first_resync, unsigned long game_turn, struct
             packet->len = 0;
             // THat is a crtical packet! I hope clients will get it
             netstate.sp->sendmsg_single(netstate.users[i].id, incoming_data, sizeof(struct SyncPacket));
-            NETDBG(6, "sync finished for %d", i);
+            NETDBG(5, "sync finished for %d", i);
         }
         for (node = netstate.sync_packets; node != NULL;)
         {
@@ -1527,7 +1537,7 @@ TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct Syn
         //discard all frames until next resync frame
         do {
             incoming_size = try_read_buf(SERVER_ID, incoming_data, sizeof(incoming_data));
-            if (incoming_size < 1) {
+            if (incoming_size < sizeof(struct SyncPacket)) {
                 NETLOG("Unable to get resync message");
                 return false;
             }
@@ -1537,8 +1547,15 @@ TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct Syn
         packet = (struct SyncPacket*)&node->data[0];
         LbMemoryCopy(packet, incoming_data, incoming_size);
 
-        NETDBG(8, "got packet %d/%d %d/%d", packet->packet_num, packet->packet_count, 
-              netstate.resync_last_packet, netstate.resync_packet_count);
+        NETDBG(8, "got packet %d/%d %d/%d len:%d", packet->packet_num, packet->packet_count,
+              netstate.resync_last_packet, netstate.resync_packet_count, incoming_size);
+        if (incoming_size != (sizeof(struct SyncPacket) + packet->len))
+        {
+            NETLOG("Invalid size %d expected %d for packet #%03d",
+                incoming_size,
+                (sizeof(struct SyncPacket) + packet->len),
+                packet->packet_num);
+        }
  
         if ((netstate.resync_packet_count == (netstate.resync_last_packet+1))
             && (packet->len == 0)
@@ -1547,10 +1564,13 @@ TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct Syn
             netstate.resync_packet_count = 0;
             netstate.resync_last_packet = 0;
             netstate.resync_next_message_time = 0;
+            ptrdiff_t prev_offset = 0;
+            int prev = -1;
+
             node2 = netstate.cli_sync_packets;
             for (struct SyncArrayItem *src_node = sync_data; src_node->buf != NULL; src_node++)
             {
-                byte_ptr = (unsigned char *)src_node->buf;
+                byte_ptr = ((unsigned char *)src_node->buf) + prev_offset;
                 int remain = src_node->size;
                 for (; node2 != NULL; node2 = node3)
                 {
@@ -1560,18 +1580,24 @@ TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct Syn
                         break;
                     }
                     else if (remain == 0)
-                        break; // I assume that sizeborder
+                        break; // TODO: I assume that sizeborder
                     node3 = node2->next;
                     packet = (struct SyncPacket*)&node2->data[0];
-                    LbMemoryCopy(byte_ptr, packet->data, packet->len);
+                    if ((prev + 1) != packet->packet_num)
+                    {
+                        NETDBG(5, "unexpected sequence prev:%d curr:%d", prev, packet->packet_num);
+                    }
+                    prev = packet->packet_num;
+
+                    memcpy(byte_ptr, packet->data, min((int)packet->len, remain));
                     byte_ptr += packet->len;
                     remain -= packet->len;
                     LbMemoryFree(node2);
-                }
-            }
+                } // for (node2 ...
+            } // for (src_node ...
             assert (node2 == NULL);
             netstate.resync_mode = false;
-            NETDBG(6, "resync complete");
+            NETDBG(5, "resync complete");
             return true;
         }
 
@@ -1618,8 +1644,8 @@ TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct Syn
         short_ptr[1] = netstate.resync_last_packet;
         short_ptr[2] = netstate.resync_packet_count;
         netstate.sp->sendmsg_single(SERVER_ID, incoming_data, 6);
-        NETDBG(7, "sending confirmation for %d (got %d of %d) %d/%d",
-            packet->packet_num, packet_cnt, packet->packet_count, short_ptr[1], short_ptr[2]);
+        NETDBG(7, "sending confirmation for %d %d/%d",
+            packet->packet_num, short_ptr[1], short_ptr[2]);
     }
 
     NETDBG(8, "done");

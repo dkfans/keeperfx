@@ -25,21 +25,37 @@
 
 #include "config.h"
 #include "front_network.h"
-#include "player_data.h"
-#include "game_merge.h"
-#include "net_game.h"
-#include "lens_api.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "keeperfx.hpp"
+#include "lens_api.h"
+#include "net_game.h"
+#include "player_data.h"
+#include "thing_serde.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+struct SyncDungeonInfo
+{
+    short creatr_list_start;
+    short digger_list_start;
+    short things_in_hand[MAX_THINGS_IN_HAND];
+    // short sight_casted_thing_idx; // TODO:from things
+
+//    short highest_task_number;
+//    int total_money_owned;
+//    int offmap_money_owned;
+};
+
 struct SyncPartCommon
 {
     unsigned long play_gameturn;
     unsigned long action_turn_rand_seed;
+    int free_things_start_index;
+    short nodungeon_creatr_list_start;
+    struct SyncDungeonInfo dungeons[DUNGEONS_COUNT];
 };
 
 /******************************************************************************/
@@ -89,20 +105,67 @@ static TbBool send_resync_game(TbBool first_resync)
 
         LbFileWrite(fh, &game, sizeof(game));
         LbFileClose(fh);
+
+
+        serde_pre__things();
+
+        struct SyncPartCommon part1 = {
+            .play_gameturn = game.play_gameturn,
+            .action_turn_rand_seed = gameadd.action_turn_rand_seed,
+            .free_things_start_index = game.free_things_start_index,
+            .nodungeon_creatr_list_start = game.nodungeon_creatr_list_start
+        };
+
+        for (int i = 0; i < DUNGEONS_COUNT; i++)
+        {
+            part1.dungeons[i].creatr_list_start = game.dungeon[i].creatr_list_start;
+            part1.dungeons[i].digger_list_start = game.dungeon[i].digger_list_start;
+            memcpy(
+                part1.dungeons[i].things_in_hand,
+                game.dungeon[i].things_in_hand,
+                sizeof(part1.dungeons[i].things_in_hand)
+                );
+        }
+
+        struct SyncArrayItem data[] =
+        {
+            { &part1, sizeof(part1) },
+            { &game.cctrl_data[0], sizeof(game.cctrl_data) },
+            { &game.things_data[0], sizeof(game.things_data) },
+            { NULL, 0 },
+        };
+#ifdef DUMP_THINGS
+        {
+            FILE *F = fopen("dump/s_part1", "w");
+            if (F)
+            {
+                fwrite(&part1, sizeof(part1), 1, F);
+                fclose(F);
+            }
+        }
+
+        for (int i = 0; data[i].buf != NULL; i++)
+        {
+            char buf[64];
+            sprintf(buf, "dump/s_%d", i);
+            FILE *F = fopen(buf, "w");
+            if (F)
+            {
+                fwrite(data[i].buf, data[i].size, 1, F);
+                fclose(F);
+            }
+        }
+#endif
+
+        ret = LbNetwork_Resync(first_resync, game.play_gameturn, data);
+
+        serde_post_things();
+    }
+    else
+    {
+        ret = LbNetwork_Resync(first_resync, game.play_gameturn, NULL);
     }
 
-    struct SyncPartCommon part1 = {
-        .play_gameturn = game.play_gameturn,
-        .action_turn_rand_seed = gameadd.action_turn_rand_seed
-    };
-
-    struct SyncArrayItem data[] =
-    {
-        { &part1, sizeof(part1) },
-        { &game, sizeof(game) },
-        { NULL, 0 },
-    };
-    ret = LbNetwork_Resync(first_resync, game.play_gameturn, data);
     if (ret)
     {
         NETLOG("Done syncing");
@@ -117,18 +180,66 @@ static TbBool receive_resync_game(TbBool first_resync)
     {
         NETLOG("Initiating resync turn:%ld", game.play_gameturn);
     }
-    struct SyncPartCommon part1;
+    static struct SyncPartCommon part1;
     struct SyncArrayItem data[] =
     {
         { &part1, sizeof(part1) },
-        { &game, sizeof(game) },
+        { &game.cctrl_data[0], sizeof(game.cctrl_data) },
+        { &game.things_data[0], sizeof(game.things_data) },
         { NULL, 0 },
     };
     ret = LbNetwork_Resync(first_resync, game.play_gameturn, data);
     if (ret)
     {
+        NETDBG(6, "free_things %d -> %d", game.free_things_start_index, part1.free_things_start_index);
+#ifdef DUMP_THINGS
+        FILE *F = fopen("dump/r_part1", "w");
+        if (F)
+        {
+            fwrite(&part1, sizeof(part1), 1, F);
+            fclose(F);
+        }
+#endif
         game.play_gameturn = part1.play_gameturn;
         gameadd.action_turn_rand_seed = part1.action_turn_rand_seed;
+        game.nodungeon_creatr_list_start = part1.nodungeon_creatr_list_start;
+
+        for (int i = 0; i < DUNGEONS_COUNT; i++)
+        {
+            game.dungeon[i].creatr_list_start = part1.dungeons[i].creatr_list_start;
+            game.dungeon[i].digger_list_start = part1.dungeons[i].digger_list_start;
+            memcpy(
+                game.dungeon[i].things_in_hand,
+                part1.dungeons[i].things_in_hand,
+                sizeof(game.dungeon[i].things_in_hand)
+                );
+            game.dungeon[i].num_things_in_hand = 0;
+            for (int j = 0; j < MAX_THINGS_IN_HAND; j++)
+            {
+                if (game.dungeon[i].things_in_hand[j] != 0)
+                {
+                    game.dungeon[i].num_things_in_hand++;
+                }
+                else
+                    break;
+            }
+        }
+
+#ifdef DUMP_THINGS
+    for (int i = 0; data[i].buf != NULL; i++)
+    {
+        char buf[64];
+        sprintf(buf, "dump/r_%d", i);
+        FILE *F = fopen(buf, "w");
+        if (F)
+        {
+            fwrite(data[i].buf, data[i].size, 1, F);
+            fclose(F);
+        }
+    }
+#endif
+
+        serde_post_things();
         NETLOG("Done syncing");
     }
     return ret;
@@ -188,6 +299,10 @@ static void update_desync_info(struct PacketEx* v1, struct PacketEx* v2)
       {
           desync_info[i*2] = desync_letters[i];
       }
+      else
+      {
+          desync_info[i*2] = '.';
+      }
   }
 }
 /**
@@ -212,11 +327,12 @@ TbBool checksums_different(void)
             else if (checksum != pckt->packet.chksum)
             {
                 update_desync_info(base, pckt);
+                NETDBG(3, "different checksums at %lu", game.play_gameturn);
                 return true;
             }
         }
-  }
-  return false;
+    }
+    return false;
 }
 
 const char *get_desync_info()

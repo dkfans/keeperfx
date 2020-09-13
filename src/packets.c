@@ -2092,6 +2092,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       {
           if (!cmd_exec(player->id_number, player->mp_message_text))
               message_add(player->id_number, player->mp_message_text);
+          else
+          {
+              JUSTLOG("CMD player:%d cmd:%s", player->id_number, player->mp_message_text);
+          }
       }
       else if (player->mp_message_text[0] != '\0')
           message_add(player->id_number, player->mp_message_text);
@@ -2813,9 +2817,13 @@ void process_packets(void)
                 loss_wait();
                 return;
             case NR_RESYNC:
-                // It is possible to get duplicate resync packet from server here
-                set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
-                set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
+                if ((game.system_flags & GSF_NetGameNoSync) == 0)
+                {
+                    NETDBG(3, "got resync packet");
+                    // It is possible to get duplicate resync packet from server here
+                    set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
+                    set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
+                }
                 break;
             case NR_OK:
                 break;
@@ -2851,7 +2859,7 @@ void process_packets(void)
         }
   }
   // Setting checksum problem flags
-  if (checksums_different())
+  if (((game.system_flags & GSF_NetGameNoSync) == 0) && checksums_different())
   {
       set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
       set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
@@ -2861,7 +2869,10 @@ void process_packets(void)
     save_packets();
 //Debug code, to find packet errors
 #if DEBUG_NETWORK_PACKETS
-  write_debug_packets();
+  if (((game.system_flags & GSF_NetGameNoSync) == 0)) || first_resync)
+  {
+      write_debug_packets();
+  }
 #endif
   if (((game.system_flags & GSF_NetGameNoSync) != 0)
    || ((game.system_flags & GSF_NetSeedNoSync) != 0))
@@ -2876,17 +2887,18 @@ void process_packets(void)
       }
       if (resync_game(first_resync))
       {
-          set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-          set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+          set_flag_byte(&game.system_flags, GSF_NetGameNoSync, false);
+          set_flag_byte(&game.system_flags, GSF_NetSeedNoSync, false);
           first_resync = true;
           if (game_flags2 & GF2_ClearPauseOnSync)
           {
-              SYNCDBG(0, "Done resyncing, unpausing");
+              NETDBG(0, "Done resyncing, unpausing");
+              game_flags2 &= ~GF2_ClearPauseOnSync;
               game.operation_flags &= ~GOF_Paused;
           }
           else
           {
-              SYNCDBG(0, "Done resyncing, unpausing");
+              NETDBG(0, "Done resyncing");
           }
           EVM_GLOBAL_EVENT("mp.done_resync cnt=1");
       }
