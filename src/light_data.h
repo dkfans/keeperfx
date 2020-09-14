@@ -41,7 +41,7 @@ enum ShadowCacheFlags {
 
 enum LightFlags {
     LgtF_Allocated    = 0x01,
-    LgtF_Unkn02       = 0x02,
+    LgtF_Unkn02       = 0x02, /* Used */
     LgtF_Dynamic      = 0x04,
     LgtF_Unkn08       = 0x08,
 };

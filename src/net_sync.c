@@ -113,7 +113,7 @@ static TbBool send_resync_game(TbBool first_resync)
         LbFileClose(fh);
 
 
-        serde_pre__things();
+        serde_srv_things();
 
         struct SyncPartCommon part1 = {
             .play_gameturn = game.play_gameturn,
@@ -179,7 +179,7 @@ static TbBool send_resync_game(TbBool first_resync)
 
     if (ret)
     {
-        serde_post_things();
+        serde_fin_things();
         clear_packets();
         game.action_rand_seed = gameadd.action_turn_rand_seed;
         NETLOG("Done syncing");
@@ -196,6 +196,7 @@ static TbBool receive_resync_game(TbBool first_resync)
     if (first_resync)
     {
         NETLOG("Initiating resync turn:%ld", game.play_gameturn);
+        serde_cli_things();
     }
     static struct SyncPartCommon part1;
     struct SyncArrayItem data[] =
@@ -271,7 +272,7 @@ static TbBool receive_resync_game(TbBool first_resync)
         }
     }
 #endif
-        serde_post_things();
+        serde_fin_things();
         clear_packets();
         game.action_rand_seed = gameadd.action_turn_rand_seed;
         NETLOG("Done syncing");

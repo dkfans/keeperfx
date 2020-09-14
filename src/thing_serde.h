@@ -22,10 +22,13 @@
 
 #include "globals.h"
 
-/* Serialize things */
-void serde_pre__things();
-/* Deserialize things */
-void serde_post_things();
+/* Process things on server BEFORE syncing */
+void serde_srv_things();
+/* Process things on client BEFORE syncing */
+void serde_cli_things();
+
+/* Deserialize things on client and on server AFTER syncing*/
+void serde_fin_things();
 
 void serde_dump_thing(long thing);
 #endif

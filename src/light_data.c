@@ -109,11 +109,11 @@ void light_shadow_cache_free(struct ShadowCache *shdc)
     LbMemorySet(shdc, 0, sizeof(struct ShadowCache));
 }
 
-TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
+static TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list, const char *cause)
 {
   if ((lgt->field_1 & 0x01) != 0)
   {
-    ERRORLOG("Light is already in list");
+    ERRORLOG("Light is already in list cause:%s", cause);
     return false;
   }
   list->count++;
@@ -140,11 +140,11 @@ long light_create_light(struct InitLight *ilght)
         }
         light_total_dynamic_lights++;
         lgt->shadow_index = light_shadow_cache_index(shdc);
-        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights], "create dynamic");
     } else
     {
         light_total_stat_lights++;
-        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights], "create static");
         stat_light_needs_updating = 1;
     }
     lgt->flags |= LgtF_Unkn02;
@@ -435,11 +435,11 @@ void light_turn_light_on(long idx)
     lgt->flags |= LgtF_Unkn02;
     if ((lgt->flags & LgtF_Dynamic) != 0)
     {
-        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights], "turnon dynamic");
         lgt->flags |= LgtF_Unkn08;
     } else
     {
-        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights], "turnon static");
         stat_light_needs_updating = 1;
         lgt->flags |= LgtF_Unkn08;
     }

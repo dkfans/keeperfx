@@ -189,7 +189,7 @@ char field_E8[2];
     unsigned char continue_work_state;
 char field_457[8];
 char field_45F;
-short field_460;
+short field_460; // light_id ?
 char field_462;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;

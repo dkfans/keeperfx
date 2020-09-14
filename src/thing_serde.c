@@ -22,8 +22,9 @@
 
 #include "game_legacy.h"
 #include "thing_data.h"
+#include "thing_effects.h"
 
-void serde_pre__things()
+void serde_srv_things()
 {
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     for (int i = 0; i < CREATURES_COUNT; i++)
@@ -46,6 +47,26 @@ void serde_pre__things()
     }
 }
 
+void serde_cli_things()
+{
+    for (int i = 1; i < THINGS_COUNT; i++)
+    {
+        struct Thing *thing = &game.things_data[i];
+        if ((thing->alloc_flags & TAlF_Exists) == 0)
+        {
+            continue;
+        }
+        else
+        {
+            if (thing->light_id != 0)
+            {
+                light_delete_light(thing->light_id);
+                thing->light_id = 0;
+            }
+        }
+    }
+}
+
 static int compare_shorts(const void *a_, const void *b_)
 {
     const short *a = (const short*)a_;
@@ -53,7 +74,81 @@ static int compare_shorts(const void *a_, const void *b_)
     return (*a < *b)? -1 : ((*a > *b)? 1 : 0 );
 }
 
-void serde_post_things()
+static void restore_light(struct Thing *thing)
+{
+    struct EffectElementStats* eestat;
+    struct InitEffect* ieffect;
+    struct ObjectConfig* objconf;
+    struct InitLight ilght = {0};
+    NETDBG(6, "Restoring light for %s idx:%d", thing_model_name(thing), thing->index);
+
+    switch (thing->class_id)
+    {
+    case TCls_EffectElem:
+        if (eestat->field_3A != 0)
+        {
+            ilght.mappos.x.val = thing->mappos.x.val;
+            ilght.mappos.y.val = thing->mappos.y.val;
+            ilght.mappos.z.val = thing->mappos.z.val;
+            ilght.field_0 = eestat->field_3A;
+            ilght.field_2 = eestat->field_3C;
+            ilght.is_dynamic = 1;
+            ilght.field_3 = eestat->field_3D;
+
+            eestat = get_effect_element_model_stats(thing->model);
+            thing->light_id = light_create_light(&ilght);
+            if (thing->light_id == 0)
+            {
+                WARNLOG("Unable to restore light for %d", thing->index);
+            }
+        }
+        else
+        {
+            NETDBG(3, "Unable to restore light %03d thing_idx:%d for EffElem",
+                thing->light_id,
+                thing->index);
+            thing->light_id = 0;
+        }
+        break;
+    case TCls_Effect:
+        ieffect = get_effect_info(thing->model);
+        if (ieffect->ilght.field_0 != 0)
+        {
+            memcpy(&ilght, &ieffect->ilght, sizeof(struct InitLight));
+            ilght.is_dynamic = 1;
+            ilght.mappos.x.val = thing->mappos.x.val;
+            ilght.mappos.y.val = thing->mappos.y.val;
+            ilght.mappos.z.val = thing->mappos.z.val;
+            thing->light_id = light_create_light(&ilght);
+            if (thing->light_id == 0)
+            {
+                WARNLOG("Unable to restore light for %d", thing->index);
+            }
+        }
+        break;
+    case TCls_Object:
+        objconf = get_object_model_stats2(thing->model);
+        if (objconf->ilght.field_0 != 0)
+        {
+            memcpy(&ilght.mappos, &thing->mappos, sizeof(struct Coord3d));
+            ilght.field_0 = objconf->ilght.field_0;
+            ilght.field_2 = objconf->ilght.field_2;
+            ilght.field_3 = objconf->ilght.field_3;
+            ilght.is_dynamic = objconf->ilght.is_dynamic;
+            thing->light_id = light_create_light(&ilght);
+            if (thing->light_id == 0)
+            {
+                WARNLOG("Unable to restore light for %d", thing->index);
+            }
+        }
+        break;
+    default:
+      WARNLOG("Unable to restore light %03d thing_idx:%d", thing->light_id, thing->index);
+      thing->light_id = 0;
+    }
+}
+
+void serde_fin_things()
 {
     struct StructureList* slist;
 
@@ -165,6 +260,11 @@ void serde_post_things()
                     NETDBG(5, "moving to mapblk thing_idx:%04d", thing->index);
                     set_mapwho_thing_index(mapblk, thing->index);
                 }
+            }
+            // lights
+            if ((thing->light_id != 0) && (!light_is_light_allocated(thing->light_id)))
+            {
+                restore_light(thing);
             }
             // TODO: control_structure
             if (thing_is_creature(thing))
