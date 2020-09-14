@@ -2901,6 +2901,8 @@ void process_packets(void)
               NETDBG(0, "Done resyncing");
           }
           EVM_GLOBAL_EVENT("mp.done_resync cnt=1");
+
+          process_packets();
       }
       else
       {

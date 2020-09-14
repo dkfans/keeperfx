@@ -69,7 +69,9 @@ struct CreatureStorage {
   unsigned char count : 4;
 };
 
+#ifndef NO_STATIC_ASSERTS
 static_assert(sizeof(struct CreatureStorage) == 2, "");
+#endif
 
 #pragma pack()
 /******************************************************************************/

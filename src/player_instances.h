@@ -78,6 +78,7 @@ struct PlayerInstanceInfo { // sizeof = 44
 };
 
 /******************************************************************************/
+// TODO: set to hook functions
 DLLIMPORT struct PlayerInstanceInfo _DK_player_instance_info[];
 //#define player_instance_info _DK_player_instance_info
 

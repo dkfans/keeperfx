@@ -47,6 +47,8 @@ struct SyncDungeonInfo
 //    short highest_task_number;
 //    int total_money_owned;
 //    int offmap_money_owned;
+    unsigned char instance_num;
+    unsigned long instance_remain_rurns;
 };
 
 struct SyncPartCommon
@@ -75,6 +77,10 @@ static const char desync_letters[CKS_MAX] = {
 };
 
 struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT] = {0};
+
+#ifdef LOG_CHEKSUMS
+TbBool log_checksums = 0;
+#endif
 /******************************************************************************/
 long get_resync_sender(void)
 {
@@ -125,6 +131,13 @@ static TbBool send_resync_game(TbBool first_resync)
                 game.dungeon[i].things_in_hand,
                 sizeof(part1.dungeons[i].things_in_hand)
                 );
+            if (i < PLAYERS_COUNT)
+            {
+                struct PlayerInfo* player = get_player(i);
+                assert(player->id_number == i);
+                part1.dungeons[i].instance_num = player->instance_num;
+                part1.dungeons[i].instance_remain_rurns = player->instance_remain_rurns;
+            }
         }
 
         struct SyncArrayItem data[] =
@@ -158,8 +171,6 @@ static TbBool send_resync_game(TbBool first_resync)
 #endif
 
         ret = LbNetwork_Resync(first_resync, game.play_gameturn, data);
-
-        serde_post_things();
     }
     else
     {
@@ -168,7 +179,13 @@ static TbBool send_resync_game(TbBool first_resync)
 
     if (ret)
     {
+        serde_post_things();
+        clear_packets();
+        game.action_rand_seed = gameadd.action_turn_rand_seed;
         NETLOG("Done syncing");
+#ifdef LOG_CHEKSUMS
+        log_checksums = true;
+#endif
     }
     return ret;
 }
@@ -223,6 +240,22 @@ static TbBool receive_resync_game(TbBool first_resync)
                 else
                     break;
             }
+
+            if (i < PLAYERS_COUNT)
+            {
+                struct PlayerInfo* player = get_player(i);
+
+                assert(player->id_number == i);
+                if (player->instance_num != part1.dungeons[i].instance_num)
+                {
+                    JUSTLOG("instance_num from %d to %d for player %d",
+                        player->instance_num,
+                        part1.dungeons[i].instance_num,
+                        i);
+                    player->instance_num = part1.dungeons[i].instance_num;
+                }
+                player->instance_remain_rurns = part1.dungeons[i].instance_remain_rurns;
+            }
         }
 
 #ifdef DUMP_THINGS
@@ -230,7 +263,7 @@ static TbBool receive_resync_game(TbBool first_resync)
     {
         char buf[64];
         sprintf(buf, "dump/r_%d", i);
-        FILE *F = fopen(buf, "w");
+        F = fopen(buf, "w");
         if (F)
         {
             fwrite(data[i].buf, data[i].size, 1, F);
@@ -238,9 +271,13 @@ static TbBool receive_resync_game(TbBool first_resync)
         }
     }
 #endif
-
         serde_post_things();
+        clear_packets();
+        game.action_rand_seed = gameadd.action_turn_rand_seed;
         NETLOG("Done syncing");
+#ifdef LOG_CHEKSUMS
+        log_checksums = true;
+#endif
     }
     return ret;
 }
@@ -323,11 +360,31 @@ TbBool checksums_different(void)
             {
                 checksum = pckt->packet.chksum;
                 base = pckt;
+
+                char buf[64];
+                sprintf(buf, "dump/pl_%d", i);
+                FILE *F = fopen(buf, "w");
+                if (F)
+                {
+                    fwrite(pckt, sizeof(struct PacketEx), 1, F);
+                    fclose(F);
+                }
+
             }
             else if (checksum != pckt->packet.chksum)
             {
                 update_desync_info(base, pckt);
-                NETDBG(3, "different checksums at %lu", game.play_gameturn);
+                NETDBG(3, "different checksums at %lu player_id:%d", game.play_gameturn, i);
+
+                char buf[64];
+                sprintf(buf, "dump/pl_%d", i);
+                FILE *F = fopen(buf, "w");
+                if (F)
+                {
+                    fwrite(pckt, sizeof(struct PacketEx), 1, F);
+                    fclose(F);
+                }
+
                 return true;
             }
         }
@@ -416,6 +473,16 @@ void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, enum C
     pckt->packet.chksum ^= sum;
     pckt->sums[(int)kind] ^= sum;
     SYNCDBG(9,"Checksum updated kind:%d amount:%06lX", kind,(unsigned long)sum);
+#ifdef LOG_CHEKSUMS
+    if (log_checksums)
+    {
+        JUSTLOG("Checksum type:%d sum:%06lx sums[type]:%06lx delta:%06lx",
+            kind,
+            pckt->packet.chksum,
+            pckt->sums[(int)kind],
+            sum);
+    }
+#endif
 }
 /******************************************************************************/
 /******************************************************************************/

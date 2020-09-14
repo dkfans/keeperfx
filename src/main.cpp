@@ -3805,7 +3805,10 @@ void keeper_gameplay_loop(void)
         {
             // make randomness of next turn independent of this one
             game.action_rand_seed = gameadd.action_turn_rand_seed;
-            gameadd.action_turn_rand_seed++;
+            if ((game.operation_flags & GOF_Paused) == 0)
+            {
+                gameadd.action_turn_rand_seed++;
+            }
         }
 
         // Check if we should redraw screen in this turn

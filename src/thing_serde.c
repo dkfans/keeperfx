@@ -183,7 +183,7 @@ void serde_post_things()
             // TODO: tasks
         }
     }
-    NETDBG(5, "done");
+    NETDBG(6, "done");
 }
 
 void serde_dump_thing(long thing)
