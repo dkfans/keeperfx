@@ -6,7 +6,7 @@ REM  Campaign: New game plus
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
 REM            Loobinex
-REM  Date:     17 Dec 1996 - 20 Aug 2020
+REM  Date:     17 Dec 1996 - 02 Sep 2020
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
@@ -253,8 +253,7 @@ IF(PLAYER_GOOD,FLAG1 == 1)
 	ENDIF
 ENDIF
 
-SET_TIMER(PLAYER_GOOD,TIMER0)
-IF(PLAYER_GOOD,TIMER0 >= 70)
+IF(PLAYER_GOOD,TIMER0 >= 700)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,MAGICIANS,-1,1)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,BRUTES,-2,DUNGEON,0,10,100)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,DWARVES,DRAWFROM(-3,-6),DUNGEON,0,10,100)

@@ -285,13 +285,13 @@ static void process_event(const SDL_Event *ev)
     case SDL_KEYDOWN:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
-            keyboardControl(KActn_KEYDOWN,x,keyboard_mods_mapping(&ev->key));
+            keyboardControl(KActn_KEYDOWN,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
         break;
 
     case SDL_KEYUP:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
-            keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key));
+            keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
         break;
 
     case SDL_MOUSEMOTION:

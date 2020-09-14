@@ -1381,6 +1381,11 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
         dump_slab_on_map(SlbT_LAVA, 0, stl_x, stl_y, game.neutral_player_num);
         return;
     }
+    struct SlabMap *slbmap = get_slabmap_block(slb_x, slb_y);
+    if (slbmap->kind != SlbT_GEMS)
+    {
+        all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
+    }
     delete_attached_things_on_slab(slb_x, slb_y);
     dump_slab_on_map(slbkind, 840 + 8 * slbkind + ani_frame, stl_x, stl_y, owner);
     shuffle_unattached_things_on_slab(slb_x, slb_y);
@@ -1492,6 +1497,27 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
 
     skind = alter_rock_style(nslab, slb_x, slb_y, owner);
     slb = get_slabmap_block(slb_x,slb_y);
+    if ( (slb->kind >= SlbT_WALLDRAPE) && (slb->kind <= SlbT_WALLPAIRSHR) )
+    {
+        if ( (skind < SlbT_WALLDRAPE) || (skind > SlbT_WALLPAIRSHR) )
+        {
+            all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
+        }
+    }
+    else if ( (slb->kind == SlbT_EARTH) || (slb->kind == SlbT_TORCHDIRT) )
+    {
+        if ( (skind != SlbT_EARTH) && (skind != SlbT_TORCHDIRT) )
+        {
+            all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
+        }
+    }
+    else
+    {
+        if (slb->kind != skind)
+        {
+            all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
+        }
+    }
     slb->kind = skind;
 
     set_whole_slab_owner(slb_x, slb_y, owner);
