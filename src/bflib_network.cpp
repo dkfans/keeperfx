@@ -1597,6 +1597,7 @@ TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct Syn
             } // for (src_node ...
             assert (node2 == NULL);
             netstate.resync_mode = false;
+            netstate.cli_sync_packets = NULL;
             NETDBG(5, "resync complete");
             return true;
         }
