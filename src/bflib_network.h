@@ -267,7 +267,7 @@ long field_C;
 /******************************************************************************/
 struct SyncArrayItem {
     void *buf;
-    int size;
+    int *size; //pointer to size, so first part may disable next part
 };
 
 /******************************************************************************/

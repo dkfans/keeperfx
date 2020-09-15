@@ -37,6 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
 struct SyncDungeonInfo
 {
     short creatr_list_start;
@@ -58,9 +59,18 @@ struct SyncPartCommon
     int free_things_start_index;
     short nodungeon_creatr_list_start;
     struct SyncDungeonInfo dungeons[DUNGEONS_COUNT];
+
+    int size_of_cctrl_part;
+    int size_of_things_part;
+    int size_of_rooms_part;
 };
 
 /******************************************************************************/
+#define RESYNC_CCTRL ( (1 << CKS_Creatures_1) | (1 << CKS_Creatures_2) | (1 << CKS_Creatures_3) | \
+    (1 << CKS_Creatures_4) | (1 << CKS_Creatures_5) | (1 << CKS_Creatures_6))
+#define RESYNC_THINGS (RESYNC_CCTRL | (1 << CKS_Things) | (1 << CKS_Effects))
+#define RESYNC_ROOMS (1 << CKS_Rooms)
+
 static char desync_info[(2 * CKS_MAX ) + 1] = ".....................";
 static const char desync_letters[CKS_MAX] = {
   'A', // CKS_Action
@@ -76,6 +86,7 @@ static const char desync_letters[CKS_MAX] = {
   'R', // CKS_Rooms
 };
 
+static unsigned long resync_parts = 0;
 struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT] = {0};
 
 #ifdef LOG_CHECKSUMS
@@ -140,23 +151,22 @@ static TbBool send_resync_game(TbBool first_resync)
             }
         }
 
+        int size_of_part1 = sizeof(part1);
+        // If size of part is set to 0 - that part will be not synced
+        part1.size_of_cctrl_part = (resync_parts & (RESYNC_CCTRL))? sizeof(game.cctrl_data) : 0;
+        part1.size_of_things_part = (resync_parts & (RESYNC_THINGS))? sizeof(game.things_data) : 0;
+        part1.size_of_rooms_part = (resync_parts & (RESYNC_ROOMS))? sizeof(game.rooms) : 0;
+
         struct SyncArrayItem data[] =
         {
-            { &part1, sizeof(part1) },
-            { &game.cctrl_data[0], sizeof(game.cctrl_data) },
-            { &game.things_data[0], sizeof(game.things_data) },
+            { &part1, &size_of_part1 },
+            { &game.cctrl_data[0], &part1.size_of_cctrl_part },
+            { &game.things_data[0], &part1.size_of_things_part },
+            { &game.rooms[0], &part1.size_of_rooms_part },
             { NULL, 0 },
         };
-#ifdef DUMP_THINGS
-        {
-            FILE *F = fopen("dump/s_part1", "w");
-            if (F)
-            {
-                fwrite(&part1, sizeof(part1), 1, F);
-                fclose(F);
-            }
-        }
 
+#ifdef DUMP_THINGS
         for (int i = 0; data[i].buf != NULL; i++)
         {
             char buf[64];
@@ -164,7 +174,7 @@ static TbBool send_resync_game(TbBool first_resync)
             FILE *F = fopen(buf, "w");
             if (F)
             {
-                fwrite(data[i].buf, data[i].size, 1, F);
+                fwrite(data[i].buf, *data[i].size, 1, F);
                 fclose(F);
             }
         }
@@ -199,25 +209,20 @@ static TbBool receive_resync_game(TbBool first_resync)
         serde_cli_things();
     }
     static struct SyncPartCommon part1;
+    int size_of_part1 = sizeof(part1);
+
     struct SyncArrayItem data[] =
     {
-        { &part1, sizeof(part1) },
-        { &game.cctrl_data[0], sizeof(game.cctrl_data) },
-        { &game.things_data[0], sizeof(game.things_data) },
+        { &part1, &size_of_part1 },
+        { &game.cctrl_data[0], &part1.size_of_cctrl_part },
+        { &game.things_data[0], &part1.size_of_things_part },
+        { &game.rooms[0], &part1.size_of_rooms_part },
         { NULL, 0 },
     };
     ret = LbNetwork_Resync(first_resync, game.play_gameturn, data);
     if (ret)
     {
         NETDBG(6, "free_things %d -> %d", game.free_things_start_index, part1.free_things_start_index);
-#ifdef DUMP_THINGS
-        FILE *F = fopen("dump/r_part1", "w");
-        if (F)
-        {
-            fwrite(&part1, sizeof(part1), 1, F);
-            fclose(F);
-        }
-#endif
         game.play_gameturn = part1.play_gameturn;
         gameadd.action_turn_rand_seed = part1.action_turn_rand_seed;
         game.nodungeon_creatr_list_start = part1.nodungeon_creatr_list_start;
@@ -267,7 +272,7 @@ static TbBool receive_resync_game(TbBool first_resync)
         F = fopen(buf, "w");
         if (F)
         {
-            fwrite(data[i].buf, data[i].size, 1, F);
+            fwrite(data[i].buf, *data[i].size, 1, F);
             fclose(F);
         }
     }
@@ -336,6 +341,7 @@ static void update_desync_info(struct PacketEx* v1, struct PacketEx* v2)
       if (v1->sums[i] != v2->sums[i])
       {
           desync_info[i*2] = desync_letters[i];
+          resync_parts |= (1UL << i);
       }
       else
       {
@@ -351,6 +357,8 @@ TbBool checksums_different(void)
 {
     TbChecksum checksum = 0;
     struct PacketEx* base = NULL;
+    resync_parts = 0;
+
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
@@ -467,6 +475,7 @@ TbBigChecksum get_thing_checksum(const struct Thing *thing)
 void resync_reset_storage()
 {
     memset(player_checksum_storage, 0, sizeof(player_checksum_storage));
+    resync_parts = 0;
 }
 /**
  * Adds given value to checksum at current game turn stored in packet file.

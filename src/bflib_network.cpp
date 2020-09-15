@@ -1353,12 +1353,13 @@ static void resync_server_init(unsigned long game_turn, struct SyncArrayItem syn
     for (struct SyncArrayItem *src_node = sync_data; src_node->buf != NULL; src_node++)
     {   // for each part of incoming data
         byte_ptr = (unsigned char *)src_node->buf;
-        remain = src_node->size;
-        if (src_node->size <= 0)
+        remain = *src_node->size;
+        if (remain == 0)
         {
-            JUSTLOG("WTF src_node->size:%d", src_node->size);
+            NETDBG(6, "skip next sync_item size:%d", remain);
         }
-        NETDBG(7, "next sync_item size:%d", src_node->size);
+        else
+        NETDBG(7, "next sync_item size:%d", remain);
 
         while (remain > 0)
         {   // for each acceptable chunk of data
@@ -1571,7 +1572,7 @@ TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct Syn
             for (struct SyncArrayItem *src_node = sync_data; src_node->buf != NULL; src_node++)
             {
                 byte_ptr = ((unsigned char *)src_node->buf) + prev_offset;
-                int remain = src_node->size;
+                int remain = *src_node->size;
                 for (; node2 != NULL; node2 = node3)
                 {
                     if (remain < 0)
