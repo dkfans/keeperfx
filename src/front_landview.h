@@ -71,8 +71,7 @@ enum ScreenPacketFlags
   SPF_Unknown40 = 0x40, // Chat letter
 };
 
-struct ScreenPacket { // sizeof = 12
-  unsigned char field_0[4];
+struct ScreenPacket {
   unsigned char flags_4;
   char field_5;
   short mouse_x;

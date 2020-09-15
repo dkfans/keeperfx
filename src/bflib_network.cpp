@@ -506,11 +506,17 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
     strcpy(localPlayerInfoPtr[id].name, netstate.users[id].name);
 }
 
-static void HandleClientFrame(NetUserId source, char * ptr, char * end)
+static TbBool HandleClientFrame(NetUserId source, char * ptr, char * end)
 {
     NETDBG(8, "Starting");
 
-    netstate.users[source].ack = *(int *) ptr;
+    int seq = *(int *) ptr;
+    if (seq < netstate.users[source].ack)
+    {
+        NETDBG(5, "Old packet source:%d seq:%05d", source, seq);
+        return false;
+    }
+    netstate.users[source].ack = seq;
     ptr += 4;
 
     LbMemoryCopy(&netstate.exchg_buffer[source * netstate.user_frame_size],
@@ -520,13 +526,14 @@ static void HandleClientFrame(NetUserId source, char * ptr, char * end)
     if (ptr >= end) {
         //TODO NET handle bad frame
         NETMSG("Bad frame size from client %u", source);
-        return;
+        return false;
     }
 
     NETDBG(8, "Handled client frame of %u bytes", netstate.user_frame_size);
+    return true;
 }
 
-static void HandleServerFrame(char * ptr, char * end)
+static TbBool HandleServerFrame(char * ptr, char * end)
 {
     int seq_nbr;
     NetFrame * frame;
@@ -538,6 +545,13 @@ static void HandleServerFrame(char * ptr, char * end)
     seq_nbr = *(int *) ptr;
     ptr += 4;
 
+    if (seq_nbr < netstate.users[SERVER_ID].ack)
+    {
+        NETDBG(5, "Old packet source:%d seq:%05d", SERVER_ID, seq_nbr);
+        return false;
+    }
+    netstate.users[SERVER_ID].ack = seq_nbr;
+
     num_user_frames = *ptr;
     ptr += 1;
 
@@ -545,8 +559,12 @@ static void HandleServerFrame(char * ptr, char * end)
     if (netstate.exchg_queue == NULL) {
         netstate.exchg_queue = frame;
     }
-    else {
-        for (it = netstate.exchg_queue; it->next != NULL; it = it->next);
+    else
+    {
+        for (it = netstate.exchg_queue; it->next != NULL; it = it->next)
+        {
+            // Nothing
+        }
         it->next = frame;
     }
 
@@ -558,6 +576,7 @@ static void HandleServerFrame(char * ptr, char * end)
     LbMemoryCopy(frame->buffer, ptr, frame->size);
 
     NETDBG(8, "Handled server frame of %u bytes", frame->size);
+    return true;
 }
 
 static void HandleMessage(NetUserId source)
@@ -571,6 +590,7 @@ static void HandleMessage(NetUserId source)
     char * buffer_end;
     struct SyncPacket *sync_packet;
     size_t buffer_size;
+    TbBool ok;
     enum NetMessageType type;
 
     NETDBG(8, "Handling message from %u", source);
@@ -585,24 +605,33 @@ static void HandleMessage(NetUserId source)
 
     switch (type) {
     case NETMSG_LOGIN:
-        if (netstate.my_id == SERVER_ID) {
+        if (netstate.my_id == SERVER_ID)
+        {
             HandleLoginRequest(source, buffer_ptr, buffer_end);
         }
-        else {
+        else
+        {
             HandleLoginReply(buffer_ptr, buffer_end);
         }
         break;
     case NETMSG_USERUPDATE:
-        if (netstate.my_id != SERVER_ID) {
+        if (netstate.my_id != SERVER_ID)
+        {
             HandleUserUpdate(source, buffer_ptr, buffer_end);
         }
         break;
     case NETMSG_FRAME:
-        if (netstate.my_id == SERVER_ID) {
-            HandleClientFrame(source, buffer_ptr, buffer_end);
+        if (netstate.my_id == SERVER_ID)
+        {
+            ok = HandleClientFrame(source, buffer_ptr, buffer_end);
         }
-        else {
-            HandleServerFrame(buffer_ptr, buffer_end);
+        else
+        {
+            ok = HandleServerFrame(buffer_ptr, buffer_end);
+        }
+        if (!ok)
+        {
+            buffer_ptr[-1] = 0; // We have to wait for next frame
         }
         break;
     case NETMSG_LAGWARNING:
@@ -1115,10 +1144,10 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
         LbMemorySet(&netstate.users[id], 0, sizeof(netstate.users[id]));
         netstate.users[id].id = id; //repair effect by LbMemorySet
 
-        for (i = 0; i < MAX_N_USERS; ++i) {
-            if (i == netstate.my_id) {
+        for (i = 0; i < MAX_N_USERS; ++i)
+        {
+            if (i == netstate.my_id)
                 continue;
-            }
 
             SendUserUpdate(i, id);
         }
@@ -1136,25 +1165,21 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
 
 static TbBool ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
 {
-    /*TbClockMSec start;
-    start = LbTimerClock();*/
-
     //read all messages up to next frame
-    while (timeout == 0 || netstate.sp->msgready(id,
-            timeout /*- (min(LbTimerClock() - start, max(timeout - 1, 0)))*/) != 0) {
-        if (ProcessMessage(id) == Lb_FAIL) {
+    while (timeout == 0 ||
+            netstate.sp->msgready(id, timeout /*- (min(LbTimerClock() - start, max(timeout - 1, 0)))*/) != 0)
+    {
+        if (ProcessMessage(id) == Lb_FAIL)
+        {
             NETDBG(8, "Failed");
             return false;
         }
 
-        if (    netstate.msg_buffer[0] == NETMSG_FRAME ||
-                netstate.msg_buffer[0] == NETMSG_RESYNC) {
+        if (netstate.msg_buffer[0] == NETMSG_FRAME ||
+            netstate.msg_buffer[0] == NETMSG_RESYNC)
+        {
             break;
         }
-
-        /*if (LbTimerClock() - start > timeout) {
-            break;
-        }*/
     }
     return true;
 }
@@ -1220,60 +1245,53 @@ NetResponse LbNetwork_Exchange(void *buf)
     NetUserId id;
 
     NETDBG(11, "Starting");
-  /*spPtr->update();
-  if (LbNetwork_StartExchange(buf) != Lb_OK)
-  {
-    WARNLOG("Failure when Starting Exchange");
-    return Lb_FAIL;
-  }
-  if (LbNetwork_CompleteExchange(buf) != Lb_OK)
-  {
-    WARNLOG("Failure when Completing Exchange");
-    return Lb_FAIL;
-  }*/
     if (netstate.resync_mode)
         return NR_RESYNC;
 
     assert(UserIdentifiersValid());
 
-    if (netstate.users[netstate.my_id].progress == USER_SERVER) {
+    if (netstate.users[netstate.my_id].progress == USER_SERVER)
+    {
         //server needs to be careful about how it reads messages
-        for (id = 0; id < MAX_N_USERS; ++id) {
-            if (id == netstate.my_id) {
+        for (id = 0; id < MAX_N_USERS; ++id)
+        {
+            if (id == netstate.my_id)
                 continue;
-            }
 
-            if (netstate.users[id].progress == USER_UNUSED) {
+            if (netstate.users[id].progress == USER_UNUSED)
                 continue;
-            }
 
-            if (netstate.users[id].progress == USER_LOGGEDIN) {
+            if (netstate.users[id].progress == USER_LOGGEDIN)
+            {
                 if (!netstate.enable_lag ||
-                        netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
+                        netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES)
+                { //scheduled lag in TCP stream
                     //TODO NET take time to detect a lagger which can then be announced
                     ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
                 }
-
-                netstate.seq_nbr += 1;
-                SendServerFrame();
             }
-            else {
+            else
+            {
                 ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
-                netstate.seq_nbr += 1;
-                SendServerFrame();
             }
-        }
+        } // for
+        netstate.seq_nbr += 1;
+        SendServerFrame();
     }
-    else { //client
-        if (netstate.enable_lag) {
+    else
+    { // client
+        if (netstate.enable_lag)
+        {
             ProcessPendingMessages(SERVER_ID);
 
-            if (netstate.exchg_queue == NULL) {
+            if (netstate.exchg_queue == NULL)
+            {
                 //we need at least one frame so block
                 ProcessMessagesUntilNextFrame(SERVER_ID, 0);
             }
 
-            if (netstate.exchg_queue == NULL) {
+            if (netstate.exchg_queue == NULL)
+            {
                 //connection lost
                 netstate.sp->update(OnNewUser);
                 return NR_FAIL;
@@ -1281,7 +1299,7 @@ NetResponse LbNetwork_Exchange(void *buf)
 
             SendClientFrame((char *) buf, netstate.exchg_queue->seq_nbr);
         }
-        else
+        else // not enable lag
         {
             SendClientFrame((char *) buf, netstate.seq_nbr);
             if (!ProcessMessagesUntilNextFrame(SERVER_ID, 0))
@@ -1813,6 +1831,7 @@ TbError LbNetwork_StartExchange(void *buf)
     ERRORLOG("ServiceProvider ptr is NULL");
     return Lb_FAIL;
   }
+
   if (runningTwoPlayerModel)
     return StartTwoPlayerExchange(buf);
   else

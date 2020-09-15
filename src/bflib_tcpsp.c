@@ -600,7 +600,10 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
         ((short *)spstate.outpacket->data)[0] = spstate.client_token;
         spstate.outpacket->address = spstate.address;
     }
-    SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
+    if (0 == SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket))
+    {
+        ERRORLOG("Unable to send packet");
+    }
 }
 
 static void tcpSP_sendmsg_all(const char * buffer, size_t size)
@@ -626,14 +629,20 @@ static void tcpSP_sendmsg_all(const char * buffer, size_t size)
             NETDBG(9, "Token:0x%0x i:%d id:%d", spstate.peers[i].token, i, spstate.peers[i].id);
 
             spstate.outpacket->address = spstate.peers[i].address;
-            SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
+            if (0 == SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket))
+            {
+                ERRORLOG("Unable to send packet");
+            }
         }
     }
     else
     {
         ((short *)spstate.outpacket->data)[0] = spstate.client_token;
         spstate.outpacket->address = spstate.address;
-        SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
+        if (0 == SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket))
+        {
+            ERRORLOG("Unable to send packet");
+        }
     }
 }
 /*
