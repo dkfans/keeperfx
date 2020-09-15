@@ -140,7 +140,6 @@ unsigned char const height_masks[] = {
   8, 8, 8, 8, 8, 8, 8, 8,
 };
 
-int box_color = SLC_GREEN;
 static int water_wibble_angle = 0;
 //static unsigned char temp_cluedo_mode;
 static unsigned long render_problems;
@@ -3458,7 +3457,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     {
         if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b)) 
         {
-            // Temporary Error message, should never happen
+            // Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
             WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
         }
         // Draw a pixel with the correct colour from the stripey line's color array.

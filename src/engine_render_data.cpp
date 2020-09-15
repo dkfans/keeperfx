@@ -7,8 +7,8 @@
  *     Provides a set of colours to use when drawing a stripey line, e.g. for a bounding box. Used by draw_stripey_line() in engine_render.c.
  * @par Comment:
  *     None.
- * @author   KeeperFX Team
- * @date     07 Sep 2020 - 07 Sep 2020
+ * @author   Ed Kearney
+ * @date     07 Sep 2020 - 11 Sep 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
