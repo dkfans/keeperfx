@@ -21,6 +21,8 @@
 #include "globals.h"
 
 #include "game_legacy.h"
+#include "player_instances.h"
+#include "player_utils.h"
 #include "thing_data.h"
 #include "thing_effects.h"
 
@@ -43,6 +45,12 @@ void serde_srv_things()
         else
         {
             NETDBG(6, "item i:%04d idx:%04d", i, thing->index);
+            if (thing->light_id != 0)
+            {
+                NETDBG(6, "deleting light idx:%04d, light_id:%03d", thing->index, thing->light_id);
+                light_delete_light(thing->light_id);
+                // We still store light_id as non-zero because we need to sync it
+            }
         }
     }
 }
@@ -60,6 +68,7 @@ void serde_cli_things()
         {
             if (thing->light_id != 0)
             {
+                NETDBG(6, "deleting light idx:%04d, light_id:%03d", thing->index, thing->light_id);
                 light_delete_light(thing->light_id);
                 thing->light_id = 0;
             }
@@ -80,11 +89,12 @@ static void restore_light(struct Thing *thing)
     struct InitEffect* ieffect;
     struct ObjectConfig* objconf;
     struct InitLight ilght = {0};
-    NETDBG(6, "Restoring light for %s idx:%d", thing_model_name(thing), thing->index);
+    int old_light_id = thing->light_id;
 
     switch (thing->class_id)
     {
     case TCls_EffectElem:
+        eestat = get_effect_element_model_stats(thing->model);
         if (eestat->field_3A != 0)
         {
             ilght.mappos.x.val = thing->mappos.x.val;
@@ -95,7 +105,6 @@ static void restore_light(struct Thing *thing)
             ilght.is_dynamic = 1;
             ilght.field_3 = eestat->field_3D;
 
-            eestat = get_effect_element_model_stats(thing->model);
             thing->light_id = light_create_light(&ilght);
             if (thing->light_id == 0)
             {
@@ -146,6 +155,11 @@ static void restore_light(struct Thing *thing)
       WARNLOG("Unable to restore light %03d thing_idx:%d", thing->light_id, thing->index);
       thing->light_id = 0;
     }
+    NETDBG(6, "Restored light for %s idx:%03d old_light_id:%03d light_id:%03d",
+        thing_model_name(thing),
+        thing->index,
+        old_light_id,
+        thing->light_id);
 }
 
 void serde_fin_things()
@@ -279,6 +293,27 @@ void serde_fin_things()
             // TODO: tasks
         }
     }
+
+    for (int i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo* player = get_player(i);
+        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        {
+            light_delete_light(player->field_460);
+            init_player_light(player);
+            if ((player->instance_num == PI_DirctCtrl) || (player->instance_num == PI_DirctCtrl))
+            {
+                NETDBG(6, "turning light off player:%d light_id:%03d", i, player->field_460);
+                light_turn_light_off(player->field_460);
+            }
+            else
+            {
+                NETDBG(6, "turning light on player:%d light_id:%03d", i, player->field_460);
+                light_turn_light_on(player->field_460);
+            }
+        }
+    }
+
     NETDBG(6, "done");
 }
 

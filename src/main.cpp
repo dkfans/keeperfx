@@ -2257,7 +2257,6 @@ void clear_lookups(void)
 void set_mouse_light(struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
-    //_DK_set_mouse_light(player);
     struct Packet *pckt;
     pckt = get_packet_direct(player->packet_num);
     if (player->field_460 != 0)

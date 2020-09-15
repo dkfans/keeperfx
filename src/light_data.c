@@ -113,7 +113,7 @@ static TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *l
 {
   if ((lgt->field_1 & 0x01) != 0)
   {
-    ERRORLOG("Light is already in list cause:%s", cause);
+    ERRORLOG("Light is already in list id:%03d cause:%s", (lgt - &game.lish.lights[0]), cause);
     return false;
   }
   list->count++;
@@ -402,7 +402,7 @@ void light_turn_light_off(long idx)
     }
     struct Light* lgt = &game.lish.lights[idx];
     if ((lgt->flags & LgtF_Allocated) == 0) {
-        ERRORLOG("Attempt to turn off unallocated light structure");
+        ERRORLOG("Attempt to turn off unallocated light structure %d", (int)idx);
         return;
     }
     if ((lgt->flags & LgtF_Unkn02) == 0) {
