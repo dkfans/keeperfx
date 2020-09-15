@@ -383,12 +383,20 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (!is_my_player_number(plyr_idx))
                 return false;
-            struct Thing* thing = get_player_soul_container(plyr_idx);
-            if (thing)
+            int kind = atoi(pr2str);
+            if (kind == 1)
             {
-                message_add_fmt(plyr_idx, "!desync thing_idx:%04d", thing->index);
-                JUSTLOG("!desync thing_idx:%04d", thing->index);
-                thing->health>>=1;
+                gameadd.action_turn_rand_seed = 0;
+            }
+            else
+            {
+                struct Thing* thing = get_player_soul_container(plyr_idx);
+                if (thing)
+                {
+                    message_add_fmt(plyr_idx, "!desync thing_idx:%04d", thing->index);
+                    JUSTLOG("!desync thing_idx:%04d", thing->index);
+                    thing->health>>=1;
+                }
             }
             return true;
         }
