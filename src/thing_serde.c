@@ -155,7 +155,7 @@ static void restore_light(struct Thing *thing)
       WARNLOG("Unable to restore light %03d thing_idx:%d", thing->light_id, thing->index);
       thing->light_id = 0;
     }
-    NETDBG(6, "Restored light for %s idx:%03d old_light_id:%03d light_id:%03d",
+    NETDBG(5, "Restored light for %s idx:%03d old_light_id:%03d light_id:%03d",
         thing_model_name(thing),
         thing->index,
         old_light_id,
@@ -303,12 +303,12 @@ void serde_fin_things()
             init_player_light(player);
             if ((player->instance_num == PI_DirctCtrl) || (player->instance_num == PI_DirctCtrl))
             {
-                NETDBG(6, "turning light off player:%d light_id:%03d", i, player->field_460);
+                NETDBG(5, "turning light off player:%d light_id:%03d", i, player->field_460);
                 light_turn_light_off(player->field_460);
             }
             else
             {
-                NETDBG(6, "turning light on player:%d light_id:%03d", i, player->field_460);
+                NETDBG(5, "turning light on player:%d light_id:%03d", i, player->field_460);
                 light_turn_light_on(player->field_460);
             }
         }
