@@ -1159,7 +1159,7 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
     rctb.right = map_hand[9].SWidth + rctb.left;
     rctb.bottom = rctb.top + map_hand[9].SHeight;
   } else
-  if (nspck->param1 != SINGLEPLAYER_NOTSTARTED)
+  if (nspck->selected_level != 0)
   {
     rctb.left = nspck->mouse_x - 20;
     rctb.top = nspck->mouse_y - 14;
@@ -1306,7 +1306,7 @@ void draw_netmap_players_hands(void)
           spr = &map_hand[21];
         } else
         {
-          if (nspck->param1 == SINGLEPLAYER_NOTSTARTED)
+          if (nspck->selected_level == 0)
           {
               k = LbTimerClock() / 150;
               spr = &map_hand[1 + (k%8)];
