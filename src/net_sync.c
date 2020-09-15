@@ -362,6 +362,7 @@ TbBool checksums_different(void)
                 checksum = pckt->packet.chksum;
                 base = pckt;
 
+#ifdef DUMP_THINGS
                 char buf[64];
                 sprintf(buf, "dump/pl_%d", i);
                 FILE *F = fopen(buf, "w");
@@ -370,6 +371,7 @@ TbBool checksums_different(void)
                     fwrite(pckt, sizeof(struct PacketEx), 1, F);
                     fclose(F);
                 }
+#endif
 
             }
             else if (checksum != pckt->packet.chksum)
@@ -377,6 +379,7 @@ TbBool checksums_different(void)
                 update_desync_info(base, pckt);
                 NETDBG(3, "different checksums at %lu player_id:%d", game.play_gameturn, i);
 
+#ifdef DUMP_THINGS
                 char buf[64];
                 sprintf(buf, "dump/pl_%d", i);
                 FILE *F = fopen(buf, "w");
@@ -385,6 +388,7 @@ TbBool checksums_different(void)
                     fwrite(pckt, sizeof(struct PacketEx), 1, F);
                     fclose(F);
                 }
+#endif
 
                 return true;
             }
