@@ -225,19 +225,17 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
-    struct Packet* pckt = get_packet(my_player_number);
     if (settings.video_rotate_mode) {
-        set_packet_action(pckt, PckA_SwitchView, 5, 0, 0, 0);
+        set_players_packet_action(get_player(my_player_number), PckA_SwitchView, 5, 0, 0, 0);
     } else {
-        set_packet_action(pckt, PckA_SwitchView, 2, 0, 0, 0);
+        set_players_packet_action(get_player(my_player_number), PckA_SwitchView, 2, 0, 0, 0);
     }
     save_settings();
 }
 
 void gui_video_cluedo_mode(struct GuiButton *gbtn)
 {
-    struct Packet* pckt = get_packet(my_player_number);
-    set_packet_action(pckt, PckA_SetCluedo, _DK_video_cluedo_mode, 0, 0, 0);
+    set_players_packet_action(get_player(my_player_number), PckA_SetCluedo, _DK_video_cluedo_mode, 0, 0, 0);
 }
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)

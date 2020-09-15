@@ -383,8 +383,7 @@ void gui_remove_area_for_rooms(struct GuiButton *gbtn)
     game.chosen_room_kind = 0;
     game.chosen_room_spridx = 0;
     game.chosen_room_tooltip = 0;
-    struct Packet* pckt = get_packet(my_player_number);
-    set_packet_action(pckt, PckA_SetPlyrState, PSt_Sell, 0, 0, 0);
+    set_players_packet_action(get_player(my_player_number), PckA_SetPlyrState, PSt_Sell, 0, 0, 0);
 }
 
 long find_room_type_capacity_total_percentage(PlayerNumber plyr_idx, RoomKind rkind)
@@ -492,8 +491,7 @@ void gui_choose_spell(struct GuiButton *gbtn)
 
 void go_to_next_spell_of_type(PowerKind pwkind, PlayerNumber plyr_idx)
 {
-    struct Packet* pckt = get_packet(plyr_idx);
-    set_packet_action(pckt, PckA_ZoomToSpell, pwkind, 0, 0, 0);
+    set_players_packet_action(get_player(plyr_idx), PckA_ZoomToSpell, pwkind, 0, 0, 0);
 }
 
 void gui_go_to_next_spell(struct GuiButton *gbtn)
@@ -698,8 +696,7 @@ void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
     }
     i = seltrap[tngmodel];
     if (i > 0) {
-        struct Packet* pckt = get_packet(plyr_idx);
-        set_packet_action(pckt, PckA_ZoomToTrap, i, 0, 0, 0);
+        set_players_packet_action(get_player(plyr_idx), PckA_ZoomToTrap, i, 0, 0, 0);
     }
 }
 
@@ -753,8 +750,7 @@ void go_to_next_door_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
     }
     i = seldoor[tngmodel];
     if (i > 0) {
-        struct Packet* pckt = get_packet(plyr_idx);
-        set_packet_action(pckt, PckA_ZoomToDoor, i, 0, 0, 0);
+        set_players_packet_action(get_player(plyr_idx), PckA_ZoomToDoor, i, 0, 0, 0);
     }
 }
 
@@ -1856,8 +1852,7 @@ void gui_toggle_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = (int)gbtn->content;
     if ((gbtn->flags & LbBtnF_Enabled) != 0) {
-        struct Packet* pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_PlyrToggleAlly, plyr_idx, 0, 0, 0);
+        set_players_packet_action(get_player(my_player_number), PckA_PlyrToggleAlly, plyr_idx, 0, 0, 0);
     }
 }
 

@@ -246,16 +246,14 @@ struct PacketEx
 /******************************************************************************/
 /******************************************************************************/
 struct Packet *get_packet_direct(long pckt_idx);
-struct Packet *get_packet(long plyr_idx);
 struct PacketEx *get_packet_ex(long plyr_idx);
 struct PacketEx *get_packet_ex_direct(long pckt_idx);
-void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
-void set_packet_control(struct Packet *pckt, unsigned long flag);
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 unsigned char get_players_packet_action(struct PlayerInfo *player);
-void unset_packet_control(struct Packet *pckt, unsigned long flag);
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
+void set_players_add_flag(struct PlayerInfo *player, unsigned long flag);
+void unset_players_add_flag(struct PlayerInfo *player, unsigned long flag);
 void set_players_packet_position(struct PlayerInfo *player, long x, long y);
 short set_packet_pause_toggle(void);
 TbBool process_dungeon_control_packet_clicks(long idx);
