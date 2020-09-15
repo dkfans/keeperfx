@@ -108,7 +108,7 @@ static void loss_wait()
 {
     if ((game.operation_flags & GOF_Paused) == 0)
     {
-        JUSTLOG("micro wait turn:%lu ui_turn:%lu", (unsigned long)game.play_gameturn, ui_turn);
+        NETDBG(3, "micro wait turn:%lu ui_turn:%lu", (unsigned long)game.play_gameturn, ui_turn);
         game.operation_flags |= GOF_Paused;
         game_flags2 |= GF2_ClearPauseOnPacket;
     }
@@ -2828,7 +2828,6 @@ void process_packets(void)
                 if ((game.system_flags & GSF_NetGameNoSync) == 0)
                 {
                     NETDBG(3, "got resync packet");
-                    // It is possible to get duplicate resync packet from server here
                     set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
                     set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
                 }
@@ -2855,7 +2854,6 @@ void process_packets(void)
                 player = get_player(i);
                 if (!network_player_active(player->packet_num))
                 {
-                    // Here we can pause the game
                     EVM_GLOBAL_EVENT("mp.disconnect,plyr=%d cnt=1", i);
 
                     game.operation_flags |= GOF_Paused;

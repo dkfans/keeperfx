@@ -78,7 +78,7 @@ static const char desync_letters[CKS_MAX] = {
 
 struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT] = {0};
 
-#ifdef LOG_CHEKSUMS
+#ifdef LOG_CHECKSUMS
 TbBool log_checksums = 0;
 #endif
 /******************************************************************************/
@@ -183,7 +183,7 @@ static TbBool send_resync_game(TbBool first_resync)
         clear_packets();
         game.action_rand_seed = gameadd.action_turn_rand_seed;
         NETLOG("Done syncing");
-#ifdef LOG_CHEKSUMS
+#ifdef LOG_CHECKSUMS
         log_checksums = true;
 #endif
     }
@@ -276,7 +276,7 @@ static TbBool receive_resync_game(TbBool first_resync)
         clear_packets();
         game.action_rand_seed = gameadd.action_turn_rand_seed;
         NETLOG("Done syncing");
-#ifdef LOG_CHEKSUMS
+#ifdef LOG_CHECKSUMS
         log_checksums = true;
 #endif
     }
@@ -390,6 +390,9 @@ TbBool checksums_different(void)
             }
         }
     }
+#ifdef LOG_CHECKSUMS
+    log_checksums = false;
+#endif
     return false;
 }
 
@@ -473,8 +476,9 @@ void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, enum C
     struct PacketEx* pckt = get_packet_ex(plyr_idx);
     pckt->packet.chksum ^= sum;
     pckt->sums[(int)kind] ^= sum;
-    SYNCDBG(9,"Checksum updated kind:%d amount:%06lX", kind,(unsigned long)sum);
-#ifdef LOG_CHEKSUMS
+    EVM_GLOBAL_EVENT("mp.checksum,kind=%d val=%ld", kind, (unsigned long)sum);
+    SYNCDBG(9, "Checksum updated kind:%d amount:%06lX", kind,(unsigned long)sum);
+#ifdef LOG_CHECKSUMS
     if (log_checksums)
     {
         JUSTLOG("Checksum type:%d sum:%06lx sums[type]:%06lx delta:%06lx",

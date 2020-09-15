@@ -152,10 +152,6 @@ void serde_fin_things()
 {
     struct StructureList* slist;
 
-#ifdef DUMP_THINGS
-    mkdir("dump");
-#endif
-
     NETDBG(5, "game.free_things_start_index:%d", game.free_things_start_index);
     game.free_things_start_index = 0;
 
