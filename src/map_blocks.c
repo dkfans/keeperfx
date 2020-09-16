@@ -552,7 +552,7 @@ unsigned char get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long
     slbattr = get_slab_attrs(slb);
     struct SlabAttr *agnst_slbattr;
     agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
-    return (slbattr->slbfield_10 != agnst_slbattr->slbfield_10)
+    return (slbattr->slb_id != agnst_slbattr->slb_id)
             || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb)!= game.neutral_player_num));
 }
 
@@ -1019,7 +1019,7 @@ void place_single_slab_fill_style_array(MapSlabCoord slb_x, MapSlabCoord slb_y, 
         if (!slabmap_block_invalid(slb)) {
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            style_val = slbattr->field_E;
+            style_val = slbattr->fill_style;
         } else {
             style_val = 0;
         }
@@ -1257,7 +1257,7 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
     {
         struct SlabMap *slb;
         slb = get_slabmap_block(slb_x,slb_y);
-        slb->health = game.block_health[place_slbattr->field_4];
+        slb->health = game.block_health[place_slbattr->block_health_index];
     }
     place_slab_columns(slbkind, STL_PER_SLB * slb_x, STL_PER_SLB * slb_y, col_idx);
     place_slab_objects(slb_x, slb_y, slab_number_list, plyr_idx);
@@ -1287,7 +1287,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     slbattr = get_slab_kind_attrs(slbkind);
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
-    slb->health = game.block_health[slbattr->field_4];
+    slb->health = game.block_health[slbattr->block_health_index];
     struct SlabSet *sset;
     sset = &game.slabset[slabct_num];
     place_slab_columns(slbkind, stl_xa, stl_ya, sset->col_idx);

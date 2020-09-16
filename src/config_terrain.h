@@ -101,12 +101,12 @@ struct SlabMap;
 struct SlabAttr {
     unsigned short tooltip_stridx;
     short field_2;
-    short field_4;
+    short block_health_index;
     unsigned long block_flags;
     unsigned long noblck_flags;
-    unsigned char field_E;
+    unsigned char fill_style;
     unsigned char category;
-    unsigned char slbfield_10;
+    unsigned char slb_id;
     unsigned char is_unknflg11;
     unsigned char is_safe_land;
     unsigned char is_unknflg13;

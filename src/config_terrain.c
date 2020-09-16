@@ -46,12 +46,12 @@ const struct NamedCommand terrain_slab_commands[] = {
   {"NAME",            1},
   {"TOOLTIPTEXTID",   2},
   {"FIELD2",          3},
-  {"FIELD4",          4},
+  {"BLOCKHEALTHINDEX",4},
   {"BLOCKFLAGS",      5},
   {"NOBLOCKFLAGS",    6},
-  {"FIELDE",          7},
+  {"FILLSTYLE",       7},
   {"CATEGORY",        8},
-  {"SLBFIELD10",      9},
+  {"SLBID",           9},
   {"ISUNKN11",        10},
   {"ISSAFELAND",     11},
   {"ISUNKN13",        12},
@@ -524,7 +524,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    slbattr->field_4 = k;
+                    slbattr->block_health_index = k;
                     n++;
                 }
             }
@@ -572,7 +572,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    slbattr->field_E = k;
+                    slbattr->fill_style = k;
                     n++;
                 }
             }
@@ -604,7 +604,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    slbattr->slbfield_10 = k;
+                    slbattr->slb_id = k;
                     n++;
                 }
             }
