@@ -654,7 +654,7 @@ void set_alt_bit_based_on_slab(SlabKind slbkind, unsigned char stl_x, unsigned c
 
     sibling_flags = 0;
     edge_flags = 0;
-    wibble = slbattr->is_unknflg11;
+    wibble = slbattr->wibble;
     if (slab_kind_is_liquid(slbkind))
     {
         if ((stl_x % 3) == 0)

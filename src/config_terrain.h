@@ -107,7 +107,7 @@ struct SlabAttr {
     unsigned char fill_style;
     unsigned char category;
     unsigned char slb_id;
-    unsigned char is_unknflg11;
+    unsigned char wibble;
     unsigned char is_safe_land;
     unsigned char is_unknflg13;
     unsigned char is_diggable;

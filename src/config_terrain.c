@@ -52,7 +52,7 @@ const struct NamedCommand terrain_slab_commands[] = {
   {"FILLSTYLE",       7},
   {"CATEGORY",        8},
   {"SLBID",           9},
-  {"ISUNKN11",        10},
+  {"WIBBLE",        10},
   {"ISSAFELAND",     11},
   {"ISUNKN13",        12},
   {"ISDIGGABLE",     13},
@@ -620,7 +620,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    slbattr->is_unknflg11 = k;
+                    slbattr->wibble = k;
                     n++;
                 }
             }
