@@ -3316,9 +3316,163 @@ static void draw_engine_room_flag_top(struct RoomFlag *rflg)
     }
 }
 
-static void draw_stripey_line(long a1, long a2, long a3, long a4, unsigned char a5)
+static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line_color)
 {
-    _DK_draw_stripey_line(a1, a2, a3, a4, a5);
+    //_DK_draw_stripey_line(x1, y1, x2, y2, line_color);
+
+    // get the 4 least significant bits of game.play_gameturn, to loop through the starting index of the color array, using numbers 0-15.
+    unsigned char color_index = game.play_gameturn & 0xf;
+
+    // get engine window width and height
+    struct PlayerInfo *player;
+    player = get_my_player();
+    long relative_window_width = ((player->engine_window_width * 256) / (pixel_size * 256)) - 1;
+    long relative_window_height = ((player->engine_window_height * 256) / (pixel_size * 256)) - 1;
+
+    // Bresenham’s Line Drawing Algorithm - handles all octants
+    // A and B are relative, and are set to be either X (shallow curves) or Y (steep curves).
+    // A1 and A2, and B1 and B2, are swapped when the line is directed towards -1 X/Y.
+    // A and B are incremented, apart from when the slope of the lines goes from 0 to -1 in A, where B will decrement instead
+    long distance_a, distance_b, a, b, a1, b1, a2, b2, relative_window_a, relative_window_b, remainder, remainder_limit;
+    long *x_coord, *y_coord; // Maintain a reference to the actual X/Y coordinates, even after swapping A and B
+
+    if (abs(y2 - y1) < abs(x2 - x1))
+    {
+        x_coord = &a;
+        y_coord = &b;
+        relative_window_a = relative_window_width;
+        relative_window_b = relative_window_height;
+        if (x1 < x2)
+        {   
+            a1 = x1;
+            b1 = y1;
+            a2 = x2;
+            b2 = y2;
+        }
+        else // Swap n1 with n2
+        {
+            a1 = x2;
+            b1 = y2;
+            a2 = x1;
+            b2 = y1;
+            color_index = 0xf - color_index; // invert the color index
+        }
+    }
+    else // Reverse X and Y
+    {
+        x_coord = &b;
+        y_coord = &a;
+        relative_window_a = relative_window_height;
+        relative_window_b = relative_window_width;
+        if (y1 < y2)
+        {
+            a1 = y1;
+            b1 = x1;
+            a2 = y2;
+            b2 = x2;
+        }
+        else // Swap n1 with n2
+        {
+            a1 = y2;
+            b1 = x2;
+            a2 = y1;
+            b2 = x1;
+            color_index = 0xf - color_index; // invert the color index
+        }
+    }
+
+    distance_a = a2 - a1;
+    distance_b = b2 - b1;
+
+    if (distance_b == 0)
+    {
+        if ((b1 < 0) || (b1 > relative_window_b))
+        {
+            return; // line is off the screen
+        }
+    }
+    if (distance_a == 0)
+    {
+        if ((a1 < 0) || (a1 > relative_window_a))
+        {
+            return; // line is off the screen
+        }
+    }
+
+    long start_b_dist_from_window = 0 - b1; // For window clipping
+    long end_b_dist_from_window = b2 - relative_window_b; // For window clipping
+
+    // Handle going towards 0 in B (i.e. B counts down, not up)
+    long b_increment = 1;
+    if (distance_b < 0) 
+    {
+        b_increment = -1;
+        distance_b = -distance_b;
+        start_b_dist_from_window = b1 - relative_window_b;
+        end_b_dist_from_window = 0 - b2;
+    }
+
+    // Clip line within engine_window
+    remainder_limit = (distance_b+1)/2;
+    // Find starting A coord
+    remainder = start_b_dist_from_window * distance_a % distance_b;
+    long min_a_start = 0;
+    if ((b1 < 0 || b1 > relative_window_b))
+    {
+        min_a_start = a1 + ( (start_b_dist_from_window) * distance_a / distance_b );
+        if (remainder >= remainder_limit)
+        {
+            min_a_start++;
+        }
+        min_a_start = max(min_a_start, 0);
+    }
+    long a_start = max(a1, min_a_start);
+    // Find ending A coord
+    remainder = end_b_dist_from_window * distance_a % distance_b;
+    long max_a_end = relative_window_a;
+    if (b2 < 0 || b2 > relative_window_b)
+    {
+        max_a_end = a2 - ( (end_b_dist_from_window) * distance_a / distance_b );
+        if (remainder >= remainder_limit)
+        {
+            max_a_end--;
+        }
+        max_a_end = min(max_a_end, relative_window_a);
+        
+    }
+    long a_end = min(a2, max_a_end);
+    // Find starting B coord
+    remainder_limit = (distance_a+1)/2;
+    remainder = (a_start - a1) * distance_b % distance_a; // initialise remainder for loop
+    long b_start =  b1 + ( b_increment * (a_start - a1) * distance_b / distance_a );
+    if (remainder >= remainder_limit)
+    {
+        remainder -= distance_a;
+        b_start += b_increment;
+    }
+    b = b_start;
+
+    // Draw the line
+    for (a = a_start; a <= a_end; a ++)
+    {
+        if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b)) 
+        {
+            // Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
+            WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
+        }
+        // Draw a pixel with the correct colour from the stripey line's color array.
+        LbDrawPixel(*x_coord, *y_coord, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
+        // Increment color_index, looping back to 0 after 15
+        color_index = (color_index + 1) & 0xf;
+        // The remainder is used to know when to round up B to the next increment
+        if (remainder >= remainder_limit)
+        {
+            
+            b += b_increment;
+            remainder -= distance_a;
+        }
+        remainder += distance_b;
+    }
 }
 
 static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
@@ -3331,7 +3485,7 @@ static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
         player = get_my_player();
         if ((x1 < player->engine_window_width) || (x2 < player->engine_window_width))
         {
-          if ((y1 < player->engine_window_width) || (y2 < player->engine_window_width))
+          if ((y1 < player->engine_window_height) || (y2 < player->engine_window_height))
           {
             draw_stripey_line(x1, y1, x2, y2, color);
           }

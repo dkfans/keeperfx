@@ -352,6 +352,27 @@ struct MapVolumeBox { // sizeof = 24
 };
 
 /******************************************************************************/
+// Stripey Line Color Arrays
+#define STRIPEY_LINE_COLOR_COUNT 8
+
+enum stripey_line_colors {
+    SLC_RED = 0, // INVALID SELECTION
+    SLC_GREEN = 1, // VALID SELECTION
+    SLC_YELLOW,
+    SLC_GREY,
+    SLC_PURPLE,
+    SLC_BLUE,
+    SLC_ORANGE,
+    SLC_WHITE,
+};
+
+struct stripey_line {
+    TbPixel stripey_line_color_array[16];
+    unsigned int line_color;
+};
+
+extern struct stripey_line colored_stripey_lines[];
+/******************************************************************************/
 DLLIMPORT unsigned char *_DK_getpoly;
 #define getpoly _DK_getpoly
 DLLIMPORT unsigned char _DK_poly_pool[0x40000];
