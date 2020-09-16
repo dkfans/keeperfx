@@ -506,7 +506,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->field_2 = k;
                     n++;
@@ -522,7 +522,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->field_4 = k;
                     n++;
@@ -538,7 +538,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->block_flags = k;
                     n++;
@@ -554,7 +554,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->noblck_flags = k;
                     n++;
@@ -570,7 +570,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->field_E = k;
                     n++;
@@ -586,7 +586,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->category = k;
                     n++;
@@ -602,7 +602,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->slbfield_10 = k;
                     n++;
@@ -618,7 +618,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->is_unknflg11 = k;
                     n++;
@@ -634,7 +634,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->is_safe_land = k;
                     n++;
@@ -650,7 +650,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->is_unknflg13 = k;
                     n++;
@@ -666,7 +666,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->is_diggable = k;
                     n++;
@@ -682,7 +682,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                if (k > 0)
+                if (k >= 0)
                 {
                     slbattr->wlb_type = k;
                     n++;
