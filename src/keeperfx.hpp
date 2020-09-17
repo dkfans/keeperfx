@@ -350,8 +350,6 @@ void process_dungeon_destroy(struct Thing *thing);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
-TbBool setup_move_off_lava(struct Thing *thing);
-TbBool setup_move_out_of_cave_in(struct Thing *thing);
 
 TbPixel get_player_path_colour(unsigned short owner);
 
