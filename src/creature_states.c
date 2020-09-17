@@ -4675,6 +4675,8 @@ TbBool setup_move_off_lava(struct Thing* thing)
     return false;
 }
 
+//todo CAVE_IN_NEAR_FLEE_POSITION into config file
+#define CAVE_IN_NEAR_FLEE_POSITION 200
 TbBool setup_move_out_of_cave_in(struct Thing* thing)
 {
     // return _DK_setup_move_out_of_cave_in(thing);
@@ -4691,7 +4693,7 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
         cctrl = creature_control_get_from_thing(thing);
         long dist = LbDiagonalLength(abs(thing->mappos.x.val - cctrl->flee_pos.x.val), abs(thing->mappos.y.val - cctrl->flee_pos.y.val));
         // If you're too close to the flee position, no point in going there to escape cave in damage.
-        if (dist <= 200)
+        if (dist <= CAVE_IN_NEAR_FLEE_POSITION)
         {
             // Heroes that are near to a hero gate, should escape through it if they can.
             if (is_hero_thing(thing))
