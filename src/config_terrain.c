@@ -256,6 +256,18 @@ struct SlabAttr slab_attrs[] = {
   {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
   {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
 };
+
+const struct NamedCommand terrain_flags[] = {
+  {"VALUABLE",          1},
+  {"IS_ROOM",           2},
+  {"UNEXPLORED",        3},
+  {"DIGGABLE",          4},
+  {"BLOCKING",          5},
+  {"FILLED",            6},
+  {"IS_DOOR",           7},
+  {"TAGGED_VALUABLE",   8},
+  {NULL,                0},
+  };
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -535,21 +547,67 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             break;
             case 5:
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            case 6:
             {
-                k = atoi(word_buf);
-                if (k >= 0)
+                unsigned long *flg = (cmd_num == 5) ? &slbattr->block_flags : &slbattr->noblck_flags;
+                *flg = 0;
+                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
-                    slbattr->block_flags = k;
+                    k = get_id(terrain_flags, word_buf);
+                    switch(k)
+                    {
+                        case 1:
+                        {
+                            *flg |= SlbAtFlg_Valuable;
+                            break;
+                        }
+                        case 2:
+                        {
+                            *flg |= SlbAtFlg_IsRoom;
+                            break;    
+                        }
+                        case 3:
+                        {
+                            *flg |= SlbAtFlg_Unexplored;
+                            break;    
+                        }
+                        case 4:
+                        {
+                            *flg |= SlbAtFlg_Digable;
+                            break;   
+                        }
+                        case 5:
+                        {
+                            *flg |= SlbAtFlg_Blocking;
+                            break;    
+                        }
+                        case 6:
+                        {
+                            *flg |= SlbAtFlg_Filled;
+                            break;    
+                        }
+                        case 7:
+                        {
+                            *flg |= SlbAtFlg_IsDoor;
+                            break;    
+                        }
+                        case 8:
+                        {
+                            *flg |= SlbAtFlg_TaggedValuable;
+                            break;   
+                        }
+                        default:
+                        {
+                            CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                            COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                            break;
+                        }
+                    }
                     n++;
                 }
+                break;
             }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
+            /*
             case 6:
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
@@ -566,6 +624,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
+            */
             case 7:
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
