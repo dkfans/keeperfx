@@ -185,7 +185,7 @@ void gui_draw_tick_time()
 
 void draw_event_log()
 {
-    const int lines = 5;
+    const int lines = 9;
     const int width = 500;
     const int font_size = 16;
     const int margin_y = 5;
@@ -205,7 +205,7 @@ void draw_event_log()
     LbDrawBox(x, y, width, height, 0);
 
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
-    LbTextSetWindow(x, y, width, height);
+    LbTextSetWindow(x+4, y, width-8, height);
 
     sprintf(left_buf, "%6ld", game.play_gameturn);
     LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * 0,

@@ -139,7 +139,6 @@ void hist_map_action(enum HistActionType type, PlayerNumber plyr_idx, MapSubtlCo
 void hist_get_string(int order, char *str_left, char *str_right)
 {
     int idx;
-    /*
     // all action records
     idx = next_free_record - 1 - order;
     if (idx < 0) idx += TOTAL_ITEMS;
@@ -150,20 +149,32 @@ void hist_get_string(int order, char *str_left, char *str_right)
         return;
     }
     struct HistActionRecord *rec = &records[idx];
+    if (game.play_gameturn - rec->gameturn > TIME_DEPTH)
+    {
+        strcpy(str_left, "");
+        strcpy(str_right, "");
+        return;
+    }
     switch(rec->type)
     {
     case HAT_Tag:
-        sprintf(str_left, "tag %3ld, %3ld", 
+        sprintf(str_left, "tag   %3ld, %3ld",
+            stl_num_decode_x(rec->stl_num), stl_num_decode_y(rec->stl_num));
+        break;
+    case HAT_Untag:
+        sprintf(str_left, "untag %3ld, %3ld",
             stl_num_decode_x(rec->stl_num), stl_num_decode_y(rec->stl_num));
         break;
     default:
-        sprintf(str_left, "unknown");
+        sprintf(str_left, "unknown %02d", rec->type);
     }
     sprintf(str_right, "%4ld", rec->gameturn - game.play_gameturn);
-    */
-    idx = next_creature_record - 1 - order;
+    /**/
+    /* affected creatures */
+    /*
+    idx = next_creature_record - 1 - (order >> 1);
     if (idx < 0) idx += TOTAL_ITEMS;
-    if (order >= total_creature_records)
+    if (order >= 2 * total_creature_records)
     {
         strcpy(str_left, "");
         strcpy(str_right, "");
@@ -177,6 +188,15 @@ void hist_get_string(int order, char *str_left, char *str_right)
         strcpy(str_right, "");
         return;
     }
-    sprintf(str_left, "%3d %s %s", rec->idx, thing_model_name(creatng), creature_state_code_name(creatng->active_state));
-    sprintf(str_right, "%4ld", rec->gameturn - game.play_gameturn);
+    if ((order & 1) == 0)
+    {
+        sprintf(str_left, "%s #%3d",thing_model_name(creatng),  rec->idx);
+        sprintf(str_right, "%4ld", rec->gameturn - game.play_gameturn);
+    }
+    else
+    {
+        sprintf(str_left, "   %s", creature_state_code_name(creatng->active_state));
+        strcpy(str_right, "");
+    }
+    /**/
 }
