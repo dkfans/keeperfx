@@ -677,7 +677,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
 
     if ((cctrl->spell_flags & CSAfF_Speed) != 0)
     {
-        effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
+        effeltng = create_effect_element(&thing->mappos, TngEff_Unknown18, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
             memcpy(&effeltng->field_3E, &thing->field_3E, 0x14u);
@@ -694,7 +694,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         struct SpellConfig* splconf = &game.spells_config[SplK_Teleport];
         if (splconf->duration / 2 < dturn)
         {
-            effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
+            effeltng = create_effect_element(&thing->mappos, TngEff_Unknown18, thing->owner);
             if (!thing_is_invalid(effeltng))
             {
                 memcpy(&effeltng->field_3E, &thing->field_3E, 0x14u);

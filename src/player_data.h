@@ -47,7 +47,7 @@ enum PlayerInitFlags {
     PlaF_NewMPMessage       = 0x04,
     PlaF_Unknown8           = 0x08,
     PlaF_Unknown10          = 0x10,
-    PlaF_Unknown20          = 0x20,
+    PlaF_Unknown20          = 0x20, // Player is untagging blocks
     PlaF_CompCtrl           = 0x40,
     PlaF_Unknown80          = 0x80,
 };
@@ -94,8 +94,8 @@ enum PlayerVictoryState {
 
 enum PlayerField454Val {
     P454_Unkn0 = 0,
-    P454_Unkn1,
-    P454_Unkn2,
+    P454_Unkn1, /* (Un)Mark block to dig */
+    P454_Unkn2, /* Lock/Unlock door */
     P454_Unkn3,
 };
 
@@ -184,8 +184,8 @@ char field_E8[2];
     unsigned short minimap_zoom;
     unsigned char view_type;
     unsigned char work_state;
-    unsigned char field_454;
-    unsigned char field_455;
+    unsigned char field_454; // now_state
+    unsigned char field_455; // prev_state
     unsigned char continue_work_state;
 char field_457[8];
 char field_45F;
@@ -197,9 +197,9 @@ char field_462;
     char chosen_trap_kind;
     char chosen_door_kind;
     char field_4A7[4];
-    short field_4AB;
-    short field_4AD;
-    unsigned char field_4AF;
+    short field_4AB; /* stl_x */
+    short field_4AD; /* stl_y */
+    unsigned char field_4AF; /* do action this turn? */
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
     unsigned long instance_remain_rurns;

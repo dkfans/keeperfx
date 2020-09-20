@@ -72,7 +72,7 @@ enum ThingEffectKind {
     TngEff_Unknown15,
     TngEff_Unknown16,
     TngEff_Unknown17,
-    TngEff_Unknown18,
+    TngEff_Unknown18, /* Speed/teleport effect */
     TngEff_Unknown19,
     TngEff_Unknown20,
     TngEff_Unknown21,
@@ -95,12 +95,12 @@ enum ThingEffectKind {
     TngEff_Unknown38,
     TngEff_Unknown39,
     TngEff_Unknown40,
-    TngEff_Unknown41,
+    TngEff_Unknown41, /* GoldPicked */
     TngEff_Unknown42,
     TngEff_Unknown43,
     TngEff_Unknown44,
     TngEff_Unknown45,
-    TngEff_Unknown46,
+    TngEff_Unknown46, /* CaveIn */
     TngEff_Unknown47,
     TngEff_Unknown48,
     TngEff_Unknown49,

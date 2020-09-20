@@ -47,6 +47,7 @@
 #include "config_terrain.h"
 #include "config_players.h"
 #include "config_settings.h"
+#include "hist_actions.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "player_states.h"
@@ -568,6 +569,15 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
     return true;
 }
 
+static void set_untag_mode(struct PlayerInfo* player)
+{
+    int i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
+    if (find_from_task_list(player->id_number, i) != -1)
+        player->allocflags |= PlaF_Unknown20;
+    else
+        player->allocflags &= ~PlaF_Unknown20;
+}
+
 TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 {
     struct Thing *thing;
@@ -604,11 +614,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         switch (player->field_454)
         {
         case P454_Unkn1:
-          i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
-          if (find_from_task_list(plyr_idx,i) != -1)
-              player->allocflags |= PlaF_Unknown20;
-          else
-              player->allocflags &= ~PlaF_Unknown20;
+          set_untag_mode(player);
           break;
         case P454_Unkn2:
           thing = get_door_for_position(player->field_4AB, player->field_4AD);
@@ -625,11 +631,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         case P454_Unkn3:
           if (player->thing_under_hand == 0)
           {
-            i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
-            if (find_from_task_list(plyr_idx,i) != -1)
-                player->allocflags |= PlaF_Unknown20;
-            else
-                player->allocflags &= ~PlaF_Unknown20;
+            set_untag_mode(player);
             player->field_3 |= Pf3F_Unkn01;
           }
           break;
@@ -667,11 +669,15 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
               if ((player->allocflags & PlaF_Unknown20) != 0)
               {
+                hist_map_action(HAT_Untag, plyr_idx, cx, cy);
                 untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
               if (dungeon->task_count < 300)
               {
-                tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+                if (tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx))
+                {
+                  hist_map_action(HAT_Tag, plyr_idx, cx, cy);
+                }
               } else
               if (is_my_player(player))
               {
@@ -682,12 +688,18 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
               if ((player->allocflags & PlaF_Unknown20) != 0)
               {
+                hist_map_action(HAT_Untag, plyr_idx, cx, cy);
                 untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
               if (dungeon->task_count < 300)
               {
                 if (can_dig_here(stl_x, stl_y, player->id_number))
-                  tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+                {
+                  if (tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx))
+                  {
+                    hist_map_action(HAT_Tag, plyr_idx, cx, cy);
+                  }
+                }
               } else
               if (is_my_player(player))
               {

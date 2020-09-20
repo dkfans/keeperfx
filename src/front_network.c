@@ -36,6 +36,7 @@
 #include "front_simple.h"
 #include "front_landview.h"
 #include "frontend.h"
+#include "hist_actions.h"
 #include "player_data.h"
 #include "net_game.h"
 #include "net_sync.h"
@@ -141,7 +142,7 @@ void gui_draw_tick_time()
 {
     if ((game.flags_gui & GGUI_ShowTickTime) == 0)
     {
-      return;
+        return;
     }
     int val = tick_time;
     TbClockMSec now = LbTimerClock();
@@ -180,6 +181,47 @@ void gui_draw_tick_time()
     text = buf_sprintf("max %02d", max_time_val);
     LbTextDrawResized(0, 0, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+void draw_event_log()
+{
+    const int lines = 5;
+    const int width = 500;
+    const int font_size = 16;
+    const int margin_y = 5;
+    char left_buf[64], right_buf[32];
+    int x = MyScreenWidth - width;
+    int y = 100;
+    int units_per_px = units_per_pixel;
+    if ((game_flags2 & GF2_ShowEventLog) == 0)
+    {
+        return;
+    }
+    LbTextSetFont(winfont);
+    int tx_units_per_px = (font_size * units_per_px) / LbTextLineHeight();
+    long text_h = LbTextLineHeight() * tx_units_per_px / 16;
+    int height = text_h * lines + 2 * margin_y * units_per_px/16;
+  
+    LbDrawBox(x, y, width, height, 0);
+
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    LbTextSetWindow(x, y, width, height);
+
+    sprintf(left_buf, "%6ld", game.play_gameturn);
+    LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * 0,
+            tx_units_per_px, left_buf);
+    for (int i = 0; i < lines-1; i++)
+    {
+        hist_get_string(i, left_buf, right_buf);
+        if (left_buf[0] == 0) 
+            break;
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+        LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * (i+1),
+            tx_units_per_px, left_buf);
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+        LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * (i+1),
+            tx_units_per_px, right_buf);
+    }
 }
 
 void draw_out_of_sync_box(long a1, long a2, long box_width)
@@ -242,6 +284,7 @@ void gui_draw_network_state()
       draw_out_of_sync_box(0, 32*units_per_pixel/16, get_my_player()->engine_window_x);
     }
     gui_draw_tick_time();
+    draw_event_log();
 }
 
 void setup_alliances(void)
