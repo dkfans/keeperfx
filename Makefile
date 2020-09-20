@@ -238,6 +238,9 @@ obj/music_player.o \
 obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \
+obj/packets_cheats.o \
+obj/packets_input.o \
+obj/packets_misc.o \
 obj/player_compchecks.o \
 obj/player_compevents.o \
 obj/player_complookup.o \
@@ -292,7 +295,7 @@ obj/main.o \
 $(RES)
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net 
+LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lwsock32 -lws2_32
 INCS =  -I"sdl/include"
 CXXINCS =  -I"sdl/include"
 
@@ -489,6 +492,7 @@ include tool_sndbanker.mk
 include tool_rnctools.mk
 #include tool_dkillconv.mk
 
+include postbuild.mk
 include package.mk
 include pkg_lang.mk
 include pkg_gfx.mk

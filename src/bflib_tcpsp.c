@@ -18,22 +18,38 @@
  */
 /******************************************************************************/
 
-#include "bflib_network.h"
+#define WIN32_LEAN_AND_MEAN 1
+#include <assert.h>
+#include <errno.h>
+#include <io.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
+#include <SDL2/SDL.h>
+
+#include "bflib_network.h"
 #include "bflib_memory.h"
 
-#include <assert.h>
-#include <SDL2/SDL_net.h>
 
 #define MAX_PACKET_SIZE   1024
 #define MAX_PACKETS       32
 #define MAX_UNBLOCKED_READ 1000
 #define TOKEN_SIZE        2
 
+typedef struct sockaddr_in IPaddress;
+
+struct UdpPacket
+{
+    unsigned short len;
+    unsigned short maxlen;
+    struct sockaddr_in address;
+    unsigned char data[];
+};
+
 struct PacketListNode
 {
     struct PacketListNode *next;
-    UDPpacket *packet;
+    struct UdpPacket *packet;
 };
 
 enum SPMode
@@ -59,7 +75,7 @@ struct Peer
 struct SPState
 {
     TbBool                  ishost;
-    UDPsocket               socket; //socket
+    SOCKET                  sock;
     struct Peer             peers[MAX_N_PEERS];
     NetDropCallback         drop_callback;
 
@@ -72,7 +88,7 @@ struct SPState
     short                   client_token;
     enum SPMode             mode;
 
-    UDPpacket               *outpacket;
+    struct UdpPacket        *outpacket;
 };
 
 struct PacketListNode all_nodes[MAX_PACKETS] = {0};
@@ -104,6 +120,142 @@ const struct NetSP tcpSP =
     tcpSP_drop_user,
 };
 
+static const SOCKET U_INVALID = 0;
+
+#define U_Send(s, packet) U_Send_f(s, packet, __func__)
+static int U_Send_f(SOCKET s, struct UdpPacket *packet, const char *from)
+{
+    int r;
+    r = sendto(s, (char*) packet->data, packet->len, 0, 
+        (struct sockaddr*)&packet->address, sizeof(packet->address));
+    NETDBG(8, "%s: sending r:%d l:%d",
+        from, r, packet->len);
+    if (r != packet->len)
+        return 0;
+    return 1;
+}
+
+static TbBool U_Valid(SOCKET s)
+{
+    return s != 0;
+}
+
+static TbBool U_Init()
+{
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2,2),&wsa) != 0)
+    {
+        ERRORLOG("wsastartup failed");
+        return 0;
+    }
+    return 1;
+}
+
+static void U_Done()
+{
+    WSACleanup();
+}
+
+static void U_FreePacket(struct UdpPacket *packet)
+{
+    LbMemoryFree(packet);
+}
+
+static struct UdpPacket * U_AllocPacket(size_t max_size)
+{
+    struct UdpPacket *ret = (struct UdpPacket *)LbMemoryAlloc(
+      sizeof(struct UdpPacket *) + max_size);
+    ret->maxlen = max_size;
+    return ret;
+}
+
+static SOCKET U_Open(unsigned short port)
+{
+    SOCKET ret;
+    struct sockaddr_in server;
+    unsigned long one = 1;
+    int max_size = 65536;
+    ret = socket(AF_INET, SOCK_DGRAM, 0);
+
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons(port);
+    if (bind(ret, (struct sockaddr *)&server, sizeof(server)) == SOCKET_ERROR)
+    {
+        ERRORLOG("bind failed");
+        close(ret);
+        return U_INVALID;
+    }
+    NETDBG(9, "bind ok");
+    setsockopt(ret, SOL_SOCKET, SO_RCVBUF, (const char*)&max_size, sizeof(int));
+    ioctlsocket(ret, FIONBIO, &one);
+    return ret;
+}
+
+static void U_Close(SOCKET s)
+{
+    close(s);
+}
+
+static TbBool U_ResolveHost(IPaddress *addr, const char *hostname, unsigned short port)
+{
+    struct addrinfo hints = {0};
+    struct addrinfo *result = NULL;
+    struct addrinfo *next;
+    char port_buf[16];
+
+    sprintf(port_buf, "%d", (int)port);
+    if (0 != getaddrinfo(hostname, port_buf, &hints, &result))
+    {
+        ERRORLOG("getaddrinfo failed on %s %d", hostname, port);
+        return 0;
+    }
+    for (next = result; next != NULL; next = next->ai_next)
+    {
+        if (next->ai_family == AF_INET)
+        {
+            memcpy(addr, result->ai_addr, sizeof(*addr));
+            NETDBG(7, "getaddrinfo ok on %s %d -> %s",
+                hostname, port, inet_ntoa(addr->sin_addr));
+            freeaddrinfo(result);
+            return 1;
+        }
+    }
+    freeaddrinfo(result);
+    ERRORLOG("getaddrinfo failed on %s %d (no IPv4?)", hostname, port);
+    return 1;
+}
+
+static int U_Recv(SOCKET s, struct UdpPacket *packet)
+{
+      int size;
+      int read = recvfrom(s, (char*)packet->data, packet->maxlen, 0,
+          (struct sockaddr *)&packet->address, &size);
+      if (read == 0)
+      {
+          ERRORLOG("== read 0? ==\n");
+          return 0;
+      }
+      else if (read < 0)
+      {
+          DWORD err = WSAGetLastError();
+          if (err == WSAEWOULDBLOCK)
+          {
+              return 0;
+          }
+          ERRORLOG("WSAGetLastError: %lx", err);
+          return -1;
+      }
+      else
+      {
+          packet->len = read;
+          assert(size <= sizeof(packet->address));
+          return read;
+      }
+}
+
+//////////////////
+
 static TbBool clear_peer(NetUserId id)
 {
     if (spstate.ishost) {
@@ -120,9 +272,9 @@ static TbBool clear_peer(NetUserId id)
         return 0;
     }
     else {
-        if (spstate.socket != NULL) {
-            SDLNet_UDP_Close(spstate.socket);
-            spstate.socket = NULL; //assume disconnected
+        if (U_Valid(spstate.sock)) {
+            U_Close(spstate.sock);
+            spstate.sock = U_INVALID; //assume disconnected
             spstate.client_token = 0;
         }
         return 1;
@@ -135,19 +287,20 @@ static TbError tcpSP_init(NetDropCallback drop_callback)
 
     LbMemorySet(&spstate, 0, sizeof(spstate));
 
-    if (SDLNet_Init() < 0) {
+    if (U_Init() == 0)
+    {
         return Lb_FAIL;
     }
 
     for (unsigned int i = 0; i < MAX_PACKETS; ++i)
     {
-        all_nodes[i].packet = SDLNet_AllocPacket(MAX_PACKET_SIZE);
+        all_nodes[i].packet = U_AllocPacket(MAX_PACKET_SIZE);
         all_nodes[i].next = &all_nodes[i+1];
     }
     spstate.free_node = &all_nodes[0];
     all_nodes[MAX_PACKETS - 1].next = NULL;
 
-    spstate.outpacket = SDLNet_AllocPacket(MAX_PACKET_SIZE);
+    spstate.outpacket = U_AllocPacket(MAX_PACKET_SIZE);
 
     spstate.drop_callback = drop_callback;
 
@@ -169,22 +322,22 @@ static void tcpSP_exit(void)
     {
         if (all_nodes[i].packet)
         {
-            SDLNet_FreePacket(all_nodes[i].packet);
+            U_FreePacket(all_nodes[i].packet);
             all_nodes[i].packet = NULL;
         }
     }
     if (spstate.outpacket)
     {
-        SDLNet_FreePacket(spstate.outpacket);
+        U_FreePacket(spstate.outpacket);
         spstate.outpacket = NULL;
     }
-    if (spstate.socket)
+    if (spstate.sock)
     {
-        SDLNet_UDP_Close(spstate.socket);
-        spstate.socket = NULL;
+        U_Close(spstate.sock);
+        spstate.sock = U_INVALID;
     }
 
-    SDLNet_Quit();
+    U_Done();
 
     LbMemorySet(&spstate, 0, sizeof(spstate));
     NETDBG(9, "Done");
@@ -204,9 +357,9 @@ static TbError tcpSP_host(const char * session, void * options)
         ++portstr;
     }
 
-    spstate.socket = SDLNet_UDP_Open(atoi(portstr));
-    if (spstate.socket == NULL) {
-        ERRORLOG("Failed to initialize TCP server socket to port %s", portstr);
+    spstate.sock = U_Open(atoi(portstr));
+    if (!U_Valid(spstate.sock)) {
+        ERRORLOG("Failed to initialize server socket to port %s", portstr);
         return Lb_FAIL;
     }
 
@@ -238,15 +391,15 @@ static TbError tcpSP_join(const char * session, void * options)
         ++portstr;
     }
 
-    if (SDLNet_ResolveHost(&spstate.address, hostname, atoi(portstr)) != 0)
+    if (U_ResolveHost(&spstate.address, hostname, atoi(portstr)) == 0)
     {
         LbMemoryFree(hostname);
         NETMSG("Failed to resolve %s: %d", hostname, atoi(portstr));
         return Lb_FAIL;
     }
 
-    spstate.socket = SDLNet_UDP_Open(0);
-    if (spstate.socket == NULL) {
+    spstate.sock = U_Open(0);
+    if (spstate.sock == U_INVALID) {
         LbMemoryFree(hostname);
         NETMSG("Failed to initialize UDP client socket");
         return Lb_FAIL;
@@ -265,7 +418,7 @@ static TbError tcpSP_join(const char * session, void * options)
     short_ptr[0] = 0;
     spstate.outpacket->address = spstate.address;
     spstate.outpacket->len = TOKEN_SIZE;
-    SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
+    U_Send(spstate.sock, spstate.outpacket);
     for (int i = 0; i < 20; i++)
     {
         SDL_Delay(25);
@@ -346,7 +499,7 @@ static void process_packet(Uint32 now, struct PacketListNode *node, NetNewUserCa
             short_ptr[1] = spstate.peers[index].token;
             spstate.outpacket->len = 2 * TOKEN_SIZE;
             spstate.outpacket->address = node->packet->address;
-            SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket);
+            U_Send(spstate.sock, spstate.outpacket);
         }
         else {
             NETMSG("Socket dropped because server is full");
@@ -429,9 +582,9 @@ static void tcpSP_update(NetNewUserCallback new_user)
         return;
     }
     for (
-        int ret = SDLNet_UDP_Recv(spstate.socket, node->packet);
+        int ret = U_Recv(spstate.sock, node->packet);
         ret != 0;
-        ret = SDLNet_UDP_Recv(spstate.socket, node->packet))
+        ret = U_Recv(spstate.sock, node->packet))
     {
         NETDBG(8, "Got a packet len=%d", node->packet->len);
         if (ret < 0)
@@ -512,7 +665,7 @@ static struct PacketListNode *wait_for_message(Token token, unsigned timeout)
     }
     while  (true)
     {
-        int ret = SDLNet_UDP_Recv(spstate.socket, node->packet);
+        int ret = U_Recv(spstate.sock, node->packet);
         if (ret == 0)
         {
             if ((timeout > 0)  && (SDL_GetTicks() > late))
@@ -600,7 +753,7 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
         ((short *)spstate.outpacket->data)[0] = spstate.client_token;
         spstate.outpacket->address = spstate.address;
     }
-    if (0 == SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket))
+    if (0 == U_Send(spstate.sock, spstate.outpacket))
     {
         ERRORLOG("Unable to send packet");
     }
@@ -629,7 +782,7 @@ static void tcpSP_sendmsg_all(const char * buffer, size_t size)
             NETDBG(9, "Token:0x%0x i:%d id:%d", spstate.peers[i].token, i, spstate.peers[i].id);
 
             spstate.outpacket->address = spstate.peers[i].address;
-            if (0 == SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket))
+            if (0 == U_Send(spstate.sock, spstate.outpacket))
             {
                 ERRORLOG("Unable to send packet");
             }
@@ -639,7 +792,7 @@ static void tcpSP_sendmsg_all(const char * buffer, size_t size)
     {
         ((short *)spstate.outpacket->data)[0] = spstate.client_token;
         spstate.outpacket->address = spstate.address;
-        if (0 == SDLNet_UDP_Send(spstate.socket, -1, spstate.outpacket))
+        if (0 == U_Send(spstate.sock, spstate.outpacket))
         {
             ERRORLOG("Unable to send packet");
         }
