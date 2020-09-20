@@ -249,12 +249,21 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     {
         message_add_fmt(plyr_idx, "turn %ld", game.play_gameturn);
         return true;
+    } else if (strcmp(parstr, "show.netlog") == 0)
+    {
+        if (!is_my_player_number(plyr_idx))
+        {
+            return false;
+        }
+        game_flags2 ^= GF2_ShowEventLog;
+        return true;
     } else if (strcmp(parstr, "show.ticks") == 0)
     {
-        if (is_my_player_number(plyr_idx))
+        if (!is_my_player_number(plyr_idx))
         {
-            game.flags_gui ^= GGUI_ShowTickTime;
+            return false;
         }
+        game.flags_gui ^= GGUI_ShowTickTime;
         return true;
     } else if (strcmp(parstr, "turn") == 0)
     {
