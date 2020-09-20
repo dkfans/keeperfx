@@ -18,6 +18,8 @@
 #
 #******************************************************************************
 
+ARCH = i686-w64-mingw32
+
 .PHONY: clean-libsdl deep-clean-libsdl
 
 libexterns: libsdl libsdlnet libsdlmixer
@@ -55,7 +57,32 @@ $(error Cannot handle SDL library prebuild. You need to prepare the library manu
 
 endif
 
-ifneq (,$(findstring .zip,$(SDL_NET_PACKAGE)))
+##################
+
+ifneq (,$(findstring .tar.gz,$(SDL_NET_PACKAGE)))
+
+libsdlnet: sdl/lib/libSDL2_net.lib
+
+sdl/lib/libSDL2_net.lib: sdl/$(SDL_NET_PACKAGE)
+	-$(ECHO) 'Extracting package: $<'
+	$(MKDIR) sdl/lib sdl/include/SDL2
+	cd "$(<D)"; \
+	tar -xzf "$(<F)"
+	$(MV) sdl/SDL2_net-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
+	$(CP) -r sdl/SDL2_net-*/$(ARCH)/lib/* sdl/lib/
+	-$(ECHO) 'Finished extracting: $<'
+	-$(ECHO) ' '
+
+sdl/$(SDL_NET_PACKAGE):
+	-$(ECHO) 'Downloading package: $@'
+	$(MKDIR) "$(@D)"
+	curl -L -o "$@.dl" "$(SDL_NET_DOWNLOAD)"
+	tar -tzf "$@.dl"
+	$(MV) "$@.dl" "$@"
+	-$(ECHO) 'Finished downloading: $@'
+	-$(ECHO) ' '
+
+else
 
 libsdlnet: sdl/lib/SDL2_net.lib
 
@@ -78,13 +105,34 @@ sdl/$(SDL_NET_PACKAGE):
 	-$(ECHO) 'Finished downloading: $@'
 	-$(ECHO) ' '
 
-else
-
-$(error Cannot handle SDL_net library prebuild. You need to prepare the library manually.)
-
 endif
 
-ifneq (,$(findstring .zip,$(SDL_MIXER_PACKAGE)))
+##################
+
+ifneq (,$(findstring .tar.gz,$(SDL_MIXER_PACKAGE)))
+
+libsdlmixer: sdl/lib/libSDL2_mixer.lib
+
+sdl/lib/libSDL2_mixer.lib: sdl/$(SDL_MIXER_PACKAGE)
+	-$(ECHO) 'Extracting package: $<'
+	$(MKDIR) sdl/lib sdl/include/SDL2
+	cd "$(<D)"; \
+	tar -xzf "$(<F)"
+	$(MV) sdl/SDL2_mixer-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
+	$(CP) -r sdl/SDL2_mixer-*/$(ARCH)/lib/* sdl/lib/
+	-$(ECHO) 'Finished extracting: $<'
+	-$(ECHO) ' '
+
+sdl/$(SDL_MIXER_PACKAGE):
+	-$(ECHO) 'Downloading package: $@'
+	$(MKDIR) "$(@D)"
+	curl -L -o "$@.dl" "$(SDL_MIXER_DOWNLOAD)"
+	tar -tzf "$@.dl"
+	$(MV) "$@.dl" "$@"
+	-$(ECHO) 'Finished downloading: $@'
+	-$(ECHO) ' '
+
+else
 
 libsdlmixer: sdl/lib/SDL2_mixer.lib
 
@@ -106,10 +154,6 @@ sdl/$(SDL_MIXER_PACKAGE):
 	$(MV) "$@.dl" "$@"
 	-$(ECHO) 'Finished downloading: $@'
 	-$(ECHO) ' '
-
-else
-
-$(error Cannot handle SDL_mixer library prebuild. You need to prepare the library manually.)
 
 endif
 

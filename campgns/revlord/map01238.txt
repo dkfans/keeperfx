@@ -1,0 +1,405 @@
+REM ********************************************
+REM  Hero campaign by Alexsa
+REM  map 1238, level 5 - Misty Bog
+REM  Script for the map
+REM  Version 0.00
+REM ********************************************
+REM Fifth map in campaign. AI gets endless amounts of imps.
+REM First version was absolutely non-playable. Very strong hero attacks all day long, and to top it off AI will crush you if you don't wall in or post in.
+REM It's highly advised to make no wall breaches in the mainland, so that stupid imps don't carry traps through enemy guardposts..
+REM The party protecting Hero Heart is 16 creatures strong... that's bogus.
+REM also, I've attacked Hero Heart using water-wall exploit. Doing it the proper way would've been really hard.
+REM ********************************************
+REM Update 1.00, august 2018: lowered difficulty. 
+REM Somewhat reduced endless imps.
+REM ********************************************
+LEVEL_VERSION(1)
+
+SET_GENERATE_SPEED(400)
+
+COMPUTER_PLAYER(PLAYER1,2)
+MAX_CREATURES(PLAYER0,20)
+MAX_CREATURES(PLAYER1,15)
+
+ALLY_PLAYERS(PLAYER1,PLAYER_GOOD,1)
+
+START_MONEY(PLAYER0,10000)
+START_MONEY(PLAYER1,75000)
+
+REM Thiefs can be converted to Knights here, so they're useful tanks against mass Tentacles. But... well.
+REM All heroes but wizards are available at 8 total (including the neutral ones here)
+ADD_CREATURE_TO_POOL(THIEF,7)
+ADD_CREATURE_TO_POOL(DWARFA,7)
+ADD_CREATURE_TO_POOL(MONK,7)
+ADD_CREATURE_TO_POOL(FAIRY,7)
+ADD_CREATURE_TO_POOL(BARBARIAN,7)
+ADD_CREATURE_TO_POOL(GIANT,7)
+ADD_CREATURE_TO_POOL(ARCHER,7)
+ADD_CREATURE_TO_POOL(WITCH,7)
+ADD_CREATURE_TO_POOL(SAMURAI,7)
+REM AI tends to get more than 3 vampires, and even then 3 vampires is a lot.
+ADD_CREATURE_TO_POOL(VAMPIRE,3)
+ADD_CREATURE_TO_POOL(TENTACLE,30)
+CREATURE_AVAILABLE(PLAYER0,THIEF,1,0)
+CREATURE_AVAILABLE(PLAYER0,DWARFA,1,0)
+CREATURE_AVAILABLE(PLAYER0,ARCHER,1,0)
+CREATURE_AVAILABLE(PLAYER0,FAIRY,1,0)
+CREATURE_AVAILABLE(PLAYER0,BARBARIAN,1,0)
+CREATURE_AVAILABLE(PLAYER0,GIANT,1,0)
+CREATURE_AVAILABLE(PLAYER0,MONK,1,0)
+CREATURE_AVAILABLE(PLAYER0,SAMURAI,1,0)
+CREATURE_AVAILABLE(PLAYER0,WITCH,1,0)
+CREATURE_AVAILABLE(PLAYER1,VAMPIRE,1,0)
+CREATURE_AVAILABLE(PLAYER1,TENTACLE,1,0)
+REM Room permissions: no water blocking rooms. Don't abuse poor AI. Though it'll trigger pathfinding bug?
+    ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+    ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+    ROOM_AVAILABLE(PLAYER1,GUARD_POST,1,0)
+    ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,1,0)
+    ROOM_AVAILABLE(ALL_PLAYERS,BARRACKS,1,0)
+    ROOM_AVAILABLE(PLAYER1,TEMPLE,1,0)
+    ROOM_AVAILABLE(ALL_PLAYERS,SCAVENGER,1,0)
+
+REM AI has quite a bit more magical powers.
+    MAGIC_AVAILABLE(PLAYER0,POWER_SLAP,0,0)
+    MAGIC_AVAILABLE(PLAYER1,POWER_SLAP,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HOLD_AUDIENCE,1,0)
+    MAGIC_AVAILABLE(PLAYER1,POWER_OBEY,1,1)
+    MAGIC_AVAILABLE(PLAYER1,POWER_LIGHTNING,1,0)
+    MAGIC_AVAILABLE(PLAYER1,POWER_DISEASE,1,0)
+    MAGIC_AVAILABLE(PLAYER1,POWER_DESTROY_WALLS,1,0)
+REM Alarm, lightning, and steel door
+TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+
+TRAP_AVAILABLE(PLAYER1,POISON_GAS,1,0)
+DOOR_AVAILABLE(PLAYER1,MAGIC,1,0)
+
+REM Only braced doors, alarm and lightning for you - reduced sustainability of workshop economy (on top of scarce gold)
+
+REM The stealing ghosts and vampires are... an issue.
+REM I mean, you can do literally nothing about a vampire getting into your treasury/library, for a change, although they kinda... strangely steal spellbooks (no ?)
+
+REM The endless attacks happen once per payday.
+REM Initially skelsmal attacks and ghospel/ghogold.
+REM Second level on 4th payday are skelgard, skelroom, and strospel/strogold.
+REM Third level starts on 7th payday, with skelking, vampires, vampgold and vampspel.
+REM In the end,that's 6 vampires, 16 skeletons and 4 ghosts each payday. With a hostile vampire/tentacle keeper as side dish.
+REM Gold-stealers only attack if you have over 5000 total gold, though, so there's that (2 ghosts and 1 vampire).
+REM Spell-stealers only spawn if player1 has over 10 temple tiles (in other words, controls the biggest island and didn't retake the temple in the borderroom)
+REM Most attackers arrive from Hero Heart forever.
+REM Destroying heart (any) spawns final+heart waves which attack from beyond walled in location, and spawns imps both near your and hero hearts.
+REM Victory is achieved when both dungeons are destroyed and no vampires are alive for heroes. Freespawn doesn't stop ever.
+CREATE_PARTY(WAVE_FINAL)
+CREATE_PARTY(WAVE_HEART)
+
+CREATE_PARTY(WAVE_SKELGARD)
+CREATE_PARTY(WAVE_SKELKING)
+CREATE_PARTY(WAVE_SKELROOM)
+CREATE_PARTY(WAVE_SKELSMAL)
+
+CREATE_PARTY(WAVE_GHOSPEL)
+CREATE_PARTY(WAVE_GHOGOLD)
+
+CREATE_PARTY(WAVE_STROSPEL)
+CREATE_PARTY(WAVE_STROGOLD)
+
+CREATE_PARTY(WAVE_VAMPIRES)
+CREATE_PARTY(WAVE_VAMPSPEL)
+CREATE_PARTY(WAVE_VAMPGOLD)
+
+ADD_TO_PARTY(WAVE_FINAL,VAMPIRE,10,1000,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_FINAL,VAMPIRE,10,1000,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_FINAL,VAMPIRE,8,500,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_FINAL,VAMPIRE,8,500,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_FINAL,VAMPIRE,8,500,ATTACK_DUNGEON_HEART,200)
+
+ADD_TO_PARTY(WAVE_HEART,VAMPIRE,8,500,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_HEART,SKELETON,10,200,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_HEART,SKELETON,10,200,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_HEART,SKELETON,10,200,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_HEART,SKELETON,10,200,ATTACK_DUNGEON_HEART,200)
+
+ADD_TO_PARTY(WAVE_SKELKING,SKELETON,10,200,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SKELKING,SKELETON,9,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SKELKING,SKELETON,8,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SKELKING,SKELETON,7,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SKELKING,SKELETON,6,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SKELKING,SKELETON,5,0,ATTACK_DUNGEON_HEART,200)
+
+ADD_TO_PARTY(WAVE_SKELGARD,SKELETON,7,100,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_SKELGARD,SKELETON,6,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_SKELGARD,SKELETON,5,0,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_SKELGARD,SKELETON,4,0,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_SKELROOM,SKELETON,7,100,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_SKELROOM,SKELETON,6,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_SKELROOM,SKELETON,5,0,ATTACK_ROOMS,200)
+ADD_TO_PARTY(WAVE_SKELROOM,SKELETON,4,0,ATTACK_ROOMS,200)
+
+ADD_TO_PARTY(WAVE_SKELSMAL,SKELETON,4,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SKELSMAL,SKELETON,3,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SKELSMAL,SKELETON,2,0,ATTACK_DUNGEON_HEART,200)
+ADD_TO_PARTY(WAVE_SKELSMAL,SKELETON,1,0,ATTACK_DUNGEON_HEART,200)
+
+ADD_TO_PARTY(WAVE_GHOSPEL,GHOST,4,0,STEAL_SPELLS,200)
+
+ADD_TO_PARTY(WAVE_GHOGOLD,GHOST,3,0,STEAL_GOLD,200)
+
+ADD_TO_PARTY(WAVE_STROSPEL,GHOST,8,0,STEAL_SPELLS,200)
+
+ADD_TO_PARTY(WAVE_STROGOLD,GHOST,6,0,STEAL_GOLD,200)
+
+ADD_TO_PARTY(WAVE_VAMPIRES,VAMPIRE,3,200,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_VAMPIRES,VAMPIRE,4,200,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_VAMPIRES,VAMPIRE,5,200,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_VAMPIRES,VAMPIRE,6,200,ATTACK_ENEMIES,200)
+ADD_TO_PARTY(WAVE_VAMPIRES,VAMPIRE,7,200,ATTACK_ENEMIES,200)
+
+ADD_TO_PARTY(WAVE_VAMPSPEL,GHOST,10,200,STEAL_SPELLS,200)
+ADD_TO_PARTY(WAVE_VAMPSPEL,GHOST,9,200,STEAL_SPELLS,200)
+
+ADD_TO_PARTY(WAVE_VAMPGOLD,GHOST,10,200,STEAL_GOLD,200)
+ADD_TO_PARTY(WAVE_VAMPGOLD,GHOST,9,200,STEAL_GOLD,200)
+
+
+REM ACtion points:
+REM 1 - hero heart
+REM Hero gates:
+REM 1 - hero heart
+REM 2 - blue graveyard
+REM 3,4 - blue temple
+REM 5,6 - beyond hero heart for blue/hero destruction spawn
+REM 7 - over your own heart
+REM Start the primary timer.
+
+REM Startup
+    SET_TIMER(PLAYER0,TIMER0)
+    SET_TIMER(PLAYER1,TIMER0)
+REM The hint about hell hounds attacking you from south is here. I mean seriously, lava does give you a hint.
+    QUICK_OBJECTIVE(1,"The vile necromancer holds this realm in the deathgrip. Rally the locals to vanquish the undead and enact your revenge against vampires who have brought the Knightly Order of Dominus to ruin.", PLAYER0)
+
+REM Add imps for AI if some are dead. ...I played version where it happened instantly, and gotten 70 vampires. Yuck.
+IF(PLAYER1,TIMER0 >= 500)
+REM Kill off too many vampires, since...too hard!!! I mean seriously, they get out of any control. And the hero spawns are tough enough as they are.
+	IF(PLAYER1,VAMPIRE >= 5)
+		NEXT_COMMAND_REUSABLE
+		KILL_CREATURE(PLAYER1,VAMPIRE,LEAST_EXPERIENCED,1)
+	ENDIF
+	IF(PLAYER1,IMP <= 20)
+		IF(PLAYER1,IMP >= 5)
+  			NEXT_COMMAND_REUSABLE
+  			SET_TIMER(PLAYER1,TIMER0)
+			NEXT_COMMAND_REUSABLE
+			ADD_CREATURE_TO_LEVEL(PLAYER1,IMP,-2,1,3,0)
+		ENDIF
+	ENDIF
+ENDIF
+REM Inital flag setup
+IF(PLAYER0,TIMER0 >= 200)
+REM Flags:
+REM PLAYER_GOOD
+REM Flag0 - kill counter
+REM Flag1 - Mistress
+REM Flag2 - Vampire
+REM Flag2 - Warlock
+REM Flag4 - hero heart under attack, 1 - entrance breached.
+REM FLAG5 - increase kill counter
+REM Add Fairy
+	    QUICK_INFORMATION(2,"The necromancer you oppose has created at least phylactery to protect himself from deat. It will be probably difficult to defeat him once and for all.", PLAYER0)
+ENDIF
+REM Start weak attacks
+IF(PLAYER0,TIMER0 >= 10000)
+    SET_TIMER(PLAYER0,TIMER1)
+    QUICK_INFORMATION(3,"My liege, the silence of the Misty Bog has turned especially oppressive and eerie - your presence has not went unnoticed. It will be wise to prepare for an attack.", PLAYER0)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELSMAL,-2,1)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELSMAL,-4,1)
+ENDIF
+REM Warn to wall in
+IF(PLAYER0,TIMER0 >= 20000)
+	QUICK_INFORMATION(9,"Although his undead minions are many, the necromancer himself seems to be controlling several vampires and a large host of powerful watery beasts known as tentacles, native to underwater streams of the region. It might be wise to avoid direct confrontation with his forces, if at all possible, until you are ready.", PLAYER0)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELSMAL,-4,1)
+ENDIF
+
+REM Start stronger attacks
+IF(PLAYER0,TIMER0 >= 40000)
+        SET_TIMER(PLAYER0,TIMER2)
+        QUICK_INFORMATION(4,"I have divined more undead minions of the necromancer who are approaching from the north.", PLAYER0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELGARD,-2,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELROOM,-2,1)
+ENDIF
+
+IF(PLAYER0,TIMER0 >= 70000)
+        SET_TIMER(PLAYER0,TIMER3)
+        QUICK_INFORMATION(5,"My liege, the necromancer seems to have finally requested aid from the vampires - far fewer of them were seen in the surface world for the last forthnight!", PLAYER0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPIRES,-2,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPGOLD,-2,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPSPEL,-2,1)
+ENDIF
+
+REM In fact, it's wholly possible that if you don't wall yourself in, you'll face those 30 lv 10 Tentacles and die.
+IF(PLAYER0,TIMER0 >= 110000)
+	QUICK_INFORMATION(6,"Our dungeon heart is breached by the undead forces!", PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELGARD,-7,3)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-7,4,3,0)
+ENDIF
+
+REM First timer; runs weak skeletons until temple and enough guard posts are taken out.
+REM If AI keeper is dead, attack with strongest skeletons instead, harrassing you.
+IF(PLAYER0,TIMER1 >= 5000)
+    NEXT_COMMAND_REUSABLE
+    SET_TIMER(PLAYER0,TIMER1)
+	QUICK_INFORMATION(8,"The people speak of a haunted temple in the area. It will be wise to cleanse it of the taint.", PLAYER0)
+	IF(PLAYER_GOOD,GUARD_POST >= 60)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELSMAL,-1,1)
+	ENDIF
+    IF(PLAYER1,TEMPLE >= 12)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_GHOSPEL,-3,1)
+        NEXT_COMMAND_REUSABLE
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_GHOGOLD,-4,1)
+    ENDIF
+	IF(PLAYER1, DUNGEON_DESTROYED>=1)
+	        NEXT_COMMAND_REUSABLE
+	        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELKING,-1,1)
+	ENDIF
+ENDIF
+
+REM Second timer, runs more skeletons/ghosts. Attack until all guard posts/temples are captured.
+IF(PLAYER0,TIMER2 >= 10000)
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER0,TIMER2)
+	IF(PLAYER_GOOD,GUARD_POST >= 20)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELGARD,-1,1)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELROOM,-1,1)
+	ENDIF
+	IF(PLAYER1,TEMPLE >= 12)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_STROSPEL,-3,1)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_STROGOLD,-4,1)
+	ENDIF
+ENDIF
+
+REM Third timer, after a hour of playing... uh... well, you're probably bored enough by this point. 
+IF(PLAYER0,TIMER3 >= 15000)
+        NEXT_COMMAND_REUSABLE
+        SET_TIMER(PLAYER0,TIMER3)
+	IF(PLAYER_GOOD, DUNGEON_DESTROYED==0)
+	        NEXT_COMMAND_REUSABLE
+	        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELKING,-1,1)
+	        NEXT_COMMAND_REUSABLE
+	        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPIRES,-1,1)
+	        NEXT_COMMAND_REUSABLE
+	        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPGOLD,-1,1)
+	        NEXT_COMMAND_REUSABLE
+	        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPSPEL,-1,1)
+	ENDIF
+ENDIF
+
+
+REM Heart welcome party.
+IF_ACTION_POINT(1,PLAYER0)
+	SET_TIMER(PLAYER0,TIMER3)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HEART,-1,2)
+ENDIF
+
+REM Destruction of either heart triggers *very strong* vampire attack.
+IF(PLAYER_GOOD, DUNGEON_DESTROYED>=1)
+	SET_TIMER(PLAYER0,TIMER3)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HEART,-5,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELKING,-6,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HEART,-7,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FINAL,-6,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPSPEL,-6,4)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-6,4,3,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-7,4,3,0)
+		IF(PLAYER1, DUNGEON_DESTROYED==0)
+	QUICK_OBJECTIVE(16,"The heart of an evil necromancer is destroyed, but he still has another one. Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog.", PLAYER0)
+		ENDIF
+ENDIF
+
+IF(PLAYER1, DUNGEON_DESTROYED>=1)
+	SET_TIMER(PLAYER0,TIMER3)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELKING,-5,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HEART,-6,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_HEART,-7,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FINAL,-5,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPSPEL,-5,4)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-5,4,3,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-7,4,3,0)
+		IF(PLAYER_GOOD, DUNGEON_DESTROYED>=1)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FINAL,-3,1)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FINAL,-2,1)
+		SET_TIMER(PLAYER0,TIMER4)
+	QUICK_OBJECTIVE(18,"The evil necromancer is defeated. Now, you must stake all surviving vampires in the bog, who have belatedly arrived to enact vengeance upon your heroes.", PLAYER0)
+		ENDIF
+		IF(PLAYER_GOOD, DUNGEON_DESTROYED==0)
+	QUICK_OBJECTIVE(16,"The heart of an evil necromancer is destroyed, but he still has another one. Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog.", PLAYER0)
+		ENDIF
+ENDIF
+
+IF(PLAYER0,TIMER4 >= 200)
+	IF_CONTROLS(PLAYER_GOOD, VAMPIRE<=0)
+		QUICK_OBJECTIVE(17,"Glorious victory, my liege! All of the undead is destroyed, and the Misty Bog is safe. It is now possible to restore Knight's Castle, which fell into disrepair after the vampires have settled here.", PLAYER0)
+		WIN_GAME
+	ENDIF
+ENDIF
+
+REM Capture of entrances increases the max creatures count.
+
+IF(PLAYER0,ENTRANCE <= 9)
+    NEXT_COMMAND_REUSABLE
+    MAX_CREATURES(PLAYER0,20)
+ENDIF
+
+IF(PLAYER1,ENTRANCE <= 9)
+    NEXT_COMMAND_REUSABLE
+    MAX_CREATURES(PLAYER1,15)
+ENDIF
+
+IF(PLAYER0,ENTRANCE >= 10)
+	NEXT_COMMAND_REUSABLE
+	MAX_CREATURES(PLAYER0,25)
+	IF(PLAYER0,ENTRANCE >= 20)
+		NEXT_COMMAND_REUSABLE
+		MAX_CREATURES(PLAYER0,30)
+	ENDIF
+ENDIF
+
+IF(PLAYER1,ENTRANCE >= 10)
+	NEXT_COMMAND_REUSABLE
+	MAX_CREATURES(PLAYER1,20)
+	IF(PLAYER1,ENTRANCE >= 20)
+		NEXT_COMMAND_REUSABLE
+		MAX_CREATURES(PLAYER1,25)
+	ENDIF
+ENDIF
+
+IF(PLAYER0,BRIDGE >= 1)
+    QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+    NEXT_COMMAND_REUSABLE
+    ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
+ENDIF
+
+IF(PLAYER0,BRIDGE < 1)
+	NEXT_COMMAND_REUSABLE
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+ENDIF

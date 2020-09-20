@@ -1,0 +1,91 @@
+REM ****************************************************************************
+REM  Script for Bonus Level - Coldamned
+REM  Campaign: Revenge of the Lord
+REM  Authors:  Alexsa
+REM ****************************************************************************
+REM Update 1.00, august 2018: tweaked things, ensured nothing goes wrong. Still a chance of bug spawning in the wrong place.
+REM ********************************************
+
+LEVEL_VERSION(1)
+
+START_MONEY(PLAYER0,0)
+
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,0,0)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,1)
+    MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,1)
+
+REM To make level more interesting, it provides the player with random puzzles chosen.
+REM Part 1, green keeper - use the thief.
+REM Part 2, yellow keeper - monk/samurai and thief
+COMPUTER_PLAYER(PLAYER1,8)
+COMPUTER_PLAYER(PLAYER2,8)
+ALLY_PLAYERS(PLAYER2,PLAYER_GOOD,1)
+COMPUTER_PLAYER(PLAYER3,8)
+ALLY_PLAYERS(PLAYER3,PLAYER_GOOD,1)
+
+REM All your heroes get high strength score, so that you don't waste half an hour breaking a freaking door or dungeon heart. Samurai are dangerous, however!
+SET_CREATURE_STRENGTH(SAMURAI,80)
+SET_CREATURE_STRENGTH(MONK,70)
+SET_CREATURE_STRENGTH(THIEF,60)
+SET_CREATURE_STRENGTH(FAIRY,60)
+SET_CREATURE_STRENGTH(WITCH,60)
+
+IF(PLAYER_GOOD,WIZARD == 0)
+    QUICK_OBJECTIVE(2,"The wizard is dead, and it is time to leave this dungeon.", PLAYER0)
+	WIN_GAME
+ENDIF
+
+    QUICK_OBJECTIVE(1,"An evil wizard rules this frozen underground realm. He has imprisoned two heroes somewhere in this dungeon; once rescued, they will gladly accompany you in future conquest if you help them slay the renegade wizard. Make haste, for the way back will not remain open for much longer.", PLAYER0)
+
+REM Blue
+REM Upon startup, run random boulders ;)
+REM Green dungeon:
+        ADD_CREATURE_TO_LEVEL(PLAYER1,BUG,DRAWFROM(3,4),1,1,0)
+REM Green dungeon - south
+        ADD_CREATURE_TO_LEVEL(PLAYER1,BUG,DRAWFROM(11,12,13),1,1,0)
+
+
+REM In the end you'll get level 5 knight, or level 9 samurai or monk, priestess or fairy. Two Increase Levels should be spared for the last moment if possible, one must be used to upgrade the fairy (invis).
+REM Losing imps only deprives you of ability to get more increase levels, but doesn't stop from winning if you already used necessary increase levels (the only truly mandatory is invis for fairy).
+
+REM Reaching green or yellow dungeon heart grants a hero to use.
+IF_ACTION_POINT(1,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,DRAWFROM(MONK,SAMURAI),-1,1,5,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER1,BUG,DRAWFROM(5,6,7),1,1,0)
+ENDIF
+IF_ACTION_POINT(2,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,DRAWFROM(FAIRY,WITCH),-2,1,5,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER1,BUG,8,1,1,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER1,BUG,9,1,1,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER1,BUG,10,1,1,0)
+ENDIF
+
+REM Combat pits, skeleton counter
+IF(PLAYER_GOOD,SKELETON<=2)
+        ADD_CREATURE_TO_LEVEL(PLAYER1,BUG,14,1,1,1,0)
+ENDIF
+IF(PLAYER_GOOD,SKELETON<=1)
+        ADD_CREATURE_TO_LEVEL(PLAYER1,BUG,15,1,1,1,0)
+ENDIF
+IF(PLAYER_GOOD,SKELETON<=0)
+        ADD_CREATURE_TO_LEVEL(PLAYER1,BUG,16,1,1,1,0)
+ENDIF
+
+REM Time is limited. But still way more than enough, even if going through combat pits. The timer stops once wizard is dead anyway, and it's easy to do.
+REM Priestess uses Wind to blow everyone away and only fights bile demon after wizard melts.
+REM Fairy invisibly sneaks to snipe him, after breaking down the door. 
+REM Eastern route will be toned down, it's CTA for all.
+SET_TIMER(PLAYER0,TIMER0)
+BONUS_LEVEL_TIME(14000)
+IF(PLAYER0,TIMER0 >= 14000)
+	QUICK_OBJECTIVE(3,"The evil wizard has finished his sinister spell and the way back is barred.", PLAYER0)
+	LOSE_GAME
+ENDIF
+REM Losing all creatures = defeat.
+IF(PLAYER0,TOTAL_CREATURES == 0)
+	QUICK_OBJECTIVE(4,"All of your heroes are dead, while the evil wizard survives.", PLAYER0)
+	LOSE_GAME
+ENDIF
+

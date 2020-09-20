@@ -171,6 +171,7 @@ obj/engine_camera.o \
 obj/engine_lenses.o \
 obj/engine_redraw.o \
 obj/engine_render.o \
+obj/engine_render_data.o \
 obj/engine_textures.o \
 obj/event_monitoring.o \
 obj/front_credits.o \
@@ -358,7 +359,8 @@ LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 
 # load program version
 include version.mk
-VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE)u build $(VER_BUILD) Alpha
+
+VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD) Alpha
 
 # load depenency packages
 include prebuilds.mk
