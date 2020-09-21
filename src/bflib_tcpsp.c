@@ -182,7 +182,7 @@ static SOCKET U_Open(unsigned short port)
     server.sin_port = htons(port);
     if (bind(ret, (struct sockaddr *)&server, sizeof(server)) == SOCKET_ERROR)
     {
-        ERRORLOG("bind failed");
+        ERRORLOG("bind failed err:%lx", WSAGetLastError());
         close(ret);
         return U_INVALID;
     }
@@ -228,7 +228,9 @@ static TbBool U_ResolveHost(IPaddress *addr, const char *hostname, unsigned shor
 
 static int U_Recv(SOCKET s, struct UdpPacket *packet)
 {
-      int size;
+      int size = sizeof(packet->address);
+      assert(packet != NULL);
+
       int read = recvfrom(s, (char*)packet->data, packet->maxlen, 0,
           (struct sockaddr *)&packet->address, &size);
       if (read == 0)
@@ -243,7 +245,8 @@ static int U_Recv(SOCKET s, struct UdpPacket *packet)
           {
               return 0;
           }
-          ERRORLOG("WSAGetLastError: %lx", err);
+          ERRORLOG("WSAGetLastError: %lx, packet->maxlen:%d size:%d",
+              err, (int)packet->maxlen, size);
           return -1;
       }
       else
