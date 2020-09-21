@@ -1677,6 +1677,7 @@ void process_packets(void)
         }
         if (!game.packet_load_enable || game.numfield_149F47)
         {
+            // That is on both sides so it should split between server and clients
             struct PacketEx* pckt = get_packet_ex_direct(player->packet_num);
             switch(LbNetwork_Exchange(pckt))
             {

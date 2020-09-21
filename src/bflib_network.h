@@ -285,7 +285,6 @@ TbBool  LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct Sy
 void    LbNetwork_GetResyncProgress(int *now, int *max);
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long a2);
-void    LbNetwork_EnableLag(TbBool lag); //new addition to enable/disable scheduled lag mode
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);

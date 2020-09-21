@@ -237,7 +237,6 @@ struct NetState
     unsigned                active_players;     //how many active players
     size_t                  user_frame_size;    //sizeof(struct ScreenPacket) OR sizeof(struct PacketEx)
     char *                  exchg_buffer;
-    TbBool                  enable_lag;         //enable scheduled lag mode in exchange (in the best case this would always be true but other parts of code expects perfect sync for now)
     char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct PacketEx)) * PACKETS_COUNT + 1]; //completely estimated for now
     char                    msg_buffer_null;    //theoretical safe guard vs non-terminated strings
     TbBool                  locked;             //if set, no players may join
@@ -1029,11 +1028,6 @@ TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long buf_size)
     return Lb_OK;
 }
 
-void LbNetwork_EnableLag(TbBool lag)
-{
-    netstate.enable_lag = lag;
-}
-
 void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
 {
   exchangeTimeout = 1000 * tmout;
@@ -1261,58 +1255,24 @@ NetResponse LbNetwork_Exchange(void *buf)
             if (netstate.users[id].progress == USER_UNUSED)
                 continue;
 
-            if (netstate.users[id].progress == USER_LOGGEDIN)
-            {
-                if (!netstate.enable_lag ||
-                        netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES)
-                { //scheduled lag in TCP stream
-                    //TODO NET take time to detect a lagger which can then be announced
-                    ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
-                }
-            }
-            else
-            {
-                ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
-            }
+            ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
         } // for
         netstate.seq_nbr += 1;
         SendServerFrame();
     }
     else
     { // client
-        if (netstate.enable_lag)
+        SendClientFrame((char *) buf, netstate.seq_nbr);
+        if (!ProcessMessagesUntilNextFrame(SERVER_ID, 0))
         {
-            ProcessPendingMessages(SERVER_ID);
-
-            if (netstate.exchg_queue == NULL)
-            {
-                //we need at least one frame so block
-                ProcessMessagesUntilNextFrame(SERVER_ID, 0);
-            }
-
-            if (netstate.exchg_queue == NULL)
-            {
-                //connection lost
-                netstate.sp->update(OnNewUser);
-                return NR_FAIL;
-            }
-
-            SendClientFrame((char *) buf, netstate.exchg_queue->seq_nbr);
+            netstate.sp->update(OnNewUser);
+            NETDBG(11, "No message");
+            return NR_FAIL;
         }
-        else // not enable lag
-        {
-            SendClientFrame((char *) buf, netstate.seq_nbr);
-            if (!ProcessMessagesUntilNextFrame(SERVER_ID, 0))
-            {
-                netstate.sp->update(OnNewUser);
-                NETDBG(11, "No message");
-                return NR_FAIL;
-            }
 
-            if (netstate.exchg_queue == NULL) {
-                //connection lost
-                return NR_FAIL;
-            }
+        if (netstate.exchg_queue == NULL) {
+            //connection lost
+            return NR_FAIL;
         }
 
         ConsumeServerFrame(); //most likely overwrites what is sent in SendClientFrame
