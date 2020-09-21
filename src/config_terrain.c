@@ -45,7 +45,7 @@ const struct NamedCommand terrain_common_commands[] = {
 const struct NamedCommand terrain_slab_commands[] = {
   {"NAME",            1},
   {"TOOLTIPTEXTID",   2},
-  {"FIELD2",          3},
+  {"BLOCKFLAGSHEIGHT",3},
   {"BLOCKHEALTHINDEX",4},
   {"BLOCKFLAGS",      5},
   {"NOBLOCKFLAGS",    6},
@@ -520,7 +520,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    slbattr->field_2 = k;
+                    slbattr->block_flags_height = k;
                     n++;
                 }
             }

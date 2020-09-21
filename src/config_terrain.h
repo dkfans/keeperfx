@@ -100,7 +100,7 @@ struct SlabMap;
 
 struct SlabAttr {
     unsigned short tooltip_stridx;
-    short field_2;
+    short block_flags_height;
     short block_health_index;
     unsigned long block_flags;
     unsigned long noblck_flags;
