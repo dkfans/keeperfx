@@ -50,6 +50,7 @@ struct SyncDungeonInfo
 //    int offmap_money_owned;
     unsigned char instance_num;
     unsigned long instance_remain_rurns;
+    unsigned char allied_players;
 };
 
 struct SyncPartCommon
@@ -148,6 +149,7 @@ static TbBool send_resync_game(TbBool first_resync)
                 assert(player->id_number == i);
                 part1.dungeons[i].instance_num = player->instance_num;
                 part1.dungeons[i].instance_remain_rurns = player->instance_remain_rurns;
+                part1.dungeons[i].allied_players = player->allied_players;
             }
         }
 
@@ -261,6 +263,7 @@ static TbBool receive_resync_game(TbBool first_resync)
                     player->instance_num = part1.dungeons[i].instance_num;
                 }
                 player->instance_remain_rurns = part1.dungeons[i].instance_remain_rurns;
+                player->allied_players = part1.dungeons[i].allied_players;
             }
         }
 
@@ -421,7 +424,10 @@ static TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
         struct Coord3d* mappos = &(player->acamera->mappos);
         sum ^= (TbBigChecksum)player->instance_remain_rurns + (TbBigChecksum)player->instance_num;
         SHIFT_CHECKSUM(sum);
-        sum ^= (TbBigChecksum)mappos->x.val + (TbBigChecksum)mappos->z.val + (TbBigChecksum)mappos->y.val;
+        sum ^= player->allied_players;
+        // This value should not be important
+        // This value is dependant on unsync random i.e. at **make_camera_deviations**
+        // sum ^= (TbBigChecksum)mappos->x.val + (TbBigChecksum)mappos->z.val + (TbBigChecksum)mappos->y.val;
     }
     return sum;
 }
