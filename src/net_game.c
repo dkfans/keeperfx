@@ -111,9 +111,9 @@ static void setup_exchange_player_number(void)
   SYNCDBG(6,"Starting");
   clear_packets();
   struct PlayerInfo* player = get_my_player();
-  struct Packet* pckt = get_packet_direct(my_player_number);
+  struct PacketEx* pckt = get_packet_out_ex(my_player_number);
   set_players_packet_action(player, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
-  if (LbNetwork_Exchange(pckt) != NR_OK)
+  if (LbNetwork_Exchange(pckt, sizeof(*pckt), get_all_packets_in(), get_all_packets_in_size()) != NR_OK)
   {
       ERRORLOG("Network Exchange failed");
       return;
@@ -121,7 +121,7 @@ static void setup_exchange_player_number(void)
   int k = 0;
   for (int i = 0; i < NET_PLAYERS_COUNT; i++)
   {
-      pckt = get_packet_direct(i);
+      pckt = get_packet_in_direct(i);
       if ((net_player_info[i].active) && (pckt->action == PckA_InitPlayerNum))
       {
           player = get_player(k);

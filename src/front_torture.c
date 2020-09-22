@@ -258,7 +258,7 @@ void fronttorture_input(void)
     PlayerNumber plyr_idx;
     clear_packets();
     struct PlayerInfo* player = get_my_player();
-    struct PacketEx* pckt = get_packet_ex(my_player_number);
+    struct PacketEx* pckt = get_packet_out_ex(my_player_number);
     // Get inputs and create packet
     if (player->victory_state == VicS_WonLevel)
     {
@@ -284,7 +284,7 @@ void fronttorture_input(void)
     // Exchange packet with other players
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-        if (LbNetwork_Exchange(pckt) != NR_OK)
+        if (LbNetwork_Exchange(pckt, sizeof(*pckt), get_all_packets_in(), get_all_packets_in_size()) != NR_OK)
         {
             ERRORLOG("LbNetwork_Exchange failed");
             return;
@@ -294,7 +294,7 @@ void fronttorture_input(void)
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         player = get_player(plyr_idx);
-        pckt = get_packet_ex(plyr_idx);
+        pckt = get_packet_in_ex(plyr_idx);
         if ((pckt->packet.action != 0) && (player->victory_state == VicS_WonLevel))
             break;
     }

@@ -1234,7 +1234,7 @@ static void ConsumeServerFrame(void)
     LbMemoryFree(frame);
 }
 
-NetResponse LbNetwork_Exchange(void *buf)
+NetResponse LbNetwork_Exchange(void *src_buf, size_t src_size, void *dst_buf, size_t dst_size)
 {
     NetUserId id;
 
@@ -1262,7 +1262,7 @@ NetResponse LbNetwork_Exchange(void *buf)
     }
     else
     { // client
-        SendClientFrame((char *) buf, netstate.seq_nbr);
+        SendClientFrame((char *) src_buf, netstate.seq_nbr);
         if (!ProcessMessagesUntilNextFrame(SERVER_ID, 0))
         {
             netstate.sp->update(OnNewUser);

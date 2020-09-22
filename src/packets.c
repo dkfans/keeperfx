@@ -1678,8 +1678,8 @@ void process_packets(void)
         if (!game.packet_load_enable || game.numfield_149F47)
         {
             // That is on both sides so it should split between server and clients
-            struct PacketEx* pckt = get_packet_ex_direct(player->packet_num);
-            switch(LbNetwork_Exchange(pckt))
+            struct PacketEx* pckt = get_packet_out_ex_direct(player->packet_num);
+            switch(LbNetwork_Exchange(pckt, sizeof(*pckt), get_all_packets_in(), get_all_packets_in_size()))
             {
             case NR_FAIL:
                 ERRORLOG("LbNetwork_Exchange failed");
@@ -1806,7 +1806,7 @@ void process_frontend_packets(void)
   nspckt->flags_4 ^= ((nspckt->flags_4 ^ (fe_computer_players << 1)) & 0x06);
   nspckt->mouse_x = VersionMajor;
   nspckt->mouse_y = VersionMinor;
-  if (LbNetwork_Exchange(nspckt) != NR_OK)
+  if (LbNetwork_Exchange(nspckt, sizeof(*nspckt), net_screen_packet_NEW, sizeof(net_screen_packet_NEW) ) != NR_OK)
   {
     ERRORLOG("LbNetwork_Exchange failed %d", failed_net_times);
     failed_net_times++;
