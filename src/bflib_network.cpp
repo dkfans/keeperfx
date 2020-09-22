@@ -126,15 +126,11 @@ struct UnidirectionalRTSMessage rtsMessage;
 /**
  * Max wait for a client before we declare client messed up.
  */
-#define WAIT_FOR_CLIENT_TIMEOUT_IN_MS   10000
+#define WAIT_FOR_CLIENT_TIMEOUT_IN_MS   1200
 #define WAIT_FOR_SERVER_TIMEOUT_IN_MS   WAIT_FOR_CLIENT_TIMEOUT_IN_MS
 
-/**
- * If queued frames on client exceed > SCHEDULED_LAG_IN_FRAMES/2 game speed should
- * be faster, if queued frames < SCHEDULED_LAG_IN_FRAMES/2 game speed should be slower.
- * Server also expects there to be SCHEDULED_LAG_IN_FRAMES in TCP stream.
- */
-#define SCHEDULED_LAG_IN_FRAMES 12
+/* Disconnected if no messages recieved for that interval */
+#define DISCONNECT_TIMEOUT              2000
 
 #define SESSION_COUNT 32 //not arbitrary, it's what code calling EnumerateSessions expects
 
@@ -156,8 +152,7 @@ struct NetUser
     char                    name[32];
     enum NetUserProgress	progress;
     int                     ack; //last sequence number processed
-    short                   last_sync_packet;
-    short                   max_sync_packet;
+    TbClockMSec             last_message_time;
 };
 
 struct NetFrame
@@ -1161,7 +1156,7 @@ static TbBool ProcessMessagesUntilNextFrame(NetUserId id, unsigned timeout)
 {
     //read all messages up to next frame
     while (timeout == 0 ||
-            netstate.sp->msgready(id, timeout /*- (min(LbTimerClock() - start, max(timeout - 1, 0)))*/) != 0)
+            netstate.sp->msgready(id, timeout) != 0)
     {
         if (ProcessMessage(id) == Lb_FAIL)
         {
@@ -1237,11 +1232,16 @@ static void ConsumeServerFrame(void)
 NetResponse LbNetwork_Exchange(void *buf)
 {
     NetUserId id;
+    static TbClockMSec disconnectTime = 10 * DISCONNECT_TIMEOUT;
 
     NETDBG(11, "Starting");
     if (netstate.resync_mode)
+    {
+        disconnectTime = LbTimerClock() + DISCONNECT_TIMEOUT;
         return NR_RESYNC;
+    }
 
+    TbClockMSec now = LbTimerClock();
     assert(UserIdentifiersValid());
 
     if (netstate.users[netstate.my_id].progress == USER_SERVER)
@@ -1255,7 +1255,14 @@ NetResponse LbNetwork_Exchange(void *buf)
             if (netstate.users[id].progress == USER_UNUSED)
                 continue;
 
-            ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
+            if (ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS))
+            {
+                netstate.users[id].last_message_time = now;
+            }
+            else
+            {
+                JUSTLOG("Timeout %04ld %04ld", now, netstate.users[id].last_message_time);
+            }
         } // for
         netstate.seq_nbr += 1;
         SendServerFrame();
@@ -1267,8 +1274,13 @@ NetResponse LbNetwork_Exchange(void *buf)
         {
             netstate.sp->update(OnNewUser);
             NETDBG(11, "No message");
+            if (disconnectTime > now)
+            {
+                return NR_DISCONNECT;
+            }
             return NR_FAIL;
         }
+        disconnectTime = now + DISCONNECT_TIMEOUT;
 
         if (netstate.exchg_queue == NULL) {
             //connection lost

@@ -440,9 +440,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     short influence_own_creatures = false;
-    struct SlabMap *slb;
     long i;
-    struct Room* room;
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     switch (player->work_state)
@@ -1696,7 +1694,8 @@ void process_packets(void)
             case NR_OK:
                 break;
             case NR_DISCONNECT:
-                ERRORLOG("LbNetwork_Exchange failed");
+                ERRORLOG("LbNetwork_Exchange says: NR_DISCONNECT");
+                quit_game = 1;
                 return;
             }
         }
