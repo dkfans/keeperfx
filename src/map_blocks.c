@@ -990,7 +990,7 @@ void delete_attached_lights_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
             {
                 if ((lgtstl_x >= start_stl_x) && (lgtstl_x <= end_stl_x) && (lgtstl_y >= start_stl_y) && (lgtstl_y <= end_stl_y))
                 {
-                    light_delete_light(lgt->index);
+                    light_delete_light(lgt->index, 0);
                 }
             }
             // Per-light code ends

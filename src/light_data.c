@@ -470,15 +470,15 @@ void clear_stat_light_map(void)
     }
 }
 
-void light_delete_light(long idx)
+void light_delete_light_f(long idx, long thing_id, const char *func)
 {
     if ((idx <= 0) || (idx >= LIGHTS_COUNT)) {
-        ERRORLOG("Attempt to delete light %d",(int)idx);
+        ERRORLOG("Attempt to delete light %ld for thing:%ld from:%s", idx, thing_id, func);
         return;
     }
     struct Light* lgt = &game.lish.lights[idx];
     if ((lgt->flags & LgtF_Allocated) == 0) {
-        ERRORLOG("Attempt to delete unallocated light structure %d",(int)idx);
+        ERRORLOG("Attempt to delete unallocated light structure %ld thing:%ld from:%s", idx, thing_id, func);
         return;
     }
     if (lgt->shadow_index > 0)
@@ -511,7 +511,7 @@ void light_initialise(void)
     {
         struct Light* lgt = &game.lish.lights[i];
         if ((lgt->flags & LgtF_Allocated) != 0)
-            light_delete_light(lgt->index);
+            light_delete_light(lgt->index, 0);
     }
     if (!game.lish.field_4614E)
     {

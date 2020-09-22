@@ -48,7 +48,7 @@ void serde_srv_things()
             if (thing->light_id != 0)
             {
                 NETDBG(6, "deleting light idx:%04d, light_id:%03d", thing->index, thing->light_id);
-                light_delete_light(thing->light_id);
+                light_delete_light(thing->light_id, thing->index);
                 // We still store light_id as non-zero because we need to sync it
             }
         }
@@ -69,7 +69,7 @@ void serde_cli_things()
             if (thing->light_id != 0)
             {
                 NETDBG(6, "deleting light idx:%04d, light_id:%03d", thing->index, thing->light_id);
-                light_delete_light(thing->light_id);
+                light_delete_light(thing->light_id, thing->index);
                 thing->light_id = 0;
             }
         }
@@ -299,7 +299,7 @@ void serde_fin_things()
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            light_delete_light(player->field_460);
+            light_delete_light(player->field_460, 0);
             init_player_light(player);
             if ((player->instance_num == PI_DirctCtrl) || (player->instance_num == PI_DirctCtrl))
             {

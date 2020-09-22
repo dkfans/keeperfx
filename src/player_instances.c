@@ -942,7 +942,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         }
     }
     if (thing->light_id != 0) {
-        light_delete_light(thing->light_id);
+        light_delete_light(thing->light_id, thing->index);
         thing->light_id = 0;
     }
 }

@@ -135,7 +135,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     if (!a2)
     {
         if (thing->light_id != 0) {
-            light_delete_light(thing->light_id);
+            light_delete_light_f(thing->light_id, thing->index, func_name);
             thing->light_id = 0;
         }
     }
