@@ -169,7 +169,6 @@ DLLIMPORT void _DK_view_move_camera_right(struct Camera *cam, long a2);
 DLLIMPORT void _DK_view_move_camera_up(struct Camera *cam, long a2);
 DLLIMPORT void _DK_view_move_camera_down(struct Camera *cam, long a2);
 DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
-DLLIMPORT unsigned long _DK_setup_move_out_of_cave_in(struct Thing *thing);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
@@ -791,56 +790,6 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             curpos.z.val += delta_z;
         }
     }
-}
-
-TbBool setup_move_off_lava(struct Thing *thing)
-{
-    //return _DK_setup_move_off_lava(thing);
-    MapSlabCoord slb_x;
-    MapSlabCoord slb_y;
-    slb_x = subtile_slab(thing->mappos.x.stl.num);
-    slb_y = subtile_slab(thing->mappos.y.stl.num);
-    long i;
-    for (i=0; i < 32; i++)
-    {
-        struct MapOffset *sstep;
-        MapSubtlCoord cx;
-        MapSubtlCoord cy;
-        sstep = &spiral_step[i];
-        cx = slab_subtile_center(slb_x + sstep->h);
-        cy = slab_subtile_center(slb_y + sstep->v);
-        struct SlabMap *slb;
-        slb = get_slabmap_for_subtile(cx,cy);
-        if (slabmap_block_invalid(slb))
-            continue;
-        const struct SlabAttr *slbattr;
-        slbattr = get_slab_attrs(slb);
-        if (!slbattr->is_safe_land)
-            continue;
-        // Check all subtiles of the slab in random order
-        long k;
-        long n;
-        n = ACTION_RANDOM(AROUND_TILES_COUNT);
-        for (k=0; k < AROUND_TILES_COUNT; k++, n=(n + 1) % AROUND_TILES_COUNT)
-        {
-            struct Map *mapblk;
-            long stl_x;
-            long stl_y;
-            stl_x = cx + around[k].delta_x;
-            stl_y = cy + around[k].delta_y;
-            mapblk = get_map_block_at(stl_x,stl_y);
-            if (!map_block_invalid(mapblk))
-            {
-                if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
-                {
-                    if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-    return false;
 }
 
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
@@ -2890,82 +2839,6 @@ int clear_active_dungeons_stats(void)
       memset((char *)dungeon->guijob_angry_creatrs_count, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
   }
   return i;
-}
-
-TbBool setup_move_out_of_cave_in(struct Thing *thing)
-{
-    // return _DK_setup_move_out_of_cave_in(thing);
-    MapSlabCoord bx = 0;
-    MapSlabCoord by = 0;
-    MapSubtlCoord cx = 0;
-    MapSubtlCoord cy = 0;
-    struct Thing *tng;
-    MapOffset *sstep;
-    struct Map* blk;
-    if (setup_combat_flee_position(thing))
-    {
-        struct CreatureControl* cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if ( setup_person_move_to_coord(thing, &cctrl->flee_pos, 0) )
-        {
-            return true;
-        }
-    }
-    else
-    {
-        MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
-        MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
-        for (signed int i=0; i < 32; i++)
-        {
-            sstep = &spiral_step[i];
-            bx = sstep->h + slb_x;
-            by = sstep->v + slb_y;
-            struct SlabMap *slb;
-            slb = get_slabmap_block(bx, by);
-            if ( slabmap_block_invalid(slb) )
-            {
-                continue;
-            }
-            blk = get_map_block_at(slab_subtile(bx, 0), slab_subtile(by, 0));
-            long n = get_mapwho_thing_index(blk);
-            while ( n != 0 )
-            {
-                tng = thing_get(n);
-                TRACE_THING(tng);
-                if ( tng->class_id == TCls_EffectElem && tng->model == 46 )
-                {
-                    break;
-                }
-                n = tng->next_on_mapblk;
-                if (thing_is_invalid(tng))
-                {
-                    bx = sstep->h + slb_x;
-                    break;
-                }
-            }
-            bx = sstep->h + slb_x;
-            cx = slab_subtile_center(bx);
-            cy = slab_subtile_center(by);
-            long j = ACTION_RANDOM(AROUND_TILES_COUNT);
-            for (long k=0; k < AROUND_TILES_COUNT; k++, j=(j + 1) % AROUND_TILES_COUNT)
-            {
-                MapSubtlCoord stl_x = cx + around[j].delta_x;
-                MapSubtlCoord stl_y = cy + around[j].delta_y;
-                struct Map *mapblk = get_map_block_at(stl_x,stl_y);
-                if (!map_block_invalid(mapblk))
-                {
-                    if (subtile_is_blocking_wall_or_lava(stl_x, stl_y, thing->owner) == 0)
-                    {
-                        if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) 
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return false;
 }
 
 TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param)
