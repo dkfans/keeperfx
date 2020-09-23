@@ -239,8 +239,31 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
       return true;
     } else if (strcmp(parstr, "quit") == 0)
     {
-        quit_game = 1;
-        exit_keeper = 1;
+        if (is_my_player_number(plyr_idx))
+        {
+            quit_game = 1;
+            exit_keeper = 1;
+        }
+        return true;
+    } else if (strcmp(parstr, "show.turn") == 0)
+    {
+        message_add_fmt(plyr_idx, "turn %ld", game.play_gameturn);
+        return true;
+    } else if (strcmp(parstr, "show.netlog") == 0)
+    {
+        if (!is_my_player_number(plyr_idx))
+        {
+            return false;
+        }
+        game_flags2 ^= GF2_ShowEventLog;
+        return true;
+    } else if (strcmp(parstr, "show.ticks") == 0)
+    {
+        if (!is_my_player_number(plyr_idx))
+        {
+            return false;
+        }
+        game.flags_gui ^= GGUI_ShowTickTime;
         return true;
     } else if (strcmp(parstr, "turn") == 0)
     {
@@ -251,6 +274,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         if (strcmp(parstr, "compuchat") == 0)
         {
             if (pr2str == NULL)
+                return false;
+
+            if (!is_my_player_number(plyr_idx))
                 return false;
 
             if ((strcmp(pr2str,"scarce") == 0) || (strcmp(pr2str,"1") == 0))
@@ -283,6 +309,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             int id = atoi(pr2str);
             if (id < 0 || id > PLAYERS_COUNT)
                 return false;
+            if (!is_my_player_number(plyr_idx))
+                return false;
             cmd_comp_procs(id);
             return true;
         } else if (strcmp(parstr, "comp.events") == 0)
@@ -291,6 +319,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return false;
             int id = atoi(pr2str);
             if (id < 0 || id > PLAYERS_COUNT)
+                return false;
+            if (!is_my_player_number(plyr_idx))
                 return false;
             cmd_comp_events(id);
             return true;
@@ -301,10 +331,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             int id = atoi(pr2str);
             if (id < 0 || id > PLAYERS_COUNT)
                 return false;
+            if (!is_my_player_number(plyr_idx))
+                return false;
             cmd_comp_checks(id);
             return true;
         } else if (strcmp(parstr, "reveal") == 0)
         {
+            if (!is_my_player_number(plyr_idx))
+                return false;
             struct PlayerInfo* player = get_my_player();
             reveal_whole_map(player);
             return true;
@@ -315,10 +349,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             int id = atoi(pr2str);
             if (id < 0 || id > PLAYERS_COUNT)
                 return false;
+            if (!is_my_player_number(plyr_idx))
+                return false;
             struct Thing* thing = get_player_soul_container(id);
             thing->health = 0;
         } else if (strcmp(parstr, "comp.me") == 0)
         {
+            if (!is_my_player_number(plyr_idx))
+                return false;
             struct PlayerInfo* player = get_player(plyr_idx);
             if (pr2str == NULL)
                 return false;
@@ -329,6 +367,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             return true;
         } else if (strcmp(parstr, "give.trap") == 0)
         {
+            if (!is_my_player_number(plyr_idx))
+                return false;
             int id = atoi(pr2str);
             if (id <= 0 || id > trapdoor_conf.trap_types_count)
                 return false;
@@ -338,12 +378,35 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             return true;
         } else if (strcmp(parstr, "give.door") == 0)
         {
+            if (!is_my_player_number(plyr_idx))
+                return false;
             int id = atoi(pr2str);
             if (id <= 0 || id > trapdoor_conf.door_types_count)
                 return false;
             script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, 1);
             update_trap_tab_to_config();
             message_add(plyr_idx, "done!");
+            return true;
+        }
+        else if (strcmp(parstr, "desync") == 0)
+        {
+            if (!is_my_player_number(plyr_idx))
+                return false;
+            int kind = atoi(pr2str);
+            if (kind == 1)
+            {
+                gameadd.action_turn_rand_seed = 0;
+            }
+            else
+            {
+                struct Thing* thing = get_player_soul_container(plyr_idx);
+                if (thing)
+                {
+                    message_add_fmt(plyr_idx, "!desync thing_idx:%04d", thing->index);
+                    JUSTLOG("!desync thing_idx:%04d", thing->index);
+                    thing->health>>=1;
+                }
+            }
             return true;
         }
     }

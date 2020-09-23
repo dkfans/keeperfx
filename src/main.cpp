@@ -29,19 +29,18 @@
 #include "bflib_network.h"
 
 #include "version.h"
-#include "front_simple.h"
-#include "frontend.h"
-#include "front_input.h"
-#include "gui_draw.h"
-#include "gui_tooltips.h"
-#include "gui_parchment.h"
-#include "gui_frontmenu.h"
-#include "gui_msgs.h"
-#include "scrcapt.h"
-#include "vidmode.h"
-#include "kjm_input.h"
-#include "packets.h"
+
+#include "ariadne.h"
+#include "ariadne_wallhug.h"
+#include "creature_control.h"
+#include "creature_states.h"
+#include "creature_instances.h"
+#include "creature_graphics.h"
+#include "creature_states_rsrch.h"
+#include "creature_states_lair.h"
+#include "creature_states_mood.h"
 #include "config.h"
+#include "config_settings.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_terrain.h"
@@ -55,74 +54,77 @@
 #include "config_crtrmodel.h"
 #include "config_compp.h"
 #include "config_effects.h"
-#include "lvl_script.h"
-#include "lvl_filesdk1.h"
-#include "thing_list.h"
-#include "player_instances.h"
-#include "player_utils.h"
-#include "player_states.h"
-#include "player_computer.h"
-#include "game_heap.h"
-#include "game_saves.h"
 #include "engine_render.h"
 #include "engine_lenses.h"
 #include "engine_camera.h"
 #include "engine_arrays.h"
 #include "engine_textures.h"
 #include "engine_redraw.h"
+#include "frontmenu_ingame_tabs.h"
 #include "front_landview.h"
 #include "front_lvlstats.h"
 #include "front_easter.h"
 #include "front_fmvids.h"
+#include "front_simple.h"
+#include "frontend.h"
+#include "front_input.h"
+#include "game_heap.h"
+#include "game_legacy.h"
+#include "game_merge.h"
+#include "game_saves.h"
+#include "gui_boxmenu.h"
+#include "gui_draw.h"
+#include "gui_tooltips.h"
+#include "gui_topmsg.h"
+#include "gui_soundmsgs.h"
+#include "gui_frontbtns.h"
+#include "gui_parchment.h"
+#include "gui_frontmenu.h"
+#include "gui_msgs.h"
+#include "kjm_input.h"
+#include "lens_api.h"
+#include "light_data.h"
+#include "lvl_script.h"
+#include "lvl_filesdk1.h"
+#include "magic.h"
+#include "map_columns.h"
+#include "map_events.h"
+#include "map_utils.h"
+#include "map_blocks.h"
+#include "net_game.h"
+#include "net_sync.h"
+#include "packets.h"
+#include "player_instances.h"
+#include "player_utils.h"
+#include "player_states.h"
+#include "player_computer.h"
+#include "power_process.h"
+#include "power_hand.h"
+#include "power_specials.h"
+#include "room_data.h"
+#include "room_entrance.h"
+#include "room_jobs.h"
+#include "room_library.h"
+#include "room_list.h"
+#include "room_util.h"
+#include "scrcapt.h"
+#include "slab_data.h"
+#include "sounds.h"
+#include "thing_doors.h"
+#include "thing_effects.h"
+#include "thing_factory.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_creature.h"
 #include "thing_corpses.h"
 #include "thing_objects.h"
-#include "thing_effects.h"
-#include "thing_doors.h"
 #include "thing_traps.h"
 #include "thing_shots.h"
 #include "thing_navigate.h"
-#include "thing_factory.h"
-#include "slab_data.h"
-#include "room_data.h"
-#include "room_entrance.h"
-#include "room_jobs.h"
-#include "room_util.h"
-#include "room_library.h"
-#include "map_columns.h"
-#include "map_events.h"
-#include "map_utils.h"
-#include "map_blocks.h"
-#include "ariadne_wallhug.h"
-#include "creature_control.h"
-#include "creature_states.h"
-#include "creature_instances.h"
-#include "creature_graphics.h"
-#include "creature_states_rsrch.h"
-#include "creature_states_lair.h"
-#include "creature_states_mood.h"
-#include "lens_api.h"
-#include "light_data.h"
-#include "magic.h"
-#include "power_process.h"
-#include "power_hand.h"
-#include "power_specials.h"
-#include "game_merge.h"
-#include "gui_topmsg.h"
-#include "gui_boxmenu.h"
-#include "gui_soundmsgs.h"
-#include "gui_frontbtns.h"
-#include "frontmenu_ingame_tabs.h"
-#include "ariadne.h"
-#include "net_game.h"
-#include "sounds.h"
+#include "thing_list.h"
+#include "vidmode.h"
 #include "vidfade.h"
 #include "KeeperSpeech.h"
-#include "config_settings.h"
-#include "game_legacy.h"
-#include "room_list.h"
 
 #include "music_player.h"
 
@@ -437,7 +439,7 @@ TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
     } else
     if (thing->class_id == TCls_EffectElem)
     {
-        if (!thing_is_picked_up(thing))
+        if (!thing_is_picked_up(thing))  // What EffectElem is ever possible to pick up?
         {
             struct EffectElementStats *eestat;
             eestat = get_effect_element_model_stats(thing->model);
@@ -2255,7 +2257,6 @@ void clear_lookups(void)
 void set_mouse_light(struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
-    //_DK_set_mouse_light(player);
     struct Packet *pckt;
     pckt = get_packet_direct(player->packet_num);
     if (player->field_460 != 0)
@@ -2932,6 +2933,7 @@ TbBool setup_move_out_of_cave_in(struct Thing *thing)
             {
                 tng = thing_get(n);
                 TRACE_THING(tng);
+                // This is single case where TCls_EffectElem is ever synced in multiplayer?
                 if ( tng->class_id == TCls_EffectElem && tng->model == 46 )
                 {
                     break;
@@ -3115,6 +3117,8 @@ void update(void)
     struct PlayerInfo *player;
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
+    TbClockMSec tick_start = LbTimerClock();
+
     if ((game.operation_flags & GOF_Paused) == 0)
         update_light_render_area();
     process_packets();
@@ -3168,6 +3172,8 @@ void update(void)
     update_all_players_cameras();
     update_player_sounds();
     game.field_14EA4B = 0;
+    ui_turn++;
+    tick_time = LbTimerClock() - tick_start;
     SYNCDBG(6,"Finished");
 }
 
@@ -3753,6 +3759,11 @@ void keeper_gameplay_loop(void)
     if ((game.operation_flags & GOF_SingleLevel) != 0)
         initialise_eye_lenses();
 
+    if (start_params.show_ticks)
+    {
+        game.flags_gui |= GGUI_ShowTickTime;
+    }
+
 #ifdef AUTOTESTING
     if ((start_params.autotest_flags & ATF_AI_Player) != 0)
     {
@@ -3786,9 +3797,19 @@ void keeper_gameplay_loop(void)
         {
             game.action_rand_seed = game.play_gameturn;
             game.unsync_rand_seed = game.play_gameturn;
-            srand(game.play_gameturn);
+            srand(game.play_gameturn); // It shouldnt change anything
         }
+        else
 #endif
+        {
+            // make randomness of next turn independent of this one
+            game.action_rand_seed = gameadd.action_turn_rand_seed;
+            if ((game.operation_flags & GOF_Paused) == 0)
+            {
+                gameadd.action_turn_rand_seed++;
+            }
+        }
+
         // Check if we should redraw screen in this turn
         do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
 
@@ -4215,10 +4236,10 @@ void init_level(void)
     //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
-    game.action_rand_seed = 1;
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
+    game_flags2 &= GF2_PERSISTENT_FLAGS;
     clear_game();
     reset_heap_manager();
     lens_mode = 0;
@@ -4248,18 +4269,22 @@ void init_level(void)
     init_navigation();
     clear_messages();
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+
 #ifdef AUTOTESTING
     if (start_params.autotest_flags & ATF_FixedSeed)
     {
-      game.action_rand_seed = 1;
+      gameadd.action_turn_rand_seed = 1;
       game.unsync_rand_seed = 1;
       srand(1);
     }
     else
 #else
-    // Initialize unsynchronized random seed (the value may be different
-    // on computers in MP, as it shouldn't affect game actions)
-    game.unsync_rand_seed = (unsigned long)LbTimeSec();
+    {
+        // Initialize unsynchronized random seed (the value may be different
+        // on computers in MP, as it shouldn't affect game actions)
+        game.unsync_rand_seed = (unsigned long)LbTimeSec();
+        gameadd.action_turn_rand_seed = (unsigned long)LbTimeSec();
+    }
 #endif
     if (!SoundDisabled)
     {
@@ -4297,7 +4322,6 @@ void init_level(void)
 void post_init_level(void)
 {
     SYNCDBG(8,"Starting");
-    //_DK_post_init_level(); return;
     if (game.packet_save_enable)
         open_new_packet_file_for_save();
     calculate_dungeon_area_scores();
@@ -4320,7 +4344,6 @@ void post_init_level(void)
 void startup_saved_packet_game(void)
 {
     struct CatalogueEntry centry;
-    //_DK_startup_saved_packet_game(); return;
     clear_packets();
     open_packet_file_for_load(game.packet_fname,&centry);
     if (!change_campaign(centry.campaign_fname))
@@ -4400,6 +4423,7 @@ void startup_network_game(TbBool local)
         game.local_plyr_idx = default_loc_player;
         my_player_number = default_loc_player;
     }
+    resync_reset_storage();
     init_level();
     player = get_my_player();
     player->is_active = flgmem;
@@ -4430,7 +4454,6 @@ void startup_network_game(TbBool local)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
-    //LbNetwork_EnableLag(1);
 }
 
 void faststartup_network_game(void)
@@ -4840,6 +4863,11 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
+      } else
+      if ( strcasecmp(parstr,"show.ticks") == 0 )
+      {
+          start_params.show_ticks = 1;
+          narg++;
       } else
       if (strcasecmp(parstr,"packetload") == 0)
       {

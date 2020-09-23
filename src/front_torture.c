@@ -258,7 +258,7 @@ void fronttorture_input(void)
     PlayerNumber plyr_idx;
     clear_packets();
     struct PlayerInfo* player = get_my_player();
-    struct Packet* pckt = get_packet(my_player_number);
+    struct PacketEx* pckt = get_packet_ex(my_player_number);
     // Get inputs and create packet
     if (player->victory_state == VicS_WonLevel)
     {
@@ -272,42 +272,45 @@ void fronttorture_input(void)
             lbKeyOn[KC_SPACE] = 0;
             lbKeyOn[KC_RETURN] = 0;
             lbKeyOn[KC_ESCAPE] = 0;
-            pckt->action |= 0x01;
+            pckt->packet.action |= 0x01;
         }
         if (torture_left_button)
-            pckt->action |= 0x02;
+            pckt->packet.action |= 0x02;
         if (left_button_held)
-            pckt->action |= 0x04;
-        pckt->actn_par1 = GetMouseX();
-        pckt->actn_par2 = GetMouseY();
+            pckt->packet.action |= 0x04;
+        pckt->packet.actn_par1 = GetMouseX();
+        pckt->packet.actn_par2 = GetMouseY();
     }
     // Exchange packet with other players
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-        if (LbNetwork_Exchange(pckt))
+        if (LbNetwork_Exchange(pckt) != NR_OK)
+        {
             ERRORLOG("LbNetwork_Exchange failed");
+            return;
+        }
     }
     // Determine the controlling player and get his mouse coords
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         player = get_player(plyr_idx);
-        pckt = get_packet(plyr_idx);
-        if ((pckt->action != 0) && (player->victory_state == VicS_WonLevel))
+        pckt = get_packet_ex(plyr_idx);
+        if ((pckt->packet.action != 0) && (player->victory_state == VicS_WonLevel))
             break;
     }
     if (plyr_idx < PLAYERS_COUNT)
     {
-        x = pckt->actn_par1;
-        y = pckt->actn_par2;
+        x = pckt->packet.actn_par1;
+        y = pckt->packet.actn_par2;
     } else
     {
         plyr_idx = my_player_number;
         player = get_player(plyr_idx);
-        pckt = get_packet(plyr_idx);
+        pckt = get_packet_ex(plyr_idx);
         x = 0;
         y = 0;
     }
-    if ((pckt->action & 0x01) != 0)
+    if ((pckt->packet.action & 0x01) != 0)
     {
         frontend_set_state(FeSt_LEVEL_STATS);
         if ((game.system_flags & GSF_NetworkActive) != 0)
@@ -343,7 +346,7 @@ void fronttorture_input(void)
             torture_end_sprite = 4;
             torture_sprite_direction = -1;
           } else
-          if ((pckt->action & (0x02|0x04)) != 0)
+          if ((pckt->packet.action & (0x02|0x04)) != 0)
           {
             torture_state.action = 3;
             torture_left_button = 0;
@@ -364,7 +367,7 @@ void fronttorture_input(void)
     case 3:
         if (torture_sprite_frame == torture_end_sprite)
         {
-          if (((pckt->action & 0x04) == 0) || (door_id == -1))
+          if (((pckt->packet.action & 0x04) == 0) || (door_id == -1))
           {
             torture_state.action = 4;
             torture_sprite_frame = 12;

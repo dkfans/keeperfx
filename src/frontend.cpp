@@ -373,6 +373,46 @@ unsigned char *testfont_palette[3];
 long num_chars_in_font = 128;
 #endif
 
+static const char *frontend_menu_state_name[] =
+{
+  "INITIAL",
+  "MAIN_MENU",
+  "FELOAD_GAME",
+  "LAND_VIEW",
+  "NET_SERVICE", /**< Network service selection", wgere player can select Serial/Modem/IPX/TCP IP/1 player. */
+  "NET_SESSION", /**< Network session selection screen", where list of games is displayed", with possibility to join or create own game. */
+  "NET_START", /**< Network game start screen (the menu with chat)", when created new session or joined existing session. */
+  "START_KPRLEVEL",
+  "START_MPLEVEL",
+  "UNKNOWN09",
+  "LOAD_GAME", // 10
+  "INTRO",
+  "STORY_POEM",
+  "CREDITS",
+  "DEMO",
+  "NET_MODEM",
+  "NET_SERIAL",
+  "LEVEL_STATS",
+  "HIGH_SCORES",
+  "TORTURE",
+  "UNKNOWN20", // 20
+  "OUTRO",
+  "UNKNOWN22",
+  "UNKNOWN23",
+  "NETLAND_VIEW",
+  "PACKET_DEMO",
+  "FEDEFINE_KEYS",
+  "FEOPTIONS",
+  "UNKNOWN28",
+  "STORY_BIRTHDAY",
+  "LEVEL_SELECT", //30
+  "CAMPAIGN_SELECT",
+  "DRAG",
+  "CAMPAIGN_INTRO",
+  "MAPPACK_SELECT",
+  NULL
+};
+
 int status_panel_width = 140;
 
 /******************************************************************************/
@@ -554,7 +594,7 @@ TbBool validate_versions(void)
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if ((net_screen_packet[i].field_4 & 0x01) != 0)
+      if ((net_screen_packet_NEW[i].flags_4 & SPF_PlayerActive) != 0)
       {
         if (ver == -1)
           ver = player->field_4E7;
@@ -587,10 +627,10 @@ void versions_different_error(void)
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
       plyr_nam = network_player_name(i);
-      nspckt = &net_screen_packet[i];
-      if ((nspckt->field_4 & 0x01) != 0)
+      nspckt = &net_screen_packet_NEW[i];
+      if ((nspckt->flags_4 & SPF_PlayerActive) != 0)
       {
-        str = buf_sprintf("%s(%d.%02d) ", plyr_nam, nspckt->field_6, nspckt->field_8);
+        str = buf_sprintf("%s(%d.%02d) ", plyr_nam, nspckt->mouse_x, nspckt->mouse_y);
         strncat(text, str, MESSAGE_TEXT_LEN-strlen(text));
         text[MESSAGE_TEXT_LEN-1] = '\0';
       }
@@ -1439,10 +1479,10 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     //_DK_frontend_toggle_computer_players(gbtn);
     struct ScreenPacket *nspck;
-    nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
+    nspck = &net_screen_packet_NEW[my_player_number];
+    if ((nspck->flags_4 & 0xF8) == 0)
     {
-        nspck->field_4 = (nspck->field_4 & 0x07) | 0x38;
+        nspck->flags_4 = (nspck->flags_4 & 0x07) | 0x38;
         nspck->param1 = (fe_computer_players == 0);
     }
 }
@@ -1475,9 +1515,9 @@ void set_packet_start(struct GuiButton *gbtn)
 {
     //_DK_set_packet_start(gbtn);
     struct ScreenPacket *nspck;
-    nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
-        nspck->field_4 = (nspck->field_4 & 7) | 0x18;
+    nspck = &net_screen_packet_NEW[my_player_number];
+    if ((nspck->flags_4 & 0xF8) == 0)
+        nspck->flags_4 = (nspck->flags_4 & 7) | 0x18;
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -2683,6 +2723,10 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_NET_START:
           turn_on_menu(GMnu_FENET_START);
           frontnet_start_setup();
+          if (start_params.show_ticks)
+          {
+              game.flags_gui |= GGUI_ShowTickTime;
+          }
           set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
           set_pointer_graphic_menu();
           break;
@@ -2785,7 +2829,9 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
     if ( frontend_menu_state )
       fade_out();
     fade_palette_in = 1;
-    SYNCMSG("Frontend state change from %d into %d",(int)frontend_menu_state,(int)nstate);
+    SYNCMSG("Frontend state change from %s into %s",
+        frontend_menu_state_name[(int)frontend_menu_state],
+        frontend_menu_state_name[(int)nstate]);
     frontend_menu_state = frontend_setup_state(nstate);
     return frontend_menu_state;
 }

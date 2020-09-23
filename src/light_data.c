@@ -109,11 +109,11 @@ void light_shadow_cache_free(struct ShadowCache *shdc)
     LbMemorySet(shdc, 0, sizeof(struct ShadowCache));
 }
 
-TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
+static TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list, const char *cause)
 {
   if ((lgt->field_1 & 0x01) != 0)
   {
-    ERRORLOG("Light is already in list");
+    ERRORLOG("Light is already in list id:%03d cause:%s", (lgt - &game.lish.lights[0]), cause);
     return false;
   }
   list->count++;
@@ -140,11 +140,11 @@ long light_create_light(struct InitLight *ilght)
         }
         light_total_dynamic_lights++;
         lgt->shadow_index = light_shadow_cache_index(shdc);
-        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights], "create dynamic");
     } else
     {
         light_total_stat_lights++;
-        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights], "create static");
         stat_light_needs_updating = 1;
     }
     lgt->flags |= LgtF_Unkn02;
@@ -402,7 +402,7 @@ void light_turn_light_off(long idx)
     }
     struct Light* lgt = &game.lish.lights[idx];
     if ((lgt->flags & LgtF_Allocated) == 0) {
-        ERRORLOG("Attempt to turn off unallocated light structure");
+        ERRORLOG("Attempt to turn off unallocated light structure %d", (int)idx);
         return;
     }
     if ((lgt->flags & LgtF_Unkn02) == 0) {
@@ -435,11 +435,11 @@ void light_turn_light_on(long idx)
     lgt->flags |= LgtF_Unkn02;
     if ((lgt->flags & LgtF_Dynamic) != 0)
     {
-        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights], "turnon dynamic");
         lgt->flags |= LgtF_Unkn08;
     } else
     {
-        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights], "turnon static");
         stat_light_needs_updating = 1;
         lgt->flags |= LgtF_Unkn08;
     }
@@ -470,15 +470,15 @@ void clear_stat_light_map(void)
     }
 }
 
-void light_delete_light(long idx)
+void light_delete_light_f(long idx, long thing_id, const char *func)
 {
     if ((idx <= 0) || (idx >= LIGHTS_COUNT)) {
-        ERRORLOG("Attempt to delete light %d",(int)idx);
+        ERRORLOG("Attempt to delete light %ld for thing:%ld from:%s", idx, thing_id, func);
         return;
     }
     struct Light* lgt = &game.lish.lights[idx];
     if ((lgt->flags & LgtF_Allocated) == 0) {
-        ERRORLOG("Attempt to delete unallocated light structure %d",(int)idx);
+        ERRORLOG("Attempt to delete unallocated light structure %ld thing:%ld from:%s", idx, thing_id, func);
         return;
     }
     if (lgt->shadow_index > 0)
@@ -511,7 +511,7 @@ void light_initialise(void)
     {
         struct Light* lgt = &game.lish.lights[i];
         if ((lgt->flags & LgtF_Allocated) != 0)
-            light_delete_light(lgt->index);
+            light_delete_light(lgt->index, 0);
     }
     if (!game.lish.field_4614E)
     {

@@ -47,15 +47,16 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     {
         if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
         {
+#if (BFDEBUG_LEVEL > 5)
+            JUSTLOG("%s: Trying to free effect element", func_name);
+#endif
             thing = thing_get(game.thing_lists[TngList_EffectElems].index);
             if (!thing_is_invalid(thing))
             {
                 delete_thing_structure(thing, 0);
             } else
             {
-#if (BFDEBUG_LEVEL > 0)
-                ERRORMSG("%s: Cannot free up effect element to allocate new thing!",func_name);
-#endif
+                ERRORMSG("%s: Cannot free up effect element to allocate new thing!", func_name);
             }
         }
         i = game.free_things_start_index;
@@ -63,9 +64,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     // Now, if there is still no free thing (we couldn't free any)
     if (i >= THINGS_COUNT-1)
     {
-#if (BFDEBUG_LEVEL > 0)
         ERRORMSG("%s: Cannot allocate new thing, no free slots!",func_name);
-#endif
         return INVALID_THING;
     }
     // And if there is free one, allocate it
@@ -136,7 +135,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     if (!a2)
     {
         if (thing->light_id != 0) {
-            light_delete_light(thing->light_id);
+            light_delete_light_f(thing->light_id, thing->index, func_name);
             thing->light_id = 0;
         }
     }
@@ -162,9 +161,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
         game.free_things_start_index--;
         game.free_things[game.free_things_start_index] = thing->index;
     } else {
-#if (BFDEBUG_LEVEL > 0)
         ERRORMSG("%s: Performed deleting of thing with bad index %d!",func_name,(int)thing->index);
-#endif
     }
     LbMemorySet(thing, 0, sizeof(struct Thing));
 }
@@ -193,7 +190,7 @@ long thing_get_index(const struct Thing *thing)
     return 0;
 }
 
-short thing_is_invalid(const struct Thing *thing)
+TbBool thing_is_invalid(const struct Thing *thing)
 {
     return (thing <= game.things.lookup[0]) || (thing > game.things.lookup[THINGS_COUNT-1]) || (thing == NULL);
 }

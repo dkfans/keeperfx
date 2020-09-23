@@ -1800,7 +1800,6 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     }
     // Enable this to know which function hangs on update_creature.
     //TODO CREATURE_AI rewrite state subfunctions so they won't hang
-    //if (game.play_gameturn > 119800)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
     struct StateInfo* stati = get_thing_active_state_info(thing);
     if (stati->process_state != NULL) {
@@ -3374,7 +3373,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     //_DK_change_creature_owner(thing, nowner); return;
     // Remove the creature from old owner
     if (creatng->light_id != 0) {
-        light_delete_light(creatng->light_id);
+        light_delete_light(creatng->light_id, creatng->index);
         creatng->light_id = 0;
     }
     cleanup_creature_state_and_interactions(creatng);

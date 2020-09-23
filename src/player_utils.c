@@ -497,11 +497,16 @@ void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player)
     do_to_players_all_creatures_of_model(player->id_number, -1, check_map_explored_at_current_pos);
 }
 
-void init_player_as_single_keeper(struct PlayerInfo *player)
+static void init_player_as_single_keeper(struct PlayerInfo *player)
+{
+    player->field_4CD = 0;
+    init_player_light(player);
+}
+
+void init_player_light(struct PlayerInfo *player)
 {
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
-    player->field_4CD = 0;
     ilght.field_0 = 2560;
     ilght.field_2 = 48;
     ilght.field_3 = 5;
@@ -849,10 +854,10 @@ void process_players(void)
             update_player_objectives(i);
         }
     }
-    TbBigChecksum sum = 0;
-    sum += compute_players_checksum();
-    sum += game.action_rand_seed;
-    player_packet_checksum_add(my_player_number,sum,"players");
+    TbBigChecksum sum = compute_players_checksum();
+    SHIFT_CHECKSUM(sum);
+    player_packet_checksum_add(my_player_number, game.action_rand_seed, CKS_Action);
+    player_packet_checksum_add(my_player_number, sum, CKS_Players);
     SYNCDBG(17,"Finished");
 }
 

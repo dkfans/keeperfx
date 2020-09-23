@@ -44,6 +44,7 @@
 #include "engine_lenses.h"
 #include "front_simple.h"
 #include "front_easter.h"
+#include "front_network.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_evnt.h"
@@ -517,6 +518,7 @@ void redraw_creature_view(void)
     }
     message_draw();
     gui_draw_all_boxes();
+    gui_draw_network_state();
     draw_tooltip();
 }
 
@@ -620,8 +622,10 @@ void redraw_isometric_view(void)
     }
     message_draw();
     gui_draw_all_boxes();
+    gui_draw_network_state();
     draw_power_hand();
     draw_tooltip();
+    // TODO: what is it? who moved mappos?
     memcpy(&player->acamera->mappos,&pos,sizeof(struct Coord3d));
     SYNCDBG(8,"Finished");
 }
@@ -658,6 +662,7 @@ void redraw_frontview(void)
     draw_power_hand();
     draw_tooltip();
     gui_draw_all_boxes();
+    gui_draw_network_state();
 }
 
 int get_place_room_pointer_graphics(RoomKind rkind)

@@ -146,14 +146,12 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     if (pwkind > 0)
     {
         if (can_cast_spell(my_player_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
-            struct Packet* pckt = get_packet(my_player_number);
-            set_packet_action(pckt, PckA_UsePwrOnThing, pwkind, battle_creature_over, 0, 0);
+            set_players_packet_action(myplyr, PckA_UsePwrOnThing, pwkind, battle_creature_over, 0, 0);
         }
     } else
     {
         if (can_cast_spell(my_player_number, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
-            struct Packet* pckt = get_packet(my_player_number);
-            set_packet_action(pckt, PckA_UsePwrHandPick, battle_creature_over, 0, 0, 0);
+            set_players_packet_action(myplyr, PckA_UsePwrHandPick, battle_creature_over, 0, 0, 0);
         }
     }
     battle_creature_over = 0;
@@ -164,8 +162,8 @@ void gui_go_to_person_in_battle(struct GuiButton *gbtn)
     struct Thing* thing = thing_get(battle_creature_over);
     if (thing_exists(thing))
     {
-        struct Packet* pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+        set_players_packet_action(get_player(my_player_number), 
+            PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
     }
 }
 

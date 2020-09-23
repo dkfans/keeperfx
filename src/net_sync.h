@@ -8,7 +8,7 @@
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     11 Mar 2010 - 09 Oct 2010
+ * @date     11 Mar 2010 - 30 Aug 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,21 +20,39 @@
 #define DK_NETSYNC_H
 
 #include "globals.h"
+
 #include "bflib_basics.h"
+#include "creature_control.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /******************************************************************************/
-#pragma pack(1)
 
+struct ChecksumStorage
+{
+    unsigned long checksum_creatures[CREATURES_COUNT];
+};
 
-#pragma pack()
 /******************************************************************************/
-void resync_game(void);
-short perform_checksum_verification(void);
+/**
+ * This is a polling function
+ * When desync detected after synced state first time first_resync is set to true 
+ * returns true when resync is complete
+ */
+TbBool resync_game(TbBool first_resync);
+/*
+    Validate checksum of all players
+*/
+void perform_checksum_verification(void);
 
+void resync_reset_storage();
+
+const char *get_desync_info();
+/******************************************************************************/
+extern struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT];
 /******************************************************************************/
 #ifdef __cplusplus
 }

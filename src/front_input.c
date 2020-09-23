@@ -77,6 +77,7 @@ unsigned short const zoom_key_room_order[] =
 
 KEEPERSPEECH_EVENT last_speech_event;
 
+static TbBool map_coords_valid = false;
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);
@@ -795,7 +796,6 @@ long get_dungeon_control_action_inputs(void)
       if (lbDisplay.MiddleButton >= 1)
       {
           struct Camera* cam = &player->cameras[CamIV_Isometric];
-          struct Packet* pckt = get_packet(my_player_number);
           int angle = cam->orient_a;
           if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
           {
@@ -867,7 +867,7 @@ long get_dungeon_control_action_inputs(void)
         {
             (angle = 0);
         }
-      set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
+      set_players_packet_action(player,PckA_SetMapRotation,angle,0,0,0);
       lbDisplay.MiddleButton = 0;
       }
     }
@@ -885,16 +885,15 @@ long get_dungeon_control_action_inputs(void)
       // Middle mouse camera actions for FrontView
       if (lbDisplay.MiddleButton >= 1)
       {
-          struct Camera* cam = &player->cameras[CamIV_FrontView];
-          struct Packet* pckt = get_packet(my_player_number);
-          int angle = cam->orient_a;
-          if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
-          {
-              set_packet_control(pckt, PCtr_ViewRotateCW);
+        struct Camera* cam = &player->cameras[CamIV_FrontView];
+        int angle = cam->orient_a;
+        if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
+        {
+              set_players_packet_control(player, PCtr_ViewRotateCW);
         }
         else if (lbKeyOn[KC_LSHIFT])
         {
-            set_packet_control(pckt, PCtr_ViewRotateCCW);
+            set_players_packet_control(player, PCtr_ViewRotateCCW);
         }
         else
         {
@@ -914,7 +913,7 @@ long get_dungeon_control_action_inputs(void)
             {
                 (angle = 0);
             }
-        set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
+        set_players_packet_action(player,PckA_SetMapRotation,angle,0,0,0);
         }
       lbDisplay.MiddleButton = 0;
       }
@@ -1426,21 +1425,21 @@ short get_map_action_inputs(void)
 // rather than using this global variable. But this works.
 int global_frameskipTurn = 0;
 
-void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,int speed_pressed)
+void get_isometric_or_front_view_mouse_inputs(struct PlayerInfo* player,int rotate_pressed,int speed_pressed)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
     if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_LCONTROL]) == 0)
     {
         // mouse scroll zoom unaffected by frameskip
-        if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
+        if (map_coords_valid)
         {
             if (wheel_scrolled_up)
             {
-                set_packet_control(pckt, PCtr_ViewZoomIn);
+                set_players_packet_control(player, PCtr_ViewZoomIn);
             }
             if (wheel_scrolled_down)
             {
-                set_packet_control(pckt, PCtr_ViewZoomOut);
+                set_players_packet_control(player, PCtr_ViewZoomOut);
             }
         }
     }
@@ -1498,83 +1497,82 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_SpeedupPressed;
+            set_players_add_flag(player, PCAdV_SpeedupPressed);
         }
-        set_packet_control(pckt, PCtr_MoveLeft);
+        set_players_packet_control(player, PCtr_MoveLeft);
     }
     if (mx >= MyScreenWidth-4)
     {
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_SpeedupPressed;
+            set_players_add_flag(player, PCAdV_SpeedupPressed);
         }
-        set_packet_control(pckt, PCtr_MoveRight);
+        set_players_packet_control(player, PCtr_MoveRight);
     }
     if (my <= 4)
     {
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_SpeedupPressed;
+            set_players_add_flag(player, PCAdV_SpeedupPressed);
         }
-        set_packet_control(pckt, PCtr_MoveUp);
+        set_players_packet_control(player, PCtr_MoveUp);
     }
     if (my >= MyScreenHeight-4)
     {
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_SpeedupPressed;
+            set_players_add_flag(player, PCAdV_SpeedupPressed);
         }
-        set_packet_control(pckt, PCtr_MoveDown);
+        set_players_packet_control(player, PCtr_MoveDown);
     }
 }
 
 void get_isometric_view_nonaction_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    struct Packet* pckt = get_packet(my_player_number);
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
     if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_pressed != 0)
-      pckt->field_10 |= PCAdV_SpeedupPressed;
+      set_players_add_flag(player, PCAdV_SpeedupPressed);
     TbBool no_mods = false;
     if ((rotate_pressed != 0) || (speed_pressed != 0))
       no_mods = true;
 
-    get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,speed_pressed);
+    get_isometric_or_front_view_mouse_inputs(player, rotate_pressed,speed_pressed);
 
     if ( rotate_pressed )
     {
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_ViewRotateCW);
+            set_players_packet_control(player, PCtr_ViewRotateCW);
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_ViewRotateCCW);
+            set_players_packet_control(player, PCtr_ViewRotateCCW);
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_ViewZoomIn);
+            set_players_packet_control(player, PCtr_ViewZoomIn);
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_ViewZoomOut);
+            set_players_packet_control(player, PCtr_ViewZoomOut);
     } else
     {
         if ( is_game_key_pressed(Gkey_RotateCW, NULL, false) )
-            set_packet_control(pckt, PCtr_ViewRotateCW);
+            set_players_packet_control(player, PCtr_ViewRotateCW);
         if ( is_game_key_pressed(Gkey_RotateCCW, NULL, false) )
-            set_packet_control(pckt, PCtr_ViewRotateCCW);
+            set_players_packet_control(player, PCtr_ViewRotateCCW);
         if ( is_game_key_pressed(Gkey_ZoomIn, NULL, false) )
-            set_packet_control(pckt, PCtr_ViewZoomIn);
+            set_players_packet_control(player, PCtr_ViewZoomIn);
         if ( is_game_key_pressed(Gkey_ZoomOut, NULL, false) )
-            set_packet_control(pckt, PCtr_ViewZoomOut);
+            set_players_packet_control(player, PCtr_ViewZoomOut);
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_MoveLeft);
+            set_players_packet_control(player, PCtr_MoveLeft);
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_MoveRight);
+            set_players_packet_control(player, PCtr_MoveRight);
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_MoveUp);
+            set_players_packet_control(player, PCtr_MoveUp);
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_MoveDown);
+            set_players_packet_control(player, PCtr_MoveDown);
     }
 }
 
@@ -1582,7 +1580,6 @@ void get_overhead_view_nonaction_inputs(void)
 {
     SYNCDBG(19,"Starting");
     struct PlayerInfo* player = get_my_player();
-    struct Packet* pckt = get_packet(my_player_number);
     long my = my_mouse_y;
     long mx = my_mouse_x;
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
@@ -1590,22 +1587,22 @@ void get_overhead_view_nonaction_inputs(void)
     if ((player->allocflags & PlaF_Unknown10) == 0)
     {
         if (speed_pressed)
-          pckt->field_10 |= PCAdV_SpeedupPressed;
+          set_players_add_flag(player, PCAdV_SpeedupPressed);
         if (rotate_pressed)
         {
           if ( is_game_key_pressed(Gkey_MoveUp, NULL, speed_pressed!=0) )
-            set_packet_control(pckt, PCtr_ViewZoomIn);
+            set_players_packet_control(player, PCtr_ViewZoomIn);
           if ( is_game_key_pressed(Gkey_MoveDown, NULL, speed_pressed!=0) )
-            set_packet_control(pckt, PCtr_ViewZoomOut);
+            set_players_packet_control(player, PCtr_ViewZoomOut);
         }
         if (my <= 4)
-          set_packet_control(pckt, PCtr_MoveUp);
+          set_players_packet_control(player, PCtr_MoveUp);
         if (my >= MyScreenHeight-4)
-          set_packet_control(pckt, PCtr_MoveDown);
+          set_players_packet_control(player, PCtr_MoveDown);
         if (mx <= 4)
-          set_packet_control(pckt, PCtr_MoveLeft);
+          set_players_packet_control(player, PCtr_MoveLeft);
         if (mx >= MyScreenWidth-4)
-          set_packet_control(pckt, PCtr_MoveRight);
+          set_players_packet_control(player, PCtr_MoveRight);
     }
 }
 
@@ -1614,7 +1611,6 @@ void get_front_view_nonaction_inputs(void)
     static TbClockMSec last_rotate_left_time = 0;
     static TbClockMSec last_rotate_right_time = 0;
     struct PlayerInfo* player = get_my_player();
-    struct Packet* pckt = get_packet(my_player_number);
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
     TbBool no_mods = false;
@@ -1624,9 +1620,9 @@ void get_front_view_nonaction_inputs(void)
     if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_pressed != 0)
-      pckt->field_10 |= PCAdV_SpeedupPressed;
+      set_players_add_flag(player, PCAdV_SpeedupPressed);
 
-    get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,speed_pressed);
+    get_isometric_or_front_view_mouse_inputs(player, rotate_pressed,speed_pressed);
 
     if ( rotate_pressed )
     {
@@ -1634,7 +1630,7 @@ void get_front_view_nonaction_inputs(void)
         {
           if ( LbTimerClock() > last_rotate_left_time+250 )
           {
-            set_packet_control(pckt, PCtr_ViewRotateCW);
+            set_players_packet_control(player, PCtr_ViewRotateCW);
             last_rotate_left_time = LbTimerClock();
           }
         }
@@ -1642,21 +1638,21 @@ void get_front_view_nonaction_inputs(void)
         {
           if ( LbTimerClock() > last_rotate_right_time+250 )
           {
-            set_packet_control(pckt, PCtr_ViewRotateCCW);
+            set_players_packet_control(player, PCtr_ViewRotateCCW);
             last_rotate_right_time = LbTimerClock();
           }
         }
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_ViewZoomIn);
+            set_players_packet_control(player, PCtr_ViewZoomIn);
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_ViewZoomOut);
+            set_players_packet_control(player, PCtr_ViewZoomOut);
     } else
     {
         if ( is_game_key_pressed(Gkey_RotateCW, NULL, false) )
         {
           if ( LbTimerClock() > last_rotate_left_time+250 )
           {
-            set_packet_control(pckt, PCtr_ViewRotateCW);
+            set_players_packet_control(player, PCtr_ViewRotateCW);
             last_rotate_left_time = LbTimerClock();
           }
         }
@@ -1664,23 +1660,23 @@ void get_front_view_nonaction_inputs(void)
         {
           if ( LbTimerClock() > last_rotate_right_time+250 )
           {
-            set_packet_control(pckt, PCtr_ViewRotateCCW);
+            set_players_packet_control(player, PCtr_ViewRotateCCW);
             last_rotate_right_time = LbTimerClock();
           }
         }
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, no_mods) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_MoveLeft);
+            set_players_packet_control(player, PCtr_MoveLeft);
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, no_mods) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_MoveRight);
+            set_players_packet_control(player, PCtr_MoveRight);
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, no_mods) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_MoveUp);
+            set_players_packet_control(player, PCtr_MoveUp);
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, no_mods) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-            set_packet_control(pckt, PCtr_MoveDown);
+            set_players_packet_control(player, PCtr_MoveDown);
     }
     if ( is_game_key_pressed(Gkey_ZoomIn, NULL, false) )
-        set_packet_control(pckt, PCtr_ViewZoomIn);
+        set_players_packet_control(player, PCtr_ViewZoomIn);
     if ( is_game_key_pressed(Gkey_ZoomOut, NULL, false) )
-        set_packet_control(pckt, PCtr_ViewZoomOut);
+        set_players_packet_control(player, PCtr_ViewZoomOut);
 }
 
 /**
@@ -1763,23 +1759,27 @@ void get_dungeon_control_nonaction_inputs(void)
   my_mouse_x = GetMouseX();
   my_mouse_y = GetMouseY();
   struct PlayerInfo* player = get_my_player();
-  struct Packet* pckt = get_packet(my_player_number);
-  unset_packet_control(pckt, PCtr_MapCoordsValid);
+  unset_players_packet_control(player, PCtr_MapCoordsValid);
+  map_coords_valid = false;
   if (player->work_state == PSt_CtrlDungeon)
   {
       unsigned char context;
       if (get_player_coords_and_context(&pos, &context))
       {
           set_players_packet_position(player, pos.x.val, pos.y.val);
-          set_packet_control(pckt, PCtr_MapCoordsValid);
-          pckt->field_10 ^= (pckt->field_10 ^ (context << 1)) & PCAdV_ContextMask;
+          set_players_packet_control(player, PCtr_MapCoordsValid);
+          unset_players_add_flag(player, PCAdV_ContextMask);
+          map_coords_valid = true;
+          set_players_add_flag(player, (context << 1));
     }
-  } else
+  }
+  else
   if (screen_to_map(player->acamera, my_mouse_x, my_mouse_y, &pos))
   {
       set_players_packet_position(player,pos.x.val,pos.y.val);
-      set_packet_control(pckt, PCtr_MapCoordsValid);
-      pckt->field_10 &= ~PCAdV_ContextMask;
+      set_players_packet_control(player, PCtr_MapCoordsValid);
+      map_coords_valid = true;
+      unset_players_add_flag(player, PCAdV_ContextMask);
   }
   if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
   {
@@ -1810,11 +1810,13 @@ void get_map_nonaction_inputs(void)
     struct PlayerInfo* player = get_my_player();
     TbBool coords_valid = screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos);
     set_players_packet_position(player, pos.x.val, pos.y.val);
-    struct Packet* pckt = get_packet(my_player_number);
+
     if (coords_valid) {
-        set_packet_control(pckt, PCtr_MapCoordsValid);
+        map_coords_valid = true;
+        set_players_packet_control(player, PCtr_MapCoordsValid);
     } else {
-        unset_packet_control(pckt, PCtr_MapCoordsValid);
+        map_coords_valid = false;
+        unset_players_packet_control(player, PCtr_MapCoordsValid);
     }
     if (((game.operation_flags & GOF_Paused) == 0) && (player->view_mode == PVM_ParchmentView))
     {
@@ -1863,45 +1865,46 @@ void get_creature_control_nonaction_inputs(void)
 {
   long k;
   struct PlayerInfo* player = get_my_player();
-  struct Packet* pckt = get_packet(my_player_number);
 
   long x = GetMouseX();
   long y = GetMouseY();
   struct Thing* thing = thing_get(player->controlled_thing_idx);
   TRACE_THING(thing);
-  pckt->pos_x = 127;
-  pckt->pos_y = 127;
+  long pos_x = 127;
+  long pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
   while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
     LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size);
   // Set pos_x and pos_y
   if (settings.first_person_move_invert)
-    pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
+    pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
   else
-    pckt->pos_y = 255 * y / MyScreenHeight;
-  pckt->pos_x = 255 * x / MyScreenWidth;
+    pos_y = 255 * y / MyScreenHeight;
+  pos_x = 255 * x / MyScreenWidth;
   // Update the position based on current settings
   long i = settings.first_person_move_sensitivity + 1;
-  x = pckt->pos_x - 127;
-  y = pckt->pos_y - 127;
+  x = pos_x - 127;
+  y = pos_y - 127;
   if (i < 6)
   {
       k = 5 - settings.first_person_move_sensitivity;
-      pckt->pos_x = x/k + 127;
-      pckt->pos_y = y/k + 127;
+      pos_x = x/k + 127;
+      pos_y = y/k + 127;
   } else
   if (i > 6)
   {
       k = settings.first_person_move_sensitivity - 5;
-      pckt->pos_x = k*x + 127;
-      pckt->pos_y = k*y + 127;
+      pos_x = k*x + 127;
+      pos_y = k*y + 127;
   }
   // Bound posx and pos_y
-  if (pckt->pos_x > map_subtiles_x)
-    pckt->pos_x = map_subtiles_x;
-  if (pckt->pos_y > map_subtiles_y)
-    pckt->pos_y = map_subtiles_y;
+  if (pos_x > map_subtiles_x)
+    pos_x = map_subtiles_x;
+  if (pos_y > map_subtiles_y)
+    pos_y = map_subtiles_y;
+    
+  set_players_packet_position(player, pos_x, pos_y);
   // Now do user actions
   if (thing_is_invalid(thing))
     return;
@@ -1918,13 +1921,13 @@ void get_creature_control_nonaction_inputs(void)
           right_button_released = 0;
       }
       if ( is_game_key_pressed(Gkey_MoveLeft, NULL, true) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
-          set_packet_control(pckt, PCtr_MoveLeft);
+          set_players_packet_control(player, PCtr_MoveLeft);
       if ( is_game_key_pressed(Gkey_MoveRight, NULL, true) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
-          set_packet_control(pckt, PCtr_MoveRight);
+          set_players_packet_control(player, PCtr_MoveRight);
       if ( is_game_key_pressed(Gkey_MoveUp, NULL, true) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-          set_packet_control(pckt, PCtr_MoveUp);
+          set_players_packet_control(player, PCtr_MoveUp);
       if ( is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-          set_packet_control(pckt, PCtr_MoveDown);
+          set_players_packet_control(player, PCtr_MoveDown);
   }
 }
 
@@ -2168,15 +2171,16 @@ void input(void)
     {
       lbKeyOn[lbInkey] = 0;
     }
-    struct Packet* pckt = get_packet(my_player_number);
+
+    struct PlayerInfo* player = get_my_player();
     if (is_game_key_pressed(Gkey_CrtrContrlMod, NULL, false) != 0)
-      pckt->field_10 |= PCAdV_CrtrContrlPressed;
+      set_players_add_flag(player, PCAdV_CrtrContrlPressed);
     else
-      pckt->field_10 &= ~PCAdV_CrtrContrlPressed;
+      unset_players_add_flag(player, PCAdV_CrtrContrlPressed);
     if (is_game_key_pressed(Gkey_CrtrQueryMod, NULL, false) != 0)
-      pckt->field_10 |= PCAdV_CrtrQueryPressed;
+      set_players_add_flag(player, PCAdV_CrtrQueryPressed);
     else
-      pckt->field_10 &= ~PCAdV_CrtrQueryPressed;
+      unset_players_add_flag(player, PCAdV_CrtrQueryPressed);
 
     get_inputs();
 

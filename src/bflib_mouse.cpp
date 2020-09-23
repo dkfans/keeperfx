@@ -52,6 +52,7 @@ struct DevInput joy;
 */
 volatile TbBool lbMouseGrab = true;
 volatile TbDisplayStructEx lbDisplayEx;
+extern volatile TbBool lbAppActive;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_x, long hot_y)
 {

@@ -114,7 +114,7 @@ short creature_arrived_at_prison(struct Thing *creatng)
         terminate_thing_spell_effect(creatng, SplK_Invisibility);
     }
     if (creatng->light_id != 0) {
-        light_delete_light(creatng->light_id);
+        light_delete_light(creatng->light_id, creatng->index);
         creatng->light_id = 0;
     }
     return 1;

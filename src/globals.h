@@ -140,9 +140,6 @@ extern "C" {
   #define NAVIDBG(dblv,format, ...) {\
     if (BFDEBUG_LEVEL > dblv)\
       LbNaviLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define NETDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbNetLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
   #define SCRIPTDBG(dblv,format, ...) {\
     if (BFDEBUG_LEVEL > dblv)\
       LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__); }
@@ -154,9 +151,26 @@ extern "C" {
   #define WARNDBG(dblv,format, ...)
   #define ERRORDBG(dblv,format, ...)
   #define NAVIDBG(dblv,format, ...)
-  #define NETDBG(dblv,format, ...)
   #define SCRIPTDBG(dblv,format, ...)
   #define AIDBG(dblv,format, ...)
+#endif
+
+#ifndef NETDBG_LEVEL
+#define NETDBG_LEVEL BFDEBUG_LEVEL
+#endif
+
+#if (NETDBG_LEVEL > 0)
+#ifdef UDP_LOG
+  #define NETDBG(dblv,format, ...) {\
+    if (NETDBG_LEVEL > dblv)\
+      evm_stat(0, "netdbg %s:" format, __func__ , ##__VA_ARGS__); }
+#else
+  #define NETDBG(dblv,format, ...) {\
+    if (NETDBG_LEVEL > dblv)\
+      LbNetLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
+#endif
+#else
+  #define NETDBG(dblv,format, ...)
 #endif
 
 #if AUTOTESTING
@@ -169,11 +183,14 @@ extern "C" {
     evm_stat(0, "map.%s,x=%d,y=%d,plyr=%d,opt=%s cnt=1,x=%d,y=%d", event_name, x, y, plyr_idx, opt, x,y)
   #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val) \
     evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d %s=%d", event_name, get_string(creature_data_get(thing->model)->namestr_idx), thing->index, plyr_id, stat_name, stat_val)
+  #define EVM_GLOBAL_EVENT(event_fmt, ...) \
+    evm_stat(0, event_fmt, ## __VA_ARGS__)
 #else
   #define EVM_CREATURE_EVENT(event_name, plyr_id, thing)
   #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val)
   #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val)
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
+  #define EVM_GLOBAL_EVENT(event_fmt, ...)
 #endif
 
 void replaceFn(void* oldFn, void* newFn);

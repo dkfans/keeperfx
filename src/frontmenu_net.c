@@ -225,10 +225,10 @@ TbBool frontnet_start_input(void)
         if ((lbInkey == KC_BACK) || (lbInkey == KC_RETURN) || (frontend_font_char_width(1,asckey) > 0))
         {
             struct ScreenPacket *nspck;
-            nspck = &net_screen_packet[my_player_number];
-            if ((nspck->field_4 & 0xF8) == 0)
+            nspck = &net_screen_packet_NEW[my_player_number];
+            if ((nspck->flags_4 & ~SPF_Unknown07) == 0)
             {
-              nspck->field_4 = (nspck->field_4 & 7) | 0x40;
+              nspck->flags_4 = (nspck->flags_4 & SPF_Unknown07) | SPF_Unknown40;
               nspck->param1 = lbInkey;
               if ((lbKeyOn[KC_LSHIFT] == 0) && (lbKeyOn[KC_RSHIFT] == 0))
               {
@@ -489,10 +489,10 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     if ( plyr1_idx == myplyr->id_number || plyr2_idx == myplyr->id_number )
     {
         struct ScreenPacket *nspck;
-        nspck = &net_screen_packet[my_player_number];
-        if ((nspck->field_4 & 0xF8) == 0)
+        nspck = &net_screen_packet_NEW[my_player_number];
+        if ((nspck->flags_4 & ~SPF_Unknown07) == 0)
         {
-            nspck->field_4 = (nspck->field_4 & 7) | 0x20;
+            nspck->flags_4 = (nspck->flags_4 & SPF_Unknown07) | SPF_Unknown20;
             nspck->param1 = plyr1_idx;
             nspck->param2 = plyr2_idx;
         }

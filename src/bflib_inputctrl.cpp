@@ -260,6 +260,26 @@ static void process_event(const SDL_Event *ev)
     int y;
     SYNCDBG(10, "Starting");
 
+    if (!lbAppActive)
+    {   // Ignore input when inactive
+        switch(ev->type)
+        {
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+        case SDL_MOUSEMOTION:
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+        case SDL_JOYAXISMOTION:
+        case SDL_JOYBALLMOTION:
+        case SDL_JOYHATMOTION:
+        case SDL_JOYBUTTONDOWN:
+        case SDL_JOYBUTTONUP:
+            return;
+        default:
+            break;
+        }
+    }
+
     switch (ev->type)
     {
     case SDL_KEYDOWN:

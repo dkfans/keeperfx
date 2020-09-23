@@ -61,15 +61,24 @@ struct MapLevelInfo { // sizeof = 56
   long screen_shift_aimed_y;
 };
 
-struct ScreenPacket { // sizeof = 12
-  unsigned char field_0[4];
-  unsigned char field_4;
+enum ScreenPacketFlags
+{
+  SPF_PlayerActive = 0x01,
+  SPF_Unknown07 = 0x07,
+  SPF_Unknown08 = 0x08, // Update mouse? Slapped?
+  SPF_Unknown10 = 0x10, // param2 = icon_offset
+  SPF_Unknown20 = 0x20, // Change Aliance
+  SPF_Unknown40 = 0x40, // Chat letter
+};
+
+struct ScreenPacket {
+  unsigned char flags_4;
   char field_5;
-  short field_6;
-  short field_8;
-  //TODO LANDVIEW This is unacceptable - level number won't fit in 8 bits; this causes zoom area to be invalid. Change to int when possible.
-  char param1;
-  unsigned char param2;
+  short mouse_x;
+  short mouse_y;
+  int param1;
+  int param2;
+  int selected_level;
 };
 
 /******************************************************************************/
@@ -110,10 +119,10 @@ DLLIMPORT extern long _DK_fe_net_level_selected;
 #define fe_net_level_selected _DK_fe_net_level_selected
 DLLIMPORT extern long _DK_net_map_limp_time;
 #define net_map_limp_time _DK_net_map_limp_time
-DLLIMPORT extern struct ScreenPacket _DK_net_screen_packet[4];
-#define net_screen_packet _DK_net_screen_packet
 DLLIMPORT extern long _DK_players_currently_in_session;
 #define players_currently_in_session _DK_players_currently_in_session
+
+extern struct ScreenPacket net_screen_packet_NEW[4];
 
 #pragma pack()
 /******************************************************************************/

@@ -26,11 +26,13 @@
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_rules.h"
-#include "gui_msgs.h"
-#include "dungeon_data.h"
-#include "thing_creature.h"
 #include "creature_control.h"
+#include "dungeon_data.h"
+#include "gui_msgs.h"
 #include "light_data.h"
+#include "net_game.h"
+#include "packets.h"
+#include "thing_creature.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,6 +61,7 @@ enum GameSystemFlags {
 
 enum GameGUIFlags {
     GGUI_CountdownTimer  = 0x0002,
+    GGUI_ShowTickTime    = 0x0040,
     GGUI_SoloChatEnabled = 0x0080
 };
 
@@ -76,6 +79,12 @@ enum ClassicBugFlags {
     ClscBug_FaintedImmuneToBoulder = 0x0200,
 };
 
+enum GameFlags2 {
+    GF2_ClearPauseOnSync          = 0x0001,
+    GF2_ClearPauseOnPacket        = 0x0002,
+    GF2_ShowEventLog              = 0x00010000,
+    GF2_PERSISTENT_FLAGS          = 0xFFFF0000
+};
 /******************************************************************************/
 #pragma pack(1)
 
@@ -140,12 +149,21 @@ struct GameAdd {
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
+    unsigned long action_turn_rand_seed; // This is a base for action_rand_seed each turn
 };
 
 #pragma pack()
+
+extern unsigned long game_flags2; // Should be reset to zero on new level
+
+extern unsigned long ui_turn;
+extern TbClockMSec tick_time; // time of a tick in ms
+/******************************************************************************/
+extern int net_max_failed_login_turns;
 /******************************************************************************/
 extern struct GameAdd gameadd;
 extern struct IntralevelData intralvl;
+extern struct PacketEx ex_packets[PACKETS_COUNT];
 /******************************************************************************/
 LevelNumber get_loaded_level_number(void);
 LevelNumber set_loaded_level_number(LevelNumber lvnum);

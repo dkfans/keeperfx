@@ -36,8 +36,10 @@
 #include "front_simple.h"
 #include "front_landview.h"
 #include "frontend.h"
+#include "hist_actions.h"
 #include "player_data.h"
 #include "net_game.h"
+#include "net_sync.h"
 #include "packets.h"
 #include "config.h"
 #include "config_strings.h"
@@ -136,8 +138,96 @@ void process_network_error(long errcode)
   create_frontend_error_box(3000, text);
 }
 
+void gui_draw_tick_time()
+{
+    if ((game.flags_gui & GGUI_ShowTickTime) == 0)
+    {
+        return;
+    }
+    int val = tick_time;
+    TbClockMSec now = LbTimerClock();
+
+    static int max_time_val = 0;
+    static int max_time_t = 0;
+    if (now > max_time_t)
+    {
+        max_time_val = 0;
+    }
+    if (val > max_time_val)
+    {
+        max_time_val = val;
+        max_time_t = now + 5000;
+    }
+    
+    if (winfont != NULL)
+    {
+        LbTextSetFont(winfont);
+    }
+    char* text = buf_sprintf("now %02d", val);
+    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    long scr_y = 3 * 16 * units_per_pixel / 16;
+    LbTextSetWindow(scr_x, scr_y, width, height);
+    if (winfont != NULL)
+    {
+        draw_slab64k(scr_x, scr_y, units_per_pixel, width, height * 2);
+    }
+    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextSetWindow(scr_x, scr_y + height, width, height);
+    
+    text = buf_sprintf("max %02d", max_time_val);
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+void draw_event_log()
+{
+    const int lines = 9;
+    const int width = 500;
+    const int font_size = 16;
+    const int margin_y = 5;
+    char left_buf[64], right_buf[32];
+    int x = MyScreenWidth - width;
+    int y = 100;
+    int units_per_px = units_per_pixel;
+    if ((game_flags2 & GF2_ShowEventLog) == 0)
+    {
+        return;
+    }
+    LbTextSetFont(winfont);
+    int tx_units_per_px = (font_size * units_per_px) / LbTextLineHeight();
+    long text_h = LbTextLineHeight() * tx_units_per_px / 16;
+    int height = text_h * lines + 2 * margin_y * units_per_px/16;
+  
+    LbDrawBox(x, y, width, height, 0);
+
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    LbTextSetWindow(x+4, y, width-8, height);
+
+    sprintf(left_buf, "%6ld", game.play_gameturn);
+    LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * 0,
+            tx_units_per_px, left_buf);
+    for (int i = 0; i < lines-1; i++)
+    {
+        hist_get_string(i, left_buf, right_buf);
+        if (left_buf[0] == 0) 
+            break;
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+        LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * (i+1),
+            tx_units_per_px, left_buf);
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+        LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * (i+1),
+            tx_units_per_px, right_buf);
+    }
+}
+
 void draw_out_of_sync_box(long a1, long a2, long box_width)
 {
+    static char old_data[32] = {0};
+
     long min_width = 2 * a1;
     long max_width = 2 * a2;
     if (min_width > max_width)
@@ -149,10 +239,9 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         min_width = 0;
     }
     int units_per_px = units_per_pixel;
-    if (LbScreenLock() == Lb_SUCCESS)
     {
         long ornate_width = 200 * units_per_px / 16;
-        long ornate_height = 100 * units_per_px / 16;
+        long ornate_height = 110 * units_per_px / 16;
         long x = box_width + (MyScreenWidth - box_width - ornate_width) / 2;
         long y = (MyScreenHeight - ornate_height) / 2;
         draw_ornate_slab64k(x, y, units_per_px, ornate_width, ornate_height);
@@ -162,13 +251,40 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         int tx_units_per_px = (22 * units_per_px) / LbTextLineHeight();
         long text_h = LbTextLineHeight() * tx_units_per_px / 16;
         long text_x = x + 100 * units_per_px / 16 - max_width;
-        long text_y = y + 58 * units_per_px / 16;
-        LbTextDrawResized(0, 50*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
-        LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_px/16, 0);
+        long text_y = 48 * units_per_px / 16;
+        LbTextDrawResized(0, 40*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
         LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_px/16, 133);
-        LbScreenUnlock();
-        LbScreenSwap();
+
+        int a, b;
+        LbNetwork_GetResyncProgress(&a, &b);
+        if (b == 0) b = 1;
+
+        LbDrawBox(text_x, y + text_y, 2 * max_width * a / b, 16*units_per_px/16,
+              player_flash_colours[0]);
+              
+        text_y += text_h + 16 * units_per_px / 16;
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+
+        const char *desync_info = get_desync_info();
+        LbTextDrawResized(10, text_y - text_h, tx_units_per_px, desync_info);
+
+        if (strcmp(old_data, desync_info) != 0)
+        {
+            JUSTLOG("desync turn:%lu ui_turn:%lu %s", (unsigned long)game.play_gameturn, ui_turn, desync_info);
+            strcpy(old_data, desync_info);
+        }
     }
+}
+
+void gui_draw_network_state()
+{
+    if (((game.system_flags & GSF_NetGameNoSync) != 0)
+      || ((game.system_flags & GSF_NetSeedNoSync) != 0))
+    {
+      draw_out_of_sync_box(0, 32*units_per_pixel/16, get_my_player()->engine_window_x);
+    }
+    gui_draw_tick_time();
+    draw_event_log();
 }
 
 void setup_alliances(void)
@@ -261,9 +377,9 @@ void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, voi
         LbStringCopy(net_service[net_number_of_services], get_string(GUIStr_NetIpx), NET_MESSAGE_LEN);
         net_number_of_services++;
     } else
-    if (strcasecmp("TCP", netcdat->svc_name) == 0)
+    if (strcasecmp("UDP", netcdat->svc_name) == 0)
     {
-        LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
+        LbStringCopy(net_service[net_number_of_services], "UDP", NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
     } else
     {

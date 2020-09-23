@@ -185,6 +185,20 @@ enum TbPacketAddValues {
     PCAdV_Unknown80         = 0x80, //!< Seem unused
 };
 
+enum ChecksumKind {
+  CKS_Action = 0,
+  CKS_Players,
+  CKS_Creatures_1,
+  CKS_Creatures_2,
+  CKS_Creatures_3,
+  CKS_Creatures_4,
+  CKS_Creatures_5,  // Heroes
+  CKS_Creatures_6,  // Neutral
+  CKS_Things, //Objects, Traps, Shots etc
+  CKS_Effects,
+  CKS_Rooms,
+  CKS_MAX
+};
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
 #define PCtr_RBtnAnyAction (PCtr_RBtnClick | PCtr_RBtnHeld | PCtr_RBtnRelease)
 #define PCtr_HeldAnyButton (PCtr_LBtnHeld | PCtr_RBtnHeld)
@@ -223,18 +237,23 @@ struct PacketSaveHead { // sizeof=0xF (15)
     TbBool chksum_available; // if needed, this can be replaced with flags
 };
 
+struct PacketEx
+{
+    struct Packet packet;
+    TbBigChecksum sums[CKS_MAX];
+};
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
 struct Packet *get_packet_direct(long pckt_idx);
-struct Packet *get_packet(long plyr_idx);
-void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
+struct PacketEx *get_packet_ex(long plyr_idx);
+struct PacketEx *get_packet_ex_direct(long pckt_idx);
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
-void set_packet_control(struct Packet *pckt, unsigned long flag);
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 unsigned char get_players_packet_action(struct PlayerInfo *player);
-void unset_packet_control(struct Packet *pckt, unsigned long flag);
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
+void set_players_add_flag(struct PlayerInfo *player, unsigned long flag);
+void unset_players_add_flag(struct PlayerInfo *player, unsigned long flag);
 void set_players_packet_position(struct PlayerInfo *player, long x, long y);
 short set_packet_pause_toggle(void);
 TbBool process_dungeon_control_packet_clicks(long idx);
@@ -249,8 +268,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
 void clear_packets(void);
 TbBigChecksum compute_players_checksum(void);
-void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const char *area_name);
-short checksums_different(void);
+TbBool checksums_different(void);
 void post_init_packets(void);
 
 TbBool open_new_packet_file_for_save(void);
@@ -259,6 +277,9 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
 void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
+
+#define SHIFT_CHECKSUM(X) {X = (X << 1) | (X >> 31);}
+void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, enum ChecksumKind kind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

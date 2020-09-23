@@ -118,11 +118,13 @@ DLLIMPORT struct GuiMenu _DK_transfer_creature_menu;
 DLLIMPORT struct GuiMenu _DK_armageddon_menu;
 DLLIMPORT struct GuiMenu _DK_frontend_main_menu;
 DLLIMPORT struct GuiMenu _DK_frontend_load_menu;
+/*
 DLLIMPORT struct GuiMenu _DK_frontend_net_service_menu;
 DLLIMPORT struct GuiMenu _DK_frontend_net_session_menu;
 DLLIMPORT struct GuiMenu _DK_frontend_net_start_menu;
 DLLIMPORT struct GuiMenu _DK_frontend_net_modem_menu;
 DLLIMPORT struct GuiMenu _DK_frontend_net_serial_menu;
+*/
 DLLIMPORT struct GuiMenu _DK_frontend_statistics_menu;
 DLLIMPORT struct GuiMenu _DK_frontend_high_score_table_menu;
 DLLIMPORT struct GuiMenu _DK_creature_query_menu1;

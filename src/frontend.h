@@ -49,6 +49,7 @@ enum DemoItem_Kind {
     DIK_ListEnd,
 };
 
+// should be coherent with static *frontend_menu_state_name* in frontend.cpp
 enum FrontendMenuStates {
   FeSt_INITIAL = 0,
   FeSt_MAIN_MENU,

@@ -41,7 +41,7 @@ enum ShadowCacheFlags {
 
 enum LightFlags {
     LgtF_Allocated    = 0x01,
-    LgtF_Unkn02       = 0x02,
+    LgtF_Unkn02       = 0x02, /* Used */
     LgtF_Dynamic      = 0x04,
     LgtF_Unkn08       = 0x08,
 };
@@ -110,9 +110,11 @@ DLLIMPORT long _DK_light_out_of_date_stat_lights;
 
 #pragma pack()
 /******************************************************************************/
+#define light_delete_light(idx, thing_id) light_delete_light_f(idx, thing_id, __func__)
+
 void clear_stat_light_map(void);
 void update_light_render_area(void);
-void light_delete_light(long idx);
+void light_delete_light_f(long idx, long thing_id, const char *func);
 void light_initialise_lighting_tables(void);
 void light_initialise(void);
 void light_turn_light_off(long num);

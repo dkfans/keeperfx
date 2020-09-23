@@ -79,10 +79,10 @@ enum ModeFlags {
 
 enum FFlags {
     FFlg_unk01              =  0x01,
-    FFlg_unk02              =  0x02,
+    FFlg_unk02              =  0x02, /* Bonus level activated */
     FFlg_unk04              =  0x04,
     FFlg_unk08              =  0x08,
-    FFlg_unk10              =  0x10,
+    FFlg_unk10              =  0x10, /* Multiplayer? */
     FFlg_AlexCheat          =  0x20,
     FFlg_UsrSndFont         =  0x40,
     FFlg_unk80              =  0x80,
@@ -138,6 +138,7 @@ struct StartupParameters {
     unsigned char autotest_flags;
     unsigned long autotest_exit_turn;
 #endif
+    unsigned char show_ticks;
 };
 
 // Global variables migration between DLL and the program

@@ -7,8 +7,8 @@
  *     Allows easy saving and loading of game data.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
- * @date     21 Oct 2009 - 25 Nov 2009
+ * @author   KeeperFX Team
+ * @date     21 Oct 2009 - 30 Aug 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -29,7 +29,12 @@ extern "C" {
 /******************************************************************************/
 struct GameAdd gameadd;
 struct IntralevelData intralvl;
+unsigned long ui_turn;
+TbClockMSec tick_time;
 /******************************************************************************/
+int net_max_failed_login_turns = 10;
+unsigned long game_flags2 = 0;
+struct PacketEx ex_packets[PACKETS_COUNT];
 /******************************************************************************/
 /**
  * Informs if we're going to emulate overflow for integer values with given amount of bits.

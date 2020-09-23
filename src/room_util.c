@@ -135,12 +135,19 @@ void process_rooms(void)
       if (room_role_matches(room->kind, RoRoF_FoodSpawn)) {
           room_grow_food(room);
       }
-      sum += room->slabs_count + room->central_stl_x + room->central_stl_y + room->efficiency + room->used_capacity;
+
+      SHIFT_CHECKSUM(sum);
+      sum ^= room->slabs_count;
+      sum ^= (room->central_stl_x << 4)
+          ^ room->central_stl_y
+          ^ (room->efficiency << 20)
+          ^ (room->used_capacity << 24);
+
       if (room_has_surrounding_flames(room->kind) && ((game.numfield_D & GNFldD_Unkn40) != 0)) {
           process_room_surrounding_flames(room);
       }
   }
-  player_packet_checksum_add(my_player_number, sum, "rooms");
+  player_packet_checksum_add(my_player_number, sum, CKS_Rooms);
   recompute_rooms_count_in_dungeons();
   SYNCDBG(9,"Finished");
 }

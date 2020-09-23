@@ -209,6 +209,7 @@ obj/game_legacy.o \
 obj/game_lghtshdw.o \
 obj/game_merge.o \
 obj/game_saves.o \
+obj/hist_actions.o \
 obj/gui_boxmenu.o \
 obj/gui_draw.o \
 obj/gui_frontbtns.o \
@@ -237,6 +238,9 @@ obj/music_player.o \
 obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \
+obj/packets_cheats.o \
+obj/packets_input.o \
+obj/packets_misc.o \
 obj/player_compchecks.o \
 obj/player_compevents.o \
 obj/player_complookup.o \
@@ -279,6 +283,7 @@ obj/thing_list.o \
 obj/thing_navigate.o \
 obj/thing_objects.o \
 obj/thing_physics.o \
+obj/thing_serde.o \
 obj/thing_shots.o \
 obj/thing_stats.o \
 obj/thing_traps.o \
@@ -290,7 +295,7 @@ obj/main.o \
 $(RES)
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net 
+LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lwsock32 -lws2_32
 INCS =  -I"sdl/include"
 CXXINCS =  -I"sdl/include"
 
@@ -322,8 +327,8 @@ else
 endif
 
 # logging level flags
-STLOGFLAGS = -DBFDEBUG_LEVEL=0 
-HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DAUTOTESTING=1
+STLOGFLAGS = -DBFDEBUG_LEVEL=0
+HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DNETDBG_LEVEL=10 -DAUTOTESTING=1
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
 # disabled warnings: -Wextra -Wtype-limits
@@ -487,6 +492,7 @@ include tool_sndbanker.mk
 include tool_rnctools.mk
 #include tool_dkillconv.mk
 
+include postbuild.mk
 include package.mk
 include pkg_lang.mk
 include pkg_gfx.mk
