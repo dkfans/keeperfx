@@ -88,7 +88,7 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
 {
     TRACE_THING(creatng);
     if (creatng->light_id != 0) {
-        light_delete_light(creatng->light_id);
+        light_delete_light(creatng->light_id, creatng->index);
         creatng->light_id = 0;
     }
     if (creature_affected_by_spell(creatng, SplK_Speed))

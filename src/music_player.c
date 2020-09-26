@@ -155,7 +155,7 @@ void SetMusicPlayerVolume(int volume)
         float volume_f = (float) volume;
         int normalized_volume = (int)((volume_f / MIX_MAX_VOLUME) * MIX_MAX_VOLUME);
         Mix_VolumeMusic(normalized_volume);
-        SYNCLOG("Music volume set: %d", normalized_volume);
+        SYNCDBG(4, "Music volume set: %d", normalized_volume);
     }
 }
 

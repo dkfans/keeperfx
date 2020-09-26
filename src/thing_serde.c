@@ -47,8 +47,17 @@ void serde_srv_things()
             NETDBG(6, "item i:%04d idx:%04d", i, thing->index);
             if (thing->light_id != 0)
             {
-                NETDBG(6, "deleting light idx:%04d, light_id:%03d", thing->index, thing->light_id);
-                light_delete_light(thing->light_id);
+                //TODO: this should not happen
+                if (light_is_light_allocated(thing->light_id))
+                {
+                    WARNLOG("wrong light id for %s#%s light_id:%03d",
+                        thing_model_name(thing), thing->index, thing->light_id);
+                }
+                else
+                {
+                    NETDBG(6, "deleting light idx:%04d, light_id:%03d", thing->index, thing->light_id);
+                    light_delete_light(thing->light_id, thing->index);
+                }
                 // We still store light_id as non-zero because we need to sync it
             }
         }
@@ -69,7 +78,7 @@ void serde_cli_things()
             if (thing->light_id != 0)
             {
                 NETDBG(6, "deleting light idx:%04d, light_id:%03d", thing->index, thing->light_id);
-                light_delete_light(thing->light_id);
+                light_delete_light(thing->light_id, thing->index);
                 thing->light_id = 0;
             }
         }
@@ -134,6 +143,11 @@ static void restore_light(struct Thing *thing)
                 WARNLOG("Unable to restore light for %d", thing->index);
             }
         }
+        else
+        {
+            WARNLOG("Not restoring light for %s#%d", thing_model_name(thing), thing->index);
+            thing->light_id = 0;
+        }
         break;
     case TCls_Object:
         objconf = get_object_model_stats2(thing->model);
@@ -149,6 +163,11 @@ static void restore_light(struct Thing *thing)
             {
                 WARNLOG("Unable to restore light for %d", thing->index);
             }
+        }
+        else
+        {
+            WARNLOG("Not restoring light for %s#%d", thing_model_name(thing), thing->index);
+            thing->light_id = 0;
         }
         break;
     default:
@@ -299,7 +318,7 @@ void serde_fin_things()
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            light_delete_light(player->field_460);
+            light_delete_light(player->field_460, 0);
             init_player_light(player);
             if ((player->instance_num == PI_DirctCtrl) || (player->instance_num == PI_DirctCtrl))
             {

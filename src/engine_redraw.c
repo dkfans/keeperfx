@@ -625,6 +625,7 @@ void redraw_isometric_view(void)
     gui_draw_network_state();
     draw_power_hand();
     draw_tooltip();
+    // TODO: what is it? who moved mappos?
     memcpy(&player->acamera->mappos,&pos,sizeof(struct Coord3d));
     SYNCDBG(8,"Finished");
 }
