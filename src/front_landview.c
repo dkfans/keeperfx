@@ -50,6 +50,7 @@
 #include "front_lvlstats.h"
 #include "frontend.h"
 #include "kjm_input.h"
+#include "packets.h" // for PckA_LandView
 #include "vidmode.h"
 #include "vidfade.h"
 #include "game_legacy.h"
@@ -65,6 +66,10 @@ extern "C" {
 struct NetMapPlayersState {
     LevelNumber lvnum;
     TbBool is_selected;
+
+    int players_count; //TODO: get it from network layer somewhere above bflib_network?
+    int lvl_vote;
+    int lvl_vote_count;
 };
 
 struct ScreenPacket net_screen_packet_NEW[4];
@@ -82,6 +87,7 @@ LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
 struct TbHugeSprite map_window;
 long map_window_len = 0;
+
 /******************************************************************************/
 extern struct TbSetupSprite map_flag_setup_sprites[];
 extern struct TbSetupSprite netmap_flag_setup_sprites[];
@@ -1568,10 +1574,60 @@ long frontmap_update(void)
   return 0;
 }
 
-TbBool frontmap_exchange_screen_packet(void)
+
+TbBool frontmap_process_screen_packet(void *context_data, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size)
 {
-    struct ScreenPacket out_packet;
-    struct ScreenPacket* nspck = &out_packet;
+    struct NetMapPlayersState *context = context_data;
+    struct ScreenPacket* nspck = (struct ScreenPacket*)packet_data;
+    assert(size == sizeof(struct ScreenPacket));
+
+    context->players_count++; // TODO: just put it into packet
+    if (nspck->param1 == LEVELNUMBER_ERROR)
+    {
+        if (fe_network_active)
+        {
+            if (LbNetwork_EnableNewPlayers(true))
+            {
+              ERRORLOG("Unable to enable new players joining exchange");
+            }
+            frontend_set_state(FeSt_NET_START);
+        } else
+        {
+          frontend_set_state(FeSt_MAIN_MENU);
+        }
+        return true;
+    }
+    if ((nspck->flags_4 & ~SPF_Unknown07) != SPF_Unknown08)
+    {
+        if (context->lvl_vote_count == 0)
+        {
+            context->lvl_vote = nspck->selected_level;
+            context->lvl_vote_count++;
+        }
+        else if (context->lvl_vote == nspck->selected_level)
+        {
+            context->lvl_vote_count++;
+        }
+    }
+    if (((nspck->flags_4 & ~SPF_Unknown07) == SPF_Unknown08) && (nspck->param1 == 13))
+    {
+        if ( test_hand_slap_collides(plyr_idx) )
+        {
+            net_map_limp_time = 12;
+            fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
+            net_map_slap_frame = 0;
+            limp_hand_x = nspck->mouse_x;
+            limp_hand_y = nspck->mouse_y;
+            nspck->flags_4 = (nspck->flags_4 & SPF_Unknown07) | SPF_Unknown10;
+            SYNCLOG("Slapped out of level");
+        }
+    }
+    return true;
+}
+
+TbBool frontmap_exchange_screen_packet(struct NetMapPlayersState *nmps)
+{
+    struct ScreenPacket* nspck = LbNetwork_AddPacket((unsigned char )PckA_LandView, 0, sizeof(struct ScreenPacket));
     nspck->flags_4 |= SPF_PlayerActive;
     nspck->selected_level = fe_net_level_selected;
     if (net_map_limp_time > 0)
@@ -1587,8 +1643,8 @@ TbBool frontmap_exchange_screen_packet(void)
             limp_hand_x + hand_limp_xoffset[0] - map_info.screen_shift_x,
             limp_hand_y + hand_limp_yoffset[0] - map_info.screen_shift_y);
       }
-    } else
-    if (fe_net_level_selected > 0)
+    }
+    else if (fe_net_level_selected > 0)
     {
         struct TbSprite* spr = get_map_ensign(1);
         struct LevelInformation* lvinfo = get_level_info(fe_net_level_selected);
@@ -1616,78 +1672,26 @@ TbBool frontmap_exchange_screen_packet(void)
         nspck->mouse_x = GetMouseX()*16/units_per_pixel + map_info.screen_shift_x;
         nspck->mouse_y = GetMouseY()*16/units_per_pixel + map_info.screen_shift_y;
     }
-    if (fe_network_active)
-    {
-      if (LbNetwork_Exchange(nspck, sizeof(*nspck), &net_screen_packet_NEW, sizeof(net_screen_packet_NEW)) != NR_OK)
-      {
-          ERRORLOG("LbNetwork_Exchange failed");
-          return false;
-      }
-    }
-    return true;
-}
 
-TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
-{
-    int scratch;
-    int lvl_vote = 0;
-    int lvl_vote_count = 0;
-    int players_count = 0;
-    for (long i = 0; i < NET_PLAYERS_COUNT; i++)
+    nmps->players_count = 0;
+    nmps->lvl_vote = 0;
+    nmps->lvl_vote_count = 0;
+
+    if (LbNetwork_Exchange(nmps, frontmap_process_screen_packet) != NR_OK)
     {
-        struct ScreenPacket* nspck = &net_screen_packet_NEW[i];
-        if ((nspck->flags_4 & SPF_PlayerActive) == 0)
-          continue;
-        players_count++; // TODO: just put it into packet
-        if (nspck->param1 == LEVELNUMBER_ERROR)
-        {
-            if (fe_network_active)
-            {
-              if (LbNetwork_EnableNewPlayers(1))
-                ERRORLOG("Unable to enable new players joining exchange");
-              frontend_set_state(FeSt_NET_START);
-            } else
-            {
-              frontend_set_state(FeSt_MAIN_MENU);
-            }
-            return false;
-        }
-        if ((nspck->flags_4 & ~SPF_Unknown07) != SPF_Unknown08)
-        {
-            if (lvl_vote_count == 0)
-            {
-                lvl_vote = nspck->selected_level;
-                lvl_vote_count++;
-            }
-            else if (lvl_vote == nspck->selected_level)
-            {
-                lvl_vote_count++;
-            }
-        }
-        if (((nspck->flags_4 & ~SPF_Unknown07) == SPF_Unknown08) && (nspck->param1 == 13))
-        {
-            if ( test_hand_slap_collides(i) )
-            {
-                net_map_limp_time = 12;
-                fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-                net_map_slap_frame = 0;
-                limp_hand_x = nspck->mouse_x;
-                limp_hand_y = nspck->mouse_y;
-                nspck->flags_4 = (nspck->flags_4 & SPF_Unknown07) | SPF_Unknown10;
-                SYNCLOG("Slapped out of level");
-            }
-        }
+        ERRORLOG("LbNetwork_Exchange failed");
+        return false;
     }
 
-    if ((lvl_vote_count != players_count) || (lvl_vote == 0))
+    if ((nmps->lvl_vote_count != nmps->players_count) || (nmps->lvl_vote == 0))
     {    
         nmps->is_selected = false;
     }
     else
     {
-        nmps->lvnum = lvl_vote;
+        nmps->lvnum = nmps->lvl_vote;
         if (fe_network_active) // No single start with disconnected player
-          nmps->is_selected = lvl_vote_count > 1;
+          nmps->is_selected = nmps->lvl_vote_count > 1;
         else
           nmps->is_selected = true;
     }
@@ -1719,8 +1723,7 @@ TbBool frontnetmap_update(void)
         }
     } else
     {
-        frontmap_exchange_screen_packet();
-        frontnetmap_update_players(&nmps);
+        frontmap_exchange_screen_packet(&nmps);
     }
     if ((nmps.lvnum > 0) && (nmps.is_selected))
     {

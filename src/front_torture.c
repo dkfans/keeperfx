@@ -251,52 +251,18 @@ void fronttorture_clear_state(void)
     torture_door_selected = -1;
 }
 
-void fronttorture_input(void)
+TbBool fronttorture_process_packet(void *context, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size)
 {
     long x;
     long y;
-    PlayerNumber plyr_idx;
-    clear_packets();
+    struct PacketEx* pckt = (struct PacketEx*) packet_data;
     struct PlayerInfo* player = get_my_player();
-    struct PacketEx* pckt = get_packet_out_ex(my_player_number);
-    // Get inputs and create packet
-    if (player->victory_state == VicS_WonLevel)
-    {
-        if (left_button_clicked)
-        {
-            torture_left_button = 1;
-            left_button_clicked = 0;
-        }
-        if ((lbKeyOn[KC_SPACE]) || (lbKeyOn[KC_RETURN]) || (lbKeyOn[KC_ESCAPE]))
-        {
-            lbKeyOn[KC_SPACE] = 0;
-            lbKeyOn[KC_RETURN] = 0;
-            lbKeyOn[KC_ESCAPE] = 0;
-            pckt->packet.action |= 0x01;
-        }
-        if (torture_left_button)
-            pckt->packet.action |= 0x02;
-        if (left_button_held)
-            pckt->packet.action |= 0x04;
-        pckt->packet.actn_par1 = GetMouseX();
-        pckt->packet.actn_par2 = GetMouseY();
-    }
-    // Exchange packet with other players
-    if ((game.system_flags & GSF_NetworkActive) != 0)
-    {
-        if (LbNetwork_Exchange(pckt, sizeof(*pckt), get_all_packets_in(), get_all_packets_in_size()) != NR_OK)
-        {
-            ERRORLOG("LbNetwork_Exchange failed");
-            return;
-        }
-    }
+    assert(size == sizeof(*pckt));
     // Determine the controlling player and get his mouse coords
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+
+    if ((pckt->packet.action == 0) || (player->victory_state != VicS_WonLevel))
     {
-        player = get_player(plyr_idx);
-        pckt = get_packet_in_ex(plyr_idx);
-        if ((pckt->packet.action != 0) && (player->victory_state == VicS_WonLevel))
-            break;
+            return;
     }
     if (plyr_idx < PLAYERS_COUNT)
     {
@@ -304,6 +270,7 @@ void fronttorture_input(void)
         y = pckt->packet.actn_par2;
     } else
     {
+        // TODO: fix that (we got no packets so what?)
         plyr_idx = my_player_number;
         player = get_player(plyr_idx);
         pckt = get_packet_ex(plyr_idx);
@@ -385,6 +352,45 @@ void fronttorture_input(void)
           torture_end_sprite = 7;
         }
         break;
+    }
+    return true;
+}
+
+void fronttorture_input(void)
+{
+    long x;
+    long y;
+    PlayerNumber plyr_idx;
+    clear_packets();
+    struct PlayerInfo* player = get_my_player();
+    struct PacketEx* pckt = LbNetwork_AddPacket((unsigned char )PckA_TortureView, 0, sizeof(struct PacketEx));
+    // Get inputs and create packet
+    if (player->victory_state == VicS_WonLevel)
+    {
+        if (left_button_clicked)
+        {
+            torture_left_button = 1;
+            left_button_clicked = 0;
+        }
+        if ((lbKeyOn[KC_SPACE]) || (lbKeyOn[KC_RETURN]) || (lbKeyOn[KC_ESCAPE]))
+        {
+            lbKeyOn[KC_SPACE] = 0;
+            lbKeyOn[KC_RETURN] = 0;
+            lbKeyOn[KC_ESCAPE] = 0;
+            pckt->packet.action |= 0x01;
+        }
+        if (torture_left_button)
+            pckt->packet.action |= 0x02;
+        if (left_button_held)
+            pckt->packet.action |= 0x04;
+        pckt->packet.actn_par1 = GetMouseX();
+        pckt->packet.actn_par2 = GetMouseY();
+    }
+    // Exchange packet with other players
+    if (LbNetwork_Exchange(NULL, &fronttorture_process_packet) != NR_OK)
+    {
+        ERRORLOG("LbNetwork_Exchange failed");
+        return;
     }
 }
 
