@@ -285,7 +285,9 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
 
   Src_buf should be outgoing packet and dst_buf should be "all incoming packets" from server
 */
-enum NetResponse LbNetwork_Exchange(void *src_buf, size_t src_size, void *dst_buf, size_t dst_size);
+TbBool (*LbNetwork_Packets_Callback) (int plyr_idx, unsigned char kind, void *packet_data, short size);
+enum NetResponse LbNetwork_AddPacket(unsigned char kind, void *packet_data, short size);
+enum NetResponse LbNetwork_Exchange(LbNetwork_Packets_Callback callback);
 TbBool  LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct SyncArrayItem sync_data[]);
 void    LbNetwork_GetResyncProgress(int *now, int *max);
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);

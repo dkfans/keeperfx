@@ -327,7 +327,7 @@ void perform_checksum_verification(void)
     struct PacketEx* pckt = get_packet_ex(my_player_number);
     set_players_packet_action(get_player(my_player_number), PckA_LevelExactCheck, 0, 0, 0, 0);
     pckt->packet.chksum = checksum_mem ^ game.action_rand_seed;
-    if (LbNetwork_Exchange(pckt))
+    if (LbNetwork_Exchange(pckt, sizeof(*pckt), get_all_packets_in(), get_all_packets_in_size()) != NR_OK)
     {
         ERRORLOG("Network exchange failed on level checksum verification");
     }

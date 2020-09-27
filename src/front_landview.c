@@ -1570,8 +1570,8 @@ long frontmap_update(void)
 
 TbBool frontmap_exchange_screen_packet(void)
 {
-    LbMemorySet(net_screen_packet_NEW, 0, sizeof(net_screen_packet_NEW));
-    struct ScreenPacket* nspck = &net_screen_packet_NEW[my_player_number];
+    struct ScreenPacket out_packet;
+    struct ScreenPacket* nspck = &out_packet;
     nspck->flags_4 |= SPF_PlayerActive;
     nspck->selected_level = fe_net_level_selected;
     if (net_map_limp_time > 0)
@@ -1618,7 +1618,7 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     if (fe_network_active)
     {
-      if (LbNetwork_Exchange(nspck) != NR_OK)
+      if (LbNetwork_Exchange(nspck, sizeof(*nspck), &net_screen_packet_NEW, sizeof(net_screen_packet_NEW)) != NR_OK)
       {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;
