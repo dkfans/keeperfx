@@ -277,21 +277,28 @@ DLLIMPORT extern int _DK_network_initialized;
 #pragma pack()
 /******************************************************************************/
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
+TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, unsigned long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
 
-/* This function is send outgoing data from src_buf and store incoming data in dst_buf
-
-  Src_buf should be outgoing packet and dst_buf should be "all incoming packets" from server
+/* This function allocates new packet of requested size and enqueues it
 */
-TbBool (*LbNetwork_Packets_Callback) (int plyr_idx, unsigned char kind, void *packet_data, short size);
-enum NetResponse LbNetwork_AddPacket(unsigned char kind, void *packet_data, short size);
-enum NetResponse LbNetwork_Exchange(LbNetwork_Packets_Callback callback);
+void *LbNetwork_AddPacket(unsigned char kind, unsigned long turn, short size);
+
+/* This is a callback that process all enqueued packets from all players
+   Ordered by turn then by plyr_idx
+*/
+typedef TbBool (*LbNetwork_Packet_Callback) (
+    void *context, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size);
+
+/* This function sends all enqueued packet to others */
+enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback);
+
 TbBool  LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct SyncArrayItem sync_data[]);
 void    LbNetwork_GetResyncProgress(int *now, int *max);
+
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
-TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long a2);
+
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
