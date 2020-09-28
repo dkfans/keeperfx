@@ -50,6 +50,7 @@
 #include "creature_states.h"
 #include "creature_states_hero.h"
 #include "creature_groups.h"
+#include "power_hand.h"
 #include "room_library.h"
 #include "room_entrance.h"
 #include "room_util.h"
@@ -140,9 +141,9 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION},
   {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE},
-  {"CAST_SPELL_ON_CREATURE",            "PCAPAN  ", Cmd_CAST_SPELL_ON_CREATURE},
-  {"CAST_SPELL_AT_LOCATION",            "PNNAN   ", Cmd_CAST_SPELL_AT_LOCATION},
-  {"CAST_SPELL",                        "PA      ", Cmd_CAST_SPELL},
+  {"CAST_SPELL_ON_CREATURE",            "PCAPANN ", Cmd_CAST_SPELL_ON_CREATURE},
+  {"CAST_SPELL_AT_LOCATION",            "PNNANN  ", Cmd_CAST_SPELL_AT_LOCATION},
+  {"CAST_SPELL",                        "PAN     ", Cmd_CAST_SPELL},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG},
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG},
@@ -2510,7 +2511,7 @@ void command_level_up_creature(long plr_range_id, const char *crtr_name, const c
   command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
-void command_cast_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel)
+void command_cast_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, char free)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -2549,11 +2550,17 @@ void command_cast_spell_on_creature(long plr_range_id, const char *crtr_name, co
         return;
     }
   }
-  long magic_caster_splvl = (((PowerKind) mag_id) << 16) + (((PlayerNumber) caster_plyr_idx) << 8) + ((signed char) splevel);
-  command_add_value(Cmd_CAST_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, magic_caster_splvl);
+
+  // encode params: free, magic, caster, level -> into 4xbyte: FMCL
+  long fmcl_bytes;
+  {
+      signed char f = free, m = mag_id, c = caster_plyr_idx, lvl = splevel;
+      fmcl_bytes = (f << 24) | (m << 16) | (c << 8) | lvl;
+  }
+  command_add_value(Cmd_CAST_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
-void command_cast_spell_at_location(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel)
+void command_cast_spell_at_location(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, char free)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -2582,11 +2589,17 @@ void command_cast_spell_at_location(long plr_range_id, int stl_x, int stl_y, con
         return;
     }
   }
-  long magic_splevel = (((PowerKind) mag_id) << 8) + ((signed char) splevel);
-  command_add_value(Cmd_CAST_SPELL_AT_LOCATION, plr_range_id, stl_x, stl_y, magic_splevel);
+
+  // encode params: free, magic, level -> into 3xbyte: FML
+  long fml_bytes;
+  {
+      signed char f = free, m = mag_id, lvl = splevel;
+      fml_bytes = (f << 16) | (m << 8) | lvl;
+  }
+  command_add_value(Cmd_CAST_SPELL_AT_LOCATION, plr_range_id, stl_x, stl_y, fml_bytes);
 }
 
-void command_cast_spell(long plr_range_id, const char *magname)
+void command_cast_spell(long plr_range_id, const char *magname, char free)
 {
     SCRIPTDBG(11, "Starting");
     long mag_id = get_rid(power_desc, magname);
@@ -2601,7 +2614,7 @@ void command_cast_spell(long plr_range_id, const char *magname)
         SCRPTERRLOG("Only players 0-3 can cast %s", magname);
         return;
     }
-    command_add_value(Cmd_CAST_SPELL, plr_range_id, mag_id, 0, 0);
+    command_add_value(Cmd_CAST_SPELL, plr_range_id, mag_id, free, 0);
 }
 
 void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
@@ -2953,13 +2966,13 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_level_up_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
     case Cmd_CAST_SPELL_ON_CREATURE:
-        command_cast_spell_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5]);
+        command_cast_spell_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5], scline->np[6]);
         break;
     case Cmd_CAST_SPELL_AT_LOCATION:
-        command_cast_spell_at_location(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4]);
+        command_cast_spell_at_location(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->np[5]);
         break;
     case Cmd_CAST_SPELL:
-        command_cast_spell(scline->np[0], scline->tp[1]);
+        command_cast_spell(scline->np[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -4122,51 +4135,68 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
  * @param plyr_idx The player whose creature will be affected.
  * @param crmodel Model of the creature to find.
  * @param criteria Criteria, from CreatureSelectCriteria enumeration.
- * @param magic_caster_splvl encoded bytes: magic id, caster player index and spell lvl (MSD order)
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_cast_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long magic_caster_splvl)
+TbResult script_cast_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
         SYNCDBG(5,"No matching player %d creature of model %d found to cast spell on.",(int)plyr_idx,(int)crmodel);
-        return false;
+        return Lb_FAIL;
     }
-    
-    // get spell type from left octet
-    PowerKind pwkind = magic_caster_splvl >> 16;
-    // get caster PlayerNumber from middle octet
-    PlayerNumber caster =  (magic_caster_splvl >> 8) & ((1 << 8) - 1);
-    // get spell level from right octet
-    long splevel = (magic_caster_splvl & ((1 << 8) - 1));
+
+    char is_free = (fmcl_bytes >> 24) != 0;
+    PowerKind pwkind = (fmcl_bytes >> 16) & 255;
+    PlayerNumber caster =  (fmcl_bytes >> 8) & 255;
+    long splevel = fmcl_bytes & 255;
+
+    if (thing_is_in_power_hand_list(thing, plyr_idx))
+    {
+        char block = pwkind == PwrK_SLAP;
+        block |= pwkind == PwrK_CALL2ARMS;
+        block |= pwkind == PwrK_CAVEIN;
+        block |= pwkind == PwrK_LIGHTNING;
+        block |= pwkind == PwrK_MKDIGGER;
+        block |= pwkind == PwrK_SIGHT;
+        if (block)
+        {
+          SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
+          return Lb_FAIL;
+        }
+        
+    }
+
     MapSubtlCoord stl_x = thing->mappos.x.stl.num;
     MapSubtlCoord stl_y = thing->mappos.y.stl.num;
+    unsigned long spell_flags = is_free ? PwMod_CastForFree : 0;
+
     switch (pwkind)
     {
       case PwrK_HEALCRTR:
-        return magic_use_power_heal(caster, thing, 0, 0, splevel, PwMod_CastForFree);
+        return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_SPEEDCRTR:
-        return magic_use_power_speed(caster, thing, 0, 0, splevel, PwMod_CastForFree);
+        return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_PROTECT:
-        return magic_use_power_armour(caster, thing, 0, 0, splevel, PwMod_CastForFree);
+        return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_CONCEAL:
-        return magic_use_power_conceal(caster, thing, 0, 0, splevel, PwMod_CastForFree);
+        return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_DISEASE:
-        return magic_use_power_disease(caster, thing, 0, 0, splevel, PwMod_CastForFree);
+        return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_CHICKEN:
-        return magic_use_power_chicken(caster, thing, 0, 0, splevel, PwMod_CastForFree);
+        return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_SLAP:
-        return magic_use_power_slap_thing(caster, thing, PwMod_CastForFree);
+        return magic_use_power_slap_thing(caster, thing, spell_flags);
       case PwrK_CALL2ARMS:
-        return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, PwMod_CastForFree);
+        return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_LIGHTNING:
-        return magic_use_power_lightning(caster, stl_x, stl_y, splevel, PwMod_CastForFree);
+        return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_CAVEIN:
-        return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, PwMod_CastForFree);
+        return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_MKDIGGER:
-        return magic_use_power_imp(caster, stl_x, stl_y, PwMod_CastForFree);
+        return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
       case PwrK_SIGHT:
-        return magic_use_power_sight(caster, stl_x, stl_y, splevel, PwMod_CastForFree);
+        return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
       default:
         ERRORLOG("Power not supported at script cast_spell_on_creature: %d", (int) pwkind);
         return Lb_FAIL;
@@ -4178,27 +4208,32 @@ TbResult script_cast_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long
  * @param plyr_idx caster player.
  * @param stl_x subtile's x position.
  * @param stl_y subtile's y position
- * @param magic_splvl encoded bytes: magic id and spell lvl (MSD order) 
+ * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_cast_spell_at_location(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long magic_splvl)
+TbResult script_cast_spell_at_location(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
 {
-    // get spell type from left octet
-    PowerKind powerKind = (magic_splvl >> 8);
-    // get spell level from right octet
-    long splevel = magic_splvl & ((1 << 8) - 1);
-    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, PwMod_CastForFree | PwCast_AllGround | PwCast_Unrevealed);
+    char is_free = (fml_bytes >> 16) != 0;
+    PowerKind powerKind = (fml_bytes >> 8) & 255;
+    long splevel = fml_bytes & 255;
+    
+    unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
+    if (is_free)
+        spell_flags |= PwMod_CastForFree;
+
+    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
 }
 
 /**
  * Casts a spell for player.
  * @param plyr_idx caster player.
  * @param power_kind the spell: magic id.
+ * @param free cast for free flag.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_cast_spell(PlayerNumber plyr_idx, PowerKind power_kind)
+TbResult script_cast_spell(PlayerNumber plyr_idx, PowerKind power_kind, char free)
 {
-    return magic_use_power_on_level(plyr_idx, power_kind, 1, PwMod_CastForFree); // splevel gets ignored anyway -> pass 1
+    return magic_use_power_on_level(plyr_idx, power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // splevel gets ignored anyway -> pass 1
 }
 
 /**
@@ -5168,7 +5203,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_CAST_SPELL:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_cast_spell(i, val2);
+          script_cast_spell(i, val2, val3);
       }
       break;
     case Cmd_CHANGE_CREATURE_OWNER:
