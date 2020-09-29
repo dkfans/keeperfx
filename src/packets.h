@@ -26,6 +26,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+/*
+    Used not only for ingame packets but for any packets
+*/
 enum TbPacketAction {
         PckA_None = 0,
         PckA_Unknown001,
@@ -151,7 +154,8 @@ enum TbPacketAction {
         PckA_PlyrMsgChar    =  121,
         PckA_PlyrMsgClear,
         PckA_LandView,
-        PckA_TortureView
+        PckA_TortureView,
+        PckA_Frontmenu
 };
 
 /** Packet flags for non-action player operation. */

@@ -12,8 +12,8 @@
 #      You need mingw32 and coreutils to do the build.
 #      To prepare a release package, run:
 #        make standard && make heavylog && make package
-#  @author   Tomasz Lis
-#  @date     25 Jan 2009 - 02 Jul 2011
+#  @author   KeeperFX Team
+#  @date     25 Jan 2009 - 29 Sep 2020
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -239,6 +239,7 @@ obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \
 obj/packets_cheats.o \
+obj/packets_frontend.o \
 obj/packets_input.o \
 obj/packets_misc.o \
 obj/player_compchecks.o \

@@ -1,4 +1,3 @@
-
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
@@ -35,10 +34,9 @@
 
 #include "kjm_input.h"
 #include "front_simple.h"
-#include "front_landview.h"
 #include "front_network.h"
-#include "frontmenu_net.h"
 #include "frontend.h"
+#include "frontmenu_net.h"
 #include "vidmode.h"
 #include "config.h"
 #include "config_creature.h"
@@ -1389,10 +1387,8 @@ void process_map_packet_clicks(long plyr_idx)
  * Process packet with input commands for given player.
  * @param plyr_idx Player to process packet for.
  */
-void process_players_packet(long plyr_idx)
+static void process_players_packet(struct PlayerInfo* player, long plyr_idx, struct Packet* pckt)
 {
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6, "Processing player %d packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->field_10 & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->field_10 & PCAdV_CrtrQueryPressed) != 0);
@@ -1652,6 +1648,14 @@ void process_players_creature_control_packet_action(long plyr_idx)
   }
 }
 
+static TbBool process_packet_cb(void *context, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size)
+{
+    struct PacketEx *packet_ex = (struct PacketEx *)packet_data;
+    assert(size == sizeof(struct PacketEx));
+    struct PlayerInfo* player = get_player(plyr_idx);
+    process_players_packet(player, plyr_idx, &packet_ex->packet);
+    return true;
+}
 /**
  * Exchange packets if MP game, then process all packets influencing local game state.
  */
@@ -1675,9 +1679,7 @@ void process_packets(void)
         }
         if (!game.packet_load_enable || game.numfield_149F47)
         {
-            // That is on both sides so it should split between server and clients
-            struct PacketEx* pckt = get_packet_out_ex_direct(player->packet_num);
-            switch(LbNetwork_Exchange(pckt, sizeof(*pckt), get_all_packets_in(), get_all_packets_in_size()))
+            switch(LbNetwork_Exchange(NULL, &process_packet_cb))
             {
             case NR_FAIL:
                 ERRORLOG("LbNetwork_Exchange failed");
@@ -1777,200 +1779,11 @@ void process_packets(void)
   }
   else
   {
-      // Process the packets
-      for (i=0; i<PACKETS_COUNT; i++)
-      {
-        player = get_player(i);
-        // Here we can restore player when he get back
-        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-          process_players_packet(i);
-      }
       // Clear all packets
       clear_packets();
   }
   SYNCDBG(7,"Finished");
 }
 
-void process_frontend_packets(void)
-{
-  long i;
-  static int failed_net_times = 0;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    net_screen_packet_NEW[i].flags_4 &= ~SPF_PlayerActive;
-  }
-  struct ScreenPacket* nspckt = &net_screen_packet_NEW[my_player_number];
-  nspckt->flags_4 |= 0x01;
-  nspckt->field_5 = frontend_alliances;
-  nspckt->flags_4 ^= ((nspckt->flags_4 ^ (fe_computer_players << 1)) & 0x06);
-  nspckt->mouse_x = VersionMajor;
-  nspckt->mouse_y = VersionMinor;
-  if (LbNetwork_Exchange(nspckt, sizeof(*nspckt), net_screen_packet_NEW, sizeof(net_screen_packet_NEW) ) != NR_OK)
-  {
-    ERRORLOG("LbNetwork_Exchange failed %d", failed_net_times);
-    failed_net_times++;
-    if (failed_net_times < net_max_failed_login_turns)
-    {
-      return; // nothing to process
-    }
-    else
-    {
-      if (LbNetwork_Stop())
-      {
-        ERRORLOG("LbNetwork_Stop() failed");
-        return;
-      }
-      if (setup_network_service(net_service_index_selected))
-      {
-        frontend_set_state(FeSt_NET_SESSION);
-      } else
-      {
-        frontend_set_state(FeSt_MAIN_MENU);
-      }
-      process_network_error(-1);
-      return;
-    }
-  }
-  else
-  {
-    failed_net_times = 0;
-  }
-
-  if (frontend_should_all_players_quit())
-  {
-    i = frontnet_number_of_players_in_session();
-    if (players_currently_in_session < i)
-    {
-      players_currently_in_session = i;
-    }
-    if (players_currently_in_session > i)
-    {
-      if (frontend_menu_state == FeSt_NET_SESSION)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          frontend_set_state(FeSt_MAIN_MENU);
-      } else
-      if (frontend_menu_state == FeSt_NET_START)
-      {
-          if (LbNetwork_Stop())
-          {
-            ERRORLOG("LbNetwork_Stop() failed");
-            return;
-          }
-          if (setup_network_service(net_service_index_selected))
-          {
-            frontend_set_state(FeSt_NET_SESSION);
-          } else
-          {
-            frontend_set_state(FeSt_MAIN_MENU);
-          }
-      }
-    }
-  }
-#if DEBUG_NETWORK_PACKETS
-  write_debug_screenpackets();
-#endif
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    nspckt = &net_screen_packet_NEW[i];
-    struct PlayerInfo* player = get_player(i);
-    if ((nspckt->flags_4 & SPF_PlayerActive) != 0)
-    {
-        long k;
-        switch (nspckt->flags_4 >> 3)
-        {
-        case 2:
-            add_message(i, (char*)&nspckt->param1);
-            break;
-        case 3:
-            if (!validate_versions())
-            {
-                versions_different_error();
-                break;
-            }
-            fe_network_active = 1;
-            frontend_set_state(FeSt_NETLAND_VIEW);
-            break;
-        case 4:
-            frontend_set_alliance(nspckt->param1, nspckt->param2);
-            break;
-        case 7:
-            fe_computer_players = nspckt->param1;
-            break;
-        case 8:
-        {
-            k = strlen(player->mp_message_text);
-            unsigned short c;
-            if (nspckt->param1 == KC_BACK)
-            {
-                if (k > 0)
-                {
-                    k--;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            else if (nspckt->param1 == KC_RETURN)
-            {
-                if (k > 0)
-                {
-                    add_message(i, player->mp_message_text);
-                    k = 0;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            else
-            {
-                c = key_to_ascii(nspckt->param1, nspckt->param2);
-                if ((c != 0) && (frontend_font_char_width(1, c) > 1) && (k < 62))
-                {
-                    player->mp_message_text[k] = c;
-                    k++;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            if (frontend_font_string_width(1, player->mp_message_text) >= 420)
-            {
-                if (k > 0)
-                {
-                    k--;
-                    player->mp_message_text[k] = '\0';
-                }
-            }
-            break;
-        }
-      default:
-        break;
-      }
-      if (frontend_alliances == -1)
-      {
-        if (nspckt->field_5 != -1)
-          frontend_alliances = nspckt->field_5;
-      }
-      if (fe_computer_players == 2)
-      {
-        k = ((nspckt->flags_4 & 0x06) >> 1);
-        if (k != 2)
-          fe_computer_players = k;
-      }
-      player->field_4E7 = nspckt->mouse_y + (nspckt->mouse_x << 8);
-    }
-    nspckt->flags_4 &= 0x07;
-  }
-  if (frontend_alliances == -1)
-    frontend_alliances = 0;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-  {
-    nspckt = &net_screen_packet_NEW[i];
-    if ((nspckt->flags_4 & SPF_PlayerActive) == 0)
-    {
-      if (frontend_is_player_allied(my_player_number, i))
-        frontend_set_alliance(my_player_number, i);
-    }
-  }
-}
 
 /******************************************************************************/
