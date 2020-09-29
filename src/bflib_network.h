@@ -285,8 +285,12 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
 */
 void *LbNetwork_AddPacket(unsigned char kind, unsigned long turn, short size);
 
-/* This is a callback that process all enqueued packets from all players
-   Ordered by turn then by plyr_idx
+/*  This is a callback that process all enqueued packets from all players
+    Ordered by turn then by plyr_idx
+
+    All packet pointers should be valid till exit from LbNetwork_Exchange
+
+    TODO: where to get plyr_idx?
 */
 typedef TbBool (*LbNetwork_Packet_Callback) (
     void *context, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size);

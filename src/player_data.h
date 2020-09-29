@@ -153,7 +153,7 @@ struct PlayerInfo {
     long field_C;
     unsigned int hand_busy_until_turn;
 unsigned char field_14;
-    char field_15[20]; //size may be shorter
+    char player_name[20]; //size may be shorter (player name)
     unsigned char victory_state;
     unsigned char allied_players;
     unsigned char id_number;

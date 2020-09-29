@@ -299,8 +299,8 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
       else
           k = -1;
       struct PlayerInfo* player = get_player(k);
-      if (player->field_15[0] != '\0')
-          set_gui_tooltip_box_fmt(0, "%s: %s", text, player->field_15);
+      if (player->player_name[0] != '\0')
+          set_gui_tooltip_box_fmt(0, "%s: %s", text, player->player_name);
       else
           set_gui_tooltip_box_fmt(0, "%s", text);
   } else

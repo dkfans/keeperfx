@@ -87,8 +87,7 @@ short setup_network_service(int srvidx)
       break;
   }
   LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, maxplayrs, &net_screen_packet_NEW,
-      sizeof(struct ScreenPacket), &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(srvidx, maxplayrs, &net_player_info[0], init_data) )
   {
     if (srvidx != 0)
       process_network_error(-800);
@@ -106,37 +105,46 @@ int setup_old_network_service(void)
     return setup_network_service(net_service_index_selected);
 }
 
+TbBool setup_exchange_player_number_cb(void *context, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size)
+{
+    struct PacketEx* pckt = (struct PacketEx*)packet_data;
+    if (kind == PckA_InitPlayerNum)
+    {
+        struct PlayerInfo* player = get_player(plyr_idx);
+
+        // TODO: we assign plyr_idx here
+        player->id_number = plyr_idx;
+        player->allocflags |= PlaF_Allocated;
+        if (pckt->packet.actn_par2 < 1)
+          player->view_mode_restore = PVM_IsometricView;
+        else
+          player->view_mode_restore = PVM_FrontView;
+        player->is_active = pckt->packet.actn_par1;
+        init_player(player, 0);
+        strncpy(player->player_name, net_player[plyr_idx].name, sizeof(struct TbNetworkPlayerName));
+
+        return true;
+    }
+    WARNLOG("Unexpected kind:%d", kind);
+    return false;
+}
+
 static void setup_exchange_player_number(void)
 {
   SYNCDBG(6,"Starting");
   clear_packets();
   struct PlayerInfo* player = get_my_player();
-  struct PacketEx* pckt = get_packet_out_ex(my_player_number);
-  set_players_packet_action(player, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
-  if (LbNetwork_Exchange(pckt, sizeof(*pckt), get_all_packets_in(), get_all_packets_in_size()) != NR_OK)
+  struct PacketEx* pckt = LbNetwork_AddPacket(PckA_InitPlayerNum, 0, sizeof(struct PacketEx));
+  // TODO: my_player_number
+  pckt->packet.actn_par1 = player->is_active;
+  pckt->packet.actn_par2 = settings.video_rotate_mode;
+
+  if (LbNetwork_Exchange(NULL, &setup_exchange_player_number_cb) != NR_OK)
   {
       ERRORLOG("Network Exchange failed");
       return;
   }
-  int k = 0;
-  for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-  {
-      pckt = get_packet_in_direct(i);
-      if ((net_player_info[i].active) && (pckt->action == PckA_InitPlayerNum))
-      {
-          player = get_player(k);
-          player->id_number = k;
-          player->allocflags |= PlaF_Allocated;
-          if (pckt->actn_par2 < 1)
-            player->view_mode_restore = PVM_IsometricView;
-          else
-            player->view_mode_restore = PVM_FrontView;
-          player->is_active = pckt->actn_par1;
-          init_player(player, 0);
-          strncpy(player->field_15,net_player[i].name,sizeof(struct TbNetworkPlayerName));
-          k++;
-      }
-  }
+  // TODO: here we should gather all responses?
 }
 
 short setup_select_player_number(void)
@@ -180,8 +188,7 @@ void setup_count_players(void)
 void init_players_network_game(void)
 {
   SYNCDBG(4,"Starting");
-  if (LbNetwork_ChangeExchangeBuffer(ex_packets, sizeof(struct PacketEx)))
-      ERRORLOG("Unable to reinitialize ExchangeBuffer");
+  // TODO: setup bflib_network queue here
   setup_select_player_number();
   setup_exchange_player_number(); // TODO: We should repeat this function till it succeeded
   perform_checksum_verification();

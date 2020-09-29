@@ -36,6 +36,13 @@ struct ChecksumStorage
     unsigned long checksum_creatures[CREATURES_COUNT];
 };
 
+struct ChecksumContext
+{
+    struct PacketEx* base;
+    unsigned short checked_players; // bitmask of each player
+    TbBool different;
+    TbChecksum checksum;
+};
 /******************************************************************************/
 /**
  * This is a polling function

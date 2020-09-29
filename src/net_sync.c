@@ -94,6 +94,22 @@ struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT] = {0};
 TbBool log_checksums = 0;
 #endif
 /******************************************************************************/
+static void update_desync_info(struct PacketEx* v1, struct PacketEx* v2)
+{
+    for (int i = 0; i < (int)CKS_MAX; i++)
+    {
+        if (v1->sums[i] != v2->sums[i])
+        {
+            desync_info[i*2] = desync_letters[i];
+            resync_parts |= (1UL << i);
+        }
+        else
+        {
+            desync_info[i*2] = '.';
+        }
+    }
+}
+
 long get_resync_sender(void)
 {
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
@@ -305,12 +321,65 @@ TbBool resync_game(TbBool first_resync)
     }
 }
 
+TbBool checksum_packet_callback(
+    void *context_, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size)
+{
+    struct ChecksumContext *context = (struct ChecksumContext *) context_;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (!player_exists(player) || ((player->allocflags & PlaF_CompCtrl) != 0))
+    {
+        ERRORLOG("unexpected player:%d", plyr_idx);
+        return true;
+    }
+    context->checked_players |= plyr_idx;
+    struct PacketEx* pckt = get_packet_ex_direct(player->packet_num);
+    if (!context->base)
+    {
+        context->checksum = pckt->packet.chksum;
+        context->base = pckt;
+
+#ifdef DUMP_THINGS
+        char buf[64];
+        sprintf(buf, "dump/pl_%d", i);
+        FILE *F = fopen(buf, "w");
+        if (F)
+        {
+            fwrite(pckt, sizeof(struct PacketEx), 1, F);
+            fclose(F);
+        }
+#endif
+
+    }
+    else if (context->checksum != pckt->packet.chksum)
+    {
+        update_desync_info(context->base, pckt);
+        NETDBG(3, "different checksums at %lu player_id:%d", game.play_gameturn, i);
+
+#ifdef DUMP_THINGS
+        char buf[64];
+        sprintf(buf, "dump/pl_%d", i);
+        FILE *F = fopen(buf, "w");
+        if (F)
+        {
+            fwrite(pckt, sizeof(struct PacketEx), 1, F);
+            fclose(F);
+        }
+#endif
+
+        return true;
+    }
+
+    return true;
+}
+
 /**
  * Exchanges verification packets between all players, making sure level data is identical.
  * @return Returns true if all players return same checksum.
  */
 void perform_checksum_verification(void)
 {
+    struct ChecksumContext context = {0};
+
     unsigned long checksum_mem = 0;
     for (int i = 1; i < THINGS_COUNT; i++)
     {
@@ -327,7 +396,7 @@ void perform_checksum_verification(void)
     struct PacketEx* pckt = get_packet_ex(my_player_number);
     set_players_packet_action(get_player(my_player_number), PckA_LevelExactCheck, 0, 0, 0, 0);
     pckt->packet.chksum = checksum_mem ^ game.action_rand_seed;
-    if (LbNetwork_Exchange(pckt, sizeof(*pckt), get_all_packets_in(), get_all_packets_in_size()) != NR_OK)
+    if (LbNetwork_Exchange(&context, &checksum_packet_callback) != NR_OK)
     {
         ERRORLOG("Network exchange failed on level checksum verification");
     }
@@ -337,21 +406,6 @@ void perform_checksum_verification(void)
     }
 }
 
-static void update_desync_info(struct PacketEx* v1, struct PacketEx* v2)
-{
-  for (int i = 0; i < (int)CKS_MAX; i++)
-  {
-      if (v1->sums[i] != v2->sums[i])
-      {
-          desync_info[i*2] = desync_letters[i];
-          resync_parts |= (1UL << i);
-      }
-      else
-      {
-          desync_info[i*2] = '.';
-      }
-  }
-}
 /**
  * Checks if all active players packets have same checksums.
  * @return Returns false if all checksums are same; true if there's mismatch.
@@ -359,51 +413,10 @@ static void update_desync_info(struct PacketEx* v1, struct PacketEx* v2)
 TbBool checksums_different(void)
 {
     TbChecksum checksum = 0;
-    struct PacketEx* base = NULL;
     resync_parts = 0;
 
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        struct PlayerInfo* player = get_player(i);
-        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-        {
-            struct PacketEx* pckt = get_packet_ex_direct(player->packet_num);
-            if (!base)
-            {
-                checksum = pckt->packet.chksum;
-                base = pckt;
-
-#ifdef DUMP_THINGS
-                char buf[64];
-                sprintf(buf, "dump/pl_%d", i);
-                FILE *F = fopen(buf, "w");
-                if (F)
-                {
-                    fwrite(pckt, sizeof(struct PacketEx), 1, F);
-                    fclose(F);
-                }
-#endif
-
-            }
-            else if (checksum != pckt->packet.chksum)
-            {
-                update_desync_info(base, pckt);
-                NETDBG(3, "different checksums at %lu player_id:%d", game.play_gameturn, i);
-
-#ifdef DUMP_THINGS
-                char buf[64];
-                sprintf(buf, "dump/pl_%d", i);
-                FILE *F = fopen(buf, "w");
-                if (F)
-                {
-                    fwrite(pckt, sizeof(struct PacketEx), 1, F);
-                    fclose(F);
-                }
-#endif
-
-                return true;
-            }
-        }
     }
 #ifdef LOG_CHECKSUMS
     log_checksums = false;
