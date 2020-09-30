@@ -2190,7 +2190,7 @@ void input(void)
 short get_gui_inputs(short gameplay_on)
 {
   static ActiveButtonID over_slider_button = -1;
-  SYNCDBG(7,"Starting");
+  SYNCDBG(14,"Starting");
   battle_creature_over = 0;
   gui_room_type_highlighted = -1;
   gui_door_type_highlighted = -1;
@@ -2301,7 +2301,7 @@ short get_gui_inputs(short gameplay_on)
   gui_clear_buttons_not_over_mouse(gmbtn_idx);
   result |= gui_button_release_inputs(gmbtn_idx);
   input_gameplay_tooltips(gameplay_on);
-  SYNCDBG(8,"Finished");
+  SYNCDBG(15,"Finished");
   return result;
 }
 

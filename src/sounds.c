@@ -255,7 +255,7 @@ TbBool update_3d_sound_receiver(struct PlayerInfo *player)
 
 void update_player_sounds(void)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(14,"Starting");
     if ((game.operation_flags & GOF_Paused) == 0)
     {
         struct PlayerInfo* player = get_my_player();
@@ -326,12 +326,12 @@ void update_player_sounds(void)
             }
         }
     }
-    SYNCDBG(9,"Finished");
+    SYNCDBG(14,"Finished");
 }
 
 void process_3d_sounds(void)
 {
-    SYNCDBG(9,"Starting");
+    SYNCDBG(14,"Starting");
     increment_sample_times();
     process_sound_samples();
     process_sound_emitters();
@@ -342,7 +342,7 @@ void process_sound_heap(void)
     struct SampleTable *satab;
     struct HeapMgrHandle *hmhndl;
     long i;
-    SYNCDBG(9,"Starting");
+    SYNCDBG(14,"Starting");
     for (i = 0; i < samples_in_bank; i++)
     {
         satab = &sample_table[i];

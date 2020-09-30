@@ -258,7 +258,7 @@ static void process_event(const SDL_Event *ev)
     struct TbPoint mouseDelta;
     int x;
     int y;
-    SYNCDBG(10, "Starting");
+    SYNCDBG(16, "Starting");
 
     if (!lbAppActive)
     {   // Ignore input when inactive

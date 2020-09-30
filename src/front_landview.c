@@ -998,7 +998,7 @@ void process_map_zoom_out(void)
 
 void process_zoom_palette(void)
 {
-    SYNCDBG(8,"Starting");
+    SYNCDBG(14,"Starting");
     if (map_info.fade_step > 0)
     {
         if (map_info.fade_pos >= FRONTMAP_ZOOM_LENGTH/2)
@@ -1023,7 +1023,7 @@ void process_zoom_palette(void)
 
 TbBool frontmap_update_zoom(void)
 {
-    SYNCDBG(8,"Starting");
+    SYNCDBG(14,"Starting");
     if (map_info.fade_step == FRONTMAP_ZOOM_STEP)
     {
         process_map_zoom_in();
@@ -1186,7 +1186,7 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
 
 void frontmap_draw(void)
 {
-    SYNCDBG(8,"Starting");
+    SYNCDBG(15,"Starting");
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
@@ -1374,7 +1374,7 @@ void draw_map_level_descriptions(void)
 
 void frontnetmap_draw(void)
 {
-    SYNCDBG(8,"Starting");
+    SYNCDBG(14, "Starting");
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
@@ -1391,7 +1391,7 @@ void frontnetmap_draw(void)
 
 void frontmap_input(void)
 {
-    SYNCDBG(8,"Starting");
+    SYNCDBG(14,"Starting");
     short zoom_done;
     if ((map_info.fadeflags & MLInfoFlg_SpeechAfterZoom) != 0)
     {
@@ -1540,7 +1540,7 @@ void frontmap_unload(void)
 
 long frontmap_update(void)
 {
-  SYNCDBG(8,"Starting");
+  SYNCDBG(15,"Starting");
   if ((mouse_over_lvnum > 0) && (playing_speech_lvnum != mouse_over_lvnum))
   {
       play_desc_speech_time = 0;
@@ -1570,7 +1570,7 @@ long frontmap_update(void)
     }
   }
   PlayMusicPlayer(2);
-  SYNCDBG(8,"Finished");
+  SYNCDBG(15,"Finished");
   return 0;
 }
 
@@ -1579,7 +1579,10 @@ TbBool frontmap_process_screen_packet(void *context_data, unsigned long turn, in
 {
     struct NetMapPlayersState *context = context_data;
     struct ScreenPacket* nspck = (struct ScreenPacket*)packet_data;
+    NETDBG(11, "size:%d plyr_idx:%d", size, plyr_idx);
     assert(size == sizeof(struct ScreenPacket));
+    assert(plyr_idx >=0 && plyr_idx < 4);
+    net_screen_packet_NEW[plyr_idx] = *nspck;
 
     context->players_count++; // TODO: just put it into packet
     if (nspck->param1 == LEVELNUMBER_ERROR)
@@ -1653,8 +1656,7 @@ TbBool frontmap_exchange_screen_packet(struct NetMapPlayersState *nmps)
             nspck->mouse_x = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
             nspck->mouse_y = lvinfo->ensign_y - 48;
         }
-    } else
-    if (net_map_slap_frame > 0)
+    } else if (net_map_slap_frame > 0)
     {
         nspck->mouse_x = GetMouseX()*16/units_per_pixel + map_info.screen_shift_x;
         nspck->mouse_y = GetMouseY()*16/units_per_pixel + map_info.screen_shift_y;
@@ -1701,7 +1703,7 @@ TbBool frontmap_exchange_screen_packet(struct NetMapPlayersState *nmps)
 TbBool frontnetmap_update(void)
 {
     long i;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(14, "Starting");
     if (map_sound_fade > 0)
     {
         i = map_sound_fade * ((long)settings.redbook_volume) / 256;
@@ -1718,7 +1720,7 @@ TbBool frontnetmap_update(void)
     {
         if (frontmap_update_zoom())
         {
-          SYNCDBG(8,"Zoom end");
+          SYNCDBG(14, "Zoom end");
           return true;
         }
     } else
@@ -1736,7 +1738,7 @@ TbBool frontnetmap_update(void)
     }
 
     PlayMusicPlayer(2);
-    SYNCDBG(8,"Normal end");
+    SYNCDBG(14, "Normal end");
     return false;
 }
 

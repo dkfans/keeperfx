@@ -353,7 +353,7 @@ TbBool checksum_packet_callback(
     else if (context->checksum != pckt->packet.chksum)
     {
         update_desync_info(context->base, pckt);
-        NETDBG(3, "different checksums at %lu player_id:%d", game.play_gameturn, i);
+        NETDBG(3, "different checksums at %lu player_id:%d", game.play_gameturn, plyr_idx);
 
 #ifdef DUMP_THINGS
         char buf[64];

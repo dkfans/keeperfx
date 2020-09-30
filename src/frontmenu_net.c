@@ -1150,8 +1150,8 @@ void frontnet_service_select(struct GuiButton *gbtn)
   {
       fe_network_active = 0;
       frontend_set_state(FeSt_NETLAND_VIEW);
-  } else
-  if (srvidx <= 0)
+      LbNetwork_InitSingleplayer();
+  } else if (srvidx <= 0)
   {
       frontend_set_state(FeSt_NET_SERIAL);
   } else

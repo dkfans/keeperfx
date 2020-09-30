@@ -1664,11 +1664,10 @@ void process_packets(void)
     int i;
     int player_status;
     struct PlayerInfo* player;
-    SYNCDBG(5, "Starting");
+    SYNCDBG(13, "Starting");
     // Do the network data exchange
     lbDisplay.DrawColour = colours[15][15][15];
-    // Exchange packets with the network
-    if (game.game_kind != GKind_LocalGame)
+
     {
         player = get_my_player();
         player_status = 0;
@@ -1782,7 +1781,7 @@ void process_packets(void)
       // Clear all packets
       clear_packets();
   }
-  SYNCDBG(7,"Finished");
+  SYNCDBG(13,"Finished");
 }
 
 

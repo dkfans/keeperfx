@@ -751,7 +751,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     long x;
     long y;
     int h;
-    SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
+    SYNCDBG(14,"Drawing type %d, text \"%s\"",(int)btntype,text);
     febtn_idx = (unsigned int)gbtn->content;
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {

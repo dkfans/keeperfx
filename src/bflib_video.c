@@ -79,7 +79,7 @@ void *LbExeReferenceNumber(void)
  */
 TbResult LbScreenLock(void)
 {
-    SYNCDBG(12,"Starting");
+    SYNCDBG(17,"Starting");
     if (!lbScreenInitialised)
         return Lb_FAIL;
 
@@ -98,7 +98,7 @@ TbResult LbScreenLock(void)
 
 TbResult LbScreenUnlock(void)
 {
-    SYNCDBG(12,"Starting");
+    SYNCDBG(17,"Starting");
     if (!lbScreenInitialised)
         return Lb_FAIL;
     lbDisplay.WScreen = NULL;
@@ -110,7 +110,7 @@ TbResult LbScreenUnlock(void)
 TbResult LbScreenSwap(void)
 {
     int blresult;
-    SYNCDBG(12,"Starting");
+    SYNCDBG(17, "Starting");
     TbResult ret = LbMouseOnBeginSwap();
     // Put the data from Draw Surface onto Screen Surface
     if ((ret == Lb_SUCCESS) && (lbHasSecondSurface)) {
@@ -139,7 +139,7 @@ TbResult LbScreenSwap(void)
 
 TbResult LbScreenClear(TbPixel colour)
 {
-    SYNCDBG(12,"Starting");
+    SYNCDBG(16,"Starting");
     if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
       return Lb_FAIL;
     if (SDL_FillRect(lbDrawSurface, NULL, colour) < 0) {
@@ -549,7 +549,7 @@ TbResult LbPaletteDataFillWhite(unsigned char *palette)
  */
 TbResult LbPaletteSet(unsigned char *palette)
 {
-    SYNCDBG(12,"Starting");
+    SYNCDBG(16,"Starting");
     if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
       return Lb_FAIL;
     //destColors = (SDL_Color *) malloc(sizeof(SDL_Color) * PALETTE_COLORS);
@@ -585,7 +585,7 @@ TbResult LbPaletteSet(unsigned char *palette)
  */
 TbResult LbPaletteGet(unsigned char *palette)
 {
-    SYNCDBG(12,"Starting");
+    SYNCDBG(16,"Starting");
     if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
       return Lb_FAIL;
     if (lbDisplay.Palette == NULL)

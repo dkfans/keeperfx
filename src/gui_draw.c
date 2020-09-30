@@ -783,7 +783,7 @@ void draw_frontmenu_background(int rect_x,int rect_y,int rect_w,int rect_h)
     int units_per_px = get_frontmenu_background_area_rect(rect_x, rect_y, rect_w, rect_h, &bkgnd_area);
     // Draw it
     frontmenu_copy_background_at(&bkgnd_area, units_per_px);
-    SYNCDBG(9,"Done");
+    SYNCDBG(15,"Done");
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -2943,7 +2943,7 @@ short get_frontend_global_inputs(void)
 
 void frontend_input(void)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(14,"Starting");
     TbBool input_consumed;
     input_consumed = false;
     switch (frontend_menu_state)
@@ -3113,7 +3113,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
 
 void update_fade_active_menus(void)
 {
-    SYNCDBG(8,"Starting");
+    SYNCDBG(16,"Starting");
     struct GuiMenu *gmnu;
     int k;
     for (k=0; k < ACTIVE_MENUS_COUNT; k++)
@@ -3134,7 +3134,7 @@ void draw_active_menus_buttons(void)
     int k;
     long menu_num;
     Gf_Mnu_Callback callback;
-    SYNCDBG(8,"Starting with %d active menus",no_of_active_menus);
+    SYNCDBG(14,"Starting with %d active menus",no_of_active_menus);
     for (k=0; k < no_of_active_menus; k++)
     {
         menu_num = menu_id_to_number(menu_stack[k]);
@@ -3157,7 +3157,7 @@ void draw_active_menus_buttons(void)
             lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
         }
     }
-    SYNCDBG(9,"Finished");
+    SYNCDBG(14,"Finished");
 }
 
 void spangle_button(struct GuiButton *gbtn)
@@ -3215,7 +3215,7 @@ void draw_active_menus_highlights(void)
 
 void draw_gui(void)
 {
-    SYNCDBG(6,"Starting");
+    SYNCDBG(14,"Starting");
     unsigned int flg_mem;
     LbTextSetFont(winfont);
     flg_mem = lbDisplay.DrawFlags;
@@ -3233,7 +3233,7 @@ void draw_gui(void)
         }
     }
     lbDisplay.DrawFlags = flg_mem;
-    SYNCDBG(8,"Finished");
+    SYNCDBG(14,"Finished");
 }
 
 /**

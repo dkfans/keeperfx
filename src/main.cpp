@@ -4410,7 +4410,7 @@ void faststartup_saved_packet_game(void)
 
 void startup_network_game(TbBool local)
 {
-    SYNCDBG(0,"Starting up network game");
+    SYNCDBG(0, "Starting up network game local:%d", local);
     //_DK_startup_network_game(); return;
     unsigned int flgmem;
     struct PlayerInfo *player;
