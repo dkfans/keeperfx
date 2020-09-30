@@ -50,9 +50,11 @@
 #include "creature_states.h"
 #include "creature_states_hero.h"
 #include "creature_groups.h"
+#include "power_hand.h"
 #include "room_library.h"
 #include "room_entrance.h"
 #include "room_util.h"
+#include "magic.h"
 #include "map_blocks.h"
 #include "lvl_filesdk1.h"
 #include "frontend.h"
@@ -139,6 +141,9 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION},
   {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE},
+  {"CAST_SPELL_ON_CREATURE",            "PCAPANN ", Cmd_CAST_SPELL_ON_CREATURE},
+  {"CAST_SPELL_AT_LOCATION",            "PNNANN  ", Cmd_CAST_SPELL_AT_LOCATION},
+  {"CAST_SPELL",                        "PAN     ", Cmd_CAST_SPELL},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG},
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG},
@@ -2506,6 +2511,112 @@ void command_level_up_creature(long plr_range_id, const char *crtr_name, const c
   command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
+void command_cast_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, char free)
+{
+  SCRIPTDBG(11, "Starting");
+  if (splevel < 1)
+  {
+    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+    splevel = 1;
+  }
+  if (splevel > MAGIC_OVERCHARGE_LEVELS)
+  {
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
+    splevel = MAGIC_OVERCHARGE_LEVELS;
+  }
+  splevel--;
+  long mag_id = get_rid(power_desc, magname);
+  if (mag_id == -1)
+  {
+    SCRPTERRLOG("Unknown magic, '%s'", magname);
+    return;
+  }
+  long crtr_id = get_rid(creature_desc, crtr_name);
+  if (crtr_id == -1) {
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+    return;
+  }
+  long select_id = get_rid(creature_select_criteria_desc, criteria);
+  if (select_id == -1) {
+    SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
+    return;
+  }
+  PowerKind pwr = mag_id;
+  if((PlayerNumber) caster_plyr_idx > PLAYER3)
+  {
+    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
+    {
+        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
+        return;
+    }
+  }
+
+  // encode params: free, magic, caster, level -> into 4xbyte: FMCL
+  long fmcl_bytes;
+  {
+      signed char f = free, m = mag_id, c = caster_plyr_idx, lvl = splevel;
+      fmcl_bytes = (f << 24) | (m << 16) | (c << 8) | lvl;
+  }
+  command_add_value(Cmd_CAST_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
+}
+
+void command_cast_spell_at_location(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, char free)
+{
+  SCRIPTDBG(11, "Starting");
+  if (splevel < 1)
+  {
+    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+    splevel = 1;
+  }
+  if (splevel > MAGIC_OVERCHARGE_LEVELS)
+  {
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
+    splevel = MAGIC_OVERCHARGE_LEVELS;
+  }
+  splevel--;
+  long mag_id = get_rid(power_desc, magname);
+  if (mag_id == -1)
+  {
+    SCRPTERRLOG("Unknown magic, '%s'", magname);
+    return;
+  }
+  PowerKind pwr = mag_id;
+  if((PlayerNumber) plr_range_id > PLAYER3)
+  {
+    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
+    {
+        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
+        return;
+    }
+  }
+
+  // encode params: free, magic, level -> into 3xbyte: FML
+  long fml_bytes;
+  {
+      signed char f = free, m = mag_id, lvl = splevel;
+      fml_bytes = (f << 16) | (m << 8) | lvl;
+  }
+  command_add_value(Cmd_CAST_SPELL_AT_LOCATION, plr_range_id, stl_x, stl_y, fml_bytes);
+}
+
+void command_cast_spell(long plr_range_id, const char *magname, char free)
+{
+    SCRIPTDBG(11, "Starting");
+    long mag_id = get_rid(power_desc, magname);
+    if (mag_id == -1)
+    {
+        SCRPTERRLOG("Unknown magic, '%s'", magname);
+        return;
+    }
+    PowerKind pwr = mag_id;
+    if (pwr == PwrK_ARMAGEDDON && (PlayerNumber) plr_range_id > PLAYER3)
+    {
+        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
+        return;
+    }
+    command_add_value(Cmd_CAST_SPELL, plr_range_id, mag_id, free, 0);
+}
+
 void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
 {
     SCRIPTDBG(11, "Starting");
@@ -2853,6 +2964,15 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_LEVEL_UP_CREATURE:
         command_level_up_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_CAST_SPELL_ON_CREATURE:
+        command_cast_spell_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5], scline->np[6]);
+        break;
+    case Cmd_CAST_SPELL_AT_LOCATION:
+        command_cast_spell_at_location(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->np[5]);
+        break;
+    case Cmd_CAST_SPELL:
+        command_cast_spell(scline->np[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -3909,6 +4029,44 @@ struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
     return INVALID_THING;
 }
 
+struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria) {
+    switch (criteria)
+    {
+    case CSelCrit_Any:
+        return get_random_players_creature_of_model(plyr_idx, crmodel);
+    case CSelCrit_MostExperienced:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+    case CSelCrit_MostExpWandering:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+    case CSelCrit_MostExpWorking:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+    case CSelCrit_MostExpFighting:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_LeastExperienced:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+    case CSelCrit_LeastExpWandering:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+    case CSelCrit_LeastExpWorking:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+    case CSelCrit_LeastExpFighting:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_NearOwnHeart:
+    {
+        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
+        return get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx);
+    }
+    case CSelCrit_NearEnemyHeart:
+        return get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
+    case CSelCrit_OnEnemyGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 0);
+    case CSelCrit_OnFriendlyGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 1);
+    default:
+        ERRORLOG("Invalid level up criteria %d",(int)criteria);
+        return INVALID_THING;
+    }
+}
+
 /**
  * Kills a creature which meets given criteria.
  * @param plyr_idx The player whose creature will be affected.
@@ -3918,56 +4076,7 @@ struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
  */
 TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
 {
-    struct Thing *thing;
-    switch (criteria)
-    {
-    case CSelCrit_Any:
-        thing = get_random_players_creature_of_model(plyr_idx, crmodel);
-        break;
-    case CSelCrit_MostExperienced:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWandering:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWorking:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpFighting:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExperienced:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWandering:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWorking:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpFighting:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
-        break;
-    case CSelCrit_NearOwnHeart:
-    {
-        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
-        thing = get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx);
-        break;
-    }
-    case CSelCrit_NearEnemyHeart:
-        thing = get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
-        break;
-    case CSelCrit_OnEnemyGround:
-        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,0);
-        break;
-    case CSelCrit_OnFriendlyGround:
-        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,1);
-        break;
-    default:
-        ERRORLOG("Invalid kill criteria %d",(int)criteria);
-        thing = INVALID_THING;
-        break;
-    }
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
         SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)plyr_idx,(int)crmodel);
         return false;
@@ -3985,56 +4094,7 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
  */
 TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, long crmodel, long criteria, PlayerNumber dest_plyr_idx)
 {
-    struct Thing *thing;
-    switch (criteria)
-    {
-    case CSelCrit_Any:
-        thing = get_random_players_creature_of_model(origin_plyr_idx, crmodel);
-        break;
-    case CSelCrit_MostExperienced:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWandering:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWorking:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpFighting:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExperienced:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWandering:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWorking:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpFighting:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_NearOwnHeart:
-    {
-        const struct Coord3d* pos = dungeon_get_essential_pos(origin_plyr_idx);
-        thing = get_creature_near_and_owned_by(pos->x.val, pos->y.val, origin_plyr_idx);
-        break;
-    }
-    case CSelCrit_NearEnemyHeart:
-        thing = get_creature_in_range_around_any_of_enemy_heart(origin_plyr_idx, crmodel, 11);
-        break;
-    case CSelCrit_OnEnemyGround:
-        thing = get_random_players_creature_of_model_on_territory(origin_plyr_idx, crmodel,0);
-        break;
-    case CSelCrit_OnFriendlyGround:
-        thing = get_random_players_creature_of_model_on_territory(origin_plyr_idx, crmodel,1);
-        break;
-    default:
-        ERRORLOG("Invalid selection criterium %d",(int)criteria);
-        thing = INVALID_THING;
-        break;
-    }
+    struct Thing *thing = script_get_creature_by_criteria(origin_plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
         SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)origin_plyr_idx,(int)crmodel);
         return false;
@@ -4061,62 +4121,119 @@ void script_kill_creatures(PlayerNumber plyr_idx, long crmodel, long criteria, l
  */
 TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criteria, int count)
 {
-    struct Thing *thing;
-    switch (criteria)
-    {
-    case CSelCrit_Any:
-        thing = get_random_players_creature_of_model(plyr_idx, crmodel);
-        break;
-    case CSelCrit_MostExperienced:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWandering:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWorking:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpFighting:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExperienced:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWandering:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWorking:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpFighting:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
-        break;
-    case CSelCrit_NearOwnHeart:
-    {
-        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
-        thing = get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx);
-        break;
-    }
-    case CSelCrit_NearEnemyHeart:
-        thing = get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
-        break;
-    case CSelCrit_OnEnemyGround:
-        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,0);
-        break;
-    case CSelCrit_OnFriendlyGround:
-        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,1);
-        break;
-    default:
-        ERRORLOG("Invalid level up criteria %d",(int)criteria);
-        thing = INVALID_THING;
-        break;
-    }
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
         SYNCDBG(5,"No matching player %d creature of model %d found to level up",(int)plyr_idx,(int)crmodel);
         return false;
     }
     creature_increase_multiple_levels(thing,count);
     return true;
+}
+
+/**
+ * Cast a spell on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_cast_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5,"No matching player %d creature of model %d found to cast spell on.",(int)plyr_idx,(int)crmodel);
+        return Lb_FAIL;
+    }
+
+    char is_free = (fmcl_bytes >> 24) != 0;
+    PowerKind pwkind = (fmcl_bytes >> 16) & 255;
+    PlayerNumber caster =  (fmcl_bytes >> 8) & 255;
+    long splevel = fmcl_bytes & 255;
+
+    if (thing_is_in_power_hand_list(thing, plyr_idx))
+    {
+        char block = pwkind == PwrK_SLAP;
+        block |= pwkind == PwrK_CALL2ARMS;
+        block |= pwkind == PwrK_CAVEIN;
+        block |= pwkind == PwrK_LIGHTNING;
+        block |= pwkind == PwrK_MKDIGGER;
+        block |= pwkind == PwrK_SIGHT;
+        if (block)
+        {
+          SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
+          return Lb_FAIL;
+        }
+        
+    }
+
+    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
+    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
+    unsigned long spell_flags = is_free ? PwMod_CastForFree : 0;
+
+    switch (pwkind)
+    {
+      case PwrK_HEALCRTR:
+        return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_SPEEDCRTR:
+        return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_PROTECT:
+        return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_CONCEAL:
+        return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_DISEASE:
+        return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_CHICKEN:
+        return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_SLAP:
+        return magic_use_power_slap_thing(caster, thing, spell_flags);
+      case PwrK_CALL2ARMS:
+        return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_LIGHTNING:
+        return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_CAVEIN:
+        return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_MKDIGGER:
+        return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
+      case PwrK_SIGHT:
+        return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
+      default:
+        ERRORLOG("Power not supported at script cast_spell_on_creature: %d", (int) pwkind);
+        return Lb_FAIL;
+    }
+}
+
+/**
+ * Casts spell at a location set by subtiles.
+ * @param plyr_idx caster player.
+ * @param stl_x subtile's x position.
+ * @param stl_y subtile's y position
+ * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_cast_spell_at_location(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
+{
+    char is_free = (fml_bytes >> 16) != 0;
+    PowerKind powerKind = (fml_bytes >> 8) & 255;
+    long splevel = fml_bytes & 255;
+    
+    unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
+    if (is_free)
+        spell_flags |= PwMod_CastForFree;
+
+    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
+}
+
+/**
+ * Casts a spell for player.
+ * @param plyr_idx caster player.
+ * @param power_kind the spell: magic id.
+ * @param free cast for free flag.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_cast_spell(PlayerNumber plyr_idx, PowerKind power_kind, char free)
+{
+    return magic_use_power_on_level(plyr_idx, power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // splevel gets ignored anyway -> pass 1
 }
 
 /**
@@ -5069,6 +5186,24 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_level_up_creature(i, val2, val3, val4);
+      }
+      break;
+    case Cmd_CAST_SPELL_ON_CREATURE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_cast_spell_on_creature(i, val2, val3, val4);
+      }
+      break;
+    case Cmd_CAST_SPELL_AT_LOCATION:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_cast_spell_at_location(i, val2, val3, val4);
+      }
+      break;
+    case Cmd_CAST_SPELL:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_cast_spell(i, val2, val3);
       }
       break;
     case Cmd_CHANGE_CREATURE_OWNER:
