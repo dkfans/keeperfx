@@ -141,9 +141,9 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION},
   {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE},
-  {"CAST_SPELL_ON_CREATURE",            "PCAPANN ", Cmd_CAST_SPELL_ON_CREATURE},
-  {"CAST_SPELL_AT_LOCATION",            "PNNANN  ", Cmd_CAST_SPELL_AT_LOCATION},
-  {"CAST_SPELL",                        "PAN     ", Cmd_CAST_SPELL},
+  {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE},
+  {"USE_POWER_AT_LOCATION",             "PNNANN  ", Cmd_USE_POWER_AT_LOCATION},
+  {"USE_POWER",                         "PAN     ", Cmd_USE_POWER},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG},
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG},
@@ -2511,7 +2511,7 @@ void command_level_up_creature(long plr_range_id, const char *crtr_name, const c
   command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
-void command_cast_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, char free)
+void command_use_power_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, char free)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -2557,10 +2557,10 @@ void command_cast_spell_on_creature(long plr_range_id, const char *crtr_name, co
       signed char f = free, m = mag_id, c = caster_plyr_idx, lvl = splevel;
       fmcl_bytes = (f << 24) | (m << 16) | (c << 8) | lvl;
   }
-  command_add_value(Cmd_CAST_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
+  command_add_value(Cmd_USE_POWER_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
-void command_cast_spell_at_location(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, char free)
+void command_use_power_at_location(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, char free)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -2596,10 +2596,10 @@ void command_cast_spell_at_location(long plr_range_id, int stl_x, int stl_y, con
       signed char f = free, m = mag_id, lvl = splevel;
       fml_bytes = (f << 16) | (m << 8) | lvl;
   }
-  command_add_value(Cmd_CAST_SPELL_AT_LOCATION, plr_range_id, stl_x, stl_y, fml_bytes);
+  command_add_value(Cmd_USE_POWER_AT_LOCATION, plr_range_id, stl_x, stl_y, fml_bytes);
 }
 
-void command_cast_spell(long plr_range_id, const char *magname, char free)
+void command_use_power(long plr_range_id, const char *magname, char free)
 {
     SCRIPTDBG(11, "Starting");
     long mag_id = get_rid(power_desc, magname);
@@ -2614,7 +2614,7 @@ void command_cast_spell(long plr_range_id, const char *magname, char free)
         SCRPTERRLOG("Only players 0-3 can cast %s", magname);
         return;
     }
-    command_add_value(Cmd_CAST_SPELL, plr_range_id, mag_id, free, 0);
+    command_add_value(Cmd_USE_POWER, plr_range_id, mag_id, free, 0);
 }
 
 void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
@@ -2965,14 +2965,14 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_LEVEL_UP_CREATURE:
         command_level_up_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
-    case Cmd_CAST_SPELL_ON_CREATURE:
-        command_cast_spell_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5], scline->np[6]);
+    case Cmd_USE_POWER_ON_CREATURE:
+        command_use_power_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5], scline->np[6]);
         break;
-    case Cmd_CAST_SPELL_AT_LOCATION:
-        command_cast_spell_at_location(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->np[5]);
+    case Cmd_USE_POWER_AT_LOCATION:
+        command_use_power_at_location(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->np[5]);
         break;
-    case Cmd_CAST_SPELL:
-        command_cast_spell(scline->np[0], scline->tp[1], scline->np[2]);
+    case Cmd_USE_POWER:
+        command_use_power(scline->np[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -4138,11 +4138,11 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
  * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_cast_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to cast spell on.",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d found to use power on.",(int)plyr_idx,(int)crmodel);
         return Lb_FAIL;
     }
 
@@ -4198,7 +4198,7 @@ TbResult script_cast_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long
       case PwrK_SIGHT:
         return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
       default:
-        ERRORLOG("Power not supported at script cast_spell_on_creature: %d", (int) pwkind);
+        ERRORLOG("Power not supported at script use_power_on_creature: %d", (int) pwkind);
         return Lb_FAIL;
     }
 }
@@ -4211,7 +4211,7 @@ TbResult script_cast_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long
  * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_cast_spell_at_location(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
+TbResult script_use_power_at_location(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
 {
     char is_free = (fml_bytes >> 16) != 0;
     PowerKind powerKind = (fml_bytes >> 8) & 255;
@@ -4231,7 +4231,7 @@ TbResult script_cast_spell_at_location(PlayerNumber plyr_idx, MapSubtlCoord stl_
  * @param free cast for free flag.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_cast_spell(PlayerNumber plyr_idx, PowerKind power_kind, char free)
+TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free)
 {
     return magic_use_power_on_level(plyr_idx, power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // splevel gets ignored anyway -> pass 1
 }
@@ -5188,22 +5188,22 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           script_level_up_creature(i, val2, val3, val4);
       }
       break;
-    case Cmd_CAST_SPELL_ON_CREATURE:
+    case Cmd_USE_POWER_ON_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_cast_spell_on_creature(i, val2, val3, val4);
+          script_use_power_on_creature(i, val2, val3, val4);
       }
       break;
-    case Cmd_CAST_SPELL_AT_LOCATION:
+    case Cmd_USE_POWER_AT_LOCATION:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_cast_spell_at_location(i, val2, val3, val4);
+          script_use_power_at_location(i, val2, val3, val4);
       }
       break;
-    case Cmd_CAST_SPELL:
+    case Cmd_USE_POWER:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_cast_spell(i, val2, val3);
+          script_use_power(i, val2, val3);
       }
       break;
     case Cmd_CHANGE_CREATURE_OWNER:
