@@ -613,7 +613,7 @@ long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, cons
 
 short process_player_manufacturing(PlayerNumber plyr_idx)
 {
-    SYNCDBG(7,"Starting for player %d",(int)plyr_idx);
+    SYNCDBG(13,"Starting for player %d",(int)plyr_idx);
 
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (!player_has_room_of_role(plyr_idx, RoRoF_CratesManufctr))

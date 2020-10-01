@@ -173,7 +173,7 @@ void draw_eastegg(void)
   static long vy[2] = {0, 0};
   long i;
   long k;
-  SYNCDBG(5,"Starting");
+  SYNCDBG(14,"Starting");
   LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
   if (eastegg_skeksis_cntr >= eastegg_skeksis_codes.length)
   {

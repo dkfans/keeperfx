@@ -467,7 +467,7 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
 
 void gui_pretty_background(struct GuiMenu *gmnu)
 {
-    SYNCDBG(9,"Starting");
+    SYNCDBG(15,"Starting");
     int fade_w;
     int fade_h;
     int i;
@@ -522,7 +522,7 @@ void gui_pretty_background(struct GuiMenu *gmnu)
 
 void gui_area_new_normal_button(struct GuiButton *gbtn)
 {
-    SYNCDBG(10,"Starting");
+    SYNCDBG(13,"Starting");
     int i;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx+1, 100);
@@ -536,12 +536,12 @@ void gui_area_new_normal_button(struct GuiButton *gbtn)
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+1, 12);
     }
-    SYNCDBG(12,"Finished");
+    SYNCDBG(13,"Finished");
 }
 
 void gui_area_new_vertical_button(struct GuiButton *gbtn)
 {
-    SYNCDBG(10,"Starting");
+    SYNCDBG(13,"Starting");
     int i;
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, gbtn->sprite_idx+1, 100);
@@ -555,7 +555,7 @@ void gui_area_new_vertical_button(struct GuiButton *gbtn)
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+1, 12);
     }
-    SYNCDBG(12,"Finished");
+    SYNCDBG(13,"Finished");
 }
 
 void gui_draw_tab(struct GuiButton *gbtn)
@@ -645,7 +645,7 @@ void gui_area_creatrmodel_button(struct GuiButton *gbtn)
 
 void gui_area_new_no_anim_button(struct GuiButton *gbtn)
 {
-    SYNCDBG(10,"Starting");
+    SYNCDBG(13,"Starting");
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == LbBtnT_ToggleBtn)
@@ -672,7 +672,7 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     }
-    SYNCDBG(12,"Finished");
+    SYNCDBG(13,"Finished");
 }
 
 void gui_area_no_anim_button(struct GuiButton *gbtn)

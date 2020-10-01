@@ -4589,7 +4589,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     long i;
     long aposc;
     long bposc;
-    SYNCDBG(9,"Starting");
+    SYNCDBG(14,"Starting");
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
@@ -4647,7 +4647,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
     map_volume_box.visible = 0;
-    SYNCDBG(9,"Finished");
+    SYNCDBG(15,"Finished");
 }
 
 static void clear_fast_bucket_list(void)

@@ -562,7 +562,7 @@ void update_light_render_area(void)
     int subtile_y;
     int startx;
     int starty;
-    SYNCDBG(6,"Starting");
+    SYNCDBG(14,"Starting");
     struct PlayerInfo* player = get_my_player();
     if (player->view_mode >= PVM_CreatureView)
       if ((player->view_mode <= PVM_IsometricView) || (player->view_mode == PVM_FrontView))

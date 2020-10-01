@@ -629,7 +629,7 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
-    SYNCDBG(9,"Starting");
+    SYNCDBG(15,"Starting");
     _DK_remove_explored_flags_for_power_sight(player);
 }
 /******************************************************************************/

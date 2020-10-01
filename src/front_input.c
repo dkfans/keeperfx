@@ -306,7 +306,7 @@ short get_packet_load_game_control_inputs(void)
 
 long get_small_map_inputs(long x, long y, long zoom)
 {
-  SYNCDBG(7,"Starting");
+  SYNCDBG(15,"Starting");
   short result = 0;
   long curr_mx = GetMouseX();
   long curr_my = GetMouseY();
@@ -338,7 +338,7 @@ long get_small_map_inputs(long x, long y, long zoom)
   old_my = curr_my;
   if (grabbed_small_map)
     game.small_map_state = 2;
-  SYNCDBG(8,"Finished");
+  SYNCDBG(15,"Finished");
   return result;
 }
 
@@ -1294,7 +1294,7 @@ void get_packet_control_mouse_clicks(void)
 {
     static int synthetic_left = 0; //arbitrary state machine, not deserving own enum
     static int synthetic_right = 0;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(15,"Starting");
 
     if ((game.operation_flags & GOF_Paused) != 0)
     {
@@ -1955,7 +1955,7 @@ static void speech_pickup_of_gui_job(int job_idx)
  */
 static void get_dungeon_speech_inputs(void)
 {
-    SYNCDBG(8,"Starting");
+    SYNCDBG(14,"Starting");
 
     int id;
     switch (last_speech_event.type)
@@ -2037,7 +2037,7 @@ short get_inputs(void)
 {
     if ((game.flags_cd & MFlg_IsDemoMode) != 0)
     {
-        SYNCDBG(5,"Starting for demo mode");
+        SYNCDBG(15,"Starting for demo mode");
         load_packets_for_turn(game.pckt_gameturn);
         game.pckt_gameturn++;
         get_packet_load_demo_inputs();
@@ -2045,13 +2045,13 @@ short get_inputs(void)
     }
     if (game.packet_load_enable)
     {
-        SYNCDBG(5,"Loading packet inputs");
+        SYNCDBG(15,"Loading packet inputs");
         return get_packet_load_game_inputs();
     }
     struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_Unknown80) != 0)
     {
-        SYNCDBG(5,"Starting for creature fade");
+        SYNCDBG(15,"Starting for creature fade");
         set_players_packet_position(player,127,127);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
@@ -2064,7 +2064,7 @@ short get_inputs(void)
         }
         return false;
     }
-    SYNCDBG(5,"Starting");
+    SYNCDBG(15,"Starting");
     if (gui_process_inputs())
     {
         return true;
@@ -2097,7 +2097,7 @@ short get_inputs(void)
         inp_handled = get_global_inputs();
     if (game_is_busy_doing_gui_string_input())
       return false;
-    SYNCDBG(7,"Getting inputs for view %d",(int)player->view_type);
+    SYNCDBG(15,"Getting inputs for view %d",(int)player->view_type);
     switch (player->view_type)
     {
     case PVT_DungeonTop:
@@ -2158,7 +2158,7 @@ short get_inputs(void)
 
 void input(void)
 {
-    SYNCDBG(4,"Starting");
+    SYNCDBG(15,"Starting");
 
     update_mouse();
     update_key_modifiers();
@@ -2184,13 +2184,13 @@ void input(void)
 
     get_inputs();
 
-    SYNCDBG(7,"Finished");
+    SYNCDBG(15,"Finished");
 }
 
 short get_gui_inputs(short gameplay_on)
 {
   static ActiveButtonID over_slider_button = -1;
-  SYNCDBG(14,"Starting");
+  SYNCDBG(15,"Starting");
   battle_creature_over = 0;
   gui_room_type_highlighted = -1;
   gui_door_type_highlighted = -1;
@@ -2301,7 +2301,7 @@ short get_gui_inputs(short gameplay_on)
   gui_clear_buttons_not_over_mouse(gmbtn_idx);
   result |= gui_button_release_inputs(gmbtn_idx);
   input_gameplay_tooltips(gameplay_on);
-  SYNCDBG(15,"Finished");
+  SYNCDBG(15, "Finished");
   return result;
 }
 

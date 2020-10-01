@@ -373,7 +373,12 @@ TbBool set_pointer_graphic(long ptr_idx)
     long x;
     long y;
     struct TbSprite* spr;
-    SYNCDBG(8, "Setting to %d", (int)ptr_idx);
+    static long old_idx = 0;
+    if (old_idx != ptr_idx)
+    {
+        old_idx = ptr_idx;
+        SYNCDBG(9, "Setting to %d", (int)ptr_idx);
+    }
     if (pointer_sprites == NULL)
     {
         WARNLOG("Pointer sprites not loaded, setting to none");

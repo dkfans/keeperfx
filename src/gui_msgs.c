@@ -30,7 +30,7 @@
 /******************************************************************************/
 void message_draw(void)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(15,"Starting");
     LbTextSetFont(winfont);
     int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
     int ps_units_per_px;

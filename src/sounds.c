@@ -244,7 +244,7 @@ void find_nearest_rooms_for_ambient_sound(void)
 
 TbBool update_3d_sound_receiver(struct PlayerInfo *player)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(13,"Starting");
     struct Camera* cam = player->acamera;
     if (cam == NULL)
         return false;

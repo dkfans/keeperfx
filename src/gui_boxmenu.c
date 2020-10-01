@@ -722,7 +722,7 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
 short gui_process_inputs(void)
 {
     struct GuiBox *gbox;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(14,"Starting");
     long mouse_x = GetMouseX();
     long mouse_y = GetMouseY();
     short result = false;
@@ -826,7 +826,7 @@ short gui_process_inputs(void)
       }
     }
 */
-    SYNCDBG(9,"Returning %s",result?"true":"false");
+    SYNCDBG(15,"Returning %s",result?"true":"false");
     return result;
 }
 

@@ -2282,7 +2282,7 @@ void set_mouse_light(struct PlayerInfo *player)
 
 void check_players_won(void)
 {
-  SYNCDBG(8,"Starting");
+  SYNCDBG(13, "Starting");
 
     if (!(game.system_flags & GSF_NetworkActive))
         return;
@@ -2318,7 +2318,7 @@ void check_players_won(void)
 void check_players_lost(void)
 {
   long i;
-  SYNCDBG(8,"Starting");
+  SYNCDBG(13, "Starting");
   //_DK_check_players_lost(); return;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
@@ -2525,7 +2525,7 @@ void count_dungeon_stuff(void)
 
 void process_dungeons(void)
 {
-  SYNCDBG(7,"Starting");
+  SYNCDBG(12,"Starting");
   check_players_won();
   check_players_lost();
   process_dungeon_power_magic();
@@ -2534,12 +2534,12 @@ void process_dungeons(void)
   process_entrance_generation();
   process_payday();
   process_things_in_dungeon_hand();
-  SYNCDBG(9,"Finished");
+  SYNCDBG(12,"Finished");
 }
 
 void process_level_script(void)
 {
-  SYNCDBG(6,"Starting");
+  SYNCDBG(13,"Starting");
   struct PlayerInfo *player;
   player = get_my_player();
   // Do NOT stop executing scripts after winning if the RUN_AFTER_VICTORY(1) script command has been issued
@@ -2664,7 +2664,7 @@ void update_research(void)
 {
   int i;
   struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
+  SYNCDBG(13,"Starting");
   for (i=0; i<PLAYERS_COUNT; i++)
   {
       player = get_player(i);

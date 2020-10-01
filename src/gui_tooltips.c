@@ -529,7 +529,7 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
 
 void draw_tooltip(void)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(14,"Starting");
     LbTextSetFont(winfont);
     if ((tool_tip_box.flags & TTip_Visible) != 0)
     {

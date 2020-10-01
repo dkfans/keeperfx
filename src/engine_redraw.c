@@ -581,7 +581,7 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
 
 void redraw_isometric_view(void)
 {
-    SYNCDBG(6,"Starting");
+    SYNCDBG(16,"Starting");
 
     struct PlayerInfo* player = get_my_player();
     if (player->acamera == NULL)
@@ -627,7 +627,7 @@ void redraw_isometric_view(void)
     draw_tooltip();
     // TODO: what is it? who moved mappos?
     memcpy(&player->acamera->mappos,&pos,sizeof(struct Coord3d));
-    SYNCDBG(8,"Finished");
+    SYNCDBG(18,"Finished");
 }
 
 void redraw_frontview(void)
@@ -694,7 +694,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
     long pwkind = -1;
     if (wrkstate < PLAYER_STATES_COUNT)
       pwkind = player_state_to_power_kind[wrkstate];
-    SYNCDBG(5,"Starting for power %d",(int)pwkind);
+    SYNCDBG(14,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
     {
         set_pointer_graphic(MousePG_Invisible);
@@ -881,7 +881,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
 void process_pointer_graphic(void)
 {
     struct PlayerInfo* player = get_my_player();
-    SYNCDBG(6,"Starting for view %d, player state %s, instance %d",(int)player->view_type,player_state_code_name(player->work_state),(int)player->instance_num);
+    SYNCDBG(15,"Starting for view %d, player state %s, instance %d",(int)player->view_type,player_state_code_name(player->work_state),(int)player->instance_num);
     switch (player->view_type)
     {
     case PVT_DungeonTop:
@@ -913,7 +913,7 @@ void process_pointer_graphic(void)
 void redraw_display(void)
 {
     const char *text;
-    SYNCDBG(5,"Starting");
+    SYNCDBG(15,"Starting");
     struct PlayerInfo* player = get_my_player();
     player->flgfield_6 &= ~PlaF6_Unknown01;
     if (game.game_kind == GKind_Unknown1)

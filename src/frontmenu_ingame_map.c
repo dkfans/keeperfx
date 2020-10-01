@@ -648,7 +648,7 @@ int draw_overlay_possessed_thing(struct PlayerInfo *player, long units_per_px, l
 
 void pannel_map_draw_overlay_things(long units_per_px, long zoom, long basic_zoom)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(14,"Starting");
     if (zoom < 1) {
         return;
     }
