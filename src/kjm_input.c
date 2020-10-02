@@ -310,6 +310,13 @@ void update_key_modifiers(void)
   key_modifiers = key_mods;
 }
 
+void assign_key(long key_id, unsigned char key, unsigned int mods)
+{
+    struct GameKey* kbk = &settings.kbkeys[key_id];
+    kbk->code = key;
+    kbk->mods = mods;
+}
+
 long set_game_key(long key_id, unsigned char key, unsigned int mods)
 {
     if (!key_to_string[key])
@@ -342,9 +349,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
             struct GameKey* kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_RotateMod) < 1) + Gkey_RotateMod];
             if (kbk->code != ncode)
             {
-                kbk = &settings.kbkeys[key_id];
-                kbk->code = ncode;
-                kbk->mods = 0;
+                assign_key(key_id, ncode, 0);
             }
             return 1;
         }
@@ -379,9 +384,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
             struct GameKey* kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_CrtrContrlMod) < 1) + Gkey_CrtrContrlMod];
             if (kbk->code != ncode)
             {
-                kbk = &settings.kbkeys[key_id];
-                kbk->code = ncode;
-                kbk->mods = 0;
+                assign_key(key_id, ncode, 0);
             }
             return 1;
         }
@@ -396,9 +399,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
                     return 0;
                 }
             }
-            kbk = &settings.kbkeys[key_id];
-            kbk->code = key;
-            kbk->mods = 0;
+            assign_key(key_id, key, 0);
             return 1;
         }
     }
@@ -424,9 +425,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
                 return 0;
             }
         }
-        kbk = &settings.kbkeys[key_id];
-        kbk->code = key;
-        kbk->mods = mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT);
+        assign_key(key_id, key, mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT));
         return 1;
     }
 }
