@@ -310,6 +310,16 @@ void update_key_modifiers(void)
   key_modifiers = key_mods;
 }
 
+void swap_assigned_keys(struct GameKey* current_kbk, long new_key_id, unsigned char new_key, unsigned int new_mods)
+{
+    struct GameKey* kbk_swap = current_kbk;
+    current_kbk = &settings.kbkeys[new_key_id];
+    kbk_swap->code = current_kbk->code;
+    kbk_swap->mods = current_kbk->mods;
+    current_kbk->code = new_key;
+    current_kbk->mods = new_mods; 
+}
+
 void assign_key(long key_id, unsigned char key, unsigned int mods)
 {
     struct GameKey* kbk = &settings.kbkeys[key_id];
@@ -351,6 +361,10 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
             {
                 assign_key(key_id, ncode, 0);
             }
+            else
+            {
+                swap_assigned_keys(kbk, key_id, ncode, 0);
+            }
             return 1;
         }
         else
@@ -386,6 +400,10 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
             {
                 assign_key(key_id, ncode, 0);
             }
+            else
+            {
+                swap_assigned_keys(kbk, key_id, ncode, 0);
+            }
             return 1;
         }
         else
@@ -396,7 +414,8 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
                 kbk = &settings.kbkeys[i];
                 if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods))
                 {
-                    return 0;
+                    swap_assigned_keys(kbk, key_id, key, 0);
+                    return 1;
                 }
             }
             assign_key(key_id, key, 0);
@@ -422,7 +441,8 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
             kbk = &settings.kbkeys[i];
             if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods))
             {
-                return 0;
+                swap_assigned_keys(kbk, key_id, key, mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT));
+                return 1;
             }
         }
         assign_key(key_id, key, mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT));
