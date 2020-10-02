@@ -312,7 +312,8 @@ void update_key_modifiers(void)
 
 long set_game_key(long key_id, unsigned char key, unsigned int mods)
 {
-    if (!key_to_string[key]) {
+    if (!key_to_string[key])
+    {
       return 0;
     }
     // Rotate & speed - allow only lone modifiers
@@ -321,14 +322,21 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
         if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
         {
             int ncode;
-            if (mods & KMod_SHIFT) {
+            if (mods & KMod_SHIFT)
+            {
                 ncode = KC_LSHIFT;
-            } else
-            if (mods & KMod_CONTROL) {
-                ncode = KC_LCONTROL;
-            } else {
-                ERRORLOG("Reached a place we should not be able");
-                ncode = KC_UNASSIGNED;
+            }
+            else
+            {
+                if (mods & KMod_CONTROL)
+                {
+                    ncode = KC_LCONTROL;
+                }
+                else
+                {
+                    ERRORLOG("Reached a place we should not be able");
+                    ncode = KC_UNASSIGNED;
+                }
             }
             // Do not allow the key if it is used as other mod key
             struct GameKey* kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_RotateMod) < 1) + Gkey_RotateMod];
@@ -339,7 +347,8 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
                 kbk->mods = 0;
             }
             return 1;
-        } else
+        }
+        else
         {
             return 0;
         }
@@ -350,14 +359,21 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
         if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
         {
             int ncode;
-            if (mods & KMod_SHIFT) {
+            if (mods & KMod_SHIFT)
+            {
                 ncode = KC_LSHIFT;
-            } else
-            if (mods & KMod_CONTROL) {
-                ncode = KC_LCONTROL;
-            } else {
-                ERRORLOG("Reached a place we should not be able");
-                ncode = KC_UNASSIGNED;
+            }
+            else
+            {
+                if (mods & KMod_CONTROL)
+                {
+                    ncode = KC_LCONTROL;
+                }
+                else
+                {
+                    ERRORLOG("Reached a place we should not be able");
+                    ncode = KC_UNASSIGNED;
+                }
             }
             // Do not allow the key if it is used as other mod key
             struct GameKey* kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_CrtrContrlMod) < 1) + Gkey_CrtrContrlMod];
@@ -368,13 +384,15 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
                 kbk->mods = 0;
             }
             return 1;
-        } else
+        }
+        else
         {
             struct GameKey  *kbk;
             for (long i = 0; i < GAME_KEYS_COUNT; i++)
             {
                 kbk = &settings.kbkeys[i];
-                if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods)) {
+                if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods))
+                {
                     return 0;
                 }
             }
@@ -393,14 +411,16 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
     {
         if (((mods & KMod_SHIFT) && (mods & KMod_CONTROL))
          || ((mods & KMod_SHIFT) && (mods & KMod_ALT))
-         || ((mods & KMod_CONTROL) && (mods & KMod_ALT))) {
+         || ((mods & KMod_CONTROL) && (mods & KMod_ALT)))
+        {
             return 0;
         }
         struct GameKey *kbk;
         for (long i = 0; i < GAME_KEYS_COUNT; i++)
         {
             kbk = &settings.kbkeys[i];
-            if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods)) {
+            if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods))
+            {
                 return 0;
             }
         }
