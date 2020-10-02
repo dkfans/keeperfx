@@ -57,39 +57,39 @@ void setup_default_settings(void)
      0,                         // gamma_correction
      Lb_SCREEN_MODE_INVALID,    // Screen mode, set to correct value below
      {
-          {KC_W, KMod_NONE},   // Gkey_MoveUp
-          {KC_S, KMod_NONE}, // Gkey_MoveDown
-          {KC_A, KMod_NONE}, // Gkey_MoveLeft
-          {KC_D, KMod_NONE},// Gkey_MoveRight
-          {KC_LCONTROL, KMod_NONE},//Gkey_RotateMod
-          {KC_LSHIFT, KMod_NONE},//Gkey_SpeedMod
-          {KC_DELETE, KMod_NONE},//Gkey_RotateCW
-          {KC_PGDOWN, KMod_NONE},//Gkey_RotateCCW
-          {KC_HOME, KMod_NONE}, // Gkey_ZoomIn
-          {KC_END, KMod_NONE},  // Gkey_ZoomOut
-          {KC_T, KMod_NONE},    // Gkey_ZoomRoom00
-          {KC_L, KMod_NONE},    // Gkey_ZoomRoom01
-          {KC_L, KMod_SHIFT},   // Gkey_ZoomRoom02
-          {KC_P, KMod_SHIFT},   // Gkey_ZoomRoom03
-          {KC_T, KMod_ALT},     // Gkey_ZoomRoom04
-          {KC_T, KMod_SHIFT},   // Gkey_ZoomRoom05
-          {KC_H, KMod_NONE},    // Gkey_ZoomRoom06
-          {KC_W, KMod_ALT},		// Gkey_ZoomRoom07
-          {KC_S, KMod_ALT},		// Gkey_ZoomRoom08
-          {KC_T, KMod_CONTROL}, // Gkey_ZoomRoom09
-          {KC_G, KMod_NONE},    // Gkey_ZoomRoom10
-          {KC_B, KMod_NONE},    // Gkey_ZoomRoom11
-          {KC_H, KMod_SHIFT},   // Gkey_ZoomRoom12
-          {KC_G, KMod_SHIFT},   // Gkey_ZoomRoom13
-          {KC_B, KMod_SHIFT},   // Gkey_ZoomRoom14
-          {KC_F, KMod_NONE},    // Gkey_ZoomToFight
-          {KC_A, KMod_ALT},		// Gkey_ZoomCrAnnoyed
-          {KC_LSHIFT, KMod_NONE},//Gkey_CrtrContrlMod
-          {KC_Q, KMod_NONE},	//Gkey_CrtrQueryMod
-          {KC_BACK, KMod_NONE}, // Gkey_DumpToOldPos
-          {KC_P, KMod_NONE},    // Gkey_TogglePause
-          {KC_M, KMod_NONE},    // Gkey_SwitchToMap
-          {KC_E, KMod_NONE},    // Gkey_ToggleMessage
+          {KC_W, KMod_NONE},        // Gkey_MoveUp
+          {KC_S, KMod_NONE},        // Gkey_MoveDown
+          {KC_A, KMod_NONE},        // Gkey_MoveLeft
+          {KC_D, KMod_NONE},        // Gkey_MoveRight
+          {KC_LCONTROL, KMod_NONE}, // Gkey_RotateMod
+          {KC_LSHIFT, KMod_NONE},   // Gkey_SpeedMod
+          {KC_DELETE, KMod_NONE},   // Gkey_RotateCW
+          {KC_PGDOWN, KMod_NONE},   // Gkey_RotateCCW
+          {KC_HOME, KMod_NONE},     // Gkey_ZoomIn
+          {KC_END, KMod_NONE},      // Gkey_ZoomOut
+          {KC_T, KMod_NONE},        // Gkey_ZoomRoom00
+          {KC_L, KMod_NONE},        // Gkey_ZoomRoom01
+          {KC_L, KMod_SHIFT},       // Gkey_ZoomRoom02
+          {KC_P, KMod_SHIFT},       // Gkey_ZoomRoom03
+          {KC_T, KMod_ALT},         // Gkey_ZoomRoom04
+          {KC_T, KMod_SHIFT},       // Gkey_ZoomRoom05
+          {KC_H, KMod_NONE},        // Gkey_ZoomRoom06
+          {KC_W, KMod_ALT},         // Gkey_ZoomRoom07
+          {KC_S, KMod_ALT},         // Gkey_ZoomRoom08
+          {KC_T, KMod_CONTROL},     // Gkey_ZoomRoom09
+          {KC_G, KMod_NONE},        // Gkey_ZoomRoom10
+          {KC_B, KMod_NONE},        // Gkey_ZoomRoom11
+          {KC_H, KMod_SHIFT},       // Gkey_ZoomRoom12
+          {KC_G, KMod_SHIFT},       // Gkey_ZoomRoom13
+          {KC_B, KMod_SHIFT},       // Gkey_ZoomRoom14
+          {KC_F, KMod_NONE},        // Gkey_ZoomToFight
+          {KC_A, KMod_ALT},         // Gkey_ZoomCrAnnoyed
+          {KC_LSHIFT, KMod_NONE},   // Gkey_CrtrContrlMod
+          {KC_Q, KMod_NONE},        // Gkey_CrtrQueryMod
+          {KC_BACK, KMod_NONE},     // Gkey_DumpToOldPos
+          {KC_P, KMod_NONE},        // Gkey_TogglePause
+          {KC_M, KMod_NONE},        // Gkey_SwitchToMap
+          {KC_E, KMod_NONE},        // Gkey_ToggleMessage
      },                         // kbkeys
      1,                         // tooltips_on
      0,                         // first_person_move_invert
