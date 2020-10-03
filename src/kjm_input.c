@@ -112,8 +112,14 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_DOWN,   GUIStr_KeyDown},
   {KC_LEFT,   GUIStr_KeyLeft},
   {KC_RIGHT,  GUIStr_KeyRight},
+  {KC_LALT,   GUIStr_KeyLeftAlt},
+  {KC_RALT,   GUIStr_KeyRightAlt},
   {  0,     0},
 };
+
+// An array of the defined keys, when an indexed key is true in this array, 
+// it should be highlighted in font color #3 in the list, to show that it was swapped
+TbBool defined_keys_that_have_been_swapped[GAME_KEYS_COUNT] = { false };
 /******************************************************************************/
 /**
  * Returns X position of mouse cursor on screen.
@@ -310,82 +316,123 @@ void update_key_modifiers(void)
   key_modifiers = key_mods;
 }
 
+void swap_assigned_keys(long current_key_id, struct GameKey* current_kbk, long new_key_id, unsigned char new_key, unsigned int new_mods)
+{
+    struct GameKey* kbk_swap = current_kbk;
+    current_kbk = &settings.kbkeys[new_key_id];
+    kbk_swap->code = current_kbk->code;
+    kbk_swap->mods = current_kbk->mods;
+    current_kbk->code = new_key;
+    current_kbk->mods = new_mods;
+    defined_keys_that_have_been_swapped[current_key_id] = true;
+    if (defined_keys_that_have_been_swapped[new_key_id])
+    {
+        defined_keys_that_have_been_swapped[new_key_id] = false;
+    }
+}
+
+void assign_key(long key_id, unsigned char key, unsigned int mods)
+{
+    struct GameKey* kbk = &settings.kbkeys[key_id];
+    kbk->code = key;
+    kbk->mods = mods;
+    if (defined_keys_that_have_been_swapped[key_id])
+    {
+        defined_keys_that_have_been_swapped[key_id] = false;
+    }
+}
+
+int mod_key_to_normal_key(unsigned int mods)
+{
+    int ncode;
+    if (mods & KMod_SHIFT)
+    {
+        ncode = KC_LSHIFT;
+    }
+    else if (mods & KMod_CONTROL)
+    {
+        ncode = KC_LCONTROL;
+    }
+    else if (mods & KMod_ALT)
+    {
+        ncode = KC_LALT;
+    }
+    else
+    {
+        ERRORLOG("Reached a place we should not be able");
+        ncode = KC_UNASSIGNED;
+    }
+    return ncode;
+}
+
+void check_and_assign_mod_keys(long key_id, unsigned int mods, long reference_key_id)
+{
+    // This only works for a pair of adjacent "linked" keys (i.e Speed/Rotate and Query/Possess)
+    int ncode = mod_key_to_normal_key(mods);
+    // Do not allow the key if it is used as other mod key
+    long other_key_id = ((unsigned int)(key_id - reference_key_id) < 1) + reference_key_id;
+    struct GameKey* kbk = &settings.kbkeys[other_key_id];
+    if (kbk->code != ncode)
+    {
+        assign_key(key_id, ncode, 0);
+    }
+    else
+    {
+        swap_assigned_keys(other_key_id, kbk, key_id, ncode, 0);
+    }
+}
+
+void check_and_assign_normal_keys(long key_id, unsigned char key, unsigned int mods, unsigned int set_mod)
+{
+    struct GameKey  *kbk;
+    for (long i = 0; i < GAME_KEYS_COUNT; i++)
+    {
+        kbk = &settings.kbkeys[i];
+        if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods))
+        {
+            swap_assigned_keys(i, kbk, key_id, key, (set_mod ? mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT) : 0));
+            return;
+        }
+    }
+    assign_key(key_id, key, (set_mod ? mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT) : 0));
+}
+
 long set_game_key(long key_id, unsigned char key, unsigned int mods)
 {
-    if (!key_to_string[key]) {
+    if (!key_to_string[key])
+    {
       return 0;
     }
-    // Rotate & speed - allow only lone modifiers
+    // Rotate & speed - allow lone modifiers and normal keys
     if (key_id == Gkey_RotateMod || key_id == Gkey_SpeedMod)
     {
-        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
+        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL) || (mods & KMod_ALT))
         {
-            int ncode;
-            if (mods & KMod_SHIFT) {
-                ncode = KC_LSHIFT;
-            } else
-            if (mods & KMod_CONTROL) {
-                ncode = KC_LCONTROL;
-            } else {
-                ERRORLOG("Reached a place we should not be able");
-                ncode = KC_UNASSIGNED;
-            }
-            // Do not allow the key if it is used as other mod key
-            struct GameKey* kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_RotateMod) < 1) + Gkey_RotateMod];
-            if (kbk->code != ncode)
-            {
-                kbk = &settings.kbkeys[key_id];
-                kbk->code = ncode;
-                kbk->mods = 0;
-            }
+            check_and_assign_mod_keys(key_id, mods, Gkey_RotateMod);
             return 1;
-        } else
+        }
+        else
         {
-            return 0;
+            check_and_assign_normal_keys(key_id, key, mods, 0);
+            return 1;
         }
     }
     // Possess & query - allow lone modifiers and normal keys
     if (key_id == Gkey_CrtrContrlMod || key_id == Gkey_CrtrQueryMod)
     {
-        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
+        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL) || (mods & KMod_ALT))
         {
-            int ncode;
-            if (mods & KMod_SHIFT) {
-                ncode = KC_LSHIFT;
-            } else
-            if (mods & KMod_CONTROL) {
-                ncode = KC_LCONTROL;
-            } else {
-                ERRORLOG("Reached a place we should not be able");
-                ncode = KC_UNASSIGNED;
-            }
-            // Do not allow the key if it is used as other mod key
-            struct GameKey* kbk = &settings.kbkeys[((unsigned int)(key_id - Gkey_CrtrContrlMod) < 1) + Gkey_CrtrContrlMod];
-            if (kbk->code != ncode)
-            {
-                kbk = &settings.kbkeys[key_id];
-                kbk->code = ncode;
-                kbk->mods = 0;
-            }
+            check_and_assign_mod_keys(key_id, mods, Gkey_CrtrContrlMod);
             return 1;
-        } else
+        }
+        else
         {
-            struct GameKey  *kbk;
-            for (long i = 0; i < GAME_KEYS_COUNT; i++)
-            {
-                kbk = &settings.kbkeys[i];
-                if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods)) {
-                    return 0;
-                }
-            }
-            kbk = &settings.kbkeys[key_id];
-            kbk->code = key;
-            kbk->mods = 0;
+            check_and_assign_normal_keys(key_id, key, mods, 0);
             return 1;
         }
     }
     // Single control keys - just ignore these keystrokes
-    if ( key == KC_LSHIFT || key == KC_RSHIFT || key == KC_LCONTROL || key == KC_RCONTROL )
+    if ( key == KC_LSHIFT || key == KC_RSHIFT || key == KC_LCONTROL || key == KC_RCONTROL  || key == KC_LALT || key == KC_RALT )
     {
         return 0;
     }
@@ -393,20 +440,11 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
     {
         if (((mods & KMod_SHIFT) && (mods & KMod_CONTROL))
          || ((mods & KMod_SHIFT) && (mods & KMod_ALT))
-         || ((mods & KMod_CONTROL) && (mods & KMod_ALT))) {
+         || ((mods & KMod_CONTROL) && (mods & KMod_ALT)))
+        {
             return 0;
         }
-        struct GameKey *kbk;
-        for (long i = 0; i < GAME_KEYS_COUNT; i++)
-        {
-            kbk = &settings.kbkeys[i];
-            if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods)) {
-                return 0;
-            }
-        }
-        kbk = &settings.kbkeys[key_id];
-        kbk->code = key;
-        kbk->mods = mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT);
+        check_and_assign_normal_keys(key_id, key, mods, 1);
         return 1;
     }
 }
@@ -415,6 +453,7 @@ void define_key_input(void)
 {
   if (lbInkey == KC_ESCAPE)
   {
+      lbKeyOn[KC_ESCAPE] = 0;
       lbInkey = KC_UNASSIGNED;
       defining_a_key = 0;
   } else
