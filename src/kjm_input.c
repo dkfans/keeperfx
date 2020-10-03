@@ -114,6 +114,10 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_RIGHT,  GUIStr_KeyRight},
   {  0,     0},
 };
+
+// An array of the defined keys, when an indexed key is true in this array, 
+// it should be highlighted in font color #3 in the list, to show that it was swapped
+TbBool defined_keys_that_have_been_swapped[GAME_KEYS_COUNT] = { false };
 /******************************************************************************/
 /**
  * Returns X position of mouse cursor on screen.
@@ -310,14 +314,19 @@ void update_key_modifiers(void)
   key_modifiers = key_mods;
 }
 
-void swap_assigned_keys(struct GameKey* current_kbk, long new_key_id, unsigned char new_key, unsigned int new_mods)
+void swap_assigned_keys(long current_key_id, struct GameKey* current_kbk, long new_key_id, unsigned char new_key, unsigned int new_mods)
 {
     struct GameKey* kbk_swap = current_kbk;
     current_kbk = &settings.kbkeys[new_key_id];
     kbk_swap->code = current_kbk->code;
     kbk_swap->mods = current_kbk->mods;
     current_kbk->code = new_key;
-    current_kbk->mods = new_mods; 
+    current_kbk->mods = new_mods;
+    defined_keys_that_have_been_swapped[current_key_id] = true;
+    if (defined_keys_that_have_been_swapped[new_key_id])
+    {
+        defined_keys_that_have_been_swapped[new_key_id] = false;
+    }
 }
 
 void assign_key(long key_id, unsigned char key, unsigned int mods)
@@ -325,6 +334,10 @@ void assign_key(long key_id, unsigned char key, unsigned int mods)
     struct GameKey* kbk = &settings.kbkeys[key_id];
     kbk->code = key;
     kbk->mods = mods;
+    if (defined_keys_that_have_been_swapped[key_id])
+    {
+        defined_keys_that_have_been_swapped[key_id] = false;
+    }
 }
 
 int mod_key_to_normal_key(unsigned int mods)
@@ -351,14 +364,15 @@ void check_and_assign_mod_keys(long key_id, unsigned int mods, long reference_ke
     // This only works for a pair of adjacent "linked" keys (i.e Speed/Rotate and Query/Possess)
     int ncode = mod_key_to_normal_key(mods);
     // Do not allow the key if it is used as other mod key
-    struct GameKey* kbk = &settings.kbkeys[((unsigned int)(key_id - reference_key_id) < 1) + reference_key_id];
+    long other_key_id = ((unsigned int)(key_id - reference_key_id) < 1) + reference_key_id;
+    struct GameKey* kbk = &settings.kbkeys[other_key_id];
     if (kbk->code != ncode)
     {
         assign_key(key_id, ncode, 0);
     }
     else
     {
-        swap_assigned_keys(kbk, key_id, ncode, 0);
+        swap_assigned_keys(other_key_id, kbk, key_id, ncode, 0);
     }
 }
 
@@ -370,7 +384,7 @@ void check_and_assign_normal_keys(long key_id, unsigned char key, unsigned int m
         kbk = &settings.kbkeys[i];
         if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods))
         {
-            swap_assigned_keys(kbk, key_id, key, (set_mod ? mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT) : 0));
+            swap_assigned_keys(i, kbk, key_id, key, (set_mod ? mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT) : 0));
             return;
         }
     }

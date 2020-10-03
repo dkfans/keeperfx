@@ -147,6 +147,8 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     }
     if (frontend_mouse_over_button == content) {
         LbTextSetFont(frontend_font[2]);
+    } else if (defined_keys_that_have_been_swapped[key_id]) {
+        LbTextSetFont(frontend_font[3]);
     } else {
         LbTextSetFont(frontend_font[1]);
     }
