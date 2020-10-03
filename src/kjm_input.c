@@ -432,6 +432,7 @@ void define_key_input(void)
 {
   if (lbInkey == KC_ESCAPE)
   {
+      lbKeyOn[KC_ESCAPE] = 0;
       lbInkey = KC_UNASSIGNED;
       defining_a_key = 0;
   } else
