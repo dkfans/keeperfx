@@ -397,7 +397,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
     {
       return 0;
     }
-    // Rotate & speed - allow only lone modifiers
+    // Rotate & speed - allow lone modifiers and normal keys
     if (key_id == Gkey_RotateMod || key_id == Gkey_SpeedMod)
     {
         if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
@@ -407,7 +407,8 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
         }
         else
         {
-            return 0;
+            check_and_assign_normal_keys(key_id, key, mods, 0);
+            return 1;
         }
     }
     // Possess & query - allow lone modifiers and normal keys
