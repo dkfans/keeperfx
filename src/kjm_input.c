@@ -112,6 +112,8 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_DOWN,   GUIStr_KeyDown},
   {KC_LEFT,   GUIStr_KeyLeft},
   {KC_RIGHT,  GUIStr_KeyRight},
+  {KC_LALT,   GUIStr_KeyLeftAlt},
+  {KC_RALT,   GUIStr_KeyRightAlt},
   {  0,     0},
 };
 
@@ -351,6 +353,10 @@ int mod_key_to_normal_key(unsigned int mods)
     {
         ncode = KC_LCONTROL;
     }
+    else if (mods & KMod_ALT)
+    {
+        ncode = KC_LALT;
+    }
     else
     {
         ERRORLOG("Reached a place we should not be able");
@@ -400,7 +406,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
     // Rotate & speed - allow lone modifiers and normal keys
     if (key_id == Gkey_RotateMod || key_id == Gkey_SpeedMod)
     {
-        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
+        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL) || (mods & KMod_ALT))
         {
             check_and_assign_mod_keys(key_id, mods, Gkey_RotateMod);
             return 1;
@@ -414,7 +420,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
     // Possess & query - allow lone modifiers and normal keys
     if (key_id == Gkey_CrtrContrlMod || key_id == Gkey_CrtrQueryMod)
     {
-        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
+        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL) || (mods & KMod_ALT))
         {
             check_and_assign_mod_keys(key_id, mods, Gkey_CrtrContrlMod);
             return 1;
@@ -426,7 +432,7 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
         }
     }
     // Single control keys - just ignore these keystrokes
-    if ( key == KC_LSHIFT || key == KC_RSHIFT || key == KC_LCONTROL || key == KC_RCONTROL )
+    if ( key == KC_LSHIFT || key == KC_RSHIFT || key == KC_LCONTROL || key == KC_RCONTROL  || key == KC_LALT || key == KC_RALT )
     {
         return 0;
     }
