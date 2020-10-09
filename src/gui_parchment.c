@@ -850,17 +850,19 @@ void zoom_to_parchment_map(void)
       set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
     else
       set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+
     struct PlayerInfo* player = get_my_player();
+
     if (((game.system_flags & GSF_NetworkActive) != 0)
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
       if (!toggle_status_menu(0))
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
-      set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
+      set_my_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0);
       turn_off_roaming_menus();
     } else
     {
-      set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0, 0, 0);
+      set_my_packet_action(player, PckA_SetViewType, PVT_MapFadeIn, 0);
       turn_off_roaming_menus();
     }
 }
@@ -873,10 +875,10 @@ void zoom_from_patchment_map(void)
     {
         if ((game.operation_flags & GOF_ShowPanel) != 0)
           toggle_status_menu(1);
-        set_players_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0,0,0);
+        set_my_packet_action(player, PckA_LoadViewType, PVT_DungeonTop, 0);
     } else
     {
-        set_players_packet_action(player, PckA_SetViewType, PVT_MapFadeOut, 0,0,0);
+        set_my_packet_action(player, PckA_SetViewType, PVT_MapFadeOut, 0);
     }
 }
 /******************************************************************************/

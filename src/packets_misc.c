@@ -39,6 +39,13 @@ struct PacketEx bad_packet;
 
 extern TbBool packets_first_resync;
 
+struct Packet *create_input_packet()
+{
+    struct Packet *ret = NULL;
+    assert(false);
+    return ret;
+}
+
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
  unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
@@ -358,5 +365,26 @@ void load_packets_for_turn(GameTurn nturn)
             if (!is_onscreen_msg_visible())
               show_onscreen_msg(game.num_fps, "Out of sync");
         }
+    }
+}
+
+void set_packet_pause_toggle(struct PacketEx* packet)
+{
+    struct PlayerInfo* player = get_my_player();
+    if (player_invalid(player))
+        return;
+    if (player->packet_num >= PACKETS_COUNT) //TODO: what is it?
+    {
+        JUSTLOG("unexpected");
+        return;
+    }
+    if (packet == NULL)
+    {
+        create_packet_action(player, PckA_TogglePause, 0, 0);
+    }
+    else
+    {
+        assert(packet->packet.action == PckA_None);
+        packet->packet.action = PckA_TogglePause;
     }
 }

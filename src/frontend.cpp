@@ -527,12 +527,12 @@ void get_player_gui_clicks(void)
             if (player->work_state == PSt_CreatrQuery)
             {
               turn_off_query_menus();
-              set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
+              set_my_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0);
               right_button_released = 0;
             } else
             if ((player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CtrlDungeon))
             {
-              set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
+              set_my_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0);
               right_button_released = 0;
             }
           }
@@ -552,10 +552,12 @@ void get_player_gui_clicks(void)
       break;
   }
 
-  if ( game_is_busy_doing_gui() )
+  // TODO: I think it is not needed at all, but should be removed carefuly
+  /*if ( game_is_busy_doing_gui() )
   {
-    set_players_packet_control(player, 0x4000u);
+    set_my_packet_control(player, 0x4000u);
   }
+  */
 }
 
 void add_message(long plyr_idx, char *msg)
@@ -953,7 +955,8 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind, 0, 0);
+    //TODO Should server watch player state actually?
+    set_my_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind);
     struct RoomConfigStats *roomst;
     roomst = &slab_conf.room_cfgstats[rkind];
     game.chosen_room_kind = rkind;
@@ -961,7 +964,8 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     game.chosen_room_tooltip = tooltip_id;
 }
 
-long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in)
+static enum TbPacketAction player_state_to_packet(
+    long work_state, PowerKind pwkind, TbBool already_in)
 {
     switch (work_state)
     {
@@ -1007,19 +1011,19 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
     }
 }
 
-TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkind)
+TbBool set_players_packet_change_spell(PowerKind pwkind)
 {
+    struct PlayerInfo *player = get_my_player();
     if (power_is_instinctive(game.chosen_spell_type) && (game.chosen_spell_type != 0))
         return false;
     const struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
     TbBool already_in;
     already_in = (powerst->work_state != PSt_None) && (player->work_state == powerst->work_state);
-    int pcktype;
-    pcktype = player_state_to_packet(powerst->work_state, pwkind, already_in);
+    enum TbPacketAction pcktype = player_state_to_packet(powerst->work_state, pwkind, already_in);
     if (pcktype != PckA_None)
     {
-        set_players_packet_action(player, pcktype, powerst->work_state, 0, 0, 0);
+        set_my_packet_action(player, pcktype, powerst->work_state, 0);
         if (!already_in) {
             play_non_3d_sample(powerst->select_sample_idx);
         }
@@ -1071,7 +1075,6 @@ void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
  */
 void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
-    struct PlayerInfo *player;
 
     pwkind = pwkind % POWER_TYPES_COUNT;
 
@@ -1080,10 +1083,8 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
         return;
     }
 
-    player = get_my_player();
-
     // Disable previous spell
-    if (!set_players_packet_change_spell(player, pwkind)) {
+    if (!set_players_packet_change_spell(pwkind)) {
         WARNLOG("Inconsistency when switching spell %d to %d",
             (int)game.chosen_spell_type, (int)pwkind);
     }
@@ -1129,7 +1130,7 @@ void gui_quit_game(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player;
     player = get_my_player();
-    set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+    set_my_packet_action(player, PckA_Quitgame, 0, 0);
 }
 
 void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
@@ -1625,7 +1626,7 @@ void gui_go_to_event(struct GuiButton *gbtn)
     player = get_my_player();
     dungeon = get_players_dungeon(player);
     if (dungeon->visible_event_idx) {
-        set_players_packet_action(player, PckA_Unknown083, dungeon->visible_event_idx, 0, 0, 0);
+        set_my_packet_action(player, PckA_Unknown083, dungeon->visible_event_idx, 0);
     }
 }
 
@@ -1634,7 +1635,7 @@ void gui_close_objective(struct GuiButton *gbtn)
     //_DK_gui_close_objective(gbtn); return;
     struct PlayerInfo *player;
     player = get_my_player();
-    set_players_packet_action(player, PckA_EventBoxClose, 0, 0, 0, 0);
+    set_my_packet_action(player, PckA_EventBoxClose, 0, 0);
     // The final effect of this packet should be 3 menus disabled
     /*turn_off_menu(GMnu_TEXT_INFO);
     turn_off_menu(GMnu_BATTLE);
@@ -3364,7 +3365,7 @@ void gui_set_autopilot(struct GuiButton *gbtn)
     ERRORLOG("Illegal Autopilot type, resetting to default");
     ntype = 1;
   }
-  set_players_packet_action(player, PckA_SetComputerKind, ntype, 0, 0, 0);
+  set_my_packet_action(player, PckA_SetComputerKind, ntype, 0);
 }
 
 void set_level_objective(const char *msg_text)

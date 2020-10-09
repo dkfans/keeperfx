@@ -810,7 +810,7 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
   game.hand_over_subtile_y = curr_y;
   if (subtile_has_slab(curr_x, curr_y))
   {
-    set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
+    set_my_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y);
   }
   return 1;
 }
@@ -836,7 +836,7 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
         if (subtile_has_slab(curr_x, curr_y))
         {
           result = 1;
-          set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
+          set_my_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y);
         }
       }
     grabbed_small_map = 0;
@@ -870,7 +870,7 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
         right_button_released = 0;
         if (subtile_has_slab(x, y))
         {
-            set_players_packet_action(player, PckA_UsePwrHandDrop, x, y, 0, 0);
+            set_my_packet_action(player, PckA_UsePwrHandDrop, x, y);
             return 1;
         }
     }

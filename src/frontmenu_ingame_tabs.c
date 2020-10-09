@@ -67,7 +67,7 @@ void gui_zoom_in(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     if (player->minimap_zoom > 0x80) {
-        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
+        set_my_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0);
     }
 }
 
@@ -75,7 +75,7 @@ void gui_zoom_out(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     if (player->minimap_zoom < 0x800) {
-        set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom << 1, 0, 0, 0);
+        set_my_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom << 1, 0);
     }
 }
 
@@ -89,7 +89,7 @@ void gui_turn_on_autopilot(struct GuiButton *gbtn)
     struct PlayerInfo* player = get_my_player();
     if (player->victory_state != VicS_LostLevel)
     {
-      set_players_packet_action(player, PckA_ToggleComputer, 0, 0, 0, 0);
+      set_my_packet_action(player, PckA_ToggleComputer, 0, 0);
     }
 }
 
@@ -383,7 +383,7 @@ void gui_remove_area_for_rooms(struct GuiButton *gbtn)
     game.chosen_room_kind = 0;
     game.chosen_room_spridx = 0;
     game.chosen_room_tooltip = 0;
-    set_players_packet_action(get_player(my_player_number), PckA_SetPlyrState, PSt_Sell, 0, 0, 0);
+    set_my_packet_action(get_player(my_player_number), PckA_SetPlyrState, PSt_Sell, 0);
 }
 
 long find_room_type_capacity_total_percentage(PlayerNumber plyr_idx, RoomKind rkind)
@@ -491,7 +491,7 @@ void gui_choose_spell(struct GuiButton *gbtn)
 
 void go_to_next_spell_of_type(PowerKind pwkind, PlayerNumber plyr_idx)
 {
-    set_players_packet_action(get_player(plyr_idx), PckA_ZoomToSpell, pwkind, 0, 0, 0);
+    set_my_packet_action(get_player(plyr_idx), PckA_ZoomToSpell, pwkind, 0);
 }
 
 void gui_go_to_next_spell(struct GuiButton *gbtn)
@@ -631,8 +631,7 @@ void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
 {
     struct PlayerInfo* player = get_my_player();
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
-    set_players_packet_action(player, PckA_SetPlyrState, manufctr->work_state,
-        manufctr->tngmodel, 0, 0);
+    set_my_packet_action(player, PckA_SetPlyrState, manufctr->work_state, manufctr->tngmodel);
 
     game.manufactr_element = manufctr_idx;
     game.manufactr_spridx = manufctr->bigsym_sprite_idx;
@@ -696,7 +695,7 @@ void go_to_next_trap_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
     }
     i = seltrap[tngmodel];
     if (i > 0) {
-        set_players_packet_action(get_player(plyr_idx), PckA_ZoomToTrap, i, 0, 0, 0);
+        set_my_packet_action(get_player(plyr_idx), PckA_ZoomToTrap, i, 0);
     }
 }
 
@@ -750,7 +749,7 @@ void go_to_next_door_of_type(ThingModel tngmodel, PlayerNumber plyr_idx)
     }
     i = seldoor[tngmodel];
     if (i > 0) {
-        set_players_packet_action(get_player(plyr_idx), PckA_ZoomToDoor, i, 0, 0, 0);
+        set_my_packet_action(get_player(plyr_idx), PckA_ZoomToDoor, i, 0);
     }
 }
 
@@ -871,7 +870,7 @@ void gui_remove_area_for_traps(struct GuiButton *gbtn)
     game.manufactr_element = 0;
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
-    set_players_packet_action(player, PckA_SetPlyrState, PSt_Sell, 0, 0, 0);
+    set_my_packet_action(player, PckA_SetPlyrState, PSt_Sell, 0);
 }
 
 void gui_area_big_trap_button(struct GuiButton *gbtn)
@@ -1230,7 +1229,7 @@ void go_to_my_next_room_of_type_and_select(RoomKind rkind)
     RoomIndex room_idx = find_my_next_room_of_type(rkind);
     struct PlayerInfo* player = get_my_player();
     if (room_idx > 0) {
-        set_players_packet_action(player, PckA_ZoomToRoom, room_idx, 0, 0, 0);
+        set_my_packet_action(player, PckA_ZoomToRoom, room_idx, 0);
     }
 }
 
@@ -1241,7 +1240,7 @@ void go_to_my_next_room_of_type(RoomKind rkind)
     struct PlayerInfo* player = get_my_player();
     if (room_idx > 0) {
         struct Room* room = room_get(room_idx);
-        set_players_packet_action(player, PckA_ZoomToPosition, subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y), 0, 0);
+        set_my_packet_action(player, PckA_ZoomToPosition, subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y));
     }
 }
 
@@ -1852,7 +1851,7 @@ void gui_toggle_ally(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = (int)gbtn->content;
     if ((gbtn->flags & LbBtnF_Enabled) != 0) {
-        set_players_packet_action(get_player(my_player_number), PckA_PlyrToggleAlly, plyr_idx, 0, 0, 0);
+        set_my_packet_action(get_player(my_player_number), PckA_PlyrToggleAlly, plyr_idx, 0);
     }
 }
 
@@ -2046,19 +2045,19 @@ void spell_lost_first_person(struct GuiButton *gbtn)
 {
     SYNCDBG(19,"Starting");
     struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_GoSpectator, 0, 0, 0, 0);
+    set_my_packet_action(player, PckA_GoSpectator, 0, 0);
 }
 
 void gui_set_tend_to(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_ToggleTendency, gbtn->btype_value & LbBFeF_IntValueMask, 0, 0, 0);
+    set_my_packet_action(player, PckA_ToggleTendency, gbtn->btype_value & LbBFeF_IntValueMask, 0);
 }
 
 void gui_set_query(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_SetPlyrState, PSt_CreatrQuery, 0, 0, 0);
+    set_my_packet_action(player, PckA_SetPlyrState, PSt_CreatrQuery, 0);
 }
 
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value)

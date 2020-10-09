@@ -393,8 +393,9 @@ void perform_checksum_verification(void)
         }
     }
     clear_packets();
-    struct PacketEx* pckt = get_packet_ex(my_player_number);
-    set_players_packet_action(get_player(my_player_number), PckA_LevelExactCheck, 0, 0, 0, 0);
+    //TODO just struct Packet or even smaller
+    struct PacketEx* pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct PacketEx));
+    pckt->packet.action = PckA_LevelExactCheck;
     pckt->packet.chksum = checksum_mem ^ game.action_rand_seed;
     if (LbNetwork_Exchange(&context, &checksum_packet_callback) != NR_OK)
     {

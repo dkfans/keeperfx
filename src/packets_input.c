@@ -30,6 +30,8 @@
 #include "player_states.h"
 #include "power_hand.h"
 
+extern void clear_input(struct Packet* packet);
+
 static void set_untag_mode(struct PlayerInfo* player)
 {
     int i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
@@ -165,14 +167,14 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           }
           break;
         }
-        unset_players_packet_control(player, PCtr_LBtnClick);
+        clear_input(pckt);
       }
       if ((pckt->control_flags & PCtr_RBtnClick) != 0)
       {
         player->field_4AB = stl_x;
         player->field_4AD = stl_y;
         player->field_4AF = 1;
-        unset_players_packet_control(player, PCtr_RBtnClick);
+        clear_input(pckt);
       }
     }
 
@@ -236,13 +238,13 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               }
             }
           }
-          unset_players_packet_control(player, PCtr_LBtnRelease);
+          clear_input(pckt);
         }
     }
     if ((pckt->control_flags & PCtr_RBtnHeld) != 0)
     {
       if (player->field_4AF != 0)
-        unset_players_packet_control(player, PCtr_RBtnRelease);
+        clear_input(pckt);
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
@@ -258,7 +260,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default) == Lb_FAIL) {
                 set_player_state(player, player->continue_work_state, 0);
             }
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
         } else
         if ((player->thing_under_hand != 0) && (player->input_crtr_query != 0)
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
@@ -275,7 +277,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             set_player_state(player, PSt_CreatrQuery, 0);
             set_player_instance(player, PI_QueryCrtr, 0);
           }
-          unset_players_packet_control(player, PCtr_LBtnRelease);
+          clear_input(pckt);
         } else
         if (player->field_455 == player->field_454)
         {
@@ -303,7 +305,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           }
         }
         player->field_4AF = 0;
-        unset_players_packet_control(player, PCtr_LBtnRelease);
+        clear_input(pckt);
         player->field_455 = P454_Unkn0;
         player->field_3 &= ~Pf3F_Unkn01;
       }
@@ -317,7 +319,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
           if (dump_first_held_thing_on_map(player->id_number, stl_x, stl_y, 1)) {
               player->field_4AF = 0;
-              unset_players_packet_control(player, PCtr_RBtnRelease);
+              clear_input(pckt);
           }
         } else
         {
@@ -326,7 +328,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
           }
           player->field_4AF = 0;
-          unset_players_packet_control(player, PCtr_RBtnRelease);
+          clear_input(pckt);
         }
       }
     }

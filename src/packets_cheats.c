@@ -38,10 +38,12 @@
 #include "thing_effects.h"
 #include "thing_navigate.h"
 
+extern void clear_input(struct Packet* packet);
+
 TbBool packets_process_cheats(
           long plyr_idx,
           MapCoord x, MapCoord y,
-          unsigned short control_flags,
+          struct Packet* pckt,
           MapSubtlCoord stl_x, MapSubtlCoord stl_y,
           MapSlabCoord slb_x, MapSlabCoord slb_y,
           short *influence_own_creatures)
@@ -51,6 +53,7 @@ TbBool packets_process_cheats(
     struct Room* room;
     PowerKind pwkind;
     struct Thing *thing;
+    unsigned short control_flags = pckt->control_flags;
     long i;
 
     switch (player->work_state)
@@ -59,21 +62,21 @@ TbBool packets_process_cheats(
         if (((control_flags & PCtr_LBtnRelease) != 0) && ((control_flags & PCtr_MapCoordsValid) != 0))
         {
             create_owned_special_digger(x, y, get_selected_player_for_cheat(game.hero_player_num));
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
         }
         break;
     case PSt_MkGoodCreatr:
         if (((control_flags & PCtr_LBtnRelease) != 0) && ((control_flags & PCtr_MapCoordsValid) != 0))
         {
             create_random_hero_creature(x, y, get_selected_player_for_cheat(game.hero_player_num), CREATURE_MAX_LEVEL);
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
         }
         break;
     case PSt_MkGoldPot:
         if (((control_flags & PCtr_LBtnRelease) != 0) && ((control_flags & PCtr_MapCoordsValid) != 0))
         {
             create_gold_pot_at(x, y, player->id_number);
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
         }
         break;
     case PSt_OrderCreatr:
@@ -106,7 +109,7 @@ TbBool packets_process_cheats(
                 }
             }
           }
-          unset_players_packet_control(player, PCtr_LBtnRelease);
+          clear_input(pckt);
         }
         if ((control_flags & PCtr_RBtnRelease) != 0)
         {
@@ -116,14 +119,14 @@ TbBool packets_process_cheats(
             set_start_state(thing);
             clear_selected_thing(player);
           }
-          unset_players_packet_control(player, PCtr_RBtnRelease);
+          clear_input(pckt);
         }
         break;
     case PSt_MkBadCreatr:
         if (((control_flags & PCtr_LBtnRelease) != 0) && ((control_flags & PCtr_MapCoordsValid) != 0))
         {
             create_random_evil_creature(x, y, get_selected_player_for_cheat(plyr_idx), CREATURE_MAX_LEVEL);
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
         }
         break;
     case PSt_FreeDestroyWalls:
@@ -131,7 +134,7 @@ TbBool packets_process_cheats(
         {
             i = get_power_overcharge_level(player);
             magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, i, PwMod_CastForFree);
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
         }
         break;
     case PSt_FreeTurnChicken:
@@ -156,7 +159,7 @@ TbBool packets_process_cheats(
                 magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, i, PwMod_CastForFree);
                 break;
             }
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
         }
         break;
     case PSt_StealRoom:
@@ -176,7 +179,7 @@ TbBool packets_process_cheats(
                         take_over_room(room, i);
                     }
                 }
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
         }
         break;
     case PSt_DestroyRoom:
@@ -188,7 +191,7 @@ TbBool packets_process_cheats(
                     room = room_get(slb->room_index);
                     destroy_room_leaving_unclaimed_ground(room);
                 }
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
         }
         break;
     case PSt_KillCreatr:
@@ -207,7 +210,7 @@ TbBool packets_process_cheats(
             {
                 kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
             }
-            unset_players_packet_control(player, PCtr_LBtnRelease);    
+            clear_input(pckt);    
         }
         break;
     case PSt_ConvertCreatr:
@@ -226,7 +229,7 @@ TbBool packets_process_cheats(
             {
                 change_creature_owner(thing, get_selected_player_for_cheat(plyr_idx));
             }
-            unset_players_packet_control(player, PCtr_LBtnRelease);    
+            clear_input(pckt);    
         }
         break;
     case PSt_StealSlab:
@@ -306,7 +309,7 @@ TbBool packets_process_cheats(
                     }
                 }
             }
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
         }
         break;
     case PSt_LevelCreatureUp:
@@ -325,7 +328,7 @@ TbBool packets_process_cheats(
              {
                 creature_increase_level(thing);
              }
-        unset_players_packet_control(player, PCtr_LBtnRelease);    
+        clear_input(pckt);    
         }
         break;
     case PSt_KillPlayer:
@@ -418,7 +421,7 @@ TbBool packets_process_cheats(
                     player->influenced_thing_idx = player->thing_under_hand;
                     set_player_instance(player, PI_QueryCrtr, 0);
                 }
-            unset_players_packet_control(player, PCtr_LBtnRelease);
+            clear_input(pckt);
             }
         }
         break;
@@ -446,7 +449,7 @@ TbBool packets_process_cheats(
                 {
                     anger_set_creature_anger_all_types(thing, 10000);
                 }
-                unset_players_packet_control(player, PCtr_LBtnRelease);
+                clear_input(pckt);
             }
         }
         break;
@@ -570,7 +573,7 @@ TbBool packets_process_cheats(
                 do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
             }
         }
-        unset_players_packet_control(player, PCtr_LBtnRelease);
+        clear_input(pckt);
         break;
     default:
         return false;

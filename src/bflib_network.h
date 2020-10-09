@@ -283,9 +283,10 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_nam
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
 
 /* This function allocates new packet of requested size and enqueues it
+   kind is a value from PckA_*
 */
-void *LbNetwork_AddPacket(unsigned char kind, unsigned long turn, short size);
-
+#define LbNetwork_AddPacket(kind, turn, size) LbNetwork_AddPacket_f(kind, turn, size, __func__)
+void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, const char* func);
 /*  This is a callback that process all enqueued packets from all players
     Ordered by turn then by plyr_idx
 

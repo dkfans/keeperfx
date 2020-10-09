@@ -210,13 +210,13 @@ short turn_off_all_window_menus(void)
   if (menu_is_active(GMnu_LOAD))
   {
     result = true;
-    set_packet_pause_toggle();
+    set_packet_pause_toggle(NULL);
     turn_off_menu(GMnu_LOAD);
   }
   if (menu_is_active(GMnu_SAVE))
   {
     result = true;
-    set_packet_pause_toggle();
+    set_packet_pause_toggle(NULL);
     turn_off_menu(GMnu_SAVE);
   }
   if (menu_is_active(GMnu_OPTIONS))

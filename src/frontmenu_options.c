@@ -226,23 +226,24 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
     if (settings.video_rotate_mode) {
-        set_players_packet_action(get_player(my_player_number), PckA_SwitchView, 5, 0, 0, 0);
+        set_my_packet_action(get_player(my_player_number), PckA_SwitchView, 5, 0);
     } else {
-        set_players_packet_action(get_player(my_player_number), PckA_SwitchView, 2, 0, 0, 0);
+        set_my_packet_action(get_player(my_player_number), PckA_SwitchView, 2, 0);
     }
     save_settings();
 }
 
 void gui_video_cluedo_mode(struct GuiButton *gbtn)
 {
-    set_players_packet_action(get_player(my_player_number), PckA_SetCluedo, _DK_video_cluedo_mode, 0, 0, 0);
+    set_my_packet_action(get_player(my_player_number), PckA_SetCluedo, _DK_video_cluedo_mode, 0);
 }
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
     video_gamma_correction = (video_gamma_correction + 1) % GAMMA_LEVELS_COUNT;
-    set_players_packet_action(player, PckA_SetGammaLevel, video_gamma_correction, 0, 0, 0);
+    // Should server care about your gamma level actually?
+    set_my_packet_action(player, PckA_SetGammaLevel, video_gamma_correction, 0);
 }
 
 void gui_set_sound_volume(struct GuiButton *gbtn)

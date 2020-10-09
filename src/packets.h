@@ -31,7 +31,7 @@ extern "C" {
 */
 enum TbPacketAction {
         PckA_None = 0,
-        PckA_Unknown001,
+        PckA_Quitgame,
         PckA_Unknown002,
         PckA_Unknown003,
         PckA_Unknown004,
@@ -122,7 +122,7 @@ enum TbPacketAction {
         PckA_PwrCTADis,
         PckA_UsePwrHandPick,//90
         PckA_UsePwrHandDrop,
-        PckA_Unknown092,
+        PckA_Unknown092, //EventboxClosed
         PckA_UseSpecialBox,
         PckA_Unknown094,
         PckA_ResurrectCrtr,//95
@@ -134,7 +134,7 @@ enum TbPacketAction {
         PckA_Unknown101,
         PckA_Unknown102,
         PckA_Unknown103,
-        PckA_Unknown104,
+        PckA_Unknown104, // Zoom to fight
         PckA_Unknown105,//105
         PckA_ZoomToSpell,
         PckA_ToggleComputer,
@@ -175,7 +175,7 @@ enum TbPacketControl {
         PCtr_RBtnHeld       = 0x0800,
         PCtr_LBtnRelease    = 0x1000,
         PCtr_RBtnRelease    = 0x2000,
-        PCtr_Unknown4000    = 0x4000,
+        PCtr_Unknown4000    = 0x4000, // game_is_busy_doing_gui
         PCtr_MapCoordsValid = 0x8000,
 };
 
@@ -243,6 +243,13 @@ struct PacketSaveHead { // sizeof=0xF (15)
     TbBool chksum_available; // if needed, this can be replaced with flags
 };
 
+struct SmallActionPacket
+{
+    unsigned char action; //! Action kind performed by the player which owns this packet
+    unsigned short arg0; //! Players action parameter #1
+    unsigned short arg1; //! Players action parameter #2
+};
+
 struct PacketEx
 {
     struct Packet packet;
@@ -254,14 +261,16 @@ struct PacketEx
 struct Packet *get_packet_direct(long pckt_idx);
 struct PacketEx *get_packet_ex(long plyr_idx);
 struct PacketEx *get_packet_ex_direct(long pckt_idx);
-void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
-void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 unsigned char get_players_packet_action(struct PlayerInfo *player);
-void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
-void set_players_add_flag(struct PlayerInfo *player, unsigned long flag);
-void unset_players_add_flag(struct PlayerInfo *player, unsigned long flag);
-void set_players_packet_position(struct PlayerInfo *player, long x, long y);
-short set_packet_pause_toggle(void);
+
+// This function should create a "large" packet
+struct PacketEx *create_outgoing_input_packet();
+void set_packet_position(struct PlayerInfo *player, long x, long y);
+struct SmallActionPacket *create_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1);
+// This should check that player is myplayer and create a packet_action
+void set_my_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1);
+
+void set_packet_pause_toggle(struct PacketEx *);
 TbBool process_dungeon_control_packet_clicks(long idx);
 TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);

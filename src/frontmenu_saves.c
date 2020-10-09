@@ -77,11 +77,11 @@ void gui_load_game(struct GuiButton *gbtn)
     {
         ERRORLOG("Loading game %d failed; quitting.", (int)slot_num);
         // Even on quit, we still should unpause the game
-        set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
+        set_my_packet_action(player, PckA_TogglePause, 0, 0);
         quit_game = 1;
         return;
   }
-  set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
+  set_my_packet_action(player, PckA_TogglePause, 0, 00);
 }
 
 void draw_load_button(struct GuiButton *gbtn)
@@ -119,7 +119,7 @@ void gui_save_game(struct GuiButton *gbtn)
           create_error_box(GUIStr_ErrorSaving);
       }
   }
-  set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
+  set_my_packet_action(player, PckA_TogglePause, 0, 0);
 }
 
 void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
@@ -234,7 +234,7 @@ void init_load_menu(struct GuiMenu *gmnu)
 {
   SYNCDBG(6,"Starting");
   struct PlayerInfo* player = get_my_player();
-  set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
+  set_my_packet_action(player, PckA_UpdatePause, 1, 1);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
 }
@@ -243,7 +243,7 @@ void init_save_menu(struct GuiMenu *gmnu)
 {
   SYNCDBG(6,"Starting");
   struct PlayerInfo* player = get_my_player();
-  set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
+  set_my_packet_action(player, PckA_UpdatePause, 1, 1);
   load_game_save_catalogue();
   update_loadsave_input_strings(save_game_catalogue);
 }

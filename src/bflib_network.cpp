@@ -168,6 +168,13 @@ struct NetBufferItem
     unsigned char           buffer[0];
 };
 
+struct NetBufferNode
+{
+    struct NetBufferNode *next;
+    struct NetBufferNode *prev;
+    struct NetBufferItem *data;
+};
+
 enum NetMessageType
 {
     NETMSG_LOGIN = 0,       //to server: username and pass, from server: assigned id
@@ -258,6 +265,9 @@ struct NetState
     */
     char                    outgoing_data[MAX_OUTGOING_SIZE];
     char                    incoming_data[MAX_OUTGOING_SIZE];
+
+    struct NetBufferNode    *incoming_by_user[MAX_N_USERS];
+    struct NetBufferNode    *incoming_by_turn;
 };
 
 //the "new" code contained in this struct
@@ -743,7 +753,9 @@ static void network_init_common(unsigned long maxplayers)
     for (NetUserId usr = 0; usr < MAX_N_USERS; ++usr)
     {
         netstate.users[usr].id = usr;
+        netstate.incoming_by_user[usr] = NULL;
     }
+    netstate.incoming_by_turn = NULL;
     netstate.outgoing_end = netstate.outgoing_data + sizeof(netstate.outgoing_data);
 
     netstate.incoming_end = netstate.incoming_data + sizeof(netstate.incoming_data);
@@ -1053,13 +1065,13 @@ static void ConsumeServerFrame(void)
     */
 }
 
-void *LbNetwork_AddPacket(unsigned char kind, unsigned long turn, short size)
+void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, const char *func)
 {
     char *ret = (char *)netstate.outgoing_ptr;
     struct NetBufferItem* buf_struct = (struct NetBufferItem*) ret;
     char *new_ptr = ret + sizeof(struct NetBufferItem) + size;
 
-    NETDBG(11, "offset:%d size:%d", (ret - netstate.outgoing_data), size);
+    NETDBG(8, "offset:%d size:%d %s", (ret - netstate.outgoing_data), size, func);
 
     assert (new_ptr <= netstate.outgoing_end);
     if (new_ptr > netstate.outgoing_end)
