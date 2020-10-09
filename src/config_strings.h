@@ -409,6 +409,9 @@ enum GUIStrings {
     GUIStr_MnuMapPacks = STRINGS_MAX + 969,
     GUIStr_MnuDungeonKeeperLevels = STRINGS_MAX+970, // range 970..975
     GUIStr_TrapDoorNames = STRINGS_MAX + 981, // range 981..995
+    GUIStr_MouseScrollWheelUp = STRINGS_MAX + 996,
+    GUIStr_MouseScrollWheelDown = STRINGS_MAX + 997,
+    GUIStr_MouseButton = STRINGS_MAX + 998,
 };
 
 enum CampaignStrings {

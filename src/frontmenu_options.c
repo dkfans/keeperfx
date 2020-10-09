@@ -197,14 +197,18 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         keytext = get_string(GUIStr_KeyAlt);
         break;
       case KC_MOUSE3:
-        keytext = "Mouse 3";
+      {
+        char mouse_button_label[255] = "";
+        const char* mouse_gui_string = get_string(key_to_string[(long)code]);
+        int mouse_button_number = (KC_MOUSE1 + 1 - code);
+        char mouse_button_number_string[8];
+        itoa(mouse_button_number, mouse_button_number_string, 10);
+        strcat(mouse_button_label, mouse_gui_string);
+        strcat(mouse_button_label, " ");
+        strcat(mouse_button_label, mouse_button_number_string);
+        keytext = mouse_button_label;
         break;
-      case KC_MOUSEWHEEL_UP:
-        keytext = "Mouse Wheel Up";
-        break;
-      case KC_MOUSEWHEEL_DOWN:
-        keytext = "Mouse Wheel Down";
-        break;
+      }
       default:
       {
         long i = key_to_string[code];

@@ -115,9 +115,9 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_LALT,   GUIStr_KeyLeftAlt},
   {KC_RALT,   GUIStr_KeyRightAlt},
 // [mouse buttons as keybinds - quick fix]
-  {KC_MOUSE3, GUIStr_Mouse},
-  {KC_MOUSEWHEEL_UP, GUIStr_Mouse},
-  {KC_MOUSEWHEEL_DOWN, GUIStr_Mouse},
+  {KC_MOUSE3,          GUIStr_MouseButton},
+  {KC_MOUSEWHEEL_UP,   GUIStr_MouseScrollWheelUp},
+  {KC_MOUSEWHEEL_DOWN, GUIStr_MouseScrollWheelDown},
   {  0,     0},
 };
 
