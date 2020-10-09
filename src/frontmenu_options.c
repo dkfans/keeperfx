@@ -166,17 +166,17 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     if (mods & KMod_CONTROL)
     {
         strcat(text, get_string(GUIStr_KeyControl));
-        strcat(text, " ");
+        strcat(text, " + ");
     }
     if (mods & KMod_ALT)
     {
         strcat(text, get_string(GUIStr_KeyAlt));
-        strcat(text, " ");
+        strcat(text, " + ");
     }
     if (mods & KMod_SHIFT)
     {
         strcat(text, get_string(GUIStr_KeyShift));
-        strcat(text, " ");
+        strcat(text, " + ");
     }
 
     unsigned char code = settings.kbkeys[key_id].code;
