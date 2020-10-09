@@ -166,7 +166,7 @@ enum KeyCodes {
         KC_POWER       = 0xDE,    // System Power
         KC_SLEEP       = 0xDF,    // System Sleep
         KC_WAKE        = 0xE3,    // System Wake
-    // Add mouse buttons couting backwards from 0xFE
+    // Add mouse buttons counting backwards from 0xFE
     // This allows them to be used as a bindable "key" [mouse buttons as keybinds - quick fix]
         KC_MOUSEWHEEL_DOWN = 0xFA,    // Mouse Wheel Scroll down
         KC_MOUSEWHEEL_UP   = 0xFB,    // Mouse Wheel Scroll up
