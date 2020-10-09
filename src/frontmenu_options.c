@@ -196,7 +196,15 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       case KC_RALT:
         keytext = get_string(GUIStr_KeyAlt);
         break;
+      case KC_MOUSE9:
+      case KC_MOUSE8:
+      case KC_MOUSE7:
+      case KC_MOUSE6:
+      case KC_MOUSE5:
+      case KC_MOUSE4:
       case KC_MOUSE3:
+      case KC_MOUSE2:
+      case KC_MOUSE1:
       {
         char mouse_button_label[255] = "";
         const char* mouse_gui_string = get_string(key_to_string[(long)code]);
