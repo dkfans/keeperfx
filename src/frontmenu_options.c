@@ -196,6 +196,15 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       case KC_RALT:
         keytext = get_string(GUIStr_KeyAlt);
         break;
+      case KC_MOUSE3:
+        keytext = "Mouse 3";
+        break;
+      case KC_MOUSEWHEEL_UP:
+        keytext = "Mouse Wheel Up";
+        break;
+      case KC_MOUSEWHEEL_DOWN:
+        keytext = "Mouse Wheel Down";
+        break;
       default:
       {
         long i = key_to_string[code];

@@ -114,6 +114,10 @@ struct KeyToStringInit key_to_string_init[] = {
   {KC_RIGHT,  GUIStr_KeyRight},
   {KC_LALT,   GUIStr_KeyLeftAlt},
   {KC_RALT,   GUIStr_KeyRightAlt},
+// [mouse buttons as keybinds - quick fix]
+  {KC_MOUSE3, GUIStr_Mouse},
+  {KC_MOUSEWHEEL_UP, GUIStr_Mouse},
+  {KC_MOUSEWHEEL_DOWN, GUIStr_Mouse},
   {  0,     0},
 };
 
@@ -260,6 +264,12 @@ void update_mouse(void)
   lbDisplay.RightButton = 0;
   lbDisplayEx.WhellMoveUp = 0;
   lbDisplayEx.WhellMoveDown = 0;
+  // [mouse buttons as keybinds - quick fix]
+  lbKeyOn[KC_MOUSE3] = lbDisplay.MiddleButton;
+  lbKeyOn[KC_MOUSEWHEEL_UP] = wheel_scrolled_up;
+  lbKeyOn[KC_MOUSEWHEEL_DOWN] = wheel_scrolled_down;
+  lbInkey = lbDisplay.MiddleButton ? KC_MOUSE3 : wheel_scrolled_down ? KC_MOUSEWHEEL_DOWN : wheel_scrolled_up ? KC_MOUSEWHEEL_UP : lbInkey;
+
 }
 
 /**
@@ -467,6 +477,8 @@ void define_key_input(void)
       update_key_modifiers();
       if ( set_game_key(defining_a_key_id, lbInkey, key_modifiers) )
         defining_a_key = 0;
+      if (lbInkey == KC_MOUSE3) // [mouse buttons as keybinds - quick fix]
+        lbDisplay.MiddleButton = 0; // lbDisplay.MiddleButton is not handled as well as lbDisplay.LeftButton and lbDisplay.RightButton, so reset it here
       lbInkey = KC_UNASSIGNED;
   }
 }
