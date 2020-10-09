@@ -477,8 +477,6 @@ void define_key_input(void)
       update_key_modifiers();
       if ( set_game_key(defining_a_key_id, lbInkey, key_modifiers) )
         defining_a_key = 0;
-      if (lbInkey == KC_MOUSE3) // [mouse buttons as keybinds - quick fix]
-        lbDisplay.MiddleButton = 0; // lbDisplay.MiddleButton is not handled as well as lbDisplay.LeftButton and lbDisplay.RightButton, so reset it here
       lbInkey = KC_UNASSIGNED;
   }
 }
