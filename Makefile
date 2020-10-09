@@ -293,6 +293,7 @@ obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
 obj/main.o \
+obj/main_game.o \
 $(RES)
 
 # include and library directories

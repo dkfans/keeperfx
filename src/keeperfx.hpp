@@ -288,7 +288,6 @@ void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
 
 void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4);
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
-short zoom_to_next_annoyed_creature(void);
 
 short ceiling_set_info(long height_max, long height_min, long step);
 void set_mouse_light(struct PlayerInfo *player);

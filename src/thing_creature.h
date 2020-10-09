@@ -187,6 +187,8 @@ TbBool creature_is_invisible(const struct Thing *thing);
 TbBool creature_can_see_invisible(const struct Thing *thing);
 int get_creature_health_permil(const struct Thing *thing);
 /******************************************************************************/
+TbBool zoom_to_next_annoyed_creature(void);
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

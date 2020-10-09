@@ -92,7 +92,6 @@
 #include "map_utils.h"
 #include "map_blocks.h"
 #include "net_game.h"
-#include "net_sync.h"
 #include "packets.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -174,6 +173,15 @@ DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a
 DLLIMPORT unsigned long _DK_setup_move_out_of_cave_in(struct Thing *thing);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
+
+/******************************************************************************/
+
+extern void faststartup_network_game(void);
+extern void faststartup_saved_packet_game(void);
+extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
+extern TbBool update_creature_pool_state(void);
+
+/******************************************************************************/
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -322,12 +330,6 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
     }
     SYNCDBG(1,"Returning true for player %ld",win_plyr_idx);
     return true;
-}
-
-void clear_creature_pool(void)
-{
-    memset(&game.pool,0,sizeof(struct CreaturePool));
-    game.pool.is_empty = true;
 }
 
 void give_shooter_drained_health(struct Thing *shooter, long health_delta)
@@ -1534,23 +1536,6 @@ void instant_instance_selected(CrInstance check_inst_id)
     first_person_instance_top_half_selected = match_avail_pos < 6 && (first_person_instance_top_half_selected || match_avail_pos < 4);
 }
 
-short zoom_to_next_annoyed_creature(void)
-{
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    player = get_my_player();
-    dungeon = get_players_num_dungeon(my_player_number);
-    dungeon->zoom_annoyed_creature_idx = find_next_annoyed_creature(player->id_number,dungeon->zoom_annoyed_creature_idx);
-    thing = thing_get(dungeon->zoom_annoyed_creature_idx);
-    if (thing_is_invalid(thing))
-    {
-      return false;
-    }
-    create_packet_action(player, PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val);
-    return true;
-}
-
 TbBool toggle_computer_player(PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
@@ -1625,39 +1610,6 @@ TbBool set_default_startup_parameters(void)
     set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
     start_params.force_ppro_poly = 0;
     return true;
-}
-
-/**
- * Clears the Game structure completely, and copies startup parameters
- * from start_params structure.
- */
-void clear_complete_game(void)
-{
-    memset(&game, 0, sizeof(struct Game));
-    memset(&gameadd, 0, sizeof(struct GameAdd));
-    memset(&intralvl, 0, sizeof(struct IntralevelData));
-    game.turns_packetoff = -1;
-    game.local_plyr_idx = default_loc_player;
-    game.packet_checksum_verify = start_params.packet_checksum_verify;
-    game.numfield_1503A2 = -1;
-    game.flags_font = start_params.flags_font;
-    game.numfield_149F47 = 0;
-    // Set levels to 0, as we may not have the campaign loaded yet
-    set_continue_level_number(first_singleplayer_level());
-    if ((start_params.operation_flags & GOF_SingleLevel) != 0)
-      set_selected_level_number(start_params.selected_level_number);
-    else
-      set_selected_level_number(first_singleplayer_level());
-    game.num_fps = start_params.num_fps;
-    game.flags_cd = start_params.flags_cd;
-    game.no_intro = start_params.no_intro;
-    set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
-    gameadd.computer_chat_flags = start_params.computer_chat_flags;
-    game.operation_flags = start_params.operation_flags;
-    strncpy(game.packet_fname,start_params.packet_fname,150);
-    game.packet_save_enable = start_params.packet_save_enable;
-    game.packet_load_enable = start_params.packet_load_enable;
-    my_player_number = default_loc_player;
 }
 
 void clear_slabsets(void)
@@ -1857,43 +1809,6 @@ void reset_creature_max_levels(void)
             dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
         }
     }
-}
-
-/**
- * Resets timers and flags of all players into default (zeroed) state.
- * Also enables spells which are always enabled by default.
- */
-void reset_script_timers_and_flags(void)
-{
-    struct Dungeon *dungeon;
-    int plyr_idx;
-    int k;
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-    {
-        add_power_to_player(PwrK_HAND, plyr_idx);
-        add_power_to_player(PwrK_SLAP, plyr_idx);
-        add_power_to_player(PwrK_POSSESS, plyr_idx);
-        dungeon = get_dungeon(plyr_idx);
-        for (k=0; k<TURN_TIMERS_COUNT; k++)
-        {
-            memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
-            dungeon->turn_timers[k].state = 0;
-        }
-        for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
-        {
-            dungeon->script_flags[k] = 0;
-        }
-      }
-}
-
-void init_good_player_as(PlayerNumber plr_idx)
-{
-    struct PlayerInfo *player;
-    game.hero_player_num = plr_idx;
-    player = get_player(plr_idx);
-    player->allocflags |= PlaF_Allocated;
-    player->allocflags |= PlaF_CompCtrl;
-    player->id_number = game.hero_player_num;
 }
 
 void change_engine_window_relative_size(long w_delta, long h_delta)
@@ -2209,30 +2124,6 @@ short complete_level(struct PlayerInfo *player)
     }
     quit_game = 1;
     return true;
-}
-
-void init_lookups(void)
-{
-    long i;
-    SYNCDBG(8,"Starting");
-    for (i=0; i < THINGS_COUNT; i++)
-    {
-      game.things.lookup[i] = &game.things_data[i];
-    }
-    game.things.end = &game.things_data[THINGS_COUNT];
-
-    memset(&game.persons, 0, sizeof(struct Persons));
-    for (i=0; i < CREATURES_COUNT; i++)
-    {
-      game.persons.cctrl_lookup[i] = &game.cctrl_data[i];
-    }
-    game.persons.cctrl_end = &game.cctrl_data[CREATURES_COUNT];
-
-    for (i=0; i < COLUMNS_COUNT; i++)
-    {
-      game.columns.lookup[i] = &game.columns_data[i];
-    }
-    game.columns.end = &game.columns_data[COLUMNS_COUNT];
 }
 
 void clear_lookups(void)
@@ -2851,32 +2742,6 @@ void update_footsteps_nearest_camera(struct Camera *cam)
     timeslice = (timeslice + 1) % 4;
 }
 
-void add_creature_to_pool(long kind, long amount, unsigned long a3)
-{
-    long prev_amount;
-    kind %= CREATURE_TYPES_COUNT;
-    prev_amount = game.pool.crtr_kind[kind];
-    if ((a3 == 0) || (prev_amount != -1))
-    {
-        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
-            game.pool.crtr_kind[kind] = prev_amount + amount;
-        else
-            game.pool.crtr_kind[kind] = amount;
-    }
-}
-
-short update_creature_pool_state(void)
-{
-  int i;
-  game.pool.is_empty = true;
-  for (i=1; i < CREATURE_TYPES_COUNT; i++)
-  {
-      if (game.pool.crtr_kind[i] > 0)
-      { game.pool.is_empty = false; break; }
-  }
-  return true;
-}
-
 int clear_active_dungeons_stats(void)
 {
   struct Dungeon *dungeon;
@@ -2891,113 +2756,6 @@ int clear_active_dungeons_stats(void)
       memset((char *)dungeon->guijob_angry_creatrs_count, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
   }
   return i;
-}
-
-TbBool setup_move_out_of_cave_in(struct Thing *thing)
-{
-    // return _DK_setup_move_out_of_cave_in(thing);
-    MapSlabCoord bx = 0;
-    MapSlabCoord by = 0;
-    MapSubtlCoord cx = 0;
-    MapSubtlCoord cy = 0;
-    struct Thing *tng;
-    MapOffset *sstep;
-    struct Map* blk;
-    if (setup_combat_flee_position(thing))
-    {
-        struct CreatureControl* cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if ( setup_person_move_to_coord(thing, &cctrl->flee_pos, 0) )
-        {
-            return true;
-        }
-    }
-    else
-    {
-        MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
-        MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
-        for (signed int i=0; i < 32; i++)
-        {
-            sstep = &spiral_step[i];
-            bx = sstep->h + slb_x;
-            by = sstep->v + slb_y;
-            struct SlabMap *slb;
-            slb = get_slabmap_block(bx, by);
-            if ( slabmap_block_invalid(slb) )
-            {
-                continue;
-            }
-            blk = get_map_block_at(slab_subtile(bx, 0), slab_subtile(by, 0));
-            long n = get_mapwho_thing_index(blk);
-            while ( n != 0 )
-            {
-                tng = thing_get(n);
-                TRACE_THING(tng);
-                // This is single case where TCls_EffectElem is ever synced in multiplayer?
-                if ( tng->class_id == TCls_EffectElem && tng->model == 46 )
-                {
-                    break;
-                }
-                n = tng->next_on_mapblk;
-                if (thing_is_invalid(tng))
-                {
-                    bx = sstep->h + slb_x;
-                    break;
-                }
-            }
-            bx = sstep->h + slb_x;
-            cx = slab_subtile_center(bx);
-            cy = slab_subtile_center(by);
-            long j = ACTION_RANDOM(AROUND_TILES_COUNT);
-            for (long k=0; k < AROUND_TILES_COUNT; k++, j=(j + 1) % AROUND_TILES_COUNT)
-            {
-                MapSubtlCoord stl_x = cx + around[j].delta_x;
-                MapSubtlCoord stl_y = cy + around[j].delta_y;
-                struct Map *mapblk = get_map_block_at(stl_x,stl_y);
-                if (!map_block_invalid(mapblk))
-                {
-                    if (subtile_is_blocking_wall_or_lava(stl_x, stl_y, thing->owner) == 0)
-                    {
-                        if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) 
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return false;
-}
-
-TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param)
-{
-    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-    if (thing_is_picked_up(thing) || thing_is_dragged_or_pulled(thing))
-    {
-        return TUFRet_Unchanged;
-    }
-    if (thing_is_creature(thing))
-    {
-        apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
-        if (thing->health >= 0)
-        {
-            if ((thing->alloc_flags & TAlF_IsControlled) == 0)
-            {
-                if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureEscapingDeath)
-                {
-                    if (cleanup_current_thing_state(thing) && setup_move_out_of_cave_in(thing))
-                        thing->continue_state = CrSt_CreatureEscapingDeath;
-                }
-            }
-            return TUFRet_Modified;
-        } else
-        {
-            kill_creature(thing, INVALID_THING, param->num1, CrDed_NoEffects|CrDed_DiedInBattle);
-            return TUFRet_Deleted;
-        }
-    }
-    return TUFRet_Unchanged;
 }
 
 TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -4226,253 +3984,6 @@ TbBool swap_creature(long ncrt_id, long crtr_id)
     }
     do_creature_swap(ncrt_id, crtr_id);
     return true;
-}
-
-void init_level(void)
-{
-    SYNCDBG(6,"Starting");
-    struct IntralevelData transfer_mem;
-    //_DK_init_level(); return;
-    //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
-    game.flags_gui = GGUI_SoloChatEnabled;
-    free_swipe_graphic();
-    game.loaded_swipe_idx = -1;
-    game.play_gameturn = 0;
-    game_flags2 &= GF2_PERSISTENT_FLAGS;
-    clear_game();
-    reset_heap_manager();
-    lens_mode = 0;
-    setup_heap_manager();
-
-    // Load configs which may have per-campaign part, and can even be modified within a level
-    load_computer_player_config(CnfLd_Standard);
-    load_stats_files();
-    check_and_auto_fix_stats();
-
-    // We should do this after 'load stats'
-    update_trap_tab_to_config();
-
-    init_creature_scores();
-
-    init_good_player_as(hero_player_number);
-    light_set_lights_on(1);
-    start_rooms = &game.rooms[1];
-    end_rooms = &game.rooms[ROOMS_COUNT];
-
-    erstats_clear();
-    init_dungeons();
-    // Load the actual level files
-    preload_script(get_selected_level_number());
-    load_map_file(get_selected_level_number());
-
-    init_navigation();
-    clear_messages();
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
-
-#ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    {
-      gameadd.action_turn_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
-    }
-    else
-#else
-    {
-        // Initialize unsynchronized random seed (the value may be different
-        // on computers in MP, as it shouldn't affect game actions)
-        game.unsync_rand_seed = (unsigned long)LbTimeSec();
-        gameadd.action_turn_rand_seed = (unsigned long)LbTimeSec();
-    }
-#endif
-    if (!SoundDisabled)
-    {
-        game.field_14BB54 = (UNSYNC_RANDOM(67) % 3 + 1);
-        game.field_14BB55 = 0;
-    }
-    light_set_lights_on(1);
-    {
-        struct PlayerInfo *player;
-        player = get_player(game.hero_player_num);
-        init_player_start(player, false);
-    }
-    game.numfield_D |= GNFldD_Unkn04;
-    //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
-    event_initialise_all();
-    battle_initialise();
-    ambient_sound_prepare();
-    zero_messages();
-    game.armageddon_cast_turn = 0;
-    game.armageddon_field_15035A = 0;
-    init_messages();
-    game.creatures_tend_imprison = 0;
-    game.creatures_tend_flee = 0;
-    game.pay_day_progress = 0;
-    game.chosen_room_kind = 0;
-    game.chosen_room_spridx = 0;
-    game.chosen_room_tooltip = 0;
-    set_chosen_power_none();
-    game.manufactr_element = 0;
-    game.manufactr_spridx = 0;
-    game.manufactr_tooltip = 0;
-}
-
-void post_init_level(void)
-{
-    SYNCDBG(8,"Starting");
-    if (game.packet_save_enable)
-        open_new_packet_file_for_save();
-    calculate_dungeon_area_scores();
-    init_animating_texture_maps();
-    reset_creature_max_levels();
-    clear_creature_pool();
-    setup_computer_players2();
-    load_script(get_loaded_level_number());
-    init_dungeons_research();
-    init_dungeons_essential_position();
-    create_transferred_creature_on_level();
-    update_dungeons_scores();
-    update_dungeon_generation_speeds();
-    init_traps();
-    init_all_creature_states();
-    init_keepers_map_exploration();
-    SYNCDBG(9,"Finished");
-}
-
-void startup_saved_packet_game(void)
-{
-    struct CatalogueEntry centry;
-    clear_packets();
-    open_packet_file_for_load(game.packet_fname,&centry);
-    if (!change_campaign(centry.campaign_fname))
-    {
-        ERRORLOG("Unable to load campaign associated with packet file");
-    }
-    set_selected_level_number(game.packet_save_head.level_num);
-    lbDisplay.DrawColour = colours[15][15][15];
-    game.pckt_gameturn = 0;
-#if (BFDEBUG_LEVEL > 0)
-    SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
-    SYNCMSG("Packet Loading Active (File contains %d turns)", game.turns_stored);
-    SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
-    SYNCMSG("Fast Forward through %d game turns", game.turns_fastforward);
-    if (game.turns_packetoff != -1)
-        SYNCMSG("Packet Quit at %d", game.turns_packetoff);
-    if (game.packet_load_enable)
-    {
-      if (game.log_things_end_turn != game.log_things_start_turn)
-        SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
-    }
-    SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)game.packet_save_head.game_ver_major,(int)game.packet_save_head.game_ver_minor,
-        (int)game.packet_save_head.game_ver_release,(int)game.packet_save_head.game_ver_build);
-#endif
-    if ((game.packet_save_head.game_ver_major != VER_MAJOR) || (game.packet_save_head.game_ver_minor != VER_MINOR)
-     || (game.packet_save_head.game_ver_release != VER_RELEASE) || (game.packet_save_head.game_ver_build != VER_BUILD)) {
-        WARNLOG("Packet file was created with different version of the game; this rarely works");
-    }
-    game.game_kind = GKind_LocalGame;
-    if (!(game.packet_save_head.players_exist & (1 << game.local_plyr_idx))
-      || (game.packet_save_head.players_comp & (1 << game.local_plyr_idx)))
-      my_player_number = 0;
-    else
-      my_player_number = game.local_plyr_idx;
-    init_level();
-    setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
-    init_players();
-    if (game.active_players_count == 1)
-      game.game_kind = GKind_LocalGame;
-    if (game.turns_stored < game.turns_fastforward)
-      game.turns_fastforward = game.turns_stored;
-    post_init_level();
-    post_init_players();
-    set_selected_level_number(0);
-    if (is_key_pressed(KC_LALT, KMod_NONE))
-    {
-        struct PlayerInfo* player = get_my_player();
-        set_engine_view(player, PVM_FrontView);
-    }
-}
-
-void faststartup_saved_packet_game(void)
-{
-    reenter_video_mode();
-    startup_saved_packet_game();
-    {
-        struct PlayerInfo *player;
-        player = get_my_player();
-        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
-    }
-    set_gui_visible(false);
-    set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
-}
-
-void startup_network_game(TbBool local)
-{
-    SYNCDBG(0, "Starting up network game local:%d", local);
-    //_DK_startup_network_game(); return;
-    unsigned int flgmem;
-    struct PlayerInfo *player;
-    setup_count_players();
-    player = get_my_player();
-    flgmem = player->is_active;
-    if (local && (campaign.human_player >= 0) && (!force_player_num))
-    {
-        default_loc_player = campaign.human_player;
-        game.local_plyr_idx = default_loc_player;
-        my_player_number = default_loc_player;
-    }
-    resync_reset_storage();
-    init_level();
-    player = get_my_player();
-    player->is_active = flgmem;
-    //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
-    TbBool ShouldAssignCpuKeepers = 0;
-    if (local)
-    {
-        game.game_kind = GKind_LocalGame;
-        init_players_local_game();
-        if (AssignCpuKeepers || campaign.assignCpuKeepers) {
-            ShouldAssignCpuKeepers = 1;
-        }
-    } else
-    {
-        game.game_kind = GKind_MultiGame;
-        init_players_network_game();
-    }
-    if (fe_computer_players || ShouldAssignCpuKeepers)
-    {
-        SYNCDBG(5,"Setting up uninitialized players as computer players");
-        setup_computer_players();
-    } else
-    {
-        SYNCDBG(5,"Setting up uninitialized players as zombie players");
-        setup_zombie_players();
-    }
-    post_init_level();
-    post_init_players();
-    post_init_packets();
-    set_selected_level_number(0);
-}
-
-void faststartup_network_game(void)
-{
-    struct PlayerInfo *player;
-    SYNCDBG(3,"Starting");
-    reenter_video_mode();
-    my_player_number = default_loc_player;
-    game.game_kind = GKind_LocalGame;
-    if (!is_campaign_loaded())
-    {
-        if (!change_campaign(""))
-        ERRORLOG("Unable to load campaign");
-    }
-    player = get_my_player();
-    player->is_active = 1;
-    startup_network_game(true);
-    player = get_my_player();
-    player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
 }
 
 void wait_at_frontend(void)

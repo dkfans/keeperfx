@@ -4341,6 +4341,23 @@ void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx)
     }
 }
 
+TbBool zoom_to_next_annoyed_creature(void)
+{
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    player = get_my_player();
+    dungeon = get_players_num_dungeon(my_player_number);
+    dungeon->zoom_annoyed_creature_idx = find_next_annoyed_creature(player->id_number,dungeon->zoom_annoyed_creature_idx);
+    thing = thing_get(dungeon->zoom_annoyed_creature_idx);
+    if (thing_is_invalid(thing))
+    {
+      return false;
+    }
+    create_packet_action(player, PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val);
+    return true;
+}
+
 TbBool creature_is_doing_job_in_room_role(const struct Thing *creatng, RoomRole rrole)
 {
     {
@@ -5257,6 +5274,145 @@ TbBool creature_stats_debug_dump(void)
     return result;
 }
 
+void clear_creature_pool(void)
+{
+    memset(&game.pool,0,sizeof(struct CreaturePool));
+    game.pool.is_empty = true;
+}
+
+void add_creature_to_pool(long kind, long amount, unsigned long a3)
+{
+    long prev_amount;
+    kind %= CREATURE_TYPES_COUNT;
+    prev_amount = game.pool.crtr_kind[kind];
+    if ((a3 == 0) || (prev_amount != -1))
+    {
+        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
+            game.pool.crtr_kind[kind] = prev_amount + amount;
+        else
+            game.pool.crtr_kind[kind] = amount;
+    }
+}
+
+TbBool update_creature_pool_state(void)
+{
+  int i;
+  game.pool.is_empty = true;
+  for (i=1; i < CREATURE_TYPES_COUNT; i++)
+  {
+      if (game.pool.crtr_kind[i] > 0)
+      { game.pool.is_empty = false; break; }
+  }
+  return true;
+}
+
+/******************************************************************************/
+TbBool setup_move_out_of_cave_in(struct Thing *thing)
+{
+    // return _DK_setup_move_out_of_cave_in(thing);
+    MapSlabCoord bx = 0;
+    MapSlabCoord by = 0;
+    MapSubtlCoord cx = 0;
+    MapSubtlCoord cy = 0;
+    struct Thing *tng;
+    struct MapOffset *sstep;
+    struct Map* blk;
+    if (setup_combat_flee_position(thing))
+    {
+        struct CreatureControl* cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if ( setup_person_move_to_coord(thing, &cctrl->flee_pos, 0) )
+        {
+            return true;
+        }
+    }
+    else
+    {
+        MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
+        MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
+        for (signed int i=0; i < 32; i++)
+        {
+            sstep = &spiral_step[i];
+            bx = sstep->h + slb_x;
+            by = sstep->v + slb_y;
+            struct SlabMap *slb;
+            slb = get_slabmap_block(bx, by);
+            if ( slabmap_block_invalid(slb) )
+            {
+                continue;
+            }
+            blk = get_map_block_at(slab_subtile(bx, 0), slab_subtile(by, 0));
+            long n = get_mapwho_thing_index(blk);
+            while ( n != 0 )
+            {
+                tng = thing_get(n);
+                TRACE_THING(tng);
+                // This is single case where TCls_EffectElem is ever synced in multiplayer?
+                if ( tng->class_id == TCls_EffectElem && tng->model == 46 )
+                {
+                    break;
+                }
+                n = tng->next_on_mapblk;
+                if (thing_is_invalid(tng))
+                {
+                    bx = sstep->h + slb_x;
+                    break;
+                }
+            }
+            bx = sstep->h + slb_x;
+            cx = slab_subtile_center(bx);
+            cy = slab_subtile_center(by);
+            long j = ACTION_RANDOM(AROUND_TILES_COUNT);
+            for (long k=0; k < AROUND_TILES_COUNT; k++, j=(j + 1) % AROUND_TILES_COUNT)
+            {
+                MapSubtlCoord stl_x = cx + around[j].delta_x;
+                MapSubtlCoord stl_y = cy + around[j].delta_y;
+                struct Map *mapblk = get_map_block_at(stl_x,stl_y);
+                if (!map_block_invalid(mapblk))
+                {
+                    if (subtile_is_blocking_wall_or_lava(stl_x, stl_y, thing->owner) == 0)
+                    {
+                        if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) 
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param)
+{
+    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    if (thing_is_picked_up(thing) || thing_is_dragged_or_pulled(thing))
+    {
+        return TUFRet_Unchanged;
+    }
+    if (thing_is_creature(thing))
+    {
+        apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
+        if (thing->health >= 0)
+        {
+            if ((thing->alloc_flags & TAlF_IsControlled) == 0)
+            {
+                if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureEscapingDeath)
+                {
+                    if (cleanup_current_thing_state(thing) && setup_move_out_of_cave_in(thing))
+                        thing->continue_state = CrSt_CreatureEscapingDeath;
+                }
+            }
+            return TUFRet_Modified;
+        } else
+        {
+            kill_creature(thing, INVALID_THING, param->num1, CrDed_NoEffects|CrDed_DiedInBattle);
+            return TUFRet_Deleted;
+        }
+    }
+    return TUFRet_Unchanged;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
