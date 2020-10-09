@@ -167,12 +167,18 @@ enum KeyCodes {
         KC_SLEEP       = 0xDF,    // System Sleep
         KC_WAKE        = 0xE3,    // System Wake
     // Add mouse buttons counting backwards from 0xFE
-    // This allows them to be used as a bindable "key" [mouse buttons as keybinds - quick fix]
-        KC_MOUSEWHEEL_DOWN = 0xFA,    // Mouse Wheel Scroll down
-        KC_MOUSEWHEEL_UP   = 0xFB,    // Mouse Wheel Scroll up
-        KC_MOUSE3          = 0xFC,    // Middle Mouse button
-      //KC_MOUSE2          = 0xFD,    // Right Mouse button (don't use for binding, there will likely be conflicts)
-      //KC_MOUSE1          = 0xFE,    // Left Mouse button (don't use for binding, there will likely be conflicts)
+    // This allows them to be used as a bindable "key" by adding them to key_to_string_init[] [mouse buttons as keybinds - quick fix]
+        KC_MOUSE9          = 0xF4,    // Mouse button #9 (not yet supported by KFX)
+        KC_MOUSE8          = 0xF5,    // Mouse button #8 (not yet supported by KFX)
+        KC_MOUSE7          = 0xF6,    // Mouse button #7 (not yet supported by KFX)
+        KC_MOUSE6          = 0xF7,    // Mouse button #6 (not yet supported by KFX)
+        KC_MOUSE5          = 0xF8,    // Mouse button #5 (not yet supported by KFX)
+        KC_MOUSE4          = 0xF9,    // Mouse button #4 (not yet supported by KFX)
+        KC_MOUSE3          = 0xFA,    // Middle Mouse button
+        KC_MOUSE2          = 0xFB,    // Right Mouse button (don't use for binding, there will likely be conflicts)
+        KC_MOUSE1          = 0xFC,    // Left Mouse button (don't use for binding, there will likely be conflicts)
+        KC_MOUSEWHEEL_DOWN = 0xFD,    // Mouse Wheel Scroll down
+        KC_MOUSEWHEEL_UP   = 0xFE,    // Mouse Wheel Scroll up
 };
 
 enum KeyAction {
