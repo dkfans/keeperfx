@@ -4088,13 +4088,13 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     struct Thing* thing = INVALID_THING;
-    if ((is_spec_digger) || (crmodel == -1))
-    {
-        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
-    }
-    if (((!is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
+    if ((!is_spec_digger) || (crmodel == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    }
+    if (((is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
+    {
+        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return thing;
 }
@@ -4329,12 +4329,13 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
  *
  * @param crmodel
  * @param job_idx
+  * @param pick_flags
  * @note originally was go_to_next_creature_of_breed_and_job()
  */
-void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx)
+void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx, unsigned char pick_flags)
 {
     //_DK_go_to_next_creature_of_breed_and_job(crmodel, job_idx); return;
-    struct Thing* creatng = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, my_player_number, 0);
+    struct Thing* creatng = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, my_player_number, pick_flags);
     if (!thing_is_invalid(creatng))
     {
         struct PlayerInfo* player = get_my_player();
