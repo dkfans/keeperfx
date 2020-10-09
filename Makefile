@@ -263,6 +263,8 @@ obj/room_list.o \
 obj/room_scavenge.o \
 obj/room_util.o \
 obj/room_workshop.o \
+obj/roomspace.o \
+obj/roomspace_detection.o \
 obj/scrcapt.o \
 obj/slab_data.o \
 obj/sounds.o \

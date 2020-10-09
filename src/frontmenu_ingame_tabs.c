@@ -450,8 +450,15 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 
     struct RoomStats* rstat = room_stats_get_for_kind(rkind);
     //game.chosen_room_kind
-    sprintf(gui_textbuf, "%ld", (long)rstat->cost);
-    if (rstat->cost <= dungeon->total_money_owned)
+    if (player->boxsize > 1)
+    {
+        sprintf(gui_textbuf, "%ld", (long)rstat->cost * player->boxsize);
+    }
+    else
+    {
+        sprintf(gui_textbuf, "%ld", (long)rstat->cost);
+    }
+    if (rstat->cost * player->boxsize <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn & 1) == 0))

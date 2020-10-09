@@ -981,21 +981,6 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     return false;
 }
 
-int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
-{
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) || ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
-    {
-        return temp_cluedo_mode < 1u ? 5 : 2;
-    }
-    if (slab_kind_is_liquid(slb->kind))
-    {
-        return 0;
-    }
-    return 1;
-}
-
 TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(7,"Starting");
@@ -1008,17 +993,20 @@ TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     {
         if (!game_is_busy_doing_gui() && (game.small_map_state != 2))
         {
+            render_roomspace.is_roomspace_a_box = true;
             if ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles))
             {
                 // Move to first subtile on a slab
                 stl_x = slab_subtile(slb_x,0);
                 stl_y = slab_subtile(slb_y,0);
+                render_roomspace.is_roomspace_a_single_subtile = false;
                 draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0),
                 subtile_coord(stl_x+STL_PER_SLB,0), subtile_coord(stl_y+STL_PER_SLB,0), floor_height, can_place);
             }
             else
             {
-               draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0), subtile_coord(stl_x+1,0), subtile_coord(stl_y+1,0), floor_height, can_place);
+                render_roomspace.is_roomspace_a_single_subtile = true;
+                draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0), subtile_coord(stl_x+1,0), subtile_coord(stl_y+1,0), floor_height, can_place);
             }
         }
     }

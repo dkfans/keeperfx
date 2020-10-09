@@ -1144,11 +1144,28 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         play_non_3d_sample(119);
       return INVALID_ROOM;
     }
-    if (take_money_from_dungeon(plyr_idx, rstat->cost, 1) < 0)
+    if (player->boxsize == 0)
     {
-      if (is_my_player(player))
-        output_message(SMsg_GoldNotEnough, 0, true);
-      return INVALID_ROOM;
+        player->boxsize++;
+    }
+    if (dungeon->total_money_owned >= rstat->cost * player->boxsize)
+    {
+        if (take_money_from_dungeon(plyr_idx, rstat->cost, 1) < 0)
+        {
+            if (is_my_player(player))
+                output_message(SMsg_GoldNotEnough, 0, true);
+            return INVALID_ROOM;
+        }
+        if (player->boxsize > 0)
+        {
+        player->boxsize--;
+        }
+    }
+    else
+    {
+        if (is_my_player(player))
+            output_message(SMsg_GoldNotEnough, 0, true);
+        return INVALID_ROOM;
     }
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);
     if (!room_is_invalid(room))
@@ -1156,7 +1173,14 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
       if (rkind == RoK_BRIDGE)
         dungeon->lvstats.bridges_built++;
       if (is_my_player(player))
-        play_non_3d_sample(77);
+      {
+          play_non_3d_sample(77);
+          if (player->boxsize > 1)
+          {
+              play_non_3d_sample(959);
+              play_non_3d_sample(856);
+          }
+      }
     }
     return room;
 }

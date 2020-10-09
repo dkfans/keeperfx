@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "game_legacy.h"
 #include "bflib_render.h"
 #include "bflib_sprite.h"
 
@@ -347,7 +348,7 @@ struct MapVolumeBox { // sizeof = 24
   long beg_y;
   long end_x;
   long end_y;
-  long field_13;
+  long floor_height_z;
   unsigned char field_17;
 };
 
@@ -457,7 +458,7 @@ DLLIMPORT int _DK_normal_shade_front;
 #define normal_shade_front _DK_normal_shade_front
 DLLIMPORT int _DK_normal_shade_back;
 #define normal_shade_back _DK_normal_shade_back
-DLLIMPORT unsigned char _DK_temp_cluedo_mode;
+DLLIMPORT unsigned char _DK_temp_cluedo_mode; // This is true(1) if the "short wall" have been enabled in the graphics options
 #define temp_cluedo_mode _DK_temp_cluedo_mode
 DLLIMPORT long _DK_me_distance;
 #define me_distance _DK_me_distance
@@ -530,8 +531,11 @@ void do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4);
 void do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4);
 void find_gamut(void);
 void fiddle_gamut(long a1, long a2);
+int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void create_map_volume_box(long a1, long a2, long a3);
-void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width);
+void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z);
+void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile);
+void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width);
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom);
 void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3);
 void fill_in_points_perspective(long a1, long a2, struct MinMax *mm);
@@ -547,7 +551,7 @@ void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
 void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
 void draw_mapwho_ariadne_path(struct Thing *thing);
 void draw_jonty_mapwho(struct JontySpr *jspr);
-void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long a5, unsigned char color);
+void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color);
 unsigned short choose_health_sprite(struct Thing *thing);
 
 void update_engine_settings(struct PlayerInfo *player);
