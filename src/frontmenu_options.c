@@ -166,17 +166,17 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     if (mods & KMod_CONTROL)
     {
         strcat(text, get_string(GUIStr_KeyControl));
-        strcat(text, " ");
+        strcat(text, " + ");
     }
     if (mods & KMod_ALT)
     {
         strcat(text, get_string(GUIStr_KeyAlt));
-        strcat(text, " ");
+        strcat(text, " + ");
     }
     if (mods & KMod_SHIFT)
     {
         strcat(text, get_string(GUIStr_KeyShift));
-        strcat(text, " ");
+        strcat(text, " + ");
     }
 
     unsigned char code = settings.kbkeys[key_id].code;
@@ -196,6 +196,27 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       case KC_RALT:
         keytext = get_string(GUIStr_KeyAlt);
         break;
+      case KC_MOUSE9:
+      case KC_MOUSE8:
+      case KC_MOUSE7:
+      case KC_MOUSE6:
+      case KC_MOUSE5:
+      case KC_MOUSE4:
+      case KC_MOUSE3:
+      case KC_MOUSE2:
+      case KC_MOUSE1:
+      {
+        char mouse_button_label[255] = "";
+        const char* mouse_gui_string = get_string(key_to_string[(long)code]);
+        int mouse_button_number = (KC_MOUSE1 + 1 - code);
+        char mouse_button_number_string[8];
+        itoa(mouse_button_number, mouse_button_number_string, 10);
+        strcat(mouse_button_label, mouse_gui_string);
+        strcat(mouse_button_label, " ");
+        strcat(mouse_button_label, mouse_button_number_string);
+        keytext = mouse_button_label;
+        break;
+      }
       default:
       {
         long i = key_to_string[code];

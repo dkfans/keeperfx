@@ -5819,3 +5819,18 @@ msgstr ""
 msgctxt "Door name"
 msgid "Hidden Door"
 msgstr ""
+
+#: guitext:996
+msgctxt "Mouse"
+msgid "SCROLL WHEEL UP"
+msgstr ""
+
+#: guitext:997
+msgctxt "Mouse"
+msgid "SCROLL WHEEL DOWN"
+msgstr ""
+
+#: guitext:998
+msgctxt "Mouse"
+msgid "MOUSE BUTTON"
+msgstr ""
