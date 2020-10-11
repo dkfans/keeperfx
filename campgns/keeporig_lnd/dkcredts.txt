@@ -291,24 +291,21 @@ ALAN WRIGHT
 
 #Programming
 Tomasz Lis aka Mefistotelis
-Petter Hansson
 
-
-#Graphics
-Chagui
-Madkill
-Synesthesia
-
-
-#KeeperFX Unofficial
 AdamP
 Eddebaby
 Loobinex
 OrsonMaxwell
 Mu Mu
+PetterH
 Real Gecko
 Spartahawk
 Schizz
 TheSim
 Trass3r
 Trotim
+
+#Graphics
+Chagui
+Madkill
+Synesthesia

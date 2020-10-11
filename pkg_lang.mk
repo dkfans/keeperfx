@@ -67,7 +67,10 @@ pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
 pkg/campgns/undedkpr/text_pol.dat
 
-pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS) pkg-before
+pkg-languages: lang-before $(NGTEXTDATS) $(NCTEXTDATS) pkg-before
+
+lang-before:
+	$(MKDIR) pkg/fxdata
 
 # Creation of engine language files from PO/POT files
 pkg/fxdata/gtext_jpn.dat: lang/gtext_jpn.po tools/po2ngdat/res/char_encoding_tbl_jp.txt $(POTONGDAT)
