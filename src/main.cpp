@@ -1389,6 +1389,7 @@ void reset_gui_based_on_player_mode(void)
         }
     }
     settings.video_cluedo_mode = player->video_cluedo_mode;
+    copy_settings_to_dk_settings();
     set_gui_visible(true);
 }
 
@@ -1886,6 +1887,7 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
     if (corrlvl > 4)
       corrlvl = 4;
     settings.gamma_correction = corrlvl;
+    copy_settings_to_dk_settings();
     fname=prepare_file_fmtpath(FGrp_StdData,"pal%05d.dat",settings.gamma_correction);
     if (!LbFileExists(fname))
     {

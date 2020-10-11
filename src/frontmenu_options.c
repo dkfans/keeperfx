@@ -239,11 +239,13 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
 void gui_video_shadows(struct GuiButton *gbtn)
 {
     settings.video_shadows = _DK_video_shadows;
+    copy_settings_to_dk_settings();
 }
 
 void gui_video_view_distance_level(struct GuiButton *gbtn)
 {
     settings.view_distance = video_view_distance_level;
+    copy_settings_to_dk_settings();
 }
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)

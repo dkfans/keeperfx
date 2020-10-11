@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#define DK_GAME_KEYS_COUNT     32
 #define GAME_KEYS_COUNT        33
 
 #ifdef __cplusplus
@@ -35,7 +36,25 @@ struct GameKey { // sizeof = 2
   unsigned char mods;
 };
 
-struct GameSettings { // sizeof = 0x52 (82)
+struct _DK_GameSettings { // sizeof = 0x52 (82)
+    unsigned char field_0;
+    unsigned char video_shadows;
+    unsigned char view_distance;
+    unsigned char video_rotate_mode;
+    unsigned char video_textures;
+    unsigned char video_cluedo_mode;
+    unsigned char sound_volume;
+    unsigned char redbook_volume;
+    unsigned char roomflags_on;
+    unsigned short gamma_correction;
+    int video_scrnmode;
+    struct GameKey kbkeys[DK_GAME_KEYS_COUNT];
+    unsigned char tooltips_on;
+    unsigned char first_person_move_invert;
+    unsigned char first_person_move_sensitivity;
+    };
+
+struct GameSettings { // KFX settings
     unsigned char field_0;
     unsigned char video_shadows;
     unsigned char view_distance;
@@ -52,12 +71,12 @@ struct GameSettings { // sizeof = 0x52 (82)
     unsigned char first_person_move_invert;
     unsigned char first_person_move_sensitivity;
     };
-
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT extern struct GameSettings _DK_settings;
-#define settings _DK_settings
+DLLIMPORT extern struct _DK_GameSettings _DK_settings; // DK settings
+extern struct GameSettings settings; // KFX settings
 /******************************************************************************/
+void copy_settings_to_dk_settings(void);
 TbBool load_settings(void);
 short save_settings(void);
 

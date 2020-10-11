@@ -869,6 +869,7 @@ TbScreenMode reenter_video_mode(void)
     if (setup_screen_mode(scrmode))
     {
         settings.video_scrnmode = scrmode;
+        copy_settings_to_dk_settings();
   } else
   {
       SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
