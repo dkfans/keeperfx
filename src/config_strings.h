@@ -28,6 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define STRINGS_MAX       1000
 #define DK_STRINGS_MAX     941
+#define GUI_STRINGS_COUNT  999
 
 struct GameCampaign;
 
@@ -470,7 +471,7 @@ enum CampaignStrings {
 /******************************************************************************/
 TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);
-TbBool reset_strings(char **strings);
+TbBool reset_strings(char **strings, int max);
 const char * get_string(TextStringId stridx);
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
 /******************************************************************************/

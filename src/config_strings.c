@@ -37,12 +37,12 @@ DLLIMPORT extern char *_DK_strings_data;
 DLLIMPORT extern char *_DK_strings[DK_STRINGS_MAX+1];
 /******************************************************************************/
 char *gui_strings_data;
-char *gui_strings[STRINGS_MAX+1];
+char *gui_strings[GUI_STRINGS_COUNT];
 /******************************************************************************/
-TbBool reset_strings(char **strings)
+TbBool reset_strings(char **strings, int max)
 {
     char** text_arr = strings;
-    int text_idx = STRINGS_MAX;
+    int text_idx = max;
     while (text_idx >= 0)
     {
         *text_arr = lbEmptyString;
@@ -52,10 +52,10 @@ TbBool reset_strings(char **strings)
   return true;
 }
 
-TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_end)
+TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_end, int max)
 {
     char** text_arr = strings;
-    int text_idx = STRINGS_MAX;
+    int text_idx = max;
     char* text_ptr = strings_data;
     while (text_idx >= 0)
     {
@@ -73,7 +73,7 @@ TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_
     } while ((chr_prev != '\0') && (text_ptr < strings_data_end));
     text_idx--;
   }
-  return (text_idx < STRINGS_MAX);
+  return (text_idx < max);
 }
 
 /**
@@ -106,9 +106,9 @@ TbBool setup_gui_strings_data(void)
     return false;
   }
   // Resetting all values to empty strings
-  reset_strings(gui_strings);
+  reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
   // Analyzing strings data and filling correct values
-  short result = create_strings_list(gui_strings, gui_strings_data, strings_data_end);
+  short result = create_strings_list(gui_strings, gui_strings_data, strings_data_end, GUI_STRINGS_COUNT-1);
   // Updating strings inside the DLL
   LbMemoryCopy(_DK_strings, gui_strings, DK_STRINGS_MAX*sizeof(char *));
   SYNCDBG(19,"Finished");
@@ -118,7 +118,7 @@ TbBool setup_gui_strings_data(void)
 TbBool free_gui_strings_data(void)
 {
   // Resetting all values to empty strings
-  reset_strings(gui_strings);
+  reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
   // Freeing memory
   LbMemoryFree(gui_strings_data);
   gui_strings_data = NULL;
@@ -152,16 +152,16 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
     return false;
   }
   // Resetting all values to empty strings
-  reset_strings(campgn->strings);
+  reset_strings(campgn->strings, STRINGS_MAX);
   // Analyzing strings data and filling correct values
-  short result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end);
+  short result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
   SYNCDBG(19,"Finished");
   return result;
 }
 
 const char * gui_string(unsigned int index)
 {
-    if (index >= STRINGS_MAX)
+    if (index >= GUI_STRINGS_COUNT)
         return lbEmptyString;
     return gui_strings[index];
 }
