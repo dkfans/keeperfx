@@ -76,6 +76,11 @@ const long definable_key_string[] = {
     GUIStr_Pause,
     GUIStr_Map,
     GUIStr_ToggleMessage,
+    GUIStr_SquareRoomSpace,
+    GUIStr_BestRoomSpace,
+    GUIStr_RoomSpaceIncrease,
+    GUIStr_RoomSpaceDecrease,
+    GUIStr_SellTrapOnSubtile,
 };
 /******************************************************************************/
 #ifdef __cplusplus

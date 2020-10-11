@@ -5834,3 +5834,28 @@ msgstr ""
 msgctxt "Mouse"
 msgid "Mouse Button"
 msgstr ""
+
+#: guitext:999
+msgctxt "One-Click Build"
+msgid "Build Square Room"
+msgstr ""
+
+#: guitext:1000
+msgctxt "One-Click Build"
+msgid "Build Fancy Room"
+msgstr ""
+
+#: guitext:1001
+msgctxt "One-Click Build"
+msgid "Increase Room Size"
+msgstr ""
+
+#: guitext:1002
+msgctxt "One-Click Build"
+msgid "Decrease Room Size"
+msgstr ""
+
+#: guitext:1003
+msgctxt "Traps on Subtiles"
+msgid "Sell Trap on Subtile"
+msgstr ""

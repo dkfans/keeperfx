@@ -63,6 +63,11 @@ enum GameKeys {
     Gkey_TogglePause, // 30
     Gkey_SwitchToMap,
     Gkey_ToggleMessage,
+    Gkey_SquareRoomSpace,
+    Gkey_BestRoomSpace,
+    Gkey_RoomSpaceIncSize,
+    Gkey_RoomSpaceDecSize,
+    Gkey_SellTrapOnSubtile,
 };
 
 enum TbButtonFrontendFlags {

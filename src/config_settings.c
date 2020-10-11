@@ -91,6 +91,11 @@ void setup_default_settings(void)
           {KC_P, KMod_NONE},        // Gkey_TogglePause
           {KC_M, KMod_NONE},        // Gkey_SwitchToMap
           {KC_E, KMod_NONE},        // Gkey_ToggleMessage
+          {KC_LCONTROL, KMod_NONE},        // Gkey_SquareRoomSpace
+          {KC_LSHIFT, KMod_NONE},          // Gkey_BestRoomSpace
+          {KC_MOUSEWHEEL_UP, KMod_NONE},   // Gkey_RoomSpaceIncSize
+          {KC_MOUSEWHEEL_DOWN, KMod_NONE}, // Gkey_RoomSpaceDecSize
+          {KC_LALT, KMod_NONE},            // Gkey_SellTrapOnSubtile
      },                         // kbkeys
      1,                         // tooltips_on
      0,                         // first_person_move_invert
