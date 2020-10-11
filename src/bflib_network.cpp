@@ -1056,13 +1056,18 @@ static void ConsumeServerFrame(void)
 {
     // TODO: what is it?
     /*
-    NETDBG(8, "Consuming Server frame %d of size %u", frame->seq_nbr, frame->size);
+    NETDBG(8, "Consuming Server frame %d of   size %u", frame->seq_nbr, frame->size);
     netstate.exchg_queue = frame->next;
     netstate.seq_nbr = frame->seq_nbr;
     LbMemoryCopy(netstate.exchg_buffer, frame->buffer, frame->size);
     LbMemoryFree(frame->buffer);
     LbMemoryFree(frame);
     */
+}
+TbBool LbNetwork_CheckFirstPacket()
+{
+    return (netstate.outgoing_ptr == (netstate.outgoing_data + sizeof(struct NetServerHeader)))
+        ? 1 : 0;
 }
 
 void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, const char *func)

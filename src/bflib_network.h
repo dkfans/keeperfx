@@ -300,6 +300,9 @@ typedef TbBool (*LbNetwork_Packet_Callback) (
 /* This function sends all enqueued packet to others */
 enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback);
 
+/* return true if there is no packets created yet this cycle */
+TbBool LbNetwork_CheckFirstPacket();
+
 TbBool  LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct SyncArrayItem sync_data[]);
 void    LbNetwork_GetResyncProgress(int *now, int *max);
 

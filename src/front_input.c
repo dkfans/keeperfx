@@ -89,12 +89,11 @@ short get_bookmark_inputs(void);
 #endif
 /******************************************************************************/
 static inline void check_set_packet_action(
-    struct PacketEx *packet,  enum TbPacketAction action, short arg0, short arg1)
+    struct PlayerInfo* player, struct PacketEx *packet,  enum TbPacketAction action, short arg0, short arg1)
 {
     assert(packet->packet.action == PckA_None);
-    packet->packet.action = action;
-    packet->packet.actn_par1 = arg0;
-    packet->packet.actn_par2 = arg1;
+    packet->packet.action = PckA_Invalid;
+    create_packet_action(player, action, arg0, arg1);
 }
 
 short game_is_busy_doing_gui_string_input(void)
@@ -590,7 +589,7 @@ static TbBool get_level_lost_inputs(struct PacketEx *packet)
             if  ( map_valid ) {
                 MapSubtlCoord stl_x = coord_subtile(map_x);
                 MapSubtlCoord stl_y = coord_subtile(map_y);
-                check_set_packet_action(packet, PckA_ZoomFromMap, stl_x, stl_y);
+                check_set_packet_action(player, packet, PckA_ZoomFromMap, stl_x, stl_y);
                 left_button_released = 0;
             }
         }
@@ -619,10 +618,10 @@ static TbBool get_level_lost_inputs(struct PacketEx *packet)
                   set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
                 else
                   set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
-                check_set_packet_action(packet, PckA_SaveViewType, PVT_MapScreen, 0);
+                check_set_packet_action(player, packet, PckA_SaveViewType, PVT_MapScreen, 0);
           } else
           {
-                check_set_packet_action(packet, PckA_SetViewType, PVT_MapFadeIn, 0);
+                check_set_packet_action(player, packet, PckA_SetViewType, PVT_MapFadeIn, 0);
           }
           turn_off_roaming_menus();
         }
@@ -689,18 +688,18 @@ static TbBool get_level_lost_inputs(struct PacketEx *packet)
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
               if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
               {
-                  check_set_packet_action(packet, PckA_DirectCtrlExit, player->controlled_thing_idx, 0);
+                  check_set_packet_action(player, packet, PckA_DirectCtrlExit, player->controlled_thing_idx, 0);
                   inp_done = true;
               }
           } else
         {
-          check_set_packet_action(packet, PckA_DirectCtrlExit, player->controlled_thing_idx, 0);
+          check_set_packet_action(player, packet, PckA_DirectCtrlExit, player->controlled_thing_idx, 0);
           inp_done = true;
         }
         break;
       }
       case PVT_CreaturePasngr:
-        check_set_packet_action(packet, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0);
+        check_set_packet_action(player, packet, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0);
         break;
       case PVT_MapScreen:
         if (menu_is_active(GMnu_SPELL_LOST))
@@ -983,14 +982,14 @@ static TbBool get_creature_passenger_action_inputs(struct PacketEx *packet)
         return false;
     if (right_button_released)
     {
-        check_set_packet_action(packet, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0);
+        check_set_packet_action(player, packet, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0);
         return true;
   }
   struct Thing* thing = thing_get(player->controlled_thing_idx);
   TRACE_THING(thing);
   if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
   {
-    check_set_packet_action(packet, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0);
+    check_set_packet_action(player, packet, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0);
     return true;
   }
   if (is_key_pressed(KC_TAB,KMod_NONE))
@@ -1039,7 +1038,7 @@ static TbBool get_creature_control_action_inputs(struct PacketEx *packet)
         {
             right_button_released = 0;
             clear_key_pressed(KC_ESCAPE);
-            check_set_packet_action(packet, PckA_DirectCtrlExit, player->controlled_thing_idx, 0);
+            check_set_packet_action(player, packet, PckA_DirectCtrlExit, player->controlled_thing_idx, 0);
         }
     }
     // Use the Query/Message keys and mouse wheel to scroll through query pages and go to correct query page when selecting an instance.
@@ -1296,7 +1295,7 @@ static TbBool get_creature_control_action_inputs(struct PacketEx *packet)
             {
                 if (numkey == num_avail)
                 {
-                    check_set_packet_action(packet, PckA_CtrlCrtrSetInstnc, inst_id, 0);
+                    check_set_packet_action(player, packet, PckA_CtrlCrtrSetInstnc, inst_id, 0);
                     break;
                 }
                 num_avail++;
@@ -1391,7 +1390,7 @@ static TbBool get_map_action_inputs(struct PacketEx *packet)
         }
         if (left_button_released) {
             left_button_released = 0;
-            check_set_packet_action(packet, PckA_ZoomFromMap, stl_x, stl_y);
+            check_set_packet_action(player, packet, PckA_ZoomFromMap, stl_x, stl_y);
             return true;
         }
     }
@@ -1778,10 +1777,9 @@ static void get_dungeon_control_nonaction_inputs(struct PacketEx *packet)
       unsigned char context;
       if (get_player_coords_and_context(&pos, &context))
       {
-          // TODO: are server should actually care about player mouse state
+          // TODO: server should not care about player mouse state except light from hand
           /*
           set_players_packet_position(player, pos.x.val, pos.y.val);
-          set_players_packet_control(player, PCtr_MapCoordsValid);
           unset_players_add_flag(player, PCAdV_ContextMask);
           set_players_add_flag(player, (context << 1));
           */
@@ -1792,7 +1790,6 @@ static void get_dungeon_control_nonaction_inputs(struct PacketEx *packet)
   {
       /*
       set_players_packet_position(player,pos.x.val,pos.y.val);
-      set_players_packet_control(player, PCtr_MapCoordsValid);
       unset_players_add_flag(player, PCAdV_ContextMask);
       */
       map_coords_valid = true;
@@ -1828,13 +1825,10 @@ static void get_map_nonaction_inputs(struct PacketEx *packet)
 
     if (coords_valid) {
         map_coords_valid = true;
-        /*
-        set_players_packet_position(player, pos.x.val, pos.y.val);
-        set_players_packet_control(player, PCtr_MapCoordsValid);
-        */
+        // Should be used only for light from player hand
+        set_players_packet_position(packet, pos.x.val, pos.y.val);
     } else {
         map_coords_valid = false;
-        // unset_players_packet_control(player, PCtr_MapCoordsValid);
     }
     if (((game.operation_flags & GOF_Paused) == 0) && (player->view_mode == PVM_ParchmentView))
     {
@@ -2150,7 +2144,7 @@ short get_inputs(void)
         if (!inp_handled)
             inp_handled = get_map_action_inputs(packet);
         get_map_nonaction_inputs(packet);
-        get_player_gui_clicks();
+        get_player_gui_clicks(); // Does nothing
         get_packet_control_mouse_clicks(packet);
 
         /* This will not work anymore
@@ -2169,13 +2163,13 @@ short get_inputs(void)
             player->field_1 |= 0x01;
           else
             player->field_1 &= ~0x01;
-          check_set_packet_action(packet, PckA_SetViewType, PVT_MapScreen, 0);
+          check_set_packet_action(player, packet, PckA_SetViewType, PVT_MapScreen, 0);
         }
         return false;
     case PVT_MapFadeOut:
         if (player->view_mode != PVM_ParchFadeOut)
         {
-          check_set_packet_action(packet, PckA_SetViewType, PVT_DungeonTop, 0);
+          check_set_packet_action(player, packet, PckA_SetViewType, PVT_DungeonTop, 0);
         }
         return false;
     default:

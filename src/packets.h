@@ -155,7 +155,8 @@ enum TbPacketAction {
         PckA_PlyrMsgClear,
         PckA_LandView,
         PckA_TortureView,
-        PckA_Frontmenu
+        PckA_Frontmenu,
+        PckA_Invalid, // Should not be processed, used in check_set_packet_action
 };
 
 /** Packet flags for non-action player operation. */
@@ -223,9 +224,9 @@ struct CatalogueEntry;
 struct Packet { // sizeof = 0x11 (17)
     int field_0;
     TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
-    unsigned char action; //! Action kind performed by the player which owns this packet
-    unsigned short actn_par1; //! Players action parameter #1
-    unsigned short actn_par2; //! Players action parameter #2
+    unsigned char action; //! Action kind performed by the player which owns this packet // Should be empty now
+    unsigned short actn_par1; //! Players action parameter #1 // Should be empty now
+    unsigned short actn_par2; //! Players action parameter #2 // Should be empty now
     short pos_x; //! Mouse Cursor Position X
     short pos_y; //! Mouse Cursor Position Y
     unsigned short control_flags;
@@ -269,15 +270,10 @@ void set_packet_position(struct PlayerInfo *player, long x, long y);
 struct SmallActionPacket *create_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1);
 // This should check that player is myplayer and create a packet_action
 void set_my_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1);
+void set_players_packet_position(struct PacketEx *pckt, long x, long y);
 
 void set_packet_pause_toggle(struct PacketEx *);
-TbBool process_dungeon_control_packet_clicks(long idx);
-TbBool process_players_dungeon_control_packet_action(long idx);
-void process_players_creature_control_packet_control(long idx);
-void process_players_creature_passenger_packet_action(long idx);
-void process_players_creature_control_packet_action(long idx);
 void process_frontend_packets(void);
-void process_map_packet_clicks(long idx);
 void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
