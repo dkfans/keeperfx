@@ -16,11 +16,14 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
+empty =
+space = $(empty) $(empty)
+
 CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
 
 .PHONY: pkg-before pkg-copydat pkg-campaigns pkg-languages
 
-package: pkg/keeperfx-$(subst .,_,$(VER_STRING))-$(PACKAGE_SUFFIX)-patch.7z
+package: pkg/keeperfx-$(subst $(space),_,$(subst .,_,$(VER_STRING)))-$(PACKAGE_SUFFIX)-patch.7z
 
 clean-package:
 	-$(RM) -R pkg/campgns
@@ -42,7 +45,7 @@ pkg/%.7z: pkg-before pkg-copybin pkg-copydat pkg-campaigns pkg-languages
 	$(ECHO) ' '
 
 pkg-before:
-	-$(RM) "pkg/keeperfx-$(subst .,_,$(VER_STRING))-*-patch.7z"
+	-$(RM) "pkg/keeperfx-$(subst $(space),_,$(subst .,_,$(VER_STRING)))-*-patch.7z"
 	$(MKDIR) pkg/creatrs
 	$(MKDIR) pkg/data
 	$(MKDIR) pkg/ldata
