@@ -797,7 +797,7 @@ long get_dungeon_control_action_inputs(void)
           struct Camera* cam = &player->cameras[CamIV_Isometric];
           struct Packet* pckt = get_packet(my_player_number);
           int angle = cam->orient_a;
-          if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
+          if (lbKeyOn[KC_LCONTROL])
           {
               if ((angle >= 0 && angle < 256) || angle == 2048)
               {
@@ -888,7 +888,7 @@ long get_dungeon_control_action_inputs(void)
           struct Camera* cam = &player->cameras[CamIV_FrontView];
           struct Packet* pckt = get_packet(my_player_number);
           int angle = cam->orient_a;
-          if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
+          if (lbKeyOn[KC_LCONTROL])
           {
               set_packet_control(pckt, PCtr_ViewRotateCW);
         }
