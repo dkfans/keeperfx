@@ -304,11 +304,22 @@ unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif)
  */
 void clear_key_pressed(long key)
 {
-  if (key >= sizeof(lbKeyOn))
-    return;
-  lbKeyOn[key] = 0;
-  if (key == lbInkey)
-    lbInkey = KC_UNASSIGNED;
+    if (key >= sizeof(lbKeyOn))
+    {
+        return;
+    }
+    if ((key >= 0xF0) && (key <= 0xFC)) // This is a mouse button
+    {
+        if (key == KC_MOUSE3)
+        {
+            lbDisplay.MiddleButton = 0;
+        }
+    }
+    lbKeyOn[key] = 0;
+    if (key == lbInkey)
+    {
+        lbInkey = KC_UNASSIGNED;
+    }
 }
 
 /**
