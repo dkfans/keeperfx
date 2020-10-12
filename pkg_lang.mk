@@ -17,6 +17,7 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
+LANGUAGE ?= eng
 
 NGTEXTDATS = \
 pkg/fxdata/gtext_chi.dat \
@@ -71,6 +72,9 @@ pkg-languages: lang-before $(NGTEXTDATS) $(NCTEXTDATS) pkg-before
 
 lang-before:
 	$(MKDIR) pkg/fxdata
+
+# Creation of Only single language engine language files from PO/POT files (for development)
+pkg-lang-single: lang-before pkg/fxdata/gtext_$(LANGUAGE).dat
 
 # Creation of engine language files from PO/POT files
 pkg/fxdata/gtext_jpn.dat: lang/gtext_jpn.po tools/po2ngdat/res/char_encoding_tbl_jp.txt $(POTONGDAT)
