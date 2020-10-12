@@ -328,7 +328,7 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
       if (!player_is_friendly_or_defeated(i,win_plyr_idx))
         return false;
     }
-    SYNCDBG(1,"Returning true for player %ld",win_plyr_idx);
+    SYNCDBG(4, "Returning true for player %ld",win_plyr_idx);
     return true;
 }
 

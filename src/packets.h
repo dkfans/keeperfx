@@ -270,7 +270,7 @@ void set_packet_position(struct PlayerInfo *player, long x, long y);
 struct SmallActionPacket *create_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1);
 // This should check that player is myplayer and create a packet_action
 void set_my_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1);
-void set_players_packet_position(struct PacketEx *pckt, long x, long y);
+void set_players_packet_position(struct PacketEx *pckt, long x, long y, unsigned char context);
 
 void set_packet_pause_toggle(struct PacketEx *);
 void process_frontend_packets(void);

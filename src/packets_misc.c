@@ -86,11 +86,13 @@ void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
     pckt->control_flags &= ~flag;
 }
 
-void set_players_packet_position(struct PacketEx *pckt, long x, long y)
+void set_players_packet_position(struct PacketEx *pckt, long x, long y, unsigned char context)
 {
     pckt->packet.pos_x = x;
     pckt->packet.pos_y = y;
     pckt->packet.control_flags |= PCtr_MapCoordsValid;
+    pckt->packet.field_10 &= ~PCAdV_ContextMask;
+    pckt->packet.field_10 |= (context << 1);
 }
 
 /**

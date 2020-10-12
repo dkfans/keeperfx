@@ -68,6 +68,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+extern TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct Packet* pckt);
+/******************************************************************************/
 
 unsigned short const zoom_key_room_order[] =
     {RoK_TREASURE, RoK_LIBRARY, RoK_LAIR, RoK_PRISON,
@@ -1305,7 +1307,7 @@ static TbBool get_creature_control_action_inputs(struct PacketEx *packet)
     return false;
 }
 
-void get_packet_control_mouse_clicks(struct PacketEx *packet)
+static void get_packet_control_mouse_clicks(struct PacketEx *packet)
 {
     static int synthetic_left = 0; //arbitrary state machine, not deserving own enum
     static int synthetic_right = 0;
@@ -1778,20 +1780,13 @@ static void get_dungeon_control_nonaction_inputs(struct PacketEx *packet)
       if (get_player_coords_and_context(&pos, &context))
       {
           // TODO: server should not care about player mouse state except light from hand
-          /*
-          set_players_packet_position(player, pos.x.val, pos.y.val);
-          unset_players_add_flag(player, PCAdV_ContextMask);
-          set_players_add_flag(player, (context << 1));
-          */
+          set_players_packet_position(packet, pos.x.val, pos.y.val, context);
           map_coords_valid = true;
     }
   }
   else if (screen_to_map(player->acamera, my_mouse_x, my_mouse_y, &pos))
   {
-      /*
-      set_players_packet_position(player,pos.x.val,pos.y.val);
-      unset_players_add_flag(player, PCAdV_ContextMask);
-      */
+      set_players_packet_position(packet, pos.x.val,pos.y.val, 0);
       map_coords_valid = true;
   }
   if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
@@ -1826,7 +1821,7 @@ static void get_map_nonaction_inputs(struct PacketEx *packet)
     if (coords_valid) {
         map_coords_valid = true;
         // Should be used only for light from player hand
-        set_players_packet_position(packet, pos.x.val, pos.y.val);
+        set_players_packet_position(packet, pos.x.val, pos.y.val, 0);
     } else {
         map_coords_valid = false;
     }
@@ -2049,7 +2044,7 @@ static void get_dungeon_speech_inputs(void)
 
 /** Fill packet struct with game action information.
  */
-short get_inputs(void)
+TbBool get_inputs(void)
 {
     if ((game.flags_cd & MFlg_IsDemoMode) != 0)
     {
@@ -2066,6 +2061,7 @@ short get_inputs(void)
     }
     struct PlayerInfo* player = get_my_player();
     struct PacketEx* packet = create_outgoing_input_packet();
+    struct PacketEx fake_packet;
     if ((player->allocflags & PlaF_Unknown80) != 0)
     {
         SYNCDBG(15,"Starting for creature fade");
@@ -2126,6 +2122,12 @@ short get_inputs(void)
         get_player_gui_clicks();
         get_packet_control_mouse_clicks(packet);
         get_dungeon_speech_inputs();
+        if (packet->packet.control_flags & (PCtr_LBtnAnyAction | PCtr_RBtnAnyAction))
+        {
+          NETDBG(5, "turn:%04ld control_flags:%04x", game.play_gameturn, (int)packet->packet.control_flags);
+        }
+        fake_packet = *packet;
+        process_dungeon_control_packet_clicks(player, &fake_packet);
         return inp_handled;
     case PVT_CreatureContrl:
         if (!inp_handled)

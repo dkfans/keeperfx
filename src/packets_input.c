@@ -4,7 +4,7 @@
 /** @file packets_input.c
  *     Packet processing routines.
  * @par Purpose:
- *     Functions for creating and executing packets.
+ *     Here we should map frontend actions and create outgoing packets
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
@@ -18,19 +18,37 @@
 /******************************************************************************/
 #include "packets.h"
 
+#include "bflib_sound.h"
+#include "config_players.h"
+#include "config_terrain.h"
+#include "creature_states.h"
 #include "frontend.h"
+#include "frontmenu_ingame_tabs.h"
 #include "game_legacy.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "hist_actions.h"
 #include "keeperfx.hpp"
+#include "kjm_input.h"
 #include "magic.h"
 #include "map_blocks.h"
 #include "player_instances.h"
 #include "player_states.h"
+#include "player_utils.h"
 #include "power_hand.h"
 
+extern void update_double_click_detection(int plyr_idx, struct Packet* packet);
 extern void clear_input(struct Packet* packet);
+extern TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
+extern TbBool process_dungeon_control_packet_spell_overcharge(struct PlayerInfo* player, struct Packet* packet);
+extern TbBool packets_process_cheats(
+          long plyr_idx,
+          MapCoord x, MapCoord y,
+          struct Packet *packet,
+          MapSubtlCoord stl_x, MapSubtlCoord stl_y,
+          MapSlabCoord slb_x, MapSlabCoord slb_y,
+          short *influence_own_creatures);
+extern struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
 
 static void set_untag_mode(struct PlayerInfo* player)
 {
@@ -41,10 +59,8 @@ static void set_untag_mode(struct PlayerInfo* player)
         player->allocflags &= ~PlaF_Unknown20;
 }
 
-TbBool process_dungeon_power_hand_state(long plyr_idx)
+static TbBool process_dungeon_power_hand_state(struct PlayerInfo* player, struct Packet* pckt)
 {
-    struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
     MapCoord x = ((unsigned short)pckt->pos_x);
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
@@ -58,7 +74,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
       }
       return false;
     }
-    struct Thing* thing = get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
+    struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, x, y);
     if (!thing_is_invalid(thing))
     {
       SYNCDBG(19,"Thing %d under hand at (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
@@ -91,17 +107,17 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         thing = get_first_thing_in_power_hand(player);
         if ((player->thing_under_hand != 0) || thing_is_invalid(thing))
         {
-          set_power_hand_graphic(plyr_idx, 782, 256);
+          set_power_hand_graphic(player->id_number, 782, 256);
           if (!thing_is_invalid(thing))
             thing->field_4F |= TF4F_Unknown01;
         } else
         if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
         {
-          set_power_hand_graphic(plyr_idx, 781, 256);
+          set_power_hand_graphic(player->id_number, 781, 256);
           thing->field_4F &= ~TF4F_Unknown01;
         } else
         {
-          set_power_hand_graphic(plyr_idx, 784, 256);
+          set_power_hand_graphic(player->id_number, 784, 256);
           thing->field_4F &= ~TF4F_Unknown01;
         }
       }
@@ -109,14 +125,58 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     return true;
 }
 
-TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
+static TbBool process_dungeon_control_packet_dungeon_build_room(struct PlayerInfo* player, struct Packet* pckt)
+{
+    MapCoord x = ((unsigned short)pckt->pos_x);
+    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapSubtlCoord stl_x = coord_subtile(x);
+    MapSubtlCoord stl_y = coord_subtile(y);
+
+    if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
+    {
+      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+      {
+        player->field_4AF = 0;
+        clear_input(pckt);
+      }
+      return false;
+    }
+
+    player->field_4A4 = 1;
+    if (is_my_player(player))
+      gui_room_type_highlighted = player->chosen_room_kind;
+    long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->field_4A4);
+    if ((pckt->control_flags & PCtr_LBtnClick) == 0)
+    {
+      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+      {
+        player->field_4AF = 0;
+        clear_input(pckt);
+      }
+      return false;
+    }
+    if (i == 0)
+    {
+      if (is_my_player(player))
+      {
+        play_non_3d_sample(119);
+        clear_input(pckt);
+      }
+      return false;
+    }
+    //TODO: build room (remote)
+    NETLOG("build room: %d, %d, %d, %d", stl_x, stl_y, player->id_number, player->chosen_room_kind);
+    //keeper_build_room(stl_x, stl_y, plyr_idx, player->chosen_room_kind);
+    clear_input(pckt);
+    return true;
+}
+
+static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* player, struct Packet* pckt)
 {
     struct Thing *thing;
-
+    int plyr_idx = player->id_number;
     long i;
-    struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
     MapCoord x = ((unsigned short)pckt->pos_x);
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
@@ -127,7 +187,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
       player->field_455 = P454_Unkn0;
     player->field_454 = (unsigned short)(pckt->field_10 & PCAdV_ContextMask) >> 1;
 
-    process_dungeon_power_hand_state(plyr_idx);
+    process_dungeon_power_hand_state(player, pckt);
 
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
     {
@@ -333,4 +393,457 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
       }
     }
     return true;
+}
+
+/*
+*/
+static void process_dungeon_control_packet_sell_operation(long plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
+    {
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+        {
+            player->field_4AF = 0;
+            clear_input(pckt);
+        }
+        return;
+    }
+    MapCoord x = ((unsigned short)pckt->pos_x);
+    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapSubtlCoord stl_x = coord_subtile(x);
+    MapSubtlCoord stl_y = coord_subtile(y);
+    player->field_4A4 = 1;
+    if (is_my_player(player))
+    {
+      if (!game_is_busy_doing_gui())
+        tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->field_4A4, (is_key_pressed(KC_LSHIFT, KMod_DONTCARE)));
+    }
+    if ((pckt->control_flags & PCtr_LBtnClick) == 0)
+    {
+      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+      {
+          player->field_4AF = 0;
+          clear_input(pckt);
+      }
+      return;
+    }
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_owner(slb) != plyr_idx)
+    {
+        WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).",(int)plyr_idx,slab_code_name(slb->kind),(int)slabmap_owner(slb),(int)stl_x,(int)stl_y);
+        clear_input(pckt);
+        return;
+    }
+    // Trying to sell room
+    if (!is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
+    {
+        if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
+        {
+            player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
+        } else
+        // Trying to sell door
+        if (player_sell_door_at_subtile(plyr_idx, stl_x, stl_y))
+        {
+            // Nothing to do here - door already sold
+        } else
+        // Trying to sell trap
+        if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
+        {
+            // Nothing to do here - trap already sold
+        } else
+        {
+            WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
+        }
+    }
+    else
+    {
+        if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
+        {
+            // Nothing to do here - trap already sold
+        } else
+        if (player_sell_door_at_subtile(plyr_idx, stl_x, stl_y))
+        {
+            // Nothing to do here - door already sold
+        } else
+        if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
+        {
+            player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
+        }
+        else
+        {
+            WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
+        }
+    }
+    clear_input(pckt);
+    return;
+}
+
+static TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    MapCoord x = ((unsigned short)pckt->pos_x);
+    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapSubtlCoord stl_x = coord_subtile(x);
+    MapSubtlCoord stl_y = coord_subtile(y);
+
+    if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
+    {
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+        {
+          player->field_4AF = 0;
+          clear_input(pckt);
+        }
+        return false;
+    }
+    player->field_4A4 = 1;
+    long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y);
+    if ((pckt->control_flags & PCtr_LBtnClick) == 0)
+    {
+      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+      {
+        player->field_4AF = 0;
+        clear_input(pckt);
+      }
+      return false;
+    }
+    if (i == 0)
+    {
+        if (is_my_player(player))
+            play_non_3d_sample(119);
+        clear_input(pckt);
+        return false;
+    }
+    if (!player_place_trap_at(stl_x, stl_y, plyr_idx, player->chosen_trap_kind))
+    {
+        clear_input(pckt);
+        return false;
+    }
+    clear_input(pckt);
+    return true;
+}
+
+/*
+    This function should work only on client side. 
+    It should emit other packets
+*/
+TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct Packet* pckt)
+{
+    struct Thing *thing;
+    PowerKind pwkind;
+    int plyr_idx = player->id_number;
+    SYNCDBG(6,"Starting for player:%d state:%s", 
+                (int)player->id_number, player_state_code_name(player->work_state));
+
+    if (pckt->control_flags & (PCtr_LBtnAnyAction | PCtr_RBtnAnyAction))
+    {
+        NETDBG(5, "turn:%04ld control_flags:%04x x:%03d y:%03d",
+            game.play_gameturn, (int)pckt->control_flags, pckt->pos_x, pckt->pos_y);
+    }
+
+    player->field_4A4 = 1;
+    packet_left_button_double_clicked[plyr_idx] = 0;
+    if ((pckt->control_flags & PCtr_Unknown4000) != 0)
+      return false;
+    TbBool ret = true;
+
+    process_dungeon_control_packet_spell_overcharge(player, pckt);
+    if ((pckt->control_flags & PCtr_RBtnHeld) != 0)
+    {
+      player->field_4D6++;
+    } else
+    if ((pckt->control_flags & PCtr_RBtnRelease) == 0)
+    {
+      player->field_4D6 = 0;
+    }
+    update_double_click_detection(plyr_idx, pckt);
+    player->thing_under_hand = 0;
+    MapCoord x = ((unsigned short)pckt->pos_x);
+    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapSubtlCoord stl_x = coord_subtile(x);
+    MapSubtlCoord stl_y = coord_subtile(y);
+    short influence_own_creatures = false;
+    long i;
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    switch (player->work_state)
+    {
+    case PSt_CtrlDungeon:
+        influence_own_creatures = 1;
+        process_dungeon_control_packet_dungeon_control(player, pckt);
+        break;
+    case PSt_BuildRoom:
+        process_dungeon_control_packet_dungeon_build_room(player, pckt);
+        break;
+    case PSt_CallToArms:
+    case PSt_CaveIn:
+    case PSt_SightOfEvil:
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            pwkind = player_state_to_power_kind[player->work_state];
+            i = get_power_overcharge_level(player);
+            magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
+            clear_input(pckt);
+        }
+        break;
+    case PSt_Slap:
+        influence_own_creatures = 1;
+        thing = get_creature_near_to_be_keeper_power_target(x, y, PwrK_SLAP, plyr_idx);
+        if (thing_is_invalid(thing)) {
+            player->thing_under_hand = 0;
+        } else {
+            player->thing_under_hand = thing->index;
+        }
+
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0)
+        && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            // TODO: newer used?
+            magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
+            clear_input(pckt);
+        }
+        break;
+    case PSt_CtrlPassngr:
+    case PSt_FreeCtrlPassngr:
+        influence_own_creatures = 1;
+        if (player->work_state == PSt_CtrlPassngr)
+            thing = get_creature_near_and_owned_by(x, y, plyr_idx);
+        else
+            thing = get_creature_near_and_owned_by(x, y, -1);
+        if (thing_is_invalid(thing))
+            player->thing_under_hand = 0;
+        else
+            player->thing_under_hand = thing->index;
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+        {
+          if (player->thing_under_hand > 0)
+          {
+            player->influenced_thing_idx = player->thing_under_hand;
+            set_player_instance(player, PI_PsngrCtrl, 0);
+            clear_input(pckt);
+          }
+        }
+        if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
+        {
+          if (player->instance_num != PI_PsngrCtrl)
+          {
+            set_player_state(player, player->continue_work_state, 0);
+            clear_input(pckt);
+          }
+        }
+        break;
+    case PSt_CtrlDirect:
+    case PSt_FreeCtrlDirect:
+        influence_own_creatures = 1;
+        if (player->work_state == PSt_CtrlDirect)
+            thing = get_creature_near_for_controlling(plyr_idx, x, y);
+        else
+            thing = get_creature_near(x, y);
+        if (thing_is_invalid(thing))
+          player->thing_under_hand = 0;
+        else
+          player->thing_under_hand = thing->index;
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+        {
+          if (player->thing_under_hand > 0)
+          {
+              magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default);
+              clear_input(pckt);
+          }
+        }
+        if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
+        {
+          if (player->instance_num != PI_DirctCtrl)
+          {
+            set_player_state(player, player->continue_work_state, 0);
+            clear_input(pckt);
+          }
+        }
+        break;
+    case PSt_CreatrQuery:
+    case PSt_CreatrInfo:
+        influence_own_creatures = 1;
+        thing = get_creature_near_and_owned_by(x, y, plyr_idx);
+        if (thing_is_invalid(thing))
+            player->thing_under_hand = 0;
+        else
+            player->thing_under_hand = thing->index;
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+        {
+          if (player->thing_under_hand > 0)
+          {
+            if (player->controlled_thing_idx != player->thing_under_hand)
+            {
+              if (is_my_player(player))
+              {
+                turn_off_all_panel_menus();
+                initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
+                turn_on_menu(GMnu_CREATURE_QUERY1);
+              }
+              player->influenced_thing_idx = player->thing_under_hand;
+              set_player_instance(player, PI_QueryCrtr, 0);
+            }
+            clear_input(pckt);
+          }
+        }
+        if (player->work_state == PSt_CreatrInfo)
+        {
+          thing = thing_get(player->controlled_thing_idx);
+          if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
+          {
+            if (is_my_player(player))
+            {
+              turn_off_query_menus();
+              turn_on_main_panel_menu();
+            }
+            set_player_instance(player, PI_UnqueryCrtr, 0);
+            clear_input(pckt);
+          } else
+          if (creature_is_dying(thing))
+          {
+            set_player_instance(player, PI_UnqueryCrtr, 0);
+            if (is_my_player(player))
+            {
+              turn_off_query_menus();
+              turn_on_main_panel_menu();
+            }
+          }
+        }
+        break;
+    case PSt_PlaceTrap:
+        process_dungeon_control_packet_dungeon_place_trap(plyr_idx);
+        break;
+    case PSt_Lightning:
+        player->thing_under_hand = 0;
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            i = get_power_overcharge_level(player);
+            magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, i, stl_x, stl_y, PwCast_None);
+            clear_input(pckt);
+        }
+        break;
+    case PSt_PlaceDoor:
+    {
+        long k;
+        if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
+        {
+            player->field_4A4 = 1;
+            // Make the frame around active slab
+            i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
+            if ((pckt->control_flags & PCtr_LBtnClick) != 0)
+            {
+              k = get_slab_number(slb_x, slb_y);
+              delete_room_slabbed_objects(k);
+              packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, i);
+            }
+            clear_input(pckt);
+        }
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+        {
+            if (player->field_4AF != 0)
+            {
+              player->field_4AF = 0;
+              clear_input(pckt);
+            }
+        }
+        break;
+    }
+    case PSt_SpeedUp:
+    case PSt_Armour:
+    case PSt_Conceal:
+    case PSt_Heal:
+        influence_own_creatures = true;
+        pwkind = player_state_to_power_kind[player->work_state];
+        thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
+        if (thing_is_invalid(thing))
+        {
+            player->thing_under_hand = 0;
+            break;
+        }
+        player->thing_under_hand = thing->index;
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+        {
+            i = get_power_overcharge_level(player);
+            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+            clear_input(pckt);
+        }
+        break;
+    case PSt_Sell:
+        process_dungeon_control_packet_sell_operation(plyr_idx);
+        break;
+    case PSt_CreateDigger:
+    case PSt_DestroyWalls:
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            pwkind = player_state_to_power_kind[player->work_state];
+            i = get_power_overcharge_level(player);
+            magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
+            clear_input(pckt);
+        }
+        break;
+    case PSt_CastDisease:
+        pwkind = player_state_to_power_kind[player->work_state];
+        thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
+        if (thing_is_invalid(thing))
+        {
+            player->thing_under_hand = 0;
+            break;
+        }
+        player->thing_under_hand = thing->index;
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+        {
+            i = get_power_overcharge_level(player);
+            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+            clear_input(pckt);
+        }
+        break;
+    case PSt_TurnChicken:
+        influence_own_creatures = true;
+        pwkind = player_state_to_power_kind[player->work_state];
+        thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
+        if (thing_is_invalid(thing))
+        {
+            player->thing_under_hand = 0;
+            break;
+        }
+        player->thing_under_hand = thing->index;
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+        {
+            i = get_power_overcharge_level(player);
+            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+            clear_input(pckt);
+        }
+        break;
+    default:
+        if (!packets_process_cheats(plyr_idx, x, y, pckt,
+                stl_x, stl_y, slb_x, slb_y, &influence_own_creatures))
+        {
+            ERRORLOG("Unrecognized player %d work state: %d", (int)plyr_idx, (int)player->work_state);
+            ret = false;
+        }
+        break;
+    }
+    // resetting position variables - they may have been changed
+    x = ((unsigned short)pckt->pos_x);
+    y = ((unsigned short)pckt->pos_y);
+    stl_x = coord_subtile(x);
+    stl_y = coord_subtile(y);
+    if (player->thing_under_hand == 0)
+    {
+      if ((x != 0) && (y != 0))  //originally was (y == 0), but it was probably a mistake
+      {
+          thing = get_queryable_object_near(x, y, plyr_idx);
+          if (!thing_is_invalid(thing)) {
+              player->thing_under_hand = thing->index;
+          }
+      }
+    }
+    if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (influence_own_creatures))
+    {
+      if ((player->field_455 == P454_Unkn0) || (player->field_455 == P454_Unkn3))
+        stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
+    }
+    return ret;
 }
