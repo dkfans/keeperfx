@@ -22,6 +22,7 @@
 /******************************************************************************/
 #include "game_legacy.h"
 #include "kjm_input.h"
+#include "front_input.h"
 #include "player_utils.h"
 
 #ifdef __cplusplus
@@ -248,19 +249,20 @@ void reset_dungeon_build_room_ui_variables()
 
 void get_dungeon_sell_user_roomspace(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
+    long keycode = 0;
     int width = 1, height = 1;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    if (is_key_pressed(KC_LCONTROL, KMod_DONTCARE)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
-        if (wheel_scrolled_down)
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
             if (user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
             {
                 user_defined_roomspace_width++;
             }
         }
-        if (wheel_scrolled_up)
+        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
         {
             if (user_defined_roomspace_width != MIN_USER_ROOMSPACE_WIDTH)
             {
@@ -279,6 +281,7 @@ void get_dungeon_sell_user_roomspace(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check)
 {
+    long keycode = 0;
     struct PlayerInfo* player = get_player(plyr_idx);
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
@@ -291,9 +294,9 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
             (*mode) = drag_placement_mode;
         }
     }
-    else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE)) // Find "best" room
+    else if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Find "best" room
     {
-        if (wheel_scrolled_down)
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
             if (roomspace_detection_looseness < tolerate_gold && roomspace_detection_looseness >=disable_tolerance_layers)
             {
@@ -304,7 +307,7 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
                 roomspace_detection_looseness = tolerate_rock;
             }
         }
-        if (wheel_scrolled_up)
+        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
         {
             if (roomspace_detection_looseness == tolerate_rock)
             {
@@ -317,16 +320,16 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
         }
         (*mode) = roomspace_detection_mode;
     }
-    else if (is_key_pressed(KC_LCONTROL, KMod_DONTCARE)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
-        if (wheel_scrolled_down)
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
             if (user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
             {
                 user_defined_roomspace_width++;
             }
         }
-        if (wheel_scrolled_up)
+        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
         {
             if (user_defined_roomspace_width != MIN_USER_ROOMSPACE_WIDTH)
             {
