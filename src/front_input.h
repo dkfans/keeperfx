@@ -68,6 +68,7 @@ enum GameKeys {
     Gkey_RoomSpaceIncSize,
     Gkey_RoomSpaceDecSize,
     Gkey_SellTrapOnSubtile,
+    Gkey_SnapCamera,
 };
 
 enum TbButtonFrontendFlags {

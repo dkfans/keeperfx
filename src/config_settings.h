@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 
 #define DK_GAME_KEYS_COUNT     32
-#define GAME_KEYS_COUNT        38
+#define GAME_KEYS_COUNT        39
 
 #ifdef __cplusplus
 extern "C" {

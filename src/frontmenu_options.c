@@ -81,6 +81,7 @@ const long definable_key_string[] = {
     GUIStr_RoomSpaceIncrease,
     GUIStr_RoomSpaceDecrease,
     GUIStr_SellTrapOnSubtile,
+    GUIStr_SnapCamera,
 };
 /******************************************************************************/
 #ifdef __cplusplus
