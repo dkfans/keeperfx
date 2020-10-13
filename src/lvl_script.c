@@ -158,6 +158,7 @@ const struct CommandDesc command_desc[] = {
   {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE},
+  {"NEUTRAL_ENTRANCE_LEVEL",            "N       ", Cmd_NEUTRAL_ENTRANCE_LEVEL},
   {NULL,                                "        ", Cmd_NONE},
 };
 
@@ -2750,6 +2751,14 @@ void command_set_game_rule(const char* objectv, unsigned long roomvar)
     command_add_value(Cmd_SET_GAME_RULE, 0, ruledesc, roomvar, 0);
 }
 
+void command_neutral_entrance_level(unsigned char val)
+{
+  if (val > 0)
+  {
+    NeutralEntranceLevel = (val - 1);
+  }
+}
+
 /** Adds a script command to in-game structures.
  *
  * @param cmd_desc
@@ -3024,6 +3033,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_CHANGE_SLAB_TYPE:
         command_change_slab_type(scline->np[0], scline->np[1], scline->np[2]);
+        break;
+    case Cmd_NEUTRAL_ENTRANCE_LEVEL:
+        command_neutral_entrance_level(scline->np[0]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
