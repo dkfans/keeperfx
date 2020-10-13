@@ -48,7 +48,6 @@ extern TbBool packets_process_cheats(
           MapSubtlCoord stl_x, MapSubtlCoord stl_y,
           MapSlabCoord slb_x, MapSlabCoord slb_y,
           short *influence_own_creatures);
-extern struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
 
 static void set_untag_mode(struct PlayerInfo* player)
 {
@@ -125,7 +124,7 @@ static TbBool process_dungeon_power_hand_state(struct PlayerInfo* player, struct
     return true;
 }
 
-static TbBool process_dungeon_control_packet_dungeon_build_room(struct PlayerInfo* player, struct Packet* pckt)
+static TbBool client_control_dungeon_build_room(struct PlayerInfo* player, struct Packet* pckt)
 {
     MapCoord x = ((unsigned short)pckt->pos_x);
     MapCoord y = ((unsigned short)pckt->pos_y);
@@ -164,11 +163,41 @@ static TbBool process_dungeon_control_packet_dungeon_build_room(struct PlayerInf
       }
       return false;
     }
-    //TODO: build room (remote)
-    NETLOG("build room: %d, %d, %d, %d", stl_x, stl_y, player->id_number, player->chosen_room_kind);
-    //keeper_build_room(stl_x, stl_y, plyr_idx, player->chosen_room_kind);
+
+    NETDBG(5, "x:%d y:%d plyr:%d room:%d", stl_x, stl_y, player->id_number, player->chosen_room_kind);
+    struct BigActionPacket * big = create_packet_action_big(player, PckA_BuildRoom, 0);
+    big->head.arg[0] = stl_x;
+    big->head.arg[1] = stl_y;
+    big->head.arg[2] = player->chosen_room_kind;
+
     clear_input(pckt);
     return true;
+}
+
+static void client_control_use_power_on_subtile(
+          struct PlayerInfo* player, PowerKind pwkind, unsigned short splevel,
+          MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    NETDBG(5, "x:%d y:%d plyr:%d kind:%d, power:%d",
+        stl_x, stl_y, player->id_number, (int)pwkind, (int)splevel);
+    struct BigActionPacket * big = create_packet_action_big(player, PckA_UsePower, 0);
+    big->head.arg[0] = pwkind | (splevel << 8);
+    big->head.arg[1] = 0;
+    big->head.arg[2] = stl_x;
+    big->head.arg[3] = stl_y;
+}
+
+static void client_control_use_power_on_thing(
+          struct PlayerInfo* player, PowerKind pwkind, unsigned short splevel,
+          MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short thing_idx)
+{
+    NETDBG(5, "x:%d y:%d plyr:%d kind:%d, power:%d",
+        stl_x, stl_y, player->id_number, (int)pwkind, (int)splevel);
+    struct BigActionPacket * big = create_packet_action_big(player, PckA_UsePower, 0);
+    big->head.arg[0] = pwkind | (splevel << 8);
+    big->head.arg[1] = thing_idx;
+    big->head.arg[2] = stl_x;
+    big->head.arg[3] = stl_y;
 }
 
 static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* player, struct Packet* pckt)
@@ -575,7 +604,7 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         process_dungeon_control_packet_dungeon_control(player, pckt);
         break;
     case PSt_BuildRoom:
-        process_dungeon_control_packet_dungeon_build_room(player, pckt);
+        client_control_dungeon_build_room(player, pckt);
         break;
     case PSt_CallToArms:
     case PSt_CaveIn:
@@ -584,7 +613,8 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         {
             pwkind = player_state_to_power_kind[player->work_state];
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
+            // magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
+            client_control_use_power_on_subtile(player, pwkind, i, stl_x, stl_y);
             clear_input(pckt);
         }
         break;
@@ -601,7 +631,8 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             // TODO: newer used?
-            magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
+            // magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
+            client_control_use_power_on_thing(player, PwrK_SLAP, 0, stl_x, stl_y, thing->index);
             clear_input(pckt);
         }
         break;
@@ -649,7 +680,8 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         {
           if (player->thing_under_hand > 0)
           {
-              magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default);
+              //magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default);
+              client_control_use_power_on_thing(player, PwrK_POSSESS, 0, stl_x, stl_y, thing->index);
               clear_input(pckt);
           }
         }
@@ -720,7 +752,8 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, i, stl_x, stl_y, PwCast_None);
+            //magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, i, stl_x, stl_y, PwCast_None);
+            client_control_use_power_on_subtile(player, PwrK_LIGHTNING, i, stl_x, stl_y);
             clear_input(pckt);
         }
         break;
@@ -766,7 +799,8 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+            //magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+            client_control_use_power_on_thing(player, pwkind, i, stl_x, stl_y, thing->index);
             clear_input(pckt);
         }
         break;
@@ -779,7 +813,8 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         {
             pwkind = player_state_to_power_kind[player->work_state];
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
+            //magic_use_available_power_on_subtile(plyr_idx, pwkind, i, stl_x, stl_y, PwCast_None);
+            client_control_use_power_on_subtile(player, pwkind, i, stl_x, stl_y);
             clear_input(pckt);
         }
         break;
@@ -795,7 +830,8 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+            //magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+            client_control_use_power_on_thing(player, pwkind, i, stl_x, stl_y, thing->index);
             clear_input(pckt);
         }
         break;
@@ -812,7 +848,8 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+            //magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+            client_control_use_power_on_thing(player, pwkind, i, stl_x, stl_y, thing->index);
             clear_input(pckt);
         }
         break;

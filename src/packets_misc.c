@@ -390,3 +390,25 @@ void set_packet_pause_toggle(struct PacketEx* packet)
         packet->packet.action = PckA_TogglePause;
     }
 }
+
+struct SmallActionPacket *create_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1)
+{
+    struct SmallActionPacket *ret = LbNetwork_AddPacket(
+        action, game.play_gameturn, sizeof(struct SmallActionPacket));
+    NETDBG(7, "action:%d arg0:%d arg1:%d", (int)action, (int)arg0, (int)arg1);
+    ret->action = action;
+    ret->flags = 0;
+    ret->arg[0] = arg0;
+    ret->arg[1] = arg1;
+    return ret;
+}
+
+struct BigActionPacket *create_packet_action_big(struct PlayerInfo *player, enum TbPacketAction action, enum ActionPacketFlags flags)
+{
+    struct BigActionPacket *ret = LbNetwork_AddPacket(
+        action, game.play_gameturn, sizeof(struct BigActionPacket));
+    NETDBG(7, "action:%d", (int)action);
+    ret->head.action = action;
+    ret->head.flags = AP_Big | flags;
+    return ret;
+}

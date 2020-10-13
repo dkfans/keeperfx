@@ -155,8 +155,10 @@ enum TbPacketAction {
         PckA_PlyrMsgClear,
         PckA_LandView,
         PckA_TortureView,
-        PckA_Frontmenu,
+        PckA_Frontmenu, //125
         PckA_Invalid, // Should not be processed, used in check_set_packet_action
+        PckA_BuildRoom,
+        PckA_UsePower,
 };
 
 /** Packet flags for non-action player operation. */
@@ -206,6 +208,14 @@ enum ChecksumKind {
   CKS_Rooms,
   CKS_MAX
 };
+
+enum ActionPacketFlags
+{
+  AP_Confirmed    = 0x01, // Not used
+  AP_Rejected     = 0x02, // Not used
+  AP_NetworkMask  = 0x03, // Not used
+  AP_Big          = 0x04, // It is a BigActionPacket
+};
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
 #define PCtr_RBtnAnyAction (PCtr_RBtnClick | PCtr_RBtnHeld | PCtr_RBtnRelease)
 #define PCtr_HeldAnyButton (PCtr_LBtnHeld | PCtr_RBtnHeld)
@@ -247,8 +257,24 @@ struct PacketSaveHead { // sizeof=0xF (15)
 struct SmallActionPacket
 {
     unsigned char action; //! Action kind performed by the player which owns this packet
-    unsigned short arg0; //! Players action parameter #1
-    unsigned short arg1; //! Players action parameter #2
+    unsigned char flags; // bitmask for Big packets
+    union
+    {
+        struct
+        {
+            unsigned short arg0;
+            unsigned short arg1;
+        };
+        unsigned short arg[2]; //! Players action parameter 1 & 2
+    };
+};
+
+struct BigActionPacket
+{
+    struct SmallActionPacket head;
+    unsigned short arg2;
+    unsigned short arg3;
+    // TODO list of units, some spell flags etc.
 };
 
 struct PacketEx
@@ -268,6 +294,7 @@ unsigned char get_players_packet_action(struct PlayerInfo *player);
 struct PacketEx *create_outgoing_input_packet();
 void set_packet_position(struct PlayerInfo *player, long x, long y);
 struct SmallActionPacket *create_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1);
+struct BigActionPacket *create_packet_action_big(struct PlayerInfo *player, enum TbPacketAction action, enum ActionPacketFlags flags);
 // This should check that player is myplayer and create a packet_action
 void set_my_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1);
 void set_players_packet_position(struct PacketEx *pckt, long x, long y, unsigned char context);

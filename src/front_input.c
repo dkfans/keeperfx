@@ -157,18 +157,17 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
  */
 static TbBool get_players_message_inputs(void)
 {
-    struct PlayerInfo* player = get_my_player();
-    struct PacketEx* packet = LbNetwork_AddPacket(
-        PckA_PlyrMsgEnd, game.play_gameturn, sizeof(struct PacketEx*));
+    struct PlayerInfo *player = get_my_player();
+    struct SmallActionPacket *packet = create_packet_action(player, PckA_PlyrMsgEnd, 0, 0);
 
     if (is_key_pressed(KC_RETURN, KMod_NONE))
     {
-        packet->packet.action = PckA_PlyrMsgEnd;
+        packet->action = PckA_PlyrMsgEnd;
         clear_key_pressed(KC_RETURN);
         return true;
     } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
-        packet->packet.action = PckA_PlyrMsgClear;
+        packet->action = PckA_PlyrMsgClear;
         clear_key_pressed(KC_ESCAPE);
         return true;
     }
@@ -176,9 +175,9 @@ static TbBool get_players_message_inputs(void)
     int msg_width = pixel_size * LbTextStringWidth(player->mp_message_text);
     if ( (is_key_pressed(KC_BACK,KMod_DONTCARE)) || (msg_width < 450) )
     {
-        packet->packet.action = PckA_PlyrMsgChar;
-        packet->packet.actn_par1 = lbInkey;
-        packet->packet.actn_par2 = key_modifiers;
+        packet->action = PckA_PlyrMsgChar;
+        packet->arg[0] = lbInkey;
+        packet->arg[1] = key_modifiers;
         clear_key_pressed(lbInkey);
         return true;
     }
@@ -2127,7 +2126,7 @@ TbBool get_inputs(void)
           NETDBG(5, "turn:%04ld control_flags:%04x", game.play_gameturn, (int)packet->packet.control_flags);
         }
         fake_packet = *packet;
-        process_dungeon_control_packet_clicks(player, &fake_packet);
+        process_dungeon_control_packet_clicks(player, &fake_packet.packet);
         return inp_handled;
     case PVT_CreatureContrl:
         if (!inp_handled)

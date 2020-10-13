@@ -577,7 +577,7 @@ static TbBool process_players_global_packet_action(
       return 0;
   case PckA_PlyrMsgBegin:
       player->allocflags |= PlaF_NewMPMessage;
-      return 0;
+      return 1;
   case PckA_PlyrMsgEnd:
       player->allocflags &= ~PlaF_NewMPMessage;
       if (player->mp_message_text[0] == '!')
@@ -592,11 +592,11 @@ static TbBool process_players_global_packet_action(
       else if (player->mp_message_text[0] != '\0')
           message_add(player->id_number, player->mp_message_text);
       LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
-      return 0;
+      return 1;
   case PckA_PlyrMsgClear:
       player->allocflags &= ~PlaF_NewMPMessage;
       LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
-      return 0;
+      return 1;
   case PckA_ToggleLights:
       if (is_my_player(player))
       {
@@ -647,7 +647,7 @@ static TbBool process_players_global_packet_action(
       return 0;
   case PckA_SetPlyrState:
       set_player_state(player, pckt->arg0, pckt->arg1);
-      return 0;
+      return 1;
   case PckA_SwitchView:
       set_engine_view(player, pckt->arg0);
       return 0;
@@ -925,7 +925,6 @@ static void process_players_packet(
       switch (player->view_type)
       {
       case PVT_DungeonTop:
-        // This is valid because it only process packets of correct kind
         process_players_dungeon_control_packet_action(player, (enum TbPacketAction)kind, packet_short);
         break;
       case PVT_CreatureContrl:
@@ -960,6 +959,8 @@ static void process_players_creature_passenger_packet_action(
 static void process_players_dungeon_control_packet_action(
     struct PlayerInfo* player, enum TbPacketAction action, struct SmallActionPacket *packet)
 {
+
+    struct BigActionPacket *big = (struct BigActionPacket *)packet;
     int plyr_idx = player->id_number;
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)action);
     switch (action)
@@ -982,8 +983,50 @@ static void process_players_dungeon_control_packet_action(
     case PckA_ToggleComputer:
         toggle_computer_player(plyr_idx);
         break;
-    default:
+    case PckA_BuildRoom:
+        NETDBG(5, "packet_kind:%d player_kind:%d", big->head.arg[2], player->chosen_room_kind);
+
+        // TODO: we should track these events sometimes
+        assert(big->head.arg[2] == player->chosen_room_kind);
+
+        keeper_build_room(
+            big->head.arg[0], //stl_x
+            big->head.arg[1], //stl_y
+            player->id_number,
+            big->head.arg[2] //player->chosen_room_kind
+            );
         break;
+    case PckA_UsePower:
+        NETDBG(5, "plyr:%d kind:%d power:%d x:%d y:%d thing:%d",
+            player->id_number,
+            big->head.arg[0] & 255, // pwkind
+            big->head.arg[0] >> 8,  // powerlevel,
+            big->head.arg[2], // stl_x
+            big->head.arg[3], // stl_y
+            big->head.arg[1] // thing
+              );
+        if (big->head.arg[1] != 0)
+        {
+            magic_use_available_power_on_thing(player->id_number,
+                big->head.arg[0] & 255, // pwkind
+                big->head.arg[0] >> 8,  // powerlevel
+                big->head.arg[2], // stl_x
+                big->head.arg[3], // stl_y
+                thing_get(big->head.arg[1]), // thing
+                PwMod_Default);
+        }
+        else
+        {
+            magic_use_available_power_on_subtile(player->id_number,
+                big->head.arg[0] & 255, // pwkind
+                big->head.arg[0] >> 8,  // powerlevel
+                big->head.arg[2], // stl_x
+                big->head.arg[3], // stl_y
+                PwCast_None);
+        }
+        break;
+    default:
+        NETLOG("unexpected action: %d", (int) action);
     }
 }
 
@@ -1334,17 +1377,6 @@ void process_packets(void)
       clear_packets();
   }
   SYNCDBG(13,"Finished");
-}
-
-struct SmallActionPacket *create_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1)
-{
-    struct SmallActionPacket *ret = LbNetwork_AddPacket(
-        action, game.play_gameturn, sizeof(struct SmallActionPacket));
-    NETDBG(7, "action:%d arg0:%d arg1:%d", (int)action, (int)arg0, (int)arg1);
-    ret->action = action;
-    ret->arg0 = arg0;
-    ret->arg1 = arg1;
-    return ret;
 }
 
 void set_my_packet_action(struct PlayerInfo *player, enum TbPacketAction action, short arg0, short arg1)
