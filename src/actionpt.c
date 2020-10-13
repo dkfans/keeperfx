@@ -149,6 +149,12 @@ unsigned long get_action_point_activated_by_players_mask(ActionPointId apt_idx)
     return apt->activated;
 }
 
+TbBool action_point_activated(ActionPointId apt_idx)
+{
+    struct ActionPoint* apt = action_point_get(apt_idx);
+    return (apt->activated != 0);
+}
+
 TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, long first_thing_idx)
 {
     SYNCDBG(8,"Starting");

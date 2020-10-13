@@ -239,6 +239,8 @@ const struct NamedCommand player_desc[] = {
   {"PLAYER_GOOD",      PLAYER_GOOD},
   {"ALL_PLAYERS",      ALL_PLAYERS},
   {"PLAYER_NEUTRAL",   PLAYER_NEUTRAL},
+  {"ANY_PLAYER",       6},
+  {"ANY_KEEPER",       7},
   {NULL,               0},
 };
 
@@ -679,6 +681,14 @@ long get_players_range_single_f(long plr_range_id, const char *func_name, long l
     if (plr_range_id == PLAYER_NEUTRAL) {
         return game.neutral_player_num;
     }
+    if (plr_range_id == 6)
+    {
+        return -4;
+    }
+    if (plr_range_id == 7)
+    {
+        return -5;
+    }
     if (plr_range_id < PLAYERS_COUNT)
     {
         return plr_range_id;
@@ -709,6 +719,18 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
     {
         *plr_start = game.neutral_player_num;
         *plr_end = game.neutral_player_num+1;
+        return plr_range_id;
+    } else
+    if (plr_range_id == 6)
+    {
+        *plr_start = -4;
+        *plr_end = -4;
+        return plr_range_id;
+    } else
+    if (plr_range_id == 7)
+    {
+        *plr_start = -5;
+        *plr_end = -5;
         return plr_range_id;
     } else
     if (plr_range_id < PLAYERS_COUNT)
@@ -4544,10 +4566,22 @@ void process_condition(struct Condition *condt)
         if (condt->variabl_type == SVar_ACTION_POINT_TRIGGERED)
         {
             new_status = false;
-            for (i = plr_start; i < plr_end; i++)
+            if (plr_start >= 0)
             {
-                new_status = action_point_activated_by_player(condt->variabl_idx, i);
-                if (new_status) break;
+                for (i = plr_start; i < plr_end; i++)
+                {
+                    new_status = action_point_activated_by_player(condt->variabl_idx, i);
+                    if (new_status) break;
+                }
+            }
+            else if (plr_start == -4)
+            {
+                new_status = action_point_activated(condt->variabl_idx);   
+            }
+            else if (plr_start == -5)
+            {
+                i = get_action_point_activated_by_players_mask(condt->variabl_idx);
+                new_status = ((i == 1) || (i == 2) || (i == 4) || (i == 8));
             }
         }
         else
