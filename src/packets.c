@@ -34,6 +34,7 @@
 #include "bflib_planar.h"
 
 #include "kjm_input.h"
+#include "front_input.h"
 #include "front_simple.h"
 #include "front_landview.h"
 #include "front_network.h"
@@ -395,6 +396,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
+    long keycode = 0;
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -414,7 +416,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
         if (!game_is_busy_doing_gui())
         {
             get_dungeon_sell_user_roomspace(stl_x, stl_y);
-            tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->field_4A4, (is_key_pressed(KC_LALT, KMod_DONTCARE)));
+            tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->field_4A4, (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true)));
         }
     }
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
@@ -426,7 +428,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
       }
       return false;
     }
-    if (!is_key_pressed(KC_LALT, KMod_DONTCARE))
+    if (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
     {
         //Slab Mode
         if (render_roomspace.slab_count > 1)
@@ -563,6 +565,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     int mode = box_placement_mode;
+    long keycode = 0;
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
       if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -577,7 +580,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     {
         gui_room_type_highlighted = player->chosen_room_kind;
     }
-    get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, stl_x, stl_y, &mode, (is_key_pressed(KC_LSHIFT, KMod_DONTCARE) || is_key_pressed(KC_LCONTROL, KMod_DONTCARE))  && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
+    get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, stl_x, stl_y, &mode, (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) || (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))  && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->field_4A4);
     
     if (mode != drag_placement_mode) // allows the user to hold the left mouse to use "paint mode"

@@ -792,12 +792,12 @@ long get_dungeon_control_action_inputs(void)
           toggle_gui();
       }
       // Middle mouse camera actions for IsometricView
-      if (lbDisplay.MiddleButton >= 1)
+      if (is_game_key_pressed(Gkey_SnapCamera, &val, true))
       {
           struct Camera* cam = &player->cameras[CamIV_Isometric];
           struct Packet* pckt = get_packet(my_player_number);
           int angle = cam->orient_a;
-          if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
+          if (lbKeyOn[KC_LCONTROL])
           {
               if ((angle >= 0 && angle < 256) || angle == 2048)
               {
@@ -867,8 +867,8 @@ long get_dungeon_control_action_inputs(void)
         {
             (angle = 0);
         }
-      set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
-      lbDisplay.MiddleButton = 0;
+        set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
+        clear_key_pressed(val);
       }
     }
     if (player->view_mode == PVM_FrontView)
@@ -883,12 +883,12 @@ long get_dungeon_control_action_inputs(void)
           toggle_gui();
       }
       // Middle mouse camera actions for FrontView
-      if (lbDisplay.MiddleButton >= 1)
+      if (is_game_key_pressed(Gkey_SnapCamera, &val, true))
       {
           struct Camera* cam = &player->cameras[CamIV_FrontView];
           struct Packet* pckt = get_packet(my_player_number);
           int angle = cam->orient_a;
-          if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
+          if (lbKeyOn[KC_LCONTROL])
           {
               set_packet_control(pckt, PCtr_ViewRotateCW);
         }
@@ -916,7 +916,7 @@ long get_dungeon_control_action_inputs(void)
             }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         }
-      lbDisplay.MiddleButton = 0;
+        clear_key_pressed(val);
       }
     }
 

@@ -304,11 +304,22 @@ unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif)
  */
 void clear_key_pressed(long key)
 {
-  if (key >= sizeof(lbKeyOn))
-    return;
-  lbKeyOn[key] = 0;
-  if (key == lbInkey)
-    lbInkey = KC_UNASSIGNED;
+    if (key >= sizeof(lbKeyOn))
+    {
+        return;
+    }
+    if ((key >= 0xF0) && (key <= 0xFC)) // This is a mouse button
+    {
+        if (key == KC_MOUSE3)
+        {
+            lbDisplay.MiddleButton = 0;
+        }
+    }
+    lbKeyOn[key] = 0;
+    if (key == lbInkey)
+    {
+        lbInkey = KC_UNASSIGNED;
+    }
 }
 
 /**
@@ -374,6 +385,22 @@ int mod_key_to_normal_key(unsigned int mods)
     }
     return ncode;
 }
+void check_and_assign_mod_keys_group(long key_id, unsigned int mods, long reference_key_ids[], long reference_key_count)
+{
+    int ncode = mod_key_to_normal_key(mods);
+    // Do not allow the key if it is used as other mod key by any in reference_key_ids[]
+    struct GameKey *kbk;
+    for (long i = 0; i < reference_key_count; i++)
+    {
+        kbk = &settings.kbkeys[reference_key_ids[i]];
+        if ((reference_key_ids[i] != key_id) && (kbk->code == ncode))
+        {
+            swap_assigned_keys(reference_key_ids[i], kbk, key_id, ncode, 0);
+            return;
+        }
+    }
+    assign_key(key_id, ncode, 0);
+}
 
 void check_and_assign_mod_keys(long key_id, unsigned int mods, long reference_key_id)
 {
@@ -412,6 +439,21 @@ long set_game_key(long key_id, unsigned char key, unsigned int mods)
     if (!key_to_string[key])
     {
       return 0;
+    }
+    // One-Click Build & Sell Trap on Subtile - allow lone modifiers and normal keys
+    if (key_id == Gkey_SellTrapOnSubtile || key_id == Gkey_SquareRoomSpace || key_id == Gkey_BestRoomSpace)
+    {
+        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL) || (mods & KMod_ALT))
+        {
+            long reference_key_ids[3] = {Gkey_SellTrapOnSubtile, Gkey_SquareRoomSpace, Gkey_BestRoomSpace};
+            check_and_assign_mod_keys_group(key_id, mods, reference_key_ids, 3);
+            return 1;
+        }
+        else
+        {
+            check_and_assign_normal_keys(key_id, key, mods, 0);
+            return 1;
+        }
     }
     // Rotate & speed - allow lone modifiers and normal keys
     if (key_id == Gkey_RotateMod || key_id == Gkey_SpeedMod)
