@@ -290,7 +290,6 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
 
 short ceiling_set_info(long height_max, long height_min, long step);
-void set_mouse_light(struct PlayerInfo *player);
 void delete_all_structures(void);
 void clear_map(void);
 void clear_game(void);

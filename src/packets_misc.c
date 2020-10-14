@@ -67,19 +67,6 @@ void set_players_packet_control(struct PlayerInfo *player, unsigned long flag)
     pckt->control_flags |= flag;
 }
 
-
-void set_players_add_flag(struct PlayerInfo *player, unsigned long flag)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    pckt->field_10 |= flag;
-}
-
-void unset_players_add_flag(struct PlayerInfo *player, unsigned long flag)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    pckt->field_10 &= ~flag;
-}
-
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 {
     struct Packet* pckt = get_packet_direct(player->packet_num);

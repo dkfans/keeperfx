@@ -2145,32 +2145,6 @@ void clear_lookups(void)
     game.columns.end = NULL;
 }
 
-void set_mouse_light(struct PlayerInfo *player)
-{
-    SYNCDBG(6,"Starting");
-    struct Packet *pckt;
-    pckt = get_packet_direct(player->packet_num);
-    if (player->field_460 != 0)
-    {
-        if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
-        {
-            struct Coord3d pos;
-            pos.x.val = pckt->pos_x;
-            pos.y.val = pckt->pos_y;
-            pos.z.val = get_floor_height_at(&pos);
-            if (is_my_player(player)) {
-                game.pos_14C006 = pos;
-            }
-            light_turn_light_on(player->field_460);
-            light_set_light_position(player->field_460, &pos);
-        }
-        else
-        {
-            light_turn_light_off(player->field_460);
-        }
-    }
-}
-
 void check_players_won(void)
 {
   SYNCDBG(13, "Starting");

@@ -118,6 +118,29 @@ static void loss_wait()
 
 extern TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct Packet* pckt);
 /******************************************************************************/
+static void set_mouse_light(struct PlayerInfo *player, struct Packet *pckt)
+{
+    SYNCDBG(7,"Starting");
+    if (player->field_460 != 0)
+    {
+        if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
+        {
+            struct Coord3d pos;
+            pos.x.val = pckt->pos_x;
+            pos.y.val = pckt->pos_y;
+            pos.z.val = get_floor_height_at(&pos);
+            if (is_my_player(player)) {
+                game.pos_14C006 = pos;
+            }
+            light_turn_light_on(player->field_460);
+            light_set_light_position(player->field_460, &pos);
+        }
+        else
+        {
+            light_turn_light_off(player->field_460);
+        }
+    }
+}
 
 void update_double_click_detection(int plyr_idx, struct Packet* packet)
 {
@@ -382,7 +405,7 @@ static void process_players_dungeon_control_packet_control(struct PlayerInfo* pl
     }
     // TODO: all reasonable things should be extracted from that function
     // process_dungeon_control_packet_clicks(player, pckt);
-    set_mouse_light(player);
+    set_mouse_light(player, pckt);
 }
 
 /**
@@ -894,7 +917,7 @@ static void process_players_map_packet_control(struct PlayerInfo* player, struct
     process_map_packet_clicks(player, pckt);
     player->cameras[CamIV_Parchment].mappos.x.val = pckt->pos_x;
     player->cameras[CamIV_Parchment].mappos.y.val = pckt->pos_y;
-    set_mouse_light(player);
+    set_mouse_light(player, pckt);
     SYNCDBG(8,"Finished");
 }
 

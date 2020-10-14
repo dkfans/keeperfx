@@ -2043,7 +2043,7 @@ static void get_dungeon_speech_inputs(void)
 
 /** Fill packet struct with game action information.
  */
-TbBool get_inputs(void)
+static TbBool get_inputs()
 {
     if ((game.flags_cd & MFlg_IsDemoMode) != 0)
     {
@@ -2058,9 +2058,20 @@ TbBool get_inputs(void)
         SYNCDBG(15,"Loading packet inputs");
         return get_packet_load_game_inputs();
     }
+    struct PacketEx fake_packet;
     struct PlayerInfo* player = get_my_player();
     struct PacketEx* packet = create_outgoing_input_packet();
-    struct PacketEx fake_packet;
+
+    // TODO: We should ignore this on server
+    if (is_game_key_pressed(Gkey_CrtrContrlMod, NULL, false) != 0)
+    {
+        packet->packet.field_10 |= PCAdV_CrtrContrlPressed;
+    }
+    if (is_game_key_pressed(Gkey_CrtrQueryMod, NULL, false) != 0)
+    {
+        packet->packet.field_10 |= PCAdV_CrtrQueryPressed;
+    }
+
     if ((player->allocflags & PlaF_Unknown80) != 0)
     {
         SYNCDBG(15,"Starting for creature fade");
@@ -2195,27 +2206,6 @@ void input(void)
       lbKeyOn[lbInkey] = 0;
     }
 
-    // TODO: Do not care about that now
-    /*
-        struct PlayerInfo* player = get_my_player();
-        if (is_game_key_pressed(Gkey_CrtrContrlMod, NULL, false) != 0)
-        {
-            set_players_add_flag(player, PCAdV_CrtrContrlPressed);
-        }
-        else
-        {
-            unset_players_add_flag(player, PCAdV_CrtrContrlPressed);
-        }
-        if (is_game_key_pressed(Gkey_CrtrQueryMod, NULL, false) != 0)
-        {
-            set_players_add_flag(player, PCAdV_CrtrQueryPressed);
-        }
-        else
-        {
-            unset_players_add_flag(player, PCAdV_CrtrQueryPressed);
-        }
-    }
-    */
     get_inputs();
 
     SYNCDBG(15,"Finished");

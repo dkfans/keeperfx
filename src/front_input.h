@@ -82,7 +82,6 @@ DLLIMPORT long _DK_old_my;
 #define old_my _DK_old_my
 /******************************************************************************/
 void input(void);
-TbBool get_inputs(void);
 short get_screen_capture_inputs(void);
 int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods);
 short game_is_busy_doing_gui_string_input(void);

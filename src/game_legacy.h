@@ -218,7 +218,7 @@ int field_14BB5D;
     unsigned long time_delta;
 short field_14BB65[592];
     unsigned char small_map_state;
-    struct Coord3d pos_14C006;
+    struct Coord3d pos_14C006; // Player cursor coord (used to draw spell cursor)
     struct Packet packets_OLD[PACKETS_COUNT];
     struct CreatureStatsOLD creature_stats_OLD[CREATURE_TYPES_COUNT]; // New stats are in GameAdd
     struct RoomStats room_stats[ROOM_TYPES_COUNT];
