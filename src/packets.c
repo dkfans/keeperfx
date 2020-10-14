@@ -422,8 +422,9 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
     return false;
 }
 
-void process_players_message_character(struct PlayerInfo *player, struct SmallActionPacket* packet)
+static void process_players_message_character(struct PlayerInfo *player, struct SmallActionPacket* packet)
 {
+    NETDBG(6, "action:%d", packet->action);
     assert(packet->action == PckA_PlyrMsgChar);
     if (packet->arg0 > 0)
     {

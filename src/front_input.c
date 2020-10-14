@@ -158,16 +158,15 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
 static TbBool get_players_message_inputs(void)
 {
     struct PlayerInfo *player = get_my_player();
-    struct SmallActionPacket *packet = create_packet_action(player, PckA_PlyrMsgEnd, 0, 0);
 
     if (is_key_pressed(KC_RETURN, KMod_NONE))
     {
-        packet->action = PckA_PlyrMsgEnd;
+        create_packet_action(player, PckA_PlyrMsgEnd, 0, 0);
         clear_key_pressed(KC_RETURN);
         return true;
     } else if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
-        packet->action = PckA_PlyrMsgClear;
+        create_packet_action(player, PckA_PlyrMsgClear, 0, 0);
         clear_key_pressed(KC_ESCAPE);
         return true;
     }
@@ -175,9 +174,10 @@ static TbBool get_players_message_inputs(void)
     int msg_width = pixel_size * LbTextStringWidth(player->mp_message_text);
     if ( (is_key_pressed(KC_BACK,KMod_DONTCARE)) || (msg_width < 450) )
     {
-        packet->action = PckA_PlyrMsgChar;
-        packet->arg[0] = lbInkey;
-        packet->arg[1] = key_modifiers;
+        if (lbInkey > 0)
+        {
+            create_packet_action(player, PckA_PlyrMsgChar, lbInkey, key_modifiers);
+        }
         clear_key_pressed(lbInkey);
         return true;
     }
