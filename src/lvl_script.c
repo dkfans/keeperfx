@@ -159,6 +159,7 @@ const struct CommandDesc command_desc[] = {
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE},
   {"NEUTRAL_ENTRANCE_LEVEL",            "N       ", Cmd_NEUTRAL_ENTRANCE_LEVEL},
+  {"CREATURE_INBY",                     "CN      ", Cmd_CREATURE_INBY},
   {NULL,                                "        ", Cmd_NONE},
 };
 
@@ -194,6 +195,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS},
   {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL},
   {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL},
+  {"CREATURE_INBY",                "CN      ", Cmd_ADD_CREATURE_TO_POOL},
   {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT},
   {"SET_CREATURE_MAX_LEVEL",       "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL},
   {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC},
@@ -2759,6 +2761,22 @@ void command_neutral_entrance_level(unsigned char val)
   }
 }
 
+void command_creature_inby(const char *crtr_name, long amount)
+{
+    long crtr_id = get_rid(creature_desc, crtr_name);
+    if (crtr_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+        return;
+    }
+    if ((amount < 0) || (amount >= CREATURES_COUNT))
+    {
+        SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
+        return;
+    }
+    game.pool.crtr_kind[crtr_id] = amount;
+}
+
 /** Adds a script command to in-game structures.
  *
  * @param cmd_desc
@@ -3036,6 +3054,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_NEUTRAL_ENTRANCE_LEVEL:
         command_neutral_entrance_level(scline->np[0]);
+        break;
+    case Cmd_CREATURE_INBY:
+        command_creature_inby(scline->tp[0], scline->np[1]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
