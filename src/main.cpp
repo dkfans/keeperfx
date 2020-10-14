@@ -2815,6 +2815,11 @@ void add_creature_to_pool(long kind, long amount, unsigned long a3)
     }
 }
 
+void set_creature_pool(long kind, long amount)
+{
+    game.pool.crtr_kind[kind] = amount;
+}
+
 short update_creature_pool_state(void)
 {
   int i;

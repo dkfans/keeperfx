@@ -2774,7 +2774,7 @@ void command_creature_inby(const char *crtr_name, long amount)
         SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
         return;
     }
-    game.pool.crtr_kind[crtr_id] = amount;
+    command_add_value(Cmd_CREATURE_INBY, ALL_PLAYERS, crtr_id, amount, 0);
 }
 
 /** Adds a script command to in-game structures.
@@ -4869,6 +4869,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(val2, val3, 0);
+      break;
+  case Cmd_CREATURE_INBY:
+      set_creature_pool(val2, val3);
       break;
   case Cmd_RESET_ACTION_POINT:
       action_point_reset_idx(val2);
