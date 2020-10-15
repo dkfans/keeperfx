@@ -2534,10 +2534,10 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
     SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
     splevel = 1;
   }
-  if (splevel > SPELL_MAX_LEVEL)
+  if (splevel > MAGIC_OVERCHARGE_LEVELS)
   {
-    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, SPELL_MAX_LEVEL);
-    splevel = SPELL_MAX_LEVEL;
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
+    splevel = MAGIC_OVERCHARGE_LEVELS;
   }
   splevel--;
   long mag_id = get_rid(spell_desc, magname);
@@ -4225,20 +4225,45 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         SYNCDBG(5,"No matching player %d creature of model %d found to use spell on.",(int)plyr_idx,(int)crmodel);
         return Lb_FAIL;
     }
-
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    long splevel = fmcl_bytes & 255;
-
-    if (thing_is_picked_up(thing))
+    if ( (spkind == SplK_Freeze) || (spkind == SplK_Armour) || (spkind == SplK_Rebound) || (spkind == SplK_Heal) || (spkind == SplK_Invisibility) || (spkind == SplK_Teleport) || (spkind == SplK_Speed) || (spkind == SplK_Slow) || (spkind == SplK_Fly) || (spkind == SplK_Sight) || (spkind == SplK_Disease) || (spkind == SplK_Chicken) )
     {
-        SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
-        return Lb_FAIL;          
+        if (thing_is_picked_up(thing))
+        {
+            SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
+            return Lb_FAIL;          
+        }
+        const struct SpellInfo* spinfo = get_magic_info(spkind);
+        unsigned short sound;
+        if (spinfo->caster_affected)
+        {
+            sound = spinfo->caster_affect_sound;
+        }
+        else if ( (spkind == SplK_Freeze) || (spkind == SplK_Slow) )
+        {
+            sound = 50;
+        }
+        else if (spkind == SplK_Disease)
+        {
+            sound = 59;
+        }
+        else if (spkind == SplK_Chicken)
+        {
+            sound = 109;
+        }
+        else
+        {
+            sound = 0;
+        }
+        long splevel = fmcl_bytes & 255;
+        thing_play_sample(thing, sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        apply_spell_effect_to_thing(thing, spkind, splevel);
+        return Lb_SUCCESS;
     }
-    const struct SpellInfo* spinfo = get_magic_info(spkind);
-    unsigned short sound = (spinfo->caster_affected) ? spinfo->caster_affect_sound : 50;
-    thing_play_sample(thing, sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, spkind, splevel);
-    return Lb_SUCCESS;
+    else
+    {
+        return Lb_FAIL; 
+    }
 }
 
 /**
