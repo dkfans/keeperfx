@@ -4234,6 +4234,9 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
         return Lb_FAIL;          
     }
+    const struct SpellInfo* spinfo = get_magic_info(spkind);
+    unsigned short sound = (spinfo->caster_affected) ? spinfo->caster_affect_sound : 50;
+    thing_play_sample(thing, sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, spkind, splevel);
     return Lb_SUCCESS;
 }
