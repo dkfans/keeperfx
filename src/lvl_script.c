@@ -141,6 +141,7 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION},
   {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE},
+  {"USE_SPELL_ON_CREATURE",             "PCAAN   ", Cmd_USE_SPELL_ON_CREATURE},
   {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE},
   {"USE_POWER_AT_LOCATION",             "PNNANN  ", Cmd_USE_POWER_AT_LOCATION},
   {"USE_POWER",                         "PAN     ", Cmd_USE_POWER},
@@ -2525,6 +2526,46 @@ void command_level_up_creature(long plr_range_id, const char *crtr_name, const c
   command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
+void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, int splevel)
+{
+  SCRIPTDBG(11, "Starting");
+  if (splevel < 1)
+  {
+    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+    splevel = 1;
+  }
+  if (splevel > SPELL_MAX_LEVEL)
+  {
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, SPELL_MAX_LEVEL);
+    splevel = SPELL_MAX_LEVEL;
+  }
+  splevel--;
+  long mag_id = get_rid(spell_desc, magname);
+  if (mag_id == -1)
+  {
+    SCRPTERRLOG("Unknown magic, '%s'", magname);
+    return;
+  }
+  long crtr_id = get_rid(creature_desc, crtr_name);
+  if (crtr_id == -1) {
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+    return;
+  }
+  long select_id = get_rid(creature_select_criteria_desc, criteria);
+  if (select_id == -1) {
+    SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
+    return;
+  }
+  // SpellKind sp = mag_id;
+  // encode params: free, magic, caster, level -> into 4xbyte: FMCL
+  long fmcl_bytes;
+  {
+      signed char m = mag_id, lvl = splevel;
+      fmcl_bytes = (m << 8) | lvl;
+  }
+  command_add_value(Cmd_USE_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
+}
+
 void command_use_power_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, char free)
 {
   SCRIPTDBG(11, "Starting");
@@ -3002,6 +3043,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_LEVEL_UP_CREATURE:
         command_level_up_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
+        break;
+    case Cmd_USE_SPELL_ON_CREATURE:
+        command_use_spell_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->tp[3], scline->np[4]);
         break;
     case Cmd_USE_POWER_ON_CREATURE:
         command_use_power_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5], scline->np[6]);
@@ -4174,6 +4218,26 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
     return true;
 }
 
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5,"No matching player %d creature of model %d found to use spell on.",(int)plyr_idx,(int)crmodel);
+        return Lb_FAIL;
+    }
+
+    SpellKind spkind = (fmcl_bytes >> 8) & 255;
+    long splevel = fmcl_bytes & 255;
+
+    if (thing_is_picked_up(thing))
+    {
+        SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
+        return Lb_FAIL;          
+    }
+    apply_spell_effect_to_thing(thing, spkind, splevel);
+    return Lb_SUCCESS;
+}
+
 /**
  * Cast a spell on a creature which meets given criteria.
  * @param plyr_idx The player whose creature will be affected.
@@ -5241,6 +5305,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_level_up_creature(i, val2, val3, val4);
+      }
+      break;
+    case Cmd_USE_SPELL_ON_CREATURE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_spell_on_creature(i, val2, val3, val4);
       }
       break;
     case Cmd_USE_POWER_ON_CREATURE:
