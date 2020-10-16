@@ -4307,7 +4307,7 @@ void wait_at_frontend(void)
 {
     struct PlayerInfo *player;
     SYNCDBG(0,"Falling into frontend menu.");
-    NeutralEntranceLevel = 0;
+    CreatureEntranceLevel = 0;
     // Moon phase calculation
     calculate_moon_phase(true,false);
     update_extra_levels_visibility();

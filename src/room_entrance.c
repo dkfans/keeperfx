@@ -38,7 +38,7 @@
 extern "C" {
 #endif
 
-unsigned char NeutralEntranceLevel = 0;
+unsigned char CreatureEntranceLevel = 0;
 /******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus
@@ -57,9 +57,9 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
         ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
         return INVALID_THING;
     }
-    if (NeutralEntranceLevel > 0)
+    if (CreatureEntranceLevel > 0)
     {
-        set_creature_level(creatng, NeutralEntranceLevel);
+        set_creature_level(creatng, CreatureEntranceLevel);
     }
     mark_creature_joined_dungeon(creatng);
     if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {

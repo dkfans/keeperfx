@@ -128,8 +128,8 @@ enum TbScriptCommands {
     Cmd_USE_POWER_ON_CREATURE             = 108,
     Cmd_USE_POWER_AT_LOCATION             = 109,
     Cmd_USE_POWER                         = 110,
-    Cmd_NEUTRAL_ENTRANCE_LEVEL            = 111, // early command from prototypes
-    Cmd_CREATURE_INBY                     = 112, // early command from prototypes
+    Cmd_CREATURE_ENTRANCE_LEVEL           = 111, 
+    Cmd_SET_CREATURE_POOL                 = 112,
     Cmd_USE_SPELL_ON_CREATURE             = 113,
 };
 

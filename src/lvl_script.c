@@ -159,8 +159,9 @@ const struct CommandDesc command_desc[] = {
   {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE},
-  {"NEUTRAL_ENTRANCE_LEVEL",            "N       ", Cmd_NEUTRAL_ENTRANCE_LEVEL},
-  {"CREATURE_INBY",                     "CN      ", Cmd_CREATURE_INBY},
+  {"CREATURE_ENTRANCE_LEVEL",           "N       ", Cmd_CREATURE_ENTRANCE_LEVEL},
+  {"SET_CREATURE_POOL",                 "CN      ", Cmd_SET_CREATURE_POOL},
+  {"CREATURE_INBY",                     "CN      ", Cmd_SET_CREATURE_POOL},
   {NULL,                                "        ", Cmd_NONE},
 };
 
@@ -2794,15 +2795,15 @@ void command_set_game_rule(const char* objectv, unsigned long roomvar)
     command_add_value(Cmd_SET_GAME_RULE, 0, ruledesc, roomvar, 0);
 }
 
-void command_neutral_entrance_level(unsigned char val)
+void command_creature_entrance_level(unsigned char val)
 {
   if (val > 0)
   {
-    NeutralEntranceLevel = (val - 1);
+    CreatureEntranceLevel = (val - 1);
   }
 }
 
-void command_creature_inby(const char *crtr_name, long amount)
+void command_set_creature_pool(const char *crtr_name, long amount)
 {
     long crtr_id = get_rid(creature_desc, crtr_name);
     if (crtr_id == -1)
@@ -2815,7 +2816,7 @@ void command_creature_inby(const char *crtr_name, long amount)
         SCRPTERRLOG("Invalid number of '%s' creatures for pool, %d", crtr_name, amount);
         return;
     }
-    command_add_value(Cmd_CREATURE_INBY, ALL_PLAYERS, crtr_id, amount, 0);
+    command_add_value(Cmd_SET_CREATURE_POOL, ALL_PLAYERS, crtr_id, amount, 0);
 }
 
 /** Adds a script command to in-game structures.
@@ -3096,11 +3097,11 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_CHANGE_SLAB_TYPE:
         command_change_slab_type(scline->np[0], scline->np[1], scline->np[2]);
         break;
-    case Cmd_NEUTRAL_ENTRANCE_LEVEL:
-        command_neutral_entrance_level(scline->np[0]);
+    case Cmd_CREATURE_ENTRANCE_LEVEL:
+        command_creature_entrance_level(scline->np[0]);
         break;
-    case Cmd_CREATURE_INBY:
-        command_creature_inby(scline->tp[0], scline->np[1]);
+    case Cmd_SET_CREATURE_POOL:
+        command_set_creature_pool(scline->tp[0], scline->np[1]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -4962,7 +4963,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(val2, val3, 0);
       break;
-  case Cmd_CREATURE_INBY:
+  case Cmd_SET_CREATURE_POOL:
       set_creature_pool(val2, val3);
       break;
   case Cmd_RESET_ACTION_POINT:
