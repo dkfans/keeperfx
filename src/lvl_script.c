@@ -4259,6 +4259,12 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         long splevel = fmcl_bytes & 255;
         thing_play_sample(thing, sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(thing, spkind, splevel);
+        if (spkind == SplK_Disease)
+        {
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+            cctrl->disease_caster_plyridx = game.neutral_player_num;
+        }
         return Lb_SUCCESS;
     }
     else
