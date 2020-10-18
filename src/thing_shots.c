@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_planar.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
@@ -1380,6 +1381,47 @@ TngUpdateRet update_shot(struct Thing *thing)
               }
             }
             break;
+        case ShM_Disease:
+            JUSTMSG("TESTCRAP");
+            long n;
+            struct Thing* ntng;
+            struct ComponentVector cvect;
+            struct Coord3d pos;
+            target = thing_get(thing->shot.target_idx);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(target);
+            struct Thing* tsttng;
+            for (i = 3; i > 0; i--)
+            {
+                pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(1023) + 511;
+                pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(1023) + 511;
+                pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(1023) + 511;
+                tsttng = create_thing(&pos1, TCls_EffectElem, 12, thing->owner, -1);
+                for (long k = 0; k < 2; k++)
+                {
+                    pos.x.val = thing->mappos.x.val;
+                    pos.y.val = thing->mappos.y.val;
+                    pos.z.val = thing->mappos.z.val;
+                    pos.x.val += distance_with_angle_to_coord_x(32, n);
+                    pos.y.val += distance_with_angle_to_coord_y(32, n);
+                    pos.z.val += k * (long)(thing->clipbox_size_yz >> 1);
+                    ntng = create_object(&pos, 112, thing->owner, -1);
+                    if (!thing_is_invalid(ntng))
+                    {
+                        cctrl->spell_tngidx_disease[k] = ntng->index;
+                        ntng->health = 3; // pwrdynst->strength[spell_lev] + 1;
+                        ntng->belongs_to = tsttng->index;
+                        ntng->byte_15 = k;
+                        ntng->move_angle_xy = tsttng->move_angle_xy;
+                        ntng->move_angle_z = tsttng->move_angle_z;
+                        angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
+                        ntng->veloc_push_add.x.val += cvect.x;
+                        ntng->veloc_push_add.y.val += cvect.y;
+                        ntng->veloc_push_add.z.val += cvect.z;
+                        ntng->state_flags |= TF1_PushAdd;
+                    }
+                    n += 2 * LbFPMath_PI / 3;
+                }
+            }
         default:
             // All shots that do not require special processing
             break;
