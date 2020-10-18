@@ -4227,7 +4227,8 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    if ( (spkind == SplK_Freeze) || (spkind == SplK_Armour) || (spkind == SplK_Rebound) || (spkind == SplK_Heal) || (spkind == SplK_Invisibility) || (spkind == SplK_Teleport) || (spkind == SplK_Speed) || (spkind == SplK_Slow) || (spkind == SplK_Fly) || (spkind == SplK_Sight) || (spkind == SplK_Disease) || (spkind == SplK_Chicken) )
+    if ( ( (spkind == SplK_Freeze) || (spkind == SplK_Armour) || (spkind == SplK_Rebound) || (spkind == SplK_Heal) || (spkind == SplK_Invisibility) || (spkind == SplK_Teleport) || (spkind == SplK_Speed) || (spkind == SplK_Slow) || (spkind == SplK_Fly) || (spkind == SplK_Sight) )
+        || ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) || ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
     {
         if (thing_is_picked_up(thing))
         {

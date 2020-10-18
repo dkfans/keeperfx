@@ -1001,6 +1001,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         }
         break;
     case SplK_Disease:
+    if ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
+    {
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
@@ -1036,8 +1038,11 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
               n += 2*LbFPMath_PI/3;
           }
         }
+    }
         break;
     case SplK_Chicken:
+    if ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0)
+    {
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
@@ -1047,6 +1052,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             cctrl->countdown_282 = 10;
             cctrl->spell_flags |= CSAfF_Chicken;
         }
+    }
         break;
     default:
         WARNLOG("No action for spell %d at level %d",(int)spell_idx,(int)spell_lev);
