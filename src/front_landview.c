@@ -1294,7 +1294,7 @@ void draw_netmap_players_hands(void)
       {
         x = 0;
         y = 0;
-        n = nspck->flags_4 & ~SPF_Unknown07;
+        n = nspck->flags_4 & ~SPF_FlagsMask;
         if (n == SPF_Unknown08)
         {
           k = (unsigned char)nspck->param1;
@@ -1600,7 +1600,7 @@ TbBool frontmap_process_screen_packet(void *context_data, unsigned long turn, in
         }
         return true;
     }
-    if ((nspck->flags_4 & ~SPF_Unknown07) != SPF_Unknown08)
+    if ((nspck->flags_4 & ~SPF_FlagsMask) != SPF_Unknown08)
     {
         if (context->lvl_vote_count == 0)
         {
@@ -1612,7 +1612,7 @@ TbBool frontmap_process_screen_packet(void *context_data, unsigned long turn, in
             context->lvl_vote_count++;
         }
     }
-    if (((nspck->flags_4 & ~SPF_Unknown07) == SPF_Unknown08) && (nspck->param1 == 13))
+    if (((nspck->flags_4 & ~SPF_FlagsMask) == SPF_Unknown08) && (nspck->param1 == 13))
     {
         if ( test_hand_slap_collides(plyr_idx) )
         {
@@ -1621,7 +1621,7 @@ TbBool frontmap_process_screen_packet(void *context_data, unsigned long turn, in
             net_map_slap_frame = 0;
             limp_hand_x = nspck->mouse_x;
             limp_hand_y = nspck->mouse_y;
-            nspck->flags_4 = (nspck->flags_4 & SPF_Unknown07) | SPF_Unknown10;
+            nspck->flags_4 = (nspck->flags_4 & SPF_FlagsMask) | SPF_Unknown10;
             SYNCLOG("Slapped out of level");
         }
     }
@@ -1635,7 +1635,7 @@ TbBool frontmap_exchange_screen_packet(struct NetMapPlayersState *nmps)
     nspck->selected_level = fe_net_level_selected;
     if (net_map_limp_time > 0)
     {
-      nspck->flags_4 = (nspck->flags_4 & SPF_Unknown07) | SPF_Unknown08;
+      nspck->flags_4 = (nspck->flags_4 & SPF_FlagsMask) | SPF_Unknown08;
       nspck->mouse_x = limp_hand_x;
       nspck->mouse_y = limp_hand_y;
       net_map_limp_time--;
@@ -1662,7 +1662,7 @@ TbBool frontmap_exchange_screen_packet(struct NetMapPlayersState *nmps)
         nspck->mouse_y = GetMouseY()*16/units_per_pixel + map_info.screen_shift_y;
         if (net_map_slap_frame <= 16)
         {
-          nspck->flags_4 = (nspck->flags_4 & SPF_Unknown07) | SPF_Unknown08;
+          nspck->flags_4 = (nspck->flags_4 & SPF_FlagsMask) | SPF_Unknown08;
           nspck->param1 = net_map_slap_frame;
           net_map_slap_frame++;
         } else

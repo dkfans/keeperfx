@@ -63,12 +63,19 @@ struct MapLevelInfo { // sizeof = 56
 
 enum ScreenPacketFlags
 {
-  SPF_PlayerActive = 0x01,
-  SPF_Unknown07 = 0x07,
-  SPF_Unknown08 = 0x08, // Update mouse? Slapped?
-  SPF_Unknown10 = 0x10, // param2 = icon_offset
-  SPF_Unknown20 = 0x20, // Change Aliance
-  SPF_Unknown40 = 0x40, // Chat letter
+  SPF_PlayerActive    = 0x01,
+  SPF_ComputerPlayer  = 0x04, // Computer Player
+
+  SPF_Unknown08       = 0x08, // Update mouse? Slapped?
+  SPF_Unknown10       = 0x10, // param2 = icon_offset
+
+  SPF_StartGame       = 3 << 3,
+  SPF_SetAlliance     = 0x20, // Change Aliance
+  SPF_ToggleComputers = 7 << 3,
+  SPF_ChatLetter      = 8 << 3,
+
+  SPF_FlagsMask       = 0x07,
+  SPF_CommandMask     = 0xF8,
 };
 
 struct ScreenPacket {

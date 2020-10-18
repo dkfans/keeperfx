@@ -584,33 +584,10 @@ void add_message(long plyr_idx, char *msg)
       net_message_scroll_offset = i-4;
 }
 
-/**
- * Checks if all the network players are using compatible version of DK.
- */
-TbBool validate_versions(void)
-{
-    struct PlayerInfo *player;
-    long i;
-    long ver;
-    ver = -1;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
-    {
-      player = get_player(i);
-      if ((net_screen_packet_NEW[i].flags_4 & SPF_PlayerActive) != 0)
-      {
-        if (ver == -1)
-          ver = player->field_4E7;
-        if (player->field_4E7 != ver)
-          return false;
-      }
-    }
-    return true;
-}
-
 void versions_different_error(void)
 {
     const char *plyr_nam;
-    struct ScreenPacket *nspckt;
+    struct ScreenPacket *nspck;
     char text[MESSAGE_TEXT_LEN];
     char *str;
     int i;
@@ -629,10 +606,10 @@ void versions_different_error(void)
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
       plyr_nam = network_player_name(i);
-      nspckt = &net_screen_packet_NEW[i];
-      if ((nspckt->flags_4 & SPF_PlayerActive) != 0)
+      nspck = &net_screen_packet_NEW[i];
+      if ((nspck->flags_4 & SPF_PlayerActive) != 0)
       {
-        str = buf_sprintf("%s(%d.%02d) ", plyr_nam, nspckt->mouse_x, nspckt->mouse_y);
+        str = buf_sprintf("%s(%d.%02d) ", plyr_nam, nspck->mouse_x, nspck->mouse_y);
         strncat(text, str, MESSAGE_TEXT_LEN-strlen(text));
         text[MESSAGE_TEXT_LEN-1] = '\0';
       }
@@ -1381,6 +1358,9 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
 void frontend_set_player_number(long plr_num)
 {
     struct PlayerInfo *player;
+    NETDBG(3, "my_player_number: %d", plr_num);
+    memset(net_screen_packet_NEW, 0, sizeof(net_screen_packet_NEW));
+    net_screen_packet_NEW[plr_num].flags_4 |= SPF_PlayerActive;
     my_player_number = plr_num;
     player = get_my_player();
     player->id_number = plr_num;
@@ -1481,9 +1461,9 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
     //_DK_frontend_toggle_computer_players(gbtn);
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet_NEW[my_player_number];
-    if ((nspck->flags_4 & 0xF8) == 0)
+    if ((nspck->flags_4 & SPF_CommandMask) == 0)
     {
-        nspck->flags_4 = (nspck->flags_4 & 0x07) | 0x38;
+        nspck->flags_4 = (nspck->flags_4 & 0x07) | SPF_ToggleComputers;
         nspck->param1 = (fe_computer_players == 0);
     }
 }
@@ -1517,8 +1497,8 @@ void set_packet_start(struct GuiButton *gbtn)
     //_DK_set_packet_start(gbtn);
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet_NEW[my_player_number];
-    if ((nspck->flags_4 & 0xF8) == 0)
-        nspck->flags_4 = (nspck->flags_4 & 7) | 0x18;
+    if ((nspck->flags_4 & SPF_CommandMask) == 0)
+        nspck->flags_4 = (nspck->flags_4 & SPF_FlagsMask) | SPF_StartGame;
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)

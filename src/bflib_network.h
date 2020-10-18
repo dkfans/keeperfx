@@ -297,8 +297,11 @@ void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, 
 typedef TbBool (*LbNetwork_Packet_Callback) (
     void *context, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size);
 
-/* This function sends all enqueued packet to others */
+/* This function sends all enqueued packets to others */
 enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback);
+
+/* Remove all enqueued packets */
+void LbNetwork_EmptyQueue();
 
 /* return true if there is no packets created yet this cycle */
 TbBool LbNetwork_CheckFirstPacket();

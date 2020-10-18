@@ -15,3 +15,5 @@
 build*/
 *.cache
 .vscode
+config/fxdata/*.fon
+config/fxdata/*.dat

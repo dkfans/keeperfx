@@ -224,20 +224,16 @@ TbBool frontnet_start_input(void)
         asckey = key_to_ascii(lbInkey, KMod_SHIFT);
         if ((lbInkey == KC_BACK) || (lbInkey == KC_RETURN) || (frontend_font_char_width(1,asckey) > 0))
         {
-            struct ScreenPacket *nspck;
-            nspck = &net_screen_packet_NEW[my_player_number];
-            if ((nspck->flags_4 & ~SPF_Unknown07) == 0)
+            struct ScreenPacket *nspck = LbNetwork_AddPacket(PckA_Frontmenu, 0, sizeof(struct ScreenPacket));
+            nspck->flags_4 = SPF_PlayerActive | SPF_ChatLetter;
+            nspck->param1 = lbInkey;
+            if ((lbKeyOn[KC_LSHIFT] == 0) && (lbKeyOn[KC_RSHIFT] == 0))
             {
-              nspck->flags_4 = (nspck->flags_4 & SPF_Unknown07) | SPF_Unknown40;
-              nspck->param1 = lbInkey;
-              if ((lbKeyOn[KC_LSHIFT] == 0) && (lbKeyOn[KC_RSHIFT] == 0))
-              {
-                  nspck->param2 = 0;
-                  lbInkey = KC_UNASSIGNED;
-                  return true;
-              }
-              nspck->param2 = 1;
+                nspck->param2 = 0;
+                lbInkey = KC_UNASSIGNED;
+                return true;
             }
+            nspck->param2 = 1;
         }
         lbInkey = KC_UNASSIGNED;
     }
@@ -490,9 +486,9 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     {
         struct ScreenPacket *nspck;
         nspck = &net_screen_packet_NEW[my_player_number];
-        if ((nspck->flags_4 & ~SPF_Unknown07) == 0)
+        if ((nspck->flags_4 & ~SPF_FlagsMask) == 0)
         {
-            nspck->flags_4 = (nspck->flags_4 & SPF_Unknown07) | SPF_Unknown20;
+            nspck->flags_4 = (nspck->flags_4 & SPF_FlagsMask) | SPF_SetAlliance;
             nspck->param1 = plyr1_idx;
             nspck->param2 = plyr2_idx;
         }

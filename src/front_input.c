@@ -750,9 +750,9 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
     long val;
     struct PlayerInfo* player = get_my_player();
 
-    //This code forces only one control action per turn?
-    if (packet->packet.action != PckA_None)
-      return 1;
+    // action for PacketEx should be removed sometimes
+    assert(packet->packet.action == PckA_None);
+
     int mm_units_per_px;
     {
         int mnu_num = menu_id_to_number(GMnu_MAIN);
@@ -2215,6 +2215,7 @@ short get_gui_inputs(short gameplay_on)
 {
   static ActiveButtonID over_slider_button = -1;
   SYNCDBG(15,"Starting");
+  ui_turn++;
   battle_creature_over = 0;
   gui_room_type_highlighted = -1;
   gui_door_type_highlighted = -1;

@@ -517,7 +517,7 @@ void frontnet_serial_update(void)
     }
 }
 
-void frontnet_rewite_net_messages(void)
+static void frontnet_rewite_net_messages(void)
 {
     struct NetMessage lmsg[NET_MESSAGES_COUNT];
     long k = 0;

@@ -159,6 +159,7 @@ enum TbPacketAction {
         PckA_Invalid, // Should not be processed, used in check_set_packet_action
         PckA_BuildRoom,
         PckA_UsePower,
+        PckA_PacketEx,
 };
 
 /** Packet flags for non-action player operation. */

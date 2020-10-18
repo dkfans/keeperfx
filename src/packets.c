@@ -92,7 +92,8 @@ TbBool packets_first_resync = true;
 
 struct PacketContext
 {
-    TbBool is_short_message[NET_PLAYERS_COUNT];
+    // Here server will get movement controls of each player
+    struct PacketEx last_packet_ex[NET_PLAYERS_COUNT];
 };
 
 /******************************************************************************/
@@ -549,6 +550,8 @@ static TbBool process_players_global_packet_action(
 
   switch (kind)
   {
+  case PckA_None:
+      return true; // Nothing to do
   case PckA_Quitgame:
       if (is_my_player(player))
       {
@@ -894,7 +897,7 @@ static TbBool process_players_global_packet_action(
       set_player_mode(player, pckt->arg0);
       set_engine_view(player, player->view_mode_restore);
       return false;
-    default:
+  default:
       return false;
   }
 }
@@ -1234,17 +1237,17 @@ static TbBool process_packet_cb(
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     
-    // TODO: this should not get wrong
-#ifndef NO_STATIC_ASSERTS
-   static_assert(sizeof(struct PacketEx) != sizeof(struct SmallActionPacket), "unexpected size");
-#endif
     struct PacketContext *context = (struct PacketContext *)context_ptr;
     struct SmallActionPacket* packet_short = (struct SmallActionPacket*)data;
     struct PacketEx *packet_ex = (struct PacketEx*)data;
 
-    if (!context->is_short_message[player->id_number])
+    if (kind == PckA_PacketEx)
     {   // process First packet (with mouse coords and without action)
     
+        if (size != sizeof(struct PacketEx))
+        {
+            NETLOG("WTF?! %d != %d", size, sizeof(struct PacketEx));
+        }
         assert (size == sizeof(struct PacketEx));
         player->input_crtr_control = ((packet_ex->packet.field_10 & PCAdV_CrtrContrlPressed) != 0);
         player->input_crtr_query = ((packet_ex->packet.field_10 & PCAdV_CrtrQueryPressed) != 0);
@@ -1252,7 +1255,7 @@ static TbBool process_packet_cb(
         assert((packet_ex->packet.action == PckA_None) 
             || (packet_ex->packet.action == PckA_Invalid));
 
-        context->is_short_message[player->id_number] = true;
+        context->last_packet_ex[player->id_number] = *packet_ex;
         
         switch (player->view_type)
         {
@@ -1411,9 +1414,7 @@ void set_my_packet_action(struct PlayerInfo *player, enum TbPacketAction action,
 
 struct PacketEx *create_outgoing_input_packet()
 {
-    assert( LbNetwork_CheckFirstPacket() );
-    struct PacketEx *ret = LbNetwork_AddPacket(
-        PckA_None, game.play_gameturn, sizeof(struct PacketEx));
+    struct PacketEx *ret = LbNetwork_AddPacket(PckA_PacketEx, game.play_gameturn, sizeof(struct PacketEx));
     return ret;
 }
 /******************************************************************************/
