@@ -232,6 +232,13 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     SYNCDBG(2,"Command %d: %s",(int)plyr_idx, msg);
     const char * parstr = msg + 1;
     const char * pr2str = cmd_strtok(msg + 1);
+    if (strcmp(parstr, "qwe") == 0)
+    {
+        //Set anim
+        if (pr2str == NULL)
+            return false;
+        get_objects_data(43)->sprite_anim_idx = atoi(pr2str);
+    } else
     if (strcmp(parstr, "stats") == 0)
     {
       message_add_fmt(plyr_idx, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
