@@ -76,6 +76,14 @@ enum ClassicBugFlags {
     ClscBug_FaintedImmuneToBoulder = 0x0200,
 };
 
+enum GameFlags2 {
+    GF2_ClearPauseOnSync          = 0x0001,
+    GF2_ClearPauseOnPacket        = 0x0002,
+    GF2_Timer                     = 0x0004,
+    GF2_ShowEventLog              = 0x00010000,
+    GF2_PERSISTENT_FLAGS          = 0xFFFF0000
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -142,7 +150,10 @@ struct GameAdd {
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };
 
+extern unsigned long game_flags2; // Should be reset to zero on new level
+
 #pragma pack()
+
 /******************************************************************************/
 extern struct GameAdd gameadd;
 extern struct IntralevelData intralvl;

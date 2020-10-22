@@ -374,4 +374,25 @@ TbBool bonus_timer_enabled(void)
 {
   return ((game.flags_gui & GGUI_CountdownTimer) != 0);
 }
+
+void draw_timer(void)
+{
+    LbTextSetFont(winfont);
+    char* text = buf_sprintf("%08d", game.play_gameturn);
+    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    long scr_y = 16 * units_per_pixel / 16;
+    LbTextSetWindow(scr_x, scr_y, width, height);
+    draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
+    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+TbBool timer_enabled(void)
+{
+  return ((game_flags2 & GF2_Timer) != 0);
+}
 /******************************************************************************/
