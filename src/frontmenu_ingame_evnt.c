@@ -26,6 +26,7 @@
 
 #include "player_data.h"
 #include "player_states.h"
+#include "player_utils.h"
 #include "dungeon_data.h"
 #include "creature_battle.h"
 #include "creature_graphics.h"
@@ -377,8 +378,18 @@ TbBool bonus_timer_enabled(void)
 
 void draw_timer(void)
 {
+    static unsigned long nturns;
+    if (get_my_player()->victory_state == VicS_WonLevel)
+    {
+        struct Dungeon* dungeon = get_my_dungeon();
+        nturns = dungeon->lvstats.hopes_dashed;
+    }
+    else
+    {
+        nturns = game.play_gameturn;
+    }
     LbTextSetFont(winfont);
-    char* text = buf_sprintf("%08d", game.play_gameturn);
+    char* text = buf_sprintf("%08ld", nturns);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
