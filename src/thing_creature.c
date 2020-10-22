@@ -2840,39 +2840,6 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         }
         break;
     }
-    /*
-    case ShM_Disease:
-        JUSTMSG("testlog: dumb c");
-        long n;
-        struct Thing* ntng;
-        struct ComponentVector cvect;
-        for (long k = 0; k < 3; k++)
-        {
-            pos1.x.val = firing->mappos.x.val;
-            pos1.y.val = firing->mappos.y.val;
-            pos1.z.val = firing->mappos.z.val;
-            pos1.x.val += distance_with_angle_to_coord_x(32, n);
-            pos1.y.val += distance_with_angle_to_coord_y(32, n);
-            pos1.z.val += k * (long)(firing->clipbox_size_yz >> 1);
-            ntng = create_object(&pos1, 112, firing->owner, -1);
-            if (!thing_is_invalid(ntng))
-            {
-                //cctrl->spell_tngidx_disease[k] = ntng->index;
-                ntng->health = 10; // pwrdynst->strength[spell_lev] + 1;
-                ntng->belongs_to = firing->index;
-                ntng->byte_15 = k;
-                ntng->move_angle_xy = firing->move_angle_xy;
-                ntng->move_angle_z = firing->move_angle_z;
-                angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
-                ntng->veloc_push_add.x.val += cvect.x;
-                ntng->veloc_push_add.y.val += cvect.y;
-                ntng->veloc_push_add.z.val += cvect.z;
-                ntng->state_flags |= TF1_PushAdd;
-            }
-            n += 2 * LbFPMath_PI / 3;
-        }
-        break;
-        */
     default:
         shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
@@ -2906,37 +2873,6 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
                     shotng->shot.dexterity = range / 10;
                 }
             }
-            /*if (shot_model == ShM_Disease)
-            {
-                long n;
-                struct Thing* ntng;
-                struct ComponentVector cvect;
-                for (long k = 0; k < 3; k++)
-                {
-                    pos1.x.val = shotng->mappos.x.val;
-                    pos1.y.val = shotng->mappos.y.val;
-                    pos1.z.val = shotng->mappos.z.val;
-                    pos1.x.val += distance_with_angle_to_coord_x(32, n);
-                    pos1.y.val += distance_with_angle_to_coord_y(32, n);
-                    pos1.z.val += k * (long)(shotng->clipbox_size_yz >> 1);
-                    ntng = create_object(&pos1, 112, shotng->owner, -1);
-                    if (!thing_is_invalid(ntng))
-                    {
-                        cctrl->spell_tngidx_disease[k] = ntng->index;
-                        ntng->health = 3; // pwrdynst->strength[spell_lev] + 1;
-                        ntng->belongs_to = shotng->index;
-                        ntng->byte_15 = k;
-                        ntng->move_angle_xy = shotng->move_angle_xy;
-                        ntng->move_angle_z = shotng->move_angle_z;
-                        angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
-                        ntng->veloc_push_add.x.val += cvect.x;
-                        ntng->veloc_push_add.y.val += cvect.y;
-                        ntng->veloc_push_add.z.val += cvect.z;
-                        ntng->state_flags |= TF1_PushAdd;
-                    }
-                    n += 2 * LbFPMath_PI / 3;
-                }
-            }*/
         break;
     }
     if (!thing_is_invalid(shotng))
