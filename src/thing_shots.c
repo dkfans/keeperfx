@@ -20,7 +20,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_planar.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
@@ -944,6 +943,11 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             n = cctrl->explevel;
         } else {
             n = 0;
+        }
+        if (shotst->cast_spell_kind == SplK_Disease)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
+            cctrl->disease_caster_plyridx = shotng->owner;
         }
         apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
     }
