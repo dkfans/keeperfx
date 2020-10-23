@@ -45,6 +45,7 @@ void message_draw(void);
 void zero_messages(void);
 void message_add(PlayerNumber plyr_idx, const char *text);
 void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...);
+void show_time_taken(unsigned long turns);
 /******************************************************************************/
 #ifdef __cplusplus
 }

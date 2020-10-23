@@ -106,4 +106,15 @@ void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
     message_add_va(plyr_idx, fmt_str, val);
     va_end(val);
 }
+
+void show_time_taken(unsigned long turns)
+{
+    unsigned long seconds = turns / game.num_fps;
+    unsigned long minutes = seconds / 60;
+    unsigned long hours = minutes / 60;
+    seconds %= 60;
+    minutes %= 60;
+    struct PlayerInfo* player = get_my_player();
+    message_add_fmt(player->id_number, "Time taken: %d hour(s) %d minute(s) %d second(s)", hours, minutes, seconds);
+}
 /******************************************************************************/
