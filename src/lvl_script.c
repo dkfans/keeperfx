@@ -1971,6 +1971,9 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
   SCRIPTDBG(6,"Altered %d checks named '%s'",n,chkname);
 }
 
+            //struct TrapConfigStats* trapst = &trapdoor_conf.trap_cfgstats[trap_id];
+            //&trapdoor_conf.trap_cfgstats[trap_id];
+            //trapst->hidden = 
                                                  // Name, Shots, TimeBetweenShots, Model, TriggerType, ActivationType, EffectType, Hidden
 void command_set_trap_configuration(const char* trapname, long val1, long val2, long val3, long val4, long val5, long val6, long val7)
 {
