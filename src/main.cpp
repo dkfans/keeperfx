@@ -4065,7 +4065,6 @@ void init_level(void)
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
-    game_flags2 &= GF2_PERSISTENT_FLAGS;
     game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
     reset_heap_manager();
