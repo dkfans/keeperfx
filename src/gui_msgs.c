@@ -115,6 +115,6 @@ void show_time_taken(unsigned long turns)
     seconds %= 60;
     minutes %= 60;
     struct PlayerInfo* player = get_my_player();
-    message_add_fmt(player->id_number, "Time taken: %d hour(s) %d minute(s) %d second(s)", hours, minutes, seconds);
+    message_add_fmt(player->id_number, "Time taken: %ld hour(s) %ld minute(s) %ld second(s)", hours, minutes, seconds);
 }
 /******************************************************************************/
