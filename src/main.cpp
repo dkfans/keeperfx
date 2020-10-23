@@ -4066,6 +4066,7 @@ void init_level(void)
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
     game_flags2 &= GF2_PERSISTENT_FLAGS;
+    game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
     reset_heap_manager();
     lens_mode = 0;
@@ -4750,6 +4751,10 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          start_params.frame_skip = atoi(pr2str);
          narg++;
+      }
+      else if (strcasecmp(parstr, "timer") == 0)
+      {
+          game_flags2 |= GF2_Timer;
       }
 #ifdef AUTOTESTING
       else if (strcasecmp(parstr, "exit_at_turn") == 0)
