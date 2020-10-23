@@ -2147,7 +2147,7 @@ TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlC
     }
     int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
     room->used_capacity += required_cap;
-    foodtng->belongs_to = (foodtng->field_49 << 8) / foodtng->field_3E - 1;
+    foodtng->belongs_to = (foodtng->field_49 << 8) / foodtng->anim_speed - 1;
     return true;
 }
 

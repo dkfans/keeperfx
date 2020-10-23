@@ -421,7 +421,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         thing->active_state = DCrSt_Unknown01;
         k = get_creature_anim(thing, 15);
         set_thing_draw(thing, k, 128, crtr_conf.sprite_size, 0, 0, 2);
-        thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->field_3E);
+        thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
     }
