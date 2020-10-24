@@ -1971,9 +1971,37 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
   SCRIPTDBG(6,"Altered %d checks named '%s'",n,chkname);
 }
 
-            //struct TrapConfigStats* trapst = &trapdoor_conf.trap_cfgstats[trap_id];
-            //&trapdoor_conf.trap_cfgstats[trap_id];
-            //trapst->hidden = 
+
+void refresh_trap_anim(long trap_id)
+{
+    int k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
+    int i = slist->index;
+    while (i != 0)
+    {
+        struct Thing* traptng = thing_get(i);
+        if (thing_is_invalid(traptng))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = traptng->next_of_class;
+        // Per thing code
+        if (traptng->model == trap_id)
+        {
+            traptng->anim_sprite = trap_stats[trap_id].sprite_anim_idx;
+        }
+        // Per thing code ends
+        k++;
+        if (k > slist->index)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}
+
+
                                                  // Name, Shots, TimeBetweenShots, Model, TriggerType, ActivationType, EffectType, Hidden
 void command_set_trap_configuration(const char* trapname, long val1, long val2, long val3, long val4, long val5, long val6, long val7)
 {
@@ -2064,6 +2092,7 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
         trap_stats[trap_id].created_itm_model = val6;
         trapst->hidden = val7;
         //trapst->notify = val8; cannot fit 9 variables
+        refresh_trap_anim(trap_id);
     } else
     {
         return;
