@@ -183,7 +183,7 @@ static SOCKET U_Open(unsigned short port)
     if (bind(ret, (struct sockaddr *)&server, sizeof(server)) == SOCKET_ERROR)
     {
         ERRORLOG("bind failed err:%lx", WSAGetLastError());
-        close(ret);
+        closesocket(ret);
         return U_INVALID;
     }
     NETDBG(9, "bind ok");
@@ -194,7 +194,7 @@ static SOCKET U_Open(unsigned short port)
 
 static void U_Close(SOCKET s)
 {
-    close(s);
+    closesocket(s);
 }
 
 static TbBool U_ResolveHost(IPaddress *addr, const char *hostname, unsigned short port)
@@ -396,8 +396,8 @@ static TbError tcpSP_join(const char * session, void * options)
 
     if (U_ResolveHost(&spstate.address, hostname, atoi(portstr)) == 0)
     {
-        LbMemoryFree(hostname);
         NETMSG("Failed to resolve %s: %d", hostname, atoi(portstr));
+        LbMemoryFree(hostname);
         return Lb_FAIL;
     }
 
@@ -577,13 +577,13 @@ static void tcpSP_update(NetNewUserCallback new_user)
         spstate.msg_tail = NULL;
     }
     NETDBG(10, "Waiting for more packets");
-    node = spstate.free_node;
-    spstate.free_node = node->next;
     if (spstate.free_node == NULL)
     {
         ERRORLOG("Too many packets are in queue");
         return;
     }
+    node = spstate.free_node;
+    spstate.free_node = node->next;
     for (
         int ret = U_Recv(spstate.sock, node->packet);
         ret != 0;
@@ -598,13 +598,13 @@ static void tcpSP_update(NetNewUserCallback new_user)
         node->next = NULL;
         process_packet(now, node, new_user);
 
-        node = spstate.free_node;
-        spstate.free_node = node->next;
         if (spstate.free_node == NULL)
         {
             ERRORLOG("Too many packets are waiting");
             return;
         }
+        node = spstate.free_node;
+        spstate.free_node = node->next;
     }
     node->next = spstate.free_node; // return node to the list
     spstate.free_node = node;
@@ -658,14 +658,13 @@ static struct PacketListNode *wait_for_message(Token token, unsigned timeout)
         }
     }
 
-    node = spstate.free_node;
-    spstate.free_node = node->next;
     if (spstate.free_node == NULL)
     {
-        spstate.free_node = node;
         ERRORLOG("Too many packets are waiting");
         return NULL;
     }
+    node = spstate.free_node;
+    spstate.free_node = node->next;
     while  (true)
     {
         int ret = U_Recv(spstate.sock, node->packet);
@@ -694,7 +693,10 @@ static struct PacketListNode *wait_for_message(Token token, unsigned timeout)
         else
         {
             NETDBG(9, "storing this packet");
-            spstate.msg_tail->next = node;
+            if (spstate.msg_head == NULL)
+                spstate.msg_head = node;
+            if (spstate.msg_tail)
+                spstate.msg_tail->next = node;
             spstate.msg_tail = node;
         }
 

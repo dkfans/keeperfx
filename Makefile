@@ -377,6 +377,7 @@ include prebuilds.mk
 .PHONY: package clean-package deep-clean-package
 .PHONY: tools clean-tools deep-clean-tools
 .PHONY: libexterns clean-libexterns deep-clean-libexterns
+.PHONY: testnet
 
 # dependencies tracking
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
@@ -434,6 +435,30 @@ ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 	-$(ECHO) 'Finished building target: $@'
+	-$(ECHO) ' '
+
+testnet: bin/testnet.exe
+
+TESTNETOBJS = \
+obj/std/bflib_datetm.o \
+obj/std/bflib_memory.o \
+obj/std/bflib_netsp.o \
+obj/std/bflib_network.o \
+obj/std/bflib_netsession.o \
+obj/std/bflib_tcpsp.o \
+obj/std/test_net.o
+
+#obj/std/packets.o \
+#obj/std/packets_misc.o \
+
+
+bin/testnet.exe: $(GENSRC) $(TESTNETOBJS) $(LIBS)
+	$(CPP) -o "$@" $(TESTNETOBJS) $(LDFLAGS)
+
+obj/std/%.o obj/hvlog/%.o: tests/functional/%.cpp $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -Isrc/ -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
 obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)

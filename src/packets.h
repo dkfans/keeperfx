@@ -160,6 +160,8 @@ enum TbPacketAction {
         PckA_BuildRoom,
         PckA_UsePower,
         PckA_PacketEx,
+        PckA_ConfirmSeq, //130 // Internal (consumed by bflib_network)
+        PckA_UpdateBaseSeq, // Internal (consumed by bflib_network)
 };
 
 /** Packet flags for non-action player operation. */

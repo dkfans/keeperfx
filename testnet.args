@@ -1,0 +1,2 @@
+file bin/testnet.exe
+target remote 127.0.0.1:33333

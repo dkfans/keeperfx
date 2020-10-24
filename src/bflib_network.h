@@ -279,8 +279,9 @@ DLLIMPORT extern int _DK_network_initialized;
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_InitSingleplayer();
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, unsigned long *playr_num, void *optns);
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname,
+          const char *playr_name, unsigned long *playr_num, void *optns);
+TbError LbNetwork_Create(char *nsname_str, const char *plyr_name, unsigned long *plyr_num, void *optns);
 
 /* This function allocates new packet of requested size and enqueues it
    kind is a value from PckA_*

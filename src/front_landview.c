@@ -1681,9 +1681,11 @@ TbBool frontmap_exchange_screen_packet(struct NetMapPlayersState *nmps)
 
     if (LbNetwork_Exchange(nmps, frontmap_process_screen_packet) != NR_OK)
     {
+        LbNetwork_EmptyQueue();
         ERRORLOG("LbNetwork_Exchange failed");
         return false;
     }
+    LbNetwork_EmptyQueue();
 
     if ((nmps->lvl_vote_count != nmps->players_count) || (nmps->lvl_vote == 0))
     {    

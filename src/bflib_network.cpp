@@ -81,8 +81,12 @@ struct ReceiveCallbacks receiveCallbacks = {
   NULL,
 };
 
-// Not stable yet
-#define MAX_OUTGOING_SIZE 940
+// Send no more bytes than this per one packet
+#define MAX_OUTGOING_SIZE     940
+// Store no more that this number of unconfirmed actions
+#define MAX_STORED_ACTIONS    256
+// Move base_seq when stored more than this amount
+#define MAX_STORED_ACTIONS_TH 3
 
 unsigned long inside_sr;
 struct TbNetworkPlayerInfo *localPlayerInfoPtr;
@@ -137,6 +141,10 @@ struct UnidirectionalRTSMessage rtsMessage;
 #define BF_SYNC_DATA_SIZE 980
 #define MAX_FRAME_DATA_SIZE 980
 
+typedef unsigned short SeqType;
+#define SEQ_ALWAYS        ((SeqType)0xFFFF)
+#define SEQ_WINDOW_LEN    60
+
 enum NetUserProgress
 {
     USER_UNUSED = 0,		//array slot unused
@@ -169,8 +177,10 @@ struct NetBufferNode
 {
     struct NetBufferNode *next;
     struct NetBufferNode *prev;
-    short size;
-    char  data[];
+    unsigned int          delivery_flag;
+    SeqType               out_seq;
+    short                 size;
+    char                  data[];
 };
 
 struct NetBufferList
@@ -179,9 +189,8 @@ struct NetBufferList
     struct NetBufferNode *last = 0;
 
     void append(struct NetBufferNode *node);
-
+    struct NetBufferNode *remove(struct NetBufferNode *node); //return next item
     bool empty() { return first == NULL; }
-
     void clear();
     void join_list(NetBufferList *list2);
 };
@@ -193,6 +202,7 @@ struct NetBufferItem
 {
     unsigned long           turn;
     short                   size;
+    SeqType                 in_seq;
     unsigned char           kind;
     unsigned char           player;
     unsigned char           buffer[0];
@@ -277,13 +287,24 @@ struct NetState
     struct NetServerHeader  *server_header;
     struct NetServerHeader  *client_header;
 
+    // if ( (action->seq - seq_min) > MAX_PACKETS ) <discard action>
+    SeqType                 in_seq_min[MAX_N_USERS];
+
+    SeqType                 out_seq;
+
+    unsigned int            delivery_mask; // whenever a packet delivered to all client
+
+    SeqType                 seq_last_sent;
+    SeqType                 last_confirmed[MAX_N_USERS];
+    unsigned char           confirmed_this_turn[MAX_N_USERS];
+
     // List of not processed items (sorted by playturn?)
     struct NetBufferList    incoming_list;
 
     // List of messages created this turn (they should be mixed with incoming)
     struct NetBufferList    created_list;
 
-    // List of items to send (TODO: per player)
+    // List of items to send
     struct NetBufferList    outgoing_list;
 };
 
@@ -314,6 +335,9 @@ const struct NetSP nullSP =
 // New network code data definitions end here =================================
 /*****/
 static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout, struct PacketBuffer *pbuffer);
+static void process_confirmation(bool is_server, unsigned int netuser_idx, SeqType tail_num);
+static void create_update_seq_packet(NetUserId id);
+static void log_nodes(struct NetBufferList *lst, int player_idx);
 /*****/
 
 /**
@@ -322,6 +346,8 @@ static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout, struct Packe
 static struct NetBufferNode *sm_alloc(size_t size)
 {
     struct NetBufferNode *ret = (struct NetBufferNode*) malloc(sizeof(struct NetBufferNode) + size);
+    ret->delivery_flag = 0;
+    ret->out_seq = 0;
     ret->next = NULL;
     ret->prev = NULL;
     ret->size = size;
@@ -342,6 +368,25 @@ static void sm_free(struct NetBufferNode *node)
     free(node);
 }
 
+/*
+  Get next seq number
+*/
+static inline SeqType next_seq()
+{
+    SeqType ret = netstate.out_seq++;
+    if (netstate.out_seq == SEQ_ALWAYS) // -1 and 0 are special case
+    {
+        fprintf(stderr, "SEQ_ALWAYS");
+        netstate.out_seq++;
+    }
+    if (netstate.out_seq == 0) // -1 and 0 are special case
+    {
+        fprintf(stderr, "SEQ_0");
+        netstate.out_seq++;
+    }
+    return ret;
+}
+
 void NetBufferList::append(struct NetBufferNode *node)
 {
     if (last)
@@ -354,6 +399,22 @@ void NetBufferList::append(struct NetBufferNode *node)
     {
         first = node;
     }
+}
+
+struct NetBufferNode *NetBufferList::remove(struct NetBufferNode *node)
+{
+    struct NetBufferNode *ret = node->next;
+    if (node->prev)
+        node->prev->next = node->next;
+    else if (this->first == node)
+            this->first = node->next;
+
+    if (node->next)
+        node->next->prev = node->prev;
+    else if (this->last == node)
+            this->last = node->prev;
+    sm_free(node);
+    return ret;
 }
 
 void NetBufferList::clear()
@@ -390,6 +451,16 @@ void NetBufferList::join_list(NetBufferList *list2)
     }
     list2->first = NULL;
     list2->last = NULL;
+}
+
+int netlist_size(struct NetBufferList *list)
+{
+    int cnt = 0;
+    for (struct NetBufferNode *node = list->first; node != NULL; node = node->next)
+    {
+      cnt++;
+    }
+    return cnt;
 }
 
 //debug function to find out reason for mutating peer ids
@@ -449,20 +520,6 @@ static void SendUserUpdate(NetUserId dest, NetUserId updated_user)
         ptr - temp_buffer_data);
 }
 
-static unsigned CountLoggedInClients(void)
-{
-    NetUserId id;
-    unsigned count;
-
-    for (count = 0, id = 0; id < netstate.max_players; ++id) {
-        if (netstate.users[id].progress == USER_LOGGEDIN) {
-            ++count;
-        }
-    }
-    netstate.active_players = count;
-    return count;
-}
-
 static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
 {
     size_t len;
@@ -513,6 +570,9 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     LbMemoryCopy(ptr, &source, 1); //assumes LE
     ptr += 1;
     netstate.sp->sendmsg_single(source, temp_buffer_data, ptr - temp_buffer_data);
+
+    netstate.delivery_mask |= (1 << source);
+    create_update_seq_packet(source);
 
     //send user updates
     for (id = 0; id < MAX_N_USERS; ++id)
@@ -569,6 +629,43 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
     strcpy(localPlayerInfoPtr[id].name, netstate.users[id].name);
 }
 
+// Called from server on first packet
+static void create_update_seq_packet(NetUserId id)
+{
+    struct NetBufferNode *node = sm_append(netstate.outgoing_list, sizeof(struct NetBufferItem) + sizeof(SeqType));
+    struct NetBufferItem *buf_struct = (struct NetBufferItem *)node->data;
+
+    node->out_seq = 1; // That is the point - target will accept this
+    node->delivery_flag = ~(1 << id);
+
+    buf_struct->turn = 0;
+    buf_struct->size = sizeof(SeqType);
+    buf_struct->kind = PckA_UpdateBaseSeq;
+    buf_struct->in_seq = node->out_seq;
+    buf_struct->player = netstate.my_id;
+
+    *((SeqType*)buf_struct->buffer) = netstate.out_seq - (SEQ_WINDOW_LEN / 2);
+    NETDBG(6, "sending UpdateSeq player:%d seq:%d mask:%04u",
+        id, *((SeqType*)buf_struct->buffer), netstate.delivery_mask);
+}
+
+static char * send_confirm_packet(SeqType last_confirmed[], char *ptr, int id, int &cnt)
+{
+    NETDBG(7, "sending Confirm player:%d seq:%d", id, last_confirmed[id]);
+    struct NetBufferItem *buf_struct = (struct NetBufferItem *)ptr;
+
+    buf_struct->turn = 0;
+    buf_struct->size = 2;
+    buf_struct->kind = PckA_ConfirmSeq;
+    buf_struct->in_seq = SEQ_ALWAYS;
+    buf_struct->player = (char) netstate.my_id;
+
+    *((SeqType*)buf_struct->buffer) = last_confirmed[id];
+    ptr += sizeof(SeqType) + sizeof(struct NetBufferItem);
+    cnt++;
+    return ptr;
+}
+
 /*
 Send something like this:
 
@@ -577,16 +674,17 @@ Send something like this:
     char sm_count;
     struct NetBufferItem items[sm_count];
 */
-static void SendServerFrame(void)
+static void SendServerFrame()
 {
     //netstate.server_header->num_clients = CountLoggedInClients() + 1;
 
     NETDBG(13, "num_clients:%d", netstate.server_header->num_clients);
 
-    char *ptr;
-    const char *ptr_end = temp_buffer_data + MAX_OUTGOING_SIZE;
+    char *ptr, *saved_ptr;
+    // We should reserve some space for confirmation packet
+    const char *ptr_end = temp_buffer_data + MAX_OUTGOING_SIZE - sizeof(struct NetBufferItem) - 2;
     unsigned char *sm_count;
-    int cnt = 0;
+    int cnt;
 
     NETDBG(10, "Starting");
     ptr = temp_buffer_data;
@@ -598,27 +696,65 @@ static void SendServerFrame(void)
     ptr += sizeof(int);
     sm_count = (unsigned char*)ptr;
     ptr ++;
+    saved_ptr = ptr;
 
-    // TODO: filter out packets for each player
-
-    for (struct NetBufferNode *node = netstate.outgoing_list.first;
-        node != NULL;
-        node = node->next
-        )
+    for (int id = 1; id < MAX_N_USERS; ++id)
     {
-        if ((ptr + node->size) > ptr_end)
-        {
-            NETLOG("Overflow cnt:%d", cnt);
-            assert((ptr + node->size) <= ptr_end);
-        }
-        memcpy(ptr, node->data, node->size);
-        ptr += node->size;
-        cnt++;
-    }
-    assert(cnt < 255);
-    sm_count[0] = (unsigned char)cnt;
+        if (netstate.users[id].progress != USER_LOGGEDIN)
+            continue;
 
-    netstate.sp->sendmsg_all(temp_buffer_data, ptr - temp_buffer_data);
+        unsigned int id_mask = 1 << id;
+
+        ptr = saved_ptr;
+        cnt = 0;
+
+        for (struct NetBufferNode *node = netstate.outgoing_list.first;
+            node != NULL;
+            node = node->next
+            )
+        {
+            if ((ptr + node->size) > ptr_end)
+            {
+                //TODO: start a resync?
+                NETLOG("Overflow player:%d cnt:%d", id, cnt);
+                log_nodes(&netstate.outgoing_list, id);
+                return;
+            }
+
+            struct NetBufferItem *item = (struct NetBufferItem *)ptr;
+
+            if (node->delivery_flag & id_mask)
+            {
+                // Skipping already confirmed messages same id
+                NETDBG(8, "skipped seq:%d player:%d ", node->out_seq, id);
+                continue;
+            }
+            memcpy(ptr, node->data, node->size);
+
+            if (node->out_seq == 0)
+            {
+                if (item->in_seq != SEQ_ALWAYS)
+                {
+                    node->out_seq = next_seq();
+                    NETDBG(8, "reassigned old:%d seq:%d", item->in_seq, node->out_seq);
+                }
+            }
+            item->in_seq = node->out_seq;
+
+            ptr += node->size;
+            cnt++;
+        }
+
+        if (netstate.confirmed_this_turn[id] > 0)
+        {
+            ptr = send_confirm_packet(netstate.last_confirmed, ptr, id, cnt);
+        }
+
+        assert(cnt < 255);
+        sm_count[0] = (unsigned char)cnt;
+
+        netstate.sp->sendmsg_single(id, temp_buffer_data, ptr - temp_buffer_data);
+    }
 }
 
 /*
@@ -632,10 +768,10 @@ Send something like this:
 static void SendClientFrame(int seq_nbr) //seq_nbr because it isn't necessarily determined
 {
     char *ptr;
-    const char *ptr_end = temp_buffer_data + MAX_OUTGOING_SIZE;
+    // We should reserve some space for confirmation packet
+    const char *ptr_end = temp_buffer_data + MAX_OUTGOING_SIZE - sizeof(struct NetBufferItem) - 2;
     unsigned char *sm_count;
     int cnt = 0;
-    // TODO: join all messages together here
 
     NETDBG(10, "Starting");
     ptr = temp_buffer_data;
@@ -648,23 +784,41 @@ static void SendClientFrame(int seq_nbr) //seq_nbr because it isn't necessarily 
     sm_count = (unsigned char*)ptr;
     ptr ++;
 
-    for (struct NetBufferNode *node = netstate.created_list.first;
+    unsigned int id = 0;
+
+    for (struct NetBufferNode *node = netstate.outgoing_list.first;
         node != NULL;
         node = node->next
         )
     {
-        assert((ptr + node->size) <= ptr_end);
+        if ((ptr + node->size) > ptr_end)
+        {
+            NETLOG("Overflow cnt:%d", cnt);
+            log_nodes(&netstate.outgoing_list, id);
+            return;
+        }
+        //assert((ptr + node->size) <= ptr_end);
+        if (node->out_seq == 0)
+        {
+            node->out_seq = ((struct NetBufferItem *)node->data)->in_seq;
+        }
+
         memcpy(ptr, node->data, node->size);
         ptr += node->size;
         cnt++;
     }
+
+    if (netstate.confirmed_this_turn[id] > 0)
+    {
+        ptr = send_confirm_packet(netstate.last_confirmed, ptr, id, cnt);
+    }
+
     assert(cnt < 255);
     sm_count[0] = (unsigned char)cnt;
-
     netstate.sp->sendmsg_single(SERVER_ID, temp_buffer_data, ptr - temp_buffer_data);
 }
 
-static TbBool HandleFrame(NetUserId source, char * ptr, char * end)
+static TbBool HandleFrame(NetUserId source, char * ptr, char * end, bool is_server)
 {
     int seq_nbr;
     int sm_count;
@@ -683,19 +837,39 @@ static TbBool HandleFrame(NetUserId source, char * ptr, char * end)
 
     sm_count = *ptr;
     ptr++;
-    for (int i=0; i < sm_count; i++)
+    for (int i = 0; i < sm_count; i++)
     {
         // TODO here we mix abstraction layers
         struct NetBufferItem *buf_struct = (struct NetBufferItem *)ptr;
+        size_t size = sizeof(struct NetBufferItem) + buf_struct->size;
         NETDBG(7, "Got buf kind:%d sz:%d turn:%04ld player:%d", 
             buf_struct->kind, buf_struct->size, buf_struct->turn, (int) buf_struct->player);
 
-        size_t size = sizeof(struct NetBufferItem) + buf_struct->size;
+        // PckA_ConfirmSeq is "transport level" packet - it should not get into lists
+        if (buf_struct->kind == PckA_ConfirmSeq)
+        {
+            SeqType seq = ((SeqType*)buf_struct->buffer)[0];
+            //fprintf(stderr, "got Confirm from:%d seq:%d\n", source, seq);
+            process_confirmation(is_server, source, seq);
+            ptr += size;
+            continue;
+        } else if (buf_struct->kind == PckA_UpdateBaseSeq)
+        {
+            struct NetBufferNode *node = sm_append(netstate.incoming_list, size);
+            node->delivery_flag = 0xFFFFFFFF; //We got an update - dont send it to anyone
+
+            memcpy(node->data, ptr, size);
+            ptr += size;
+            continue;
+        }
+
         struct NetBufferNode *node = sm_append(netstate.incoming_list, size);
+        node->delivery_flag |= (1 << source); // This guy send us a packet, so he already know it
         memcpy(node->data, ptr, size);
         ptr += size;
     }
-    NETDBG(8, "Handled server frame");
+
+    NETDBG(8, "Handled frame");
     return true;
 }
 
@@ -742,8 +916,7 @@ static TbError UnpackMessage(NetUserId source, struct PacketBuffer *pbuffer)
             }
             break;
         case NETMSG_FRAME:
-            //if (netstate.my_id == SERVER_ID)
-            ok = HandleFrame(source, buffer_ptr, buffer_end);
+            ok = HandleFrame(source, buffer_ptr, buffer_end, netstate.my_id == SERVER_ID);
             if (!ok)
             {
                 buffer_ptr[-1] = 0; // We have to wait for next frame
@@ -839,7 +1012,10 @@ static void network_init_common(unsigned long maxplayers)
     {
         netstate.users[usr].id = usr;
     }
-    
+
+    netstate.out_seq = 1;
+    netstate.delivery_mask = 1; // player0 is mine
+
     netstate.incoming_list.clear();
     netstate.created_list.clear();
     netstate.outgoing_list.clear();
@@ -926,7 +1102,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
     return res;
 }
 
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, unsigned long *plyr_num, void *optns)
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, const char *plyr_name, unsigned long *plyr_num, void *optns)
 {
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
@@ -960,7 +1136,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     return Lb_OK;
 }
 
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
+TbError LbNetwork_Create(char *nsname_str, const char *plyr_name, unsigned long *plyr_num, void *optns)
 {
     NETDBG(7, "Starting");
     if (!netstate.sp) {
@@ -1047,7 +1223,6 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     else if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     }
-
 
     if (netstate.my_id == SERVER_ID) {
         LbMemorySet(&netstate.users[id], 0, sizeof(netstate.users[id]));
@@ -1142,21 +1317,86 @@ void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, 
     struct NetBufferNode *node = sm_append(netstate.created_list, sizeof(struct NetBufferItem) + size);
     struct NetBufferItem *buf_struct = (struct NetBufferItem *)node->data;
 
-    NETDBG(9, "from:%s size:%d base:%p", func, size, node);
+    NETDBG(9, "from:%s size:%d seq:%d base:%p", func, size, netstate.out_seq, node);
 
     buf_struct->turn = turn;
     buf_struct->size = size;
     buf_struct->kind = kind;
+    buf_struct->in_seq = next_seq();
     buf_struct->player = (char) netstate.my_id;
 
     return buf_struct->buffer;
 }
 
 /*
+  Called on any side when other side confirm some packet
+*/
+static void process_confirmation(bool is_server, unsigned int id, SeqType tail_num)
+{
+    NETDBG(7, "user:%d tail:%d", id, tail_num);
+    SeqType min_diff = 0xFFFF, min_val = 0;
+
+    tail_num -= netstate.seq_last_sent;
+
+    // That is used to protect from overflow of seq counter
+    for (struct NetBufferNode *node = netstate.outgoing_list.first;
+        node != NULL;
+        )
+    {
+        if ((node->out_seq == 0) || (node->out_seq == SEQ_ALWAYS))
+        {
+            node = node->next;
+            continue;
+        }
+        //TODO: compare with local min
+        SeqType seq = node->out_seq - netstate.seq_last_sent;
+        if (seq <= tail_num)
+        {
+            node->delivery_flag |= (1 << id);
+            if ((node->delivery_flag & netstate.delivery_mask) == netstate.delivery_mask)
+            {
+                NETDBG(7, "confirmed packet:%d, deleting", node->out_seq);
+                // We are removing some packet. So it may be next base
+                if (seq < min_diff)
+                {
+                    min_diff = seq;
+                    min_val = node->out_seq;
+                }
+                node = netstate.outgoing_list.remove(node);
+            }
+            else
+            {
+                NETDBG(8, "confirmed packet:%d flag:%x\n", node->out_seq, node->delivery_flag);
+                node = node->next;
+            }
+        }
+        else
+        {
+            NETDBG(10, "skipping:%d\n", seq);
+            node = node->next;
+        }
+    }
+    //fprintf(stderr, "=last_sent:%d seq:%d\n", netstate.seq_last_sent, tail_num);
+    if (min_diff != 0xFFFF)
+    {
+        NETDBG(8, "seq_last_sent:%d\n", min_val);
+        netstate.seq_last_sent = min_val;
+    }
+}
+
+static void process_update_seq(int source, struct NetBufferItem* buf_struct)
+{
+    SeqType seq = ((SeqType*)buf_struct->buffer)[0];
+    NETDBG(6, "update last:%d -> seq:%d", netstate.last_confirmed[source], seq);
+
+    netstate.last_confirmed[source] = seq;
+}
+/*
     This function process messages from `created_list` and `incoming_list`
 */
 static void process_lists(
     struct NetBufferList *first_list, struct NetBufferList *second_list,
+    bool is_server,
     void *context, LbNetwork_Packet_Callback callback)
 {
     // Here we should process all messages and reorder it correctly
@@ -1177,7 +1417,7 @@ static void process_lists(
             {
                 node = node2;
                 node2 = node2->next;
-                NETDBG(9, "from:2 node:%p", node);
+                NETDBG(9, "from:second node:%p", node);
             }
         }
         else
@@ -1188,28 +1428,86 @@ static void process_lists(
                 turn = false;
                 node = node1;
                 node1 = node1->next;
-                NETDBG(9, "from:1 node:%p", node);
+                NETDBG(9, "from:first node:%p", node);
             }
             else
             {
                 turn = true;
                 node = node2;
                 node2 = node2->next;
-                NETDBG(9, "from:2 node:%p", node);
+                NETDBG(9, "from:second node:%p", node);
             }
         }
         struct NetBufferItem* item = (struct NetBufferItem*)node->data;
-        int player_idx = item->player;
+
+        // That is id of message sender, not originator of event
+        unsigned int player_idx;
+        if (is_server)
+        {
+            // orginator is same
+            player_idx = item->player;
+        }
+        else
+        {
+            // in case of client we may got message from ourself or from server
+            player_idx = (item->player == netstate.my_id)? item->player : 0;
+        }
+        assert(player_idx < MAX_N_USERS);
 
         if (item->size == 0)
         {
             NETLOG("Unexpected empty packet:%p from:%d", node, player_idx);
             assert(item->size != 0);
         }
-        callback(context, item->turn, player_idx, item->kind, item->buffer, item->size);
+
+        if (item->kind == PckA_UpdateBaseSeq)
+        {
+            process_update_seq(player_idx, item);
+            continue;
+        }
+
+        assert (item->kind != PckA_ConfirmSeq);
+        if ((item->in_seq == 0) || (item->in_seq == SEQ_ALWAYS))
+        {
+            // Single shot packets
+            callback(context, item->turn, item->player, item->kind, item->buffer, item->size);
+            // TODO: delete this node after sending to each peer
+            assert(false && "Unexpected");
+        }
+        else
+        {
+            // action seq should be in order (skips are possible if sent from server)
+            SeqType seq = item->in_seq - netstate.last_confirmed[player_idx];
+            if (seq < SEQ_WINDOW_LEN)
+            {
+                callback(context, item->turn, item->player, item->kind, item->buffer, item->size);
+
+                // We dont want to send confirmation to ourself
+                if (item->player != netstate.my_id)
+                {
+                    NETDBG(8, "new_last:%d(%d) last:%d(%d)",
+                        item->in_seq, seq, netstate.last_confirmed[player_idx]);
+
+                    netstate.confirmed_this_turn[player_idx]++;
+                }
+                else
+                {
+                    NETDBG(8, "local:%d(%d) last:%d(%d)",
+                        item->in_seq, seq, netstate.last_confirmed[player_idx]);
+                }
+                netstate.last_confirmed[player_idx] = item->in_seq;
+                node->delivery_flag |= (1 << netstate.my_id);
+            }
+            else
+            {
+                NETDBG(6, "already received seq:%d(%d) last:%d",
+                    item->in_seq, seq, netstate.last_confirmed[player_idx]);
+            }
+        }
     }
     NETDBG(9, "done");
 }
+
 /*
   incoming
   created
@@ -1224,6 +1522,7 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
 {
     NetUserId id;
     static TbClockMSec disconnectTime = 10 * DISCONNECT_TIMEOUT;
+    bool is_server = (netstate.users[netstate.my_id].progress == USER_SERVER);
     TbBool ok;
 
     struct PacketBuffer packet_buffer = {0, .max_size = MAX_FRAME_DATA_SIZE, 0 };
@@ -1238,7 +1537,9 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
     TbClockMSec now = LbTimerClock();
     assert(UserIdentifiersValid());
 
-    if (netstate.users[netstate.my_id].progress == USER_SERVER)
+    memset(netstate.confirmed_this_turn, 0, sizeof(netstate.confirmed_this_turn));
+
+    if (is_server)
     {
         //server needs to be careful about how it reads messages
         for (id = 0; id < MAX_N_USERS; ++id)
@@ -1262,7 +1563,6 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
     }
     else
     { // client
-        SendClientFrame(netstate.seq_nbr);
         if (!ProcessMessagesUntilNextFrame(SERVER_ID, 0, &packet_buffer))
         {
             netstate.sp->update(OnNewUser);
@@ -1279,15 +1579,58 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
         disconnectTime = now + DISCONNECT_TIMEOUT;
     }
 
-    process_lists(&netstate.created_list, &netstate.incoming_list, context, callback);
-    // TODO: 3d player?
+    process_lists(&netstate.created_list, &netstate.incoming_list,
+        is_server, context, callback);
+
     netstate.outgoing_list.join_list(&netstate.created_list);
 
-    if (netstate.users[netstate.my_id].progress == USER_SERVER)
+    if (is_server)
     {
+        if (netstate.delivery_mask == 1)
+            netstate.outgoing_list.clear(); // Single player
+        else
+          netstate.outgoing_list.join_list(&netstate.incoming_list);
+
+        for (struct NetBufferNode *node = netstate.outgoing_list.first;
+            node != NULL;
+            )
+        {
+          // clear outgoing list
+            if ((node->delivery_flag & netstate.delivery_mask) == netstate.delivery_mask)
+            {
+                NETDBG(7, "deleting packet:%d");
+                node = netstate.outgoing_list.remove(node);
+            }
+            else
+            {
+                node = node->next;
+            }
+        }
+
         netstate.seq_nbr += 1;
+
+        /* //TODO: hide with #ifdef
+        int sz = netlist_size(&netstate.outgoing_list);
+        if (sz > 0)
+        {
+            fprintf(stderr, "netlist_size:%d\n", sz);
+        }
+        */
+
         SendServerFrame();
-        // TODO: we should cleanup a list of packets to send sometimes
+    }
+    else
+    {
+        /* //TODO: hide with #ifdef
+        int sz = netlist_size(&netstate.outgoing_list);
+        if (sz > 0)
+        {
+            fprintf(stderr, "netlist_size:%d\n", sz);
+        }
+        */
+
+        SendClientFrame(netstate.seq_nbr);
+        netstate.incoming_list.clear();
     }
 
     netstate.sp->update(OnNewUser);
@@ -1306,6 +1649,23 @@ void LbNetwork_EmptyQueue()
     netstate.outgoing_list.clear();
 }
 
+
+static void log_nodes(struct NetBufferList *lst, int player_idx)
+{
+    int total = 0;
+    JUSTLOG("= ");
+    for (struct NetBufferNode *node = lst->first;
+        node != NULL;
+        node = node->next
+        )
+    {
+        struct NetBufferItem* item = (struct NetBufferItem*)node->data;
+        int sz = item->size + sizeof(struct NetBufferItem);
+        total += sz;
+        JUSTLOG("   fullsize:%d kind:%d turn:%ld seq:%d src:%d delivery:%02x", sz, item->kind, item->turn, item->in_seq, item->player, node->delivery_flag);
+    }
+    JUSTLOG("= next_seq:%d total_size:%d", netstate.out_seq, total);
+}
 /*
     Read data if availiable
 */
