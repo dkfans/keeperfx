@@ -929,20 +929,24 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
         }
     }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
     if (shotst->old->field_24 != 0)
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
         if (cctrl->field_B1 == 0) {
             cctrl->field_B1 = shotst->old->field_24;
         }
     }
     if (shotst->cast_spell_kind != 0)
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(shooter);
-        if (!creature_control_invalid(cctrl)) {
-            n = cctrl->explevel;
+        struct CreatureControl* scctrl = creature_control_get_from_thing(shooter);
+        if (!creature_control_invalid(scctrl)) {
+            n = scctrl->explevel;
         } else {
             n = 0;
+        }
+        if (shotst->cast_spell_kind == SplK_Disease)
+        {
+            cctrl->disease_caster_plyridx = shotng->owner;
         }
         apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
     }
@@ -1378,6 +1382,15 @@ TngUpdateRet update_shot(struct Thing *thing)
                   draw_lightning(&thing->mappos,&target->mappos, 96, 60);
                   apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
               }
+            }
+            break;
+        case ShM_Disease:
+            for (i = 1; i > 0; i--)
+            {
+              pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(511) + 255;
+              pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(511) + 255;
+              pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(511) + 255;
+              create_thing(&pos1, TCls_EffectElem, 95, thing->owner, -1);
             }
             break;
         default:

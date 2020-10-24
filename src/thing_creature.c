@@ -1006,11 +1006,14 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
+          if (cctrl->disease_caster_plyridx == thing->owner)
+          {
+              cctrl->disease_caster_plyridx = game.neutral_player_num;
+          }
+          pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
           fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
           n = 0;
           cctrl->spell_flags |= CSAfF_Disease;
-          cctrl->disease_caster_plyridx = thing->owner;
           cctrl->disease_start_turn = game.play_gameturn;
           for (k=0; k < 3; k++)
           {
@@ -1122,7 +1125,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     case SplK_Disease:
         pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
         cspell->duration = pwrdynst->strength[spell_lev];
-        cctrl->disease_caster_plyridx = thing->owner;
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
