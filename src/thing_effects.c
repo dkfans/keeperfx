@@ -567,7 +567,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         thing->health = eestat->numfield_3 + i;
     } else
     {
-        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->field_3E);
+        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     }
 
     if (eestat->field_17 != 0)
@@ -684,10 +684,10 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
-            memcpy(&effeltng->field_3E, &thing->field_3E, 0x14u);
+            memcpy(&effeltng->anim_speed, &thing->anim_speed, 0x14u);
             effeltng->field_4F &= ~TF4F_Unknown10;
             effeltng->field_4F |= TF4F_Unknown20;
-            effeltng->field_3E = 0;
+            effeltng->anim_speed = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
         }
     }
@@ -701,10 +701,10 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
             if (!thing_is_invalid(effeltng))
             {
-                memcpy(&effeltng->field_3E, &thing->field_3E, 0x14u);
+                memcpy(&effeltng->anim_speed, &thing->anim_speed, 0x14u);
                 effeltng->field_4F &= ~TF4F_Unknown10;
                 effeltng->field_4F |= TF4F_Unknown20;
-                effeltng->field_3E = 0;
+                effeltng->anim_speed = 0;
                 effeltng->move_angle_xy = thing->move_angle_xy;
             }
         } else
@@ -829,7 +829,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
     if (eestat->numfield_3 <= 0) {
-        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->field_3E);
+        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     } else {
         thing->health = ACTION_RANDOM(eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
     }
@@ -860,7 +860,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     if (!eestats->field_12)
     {
         if (elemtng->field_60 >= (int)elemtng->mappos.z.val)
-          elemtng->field_3E = 0;
+          elemtng->anim_speed = 0;
     }
     if (eestats->field_15)
     {
@@ -947,7 +947,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     long prop_val = i / (LbFPMath_PI / 8);
     elemtng->move_angle_xy = get_angle_xy_to_vec(&elemtng->veloc_base);
     elemtng->field_48 = prop_val;
-    elemtng->field_3E = 0;
+    elemtng->anim_speed = 0;
     elemtng->field_40 = (prop_val & 0xff) << 8;
     SYNCDBG(18,"Finished");
     return TUFRet_Modified;

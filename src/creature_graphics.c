@@ -445,7 +445,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
             if (!update_creature_anim(thing, i, 1))
             {
-                thing->field_3E = i;
+                thing->anim_speed = i;
             }
         }
     } else
@@ -467,7 +467,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
             if (!update_creature_anim_td(thing, i, 819))
             {
-                thing->field_3E = i;
+                thing->anim_speed = i;
             }
         }
     }

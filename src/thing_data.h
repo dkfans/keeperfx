@@ -199,7 +199,7 @@ unsigned char field_22;
     struct CoordDelta3d veloc_push_add;
     struct CoordDelta3d velocity;
     // Push when moving; needs to be signed
-    short field_3E;
+    short anim_speed;
     long field_40;
 unsigned short anim_sprite;
     unsigned short sprite_size;

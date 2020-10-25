@@ -238,7 +238,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     thing->field_50 |= (draw_class << 2);
     thing->field_49 = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {
-        thing->field_3E = speed;
+        thing->anim_speed = speed;
     }
     if (scale != -1) {
         thing->sprite_size = scale;

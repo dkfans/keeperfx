@@ -1018,7 +1018,7 @@ long food_moves(struct Thing *objtng)
             objtng->food.word_18 = ACTION_RANDOM(0x7FF);
             objtng->food.byte_16 = 0;
         } else
-        if ((objtng->field_3E * objtng->field_49 <= objtng->field_3E + objtng->field_40) && (objtng->food.byte_16 < 5))
+        if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->field_40) && (objtng->food.byte_16 < 5))
         {
             objtng->food.byte_16--;
         }
@@ -1088,7 +1088,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[0], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->field_3E - 1;
+            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1097,7 +1097,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[1], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->field_3E - 1);
+            nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->anim_speed - 1);
         }
         ret = -1;
         break;
@@ -1106,7 +1106,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[2], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->field_3E - 1;
+            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1351,7 +1351,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     if (heartng->active_state != ObSt_BeingDestroyed)
     {
         long i = (char)heartng->byte_14;
-        heartng->field_3E = 0;
+        heartng->anim_speed = 0;
         struct ObjectConfig* objconf = get_object_model_stats2(5);
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);

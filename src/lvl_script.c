@@ -1971,6 +1971,37 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
   SCRIPTDBG(6,"Altered %d checks named '%s'",n,chkname);
 }
 
+
+void refresh_trap_anim(long trap_id)
+{
+    int k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
+    int i = slist->index;
+    while (i != 0)
+    {
+        struct Thing* traptng = thing_get(i);
+        if (thing_is_invalid(traptng))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = traptng->next_of_class;
+        // Per thing code
+        if (traptng->model == trap_id)
+        {
+            traptng->anim_sprite = gameadd.trap_stats[trap_id].sprite_anim_idx;
+        }
+        // Per thing code ends
+        k++;
+        if (k > slist->index)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}
+
+
                                                  // Name, Shots, TimeBetweenShots, Model, TriggerType, ActivationType, EffectType, Hidden
 void command_set_trap_configuration(const char* trapname, long val1, long val2, long val3, long val4, long val5, long val6, long val7)
 {
@@ -2051,16 +2082,17 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
         struct ManfctrConfig* mconf;
         trapst = &trapdoor_conf.trap_cfgstats[trap_id];   
         mconf = &gameadd.traps_config[trap_id];
-        SCRIPTDBG(7, "Changing trap %d configuration from (%d,%d,%d,%d,%d,%d,%d)", trap_id, mconf->shots, mconf->shots_delay, trap_stats[trap_id].sprite_anim_idx, trap_stats[trap_id].trigger_type, trap_stats[trap_id].activation_type, trap_stats[trap_id].created_itm_model,trapst->hidden);
+        SCRIPTDBG(7, "Changing trap %d configuration from (%d,%d,%d,%d,%d,%d,%d)", trap_id, mconf->shots, mconf->shots_delay, gameadd.trap_stats[trap_id].sprite_anim_idx, gameadd.trap_stats[trap_id].trigger_type, gameadd.trap_stats[trap_id].activation_type, gameadd.trap_stats[trap_id].created_itm_model,trapst->hidden);
         SCRIPTDBG(7, "Changing trap %d configuration to (%d,%d,%d,%d,%d,%d,%d)", trap_id, val1, val2, val3, val4, val5, val6, val7);
         mconf->shots = val1;
         mconf->shots_delay = val2;
-        trap_stats[trap_id].sprite_anim_idx = val3;
-        trap_stats[trap_id].trigger_type = val4;
-        trap_stats[trap_id].activation_type = val5;
-        trap_stats[trap_id].created_itm_model = val6;
+        gameadd.trap_stats[trap_id].sprite_anim_idx = val3;
+        gameadd.trap_stats[trap_id].trigger_type = val4;
+        gameadd.trap_stats[trap_id].activation_type = val5;
+        gameadd.trap_stats[trap_id].created_itm_model = val6;
         trapst->hidden = val7;
         //trapst->notify = val8; cannot fit 9 variables
+        refresh_trap_anim(trap_id);
     } else
     {
         return;

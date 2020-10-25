@@ -821,9 +821,9 @@ void update_thing_animation(struct Thing *thing)
       if (!creature_control_invalid(cctrl))
         cctrl->field_CE = thing->field_40;
     }
-    if ((thing->field_3E != 0) && (thing->field_49 != 0))
+    if ((thing->anim_speed != 0) && (thing->field_49 != 0))
     {
-        thing->field_40 += thing->field_3E;
+        thing->field_40 += thing->anim_speed;
         i = (thing->field_49 << 8);
         if (i <= 0) i = 256;
         while (thing->field_40  < 0)
@@ -834,7 +834,7 @@ void update_thing_animation(struct Thing *thing)
         {
           if (thing->field_4F & TF4F_Unknown40)
           {
-            thing->field_3E = 0;
+            thing->anim_speed = 0;
             thing->field_40 = i-1;
           } else
           {

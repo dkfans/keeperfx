@@ -138,6 +138,7 @@ struct GameAdd {
 
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
+    struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };
