@@ -50,6 +50,8 @@ unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
 extern TbBool AssignCpuKeepers = 0;
 
+TbBool TimerNoReset = false;
+
 /**
  * Language 3-char abbreviations.
  * These are selected from ISO 639-2/B naming standard.
@@ -117,6 +119,7 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOS_SAMPLES",       13},
   {"RESIZE_MOVIES",       14},
   {"MUSIC_TRACKS",        15},
+  {"TIMER_NO_RESET",      16},
   {NULL,                   0},
   };
 
@@ -786,6 +789,19 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
           }
+          break;
+      case 16: // TIMER_NO_RESET
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              TimerNoReset = true;
+          else
+              TimerNoReset = false;
           break;
       case 0: // comment
           break;

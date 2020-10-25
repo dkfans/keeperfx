@@ -4171,6 +4171,10 @@ void post_init_level(void)
     init_keepers_map_exploration();
     SYNCDBG(9,"Finished");
     starttime = LbTimerClock_1000();
+    if (!TimerNoReset)
+    {
+        starttime = LbTimerClock_1000();
+    }
 }
 
 void startup_saved_packet_game(void)
