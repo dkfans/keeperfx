@@ -362,6 +362,7 @@ extern TbClockMSec totaltime;
 extern unsigned long seconds;
 extern unsigned long minutes;
 extern unsigned long hours;
+extern TbBool TimerGame;
 
 #ifdef __cplusplus
 }

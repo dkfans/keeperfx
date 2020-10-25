@@ -380,22 +380,27 @@ TbBool bonus_timer_enabled(void)
 
 void draw_timer(void)
 {
-    /*
-    static unsigned long nturns;
-    if (get_my_player()->victory_state == VicS_WonLevel)
+    char* text;
+    if (TimerGame)
     {
-        struct Dungeon* dungeon = get_my_dungeon();
-        nturns = dungeon->lvstats.hopes_dashed;
+        static unsigned long nturns;
+        if (get_my_player()->victory_state == VicS_WonLevel)
+        {
+            struct Dungeon* dungeon = get_my_dungeon();
+            nturns = dungeon->lvstats.hopes_dashed;
+        }
+        else
+        {
+            nturns = game.play_gameturn;
+        }
+        text = buf_sprintf("%08ld", nturns);
     }
     else
     {
-        nturns = game.play_gameturn;
+        update_time();
+        text = buf_sprintf("%02ld:%02ld:%02ld", hours, minutes, seconds);
     }
-    */
-    LbTextSetFont(winfont);
-    // char* text = buf_sprintf("%08ld", nturns);
-    update_time();
-    char* text = buf_sprintf("%02ld:%02ld:%02ld", hours, minutes, seconds);
+    LbTextSetFont(winfont); 
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;

@@ -178,6 +178,7 @@ TbClockMSec totaltime = 0;
 unsigned long seconds = 0;
 unsigned long minutes = 0;
 unsigned long hours = 0;
+TbBool TimerGame = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -4762,6 +4763,16 @@ short process_command_line(unsigned short argc, char *argv[])
       else if (strcasecmp(parstr, "timer") == 0)
       {
           game_flags2 |= GF2_Timer;
+          if (strcasecmp(pr2str, "game") == 0)
+          {
+              TimerGame = true;
+              narg++;
+          }
+          else if (strcasecmp(pr2str, "real") == 0)
+          {
+              TimerGame = false;
+              narg++;
+          }
       }
 #ifdef AUTOTESTING
       else if (strcasecmp(parstr, "exit_at_turn") == 0)
