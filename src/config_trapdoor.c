@@ -1016,6 +1016,7 @@ TbBool create_manufacture_array_from_trapdoor_data(void)
 
 TbBool load_trapdoor_config(const char *conf_fname, unsigned short flags)
 {
+    memcpy(gameadd.trap_stats, old_trap_stats, sizeof(old_trap_stats));
     static const char config_global_textname[] = "global traps and doors config";
     static const char config_campgn_textname[] = "campaign traps and doors config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
