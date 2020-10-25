@@ -5030,6 +5030,16 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+void update_time(void)
+{
+    totaltime = (LbTimerClock_1000() - starttime);
+    seconds = (unsigned long)totaltime / 1000;
+    minutes = seconds / 60;
+    hours = minutes / 60;
+    minutes %= 60;
+    seconds %= 60;
+}
+
 #ifdef __cplusplus
 }
 #endif
