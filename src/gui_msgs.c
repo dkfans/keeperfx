@@ -27,6 +27,8 @@
 #include "frontend.h"
 #include "game_legacy.h"
 
+#include "keeperfx.hpp"
+
 /******************************************************************************/
 void message_draw(void)
 {
@@ -107,13 +109,20 @@ void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
     va_end(val);
 }
 
-void show_time_taken(unsigned long turns)
+void show_game_time_taken(unsigned long turns)
 {
     unsigned long seconds = turns / game.num_fps;
     unsigned long minutes = seconds / 60;
     unsigned long hours = minutes / 60;
     seconds %= 60;
     minutes %= 60;
+    struct PlayerInfo* player = get_my_player();
+    message_add_fmt(player->id_number, "Time taken: %ld hour(s) %ld minute(s) %ld second(s)", hours, minutes, seconds);
+}
+
+void show_real_time_taken(void)
+{
+    update_time();
     struct PlayerInfo* player = get_my_player();
     message_add_fmt(player->id_number, "Time taken: %ld hour(s) %ld minute(s) %ld second(s)", hours, minutes, seconds);
 }

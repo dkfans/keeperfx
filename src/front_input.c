@@ -508,7 +508,8 @@ short get_global_inputs(void)
       {
         if ( timer_enabled() )
         {
-            SYNCMSG("Finished level %ld. Total turns taken: %ld.",game.loaded_level_number, game.play_gameturn);
+            update_time();
+            SYNCMSG("Finished level %ld. Total turns taken: %ld. CPU time elapsed: %02ld:%02ld:%02ld.",game.loaded_level_number, game.play_gameturn, hours, minutes, seconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);

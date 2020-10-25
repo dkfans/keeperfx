@@ -41,6 +41,8 @@
 #include "vidfade.h"
 #include "game_legacy.h"
 
+#include "keeperfx.hpp"
+
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
 {
@@ -378,6 +380,7 @@ TbBool bonus_timer_enabled(void)
 
 void draw_timer(void)
 {
+    /*
     static unsigned long nturns;
     if (get_my_player()->victory_state == VicS_WonLevel)
     {
@@ -388,8 +391,11 @@ void draw_timer(void)
     {
         nturns = game.play_gameturn;
     }
+    */
     LbTextSetFont(winfont);
-    char* text = buf_sprintf("%08ld", nturns);
+    // char* text = buf_sprintf("%08ld", nturns);
+    update_time();
+    char* text = buf_sprintf("%02ld:%02ld:%02ld", hours, minutes, seconds);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;

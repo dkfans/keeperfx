@@ -172,6 +172,13 @@ DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
+
+TbClockMSec starttime = 0;
+TbClockMSec totaltime = 0;
+unsigned long seconds = 0;
+unsigned long minutes = 0;
+unsigned long hours = 0;
+
 TbPixel get_player_path_colour(unsigned short owner)
 {
   return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
@@ -4162,6 +4169,7 @@ void post_init_level(void)
     init_all_creature_states();
     init_keepers_map_exploration();
     SYNCDBG(9,"Finished");
+    starttime = LbTimerClock_1000();
 }
 
 void startup_saved_packet_game(void)
