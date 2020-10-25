@@ -48,7 +48,7 @@ extern "C" {
 /******************************************************************************/
 
 //field_0; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; field_11; field_12; field_13; size_xy; field_16; trigger_type; activation_type; created_itm_model;  field_1B; etc
-struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX] = {
+/**struct TrapStats gameaddtrap_stats[TRAPDOOR_TYPES_MAX] = {
 {0,           0, 0, 0, 0,        0, 0, 0,          0,      0,          0,          0,               0, 0, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0},
 {128,       861, 384, 1, 0,        0, 0, 1,        640,    512,          1, 1, 15, 9, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Boulder
 {1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 19, 2, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Alarm
@@ -56,7 +56,7 @@ struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX] = {
 {1,         846, 256, 0, 256,        0, 0, 1,          0,      0,          2, 3, 29, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Lightning
 {1,         844, 256, 0, 256,        0, 0, 1,          0,      0,          2, 2, 14, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //WoP
 {1,         845, 256, 0, 256,        0, 0, 1,          0,      0,          2, 4, 12, 4, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Lava
-};
+};**/
 
 TbBool destroy_trap(struct Thing *traptng)
 {
@@ -346,7 +346,7 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 
 void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *creatng)
 {
-    struct TrapStats* trapstat = &trap_stats[traptng->model];
+    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
@@ -395,7 +395,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
 
 void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
 {
-    struct TrapStats* trapstat = &trap_stats[traptng->model];
+    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad effect kind %d",(int)trapstat->created_itm_model);
@@ -425,7 +425,7 @@ void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
 
 void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
 {
-    struct TrapStats* trapstat = &trap_stats[traptng->model];
+    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
@@ -449,7 +449,7 @@ void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
     if (subtile_is_room(stl_x, stl_y)) {
         delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), true);
     }
-    place_slab_type_on_map(trap_stats[traptng->model].created_itm_model, stl_x, stl_y, game.neutral_player_num, 0);
+    place_slab_type_on_map(gameadd.trap_stats[traptng->model].created_itm_model, stl_x, stl_y, game.neutral_player_num, 0);
     // TODO
     //remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
@@ -509,7 +509,7 @@ void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, Power
 void activate_trap(struct Thing *traptng, struct Thing *creatng)
 {
     traptng->trap.revealed = 1;
-    const struct TrapStats *trapstat = &trap_stats[traptng->model];
+    const struct TrapStats *trapstat = &gameadd.trap_stats[traptng->model];
     struct TrapConfigStats *trapst = &trapdoor_conf.trap_cfgstats[traptng->model];
     // EVM_TRAP_EVENT("trap.actiated", traptng->owner, thing)
     if (trapst->notify == 1)
@@ -627,7 +627,7 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
         return TUFRet_Unchanged;
     }
     TbBool do_trig;
-    switch (trap_stats[traptng->model].trigger_type)
+    switch (gameadd.trap_stats[traptng->model].trigger_type)
     {
     case TrpTrg_LineOfSight90:
         do_trig = update_trap_trigger_line_of_sight_90(traptng);
@@ -642,7 +642,7 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
         do_trig = false;
         break;
     default:
-        ERRORLOG("Illegal trap trigger type %d",(int)trap_stats[traptng->model].trigger_type);
+        ERRORLOG("Illegal trap trigger type %d",(int)gameadd.trap_stats[traptng->model].trigger_type);
         do_trig = false;
         break;
     }
@@ -686,11 +686,13 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
 TbBool rearm_trap(struct Thing *traptng)
 {
     struct ManfctrConfig* mconf = &gameadd.traps_config[traptng->model];
-    struct TrapStats* trapstat = &trap_stats[traptng->model];
+    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
     traptng->field_4F ^= (traptng->field_4F ^ (trapstat->field_12 << 4)) & (TF4F_Unknown10|TF4F_Unknown20);
     return true;
 }
+
+
 
 TngUpdateRet update_trap(struct Thing *traptng)
 {
@@ -712,10 +714,11 @@ TngUpdateRet update_trap(struct Thing *traptng)
     return TUFRet_Modified;
 }
 
+
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx)
 {
     SYNCDBG(7,"Starting for %s owner %d",trap_code_name(trpkind),(int)plyr_idx);
-    struct TrapStats* trapstat = &trap_stats[trpkind];
+    struct TrapStats* trapstat = &gameadd.trap_stats[trpkind];
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         ERRORDBG(3,"Cannot create trap %s for player %d. There are too many things allocated.",trap_code_name(trpkind),(int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
@@ -873,7 +876,7 @@ long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand)
 {
-    struct TrapStats* trapstat = &trap_stats[thing->model];
+    struct TrapStats* trapstat = &gameadd.trap_stats[thing->model];
     if (trapstat->created_itm_model <= 0) {
         ERRORLOG("Cannot activate trap with shot model %d",(int)trapstat->created_itm_model);
         return;

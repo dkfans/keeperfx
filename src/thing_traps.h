@@ -120,7 +120,7 @@ long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand);
 TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-extern struct TrapStats trap_stats[];
+// extern struct TrapStats trap_stats[];
 /******************************************************************************/
 #ifdef __cplusplus
 }

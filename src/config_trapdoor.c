@@ -487,7 +487,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].trigger_type = k;
+                gameadd.trap_stats[i].trigger_type = k;
                 n++;
             }
           }
@@ -503,7 +503,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].activation_type = k;
+                gameadd.trap_stats[i].activation_type = k;
                 n++;
             }
           }
@@ -519,7 +519,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].created_itm_model = k;
+                gameadd.trap_stats[i].created_itm_model = k;
                 n++;
             }
           }
@@ -535,7 +535,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].sprite_anim_idx = k;
+                gameadd.trap_stats[i].sprite_anim_idx = k;
                 n++;
             }
           }
@@ -551,7 +551,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].sprite_size_max = k;
+                gameadd.trap_stats[i].sprite_size_max = k;
                 n++;
             }
           }
@@ -567,7 +567,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].anim_speed = k;
+                gameadd.trap_stats[i].anim_speed = k;
                 n++;
             }
           }
@@ -583,7 +583,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].unanimated = k;
+                gameadd.trap_stats[i].unanimated = k;
                 n++;
             }
           }

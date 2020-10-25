@@ -1989,7 +1989,7 @@ void refresh_trap_anim(long trap_id)
         // Per thing code
         if (traptng->model == trap_id)
         {
-            traptng->anim_sprite = trap_stats[trap_id].sprite_anim_idx;
+            traptng->anim_sprite = gameadd.trap_stats[trap_id].sprite_anim_idx;
         }
         // Per thing code ends
         k++;
@@ -2082,14 +2082,14 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
         struct ManfctrConfig* mconf;
         trapst = &trapdoor_conf.trap_cfgstats[trap_id];   
         mconf = &gameadd.traps_config[trap_id];
-        SCRIPTDBG(7, "Changing trap %d configuration from (%d,%d,%d,%d,%d,%d,%d)", trap_id, mconf->shots, mconf->shots_delay, trap_stats[trap_id].sprite_anim_idx, trap_stats[trap_id].trigger_type, trap_stats[trap_id].activation_type, trap_stats[trap_id].created_itm_model,trapst->hidden);
+        SCRIPTDBG(7, "Changing trap %d configuration from (%d,%d,%d,%d,%d,%d,%d)", trap_id, mconf->shots, mconf->shots_delay, gameadd.trap_stats[trap_id].sprite_anim_idx, gameadd.trap_stats[trap_id].trigger_type, gameadd.trap_stats[trap_id].activation_type, gameadd.trap_stats[trap_id].created_itm_model,trapst->hidden);
         SCRIPTDBG(7, "Changing trap %d configuration to (%d,%d,%d,%d,%d,%d,%d)", trap_id, val1, val2, val3, val4, val5, val6, val7);
         mconf->shots = val1;
         mconf->shots_delay = val2;
-        trap_stats[trap_id].sprite_anim_idx = val3;
-        trap_stats[trap_id].trigger_type = val4;
-        trap_stats[trap_id].activation_type = val5;
-        trap_stats[trap_id].created_itm_model = val6;
+        gameadd.trap_stats[trap_id].sprite_anim_idx = val3;
+        gameadd.trap_stats[trap_id].trigger_type = val4;
+        gameadd.trap_stats[trap_id].activation_type = val5;
+        gameadd.trap_stats[trap_id].created_itm_model = val6;
         trapst->hidden = val7;
         //trapst->notify = val8; cannot fit 9 variables
         refresh_trap_anim(trap_id);
