@@ -668,7 +668,7 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
                     if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
                     {
                         //When there's only offmap traps, destroy the disarmed one so the player can place a new one.
-                        traptng->health = -1;
+                        delete_thing_structure(traptng, 0);
                     }
                     else
                     {
