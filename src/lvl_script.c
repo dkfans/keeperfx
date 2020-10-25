@@ -1990,6 +1990,15 @@ void refresh_trap_anim(long trap_id)
         if (traptng->model == trap_id)
         {
             traptng->anim_sprite = gameadd.trap_stats[trap_id].sprite_anim_idx;
+            struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+            char start_frame;
+            if (trapstat->field_13) {
+                start_frame = -1;
+            }
+            else {
+                start_frame = 0;
+            }
+            set_thing_draw(traptng, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, 2);
         }
         // Per thing code ends
         k++;
