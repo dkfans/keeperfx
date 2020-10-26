@@ -531,7 +531,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                         break;
                     if ((game.play_gameturn & 4) == 0)
                     {
-                        col1 = player_room_colours[thing->owner];
+                        col1 = player_room_colours[cctrl->party.target_plyr_idx];
                         col2 = player_room_colours[thing->owner];
                     }
                     long zmpos_x;
