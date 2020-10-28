@@ -1491,9 +1491,11 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing)
         }
     }
     // Slap is not in spell array, it is so common that has its own dedicated duration
-    if (cctrl->slap_turns > 0) {
+    if (cctrl->slap_turns > 0)
+    {
         cctrl->slap_turns--;
-            if (cctrl->slap_turns <= 0) {
+        if (cctrl->slap_turns <= 0) 
+        {
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
     }
