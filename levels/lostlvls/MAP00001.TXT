@@ -1,0 +1,264 @@
+rem Demo Level
+
+SET_GENERATE_SPEED(400)
+MAX_CREATURES(PLAYER0,12)
+START_MONEY(PLAYER0,5000)
+
+ADD_CREATURE_TO_POOL(FLY,4)
+ADD_CREATURE_TO_POOL(BUG,7)
+ADD_CREATURE_TO_POOL(SPIDER,3)
+ADD_CREATURE_TO_POOL(TROLL,5)
+ADD_CREATURE_TO_POOL(BILE_DEMON,3)
+
+CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+CREATURE_AVAILABLE(PLAYER0,SPIDER,1,0)
+CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,0)
+
+ROOM_AVAILABLE(PLAYER0,TREASURE,1,0)
+ROOM_AVAILABLE(PLAYER0,GARDEN,1,0)
+ROOM_AVAILABLE(PLAYER0,LAIR,1,0)
+ROOM_AVAILABLE(PLAYER0,TRAINING,1,0)
+ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
+
+MAGIC_AVAILABLE(PLAYER0,POWER_HAND,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_heal_creature,1,0)
+
+
+CREATE_PARTY(ONE)
+	ADD_TO_PARTY(ONE,THIEF,1,300,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(ONE,THIEF,1,300,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(ONE,THIEF,1,300,ATTACK_ENEMIES,0)
+
+create_party(victor)
+        add_to_party(victor,archer,2,600,attack_enemies,0)
+        add_to_party(victor,archer,1,400,attack_enemies,0)
+        add_to_party(victor,archer,1,400,attack_enemies,0)
+        add_to_party(victor,wizard,2,800,attack_enemies,0)
+
+CREATE_PARTY(FINAL)
+	ADD_TO_PARTY(FINAL,WIZARD,2,800,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(FINAL,ARCHER,2,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(FINAL,ARCHER,2,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(FINAL,KNIGHT,3,2000,ATTACK_ENEMIES,0)
+
+IF(PLAYER0,GAME_TURN >= 40)
+	QUICK_OBJECTIVE(1,"Money sits at the root of all Evil, and so it is appropriate that you start your Empire by building a Treasure Room. Select the Treasure Room Icon with the Left Mouse Button (LMB) and build a 3X3 Treasure Room in an empty space in your Dungeon.",PLAYER0)
+	room_available(player0,treasure,1,1)
+	tutorial_flash_button(6,-1)
+endif
+
+
+IF(PLAYER0, GAME_TURN >= 100)
+        DISPLAY_INFORMATION(1,PLAYER0)
+ENDIF
+
+
+IF(PLAYER0, GAME_TURN >= 450)
+        quick_information(33, "You may see a map of the entire realm by pressing 'M' or clicking on the scroll at the top-left of your panel.")
+ENDIF
+
+
+
+IF(PLAYER0,TREASURE >= 1)
+        QUICK_INFORMATION(30, "A Treasure Room is used to store any gold mined by your imps.")
+        IF(PLAYER0,MONEY <= 1000)
+                QUICK_INFORMATION(2,"Your gold reserves are running low. Tag the gold seam to the South. Your imps will mine it out and replenish your coffers.")
+        ENDIF
+ENDIF
+
+
+
+IF(PLAYER0,TREASURE >= 9)
+	QUICK_OBJECTIVE(3,"Click with the right mouse button to stop building rooms. Now tunnel to the Portal in the East by tagging the rock with your left mouse button. Your Imps will then claim it for you.",PLAYER0)
+	set_timer(player2,timer0)
+	set_flag(player0,flag4,1)
+        if(player2,timer0 >= 275)
+                QUICK_INFORMATION(7,"Using the right mouse button (RMB), you may slap your creatures, thus making them work more quickly. Be careful not to beat them too frequently! This will make them angry, or at worst you will beat them to death!")
+                if(player2,timer0 >= 550)
+                        QUICK_INFORMATION(8,"Clicking with the LMB whilst over a minion will pick that creature up. Any eight of the creatures you own can be carried in your hand like this. Use this method to place Imps next to the tasks that you wish them to carry out. Drop them on your own, or Neutral territory with the RMB.") 
+                ENDIF
+        endif
+endif
+
+if(player0,flag4 == 1)
+	if(player0,entrance >= 1)
+		ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
+		tutorial_flash_button(8,-1)
+        quick_objective(19,"Now you have claimed a portal creatures will enter your dungeon seeking employment. You must build a 3X3 Lair to house your creatures. Larger Lairs hold more creatures.",player0)
+	endif
+endif
+
+if(player0,lair >= 9)
+        QUICK_OBJECTIVE(31,"Now you have built a small lair, await the arrival of your first minion.",PLAYER0)
+	set_timer(player2,timer1)
+		if(player2,timer1 >= 250)
+                QUICK_INFORMATION(20,"Rooms become more efficient as they increase in size. Build neat, rectangular rooms to ensure maximum efficiency.")
+		creature_available(player0,fly,1,1)
+		endif
+endif
+
+IF(PLAYER0,FLY >= 1)
+        QUICK_OBJECTIVE(4,"A humble Fly has become the first of your troops. More powerful creatures require a source of sustenance. Build a 3X3 Hatchery to feed your creatures.",PLAYER0)
+	ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
+	tutorial_flash_button(7,-1)
+endif
+
+IF(PLAYER0,BUG >= 1)
+        QUICK_INFORMATION(5,"A Beetle has settled in your Lair. To make your dungeon more appealing to the creatures of this world you can build bigger rooms.")
+endif
+
+if(player0,garden >= 9)
+        set_timer(player0,timer1)
+        CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
+
+        QUICK_OBJECTIVE(23,"While you are waiting for your ranks to grow, try possessing a creature. Select the icon from the spell menu and choose your creature, right clicking to release it from its bond.", player0)
+        tutorial_flash_button(36,-1)
+endif
+
+
+
+IF(PLAYER0,TOTAL_CREATURES >= 5)
+        quick_information(32,"Left Click on a creature in the creature panel to place it in your Hand of Evil. Clicking on the creature icon itself will select the most experienced specimen of the breed.")
+endif
+
+IF(PLAYER0,TOTAL_CREATURES >= 7)
+	ROOM_AVAILABLE(PLAYER0,TRAINING,1,1)
+	tutorial_flash_button(10,-1)
+	CREATURE_AVAILABLE(PLAYER0,troll,1,1)
+	CREATURE_AVAILABLE(PLAYER0,spider,1,1)
+	CREATURE_AVAILABLE(PLAYER0,bile_demon,1,1)
+        QUICK_OBJECTIVE(6,"Now dig out a 3X3 area and, once your imps have claimed the floor, build a Training Room in the space you have excavated.",PLAYER0)
+endif
+
+if(player0,training >= 1)
+        quick_information(34,"Creatures in the training room will improve their fighting prowess.")
+
+        if(player0,training >= 9)
+                SET_TIMER(PLAYER0,TIMER2)
+                QUICK_OBJECTIVE(35,"Now that you have built the training room, you can tell your creatures to train by picking them up with the LMB and dropping them in it.",player0)
+
+                IF(PLAYER0,TIMER2 >= 800)
+					IF (PLAYER0, FLAG2 == 0)
+	                        QUICK_OBJECTIVE(18,"You may create more imps by choosing the Create Imp spell in the spell panel and then clicking with the left mouse button on a section of your dungeon floor.",PLAYER0)
+							SET_FLAG(PLAYER0, FLAG2, 1)
+					ENDIF
+                        tutorial_flash_button(21,-1)
+                        SET_FLAG(PLAYER_GOOD,FLAG0,1)
+
+                        IF(PLAYER0,TIMER2 >= 1200)
+                                QUICK_OBJECTIVE(9,"Your mission here is to use your power to rid this land of all good. Forge a path North!",PLAYER0)
+                        ENDIF
+                 ENDIF
+         ENDIF
+endif
+                           
+IF_ACTION_POINT(1,PLAYER0)
+        QUICK_INFORMATION(10,"You have found a spell of acceleration. When cast on your creatures this will allow them to move at a greatly increased rate for a time. Holding down the LMB will increase the power and cost of the spell.")
+	magic_available(player0,power_speed,1,1)
+ENDIF
+
+IF_ACTION_POINT(2,PLAYER0)
+	if(player_good,thief == 0)
+        QUICK_OBJECTIVE(11,"The Heroes' castle lies out of reach on the far bank of the lava flow. Use bridges to connect your land to the north bank and seek out this nest of virtue.",player0)
+        TUTORIAL_FLASH_BUTTON(18, -1)
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+        SET_TIMER(PLAYER_GOOD,TIMER1)
+	ENDIF
+endif
+
+
+IF_ACTION_POINT(5,PLAYER0)
+	if(player0,bridge >= 3)
+	MAGIC_AVAILABLE(PLAYER0,POWER_heal_creature,1,1)
+	QUICK_INFORMATION(15,"You now have the ability to cast Heal on your creatures. Hold down the LMB for more power. The hero forces are sure to retaliate")
+	ENDIF
+endif
+
+if(player0,troll >= 1)
+	quick_information(21,"A goblin has entered your dungeon. While not as intelligent as the average human, goblins make excellent soldiers.")
+endif
+
+if(Player0,bile_demon >= 1)
+        quick_information(22,"You have found a new Bile Demon ally. The aggression and tenacity of these beasts is matched only by their appetites.")
+endif
+
+if_action_point(7,player0)
+	if(player_good,flag0 == 1)
+                quick_objective(26,"From the markings, you have broken into an old dungeon. Claim any assets remaining, but be on your guard!",player0)
+                ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ONE,-1,DUNGEON,0,2,600)
+	endif
+endif
+
+if_action_point(7,player0)
+	if(player_good,flag0 == 0)
+		add_party_to_level(player_good,victor,7,1)
+                quick_information(28,"Danger! Your untidy exploration of this realm has left you exposed to the Lord's troops.")
+		set_timer(player2,timer3)
+	endif
+endif
+
+if(player2,timer3 >= 350)
+	if(player_good,flag0 == 0)
+		next_command_reusable
+		add_party_to_level(player_good,victor,7,1)
+		next_command_reusable
+		set_timer(player2,timer3)
+	endif
+endif
+
+if_action_point(3,player0)
+        quick_objective(37,"You've discovered the Heroes' castle. Break down the doors and wreak havoc upon the enemy!",player0)
+        add_party_to_level(player_good,final,player_good,1)
+	set_flag(player0,flag1,1)
+endif
+
+if_action_point(5,player0)
+       add_party_to_level(player_good,victor,-4,1)
+endif
+
+if(player0, flag1 == 1)
+	if(player_good, KNIGHT == 0)
+                 quick_objective(36,"Congratulations. You have defeated the Lord of the Land and completed the Dungeon Keeper demo.",player0)
+		win_game
+	endif
+endif
+
+IF (PLAYER0,TOTAL_IMPS <= 3)
+	IF (PLAYER0, FLAG2 == 0)
+        	QUICK_INFORMATION(39,"You may create more imps by choosing the Create Imp spell in the spell panel and then clicking with the left mouse button on a section of your dungeon floor.",PLAYER0)
+		SET_FLAG(PLAYER0, FLAG2, 1)
+	ENDIF
+ENDIF
+
+IF(PLAYER0,DUNGEON_DESTROYED == 1)
+	LOSE_GAME
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+				
+
+
+
+
+
+
+
+
+
+
+   
