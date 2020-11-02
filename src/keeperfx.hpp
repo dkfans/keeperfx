@@ -358,7 +358,7 @@ void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
 void update_time(void);
-extern TbClockMSec starttime;
+extern TbClockMSec timerstarttime;
 extern TbClockMSec totaltime;
 extern unsigned long seconds;
 extern unsigned long minutes;

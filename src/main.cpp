@@ -173,7 +173,7 @@ DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
 
-TbClockMSec starttime = 0;
+TbClockMSec timerstarttime = 0;
 TbClockMSec totaltime = 0;
 unsigned long seconds = 0;
 unsigned long minutes = 0;
@@ -4170,11 +4170,6 @@ void post_init_level(void)
     init_all_creature_states();
     init_keepers_map_exploration();
     SYNCDBG(9,"Finished");
-    starttime = LbTimerClock_1000();
-    if (!TimerNoReset)
-    {
-        starttime = LbTimerClock_1000();
-    }
 }
 
 void startup_saved_packet_game(void)
@@ -4544,6 +4539,10 @@ void game_loop(void)
       starttime = LbTimerClock();
       dungeon->lvstats.start_time = starttime;
       dungeon->lvstats.end_time = starttime;
+      if (!TimerNoReset)
+      {
+        timerstarttime = starttime;
+      }
       LbScreenClear(0);
       LbScreenSwap();
       keeper_gameplay_loop();
@@ -5047,7 +5046,7 @@ int main(int argc, char *argv[])
 
 void update_time(void)
 {
-    totaltime = (LbTimerClock_1000() - starttime);
+    totaltime = (LbTimerClock_1000() - timerstarttime);
     seconds = (unsigned long)totaltime / 1000;
     minutes = seconds / 60;
     hours = minutes / 60;
