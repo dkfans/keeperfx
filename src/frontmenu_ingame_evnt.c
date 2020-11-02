@@ -43,6 +43,8 @@
 
 #include "keeperfx.hpp"
 
+unsigned long TimerTurns = 0;
+
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
 {
@@ -383,17 +385,11 @@ void draw_timer(void)
     char* text;
     if (TimerGame)
     {
-        static unsigned long nturns;
-        if (get_my_player()->victory_state == VicS_WonLevel)
+        if (!get_my_player()->victory_state == VicS_WonLevel)
         {
-            struct Dungeon* dungeon = get_my_dungeon();
-            nturns = dungeon->lvstats.hopes_dashed;
+            TimerTurns = game.play_gameturn;
         }
-        else
-        {
-            nturns = game.play_gameturn;
-        }
-        text = buf_sprintf("%08ld", nturns);
+        text = buf_sprintf("%08ld", TimerTurns);
     }
     else
     {
