@@ -24,6 +24,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "bflib_coroutine.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -276,9 +278,17 @@ DLLIMPORT extern int _DK_network_initialized;
 
 #pragma pack()
 /******************************************************************************/
+
+/*
+    This callback will be called then new player is connected
+*/
+// TODO: false to reject
+typedef TbBool (*LbNetwork_Client_Callback) (
+    TbBool is_connected, int client_id, int num_clients, const char* name);
+
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_InitSingleplayer();
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
+TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, LbNetwork_Client_Callback client_callback, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname,
           const char *playr_name, unsigned long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, const char *plyr_name, unsigned long *plyr_num, void *optns);

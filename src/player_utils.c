@@ -98,6 +98,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
       //WARNLOG("Player fate is already decided to %d",(int)player->victory_state);
       return;
   }
+  NETDBG(1, "player:%d won gsf:%04x", player->id_number, game.system_flags);
   if (is_my_player(player))
     frontstats_initialise();
   player->victory_state = VicS_WonLevel;

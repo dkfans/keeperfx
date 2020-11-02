@@ -150,8 +150,6 @@ static TbBool process_frontend_packet_cb(void *context, unsigned long turn, int 
       }
       player->field_4E7 = nspck->mouse_y + (nspck->mouse_x << 8);
     }
-    //TODO: useless because on client this packet will be deleted
-    //nspck->flags_4 &= SPF_FlagsMask; 
     return true;
 }
 
@@ -159,11 +157,12 @@ void process_frontend_packets(void)
 {
   long i;
   static int failed_net_times = 0;
+  // Here we move from old packets to queue
   struct ScreenPacket* nspck = LbNetwork_AddPacket(PckA_Frontmenu, 0, sizeof(struct ScreenPacket));
   nspck[0] = net_screen_packet_NEW[my_player_number];
-  /* send version once 
-  nspck->flags_4 |= SPF_PlayerActive;
   nspck->field_5 = frontend_alliances;
+  /* //TODO: send version once
+  nspck->flags_4 |= SPF_PlayerActive;
   nspck->flags_4 ^= ((nspck->flags_4 ^ (fe_computer_players << 1)) & 0x06);
   nspck->mouse_x = VersionMajor;
   nspck->mouse_y = VersionMinor;

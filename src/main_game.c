@@ -29,7 +29,13 @@
 
 extern TbBool force_player_num;
 
+TbBool set_not_has_quit(CoroutineLoop *context)
+{
+    get_my_player()->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+    return false;
+}
 
+extern void setup_players_count();
 /**
  * Resets timers and flags of all players into default (zeroed) state.
  * Also enables spells which are always enabled by default.
@@ -261,13 +267,15 @@ void startup_saved_packet_game(void)
     }
 }
 
-void startup_network_game(TbBool local)
+static TbBool startup_network_game_tail(CoroutineLoop *context);
+
+void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0, "Starting up network game local:%d", local);
-    //_DK_startup_network_game(); return;
     unsigned int flgmem;
     struct PlayerInfo *player;
-    setup_count_players();
+
+    setup_players_count();
     player = get_my_player();
     flgmem = player->is_active;
     if (local && (campaign.human_player >= 0) && (!force_player_num))
@@ -293,8 +301,16 @@ void startup_network_game(TbBool local)
     } else
     {
         game.game_kind = GKind_MultiGame;
-        init_players_network_game();
+        init_players_network_game(context);
     }
+
+    int args[2] = {ShouldAssignCpuKeepers, 0};
+    coroutine_add_args(context, &startup_network_game_tail, args);
+}
+
+static TbBool startup_network_game_tail(CoroutineLoop *context)
+{
+    TbBool ShouldAssignCpuKeepers = coroutine_args(context)[0];
     if (fe_computer_players || ShouldAssignCpuKeepers)
     {
         SYNCDBG(5,"Setting up uninitialized players as computer players");
@@ -308,11 +324,12 @@ void startup_network_game(TbBool local)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
+    return false;
 }
 
 /******************************************************************************/
 
-void faststartup_network_game(void)
+void faststartup_network_game(CoroutineLoop *context)
 {
     struct PlayerInfo *player;
     SYNCDBG(3,"Starting");
@@ -326,9 +343,8 @@ void faststartup_network_game(void)
     }
     player = get_my_player();
     player->is_active = 1;
-    startup_network_game(true);
-    player = get_my_player();
-    player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+    startup_network_game(context, true);
+    coroutine_add(context, &set_not_has_quit);
 }
 
 void faststartup_saved_packet_game(void)

@@ -77,6 +77,7 @@ obj/bflib_base_tcp.o \
 obj/bflib_basics.o \
 obj/bflib_bufrw.o \
 obj/bflib_client_tcp.o \
+obj/bflib_coroutine.o \
 obj/bflib_cpu.o \
 obj/bflib_crash.o \
 obj/bflib_datetm.o \
@@ -410,6 +411,7 @@ clean: clean-build clean-tools clean-libexterns clean-package
 clean-build:
 	-$(RM) $(STDOBJS) $(filter %.d,$(STDOBJS:%.o=%.d))
 	-$(RM) $(HVLOGOBJS) $(filter %.d,$(HVLOGOBJS:%.o=%.d))
+	-$(RM) $(TESTNETOBJS)
 	-$(RM) $(BIN) $(BIN:%.exe=%.map)
 	-$(RM) $(BIN) $(BIN:%.exe=%.pdb)
 	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)

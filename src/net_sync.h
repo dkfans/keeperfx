@@ -20,8 +20,9 @@
 #define DK_NETSYNC_H
 
 #include "globals.h"
-
 #include "bflib_basics.h"
+#include "bflib_coroutine.h"
+
 #include "creature_control.h"
 #include "player_data.h"
 
@@ -38,8 +39,11 @@ struct ChecksumStorage
 
 struct ChecksumContext
 {
+    TbBool sent;
     struct PacketEx* base;
-    unsigned short checked_players; // bitmask of each player
+    unsigned int checked_players; // bitmask of each player
+    int answers; //Number of packets (one from each player)
+
     TbBool different;
     TbChecksum checksum;
 };
@@ -53,7 +57,7 @@ TbBool resync_game(TbBool first_resync);
 /*
     Validate checksum of all players
 */
-void perform_checksum_verification(void);
+TbBool perform_checksum_verification(CoroutineLoop *context);
 
 void resync_reset_storage();
 

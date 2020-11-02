@@ -94,6 +94,10 @@ struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT] = {0};
 TbBool log_checksums = 0;
 #endif
 /******************************************************************************/
+
+extern int net_get_num_clients();
+
+/******************************************************************************/
 static void update_desync_info(struct PacketEx* v1, struct PacketEx* v2)
 {
     for (int i = 0; i < (int)CKS_MAX; i++)
@@ -331,42 +335,52 @@ TbBool checksum_packet_callback(
         ERRORLOG("unexpected player:%d", plyr_idx);
         return true;
     }
-    context->checked_players |= plyr_idx;
-    struct PacketEx* pckt = get_packet_ex_direct(player->packet_num);
-    if (!context->base)
+    if (kind != PckA_LevelExactCheck)
     {
-        context->checksum = pckt->packet.chksum;
-        context->base = pckt;
-
-#ifdef DUMP_THINGS
-        char buf[64];
-        sprintf(buf, "dump/pl_%d", i);
-        FILE *F = fopen(buf, "w");
-        if (F)
-        {
-            fwrite(pckt, sizeof(struct PacketEx), 1, F);
-            fclose(F);
-        }
-#endif
-
+        ERRORLOG("unexpected kind:%d player:%d", kind, plyr_idx);
     }
-    else if (context->checksum != pckt->packet.chksum)
+    else
     {
-        update_desync_info(context->base, pckt);
-        NETDBG(3, "different checksums at %lu player_id:%d", game.play_gameturn, plyr_idx);
+        NETDBG(4, "from player:%d answers:%d", plyr_idx, context->answers);
+        context->checked_players |= plyr_idx;
+        context->answers++;
+
+        assert(size == sizeof(struct PacketEx));
+        struct PacketEx* pckt = (struct PacketEx*)packet_data;
+        if (!context->base)
+        {
+            context->checksum = pckt->packet.chksum;
+            context->base = pckt;
 
 #ifdef DUMP_THINGS
-        char buf[64];
-        sprintf(buf, "dump/pl_%d", i);
-        FILE *F = fopen(buf, "w");
-        if (F)
-        {
-            fwrite(pckt, sizeof(struct PacketEx), 1, F);
-            fclose(F);
-        }
+            char buf[64];
+            sprintf(buf, "dump/pl_%d", i);
+            FILE *F = fopen(buf, "w");
+            if (F)
+            {
+                fwrite(pckt, sizeof(struct PacketEx), 1, F);
+                fclose(F);
+            }
 #endif
+        }
+        else if (context->checksum != pckt->packet.chksum)
+        {
+            update_desync_info(context->base, pckt);
+            NETDBG(3, "different checksums at %lu player_id:%d", game.play_gameturn, plyr_idx);
 
-        return true;
+    #ifdef DUMP_THINGS
+            char buf[64];
+            sprintf(buf, "dump/pl_%d", i);
+            FILE *F = fopen(buf, "w");
+            if (F)
+            {
+                fwrite(pckt, sizeof(struct PacketEx), 1, F);
+                fclose(F);
+            }
+    #endif
+
+            return true;
+        }
     }
 
     return true;
@@ -376,35 +390,60 @@ TbBool checksum_packet_callback(
  * Exchanges verification packets between all players, making sure level data is identical.
  * @return Returns true if all players return same checksum.
  */
-void perform_checksum_verification(void)
+TbBool perform_checksum_verification(CoroutineLoop *con)
 {
-    struct ChecksumContext context = {0};
+    static struct ChecksumContext context = {0};
 
-    unsigned long checksum_mem = 0;
-    for (int i = 1; i < THINGS_COUNT; i++)
+    if (!context.sent)
     {
-        struct Thing* thing = thing_get(i);
-        if (thing_exists(thing)) {
-            SHIFT_CHECKSUM(checksum_mem);
-            checksum_mem ^= (thing->mappos.z.val << 16)
-                ^ (thing->mappos.y.val << 8)
-                ^ thing->mappos.x.val
-                ^ thing->model;
+        context.sent = true;
+
+        unsigned long checksum_mem = 0;
+        for (int i = 1; i < THINGS_COUNT; i++)
+        {
+            struct Thing* thing = thing_get(i);
+            if (thing_exists(thing)) {
+                SHIFT_CHECKSUM(checksum_mem);
+                checksum_mem ^= (thing->mappos.z.val << 16)
+                    ^ (thing->mappos.y.val << 8)
+                    ^ thing->mappos.x.val
+                    ^ thing->model;
+            }
         }
+
+        //TODO drain whole list
+        clear_packets();
+
+        //TODO just struct Packet or even smaller
+        struct PacketEx* pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct PacketEx));
+        pckt->packet.action = PckA_LevelExactCheck;
+        pckt->packet.chksum = checksum_mem ^ game.action_rand_seed;
+        NETDBG(6, "sending packet");
     }
-    clear_packets();
-    //TODO just struct Packet or even smaller
-    struct PacketEx* pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct PacketEx));
-    pckt->packet.action = PckA_LevelExactCheck;
-    pckt->packet.chksum = checksum_mem ^ game.action_rand_seed;
+
     if (LbNetwork_Exchange(&context, &checksum_packet_callback) != NR_OK)
     {
         ERRORLOG("Network exchange failed on level checksum verification");
+        coroutine_clear(con);
+        con->error = true;
+        //TODO: we should change state to something like an error screen
+        return false;
     }
-    if ( checksums_different() )
+
+    // TODO: spectrators?
+    NETDBG(6, "answers:%d clients:%d", context.answers, net_get_num_clients());
+    if (context.answers == net_get_num_clients())
     {
-        ERRORLOG("Level checksums different for network players");
+        if ( checksums_different() )
+        {
+            ERRORLOG("Level checksums different for network players");
+            coroutine_clear(con);
+            con->error = true;
+            //TODO: we should change state to something like an error screen
+        }
+        return false; // Exit loop
     }
+    return true;
 }
 
 /**

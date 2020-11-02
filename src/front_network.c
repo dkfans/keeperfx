@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_coroutine.h"
 
 #include "bflib_network.h"
 #include "bflib_netsession.h"
@@ -287,7 +288,7 @@ void gui_draw_network_state()
     draw_event_log();
 }
 
-void setup_alliances(void)
+TbBool setup_alliances(CoroutineLoop *loop)
 {
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
@@ -300,7 +301,8 @@ void setup_alliances(void)
                 set_ally_with_player(i, my_player_number, true);
             }
         }
-  }
+    }
+    return false; // Exit the loop
 }
 
 void frontnet_service_update(void)
@@ -517,27 +519,6 @@ void frontnet_serial_update(void)
     }
 }
 
-static void frontnet_rewite_net_messages(void)
-{
-    struct NetMessage lmsg[NET_MESSAGES_COUNT];
-    long k = 0;
-    long i = net_number_of_messages;
-    for (i=0; i < NET_MESSAGES_COUNT; i++)
-      LbMemorySet(&lmsg[i], 0, sizeof(struct NetMessage));
-    for (i=0; i < net_number_of_messages; i++)
-    {
-        struct NetMessage* nmsg = &net_message[i];
-        if (network_player_active(nmsg->plyr_idx))
-        {
-            memcpy(&lmsg[k], nmsg, sizeof(struct NetMessage));
-            k++;
-      }
-    }
-    net_number_of_messages = k;
-    for (i=0; i < NET_MESSAGES_COUNT; i++)
-      memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
-}
-
 void frontnet_start_update(void)
 {
     static TbClockMSec player_last_time = 0;
@@ -562,7 +543,6 @@ void frontnet_start_update(void)
       net_message_scroll_offset = net_number_of_messages-1;
     }
     process_frontend_packets();
-    frontnet_rewite_net_messages();
 }
 
 void display_attempting_to_join_message(void)

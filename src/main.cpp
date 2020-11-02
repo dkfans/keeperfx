@@ -176,10 +176,11 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 
 /******************************************************************************/
 
-extern void faststartup_network_game(void);
+extern void faststartup_network_game(CoroutineLoop *context);
 extern void faststartup_saved_packet_game(void);
 extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
 extern TbBool update_creature_pool_state(void);
+extern TbBool set_not_has_quit(CoroutineLoop *context);
 
 /******************************************************************************/
 
@@ -2147,37 +2148,46 @@ void clear_lookups(void)
 
 void check_players_won(void)
 {
-  SYNCDBG(13, "Starting");
+    SYNCDBG(13, "Starting");
 
-    if (!(game.system_flags & GSF_NetworkActive))
+    if ((game.system_flags & GSF_NetworkActive) == 0)
         return;
 
-    unsigned int playerIdx = 0;
-    for (; playerIdx < PLAYERS_COUNT; ++playerIdx)
+    for (int playerIdx = 0; playerIdx < PLAYERS_COUNT; ++playerIdx)
     {
         PlayerInfo* curPlayer = get_player(playerIdx);
-        if (!player_exists(curPlayer) || curPlayer->is_active != 1 || curPlayer->victory_state != VicS_Undecided)
+        TbBool won = true;
+        if (!player_exists(curPlayer)
+              || !curPlayer->is_active
+              || curPlayer->victory_state != VicS_Undecided)
             continue;
 
         // check if any other player is still alive
-        for (unsigned int secondPlayerIdx = 0; secondPlayerIdx < PLAYERS_COUNT; ++secondPlayerIdx)
+        for (int other_player = 0; other_player < PLAYERS_COUNT; other_player++)
         {
-            if (secondPlayerIdx == playerIdx)
+            if (other_player == playerIdx)
                 continue;
 
-            PlayerInfo* otherPlayer = get_player(secondPlayerIdx);
-            if (player_exists(otherPlayer) && otherPlayer->is_active == 1)
+            PlayerInfo* player2 = get_player(other_player);
+            if (!player_exists(player2) || !player2->is_active)
+                continue;
+
+            // TODO: many dungeon hearts?
+            struct Thing* heartng = get_player_soul_container(other_player);
+            if (heartng->active_state == ObSt_BeingDestroyed)
+                continue;
+
+            if ((player2->allied_players & (1 << playerIdx)) == 0)
             {
-                Thing* heartng = get_player_soul_container(secondPlayerIdx);
-                if (heartng->active_state != ObSt_BeingDestroyed)
-                    goto continueouterloop;
+                won = false;
+                break;
             }
         }
-        break;
-    continueouterloop:
-        ;
+        if (won)
+        {
+            set_player_as_won_level(curPlayer);
+        }
     }
-    set_player_as_won_level(&game.players[playerIdx]);
 }
 
 void check_players_lost(void)
@@ -2391,7 +2401,7 @@ void count_dungeon_stuff(void)
 void process_dungeons(void)
 {
   SYNCDBG(12,"Starting");
-  check_players_won();
+  //check_players_won(); // This should be managed from levelscript
   check_players_lost();
   process_dungeon_power_magic();
   count_dungeon_stuff();
@@ -3959,9 +3969,13 @@ TbBool swap_creature(long ncrt_id, long crtr_id)
     return true;
 }
 
-void wait_at_frontend(void)
+static TbBool wait_at_frontend(void)
 {
     struct PlayerInfo *player;
+    // This is an improvised coroutine-like stuff
+    CoroutineLoop loop;
+    memset(&loop, 0, sizeof(loop));
+
     SYNCDBG(0,"Falling into frontend menu.");
     // Moon phase calculation
     calculate_moon_phase(true,false);
@@ -3976,9 +3990,9 @@ void wait_at_frontend(void)
     // Make sure campaigns are loaded
     if (!load_campaigns_list())
     {
-      ERRORLOG("No valid campaign files found");
-      exit_keeper = 1;
-      return;
+        ERRORLOG("No valid campaign files found");
+        exit_keeper = 1;
+        return true;
     }
     // Make sure mappacks are loaded
     if (!load_mappacks_list())
@@ -3986,9 +4000,11 @@ void wait_at_frontend(void)
       WARNMSG("No valid mappack files found");
     }
     //Set level number and campaign (for single level mode: GOF_SingleLevel)
-    if ((start_params.operation_flags & GOF_SingleLevel) != 0) {
+    if ((start_params.operation_flags & GOF_SingleLevel) != 0)
+    {
         TbBool result = false;
-        if (start_params.selected_campaign[0] != '\0') {
+        if (start_params.selected_campaign[0] != '\0')
+        {
             result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
         }
         if (!result) {
@@ -4005,7 +4021,8 @@ void wait_at_frontend(void)
         set_selected_level_number(start_params.selected_level_number);
         //game.selected_level_number = start_params.selected_level_number;
     }
-    else {
+    else
+    {
         set_selected_level_number(first_singleplayer_level());
     }
     // Init load/save catalogue
@@ -4014,20 +4031,21 @@ void wait_at_frontend(void)
     if ((game.packet_load_enable) && (!game.numfield_149F47))
     {
       faststartup_saved_packet_game();
-      return;
+      return true;
     }
     // Prepare to enter network/standard game
     if ((game.operation_flags & GOF_SingleLevel) != 0)
     {
-      faststartup_network_game();
-      return;
+      faststartup_network_game(&loop);
+      coroutine_process(&loop);
+      return true;
     }
 
     if ( !setup_screen_mode_minimal(get_frontend_vidmode()) )
     {
-      FatalError = 1;
-      exit_keeper = 1;
-      return;
+        FatalError = 1;
+        exit_keeper = 1;
+        return true;
     }
     LbScreenClear(0);
     LbScreenSwap();
@@ -4035,7 +4053,7 @@ void wait_at_frontend(void)
     {
       ERRORLOG("Unable to load frontend data");
       exit_keeper = 1;
-      return;
+      return true;
     }
     memset(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
@@ -4043,60 +4061,61 @@ void wait_at_frontend(void)
 
     short finish_menu = 0;
     set_flag_byte(&game.flags_cd,MFlg_unk40,false);
+    // TODO move to separate function
     // Begin the frontend loop
-    long last_loop_time = LbTimerClock();
+    long loop_start_time = LbTimerClock();
     do
     {
-      if (!LbWindowsControl())
-      {
-        if ((game.system_flags & GSF_NetworkActive) == 0)
+        if (!LbWindowsControl())
         {
-            exit_keeper = 1;
-            SYNCDBG(0,"Windows Control exit condition invoked");
-            break;
+          if ((game.system_flags & GSF_NetworkActive) == 0)
+          {
+              exit_keeper = 1;
+              SYNCDBG(0,"Windows Control exit condition invoked");
+              break;
+          }
         }
-      }
-      update_mouse();
-      update_key_modifiers();
-      old_mouse_over_button = frontend_mouse_over_button;
-      frontend_mouse_over_button = 0;
+        update_mouse();
+        update_key_modifiers();
+        old_mouse_over_button = frontend_mouse_over_button;
+        frontend_mouse_over_button = 0;
 
-      frontend_input();
-      if ( exit_keeper )
-      {
-        SYNCDBG(0,"Frontend Input exit condition invoked");
-        break; // end while
-      }
+        frontend_input();
+        if ( exit_keeper )
+        {
+          SYNCDBG(0,"Frontend Input exit condition invoked");
+          break; // end while
+        }
 
-      frontend_update(&finish_menu);
-      if ( exit_keeper )
-      {
-        SYNCDBG(0,"Frontend Update exit condition invoked");
-        break; // end while
-      }
+        frontend_update(&finish_menu);
+        if ( exit_keeper )
+        {
+          SYNCDBG(0,"Frontend Update exit condition invoked");
+          break; // end while
+        }
 
-      if ((!finish_menu) && (LbIsActive()))
-      {
-        frontend_draw();
-        LbScreenSwap();
-      }
+        if ((!finish_menu) && (LbIsActive()))
+        {
+          frontend_draw();
+          LbScreenSwap();
+        }
 
-      if (!SoundDisabled)
-      {
-        process_3d_sounds();
-        process_sound_heap();
-        MonitorStreamedSoundTrack();
-      }
+        if (!SoundDisabled)
+        {
+          process_3d_sounds();
+          process_sound_heap();
+          MonitorStreamedSoundTrack();
+        }
 
-      if (fade_palette_in)
-      {
-        fade_in();
-        fade_palette_in = 0;
-      } else
-      {
-        LbSleepUntil(last_loop_time + 30);
-      }
-      last_loop_time = LbTimerClock();
+        if (fade_palette_in)
+        {
+          fade_in();
+          fade_palette_in = 0;
+        } else
+        {
+          LbSleepUntil(loop_start_time + 30);
+        }
+        loop_start_time = LbTimerClock();
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
@@ -4109,11 +4128,12 @@ void wait_at_frontend(void)
     {
       player = get_my_player();
       player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
-      return;
+      return true;
     }
     reenter_video_mode();
 
     display_loading_screen();
+
     short flgmem;
     switch (prev_state)
     {
@@ -4123,14 +4143,14 @@ void wait_at_frontend(void)
           set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
           player = get_my_player();
           player->is_active = 1;
-          startup_network_game(true);
+          startup_network_game(&loop, true);
           break;
     case FeSt_START_MPLEVEL:
           set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
           game.game_kind = GKind_MultiGame;
           player = get_my_player();
           player->is_active = 1;
-          startup_network_game(false);
+          startup_network_game(&loop, false);
           break;
     case FeSt_LOAD_GAME:
           flgmem = game.numfield_15;
@@ -4151,8 +4171,15 @@ void wait_at_frontend(void)
           set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
           break;
     }
-    player = get_my_player();
-    player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+
+    coroutine_add(&loop, &set_not_has_quit);
+    coroutine_process(&loop);
+    if (loop.error)
+    {
+        frontend_set_state(FeSt_INITIAL);
+        return false;
+    }
+    return true;
 }
 
 void game_loop(void)
@@ -4167,7 +4194,11 @@ void game_loop(void)
     while ( !exit_keeper )
     {
       update_mouse();
-      wait_at_frontend();
+      while (!wait_at_frontend())
+      {
+          if ( exit_keeper )
+            break;
+      }
       if ( exit_keeper )
         break;
       struct PlayerInfo *player;

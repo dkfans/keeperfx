@@ -20,6 +20,9 @@
 #define DK_KEEPERFX_H
 
 #include "globals.h"
+
+/******************************************************************************/
+
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_filelst.h"
@@ -242,6 +245,7 @@ DLLIMPORT unsigned char *_DK_lightning_palette;
 #define lightning_palette _DK_lightning_palette
 
 #pragma pack()
+
 /******************************************************************************/
 // Variables inside the main module
 extern TbClockMSec last_loop_time;
@@ -354,7 +358,7 @@ TbBool setup_move_out_of_cave_in(struct Thing *thing);
 
 TbPixel get_player_path_colour(unsigned short owner);
 
-void startup_network_game(TbBool local);
+void startup_network_game(CoroutineLoop* context, TbBool local);
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);

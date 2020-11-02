@@ -53,7 +53,33 @@ long net_speed_scroll_offset;
 char tmp_net_irq[8];
 char net_current_message[64];
 long net_current_message_index;
+
+int net_num_clients; // Number of connected clients (including spectrators)
+
+int net_get_num_clients()
+{
+    return net_num_clients;
+}
 /******************************************************************************/
+static TbBool client_callback(
+      TbBool is_connected, int client_id, int num_clients, const char* name)
+{
+    NETDBG(6, "is_con:%d client:%d num_clients:%d", is_connected, client_id, num_clients);
+    if (is_connected)
+    {
+        net_player_info[client_id].active = 1;
+        strcpy(net_player_info[client_id].name, name);
+    }
+    else
+    {
+        net_player_info[client_id].active = 0;
+        LbMemorySet(net_player_info[client_id].name, 0, sizeof(net_player_info[0].name));
+    }
+    net_num_clients = num_clients;
+    return 1;
+}
+
+
 short setup_network_service(int srvidx)
 {
   struct ServiceInitData *init_data;
@@ -86,8 +112,9 @@ short setup_network_service(int srvidx)
       SYNCMSG("Initializing %d-players type %d network",maxplayrs,srvidx);
       break;
   }
+  net_num_clients = 0;
   LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, maxplayrs, &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(srvidx, maxplayrs, &client_callback, init_data) )
   {
     if (srvidx != 0)
       process_network_error(-800);
@@ -105,11 +132,19 @@ int setup_old_network_service(void)
     return setup_network_service(net_service_index_selected);
 }
 
-TbBool setup_exchange_player_number_cb(void *context, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size)
+static struct
+{
+  TbBool sent;
+  int answers;
+} exchange_context = {0, 0};
+
+static TbBool setup_exchange_player_number_cb(void *context, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size)
 {
     struct PacketEx* pckt = (struct PacketEx*)packet_data;
     if (kind == PckA_InitPlayerNum)
     {
+        NETDBG(4, "from player:%d is_active:%c answers:%d",
+            plyr_idx, pckt->packet.actn_par1?'+':'-', exchange_context.answers);
         struct PlayerInfo* player = get_player(plyr_idx);
 
         // TODO: we assign plyr_idx here
@@ -123,31 +158,43 @@ TbBool setup_exchange_player_number_cb(void *context, unsigned long turn, int pl
         init_player(player, 0);
         strncpy(player->player_name, net_player[plyr_idx].name, sizeof(struct TbNetworkPlayerName));
 
+        exchange_context.answers++;
         return true;
     }
-    WARNLOG("Unexpected kind:%d", kind);
+    WARNLOG("Unexpected kind:%d player:%d", kind, plyr_idx);
     return false;
 }
 
-static void setup_exchange_player_number(void)
+static TbBool setup_exchange_player_number(CoroutineLoop *context)
 {
   SYNCDBG(6,"Starting");
-  clear_packets();
-  struct PlayerInfo* player = get_my_player();
-  struct PacketEx* pckt = LbNetwork_AddPacket(PckA_InitPlayerNum, 0, sizeof(struct PacketEx));
-  // TODO: my_player_number
-  pckt->packet.actn_par1 = player->is_active;
-  pckt->packet.actn_par2 = settings.video_rotate_mode;
+
+  if (!exchange_context.sent) // Send this once
+  {
+      exchange_context.sent = true;
+      exchange_context.answers = 0;
+
+      struct PacketEx* pckt = LbNetwork_AddPacket(PckA_InitPlayerNum, 0, sizeof(struct PacketEx));
+      pckt->packet.actn_par1 = get_my_player()->is_active;
+      pckt->packet.actn_par2 = settings.video_rotate_mode;
+  }
 
   if (LbNetwork_Exchange(NULL, &setup_exchange_player_number_cb) != NR_OK)
   {
       ERRORLOG("Network Exchange failed");
-      return;
+      return false;
   }
-  // TODO: here we should gather all responses?
+  //TODO spectrators
+  NETDBG(6, "answers:%d clients:%d", exchange_context.answers, net_get_num_clients());
+  if (exchange_context.answers == net_get_num_clients())
+  {
+      exchange_context.sent = 0; // return to original state
+      return false;
+  }
+  return true; // Continue loop
 }
 
-short setup_select_player_number(void)
+static short setup_select_player_number(void)
 {
     short is_set = 0;
     int k = 0;
@@ -169,7 +216,7 @@ short setup_select_player_number(void)
   return is_set;
 }
 
-void setup_count_players(void)
+void setup_players_count(void)
 {
   if (game.game_kind == GKind_LocalGame)
   {
@@ -185,14 +232,16 @@ void setup_count_players(void)
   }
 }
 
-void init_players_network_game(void)
+void init_players_network_game(CoroutineLoop *context)
 {
   SYNCDBG(4,"Starting");
-  // TODO: setup bflib_network queue here
+  LbNetwork_EmptyQueue();
+  clear_packets();
+
   setup_select_player_number();
-  setup_exchange_player_number(); // TODO: We should repeat this function till it succeeded
-  perform_checksum_verification();
-  setup_alliances();
+  coroutine_add(context, &setup_exchange_player_number);
+  coroutine_add(context, &perform_checksum_verification);
+  coroutine_add(context, &setup_alliances);
 }
 
 /** Check whether a network player is active.

@@ -73,8 +73,7 @@ extern long net_current_message_index;
 /******************************************************************************/
 short setup_network_service(int srvidx);
 int setup_old_network_service(void);
-void init_players_network_game(void);
-void setup_count_players(void);
+void init_players_network_game(CoroutineLoop *context);
 
 long network_session_join(void);
 

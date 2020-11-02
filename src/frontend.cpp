@@ -2664,6 +2664,8 @@ void frontend_shutdown_state(FrontendMenuState pstate)
 FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
 {
     SYNCDBG(9,"Starting for state %d",(int)nstate);
+    NETDBG(1, "Starting for state %d",(int)nstate);
+
     switch ( nstate )
     {
       case FeSt_INITIAL:

@@ -41,7 +41,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 // Local functions definition
-TbError GetPlayerInfo(void);
 TbError GetCurrentPlayers(void);
 TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname);
 static TbError GenericSerialInit(void *init_data);
@@ -89,7 +88,6 @@ struct ReceiveCallbacks receiveCallbacks = {
 #define MAX_STORED_ACTIONS_TH 3
 
 unsigned long inside_sr;
-struct TbNetworkPlayerInfo *localPlayerInfoPtr;
 unsigned long actualTimeout;
 void *localDataPtr;
 void *compositeBuffer;
@@ -266,8 +264,8 @@ struct NetState
     char                    password[32];       //password for server
     NetUserId               my_id;              //id for user representing this machine
     int                     seq_nbr;            //sequence number of next frame to be issued
-    unsigned                max_players;        //max players that will actually be used
-    unsigned                active_players;     //how many active players
+    int                     max_players;        //max players that will actually be used
+    int                     active_players;     //how many active players
 
     TbBool                  locked;             //if set, no players may join
 
@@ -280,6 +278,8 @@ struct NetState
     int                     resync_sent_packets;
     int                     resync_total_packets;
     short                   resync_done_players;
+
+    LbNetwork_Client_Callback client_callback;
 
     struct PacketNode       *sync_packets;      // list of packets with parts of game state
     struct PacketNode       *cli_sync_packets;  // client list with all received parts of game state
@@ -506,6 +506,9 @@ static void SendUserUpdate(NetUserId dest, NetUserId updated_user)
     *ptr = NETMSG_USERUPDATE;
     ptr += 1;
 
+    *ptr = (char)netstate.active_players;
+    ptr += 1;
+
     *ptr = updated_user;
     ptr += 1;
 
@@ -590,10 +593,9 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
         SendUserUpdate(id, source);
     }
 
-    //set up the stuff the other parts of the game expect
-    //TODO NET try to get rid of this because it makes understanding code much more complicated
-    localPlayerInfoPtr[source].active = 1;
-    strcpy(localPlayerInfoPtr[source].name, netstate.users[source].name);
+    netstate.active_players++;
+    // TODO: reject player?
+    netstate.client_callback(false, source, netstate.active_players, netstate.users[source].name);
 
     NETDBG(7, "Done");
 }
@@ -611,6 +613,10 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
 
     NETDBG(7, "Starting");
 
+    netstate.active_players = *ptr;
+    ptr += 1;
+    assert( netstate.active_players <= MAX_N_USERS) ;
+
     id = (NetUserId) *ptr;
     if (id < 0 && id >= MAX_N_USERS) {
         NETLOG("Critical error: Out of range user ID %i received from server, could be used for buffer overflow attack", id);
@@ -623,10 +629,9 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
 
     LbStringCopy(netstate.users[id].name, ptr, sizeof(netstate.users[id].name));
 
-    //send up the stuff the other parts of the game expect
-    //TODO NET try to get rid of this because it makes understanding code much more complicated
-    localPlayerInfoPtr[id].active = netstate.users[id].progress != USER_UNUSED;
-    strcpy(localPlayerInfoPtr[id].name, netstate.users[id].name);
+    netstate.client_callback(
+        netstate.users[id].progress != USER_UNUSED,id, netstate.active_players, netstate.users[id].name);
+    
 }
 
 // Called from server on first packet
@@ -1035,7 +1040,8 @@ TbError LbNetwork_InitSingleplayer()
     return Lb_OK;
 }
 
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data)
+TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs,
+    LbNetwork_Client_Callback client_callback, struct ServiceInitData *init_data)
 {
     TbError res;
 
@@ -1043,9 +1049,9 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
 
     res = Lb_FAIL;
 
-    localPlayerInfoPtr = locplayr; //TODO NET try to get rid of dependency on external player list, makes things 2x more complicated
-
     network_init_common(maxplayrs);
+
+    netstate.client_callback = client_callback;
 
     // Initialising the service provider object
     switch (srvcindex)
@@ -1156,8 +1162,10 @@ TbError LbNetwork_Create(char *nsname_str, const char *plyr_name, unsigned long 
     netstate.users[netstate.my_id].progress = USER_SERVER;
 
     *plyr_num = netstate.my_id;
-    localPlayerInfoPtr[netstate.my_id].active = 1;
-    strcpy(localPlayerInfoPtr[netstate.my_id].name, netstate.users[netstate.my_id].name);
+    netstate.active_players = 1;
+    
+    netstate.client_callback(
+        true, netstate.my_id, netstate.active_players, netstate.users[netstate.my_id].name);
 
     LbNetwork_EnableNewPlayers(true);
     return Lb_OK;
@@ -1236,10 +1244,7 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
             SendUserUpdate(i, id);
         }
 
-        //set up the stuff the other parts of the game expect
-        //TODO NET try to get rid of this because it makes understanding code much more complicated
-        localPlayerInfoPtr[id].active = 0;
-        LbMemorySet(localPlayerInfoPtr[id].name, 0, sizeof(localPlayerInfoPtr[id].name));
+        netstate.client_callback(false, id, netstate.active_players, NULL);
     }
     else {
         NETMSG("Quitting after connection loss");
@@ -2177,27 +2182,23 @@ void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, 
   AddAPlayer((struct TbNetworkPlayerNameEntry *)netcdat);
 }
 
-TbError GetPlayerInfo(void)
+void GetPlayerInfo(void)
 {
-  struct TbNetworkPlayerInfo *lpinfo;
-  long i;
-  NETLOG("Starting");
-  for (i=0; i < netstate.max_players; i++)
-  {
-    lpinfo = &localPlayerInfoPtr[i];
-    if ( netstate.users[i].progress == USER_SERVER ||
-            netstate.users[i].progress == USER_LOGGEDIN )
+    int i;
+    NETDBG(7, "Starting");
+    for (i=0; i < netstate.max_players; i++)
     {
-      lpinfo->active = 1;
-      LbStringCopy(lpinfo->name, netstate.users[i].name, 32);
-    } else
-    {
-      lpinfo->active = 0;
+      bool active = ( netstate.users[i].progress == USER_SERVER || netstate.users[i].progress == USER_LOGGEDIN );
+      netstate.client_callback(active, i, netstate.active_players, netstate.users[i].name);
     }
-  }
-  return Lb_OK;
 }
 
+TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
+{
+    NETLOG("Not implemented");
+    return Lb_FAIL;
+}
+/*
 TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
 {
   TbBool found_id;
@@ -2250,6 +2251,7 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
   }
   return Lb_OK;
 }
+*/
 
 TbError GenericSerialInit(void *init_data)
 {
@@ -2947,6 +2949,8 @@ void AddMsgCallback(unsigned long a1, char *nmstr, void *a3)
 
 void DeleteMsgCallback(unsigned long plr_id, void *a2)
 {
+    NETLOG("Not implemented");
+/*
   long i;
   for (i=0; i < maximumPlayers; i++)
   {
@@ -2962,6 +2966,7 @@ void DeleteMsgCallback(unsigned long plr_id, void *a2)
       }
     }
   }
+*/
 }
 
 void HostMsgCallback(unsigned long plr_id, void *a2)
