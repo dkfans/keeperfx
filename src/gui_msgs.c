@@ -117,13 +117,13 @@ void show_game_time_taken(unsigned long turns)
     seconds %= 60;
     minutes %= 60;
     struct PlayerInfo* player = get_my_player();
-    message_add_fmt(player->id_number, "Time taken: %02ld:%02ld:%02ld", hours, minutes, seconds);
+    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld", get_string(746), hours, minutes, seconds);
 }
 
 void show_real_time_taken(void)
 {
     update_time();
     struct PlayerInfo* player = get_my_player();
-    message_add_fmt(player->id_number, "Time taken: %02ld:%02ld:%02ld", hours, minutes, seconds);
+    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld", get_string(746), hours, minutes, seconds);
 }
 /******************************************************************************/
