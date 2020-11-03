@@ -411,7 +411,7 @@ void keeper_sell_roomspace(struct RoomSpace roomspace)
             }
             else
             {
-               WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)roomspace.plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)sellx * 3, (int)selly * 3);
+                WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)roomspace.plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)sellx * 3, (int)selly * 3);
             }
         }
     }
