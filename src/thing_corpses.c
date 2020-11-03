@@ -397,7 +397,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->clipbox_size_xy = 0;
     thing->clipbox_size_yz = 0;
     thing->solid_size_xy = 0;
-    thing->field_5C = 0;
+    thing->solid_size_yz = 0;
     thing->field_20 = 16;
     thing->field_23 = 204;
     thing->field_24 = 51;

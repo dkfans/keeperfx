@@ -216,7 +216,7 @@ unsigned char field_51;
     unsigned short clipbox_size_xy;
     unsigned short clipbox_size_yz;
     unsigned short solid_size_xy;
-    unsigned short field_5C;
+    unsigned short solid_size_yz;
     short health; //signed
 unsigned short field_60;
     unsigned short light_id;

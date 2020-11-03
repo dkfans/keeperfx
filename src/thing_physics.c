@@ -613,8 +613,8 @@ TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos,
     if ((abs(dist_x) >= dist_collide) || (abs(dist_y) >= dist_collide)) {
         return false;
     }
-    dist_collide = (sectng->field_5C + firstng->field_5C) / 2;
-    MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->field_5C >> 1) + (firstng->field_5C >> 1);
+    dist_collide = (sectng->solid_size_yz + firstng->solid_size_yz) / 2;
+    MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->solid_size_yz >> 1) + (firstng->solid_size_yz >> 1);
     if (abs(dist_z) >= dist_collide) {
         return false;
     }
