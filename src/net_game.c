@@ -91,35 +91,37 @@ short setup_network_service(int srvidx)
       maxplayrs = 2;
       init_data = &net_serial_data;
       set_flag_byte(&game.flags_font,FFlg_unk10,true);
-      SYNCMSG("Initializing %d-players serial network",maxplayrs);
+      NETMSG("Initializing %d-players serial network",maxplayrs);
       break;
   case 1:
       maxplayrs = 2;
       init_data = &net_modem_data;
       set_flag_byte(&game.flags_font,FFlg_unk10,true);
-      SYNCMSG("Initializing %d-players modem network",maxplayrs);
+      NETMSG("Initializing %d-players modem network",maxplayrs);
       break;
   case 2:
       maxplayrs = 4;
       init_data = NULL;
       set_flag_byte(&game.flags_font,FFlg_unk10,false);
-      SYNCMSG("Initializing %d-players IPX network",maxplayrs);
+      NETMSG("Initializing %d-players IPX network",maxplayrs);
       break;
   default:
       maxplayrs = 4;
       init_data = NULL;
       set_flag_byte(&game.flags_font,FFlg_unk10,false);
-      SYNCMSG("Initializing %d-players type %d network",maxplayrs,srvidx);
+      NETMSG("Initializing %d-players type %d network",maxplayrs,srvidx);
       break;
   }
   net_num_clients = 0;
   LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
   if ( LbNetwork_Init(srvidx, maxplayrs, &client_callback, init_data) )
   {
+    NETMSG("LbNetwork_Init failed type:%d", srvidx);
     if (srvidx != 0)
       process_network_error(-800);
     return 0;
   }
+  NETDBG(6, "LbNetwork_Init ok");
   net_service_index_selected = srvidx;
   if ((game.flags_font & FFlg_unk10) != 0)
     LbNetwork_ChangeExchangeTimeout(10);

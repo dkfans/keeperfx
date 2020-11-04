@@ -45,6 +45,7 @@
 #include "config_terrain.h"
 #include "config_players.h"
 #include "config_settings.h"
+#include "hist_actions.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "player_states.h"
@@ -448,7 +449,7 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
 
 static void process_players_message_character(struct PlayerInfo *player, struct SmallActionPacket* packet)
 {
-    NETDBG(6, "action:%d", packet->action);
+    NETDBG(8, "action:%d", packet->action);
     assert(packet->action == PckA_PlyrMsgChar);
     if (packet->arg0 > 0)
     {
@@ -1050,6 +1051,41 @@ static void process_players_dungeon_control_packet_action(
                 big->head.arg[2], // stl_x
                 big->head.arg[3], // stl_y
                 PwCast_None);
+        }
+        break;
+    case PckA_TagUntag:
+        NETDBG(5, "%s plyr:%d x:%d y:%d flags:%d",
+            (big->head.arg[2] == 1)? "untag" : ((big->head.arg[2] == 0)? "tag" : "?" ),
+            player->id_number,
+            big->head.arg[0], // stl_x
+            big->head.arg[1], // stl_y
+            big->head.arg[2] // flags
+            );
+        struct Dungeon* dungeon = get_players_dungeon(player);
+        if (big->head.arg[2] == 1)
+        {
+            NETDBG(6, "untagged");
+            hist_map_action(HAT_Untag, player->id_number, big->head.arg[0], big->head.arg[1]);
+            untag_blocks_for_digging_in_rectangle_around(big->head.arg[0], big->head.arg[1], player->id_number);
+        }
+        else if (big->head.arg[2] == 0)
+        {
+            if (dungeon->task_count < 300 - 9)
+            {
+                if (tag_blocks_for_digging_in_rectangle_around(big->head.arg[0], big->head.arg[1], player->id_number))
+                {
+                    NETDBG(6, "tagged");
+                    hist_map_action(HAT_Tag, player->id_number, big->head.arg[0], big->head.arg[1]);
+                }
+                else
+                {
+                    NETDBG(6, "already tagged");
+                }
+            }
+            else
+            {
+                NETDBG(6, "unable to tag - too many tasks for player:%d ", player->id_number);
+            }
         }
         break;
     default:

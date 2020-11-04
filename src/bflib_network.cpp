@@ -566,7 +566,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     netstate.users[source].progress = USER_LOGGEDIN;
 
     //send reply
-    NETDBG(7, "Sending reply");
+    NETDBG(7, "SendUserUpdate");
     ptr = temp_buffer_data;
     *ptr = NETMSG_LOGIN;
     ptr += 1;
@@ -576,6 +576,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
 
     netstate.delivery_mask |= (1 << source);
     create_update_seq_packet(source);
+    netstate.active_players++; // All clients should get new number
 
     //send user updates
     for (id = 0; id < MAX_N_USERS; ++id)
@@ -593,7 +594,6 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
         SendUserUpdate(id, source);
     }
 
-    netstate.active_players++;
     // TODO: reject player?
     netstate.client_callback(false, source, netstate.active_players, netstate.users[source].name);
 
@@ -629,6 +629,7 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
 
     LbStringCopy(netstate.users[id].name, ptr, sizeof(netstate.users[id].name));
 
+    NETDBG(7, "Got update id:%d active_players:%d", id, netstate.active_players);
     netstate.client_callback(
         netstate.users[id].progress != USER_UNUSED,id, netstate.active_players, netstate.users[id].name);
     

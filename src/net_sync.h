@@ -39,10 +39,10 @@ struct ChecksumStorage
 
 struct ChecksumContext
 {
-    TbBool sent;
+    int sent;
     struct PacketEx* base;
     unsigned int checked_players; // bitmask of each player
-    int answers; //Number of packets (one from each player)
+    unsigned int answers_mask;
 
     TbBool different;
     TbChecksum checksum;

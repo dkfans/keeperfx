@@ -341,9 +341,8 @@ TbBool checksum_packet_callback(
     }
     else
     {
-        NETDBG(4, "from player:%d answers:%d", plyr_idx, context->answers);
-        context->checked_players |= plyr_idx;
-        context->answers++;
+        context->checked_players |= (1 << plyr_idx);
+        NETDBG(4, "from player:%d answers:%d", plyr_idx, context->checked_players);
 
         assert(size == sizeof(struct PacketEx));
         struct PacketEx* pckt = (struct PacketEx*)packet_data;
@@ -394,9 +393,18 @@ TbBool perform_checksum_verification(CoroutineLoop *con)
 {
     static struct ChecksumContext context = {0};
 
-    if (!context.sent)
+    if (context.sent == 0)
     {
-        context.sent = true;
+        context.answers_mask = 0;
+        context.checked_players = 0;
+        for (int i = 0; i < net_get_num_clients(); i++)
+        {
+            context.answers_mask |= (1 << i);
+        }
+    }
+    if (context.sent < 3)
+    {
+        context.sent++;
 
         unsigned long checksum_mem = 0;
         for (int i = 1; i < THINGS_COUNT; i++)
@@ -410,9 +418,6 @@ TbBool perform_checksum_verification(CoroutineLoop *con)
                     ^ thing->model;
             }
         }
-
-        //TODO drain whole list
-        clear_packets();
 
         //TODO just struct Packet or even smaller
         struct PacketEx* pckt = LbNetwork_AddPacket(PckA_LevelExactCheck, 0, sizeof(struct PacketEx));
@@ -431,8 +436,8 @@ TbBool perform_checksum_verification(CoroutineLoop *con)
     }
 
     // TODO: spectrators?
-    NETDBG(6, "answers:%d clients:%d", context.answers, net_get_num_clients());
-    if (context.answers == net_get_num_clients())
+    NETDBG(6, "answers:0x%02x answers_mask:0x%02x", context.checked_players, context.answers_mask);
+    if ((context.checked_players == context.answers_mask) && (context.sent < 3))
     {
         if ( checksums_different() )
         {
@@ -441,6 +446,7 @@ TbBool perform_checksum_verification(CoroutineLoop *con)
             con->error = true;
             //TODO: we should change state to something like an error screen
         }
+        context.sent = 0;
         return false; // Exit loop
     }
     return true;

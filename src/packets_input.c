@@ -49,6 +49,15 @@ extern TbBool packets_process_cheats(
           MapSlabCoord slb_x, MapSlabCoord slb_y,
           short *influence_own_creatures);
 
+static void create_tag_action(struct PlayerInfo* player, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short flag)
+{
+    NETDBG(6, "%s x:%d y:%d", flag?"untag":"tag", stl_x, stl_y);
+    struct BigActionPacket * big = create_packet_action_big(player, PckA_TagUntag, 0);
+    big->head.arg[0] = stl_x;
+    big->head.arg[1] = stl_y;
+    big->head.arg[2] = flag;
+}
+
 static void set_untag_mode(struct PlayerInfo* player)
 {
     int i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
@@ -289,15 +298,11 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
             {
               if ((player->allocflags & PlaF_Unknown20) != 0)
               {
-                hist_map_action(HAT_Untag, plyr_idx, cx, cy);
-                untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+                create_tag_action(player, cx, cy, 1);
               } else
               if (dungeon->task_count < 300)
               {
-                if (tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx))
-                {
-                  hist_map_action(HAT_Tag, plyr_idx, cx, cy);
-                }
+                create_tag_action(player, cx, cy, 0);
               } else
               if (is_my_player(player))
               {
@@ -308,17 +313,13 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
             {
               if ((player->allocflags & PlaF_Unknown20) != 0)
               {
-                hist_map_action(HAT_Untag, plyr_idx, cx, cy);
-                untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+                create_tag_action(player, cx, cy, 1);
               } else
               if (dungeon->task_count < 300)
               {
                 if (can_dig_here(stl_x, stl_y, player->id_number))
                 {
-                  if (tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx))
-                  {
-                    hist_map_action(HAT_Tag, plyr_idx, cx, cy);
-                  }
+                  create_tag_action(player, cx, cy, 0);
                 }
               } else
               if (is_my_player(player))
@@ -374,11 +375,11 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
           {
             if ((player->allocflags & PlaF_Unknown20) != 0)
             {
-              untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+              create_tag_action(player, cx, cy, 1);
             } else
             if (300-dungeon->task_count >= 9)
             {
-              tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+              create_tag_action(player, cx, cy, 0);
             } else
             if (is_my_player(player))
             {
