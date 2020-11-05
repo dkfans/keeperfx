@@ -3710,9 +3710,22 @@ void keeper_gameplay_loop(void)
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
 }
 
-int can_thing_be_queried(struct Thing *thing, long a2)
+TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
 {
-  return _DK_can_thing_be_queried(thing, a2);
+    // return _DK_can_thing_be_queried(thing, a2);
+    if ( (thing->owner != plyr_idx) || (!thing_is_creature(thing)) || (thing->alloc_flags & TAlF_IsInLimbo) || (thing->state_flags & TF1_InCtrldLimbo) || (thing->active_state == CrSt_CreatureUnconscious) )
+    {
+        return false;
+    }
+    unsigned char state = (thing->active_state == CrSt_MoveToPosition) ? thing->continue_state : thing->active_state;
+    if ( (state == CrSt_CreatureSacrifice) || (state == CrSt_CreatureBeingSacrificed) || (state == CrSt_CreatureBeingSummoned) )
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4, TbBool single_subtile)
