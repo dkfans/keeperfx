@@ -1025,9 +1025,10 @@ static void process_players_dungeon_control_packet_action(
             );
         break;
     case PckA_UsePower:
-        NETDBG(5, "plyr:%d kind:%d power:%d x:%d y:%d thing:%d",
+        NETDBG(5, "plyr:%d power:%d %s level:%d x:%d y:%d thing:%d",
             player->id_number,
             big->head.arg[0] & 255, // pwkind
+            power_code_name(big->head.arg[0] & 255),
             big->head.arg[0] >> 8,  // powerlevel,
             big->head.arg[2], // stl_x
             big->head.arg[3], // stl_y

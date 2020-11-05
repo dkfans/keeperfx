@@ -187,8 +187,8 @@ static void client_control_use_power_on_subtile(
           struct PlayerInfo* player, PowerKind pwkind, unsigned short splevel,
           MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    NETDBG(5, "x:%d y:%d plyr:%d kind:%d, power:%d",
-        stl_x, stl_y, player->id_number, (int)pwkind, (int)splevel);
+    NETDBG(5, "x:%d y:%d plyr:%d power:%d %s level:%d",
+        stl_x, stl_y, player->id_number, (int)pwkind, power_code_name(pwkind), (int)splevel);
     struct BigActionPacket * big = create_packet_action_big(player, PckA_UsePower, 0);
     big->head.arg[0] = pwkind | (splevel << 8);
     big->head.arg[1] = 0;
@@ -200,8 +200,8 @@ static void client_control_use_power_on_thing(
           struct PlayerInfo* player, PowerKind pwkind, unsigned short splevel,
           MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short thing_idx)
 {
-    NETDBG(5, "x:%d y:%d plyr:%d kind:%d, power:%d",
-        stl_x, stl_y, player->id_number, (int)pwkind, (int)splevel);
+    NETDBG(5, "x:%d y:%d plyr:%d power:%d %s level:%d",
+        stl_x, stl_y, player->id_number, (int)pwkind, power_code_name(pwkind), (int)splevel);
     struct BigActionPacket * big = create_packet_action_big(player, PckA_UsePower, 0);
     big->head.arg[0] = pwkind | (splevel << 8);
     big->head.arg[1] = thing_idx;

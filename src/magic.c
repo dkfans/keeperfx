@@ -124,6 +124,10 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                 if ((flags & CastChk_Final) != 0) {
                     WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
                         power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+                    if (thing_exists(thing))
+                    {
+                        JUSTLOG("      thing: %d %s", thing, thing_model_name(thing));
+                    }
                 }
                 return false;
             }
@@ -134,6 +138,10 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                 if ((flags & CastChk_Final) != 0) {
                     WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
                         power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+                    if (thing_exists(thing))
+                    {
+                        JUSTLOG("      thing: %d %s", thing, thing_model_name(thing));
+                    }
                 }
                 return false;
             }
