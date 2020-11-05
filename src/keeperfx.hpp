@@ -256,7 +256,6 @@ void game_loop(void);
 short reset_game(void);
 void update(void);
 
-// int can_thing_be_queried(struct Thing *thing, long a2);
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4, TbBool single_subtile);
