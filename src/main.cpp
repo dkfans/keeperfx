@@ -3713,7 +3713,7 @@ void keeper_gameplay_loop(void)
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
 {
     // return _DK_can_thing_be_queried(thing, a2);
-    if ( (thing->owner != plyr_idx) || (!thing_is_creature(thing)) || (thing->alloc_flags & TAlF_IsInLimbo) || (thing->state_flags & TF1_InCtrldLimbo) || (thing->active_state == CrSt_CreatureUnconscious) )
+    if ( (!thing_is_creature(thing)) || !( (thing->owner == plyr_idx) || (creature_is_kept_in_custody_by_player(thing, plyr_idx)) ) || (thing->alloc_flags & TAlF_IsInLimbo) || (thing->state_flags & TF1_InCtrldLimbo) || (thing->active_state == CrSt_CreatureUnconscious) )
     {
         return false;
     }
