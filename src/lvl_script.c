@@ -142,7 +142,8 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION},
   {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE},
   {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE},
-  {"USE_POWER_AT_LOCATION",             "PNNANN  ", Cmd_USE_POWER_AT_LOCATION},
+  {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE},
+  {"USE_POWER_AT_LOCATION",             "PNANN   ", Cmd_USE_POWER_AT_LOCATION},
   {"USE_POWER",                         "PAN     ", Cmd_USE_POWER},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG},
@@ -2601,7 +2602,7 @@ void command_use_power_on_creature(long plr_range_id, const char *crtr_name, con
   command_add_value(Cmd_USE_POWER_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
-void command_use_power_at_location(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, char free)
+void command_use_power_at_subtile(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, char free)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -2637,7 +2638,53 @@ void command_use_power_at_location(long plr_range_id, int stl_x, int stl_y, cons
       signed char f = free, m = mag_id, lvl = splevel;
       fml_bytes = (f << 16) | (m << 8) | lvl;
   }
-  command_add_value(Cmd_USE_POWER_AT_LOCATION, plr_range_id, stl_x, stl_y, fml_bytes);
+  command_add_value(Cmd_USE_POWER_AT_SUBTILE, plr_range_id, stl_x, stl_y, fml_bytes);
+}
+
+void command_use_power_at_location(long plr_range_id, const char *locname, const char *magname, int splevel, char free)
+{
+  SCRIPTDBG(11, "Starting");
+  if (splevel < 1)
+  {
+    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+    splevel = 1;
+  }
+  if (splevel > MAGIC_OVERCHARGE_LEVELS)
+  {
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
+    splevel = MAGIC_OVERCHARGE_LEVELS;
+  }
+  splevel--;
+  long mag_id = get_rid(power_desc, magname);
+  if (mag_id == -1)
+  {
+    SCRPTERRLOG("Unknown magic, '%s'", magname);
+    return;
+  }
+  PowerKind pwr = mag_id;
+  if((PlayerNumber) plr_range_id > PLAYER3)
+  {
+    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
+    {
+        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
+        return;
+    }
+  }
+
+  TbMapLocation location;
+  if (!get_map_location_id(locname, &location))
+  {
+    SCRPTWRNLOG("Use power script command at invalid location: %s", locname);
+    return;
+  }
+
+  // encode params: free, magic, level -> into 3xbyte: FML
+  long fml_bytes;
+  {
+      signed char f = free, m = mag_id, lvl = splevel;
+      fml_bytes = (f << 16) | (m << 8) | lvl;
+  }
+  command_add_value(Cmd_USE_POWER_AT_LOCATION, plr_range_id, location, fml_bytes, 0);
 }
 
 void command_use_power(long plr_range_id, const char *magname, char free)
@@ -3009,8 +3056,11 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_USE_POWER_ON_CREATURE:
         command_use_power_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5], scline->np[6]);
         break;
+    case Cmd_USE_POWER_AT_SUBTILE:
+        command_use_power_at_subtile(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->np[5]);
+        break;
     case Cmd_USE_POWER_AT_LOCATION:
-        command_use_power_at_location(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->np[5]);
+        command_use_power_at_location(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4]);
         break;
     case Cmd_USE_POWER:
         command_use_power(scline->np[0], scline->tp[1], scline->np[2]);
@@ -4205,7 +4255,6 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
           SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
           return Lb_FAIL;
         }
-        
     }
 
     MapSubtlCoord stl_x = thing->mappos.x.stl.num;
@@ -4252,7 +4301,7 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
  * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_use_power_at_location(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
+TbResult script_use_power_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
 {
     char is_free = (fml_bytes >> 16) != 0;
     PowerKind powerKind = (fml_bytes >> 8) & 255;
@@ -4263,6 +4312,27 @@ TbResult script_use_power_at_location(PlayerNumber plyr_idx, MapSubtlCoord stl_x
         spell_flags |= PwMod_CastForFree;
 
     return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
+}
+
+/**
+ * Casts spell at a location set by action point/hero gate.
+ * @param plyr_idx caster player.
+ * @param target action point/hero gate.
+ * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
+{
+    SYNCDBG(0, "Using power at location of type %d", target);
+    long x = 0;
+    long y = 0;
+    find_map_location_coords(target, &x, &y, __func__);
+    if ((x == 0) && (y == 0))
+    {
+        WARNLOG("Can't decode location %d", target);
+        return Lb_FAIL;
+    }
+    return script_use_power_at_subtile(plyr_idx, x, y, fml_bytes);
 }
 
 /**
@@ -5235,10 +5305,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           script_use_power_on_creature(i, val2, val3, val4);
       }
       break;
+    case Cmd_USE_POWER_AT_SUBTILE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_power_at_subtile(i, val2, val3, val4);
+      }
+      break;
     case Cmd_USE_POWER_AT_LOCATION:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_power_at_location(i, val2, val3, val4);
+          script_use_power_at_location(i, val2, val3);
       }
       break;
     case Cmd_USE_POWER:

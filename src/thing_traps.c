@@ -760,7 +760,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->clipbox_size_xy = trapstat->size_xy;
     thing->clipbox_size_yz = trapstat->field_16;
     thing->solid_size_xy = trapstat->size_xy;
-    thing->field_5C = trapstat->field_16;
+    thing->solid_size_yz = trapstat->field_16;
     thing->creation_turn = game.play_gameturn;
     thing->health = trapstat->field_0;
     thing->field_4F &= ~TF4F_Unknown10;

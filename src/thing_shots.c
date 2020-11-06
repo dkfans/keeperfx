@@ -1441,9 +1441,9 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Unknown10 * shotst->old->field_8) & (TF4F_Unknown10|TF4F_Unknown20));
     thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;
     thing->clipbox_size_xy = shotst->old->size_xy;
-    thing->clipbox_size_yz = shotst->old->field_B;
+    thing->clipbox_size_yz = shotst->old->size_yz;
     thing->solid_size_xy = shotst->old->size_xy;
-    thing->field_5C = shotst->old->field_B;
+    thing->solid_size_yz = shotst->old->size_yz;
     thing->shot.damage = shotst->old->damage;
     thing->shot.dexterity = 255;
     thing->health = shotst->health;
