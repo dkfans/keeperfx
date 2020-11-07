@@ -201,14 +201,24 @@ enum MapLocationTypes {
     MLoc_ACTIONPOINT,
     MLoc_HEROGATE,
     MLoc_PLAYERSHEART,
-    MLoc_CREATUREKIND,
+    MLoc_CREATUREKIND, // 4
     MLoc_OBJECTKIND,
     MLoc_ROOMKIND,
     MLoc_THING,
-    MLoc_PLAYERSDUNGEON,
+    MLoc_PLAYERSDUNGEON, // 8
     MLoc_APPROPRTDUNGEON,
     MLoc_DOORKIND,
     MLoc_TRAPKIND,
+    MLoc_METALOCATION, // 12 // Triggered box, Combat, Last entered creature etc
+};
+
+enum MetaLocation {
+  MML_TRIGGERED_OBJECT = 1,
+  MML_RECENT_COMBAT,
+};
+
+enum {
+    CurrentPlayer = 15
 };
 
 /******************************************************************************/

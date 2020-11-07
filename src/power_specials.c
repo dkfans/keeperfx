@@ -436,6 +436,11 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
           }
           else
           {
+              if (gameadd.box_activation_turn == game.play_gameturn)
+                  return; // If two players suddenly activated box at same turn it is not that we want to
+              gameadd.box_activation_turn = game.play_gameturn;
+              gameadd.script_current_player = player->id_number;
+              memcpy(&gameadd.box_activation_location,&pos,sizeof(struct Coord3d));
               dungeonadd->box_info.activated[cratetng->custom_box.box_kind]++;
           }
           remove_events_thing_is_attached_to(cratetng);

@@ -299,6 +299,7 @@ struct DungeonAdd
 {
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
+    struct Coord3d        last_combat_location;
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

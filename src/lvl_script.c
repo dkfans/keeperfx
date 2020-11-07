@@ -818,6 +818,21 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
         *location = ((unsigned long)i << 12) | ((unsigned long)my_player_number << 4) | MLoc_ROOMKIND;
         return true;
     }
+    // Todo list of functions
+    if (strcmp(locname, "TRIGGERED_OBJECT") == 0)
+    {
+        *location = (((unsigned long)MML_TRIGGERED_OBJECT) << 12)
+            | (((unsigned long)CurrentPlayer) << 4) //TODO: other players
+            | MLoc_METALOCATION;
+        return true;
+    }
+    else if (strcmp(locname, "COMBAT") == 0)
+    {
+        *location = (((unsigned long)MML_RECENT_COMBAT) << 12)
+            | ((unsigned long)my_player_number << 4)
+            | MLoc_METALOCATION;
+        return true;
+    }
     i = atol(locname);
     // Negative number means Hero Gate
     if (i < 0)
@@ -3663,137 +3678,100 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
     return thing;
 }
 
-long script_support_create_thing_at_hero_door(long gate_num, ThingClass tngclass, ThingModel tngmodel, unsigned char tngowner, unsigned char random_factor)
+static TbBool get_coords_at_hero_door(struct Coord3d *pos, long gate_num, unsigned char random_factor)
 {
-    SYNCDBG(7,"Starting creation of %s at HG%d",thing_class_and_model_name(tngclass,tngmodel),(int)gate_num);
+    SYNCDBG(7,"Starting at HG%d", (int)gate_num);
     if (gate_num <= 0)
     {
         ERRORLOG("Script error - invalid hero gate index %d",(int)gate_num);
-        return 0;
+        return false;
     }
     struct Thing* gatetng = find_hero_gate_of_number(gate_num);
     if (thing_is_invalid(gatetng))
     {
         ERRORLOG("Script error - attempt to create thing at non-existing hero gate index %d",(int)gate_num);
-        return 0;
+        return false;
     }
-    struct Coord3d pos;
-    pos.x.val = gatetng->mappos.x.val;
-    pos.y.val = gatetng->mappos.y.val;
-    pos.z.val = gatetng->mappos.z.val + 384;
-    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, tngmodel, tngowner);
-    if (thing_is_invalid(thing))
-    {
-        // Error is already logged
-        return 0;
-    }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_AE |= 0x02;
-    cctrl->spell_flags |= CSAfF_MagicFall;
-    thing->veloc_push_add.x.val += ACTION_RANDOM(193) - 96;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(193) - 96;
-    if ((thing->movement_flags & TMvF_Flying) != 0) {
-        thing->veloc_push_add.z.val -= ACTION_RANDOM(32);
-    } else {
-        thing->veloc_push_add.z.val += ACTION_RANDOM(96) + 80;
-    }
-    thing->state_flags |= TF1_PushAdd;
-
-    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
-    {
-        output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
-        output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), MESSAGE_DELAY_LORD, 1);
-    }
-    return thing->index;
+    pos->x.val = gatetng->mappos.x.val;
+    pos->y.val = gatetng->mappos.y.val;
+    pos->z.val = gatetng->mappos.z.val + 384;
+    return true;
 }
 
-long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngclass, ThingModel tngmodel, PlayerNumber tngowner, unsigned char random_factor)
+static TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor)
 {
-    SYNCDBG(7,"Starting creation of %s at action point %d",thing_class_and_model_name(tngclass,tngmodel),(int)apt_idx);
+    SYNCDBG(7,"Starting at action point %d", (int)apt_idx);
 
-    struct Coord3d pos;
     struct ActionPoint* apt = action_point_get(apt_idx);
     if (!action_point_exists(apt))
     {
         ERRORLOG("Script error - attempt to create thing at non-existing action point %d",(int)apt_idx);
-        return 0;
+        return false;
     }
 
     if ( (random_factor == 0) || (apt->range == 0) )
     {
-        pos.x.val = apt->mappos.x.val;
-        pos.y.val = apt->mappos.y.val;
+        pos->x.val = apt->mappos.x.val;
+        pos->y.val = apt->mappos.y.val;
     } else
     {
         long direction = ACTION_RANDOM(2 * LbFPMath_PI);
         long delta_x = (apt->range * LbSinL(direction) >> 8);
         long delta_y = (apt->range * LbCosL(direction) >> 8);
-        pos.x.val = apt->mappos.x.val + (delta_x >> 8);
-        pos.y.val = apt->mappos.y.val - (delta_y >> 8);
+        pos->x.val = apt->mappos.x.val + (delta_x >> 8);
+        pos->y.val = apt->mappos.y.val - (delta_y >> 8);
     }
-
-    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, tngmodel, tngowner);
-    if (thing_is_invalid(thing))
-    {
-        // Error is already logged
-        return 0;
-    }
-
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (thing->owner != PLAYER_NEUTRAL)
-    {
-        struct Thing* heartng = get_player_soul_container(thing->owner);
-        if (thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner))
-        {
-            cctrl->field_AE |= 0x01;
-        }
-    }
-
-    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
-    {
-        output_message(SMsg_LordOfLandComming, 0, 1);
-        output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), 0, 1);
-    }
-    return thing->index;
+    return true;
 }
 
 /**
  * Creates a thing on given players dungeon heart.
  * Originally was script_support_create_creature_at_dungeon_heart().
- * @param tngclass
- * @param tngmodel
- * @param tngowner
  * @param plyr_idx
  */
-long script_support_create_thing_at_dungeon_heart(ThingClass tngclass, ThingModel tngmodel, PlayerNumber tngowner, PlayerNumber plyr_idx)
+TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx)
 {
-    SYNCDBG(7,"Starting creation of %s at player %d",thing_class_and_model_name(tngclass,tngmodel),(int)plyr_idx);
+    SYNCDBG(7,"Starting at player %d", (int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng))
     {
         ERRORLOG("Script error - attempt to create thing in player %d dungeon with no heart",(int)plyr_idx);
-        return 0;
+        return false;
     }
-    struct Coord3d pos;
-    pos.x.val = heartng->mappos.x.val + ACTION_RANDOM(65) - 32;
-    pos.y.val = heartng->mappos.y.val + ACTION_RANDOM(65) - 32;
-    pos.z.val = heartng->mappos.z.val;
-    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, tngmodel, tngowner);
-    if (thing_is_invalid(thing))
+    pos->x.val = heartng->mappos.x.val + ACTION_RANDOM(65) - 32;
+    pos->y.val = heartng->mappos.y.val + ACTION_RANDOM(65) - 32;
+    pos->z.val = heartng->mappos.z.val;
+    return true;
+}
+
+TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber plyr_idx, long i)
+{
+    SYNCDBG(7,"Starting at player %d", (int)plyr_idx);
+    struct Coord3d *src;
+    PlayerNumber loc_player = i & 0xF;
+    if (loc_player == 15) // CURRENT_PLAYER
+        loc_player = gameadd.script_current_player;
+
+    struct DungeonAdd* dungeonadd = get_dungeonadd(loc_player);
+
+    switch (i >> 8)
     {
-        // Error is already logged
-        return 0;
+    case MML_TRIGGERED_OBJECT:
+        src = &gameadd.box_activation_location;
+        break;
+    case MML_RECENT_COMBAT:
+        src = &dungeonadd->last_combat_location;
+        break;
+    default:
+        return false;
     }
-    if (thing_is_creature(thing))
-    {
-        if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
-        {
-            output_message(SMsg_LordOfLandComming, 0, 1);
-            output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), 0, 1);
-        }
-    }
-    return thing->index;
+
+    pos->x.val = src->x.val + ACTION_RANDOM(33) - 16;
+    pos->y.val = src->y.val + ACTION_RANDOM(33) - 16;
+    pos->z.val = src->z.val;
+
+    return true;
 }
 
 long send_tunneller_to_point(struct Thing *thing, struct Coord3d *pos)
@@ -3881,28 +3859,46 @@ TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatn
     return send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
 }
 
-struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
+static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
 {
-    long tng_idx;
     long effect;
-    long i;
+    long i = get_map_location_longval(location);
+    struct Coord3d pos;
+    TbBool fall_from_gate = false;
+
+    const unsigned char tngclass = TCls_Creature;
+
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
-        i = get_map_location_longval(location);
-        tng_idx = script_support_create_thing_at_action_point(i, TCls_Creature, crmodel, plyr_idx, 1);
+        if (!get_coords_at_action_point(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
         effect = 1;
         break;
     case MLoc_HEROGATE:
-        i = get_map_location_longval(location);
-        tng_idx = script_support_create_thing_at_hero_door(i, TCls_Creature, crmodel, plyr_idx, 1);
+        if (!get_coords_at_hero_door(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
         effect = 0;
+        fall_from_gate = true;
         break;
     case MLoc_PLAYERSHEART:
-        i = get_map_location_longval(location);
-        tng_idx = script_support_create_thing_at_dungeon_heart(TCls_Creature, crmodel, plyr_idx, i);
+        if (!get_coords_at_dungeon_heart(&pos, i))
+        {
+            return INVALID_THING;
+        }
         effect = 0;
         break;
+    case MLoc_METALOCATION:
+        if (!get_coords_at_meta_action(&pos, plyr_idx, i))
+        {
+            return INVALID_THING;
+        }
+        effect = 0;
+        break;      
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
@@ -3913,17 +3909,46 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     case MLoc_TRAPKIND:
     case MLoc_NONE:
     default:
-        tng_idx = 0;
         effect = 0;
-        break;
+        return INVALID_THING;
     }
-    struct Thing* thing = thing_get(tng_idx);
+    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, crmodel, plyr_idx);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(TCls_Creature,crmodel),(int)location);
+        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, crmodel),(int)location);
+            // Error is already logged
         return INVALID_THING;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (fall_from_gate)
+    {
+        cctrl->field_AE |= 0x02;
+        cctrl->spell_flags |= CSAfF_MagicFall;
+        thing->veloc_push_add.x.val += ACTION_RANDOM(193) - 96;
+        thing->veloc_push_add.y.val += ACTION_RANDOM(193) - 96;
+        if ((thing->movement_flags & TMvF_Flying) != 0) {
+            thing->veloc_push_add.z.val -= ACTION_RANDOM(32);
+        } else {
+            thing->veloc_push_add.z.val += ACTION_RANDOM(96) + 80;
+        }
+        thing->state_flags |= TF1_PushAdd;
+    }
+
+    if (thing->owner != PLAYER_NEUTRAL)
+    {   // Was set only when spawned from action point
+
+        struct Thing* heartng = get_player_soul_container(thing->owner);
+        if (thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner))
+        {
+            cctrl->field_AE |= 0x01;
+        }
+    }
+    
+    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
+    {
+        output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
+        output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), MESSAGE_DELAY_LORD, 1);
+    }
     switch (effect)
     {
     case 1:
