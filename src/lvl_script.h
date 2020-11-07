@@ -126,9 +126,10 @@ enum TbScriptCommands {
     Cmd_SET_CREATURE_PROPERTY             = 106,
     Cmd_SET_CREATURE_FEARSOME_FACTOR      = 107,
     Cmd_USE_POWER_ON_CREATURE             = 108,
-    Cmd_USE_POWER_AT_LOCATION             = 109,
+    Cmd_USE_POWER_AT_SUBTILE              = 109,
     Cmd_USE_POWER                         = 110,
-    Cmd_ADD_OBJECT_TO_LEVEL               = 111,
+    Cmd_USE_POWER_AT_LOCATION             = 111,
+    Cmd_ADD_OBJECT_TO_LEVEL               = 112,
 };
 
 enum ScriptVariables {
