@@ -150,8 +150,18 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (!thing_is_invalid(thing))
   {
       update_gui_tooltip_target(thing);
-      i = box_thing_to_special(thing);
-      set_gui_tooltip_box_fmt(5,"%s",get_string(get_special_description_strindex(i)));
+      if (  (thing->model == 93) //TODO remove that dirty hack and use config files (but we need new object_id...)
+            && (thing->custom_box.box_kind > 0)
+            )
+      {
+          // TODO: get it from Map script
+          set_gui_tooltip_box_fmt(5, "%s", get_string(1005));
+      }
+      else
+      {
+          i = box_thing_to_special(thing);
+          set_gui_tooltip_box_fmt(5, "%s", get_string(get_special_description_strindex(i)));
+      }
       return true;
   }
   // Find a spellbook to show tooltip for

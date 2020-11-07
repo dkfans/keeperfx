@@ -5864,3 +5864,9 @@ msgstr ""
 msgctxt "Game controls"
 msgid "Snap Camera"
 msgstr ""
+
+#: guitext:1005
+msgctxt "Dungeon special decription"
+msgid ""
+"This magic box contains Special Power."
+msgstr ""

@@ -558,4 +558,13 @@ TbBool create_transferred_creature_on_level(void)
     }
     return false;
 }
+
+SpecialKind box_thing_to_special(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return 0;
+    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
+        return 0;
+    return object_conf.object_to_special_artifact[thing->model];
+}
 /******************************************************************************/
