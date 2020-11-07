@@ -387,6 +387,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   memcpy(&pos,&cratetng->mappos,sizeof(struct Coord3d));
   int spkindidx = cratetng->model - 86;
   short used = 0;
+  TbBool no_speech = false;
   if (thing_exists(cratetng) && is_dungeon_special(cratetng))
   {
     switch (cratetng->model)
@@ -442,6 +443,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
               gameadd.script_current_player = player->id_number;
               memcpy(&gameadd.box_activation_location,&pos,sizeof(struct Coord3d));
               dungeonadd->box_info.activated[cratetng->custom_box.box_kind]++;
+              no_speech = true;
           }
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
@@ -453,7 +455,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
       }
       if ( used )
       {
-        if (is_my_player(player))
+        if (is_my_player(player) && !no_speech)
           output_message(special_desc[spkindidx].speech_msg, 0, true);
         create_special_used_effect(&pos, player->id_number);
       }
