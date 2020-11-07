@@ -79,6 +79,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_PARTY",                      "ACNNAN  ", Cmd_ADD_TO_PARTY},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL},
+  {"ADD_OBJECT_TO_LEVEL",               "AAN     ", Cmd_ADD_OBJECT_TO_LEVEL},
   {"IF",                                "PAON    ", Cmd_IF},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT},
   {"ENDIF",                             "        ", Cmd_ENDIF},
@@ -471,6 +472,9 @@ const struct NamedCommand campaign_flag_desc[] = {
   {"CAMPAIGN_FLAG7",  7},
   {NULL,     0},
 };
+
+/******************************************************************************/
+static struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
 
 /******************************************************************************/
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
@@ -1129,6 +1133,42 @@ void command_add_party_to_level(long plr_range_id, const char *prtname, const ch
         pr_trig->creatr_id = -prty_id;
         pr_trig->location = location;
         pr_trig->ncopies = ncopies;
+        pr_trig->condit_idx = script_current_condition;
+        game.script.party_triggers_num++;
+    }
+}
+
+void command_add_object_to_level(const char *obj_name, const char *locname, long arg)
+{
+    TbMapLocation location;
+    long obj_id = get_rid(object_desc, obj_name);
+    if (obj_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", obj_name);
+        return;
+    }
+    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        return;
+    }
+    // Recognize place where party is created
+    if (!get_map_location_id(locname, &location))
+        return;
+    if (script_current_condition < 0)
+    {
+        script_process_new_object(obj_id, location, arg);
+    } else
+    {
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
+        set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
+        pr_trig->plyr_idx = 0; //That is because script is inside `struct Game` and it is not possible to enlarge it
+        pr_trig->creatr_id = obj_id;
+        pr_trig->crtr_level = 255; // Used as a marker "this is not a creature"
+        pr_trig->carried_gold = arg;
+        pr_trig->location = location;
+        pr_trig->ncopies = 1;
         pr_trig->condit_idx = script_current_condition;
         game.script.party_triggers_num++;
     }
@@ -2718,12 +2758,30 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
 void command_add_to_flag(long plr_range_id, const char *flgname, long val)
 {
     long flg_id = get_rid(flag_desc, flgname);
+    long flag_type = 0;
+    char c;
+    if (flg_id != -1)
+    {
+        flag_type = SVar_FLAG;
+    }
+    if (flg_id == -1)
+    {
+        if (2 == sscanf(flgname, "BOX%ld_ACTIVATE%c", &flg_id, &c) && (c == 'D'))
+        {
+            // activateD
+            flag_type = SVar_BOX_ACTIVATED;
+        }
+        else
+        {
+          flg_id = -1;
+        }
+    }
     if (flg_id == -1)
     {
         SCRPTERRLOG("Unknown flag, '%s'", flgname);
         return;
-  }
-  command_add_value(Cmd_ADD_TO_FLAG, plr_range_id, flg_id, val, 0);
+    }
+    command_add_value(Cmd_ADD_TO_FLAG, plr_range_id, flg_id, val, flag_type);
 }
 
 void command_set_campaign_flag(long plr_range_id, const char *cmpflgname, long val)
@@ -2840,6 +2898,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ADD_CREATURE_TO_LEVEL:
         command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
+        break;
+    case Cmd_ADD_OBJECT_TO_LEVEL:
+        command_add_object_to_level(scline->tp[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_IF:
         command_if(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -3745,9 +3806,9 @@ TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx)
     return true;
 }
 
-TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber plyr_idx, long i)
+TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i)
 {
-    SYNCDBG(7,"Starting at player %d", (int)plyr_idx);
+    SYNCDBG(7,"Starting with loc:%ld", i);
     struct Coord3d *src;
     PlayerNumber loc_player = i & 0xF;
     if (loc_player == 15) // CURRENT_PLAYER
@@ -3993,6 +4054,83 @@ struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation 
         break;
     }
     return creatng;
+}
+
+static struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, long arg)
+{
+    long i = get_map_location_longval(location);
+    int tngowner = 5; // Neutral
+    struct Coord3d pos;
+
+    const unsigned char tngclass = TCls_Object;
+
+    // TODO: move into a function
+    switch (get_map_location_type(location))
+    {
+    case MLoc_ACTIONPOINT:
+        if (!get_coords_at_action_point(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
+        break;
+    case MLoc_HEROGATE:
+        if (!get_coords_at_hero_door(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
+        break;
+    case MLoc_PLAYERSHEART:
+        if (!get_coords_at_dungeon_heart(&pos, i))
+        {
+            return INVALID_THING;
+        }
+        break;
+    case MLoc_METALOCATION:
+        if (!get_coords_at_meta_action(&pos, 0, i))
+        {
+            return INVALID_THING;
+        }
+        break;      
+    case MLoc_CREATUREKIND:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    case MLoc_THING:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    case MLoc_NONE:
+    default:
+        return INVALID_THING;
+    }
+    struct Thing* thing = create_thing(&pos, tngclass, tngmodel, tngowner, -1);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, tngmodel),(int)location);
+        return INVALID_THING;
+    }
+    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+    // Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        if (!move_creature_to_nearest_valid_position(thing)) {
+            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
+            delete_thing_structure(thing, 0);
+            return INVALID_THING;
+        }
+    }
+    switch (tngmodel)
+    {
+        case 93: // Custom box from SPECBOX_HIDNWRL
+            thing->custom_box.box_kind = (unsigned char)arg;
+            break;
+        case 3:
+        case 6: //GOLD
+        case 43:
+            thing->valuable.gold_stored = arg;
+            break;
+    }
+    return thing;
 }
 
 /**
@@ -4688,17 +4826,25 @@ void process_check_new_creature_partys(void)
             if (is_condition_met(pr_trig->condit_idx))
             {
                 long n = pr_trig->creatr_id;
-                if (n <= 0)
+                if (pr_trig->crtr_level == 255)
                 {
-                    SYNCDBG(6, "Adding player %d party %d in location %d", (int)pr_trig->plyr_idx, (int)-n, (int)pr_trig->location);
-                    script_process_new_party(&game.script.creature_partys[-n],
-                        pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
+                    SYNCDBG(6, "Adding object %d in location %d", (int)n, (int)pr_trig->location);
+                    script_process_new_object(n, pr_trig->location, pr_trig->carried_gold);
                 }
                 else
                 {
-                    SCRIPTDBG(6, "Adding creature %d", n);
-                    script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
-                        pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+                    if (n <= 0)
+                    {
+                        SYNCDBG(6, "Adding player %d party %d in location %d", (int)pr_trig->plyr_idx, (int)-n, (int)pr_trig->location);
+                        script_process_new_party(&game.script.creature_partys[-n],
+                            pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
+                    }
+                    else
+                    {
+                        SCRIPTDBG(6, "Adding creature %d", n);
+                        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
+                            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+                    }
                 }
                 if ((pr_trig->flags & TrgF_REUSABLE) == 0)
                     set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
@@ -4802,6 +4948,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct CreatureModelConfig *crconf;
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
+  struct DungeonAdd *dungeonadd;
   struct SlabMap *slb;
   int plr_start;
   int plr_end;
@@ -5310,7 +5457,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           dungeon = get_dungeon(i);
-          set_script_flag(i, val2, dungeon->script_flags[val2] + val3);
+          dungeonadd = get_dungeonadd(i);
+          switch (val4)
+          {
+          case SVar_FLAG:
+              set_script_flag(i, val2, dungeon->script_flags[val2] + val3);
+              break;
+          case SVar_BOX_ACTIVATED:
+              dungeonadd->box_info.activated[val2] += val3;
+              break;
+          }
       }
       break;
   case Cmd_SET_CAMPAIGN_FLAG:

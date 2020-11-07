@@ -145,7 +145,6 @@ short thing_create_thing(struct InitThing *itng)
             }
             else if (thing->model == 93) // SPECBOX_HIDNWRL
             {
-                // TODO: set tooltip
                 thing->custom_box.box_kind = itng->params[1];
                 if (itng->params[1] > gameadd.max_custom_box_kind)
                 {
