@@ -823,9 +823,6 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         } else
-        if ((player->thing_under_hand != 0) && (player->input_crtr_query != 0)
-          && (dungeon->things_in_hand[0] != player->thing_under_hand)
-          && can_thing_be_queried(thing, plyr_idx) )
         //if ((player->thing_under_hand != 0) && (player->input_crtr_query != 0)
           // && (dungeon->things_in_hand[0] != player->thing_under_hand)
           // && can_thing_be_queried(thing, plyr_idx) )
