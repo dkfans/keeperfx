@@ -1173,6 +1173,7 @@ void command_add_creature_to_level(long plr_range_id, const char *crtr_name, con
 
 void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
 {
+    // TODO: replace with pointer to functions
     struct Condition* condt = &game.script.conditions[game.script.conditions_num];
     condt->condit_idx = script_current_condition;
     condt->plyr_range = plr_range_id;
@@ -1195,6 +1196,77 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     game.script.conditions_num++;
 }
 
+static TbBool parse_varib(const char *varib_name, long *varib_id, long *varib_type)
+{
+    char c;
+
+    if (level_file_version > 0)
+    {
+        *varib_type = get_id(variable_desc, varib_name);
+    } else
+    {
+        *varib_type = get_id(dk1_variable_desc, varib_name);
+    }
+    if (*varib_type == -1)
+      *varib_id = -1;
+    else
+      *varib_id = 0;
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(creature_desc, varib_name);
+      *varib_type = SVar_CREATURE_NUM;
+    }
+    //TODO: list of lambdas
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(room_desc, varib_name);
+      *varib_type = SVar_ROOM_SLABS;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(timer_desc, varib_name);
+      *varib_type = SVar_TIMER;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(flag_desc, varib_name);
+      *varib_type = SVar_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(door_desc, varib_name);
+      *varib_type = SVar_DOOR_NUM;
+    }
+    if (*varib_id == -1)
+    {
+        *varib_id = get_id(trap_desc, varib_name);
+        *varib_type = SVar_TRAP_NUM;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(campaign_flag_desc, varib_name);
+      *varib_type = SVar_CAMPAIGN_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+        if (2 == sscanf(varib_name, "BOX%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_BOX_ACTIVATED;
+        }
+        else
+        {
+          *varib_id = -1;
+        }
+    }
+    if (*varib_id == -1)
+    {
+      SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
+      return false;
+    }
+    return true;
+}
+
 void command_if(long plr_range_id, const char *varib_name, const char *operatr, long value)
 {
     long varib_type;
@@ -1204,57 +1276,10 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
     }
-    // Recognize variable TODO: Move to separate func?
-    if (level_file_version > 0)
+    // Recognize variable
+    if (!parse_varib(varib_name, &varib_id, &varib_type))
     {
-        varib_type = get_id(variable_desc, varib_name);
-    } else
-    {
-        varib_type = get_id(dk1_variable_desc, varib_name);
-    }
-    if (varib_type == -1)
-      varib_id = -1;
-    else
-      varib_id = 0;
-    if (varib_id == -1)
-    {
-      varib_id = get_id(creature_desc, varib_name);
-      varib_type = SVar_CREATURE_NUM;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(room_desc, varib_name);
-      varib_type = SVar_ROOM_SLABS;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(timer_desc, varib_name);
-      varib_type = SVar_TIMER;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(flag_desc, varib_name);
-      varib_type = SVar_FLAG;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(door_desc, varib_name);
-      varib_type = SVar_DOOR_NUM;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(trap_desc, varib_name);
-        varib_type = SVar_TRAP_NUM;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(campaign_flag_desc, varib_name);
-      varib_type = SVar_CAMPAIGN_FLAG;
-    }
-    if (varib_id == -1)
-    {
-      SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
-      return;
+        return;
     }
     { // Warn if using the command for a player without Dungeon struct
         int plr_start;
@@ -4514,10 +4539,10 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return count_creatures_in_dungeon_controlled_and_of_model_flags(dungeon, CMF_IsEvil, CMF_IsSpectator|CMF_IsSpecDigger);
     case SVar_CAMPAIGN_FLAG:
-        dungeon = get_dungeon(plyr_idx);
         return intralvl.campaign_flags[plyr_idx][validx];
-        break;
-    break;
+    case SVar_BOX_ACTIVATED:
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->box_info.activated[validx];
     default:
         break;
     };
@@ -4598,7 +4623,10 @@ void process_condition(struct Condition *condt)
             {
                 long k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
                 new_status = get_condition_status(condt->operation, k, condt->rvalue);
-                if (new_status != false) break;
+                if (new_status != false)
+                {
+                  break;
+                }
             }
         }
     }

@@ -140,6 +140,7 @@ struct GameAdd {
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
 
+    uint8_t               max_custom_box_kind;
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };
 

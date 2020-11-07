@@ -383,6 +383,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   struct Coord3d pos;
 
   // Gathering data which we'll need if the special is used and disposed.
+  struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
   memcpy(&pos,&cratetng->mappos,sizeof(struct Coord3d));
   int spkindidx = cratetng->model - 86;
   short used = 0;
@@ -429,7 +430,14 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
           delete_thing_structure(cratetng, 0);
           break;
         case 93:
-          activate_bonus_level(player);
+          if (cratetng->custom_box.box_kind == 0)
+          {
+              activate_bonus_level(player);
+          }
+          else
+          {
+              dungeonadd->box_info.activated[cratetng->custom_box.box_kind]++;
+          }
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);

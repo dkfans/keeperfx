@@ -193,6 +193,7 @@ enum ScriptVariables {
   SVar_TIMES_LEVELUP_CREATURE          = 63,
   SVar_TOTAL_SALARY                    = 64,
   SVar_CURRENT_SALARY                  = 65,
+  SVar_BOX_ACTIVATED                   = 66,
  };
 
 enum MapLocationTypes {

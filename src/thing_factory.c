@@ -140,7 +140,18 @@ short thing_create_thing(struct InitThing *itng)
         if (!thing_is_invalid(thing))
         {
             if (object_is_hero_gate(thing))
+            {
                 thing->byte_13 = itng->params[1];
+            }
+            else if (thing->model == 93) // SPECBOX_HIDNWRL
+            {
+                // TODO: set tooltip
+                thing->custom_box.box_kind = itng->params[1];
+                if (itng->params[1] > gameadd.max_custom_box_kind)
+                {
+                    gameadd.max_custom_box_kind = itng->params[1];
+                }
+            }
             check_and_asimilate_thing_by_room(thing);
             // make sure we don't have invalid pointer
             thing = INVALID_THING;
