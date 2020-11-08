@@ -114,7 +114,7 @@ void multiply_creatures(struct PlayerInfo *player)
     multiply_creatures_in_dungeon_list(dungeon, dungeon->digger_list_start);
 }
 
-void increase_level(struct PlayerInfo *player)
+void increase_level(struct PlayerInfo *player, int count)
 {
     struct CreatureControl *cctrl;
     struct Thing *thing;
@@ -133,7 +133,8 @@ void increase_level(struct PlayerInfo *player)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        creature_increase_level(thing);
+        if (count > 1) creature_increase_multiple_levels(thing, count);
+        else creature_increase_level(thing);
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -156,7 +157,8 @@ void increase_level(struct PlayerInfo *player)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        creature_increase_level(thing);
+        if (count > 1) creature_increase_multiple_levels(thing, count);
+        else creature_increase_level(thing);
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -420,7 +422,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
           delete_thing_structure(cratetng, 0);
           break;
         case 91:
-          increase_level(player);
+          increase_level(player, 1);
           remove_events_thing_is_attached_to(cratetng);
           used = 1;
           delete_thing_structure(cratetng, 0);
