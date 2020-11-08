@@ -1164,8 +1164,9 @@ void command_add_object_to_level(const char *obj_name, const char *locname, long
         set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
         set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
         pr_trig->plyr_idx = 0; //That is because script is inside `struct Game` and it is not possible to enlarge it
-        pr_trig->creatr_id = obj_id;
-        pr_trig->crtr_level = 255; // Used as a marker "this is not a creature"
+        pr_trig->creatr_id = obj_id & 0x7F;
+        pr_trig->crtr_level = 128 // Used as a marker "this is not a creature"
+            | ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
         pr_trig->carried_gold = arg;
         pr_trig->location = location;
         pr_trig->ncopies = 1;
@@ -4121,7 +4122,7 @@ static struct Thing *script_process_new_object(long tngmodel, TbMapLocation loca
     }
     switch (tngmodel)
     {
-        case 93: // Custom box from SPECBOX_HIDNWRL
+        case OBJECT_TYPE_SPECBOX_CUSTOM: // Custom box from SPECBOX_HIDNWRL
             thing->custom_box.box_kind = (unsigned char)arg;
             break;
         case 3:
@@ -4826,8 +4827,9 @@ void process_check_new_creature_partys(void)
             if (is_condition_met(pr_trig->condit_idx))
             {
                 long n = pr_trig->creatr_id;
-                if (pr_trig->crtr_level == 255)
+                if (pr_trig->crtr_level & 128)
                 {
+                    n |= ((pr_trig->crtr_level & 7) << 7);
                     SYNCDBG(6, "Adding object %d in location %d", (int)n, (int)pr_trig->location);
                     script_process_new_object(n, pr_trig->location, pr_trig->carried_gold);
                 }

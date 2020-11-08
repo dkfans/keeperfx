@@ -349,7 +349,7 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 0, 954, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //130 STATUE_PLACEHOLDER3
   {0, 0, 0, 0, 0, 956, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //131 STATUE_PLACEHOLDER4
   {0, 0, 0, 0, 0, 958, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //132 STATUE_PLACEHOLDER5
-  {0, 0, 0, 0, 0, 960, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //133 STATUE_PLACEHOLDER6
+  {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //134 SPELLBOOK
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //135
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0},

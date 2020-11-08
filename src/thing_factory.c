@@ -143,7 +143,7 @@ short thing_create_thing(struct InitThing *itng)
             {
                 thing->byte_13 = itng->params[1];
             }
-            else if (thing->model == 93) // SPECBOX_HIDNWRL
+            else if (thing->model == OBJECT_TYPE_SPECBOX_CUSTOM)
             {
                 thing->custom_box.box_kind = itng->params[1];
                 if (itng->params[1] > gameadd.max_custom_box_kind)

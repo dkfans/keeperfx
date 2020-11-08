@@ -150,9 +150,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (!thing_is_invalid(thing))
   {
       update_gui_tooltip_target(thing);
-      if (  (thing->model == 93) //TODO remove that dirty hack and use config files (but we need new object_id...)
-            && (thing->custom_box.box_kind > 0)
-            )
+      if (thing->model == OBJECT_TYPE_SPECBOX_CUSTOM)
       {
           // TODO: get it from Map script
           set_gui_tooltip_box_fmt(5, "%s", get_string(1005));
