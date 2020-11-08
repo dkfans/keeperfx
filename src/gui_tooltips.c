@@ -153,7 +153,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       if (thing->model == OBJECT_TYPE_SPECBOX_CUSTOM)
       {
           // TODO: get it from Map script
-          set_gui_tooltip_box_fmt(5, "%s", get_string(1005));
+          set_gui_tooltip_box_fmt(5, "%s", get_string(2005));
       }
       else
       {
