@@ -1664,12 +1664,21 @@ void command_lose_game(void)
 void command_set_flag(long plr_range_id, const char *flgname, long val)
 {
     long flg_id = get_rid(flag_desc, flgname);
+    long flag_type = SVar_FLAG;
     if (flg_id == -1)
+    {
+        flg_id = get_rid(campaign_flag_desc, flgname);
+        if (flg_id != -1)
+        {
+            flag_type = SVar_CAMPAIGN_FLAG;
+        }
+    }
+    if (flg_id != -1)
     {
         SCRPTERRLOG("Unknown flag, '%s'", flgname);
         return;
-  }
-  command_add_value(Cmd_SET_FLAG, plr_range_id, flg_id, val, 0);
+    }
+    command_add_value(Cmd_SET_FLAG, plr_range_id, flg_id, val, flag_type);
 }
 
 void command_max_creatures(long plr_range_id, long val)
@@ -2816,6 +2825,14 @@ void command_add_to_flag(long plr_range_id, const char *flgname, long val)
     if (flg_id != -1)
     {
         flag_type = SVar_FLAG;
+    }
+    if (flg_id == -1)
+    {
+        flg_id = get_rid(campaign_flag_desc, flgname);
+        if (flg_id != -1)
+        {
+            flag_type = SVar_CAMPAIGN_FLAG;
+        }
     }
     if (flg_id == -1)
     {
@@ -5114,6 +5131,21 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           set_script_flag(i,val2,saturate_set_unsigned(val3, 8));
+          switch (val4)
+          {
+          case SVar_FLAG:
+              set_script_flag(i, val2, saturate_set_unsigned(val3, 8));
+              break;
+          case SVar_CAMPAIGN_FLAG:
+              intralvl.campaign_flags[i][val2] = val3;
+              break;
+          case SVar_BOX_ACTIVATED:
+              dungeonadd->box_info.activated[val2] = saturate_set_unsigned(val3, 8);
+              break;
+          case SVar_BOX_FOUND:
+              dungeonadd->box_info.found[val2] = saturate_set_unsigned(val3, 8);
+              break;
+          }
       }
       break;
   case Cmd_MAX_CREATURES:
@@ -5545,6 +5577,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_ADD_TO_FLAG:
+      // TODO: move each to a separate function
       for (i=plr_start; i < plr_end; i++)
       {
           dungeon = get_dungeon(i);
@@ -5553,6 +5586,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
           case SVar_FLAG:
               set_script_flag(i, val2, dungeon->script_flags[val2] + val3);
+              break;
+          case SVar_CAMPAIGN_FLAG:
+              intralvl.campaign_flags[i][val2] += val3;
               break;
           case SVar_BOX_ACTIVATED:
               dungeonadd->box_info.activated[val2] += val3;
