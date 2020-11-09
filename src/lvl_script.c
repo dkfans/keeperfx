@@ -1253,7 +1253,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     game.script.conditions_num++;
 }
 
-static TbBool parse_varib(const char *varib_name, long *varib_id, long *varib_type)
+static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
 {
     char c;
 
@@ -1329,6 +1329,47 @@ static TbBool parse_varib(const char *varib_name, long *varib_id, long *varib_ty
     return true;
 }
 
+// Variables that could be set
+static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
+{
+    char c;
+
+    *varib_id = -1;
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(flag_desc, varib_name);
+      *varib_type = SVar_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(campaign_flag_desc, varib_name);
+      *varib_type = SVar_CAMPAIGN_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+        if (2 == sscanf(varib_name, "BOX%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_BOX_ACTIVATED;
+        }
+        else if (2 == sscanf(varib_name, "BOX%ld_FOUN%c", varib_id, &c) && (c == 'D'))
+        {
+            // founD
+            *varib_type = SVar_BOX_FOUND;
+        }
+        else
+        {
+          *varib_id = -1;
+        }
+    }
+    if (*varib_id == -1)
+    {
+      SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
+      return false;
+    }
+    return true;
+}
+
 void command_if(long plr_range_id, const char *varib_name, const char *operatr, long value)
 {
     long varib_type;
@@ -1339,7 +1380,7 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
       return;
     }
     // Recognize variable
-    if (!parse_varib(varib_name, &varib_id, &varib_type))
+    if (!parse_get_varib(varib_name, &varib_id, &varib_type))
     {
         return;
     }
@@ -1663,17 +1704,9 @@ void command_lose_game(void)
 
 void command_set_flag(long plr_range_id, const char *flgname, long val)
 {
-    long flg_id = get_rid(flag_desc, flgname);
-    long flag_type = SVar_FLAG;
-    if (flg_id == -1)
-    {
-        flg_id = get_rid(campaign_flag_desc, flgname);
-        if (flg_id != -1)
-        {
-            flag_type = SVar_CAMPAIGN_FLAG;
-        }
-    }
-    if (flg_id != -1)
+    long flg_id;
+    long flag_type;
+    if (!parse_set_varib(flgname, &flg_id, &flag_type))
     {
         SCRPTERRLOG("Unknown flag, '%s'", flgname);
         return;
@@ -2819,39 +2852,10 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
 
 void command_add_to_flag(long plr_range_id, const char *flgname, long val)
 {
-    long flg_id = get_rid(flag_desc, flgname);
-    long flag_type = 0;
-    char c;
-    if (flg_id != -1)
-    {
-        flag_type = SVar_FLAG;
-    }
-    if (flg_id == -1)
-    {
-        flg_id = get_rid(campaign_flag_desc, flgname);
-        if (flg_id != -1)
-        {
-            flag_type = SVar_CAMPAIGN_FLAG;
-        }
-    }
-    if (flg_id == -1)
-    {
-        if (2 == sscanf(flgname, "BOX%ld_ACTIVATE%c", &flg_id, &c) && (c == 'D'))
-        {
-            // activateD
-            flag_type = SVar_BOX_ACTIVATED;
-        }
-        else if (2 == sscanf(flgname, "BOX%ld_FOUN%c", &flg_id, &c) && (c == 'D'))
-        {
-            // foundD
-            flag_type = SVar_BOX_FOUND;
-        }
-        else
-        {
-          flg_id = -1;
-        }
-    }
-    if (flg_id == -1)
+    long flg_id;
+    long flag_type;
+
+    if (!parse_set_varib(flgname, &flg_id, &flag_type))
     {
         SCRPTERRLOG("Unknown flag, '%s'", flgname);
         return;
@@ -2883,8 +2887,8 @@ void command_add_to_campaign_flag(long plr_range_id, const char *cmpflgname, lon
 
 void command_export_variable(long plr_range_id, const char *varib_name, const char *cmpflgname)
 {
-    long varib_type;
-    long varib_id;
+    long src_type;
+    long src_id;
     // Recognize flag
     long flg_id = get_rid(campaign_flag_desc, cmpflgname);
     if (flg_id == -1)
@@ -2892,54 +2896,12 @@ void command_export_variable(long plr_range_id, const char *varib_name, const ch
         SCRPTERRLOG("Unknown CAMPAIGN FLAG, '%s'", cmpflgname);
         return;
     }
-    // Recognize variable
-    if (level_file_version > 0)
-    {
-        varib_type = get_id(variable_desc, varib_name);
-    } else
-    {
-        varib_type = get_id(dk1_variable_desc, varib_name);
-    }
-    if (varib_type == -1)
-        varib_id = -1;
-    else
-        varib_id = 0;
-    if (varib_id == -1)
-    {
-        varib_id = get_id(creature_desc, varib_name);
-        varib_type = SVar_CREATURE_NUM;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(room_desc, varib_name);
-        varib_type = SVar_ROOM_SLABS;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(timer_desc, varib_name);
-        varib_type = SVar_TIMER;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(flag_desc, varib_name);
-        varib_type = SVar_FLAG;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(door_desc, varib_name);
-        varib_type = SVar_DOOR_NUM;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(trap_desc, varib_name);
-        varib_type = SVar_TRAP_NUM;
-    }
-    if (varib_id == -1)
+    if (!parse_set_varib(varib_name, &src_id, &src_type))
     {
         SCRPTERRLOG("Unknown VARIABLE, '%s'", varib_name);
         return;
     }
-    command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, varib_type, varib_id, flg_id);
+    command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, src_type, src_id, flg_id);
 }
 
 void command_set_game_rule(const char* objectv, unsigned long roomvar)
@@ -5039,6 +5001,28 @@ void process_values(void)
     }
 }
 
+static void set_variable(int player_idx, long var_type, long var_idx, long new_val)
+{
+    struct Dungeon *dungeon = get_dungeon(player_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
+    switch (var_type)
+    {
+    case SVar_FLAG:
+        set_script_flag(player_idx, var_idx, saturate_set_unsigned(new_val, 8));
+        break;
+    case SVar_CAMPAIGN_FLAG:
+        intralvl.campaign_flags[player_idx][var_idx] = new_val;
+        break;
+    case SVar_BOX_ACTIVATED:
+        dungeonadd->box_info.activated[var_idx] = new_val;
+        break;
+    case SVar_BOX_FOUND:
+        dungeonadd->box_info.found[var_idx] = new_val;
+        break;
+    default:
+        WARNLOG("Unexpected type:%d",(int)var_type);
+    }
+}
 /**
  * Processes given VALUE immediately.
  * This processes given script command. It is used to process VALUEs at start when they have
@@ -5130,22 +5114,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_SET_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_script_flag(i,val2,saturate_set_unsigned(val3, 8));
-          switch (val4)
-          {
-          case SVar_FLAG:
-              set_script_flag(i, val2, saturate_set_unsigned(val3, 8));
-              break;
-          case SVar_CAMPAIGN_FLAG:
-              intralvl.campaign_flags[i][val2] = val3;
-              break;
-          case SVar_BOX_ACTIVATED:
-              dungeonadd->box_info.activated[val2] = saturate_set_unsigned(val3, 8);
-              break;
-          case SVar_BOX_FOUND:
-              dungeonadd->box_info.found[val2] = saturate_set_unsigned(val3, 8);
-              break;
-          }
+          set_variable(i, val4, val2, val3);
       }
       break;
   case Cmd_MAX_CREATURES:
@@ -5577,26 +5546,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_ADD_TO_FLAG:
-      // TODO: move each to a separate function
       for (i=plr_start; i < plr_end; i++)
       {
-          dungeon = get_dungeon(i);
-          dungeonadd = get_dungeonadd(i);
-          switch (val4)
-          {
-          case SVar_FLAG:
-              set_script_flag(i, val2, dungeon->script_flags[val2] + val3);
-              break;
-          case SVar_CAMPAIGN_FLAG:
-              intralvl.campaign_flags[i][val2] += val3;
-              break;
-          case SVar_BOX_ACTIVATED:
-              dungeonadd->box_info.activated[val2] += val3;
-              break;
-          case SVar_BOX_FOUND:
-              dungeonadd->box_info.found[val2] += val3;
-              break;
-          }
+          set_variable(i, val4, val2, get_condition_value(i, val2, val3) + val3);
       }
       break;
   case Cmd_SET_CAMPAIGN_FLAG:
