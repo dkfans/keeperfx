@@ -41,6 +41,7 @@ struct CombatWeapon {
     long inst_id;
     long range_min;
     long range_max;
+    unsigned long target_flags; // Not use some spells on target
 };
 
 extern struct CombatWeapon offensive_weapon[];

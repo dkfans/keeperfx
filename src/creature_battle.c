@@ -135,7 +135,7 @@ TbBool can_add_ranged_combat_attacker(const struct Thing *victim)
     return (vicctrl->opponents_ranged_count < COMBAT_RANGED_OPPONENTS_LIMIT);
 }
 
-long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
+TbBool get_flee_position(struct Thing *creatng, struct Coord3d *pos)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     // Heroes should flee to their gate
@@ -147,18 +147,16 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
             pos->x.val = gatetng->mappos.x.val;
             pos->y.val = gatetng->mappos.y.val;
             pos->z.val = gatetng->mappos.z.val;
-            return 1;
+            return true;
         }
     }
-    else
-    // Neutral creatures don't have flee place
-    if (is_neutral_thing(creatng))
+    else if (is_neutral_thing(creatng)) // Neutral creatures don't have flee place
     {
         if ( (pos->x.val != 0) || (pos->y.val != 0) )
         {
-            return 1;
+            return true;
         }
-        return 0;
+        return false;
     }
     // Same with creatures without dungeon - try using last place
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
@@ -166,9 +164,9 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
     {
         if ( (pos->x.val != 0) || (pos->y.val != 0) )
         {
-            return 1;
+            return true;
         }
-        return 0;
+        return false;
     }
     // Other creatures can flee to heart or their lair
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
@@ -193,13 +191,13 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
         if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->is_active == 1) && (player->victory_state != VicS_LostLevel) )
         {
             ERRORLOG("The %s index %d has no dungeon heart or lair to flee to",thing_model_name(creatng),(int)creatng->index);
-            return 0;
+            return false;
         }
         pos->x.stl.pos = creatng->mappos.x.stl.pos;
         pos->y.stl.pos = creatng->mappos.y.stl.pos;
         pos->z.stl.pos = creatng->mappos.z.stl.pos;
     }
-    return 1;
+    return true;
 }
 
 TbBool setup_combat_flee_position(struct Thing *thing)

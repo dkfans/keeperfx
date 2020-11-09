@@ -159,6 +159,18 @@ extern "C" {
   #define AIDBG(dblv,format, ...)
 #endif
 
+#ifndef COMBATDEBUG_LEVEL
+#define COMBATDEBUG_LEVEL BFDEBUG_LEVEL
+#endif
+
+#if (COMBATDEBUG_LEVEL > 0)
+  #define COMBATDBG(dblv,format, ...) {\
+    if (BFDEBUG_LEVEL > dblv)\
+      LbSyncLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
+#else
+  #define COMBATDBG(dblv,format, ...)
+#endif
+
 #if AUTOTESTING
   #include "event_monitoring.h"
   #define EVM_CREATURE_EVENT(event_name, plyr_id, thing) \

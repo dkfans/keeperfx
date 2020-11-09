@@ -76,29 +76,29 @@ const CombatState combat_door_state[] = {
 };
 
 struct CombatWeapon offensive_weapon[] = {
-    {CrInst_FREEZE,                 156, LONG_MAX},
-    {CrInst_FEAR,                   156, LONG_MAX},
-    {CrInst_CAST_SPELL_DISEASE,     156, LONG_MAX},
-    {CrInst_CAST_SPELL_CHICKEN,     156, LONG_MAX},
-    {CrInst_CAST_SPELL_TIME_BOMB,   768, LONG_MAX},
-    {CrInst_LIZARD,                1000, LONG_MAX},
-    {CrInst_FIRE_BOMB,              768, LONG_MAX},
-    {CrInst_LIGHTNING,              768, LONG_MAX},
-    {CrInst_HAILSTORM,              156, LONG_MAX},
-    {CrInst_POISON_CLOUD,           156, LONG_MAX},
-    {CrInst_DRAIN,                  156, LONG_MAX},
-    {CrInst_SLOW,                   156, LONG_MAX},
-    {CrInst_NAVIGATING_MISSILE,     156, LONG_MAX},
-    {CrInst_MISSILE,                156, LONG_MAX},
-    {CrInst_FIREBALL,               156, LONG_MAX},
-    {CrInst_FIRE_ARROW,             156, LONG_MAX},
-    {CrInst_WIND,                     0, LONG_MAX},
-    {CrInst_WORD_OF_POWER,            0, 284},
-    {CrInst_FART,                     0, 284},
-    {CrInst_FLAME_BREATH,           156, 284},
-    {CrInst_SWING_WEAPON_SWORD,       0, 284},
-    {CrInst_SWING_WEAPON_FIST,        0, 284},
-    {CrInst_NULL,                     0,   0},
+    {CrInst_FREEZE,                 156, LONG_MAX,    0},
+    {CrInst_FEAR,                   156, LONG_MAX,    0},
+    {CrInst_CAST_SPELL_DISEASE,     156, LONG_MAX,    0},
+    {CrInst_CAST_SPELL_CHICKEN,     156, LONG_MAX,    0},
+    {CrInst_CAST_SPELL_TIME_BOMB,   768, LONG_MAX,    0},
+    {CrInst_LIZARD,                1000, LONG_MAX,    0},
+    {CrInst_FIRE_BOMB,              768, LONG_MAX,    0},
+    {CrInst_LIGHTNING,              768, LONG_MAX,    0},
+    {CrInst_HAILSTORM,              156, LONG_MAX,    0},
+    {CrInst_POISON_CLOUD,           156, LONG_MAX,    0},
+    {CrInst_DRAIN,                  156, LONG_MAX,    0},
+    {CrInst_SLOW,                   156, LONG_MAX,    0},
+    {CrInst_NAVIGATING_MISSILE,     156, LONG_MAX,    0},
+    {CrInst_MISSILE,                156, LONG_MAX,    0},
+    {CrInst_FIREBALL,               156, LONG_MAX,    0},
+    {CrInst_FIRE_ARROW,             156, LONG_MAX,    0},
+    {CrInst_WIND,                     0, LONG_MAX,    0},
+    {CrInst_WORD_OF_POWER,            0,      284,    0},
+    {CrInst_FART,                     0,      284,    0},
+    {CrInst_FLAME_BREATH,           156,      284,    0},
+    {CrInst_SWING_WEAPON_SWORD,       0,      284,    0},
+    {CrInst_SWING_WEAPON_FIST,        0,      284,    0},
+    {CrInst_NULL,                     0,        0,    0},
 };
 
 const signed char pos_calcs[][2] = {
@@ -282,7 +282,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     }
     if (creatng->health < (fear * (long long)crmaxhealth) / 1000)
     {
-        SYNCDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
+        COMBATDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
         return true;
     }
     // If the enemy is way stronger, a creature may be scared anyway
@@ -298,7 +298,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
             ownstrength *= support_count;
             if (enmstrength >= (fear * ownstrength) / 100)
             {
-                SYNCDBG(8,"The %s index %d is scared due to enemy %s strength (%d vs. %d)",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)ownstrength,(int)enmstrength);
+                COMBATDBG(8,"The %s index %d is scared due to enemy %s strength (%d vs. %d)",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)ownstrength,(int)enmstrength);
                 return true;
             }
         }
@@ -1835,7 +1835,7 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, con
     return inst_id;
 }
 
-CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist)
+static CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist)
 {
     CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
     if (inst_id == CrInst_NULL)
@@ -1846,7 +1846,7 @@ CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist
     return inst_id;
 }
 
-CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
+static CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
 {
     CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
     if (inst_id == CrInst_NULL)
@@ -2485,16 +2485,16 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
 
 void creature_in_combat_wait(struct Thing *creatng)
 {
-    SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
+    COMBATDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     if (check_for_better_combat(creatng)) {
-        SYNCDBG(19,"Switching to better combat");
+        COMBATDBG(10,"Switching to better combat");
         return;
     }
     // Check to attack dungeon heart once every 8 turns
     if (((game.play_gameturn+creatng->index) & 7) == 0)
     {
         if (creature_look_for_enemy_heart_combat(creatng)) {
-            SYNCDBG(19,"Switching to heart combat");
+            COMBATDBG(10,"Switching to heart combat");
             return;
         }
     }
@@ -2504,38 +2504,38 @@ void creature_in_combat_wait(struct Thing *creatng)
     TRACE_THING(enmtng);
     if (!creature_is_most_suitable_for_combat(creatng, enmtng))
     {
-        SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",
+        COMBATDBG(9,"The %s index %d is not most suitable for combat with %s index %d",
             thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
         creature_change_to_most_suitable_combat(creatng);
         return;
     }
     long cmbtyp = check_for_valid_combat(creatng, enmtng);
     if ( !combat_type_is_choice_of_creature(creatng, cmbtyp) ) {
-        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
+        COMBATDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
         return;
     }
     long dist = get_combat_distance(creatng, enmtng);
     waiting_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat);
-    SYNCDBG(19,"Done, continuing combat");
+    COMBATDBG(19,"Done, continuing combat");
 }
 
 void creature_in_ranged_combat(struct Thing *creatng)
 {
-    SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
+    COMBATDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* enmtng = thing_get(cctrl->combat.battle_enemy_idx);
     TRACE_THING(enmtng);
     if (!creature_is_most_suitable_for_combat(creatng, enmtng))
     {
-        SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
+        COMBATDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
         creature_change_to_most_suitable_combat(creatng);
         return;
     }
     long cmbtyp = check_for_valid_combat(creatng, enmtng);
     if (!combat_type_is_choice_of_creature(creatng, cmbtyp))
     {
-        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
+        COMBATDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
         return;
     }
@@ -2544,12 +2544,12 @@ void creature_in_ranged_combat(struct Thing *creatng)
     if (weapon == 0)
     {
         set_start_state(creatng);
-        SYNCDBG(9,"The %s index %d cannot choose ranged offensive weapon",thing_model_name(creatng),(int)creatng->index);
+        COMBATDBG(9,"The %s index %d cannot choose ranged offensive weapon",thing_model_name(creatng),(int)creatng->index);
         return;
     }
     if (!ranged_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat))
     {
-        SYNCDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
+        COMBATDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
         return;
     }
     if (weapon > 0)
@@ -2560,20 +2560,20 @@ void creature_in_ranged_combat(struct Thing *creatng)
 
 void creature_in_melee_combat(struct Thing *creatng)
 {
-    SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
+    COMBATDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* enmtng = thing_get(cctrl->combat.battle_enemy_idx);
     TRACE_THING(enmtng);
     if (!creature_is_most_suitable_for_combat(creatng, enmtng))
     {
-        SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
+        COMBATDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
         creature_change_to_most_suitable_combat(creatng);
         return;
     }
     CrAttackType attack_type = check_for_valid_combat(creatng, enmtng);
     if (!combat_type_is_choice_of_creature(creatng, attack_type))
     {
-        SYNCDBG(9,"Current combat type %d is not choice of %s index %d",(int)attack_type,thing_model_name(creatng),(int)creatng->index);
+        COMBATDBG(9,"Current combat type %d is not choice of %s index %d",(int)attack_type,thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
         return;
     }
@@ -2581,13 +2581,13 @@ void creature_in_melee_combat(struct Thing *creatng)
     CrInstance weapon = get_best_melee_offensive_weapon(creatng, dist);
     if (weapon == CrInst_NULL)
     {
-        SYNCDBG(9,"The %s index %d cannot choose melee offensive weapon",thing_model_name(creatng),(int)creatng->index);
+        COMBATDBG(9,"The %s index %d cannot choose melee offensive weapon",thing_model_name(creatng),(int)creatng->index);
         set_start_state(creatng);
         return;
     }
     if (!melee_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat))
     {
-        SYNCDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
+        COMBATDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
         return;
     }
     if (weapon > CrInst_NULL)
@@ -2599,7 +2599,7 @@ void creature_in_melee_combat(struct Thing *creatng)
 short creature_in_combat(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    SYNCDBG(9,"Starting for %s index %d, combat state %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->combat.state_id);
+    COMBATDBG(19,"Starting for %s index %d, combat state %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->combat.state_id);
     TRACE_THING(creatng);
     struct Thing* enmtng = thing_get(cctrl->combat.battle_enemy_idx);
     TRACE_THING(enmtng);
@@ -2634,7 +2634,6 @@ short creature_in_combat(struct Thing *creatng)
 
 void combat_object_state_melee_combat(struct Thing *creatng)
 {
-    //_DK_combat_object_state_melee_combat(creatng); return;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
     long dist = get_combat_distance(creatng, objtng);
@@ -2654,7 +2653,6 @@ void combat_object_state_melee_combat(struct Thing *creatng)
 
 void combat_object_state_ranged_combat(struct Thing *creatng)
 {
-    //_DK_combat_object_state_ranged_combat(thing); return;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* objtng = thing_get(cctrl->combat.battle_enemy_idx);
     long dist = get_combat_distance(creatng, objtng);
@@ -2814,7 +2812,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
 
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
 {
-    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    COMBATDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
     if ((get_creature_model_flags(thing) & CMF_NoEnmHeartAttack) != 0) {
         return false;
@@ -3000,7 +2998,7 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     }
     if (inst_id == CrInst_NULL) {
         // It seem the creatures cannot currently attack each other
-        return CrInst_NULL;
+        return 0;
     }
     // Get shot model from instance
     ThingModel shot_model;

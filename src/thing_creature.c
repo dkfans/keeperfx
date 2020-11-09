@@ -569,7 +569,6 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
 TbBool set_creature_object_combat(struct Thing *creatng, struct Thing *obthing)
 {
     SYNCDBG(8,"Starting");
-    //return _DK_set_creature_object_combat(creatng, obthing);
     if (!external_set_thing_state(creatng, CrSt_CreatureObjectCombat)) {
         return false;
     }
