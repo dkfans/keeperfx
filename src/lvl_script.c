@@ -5003,7 +5003,6 @@ void process_values(void)
 
 static void set_variable(int player_idx, long var_type, long var_idx, long new_val)
 {
-    struct Dungeon *dungeon = get_dungeon(player_idx);
     struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
     switch (var_type)
     {
@@ -5034,7 +5033,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct CreatureModelConfig *crconf;
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  struct DungeonAdd *dungeonadd;
   struct SlabMap *slb;
   int plr_start;
   int plr_end;
