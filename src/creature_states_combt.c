@@ -61,6 +61,7 @@ const CombatState combat_state[] = {
     creature_in_combat_wait,
     creature_in_ranged_combat,
     creature_in_melee_combat,
+    //TODO: add backstab, fleeing etc here and in enum ObjectCombatStates
 };
 
 const CombatState combat_object_state[] = {
@@ -1711,6 +1712,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
     }
+    // TODO: dont use this if we dont want to flee
     if (!creature_affected_by_spell(thing, SplK_Invisibility))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
@@ -1806,10 +1808,13 @@ CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
  * @param atktype The required properties of the attack
  * @return
  */
-CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, const struct CombatWeapon * cweapons, long dist, int atktype)
+static CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, const struct CombatWeapon * cweapons, long dist, int atktype, const struct Thing *target)
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
+
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+
     for (const struct CombatWeapon* cweapon = cweapons; cweapon->inst_id != CrInst_NULL; cweapon++)
     {
         inst_inf = creature_instance_info_get(cweapon->inst_id);
@@ -1820,6 +1825,10 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, con
                  (!(inst_inf->flags & InstPF_Dangerous)   || !(atktype & InstPF_Dangerous)) &&
                  ((inst_inf->flags & InstPF_Destructive)  >=  (atktype & InstPF_Destructive)) )
             {
+                if ((target != NULL) && (creature_affected_by_spells_test(target, cweapon->spell_test_flags)))
+                {
+                    continue;
+                }
                 if (creature_instance_has_reset(thing, cweapon->inst_id))
                 {
                     if ((cweapon->range_min <= dist) && (cweapon->range_max >= dist)) {
@@ -1835,39 +1844,39 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, con
     return inst_id;
 }
 
-static CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist)
+static CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist, const struct Thing *target)
 {
     CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
     if (inst_id == CrInst_NULL)
     {
         int atktyp = InstPF_RangedAttack;
-        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp, target);
     }
     return inst_id;
 }
 
-static CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
+static CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist, const struct Thing *target)
 {
     CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
     if (inst_id == CrInst_NULL)
     {
         int atktyp = InstPF_MeleeAttack;
-        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+        inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp, target);
     }
     return inst_id;
 }
 
-long get_best_melee_object_offensive_weapon(const struct Thing *thing, long dist)
+static CrInstance get_best_melee_object_offensive_weapon(const struct Thing *thing, long dist)
 {
     int atktyp = (InstPF_MeleeAttack | InstPF_Destructive | InstPF_Dangerous);
-    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp);
+    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist, atktyp, NULL);
     return inst_id;
 }
 
-long get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dist)
+static CrInstance get_best_ranged_object_offensive_weapon(const struct Thing *thing, long dist)
 {
     int atktyp = (InstPF_RangedAttack | InstPF_Destructive | InstPF_Dangerous);
-    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist,atktyp);
+    CrInstance inst_id = get_best_combat_weapon_instance_to_use(thing, offensive_weapon, dist,atktyp, NULL);
     return inst_id;
 }
 
@@ -2075,7 +2084,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
         {
             if (combat_has_line_of_sight(thing, enmtng, enmdist))
             {
-                CrInstance inst_id = get_best_ranged_offensive_weapon(thing, enmdist);
+                CrInstance inst_id = get_best_ranged_offensive_weapon(thing, enmdist, enmtng);
                 if (inst_id > CrInst_NULL)
                 {
                     set_creature_instance(thing, inst_id, 1, enmtng->index, 0);
@@ -2461,7 +2470,7 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     {
         if (combat_has_line_of_sight(figtng, enmtng, enmdist))
         {
-            CrInstance weapon = get_best_ranged_offensive_weapon(figtng, enmdist);
+            CrInstance weapon = get_best_ranged_offensive_weapon(figtng, enmdist, enmtng);
             if (weapon > CrInst_NULL) {
                 set_creature_instance(figtng, weapon, 1, enmtng->index, 0);
                 return 0;
@@ -2540,7 +2549,7 @@ void creature_in_ranged_combat(struct Thing *creatng)
         return;
     }
     long dist = get_combat_distance(creatng, enmtng);
-    CrInstance weapon = get_best_ranged_offensive_weapon(creatng, dist);
+    CrInstance weapon = get_best_ranged_offensive_weapon(creatng, dist, enmtng);
     if (weapon == 0)
     {
         set_start_state(creatng);
@@ -2578,7 +2587,7 @@ void creature_in_melee_combat(struct Thing *creatng)
         return;
     }
     long dist = get_combat_distance(creatng, enmtng);
-    CrInstance weapon = get_best_melee_offensive_weapon(creatng, dist);
+    CrInstance weapon = get_best_melee_offensive_weapon(creatng, dist, enmtng);
     if (weapon == CrInst_NULL)
     {
         COMBATDBG(9,"The %s index %d cannot choose melee offensive weapon",thing_model_name(creatng),(int)creatng->index);
@@ -2596,6 +2605,7 @@ void creature_in_melee_combat(struct Thing *creatng)
     }
 }
 
+// This is actuall state function for CrStTyp_FightCrtr
 short creature_in_combat(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -2986,14 +2996,18 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     long dist = get_combat_distance(firing, target);
     struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
     if (crstat->attack_preference == AttckT_Ranged) {
-        inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist,2);
+        inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist, 
+            InstPF_RangedAttack, target);
         if (inst_id == CrInst_NULL) {
-            inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist,4);
+            inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist, 
+                InstPF_MeleeAttack, target);
         }
     } else {
-        inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist,4);
+        inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist, 
+            InstPF_MeleeAttack, target);
         if (inst_id == CrInst_NULL) {
-            inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist,2);
+            inst_id = get_best_combat_weapon_instance_to_use(firing, offensive_weapon, dist, 
+                InstPF_RangedAttack, target);
         }
     }
     if (inst_id == CrInst_NULL) {

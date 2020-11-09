@@ -142,6 +142,7 @@ TbBool creature_has_lair_room(const struct Thing *creatng);
 struct Room *get_creature_lair_room(const struct Thing *creatng);
 TbBool remove_creature_lair(struct Thing *thing);
 
+TbBool creature_affected_by_spells_test(const struct Thing *thing, unsigned long test_flags);
 TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind);
 TbBool creature_affected_by_slap(const struct Thing *thing);
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);

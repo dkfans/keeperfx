@@ -87,8 +87,33 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"RANGEMIN",       13},
   {"RANGEMAX",       14},
   {"PROPERTIES",     15},
+  {"TARGETTESTFLAGS",16}, // Flags to test on target
   {NULL,              0},
   };
+
+const struct NamedCommand creaturetype_spell_test_flags[] =
+{
+// from CreatureControlSpells and CreatureSpellAffectedFlags
+    {"SLOW",            0x0001},
+    {"SPEED",           0x0002},
+    {"ARMOUR",          0x0004},
+    {"REBOUND",         0x0008},
+    {"FLYING",          0x0010},
+    {"INVISIBILITY",    0x0020},
+    {"SIGHT",           0x0040},
+    {"UNKN0080",        0x0080},
+    {"DISEASE",         0x0100},
+    {"CHICKEN",         0x0200},
+    {"POISONCLOUD",     0x0400},
+    {"CALLEDTOARMS",    0x0800},
+    {"MADKILLING",      0X1000},
+    {"MAGICFALL",       0X2000},
+    {"EXPLEVELUP",      0X4000},
+    {"GROUNDED",        0X8000},
+    {"FREEZE",        0x020000},
+    {"TELEPORT",      0x040000},
+    {NULL,                   0},
+};
 
 const struct NamedCommand creaturetype_instance_properties[] = {
   {"REPEAT_TRIGGER",       InstPF_RepeatTrigger},
@@ -830,6 +855,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
     int i;
     // Block name and parameter word store variables
     int arr_size;
+    unsigned long tmp_ulong;
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -1084,23 +1110,18 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             }
             break;
         case 13: //RANGEMIN
+              //TODO: this is actually global settings for instance. Not per creature.
                  if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              int j = 0;
-              int l = 0;
-              for (j=0; j < 23; j++) // Size of offensive_weapon
+              for (int j = 0; j < (sizeof(offensive_weapon) / sizeof(offensive_weapon[0])); j++)
               {
                   if (offensive_weapon[j].inst_id == i)
                   {
-                      l = 1;
+                      k = atoi(word_buf);
+                      offensive_weapon[j].range_min = k;
+                      n++;
                       break;
                   }
-              }
-              if (l == 1)
-              {
-                  k = atoi(word_buf);
-                  offensive_weapon[j].range_min = k;
-                  n++;
               }
           }
           if (n < 1)
@@ -1112,21 +1133,15 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         case 14: //RANGEMAX
                  if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              int j = 0;
-              int l = 0;
-              for (j=0; j < 23; j++) // Size of offensive_weapon
+              for (int j = 0; j < (sizeof(offensive_weapon) / sizeof(offensive_weapon[0])); j++)
               {
                   if (offensive_weapon[j].inst_id == i)
                   {
-                      l = 1;
+                      k = atoi(word_buf);
+                      offensive_weapon[j].range_max = k;
+                      n++;
                       break;
                   }
-              }
-              if (l == 1)
-              {
-                  k = atoi(word_buf);
-                  offensive_weapon[j].range_max = k;
-                  n++;
               }
           }
           if (n < 1)
@@ -1149,6 +1164,36 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                         COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                     break;
                 }
+            }
+            break;
+        case 16: // TARGETTESTFLAGS
+            tmp_ulong = 0;
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = get_id(creaturetype_spell_test_flags, word_buf);
+                if (k > 0)
+                {
+                    tmp_ulong |= k;
+                  n++;
+                } else {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    break;
+                }
+            }
+            for (int j = 0; j < (sizeof(offensive_weapon) / sizeof(offensive_weapon[0])); j++)
+            {
+                if (offensive_weapon[j].inst_id == i)
+                {
+                    offensive_weapon[j].spell_test_flags = tmp_ulong;
+                    n++;
+                    break;
+                }
+            }
+            if (n < 1)
+            {
+                  CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment

@@ -675,6 +675,13 @@ void anger_apply_anger_to_creature_f(struct Thing *creatng, long anger, AnnoyMot
     }
 }
 
+TbBool creature_affected_by_spells_test(const struct Thing *thing, unsigned long test_flags)
+{
+    const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return ((cctrl->spell_flags & (test_flags & 0xFFFF)) != 0)
+        || ((cctrl->stateblock_flags & ((test_flags >> 16) & 0xFF)) != 0);
+}
+
 /**
  * Returns if a creature is affected by given spell.
  * @param thing The creature thing.

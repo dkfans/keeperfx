@@ -149,7 +149,7 @@ struct CommandWord {
 
 struct NamedCommand {
     const char *name;
-    int num;
+    long num;
 };
 
 struct InstallInfo {

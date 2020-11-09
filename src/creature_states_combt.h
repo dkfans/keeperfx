@@ -41,10 +41,10 @@ struct CombatWeapon {
     long inst_id;
     long range_min;
     long range_max;
-    unsigned long target_flags; // Not use some spells on target
+    unsigned long spell_test_flags; // Not use some spells when target has some flags
 };
 
-extern struct CombatWeapon offensive_weapon[];
+extern struct CombatWeapon offensive_weapon[23];
 
 #pragma pack()
 /******************************************************************************/
