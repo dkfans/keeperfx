@@ -141,9 +141,9 @@ struct GameAdd {
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
 
     uint8_t               max_custom_box_kind;
-    unsigned long         box_activation_turn; // Actually it is a hack. We need to rewrite scripting for current player
+    unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
-    struct Coord3d        box_activation_location; //Position of last activated custom box
+    struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };

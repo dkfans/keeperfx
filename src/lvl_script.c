@@ -1311,6 +1311,11 @@ static TbBool parse_varib(const char *varib_name, long *varib_id, long *varib_ty
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
+        else if (2 == sscanf(varib_name, "BOX%ld_FOUN%c", varib_id, &c) && (c == 'D'))
+        {
+            // founD
+            *varib_type = SVar_BOX_FOUND;
+        }
         else
         {
           *varib_id = -1;
@@ -2819,6 +2824,11 @@ void command_add_to_flag(long plr_range_id, const char *flgname, long val)
             // activateD
             flag_type = SVar_BOX_ACTIVATED;
         }
+        else if (2 == sscanf(flgname, "BOX%ld_FOUN%c", &flg_id, &c) && (c == 'D'))
+        {
+            // foundD
+            flag_type = SVar_BOX_FOUND;
+        }
         else
         {
           flg_id = -1;
@@ -3870,7 +3880,7 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     switch (i >> 8)
     {
     case MML_TRIGGERED_OBJECT:
-        src = &gameadd.box_activation_location;
+        src = &gameadd.triggered_object_location;
         break;
     case MML_RECENT_COMBAT:
         src = &dungeonadd->last_combat_location;
@@ -4777,6 +4787,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_BOX_ACTIVATED:
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->box_info.activated[validx];
+    case SVar_BOX_FOUND:
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->box_info.found[validx];
     default:
         break;
     };
@@ -5543,6 +5556,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               break;
           case SVar_BOX_ACTIVATED:
               dungeonadd->box_info.activated[val2] += val3;
+              break;
+          case SVar_BOX_FOUND:
+              dungeonadd->box_info.found[val2] += val3;
               break;
           }
       }
