@@ -6854,6 +6854,57 @@ msgctxt "Menu interface item"
 msgid "Lost Levels"
 msgstr ""
 
+#: guitext:996
+msgctxt "Mouse"
+msgid "Scroll Wheel Up"
+msgstr ""
+
+#: guitext:997
+msgctxt "Mouse"
+msgid "Scroll Wheel Down"
+msgstr ""
+
+#: guitext:998
+msgctxt "Mouse"
+msgid "Mouse Button"
+msgstr ""
+
+#: guitext:999
+msgctxt "Game controls"
+msgid "Build Square Room"
+msgstr ""
+
+#: guitext:1000
+msgctxt "Game controls"
+msgid "Detect Room"
+msgstr ""
+
+#: guitext:1001
+msgctxt "Game controls"
+msgid "Increase Room Size"
+msgstr ""
+
+#: guitext:1002
+msgctxt "Game controls"
+msgid "Decrease Room Size"
+msgstr ""
+
+#: guitext:1003
+msgctxt "Game controls"
+msgid "Precision Sell"
+msgstr ""
+
+#: guitext:1004
+msgctxt "Game controls"
+msgid "Snap Camera"
+msgstr ""
+
+#: guitext:1005
+msgctxt "Dungeon special decription"
+msgid ""
+"Mysterious Box: There's no telling what this will do."
+msgstr ""
+
 #~ msgctxt "In-game message"
 #~ msgid "Your manufacturers have crafted the Lava Trap."
 #~ msgstr "Tus fabricantes han creado la trampa lava."

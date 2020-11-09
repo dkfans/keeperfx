@@ -5868,5 +5868,5 @@ msgstr ""
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid ""
-"This magic box contains Special Power."
+"Mysterious Box: There's no telling what this will do."
 msgstr ""
