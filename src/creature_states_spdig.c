@@ -238,25 +238,8 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
                             } else
                             if (thing_is_special_box(thing))
                             {
-                                EventIndex evidx = event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
+                                event_create_event_or_update_nearby_existing_event(thing->mappos.x.val, thing->mappos.y.val,
                                     EvKind_DnSpecialFound, spdigtng->owner, thing->index);
-                                if (evidx > 0)
-                                {
-                                  SYNCDBG(1, "found a box model:%d kind:%d", thing->model, thing->custom_box.box_kind);
-                                  if (thing->model == OBJECT_TYPE_SPECBOX_CUSTOM)
-                                  {
-                                      if (gameadd.current_player_turn == game.play_gameturn)
-                                      {
-                                          WARNLOG("script collision current_player turn:%d", gameadd.current_player_turn);
-                                          // If two players suddenly activated box at same turn we would miss a location
-                                      }
-                                      gameadd.current_player_turn = game.play_gameturn;
-                                      gameadd.script_current_player = spdigtng->owner;
-                                      memcpy(&gameadd.triggered_object_location, &thing->mappos, sizeof(struct Coord3d));
-                                      struct DungeonAdd* dungeonadd = get_dungeonadd(spdigtng->owner);
-                                      dungeonadd->box_info.found[thing->custom_box.box_kind]++;
-                                  }
-                                }
                             }
                             spdigtng->continue_state = CrSt_CreaturePicksUpSpellObject;
                             cctrl->pickup_object_id = thing->index;

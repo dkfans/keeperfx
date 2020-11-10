@@ -32,6 +32,7 @@
 #include "creature_states.h"
 #include "config_creature.h"
 #include "config_effects.h"
+#include "power_specials.h"
 #include "room_data.h"
 #include "room_util.h"
 #include "map_blocks.h"
@@ -741,6 +742,7 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
     do_unprettying(creatng->owner, slb_x, slb_y);
     do_slab_efficiency_alteration(slb_x, slb_y);
+    check_found_dungeon_special(slb_x, slb_y, creatng->owner);
     increase_dungeon_area(creatng->owner, 1);
     dungeon->lvstats.area_claimed++;
     EVM_MAP_EVENT("claimed", creatng->owner, slb_x, slb_y, "");

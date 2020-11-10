@@ -118,20 +118,6 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
         // Only play speech message if new event was created
         if (evidx > 0)
         {
-          SYNCDBG(1, "found a box model:%d kind:%d", picktng->model, picktng->custom_box.box_kind);
-          if (picktng->model == OBJECT_TYPE_SPECBOX_CUSTOM)
-          {
-              if (gameadd.current_player_turn == game.play_gameturn)
-              {
-                  WARNLOG("script collision current_player turn:%d", gameadd.current_player_turn);
-                  // If two players suddenly activated box at same turn we would miss a location
-              }
-              gameadd.current_player_turn = game.play_gameturn;
-              gameadd.script_current_player = creatng->owner;
-              memcpy(&gameadd.triggered_object_location, &picktng->mappos, sizeof(struct Coord3d));
-              struct DungeonAdd* dungeonadd = get_dungeonadd(creatng->owner);
-              dungeonadd->box_info.found[picktng->custom_box.box_kind]++;
-          }
           if (is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner))
           {
             output_message(SMsg_DiscoveredSpecial, 0, true);
