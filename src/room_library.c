@@ -179,8 +179,11 @@ TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon 
             // Could be researched at any time
             if (dungeon->room_resrchable[rsrchval->rkind] == 1)
                 return true;
+            // Could be researched at any time and get instantly when found
+            else if (dungeon->room_resrchable[rsrchval->rkind] == 2)
+                return true;
             // Could be researched then known and it is known type of room
-            else if ( (dungeon->room_resrchable[rsrchval->rkind] == 3) && (dungeon->room_buildable[rsrchval->rkind] & 2))
+            else if ( (dungeon->room_resrchable[rsrchval->rkind] == 4) && (dungeon->room_buildable[rsrchval->rkind] & 2))
                 return true;
         }
         break;
@@ -379,8 +382,12 @@ void research_found_room(PlayerNumber plyr_idx, RoomKind rkind)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
      // Player got room to build instantly
-    if (dungeon->room_resrchable[rkind] == 2)
+    if ((dungeon->room_resrchable[rkind] == 2)
+        || (dungeon->room_resrchable[rkind] == 3)
+        )
+    {
         dungeon->room_buildable[rkind] = 3;
+    }
     else
     {
         // Player may research room then it is claimed

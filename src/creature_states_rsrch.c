@@ -116,9 +116,11 @@ int get_next_research_item(const struct Dungeon *dungeon)
                 /// Need research
                 if (dungeon->room_resrchable[rsrchval->rkind] == 1)
                     return resnum;
-
+                /// Need research but may find room instantly
+                else if (dungeon->room_resrchable[rsrchval->rkind] == 2)
+                    return resnum;
                 /// Need research AND already captured
-                if ((dungeon->room_resrchable[rsrchval->rkind] == 3) &&
+                else if ((dungeon->room_resrchable[rsrchval->rkind] == 4) &&
                     (dungeon->room_buildable[rsrchval->rkind] & 2))
                 {
                     return resnum;
@@ -145,8 +147,15 @@ TbBool has_new_rooms_to_research(const struct Dungeon *dungeon)
         const struct ResearchVal* rsrchval = &dungeon->research[resnum];
         if (rsrchval->rtyp == RsCat_Room)
         {
-            if ((dungeon->room_resrchable[rsrchval->rkind]) && (dungeon->room_buildable[rsrchval->rkind] == 0)) {
-                return true;
+            if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
+            {
+                if ((dungeon->room_resrchable[rsrchval->rkind] == 1)
+                    || (dungeon->room_resrchable[rsrchval->rkind] == 2)
+                    || ((dungeon->room_resrchable[rsrchval->rkind] == 4) && (dungeon->room_buildable[room_idx] & 2))
+                    )
+                {
+                    return true;
+                }
             }
         }
     }

@@ -1292,7 +1292,8 @@ void gui_area_room_button(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_my_dungeon();
     if ((dungeon->room_buildable[rkind] & 1) // One can build it now
          || (dungeon->room_resrchable[rkind] == 1) // One can research it at any time
-         || ((dungeon->room_resrchable[rkind] == 3) && (dungeon->room_buildable[rkind] & 2)) // Player able to research
+         || (dungeon->room_resrchable[rkind] == 2) // One can research it and get instantly then found
+         || ((dungeon->room_resrchable[rkind] == 4) && (dungeon->room_buildable[rkind] & 2)) // Player able to research
          )
     {
         if ((gbtn->flags & LbBtnF_Enabled) != 0)
