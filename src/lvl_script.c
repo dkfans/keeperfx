@@ -1714,6 +1714,19 @@ void command_set_flag(long plr_range_id, const char *flgname, long val)
     command_add_value(Cmd_SET_FLAG, plr_range_id, flg_id, val, flag_type);
 }
 
+void command_add_to_flag(long plr_range_id, const char *flgname, long val)
+{
+    long flg_id;
+    long flag_type;
+
+    if (!parse_set_varib(flgname, &flg_id, &flag_type))
+    {
+        SCRPTERRLOG("Unknown flag, '%s'", flgname);
+        return;
+    }
+    command_add_value(Cmd_ADD_TO_FLAG, plr_range_id, flg_id, val, flag_type);
+}
+
 void command_max_creatures(long plr_range_id, long val)
 {
     command_add_value(Cmd_MAX_CREATURES, plr_range_id, val, 0, 0);
@@ -2848,19 +2861,6 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
     return;
   }
   command_add_value(Cmd_CHANGE_CREATURE_OWNER, origin_plyr_idx, crtr_id, select_id, dest_plyr_idx);
-}
-
-void command_add_to_flag(long plr_range_id, const char *flgname, long val)
-{
-    long flg_id;
-    long flag_type;
-
-    if (!parse_set_varib(flgname, &flg_id, &flag_type))
-    {
-        SCRPTERRLOG("Unknown flag, '%s'", flgname);
-        return;
-    }
-    command_add_value(Cmd_ADD_TO_FLAG, plr_range_id, flg_id, val, flag_type);
 }
 
 void command_set_campaign_flag(long plr_range_id, const char *cmpflgname, long val)
@@ -5115,6 +5115,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           set_variable(i, val4, val2, val3);
       }
       break;
+  case Cmd_ADD_TO_FLAG:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          set_variable(i, val4, val2, get_condition_value(i, val4, val2) + val3);
+      }
+      break;
   case Cmd_MAX_CREATURES:
       for (i=plr_start; i < plr_end; i++)
       {
@@ -5541,12 +5547,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_change_creature_owner_with_criteria(i, val2, val3, val4);
-      }
-      break;
-  case Cmd_ADD_TO_FLAG:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          set_variable(i, val4, val2, get_condition_value(i, val2, val3) + val3);
       }
       break;
   case Cmd_SET_CAMPAIGN_FLAG:
