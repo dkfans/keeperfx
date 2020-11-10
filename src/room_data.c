@@ -54,6 +54,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
 /******************************************************************************/
+extern void research_found_room(PlayerNumber plyr_idx, RoomKind rkind);
+
 void count_slabs_all_only(struct Room *room);
 void count_slabs_all_wth_effcncy(struct Room *room);
 void count_slabs_div2_wth_effcncy(struct Room *room);
@@ -4347,6 +4349,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     {
         return 0;
     }
+    research_found_room(claimtng->owner, room->kind);
     room->owner = claimtng->owner;
     room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     add_room_to_players_list(room, claimtng->owner);
@@ -4375,6 +4378,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     {
         return 0;
     }
+    research_found_room(claimtng->owner, room->kind);
     reset_state_of_creatures_working_in_room(room);
     remove_room_from_players_list(room,oldowner);
     room->owner = claimtng->owner;
@@ -4400,6 +4404,10 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
 {
     SYNCDBG(7, "Starting for %s index %d claimed by player %d", room_code_name(room->kind), (int)room->index, newowner);
     PlayerNumber oldowner = room->owner;
+
+    // Mark that player 'knows' about such room
+    research_found_room(newowner, room->kind);
+
     if (oldowner == game.neutral_player_num)
     {
         room->owner = newowner;

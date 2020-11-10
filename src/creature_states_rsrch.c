@@ -111,9 +111,18 @@ int get_next_research_item(const struct Dungeon *dungeon)
             }
             break;
         case RsCat_Room:
-            if ( (dungeon->room_resrchable[rsrchval->rkind]) && (dungeon->room_buildable[rsrchval->rkind] == 0) )
+            if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
             {
-                return resnum;
+                /// Need research
+                if (dungeon->room_resrchable[rsrchval->rkind] == 1)
+                    return resnum;
+
+                /// Need research AND already captured
+                if ((dungeon->room_resrchable[rsrchval->rkind] == 3) &&
+                    (dungeon->room_buildable[rsrchval->rkind] & 2))
+                {
+                    return resnum;
+                }
             }
             break;
         case RsCat_Creature:

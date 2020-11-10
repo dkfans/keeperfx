@@ -964,7 +964,7 @@ void maintain_room(struct GuiButton *gbtn)
         ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)my_player_number);
         return;
     }
-    if (dungeon->room_buildable[rkind]) {
+    if (dungeon->room_buildable[rkind] & 1) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
@@ -987,7 +987,7 @@ void maintain_big_room(struct GuiButton *gbtn)
     gbtn->content = (unsigned long *)rkind;
     gbtn->sprite_idx = game.chosen_room_spridx;
     gbtn->tooltip_stridx = game.chosen_room_tooltip;
-    if (dungeon->room_buildable[rkind]) {
+    if (dungeon->room_buildable[rkind] & 1) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
@@ -1290,7 +1290,10 @@ void gui_area_room_button(struct GuiButton *gbtn)
     RoomKind rkind = (long)gbtn->content;
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 24);
     struct Dungeon* dungeon = get_my_dungeon();
-    if (dungeon->room_resrchable[rkind] || dungeon->room_buildable[rkind])
+    if ((dungeon->room_buildable[rkind] & 1) // One can build it now
+         || (dungeon->room_resrchable[rkind] == 1) // One can research it at any time
+         || ((dungeon->room_resrchable[rkind] == 3) && (dungeon->room_buildable[rkind] & 2)) // Player able to research
+         )
     {
         if ((gbtn->flags & LbBtnF_Enabled) != 0)
         {
