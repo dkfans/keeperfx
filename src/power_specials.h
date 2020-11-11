@@ -75,8 +75,6 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3)
 void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing);
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing);
 TbBool create_transferred_creature_on_level(void);
-void process_found_dungeon_special(struct Thing *cratetng, PlayerNumber new_owner);
-void check_found_dungeon_special(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber new_owner);
 
 /******************************************************************************/
 #ifdef __cplusplus

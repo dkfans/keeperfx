@@ -378,68 +378,6 @@ void make_safe(struct PlayerInfo *player)
     pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
 }
 
-void process_found_dungeon_special(struct Thing *thing, PlayerNumber new_owner)
-{
-    // We should check this
-    if (thing->model == OBJECT_TYPE_SPECBOX_CUSTOM)
-    {
-        SYNCDBG(3, "found a box model:%d kind:%d", thing->model, thing->custom_box.box_kind);
-        if (dungeon_invalid(get_players_num_dungeon(new_owner)))
-        {
-            SYNCDBG(1, "box is changing owner to invalid dungeon:%d", new_owner);
-            return;
-        }
-
-        if (gameadd.current_player_turn == game.play_gameturn)
-        {
-            WARNLOG("script collision current_player turn:%d", gameadd.current_player_turn);
-            // If two players suddenly activated box at same turn we would miss a location
-        }
-        gameadd.current_player_turn = game.play_gameturn;
-        gameadd.script_current_player = new_owner;
-        memcpy(&gameadd.triggered_object_location, &thing->mappos, sizeof(struct Coord3d));
-        struct DungeonAdd* dungeonadd = get_dungeonadd(new_owner);
-        dungeonadd->box_info.found[thing->custom_box.box_kind]++;
-    }
-}
-
-void check_found_dungeon_special(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber new_owner)
-{
-    for (long k = 0; k < AROUND_TILES_COUNT; k++)
-    {
-        MapSubtlCoord stl_x = slab_subtile_center(slb_x) + around[k].delta_x;
-        MapSubtlCoord stl_y = slab_subtile_center(slb_y) + around[k].delta_y;
-
-        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-        unsigned long cnt = 0;
-        long i = get_mapwho_thing_index(mapblk);
-        while (i != 0)
-        {
-            struct Thing* thing = thing_get(i);
-            TRACE_THING(thing);
-            if (thing_is_invalid(thing))
-            {
-                ERRORLOG("Jump to invalid thing detected");
-                break;
-            }
-            i = thing->next_on_mapblk;
-            // Per thing code start
-            if (thing->class_id == TCls_Object)
-            {
-                process_found_dungeon_special(thing, new_owner);
-            }
-            // Per thing code end
-            cnt++;
-            if (k > THINGS_COUNT)
-            {
-                ERRORLOG("Infinite loop detected when sweeping things list");
-                break_mapwho_infinite_chain(mapblk);
-                break;
-            }
-        }
-    }
-}
-
 void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
 {
   SYNCDBG(6,"Starting");

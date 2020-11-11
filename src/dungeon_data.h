@@ -291,7 +291,6 @@ struct TrapInfo
 
 struct BoxInfo
 {
-    uint8_t               found[256];
     uint8_t               activated[256];
 };
 

@@ -4064,8 +4064,6 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
     default:
         break;
     }
-    // Process trigger for specialbox FOUND
-    process_found_dungeon_special(thing, newowner);
 
     // If an object has parent slab, then it should change owner with that slab
     if (thing->parent_idx != -1)

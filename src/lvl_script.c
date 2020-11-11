@@ -1311,11 +1311,6 @@ static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *vari
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
-        else if (2 == sscanf(varib_name, "BOX%ld_FOUN%c", varib_id, &c) && (c == 'D'))
-        {
-            // founD
-            *varib_type = SVar_BOX_FOUND;
-        }
         else
         {
           *varib_id = -1;
@@ -1351,11 +1346,6 @@ static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *vari
         {
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
-        }
-        else if (2 == sscanf(varib_name, "BOX%ld_FOUN%c", varib_id, &c) && (c == 'D'))
-        {
-            // founD
-            *varib_type = SVar_BOX_FOUND;
         }
         else
         {
@@ -4766,9 +4756,6 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_BOX_ACTIVATED:
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->box_info.activated[validx];
-    case SVar_BOX_FOUND:
-        dungeonadd = get_dungeonadd(plyr_idx);
-        return dungeonadd->box_info.found[validx];
     default:
         break;
     };
@@ -5014,9 +5001,6 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
         break;
     case SVar_BOX_ACTIVATED:
         dungeonadd->box_info.activated[var_idx] = new_val;
-        break;
-    case SVar_BOX_FOUND:
-        dungeonadd->box_info.found[var_idx] = new_val;
         break;
     default:
         WARNLOG("Unexpected type:%d",(int)var_type);
