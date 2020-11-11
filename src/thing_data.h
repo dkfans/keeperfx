@@ -79,7 +79,7 @@ enum ThingMovementFlags {
     TMvF_Default            = 0x00,
     TMvF_IsOnWater          = 0x01,
     TMvF_IsOnLava           = 0x02,
-    TMvF_Unknown04          = 0x04, //Touhching ground? Also dont cast shadows when this is set
+    TMvF_Unknown04          = 0x04, //Touching ground? Also don't cast shadows when this is set
     TMvF_Unknown08          = 0x08,
     TMvF_Unknown10          = 0x10,
     TMvF_Flying             = 0x20,
