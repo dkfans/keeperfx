@@ -56,9 +56,9 @@ enum ThingFlags2 {
 
 enum ThingFlags4F {
     TF4F_Unknown01     = 0x01, /** Not Drawn **/
-    TF4F_Unknown02     = 0x02,
-    TF4F_Unknown04     = 0x04,
-    TF4F_Unknown08     = 0x08,
+    TF4F_Unknown02     = 0x02, // Not shaded
+    TF4F_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
+    TF4F_Unknown08     = 0x08, // Tint2 (not used?)
 
     TF4F_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
     TF4F_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
@@ -214,7 +214,7 @@ unsigned short field_4B;    // min_sprite_size
 unsigned short field_4D;    // max_sprite_size
     unsigned char field_4F;
     unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
-unsigned char field_51;
+unsigned char field_51;   // Tint color (from colours)
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;

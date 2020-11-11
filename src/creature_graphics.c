@@ -313,9 +313,9 @@ void untint_thing(struct Thing *thing)
     thing->field_4F &= ~(TF4F_Unknown04|TF4F_Unknown08);
 }
 
-void tint_thing(struct Thing *thing, TbPixel colour, unsigned char nframe)
+void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 {
-    thing->field_4F ^= (thing->field_4F ^ (nframe << 2)) & (TF4F_Unknown04|TF4F_Unknown08);
+    thing->field_4F ^= (thing->field_4F ^ (tint << 2)) & (TF4F_Unknown04|TF4F_Unknown08);
     thing->field_51 = colour;
 }
 
