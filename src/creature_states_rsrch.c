@@ -151,7 +151,7 @@ TbBool has_new_rooms_to_research(const struct Dungeon *dungeon)
             {
                 if ((dungeon->room_resrchable[rsrchval->rkind] == 1)
                     || (dungeon->room_resrchable[rsrchval->rkind] == 2)
-                    || ((dungeon->room_resrchable[rsrchval->rkind] == 4) && (dungeon->room_buildable[room_idx] & 2))
+                    || ((dungeon->room_resrchable[rsrchval->rkind] == 4) && (dungeon->room_buildable[rsrchval->rkind] & 2))
                     )
                 {
                     return true;
