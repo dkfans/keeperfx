@@ -443,8 +443,10 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->field_11);
     set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->field_5);
     set_flag_byte(&thing->field_4F, TF4F_Unknown01, objdat->field_3 & 0x01);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown10, objdat->field_F & 0x01);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown20, objdat->field_F & 0x02);
+
+    set_flag_byte(&thing->field_4F, TF4F_Transpar_4, objdat->field_F & 0x01);
+    set_flag_byte(&thing->field_4F, TF4F_Transpar_8, objdat->field_F & 0x02);
+
     thing->active_state = objdat->initial_state;
     if (objconf->ilght.field_0 != 0)
     {
@@ -468,9 +470,9 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         thing->byte_14 = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
-      case 33:
-        set_flag_byte(&thing->field_4F, TF4F_Unknown10, false);
-        set_flag_byte(&thing->field_4F, TF4F_Unknown20, true);
+      case 33: // Why it is hardcoded? And what is TempleS
+        thing->field_4F &= TF4F_Transpar_Flags;
+        thing->field_4F |= TF4F_Transpar_4;
         break;
       case 3:
       case 6:

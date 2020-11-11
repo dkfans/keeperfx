@@ -1567,8 +1567,8 @@ short creature_change_from_chicken(struct Thing *creatng)
             long n = (10 - cctrl->countdown_282) * (crtr_conf.sprite_size + (crtr_conf.sprite_size * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, 2);
-            efftng->field_4F &= ~TF4F_Unknown20;
-            efftng->field_4F |= TF4F_Unknown10;
+            efftng->field_4F &= ~TF4F_Transpar_Flags;
+            efftng->field_4F |= TF4F_Transpar_8;
         }
         return 0;
     } else
@@ -1598,8 +1598,8 @@ short creature_change_to_chicken(struct Thing *creatng)
       {
           unsigned long k = convert_td_iso(819);
           set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + crtr_conf.sprite_size, -1, 0, 2);
-          efftng->field_4F &= ~TF4F_Unknown20;
-          efftng->field_4F |= TF4F_Unknown10;
+          efftng->field_4F &= ~TF4F_Transpar_Flags;
+          efftng->field_4F |= TF4F_Transpar_8;
       }
       return 0;
     }

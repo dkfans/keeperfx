@@ -295,7 +295,7 @@ struct EffectElementStats effect_element_stats[] = {
     0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
    {4, 4, 0, 16, 16, 0, 256, 256, 0, 256, 256, 1, 1, 0,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0, 0,
-    0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // #41 Floating number then gold is spent.
    {2, 5, 0, 2, 4, 964, 128, 172, 1, 256, 256, 1, 1,
     3, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0,
     0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -547,7 +547,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         long n = ACTION_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->field_0);
         set_flag_byte(&thing->field_4F,TF4F_Unknown02,eestat->field_13);
-        thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & (TF4F_Unknown10|TF4F_Unknown20);
+        thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & (TF4F_Transpar_Flags);
         set_flag_byte(&thing->field_4F,TF4F_Unknown40,eestat->field_D);
     } else
     {
@@ -684,9 +684,10 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
-            memcpy(&effeltng->anim_speed, &thing->anim_speed, 0x14u);
-            effeltng->field_4F &= ~TF4F_Unknown10;
-            effeltng->field_4F |= TF4F_Unknown20;
+            // TODO: looks like some "struct AnimSpeed"
+            memcpy(&effeltng->anim_speed, &thing->anim_speed, 20);
+            effeltng->field_4F &= ~TF4F_Transpar_8;
+            effeltng->field_4F |= TF4F_Transpar_4;
             effeltng->anim_speed = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
         }
@@ -702,8 +703,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             if (!thing_is_invalid(effeltng))
             {
                 memcpy(&effeltng->anim_speed, &thing->anim_speed, 0x14u);
-                effeltng->field_4F &= ~TF4F_Unknown10;
-                effeltng->field_4F |= TF4F_Unknown20;
+                effeltng->field_4F &= ~TF4F_Transpar_8;
+                effeltng->field_4F |= TF4F_Transpar_4;
                 effeltng->anim_speed = 0;
                 effeltng->move_angle_xy = thing->move_angle_xy;
             }
@@ -824,7 +825,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * eestat->field_13) & TF4F_Unknown02;
-    thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & (TF4F_Unknown10|TF4F_Unknown20);
+    thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & (TF4F_Transpar_Flags);
     thing->field_20 = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;

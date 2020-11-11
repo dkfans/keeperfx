@@ -67,7 +67,6 @@ DLLIMPORT void _DK_do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCo
 DLLIMPORT void _DK_do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
 DLLIMPORT void _DK_do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end);
 DLLIMPORT void _DK_do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short plane_end, int a5);
-DLLIMPORT void _DK_create_status_box(struct Thing *thing, struct EngineCoord *ecor);
 /******************************************************************************/
 static const unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -2523,7 +2522,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     kspr->field_5E = thing->field_48;
 }
 
-static void create_status_box(struct Thing *thing, struct EngineCoord *ecor)
+static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     //_DK_create_status_box(thing, ecor); return;
     struct EngineCoord coord = *ecor;
@@ -5004,7 +5003,7 @@ static long convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, 
     return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
 }
 
-static void add_unkn11_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
+static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
     struct JontySpr *poly;
     if (bckt_idx >= BUCKETS_COUNT)
@@ -5130,7 +5129,7 @@ static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long
     poly->field_2A = 3;
 }
 
-static void add_unkn16_to_polypool(long x, long y, long lvl, long bckt_idx)
+static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
 {
     struct Number *poly;
     if (bckt_idx >= BUCKETS_COUNT)
@@ -5148,7 +5147,7 @@ static void add_unkn16_to_polypool(long x, long y, long lvl, long bckt_idx)
       poly->x = x / pixel_size;
       poly->y = y / pixel_size;
     }
-    poly->lvl = lvl;
+    poly->lvl = number;
 }
 
 static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long bckt_idx)
@@ -6006,17 +6005,17 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
       angle = thing->move_angle_xy;
     prepare_jonty_remap_and_scale(&scale, jspr);
     EngineSpriteDrawUsingAlpha = 0;
-    switch (thing->field_4F & (TF4F_Unknown10|TF4F_Unknown20))
+    switch (thing->field_4F & (TF4F_Transpar_Flags))
     {
-    case TF4F_Unknown10:
+    case TF4F_Transpar_8:
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
         lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
         break;
-    case TF4F_Unknown20:
+    case TF4F_Transpar_4:
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
         lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
         break;
-    case (TF4F_Unknown10|TF4F_Unknown20):
+    case TF4F_Transpar_Alpha:
         EngineSpriteDrawUsingAlpha = 1;
         break;
     }
@@ -6561,7 +6560,7 @@ static void do_map_who_for_thing(struct Thing *thing)
     int bckt_idx;
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
-    switch (thing->field_50 >> 2)
+    switch (thing->field_50 >> 2) // draw_class
     {
     case 2:
         ecor.x = ((long)thing->mappos.x.val - map_x_pos);
@@ -6580,7 +6579,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.y = thing->mappos.z.val - map_z_pos;
         if (thing->class_id == TCls_Creature)
         {
-            create_status_box(thing, &ecor);
+            add_draw_status_box(thing, &ecor);
             // Draw path the creature is following
             if ((start_params.debug_flags & DFlg_CreatrPaths) != 0) {
                 draw_mapwho_ariadne_path(thing);
@@ -6593,7 +6592,7 @@ static void do_map_who_for_thing(struct Thing *thing)
               bckt_idx = (ecor.z - 64) / 16;
             else
               bckt_idx = (ecor.z - 64) / 16 - 6;
-            add_unkn11_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, bckt_idx);
+            add_thing_sprite_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, bckt_idx);
         }
         break;
     case 3:
@@ -6613,7 +6612,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            add_unkn16_to_polypool(ecor.view_width, ecor.view_height, thing->long_13, 1);
+            add_number_to_polypool(ecor.view_width, ecor.view_height, thing->long_13, 1);
         }
         break;
     case 5:
@@ -6703,7 +6702,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-            add_unkn11_to_polypool(thing, cx, cy, cy, cz-3);
+            add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
             if ((thing->class_id == TCls_Creature) && is_free_space_in_poly_pool(1))
             {
               create_fast_view_status_box(thing, cx, cy);
@@ -6714,7 +6713,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-            add_unkn16_to_polypool(cx, cy, thing->creature.gold_carried, 1);
+            add_number_to_polypool(cx, cy, thing->creature.gold_carried, 1);
         }
         break;
     case 5:
