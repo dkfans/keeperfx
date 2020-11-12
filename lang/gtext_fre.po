@@ -6900,7 +6900,7 @@ msgstr "Défil. Roue de Souris Bas"
 #: guitext:998
 msgctxt "Mouse"
 msgid "Mouse Button"
-msgstr "Bouton de la Souris 3/4"
+msgstr "Bouton de la Souris"
 
 #: guitext:999
 msgctxt "Game controls"
@@ -6936,37 +6936,3 @@ msgstr "Caméra Snap"
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Boite Mystérieuse : Rien ne peut nous dire ce qu'elle contient."
-
-#~ msgctxt "In-game message"
-#~ msgid "Your manufacturers have crafted the Lava Trap."
-#~ msgstr "Vos artisans ont fabriqué le piège à Lave."
-
-#~ msgctxt "Slab description"
-#~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
-#~ msgstr ""
-#~ "Roche impénétrable: Vos lutins ne peuvent pas creuser dans cette roche. "
-#~ "[12.4]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Earth: You can excavate this. [12.1]"
-#~ msgstr "Terre: Vous pouvez creuser. [12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Lava: Burns any creature that step on it. [14.2]"
-#~ msgstr "Lave: Toute créature qui marche sur la lave sera brûlée. [14.2]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Path: Unclaimed earth floor. [12.1]"
-#~ msgstr "Chemin: Zone non réclamée. [12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Claimed area: Your dungeon territory. [12.1]"
-#~ msgstr "Zone réclamée: Le territoire de votre donjon."
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Information Panel: Miscellaneous information. [5.0]"
-#~ msgstr "Panneau d'informations: Informations diverses. [5.0]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Time: The time until the next Creature Payday. [5.3]"
-#~ msgstr "Jour de la paye: Délai jusqu'au prochain jour de paye. [5.4]"
