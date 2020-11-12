@@ -6367,38 +6367,5 @@ msgstr ""
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
-msgid ""
-"Mysterious Box: There's no telling what this will do."
+msgid "Mysterious Box: There's no telling what this will do."
 msgstr ""
-
-#~ msgctxt "In-game message"
-#~ msgid "Your manufacturers have crafted the Lava Trap."
-#~ msgstr "你的工人们制造出了岩浆陷井。"
-
-#~ msgctxt "Slab description"
-#~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
-#~ msgstr "不可穿越的岩石: 你的小鬼不能挖掘它。[12.4]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Earth: You can excavate this. [12.1]"
-#~ msgstr "泥土: 你可以挖掘它。[12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Lava: Burns any creature that step on it. [14.2]"
-#~ msgstr "岩浆: 将燃烧任何走到上面的怪物。[14.2]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Path: Unclaimed earth floor. [12.1]"
-#~ msgstr "小径: 未被占领的地面。[12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Claimed area: Your dungeon territory. [12.1]"
-#~ msgstr "被占领的地面: 你的地下城的区域。[12.1]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Information Panel: Miscellaneous information. [5.0]"
-#~ msgstr "信息面板: 多方面的信息。[5.0]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Time: The time until the next Creature Payday. [5.3]"
-#~ msgstr "发薪时间: 到下一个发薪日所需的时间。[5.4]"

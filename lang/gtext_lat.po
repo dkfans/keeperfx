@@ -5921,6 +5921,5 @@ msgstr ""
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
-msgid ""
-"Mysterious Box: There's no telling what this will do."
+msgid "Mysterious Box: There's no telling what this will do."
 msgstr ""

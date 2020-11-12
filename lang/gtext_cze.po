@@ -16,8 +16,6 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-msgid ""
-msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
@@ -6662,40 +6660,5 @@ msgstr ""
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
-msgid ""
-"Mysterious Box: There's no telling what this will do."
+msgid "Mysterious Box: There's no telling what this will do."
 msgstr ""
-
-#~ msgctxt "In-game message"
-#~ msgid "Your manufacturers have crafted the Lava Trap."
-#~ msgstr "Tvi delnici vyvinuli Lavovou past."
-
-#~ msgctxt "Slab description"
-#~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
-#~ msgstr "Nerozbitný kamen: Tvi skreti se tim nedokazou prokopat. [12.4]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Earth: You can excavate this. [12.1]"
-#~ msgstr "Zeme: Tim se muzes prokopat. [12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Lava: Burns any creature that step on it. [14.2]"
-#~ msgstr "Lava: Spali vsechna stvoreni, ktera do ni vstoupi. [14.2]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Path: Unclaimed earth floor. [12.1]"
-#~ msgstr "Cesta: Nezabrane podzemní uzemí . [12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Claimed area: Your dungeon territory. [12.1]"
-#~ msgstr "Zabrane uzemi: Uzemi tveho sklepeni. [12.1]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Information Panel: Miscellaneous information. [5.0]"
-#~ msgstr "Informační panel: Různé informace. [5.0]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Time: The time until the next Creature Payday. [5.3]"
-#~ msgstr ""
-#~ "Zbyva dni: Za kolik dni budes muset svym obludam muset vyplatit zold. "
-#~ "[5.3]"

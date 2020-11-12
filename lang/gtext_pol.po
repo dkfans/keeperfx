@@ -6780,40 +6780,5 @@ msgstr ""
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
-msgid ""
-"Mysterious Box: There's no telling what this will do."
+msgid "Mysterious Box: There's no telling what this will do."
 msgstr ""
-
-#~ msgctxt "In-game message"
-#~ msgid "Your manufacturers have crafted the Lava Trap."
-#~ msgstr "Twoi rzemieślnicy skonstruowali Pułapkę Magmową."
-
-#~ msgctxt "Slab description"
-#~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
-#~ msgstr ""
-#~ "Skała nie do przebycia: Twoje chochliki nie mogą się przez nią przebić."
-
-#~ msgctxt "Slab description"
-#~ msgid "Earth: You can excavate this. [12.1]"
-#~ msgstr "Ziemia: Tu możesz kopać. [12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Lava: Burns any creature that step on it. [14.2]"
-#~ msgstr "Magma: Pali wszystko, co na nią wlezie. [14.2]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Path: Unclaimed earth floor. [12.1]"
-#~ msgstr "Ścieżka: Bezpański kawałek klepiska. [12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Claimed area: Your dungeon territory. [12.1]"
-#~ msgstr "Namazany teren: Twoje terytorium lochu. [12.1]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Information Panel: Miscellaneous information. [5.0]"
-#~ msgstr "Pulpit informacyjny: Wiadomości różne. [5.0]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Time: The time until the next Creature Payday. [5.3]"
-#~ msgstr ""
-#~ "Czas do wypłaty: Czas, jaki upłynie do następnego dnia wypłaty. [5.3]"

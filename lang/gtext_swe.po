@@ -6721,41 +6721,5 @@ msgstr ""
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
-msgid ""
-"Mysterious Box: There's no telling what this will do."
+msgid "Mysterious Box: There's no telling what this will do."
 msgstr ""
-
-#~ msgctxt "In-game message"
-#~ msgid "Your manufacturers have crafted the Lava Trap."
-#~ msgstr "Dina tillverkare har tagit fram lavafällan."
-
-#~ msgctxt "Slab description"
-#~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
-#~ msgstr ""
-#~ "Ogenomtränglig klippa: Dina impar kan inte gräva sig igenom denna. [12.4]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Earth: You can excavate this. [12.1]"
-#~ msgstr "Jord: Du kan gräva upp detta. [12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Lava: Burns any creature that step on it. [14.2]"
-#~ msgstr "Lava: Bränner alla varelser som kliver på den. [14.2]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Path: Unclaimed earth floor. [12.1]"
-#~ msgstr "Jordgolv: Ointaget område. [12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Claimed area: Your dungeon territory. [12.1]"
-#~ msgstr "Intaget område: Någon väktares grottområde. [12.1]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Information Panel: Miscellaneous information. [5.0]"
-#~ msgstr "Informationspanel: Blandad information. [5.0]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Time: The time until the next Creature Payday. [5.3]"
-#~ msgstr ""
-#~ "Lönedags: Den tid som återstår innan nästa löneutbetalning till "
-#~ "varelserna. [5.3]"
