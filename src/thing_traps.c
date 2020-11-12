@@ -661,8 +661,8 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
                 if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
                     traptng->health = -1;
                 }
-                traptng->field_4F &= TF4F_Unknown10; // Transparency
-                traptng->field_4F |= TF4F_Unknown20;
+                traptng->field_4F &= TF4F_Transpar_Flags;
+                traptng->field_4F |= TF4F_Transpar_4;
                 if (!is_neutral_thing(traptng) && !is_hero_thing(traptng)) 
                 {
                     if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
@@ -688,7 +688,7 @@ TbBool rearm_trap(struct Thing *traptng)
     struct ManfctrConfig* mconf = &gameadd.traps_config[traptng->model];
     struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
-    traptng->field_4F ^= (traptng->field_4F ^ (trapstat->field_12 << 4)) & (TF4F_Unknown10|TF4F_Unknown20);
+    traptng->field_4F ^= (traptng->field_4F ^ (trapstat->field_12 << 4)) & (TF4F_Transpar_Flags);
     return true;
 }
 
@@ -763,8 +763,8 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->solid_size_yz = trapstat->field_16;
     thing->creation_turn = game.play_gameturn;
     thing->health = trapstat->field_0;
-    thing->field_4F &= ~TF4F_Unknown10;
-    thing->field_4F |= TF4F_Unknown20;
+    thing->field_4F &= ~TF4F_Transpar_Flags;
+    thing->field_4F |= TF4F_Transpar_4;
     thing->byte_13 = 0;
     thing->long_14 = game.play_gameturn;
     if (trapstat->light_1C != 0)

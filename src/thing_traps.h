@@ -70,7 +70,7 @@ unsigned long field_0;
 unsigned char unanimated;
   unsigned long anim_speed;
 unsigned char field_11;
-  unsigned char field_12;
+  unsigned char field_12; // transparency in lower 2 bits
 unsigned char field_13;
   short size_xy;
 short field_16;
