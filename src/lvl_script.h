@@ -129,6 +129,7 @@ enum TbScriptCommands {
     Cmd_USE_POWER_AT_SUBTILE              = 109,
     Cmd_USE_POWER                         = 110,
     Cmd_USE_POWER_AT_LOCATION             = 111,
+    Cmd_ADD_OBJECT_TO_LEVEL               = 112,
 };
 
 enum ScriptVariables {
@@ -194,6 +195,7 @@ enum ScriptVariables {
   SVar_TIMES_LEVELUP_CREATURE          = 63,
   SVar_TOTAL_SALARY                    = 64,
   SVar_CURRENT_SALARY                  = 65,
+  SVar_BOX_ACTIVATED                   = 66,
  };
 
 enum MapLocationTypes {
@@ -201,14 +203,24 @@ enum MapLocationTypes {
     MLoc_ACTIONPOINT,
     MLoc_HEROGATE,
     MLoc_PLAYERSHEART,
-    MLoc_CREATUREKIND,
+    MLoc_CREATUREKIND, // 4
     MLoc_OBJECTKIND,
     MLoc_ROOMKIND,
     MLoc_THING,
-    MLoc_PLAYERSDUNGEON,
+    MLoc_PLAYERSDUNGEON, // 8
     MLoc_APPROPRTDUNGEON,
     MLoc_DOORKIND,
     MLoc_TRAPKIND,
+    MLoc_METALOCATION, // 12 // Triggered box, Combat, Last entered creature etc
+};
+
+enum MetaLocation {
+  MML_TRIGGERED_OBJECT = 1,
+  MML_RECENT_COMBAT,
+};
+
+enum {
+    CurrentPlayer = 15
 };
 
 /******************************************************************************/

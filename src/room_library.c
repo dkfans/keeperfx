@@ -116,8 +116,12 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
             picktng->mappos.x.val, picktng->mappos.y.val,
             EvKind_DnSpecialFound, creatng->owner, picktng->index);
         // Only play speech message if new event was created
-        if ((evidx > 0) && is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner)) {
+        if (evidx > 0)
+        {
+          if (is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner))
+          {
             output_message(SMsg_DiscoveredSpecial, 0, true);
+          }
         }
     } else
     {

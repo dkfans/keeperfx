@@ -23,6 +23,10 @@
 #include "bflib_math.h"
 #include "bflib_memory.h"
 #include "config_creature.h"
+#include "power_specials.h"
+#include "room_jobs.h"
+#include "room_library.h"
+#include "room_workshop.h"
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "thing_list.h"
@@ -31,9 +35,6 @@
 #include "thing_traps.h"
 #include "thing_corpses.h"
 #include "thing_effects.h"
-#include "room_jobs.h"
-#include "room_library.h"
-#include "room_workshop.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "ariadne_wallhug.h"
@@ -3970,7 +3971,7 @@ TbBool add_item_to_room_capacity(struct Room *room, TbBool force)
  * @param parent_idx The new thing parent. Parent for objects is a slab number. Not all objects have the parent set.
  * @param newowner
  */
-void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
+static void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
 {
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     struct Objects* objdat = get_objects_data_for_thing(thing);
@@ -4065,6 +4066,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
     default:
         break;
     }
+
     // If an object has parent slab, then it should change owner with that slab
     if (thing->parent_idx != -1)
     {
@@ -4150,7 +4152,7 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num)
  * @param plyr_idx The player which is claiming the room subtile.
  * @return True on success, false otherwise.
  */
-TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+static TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     long parent_idx = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
@@ -4195,7 +4197,7 @@ TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl
  * @param room The room to be affected.
  * @param plyr_idx The new owner.
  */
-void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
+static void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     {

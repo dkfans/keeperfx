@@ -349,7 +349,7 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 0, 954, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //130 STATUE_PLACEHOLDER3
   {0, 0, 0, 0, 0, 956, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //131 STATUE_PLACEHOLDER4
   {0, 0, 0, 0, 0, 958, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //132 STATUE_PLACEHOLDER5
-  {0, 0, 0, 0, 0, 960, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //133 STATUE_PLACEHOLDER6
+  {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //134 SPELLBOOK
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //135
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0},
@@ -576,15 +576,6 @@ struct Objects *get_objects_data(unsigned int tmodel)
     if (tmodel >= OBJECT_TYPES_COUNT)
         return &objects_data[0];
     return &objects_data[tmodel];
-}
-
-SpecialKind box_thing_to_special(const struct Thing *thing)
-{
-    if (thing_is_invalid(thing))
-        return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
-        return 0;
-    return object_conf.object_to_special_artifact[thing->model];
 }
 
 /**

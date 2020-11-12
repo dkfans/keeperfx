@@ -175,6 +175,9 @@ struct Thing {
       unsigned char byte_19a;
       };
       struct {
+      unsigned char box_kind;
+      } custom_box;
+      struct {
         unsigned char byte_13;
         unsigned char byte_14;
         unsigned char byte_15;
