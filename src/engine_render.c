@@ -2893,12 +2893,12 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             } else
             if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 579);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 579);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], TEXTURE_LAND_MARKED_GOLD);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], TEXTURE_LAND_MARKED_GOLD);
             } else
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 578);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], TEXTURE_LAND_MARKED_LAND);
             }
         } else
         {
@@ -2908,8 +2908,8 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], cur_colmn->baseblock, -1);
             } else
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], 578);
+                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], TEXTURE_LAND_MARKED_LAND);
             }
         }
         ncor = lintel_top_height[solidmsk_cur];
@@ -3070,12 +3070,12 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             } else
             if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 579);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 579);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], TEXTURE_LAND_MARKED_GOLD);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], TEXTURE_LAND_MARKED_GOLD);
             } else
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 578);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], TEXTURE_LAND_MARKED_LAND);
             }
         } else
         {
@@ -3085,8 +3085,8 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], cur_colmn->baseblock, -1);
             } else
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], 578);
+                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], TEXTURE_LAND_MARKED_LAND);
             }
         }
         ncor = lintel_top_height[solidmsk_cur];
@@ -4482,7 +4482,7 @@ void display_drawlist(void)
         //JUSTLOG("%d",(int)item.b->kind);
         switch ( item.b->kind )
         {
-        case QK_PolyTriangle:
+        case QK_PolyTriangle: // Used in dungeon view and FAR part of FPS view
           vec_mode = VM_Unknown5;
           vec_map = block_ptrs[item.unk00->block];
           draw_gpoly(&item.unk00->p1, &item.unk00->p2, &item.unk00->p3);
@@ -4847,13 +4847,13 @@ static void draw_texturedquad_block(struct TexturedQuad *txquad)
         struct PolyPoint point_c;
         struct PolyPoint point_d;
         vec_mode = VM_Unknown5;
-        switch (txquad->field_2A)
+        switch (txquad->field_2A) // Is visible/selected
         {
         case 0:
-            vec_map = block_ptrs[578];
+            vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
             break;
         case 1:
-            vec_map = block_ptrs[579];
+            vec_map = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
             break;
         case 3:
         default:
@@ -4888,14 +4888,14 @@ static void draw_texturedquad_block(struct TexturedQuad *txquad)
         switch (txquad->field_2A)
         {
         case 0:
-            gtb.field_0 = block_ptrs[578];
+            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_LAND];
             gtb.field_C = txquad->field_1A >> 16;
             gtb.field_10 = txquad->field_1E >> 16;
             gtb.field_18 = txquad->field_22 >> 16;
             gtb.field_14 = txquad->field_26 >> 16;
             break;
         case 1:
-            gtb.field_0 = block_ptrs[579];
+            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
             gtb.field_C = txquad->field_1A >> 16;
             gtb.field_10 = txquad->field_1E >> 16;
             gtb.field_18 = txquad->field_22 >> 16;
