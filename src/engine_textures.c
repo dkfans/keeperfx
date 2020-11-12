@@ -33,7 +33,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-unsigned char block_mem[TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
+unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
+unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];
+unsigned char slab_ext_data[85 * 85];
+
 long block_dimension = 32;
 long block_count_per_row = 8;
 /******************************************************************************/
@@ -44,17 +47,24 @@ long block_count_per_row = 8;
 void setup_texture_block_mem(void)
 {
     unsigned char** dst = block_ptrs;
-    unsigned long n = 0;
-    for (unsigned long i = 0; i < TEXTURE_BLOCKS_STAT_COUNT / block_count_per_row; i++)
+    unsigned char* src  = block_mem;
+    for (int i = 0; i < (TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT); i++)
     {
-        unsigned char* src = block_mem + n;
-        for (unsigned long k = 0; k < block_count_per_row; k++)
+        block_ptrs[i] = block_mem + block_dimension;
+    }
+    for (int f = 0; f < TEXTURE_FILES_COUNT; f++)
+    {
+        for (int i = 0; i < TEXTURE_BLOCKS_STAT_COUNT / block_count_per_row; i++)
         {
-            *dst = src;
-            src += block_dimension;
-            dst++;
+            for (unsigned long k = 0; k < block_count_per_row; k++)
+            {
+                *dst = src;
+                src += block_dimension;
+                dst++;
+            }
+            src += (block_dimension-1)*block_dimension*block_count_per_row;
         }
-        n += block_dimension*block_dimension*block_count_per_row;
+        dst += TEXTURE_BLOCKS_ANIM_COUNT;
     }
 }
 
@@ -69,18 +79,25 @@ short init_animating_texture_maps(void)
 short update_animating_texture_maps(void)
 {
   SYNCDBG(18,"Starting");
-  anim_counter = (anim_counter+1) % TEXTURE_BLOCKS_ANIM_FRAMES;
+  unsigned char** dst = block_ptrs;
   short result=true;
-  for (int i = 0; i < TEXTURE_BLOCKS_ANIM_COUNT; i++)
+
+  anim_counter = (anim_counter+1) % TEXTURE_BLOCKS_ANIM_FRAMES;
+  for (int f = 0; f < TEXTURE_FILES_COUNT; f++)
   {
-        short j = game.texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*i+anim_counter];
-        if ((j>=0) && (j<TEXTURE_BLOCKS_STAT_COUNT))
-        {
-          block_ptrs[TEXTURE_BLOCKS_STAT_COUNT+i] = block_ptrs[j];
-        } else
-        {
-          result=false;
-        }
+      for (int i = 0; i < TEXTURE_BLOCKS_ANIM_COUNT; i++)
+      {
+          short j = game.texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*i+anim_counter];
+          if ((j>=0) && (j<TEXTURE_BLOCKS_STAT_COUNT))
+          {
+            dst[TEXTURE_BLOCKS_STAT_COUNT + i] = dst[j];
+          }
+          else
+          {
+            result=false;
+          }
+      }
+      dst += TEXTURE_BLOCKS_COUNT;
   }
   return result;
 }
@@ -99,9 +116,9 @@ long load_texture_anim_file(void)
     return true;
 }
 
-TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
+static TbBool load_one_file(unsigned long tmapidx, void *dst)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(9,"Starting");
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d-%d.dat",tmapidx,32);
 #else
@@ -115,10 +132,28 @@ TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
         return false;
     }
     // The texture file has always over 500kb
-    if (LbFileLoadAt(fname, block_mem) < 65536)
+    if (LbFileLoadAt(fname, dst) < 65536)
     {
         WARNMSG("Texture file \"%s\" can't be loaded or is too small.",fname);
         return false;
+    }
+    return true;
+}
+TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
+{
+    SYNCDBG(7,"Starting");
+    memset(block_mem, 130, sizeof(block_mem));
+    if (!load_one_file(tmapidx, block_mem))
+    {
+        return false;
+    }
+    unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT * 32 * 32);
+    for (int i = 1; i < TEXTURE_FILES_COUNT; i++, dst += (TEXTURE_BLOCKS_STAT_COUNT * 32 * 32))
+    {
+        if (!load_one_file(i, dst))
+        {
+            break;
+        }
     }
     return true;
 }
