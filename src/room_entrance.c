@@ -158,7 +158,7 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
     }
 }
 
-long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerNumber plyr_idx)
+static long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerNumber plyr_idx)
 {
     SYNCDBG(11, "Starting");
 
@@ -227,7 +227,7 @@ TbBool remove_creature_from_generate_pool(ThingModel crmodel)
     return true;
 }
 
-int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
+static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
 {
     //cumulative frequency
     long crmodel;

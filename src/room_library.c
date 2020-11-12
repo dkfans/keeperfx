@@ -174,9 +174,17 @@ TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon 
         }
         break;
     case RsCat_Room:
-        if ( (dungeon->room_resrchable[rsrchval->rkind]) && (dungeon->room_buildable[rsrchval->rkind] == 0) )
+        if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
         {
-            return true;
+            // Is available for research
+            if (dungeon->room_resrchable[rsrchval->rkind] == 1)
+                return true;
+            // Is available for research and reseach instantly completes when the room is first captured
+            else if (dungeon->room_resrchable[rsrchval->rkind] == 2)
+                return true;
+            // Is not available for research until the room is first captured
+            else if ( (dungeon->room_resrchable[rsrchval->rkind] == 4) && (dungeon->room_buildable[rsrchval->rkind] & 2))
+                return true;
         }
         break;
     case RsCat_Creature:
@@ -337,7 +345,7 @@ void process_player_research(PlayerNumber plyr_idx)
             RoomKind rkind;
             rkind = rsrchval->rkind;
             event_create_event(0, 0, EvKind_NewRoomResrch, plyr_idx, rkind);
-            dungeon->room_buildable[rkind] = 1;
+            dungeon->room_buildable[rkind] |= 3; // Player may build room and may research it again
             if (is_my_player_number(plyr_idx))
                 output_message(SMsg_ResearchedRoom, 0, true);
             room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
@@ -368,5 +376,22 @@ void process_player_research(PlayerNumber plyr_idx)
     dungeon->current_research_idx = get_next_research_item(dungeon);
     dungeon->lvstats.things_researched++;
     return;
+}
+
+void research_found_room(PlayerNumber plyr_idx, RoomKind rkind)
+{
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+     // Player got room to build instantly
+    if ((dungeon->room_resrchable[rkind] == 2)
+        || (dungeon->room_resrchable[rkind] == 3)
+        )
+    {
+        dungeon->room_buildable[rkind] = 3;
+    }
+    else
+    {
+        // Player may research room then it is claimed
+        dungeon->room_buildable[rkind] |= 2; 
+    }
 }
 /******************************************************************************/
