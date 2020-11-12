@@ -176,13 +176,13 @@ TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon 
     case RsCat_Room:
         if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
         {
-            // Could be researched at any time
+            // Is available for research
             if (dungeon->room_resrchable[rsrchval->rkind] == 1)
                 return true;
-            // Could be researched at any time and get instantly when found
+            // Is available for research and reseach instantly completes when the room is first captured
             else if (dungeon->room_resrchable[rsrchval->rkind] == 2)
                 return true;
-            // Could be researched then known and it is known type of room
+            // Is not available for research until the room is first captured
             else if ( (dungeon->room_resrchable[rsrchval->rkind] == 4) && (dungeon->room_buildable[rsrchval->rkind] & 2))
                 return true;
         }
