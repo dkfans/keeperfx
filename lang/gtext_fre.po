@@ -6865,7 +6865,7 @@ msgstr "Piège au Maladies"
 #: guitext:991
 msgctxt "Trap names"
 msgid "Power Trap"
-msgstr "Piège au Pouvoir"
+msgstr "Piège de Puissance"
 
 #: guitext:992
 msgctxt "Trap names"
