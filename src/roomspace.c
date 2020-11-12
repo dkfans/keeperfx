@@ -384,25 +384,34 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
 
 void keeper_sell_roomspace(struct RoomSpace roomspace)
 {
+    struct SlabMap* slb;
     for (MapSubtlCoord selly = roomspace.top; selly <= roomspace.bottom; selly++)
     {
         for (MapSubtlCoord sellx = roomspace.left; sellx <= roomspace.right; sellx++)
         {
-            if (subtile_is_sellable_room(roomspace.plyr_idx, sellx * 3, selly * 3))// Trying to sell room
+            slb = get_slabmap_block(sellx, selly);
+            if (slabmap_owner(slb) == roomspace.plyr_idx)
             {
-                player_sell_room_at_subtile(roomspace.plyr_idx, sellx * 3, selly * 3);
-            }
-            else if (player_sell_door_at_subtile(roomspace.plyr_idx, sellx * 3, selly * 3)) // Trying to sell door
-            {
-                // Nothing to do here - door already sold
-            }
-            else if (player_sell_trap_at_subtile(roomspace.plyr_idx, sellx * 3, selly * 3)) // Trying to sell trap
-            {
-                // Nothing to do here - trap already sold
+                if (subtile_is_sellable_room(roomspace.plyr_idx, sellx * 3, selly * 3))// Trying to sell room
+                {
+                    player_sell_room_at_subtile(roomspace.plyr_idx, sellx * 3, selly * 3);
+                }
+                else if (player_sell_door_at_subtile(roomspace.plyr_idx, sellx * 3, selly * 3)) // Trying to sell door
+                {
+                    // Nothing to do here - door already sold
+                }
+                else if (player_sell_trap_at_subtile(roomspace.plyr_idx, sellx * 3, selly * 3)) // Trying to sell trap
+                {
+                    // Nothing to do here - trap already sold
+                }
+                else
+                {
+                    WARNLOG("Nothing to do for player %d request", (int)roomspace.plyr_idx);
+                }
             }
             else
             {
-                WARNLOG("Nothing to do for player %d request",(int)roomspace.plyr_idx);
+                WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)roomspace.plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)sellx * 3, (int)selly * 3);
             }
         }
     }

@@ -140,6 +140,11 @@ struct GameAdd {
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
 
+    uint8_t               max_custom_box_kind;
+    unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
+    int                   script_current_player;
+    struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
+
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };
 

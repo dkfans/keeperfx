@@ -32,6 +32,7 @@
 #include "creature_states.h"
 #include "config_creature.h"
 #include "config_effects.h"
+#include "power_specials.h"
 #include "room_data.h"
 #include "room_util.h"
 #include "map_blocks.h"

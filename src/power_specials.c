@@ -35,6 +35,7 @@
 #include "game_merge.h"
 #include "slab_data.h"
 #include "map_blocks.h"
+#include "map_utils.h"
 #include "spdigger_stack.h"
 #include "thing_corpses.h"
 #include "thing_objects.h"
@@ -383,9 +384,11 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   struct Coord3d pos;
 
   // Gathering data which we'll need if the special is used and disposed.
+  struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
   memcpy(&pos,&cratetng->mappos,sizeof(struct Coord3d));
   int spkindidx = cratetng->model - 86;
   short used = 0;
+  TbBool no_speech = false;
   if (thing_exists(cratetng) && is_dungeon_special(cratetng))
   {
     switch (cratetng->model)
@@ -434,13 +437,29 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
+        case OBJECT_TYPE_SPECBOX_CUSTOM:
+          if (gameadd.current_player_turn == game.play_gameturn)
+          {
+              WARNLOG("box activation rejected turn:%d", gameadd.current_player_turn);
+              // If two players suddenly activated box at same turn it is not that we want to
+              return;
+          }
+          gameadd.current_player_turn = game.play_gameturn;
+          gameadd.script_current_player = player->id_number;
+          memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
+          dungeonadd->box_info.activated[cratetng->custom_box.box_kind]++;
+          no_speech = true;
+          remove_events_thing_is_attached_to(cratetng);
+          used = 1;
+          delete_thing_structure(cratetng, 0);
+          break;
         default:
           ERRORLOG("Invalid dungeon special (Model %d)", (int)cratetng->model);
           break;
       }
       if ( used )
       {
-        if (is_my_player(player))
+        if (is_my_player(player) && !no_speech)
           output_message(special_desc[spkindidx].speech_msg, 0, true);
         create_special_used_effect(&pos, player->id_number);
       }
@@ -542,5 +561,14 @@ TbBool create_transferred_creature_on_level(void)
         return true;
     }
     return false;
+}
+
+SpecialKind box_thing_to_special(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return 0;
+    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
+        return 0;
+    return object_conf.object_to_special_artifact[thing->model];
 }
 /******************************************************************************/

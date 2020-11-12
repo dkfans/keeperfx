@@ -289,9 +289,16 @@ struct TrapInfo
 
 };
 
+struct BoxInfo
+{
+    uint8_t               activated[256];
+};
+
 struct DungeonAdd
 {
-    struct TrapInfo mnfct_info;
+    struct TrapInfo       mnfct_info;
+    struct BoxInfo        box_info;
+    struct Coord3d        last_combat_location;
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
