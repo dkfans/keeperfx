@@ -65,7 +65,7 @@ DLLIMPORT struct SpecialDesc _DK_special_desc[8];
 #pragma pack()
 /******************************************************************************/
 void multiply_creatures(struct PlayerInfo *player);
-void increase_level(struct PlayerInfo *player);
+void increase_level(struct PlayerInfo *player, int count);
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
 void make_safe(struct PlayerInfo *player);
 TbBool activate_bonus_level(struct PlayerInfo *player);

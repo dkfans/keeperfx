@@ -55,6 +55,7 @@
 #include "room_entrance.h"
 #include "room_util.h"
 #include "magic.h"
+#include "power_specials.h"
 #include "map_blocks.h"
 #include "lvl_filesdk1.h"
 #include "frontend.h"
@@ -146,6 +147,10 @@ const struct CommandDesc command_desc[] = {
   {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE},
   {"USE_POWER_AT_LOCATION",             "PNANN   ", Cmd_USE_POWER_AT_LOCATION},
   {"USE_POWER",                         "PAN     ", Cmd_USE_POWER},
+  {"USE_SPECIAL_INCREASE_LEVEL",        "PN      ", Cmd_USE_SPECIAL_INCREASE_LEVEL},
+  {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES},
+  {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE},
+  {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG},
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG},
@@ -2836,6 +2841,48 @@ void command_use_power(long plr_range_id, const char *magname, char free)
     command_add_value(Cmd_USE_POWER, plr_range_id, mag_id, free, 0);
 }
 
+void command_use_special_increase_level(long plr_range_id, long count)
+{
+    if (count < 1)
+    {
+        SCRPTWRNLOG("Invalid count: %d, setting to 1.", count);
+        count = 1;
+    }
+
+    if (count > 9)
+    {
+        SCRPTWRNLOG("Count too high: %d, setting to 9.", count);
+        count = 9;
+    }
+    command_add_value(Cmd_USE_SPECIAL_INCREASE_LEVEL, plr_range_id, count, 0, 0);
+}
+
+void command_use_special_multiply_creatures(long plr_range_id, long count)
+{
+    if (count < 1)
+    {
+        SCRPTWRNLOG("Invalid count: %d, setting to 1.", count);
+        count = 1;
+    }
+
+    if (count > 9)
+    {
+        SCRPTWRNLOG("Count too high: %d, setting to 9.", count);
+        count = 9;
+    }
+    command_add_value(Cmd_USE_SPECIAL_MULTIPLY_CREATURES, plr_range_id, count, 0, 0);
+}
+
+void command_use_special_make_safe(long plr_range_id)
+{
+    command_add_value(Cmd_USE_SPECIAL_MAKE_SAFE, plr_range_id, 0, 0, 0);
+}
+
+void command_use_special_locate_hidden_world()
+{
+    command_add_value(Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
+}
+
 void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
 {
     SCRIPTDBG(11, "Starting");
@@ -3145,6 +3192,18 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_USE_POWER:
         command_use_power(scline->np[0], scline->tp[1], scline->np[2]);
+        break;
+    case Cmd_USE_SPECIAL_INCREASE_LEVEL:
+        command_use_special_increase_level(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_USE_SPECIAL_MULTIPLY_CREATURES:
+        command_use_special_multiply_creatures(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_USE_SPECIAL_MAKE_SAFE:
+        command_use_special_make_safe(scline->np[0]);
+        break;
+    case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
+        command_use_special_locate_hidden_world();
         break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -4516,6 +4575,41 @@ TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free
 }
 
 /**
+ * Reveals every tile for player.
+ * @param plyr_idx target player
+ */
+void script_use_special_increase_level(PlayerNumber plyr_idx, int count)
+{
+    increase_level(get_player(plyr_idx), count);
+}
+
+/**
+ * Multiplies every creature for player.
+ * @param plyr_idx target player
+ */
+void script_use_special_multiply_creatures(PlayerNumber plyr_idx)
+{
+    multiply_creatures(get_player(plyr_idx));
+}
+
+/**
+ * Fortifies player's dungeon.
+ * @param plyr_idx target player
+ */
+void script_use_special_make_safe(PlayerNumber plyr_idx)
+{
+    make_safe(get_player(plyr_idx));
+}
+
+/**
+ * Enables bonus level for current player.
+ */
+TbBool script_use_special_locate_hidden_world()
+{
+    return activate_bonus_level(my_player_number);
+}
+
+/**
  * Returns if the action point condition was activated.
  * Action point index and player to be activated should be stored inside condition.
  */
@@ -5526,6 +5620,30 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       {
           script_use_power(i, val2, val3);
       }
+      break;
+    case Cmd_USE_SPECIAL_INCREASE_LEVEL:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_special_increase_level(i, val2);
+      }
+      break;
+    case Cmd_USE_SPECIAL_MULTIPLY_CREATURES:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          for (int count = 0; count < val2; count++)
+          {
+            script_use_special_multiply_creatures(i);
+          }
+      }
+      break;
+    case Cmd_USE_SPECIAL_MAKE_SAFE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_special_make_safe(i);
+      }
+      break;
+    case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
+      script_use_special_locate_hidden_world();
       break;
     case Cmd_CHANGE_CREATURE_OWNER:
       for (i=plr_start; i < plr_end; i++)
