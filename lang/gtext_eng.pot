@@ -2275,7 +2275,7 @@ msgstr ""
 
 #: guitext:327
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. Get over lava by casting Cave-In or building a Bridge."
+msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr ""
 
 #: guitext:328
@@ -5620,8 +5620,7 @@ msgstr ""
 
 #: guitext:953
 msgctxt "In-game interface description"
-msgid "Manufacture Skill: How fast the creature works in Workshop. The higher the Skill level, "
-"the better the creature's performance."
+msgid "Manufacture Skill: How fast the creature works in Workshop. The higher the Skill level, the better the creature's performance."
 msgstr ""
 
 #: guitext:954
@@ -5632,8 +5631,7 @@ msgstr ""
 
 #: guitext:955
 msgctxt "In-game interface description"
-msgid "Scavenge Skill: How fast the creature works on scavenging. The higher the Skill level, "
-"the better the creature's performance."
+msgid "Scavenge Skill: How fast the creature works on scavenging. The higher the Skill level, the better the creature's performance."
 msgstr ""
 
 #: guitext:956

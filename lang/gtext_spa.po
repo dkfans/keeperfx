@@ -1664,10 +1664,9 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with "
-"panache which certain females find very attractive. A Dark Mistress has "
-"devoted herself to helping you achieve your next goal. You may proceed to "
-"your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with such "
+"panache that not one but two Dark Mistresses have devoted themselves to "
+"helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
 "Tienes un alma retorcida, amo. Has acabado con esos duendes con tal "
 "elegancia que ciertas féminas lo encuentra atractivo. Una dama oscura ha "
@@ -2274,8 +2273,8 @@ msgstr ""
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: This homes in on the nearest hero or enemy creature and "
-"explodes with devastating force."
+"Navigating Missile: A spell that sends a screaming magic reptile homing "
+"in on the nearest hero or enemy creature for double damage. Nice."
 msgstr ""
 "Misil dirigido: Este misil es guiado contra el héroe o criatura enemiga más "
 "cercano y explota con una fuerza devastadora."
@@ -2349,7 +2348,7 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
+"from the air or cross lava unharmed."
 msgstr ""
 "Vuelo: Hace que la criatura despegue del suelo y ataque criaturas desde el "
 "aire."
@@ -2357,7 +2356,7 @@ msgstr ""
 #: guitext:244
 #, fuzzy
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
+msgid "Hail Storm: Creates a fury of hailstones."
 msgstr ""
 "Tormenta de granizo: Crea una lluvia de granizo allá donde el conjuro "
 "impacte."
@@ -2375,8 +2374,8 @@ msgstr ""
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a fair part of its health and "
-"magical abilities."
+"Drain: This spell drains the target creature a part of its health and gives it "
+"to the caster."
 msgstr ""
 "Drenar: Este hechizo drena a la criatura objetivo una buena parte de su "
 "salud y habilidades mágicas."
@@ -2397,8 +2396,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Heal: When this is cast, the creature is massively healed. Also, any nearby "
-"creatures are healed by a quarter."
+"Heal: When this is cast, the creature is massively healed."
 msgstr ""
 "Curar: Cuando es lanzado, la criatura es curada de forma masiva. Además, las "
 "criaturas cercanas se curan en una cuarta parte."
@@ -2407,8 +2405,8 @@ msgstr ""
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you."
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
+"away from you. And nasty smells of course."
 msgstr ""
 "Viento: Crea un poderoso vendaval en tu mazmorra soplando a cualquier "
 "criatura lejos de ti."
@@ -5297,7 +5295,7 @@ msgstr ""
 #: guitext:733
 msgctxt "In-game interface description"
 msgid ""
-"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB Zoom. [22.2.1]"
 msgstr "Recoger criaturas más expertas: BIR elige una criatura. RMB hace zoom."
 
 #: guitext:734
@@ -6761,41 +6759,35 @@ msgstr ""
 "conducir a un ataque al corazón."
 
 #: guitext:960
+msgctxt "In-game interface description"
+msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
+msgstr ""
+
+#: guitext:961
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
 msgstr "Mano Del Mal"
 
-#: guitext:961
-#, fuzzy
+#: guitext:962
 msgctxt "Keeper spell name"
 msgid "Slap"
 msgstr "Azote"
 
-#: guitext:962
-#, fuzzy
+#: guitext:963
 msgctxt "Keeper spell description"
-msgid ""
-"Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
+msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr ""
 "Mano del Mal: Habilidad para recoger tus criaturas y mantenerlas en tu mano. "
 "Eso sí, no mantenerlos por siempre o pueden irritarse."
-
-#: guitext:963
-#, fuzzy
-msgctxt "Keeper spell description"
-msgid ""
-"Slap: Makes your creatures work harder, for some time. Your creatures take "
-"some damage from each slap they receive."
-msgstr ""
-"Azotar: Hace que tus criaturas trabajen más duro durante algún tiempo. Tus "
-"criaturas recibirán algo de daño por cada bofetada que reciban."
 
 #: guitext:964
 msgctxt "Keeper spell description"
 msgid "Slap: Makes your creatures work harder, for some time. "
 "Your creatures take some damage from each slap they receive."
 msgstr ""
+"Azotar: Hace que tus criaturas trabajen más duro durante algún tiempo. Tus "
+"criaturas recibirán algo de daño por cada bofetada que reciban."
 
 #: guitext:965
 msgctxt "In-game interface description"
