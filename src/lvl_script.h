@@ -130,6 +130,10 @@ enum TbScriptCommands {
     Cmd_USE_POWER                         = 110,
     Cmd_USE_POWER_AT_LOCATION             = 111,
     Cmd_ADD_OBJECT_TO_LEVEL               = 112,
+    Cmd_USE_SPECIAL_INCREASE_LEVEL        = 113,
+    Cmd_USE_SPECIAL_MULTIPLY_CREATURES    = 114,
+    Cmd_USE_SPECIAL_MAKE_SAFE             = 115,
+    Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 116,
 };
 
 enum ScriptVariables {
