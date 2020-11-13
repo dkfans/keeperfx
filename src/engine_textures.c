@@ -152,7 +152,7 @@ TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
     {
         if (!load_one_file(i, dst))
         {
-            break;
+            continue;
         }
     }
     return true;
