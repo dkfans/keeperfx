@@ -246,6 +246,7 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
           set_untag_mode(player);
           break;
         case P454_Unkn2:
+          // TODO: move to server
           thing = get_door_for_position(player->field_4AB, player->field_4AD);
           if (thing_is_invalid(thing))
           {
@@ -346,6 +347,7 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
         if ((player->thing_under_hand != 0) && (player->input_crtr_control != 0)
           && (dungeon->things_in_hand[0] != player->thing_under_hand))
         {
+            // TODO: move to server side
             set_player_state(player, PSt_CtrlDirect, 0);
             if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default) == Lb_FAIL) {
                 set_player_state(player, player->continue_work_state, 0);
@@ -356,6 +358,7 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
           && can_thing_be_queried(thing, plyr_idx) )
         {
+          // TODO: move to server side
           if (player->thing_under_hand != player->controlled_thing_idx)
           {
             if (is_my_player(player))
@@ -389,7 +392,7 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
           if (player->field_454 == P454_Unkn3)
           {
             if (player->thing_under_hand != 0) {
-                // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
+                //TODO: It is a hard thing - it creates "object of a hand"
                 magic_use_power_hand(plyr_idx, stl_x, stl_y, 0);
             }
           }
@@ -415,7 +418,8 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
         {
           if (player->field_454 == P454_Unkn3) {
               thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
-              magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
+              //magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
+              client_control_use_power_on_thing(player, PwrK_SLAP, 0, stl_x, stl_y, thing->index);
           }
           player->field_4AF = 0;
           clear_input(pckt);
@@ -569,8 +573,8 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
 
     if (pckt->control_flags & (PCtr_LBtnAnyAction | PCtr_RBtnAnyAction))
     {
-        NETDBG(5, "turn:%04ld control_flags:%04x x:%03d y:%03d",
-            game.play_gameturn, (int)pckt->control_flags, pckt->pos_x, pckt->pos_y);
+        NETDBG(7, "turn:%04ld control_flags:%04x x:%03d y:%03d",
+            game.play_gameturn, (int)pckt->control_flags, (int)pckt->pos_x, (int)pckt->pos_y);
     }
 
     player->field_4A4 = 1;
@@ -631,7 +635,7 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0)
         && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            // TODO: newer used?
+            // TODO: never used?
             // magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
             client_control_use_power_on_thing(player, PwrK_SLAP, 0, stl_x, stl_y, thing->index);
             clear_input(pckt);

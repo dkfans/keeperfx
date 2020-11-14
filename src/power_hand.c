@@ -1292,6 +1292,7 @@ TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_id
     return false;
 }
 
+// Called on client side, should emit packets
 TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;

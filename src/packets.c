@@ -264,7 +264,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
 void clear_input(struct Packet* packet)
 {
     packet->control_flags &= ~(PCtr_LBtnRelease | PCtr_LBtnClick | PCtr_RBtnRelease);
-    NETDBG(5, "turn:%04ld", game.play_gameturn);
+    NETDBG(7, "turn:%04ld", game.play_gameturn);
 }
 
 void process_pause_packet(long curr_pause, long new_pause)
