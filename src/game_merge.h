@@ -76,7 +76,6 @@ enum ClassicBugFlags {
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_VampiresKeepSpells     = 0x0400,
 };
-};
 
 /******************************************************************************/
 #pragma pack(1)
