@@ -224,6 +224,10 @@ void creature_increase_available_instances(struct Thing *thing)
             if (crstat->learned_instance_level[i] <= cctrl->explevel+1) {
                 cctrl->instance_available[k] = true;
             }
+            else
+            {
+                cctrl->instance_available[k] = false;   
+            }
         }
     }
 }
