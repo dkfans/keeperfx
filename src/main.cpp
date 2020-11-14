@@ -4442,6 +4442,16 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          set_flag_byte(&start_params.flags_font,FFlg_AlexCheat,true);
       } else
+      if (strcasecmp(parstr,"connect") == 0)
+      {
+          narg++;
+          LbNetwork_InitSessionsFromCmdLine(pr2str);
+          game_flags2 |= GF2_Connect;
+      } else
+      if (strcasecmp(parstr,"server") == 0)
+      {
+          game_flags2 |= GF2_Server;
+      } else
       if (strcasecmp(parstr,"frameskip") == 0)
       {
          start_params.frame_skip = atoi(pr2str);

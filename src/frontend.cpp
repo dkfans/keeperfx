@@ -3581,6 +3581,8 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
     }
 }
 
+// TODO: this is actually a mess
+extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 /**
  * Chooses initial frontend menu state.
  * Used when game is first run, or player exits from gameplay.
@@ -3589,7 +3591,43 @@ FrontendMenuState get_startup_menu_state(void)
 {
   struct PlayerInfo *player;
   LevelNumber lvnum;
-  if ((game.flags_cd & MFlg_unk40) != 0)
+  if (game_flags2 & GF2_Server)
+  {
+      game_flags2 &= ~GF2_Server;
+      SYNCLOG("Setup server");
+
+      if (setup_network_service(NS_TCP_IP))
+      {
+          frontnet_service_setup();
+          frontnet_session_setup();
+          frontnet_session_create(NULL);
+          return FeSt_NET_START;
+      }
+  }
+  else if (game_flags2 & GF2_Connect)
+  {
+      game_flags2 &= ~GF2_Connect;
+      SYNCLOG("Setup server");
+      if (setup_network_service(NS_TCP_IP))
+      {
+          frontnet_service_setup();
+          frontnet_session_setup();
+          net_number_of_sessions = 0;
+          LbMemorySet(net_session, 0, sizeof(net_session));
+          // TODO: should disable actual network enumerating if either
+          if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
+          {
+              ERRORLOG("LbNetwork_EnumerateSessions() failed");
+          }
+          else
+          {
+              net_session_index_active = 0;
+              frontnet_session_join(NULL);
+              return FeSt_NET_START;
+          }
+      }
+  }
+  else if ((game.flags_cd & MFlg_unk40) != 0)
   { // If starting up the game after intro
     if (is_full_moon)
     {
