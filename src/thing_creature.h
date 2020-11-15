@@ -176,6 +176,8 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
 long update_creature_levels(struct Thing *thing);
 TngUpdateRet update_creature(struct Thing *thing);
 TbBool creature_stats_debug_dump(void);
+
+void create_light_for_possession(struct Thing *creatng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

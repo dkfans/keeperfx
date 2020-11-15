@@ -296,6 +296,8 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
             make_group_member_leader(thing);
         }
     }
+    create_light_for_possession(thing);
+    /*
     struct InitLight ilght;
     LbMemorySet(&ilght, 0, sizeof(struct InitLight));
     ilght.mappos.x.val = thing->mappos.x.val;
@@ -311,6 +313,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     } else {
       ERRORLOG("Cannot allocate light to new controlled thing");
     }
+    */
     if (is_my_player_number(thing->owner))
     {
       if (thing->class_id == TCls_Creature)
@@ -1265,7 +1268,14 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     case SplK_Light:
         if (thing->light_id != 0) {
             light_delete_light(thing->light_id);
-            thing->light_id = 0;
+            if (thing->alloc_flags & TAlF_IsControlled != 0)
+            {
+                create_light_for_possession(thing);
+            }
+            else
+            {
+                thing->light_id = 0;
+            }
         }
         break;
     }
@@ -5301,6 +5311,25 @@ TbBool creature_stats_debug_dump(void)
         }
     }
     return result;
+}
+
+void create_light_for_possession(struct Thing *creatng)
+{
+    struct InitLight ilght;
+    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    ilght.mappos.x.val = creatng->mappos.x.val;
+    ilght.mappos.y.val = creatng->mappos.y.val;
+    ilght.mappos.z.val = creatng->mappos.z.val;
+    ilght.field_3 = 1;
+    ilght.field_2 = 36;
+    ilght.field_0 = 2560;
+    ilght.is_dynamic = 1;
+    creatng->light_id = light_create_light(&ilght);
+    if (creatng->light_id != 0) {
+        light_set_light_never_cache(creatng->light_id);
+    } else {
+      ERRORLOG("Cannot allocate light to new controlled thing");
+    }
 }
 
 /******************************************************************************/
