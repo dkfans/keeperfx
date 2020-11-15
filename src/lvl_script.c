@@ -296,6 +296,7 @@ const struct NamedCommand variable_desc[] = {
     //{"DOOR",                      SVar_DOOR_NUM},
     {"GOOD_CREATURES",              SVar_GOOD_CREATURES},
     {"EVIL_CREATURES",              SVar_EVIL_CREATURES},
+    {"TOTAL_SCORE",                 SVar_TOTAL_SCORE},
     {NULL,                           0},
 };
 
@@ -4620,6 +4621,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return intralvl.campaign_flags[plyr_idx][validx];
         break;
+    case SVar_TOTAL_SCORE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->total_score;
     break;
     default:
         break;
