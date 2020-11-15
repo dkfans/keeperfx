@@ -1057,6 +1057,31 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         }
     }
         break;
+    case SplK_Light:
+        i = get_free_spell_slot(thing);
+        if (i != -1)
+        {
+            fill_spell_slot(thing, i, spell_idx, splconf->duration);
+            if (thing->light_id != 0) 
+            {
+                light_delete_light(thing->light_id);
+            }
+            struct InitLight ilght;
+            LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+            ilght.mappos.x.val = thing->mappos.x.val;
+            ilght.mappos.y.val = thing->mappos.y.val;
+            ilght.mappos.z.val = thing->mappos.z.val;
+            ilght.field_3 = 1;
+            ilght.field_2 = 36;
+            ilght.field_0 = 6560;
+            ilght.is_dynamic = 1;
+            thing->light_id = light_create_light(&ilght);
+            if (thing->light_id != 0) 
+            {
+                light_set_light_never_cache(thing->light_id);
+            }
+        }
+        break;
     default:
         WARNLOG("No action for spell %d at level %d",(int)spell_idx,(int)spell_lev);
         break;
@@ -1125,6 +1150,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     case SplK_Disease:
         pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
         cspell->duration = pwrdynst->strength[spell_lev];
+        cctrl->disease_caster_plyridx = thing->owner;
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
@@ -1236,6 +1262,12 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->spell_flags &= ~CSAfF_Chicken;
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
         cctrl->countdown_282 = 10;
+        break;
+    case SplK_Light:
+        if (thing->light_id != 0) {
+            light_delete_light(thing->light_id);
+            thing->light_id = 0;
+        }
         break;
     }
     if (slot_idx >= 0) {
