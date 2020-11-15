@@ -1150,7 +1150,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     case SplK_Disease:
         pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
         cspell->duration = pwrdynst->strength[spell_lev];
-        cctrl->disease_caster_plyridx = thing->owner;
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
