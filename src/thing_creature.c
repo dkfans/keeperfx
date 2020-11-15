@@ -314,6 +314,11 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       ERRORLOG("Cannot allocate light to new controlled thing");
     }
     */
+    int slot_idx = get_spell_slot(thing, SplK_Light);
+    if (slot_idx >= 0)
+    {
+        free_spell_slot(thing, slot_idx);
+    }
     if (is_my_player_number(thing->owner))
     {
       if (thing->class_id == TCls_Creature)
