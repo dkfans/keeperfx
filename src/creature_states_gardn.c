@@ -31,6 +31,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "thing_creature.h"
 #include "player_instances.h"
 #include "power_hand.h"
 #include "room_data.h"
@@ -85,7 +86,7 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
     }
     if (thing_is_creature(foodtng))
     {
-        foodtng->health = -1;
+        thing_death_flesh_explosion(foodtng);
     } else
     {
         int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
