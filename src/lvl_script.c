@@ -4667,7 +4667,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, long operation, 
  */
 TbBool script_use_special_locate_hidden_world()
 {
-    return activate_bonus_level(my_player_number);
+    return activate_bonus_level(get_player(my_player_number));
 }
 
 /**
