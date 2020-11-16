@@ -392,8 +392,12 @@ struct SmallActionPacket *create_packet_action(struct PlayerInfo *player, enum T
 
 struct BigActionPacket *create_packet_action_big(struct PlayerInfo *player, enum TbPacketAction action, enum ActionPacketFlags flags)
 {
+    size_t size = sizeof(struct BigActionPacket);
+    if (flags & AP_PlusTwo)
+        size += sizeof(short) * 2;
+
     struct BigActionPacket *ret = LbNetwork_AddPacket(
-        action, game.play_gameturn, sizeof(struct BigActionPacket));
+        action, game.play_gameturn, size);
     NETDBG(7, "action:%d", (int)action);
     ret->head.action = action;
     ret->head.flags = AP_Big | flags;

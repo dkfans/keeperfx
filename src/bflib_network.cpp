@@ -191,6 +191,9 @@ struct NetBufferList
     bool empty() { return first == NULL; }
     void clear();
     void join_list(NetBufferList *list2);
+    struct NetBufferNode *find_by_data(void *data);
+    // Find and remove
+    struct NetBufferNode *extract_by_data(void *data);
 };
 
 /*
@@ -334,6 +337,10 @@ const struct NetSP nullSP =
 };
 // New network code data definitions end here =================================
 /*****/
+
+static SeqType current_packet_id = 0;
+
+/*****/
 static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout, struct PacketBuffer *pbuffer);
 static void process_confirmation(bool is_server, unsigned int netuser_idx, SeqType tail_num);
 static void create_update_seq_packet(NetUserId id);
@@ -453,6 +460,48 @@ void NetBufferList::join_list(NetBufferList *list2)
     list2->last = NULL;
 }
 
+struct NetBufferNode *NetBufferList::extract_by_data(void *data)
+{
+    struct NetBufferNode *ret = NULL;
+    for (struct NetBufferNode *node = this->first;
+        node != NULL;
+        )
+    {
+        struct NetBufferNode *node2 = node->next;
+        if (data == node->data)
+        {
+            if (node->prev)
+                node->prev = node->next;
+            if (node->next)
+                node->next = node->prev;
+            ret = node;
+            break;
+        }
+        node = node2;
+    }
+    if (ret == NULL)
+        return ret;
+    if (this->first == ret)
+        this->first = ret->next;
+    if (this->last == ret)
+        this->last = ret->prev;
+    ret->next = NULL;
+    ret->prev = NULL;
+    return ret;
+}
+
+struct NetBufferNode *NetBufferList::find_by_data(void *data)
+{
+    for (struct NetBufferNode *node = this->first;
+        node != NULL;
+        node = node->next
+        )
+    {
+        if (data == node->data)
+            return node;
+    }
+    return NULL;
+}
 int netlist_size(struct NetBufferList *list)
 {
     int cnt = 0;
@@ -1397,6 +1446,12 @@ static void process_update_seq(int source, struct NetBufferItem* buf_struct)
 
     netstate.last_confirmed[source] = seq;
 }
+
+unsigned short LbNetwork_Packetid()
+{
+    return current_packet_id;
+}
+
 /*
     This function process messages from `created_list` and `incoming_list`
 */
@@ -1486,7 +1541,9 @@ static void process_lists(
             SeqType seq = item->in_seq - netstate.last_confirmed[player_idx];
             if (seq < SEQ_WINDOW_LEN)
             {
+                current_packet_id = item->in_seq;
                 callback(context, item->turn, item->player, item->kind, item->buffer, item->size);
+                current_packet_id = 0;
 
                 // We dont want to send confirmation to ourself
                 if (item->player != netstate.my_id)
@@ -1512,6 +1569,28 @@ static void process_lists(
         }
     }
     NETDBG(9, "done");
+}
+
+void LbNetwork_SetDestination(void *packet_data, int net_player_idx)
+{
+    struct NetBufferNode *node = netstate.created_list.find_by_data(packet_data);
+    if (node == NULL)
+    {
+        ERRORLOG("Unable to find node");
+        return;
+    }
+    node->delivery_flag = ~(1 << net_player_idx);
+}
+
+void LbNetwork_MoveToOutgoingQueue(void *packet_data)
+{
+    struct NetBufferNode *node = netstate.created_list.extract_by_data(packet_data);
+    if (node == NULL)
+    {
+        ERRORLOG("Unable to find node");
+        return;
+    }
+    netstate.outgoing_list.append(node);
 }
 
 /*
@@ -2199,6 +2278,12 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
     NETLOG("Not implemented");
     return Lb_FAIL;
 }
+
+TbBool LbNetwork_IsServer()
+{
+    return netstate.users[netstate.my_id].progress == USER_SERVER;
+}
+
 /*
 TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
 {
@@ -3025,7 +3110,6 @@ void *TwoPlayerCallback(unsigned long, unsigned long, unsigned long, void *)
 //TODO NET (less importand - used only for modem and serial)
   return NULL;
 }
-
 
 /******************************************************************************/
 #ifdef __cplusplus

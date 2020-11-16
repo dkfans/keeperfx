@@ -163,6 +163,7 @@ enum TbPacketAction {
         PckA_ConfirmSeq, //130 // Internal (consumed by bflib_network)
         PckA_UpdateBaseSeq, // Internal (consumed by bflib_network)
         PckA_TagUntag,
+        PckA_RemapNotify,
 };
 
 /** Packet flags for non-action player operation. */
@@ -219,6 +220,7 @@ enum ActionPacketFlags
   AP_Rejected     = 0x02, // Not used
   AP_NetworkMask  = 0x03, // Not used
   AP_Big          = 0x04, // It is a BigActionPacket
+  AP_PlusTwo      = 0x08, // It is two shorts bigger than big
 };
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
 #define PCtr_RBtnAnyAction (PCtr_RBtnClick | PCtr_RBtnHeld | PCtr_RBtnRelease)

@@ -66,6 +66,7 @@
 #include "room_jobs.h"
 #include "map_utils.h"
 #include "map_blocks.h"
+#include "net_remap.h"
 #include "gui_topmsg.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -3482,6 +3483,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     add_creature_score_to_owner(crtng);
     struct CreatureData* crdata = creature_data_get(crtng->model);
     cctrl->active_instance_id = crdata->flags;
+
+    net_remap_creature_created(owner, crtng->index);
+
     return crtng;
 }
 

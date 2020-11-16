@@ -32,6 +32,7 @@
 #include "config_terrain.h"
 #include "light_data.h"
 #include "map_utils.h"
+#include "net_remap.h"
 #include "thing_factory.h"
 #include "engine_textures.h"
 #include "game_legacy.h"
@@ -663,6 +664,7 @@ TbBool load_thing_file(LevelNumber lv_num)
         i += sizeof(struct InitThing);
     }
     LbMemoryFree(buf);
+    net_remap_init(total);
     return true;
 }
 

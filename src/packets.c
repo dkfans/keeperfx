@@ -79,6 +79,7 @@
 #include "gui_soundmsgs.h"
 #include "gui_parchment.h"
 #include "net_game.h"
+#include "net_remap.h"
 #include "net_sync.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
@@ -990,6 +991,7 @@ static void process_players_dungeon_control_packet_action(
 
     struct BigActionPacket *big = (struct BigActionPacket *)packet;
     int plyr_idx = player->id_number;
+    Thingid thing_id;
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)action);
     switch (action)
     {
@@ -1025,14 +1027,15 @@ static void process_players_dungeon_control_packet_action(
             );
         break;
     case PckA_UsePower:
-        NETDBG(5, "plyr:%d power:%d %s level:%d x:%d y:%d thing:%d",
+        thing_id = net_remap_thingid(player->id_number, big->head.arg[1]);
+        NETDBG(5, "plyr:%d power:%d %s level:%d x:%d y:%d thing:%d(%d)",
             player->id_number,
             big->head.arg[0] & 255, // pwkind
             power_code_name(big->head.arg[0] & 255),
             big->head.arg[0] >> 8,  // powerlevel,
             big->head.arg[2], // stl_x
             big->head.arg[3], // stl_y
-            big->head.arg[1] // thing
+            thing_id, big->head.arg[1] // thing
               );
         if (big->head.arg[1] != 0)
         {
@@ -1041,7 +1044,7 @@ static void process_players_dungeon_control_packet_action(
                 big->head.arg[0] >> 8,  // powerlevel
                 big->head.arg[2], // stl_x
                 big->head.arg[3], // stl_y
-                thing_get(big->head.arg[1]), // thing
+                thing_get(thing_id), // thing
                 PwMod_Default);
         }
         else
@@ -1278,6 +1281,11 @@ static TbBool process_packet_cb(
     struct SmallActionPacket* packet_short = (struct SmallActionPacket*)data;
     struct PacketEx *packet_ex = (struct PacketEx*)data;
 
+    if (kind == PckA_RemapNotify)
+        return net_remap_packet_cb(turn, plyr_idx, kind, data, size);
+
+    net_remap_start(plyr_idx, kind, data, size);
+
     if (kind == PckA_PacketEx)
     {   // process First packet (with mouse coords and without action)
     
@@ -1312,6 +1320,7 @@ static TbBool process_packet_cb(
     {
         process_players_packet(player, kind, packet_short);
     }
+    net_remap_finish();
     return true;
 }
 /**

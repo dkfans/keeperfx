@@ -302,14 +302,22 @@ void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, 
     Ordered by turn then by plyr_idx
 
     All packet pointers should be valid till exit from LbNetwork_Exchange
-
-    TODO: where to get plyr_idx?
 */
 typedef TbBool (*LbNetwork_Packet_Callback) (
-    void *context, unsigned long turn, int plyr_idx, unsigned char kind, void *packet_data, short size);
+    void *context, unsigned long turn, int net_player_idx, unsigned char kind, void *packet_data, short size);
 
+/*
+    Should be used only on Created packets
+*/
+void LbNetwork_SetDestination(void *packet_data, int net_player_idx);
+void LbNetwork_MoveToOutgoingQueue(void *packet_data);
+
+/* This function returns current packet id when called from Packet_Callback */
+unsigned short LbNetwork_Packetid();
 /* This function sends all enqueued packets to others */
 enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback callback);
+
+TbBool LbNetwork_IsServer();
 
 /* Remove all enqueued packets */
 void LbNetwork_EmptyQueue();
