@@ -2894,8 +2894,8 @@ void command_change_creatures_annoyance(long plr_range_id, const char *operation
     if(strcasecmp("decrease", operation) == 0) op_id = -1;
     if (op_id == 255)
     {
-        SCRPTWRNLOG("Invalid operation for changing creatures' annoyance: '%s', setting to SET.", operation);
-        op_id = 0;
+        SCRPTERRLOG("Invalid operation for changing creatures' annoyance: '%s'", operation);
+        return;
     }
     command_add_value(Cmd_CHANGE_CREATURES_ANNOYANCE, plr_range_id, op_id, anger, 0);
 }
