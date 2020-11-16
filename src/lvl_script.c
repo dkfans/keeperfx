@@ -482,6 +482,13 @@ const struct NamedCommand campaign_flag_desc[] = {
   {NULL,     0},
 };
 
+const struct NamedCommand script_operator_desc[] = {
+  {"SET",         1},
+  {"INCREASE",    2},
+  {"DECREASE",    3},
+  {NULL,          0},
+};
+
 /******************************************************************************/
 static struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
 
