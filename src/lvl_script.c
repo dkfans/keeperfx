@@ -5603,19 +5603,19 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           script_use_power_on_creature(i, val2, val3, val4);
 
           // Abuse script command for testing purposes
-          JUSTMSG("Target player is %d", val4);
-          struct Computer2* comp = get_computer_player(val4);
+          struct Computer2* comp = get_computer_player(i);
           struct Coord3d startpos;
           struct Coord3d endpos;
 
           struct Thing* heartng = get_player_soul_container(i);
               startpos.x.val = heartng->mappos.x.val;
               startpos.y.val = heartng->mappos.y.val;
-          struct Thing* desttng = get_player_soul_container(val4);
+          // Dest is always player 0
+          struct Thing* desttng = get_player_soul_container(0);
               endpos.x.val = desttng->mappos.x.val;
               endpos.y.val = desttng->mappos.y.val;
-          JUSTMSG("TESTLOG: Player %d to player %d",i,val4);
-          create_task_dig_to_attack(comp, startpos, endpos, val4, 0xFFFF);
+              JUSTMSG("TESTLOG: From player %d to player %d", heartng->owner,desttng->owner);
+          create_task_dig_to_attack(comp, startpos, endpos, desttng->owner, 0xFFFF);
       }
       break;
     case Cmd_USE_POWER_AT_SUBTILE:
