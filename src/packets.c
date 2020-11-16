@@ -1431,6 +1431,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_LevelCreatureUp:
+    case PSt_LevelCreatureDown:
         thing = get_creature_near(x, y);
         if (!thing_is_creature(thing))
         {
@@ -1444,7 +1445,23 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
              if (player->thing_under_hand > 0)
              {
-                creature_increase_level(thing);
+                switch (player->work_state)
+                {
+                    case PSt_LevelCreatureUp:
+                    {
+                        creature_increase_level(thing);
+                        break;
+                    }
+                    case PSt_LevelCreatureDown:
+                    {
+                        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                        if (!creature_control_invalid(cctrl))
+                        {
+                            set_creature_level(thing, cctrl->explevel-1);
+                        }
+                        break;
+                    }
+                }
              }
         unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
@@ -1692,6 +1709,25 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);
+        break;
+    case PSt_DestroyThing:
+        thing = get_nearest_thing_at_position(stl_x, stl_y);
+        if (thing_is_invalid(thing))
+        {
+            player->thing_under_hand = 0;
+        }
+        else
+        {
+            player->thing_under_hand = thing->index;
+        }
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (player->thing_under_hand > 0)
+            {
+                destroy_object(thing);
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);    
+        }
         break;
     default:
         ERRORLOG("Unrecognized player %d work state: %d", (int)plyr_idx, (int)player->work_state);
