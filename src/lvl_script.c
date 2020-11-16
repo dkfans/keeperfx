@@ -2888,11 +2888,8 @@ void command_use_special_locate_hidden_world()
 
 void command_change_creatures_annoyance(long plr_range_id, const char *operation, long anger)
 {
-    long op_id = 255;
-    if(strcasecmp("set", operation) == 0) op_id = 0;
-    if(strcasecmp("increase", operation) == 0) op_id = 1;
-    if(strcasecmp("decrease", operation) == 0) op_id = -1;
-    if (op_id == 255)
+    long op_id = get_rid(script_operator_desc, operation);
+    if (op_id == -1)
     {
         SCRPTERRLOG("Invalid operation for changing creatures' annoyance: '%s'", operation);
         return;
@@ -4625,7 +4622,6 @@ void script_use_special_make_safe(PlayerNumber plyr_idx)
  * Modifies player's creatures' anger.
  * @param plyr_idx target player
  * @param anger anger value. Use double AnnoyLevel (from creature's config file) to fully piss creature. More for longer calm time
- * @param operation 1 to add anger, -1 to reduce, 0 to set
  */
 TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, long operation, long anger)
 {
@@ -4644,11 +4640,17 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, long operation, 
             break;
         }
         i = cctrl->players_next_creature_idx;
-        if (!operation) anger_set_creature_anger(thing, anger, AngR_Other);
-        else
+        if (operation == SOpr_SET)
         {
-            if (operation > 0) anger_increase_creature_anger(thing, anger, AngR_Other);
-            else anger_reduce_creature_anger(thing, -anger, AngR_Other);
+            anger_set_creature_anger(thing, anger, AngR_Other);
+        }
+        else if (operation == SOpr_INCREASE)
+        {
+            anger_increase_creature_anger(thing, anger, AngR_Other);
+        }
+        else if (operation == SOpr_DECREASE)
+        {
+            anger_reduce_creature_anger(thing, -anger, AngR_Other);
         }
         // Thing list loop body ends
         k++;

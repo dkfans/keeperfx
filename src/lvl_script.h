@@ -224,6 +224,12 @@ enum MetaLocation {
   MML_RECENT_COMBAT,
 };
 
+enum ScriptOperator {
+    SOpr_SET = 1,
+    SOpr_INCREASE,
+    SOpr_DECREASE,
+};
+
 enum {
     CurrentPlayer = 15
 };
