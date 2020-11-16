@@ -84,7 +84,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"ALWAYS_TUNNEL_TO_RED",        8},
   {"FULLY_HAPPY_WITH_GOLD",       9},
   {"FAINTED_IMMUNE_TO_BOULDER",  10},
-  {"VAMPIRES_KEEP_SPELLS",       11},
+  {"REBIRTH_KEEPS_SPELLS",       11},
   {NULL,                          0},
   };
 
@@ -651,8 +651,8 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   gameadd.classic_bugs_flags |= ClscBug_FaintedImmuneToBoulder;
                   n++;
                   break;
-              case 11: // VAMPIRES_KEEP_SPELLS
-                  gameadd.classic_bugs_flags |= ClscBug_VampiresKeepSpells;
+              case 11: // REBIRTH_KEEPS_SPELLS
+                  gameadd.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
                   n++;
                   break;
               default:

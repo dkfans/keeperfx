@@ -74,7 +74,7 @@ enum ClassicBugFlags {
     ClscBug_AlwaysTunnelToRed      = 0x0080,
     ClscBug_FullyHappyWithGold     = 0x0100,
     ClscBug_FaintedImmuneToBoulder = 0x0200,
-    ClscBug_VampiresKeepSpells     = 0x0400,
+    ClscBug_RebirthKeepsSpells     = 0x0400,
 };
 
 /******************************************************************************/
