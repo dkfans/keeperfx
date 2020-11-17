@@ -1731,6 +1731,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                         destroy_door(thing);
                         break;                    
                     }
+                    case TCls_Effect:
+                    {
+                        destroy_effect_thing(thing);
+                        break;
+                    }
                     default:
                     {
                         destroy_object(thing);
