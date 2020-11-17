@@ -1724,7 +1724,19 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
             if (player->thing_under_hand > 0)
             {
-                destroy_object(thing);
+                switch(thing->class_id)
+                {
+                    case TCls_Door:
+                    {
+                        destroy_door(thing);
+                        break;                    
+                    }
+                    default:
+                    {
+                        destroy_object(thing);
+                        break;
+                    }
+                }
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
