@@ -1082,7 +1082,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 cctrl->spell_flags |= CSAfF_Unkn0080;
                 light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) + 20));
                 struct Light* lgt = &game.lish.lights[thing->light_id];
-                lgt->field_16 <<= 1;
+                lgt->radius <<= 1;
             }
         }
         break;
@@ -1274,7 +1274,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
             {
                 light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
                 struct Light* lgt = &game.lish.lights[thing->light_id];
-                lgt->field_16 = 2560;
+                lgt->radius = 2560;
             }
             else
             {
