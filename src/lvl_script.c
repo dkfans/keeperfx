@@ -143,6 +143,7 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION},
   {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE},
+  {"COMPUTER_DIG_TO_LOCATION",          "PL      ", Cmd_COMPUTER_DIG_TO_LOCATION},
   {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE},
   {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE},
   {"USE_POWER_AT_LOCATION",             "PNANN   ", Cmd_USE_POWER_AT_LOCATION},
@@ -2900,6 +2901,20 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
   command_add_value(Cmd_CHANGE_CREATURE_OWNER, origin_plyr_idx, crtr_id, select_id, dest_plyr_idx);
 }
 
+
+void command_computer_dig_to_location(long plr_range_id, const char* locname)
+{
+
+    TbMapLocation location;
+    if (!get_map_location_id(locname, &location))
+    {
+        SCRPTWRNLOG("Dig to location script command has invalid location: %s", locname);
+        return;
+    }
+
+    command_add_value(Cmd_COMPUTER_DIG_TO_LOCATION, plr_range_id, location, 0, 0);
+}
+
 void command_set_campaign_flag(long plr_range_id, const char *cmpflgname, long val)
 {
     long flg_id = get_rid(campaign_flag_desc, cmpflgname);
@@ -3244,6 +3259,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_CHANGE_SLAB_TYPE:
         command_change_slab_type(scline->np[0], scline->np[1], scline->np[2]);
+        break;
+    case Cmd_COMPUTER_DIG_TO_LOCATION:
+        command_computer_dig_to_location(scline->np[0], scline->tp[1]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -5601,23 +5619,27 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_use_power_on_creature(i, val2, val3, val4);
-
-          // Abuse script command for testing purposes
-          struct Computer2* comp = get_computer_player(i);
-          struct Coord3d startpos;
-          struct Coord3d endpos;
-
-          struct Thing* heartng = get_player_soul_container(i);
-              startpos.x.val = heartng->mappos.x.val;
-              startpos.y.val = heartng->mappos.y.val;
-          // Dest is always player 0
-          struct Thing* desttng = get_player_soul_container(0);
-              endpos.x.val = desttng->mappos.x.val;
-              endpos.y.val = desttng->mappos.y.val;
-              JUSTMSG("TESTLOG: From player %d to player %d", heartng->owner,desttng->owner);
-          create_task_dig_to_attack(comp, startpos, endpos, desttng->owner, 0xFFFF);
       }
       break;
+    case Cmd_COMPUTER_DIG_TO_LOCATION:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            // Abuse script command for testing purposes
+            struct Computer2* comp = get_computer_player(i);
+            struct Coord3d startpos;
+            struct Coord3d endpos;
+
+            struct Thing* heartng = get_player_soul_container(i);
+            startpos.x.val = heartng->mappos.x.val;
+            startpos.y.val = heartng->mappos.y.val;
+            // Dest is always player 0
+            struct Thing* desttng = get_player_soul_container(0);
+            endpos.x.val = desttng->mappos.x.val;
+            endpos.y.val = desttng->mappos.y.val;
+            JUSTMSG("TESTLOG: From player %d to player %d", heartng->owner, desttng->owner);
+            create_task_dig_to_attack(comp, startpos, endpos, desttng->owner, 0xFFFF);
+        }
+        break;
     case Cmd_USE_POWER_AT_SUBTILE:
       for (i=plr_start; i < plr_end; i++)
       {
