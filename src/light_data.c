@@ -450,9 +450,50 @@ long light_get_light_intensity(long idx)
   return _DK_light_get_light_intensity(idx);
 }
 
-long light_set_light_intensity(long a1, long a2)
+long light_set_light_intensity(long idx, long intensity)
 {
-  return _DK_light_set_light_intensity(a1, a2);
+  // return _DK_light_set_light_intensity(a1, a2);
+  struct Light *lgt = &game.lish.lights[idx];
+  unsigned int yedge;
+  long x1,x2,y1,y2;
+  if ( !light_is_invalid(lgt) )
+  {
+    if ( light_is_light_allocated(idx) )
+    {
+      if ( lgt->field_2 != intensity )
+      {
+        if ((lgt->flags & LgtF_Dynamic) == 0)
+        {
+          yedge = lgt->mappos.y.stl.num + lgt->range;
+          if ( yedge >= 255 )
+            yedge = 255;
+          y2 = yedge;
+          x2 = lgt->mappos.x.stl.num + lgt->range;
+          if ( x2 >= 255 )
+            x2 = 255;
+          y1 = lgt->mappos.y.stl.num - lgt->range;
+          if ( y1 <= 0 )
+            y1 = 0;
+          x1 = lgt->mappos.x.stl.num - lgt->range;
+          if ( x1 <= 0 )
+            x1 = 0;
+          light_signal_stat_light_update_in_area(x1, y1, x2, y2);
+          stat_light_needs_updating = 1;
+        }
+        lgt->field_2 = intensity;
+        if ( *(short *)&lgt->field_1C[8] < intensity )
+          lgt->flags |= LgtF_Unkn08;
+      }
+    }
+    else
+    {
+      ERRORLOG("Attempt to set intensity of unallocated light structure");
+    }
+  }
+  else
+  {
+    ERRORLOG("Attempt to set intensity of invalid light");
+  }
 }
 
 void clear_stat_light_map(void)
