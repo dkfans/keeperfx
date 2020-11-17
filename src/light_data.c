@@ -467,7 +467,7 @@ unsigned char light_get_light_intensity(long idx)
   }
 }
 
-void light_set_light_intensity(long idx, long intensity)
+void light_set_light_intensity(long idx, unsigned char intensity)
 {
   // return _DK_light_set_light_intensity(a1, a2);
   struct Light *lgt = &game.lish.lights[idx];
@@ -496,7 +496,7 @@ void light_set_light_intensity(long idx, long intensity)
           stat_light_needs_updating = 1;
         }
         lgt->intensity = intensity;
-        if ( *(short *)&lgt->field_1C[8] < intensity )
+        if ( *(unsigned short *)&lgt->field_1C[8] < intensity )
           lgt->flags |= LgtF_Unkn08;
       }
     }

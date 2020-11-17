@@ -118,7 +118,7 @@ void light_initialise(void);
 void light_turn_light_off(long num);
 void light_turn_light_on(long num);
 unsigned char light_get_light_intensity(long idx);
-void light_set_light_intensity(long idx, long intensity);
+void light_set_light_intensity(long idx, unsigned char intensity);
 long light_create_light(struct InitLight *ilght);
 void light_set_light_never_cache(long lgt_id);
 TbBool light_is_invalid(const struct Light *lgt);
