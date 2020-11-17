@@ -1070,24 +1070,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         if (i != -1)
         {
             fill_spell_slot(thing, i, spell_idx, splconf->duration);
-            if (thing->light_id != 0) 
-            {
-                light_delete_light(thing->light_id);
-            }
-            struct InitLight ilght;
-            LbMemorySet(&ilght, 0, sizeof(struct InitLight));
-            ilght.mappos.x.val = thing->mappos.x.val;
-            ilght.mappos.y.val = thing->mappos.y.val;
-            ilght.mappos.z.val = thing->mappos.z.val;
-            ilght.field_3 = 1;
-            ilght.field_2 = 36;
-            ilght.field_0 = 6560;
-            ilght.is_dynamic = 1;
-            thing->light_id = light_create_light(&ilght);
-            if (thing->light_id != 0) 
-            {
-                light_set_light_never_cache(thing->light_id);
-            }
+            light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) << 1));
+            struct Light* lgt = &game.lish.lights[thing->light_id];
+            lgt->field_16 <<= 1;
         }
         break;
     default:
@@ -1272,13 +1257,15 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         break;
     case SplK_Light:
         if (thing->light_id != 0) {
-            light_delete_light(thing->light_id);
             if (thing->alloc_flags & TAlF_IsControlled != 0)
             {
-                create_light_for_possession(thing);
+                light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) >> 1));
+                struct Light* lgt = &game.lish.lights[thing->light_id];
+                lgt->field_16 = 2560;
             }
             else
             {
+                light_delete_light(thing->light_id);
                 thing->light_id = 0;
             }
         }
