@@ -854,6 +854,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
     case PSt_CreatrQueryAll:
+    case PSt_ThingQuery:
         set_pointer_graphic(MousePG_Query);
         break;
     case PSt_PlaceTrap:

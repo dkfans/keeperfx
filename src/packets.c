@@ -1746,6 +1746,28 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
         break;
+    case PSt_ThingQuery:
+        thing = get_nearest_thing_at_position(stl_x, stl_y);
+        if (thing_is_invalid(thing))
+        {
+            player->thing_under_hand = 0;
+        }
+        else
+        {
+            player->thing_under_hand = thing->index;
+        }
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (player->thing_under_hand > 0)
+            {
+                char* name = thing_model_name(thing);
+                zero_messages();
+                message_add_fmt(plyr_idx, "%s owner: %d %s: %d", name, thing->owner, (thing->class_id == TCls_Trap) ? "shots" : "health", (thing->class_id == TCls_Trap) ? thing->trap.num_shots : thing->health);
+                free(name);
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);    
+        }
+        break;
     default:
         ERRORLOG("Unrecognized player %d work state: %d", (int)plyr_idx, (int)player->work_state);
         ret = false;
