@@ -445,9 +445,26 @@ void light_turn_light_on(long idx)
     }
 }
 
-long light_get_light_intensity(long idx)
+unsigned char light_get_light_intensity(long idx)
 {
-  return _DK_light_get_light_intensity(idx);
+  // return _DK_light_get_light_intensity(idx);
+  if ( idx )
+  {
+    if ( game.lish.lights[idx].flags & LgtF_Allocated )
+    {
+      return game.lish.lights[idx].field_2;
+    }
+    else
+    {
+      ERRORLOG("Attempt to get intensity of unallocated light structure");
+      return 0;
+    }
+  }
+  else
+  {
+    ERRORLOG("Attempt to get intensity of light 0");
+    return 0;
+  }
 }
 
 void light_set_light_intensity(long idx, long intensity)
