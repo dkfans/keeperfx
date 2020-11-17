@@ -1500,10 +1500,9 @@ msgstr "你失败了。也许你并非黑暗力量所期待的毁灭先锋。"
 #, fuzzy
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with "
-"panache which certain females find very attractive. A Dark Mistress has "
-"devoted herself to helping you achieve your next goal. You may proceed to "
-"your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with such "
+"panache that not one but two Dark Mistresses have devoted themselves to "
+"helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
 "你确实是个扭曲的灵魂，主人。你以如此眩目的方式消灭了那些小恶魔，以致于有两个"
 "黑暗女巫愿意尽她们的能力帮助你完成下一个目标。你可以继续进行下一场征战。"
@@ -1782,14 +1781,14 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
-"to reduces your enemies into ashes!"
+"to reduce your enemies into ashes!"
 msgstr ""
 
 #. Level Bonus 6 objective
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
-"Well done! Your immense wealth has drew the attention of a Thief. He will "
+"Well done! Your immense wealth has drawn the attention of a Thief. He will "
 "serve you well in the next realm!"
 msgstr ""
 
@@ -1817,7 +1816,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
-"in water and their spine can even pierce the most solid armors and paralyze "
+"in water and their spine can even pierce the most solid armours and paralyse "
 "your enemies! Marvellous!"
 msgstr ""
 
@@ -2004,7 +2003,7 @@ msgstr "反弹术: [26.18]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
 msgstr "恐惧术: 未使用"
 
@@ -2012,7 +2011,7 @@ msgstr "恐惧术: 未使用"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
 msgstr "恶魔之眼: 未使用"
 
@@ -2036,8 +2035,8 @@ msgstr "爆炸术: [26.9]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: This homes in on the nearest hero or enemy creature and "
-"explodes with devastating force."
+"Navigating Missile: A spell that sends a screaming magic reptile homing "
+"in on the nearest hero or enemy creature for double damage. Nice."
 msgstr "导向魔法飞弹: [26.16]"
 
 #: guitext:236
@@ -2081,7 +2080,7 @@ msgstr "传送术: [26.21]"
 #: guitext:241
 #, fuzzy
 msgctxt "Creature spell"
-msgid "Flame Breath: The devasting constant stream of searing fire."
+msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr "火焰气息: [26.6]"
 
 #: guitext:242
@@ -2097,13 +2096,13 @@ msgstr "照明术: 未使用"
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
+"from the air or cross lava unharmed."
 msgstr "飞行术: [26.7]"
 
 #: guitext:244
 #, fuzzy
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
+msgid "Hail Storm: Creates a fury of hailstones."
 msgstr "冰雹术: [26.10]"
 
 #: guitext:245
@@ -2117,8 +2116,8 @@ msgstr "缓慢术: [26.19]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a fair part of its health and "
-"magical abilities."
+"Drain: This spell drains the target creature a part of its health and gives it "
+"to the caster."
 msgstr "榨乾术: [26.4]"
 
 #: guitext:247
@@ -2142,15 +2141,15 @@ msgstr "复原术: [26.11]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you."
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
+"away from you. And nasty smells of course."
 msgstr "飓风术: [26.22]"
 
 #: guitext:250
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"Meteor: More powerful than the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
 msgstr "殒石术: [26.14]"
 
@@ -2396,7 +2395,7 @@ msgstr "杀死怪物数: 该怪物杀死的敌人数目。[23.7]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Strength: The amount of damage the creature inflicts upon it's enemies with "
+"Strength: The amount of damage the creature inflicts upon its enemies with "
 "each hit."
 msgstr "力量: 怪物对敌人造成的伤害度。[23.12]"
 
@@ -2488,7 +2487,7 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Fight: Your creatures always attack and not avoid any combat. LMB select."
+"Fight: Your creatures always attack and will not avoid any combat. LMB select."
 msgstr "战斗: 你的怪物必然会攻击。按滑鼠左键选择。[6.5.1]"
 
 #: guitext:306
@@ -2639,9 +2638,7 @@ msgstr ""
 #: guitext:327
 #, fuzzy
 msgctxt "Slab description"
-msgid ""
-"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
-"or building a Bridge."
+msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr "岩浆: 可烧死任何踩上去的怪物。[14.2]"
 
 #: guitext:328
@@ -3153,7 +3150,7 @@ msgstr "保全: 加强整个地下城。"
 #: guitext:427
 msgctxt "Dungeon special decription"
 msgid ""
-"Locate Hidden World: You will be transported to a secret realm after you "
+"Locate Hidden World: You will get access to a secret realm after you "
 "have conquered this one."
 msgstr "找出隐藏的世界: 在你征服了这个王国之后，你会被传送到一个秘密王国。"
 
@@ -3279,9 +3276,7 @@ msgstr "研发面板: 你可以使用的法术。[7.0]"
 #: guitext:450
 #, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Workshop Panel: The traps and doors available to you. You can center the map "
-"on them, place new ones or sell existing."
+msgid "Workshop Panel: The traps and doors available to you. You can centre the map on them, place new ones, or sell existing ones."
 msgstr "工作室面板: 你可以使用的陷阱和门。[8.0]"
 
 #: guitext:451
@@ -3312,7 +3307,7 @@ msgstr "工作室时间: 完成新陷阱制造的时间。[5.6]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Time: The time until the next Creature Payday. This bar increases over time "
+"Payday Time: The time until the next Creature Payday. This bar increases over time "
 "and, when it reaches its peak, all of your creatures receive their wages."
 msgstr "支薪时间: 距离下次怪物支薪的时间。[5.4]"
 
@@ -4261,7 +4256,7 @@ msgstr ""
 #: guitext:625
 msgctxt "Room description"
 msgid ""
-"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"Lair: Where your creatures sleep and replenish their health. LMB select. RMB "
 "zoom. [17.2]"
 msgstr ""
 "巢穴: 你的怪物在这里睡觉，补充它们的能量。按滑鼠左键选择。按滑鼠右键缩放视"
@@ -4289,7 +4284,7 @@ msgstr ""
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "祭坛: 敬拜黑暗诸神可以让怪物快乐一点。你可以把怪物丢进洗礼盆中，用它们来献"
 "祭。按滑鼠左键选择。按滑鼠右键缩放视野。[17.12]"
@@ -4411,8 +4406,9 @@ msgstr ""
 #: guitext:650
 msgctxt "Keeper spell description"
 msgid ""
-"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
-"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+"Call To Arms: Calls creatures in range to any destination. LMB Select. "
+"Cast in range of creatures to gather, cast again for destination. "
+"RMB zoom. LMB Cancel. [18.6]"
 msgstr ""
 "战斗呼叫: 将手下的所有怪物召集到地下城的某个地区。按滑鼠左键选择，再按一次滑"
 "鼠左键重新选择，按第三次滑鼠左键则取消。按滑鼠右键缩放视野。[18.6]"
@@ -4477,14 +4473,13 @@ msgstr "疾病术: 对敌人的一只怪物造成致命的病。按滑鼠左键�
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
-"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
 msgstr "破墙术: 击毁敌人的加强墙。按滑鼠左键选择。[18.16]"
 
 #: guitext:661
 msgctxt "Keeper spell description"
 msgid ""
-"Heal: Cast on an area of the dungeon to improve the health of your "
-"creatures. LMB select. [18.9]"
+"Heal: Cast on a creature to improve its health. LMB select. [18.9]"
 msgstr "医疗术: 对地下城的一个区域施展，提高怪物的健康。按滑鼠左键选择。[18.9]"
 
 #: guitext:662
@@ -4758,7 +4753,7 @@ msgstr "发现门箱: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:715
 msgctxt "Game event description"
-msgid "Dungeon special found: LMB toggle. RMB delete."
+msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr "发现地城特殊物品: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:716
@@ -4829,7 +4824,7 @@ msgstr "电脑辅助选单: 设定电脑辅助选项。[3.2.4]"
 #: guitext:729
 msgctxt "In-game interface description"
 msgid ""
-"Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+"Aggressive Computer Assistant: Constructs your dungeon and always tries to "
 "attack the enemy. LMB select. [3.2.4]"
 msgstr ""
 "侵略性电脑辅助: 建造你的地下城，而且主动尝试攻击敌人。按滑鼠左键选择。[3.2.4]"
@@ -4861,7 +4856,7 @@ msgstr "仅负责移动之电脑辅助: 移动并拍打你的怪物。按滑鼠�
 #: guitext:733
 msgctxt "In-game interface description"
 msgid ""
-"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB Zoom. [22.2.1]"
 msgstr "抓取最具经验之怪物: 按滑鼠左键抓取怪物。按滑鼠右键缩放视野。[22.2.1]"
 
 #: guitext:734
@@ -5818,7 +5813,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
-"down it's walls and let your creatures feast on the heroes within."
+"down its walls and let your creatures feast on the heroes within."
 msgstr "一度强大的堡垒变成荒无的废墟。击垮它的墙壁让你的怪物用英雄来填饱肚子。"
 
 #. DD Level Netzcaro information after AP reached
@@ -6155,7 +6150,8 @@ msgstr ""
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: unused."
+msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
+"the better the creature's performance."
 msgstr ""
 
 #: guitext:953
@@ -6194,9 +6190,7 @@ msgstr ""
 
 #: guitext:958
 msgctxt "In-game interface description"
-msgid ""
-"Best Damage: How much harm can be made by the strongest attack the creature "
-"has."
+msgid "Best Damage: How much harm can be done by the strongest attack the creature has."
 msgstr ""
 
 #: guitext:959
@@ -6207,38 +6201,33 @@ msgid ""
 msgstr ""
 
 #: guitext:960
+msgctxt "In-game interface description"
+msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
+msgstr ""
+
+#: guitext:961
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
 msgstr ""
 
-#: guitext:961
-#, fuzzy
+#: guitext:962
 msgctxt "Keeper spell name"
 msgid "Slap"
 msgstr "拍击次数"
 
-#: guitext:962
+#: guitext:963
 msgctxt "Keeper spell description"
-msgid ""
-"Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
+msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr ""
-
-#: guitext:963
-#, fuzzy
-msgctxt "Keeper spell description"
-msgid ""
-"Slap: Makes your creatures work harder, for some time. Your creatures take "
-"some damage from each slap they receive."
-msgstr ""
-"如果你想让你的怪物工作得更努力一点，请用邪恶之手指著它们，然后按滑鼠右键拍打"
-"它们。拍打怪物会使它们受伤。"
 
 #: guitext:964
 msgctxt "Keeper spell description"
 msgid "Slap: Makes your creatures work harder, for some time. "
 "Your creatures take some damage from each slap they receive."
 msgstr ""
+"如果你想让你的怪物工作得更努力一点，请用邪恶之手指著它们，然后按滑鼠右键拍打"
+"它们。拍打怪物会使它们受伤。"
 
 #: guitext:965
 msgctxt "In-game interface description"
@@ -6424,38 +6413,5 @@ msgstr ""
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
-msgid ""
-"Mysterious Box: There's no telling what this will do."
+msgid "Mysterious Box: There's no telling what this will do."
 msgstr ""
-
-#~ msgctxt "In-game message"
-#~ msgid "Your manufacturers have crafted the Lava Trap."
-#~ msgstr "你的工人已经制造了岩浆陷阱。"
-
-#~ msgctxt "Slab description"
-#~ msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
-#~ msgstr "无法穿透的岩石: 你的小恶魔无法凿穿此处。[12.4]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Earth: You can excavate this. [12.1]"
-#~ msgstr "土壤: 你可以挖掘此处。[12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Lava: Burns any creature that step on it. [14.2]"
-#~ msgstr "岩浆: 可烧死任何踩上去的怪物。[14.2]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Path: Unclaimed earth floor. [12.1]"
-#~ msgstr "通道: 无人占有的地面。[12.1]"
-
-#~ msgctxt "Slab description"
-#~ msgid "Claimed area: Your dungeon territory. [12.1]"
-#~ msgstr "占领区: 你的地城领土。[12.1]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Information Panel: Miscellaneous information. [5.0]"
-#~ msgstr "讯息面板: 杂项资料。[5.0]"
-
-#~ msgctxt "In-game interface description"
-#~ msgid "Time: The time until the next Creature Payday. [5.3]"
-#~ msgstr "支薪时间: 距离下次怪物支薪的时间。[5.4]"
