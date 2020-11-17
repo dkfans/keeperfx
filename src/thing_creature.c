@@ -296,7 +296,10 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
             make_group_member_leader(thing);
         }
     }
-    create_light_for_possession(thing);
+    if (!creature_affected_by_spell(thing, SplK_Light))
+    {
+        create_light_for_possession(thing);
+    }
     /*
     struct InitLight ilght;
     LbMemorySet(&ilght, 0, sizeof(struct InitLight));
@@ -737,7 +740,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Wind:
         return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_Light:
-        return false;//TODO CREATURE_SPELL find out how to check this
+        return ((cctrl->spell_flags & CSAfF_Unkn0080) != 0);
     case SplK_Hailstorm:
         return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_CrazyGas:
@@ -1070,9 +1073,13 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         if (i != -1)
         {
             fill_spell_slot(thing, i, spell_idx, splconf->duration);
-            light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) << 1));
-            struct Light* lgt = &game.lish.lights[thing->light_id];
-            lgt->field_16 <<= 1;
+            if (!creature_affected_by_spell(thing, SplK_Light))
+            {
+                cctrl->spell_flags |= CSAfF_Unkn0080;
+                light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) + 20));
+                struct Light* lgt = &game.lish.lights[thing->light_id];
+                lgt->field_16 <<= 1;
+            }
         }
         break;
     default:
@@ -1256,10 +1263,12 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->countdown_282 = 10;
         break;
     case SplK_Light:
-        if (thing->light_id != 0) {
+        if (thing->light_id != 0) 
+        {
+            cctrl->spell_flags &= ~CSAfF_Unkn0080;
             if (thing->alloc_flags & TAlF_IsControlled != 0)
             {
-                light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) >> 1));
+                light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
                 struct Light* lgt = &game.lish.lights[thing->light_id];
                 lgt->field_16 = 2560;
             }

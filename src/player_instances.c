@@ -945,7 +945,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
           disband_creatures_group(thing);
         }
     }
-    if (thing->light_id != 0) {
+    if ( (thing->light_id != 0) && (!creature_affected_by_spell(thing, SplK_Light)) ) {
         light_delete_light(thing->light_id);
         thing->light_id = 0;
     }
