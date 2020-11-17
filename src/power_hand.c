@@ -872,6 +872,16 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
             play_creature_sound(droptng, 6, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
+        if (creature_affected_by_spell(droptng, SplK_Light))
+        {
+            if (droptng->light_id == 0)
+            {
+                create_light_for_possession(droptng);
+                light_set_light_intensity(droptng->light_id, (light_get_light_intensity(droptng->light_id) + 20));
+                struct Light* lgt = &game.lish.lights[droptng->light_id];
+                lgt->radius <<= 1;
+            }
+        }
     } else
     if (thing_is_object(droptng))
     {
@@ -1260,6 +1270,14 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             i = convert_td_iso(122);
         else
             i = get_creature_anim(thing, 9);
+        if (creature_affected_by_spell(thing, SplK_Light))
+        {
+            if (thing->light_id != 0)
+            {
+                light_delete_light(thing->light_id);
+                thing->light_id = 0;
+            }
+        }
         set_thing_draw(thing, i, 256, -1, -1, 0, 2);
     } else
     if (thing_is_object(thing))
