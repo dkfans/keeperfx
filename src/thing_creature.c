@@ -1266,7 +1266,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         if (thing->light_id != 0) 
         {
             cctrl->spell_flags &= ~CSAfF_Unkn0080;
-            if (thing->alloc_flags & TAlF_IsControlled != 0)
+            if (thing->field_4F & TF4F_Unknown01 != 0)
             {
                 light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
                 struct Light* lgt = &game.lish.lights[thing->light_id];
