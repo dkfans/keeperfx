@@ -3436,7 +3436,6 @@ TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_mov
 
 TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, PlayerNumber victim_plyr_idx, long parent_cproc_idx)
 {
-    JUSTMSG("TESTOG: Start function");
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
     ctask = get_free_task(comp, 0);
@@ -3458,9 +3457,7 @@ TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d st
     ctask->lastrun_turn = 0;
     ctask->flags |= 0x04;
     // Setup the digging
-    JUSTMSG("TESTOG: GOING TO START DIGGING");
     setup_dig_to(&ctask->dig, startpos, endpos);
-    JUSTMSG("TESTOG: DIG SETUP");
     return true;
 }
 

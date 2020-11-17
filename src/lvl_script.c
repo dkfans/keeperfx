@@ -2925,7 +2925,6 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
 
 void command_computer_dig_to_location(long plr_range_id, const char* locname)
 {
-
     TbMapLocation location;
     if (!get_map_location_id(locname, &location))
     {
@@ -5694,20 +5693,35 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         for (i = plr_start; i < plr_end; i++)
         {
-            // Abuse script command for testing purposes
+            //i = computer who does the digging
             struct Computer2* comp = get_computer_player(i);
             struct Coord3d startpos;
-            struct Coord3d endpos;
-
             struct Thing* heartng = get_player_soul_container(i);
             startpos.x.val = heartng->mappos.x.val;
             startpos.y.val = heartng->mappos.y.val;
-            // Dest is always player 0
-            struct Thing* desttng = get_player_soul_container(0);
-            endpos.x.val = desttng->mappos.x.val;
-            endpos.y.val = desttng->mappos.y.val;
-            JUSTMSG("TESTLOG: From player %d to player %d", heartng->owner, desttng->owner);
-            create_task_dig_to_attack(comp, startpos, endpos, desttng->owner, 0xFFFF);
+
+            long x = 0;
+            long y = 0;
+            find_map_location_coords(val2, &x, &y, __func__);
+            if ((x == 0) && (y == 0))
+            {
+                WARNLOG("Can't decode location %d", val2);
+                break;
+            }
+            struct Coord3d endpos;
+            endpos.x.val = x;
+            endpos.y.val = y;
+
+            if (get_map_location_type(val2) == MLoc_PLAYERSHEART)
+            {
+                JUSTMSG("TESTLOG: From player %d to player %d", heartng->owner, val2);
+                create_task_dig_to_attack(comp, startpos, endpos, val2, 0xFFFF);
+            }
+            else
+            {
+                JUSTMSG("TESTLOG: From player %d to %d,%d", heartng->owner, x,y);
+                create_task_dig_to_neutral(comp, startpos, endpos);
+            }
         }
         break;
     case Cmd_USE_POWER_AT_SUBTILE:
