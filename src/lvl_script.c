@@ -5699,9 +5699,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
             struct Thing* heartng = get_player_soul_container(i);
             startpos.x.val = heartng->mappos.x.val;
             startpos.y.val = heartng->mappos.y.val;
-
-            long x = 0;
-            long y = 0;
+            startpos.z.val = subtile_coord(1, 0);
+            long x,y = 0;
+            
+            //val2 = target
             find_map_location_coords(val2, &x, &y, __func__);
             if ((x == 0) && (y == 0))
             {
@@ -5709,17 +5710,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
                 break;
             }
             struct Coord3d endpos;
-            endpos.x.val = x;
-            endpos.y.val = y;
+            endpos.x.val = subtile_coord_center(stl_slab_center_subtile(x));
+            endpos.y.val = subtile_coord_center(stl_slab_center_subtile(y));
+            endpos.z.val = subtile_coord(1, 0);
 
             if (get_map_location_type(val2) == MLoc_PLAYERSHEART)
             {
-                JUSTMSG("TESTLOG: From player %d to player %d", heartng->owner, val2);
                 create_task_dig_to_attack(comp, startpos, endpos, val2, 0xFFFF);
             }
             else
             {
-                JUSTMSG("TESTLOG: From player %d to %d,%d", heartng->owner, x,y);
                 create_task_dig_to_neutral(comp, startpos, endpos);
             }
         }
