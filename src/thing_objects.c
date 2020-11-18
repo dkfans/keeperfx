@@ -1001,14 +1001,14 @@ long food_moves(struct Thing *objtng)
             if (dirct_ctrl) {
                 objtng->food.byte_16 = 6;
             } else {
-                objtng->food.byte_16 = ACTION_RANDOM(4) + 1;
+                objtng->food.byte_16 = CREATURE_RANDOM(objtng, 4) + 1;
             }
         }
         if ((has_near_creature && (objtng->food.byte_16 < 5)) || (objtng->food.byte_16 == 0))
         {
             set_thing_draw(objtng, 819, -1, -1, -1, 0, 2u);
-            objtng->food.byte_15 = ACTION_RANDOM(0x39);
-            objtng->food.word_18 = ACTION_RANDOM(0x7FF);
+            objtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x39);
+            objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
             objtng->food.byte_16 = 0;
         } else
         if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->field_40) && (objtng->food.byte_16 < 5))
@@ -1024,7 +1024,7 @@ long food_moves(struct Thing *objtng)
         pos.y.val += vel_y;
         if (thing_in_wall_at(objtng, &pos))
         {
-            objtng->food.word_18 = ACTION_RANDOM(0x7FF);
+            objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
         }
         long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.word_18);
         int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.word_18);
@@ -1108,8 +1108,8 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, 10, tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->move_angle_xy = ACTION_RANDOM(0x800);
-            nobjtng->food.byte_15 = ACTION_RANDOM(0x6FF);
+            nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
+            nobjtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x6FF);
             nobjtng->food.byte_16 = 0;
           thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
           if (!is_neutral_thing(nobjtng)) {
@@ -1157,7 +1157,7 @@ long gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
         gold_store = add_gold_to_treasure_room_slab(slb_x, slb_y, gold_store);
     }
     unsigned long k;
-    long n = ACTION_RANDOM(room->slabs_count);
+    long n = PLAYER_RANDOM(room->owner, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -1215,7 +1215,7 @@ TbBool temple_check_for_arachnid_join_dungeon(struct Dungeon *dungeon)
                 return false;
             }
             struct Thing* ncreatng = create_creature_at_entrance(room, crmodel);
-            set_creature_level(ncreatng, ACTION_RANDOM(CREATURE_MAX_LEVEL));
+            set_creature_level(ncreatng, PLAYER_RANDOM(dungeon->owner,CREATURE_MAX_LEVEL));
             return true;
         }
     }

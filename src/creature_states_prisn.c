@@ -330,7 +330,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
         return false;
     }
     //TODO CONFIG Allow skeletification only if spent specific amount of turns in prison (set low value)
-    if (ACTION_RANDOM(101) > game.prison_skeleton_chance)
+    if (CREATURE_RANDOM(thing, 101) > game.prison_skeleton_chance)
       return false;
     if (is_my_player_number(room->owner))
       output_message(SMsg_PrisonMadeSkeleton, 0, true);
@@ -369,7 +369,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
       (game.play_gameturn > cctrl->imprison.start_gameturn + gameadd.time_in_prison_without_break))
   {
       // Check the base jail break condition - whether prison touches enemy land
-      if (jailbreak_possible(room, creatng->owner) && (ACTION_RANDOM(100) < gameadd.prison_break_chance))
+      if (jailbreak_possible(room, creatng->owner) && (CREATURE_RANDOM(creatng, 100) < gameadd.prison_break_chance))
       {
           if (is_my_player_number(room->owner))
               output_message(SMsg_PrisonersEscaping, 40, true);

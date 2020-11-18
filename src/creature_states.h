@@ -337,7 +337,7 @@ TbBool check_experience_upgrade(struct Thing *thing);
 void set_creature_size_stuff(struct Thing *creatng);
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val);
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
-SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind);
+SubtlCodedCoords find_position_around_in_room(struct Thing *thing, PlayerNumber owner, RoomKind rkind);
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
 TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 

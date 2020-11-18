@@ -263,7 +263,7 @@ struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing
         WARNLOG("Room with no slabs detected!");
         return rettng;
     }
-    long selected = ACTION_RANDOM(room->slabs_count);
+    long selected = CREATURE_RANDOM(creatng, room->slabs_count);
     unsigned long k = 0;
     long i = room->slabs_list;
     while (i != 0)
@@ -353,10 +353,10 @@ TbBool creature_setup_random_move_for_job_in_room_f(struct Thing *creatng, struc
     switch (room_area)
     {
     case JoKF_WorkOnAreaBorder:
-        result = find_random_position_at_area_of_room(&pos, room, RoArC_BORDER);
+        result = find_random_position_at_area_of_room(creatng, &pos, room, RoArC_BORDER);
         break;
     case JoKF_WorkOnAreaCenter:
-        result = find_random_position_at_area_of_room(&pos, room, RoArC_CENTER);
+        result = find_random_position_at_area_of_room(creatng, &pos, room, RoArC_CENTER);
         break;
     case (JoKF_WorkOnAreaBorder|JoKF_WorkOnAreaCenter):
         result = find_random_valid_position_for_thing_in_room(creatng, room, &pos);

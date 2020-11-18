@@ -543,8 +543,8 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 
     if (eestat->sprite_idx != -1)
     {
-        i = ACTION_RANDOM(eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
-        long n = ACTION_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
+        i = GAME_RANDOM(eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
+        long n = GAME_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->field_0);
         set_flag_byte(&thing->field_4F,TF4F_Unknown02,eestat->field_13);
         thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & (TF4F_Transpar_Flags);
@@ -563,7 +563,8 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 
     if (eestat->numfield_3 > 0)
     {
-        i = ACTION_RANDOM(eestat->numfield_5 - (long)eestat->numfield_3 + 1);
+        // TODO: Random. Why not unsync_random?
+        i = GAME_RANDOM(eestat->numfield_5 - (long)eestat->numfield_3 + 1);
         thing->health = eestat->numfield_3 + i;
     } else
     {
@@ -820,8 +821,8 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     SYNCDBG(18,"Starting");
     //return _DK_change_effect_element_into_another(thing,nmodel);
     struct EffectElementStats* eestat = get_effect_element_model_stats(nmodel);
-    int speed = eestat->sprite_speed_min + ACTION_RANDOM(eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
-    int scale = eestat->sprite_size_min + ACTION_RANDOM(eestat->sprite_size_max - eestat->sprite_size_min + 1);
+    int speed = eestat->sprite_speed_min + GAME_RANDOM(eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
+    int scale = eestat->sprite_size_min + GAME_RANDOM(eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * eestat->field_13) & TF4F_Unknown02;
@@ -832,7 +833,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     if (eestat->numfield_3 <= 0) {
         thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     } else {
-        thing->health = ACTION_RANDOM(eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
+        thing->health = GAME_RANDOM(eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
     }
     thing->field_49 = keepersprite_frames(thing->anim_sprite);
 }
@@ -1011,23 +1012,24 @@ void effect_generate_effect_elements(const struct Thing *thing)
         {
             if (effnfo->kind_min <= 0)
                 continue;
-            long n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
+            // TODO: Random. Maybe unsync?
+            long n = effnfo->kind_min + GAME_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
             struct Thing* elemtng = create_effect_element(&thing->mappos, n, thing->owner);
             TRACE_THING(elemtng);
             if (thing_is_invalid(elemtng))
                 break;
-            arg = ACTION_RANDOM(0x800);
-            argZ = ACTION_RANDOM(0x400);
+            arg = GAME_RANDOM(0x800);
+            argZ = GAME_RANDOM(0x400);
             // Setting XY acceleration
             long k = abs(effnfo->accel_xy_max - effnfo->accel_xy_min);
             if (k <= 1) k = 1;
-            long mag = effnfo->accel_xy_min + ACTION_RANDOM(k);
+            long mag = effnfo->accel_xy_min + GAME_RANDOM(k);
             elemtng->veloc_push_add.x.val += distance_with_angle_to_coord_x(mag,arg);
             elemtng->veloc_push_add.y.val += distance_with_angle_to_coord_y(mag,arg);
             // Setting Z acceleration
             k = abs(effnfo->accel_z_max - effnfo->accel_z_min);
             if (k <= 1) k = 1;
-            mag = effnfo->accel_z_min + ACTION_RANDOM(k);
+            mag = effnfo->accel_z_min + GAME_RANDOM(k);
             elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
             elemtng->state_flags |= TF1_PushAdd;
         }
@@ -1039,7 +1041,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         struct Coord3d pos;
         for (long i=0; i < effnfo->field_B; i++)
         {
-            long n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
+            long n = effnfo->kind_min + GAME_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
             long mag = effnfo->start_health - thing->health;
             arg = (mag << 7) + k/effnfo->field_B;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
@@ -1056,7 +1058,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         struct Coord3d pos;
         for (long i=0; i < effnfo->field_B; i++)
         {
-            long n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
+            long n = effnfo->kind_min + GAME_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
             long mag = thing->health;
             arg = (mag << 7) + k/effnfo->field_B;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
@@ -1127,8 +1129,8 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
     struct EffectGeneratorStats* egenstat = &effect_generator_stats[thing->model];
     for (long i = 0; i < egenstat->genation_amount; i++)
     {
-        long deviation_angle = ACTION_RANDOM(0x800);
-        long deviation_mag = ACTION_RANDOM(thing->belongs_to + 1);
+        long deviation_angle = GAME_RANDOM(0x800);
+        long deviation_mag = GAME_RANDOM(thing->belongs_to + 1);
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
         SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
@@ -1159,9 +1161,9 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         } else
         {
             SYNCDBG(18,"The %s created effect %d/%d, index %d",thing_model_name(thing),(int)i,(int)egenstat->genation_amount,(int)elemtng->index);
-            long acc_x = egenstat->acc_x_min + ACTION_RANDOM(egenstat->acc_x_max - egenstat->acc_x_min + 1);
-            long acc_y = egenstat->acc_y_min + ACTION_RANDOM(egenstat->acc_y_max - egenstat->acc_y_min + 1);
-            long acc_z = egenstat->acc_z_min + ACTION_RANDOM(egenstat->acc_z_max - egenstat->acc_z_min + 1);
+            long acc_x = egenstat->acc_x_min + GAME_RANDOM(egenstat->acc_x_max - egenstat->acc_x_min + 1);
+            long acc_y = egenstat->acc_y_min + GAME_RANDOM(egenstat->acc_y_max - egenstat->acc_y_min + 1);
+            long acc_z = egenstat->acc_z_min + GAME_RANDOM(egenstat->acc_z_max - egenstat->acc_z_min + 1);
             elemtng->veloc_push_add.x.val += acc_x;
             elemtng->veloc_push_add.y.val += acc_y;
             elemtng->veloc_push_add.z.val += acc_z;
@@ -1171,7 +1173,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
                 struct Thing* sectng = create_effect(&elemtng->mappos, TngEff_Unknown49, thing->owner);
                 TRACE_THING(sectng);
                 if (!thing_is_invalid(sectng)) {
-                    thing_play_sample(sectng, egenstat->sound_sample_idx + ACTION_RANDOM(egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                    thing_play_sample(sectng, egenstat->sound_sample_idx + GAME_RANDOM(egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
             if (egenstat->sound_sample_sec > 0) {
@@ -1179,7 +1181,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             }
         }
     }
-    thing->long_15 = egenstat->genation_delay_min + ACTION_RANDOM(egenstat->genation_delay_max - egenstat->genation_delay_min + 1);
+    thing->long_15 = egenstat->genation_delay_min + GAME_RANDOM(egenstat->genation_delay_max - egenstat->genation_delay_min + 1);
     return TUFRet_Modified;
 }
 

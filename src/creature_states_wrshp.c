@@ -188,7 +188,7 @@ TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *roo
     if ( a3 )
         cctrl->byte_9E = 50;
     cctrl->byte_9A = 1;
-    SubtlCodedCoords stl_num = find_position_around_in_room(&thing->mappos, thing->owner, room->kind);
+    SubtlCodedCoords stl_num = find_position_around_in_room(thing, thing->owner, room->kind);
     if (stl_num <= 0)
     {
         WARNLOG("Could not find position around in %s of %d slabs",room_code_name(room->kind),(int)room->slabs_count);
@@ -223,7 +223,7 @@ void setup_workshop_search_for_post(struct Thing *creatng)
     struct Thing* postng = INVALID_THING;
     struct Room* room = get_room_thing_is_on(creatng);
     // Find a random slab in the room to be used as our starting point
-    long i = ACTION_RANDOM(room->slabs_count);
+    long i = CREATURE_RANDOM(creatng, room->slabs_count);
     unsigned long n = room->slabs_list;
     while (i > 0)
     {

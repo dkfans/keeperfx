@@ -398,7 +398,7 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
  * @param wanderer
  * @return
  */
-TbBool setup_wanderer_move_to_random_creature_from_list(long first_thing_idx, struct Thing *wanderer)
+static TbBool setup_wanderer_move_to_random_creature_from_list(long first_thing_idx, struct Thing *wanderer)
 {
     long possible_targets = get_wanderer_possible_targets_count_in_list(first_thing_idx, wanderer);
     // Select random target
@@ -406,7 +406,7 @@ TbBool setup_wanderer_move_to_random_creature_from_list(long first_thing_idx, st
         SYNCDBG(4,"The %s index %d cannot wander to creature, there are no targets",thing_model_name(wanderer),(int)wanderer->index);
         return false;
     }
-    long target_match = ACTION_RANDOM(possible_targets);
+    long target_match = CREATURE_RANDOM(wanderer, possible_targets);
     if ( wander_to_specific_possible_target_in_list(first_thing_idx, wanderer, target_match) )
     {
         return true;
@@ -437,7 +437,7 @@ TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
  * @param dngn_id
  * @return
  */
-TbBool good_setup_wander_to_spdigger(struct Thing *wanderer, long dngn_id)
+static TbBool good_setup_wander_to_spdigger(struct Thing *wanderer, long dngn_id)
 {
     SYNCDBG(7,"Starting");
     struct Dungeon* dungeon = get_dungeon(dngn_id);
@@ -496,7 +496,7 @@ short good_attack_room(struct Thing *thing)
         return 1;
     }
     // Otherwise, search around for a tile to destroy
-    long m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         MapSlabCoord slb_x = base_slb_x + (long)small_around[m].delta_x;
@@ -531,7 +531,7 @@ short good_back_at_start(struct Thing *thing)
         return 1;
     }
     SubtlCodedCoords stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    long m = ACTION_RANDOM(AROUND_MAP_LENGTH);
+    long m = CREATURE_RANDOM(thing, AROUND_MAP_LENGTH);
     for (long n = 0; n < AROUND_MAP_LENGTH; n++)
     {
         struct Map* mapblk = get_map_block_at_pos(stl_num + around_map[m]);
@@ -679,7 +679,7 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
         return false;
     case CHeroTsk_AttackEnemies:
         // Randomly select if we will first try to wander to creature, or to special digger
-        if (ACTION_RANDOM(2) == 1)
+        if (CREATURE_RANDOM(creatng, 2) == 1)
         {
             // Try wander to creature
             if (good_setup_wander_to_creature(creatng, cctrl->party.target_plyr_idx))

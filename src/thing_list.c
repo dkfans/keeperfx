@@ -1386,7 +1386,8 @@ struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filte
     if (match_count < 1) {
         return INVALID_THING;
     }
-    return get_nth_thing_of_class_with_filter(filter, param, ACTION_RANDOM(match_count));
+    // TODO: Random. Terrible function. "Get some random thing"
+    return get_nth_thing_of_class_with_filter(filter, param, GAME_RANDOM(match_count));
 }
 
 long do_to_all_things_of_class_and_model(int tngclass, int tngmodel, Thing_Bool_Modifier do_cb)
@@ -1553,7 +1554,7 @@ struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, P
     if (match_count < 1) {
         return INVALID_THING;
     }
-    return get_nth_thing_of_class_with_filter(filter, &param, ACTION_RANDOM(match_count));
+    return get_nth_thing_of_class_with_filter(filter, &param, PLAYER_RANDOM(plyr_idx, match_count));
 }
 
 struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool locked)
@@ -1572,7 +1573,7 @@ struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, 
     if (match_count < 1) {
         return INVALID_THING;
     }
-    return get_nth_thing_of_class_with_filter(filter, &param, ACTION_RANDOM(match_count));
+    return get_nth_thing_of_class_with_filter(filter, &param, PLAYER_RANDOM(plyr_idx, match_count));
 }
 
 struct Thing *find_gold_laying_in_dungeon(const struct Dungeon *dungeon)
@@ -2125,7 +2126,7 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
     {
         return INVALID_THING;
     }
-    long crtr_idx = ACTION_RANDOM(total_count) + 1;
+    long crtr_idx = PLAYER_RANDOM(plyr_idx, total_count) + 1;
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model(dungeon->digger_list_start, crmodel, crtr_idx);
@@ -2153,7 +2154,7 @@ struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber ply
     {
       return INVALID_THING;
     }
-    long crtr_idx = ACTION_RANDOM(total_count) + 1;
+    long crtr_idx = PLAYER_RANDOM(plyr_idx, total_count) + 1;
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model_on_territory(dungeon->digger_list_start, crmodel, crtr_idx, friendly);
@@ -2308,7 +2309,7 @@ struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, 
         return retng;
     unsigned long k = 0;
     // Get random index of a thing in list
-    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, 0, ACTION_RANDOM(total_count));
+    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, 0, PLAYER_RANDOM(plyr_idx, total_count));
     long i = thing->index;
     while (k < total_count)
     {

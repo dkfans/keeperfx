@@ -44,8 +44,11 @@ extern "C" {
 
 #define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
-#define ACTION_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
+#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "game")
+#define CREATURE_RANDOM(thing, range) \
+    LbRandomSeries(range, &gameadd.things[thing->index].rand_seed, __func__, __LINE__, "creature")
 #define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
+#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
@@ -147,6 +150,9 @@ struct GameAdd {
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
+    unsigned long action_turn_rand_seed; // This is a base for action_rand_seed each turn
+
+    struct ThingAdd things[THINGS_COUNT];
 };
 
 #pragma pack()

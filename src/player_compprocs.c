@@ -347,7 +347,7 @@ long computer_setup_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
 
 long computer_setup_attack1(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    output_message(SMsg_EnemyHarassments + ACTION_RANDOM(8), 500, 1);
+    output_message(SMsg_EnemyHarassments + AI_RANDOM(8), 500, 1);
     return CProcRet_Continue;
 }
 
@@ -1164,7 +1164,7 @@ long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProce
 #define GRID COMPUTER_SOE_GRID_SIZE
         MapSlabCoord slb_x = map_tiles_x / 2;
         MapSlabCoord slb_y = map_tiles_y / 2;
-        int n = ACTION_RANDOM(GRID * GRID);
+        int n = AI_RANDOM(GRID * GRID);
         int i;
         for (i=0; i < GRID*GRID; i++)
         {
