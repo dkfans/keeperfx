@@ -1075,14 +1075,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             fill_spell_slot(thing, i, spell_idx, splconf->duration);
             if (!creature_affected_by_spell(thing, SplK_Light))
             {
-                if (thing->light_id == 0)
-                {
-                    create_light_for_possession(thing);
-                }
                 cctrl->spell_flags |= CSAfF_Unkn0080;
-                light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) + 20));
-                struct Light* lgt = &game.lish.lights[thing->light_id];
-                lgt->radius <<= 1;
+                illuminate_creature(thing);
             }
         }
         break;
@@ -5335,6 +5329,17 @@ void create_light_for_possession(struct Thing *creatng)
     } else {
       ERRORLOG("Cannot allocate light to new controlled thing");
     }
+}
+
+void illuminate_creature(struct Thing *creatng)
+{
+    if (creatng->light_id == 0)
+    {
+        create_light_for_possession(creatng);
+    }
+    light_set_light_intensity(creatng->light_id, (light_get_light_intensity(creatng->light_id) + 20));
+    struct Light* lgt = &game.lish.lights[creatng->light_id];
+    lgt->radius <<= 1;    
 }
 
 /******************************************************************************/

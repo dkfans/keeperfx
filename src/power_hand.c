@@ -874,13 +874,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
         if (creature_affected_by_spell(droptng, SplK_Light))
         {
-            if (droptng->light_id == 0)
-            {
-                create_light_for_possession(droptng);
-                light_set_light_intensity(droptng->light_id, (light_get_light_intensity(droptng->light_id) + 20));
-                struct Light* lgt = &game.lish.lights[droptng->light_id];
-                lgt->radius <<= 1;
-            }
+            illuminate_creature(droptng);
         }
     } else
     if (thing_is_object(droptng))
