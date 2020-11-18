@@ -37,22 +37,22 @@ enum PlayerNames {
 };
 
 enum PlayerInstanceNum {
-    PI_Unset = 0,
+    PI_Unset = 0,      // 0
     PI_Grab,
     PI_Drop,
     PI_Whip,
     PI_WhipEnd,
-    PI_DirctCtrl,
+    PI_DirctCtrl,      // 5
     PI_PsngrCtrl,
     PI_DirctCtLeave,
     PI_PsngrCtLeave,
     PI_QueryCrtr,
-    PI_UnqueryCrtr,
+    PI_UnqueryCrtr,    // 10
     PI_HeartZoom,
     PI_HeartZoomOut,
     PI_CrCtrlFade,
     PI_MapFadeTo,
-    PI_MapFadeFrom,
+    PI_MapFadeFrom,    // 15
     PI_ZoomToPos,
     PI_Unknown17,
     PI_Unknown18,
