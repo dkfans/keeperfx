@@ -4657,7 +4657,7 @@ TbBool setup_move_off_lava(struct Thing* thing)
         // Check all subtiles of the slab in random order
         long k;
         long n;
-        n = ACTION_RANDOM(AROUND_TILES_COUNT);
+        n = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
         for (k = 0; k < AROUND_TILES_COUNT; k++, n = (n + 1) % AROUND_TILES_COUNT)
         {
             struct Map* mapblk;
@@ -4766,7 +4766,7 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
             bx = sstep->h + slb_x;
             cx = slab_subtile_center(bx);
             cy = slab_subtile_center(by);
-            long j = ACTION_RANDOM(AROUND_TILES_COUNT);
+            long j = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
             for (long k = 0; k < AROUND_TILES_COUNT; k++, j = (j + 1) % AROUND_TILES_COUNT)
             {
                 MapSubtlCoord stl_x = cx + around[j].delta_x;

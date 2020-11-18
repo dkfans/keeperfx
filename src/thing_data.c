@@ -86,7 +86,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     game.free_things_start_index++;
 
     //TODO: more randomness?
-    gameadd.things[thing->index].rand_seed = LbNetwork_Packetid(); 
+    gameadd.things[thing->index].rand_seed = game.play_gameturn;
 
     TRACE_THING(thing);
     return thing;
