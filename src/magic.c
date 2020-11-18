@@ -1925,11 +1925,16 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
         WARNLOG("Player %d tried to cast %s which is unavailable",(int)plyr_idx,power_code_name(pwkind));
         ret = Lb_FAIL;
     }
-    ret = magic_use_power_on_thing(plyr_idx, pwkind, splevel, stl_x, stl_y, thing, allow_flags);
+    else
+    {
+        ret = magic_use_power_on_thing(plyr_idx, pwkind, splevel, stl_x, stl_y, thing, allow_flags);
+    }
     if (ret == Lb_FAIL) {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
+        {
             play_non_3d_sample(119);
+        }
     }
     return ret;
 }

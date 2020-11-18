@@ -32,6 +32,7 @@
 #include "creature_states.h"
 #include "config_creature.h"
 #include "config_effects.h"
+#include "power_specials.h"
 #include "room_data.h"
 #include "room_util.h"
 #include "map_blocks.h"
@@ -223,6 +224,10 @@ void creature_increase_available_instances(struct Thing *thing)
         {
             if (crstat->learned_instance_level[i] <= cctrl->explevel+1) {
                 cctrl->instance_available[k] = true;
+            }
+            else if ( (crstat->learned_instance_level[i] > cctrl->explevel+1) && !(gameadd.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            {
+                cctrl->instance_available[k] = false;   
             }
         }
     }

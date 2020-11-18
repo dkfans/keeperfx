@@ -30,6 +30,8 @@ extern "C" {
 /******************************************************************************/
 #define OBJECT_TYPES_COUNT  136
 
+#define OBJECT_TYPE_SPECBOX_CUSTOM    133
+
 enum ObjectStates {
     ObSt_Unused = 0,
     ObSt_FoodMoves,
