@@ -2482,7 +2482,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
             crstat = creature_stats_get_from_thing(thing);
             CreatureJob jobpref;
             jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
-            if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
+            if (get_drop_position_for_creature_job_in_room(thing, &pos, room, jobpref))
             {
                 if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
                     return CTaskRet_Unk2;
@@ -2513,7 +2513,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         //TODO CREATURE_AI try to make sure the creature will do proper activity in the room
         //     ie. select a room tile which is far from CTA and enemies
         ctask->move_to_room.room_idx2 = room->index;
-        if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
+        if (get_drop_position_for_creature_job_in_room(thing, &pos, room, jobpref))
         {
             if (computer_place_thing_in_power_hand(comp, thing, &pos)) {
                 SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)dungeon->owner,

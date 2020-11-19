@@ -542,7 +542,7 @@ long check_out_unconverted_spiral(struct Thing *thing, long nslabs)
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     imax = 2;
-    arndi = ACTION_RANDOM(4);
+    arndi = CREATURE_RANDOM(thing, 4);
     for (slabi = 0; slabi < nslabs; slabi++)
     {
         {
@@ -617,7 +617,7 @@ long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     imax = 2;
-    arndi = ACTION_RANDOM(4);
+    arndi = CREATURE_RANDOM(thing, 4);
     for (slabi = 0; slabi < nslabs; slabi++)
     {
         {
@@ -880,7 +880,8 @@ long check_out_undug_place(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     base_stl_x = stl_num_decode_x(cctrl->digger.task_stl);
     base_stl_y = stl_num_decode_y(cctrl->digger.task_stl);
-    n = ACTION_RANDOM(4);
+    // Random: Is it creature dependent or player dependent actually?
+    n = CREATURE_RANDOM(creatng, 4);
     for (i=0; i < 4; i++)
     {
         struct MapTask* mtask;
@@ -930,7 +931,7 @@ long get_random_mining_undug_area_position_for_digger_drop(PlayerNumber plyr_idx
     if (tsk_max > MAPTASKS_COUNT)
         tsk_max = MAPTASKS_COUNT;
     if (tsk_max > 1)
-        n = ACTION_RANDOM(tsk_max);
+        n = PLAYER_RANDOM(plyr_idx, tsk_max);
     else
         n = 0;
     for (i=0; i < tsk_max; i++,n=(n+1)%tsk_max)
@@ -1274,7 +1275,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
         around_flags = 0;
         long i;
         long n;
-        n = ACTION_RANDOM(4);
+        n = PLAYER_RANDOM(dungeon->owner, 4);
         for (i=0; i < SMALL_AROUND_LENGTH; i++)
         {
             slb_x = base_slb_x + (long)small_around[n].delta_x;
@@ -2016,7 +2017,7 @@ long check_place_to_dig_and_get_drop_position(PlayerNumber plyr_idx, SubtlCodedC
     if (!block_has_diggable_side(plyr_idx, subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
         return 0;
     place_slb = get_slabmap_for_subtile(place_x,place_y);
-    n = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    n = PLAYER_RANDOM(plyr_idx, SMALL_AROUND_SLAB_LENGTH);
 
     for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
     {
@@ -2294,7 +2295,7 @@ long check_out_imp_tokes(struct Thing *thing)
     long i;
     SYNCDBG(19,"Starting");
     cctrl = creature_control_get_from_thing(thing);
-    i = ACTION_RANDOM(64);
+    i = CREATURE_RANDOM(thing, 64);
     // small chance of changing state
     if (i != 0)
       return 0;
@@ -2324,13 +2325,15 @@ long check_out_imp_last_did(struct Thing *creatng)
       { 
         // If we were digging gems, after 5 repeats of this job, a 1 in 20 chance to select another dungeon job.
         // This allows to switch to other important tasks and not consuming all the diggers workforce forever
-        // TODO: ACTION_RANDOM?
-        if ((( rand( ) % 20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
+        if (( CREATURE_RANDOM(creatng, 20) == 1) 
+            && ((cctrl->digger.task_repeats % 5) == 0) 
+            && (dungeon->digger_stack_length > 1)) // TODO: what if we have two gems to dig?
         {
           // Set position in digger tasks list to a random place
           SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
           cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
-          cctrl->digger.task_stack_pos = ACTION_RANDOM(dungeon->digger_stack_length);
+          //TODO: Random maybe it should be PLAYER_RANDOM?
+          cctrl->digger.task_stack_pos = CREATURE_RANDOM(creatng, dungeon->digger_stack_length);
           break;
         }
       }

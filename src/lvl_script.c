@@ -3448,7 +3448,7 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         cctrl->party.target_plyr_idx = -1;
     }
 
-    long light_rand = ACTION_RANDOM(8);
+    long light_rand = GAME_RANDOM(8); // this may be unsynced random
     if (light_rand < 2)
     {
         struct InitLight ilght;
@@ -3504,19 +3504,20 @@ long script_support_create_thing_at_hero_door(long gate_num, ThingClass tngclass
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->field_AE |= 0x02;
     cctrl->spell_flags |= CSAfF_MagicFall;
-    thing->veloc_push_add.x.val += ACTION_RANDOM(193) - 96;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(193) - 96;
+    // Random: Are we creating a creature at the same turn on each client?!
+    thing->veloc_push_add.x.val += GAME_RANDOM(193) - 96;
+    thing->veloc_push_add.y.val += GAME_RANDOM(193) - 96;
     if ((thing->movement_flags & TMvF_Flying) != 0) {
-        thing->veloc_push_add.z.val -= ACTION_RANDOM(32);
+        thing->veloc_push_add.z.val -= GAME_RANDOM(32);
     } else {
-        thing->veloc_push_add.z.val += ACTION_RANDOM(96) + 80;
+        thing->veloc_push_add.z.val += GAME_RANDOM(96) + 80;
     }
     thing->state_flags |= TF1_PushAdd;
 
     if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
-        output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), MESSAGE_DELAY_LORD, 1);
+        output_message(SMsg_EnemyLordQuote + GAME_RANDOM(8), MESSAGE_DELAY_LORD, 1);
     }
     return thing->index;
 }
@@ -3539,7 +3540,8 @@ long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngcla
         pos.y.val = apt->mappos.y.val;
     } else
     {
-        long direction = ACTION_RANDOM(2 * LbFPMath_PI);
+        // Random: Are we creating a creature at the same turn on each client?!
+        long direction = GAME_RANDOM(2 * LbFPMath_PI);
         long delta_x = (apt->range * LbSinL(direction) >> 8);
         long delta_y = (apt->range * LbCosL(direction) >> 8);
         pos.x.val = apt->mappos.x.val + (delta_x >> 8);
@@ -3566,7 +3568,7 @@ long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngcla
     if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, 0, 1);
-        output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), 0, 1);
+        output_message(SMsg_EnemyLordQuote + GAME_RANDOM(8), 0, 1);
     }
     return thing->index;
 }
@@ -3590,8 +3592,8 @@ long script_support_create_thing_at_dungeon_heart(ThingClass tngclass, ThingMode
         return 0;
     }
     struct Coord3d pos;
-    pos.x.val = heartng->mappos.x.val + ACTION_RANDOM(65) - 32;
-    pos.y.val = heartng->mappos.y.val + ACTION_RANDOM(65) - 32;
+    pos.x.val = heartng->mappos.x.val + GAME_RANDOM(65) - 32;
+    pos.y.val = heartng->mappos.y.val + GAME_RANDOM(65) - 32;
     pos.z.val = heartng->mappos.z.val;
     struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, tngmodel, tngowner);
     if (thing_is_invalid(thing))
@@ -3604,7 +3606,7 @@ long script_support_create_thing_at_dungeon_heart(ThingClass tngclass, ThingMode
         if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
         {
             output_message(SMsg_LordOfLandComming, 0, 1);
-            output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), 0, 1);
+            output_message(SMsg_EnemyLordQuote + GAME_RANDOM(8), 0, 1);
         }
     }
     return thing->index;
@@ -3892,7 +3894,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long loca
 
 struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
 {
-    int n = ACTION_RANDOM(PLAYERS_COUNT);
+    int n = GAME_RANDOM(PLAYERS_COUNT);
     for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
     {
         if (!players_are_enemies(plyr_idx, n))

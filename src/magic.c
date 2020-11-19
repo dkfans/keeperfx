@@ -1187,8 +1187,8 @@ TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         ERRORLOG("There was place to create new thing, but creation failed");
         return Lb_OK;
     }
-    thing->veloc_push_add.x.val += ACTION_RANDOM(321) - 160;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(321) - 160;
+    thing->veloc_push_add.x.val += GAME_RANDOM(321) - 160;
+    thing->veloc_push_add.y.val += GAME_RANDOM(321) - 160;
     thing->veloc_push_add.z.val += 40;
     thing->state_flags |= TF1_PushAdd;
     powerst = get_power_model_stats(PwrK_TIMEBOMB);
@@ -1224,8 +1224,8 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
         return Lb_OK;
     }
     EVM_CREATURE_EVENT("joined", plyr_idx, thing);
-    thing->veloc_push_add.x.val += ACTION_RANDOM(161) - 80;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(161) - 80;
+    thing->veloc_push_add.x.val += GAME_RANDOM(161) - 80;
+    thing->veloc_push_add.y.val += GAME_RANDOM(161) - 80;
     thing->veloc_push_add.z.val += 160;
     thing->state_flags |= TF1_PushAdd;
     thing->move_angle_xy = 0;

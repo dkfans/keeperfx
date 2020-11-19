@@ -60,7 +60,7 @@ TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord s
 // Assigning jobs by computer player
 TbBool creature_can_do_job_for_computer_player_in_room_role(const struct Thing *creatng, PlayerNumber plyr_idx, RoomRole rrole);
 TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const struct Dungeon *dungeon, const struct Thing *creatng, CreatureJob new_job, unsigned long drop_kind_flags);
-TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const struct Room *room, CreatureJob jobpref);
+TbBool get_drop_position_for_creature_job_in_room(struct Thing *creatng, struct Coord3d *pos, const struct Room *room, CreatureJob jobpref);
 /******************************************************************************/
 #ifdef __cplusplus
 }
