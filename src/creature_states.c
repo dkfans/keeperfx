@@ -4630,7 +4630,7 @@ void process_person_moods_and_needs(struct Thing *thing)
     process_piss_need(thing, crstat);
 }
 
-TbBool setup_move_off_lava(struct Thing* thing)
+TbBool setup_move_off_lava(struct Thing *thing)
 {
     //return _DK_setup_move_off_lava(thing);
     MapSlabCoord slb_x;
@@ -4638,19 +4638,19 @@ TbBool setup_move_off_lava(struct Thing* thing)
     slb_x = subtile_slab(thing->mappos.x.stl.num);
     slb_y = subtile_slab(thing->mappos.y.stl.num);
     long i;
-    for (i = 0; i < 32; i++)
+    for (i=0; i < 32; i++)
     {
-        struct MapOffset* sstep;
+        struct MapOffset *sstep;
         MapSubtlCoord cx;
         MapSubtlCoord cy;
         sstep = &spiral_step[i];
         cx = slab_subtile_center(slb_x + sstep->h);
         cy = slab_subtile_center(slb_y + sstep->v);
-        struct SlabMap* slb;
-        slb = get_slabmap_for_subtile(cx, cy);
+        struct SlabMap *slb;
+        slb = get_slabmap_for_subtile(cx,cy);
         if (slabmap_block_invalid(slb))
             continue;
-        const struct SlabAttr* slbattr;
+        const struct SlabAttr *slbattr;
         slbattr = get_slab_attrs(slb);
         if (!slbattr->is_safe_land)
             continue;
@@ -4658,14 +4658,14 @@ TbBool setup_move_off_lava(struct Thing* thing)
         long k;
         long n;
         n = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
-        for (k = 0; k < AROUND_TILES_COUNT; k++, n = (n + 1) % AROUND_TILES_COUNT)
+        for (k=0; k < AROUND_TILES_COUNT; k++, n=(n + 1) % AROUND_TILES_COUNT)
         {
-            struct Map* mapblk;
+            struct Map *mapblk;
             long stl_x;
             long stl_y;
             stl_x = cx + around[k].delta_x;
             stl_y = cy + around[k].delta_y;
-            mapblk = get_map_block_at(stl_x, stl_y);
+            mapblk = get_map_block_at(stl_x,stl_y);
             if (!map_block_invalid(mapblk))
             {
                 if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
@@ -4682,15 +4682,15 @@ TbBool setup_move_off_lava(struct Thing* thing)
 
 //todo CAVE_IN_NEAR_FLEE_POSITION into config file
 #define CAVE_IN_NEAR_FLEE_POSITION 200
-TbBool setup_move_out_of_cave_in(struct Thing* thing)
+TbBool setup_move_out_of_cave_in(struct Thing *thing)
 {
     // return _DK_setup_move_out_of_cave_in(thing);
     MapSlabCoord bx = 0;
     MapSlabCoord by = 0;
     MapSubtlCoord cx = 0;
     MapSubtlCoord cy = 0;
-    struct Thing* tng;
-    struct MapOffset* sstep;
+    struct Thing *tng;
+    struct MapOffset *sstep;
     struct Map* blk;
     if (setup_combat_flee_position(thing))
     {
@@ -4740,19 +4740,20 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
             sstep = &spiral_step[i];
             bx = sstep->h + slb_x;
             by = sstep->v + slb_y;
-            struct SlabMap* slb;
+            struct SlabMap *slb;
             slb = get_slabmap_block(bx, by);
-            if (slabmap_block_invalid(slb))
+            if ( slabmap_block_invalid(slb) )
             {
                 continue;
             }
             blk = get_map_block_at(slab_subtile(bx, 0), slab_subtile(by, 0));
             long n = get_mapwho_thing_index(blk);
-            while (n != 0)
+            while ( n != 0 )
             {
                 tng = thing_get(n);
                 TRACE_THING(tng);
-                if (tng->class_id == TCls_EffectElem && tng->model == 46)
+                // This is single case where TCls_EffectElem is ever synced in multiplayer?
+                if ( tng->class_id == TCls_EffectElem && tng->model == 46 )
                 {
                     break;
                 }
@@ -4771,7 +4772,7 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
             {
                 MapSubtlCoord stl_x = cx + around[j].delta_x;
                 MapSubtlCoord stl_y = cy + around[j].delta_y;
-                struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+                struct Map *mapblk = get_map_block_at(stl_x, stl_y);
                 if (!map_block_invalid(mapblk))
                 {
                     if (subtile_is_blocking_wall_or_lava(stl_x, stl_y, thing->owner) == 0)

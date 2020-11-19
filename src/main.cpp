@@ -172,6 +172,10 @@ DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
+
+extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
+extern TbBool update_creature_pool_state(void);
+
 TbPixel get_player_path_colour(unsigned short owner)
 {
   return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
@@ -319,12 +323,6 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
     }
     SYNCDBG(1,"Returning true for player %ld",win_plyr_idx);
     return true;
-}
-
-void clear_creature_pool(void)
-{
-    memset(&game.pool,0,sizeof(struct CreaturePool));
-    game.pool.is_empty = true;
 }
 
 void give_shooter_drained_health(struct Thing *shooter, long health_delta)
@@ -790,56 +788,6 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             curpos.z.val += delta_z;
         }
     }
-}
-
-TbBool setup_move_off_lava(struct Thing *thing)
-{
-    //return _DK_setup_move_off_lava(thing);
-    MapSlabCoord slb_x;
-    MapSlabCoord slb_y;
-    slb_x = subtile_slab(thing->mappos.x.stl.num);
-    slb_y = subtile_slab(thing->mappos.y.stl.num);
-    long i;
-    for (i=0; i < 32; i++)
-    {
-        struct MapOffset *sstep;
-        MapSubtlCoord cx;
-        MapSubtlCoord cy;
-        sstep = &spiral_step[i];
-        cx = slab_subtile_center(slb_x + sstep->h);
-        cy = slab_subtile_center(slb_y + sstep->v);
-        struct SlabMap *slb;
-        slb = get_slabmap_for_subtile(cx,cy);
-        if (slabmap_block_invalid(slb))
-            continue;
-        const struct SlabAttr *slbattr;
-        slbattr = get_slab_attrs(slb);
-        if (!slbattr->is_safe_land)
-            continue;
-        // Check all subtiles of the slab in random order
-        long k;
-        long n;
-        n = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
-        for (k=0; k < AROUND_TILES_COUNT; k++, n=(n + 1) % AROUND_TILES_COUNT)
-        {
-            struct Map *mapblk;
-            long stl_x;
-            long stl_y;
-            stl_x = cx + around[k].delta_x;
-            stl_y = cy + around[k].delta_y;
-            mapblk = get_map_block_at(stl_x,stl_y);
-            if (!map_block_invalid(mapblk))
-            {
-                if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
-                {
-                    if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-    return false;
 }
 
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
@@ -2851,32 +2799,6 @@ void update_footsteps_nearest_camera(struct Camera *cam)
     timeslice = (timeslice + 1) % 4;
 }
 
-void add_creature_to_pool(long kind, long amount, unsigned long a3)
-{
-    long prev_amount;
-    kind %= CREATURE_TYPES_COUNT;
-    prev_amount = game.pool.crtr_kind[kind];
-    if ((a3 == 0) || (prev_amount != -1))
-    {
-        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
-            game.pool.crtr_kind[kind] = prev_amount + amount;
-        else
-            game.pool.crtr_kind[kind] = amount;
-    }
-}
-
-short update_creature_pool_state(void)
-{
-  int i;
-  game.pool.is_empty = true;
-  for (i=1; i < CREATURE_TYPES_COUNT; i++)
-  {
-      if (game.pool.crtr_kind[i] > 0)
-      { game.pool.is_empty = false; break; }
-  }
-  return true;
-}
-
 int clear_active_dungeons_stats(void)
 {
   struct Dungeon *dungeon;
@@ -2891,36 +2813,6 @@ int clear_active_dungeons_stats(void)
       memset((char *)dungeon->guijob_angry_creatrs_count, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
   }
   return i;
-}
-
-TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param)
-{
-    SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-    if (thing_is_picked_up(thing) || thing_is_dragged_or_pulled(thing))
-    {
-        return TUFRet_Unchanged;
-    }
-    if (thing_is_creature(thing))
-    {
-        apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
-        if (thing->health >= 0)
-        {
-            if ((thing->alloc_flags & TAlF_IsControlled) == 0)
-            {
-                if (get_creature_state_besides_interruptions(thing) != CrSt_CreatureEscapingDeath)
-                {
-                    if (cleanup_current_thing_state(thing) && setup_move_out_of_cave_in(thing))
-                        thing->continue_state = CrSt_CreatureEscapingDeath;
-                }
-            }
-            return TUFRet_Modified;
-        } else
-        {
-            kill_creature(thing, INVALID_THING, param->num1, CrDed_NoEffects|CrDed_DiedInBattle);
-            return TUFRet_Deleted;
-        }
-    }
-    return TUFRet_Unchanged;
 }
 
 TbBool valid_cave_in_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
