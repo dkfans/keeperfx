@@ -1231,7 +1231,7 @@ short imp_toking(struct Thing *creatng)
     {
         if (cctrl->instance_id == CrInst_NULL)
         {
-            if ( ACTION_RANDOM(8) )
+            if ( CREATURE_RANDOM(creatng, 8) )
                 set_creature_instance(creatng, CrInst_RELAXING, 0, 0, 0);
             else
                 set_creature_instance(creatng, CrInst_TOKING, 0, 0, 0);

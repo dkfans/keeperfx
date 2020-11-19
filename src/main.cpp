@@ -199,8 +199,8 @@ void setup_stuff(void)
 void powerful_magic_breaking_sparks(struct Thing *breaktng)
 {
     struct Coord3d pos;
-    pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + ACTION_RANDOM(11) - 5);
-    pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + ACTION_RANDOM(11) - 5);
+    pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + UNSYNC_RANDOM(11) - 5);
+    pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + UNSYNC_RANDOM(11) - 5);
     pos.z.val = get_floor_height_at(&pos);
     draw_lightning(&breaktng->mappos, &pos, 96, 60);
     if ( !S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0) ) {
@@ -248,7 +248,7 @@ void process_dungeon_destroy(struct Thing *heartng)
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {
-            if ( ACTION_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32 ) {
+            if ( UNSYNC_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32 ) {
                 create_effect(central_pos, TngEff_Unknown44, plyr_idx);
             }
         } else
@@ -392,7 +392,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         long delta_x;
         long delta_y;
         amp = 5 * thing->clipbox_size_xy / 8;
-        direction = ACTION_RANDOM(2*LbFPMath_PI);
+        direction = UNSYNC_RANDOM(2*LbFPMath_PI);
         delta_x = (amp * LbSinL(direction) >> 8);
         delta_y = (amp * LbCosL(direction) >> 8);
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
@@ -659,9 +659,9 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             for (k = num_per_step; k > 0; k--)
             {
                 struct Coord3d tngpos;
-                tngpos.x.val = curpos.x.val + deviat - ACTION_RANDOM(devrange);
-                tngpos.y.val = curpos.y.val + deviat - ACTION_RANDOM(devrange);
-                tngpos.z.val = curpos.z.val + deviat - ACTION_RANDOM(devrange);
+                tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange);
+                tngpos.y.val = curpos.y.val + deviat - UNSYNC_RANDOM(devrange);
+                tngpos.z.val = curpos.z.val + deviat - UNSYNC_RANDOM(devrange);
                 if ((tngpos.x.val < subtile_coord(map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(map_subtiles_y,0)))
                 {
                     struct Thing *eelemtng;
@@ -737,9 +737,9 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
         deviat_y = 0;
         deviat_z = 0;
         struct Coord3d curpos;
-        curpos.x.val = pos1->x.val + ACTION_RANDOM(eeinterspace/4);
-        curpos.y.val = pos1->y.val + ACTION_RANDOM(eeinterspace/4);
-        curpos.z.val = pos1->z.val + ACTION_RANDOM(eeinterspace/4);
+        curpos.x.val = pos1->x.val + UNSYNC_RANDOM(eeinterspace/4);
+        curpos.y.val = pos1->y.val + UNSYNC_RANDOM(eeinterspace/4);
+        curpos.z.val = pos1->z.val + UNSYNC_RANDOM(eeinterspace/4);
         int i;
         for (i=nsteps+1; i > 0; i--)
         {
@@ -825,7 +825,7 @@ TbBool setup_move_off_lava(struct Thing *thing)
         // Check all subtiles of the slab in random order
         long k;
         long n;
-        n = ACTION_RANDOM(AROUND_TILES_COUNT);
+        n = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
         for (k=0; k < AROUND_TILES_COUNT; k++, n=(n + 1) % AROUND_TILES_COUNT)
         {
             struct Map *mapblk;
@@ -2773,9 +2773,9 @@ long update_cave_in(struct Thing *thing)
     if ((game.play_gameturn % 3) == 0)
     {
         int n;
-        n = ACTION_RANDOM(AROUND_TILES_COUNT);
-        pos.x.val = thing->mappos.x.val + ACTION_RANDOM(0x2C0) * around[n].delta_x;
-        pos.y.val = thing->mappos.y.val + ACTION_RANDOM(0x2C0) * around[n].delta_y;
+        n = UNSYNC_RANDOM(AROUND_TILES_COUNT);
+        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_y;
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
@@ -2792,8 +2792,8 @@ long update_cave_in(struct Thing *thing)
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
-        pos.x.val = thing->mappos.x.val + ACTION_RANDOM(128);
-        pos.y.val = thing->mappos.y.val + ACTION_RANDOM(128);
+        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(128);
+        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(128);
         pos.z.val = get_floor_height_at(&pos) + 384;
         create_effect(&pos, TngEff_Unknown31, owner);
     }
@@ -2820,7 +2820,8 @@ long update_cave_in(struct Thing *thing)
         if ((pwrdynst->time < 10) || ((thing->health % (pwrdynst->time / 10)) == 0))
         {
             int round_idx;
-            round_idx = ACTION_RANDOM(AROUND_TILES_COUNT);
+            // TODO: Random
+            round_idx = GAME_RANDOM(AROUND_TILES_COUNT);
             set_coords_to_slab_center(&pos, subtile_slab(thing->mappos.x.val + 3 * around[round_idx].delta_x), subtile_slab(thing->mappos.y.val + 3 * around[round_idx].delta_y));
             if (subtile_has_slab(coord_subtile(pos.x.val), coord_subtile(pos.y.val)) && valid_cave_in_position(thing->owner, coord_subtile(pos.x.val), coord_subtile(pos.y.val)))
             {

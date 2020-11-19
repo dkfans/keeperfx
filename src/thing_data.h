@@ -234,6 +234,11 @@ unsigned short field_60;
  */
 #define TRACE_THING(thing)
 
+struct ThingAdd // Additional thing data
+{
+    unsigned long rand_seed;
+};
+
 #pragma pack()
 /******************************************************************************/
 #define allocate_free_thing_structure(a1) allocate_free_thing_structure_f(a1, __func__)

@@ -419,7 +419,7 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel)
+long compute_creature_attack_melee_damage(struct Thing *creature, long base_param, long luck, unsigned short crlevel)
 {
     if (base_param < -60000)
         base_param = -60000;
@@ -428,7 +428,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
     long max_param = base_param;
     if (luck > 0)
     {
-        if (ACTION_RANDOM(100) < luck)
+        if (CREATURE_RANDOM(creature, 100) < luck)
           max_param *= 2;
     }
     return saturate_set_signed(max_param, 16);
@@ -440,7 +440,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
-long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel)
+long compute_creature_attack_spell_damage(struct Thing *creature, long base_param, long luck, unsigned short crlevel)
 {
     if (base_param < -60000)
         base_param = -60000;
@@ -451,7 +451,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     long max_param = base_param + (crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (luck > 0)
     {
-        if (ACTION_RANDOM(100) < luck)
+        if (CREATURE_RANDOM(creature, 100) < luck)
           max_param *= 2;
     }
     return saturate_set_signed(max_param, 16);
