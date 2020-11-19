@@ -131,6 +131,8 @@ enum TbScriptCommands {
     Cmd_CREATURE_ENTRANCE_LEVEL           = 111, 
     Cmd_SET_CREATURE_POOL                 = 112,
     Cmd_USE_SPELL_ON_CREATURE             = 113,
+    Cmd_PRINTFX                           = 114,
+    Cmd_MESSAGEFX                         = 115,
 };
 
 enum ScriptVariables {
