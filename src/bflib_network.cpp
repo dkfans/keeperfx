@@ -191,9 +191,9 @@ struct NetBufferList
     bool empty() { return first == NULL; }
     void clear();
     void join_list(NetBufferList *list2);
-    struct NetBufferNode *find_by_data(void *data);
-    // Find and remove
-    struct NetBufferNode *extract_by_data(void *data);
+    struct NetBufferNode *rfind_by_data(void *data);
+    // Find and remove (starting from the end)
+    struct NetBufferNode *rextract_by_data(void *data);
 };
 
 /*
@@ -460,20 +460,21 @@ void NetBufferList::join_list(NetBufferList *list2)
     list2->last = NULL;
 }
 
-struct NetBufferNode *NetBufferList::extract_by_data(void *data)
+struct NetBufferNode *NetBufferList::rextract_by_data(void *data)
 {
     struct NetBufferNode *ret = NULL;
-    for (struct NetBufferNode *node = this->first;
+    for (struct NetBufferNode *node = this->last;
         node != NULL;
         )
     {
-        struct NetBufferNode *node2 = node->next;
-        if (data == node->data)
+        struct NetBufferNode *node2 = node->prev;
+        struct NetBufferItem *item = (struct NetBufferItem *)node->data;
+        if (data == item->buffer)
         {
             if (node->prev)
-                node->prev = node->next;
+                node->prev->next = node->next;
             if (node->next)
-                node->next = node->prev;
+                node->next->prev = node->prev;
             ret = node;
             break;
         }
@@ -490,14 +491,15 @@ struct NetBufferNode *NetBufferList::extract_by_data(void *data)
     return ret;
 }
 
-struct NetBufferNode *NetBufferList::find_by_data(void *data)
+struct NetBufferNode *NetBufferList::rfind_by_data(void *data)
 {
-    for (struct NetBufferNode *node = this->first;
+    for (struct NetBufferNode *node = this->last;
         node != NULL;
-        node = node->next
+        node = node->prev
         )
     {
-        if (data == node->data)
+        struct NetBufferItem *item = (struct NetBufferItem *)node->data;
+        if (data == item->buffer)
             return node;
     }
     return NULL;
@@ -870,6 +872,11 @@ static void SendClientFrame(int seq_nbr) //seq_nbr because it isn't necessarily 
 
     assert(cnt < 255);
     sm_count[0] = (unsigned char)cnt;
+    if (netstate.sp == NULL)
+    {
+        ERRORLOG("sp closed!");
+        return;
+    }
     netstate.sp->sendmsg_single(SERVER_ID, temp_buffer_data, ptr - temp_buffer_data);
 }
 
@@ -1573,7 +1580,7 @@ static void process_lists(
 
 void LbNetwork_SetDestination(void *packet_data, int net_player_idx)
 {
-    struct NetBufferNode *node = netstate.created_list.find_by_data(packet_data);
+    struct NetBufferNode *node = netstate.created_list.rfind_by_data(packet_data);
     if (node == NULL)
     {
         ERRORLOG("Unable to find node");
@@ -1584,7 +1591,7 @@ void LbNetwork_SetDestination(void *packet_data, int net_player_idx)
 
 void LbNetwork_MoveToOutgoingQueue(void *packet_data)
 {
-    struct NetBufferNode *node = netstate.created_list.extract_by_data(packet_data);
+    struct NetBufferNode *node = netstate.created_list.rextract_by_data(packet_data);
     if (node == NULL)
     {
         ERRORLOG("Unable to find node");
@@ -1718,6 +1725,10 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
         netstate.incoming_list.clear();
     }
 
+    if (netstate.sp == NULL)
+    {
+        return NR_DISCONNECT;
+    }
     netstate.sp->update(OnNewUser);
 
     assert(UserIdentifiersValid());

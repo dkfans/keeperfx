@@ -17,6 +17,8 @@
  */
 /******************************************************************************/
 #include "globals.h"
+
+#include "game_legacy.h"
 #include "net_game.h"
 #include "net_remap.h"
 #include "player_data.h" // for my_player_number
@@ -79,6 +81,15 @@ void net_remap_update(int net_player_id, Thingid their, Thingid mine)
     {
         NETDBG(1, "not found id:%d", their);
     }
+    if (mine == 0)
+    {
+        ERRORLOG("Remap from their:%d to ZERO?!");
+        return;
+    }else if (their == 0)
+    {
+        ERRORLOG("Remap from ZERO to mine:%d ?!", mine);
+        return;
+    }
     NETDBG(6, "Remap from their:%d to mine:%d", their, mine);
     thing_map[net_player_id][their] = mine;
 }
@@ -99,6 +110,7 @@ void net_remap_start(int net_player_id, unsigned char packet_kind, void *data, s
                 addendum.src_last = addendum.message_data;
                 addendum.src_end = addendum.src_last + MAX_CREATURES_PER_PACKET;
         }
+        NETDBG(10, "reserving %p[%d]", addendum.src_last, addendum.src_end - addendum.src_last);
     }
     else
     {
@@ -118,30 +130,38 @@ void net_remap_start(int net_player_id, unsigned char packet_kind, void *data, s
 
 void net_remap_creature_created(int owner, Thingid mine)
 {
+    if (game.play_gameturn == 0)
+    {
+        NETDBG(6, "loading level thing:%d", mine);
+        return;
+    }
     if (addendum.src_last >= addendum.src_end)
     {
-        ERRORLOG("Too many creatures per packet created! last:%d", mine);
+        ERRORLOG("Too many creatures per packet created! last:%d %p[%d]", mine, addendum.src_last, addendum.src_end - addendum.src_last);
         return;
     }
     if (addendum.net_player_id == my_player_number)
     {
-        NETDBG(6, "sening mine:%d", mine);
+        NETDBG(6, "master mine:%d", mine);
         *addendum.src_last = mine;
+        addendum.src_last++;
     }
     else
     {
-        net_remap_update(addendum.net_player_id, *addendum.src_last, mine);
+        Thingid their = *addendum.src_last;
+        net_remap_update(addendum.net_player_id, their, mine);
         if (addendum.dst_last >= addendum.dst_end)
         {
             ERRORLOG("Too many creatures per packet created! last:%d", mine);
             return;        
         }
-        *addendum.dst_last = *addendum.src_last;
+        *addendum.dst_last = their;
         addendum.dst_last++;
         *addendum.dst_last = mine;
         addendum.dst_last++;
+        NETDBG(6, "slave mine:%d their:%d", mine, their);
+        addendum.src_last++;
     }
-    addendum.src_last++;
 }
 
 void net_remap_finish()
@@ -155,17 +175,17 @@ void net_remap_finish()
         }
 
         NETDBG(7, "sending remap notification");
-        size_t size = sizeof(short) * (addendum.dst_last - addendum.dst_buf);
-        unsigned *packet_data = LbNetwork_AddPacket(PckA_RemapNotify, 0, size);
+        size_t size = sizeof(Thingid) * (addendum.dst_last - addendum.dst_buf);
+        Thingid *packet_data = LbNetwork_AddPacket(PckA_RemapNotify, 0, size);
 
         LbNetwork_SetDestination(packet_data, addendum.net_player_id); // Only for original sender
-        LbNetwork_MoveToOutgoingQueue(packet_data); // We dont want to get this message
+        LbNetwork_MoveToOutgoingQueue(packet_data); // We dont want to get this message ourself
 
         int i = 0;
         for (unsigned short *val = addendum.dst_buf; val <= addendum.dst_last;)
         {
-            packet_data[i++] = *val; val++;
-            packet_data[i++] = *val; val++;
+            packet_data[i++] = *val; val++; // other's
+            packet_data[i++] = *val; val++; // mine
         }
     }
     addendum.src_last = NULL;
@@ -179,13 +199,13 @@ void net_remap_finish()
 */
 TbBool net_remap_packet_cb(unsigned long turn, int net_idx, unsigned char kind, void *data_ptr, short size)
 {
-    NETDBG(7, "net_idx:%d size:%d", net_idx, size);
+    NETDBG(6, "net_idx:%d size:%d", net_idx, size);
     unsigned short *src = (unsigned short *)data_ptr;
     unsigned short *src_end = src + (size / sizeof(short));
     while(src < src_end)
     {
-        unsigned short their = *(src++);
         unsigned short mine = *(src++);
+        unsigned short their = *(src++);
         net_remap_update(net_idx, their, mine);
     }
 }
