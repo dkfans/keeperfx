@@ -49,11 +49,11 @@ void message_draw(void)
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
         LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
-        unsigned long spr_idx; // = (gameadd.messages[i].plyr_idx == game.hero_player_num) ? get_creature_model_graphics(7, CGI_HandSymbol) : 488+gameadd.messages[i].plyr_idx;
-        if (gameadd.messages[i].plyr_idx == game.hero_player_num)
+        unsigned long spr_idx; // = ((char)gameadd.messages[i].plyr_idx < 0) ? get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol) : 488+gameadd.messages[i].plyr_idx;
+        if ((char)gameadd.messages[i].plyr_idx < 0)
         {
             y -= 20;
-            spr_idx = get_creature_model_graphics(7, CGI_HandSymbol);
+            spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
         }
         else
         {

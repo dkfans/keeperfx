@@ -37,6 +37,7 @@
 #include "config_magic.h"
 #include "config_creature.h"
 #include "config_effects.h"
+#include "gui_msgs.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
 #include "frontmenu_ingame_tabs.h"
@@ -133,7 +134,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS},
   {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE},
-  {"PRINT",                             "PAN     ", Cmd_PRINTFX},
+  {"PRINT",                             "AAN     ", Cmd_PRINTFX},
   {"MESSAGE",                           "ANN     ", Cmd_MESSAGEFX},
   {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER},
@@ -2449,11 +2450,20 @@ void command_message(const char *msgtext, unsigned char kind)
   SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
 }
 
-void command_printfx(long plr_range_id, const char *msg, int idx)
+void command_printfx(char *range_id, const char *msg, int idx)
 {
+  char id = get_rid(creature_desc, range_id);
+  if (id == -1)
+  {
+      id = atoi(range_id);
+  }
+  else
+  {
+      id = (~id) + 1;
+  }
   strncpy(gameadd.quick_messages[idx], msg, MESSAGE_TEXT_LEN-1);
   gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
-  command_add_value(Cmd_PRINTFX, plr_range_id, idx, 0, 0);
+  command_add_value(Cmd_PRINTFX, 0, id, idx, 0);
 }
 
 void command_messagefx(const char *msg, unsigned long nturns, int idx)
@@ -3038,7 +3048,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_message(scline->tp[0],80);
         break;
     case Cmd_PRINTFX:
-        command_printfx(scline->np[0], scline->tp[1], scline->np[2]);
+        command_printfx(scline->tp[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
@@ -5427,7 +5437,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
   case Cmd_PRINTFX:
   {
-      message_add_fmt(plr_range_id, "%s", gameadd.quick_messages[val2]);
+      message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
       break;
   }
  case Cmd_MESSAGEFX:
