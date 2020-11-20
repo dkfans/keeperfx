@@ -134,8 +134,8 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS},
   {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE},
-  {"PRINT",                             "AAN     ", Cmd_PRINTFX},
-  {"MESSAGE",                           "ANN     ", Cmd_MESSAGEFX},
+  {"PRINT",                             "AN     ", Cmd_PRINTFX},
+  {"MESSAGE",                           "AN     ", Cmd_MESSAGEFX},
   {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER},
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES},
@@ -2450,7 +2450,7 @@ void command_message(const char *msgtext, unsigned char kind)
   SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
 }
 
-void command_printfx(char *range_id, const char *msg, int idx)
+void command_printfx(char *range_id, int idx)
 {
   char id = get_rid(creature_desc, range_id);
   if (id == -1)
@@ -2461,16 +2461,12 @@ void command_printfx(char *range_id, const char *msg, int idx)
   {
       id = (~id) + 1;
   }
-  strncpy(gameadd.quick_messages[idx], msg, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
   command_add_value(Cmd_PRINTFX, 0, id, idx, 0);
 }
 
-void command_messagefx(const char *msg, unsigned long nturns, int idx)
+void command_messagefx(int idx, unsigned long nturns)
 {
-  strncpy(gameadd.quick_messages[idx], msg, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
-  command_add_value(Cmd_MESSAGEFX, 0, nturns, idx, 0);
+  command_add_value(Cmd_MESSAGEFX, 0, idx, nturns, 0);
 }
 
 void command_swap_creature(const char *ncrt_name, const char *crtr_name)
@@ -3048,13 +3044,13 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_message(scline->tp[0],80);
         break;
     case Cmd_PRINTFX:
-        command_printfx(scline->tp[0], scline->tp[1], scline->np[2]);
+        command_printfx(scline->tp[0], scline->np[1]);
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
         break;
     case Cmd_MESSAGEFX:
-        command_messagefx(scline->tp[0],scline->np[1], scline->np[2]);
+        command_messagefx(scline->np[0],scline->np[1]);
         break;
     case Cmd_PLAY_MESSAGE:
         command_play_message(scline->np[0], scline->tp[1], scline->np[2]);
@@ -5442,7 +5438,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   }
  case Cmd_MESSAGEFX:
   {
-      show_onscreen_msg(val2, "%s", gameadd.quick_messages[val3]);
+      show_onscreen_msg(val3, "%s", gameadd.quick_messages[val2]);
       break;
   }
   case Cmd_SET_GAME_RULE:
