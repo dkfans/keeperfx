@@ -1309,6 +1309,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 apply_damage_to_thing(tngdst, damage, damage_type, -1);
                 affected = true;
                 event_create_event_or_update_nearby_existing_event(tngdst->mappos.x.val, tngdst->mappos.y.val,EvKind_HeartAttacked, tngdst->owner, 0);
+                affect_nearby_friends_with_alarm(tngdst);
                 if (is_my_player_number(tngdst->owner))
                 {
                     output_message(SMsg_HeartUnderAttack, 400, true);
