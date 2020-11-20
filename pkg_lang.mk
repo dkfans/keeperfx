@@ -41,6 +41,7 @@ pkg/campgns/ancntkpr/text_eng.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
 pkg/campgns/ancntkpr/text_ger.dat \
 pkg/campgns/ancntkpr/text_pol.dat \
+pkg/campgns/ancntkpr/text_chi.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/burdnimp/text_pol.dat \
 pkg/campgns/cqarctic/text_eng.dat \
@@ -121,6 +122,14 @@ pkg/fxdata/gtext_%.dat: lang/gtext_%.pot tools/po2ngdat/res/char_encoding_tbl_eu
 
 # Creation of engine language files for campaigns
 define define_campaign_language_rule
+
+pkg/campgns/$(1)/text_ch%.dat: lang/$(1)/text_ch%.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
 pkg/campgns/$(1)/%.dat: lang/$(1)/%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
 	-$$(ECHO) 'Building language file: $$@'
 	@$$(MKDIR) $$(@D)
