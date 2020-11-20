@@ -37,7 +37,7 @@ msgctxt "In-game message"
 msgid ""
 "Success! The Ancients applaud! Press Space to proceed to the next realm."
 msgstr ""
-"Success! The Ancients applaud! Press Space to proceed to the next realm."
+"成功了！远古守护者们为你鼓掌！按空格键进入下一个王国。"
 
 #: guitext:1
 msgctxt "In-game message"
@@ -46,12 +46,15 @@ msgid ""
 "white, but will soon be soaked red with the blood of your enemies! This test "
 "is beneath you I'm sure."
 msgstr ""
+"欢迎来到第一个远古王国，守护者。这里的地毯现在是白色的，"
+"但是很快就会被敌人的鲜血染红！我相信这对你来说是小菜一碟。"
 
 #: guitext:2
 msgctxt "In-game message"
 msgid ""
 "You have earned the right to the ultimate challenge - L'Cyfre's Challenge."
 msgstr ""
+"你已经赢得了机会参加最终的挑战——里西弗的考验。"
 
 #: guitext:3
 msgctxt "In-game message"
@@ -59,12 +62,14 @@ msgid ""
 "Some advice from Salaar; do not dig out from your Dungeon Heart until you "
 "have defeated the Knights who wait without."
 msgstr ""
+"撒拉尔的建议：在你击败地下城外面的的骑士之前，不要从地下城心脏向外挖掘。"
 
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
 "Make haste, Keeper! Your Workshop is one of the keys to this realm. To work!"
 msgstr ""
+"行动起来，守护者！你建造的工厂是征服这个王国的关键。开始做工吧！"
 
 #: guitext:5
 msgctxt "In-game message"
@@ -72,6 +77,8 @@ msgid ""
 "A dismal start, Keeper! You will need to use all your powers to proceed; "
 "remember the Ancients are watching!"
 msgstr ""
+"悲惨的开端，守护者！你必须使出浑身解数才能继续发展下去；"
+"别忘了远古守护者们都在看着你呢！"
 
 #: guitext:6
 msgctxt "In-game message"
@@ -79,6 +86,8 @@ msgid ""
 "A good start, Keeper. If you continue in this vein, you must surely attract "
 "the attention of the Ancients!"
 msgstr ""
+"不错的开端，守护者！如果你能继续保持这个状态，"
+"你一定能吸引远古守护者们的注意的！"
 
 #: guitext:7
 msgctxt "In-game message"
@@ -86,6 +95,8 @@ msgid ""
 "Heroes were common at this time, but they bleed as easily! Your work is "
 "nearly complete Keeper."
 msgstr ""
+"这里的英雄随处可见，但让他们流血死亡也一样很容易！"
+"你的任务就快要完成了，守护者。"
 
 #: guitext:8
 msgctxt "In-game message"
@@ -94,11 +105,14 @@ msgid ""
 "to the full. Rooms cannot be researched here. You will learn to construct "
 "them by stealing from other Keepers."
 msgstr ""
+"这里真是个奇怪的地方，守护者！没有入口是对你能力的最大程度的考验。"
+"在这里你无法研究房间。通过占领其他守护者的房间，你才能学会建造它们。"
 
 #: guitext:9
 msgctxt "In-game message"
 msgid "Another successful venture, Keeper! The next realm awaits."
 msgstr ""
+"又一次成功的冒险，守护者！下一个王国在等待着你。"
 
 #: guitext:10
 msgctxt "In-game message"
@@ -106,6 +120,7 @@ msgid ""
 "In this realm one of your enemies has captured a band of Avatars. Such a foe "
 "should be treated with respect!"
 msgstr ""
+"在这个王国中，你的一名敌人已经俘虏了一群圣者。这样厉害的对手值得尊重！"
 
 #: guitext:11
 msgctxt "In-game message"
@@ -113,6 +128,7 @@ msgid ""
 "T'Kaan's mistress has been exiled to this realm. Great skill be required to "
 "conquer this land."
 msgstr ""
+"特坎的情人被流放在这个王国中。你需要高超的技巧才能征服这片土地。"
 
 #: guitext:12
 msgctxt "In-game message"
@@ -120,6 +136,8 @@ msgid ""
 "Proceed with great caution. Dig slowly and you will avoid defeat. You must "
 "leave your dungeon without allowing access to it. Are you capable, Keeper?"
 msgstr ""
+"小心谨慎地操作。慢慢挖掘，你才能避免失败。你必须从你的地下城中出去，"
+"同时不能让敌人进来。你能做到吗，守护者？"
 
 #: guitext:13
 msgctxt "In-game message"
@@ -127,6 +145,8 @@ msgid ""
 "One heart destroyed, Keeper. You must now prepare for an attack on the lair "
 "to the south, but beware; I smell heroes!"
 msgstr ""
+敌人的地下城心脏被摧毁了，守护者。你现在必须准备迎接来自南面的敌人攻击，"
+"但要注意：我闻到了英雄的气息！"
 
 #: guitext:14
 msgctxt "In-game message"
@@ -134,6 +154,7 @@ msgid ""
 "Hmmm. I believe T'Kaan's wife will be pleased, but you have done yourself no "
 "credit at all."
 msgstr ""
+"嗯……我相信特坎的夫人现在会很满意，但是你自己却名誉扫地。"
 
 #: guitext:15
 msgctxt "In-game message"
@@ -141,6 +162,8 @@ msgid ""
 "Excellent work, Keeper. You have pleased T'Kaan (though not his wife!) and "
 "your name is being mentioned by the Ancients!"
 msgstr ""
+"干得漂亮，守护者。你让特坎十分满意（虽然他的夫人不太满意！），"
+"而且远古守护者们现在开始提及你的名字了！"
 
 #: guitext:16
 msgctxt "In-game message"
@@ -148,6 +171,7 @@ msgid ""
 "Act swiftly, Keeper! Perverse though it sounds, heroes are about to die and "
 "you must save them!"
 msgstr ""
+"赶快行动，守护者！虽然听起来不合情理，但是英雄们就要死了，你必须拯救他们！"
 
 #: guitext:17
 msgctxt "In-game message"
@@ -155,12 +179,14 @@ msgid ""
 "An intervention from the Ancients! The hero heart is the key; your time is "
 "limited, Keeper."
 msgstr ""
+"远古守护者介入了这件事情：摧毁英雄的地下城心脏是关键；你的时间有限，守护者。"
 
 #: guitext:18
 msgctxt "In-game message"
 msgid ""
 "It's showtime! The Ancients crave amusement, Keeper. Do not disappoint them!"
 msgstr ""
+"现在是表演时间！远古守护者们喜欢看乐子，守护者。不要让他们失望了！"
 
 #: guitext:19
 msgctxt "In-game message"
@@ -168,6 +194,7 @@ msgid ""
 "Bravo, Keeper! Your performance & cunning have impressed the Ancients. "
 "Behold your reward."
 msgstr ""
+"棒极了，守护者！你狡诈的表现让远古守护者们印象深刻。拿好你的奖励吧。"
 
 #: guitext:20
 msgctxt "In-game message"
@@ -175,16 +202,19 @@ msgid ""
 "I think I hear the snoring of the Ancients, Keeper. You have been a "
 "disappointment."
 msgstr ""
+"我想我听到了远古守护者们的呼噜声。你的表现实在是令人失望。"
 
 #: guitext:21
 msgctxt "In-game message"
 msgid "Cunning and haste are required here, Keeper!"
 msgstr ""
+"你需要足够狡诈并且行动迅速才能通过这里，守护者！"
 
 #: guitext:22
 msgctxt "In-game message"
 msgid "A magnificent performance, Keeper! The Ancients applaud you!"
 msgstr ""
+"你的表现很出色，守护者！远古守护者们为你鼓掌！"
 
 #: guitext:23
 msgctxt "In-game message"
@@ -192,11 +222,13 @@ msgid ""
 "Defeat is inevitable now, Keeper. Maybe the moonlight wasn't bright enough? "
 "Did you use ALL your spells?"
 msgstr ""
+"你已经失败了，守护者。也许是今天的月光不够明亮吗？你把所有的魔法都用过一遍了吗？"
 
 #: guitext:24
 msgctxt "In-game message"
 msgid "The Avatars are free, Keeper. Be on your guard."
 msgstr ""
+"圣者已经被放出来了，守护者。准备防守吧。"
 
 #: guitext:25
 msgctxt "In-game message"
@@ -204,16 +236,19 @@ msgid ""
 "I trust any further hero interference will be treated with the contempt it "
 "deserves?"
 msgstr ""
+"我相信后面来骚扰你的英雄也都会为他们的轻蔑付出代价的，对吧？"
 
 #: guitext:26
 msgctxt "In-game message"
 msgid "Hmmm, is that the whiff of heroes I smell?"
 msgstr ""
+"嗯……我是不是闻到了英雄的气息？"
 
 #: guitext:27
 msgctxt "In-game message"
 msgid "Perhaps you are more suited to Eversmile?"
 msgstr ""
+"也许你更适合回去玩“欢笑之地”？"
 
 #: guitext:28
 msgctxt "In-game message"
@@ -221,11 +256,14 @@ msgid ""
 "A victory again, Keeper. Do not relax; we are still in the training phase. "
 "The Ancients wouldn't know you from one of their imps!"
 msgstr ""
+"你又一次胜利了，守护者。不过不要松懈：我们现在还处于训练阶段。"
+"在远古守护者们眼里，你和他们的一只小鬼并没什么两样！"
 
 #: guitext:29
 msgctxt "In-game message"
 msgid "Time to destroy the hero heart was limited, Keeper."
 msgstr ""
+"摧毁英雄地下城心脏是有时间限制的，守护者。"
 
 #: guitext:30
 msgctxt "In-game message"
@@ -233,6 +271,8 @@ msgid ""
 "Well done, Keeper. Now capture Reapers to add to your army. Other Keepers "
 "amass their armies against you!"
 msgstr ""
+"干得不错，守护者。现在俘虏冥界使者并将它们加入到你的军队当中吧。"
+"其他守护者们正在聚集他们的军队来对付你！"
 
 #: guitext:31
 msgctxt "In-game message"
@@ -240,6 +280,7 @@ msgid ""
 "Excellent, Keeper. The Ancients are preparing tougher tasks as they gaze on "
 "the destruction you've wrought!"
 msgstr ""
+"很好，守护者。看着被你毁灭的王国，远古守护者们正在准备一些更艰巨的任务！"
 
 #: guitext:32
 msgctxt "In-game message"
@@ -247,6 +288,7 @@ msgid ""
 "Do you recognise that stench? It's the smell of fear. Another Keeper and a "
 "land await!"
 msgstr ""
+"你闻到那股气味了吗？那是恐惧的气息。这片土地的另一个守护者在等待着你！"
 
 #: guitext:33
 msgctxt "In-game message"
@@ -255,11 +297,14 @@ msgid ""
 "prove yourself in his land. You have no creatures, but he has gifted you a "
 "powerful spell."
 msgstr ""
+"关德，一位拥有强大法力的远古守护者，授予了你一次在他的王国中证明自己的机会。"
+"你没有任何怪物，但是他赋予了你一项强大的魔法。"
 
 #: guitext:34
 msgctxt "In-game message"
 msgid "Cunningly done, Keeper, but your task is only half complete!"
 msgstr ""
+"你狡诈地除掉了一个敌人，守护者。但是你的任务还只完成了一半！"
 
 #: guitext:35
 msgctxt "In-game message"
@@ -267,6 +312,7 @@ msgid ""
 "Kwan Tek salutes you. You have proved your skills in his land, and may "
 "proceed with His blessing."
 msgstr ""
+"关德向你致敬。你在他的王国中证明了你的能力，并且可能会继续受到他的庇佑。"
 
 #: guitext:36
 msgctxt "In-game message"
@@ -274,6 +320,7 @@ msgid ""
 "Kwan Tek has not left you entirely alone, Keeper! Use this unDead minion "
 "wisely."
 msgstr ""
+"关德并没有只留下你一个人在这里，守护者！聪明地利用这个亡灵仆从吧。"
 
 #: guitext:37
 msgctxt "In-game message"
@@ -282,11 +329,14 @@ msgid ""
 "recalls a previous encounter! Your Dungeon is weak; re-inforce it "
 "immediately!"
 msgstr ""
+"没有时间了，守护者！远古时代的圣者正在追踪你，让你回忆起了从前的遭遇！"
+"你的地下城现在还很脆弱：立即强化整个地下城！"
 
 #: guitext:38
 msgctxt "In-game message"
 msgid "Bravo, Keeper. Let him be the first of many! Will he never learn?"
 msgstr ""
+"棒极了，守护者！就拿他第一个开刀吧！难道他永远不会长记性吗？"
 
 #: guitext:39
 msgctxt "In-game message"
@@ -294,11 +344,13 @@ msgid ""
 "You are unstoppable, Keeper! I think I hear the approach of further heroes; "
 "your torture room will indeed be busy!"
 msgstr ""
+"你已经势不可挡了，守护者！我感觉更多的英雄已经接近了；"
+"你的审讯室肯定会非常繁忙的！"
 
 #: guitext:40
 msgctxt "In-game message"
 msgid "Is your concentration faltering, Keeper?"
-msgstr ""
+msgstr "你是不是开始走神了，守护者？"
 
 #: guitext:41
 msgctxt "In-game message"
@@ -306,16 +358,19 @@ msgid ""
 "Be aware, Keeper, the only imps available are the ones you have brought with "
 "you to this land."
 msgstr ""
+"注意，守护者，你所能拥有的小鬼只有你来到这个王国时带来的这几只。"
 
 #: guitext:42
 msgctxt "In-game message"
 msgid "Let the heroes feel your wrath, oh Evil One!"
 msgstr ""
+"让英雄们感受你的愤怒吧，邪恶的主人！"
 
 #: guitext:43
 msgctxt "In-game message"
 msgid "You must free your creatures to progress in this realm, Master!"
 msgstr ""
+"你必须先释放你被囚禁的怪物才能继续前进，主人！"
 
 #: guitext:44
 msgctxt "In-game message"
@@ -323,6 +378,7 @@ msgid ""
 "A substantial force of Knights is being summoned by the hero heart; you must "
 "put a stop to this, your Evilness!"
 msgstr ""
+"一群强大的骑士正被英雄的地下城心脏召唤而来；你必须阻止他们的进攻，邪恶的主人！"
 
 #: guitext:45
 msgctxt "In-game message"
@@ -330,11 +386,14 @@ msgid ""
 "That's put a stop to the re-inforcements, Eminence! Victory approaches, and "
 "the Ancients have set you a puzzle to solve!"
 msgstr ""
+"你终于阻断了援军的到来，非常棒！胜利就在眼前，"
+"另外，远古守护者还设下了一个谜题等待你来解开！"
 
 #: guitext:46
 msgctxt "In-game message"
 msgid "Congratulations, Keeper, the land is yours! And the puzzle?"
 msgstr ""
+"恭喜你，守护者，你拥有了这片土地！另外，你解开那个谜题了吗？"
 
 #: guitext:47
 msgctxt "In-game message"
@@ -342,17 +401,21 @@ msgid ""
 "Welcome, Keeper, to an esteemed seat of learning. You have impressed the "
 "Ancients, and earned a place at a highly regarded College indeed!"
 msgstr ""
+"欢迎来到这所受人尊敬的学院，守护者。你令远古守护者们印象深刻，"
+"并且也自然赢得了在这所著名学院学习的机会！"
 
 #: guitext:48
 msgctxt "In-game message"
 msgid ""
 "A bit of light revision, Keeper? You now need a creature with Wind Power!"
 msgstr ""
+"稍微复习一下吧，守护者？你现在需要一只能使用风暴术的怪物！"
 
 #: guitext:49
 msgctxt "In-game message"
 msgid "Well done, Keeper! You will soon placate your angry creatures."
 msgstr ""
+"干得漂亮，守护者！你很快就能安抚你生气的怪物了。"
 
 #: guitext:50
 msgctxt "In-game message"
@@ -360,12 +423,15 @@ msgid ""
 "You have graduated with full honours! Congratulations, Keeper B.E. Perhaps "
 "you'd like to throw a hero corpse into the air?"
 msgstr ""
+"你以优异的成绩毕业了！恭喜你，守护者学士。"
+"或许你想要把一具英雄尸体扔到天上来庆祝一下？"
 
 #: guitext:51
 msgctxt "In-game message"
 msgid ""
 "The Heroes' Dungeon Heart throbs before you. Administer the coup de grace!"
 msgstr ""
+"英雄的地下城心脏在你面前跳动。给予它最后一击吧！"
 
 #: guitext:52
 msgctxt "In-game message"
@@ -373,6 +439,7 @@ msgid ""
 "Well done, Keeper. Do not kill the tunneller you have stranded; you have "
 "work for him."
 msgstr ""
+"做得好，守护者。不要杀掉这个被困住的挖掘者；你还需要利用他完成一些任务。"
 
 #: guitext:53
 msgctxt "In-game message"
@@ -380,6 +447,8 @@ msgid ""
 "The claiming of the portal in this land must be done with great care. Your "
 "courage is not the only thing that needs re-inforcing."
 msgstr ""
+"在这片土地上，入口的占领必须小心谨慎地来完成。"
+"你所需要“强化”的东西可不仅仅是你的胆量。"
 
 #: guitext:54
 msgctxt "In-game message"
@@ -387,6 +456,7 @@ msgid ""
 "Your first minion! Amongst your next tasks is a trick involving the prison. "
 "Take a straight path!"
 msgstr ""
+"你得到了第一只怪物！你的下一个任务是和监狱有关的谜题。找出一条通路吧！"
 
 #: guitext:55
 msgctxt "In-game message"
@@ -394,6 +464,7 @@ msgid ""
 "Excellent, Keeper! You will need to build an army for the final battle, so "
 "keep 'em coming!"
 msgstr ""
+"很好，守护者！你需要组建一支军队来参与最后的决战，所以让他们不断出来吧！"
 
 #: guitext:56
 msgctxt "In-game message"
@@ -401,12 +472,15 @@ msgid ""
 "The hero dungeon lies in ruins, and now you must prepare for the final "
 "battle. His forces are formidable, so take care, Keeper!"
 msgstr ""
+"英雄的地下城已经被摧毁了，现在你必须为决战做好准备。敌人的力量十分强大，"
+"所以请小心行事，守护者！"
 
 #: guitext:57
 msgctxt "In-game message"
 msgid ""
 "A victory to be proud of, Keeper! Salaar will not forget you in a hurry!"
 msgstr ""
+"一次值得骄傲的胜利，守护者！撒拉尔不会轻易忘掉你的！"
 
 #: guitext:58
 msgctxt "In-game message"
@@ -414,6 +488,8 @@ msgid ""
 "Your enemies defeat is imminent; savour this moment, Keeper! Let your "
 "laughter fill the air!"
 msgstr ""
+"你的敌人即将面临灭顶之灾；好好品味这一刻吧，守护者！"
+"让你的笑声弥漫在空气中吧！"
 
 #: guitext:59
 msgctxt "In-game message"
@@ -421,11 +497,14 @@ msgid ""
 "Your most valued convert is being tortured, and will defect imminently "
 "unless rescued; he holds the key to this realm!"
 msgstr ""
+"你招降的最强大的英雄正遭受敌人的拷打，如果不赶快去救他，他很快就会叛变！
+"他可是征服这个王国的关键！ "
 
 #: guitext:60
 msgctxt "In-game message"
 msgid "Force this lazy minion to claim the library, Keeper."
 msgstr ""
+"强迫这个懒惰的仆从去占领图书馆，守护者。"
 
 #: guitext:61
 msgctxt "In-game message"
@@ -433,6 +512,7 @@ msgid ""
 "This Samurai will be the source of your army. However there is a limit to "
 "their number."
 msgstr ""
+"这名忍者将为你招募你的军队。不过他们的数量有限。"
 
 #: guitext:62
 msgctxt "In-game message"
@@ -440,6 +520,8 @@ msgid ""
 "This thief will be the source of your army. With extra training they may "
 "develop into very useful warriors."
 msgstr ""
+"这个小偷将为你招募你的军队。经过一些额外训练，"
+"也许他们能成长为非常强大的战士。"
 
 #: guitext:63
 msgctxt "In-game message"
@@ -447,11 +529,14 @@ msgid ""
 "Your cunning does you credit, Keeper! The future is now in your hands. "
 "Scared of a balanced battle, your weaselness?"
 msgstr ""
+"你的阴谋诡计成功了，守护者！未来掌握在你的手中。"
+"你一定会害怕公平的对战吧，狡猾的家伙？"
 
 #: guitext:64
 msgctxt "In-game message"
 msgid "Victory awaits, Keeper. Act with haste!"
 msgstr ""
+"胜利就在前方，守护者。赶快行动起来！"
 
 #: guitext:65
 msgctxt "In-game message"
@@ -459,6 +544,8 @@ msgid ""
 "How satisfying it is to see an enemy Keeper's dungeon crumble and his power "
 "dissipate. Your reputation grows with your cunning!"
 msgstr ""
+"看着一个敌对的守护者的地下城的崩溃和丧失他的力量是一件多么愉快的事情啊！"
+"你的名声随着你的狡诈程度而增长！"
 
 #: guitext:66
 msgctxt "In-game message"
@@ -466,6 +553,7 @@ msgid ""
 "Explain yourself, Keeper! I trust you're not still waiting for Ug the "
 "mythical Barbarian?"
 msgstr ""
+"解释一下，守护者！我相信你不会是在等待传说中的野蛮人乌格的到来吧？"
 
 #: guitext:67
 msgctxt "In-game message"
@@ -473,22 +561,27 @@ msgid ""
 "This land requires aggression and speed, Keeper. It is unfortunate therefore "
 "that your minions are dominated by the bone idle!"
 msgstr ""
+"你需要迅速行动，并主动发起进攻，才能赢得这片土地，守护者。可不幸的是，"
+"你的仆从们一个个都是些懒骨头！"
 
 #: guitext:68
 msgctxt "In-game message"
 msgid "No portal, Keeper? The snoring of the Ancients grows thunderous!"
 msgstr ""
+"你还没有占领入口吗，守护者？远古守护者们的呼噜声都已经打得震天响了！"
 
 #: guitext:69
 msgctxt "In-game message"
 msgid ""
 "Your best soldier has arrived. Train him well, for he is your only hope!"
 msgstr ""
+"你最强大的战士到来了。好好训练他，因为他将是你唯一的希望！"
 
 #: guitext:70
 msgctxt "In-game message"
 msgid "Your persistent success is getting predictable, Master!"
 msgstr ""
+"你连续不断的获胜已经在意料之中了，主人！"
 
 #: guitext:71
 msgctxt "In-game message"
@@ -496,11 +589,14 @@ msgid ""
 "Are you interested in Entomology, Keeper? Insects are the only minions you "
 "will attract; down in the slime where you belong!"
 msgstr ""
+"你对昆虫学有兴趣吗，守护者？在这里你只能吸引昆虫加入；"
+"因为你处在一个充满泥沼的地方！"
 
 #: guitext:72
 msgctxt "In-game message"
 msgid "A temple, Keeper! What will you do with it?"
 msgstr ""
+"你发现了一座寺庙，守护者！你会用它做什么呢？"
 
 #: guitext:73
 msgctxt "In-game message"
@@ -508,11 +604,13 @@ msgid ""
 "Good scarifice, Keeper. This mage has a power you will need to conquer this "
 "realm."
 msgstr ""
+"不错的献祭，守护者。这位法师拥有一项能帮助你征服这个王国的技能。"
 
 #: guitext:74
 msgctxt "In-game message"
 msgid "Finally, the prison is claimed! Now capture as many heroes as you can."
 msgstr ""
+"终于，你占领了监狱！现在尽可能地多俘虏英雄吧！"
 
 #: guitext:75
 msgctxt "In-game message"
@@ -521,6 +619,8 @@ msgid ""
 "forlorn alcoves of your domain, in tribute to their futile efforts to keep "
 "you at bay."
 msgstr ""
+"你已经胜利了，守护者。你的敌人的尸体成了支撑你的领土的可悲支柱，"
+"这是对他们徒劳无功地想要让你陷入困境的报应。"
 
 #: guitext:76
 msgctxt "In-game message"
@@ -528,6 +628,7 @@ msgid ""
 "Try dropping some money into the temple. You will receive a message from the "
 "Gods!"
 msgstr ""
+"尝试在寺庙里扔一把金子吧。你会听到神对你的回复的！"
 
 #: guitext:77
 msgctxt "In-game message"
@@ -535,6 +636,7 @@ msgid ""
 "A formidable army of the Undead awaits you, Keeper. Maybe you'd better just "
 "quit?."
 msgstr ""
+"一支强大的亡灵大军正等待着你，守护者。也许你开始打退堂鼓了？"
 
 #: guitext:78
 msgctxt "In-game message"
@@ -542,33 +644,40 @@ msgid ""
 "In this realm the Ancients have granted you have workers but no fighters. An "
 "imp wouldn't go amiss either!"
 msgstr ""
+"在这个王国中，远古守护者赐予了你了一群工匠，但你并没有战斗单位。"
+"当然了，小鬼也必不可少！"
 
 #: guitext:79
 msgctxt "In-game message"
 msgid "Here's a warrior to do your bidding!"
 msgstr ""
+"有一名战士应征而来了！"
 
 #: guitext:80
 msgctxt "In-game message"
 msgid "Wow, you have a dragon! Can you make another?"
 msgstr ""
+"哇哦，你获得了一条龙！你能再获得一条吗？"
 
 #: guitext:81
 msgctxt "In-game message"
 msgid "Two Dragons, Keeper? Now you are unstoppable!"
 msgstr ""
+"你已经获得了两条龙，守护者？那么你已经不可阻挡了！"
 
 #: guitext:82
 msgctxt "In-game message"
 msgid ""
 "I assume you know that you can train a creature by putting him into battle?"
 msgstr ""
+"我认为你应该知道，怪物在战斗中也能获得经验吧？"
 
 #: guitext:83
 msgctxt "In-game message"
 msgid ""
 "Another victory, Keeper! A puzzle awaits you; are you brain as well as brawn?"
 msgstr ""
+"又一次胜利，守护者！一个谜题等着你来解开；你的头脑也和四肢一样发达吗？"
 
 #: guitext:84
 msgctxt "In-game message"
@@ -576,11 +685,14 @@ msgid ""
 "Welcome to the Land of Dragons, Keeper. With skill you will gain their "
 "services, but beware - they are fickle creatures in this realm!"
 msgstr ""
+"欢迎来到巨龙的王国，守护者。凭借出色的技巧，你将会得到它们的帮助，"
+"但要注意——这些龙可是一群浮躁的家伙！"
 
 #: guitext:85
 msgctxt "In-game message"
 msgid "Perhaps a different strategy, Keeper?"
 msgstr ""
+"或许再试试别的办法，守护者？"
 
 #: guitext:86
 msgctxt "In-game message"
@@ -588,11 +700,14 @@ msgid ""
 "Almost a Dragon! I hear it has a taste for Keepers, so don't let it get "
 "hungry."
 msgstr ""
+"你马上就能获得一条龙了！我听说它很想尝尝守护者的口味，"
+"所以可别让它饿着了。"
 
 #: guitext:87
 msgctxt "In-game message"
 msgid "Finally, Keeper, a dungeon worthy of the name. Can you afford one?"
 msgstr ""
+"终于，你拥有了这个名副其实的地下城。你能维持得住它吗？"
 
 #: guitext:88
 msgctxt "In-game message"
@@ -600,6 +715,7 @@ msgid ""
 "The dragon you were promised! Now its simply a matter of defeating all "
 "heroes and two other Keepers!"
 msgstr ""
+"巨龙兑现了它的承诺！那么现在就只是把两个其他守护者和所有英雄消灭的问题了。"
 
 #: guitext:89
 msgctxt "In-game message"
@@ -607,11 +723,14 @@ msgid ""
 "Switch on the computer assistant. This realm is so easy you can let it do "
 "your work while you have a cup of lemon tea!"
 msgstr ""
+"开启计算机助手吧。这个王国太简单了，你可以让计算机代劳，"
+"然后自己去喝一杯柠檬茶休息一下了！"
 
 #: guitext:90
 msgctxt "In-game message"
 msgid "A great victory. The Ancients are alarmed!"
 msgstr ""
+"一次了不起的胜利！远古守护者们有些慌张了！"
 
 #: guitext:91
 msgctxt "In-game message"
@@ -619,11 +738,14 @@ msgid ""
 "You have attracted the hottest babe in the Underworld, Keeper, and made even "
 "the Ancients jealous! Pander to her whims and she'll do anything for you!"
 msgstr ""
+"你得到了地下世界之中最火辣的女郎，守护者。远古守护者们甚至都开始嫉妒你了！"
+"只要你能满足她的癖好，她会帮你解决一切问题的！"
 
 #: guitext:92
 msgctxt "In-game message"
 msgid "Your mistress grows stronger with every battle, Keeper!"
 msgstr ""
+"你的黑暗女王会随着每一场战斗而逐渐变强，守护者！"
 
 #: guitext:93
 msgctxt "In-game message"
@@ -631,11 +753,14 @@ msgid ""
 "You must be aching to possess this awesome woman again, Keeper? Concentrate, "
 "Master, the climax approaches!"
 msgstr ""
+"驾驭这位令人敬畏的女人一定让你感到很吃力吧，守护者？集中精神，主人，"
+"高潮即将来临！"
 
 #: guitext:94
 msgctxt "In-game message"
 msgid "A woman like that needs care, Keeper. She rests with the Ancients now."
 msgstr ""
+"这样的一位女人需要用心照料才行，守护者。她现在和远古守护者们一起长眠了。"
 
 #: guitext:95
 msgctxt "In-game message"
@@ -643,6 +768,7 @@ msgid ""
 "And the two of you can live mercilessly ever after! Will she accompany you "
 "to the hidden realm?"
 msgstr ""
+"从此你们两个人可以永远残忍无情地生活下去了！你还能让她帮你获得隐藏关卡吗？"
 
 #: guitext:96
 msgctxt "In-game message"
@@ -650,6 +776,8 @@ msgid ""
 "You have won a magnificent victory, Master. You have a talent for twisted "
 "mercilessness that makes other Keepers look well behaved by comparison."
 msgstr ""
+"你已经大获全胜，主人。你有与生俱来的残忍，"
+"这使得每一个败在你手下的守护者看起来都像是好人。"
 
 #: guitext:97
 msgctxt "In-game message"
@@ -657,11 +785,13 @@ msgid ""
 "You have threatened the security of the Ancients, Keeper. Now get outside "
 "with the Dog!"
 msgstr ""
+"你已经威胁到了远古守护者们的安全，守护者。现在把你的狗放出来吧！"
 
 #: guitext:98
 msgctxt "In-game message"
 msgid "You must control your temper, Keeper! Everything has a purpose."
 msgstr ""
+"你一定不要冲动，守护者！所有的东西都是有存在的道理的。"
 
 #: guitext:99
 msgctxt "In-game message"
@@ -669,6 +799,7 @@ msgid ""
 "Salaar has gifted you the ability to research boulder traps; he is obviously "
 "on your side!"
 msgstr ""
+"撒拉尔赋予了你制造圆石陷阱的能力；很显然他是站在你这一边的了！"
 
 #: guitext:100
 msgctxt "In-game message"
@@ -677,6 +808,8 @@ msgid ""
 "this land to further prove yourself. Success will bring his assistance; do "
 "not disappoint him!"
 msgstr ""
+"你又一次提起了撒拉尔的兴趣。他把你带到了这个王国来进一步证明你的能力。"
+"如果你取得成功，将会获得他的帮助；可别让他失望！"
 
 #: guitext:101
 msgctxt "In-game message"
@@ -684,17 +817,21 @@ msgid ""
 "An intriguing assignment, Keeper. Thor has chosen you to negotiate a "
 "settlement in this land. I think you know what he expects!"
 msgstr ""
+"真是个有趣的任务，守护者。托尔选择让你来协调这片土地上的居民问题。"
+"我想你知道他希望你怎么做吧！"
 
 #: guitext:102
 msgctxt "In-game message"
 msgid "Negotiation is all about bridge-building between opposing parties!"
 msgstr ""
+"所谓协调的办法就是一路造桥进攻所有反抗者！"
 
 #: guitext:103
 msgctxt "In-game message"
 msgid ""
 "Thor has examined the details of the final settlement, and it is acceptable!"
 msgstr ""
+"托尔仔细检查过了你最后的处理结果，正如他所愿！"
 
 #: guitext:104
 msgctxt "In-game message"
@@ -702,6 +839,8 @@ msgid ""
 "Salaar has placed a reward in this realm, though obviously its discovery "
 "won't be easy. Would you want it that way?"
 msgstr ""
+"撒拉尔在这个王国中设置了一个奖励，虽然它肯定很难被发现。"
+"你还想要去找到它吗？"
 
 #: guitext:105
 msgctxt "In-game message"
@@ -710,11 +849,14 @@ msgid ""
 "his doom. You must be patient and persistent, Keeper, if you are not to "
 "share his fate!"
 msgstr ""
+"这片土地看起来危机四伏！当年的的传奇守护者安塔克就是在这里灭亡的。"
+"如果你不想和他一个下场的话，你必须保持耐心，坚持不懈！"
 
 #: guitext:106
 msgctxt "In-game message"
 msgid "Caution, Keeper! Your fate depends on where you choose to dig south."
 msgstr ""
+"注意，守护者！你接下来的命运将取决于你向南挖掘的位置。"
 
 #: guitext:107
 msgctxt "In-game message"
@@ -722,6 +864,7 @@ msgid ""
 "Room designs must be stolen in this realm, Keeper; I trust this gives you no "
 "moral quandry?"
 msgstr ""
+"在这个王国中，房间的设计图必须靠偷取获得；我相信你一定会毫无愧色地这么做吧？"
 
 #: guitext:108
 msgctxt "In-game message"
@@ -729,6 +872,8 @@ msgid ""
 "You must fight to train your dragon, Keeper, but you will need minions. "
 "Leave plenty alive to torture!"
 msgstr ""
+"你必须通过战斗来训练你的龙，守护者。但是你还需要更多的怪物。"
+"保留足够多的敌人来作为俘虏！"
 
 #: guitext:109
 msgctxt "In-game message"
@@ -736,11 +881,14 @@ msgid ""
 "The hero lair is riddled with lava traps. If triggered they will deny access "
 "to the rooms you need. You know what you must do!"
 msgstr ""
+"英雄的基地中部署了很多岩浆陷阱。一旦你触发它们，就再也无法占领想要的房间了。"
+"你知道你该做什么了吧！"
 
 #: guitext:110
 msgctxt "In-game message"
 msgid "Your army is small, Keeper! Dare you still hope for victory?"
 msgstr ""
+"你的怪物太少了，守护者！这个样子还敢妄想取得胜利吗？"
 
 #: guitext:111
 msgctxt "In-game message"
@@ -748,6 +896,8 @@ msgid ""
 "Antak failed in this realm because he killed too many heroes. I trust you "
 "will learn from his mistake?"
 msgstr ""
+"安塔克在这个王国失败的原因是他自己杀了太多的英雄。"
+"我相信你一定能从他的失败中吸取教训吧？"
 
 #: guitext:112
 msgctxt "In-game message"
@@ -756,16 +906,20 @@ msgid ""
 "formidable armies oppose you - they must be manipulated to serve your "
 "purpose!"
 msgstr ""
+"在这个王国中，合理利用与平衡敌人的力量是取胜的关键。"
+"你面临着两股强大的势力——你必须让他们按照你的计划而战斗！"
 
 #: guitext:113
 msgctxt "In-game message"
 msgid "The Endgame begins! Victory depends on knowing when to intervene."
 msgstr ""
+"战斗就快要结束了！胜利取决于你从中插手的时机。"
 
 #: guitext:114
 msgctxt "In-game message"
 msgid "You must share in Antak's shame. Salaar is disappointed."
 msgstr ""
+"你必须和安塔克承受一样的屈辱了。撒拉尔很失望。"
 
 #: guitext:115
 msgctxt "In-game message"
@@ -773,16 +927,19 @@ msgid ""
 "An exceptional performance, Keeper. You may soon join the Ancients as an "
 "equal!!"
 msgstr ""
+"一次超常发挥，守护者。你很快就能加入远古守护者的行列，与他们平起平坐了！"
 
 #: guitext:116
 msgctxt "In-game message"
 msgid "Is this a prison, Keeper? The Ancients call it a cloning factory!"
 msgstr ""
+"这只是一间监狱吗，守护者？远古守护者们也把它叫做克隆工厂！"
 
 #: guitext:117
 msgctxt "In-game message"
 msgid "Are you good at Martial Arts, Keeper? You'll need to be!"
 msgstr ""
+"你是否精通武术，守护者？你必须要学会它！"
 
 #: guitext:118
 msgctxt "In-game message"
@@ -790,16 +947,20 @@ msgid ""
 "Congratulations, Keeper. You have found an important ally. With his help you "
 "can conquer all of the Underworld!"
 msgstr ""
+"恭喜你，守护者。你找到了一位重要的伙伴。在他的帮助下，"
+"你可以征服整个地下世界！"
 
 #: guitext:119
 msgctxt "In-game message"
 msgid "A few Avatars against your mighty skeletons? How pathetic!"
 msgstr ""
+"区区几个圣者来抵抗你强大的骷髅大军？多么可悲啊！"
 
 #: guitext:120
 msgctxt "In-game message"
 msgid "Your Ghosts have the skills you need to leave your Dungeon Heart."
 msgstr ""
+"你的鬼魂拥有一项能让你从地下城里出去的技能。"
 
 #: guitext:121
 msgctxt "In-game message"
@@ -808,16 +969,21 @@ msgid ""
 "Thor! You have truly shown that you are worthy. Mind you, L'Cyfre & T'Kaan "
 "look uneasy; are they your next victims, oh Omnipotent One?"
 msgstr ""
+"棒极了，守护者！你在远古守护者之中，撒拉尔和托尔之间，赢得了一席位置！"
+"你已经真正地展现出了自己的实力，值得拥有这样一个位置。顺便提醒你，"
+"里西弗和特坎看起来有些慌张；他们将会成为你的下一个受害者吗，"
+"无所不能的主人？"
 
 #: guitext:122
 msgctxt "In-game message"
 msgid "Thank you for playing Ancient Keeper. Written by Pawel & Dayo."
 msgstr ""
+"感谢游玩远古守护者战役——Pawel和Dayo寄语。"
 
 #: guitext:123
 msgctxt "In-game message"
 msgid "Keep your nerve, Keeper. Your greatest victory awaits you!"
-msgstr ""
+msgstr "集中精神，守护者。最伟大的胜利在等待着你！"
 
 #: guitext:124
 msgctxt "In-game message"
@@ -825,6 +991,8 @@ msgid ""
 "You are defeated at the final hurdle, Keeper. Still, you didn't get this far "
 "by giving up easily. Re-enter this realm immediately!"
 msgstr ""
+"你还是倒在了这最后一道坎上，守护者。你还是太容易被击败了，仍然没能走到这一步。"
+"立刻重新挑战这个王国吧！"
 
 #: guitext:125
 msgctxt "In-game message"
@@ -834,26 +1002,34 @@ msgid ""
 "some of the game bugs. Also, this campaign is considered to have high "
 "difficulity."
 msgstr ""
+"远古守护者战役是在原版地下城守护者游戏的基础上制作的。"
+"这个战役在FX版游戏中的可玩性可能会发生变化，"
+"因为其中很多地图的设计运用了一些游戏机制的漏洞。"
+"另外，这个战役被公认难度非常大。"
 
 #: guitext:126
 msgctxt "In-game message"
 msgid "This realm will demonstrate the power of the Undead!"
 msgstr ""
+"这个王国将展现出亡灵的强大力量！"
 
 #: guitext:127
 msgctxt "In-game message"
 msgid "Excellent, Keeper! Now free your imps, but beware; they are not alone!"
 msgstr ""
+"干得好，守护者！现在释放你的小鬼吧，但要注意；周围还有其他人！"
 
 #: guitext:128
 msgctxt "In-game message"
 msgid "Bravo, Keeper. Now you have company for the next realm!"
 msgstr ""
+"好极了，守护者。现在你有一只怪物陪你进入下一个王国了！"
 
 #: guitext:129
 msgctxt "In-game message"
 msgid "The outer ramp is not connected to your Dungeon Heart."
 msgstr ""
+"外侧的领地与你的地下城心脏并没有连通。"
 
 #: guitext:130
 msgctxt "In-game message"
@@ -861,27 +1037,34 @@ msgid ""
 "If you have only 5,000 Gold, you are playing the unpatched version of the "
 "game (should be 45,000). You need to rectify this."
 msgstr ""
+"如果你只有5000黄金，说明你的游戏还没有打补丁（应当有45000黄金）。"
+"你需要修正这一点。"
+
 
 #: guitext:131
 msgctxt "In-game message"
 msgid "Run Run Run Claim Claim Claim Kill Kill Kill!"
 msgstr ""
+"冲啊！冲啊！占领啊！占领啊！杀呀！杀呀！"
 
 #: guitext:132
 msgctxt "In-game message"
 msgid "You took your time!"
 msgstr ""
+"你真是不慌不忙啊！"
 
 #: guitext:133
 msgctxt "In-game message"
 msgid "You may wish to leave 1 or 2 of them alive. Then again you may not!"
 msgstr ""
+"你可能会想要留下一两个活人。当然，你也可能并不这么想!"
 
 #: guitext:134
 msgctxt "In-game message"
 msgid ""
 "Bravo, Keeper! Perhaps Ug the Barbarian will accompany you to the next realm?"
 msgstr ""
+"好极了，守护者！也许野蛮人乌格会陪伴你进入下一个王国？"
 
 #: guitext:135
 msgctxt "In-game message"
@@ -889,11 +1072,13 @@ msgid ""
 "Concentration, Keeper! To be defeated after all that effort; you must be "
 "sicker than a dieting Bile-Demon!"
 msgstr ""
+"集中精神，守护者！如果你在最后功亏一篑了，我想你会比要减肥的巨魔还要沮丧！"
 
 #: guitext:136
 msgctxt "In-game message"
 msgid "Sorry I'm late."
 msgstr ""
+"抱歉，我来迟了。"
 
 #: guitext:137
 msgctxt "In-game message"
@@ -901,11 +1086,13 @@ msgid ""
 "I hope you've brought your accountant with you, Keeper! Finance holds the "
 "key to this realm."
 msgstr ""
+"我希望你带着你的会计师一起来，守护者！经济问题是这个王国的关键。"
 
 #: guitext:138
 msgctxt "In-game message"
 msgid "Well done, Keeper. Can you work out how to access the central island?"
 msgstr ""
+"干得漂亮，守护者。你知道怎样才能到达地图中央的岛上吗？"
 
 #: guitext:139
 msgctxt "In-game message"
@@ -913,17 +1100,20 @@ msgid ""
 "I suppose it was obvious that they'd kill each other if they ran out of "
 "money?"
 msgstr ""
+"我觉得你显然应该明白，如果敌人的怪物拿不到钱了，就会开始自相残杀吧？"
 
 #: guitext:140
 msgctxt "In-game message"
 msgid ""
 "If you keep this Horned Reaper happy, then Salaar will kiss his Bile Demon!"
 msgstr ""
+"如果你能让这个冥界使者一直保持好心情，那么撒拉尔愿意去亲吻他的巨魔！"
 
 #: guitext:141
 msgctxt "In-game message"
 msgid "This realm is riddled with boulder traps, Keeper."
 msgstr ""
+"这个王国里部署着很多圆石陷阱，守护者。"
 
 #: guitext:142
 msgctxt "In-game message"
@@ -931,6 +1121,7 @@ msgid ""
 "You have failed. Perhaps you're not the harbinger of doom the forces of "
 "darkness were hoping for."
 msgstr ""
+"你失败了。可能你不是黑暗的力量所需要的天命的先驱者。
 
 #: guitext:143
 msgctxt "In-game message"
@@ -938,6 +1129,7 @@ msgid ""
 "Your constant success is getting boring, Keeper. You needn't travel alone to "
 "the next realm!"
 msgstr ""
+"你连续的胜利已经开始变得乏味了，守护者。你可以拥有怪物陪伴你进入下一个王国了！"
 
 #: guitext:144
 msgctxt "In-game message"
@@ -945,6 +1137,8 @@ msgid ""
 "Taking care is one thing, being slow is quite another, keeper.Not a single "
 "minion remains within the portal, you have failed."
 msgstr ""
+"小心谨慎是一回事，但是行动得太慢就是另一回事了，守护者。"
+"入口之中已经没有剩余的怪物了，你已经失败了。"
 
 #: guitext:145 guitext:146 guitext:147 guitext:148 guitext:149 guitext:150
 #: guitext:151 guitext:152 guitext:153 guitext:154 guitext:155 guitext:156
@@ -953,7 +1147,7 @@ msgstr ""
 #: guitext:169 guitext:170 guitext:171 guitext:172
 msgctxt "In-game message"
 msgid "Moo3"
-msgstr ""
+msgstr "Moo3"
 
 #: guitext:173
 msgctxt "In-game message"
@@ -962,6 +1156,8 @@ msgid ""
 "imprisoned by the heroes to your south. His son is at your side. Enlist the "
 "flies to re-unite your imps, and wreak your revenge!"
 msgstr ""
+"你被关押在苍蝇的王国之中。你的小鬼之王被英雄囚禁在南面。"
+"它的儿子站在你这一边。招募苍蝇来使你的小鬼重聚，然后疯狂地进行复仇吧！"
 
 #: guitext:174
 msgctxt "In-game message"
@@ -970,6 +1166,8 @@ msgid ""
 "To finish this level, you'll have to set him free and kill all opponents in "
 "the process, thus making the world a better and more evil place(yeah!)."
 msgstr ""
+"你最爱的冥界使者已经被敌人俘虏，洗脑和囚禁了。要完成这个关卡，你需要将它释放，"
+"并消灭所有阻挡你的敌人，把这里变成一个更美好，更邪恶的地方（耶！）"
 
 #: guitext:175
 msgctxt "In-game message"
@@ -977,6 +1175,7 @@ msgid ""
 "No time for celebrations Keeper. Your imp King has brought the instruments "
 "of your vengeance. To work!"
 msgstr ""
+"没时间庆祝了，守护者。你的小鬼之王为你带来了用于复仇行动的工具。开始工作吧！"
 
 #: guitext:176
 msgctxt "In-game message"
@@ -984,11 +1183,14 @@ msgid ""
 "Evil monks have betrayed the Shao-Lin temple to your rivals. Heroes will "
 "attempt to retrieve it, but the temple should be yours oh devious one!"
 msgstr ""
+"几个邪恶的僧侣把少林寺出卖给了你的对手。英雄们会尝试将它夺回来，"
+"但是这座寺庙应该属于你才对，狡猾的主人！"
 
 #: guitext:177
 msgctxt "In-game message"
 msgid "You are under starter's orders! Let the games begin Keeper!"
 msgstr ""
+"你已经准备好发起进攻了！让游戏开始吧，守护者！"
 
 #: guitext:178
 msgctxt "In-game message"
@@ -996,6 +1198,7 @@ msgid ""
 "The monks have returned with re-inforcements to reclaim their temple. Better "
 "explain the situation to them!"
 msgstr ""
+"僧侣们带来了援军，前来夺回他们的寺庙。你最好跟他们交待清楚现在的形势！"
 
 #: guitext:179
 msgctxt "In-game message"
@@ -1003,6 +1206,8 @@ msgid ""
 "Behold, the abandoned realm of Salaar, one of the Great Ancient Keepers. "
 "Paranoid heroes guard this realm with care!"
 msgstr ""
+"看，这里是被撒拉尔，一位伟大的远古守护者，废弃的王国。"
+"一群顽固的英雄们严密地守卫着这里！"
 
 #: guitext:180
 msgctxt "In-game message"
@@ -1010,6 +1215,9 @@ msgid ""
 "Salaar was truly Evil! Discover and gaze in awe at His training room! Are "
 "you skillful enough to use it?"
 msgstr ""
+"撒拉尔是个真正邪恶的家伙！找出他使用的“训练室”，并为之赞叹吧！"
+"你有足够的能力来使用它吗？"
+
 
 #: guitext:181
 msgctxt "In-game message"
@@ -1017,6 +1225,8 @@ msgid ""
 "Conquer the hero castles in this realm, and you will be a worthy successor "
 "to Salaar. Be bold for He is watching from below!"
 msgstr ""
+"攻占这个王国中的英雄堡垒，你就能成为撒拉尔的一名合格的继承人。"
+"打起精神来，他在地下城中一直看着你呢！"
 
 #: guitext:182
 msgctxt "In-game message"
@@ -1024,129 +1234,132 @@ msgid ""
 "Salaar had a limit to the bridges he could own at one time. He sees no "
 "reason why you should have more!"
 msgstr ""
+"撒拉尔每一次只能建造有限长度的桥梁。他觉得你也不应该突破这个限制！"
 
 #: guitext:183
 msgctxt "In-game message"
 msgid ""
 "That noise is Salaar's mocking laugh! You have failed and you are dismissed!"
 msgstr ""
+"那声音是撒拉尔的嘲笑声！你失败了，并且已经被开除了！"
 
 #: guitext:184
 msgctxt "In-game message"
 msgid "Well done, Keeper! You have pleased Salaar. You are a worthy successor!"
 msgstr ""
+"干得好，守护者！你让撒拉尔很满意。你是一名合格的继承人！"
 
 #: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
 #: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
 #: guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr ""
+msgstr "Moo"
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Red Carpet"
-msgstr ""
+msgstr "红地毯"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Harmony"
-msgstr ""
+msgstr "和睦"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Avarice"
-msgstr ""
+msgstr "贪婪"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "T'Kaan's Mistress"
-msgstr ""
+msgstr "特坎的情人"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "The Realm of Salaar"
-msgstr ""
+msgstr "撒拉尔之国"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Save the Heroes"
-msgstr ""
+msgstr "拯救英雄"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Kwan Tek's Ordeal"
-msgstr ""
+msgstr "关德的考验"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Avatar's Revenge"
-msgstr ""
+msgstr "圣者的复仇"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Knight Manoeuvres"
-msgstr ""
+msgstr "骑士的演练"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "The University of Hades"
-msgstr ""
+msgstr "冥府学院"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Salaar's Test"
-msgstr ""
+msgstr "撒拉尔的考验"
 
 #: guitext:213
 msgctxt "Level name"
 msgid "Rescue the Avatar"
-msgstr ""
+msgstr "救援圣者"
 
 #: guitext:214
 msgctxt "Level name"
 msgid "Sloth"
-msgstr ""
+msgstr "懒惰"
 
 #: guitext:215
 msgctxt "Level name"
 msgid "Entomology"
-msgstr ""
+msgstr "昆虫学"
 
 #: guitext:216
 msgctxt "Level name"
 msgid "Flowers of Despair"
-msgstr ""
+msgstr "绝望之花"
 
 #: guitext:217
 msgctxt "Level name"
 msgid "Dragonia"
-msgstr ""
+msgstr "巨龙之国"
 
 #: guitext:218
 msgctxt "Level name"
 msgid "Fortress of the Sun"
-msgstr ""
+msgstr "太阳城堡"
 
 #: guitext:219
 msgctxt "Level name"
 msgid "Thor's Diplomat"
-msgstr ""
+msgstr "托尔的使者"
 
 #: guitext:220
 msgctxt "Level name"
 msgid "Antak's Ruin"
-msgstr ""
+msgstr "安塔克的废墟"
 
 #: guitext:221
 msgctxt "Level name"
 msgid "L'Cyfre's Challenge"
-msgstr ""
+msgstr "里西弗的考验"
 
 #: guitext:222 guitext:223 guitext:224 guitext:225
 msgctxt "Level name"
 msgid "Unused"
-msgstr ""
+msgstr "未使用"
 
 #: guitext:226
 #, fuzzy
@@ -1716,6 +1929,7 @@ msgid ""
 "Locate Kantars Realms: You will be transported to a secret realm after you "
 "have conquered this one."
 msgstr ""
+"找出了坎塔斯的王国：在你征服这里后将可以通往一个秘密王国。"
 
 #: guitext:428
 msgctxt "Dungeon special name"
@@ -1730,7 +1944,7 @@ msgstr "传送怪物"
 #: guitext:430
 msgctxt "Menu interface item"
 msgid "Underworld Amusement"
-msgstr ""
+msgstr "娱乐时间"
 
 #: guitext:431 guitext:432 guitext:433 guitext:434 guitext:435 guitext:436
 #: guitext:437 guitext:438 guitext:439 guitext:440 guitext:441 guitext:442
