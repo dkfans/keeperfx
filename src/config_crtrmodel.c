@@ -103,6 +103,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"ONE_OF_KIND",       23},
   {"NO_IMPRISONMENT",   24},
   {"IMMUNE_TO_DISEASE", 25},
+  {"ILLUMINATED",       26},
   {NULL,                 0},
   };
 
@@ -713,6 +714,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 25: // IMMUNE_TO_DISEASE
                 crconf->model_flags |= CMF_NeverSick;
+                n++;
+                break;
+            case 26: // ILLUMINATED
+                crstat->illuminated = true;
                 n++;
                 break;
             default:

@@ -856,6 +856,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
     droptng->mappos.z.val = subtile_coord(8,0);
     long fall_dist;
     fall_dist = get_ceiling_height_at(&droptng->mappos) - get_floor_height_at(&droptng->mappos);
+    struct CreatureStats* crstat;
     if (fall_dist < 0) {
         fall_dist = 0;
     } else
@@ -872,7 +873,8 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
             play_creature_sound(droptng, 6, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
-        if (creature_affected_by_spell(droptng, SplK_Light))
+        crstat = creature_stats_get(droptng->model);
+        if ( (crstat->illuminated) || (creature_affected_by_spell(droptng, SplK_Light)) )
         {
             illuminate_creature(droptng);
         }
@@ -1244,6 +1246,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     struct PlayerInfo *player;
     long i;
     player = get_player(plyr_idx);
+    
     if (!thing_is_pickable_by_hand(player, thing)) {
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return false;
@@ -1264,13 +1267,10 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             i = convert_td_iso(122);
         else
             i = get_creature_anim(thing, 9);
-        if (creature_affected_by_spell(thing, SplK_Light))
+        if (thing->light_id != 0)
         {
-            if (thing->light_id != 0)
-            {
-                light_delete_light(thing->light_id);
-                thing->light_id = 0;
-            }
+            light_delete_light(thing->light_id);
+            thing->light_id = 0;   
         }
         set_thing_draw(thing, i, 256, -1, -1, 0, 2);
     } else

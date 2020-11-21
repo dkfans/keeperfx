@@ -296,7 +296,8 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
             make_group_member_leader(thing);
         }
     }
-    if (!creature_affected_by_spell(thing, SplK_Light))
+    crstat = creature_stats_get(thing->model);
+    if ( (!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)) )
     {
         create_light_for_possession(thing);
     }
@@ -886,6 +887,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     struct Thing *ntng;
     long i;
     long k;
+    struct CreatureStats* crstat;
     if (spell_lev > SPELL_MAX_LEVEL)
         spell_lev = SPELL_MAX_LEVEL;
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
@@ -1069,14 +1071,18 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     }
         break;
     case SplK_Light:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
+        crstat = creature_stats_get(thing->model);
+        if (!crstat->illuminated)
         {
-            fill_spell_slot(thing, i, spell_idx, splconf->duration);
-            if (!creature_affected_by_spell(thing, SplK_Light))
+            i = get_free_spell_slot(thing);
+            if (i != -1)
             {
-                cctrl->spell_flags |= CSAfF_Light;
-                illuminate_creature(thing);
+                fill_spell_slot(thing, i, spell_idx, splconf->duration);
+                if (!creature_affected_by_spell(thing, SplK_Light))
+                {
+                    cctrl->spell_flags |= CSAfF_Light;
+                    illuminate_creature(thing);
+                }
             }
         }
         break;
@@ -1192,6 +1198,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     int slot_idx = get_spell_slot(thing, spkind);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long i;
+    struct CreatureStats* crstat;
     switch (spkind)
     {
     case SplK_Freeze:
@@ -1261,6 +1268,9 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->countdown_282 = 10;
         break;
     case SplK_Light:
+    crstat = creature_stats_get(thing->model);
+    if (!crstat->illuminated)
+    {
         if (thing->light_id != 0) 
         {
             cctrl->spell_flags &= ~CSAfF_Light;
@@ -1277,6 +1287,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
             }
         }
         break;
+    }
     }
     if (slot_idx >= 0) {
         free_spell_slot(thing, slot_idx);
@@ -1531,11 +1542,9 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing)
         }
     }
     // Slap is not in spell array, it is so common that has its own dedicated duration
-    if (cctrl->slap_turns > 0)
-    {
+    if (cctrl->slap_turns > 0) {
         cctrl->slap_turns--;
-        if (cctrl->slap_turns <= 0) 
-        {
+            if (cctrl->slap_turns <= 0) {
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
     }
@@ -3536,6 +3545,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     add_creature_score_to_owner(crtng);
     struct CreatureData* crdata = creature_data_get(crtng->model);
     cctrl->active_instance_id = crdata->flags;
+    if (crstat->illuminated) {
+        illuminate_creature(crtng);
+    }
     return crtng;
 }
 
