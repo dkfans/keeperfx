@@ -87,7 +87,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"RANGEMIN",       13},
   {"RANGEMAX",       14},
   {"PROPERTIES",     15},
-  {"INSTANTFPCAST",  16},
+  {"FPINSTANTCAST",  16},
   {NULL,              0},
   };
 
@@ -1152,7 +1152,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 }
             }
             break;
-        case 16: // INSTANTFPCAST
+        case 16: // FPINSTANTCAST
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
