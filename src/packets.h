@@ -164,6 +164,7 @@ enum TbPacketAction {
         PckA_UpdateBaseSeq, // Internal (consumed by bflib_network)
         PckA_TagUntag,
         PckA_RemapNotify,
+        PckA_ForceResync,
 };
 
 /** Packet flags for non-action player operation. */

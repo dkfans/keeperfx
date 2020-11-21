@@ -272,7 +272,7 @@ struct NetState
 
     TbBool                  locked;             //if set, no players may join
 
-    TbBool                  resync_mode;        //if set we are in process of resync
+    int                     resync_mode;        // == 1 if we are in process of resync and == 2 if post resync
     unsigned long           resync_prev_turn;   //we want to skip old messages
     long                    resync_turn;        //game turn to sync game with
     short                   resync_last_packet; // # of last packet from server
@@ -995,10 +995,13 @@ static TbError UnpackMessage(NetUserId source, struct PacketBuffer *pbuffer)
             else
             {   // Other side want to start resync
                 NETDBG(6, "resync message for turn %ld %d/%d", sync_packet->sync_turn, sync_packet->packet_num, sync_packet->packet_count);
-                netstate.resync_mode = true;
+                netstate.resync_mode = 1;
                 netstate.resync_turn = sync_packet->sync_turn;
             }
             break;
+        case NETMSG_SYNC_CONFIRM:
+            NETDBG(1, "Sync Confirm?");
+            return Lb_OK;
         default:
             NETDBG(1, "Unknown type %02x", type);
         }
@@ -1083,7 +1086,7 @@ static void network_init_common(unsigned long maxplayers)
     netstate.outgoing_list.clear();
 
     netstate.max_players = maxplayers;
-    netstate.resync_mode = false;
+    netstate.resync_mode = 0;
     netstate.resync_prev_turn = 0;
 }
 
@@ -1324,7 +1327,9 @@ static TbBool ProcessMessagesUntilNextFrame(
         }
 
         if (pbuffer->data[0] == NETMSG_FRAME ||
-            pbuffer->data[0] == NETMSG_RESYNC)
+            pbuffer->data[0] == NETMSG_RESYNC || 
+            pbuffer->data[0] == NETMSG_SYNC_CONFIRM
+            )
         {
             break;
         }
@@ -1620,7 +1625,7 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
     struct PacketBuffer packet_buffer = {0, .max_size = MAX_FRAME_DATA_SIZE, 0 };
 
     NETDBG(11, "Starting");
-    if (netstate.resync_mode)
+    if (netstate.resync_mode == 1)
     {
         disconnectTime = LbTimerClock() + DISCONNECT_TIMEOUT;
         return NR_RESYNC;
@@ -1633,28 +1638,42 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
 
     if (is_server)
     {
-        //server needs to be careful about how it reads messages
-        for (id = 0; id < MAX_N_USERS; ++id)
+        if (netstate.resync_mode == 2)
         {
-            if (id == netstate.my_id)
-                continue;
-
-            if (netstate.users[id].progress == USER_UNUSED)
-                continue;
-
-            ok = ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS, &packet_buffer);
-            if (ok)
+            NETDBG(7, "Cleanup after resync");
+            // If we are after resync - we should send data BEFORE waiting for it
+            netstate.resync_mode = 0;
+        }
+        else
+        {
+            //server needs to be careful about how it reads messages
+            for (id = 0; id < MAX_N_USERS; ++id)
             {
-                netstate.users[id].last_message_time = now;
-            }
-            else
-            {
-                JUSTLOG("Timeout %04ld %04ld", now, netstate.users[id].last_message_time);
-            }
-        } // for
+                if (id == netstate.my_id)
+                    continue;
+
+                if (netstate.users[id].progress == USER_UNUSED)
+                    continue;
+
+                ok = ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS, &packet_buffer);
+                if (ok)
+                {
+                    netstate.users[id].last_message_time = now;
+                }
+                else
+                {
+                    JUSTLOG("Timeout %04ld %04ld", now, netstate.users[id].last_message_time);
+                }
+            } // for
+        } // if netstate.resync_mode
     }
     else
     { // client
+        if (netstate.resync_mode == 2)
+        {
+            // If we are after resync on client - do nothing
+            netstate.resync_mode = 0;
+        }
         if (!ProcessMessagesUntilNextFrame(SERVER_ID, 0, &packet_buffer))
         {
             netstate.sp->update(OnNewUser);
@@ -1796,7 +1815,7 @@ static void resync_server_init(unsigned long game_turn, struct SyncArrayItem syn
     short packet_num;
 
     assert(netstate.sync_packets == NULL);
-    netstate.resync_mode = true;
+    netstate.resync_mode = 1;
     packet_num = 0;
     node = (struct PacketNode*)LbMemoryAlloc(BF_SYNC_DATA_SIZE + sizeof(struct SyncPacket) + sizeof(struct PacketNode));
     prev_node = node;
@@ -1944,7 +1963,7 @@ static TbBool resync_server(TbBool first_resync, unsigned long game_turn, struct
             LbMemoryFree(node2);
         }
         netstate.sync_packets = NULL;
-        netstate.resync_mode = false;
+        netstate.resync_mode = 2;
         return true;
     }
 
@@ -2048,7 +2067,7 @@ TbBool LbNetwork_Resync(TbBool first_resync, unsigned long game_turn, struct Syn
                 } // for (node2 ...
             } // for (src_node ...
             assert (node2 == NULL);
-            netstate.resync_mode = false;
+            netstate.resync_mode = 2;
             netstate.cli_sync_packets = NULL;
             NETDBG(5, "resync complete");
             return true;

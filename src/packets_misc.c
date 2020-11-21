@@ -115,6 +115,7 @@ struct PacketEx *get_packet_ex_direct(long pckt_idx)
     return &ex_packets[pckt_idx];
 }
 
+// OLD packets
 void clear_packets(void)
 {
     for (int i = 0; i < PACKETS_COUNT; i++)

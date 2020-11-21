@@ -1281,8 +1281,15 @@ static TbBool process_packet_cb(
     struct SmallActionPacket* packet_short = (struct SmallActionPacket*)data;
     struct PacketEx *packet_ex = (struct PacketEx*)data;
 
-    if (kind == PckA_RemapNotify)
+    switch (kind)
+    {
+    case PckA_RemapNotify:
         return net_remap_packet_cb(turn, plyr_idx, kind, data, size);
+    case PckA_ForceResync:
+        return net_sync_process_force_packet(turn, plyr_idx, kind, data, size);
+    default:
+        break;
+    }
 
     net_remap_start(plyr_idx, kind, data, size);
 
@@ -1332,7 +1339,7 @@ void process_packets(void)
     int player_status;
     struct PlayerInfo* player;
     struct PacketContext context = { 0 };
-    SYNCDBG(13, "Starting");
+    SYNCDBG(9, "Starting");
     // Do the network data exchange
     lbDisplay.DrawColour = colours[15][15][15];
 
@@ -1346,6 +1353,12 @@ void process_packets(void)
         }
         if (!game.packet_load_enable || game.numfield_149F47)
         {
+            if (check_resync_turn())
+            {
+                JUSTLOG("Time to resync! turn:%ld", game.play_gameturn);
+                set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
+                set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
+            }
             switch(LbNetwork_Exchange(&context, &process_packet_cb))
             {
             case NR_FAIL:
@@ -1436,8 +1449,6 @@ void process_packets(void)
               NETDBG(0, "Done resyncing");
           }
           EVM_GLOBAL_EVENT("mp.done_resync cnt=1");
-
-          process_packets();
       }
       else
       {

@@ -28,6 +28,7 @@
 #include "gui_boxmenu.h"
 #include "gui_msgs.h"
 #include "keeperfx.hpp"
+#include "net_sync.h"
 #include "player_computer.h"
 #include "slab_data.h"
 
@@ -264,6 +265,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             return false;
         }
         game.flags_gui ^= GGUI_ShowTickTime;
+        return true;
+    } else if (strcmp(parstr, "net.resync") == 0)
+    {
+        net_force_sync(game.play_gameturn + 5);
         return true;
     } else if (strcmp(parstr, "turn") == 0)
     {

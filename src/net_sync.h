@@ -62,8 +62,11 @@ TbBool perform_checksum_verification(CoroutineLoop *context);
 void resync_reset_storage();
 
 const char *get_desync_info();
-/******************************************************************************/
-extern struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT];
+
+void net_force_sync(unsigned long expected_turn);
+TbBool net_sync_process_force_packet(unsigned long turn, int plyr_idx, unsigned char kind, void *data, short size);
+
+TbBool check_resync_turn();
 /******************************************************************************/
 #ifdef __cplusplus
 }

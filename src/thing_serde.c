@@ -48,9 +48,9 @@ void serde_srv_things()
             if (thing->light_id != 0)
             {
                 //TODO: this should not happen
-                if (light_is_light_allocated(thing->light_id))
+                if (!light_is_light_allocated(thing->light_id))
                 {
-                    WARNLOG("wrong light id for %s#%s light_id:%03d",
+                    WARNLOG("wrong light id for %s#%d light_id:%03d",
                         thing_model_name(thing), thing->index, thing->light_id);
                 }
                 else

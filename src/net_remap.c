@@ -152,6 +152,7 @@ void net_remap_creature_created(int owner, Thingid mine)
         net_remap_update(addendum.net_player_id, their, mine);
         if (addendum.dst_last >= addendum.dst_end)
         {
+            //TODO: When is it possible?
             ERRORLOG("Too many creatures per packet created! last:%d", mine);
             return;        
         }
@@ -208,4 +209,5 @@ TbBool net_remap_packet_cb(unsigned long turn, int net_idx, unsigned char kind, 
         unsigned short their = *(src++);
         net_remap_update(net_idx, their, mine);
     }
+    return true;
 }

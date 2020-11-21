@@ -63,6 +63,7 @@ struct SyncPartCommon
 
     int size_of_cctrl_part;
     int size_of_things_part;
+    int size_of_things_ex_part;
     int size_of_rooms_part;
 };
 
@@ -88,7 +89,10 @@ static const char desync_letters[CKS_MAX] = {
 };
 
 static unsigned long resync_parts = 0;
-struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT] = {0};
+static struct ChecksumStorage player_checksum_storage[PLAYERS_EXT_COUNT] = {0};
+
+static unsigned long next_resync_turn = 0;
+static unsigned long scheduled_turn = 0;
 
 #ifdef LOG_CHECKSUMS
 TbBool log_checksums = 0;
@@ -177,6 +181,7 @@ static TbBool send_resync_game(TbBool first_resync)
         // If size of part is set to 0 - that part will be not synced
         part1.size_of_cctrl_part = (resync_parts & (RESYNC_CCTRL))? sizeof(game.cctrl_data) : 0;
         part1.size_of_things_part = (resync_parts & (RESYNC_THINGS))? sizeof(game.things_data) : 0;
+        part1.size_of_things_ex_part = (resync_parts & (RESYNC_THINGS))? sizeof(gameadd.things) : 0;
         part1.size_of_rooms_part = (resync_parts & (RESYNC_ROOMS))? sizeof(game.rooms) : 0;
 
         struct SyncArrayItem data[] =
@@ -184,6 +189,7 @@ static TbBool send_resync_game(TbBool first_resync)
             { &part1, &size_of_part1 },
             { &game.cctrl_data[0], &part1.size_of_cctrl_part },
             { &game.things_data[0], &part1.size_of_things_part },
+            { &gameadd.things[0], &part1.size_of_things_ex_part },
             { &game.rooms[0], &part1.size_of_rooms_part },
             { NULL, 0 },
         };
@@ -213,6 +219,7 @@ static TbBool send_resync_game(TbBool first_resync)
     {
         serde_fin_things();
         clear_packets();
+        LbNetwork_EmptyQueue();
         game.action_rand_seed = gameadd.action_turn_rand_seed;
         NETLOG("Done syncing");
 #ifdef LOG_CHECKSUMS
@@ -238,6 +245,7 @@ static TbBool receive_resync_game(TbBool first_resync)
         { &part1, &size_of_part1 },
         { &game.cctrl_data[0], &part1.size_of_cctrl_part },
         { &game.things_data[0], &part1.size_of_things_part },
+        { &gameadd.things[0], &part1.size_of_things_ex_part },
         { &game.rooms[0], &part1.size_of_rooms_part },
         { NULL, 0 },
     };
@@ -302,6 +310,7 @@ static TbBool receive_resync_game(TbBool first_resync)
 #endif
         serde_fin_things();
         clear_packets();
+        LbNetwork_EmptyQueue();
         game.action_rand_seed = gameadd.action_turn_rand_seed;
         NETLOG("Done syncing");
 #ifdef LOG_CHECKSUMS
@@ -567,6 +576,49 @@ void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, enum C
     }
 #endif
 }
+
+TbBool check_resync_turn()
+{
+    TbBool ret = ((scheduled_turn != 0) && (scheduled_turn == game.play_gameturn));
+    if (ret)
+    {
+        scheduled_turn = 0;
+        resync_parts = RESYNC_CCTRL |RESYNC_THINGS | RESYNC_ROOMS;
+    }
+    return ret;
+}
+
+TbBool net_sync_process_force_packet(unsigned long turn, int plyr_idx, unsigned char kind, void *data_ptr, short size)
+{
+    unsigned long *data = (unsigned long *)data_ptr;
+    //TODO: force resync on required turn
+    JUSTLOG("Processing forced resync %ld old:%ld", *data, scheduled_turn);
+    if ((scheduled_turn < game.play_gameturn) || (scheduled_turn > *data))
+        scheduled_turn = *data;
+    JUSTLOG("Scheduling forced resync %lu", scheduled_turn);
+    return false;
+}
+
+void net_force_sync(unsigned long expected_turn)
+{
+    if ((next_resync_turn >= game.play_gameturn) && (next_resync_turn < expected_turn))
+    {
+        return;
+    }
+    if (LbNetwork_IsServer())
+    {
+        next_resync_turn = expected_turn;
+
+        JUSTLOG("Sending forced resync %lu", next_resync_turn);
+
+        unsigned long *pckt = LbNetwork_AddPacket(PckA_ForceResync, game.play_gameturn, sizeof(unsigned long));
+        *pckt = next_resync_turn;
+
+        // TODO we have to process it here
+        net_sync_process_force_packet(game.play_gameturn, my_player_number, PckA_ForceResync, pckt, sizeof(unsigned long));
+    }
+}
+
 /******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus
