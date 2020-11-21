@@ -497,7 +497,7 @@ msgid ""
 "Your most valued convert is being tortured, and will defect imminently "
 "unless rescued; he holds the key to this realm!"
 msgstr ""
-"你招降的最强大的英雄正遭受敌人的拷打，如果不赶快去救他，他很快就会叛变！
+"你招降的最强大的英雄正遭受敌人的拷打，如果不赶快去救他，他很快就会叛变！"
 "他可是征服这个王国的关键！"
 
 #: guitext:60
