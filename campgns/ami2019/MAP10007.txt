@@ -1,10 +1,21 @@
+REM ****************************************************
 REM Relic Tunnels
+REM
+REM Assmist Isle Campaign by Kix
+REM
+REM v2.0 for DAT file objectives (by dayokay)
+REM 14-Nov-2020
+REM ****************************************************
+
 LEVEL_VERSION(1)
+
 COMPUTER_PLAYER(PLAYER1,0)
 COMPUTER_PLAYER(PLAYER2,0)
+
 START_MONEY(PLAYER0,7500)
 START_MONEY(PLAYER1,985000)
 START_MONEY(PLAYER2,2000)
+
 ALLY_PLAYERS(PLAYER0,PLAYER1,1)
 SET_GENERATE_SPEED(80)
 DEAD_CREATURES_RETURN_TO_POOL(0)
@@ -141,17 +152,21 @@ REVEAL_MAP_LOCATION(PLAYER0,1,15)
 
 ADD_CREATURE_TO_LEVEL(PLAYER0,VAMPIRE,3,IMPORT(PLAYER0,CAMPAIGN_FLAG1),1,0)
 
-QUICK_OBJECTIVE(1,"Back when the land was still settled by wizards before they were burned alive by the Polish, a keeper retreated to the northern caverns. Although discovered and defeated, he left behind a fascinating relic: a spell that is said to eliminate every living being recently exposed to sunlight. Let's find it. But first, some bad news: only allied blue keeper can attract creatures through a portal in this land. However, there are 2 scavengers capable of summoning heroes, but the powerful one has already been taken by the green keeper and the remaining one is guarded by dragons.",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(1,"Back when the land was still settled by wizards before they were burned alive by the Polish, a keeper retreated to the northern caverns. Although discovered and defeated, he left behind a fascinating relic: a spell that is said to eliminate every living being recently exposed to sunlight. Let's find it. But first, some bad news: only allied blue keeper can attract creatures through a portal in this land. However, there are 2 scavengers capable of summoning heroes, but the powerful one has already been taken by the green keeper and the remaining one is guarded by dragons.",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(73,PLAYER0)
 
 IF(PLAYER0,GAME_TURN>1000)
-	QUICK_INFORMATION(2,"Touch the scavenger to claim it! This one summons tunnellers. Not the strongest fighters, but indeed quite useful when imps are unavailable. Some imps might still hide in the tunnels. Now, I hope you do know how to enter the area without letting the dragons in. Also do not get rid of the allied keeper before you make a use of him. Let him claim the portal somehow and convert his creatures he'll attract.",2)
+REM	QUICK_INFORMATION(2,"Touch the scavenger to claim it! This one summons tunnellers. Not the strongest fighters, but indeed quite useful when imps are unavailable. Some imps might still hide in the tunnels. Now, I hope you do know how to enter the area without letting the dragons in. Also do not get rid of the allied keeper before you make a use of him. Let him claim the portal somehow and convert his creatures he'll attract.",2)
+	DISPLAY_INFORMATION(74,2)
 ENDIF
 
 IF(PLAYER0,GAME_TURN>2000)
-	QUICK_INFORMATION(3,"Because except for dwarven miners noone entered the tunnels for ages, guards receded. Very tempting to use the spell right? Simply touch the relic and all heroes die! Careful, for there are only 2 altars charged with the spell so think well when to use it. Casting the spell also inactivates the scavengers!",3)
+REM	QUICK_INFORMATION(3,"Because except for dwarven miners noone entered the tunnels for ages, guards receded. Very tempting to use the spell right? Simply touch the relic and all heroes die! Careful, for there are only 2 altars charged with the spell so think well when to use it. Casting the spell also inactivates the scavengers!",3)
+	DISPLAY_INFORMATION(75,3)
 	REVEAL_MAP_LOCATION(PLAYER0,3,25)
 	REVEAL_MAP_LOCATION(PLAYER0,4,25)
-	QUICK_INFORMATION(5,"Green keeper's priestesses channel some sort of spell towards your dungeon, weakening your creatures. They cannot train above the level of 3.",5)
+REM	QUICK_INFORMATION(5,"Green keeper's priestesses channel some sort of spell towards your dungeon, weakening your creatures. They cannot train above the level of 3.",5)
+DISPLAY_INFORMATION(76,5)
 ENDIF
 
 IF(PLAYER0,RESEARCH>9)
@@ -281,7 +296,8 @@ ENDIF
 
 
 IF(PLAYER0,FLAG1>0)
-	QUICK_OBJECTIVE(4,"You touched the relic obliterating all non-dungeon native beings, making the green keeper's curse go avaunt! This has caught heroes' attention. Survive their aggression and the victory is yours! Make sure you use the remaining spell wisely.",5)
+REM	QUICK_OBJECTIVE(4,"You touched the relic obliterating all non-dungeon native beings, making the green keeper's curse go avaunt! This has caught heroes' attention. Survive their aggression and the victory is yours! Make sure you use the remaining spell wisely.",5)
+	DISPLAY_OBJECTIVE(77,5)
 	SET_CREATURE_MAX_LEVEL(PLAYER0,HELL_HOUND,10)
 	SET_CREATURE_MAX_LEVEL(PLAYER0,TENTACLE,10)
 	SET_CREATURE_MAX_LEVEL(PLAYER0,DEMONSPAWN,10)
@@ -311,10 +327,12 @@ IF(PLAYER0,FLAG1>0)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,A7,DRAWFROM(-5,-1),1)
 	ENDIF
 	IF(PLAYER0,TIMER2>58000)
-		QUICK_OBJECTIVE(6,"No sign of heroes this time. Did they give up or are they stacking up? Let's hope they just took a break to pray.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(6,"No sign of heroes this time. Did they give up or are they stacking up? Let's hope they just took a break to pray.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(78,PLAYER0)
 	ENDIF
 	IF(PLAYER0,TIMER2>64000)
-		QUICK_OBJECTIVE(7,"Not that you wouldn't notice them in a second, but a massive mob of offense has arrived.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(7,"Not that you wouldn't notice them in a second, but a massive mob of offense has arrived.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(79,PLAYER0)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,F1,-1,2)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,F2,-2,2)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,F2,-3,2)
@@ -323,14 +341,17 @@ IF(PLAYER0,FLAG1>0)
 	ENDIF
 	IF(PLAYER0,TIMER2>72000)
 		BONUS_LEVEL_TIME(10000)
-		QUICK_OBJECTIVE(8,"Good, heroes are becoming scarce. A concluding attack has been launched to vanquish your dungeon. The lord of the land is coming soon.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(8,"Good, heroes are becoming scarce. A concluding attack has been launched to vanquish your dungeon. The lord of the land is coming soon.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(80,PLAYER0)
 	ENDIF
 	IF(PLAYER0,TIMER2>85000)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,F1,DRAWFROM(-5,-1),1)
-		QUICK_OBJECTIVE(9,"The final crew is here. Defeat them and the land is yours.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(9,"The final crew is here. Defeat them and the land is yours.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(81,PLAYER0)
 		IF(PLAYER_GOOD,AVATAR==0)
 		IF(PLAYER_GOOD,KNIGHT==0)
-			QUICK_OBJECTIVE(10,"Wonderful job, Keeper. Onto the next realm!",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(10,"Wonderful job, Keeper. Onto the next realm!",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(82,PLAYER0)
 			WIN_GAME
 		ENDIF
 		ENDIF
@@ -338,8 +359,9 @@ IF(PLAYER0,FLAG1>0)
 ENDIF
 
 IF(PLAYER0,TIMER7>7000)
-	QUICK_INFORMATION(12,"The annoying humans will be entering your dungeon, exposing you more and more to the powerful keeper southwards.",7)
+REM	QUICK_INFORMATION(12,"The annoying humans will be entering your dungeon, exposing you more and more to the powerful keeper southwards.",7)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,A1,7,APPROPIATE_DUNGEON,0,5,500)
+	DISPLAY_INFORMATION(83,7)
 ENDIF
 
 IF(PLAYER0,TIMER7>14000)
@@ -352,7 +374,8 @@ ENDIF
 
 IF(PLAYER0,TIMER7>30500)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,A3,10,APPROPIATE_DUNGEON,0,5,500)
-	QUICK_INFORMATION(11,"Humans are digging through the only opening separating you from the rival keeper!",10)
+REM	QUICK_INFORMATION(11,"Humans are digging through the only opening separating you from the rival keeper!",10)
+	DISPLAY_INFORMATION(84,10)
 ENDIF
 
 IF(PLAYER0,TIMER7>34000)

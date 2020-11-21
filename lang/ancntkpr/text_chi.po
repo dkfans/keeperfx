@@ -498,7 +498,7 @@ msgid ""
 "unless rescued; he holds the key to this realm!"
 msgstr ""
 "你招降的最强大的英雄正遭受敌人的拷打，如果不赶快去救他，他很快就会叛变！
-"他可是征服这个王国的关键！ "
+"他可是征服这个王国的关键！"
 
 #: guitext:60
 msgctxt "In-game message"
@@ -1121,7 +1121,7 @@ msgid ""
 "You have failed. Perhaps you're not the harbinger of doom the forces of "
 "darkness were hoping for."
 msgstr ""
-"你失败了。可能你不是黑暗的力量所需要的天命的先驱者。
+"你失败了。可能你不是黑暗的力量所需要的天命的先驱者。"
 
 #: guitext:143
 msgctxt "In-game message"
