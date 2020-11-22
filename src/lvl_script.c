@@ -37,6 +37,7 @@
 #include "config_magic.h"
 #include "config_creature.h"
 #include "config_effects.h"
+#include "creature_states.h"
 #include "creature_states_mood.h"
 #include "creature_control.h"
 #include "gui_soundmsgs.h"
@@ -154,6 +155,7 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE},
   {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD},
   {"CHANGE_CREATURES_ANNOYANCE",        "PAN     ", Cmd_CHANGE_CREATURES_ANNOYANCE},
+  {"SUMMON_CREATURE_AT_CREATURE",       "PCAPCNN ", Cmd_SUMMON_CREATURE_AT_CREATURE},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG},
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG},
@@ -2904,6 +2906,40 @@ void command_change_creatures_annoyance(long plr_range_id, const char *operation
     command_add_value(Cmd_CHANGE_CREATURES_ANNOYANCE, plr_range_id, op_id, anger, 0);
 }
 
+void command_summon_creature_at_creature(long plr_range_id, const char *crtr_name, const char *criteria, long owner_plyr_idx, const char *scrtr_name, long ncopies, long level)
+{
+    if (ncopies < 0 || ncopies > 255)
+    {
+        SCRPTERRLOG("Invalid creature count: %d", ncopies);
+        return;
+    }
+    if (level < 1 || level > 10)
+    {
+        SCRPTERRLOG("Invalid creature level: %d", level);
+        return;
+    }
+    long crtr_id = get_rid(creature_desc, crtr_name);
+    if (crtr_id == -1) {
+        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+        return;
+    }
+    long scrtr_id = get_rid(creature_desc, scrtr_name);
+    if (scrtr_id == -1) {
+        SCRPTERRLOG("Unknown creature, '%s'", scrtr_name);
+        return;
+    }
+    long select_id = get_rid(creature_select_criteria_desc, criteria);
+    if (select_id == -1) {
+        SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
+        return;
+    }
+    // encode params: owner player, copies, level  -> into 3xbyte: OCL
+    long ocl_bytes = (owner_plyr_idx << 16) | (ncopies << 8) | (level & 255);
+    // 2 byte creature models
+    long crtr_models_words = crtr_id << 16 | (scrtr_id & (256*256-1));
+    command_add_value(Cmd_SUMMON_CREATURE_AT_CREATURE, plr_range_id, crtr_models_words, select_id, ocl_bytes);
+}
+
 void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
 {
     SCRIPTDBG(11, "Starting");
@@ -3228,6 +3264,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_CHANGE_CREATURES_ANNOYANCE:
         command_change_creatures_annoyance(scline->np[0], scline->tp[1], scline->np[2]);
+        break;
+    case Cmd_SUMMON_CREATURE_AT_CREATURE:
+        command_summon_creature_at_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5], scline->np[6]);
         break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -4672,6 +4711,68 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, long operation, 
 }
 
 /**
+ * Creates creature at other creature's location. Makes effect like in make imp power.
+ * @param plyr_idx base position on this creature
+ * @param crtr_models_words first two bytes -> base creature model, other 2 bytes -> new creature model
+ * @param criteria criteria to pick the base creature
+ * @param ocl_bytes 3 bytes: owner player idx, copies, new creature's level
+ */
+void script_summon_creature_at_creature(PlayerNumber plyr_idx, long crtr_models_words, long criteria, long ocl_bytes)
+{
+    long crmodel = crtr_models_words >> 16;
+    long scrmodel = crtr_models_words & (256*256-1);
+    long owner_plyr_idx = (ocl_bytes >> 16) & 255;
+    long copies = (ocl_bytes >> 8) & 255;
+    long level = ocl_bytes & 255;
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5,"No matching player %d creature of model %d found to summon creature at.",(int)plyr_idx,(int)crmodel);
+        return;
+    }
+    if (thing_is_in_power_hand_list(thing, plyr_idx))
+    {
+        SYNCDBG(5,"Found creature to summon creature at but it is being held.");
+        return;
+    }
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(thing->mappos.x.stl.num);
+    pos.y.val = subtile_coord_center(thing->mappos.y.stl.num);
+    pos.z.val = thing->mappos.z.stl.num;
+    for (long i = 0; i < copies; i++)
+    {
+        struct Thing *new_thing;
+        if (!i_can_allocate_free_control_structure() || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+            return;
+        }
+        new_thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, TCls_Creature, scrmodel, owner_plyr_idx);
+        if (thing_in_wall_at(new_thing, &new_thing->mappos))
+        {
+            if (!move_creature_to_nearest_valid_position(new_thing)) {
+                ERRORLOG("The %s was created in wall, removing",thing_model_name(new_thing));
+                delete_thing_structure(new_thing, 0);
+                return;
+            }
+        }
+        if (thing_is_invalid(new_thing))
+        {
+            ERRORLOG("There was place to create new creature, but creation failed");
+            return;
+        }
+        EVM_CREATURE_EVENT("joined", owner_plyr_idx, new_thing);
+        new_thing->veloc_push_add.x.val += ACTION_RANDOM(161) - 80;
+        new_thing->veloc_push_add.y.val += ACTION_RANDOM(161) - 80;
+        new_thing->veloc_push_add.z.val += 160;
+        new_thing->state_flags |= TF1_PushAdd;
+        new_thing->move_angle_xy = 0;
+        initialise_thing_state(new_thing, CrSt_ImpBirth);
+        init_creature_level(new_thing, level);
+        // 159 is the 'research done' sound
+        thing_play_sample(new_thing, 159, NORMAL_PITCH, 0, 3, 0, 2, NORMAL_PITCH);
+        play_creature_sound(new_thing, 3, 2, 0);
+    }
+}
+
+/**
  * Enables bonus level for current player.
  */
 TbBool script_use_special_locate_hidden_world()
@@ -5719,6 +5820,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_change_creatures_annoyance(i, val2, val3);
+      }
+      break;
+    case Cmd_SUMMON_CREATURE_AT_CREATURE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_summon_creature_at_creature(i, val2, val3, val4);
       }
       break;
     case Cmd_CHANGE_CREATURE_OWNER:
