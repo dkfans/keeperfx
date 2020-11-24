@@ -301,11 +301,6 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         create_light_for_possession(thing);
     }
-    // int slot_idx = get_spell_slot(thing, SplK_Light);
-    // if (slot_idx >= 0)
-    // {
-        // free_spell_slot(thing, slot_idx);
-    // }
     if (is_my_player_number(thing->owner))
     {
       if (thing->class_id == TCls_Creature)
@@ -1257,7 +1252,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         if (thing->light_id != 0) 
         {
             cctrl->spell_flags &= ~CSAfF_Light;
-            if (thing->field_4F & TF4F_Unknown01 != 0)
+            if ((thing->field_4F & TF4F_Unknown01) != 0)
             {
                 light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
                 struct Light* lgt = &game.lish.lights[thing->light_id];
