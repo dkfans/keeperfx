@@ -5449,7 +5449,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               crconf->model_flags ^= CMF_OneOfKind;
           }
           break; 
-      case 24: // NO_INPRISONMENT
+      case 24: // NO_IMPRISONMENT
           if (val4 >= 1)
           {
               crconf->model_flags |= CMF_NoImprisonment;
@@ -5459,6 +5459,19 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               crconf->model_flags ^= CMF_NoImprisonment;
           }
           break; 
+      case 25: // NEVER_SICK
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_NeverSick;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_NeverSick;
+          }
+          break;
+      case 26: // ILLUMINATED
+          crstat->illuminated = val4;
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
           break;
