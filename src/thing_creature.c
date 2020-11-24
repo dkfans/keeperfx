@@ -301,23 +301,6 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         create_light_for_possession(thing);
     }
-    /*
-    struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
-    ilght.mappos.x.val = thing->mappos.x.val;
-    ilght.mappos.y.val = thing->mappos.y.val;
-    ilght.mappos.z.val = thing->mappos.z.val;
-    ilght.field_3 = 1;
-    ilght.field_2 = 36;
-    ilght.field_0 = 2560;
-    ilght.is_dynamic = 1;
-    thing->light_id = light_create_light(&ilght);
-    if (thing->light_id != 0) {
-        light_set_light_never_cache(thing->light_id);
-    } else {
-      ERRORLOG("Cannot allocate light to new controlled thing");
-    }
-    */
     // int slot_idx = get_spell_slot(thing, SplK_Light);
     // if (slot_idx >= 0)
     // {
