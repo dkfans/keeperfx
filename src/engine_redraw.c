@@ -975,7 +975,7 @@ void redraw_display(void)
     {
         draw_bonus_timer();
     }
-    else if (timer_enabled())
+    if (timer_enabled())
     {
         draw_timer();
     }
