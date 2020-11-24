@@ -134,6 +134,7 @@ enum TbScriptCommands {
     Cmd_USE_SPECIAL_MULTIPLY_CREATURES    = 114,
     Cmd_USE_SPECIAL_MAKE_SAFE             = 115,
     Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 116,
+    Cmd_CHANGE_CREATURES_ANNOYANCE        = 117,
 };
 
 enum ScriptVariables {
@@ -221,6 +222,12 @@ enum MapLocationTypes {
 enum MetaLocation {
   MML_TRIGGERED_OBJECT = 1,
   MML_RECENT_COMBAT,
+};
+
+enum ScriptOperator {
+    SOpr_SET = 1,
+    SOpr_INCREASE,
+    SOpr_DECREASE,
 };
 
 enum {

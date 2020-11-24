@@ -37,6 +37,8 @@
 #include "config_magic.h"
 #include "config_creature.h"
 #include "config_effects.h"
+#include "creature_states_mood.h"
+#include "creature_control.h"
 #include "gui_soundmsgs.h"
 #include "frontmenu_ingame_tabs.h"
 #include "player_instances.h"
@@ -151,6 +153,7 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES},
   {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE},
   {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD},
+  {"CHANGE_CREATURES_ANNOYANCE",        "PAN     ", Cmd_CHANGE_CREATURES_ANNOYANCE},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG},
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG},
@@ -477,6 +480,13 @@ const struct NamedCommand campaign_flag_desc[] = {
   {"CAMPAIGN_FLAG6",  6},
   {"CAMPAIGN_FLAG7",  7},
   {NULL,     0},
+};
+
+const struct NamedCommand script_operator_desc[] = {
+  {"SET",         1},
+  {"INCREASE",    2},
+  {"DECREASE",    3},
+  {NULL,          0},
 };
 
 /******************************************************************************/
@@ -2883,6 +2893,17 @@ void command_use_special_locate_hidden_world()
     command_add_value(Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
 }
 
+void command_change_creatures_annoyance(long plr_range_id, const char *operation, long anger)
+{
+    long op_id = get_rid(script_operator_desc, operation);
+    if (op_id == -1)
+    {
+        SCRPTERRLOG("Invalid operation for changing creatures' annoyance: '%s'", operation);
+        return;
+    }
+    command_add_value(Cmd_CHANGE_CREATURES_ANNOYANCE, plr_range_id, op_id, anger, 0);
+}
+
 void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
 {
     SCRIPTDBG(11, "Starting");
@@ -3204,6 +3225,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
         command_use_special_locate_hidden_world();
+        break;
+    case Cmd_CHANGE_CREATURES_ANNOYANCE:
+        command_change_creatures_annoyance(scline->np[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -4602,11 +4626,57 @@ void script_use_special_make_safe(PlayerNumber plyr_idx)
 }
 
 /**
+ * Modifies player's creatures' anger.
+ * @param plyr_idx target player
+ * @param anger anger value. Use double AnnoyLevel (from creature's config file) to fully piss creature. More for longer calm time
+ */
+TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, long operation, long anger)
+{
+    SYNCDBG(8,"Starting");
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        if (operation == SOpr_SET)
+        {
+            anger_set_creature_anger(thing, anger, AngR_Other);
+        }
+        else if (operation == SOpr_INCREASE)
+        {
+            anger_increase_creature_anger(thing, anger, AngR_Other);
+        }
+        else if (operation == SOpr_DECREASE)
+        {
+            anger_reduce_creature_anger(thing, -anger, AngR_Other);
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return true;
+}
+
+/**
  * Enables bonus level for current player.
  */
 TbBool script_use_special_locate_hidden_world()
 {
-    return activate_bonus_level(my_player_number);
+    return activate_bonus_level(get_player(my_player_number));
 }
 
 /**
@@ -5657,6 +5727,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
     case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
       script_use_special_locate_hidden_world();
+      break;
+    case Cmd_CHANGE_CREATURES_ANNOYANCE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_change_creatures_annoyance(i, val2, val3);
+      }
       break;
     case Cmd_CHANGE_CREATURE_OWNER:
       for (i=plr_start; i < plr_end; i++)

@@ -625,7 +625,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
     }
     if (thing_is_creature(foodtng))
     {
-        foodtng->health = -1;
+        thing_death_flesh_explosion(foodtng);
     } else
     {
         delete_thing_structure(foodtng, 0);

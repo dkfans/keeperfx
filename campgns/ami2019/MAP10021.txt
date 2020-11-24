@@ -1,5 +1,14 @@
-rem Cloud Temple Ruins
+REM ****************************************************
+REM Cloud Temple Ruins
+REM
+REM Assmist Isle Campaign by Kix
+REM
+REM v2.0 for DAT file objectives (by dayokay)
+REM 14-Nov-2020
+REM ****************************************************
+
 LEVEL_VERSION(1)
+
 COMPUTER_PLAYER(PLAYER1,0)
 COMPUTER_PLAYER(PLAYER3,0)
 
@@ -92,19 +101,22 @@ ENDIF
 IF(PLAYER_GOOD,BARBARIAN==0)
 IF(PLAYER_GOOD,DUNGEON_DESTROYED==0)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,BBS,-1,2)
-	QUICK_OBJECTIVE(3,"A new group of natives has appeared!",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(3,"A new group of natives has appeared!",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(165,ALL_PLAYERS)
 ENDIF
 ENDIF
 
 IF(PLAYER0,GAME_TURN>22300)
-	QUICK_INFORMATION(4,"Legends say the barbaric natives keep fairies somewhere near the ruins...",ALL_PLAYERS)
+	REM	QUICK_INFORMATION(4,"Legends say the barbaric natives keep fairies somewhere near the ruins...",ALL_PLAYERS)
+	DISPLAY_INFORMATION(166,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,AVATAR>0)
 	SET_FLAG(PLAYER0,FLAG1,1)
 ENDIF
 
-QUICK_OBJECTIVE(1,"You'll be battling two keepers and the natives for the riches of the land. Eliminate them all and the barbarians will be joining you throughout the campaign! Good luck!",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(1,"You'll be battling two keepers and the natives for the riches of the land. Eliminate them all and the barbarians will be joining you throughout the campaign! Good luck!",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(164,ALL_PLAYERS)
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED>0)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,BBS,-1,11)
@@ -116,7 +128,8 @@ IF(PLAYER_GOOD,DUNGEON_DESTROYED>0)
 ENDIF
 
 IF(PLAYER0,FLAG1>0)
-	QUICK_OBJECTIVE(2,"The natives are now under your command. New slaves! Wonderful!",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(2,"The natives are now under your command. New slaves! Wonderful!",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(167,ALL_PLAYERS)
 	SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG7,3)
 	SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG6,1)
 	WIN_GAME

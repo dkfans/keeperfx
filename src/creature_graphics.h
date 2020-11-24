@@ -50,9 +50,9 @@ enum CreatureGraphicsInstances {
     CGI_DropDead    = 16,
     CGI_DeadSplat   = 17,
     CGI_GFX18       = 18,
-    CGI_QuerySymbol  = 19,
+    CGI_QuerySymbol = 19,
     CGI_HandSymbol  = 20,
-    CGI_GFX21           = 21,
+    CGI_GFX21       = 21,
 };
 /******************************************************************************/
 #pragma pack(1)
