@@ -385,7 +385,7 @@ void draw_timer(void)
     char* text;
     if (TimerGame)
     {
-        if (!get_my_player()->victory_state == VicS_WonLevel)
+        if (get_my_player()->victory_state != VicS_WonLevel)
         {
             TimerTurns = game.play_gameturn;
         }

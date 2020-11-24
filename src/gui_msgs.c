@@ -111,13 +111,13 @@ void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
 
 void show_game_time_taken(unsigned long turns)
 {
-    unsigned long seconds = turns / game.num_fps;
-    unsigned long minutes = seconds / 60;
-    unsigned long hours = minutes / 60;
-    seconds %= 60;
-    minutes %= 60;
+    unsigned long secs = turns / game.num_fps;
+    unsigned long mins = secs / 60;
+    unsigned long hrs = mins / 60;
+    secs %= 60;
+    mins %= 60;
     struct PlayerInfo* player = get_my_player();
-    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld", get_string(746), hours, minutes, seconds);
+    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld", get_string(746), hrs, mins, secs);
 }
 
 void show_real_time_taken(void)
