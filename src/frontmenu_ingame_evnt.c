@@ -404,7 +404,7 @@ void draw_timer(void)
     long scr_y = 16 * units_per_pixel / 16;
     if (bonus_timer_enabled())
     {
-        scr_y += 50;
+        scr_y <<= 2;
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
