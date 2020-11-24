@@ -2450,7 +2450,7 @@ void command_message(const char *msgtext, unsigned char kind)
   SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
 }
 
-void command_printfx(char *range_id, int idx)
+void command_printfx(const char *range_id, int idx)
 {
   char id = get_rid(creature_desc, range_id);
   if (id == -1)
