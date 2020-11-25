@@ -126,7 +126,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                         power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
                     if (thing_exists(thing))
                     {
-                        JUSTLOG("      thing: %d %s", thing, thing_model_name(thing));
+                        JUSTLOG("      %s#%d", thing_model_name(thing), thing->index);
                     }
                 }
                 return false;
@@ -140,7 +140,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                         power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
                     if (thing_exists(thing))
                     {
-                        JUSTLOG("      thing: %d %s", thing, thing_model_name(thing));
+                        JUSTLOG("      %s#%d", thing_model_name(thing), thing->index);
                     }
                 }
                 return false;
@@ -1988,7 +1988,6 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
         switch (pwkind)
         {
         case PwrK_HAND:
-            //Note that we shouldn't use magic_use_power_hand(), that function is for interpreting input
             if (power_hand_is_full(get_player(plyr_idx)))
                 ret = Lb_FAIL;
             else

@@ -2858,7 +2858,7 @@ long update_cave_in(struct Thing *thing)
 void update(void)
 {
     struct PlayerInfo *player;
-    SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
+    SYNCDBG(8,"Starting for turn %ld",(long)game.play_gameturn);
 
     TbClockMSec tick_start = LbTimerClock();
 

@@ -423,7 +423,7 @@ TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_
  * @param plyr_idx
  * @return
  */
-TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx)
+static TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     long i;
@@ -1192,7 +1192,7 @@ void delete_power_hand(PlayerNumber owner)
     delete_thing_structure(thing, 0);
 }
 
-long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
+static void prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
@@ -1201,18 +1201,13 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     if (player->hand_thing_idx == 0) {
         create_power_hand(plyr_idx);
     }
-    if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND) {
-      return 0;
-    }
     struct Thing *thing;
     thing = thing_get(tng_idx);
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
     set_player_instance(player, PI_Grab, 0);
-    if (thing_is_creature(thing)) {
-        clear_creature_instance(thing);
-    }
-    return 1;
+
+    create_packet_action(player, PckA_HandPreGrab, thing->index, 0);
 }
 
 void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long explevel)
@@ -1293,7 +1288,7 @@ TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_id
 }
 
 // Called on client side, should emit packets
-TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
+TbResult client_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -1325,7 +1320,8 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     }
     if (is_dungeon_special(thing))
     {
-        activate_dungeon_special(thing, player);
+        NETDBG(4, "Activating SpecBox thing:%d", thing->index);
+        create_packet_action(player, PckA_UseSpecialBox, thing->index, 0);
         return Lb_OK;
     }
     if (!is_power_available(plyr_idx, PwrK_HAND)) {

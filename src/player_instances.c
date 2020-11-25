@@ -60,10 +60,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-long pinstfs_hand_grab(struct PlayerInfo *player, long *n);
-long pinstfm_hand_grab(struct PlayerInfo *player, long *n);
-long pinstfe_hand_grab(struct PlayerInfo *player, long *n);
-long pinstfs_hand_drop(struct PlayerInfo *player, long *n);
+static long pinstfs_hand_grab(struct PlayerInfo *player, long *n);
+static long pinstfm_hand_grab(struct PlayerInfo *player, long *n);
+static long pinstfe_hand_grab(struct PlayerInfo *player, long *n);
+static long pinstfs_hand_drop(struct PlayerInfo *player, long *n);
 long pinstfe_hand_drop(struct PlayerInfo *player, long *n);
 long pinstfs_hand_whip(struct PlayerInfo *player, long *n);
 long pinstfe_hand_whip(struct PlayerInfo *player, long *n);
@@ -178,6 +178,10 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     }
     player->influenced_thing_creation = 0;
     player->influenced_thing_idx = 0;
+
+    NETDBG(4, "PckA_UsePwrHandPick on thing:%d", dsttng->index);
+    create_packet_action(player, PckA_UsePwrHandPick, dsttng->index, 0);
+    /*
     if (!magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,dsttng->mappos.x.stl.num, dsttng->mappos.y.stl.num, dsttng, PwMod_Default)) {
         WARNLOG("Cannot pick up %s index %d",thing_model_name(dsttng),(int)dsttng->index);
         return 0;
@@ -187,6 +191,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     if (!thing_is_invalid(grabtng)) {
         set_power_hand_graphic(player->id_number, 784, 256);
     }
+    */
     return 0;
 }
 

@@ -165,6 +165,7 @@ enum TbPacketAction {
         PckA_TagUntag,
         PckA_RemapNotify,
         PckA_ForceResync,
+        PckA_HandPreGrab, //135
 };
 
 /** Packet flags for non-action player operation. */

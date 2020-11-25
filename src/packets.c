@@ -732,6 +732,7 @@ static TbBool process_players_global_packet_action(
       set_player_mode(player, pckt->arg0);
       return 0;
   case PckA_ZoomFromMap:
+      //TODO: is it actually required on other end?
       set_player_cameras_position(player, subtile_coord_center(pckt->arg0), subtile_coord_center(pckt->arg1));
       player->cameras[CamIV_Parchment].orient_a = 0;
       player->cameras[CamIV_FrontView].orient_a = 0;
@@ -746,7 +747,7 @@ static TbBool process_players_global_packet_action(
       {
         set_player_mode(player, PVT_MapFadeOut);
       }
-      return 0;
+      return true;
   case PckA_UpdatePause:
       process_pause_packet(pckt->arg0, pckt->arg1);
       return 1;
@@ -805,11 +806,36 @@ static TbBool process_players_global_packet_action(
       return 0;
   case PckA_UsePwrHandPick:
       thing = thing_get(pckt->arg0);
-      magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
-      return 0;
+      if (magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default))
+      {
+          if (player == get_my_player())
+          {
+              // Update sprites for the creature in hand, and power hand itself
+              set_power_hand_offset(player, get_first_thing_in_power_hand(player));
+              if (!thing_is_invalid(thing))
+              {
+                  set_power_hand_graphic(player->id_number, 784, 256);
+              }
+          }
+      }
+      return true;
   case PckA_UsePwrHandDrop:
-      dump_first_held_thing_on_map(player->id_number, pckt->arg0, pckt->arg1, 1);
-      return 0;
+      if (!dump_first_held_thing_on_map(player->id_number, pckt->arg0, pckt->arg1, 1))
+      {
+          if (player->id_number == my_player_number)
+          {
+              //TODO: revert to "FULL HAND" state?
+              // player->field_4AF = !0;
+          }
+      }
+      return true;
+  case PckA_HandPreGrab: // Maybe not necessary action
+      thing = thing_get(pckt->arg0);
+      if (thing_is_creature(thing))
+      {
+        clear_creature_instance(thing);
+      }
+      return true; // processed
   case PckA_Unknown092:
       if (game.event[pckt->arg0].kind == 3)
       {
@@ -876,8 +902,9 @@ static TbBool process_players_global_packet_action(
       turn_off_power_sight_of_evil(player->id_number);
       return false;
   case PckA_EventBoxActivate:
+      //TODO: is it actually required on net?
       go_on_then_activate_the_event_box(player->id_number, pckt->arg0);
-      return false;
+      return true;
   case PckA_EventBoxClose:
       dungeon = get_players_num_dungeon(player->id_number);
       turn_off_event_box_if_necessary(player->id_number, dungeon->visible_event_idx);

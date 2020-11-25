@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
- * @date     20 Sep 2020 - 20 Sep 2020
+ * @date     20 Sep 2020 - 23 Nov 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -393,7 +393,7 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
           {
             if (player->thing_under_hand != 0) {
                 //TODO: It is a hard thing - it creates "object of a hand"
-                magic_use_power_hand(plyr_idx, stl_x, stl_y, 0);
+                client_use_power_hand(plyr_idx, stl_x, stl_y, 0);
             }
           }
         }
@@ -410,10 +410,13 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
       {
         if (!power_hand_is_empty(player))
         {
+          create_packet_action(player, PckA_UsePwrHandDrop, stl_x, stl_y);
+          /*
           if (dump_first_held_thing_on_map(player->id_number, stl_x, stl_y, 1)) {
               player->field_4AF = 0;
               clear_input(pckt);
           }
+          */
         } else
         {
           if (player->field_454 == P454_Unkn3) {
