@@ -4653,7 +4653,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_score;
     case SVar_EASTER_EGGS:
-        if (is_my_player_number(plyr_idx))
+        if ( (is_my_player_number(plyr_idx)) || (plyr_idx == ALL_PLAYERS) )
         {
             return ((game.flags_font & FFlg_AlexCheat) != 0);
         }
