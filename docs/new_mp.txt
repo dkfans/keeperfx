@@ -1,0 +1,79 @@
+New MP
+
+Layers:
+
+* actions (listed in packets.h)
+* resync (at bflib_network.cpp)
+* action queues (at bflib_network.cpp)
+* "Old headers"
+* UDP
+
+Bottom to top
+
+== UDP 
+It is fast and lossy. We limit about 1024 bytes per UDP packet because of MTU.
+We use only one socket for all messages. 
+We dont want to account where are messages from. It may help with NAT.
+
+== Old headers
+We identify clients by so called "token" here.
+Token is an `uint16_t` id of "transport-like" level.
+For new client it is 0xFFFF
+For server it is 0x0000
+For other clients it is random assigned by server.
+No proxies on that level. Packets are sent to server or from server.
+
+Packets contains multiple actions.
+
+== Action queues
+Action is a small chunk of data related to some game event or action.
+
+Actions are identified by incremental `uint16_t seq_num`. 
+Only actions in some window of seq_nums from "now" are valid.
+Seq_num has "transport-like" boundry. Server renumbers his proxied actions.
+
+Most of actions have `uint32_t` turn_number field when that action occured. Some (Which?) have 0.
+
+Each action is orginated from some client. 
+> There is a mess between client_id (network layer) and player_number (game related number)
+
+On server actions should be reliably delivered to all clients.
+So when any peer got batch of actions it confirms that got all actions in batch.
+Peer should ignore actions theese actions.
+Actions with seq_num == 0xFFFF are unreliable and should be sent once and then discarded
+
+There are three queues:
+* incoming
+* created
+* outgoing
+
+Each turn game created some actions. 
+I.e. player click with a spell on some tile. It SHOULD NOT do anything. Instead it created an action and put it into `created` queue.
+
+When `LbNetwork_Exchange` is called it is recieves actions from other clients (possibly proxied by server) and
+list them into `incoming` queue.
+Then all events from `incoming` queue and from `created` queue are processed.
+> Now they are partially ordered but it is for debugging purposes.
+
+Then on Server all events from `incoming` queue and `created` queue are appended to `outgoing` queue.
+Then on Client only events `created` queue are moved to `outgoing` queue.
+
+All events from outgoing queue are send for each peer if on server.
+When any particular action is confirmed by all peers it is deleted from queue on its originator.
+
+== Resync
+Game is paused on resync.
+Host send state to clients
+
+There are different checksums so host may send less info.
+* Player data
+* Creatures by player
+* Other things
+* Rooms
+
+Now it is one-way communication from host to client.
+What is sent is choosen based on which checksums are different.
+It should be improved so host could query each client what to send.
+
+== Actions
+All kinds are listed in `packets.h`

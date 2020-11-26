@@ -404,7 +404,7 @@ long check_out_undug_drop_place(struct Thing *thing)
     return _DK_check_out_undug_drop_place(thing);
 }
 
-long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
+static long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(spdigtng);
     // If the creature holds more gold than its able
@@ -666,6 +666,7 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(spdigtng),(int)spdigtng->index);
     TRACE_THING(spdigtng);
 
+    // TODO: Move this whole list to settings
     if ( check_out_unclaimed_unconscious_bodies(spdigtng, 768) )
     {
         cctrl->digger.task_repeats = 0;

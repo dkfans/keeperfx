@@ -39,6 +39,7 @@
 #include "player_instances.h"
 #include "map_data.h"
 #include "map_columns.h"
+#include "net_remap.h"
 #include "room_entrance.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -2101,12 +2102,14 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     return true;
 }
 
-struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long value)
+static struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long value)
 {
     struct Thing* gldtng = create_object(pos, 43, plyr_idx, -1);
     if (thing_is_invalid(gldtng)) {
         return INVALID_THING;
     }
+    net_remap_thing_created(gldtng->index);
+    net_remap_flush_things();
     gldtng->valuable.gold_stored = 0;
     add_gold_to_pile(gldtng, value);
     return gldtng;

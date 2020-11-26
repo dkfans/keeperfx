@@ -253,6 +253,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
   struct Coord3d pos;
   struct PowerConfigStats *powerst;
   long i;
+  // TODO: use some list and settings
   switch (thing->model)
   {
     case 3:
@@ -273,6 +274,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     case 10:
       i = UNSYNC_RANDOM(3);
       powerst = get_power_model_stats(PwrK_PICKUPFOOD);
+      //TODO: check is it availiabe?
       thing_play_sample(thing, powerst->select_sound_idx+i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
       i = convert_td_iso(122);
       set_thing_draw(thing, i, 256, -1, -1, 0, 2);

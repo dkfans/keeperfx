@@ -128,7 +128,7 @@ void net_remap_start(int net_player_id, unsigned char packet_kind, void *data, s
     }
 }
 
-void net_remap_creature_created(int owner, Thingid mine)
+static void net_remap_thing_created_internal(int owner, Thingid mine)
 {
     if (game.play_gameturn == 0)
     {
@@ -165,6 +165,16 @@ void net_remap_creature_created(int owner, Thingid mine)
     }
 }
 
+void net_remap_creature_created(int owner, Thingid mine)
+{
+    net_remap_thing_created_internal(owner, mine);
+}
+
+void net_remap_thing_created(Thingid mine)
+{
+    net_remap_thing_created_internal(my_player_number, mine);
+}
+
 void net_remap_finish()
 {
     if ((addendum.net_player_id != my_player_number) && (addendum.dst_last != addendum.dst_buf))
@@ -193,6 +203,10 @@ void net_remap_finish()
     addendum.src_end = NULL;
     addendum.dst_last = NULL;
     addendum.dst_end = NULL;
+}
+
+void net_remap_flush_things()
+{
 }
 
 /*

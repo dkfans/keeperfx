@@ -32,7 +32,15 @@ void net_remap_update(int net_player_id, Thingid their, Thingid mine);
     net_player_id is source of a packet
 */
 void net_remap_start(int net_player_id, unsigned char packet_kind, void *data, short size);
+
+// Used for things
+void net_remap_thing_created(Thingid mine);
+// Used for creatures (TODO: check is owner is player_id or net_id)
 void net_remap_creature_created(int owner, Thingid mine);
+
+// Used to create a new remap packet
+void net_remap_flush_things();
+
 /* We may create a packet */
 void net_remap_finish();
 
