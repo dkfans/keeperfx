@@ -2461,14 +2461,22 @@ void command_message(const char *msgtext, unsigned char kind)
 
 void command_printfx(const char *range_id, int idx)
 {
-  char id = get_rid(creature_desc, range_id);
+  char id = get_rid(player_desc, range_id);
   if (id == -1)
   {
-      id = atoi(range_id);
-  }
-  else
-  {
-      id = (~id) + 1;
+    id = get_rid(cmpgn_human_player_options, range_id);
+    if (id == -1)
+    {
+        id = get_rid(creature_desc, range_id);
+        if (id == -1)
+        {
+            id = atoi(range_id);
+        }
+        else
+        {
+            id = (~id) + 1;
+        }   
+    }        
   }
   command_add_value(Cmd_PRINTFX, 0, id, idx, 0);
 }
