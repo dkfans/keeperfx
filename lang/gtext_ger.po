@@ -19,11 +19,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2014-10-28 21:22+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
+"Last-Translator: Endrix \n"
+"Language-Team: KeeperFX Team\n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -6080,17 +6080,17 @@ msgstr "Neue Level"
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Please insert Data Disk CD-ROM"
-msgstr "Bitte legen Sie die Zusatz-CD ein."
+msgstr "Bitte legen Sie die Zusatz-CD ein"
 
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Bitte legen Sie die Dungeon-Keeper-CD ein."
+msgstr "Bitte legen Sie die Dungeon-Keeper-CD ein"
 
 #: guitext:891
 msgctxt "Menu interface message"
 msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Bitte legen Sie die The Deeper Dungeons-CD ein."
+msgstr "Bitte legen Sie die The Deeper Dungeons-CD ein"
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -6777,7 +6777,7 @@ msgstr "Geerbte Levels"
 #: guitext:974
 msgctxt "Menu interface item"
 msgid "Personal Levels"
-msgstr "Persönlich Levels"
+msgstr "Persönliche Levels"
 
 #: guitext:975
 msgctxt "Menu interface item"
