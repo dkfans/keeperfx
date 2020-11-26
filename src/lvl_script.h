@@ -199,6 +199,7 @@ enum ScriptVariables {
   SVar_TOTAL_SALARY                    = 64,
   SVar_CURRENT_SALARY                  = 65,
   SVar_TOTAL_SCORE                     = 66,
+  SVar_EASTER_EGGS                     = 67,
  };
 
 enum MapLocationTypes {
