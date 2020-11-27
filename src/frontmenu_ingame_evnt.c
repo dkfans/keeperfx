@@ -394,10 +394,10 @@ void draw_timer(void)
     else
     {
         update_time();
-        text = buf_sprintf("%02ld:%02ld:%02ld", hours, minutes, seconds);
+        text = buf_sprintf("%02ld:%02ld:%02ld:%03ld", hours, minutes, seconds, milliseconds);
     }
     LbTextSetFont(winfont); 
-    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    long width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 3);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;

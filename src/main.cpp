@@ -174,10 +174,10 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 
 
 TbClockMSec timerstarttime = 0;
-TbClockMSec totaltime = 0;
 unsigned long seconds = 0;
 unsigned long minutes = 0;
 unsigned long hours = 0;
+unsigned long milliseconds = 0;
 TbBool TimerGame = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
@@ -5046,12 +5046,30 @@ int main(int argc, char *argv[])
 
 void update_time(void)
 {
-    totaltime = (LbTimerClock_1000() - timerstarttime);
-    seconds = (unsigned long)totaltime / 1000;
-    minutes = seconds / 60;
-    hours = minutes / 60;
-    minutes %= 60;
-    seconds %= 60;
+    asm (" \
+    call _LbTimerClock_1000\n \
+    subl    %0,%%eax\n \
+    movl    $0x3E8,%%ecx\n \
+    xorl    %%edx,%%edx\n \
+    divl    %%ecx\n \
+    movl    %%eax,%2\n \
+    movl    %%edx,%1\n \
+    movl    $0x3C,%%ecx\n \
+    xorl    %%edx,%%edx\n \
+    divl    %%ecx\n\
+    movl    %%eax,%3\n \
+    xorl    %%edx,%%edx\n \
+    divl    %%ecx\n \
+    movl    %%eax,%4\n \
+    movl    %3,%%eax\n \
+    xorl    %%edx,%%edx\n \
+    divl    %%ecx\n \
+    movl    %%edx,%3 \n \
+    movl    %2,%%eax\n \
+    xorl    %%edx,%%edx\n \
+    divl    %%ecx\n\
+    movl    %%edx,%2\n \
+" : "=m" (timerstarttime) : "m" (milliseconds), "m" (seconds), "m" (minutes), "m" (hours) : "memory", "cc", "%eax","%ecx", "%edx");
 }
 
 #ifdef __cplusplus

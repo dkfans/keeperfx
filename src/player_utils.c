@@ -116,7 +116,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
     {
         show_real_time_taken();
     }
-    SYNCMSG("Won level %ld. Total turns taken: %ld. CPU time elapsed: %02ld:%02ld:%02ld.",game.loaded_level_number, dungeon->lvstats.hopes_dashed, hours, minutes, seconds);
+    SYNCMSG("Won level %ld. Total turns taken: %ld. CPU time elapsed: %02ld:%02ld:%02ld:%03ld.",game.loaded_level_number, dungeon->lvstats.hopes_dashed, hours, minutes, seconds, milliseconds);
   }
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
