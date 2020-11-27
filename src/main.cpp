@@ -5058,15 +5058,12 @@ void update_time(void)
     xorl    %%edx,%%edx\n \
     divl    %%ecx\n\
     movl    %%eax,%3\n \
+    movl    %%edx,%2\n \
     xorl    %%edx,%%edx\n \
     divl    %%ecx\n \
     movl    %%eax,%4\n \
     movl    %3,%%eax\n \
-    movl    %%edx,%3 \n \
-    movl    %2,%%eax\n \
-    xorl    %%edx,%%edx\n \
-    divl    %%ecx\n\
-    movl    %%edx,%2\n \
+    movl    %%edx,%3 \n \ 
 " : "=m" (timerstarttime) : "m" (milliseconds), "m" (seconds), "m" (minutes), "m" (hours) : "memory", "cc", "%eax","%ecx", "%edx");
 }
 
