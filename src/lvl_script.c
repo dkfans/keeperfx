@@ -4562,6 +4562,42 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 }
 
 /**
+ * todo: put info here
+ */
+void script_computer_dig_to_location(long i, long target)
+{
+    //i = computer who does the digging
+    struct Computer2* comp = get_computer_player(i);
+    struct Coord3d startpos;
+    struct Thing* heartng = get_player_soul_container(i);
+    startpos.x.val = heartng->mappos.x.val;
+    startpos.y.val = heartng->mappos.y.val;
+    startpos.z.val = subtile_coord(1, 0);
+    long x,y = 0;
+
+    //val2 = target
+    find_map_location_coords(target, &x, &y, __func__);
+    if ((x == 0) && (y == 0))
+    {
+        WARNLOG("Can't decode location %d", target);
+        return;
+    }
+    struct Coord3d endpos;
+    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(x));
+    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(y));
+    endpos.z.val = subtile_coord(1, 0);
+
+    if (get_map_location_type(target) == MLoc_PLAYERSHEART)
+    {
+        create_task_dig_to_attack(comp, startpos, endpos, target, 0xFFFF);
+    }
+    else
+    {
+        create_task_dig_to_neutral(comp, startpos, endpos);
+    }
+}
+
+/**
  * Casts spell at a location set by subtiles.
  * @param plyr_idx caster player.
  * @param stl_x subtile's x position.
@@ -5693,6 +5729,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         for (i = plr_start; i < plr_end; i++)
         {
+            script_computer_dig_to_location(i, val2);
+        }
+        break;
+        /*
             //i = computer who does the digging
             struct Computer2* comp = get_computer_player(i);
             struct Coord3d startpos;
@@ -5724,6 +5764,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
             }
         }
         break;
+        */
     case Cmd_USE_POWER_AT_SUBTILE:
       for (i=plr_start; i < plr_end; i++)
       {
