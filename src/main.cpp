@@ -5063,7 +5063,7 @@ void update_time(void)
     divl    %%ecx\n \
     movl    %%eax,%4\n \
     movl    %3,%%eax\n \
-    movl    %%edx,%3 \n \ 
+    movl    %%edx,%3\n \
 " : "=m" (timerstarttime) : "m" (milliseconds), "m" (seconds), "m" (minutes), "m" (hours) : "memory", "cc", "%eax","%ecx", "%edx");
 }
 
