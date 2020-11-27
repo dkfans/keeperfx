@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_datetm.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "bflib_planar.h"
@@ -643,6 +644,10 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->zoom = 24000;
   }
   cam->orient_a = 0;
+  if (!TimerNoReset)
+  {
+     timerstarttime = LbTimerClock();
+  }
   return 0;
 }
 
