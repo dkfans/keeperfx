@@ -145,7 +145,7 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION},
   {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE},
-  {"COMPUTER_DIG_TO_LOCATION",          "PL      ", Cmd_COMPUTER_DIG_TO_LOCATION},
+  {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION},
   {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE},
   {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE},
   {"USE_POWER_AT_LOCATION",             "PNANN   ", Cmd_USE_POWER_AT_LOCATION},
@@ -2923,16 +2923,22 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
 }
 
 
-void command_computer_dig_to_location(long plr_range_id, const char* locname)
+void command_computer_dig_to_location(long plr_range_id, const char* origin, const char* destination)
 {
-    TbMapLocation location;
-    if (!get_map_location_id(locname, &location))
+    TbMapLocation orig_loc;
+    if (!get_map_location_id(origin, &orig_loc))
     {
-        SCRPTWRNLOG("Dig to location script command has invalid location: %s", locname);
+        SCRPTWRNLOG("Dig to location script command has invalid location: %s", origin);
+        return;
+    }
+    TbMapLocation dest_loc;
+    if (!get_map_location_id(destination, &dest_loc))
+    {
+        SCRPTWRNLOG("Dig to location script command has invalid location: %s", destination);
         return;
     }
 
-    command_add_value(Cmd_COMPUTER_DIG_TO_LOCATION, plr_range_id, location, 0, 0);
+    command_add_value(Cmd_COMPUTER_DIG_TO_LOCATION, plr_range_id, orig_loc, dest_loc, 0);
 }
 
 void command_set_campaign_flag(long plr_range_id, const char *cmpflgname, long val)
@@ -3284,7 +3290,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_change_slab_type(scline->np[0], scline->np[1], scline->np[2]);
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
-        command_computer_dig_to_location(scline->np[0], scline->tp[1]);
+        command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -4564,32 +4570,41 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 /**
  * todo: put info here
  */
-void script_computer_dig_to_location(long i, long target)
+void script_computer_dig_to_location(long i, long origin, long destination)
 {
     //i = computer who does the digging
     struct Computer2* comp = get_computer_player(i);
-    struct Coord3d startpos;
-    struct Thing* heartng = get_player_soul_container(i);
-    startpos.x.val = heartng->mappos.x.val;
-    startpos.y.val = heartng->mappos.y.val;
-    startpos.z.val = subtile_coord(1, 0);
-    long x,y = 0;
+    long orig_x, orig_y = 0;
+    long dest_x, dest_y = 0;
 
-    //val2 = target
-    find_map_location_coords(target, &x, &y, __func__);
-    if ((x == 0) && (y == 0))
+    //dig origin
+    find_map_location_coords(origin, &orig_x, &orig_y, __func__);
+    if ((orig_x == 0) && (orig_y == 0))
     {
-        WARNLOG("Can't decode location %d", target);
+        WARNLOG("Can't decode origin location %d", origin);
+        return;
+    }
+    struct Coord3d startpos;
+    startpos.x.val = subtile_coord_center(stl_slab_center_subtile(orig_x));
+    startpos.y.val = subtile_coord_center(stl_slab_center_subtile(orig_y));
+    startpos.z.val = subtile_coord(1, 0);
+
+
+    //dig destination
+    find_map_location_coords(destination, &dest_x, &dest_y, __func__);
+    if ((dest_x == 0) && (dest_y == 0))
+    {
+        WARNLOG("Can't decode destination location %d", destination);
         return;
     }
     struct Coord3d endpos;
-    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(x));
-    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(y));
+    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(dest_x));
+    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(dest_y));
     endpos.z.val = subtile_coord(1, 0);
 
-    if (get_map_location_type(target) == MLoc_PLAYERSHEART)
+    if (get_map_location_type(destination) == MLoc_PLAYERSHEART)
     {
-        create_task_dig_to_attack(comp, startpos, endpos, target, 0xFFFF);
+        create_task_dig_to_attack(comp, startpos, endpos, destination, 0xFFFF);
     }
     else
     {
@@ -5729,7 +5744,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         for (i = plr_start; i < plr_end; i++)
         {
-            script_computer_dig_to_location(i, val2);
+            script_computer_dig_to_location(i, val2, val3);
         }
         break;
         /*
