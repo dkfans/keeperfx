@@ -5062,8 +5062,6 @@ void update_time(void)
     divl    %%ecx\n \
     movl    %%eax,%4\n \
     movl    %3,%%eax\n \
-    xorl    %%edx,%%edx\n \
-    divl    %%ecx\n \
     movl    %%edx,%3 \n \
     movl    %2,%%eax\n \
     xorl    %%edx,%%edx\n \
