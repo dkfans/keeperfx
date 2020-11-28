@@ -5061,7 +5061,7 @@ void update_time(void)
     divl    %%ecx\n \
     movb    %%dl,%2\n \
     movb    %%al,%3\n \
-" : "=m" (milliseconds), "=m" (seconds), "=m" (minutes), "=m" (hours) : "m" (timerstarttime) : "memory", "cc", "%eax","%ecx", "%edx");
+" : "=m" (milliseconds), "=m" (seconds), "=m" (minutes), "=m" (hours) : "m" (timerstarttime) : "cc", "%eax","%ecx", "%edx");
 }
 
 #ifdef __cplusplus
