@@ -174,10 +174,10 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 
 
 TbClockMSec timerstarttime = 0;
-unsigned long seconds = 0;
-unsigned long minutes = 0;
-unsigned long hours = 0;
-unsigned long milliseconds = 0;
+unsigned char seconds = 0;
+unsigned char minutes = 0;
+unsigned char hours = 0;
+unsigned short milliseconds = 0;
 TbBool TimerGame = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
@@ -5052,17 +5052,15 @@ void update_time(void)
     movl    $0x3E8,%%ecx\n \
     xorl    %%edx,%%edx\n \
     divl    %%ecx\n \
-    movl    %%eax,%2\n \
-    movl    %%edx,%1\n \
+    movw    %%dx,%1\n \
     movl    $0x3C,%%ecx\n \
     xorl    %%edx,%%edx\n \
     divl    %%ecx\n\
-    movl    %%eax,%3\n \
-    movl    %%edx,%2\n \
+    movb    %%dl,%2\n \
     xorl    %%edx,%%edx\n \
     divl    %%ecx\n \
-    movl    %%eax,%4\n \
-    movl    %%edx,%3\n \
+    movb    %%al,%4\n \
+    movb    %%dl,%3\n \
 " : "=m" (timerstarttime) : "m" (milliseconds), "m" (seconds), "m" (minutes), "m" (hours) : "memory", "cc", "%eax","%ecx", "%edx");
 }
 

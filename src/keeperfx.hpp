@@ -359,10 +359,10 @@ void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
 void update_time(void);
 extern TbClockMSec timerstarttime;
-extern unsigned long seconds;
-extern unsigned long minutes;
-extern unsigned long hours;
-extern unsigned long milliseconds;
+extern unsigned char seconds;
+extern unsigned char minutes;
+extern unsigned char hours;
+extern unsigned short milliseconds;
 extern TbBool TimerGame;
 
 #ifdef __cplusplus
