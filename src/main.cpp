@@ -5048,20 +5048,20 @@ void update_time(void)
 {
     asm (" \
     call _LbTimerClock_1000\n \
-    subl    %0,%%eax\n \
+    subl    %4,%%eax\n \
     movl    $0x3E8,%%ecx\n \
     xorl    %%edx,%%edx\n \
     divl    %%ecx\n \
-    movw    %%dx,%1\n \
+    movw    %%dx,%0\n \
     movl    $0x3C,%%ecx\n \
     xorl    %%edx,%%edx\n \
     divl    %%ecx\n\
-    movb    %%dl,%2\n \
+    movb    %%dl,%1\n \
     xorl    %%edx,%%edx\n \
     divl    %%ecx\n \
-    movb    %%al,%4\n \
-    movb    %%dl,%3\n \
-" : "=m" (timerstarttime) : "m" (milliseconds), "m" (seconds), "m" (minutes), "m" (hours) : "memory", "cc", "%eax","%ecx", "%edx");
+    movb    %%dl,%2\n \
+    movb    %%al,%3\n \
+" : "=m" (milliseconds), "=m" (seconds), "=m" (minutes), "=m" (hours) : "m" (timerstarttime) : "memory", "cc", "%eax","%ecx", "%edx");
 }
 
 #ifdef __cplusplus
