@@ -2928,13 +2928,13 @@ void command_computer_dig_to_location(long plr_range_id, const char* origin, con
     TbMapLocation orig_loc;
     if (!get_map_location_id(origin, &orig_loc))
     {
-        SCRPTWRNLOG("Dig to location script command has invalid location: %s", origin);
+        SCRPTWRNLOG("Dig to location script command has invalid source location: %s", origin);
         return;
     }
     TbMapLocation dest_loc;
     if (!get_map_location_id(destination, &dest_loc))
     {
-        SCRPTWRNLOG("Dig to location script command has invalid location: %s", destination);
+        SCRPTWRNLOG("Dig to location script command has invalid destination location: %s", destination);
         return;
     }
 
