@@ -4568,12 +4568,15 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 }
 
 /**
- * todo: put info here
+ * Adds a dig task for the player between 2 map locations.
+ * @param plyr_idx: The player who does the task.
+ * @param origin: The start location of the disk task.
+ * @param destination: The desitination of the disk task.
+ * @return TbResult whether the spell was successfully cast
  */
-void script_computer_dig_to_location(long i, long origin, long destination)
+TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destination)
 {
-    //i = computer who does the digging
-    struct Computer2* comp = get_computer_player(i);
+    struct Computer2* comp = get_computer_player(plyr_idx);
     long orig_x, orig_y = 0;
     long dest_x, dest_y = 0;
 
@@ -4582,7 +4585,7 @@ void script_computer_dig_to_location(long i, long origin, long destination)
     if ((orig_x == 0) && (orig_y == 0))
     {
         WARNLOG("Can't decode origin location %d", origin);
-        return;
+        return Lb_FAIL;
     }
     struct Coord3d startpos;
     startpos.x.val = subtile_coord_center(stl_slab_center_subtile(orig_x));
@@ -4595,21 +4598,18 @@ void script_computer_dig_to_location(long i, long origin, long destination)
     if ((dest_x == 0) && (dest_y == 0))
     {
         WARNLOG("Can't decode destination location %d", destination);
-        return;
+        return Lb_FAIL;
     }
     struct Coord3d endpos;
     endpos.x.val = subtile_coord_center(stl_slab_center_subtile(dest_x));
     endpos.y.val = subtile_coord_center(stl_slab_center_subtile(dest_y));
     endpos.z.val = subtile_coord(1, 0);
 
-    if (get_map_location_type(destination) == MLoc_PLAYERSHEART)
+    if (create_task_dig_to_neutral(comp, startpos, endpos))
     {
-        create_task_dig_to_attack(comp, startpos, endpos, destination, 0xFFFF);
+        return Lb_SUCCESS;
     }
-    else
-    {
-        create_task_dig_to_neutral(comp, startpos, endpos);
-    }
+    return Lb_FAIL;
 }
 
 /**

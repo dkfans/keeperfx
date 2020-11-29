@@ -2119,11 +2119,8 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         {
             struct ComputerProcess *cproc;
             cproc = get_computer_process(comp, ctask->field_8C);
-            if (cproc != NULL)
-            {
-                cproc->param_5 = computer_task_index(ctask);
-                cproc->func_complete(comp, cproc);
-            }
+            cproc->param_5 = computer_task_index(ctask);
+            cproc->func_complete(comp, cproc);
         }
         suspend_task_process(comp, ctask);
         break;
