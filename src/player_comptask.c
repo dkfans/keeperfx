@@ -2903,13 +2903,13 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     if (ctask->flags & ComTsk_Urgent)
     {
-        if (game.play_gameturn - ctask->created_turn > 1200) //todo makes these times configurable
+        if (game.play_gameturn - ctask->created_turn > COMPUTER_URGENT_BRIDGE_TIMEOUT)
         {
             restart_task_process(comp, ctask);
             return CTaskRet_Unk0;
         }
     }
-    else if (game.play_gameturn - ctask->created_turn > 7500)
+    else if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT)
     {
         restart_task_process(comp, ctask);
         return CTaskRet_Unk0;
