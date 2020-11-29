@@ -269,9 +269,10 @@ void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
             cproc->flags &= ~ComProc_Unkn0020;
             cproc->flags &= ~ComProc_Unkn0008;
         }
-    } else {
+    } 
+    else 
+    {
         ERRORLOG("Invalid computer process %d referenced",(int)ctask->field_8C);
-        return; //todo remove and replace with another way to fix script command
     }
     remove_task(comp, ctask);
 }
