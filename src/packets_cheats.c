@@ -41,7 +41,7 @@
 extern void clear_input(struct Packet* packet);
 
 TbBool packets_process_cheats(
-          long plyr_idx,
+          PlayerNumber plyr_idx,
           MapCoord x, MapCoord y,
           struct Packet* pckt,
           MapSubtlCoord stl_x, MapSubtlCoord stl_y,

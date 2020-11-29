@@ -954,7 +954,12 @@ short imp_digs_mines(struct Thing *spdigtng)
                 }
                 cctrl->tasks_check_turn = game.play_gameturn;
             }
-            drop_gold_pile(spdigtng->creature.gold_carried - crstat->gold_hold, &spdigtng->mappos);
+            drop_gold_pile(
+                spdigtng->creature.gold_carried - crstat->gold_hold,
+                &spdigtng->mappos,
+                player_to_client(spdigtng->owner)
+                );
+
             spdigtng->creature.gold_carried = crstat->gold_hold;
         }
     }

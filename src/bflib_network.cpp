@@ -61,8 +61,6 @@ void HostMsgCallback(unsigned long, void *);
 void RequestCompositeExchangeDataMsgCallback(unsigned long, unsigned long, void *);
 void *UnidirectionalMsgCallback(unsigned long, unsigned long, void *);
 void SystemUserMsgCallback(unsigned long, void *, unsigned long, void *);
-void TwoPlayerReqExDataMsgCallback(unsigned long, unsigned long, void *);
-void *TwoPlayerCallback(unsigned long, unsigned long, unsigned long, void *);
 TbError LbNetwork_StartExchange(void *buf);
 TbError LbNetwork_CompleteExchange(void *buf);
 static void OnDroppedUser(NetUserId id, enum NetDropReason reason);
@@ -1791,6 +1789,12 @@ static int try_read_buf(NetUserId user_id, void *buf, size_t len)
     return netstate.sp->readmsg(user_id, (char*)buf, len);
 }
 
+
+extern int player_to_client(PlayerNumber player_idx)
+{
+    return player_idx;
+}
+
 void LbNetwork_GetResyncProgress(int *now, int *max)
 {
     if (netstate.users[netstate.my_id].progress == USER_SERVER)
@@ -2371,78 +2375,14 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
 
 TbError GenericSerialInit(void *init_data)
 {
-  struct ServiceInitData *sp_init;
-  if (spPtr != NULL)
-  {
-    spPtr->Release();
-    delete spPtr;
-    spPtr = NULL;
-  }
-  sp_init = (struct ServiceInitData *)init_data;
-  LbMemorySet(lastMessage, 0, sizeof(lastMessage));
-  LbMemorySet(lastButOneMessage, 0, sizeof(lastMessage));
-  basicTimeout = 250;
-  receiveCallbacks.mpReqExDataMsg = TwoPlayerReqExDataMsgCallback;
-  startTime = 0;
-  actualTimeout = 0;
-  remotePlayerIndex = 0;
-  remotePlayerId = 0;
-  sequenceNumber = 0;
-  runningTwoPlayerModel = true;
-  receiveCallbacks.multiPlayer = TwoPlayerCallback;
-  if (sp_init != NULL)
-    sp_init->field_C = 1;
-  //TODO: NET set when SerialSP is ready
-  spPtr = NULL;//new SerialSP(...);
-  if (spPtr == NULL)
-  {
-    WARNLOG("Failure on SP construction");
+    WARNLOG("Removed");
     return Lb_FAIL;
-  }
-  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Init()");
-    return Lb_FAIL;
-  }
-  return Lb_OK;
 }
 
 TbError GenericModemInit(void *init_data)
 {
-  struct ServiceInitData *sp_init;
-  if (spPtr != NULL)
-  {
-    spPtr->Release();
-    delete spPtr;
-    spPtr = NULL;
-  }
-  sp_init = (struct ServiceInitData *)init_data;
-  LbMemorySet(lastMessage, 0, sizeof(lastMessage));
-  LbMemorySet(lastButOneMessage, 0, sizeof(lastMessage));
-  basicTimeout = 250;
-  receiveCallbacks.mpReqExDataMsg = TwoPlayerReqExDataMsgCallback;
-  startTime = 0;
-  actualTimeout = 0;
-  remotePlayerIndex = 0;
-  remotePlayerId = 0;
-  sequenceNumber = 0;
-  runningTwoPlayerModel = true;
-  receiveCallbacks.multiPlayer = TwoPlayerCallback;
-  if (sp_init != NULL)
-    sp_init->field_C = 2;
-//TODO: NET set when ModemSP is ready
-  spPtr = NULL;//new ModemSP(...);
-  if (spPtr == NULL)
-  {
-    WARNLOG("Failure on SP construction");
-    return Lb_FAIL;
-  }
-  if (spPtr->Init(&receiveCallbacks, 0) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Init()");
-    return Lb_FAIL;
-  }
-  return Lb_OK;
+  WARNLOG("Removed");
+  return Lb_FAIL;
 }
 
 TbError GenericIPXInit(void *init_data)
@@ -3130,16 +3070,6 @@ void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msg
   PlayerMapMsgHandler(plr_id, msg->client_data_table, msglen-1);
 }
 
-void TwoPlayerReqExDataMsgCallback(unsigned long, unsigned long, void *)
-{
-//TODO NET rewrite (less importand - used only for modem and serial)
-}
-
-void *TwoPlayerCallback(unsigned long, unsigned long, unsigned long, void *)
-{
-//TODO NET (less importand - used only for modem and serial)
-  return NULL;
-}
 
 /******************************************************************************/
 #ifdef __cplusplus

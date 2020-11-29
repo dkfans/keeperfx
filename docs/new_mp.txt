@@ -63,7 +63,7 @@ When any particular action is confirmed by all peers it is deleted from queue on
 
 == Resync
 Game is paused on resync.
-Host send state to clients
+Host send state to clients.
 
 There are different checksums so host may send less info.
 * Player data
@@ -77,3 +77,25 @@ It should be improved so host could query each client what to send.
 
 == Actions
 All kinds are listed in `packets.h`
+
+== Mapping
+Each client did some stuff on its own.
+So when client create an imp he got different id than server when it get a packet and create an imp too.
+
+Each side hold a mapping of "their" ids to "mine" ids.
+That mapping is applied on incoming messages.
+Server holds mapping for each connected client and remap outgoing messages to its own ids.
+Client holds mapping only 'from server'.
+
+== 'Ghosts'
+Things are created by their owner.
+Server owns neutral/heroes objects.
+
+I.e. when an imp dig gold to floor each client creates ghost of gold except owner of an imp (or maybe server?)
+Should other imps walk towards gostly gold?
+Owner of 'real' gold send a packet to others with Id for mapping.
+
+Ghost chickens are not created. Just wait for a message from owner of hatchery.
+
+Portals?
+Skeletons/Ghosts/Converted prisoners?

@@ -185,6 +185,8 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind);
 short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
+
+struct ThingAdd *get_thingadd(int thing_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

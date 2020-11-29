@@ -59,15 +59,15 @@ void net_remap_init(Thingid thing_num)
     }
 }
 
-Thingid net_remap_thingid(int player_id, Thingid id)
+Thingid net_remap_thingid(int client_id, Thingid id)
 {
     Thingid mine;
     if (id == 0)
         return 0;
     //TODO: replace to "my_net_nmber"
-    if (player_id == my_player_number)
+    if (client_id == my_player_number)
         return id;
-    mine = thing_map[player_id][id];
+    mine = thing_map[client_id][id];
     if (mine == 0)
     {
         WARNMSG("not found id:%d", id);
@@ -165,13 +165,28 @@ static void net_remap_thing_created_internal(int owner, Thingid mine)
     }
 }
 
+static void net_remap_pre_create_packet()
+{
+    addendum.src_last = addendum.message_data;
+    addendum.src_end = addendum.src_last + MAX_CREATURES_PER_PACKET;
+    NETDBG(6, "%p[%d]", addendum.src_last, addendum.src_end - addendum.src_last);
+}
+
 void net_remap_creature_created(int owner, Thingid mine)
 {
+    if (addendum.src_last == NULL)
+    {
+        net_remap_pre_create_packet();
+    }
     net_remap_thing_created_internal(owner, mine);
 }
 
 void net_remap_thing_created(Thingid mine)
 {
+    if (addendum.src_last == NULL)
+    {
+        net_remap_pre_create_packet();
+    }
     net_remap_thing_created_internal(my_player_number, mine);
 }
 
@@ -224,4 +239,15 @@ TbBool net_remap_packet_cb(unsigned long turn, int net_idx, unsigned char kind, 
         net_remap_update(net_idx, their, mine);
     }
     return true;
+}
+
+void netremap_make_ghost_maybe(struct Thing *thing, int client_id)
+{
+    struct ThingAdd *thingadd = get_thingadd(thing->index);
+    // TODO: use some kind of my_client_id
+    if ( client_id != my_player_number )
+    {
+        thingadd->flags |= TA_NetGhost;
+        //TODO: add to list and remove sometimes
+    }
 }

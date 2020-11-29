@@ -216,6 +216,10 @@ void update_extra_levels_visibility(void)
 {
 }
 
+struct ThingAdd *get_thingadd(int thing_idx)
+{
+    return &gameadd.things[thing_idx];
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

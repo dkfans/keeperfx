@@ -1054,7 +1054,7 @@ static void process_players_dungeon_control_packet_action(
             );
         break;
     case PckA_UsePower:
-        thing_id = net_remap_thingid(player->id_number, big->head.arg[1]);
+        thing_id = net_remap_thingid(player_to_client(player->id_number), big->head.arg[1]);
         NETDBG(5, "plyr:%d power:%d %s level:%d x:%d y:%d thing:%d(%d)",
             player->id_number,
             big->head.arg[0] & 255, // pwkind

@@ -419,6 +419,8 @@ struct IRECT_2D {
     int b;
 };
 
+extern int player_to_client(PlayerNumber plyr_idx);
+
 #ifdef __cplusplus
 }
 #endif

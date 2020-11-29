@@ -21,7 +21,7 @@
 typedef unsigned short Thingid;
 
 void net_remap_init(Thingid thing_num);
-Thingid net_remap_thingid(int net_player_id, Thingid id);
+Thingid net_remap_thingid(int client_id, Thingid id);
 void net_remap_update(int net_player_id, Thingid their, Thingid mine);
 
 /*
@@ -45,3 +45,5 @@ void net_remap_flush_things();
 void net_remap_finish();
 
 TbBool net_remap_packet_cb(unsigned long turn, int plyr_idx, unsigned char kind, void *data, short size);
+
+void netremap_make_ghost_maybe(struct Thing *thing, int client_id);

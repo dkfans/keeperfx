@@ -234,9 +234,15 @@ unsigned short field_60;
  */
 #define TRACE_THING(thing)
 
+enum ThingAddFlags
+{
+     TA_NetGhost  = 1,     //this thing is imaginary
+};
+
 struct ThingAdd // Additional thing data
 {
     unsigned long rand_seed;
+    unsigned long flags; //ThingAddFlags
 };
 
 #pragma pack()

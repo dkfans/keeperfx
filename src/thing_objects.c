@@ -1329,7 +1329,7 @@ long object_being_dropped(struct Thing *thing)
         }
         if (thing->model == 128)
         {
-            drop_gold_pile(thing->valuable.gold_stored, &thing->mappos);
+            drop_gold_pile(thing->valuable.gold_stored, &thing->mappos, player_to_client(thing->owner));
             delete_thing_structure(thing, 0);
             return -1;
         }
@@ -2115,11 +2115,12 @@ static struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx
     return gldtng;
 }
 
-struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
+struct Thing *drop_gold_pile(long value, struct Coord3d *pos, int client_id)
 {
     struct Thing* thing = smallest_gold_pile_at_xy(pos->x.stl.num, pos->y.stl.num);
     if (thing_is_invalid(thing)) {
         thing = create_gold_pile(pos, game.neutral_player_num, value);
+        netremap_make_ghost_maybe(thing, client_id);
     } else {
         add_gold_to_pile(thing, value);
     }

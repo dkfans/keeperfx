@@ -5811,11 +5811,13 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     unsigned char alpha_mem;
     struct PlayerInfo *player;
     struct Thing *thing;
+    struct ThingAdd *thingadd;
     long angle;
     long scale;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
     thing = jspr->thing;
+    thingadd = get_thingadd(thing->index);
     player = get_my_player();
     if (keepersprite_rotable(thing->anim_sprite))
       angle = thing->move_angle_xy - spr_map_angle;
@@ -5823,19 +5825,28 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
       angle = thing->move_angle_xy;
     prepare_jonty_remap_and_scale(&scale, jspr);
     EngineSpriteDrawUsingAlpha = 0;
-    switch (thing->field_4F & (TF4F_Unknown10|TF4F_Unknown20))
+
+    if (thingadd->flags & TA_NetGhost)
     {
-    case TF4F_Unknown10:
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-        lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
-        break;
-    case TF4F_Unknown20:
-        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-        lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
-        break;
-    case (TF4F_Unknown10|TF4F_Unknown20):
-        EngineSpriteDrawUsingAlpha = 1;
-        break;
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+            lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+    }
+    else
+    {
+        switch (thing->field_4F & (TF4F_Unknown10|TF4F_Unknown20))
+        {
+        case TF4F_Unknown10:
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+            lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+            break;
+        case TF4F_Unknown20:
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+            lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+            break;
+        case (TF4F_Unknown10|TF4F_Unknown20):
+            EngineSpriteDrawUsingAlpha = 1;
+            break;
+        }
     }
 
     if ((thing->class_id == TCls_Creature)

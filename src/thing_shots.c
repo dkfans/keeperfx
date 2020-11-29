@@ -198,7 +198,7 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coor
     return INVALID_THING;
 }
 
-TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
+static TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
@@ -211,7 +211,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     }
     if (crstat->gold_hold <= creatng->creature.gold_carried)
     {
-        drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos);
+        drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos, player_to_client(creatng->owner));
         creatng->creature.gold_carried = 0;
     }
     return true;
