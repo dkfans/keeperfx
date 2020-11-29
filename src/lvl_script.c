@@ -4592,7 +4592,6 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     startpos.y.val = subtile_coord_center(stl_slab_center_subtile(orig_y));
     startpos.z.val = subtile_coord(1, 0);
 
-
     //dig destination
     find_map_location_coords(destination, &dest_x, &dest_y, __func__);
     if ((dest_x == 0) && (dest_y == 0))
@@ -5747,39 +5746,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
             script_computer_dig_to_location(i, val2, val3);
         }
         break;
-        /*
-            //i = computer who does the digging
-            struct Computer2* comp = get_computer_player(i);
-            struct Coord3d startpos;
-            struct Thing* heartng = get_player_soul_container(i);
-            startpos.x.val = heartng->mappos.x.val;
-            startpos.y.val = heartng->mappos.y.val;
-            startpos.z.val = subtile_coord(1, 0);
-            long x,y = 0;
-            
-            //val2 = target
-            find_map_location_coords(val2, &x, &y, __func__);
-            if ((x == 0) && (y == 0))
-            {
-                WARNLOG("Can't decode location %d", val2);
-                break;
-            }
-            struct Coord3d endpos;
-            endpos.x.val = subtile_coord_center(stl_slab_center_subtile(x));
-            endpos.y.val = subtile_coord_center(stl_slab_center_subtile(y));
-            endpos.z.val = subtile_coord(1, 0);
-
-            if (get_map_location_type(val2) == MLoc_PLAYERSHEART)
-            {
-                create_task_dig_to_attack(comp, startpos, endpos, val2, 0xFFFF);
-            }
-            else
-            {
-                create_task_dig_to_neutral(comp, startpos, endpos);
-            }
-        }
-        break;
-        */
     case Cmd_USE_POWER_AT_SUBTILE:
       for (i=plr_start; i < plr_end; i++)
       {
