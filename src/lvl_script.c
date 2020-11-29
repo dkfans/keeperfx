@@ -145,6 +145,7 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION},
   {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE},
+  {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION},
   {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE},
   {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE},
   {"USE_POWER_AT_LOCATION",             "PNANN   ", Cmd_USE_POWER_AT_LOCATION},
@@ -2921,6 +2922,25 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
   command_add_value(Cmd_CHANGE_CREATURE_OWNER, origin_plyr_idx, crtr_id, select_id, dest_plyr_idx);
 }
 
+
+void command_computer_dig_to_location(long plr_range_id, const char* origin, const char* destination)
+{
+    TbMapLocation orig_loc;
+    if (!get_map_location_id(origin, &orig_loc))
+    {
+        SCRPTWRNLOG("Dig to location script command has invalid source location: %s", origin);
+        return;
+    }
+    TbMapLocation dest_loc;
+    if (!get_map_location_id(destination, &dest_loc))
+    {
+        SCRPTWRNLOG("Dig to location script command has invalid destination location: %s", destination);
+        return;
+    }
+
+    command_add_value(Cmd_COMPUTER_DIG_TO_LOCATION, plr_range_id, orig_loc, dest_loc, 0);
+}
+
 void command_set_campaign_flag(long plr_range_id, const char *cmpflgname, long val)
 {
     long flg_id = get_rid(campaign_flag_desc, cmpflgname);
@@ -3268,6 +3288,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_CHANGE_SLAB_TYPE:
         command_change_slab_type(scline->np[0], scline->np[1], scline->np[2]);
+        break;
+    case Cmd_COMPUTER_DIG_TO_LOCATION:
+        command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -4545,6 +4568,50 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 }
 
 /**
+ * Adds a dig task for the player between 2 map locations.
+ * @param plyr_idx: The player who does the task.
+ * @param origin: The start location of the disk task.
+ * @param destination: The desitination of the disk task.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destination)
+{
+    struct Computer2* comp = get_computer_player(plyr_idx);
+    long orig_x, orig_y = 0;
+    long dest_x, dest_y = 0;
+
+    //dig origin
+    find_map_location_coords(origin, &orig_x, &orig_y, __func__);
+    if ((orig_x == 0) && (orig_y == 0))
+    {
+        WARNLOG("Can't decode origin location %d", origin);
+        return Lb_FAIL;
+    }
+    struct Coord3d startpos;
+    startpos.x.val = subtile_coord_center(stl_slab_center_subtile(orig_x));
+    startpos.y.val = subtile_coord_center(stl_slab_center_subtile(orig_y));
+    startpos.z.val = subtile_coord(1, 0);
+
+    //dig destination
+    find_map_location_coords(destination, &dest_x, &dest_y, __func__);
+    if ((dest_x == 0) && (dest_y == 0))
+    {
+        WARNLOG("Can't decode destination location %d", destination);
+        return Lb_FAIL;
+    }
+    struct Coord3d endpos;
+    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(dest_x));
+    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(dest_y));
+    endpos.z.val = subtile_coord(1, 0);
+
+    if (create_task_dig_to_neutral(comp, startpos, endpos))
+    {
+        return Lb_SUCCESS;
+    }
+    return Lb_FAIL;
+}
+
+/**
  * Casts spell at a location set by subtiles.
  * @param plyr_idx caster player.
  * @param stl_x subtile's x position.
@@ -5686,6 +5753,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           script_use_power_on_creature(i, val2, val3, val4);
       }
       break;
+    case Cmd_COMPUTER_DIG_TO_LOCATION:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_computer_dig_to_location(i, val2, val3);
+        }
+        break;
     case Cmd_USE_POWER_AT_SUBTILE:
       for (i=plr_start; i < plr_end; i++)
       {
