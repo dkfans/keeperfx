@@ -70,7 +70,7 @@ Thingid net_remap_thingid(int client_id, Thingid id)
     mine = thing_map[client_id][id];
     if (mine == 0)
     {
-        WARNMSG("not found id:%d", id);
+        WARNMSG("not found their:%d", id);
     }
     return mine;
 }
@@ -79,7 +79,7 @@ void net_remap_update(int net_player_id, Thingid their, Thingid mine)
 {
     if (thing_map[net_player_id][their] != 0)
     {
-        NETDBG(1, "not found id:%d", their);
+        ERRORLOG("found unexpected id:%d", their);
     }
     if (mine == 0)
     {
@@ -247,7 +247,18 @@ void netremap_make_ghost_maybe(struct Thing *thing, int client_id)
     // TODO: use some kind of my_client_id
     if ( client_id != my_player_number )
     {
+        NETDBG(3, "ghost:%d", thing->index);
         thingadd->flags |= TA_NetGhost;
         //TODO: add to list and remove sometimes
     }
+}
+
+TbBool netremap_is_mine(PlayerNumber plyr_id)
+{
+    if (plyr_id == my_player_number)
+        return true;
+    // TODO: Computers?
+    else if (my_player_number == 0)
+        return (plyr_id == game.neutral_player_num) || (plyr_id == game.hero_player_num);
+    return false;
 }

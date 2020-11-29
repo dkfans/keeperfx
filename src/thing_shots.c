@@ -211,7 +211,7 @@ static TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *cr
     }
     if (crstat->gold_hold <= creatng->creature.gold_carried)
     {
-        drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos, player_to_client(creatng->owner));
+        drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos, creatng->owner);
         creatng->creature.gold_carried = 0;
     }
     return true;

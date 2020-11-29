@@ -166,6 +166,7 @@ enum TbPacketAction {
         PckA_RemapNotify,
         PckA_ForceResync,
         PckA_HandPreGrab, //135
+        PckA_CreateGoldPile,
 };
 
 /** Packet flags for non-action player operation. */

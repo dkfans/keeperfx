@@ -957,7 +957,7 @@ short imp_digs_mines(struct Thing *spdigtng)
             drop_gold_pile(
                 spdigtng->creature.gold_carried - crstat->gold_hold,
                 &spdigtng->mappos,
-                player_to_client(spdigtng->owner)
+                spdigtng->owner
                 );
 
             spdigtng->creature.gold_carried = crstat->gold_hold;

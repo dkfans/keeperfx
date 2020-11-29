@@ -31,12 +31,12 @@ void net_remap_update(int net_player_id, Thingid their, Thingid mine);
 
     net_player_id is source of a packet
 */
-void net_remap_start(int net_player_id, unsigned char packet_kind, void *data, short size);
+void net_remap_start(int client_id, unsigned char packet_kind, void *data, short size);
 
 // Used for things
 void net_remap_thing_created(Thingid mine);
 // Used for creatures (TODO: check is owner is player_id or net_id)
-void net_remap_creature_created(int owner, Thingid mine);
+void net_remap_creature_created(int client_id, Thingid mine);
 
 // Used to create a new remap packet
 void net_remap_flush_things();
@@ -47,3 +47,6 @@ void net_remap_finish();
 TbBool net_remap_packet_cb(unsigned long turn, int plyr_idx, unsigned char kind, void *data, short size);
 
 void netremap_make_ghost_maybe(struct Thing *thing, int client_id);
+
+/* return true if this side is responsible for something belonging to this player_idx */
+TbBool netremap_is_mine(PlayerNumber plyr_id);

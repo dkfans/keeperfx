@@ -119,6 +119,7 @@ static void loss_wait()
 }
 /******************************************************************************/
 
+extern struct Thing *create_gold_pile(struct Coord3d *pos, long value);
 extern TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct Packet* pckt);
 /******************************************************************************/
 static void set_mouse_light(struct PlayerInfo *player, struct Packet *pckt)
@@ -547,7 +548,10 @@ static TbBool process_players_global_packet_action(
 {
   SYNCDBG(6,"Processing player:%d action:%d",(int)player->id_number,(int)kind);
   struct Dungeon *dungeon;
+  Thingid thing_id;
   struct Thing *thing;
+  struct ThingAdd *thingadd;
+  struct Coord3d pos;
   int i;
 
   switch (kind)
@@ -772,7 +776,8 @@ static TbBool process_players_global_packet_action(
   case PckA_ZoomToTrap:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(player->id_number);
-      thing = thing_get(pckt->arg0);
+      thing_id = net_remap_thingid(player_to_client(player->id_number), pckt->arg0);
+      thing = thing_get(thing_id);
       player->zoom_to_pos_x = thing->mappos.x.val;
       player->zoom_to_pos_y = thing->mappos.y.val;
       set_player_instance(player, PI_ZoomToPos, 0);
@@ -783,7 +788,8 @@ static TbBool process_players_global_packet_action(
   case PckA_ZoomToDoor:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(player->id_number);
-      thing = thing_get(pckt->arg0);
+      thing_id = net_remap_thingid(player_to_client(player->id_number), pckt->arg0);
+      thing = thing_get(thing_id);
       player->zoom_to_pos_x = thing->mappos.x.val;
       player->zoom_to_pos_y = thing->mappos.y.val;
       set_player_instance(player, PI_ZoomToPos, 0);
@@ -805,7 +811,8 @@ static TbBool process_players_global_packet_action(
       turn_off_power_call_to_arms(player->id_number);
       return 0;
   case PckA_UsePwrHandPick:
-      thing = thing_get(pckt->arg0);
+      thing_id = net_remap_thingid(player_to_client(player->id_number), pckt->arg0);
+      thing = thing_get(thing_id);
       if (magic_use_available_power_on_thing(player->id_number, PwrK_HAND, 0,thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default))
       {
           if (player == get_my_player())
@@ -926,6 +933,13 @@ static TbBool process_players_global_packet_action(
       set_player_mode(player, pckt->arg0);
       set_engine_view(player, player->view_mode_restore);
       return false;
+  case PckA_CreateGoldPile:
+      unpackpos_2d(&pos, pckt->arg0);
+      thing = create_gold_pile(&pos, pckt->arg[2] | (pckt->arg[3] << 8));
+      net_remap_update(player_to_client(player->id_number), pckt->arg[1], thing->index);
+      NETDBG(4, "PckA_CreateGoldPile their:%d, mine:%d", (int)pckt->arg[1], (int)thing->index);
+      pckt->arg[1] = thing->index;
+      return true;
   default:
       return false;
   }

@@ -1329,7 +1329,7 @@ long object_being_dropped(struct Thing *thing)
         }
         if (thing->model == 128)
         {
-            drop_gold_pile(thing->valuable.gold_stored, &thing->mappos, player_to_client(thing->owner));
+            drop_gold_pile(thing->valuable.gold_stored, &thing->mappos, thing->owner);
             delete_thing_structure(thing, 0);
             return -1;
         }
@@ -2102,26 +2102,47 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     return true;
 }
 
-static struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long value)
+static void create_gold_packet(const struct Coord3d *pos, long value, PlayerNumber cause_plyr_idx, short index)
 {
-    struct Thing* gldtng = create_object(pos, 43, plyr_idx, -1);
+    struct BigActionPacket *big = create_packet_action_big(get_player(cause_plyr_idx), PckA_CreateGoldPile, 0);
+    big->head.arg[0] = packpos_2d(pos);
+    big->head.arg[1] = index;
+    big->head.arg[2] = (value & 0xFFFF);
+    big->head.arg[3] = (value >> 16);
+    LbNetwork_MoveToOutgoingQueue(big);
+}
+
+struct Thing *create_gold_pile(struct Coord3d *pos, long value)
+{
+    struct Thing* gldtng = create_object(pos, 43, game.neutral_player_num, -1);
     if (thing_is_invalid(gldtng)) {
         return INVALID_THING;
     }
-    net_remap_thing_created(gldtng->index);
-    net_remap_flush_things();
     gldtng->valuable.gold_stored = 0;
     add_gold_to_pile(gldtng, value);
     return gldtng;
 }
 
-struct Thing *drop_gold_pile(long value, struct Coord3d *pos, int client_id)
+struct Thing *drop_gold_pile(long value, struct Coord3d *pos, PlayerNumber cause_plyr_idx)
 {
     struct Thing* thing = smallest_gold_pile_at_xy(pos->x.stl.num, pos->y.stl.num);
-    if (thing_is_invalid(thing)) {
-        thing = create_gold_pile(pos, game.neutral_player_num, value);
-        netremap_make_ghost_maybe(thing, client_id);
-    } else {
+    if (thing_is_invalid(thing))
+    {
+        thing = create_gold_pile(pos, value);
+        if (!thing_is_invalid(thing))
+        {
+            if (netremap_is_mine(cause_plyr_idx))
+            {
+                net_remap_flush_things();
+                create_gold_packet(pos, value, cause_plyr_idx, thing->index);
+            }
+            else
+            {
+                netremap_make_ghost_maybe(thing, player_to_client(cause_plyr_idx));
+            }
+        }
+    } else
+    {
         add_gold_to_pile(thing, value);
     }
     return thing;
