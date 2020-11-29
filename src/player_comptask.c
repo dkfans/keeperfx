@@ -2900,24 +2900,27 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
 {
-    SYNCDBG(9,"Starting");
-    if (ctask->flags & ComTsk_Urgent)
+    SYNCDBG(9, "Starting");
+    PlayerNumber plyr_idx;
+    plyr_idx = comp->dungeon->owner;
+    if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT)
     {
-        if (game.play_gameturn - ctask->created_turn > COMPUTER_URGENT_BRIDGE_TIMEOUT)
+        //If the task has been active too long, restart the process to try a different approach.
+        restart_task_process(comp, ctask);
+        return CTaskRet_Unk0;
+    }
+    if (game.play_gameturn - ctask->created_turn > COMPUTER_URGENT_BRIDGE_TIMEOUT)
+    {
+        if ((is_room_available(plyr_idx, RoK_BRIDGE)) || (ctask->flags & ComTsk_Urgent))
         {
+            //When the player already has the bridge available, or is doing an urgent task, don't keep the task active as long.
             restart_task_process(comp, ctask);
             return CTaskRet_Unk0;
         }
     }
-    else if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT)
-    {
-        restart_task_process(comp, ctask);
-        return CTaskRet_Unk0;
-    }
-    PlayerNumber plyr_idx;
+
     MapSubtlCoord basestl_x;
     MapSubtlCoord basestl_y;
-    plyr_idx = comp->dungeon->owner;
     basestl_x = ctask->dig.pos_next.x.stl.num;
     basestl_y = ctask->dig.pos_next.y.stl.num;
     if (!is_room_available(plyr_idx, RoK_BRIDGE))
@@ -2927,16 +2930,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
     long n;
     if (!can_build_room_at_slab(plyr_idx, RoK_BRIDGE, subtile_slab(basestl_x), subtile_slab(basestl_y)))
     {
-        // We can't wait for a timeout
-        if (ctask->flags & ComTsk_Urgent)
-        {
-            restart_task_process(comp, ctask);
-            return CTaskRet_Unk0;
-        }
-        else
-        {
-            return CTaskRet_Unk4;
-        }
+        return CTaskRet_Unk4;
     }
     for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
