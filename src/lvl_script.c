@@ -134,8 +134,8 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS},
   {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE},
-  {"PRINT",                             "AN     ", Cmd_PRINTFX},
-  {"MESSAGE",                           "AN     ", Cmd_MESSAGEFX},
+  {"PRINT",                             "AN      ", Cmd_PRINTFX},
+  {"MESSAGE",                           "AN      ", Cmd_MESSAGEFX},
   {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER},
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES},
@@ -164,6 +164,7 @@ const struct CommandDesc command_desc[] = {
   {"CREATURE_ENTRANCE_LEVEL",           "N       ", Cmd_CREATURE_ENTRANCE_LEVEL},
   {"SET_CREATURE_POOL",                 "CN      ", Cmd_SET_CREATURE_POOL},
   {"CREATURE_INBY",                     "CN      ", Cmd_SET_CREATURE_POOL},
+  {"CREATE_TEXT",                       "NA      ", Cmd_CREATE_TEXT},
   {NULL,                                "        ", Cmd_NONE},
 };
 
@@ -2398,6 +2399,26 @@ void command_quick_information(int idx, const char *msgtext, const char *where, 
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
 
+void command_create_text(int idx, const char *msgtext)
+{
+  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+  {
+    SCRPTERRLOG("Invalid information ID number (%d)", idx);
+    return;
+  }
+  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+  {
+      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+  }
+  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
+  {
+      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+  }
+  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
+  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
+  command_add_value(Cmd_CREATE_TEXT, 0, idx, 0, 0);
+}
+
 void command_play_message(long plr_range_id, const char *msgtype, int msg_num)
 {
     long msgtype_id = get_id(msgtype_desc, msgtype);
@@ -3053,6 +3074,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_QUICK_INFORMATION_WITH_POS:
         command_quick_information(scline->np[0], scline->tp[1], NULL, scline->np[2], scline->np[3]);
+        break;
+    case Cmd_CREATE_TEXT:
+        command_create_text(scline->np[0], scline->tp[1]);
         break;
     case Cmd_SWAP_CREATURE:
         command_swap_creature(scline->tp[0], scline->tp[1]);

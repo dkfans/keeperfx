@@ -133,6 +133,7 @@ enum TbScriptCommands {
     Cmd_USE_SPELL_ON_CREATURE             = 113,
     Cmd_PRINTFX                           = 114,
     Cmd_MESSAGEFX                         = 115,
+    Cmd_CREATE_TEXT                       = 116,
 };
 
 enum ScriptVariables {
