@@ -1029,7 +1029,7 @@ void fill_floor_heights_table(void)
         }
         lintel_bottom_height[n] = btm_height;
         lintel_top_height[n] = top_height;
-        floor_height[n] = shade_back;
+        _DK_floor_height[n] = shade_back;
     }
 }
 

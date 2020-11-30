@@ -563,7 +563,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
-        hmin = floor_height[fulmask_and & 0xff];
+        hmin = _DK_floor_height[fulmask_and & 0xff];
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         long hpos;
@@ -765,7 +765,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
-        hmin = floor_height[fulmask_and & 0xff];
+        hmin = _DK_floor_height[fulmask_and & 0xff];
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
@@ -996,7 +996,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
-        hmin = floor_height[fulmask_and & 0xff];
+        hmin = _DK_floor_height[fulmask_and & 0xff];
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
@@ -2665,7 +2665,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
             height_bit = height_bit << 1;
         }
 
-        ecpos = floor_height[solidmsk_center];
+        ecpos = _DK_floor_height[solidmsk_center];
         if (ecpos > 0)
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
@@ -2876,11 +2876,11 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             }
         }
 
-        ncor = floor_height[solidmsk_cur];
+        ncor = _DK_floor_height[solidmsk_cur];
         if ((ncor > 0) && (ncor <= COLUMN_STACK_HEIGHT))
         {
             int ncor_raw;
-            ncor_raw = floor_height[solidmsk_cur_raw];
+            ncor_raw = _DK_floor_height[solidmsk_cur_raw];
             if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
             {
                 if ((ncor_raw > 0) && (ncor_raw <= COLUMN_STACK_HEIGHT))
@@ -3058,7 +3058,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             }
         }
 
-        ncor = floor_height[solidmsk_cur];
+        ncor = _DK_floor_height[solidmsk_cur];
         if (ncor > 0)
         {
             if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
