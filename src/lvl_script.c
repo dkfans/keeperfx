@@ -134,8 +134,8 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS},
   {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS},
   {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE},
-  {"PRINT",                             "AN      ", Cmd_PRINTFX},
-  {"MESSAGE",                           "AN      ", Cmd_MESSAGEFX},
+  {"PRINT",                             "NAA     ", Cmd_PRINTFX},
+  {"MESSAGE",                           "NAN     ", Cmd_MESSAGEFX},
   {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER},
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES},
@@ -2480,8 +2480,23 @@ void command_message(const char *msgtext, unsigned char kind)
   SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
 }
 
-void command_printfx(const char *range_id, int idx)
+void command_printfx(int idx, const char *msgtext, const char *range_id)
 {
+  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+  {
+    SCRPTERRLOG("Invalid information ID number (%d)", idx);
+    return;
+  }
+  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+  {
+      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+  }
+  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
+  {
+      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+  }
+  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
+  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
   char id = get_rid(player_desc, range_id);
   if (id == -1)
   {
@@ -2502,8 +2517,23 @@ void command_printfx(const char *range_id, int idx)
   command_add_value(Cmd_PRINTFX, 0, id, idx, 0);
 }
 
-void command_messagefx(int idx, unsigned long nturns)
+void command_messagefx(int idx, const char *msgtext, unsigned long nturns)
 {
+  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+  {
+    SCRPTERRLOG("Invalid information ID number (%d)", idx);
+    return;
+  }
+  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+  {
+      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+  }
+  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
+  {
+      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+  }
+  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
+  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
   command_add_value(Cmd_MESSAGEFX, 0, idx, nturns, 0);
 }
 
@@ -3085,13 +3115,13 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_message(scline->tp[0],80);
         break;
     case Cmd_PRINTFX:
-        command_printfx(scline->tp[0], scline->np[1]);
+        command_printfx(scline->np[0], scline->tp[1], scline->tp[2]);
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
         break;
     case Cmd_MESSAGEFX:
-        command_messagefx(scline->np[0],scline->np[1]);
+        command_messagefx(scline->np[0],scline->tp[1], scline->np[2]);
         break;
     case Cmd_PLAY_MESSAGE:
         command_play_message(scline->np[0], scline->tp[1], scline->np[2]);
