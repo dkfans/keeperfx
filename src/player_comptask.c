@@ -3525,6 +3525,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     }
     ctask->ttype = CTT_DigToEntrance;
     ctask->flags |= ComTsk_AddTrapLocation;
+    ctask->flags |= ComTsk_Urgent;
     ctask->dig_to_room.startpos.x.val = startpos.x.val;
     ctask->dig_to_room.startpos.y.val = startpos.y.val;
     ctask->dig_to_room.startpos.z.val = startpos.z.val;
