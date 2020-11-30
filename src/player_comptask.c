@@ -2928,32 +2928,19 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         return CTaskRet_Unk4;
     }
-    long n;
     if (!can_build_room_at_slab(plyr_idx, RoK_BRIDGE, subtile_slab(basestl_x), subtile_slab(basestl_y)))
     {
         return CTaskRet_Unk4;
     }
-    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    if (try_game_action(comp, plyr_idx, GA_PlaceRoom, 0, basestl_x, basestl_y, 1, RoK_BRIDGE) > Lb_OK)
     {
-        MapSlabCoord slb_x;
-        MapSlabCoord slb_y;
-        slb_x = subtile_slab_fast(basestl_x) + (long)small_around[n].delta_x;
-        slb_y = subtile_slab_fast(basestl_y) + (long)small_around[n].delta_y;
-        struct SlabMap *slb;
-        slb = get_slabmap_block(slb_x, slb_y);
-        if (slabmap_owner(slb) == plyr_idx)
-        {
-            if (try_game_action(comp, plyr_idx, GA_PlaceRoom, 0, basestl_x, basestl_y, 1, RoK_BRIDGE) > Lb_OK)
-            {
-                long i;
-                i = ctask->ottype;
-                ctask->ttype = i;
-                if (i == 0) {
-                    ERRORLOG("Bad set Task State");
-                }
-                return CTaskRet_Unk1;
-            }
+        long i;
+        i = ctask->ottype;
+        ctask->ttype = i;
+        if (i == 0) {
+            ERRORLOG("Bad set Task State");
         }
+        return CTaskRet_Unk1;
     }
     return CTaskRet_Unk4;
 }
