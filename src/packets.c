@@ -823,22 +823,32 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         } else
-        if ((player->thing_under_hand != 0) && (player->input_crtr_query != 0)
-          && (dungeon->things_in_hand[0] != player->thing_under_hand)
-          && can_thing_be_queried(thing, plyr_idx) )
+        if (player->input_crtr_query != 0)
         {
-          if (player->thing_under_hand != player->controlled_thing_idx)
+          thing = get_creature_near(x, y);
+          if (!can_thing_be_queried(thing, plyr_idx))
           {
-            if (is_my_player(player))
-            {
-              turn_off_all_panel_menus();
-              turn_on_menu(GMnu_CREATURE_QUERY1);
-            }
-            player->influenced_thing_idx = player->thing_under_hand;
-            set_player_state(player, PSt_CreatrQuery, 0);
-            set_player_instance(player, PI_QueryCrtr, 0);
+              player->thing_under_hand = 0;
           }
-          unset_packet_control(pckt, PCtr_LBtnRelease);
+          else
+          {
+              player->thing_under_hand = thing->index;
+          }
+          if (player->thing_under_hand > 0)
+          {
+            if (player->thing_under_hand != player->controlled_thing_idx)
+            {
+              if (is_my_player(player))
+              {
+                turn_off_all_panel_menus();
+                turn_on_menu(GMnu_CREATURE_QUERY1);
+              }
+              player->influenced_thing_idx = player->thing_under_hand;
+              set_player_state(player, PSt_CreatrQuery, 0);
+              set_player_instance(player, PI_QueryCrtr, 0);
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+          }
         } else
         if (player->field_455 == player->field_454)
         {
@@ -1045,12 +1055,18 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
+    case PSt_CreatrQueryAll:
         influence_own_creatures = 1;
-        thing = get_creature_near_and_owned_by(x, y, plyr_idx);
-        if (thing_is_invalid(thing))
+        thing = get_creature_near(x, y);
+        TbBool CanQuery = (player->work_state == PSt_CreatrQueryAll) ? (thing_is_creature(thing)) : (can_thing_be_queried(thing, plyr_idx));
+        if (!CanQuery)
+        {
             player->thing_under_hand = 0;
+        }
         else
+        {
             player->thing_under_hand = thing->index;
+        }
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
           if (player->thing_under_hand > 0)
@@ -1513,33 +1529,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 itoa(thing->health, hhealth, 10);
                 message_add(plyr_idx, hhealth);
                 clear_key_pressed(KC_SLASH);
-            }
-        }
-        break;
-    case PSt_CreatrQueryAll:
-        influence_own_creatures = 1;
-        thing = get_creature_near(x, y);
-        if (thing_is_invalid(thing))
-        {
-            player->thing_under_hand = 0;
-        }
-        else
-        {
-            player->thing_under_hand = thing->index;
-        }
-        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
-        {
-            if (player->thing_under_hand > 0)
-            {
-                if (player->controlled_thing_idx != player->thing_under_hand)
-                {
-                    turn_off_all_panel_menus();
-                    initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
-                    turn_on_menu(GMnu_CREATURE_QUERY1);
-                    player->influenced_thing_idx = player->thing_under_hand;
-                    set_player_instance(player, PI_QueryCrtr, 0);
-                }
-            unset_packet_control(pckt, PCtr_LBtnRelease);
             }
         }
         break;
