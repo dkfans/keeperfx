@@ -783,7 +783,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         shooter = thing_get(shotng->parent_idx);
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(trgtng);
     long damage = get_damage_of_melee_shot(shotng, trgtng);
-    if (damage != 0)
+    if (damage > 0)
     {
       if (shotst->old->hit_sound > 0)
       {
