@@ -2379,21 +2379,24 @@ void command_quick_objective(int idx, const char *msgtext, const char *where, lo
 void command_quick_information(int idx, const char *msgtext, const char *where, long x, long y)
 {
   TbMapLocation location;
-  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+  if (*msgtext != 32)
   {
-    SCRPTERRLOG("Invalid information ID number (%d)", idx);
-    return;
+    if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+    {
+        SCRPTERRLOG("Invalid information ID number (%d)", idx);
+        return;
+    }
+    if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+    }
+    if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
+    {
+        SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+    }
+    strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
+    gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
   }
-  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
-  {
-      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
-  }
-  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
   if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
@@ -2482,21 +2485,24 @@ void command_message(const char *msgtext, unsigned char kind)
 
 void command_printfx(int idx, const char *msgtext, const char *range_id)
 {
-  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+  if (*msgtext != 32)
   {
-    SCRPTERRLOG("Invalid information ID number (%d)", idx);
-    return;
+    if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+    {
+        SCRPTERRLOG("Invalid information ID number (%d)", idx);
+        return;
+    }
+    if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+    }
+    if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
+    {
+        SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+    }
+    strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
+    gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
   }
-  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
-  {
-      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
-  }
-  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
   char id = get_rid(player_desc, range_id);
   if (id == -1)
   {
@@ -2519,22 +2525,25 @@ void command_printfx(int idx, const char *msgtext, const char *range_id)
 
 void command_messagefx(int idx, const char *msgtext, unsigned long nturns)
 {
-  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
-  {
-    SCRPTERRLOG("Invalid information ID number (%d)", idx);
-    return;
-  }
-  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
-  {
-      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
-  }
-  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
-  command_add_value(Cmd_MESSAGEFX, 0, idx, nturns, 0);
+    if (*msgtext != 32)
+    {
+        if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+        {
+            SCRPTERRLOG("Invalid information ID number (%d)", idx);
+            return;
+        }
+        if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+        {
+            SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+        }
+        if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
+        {
+            SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+        }
+        strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
+        gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
+    }
+    command_add_value(Cmd_MESSAGEFX, 0, idx, nturns, 0);
 }
 
 void command_swap_creature(const char *ncrt_name, const char *crtr_name)
