@@ -52,6 +52,7 @@ extern "C" {
 #define GOLD_DEMAND_CHECK_INTERVAL 5000
 /** How long to wait for diggers to prepare a place for room before dropping the task and assuming it failed */
 #define COMPUTER_DIG_ROOM_TIMEOUT 7500
+#define COMPUTER_URGENT_BRIDGE_TIMEOUT 1200
 #define COMPUTER_TOOL_DIG_LIMIT 356
 
 enum ComputerTaskTypes {
@@ -159,12 +160,12 @@ enum CompCheckFlags {
 enum CompTaskFlags {
     ComTsk_Unkn0001 = 0x0001, /** task is disabled**/
     ComTsk_Unkn0002 = 0x0002,
-    ComTsk_Unkn0004 = 0x0004,
+    ComTsk_AddTrapLocation = 0x0004,
     ComTsk_Unkn0008 = 0x0008,
     ComTsk_Unkn0010 = 0x0010,
     ComTsk_Unkn0020 = 0x0020,
     ComTsk_Unkn0040 = 0x0040,
-    ComTsk_Unkn0080 = 0x0080,
+    ComTsk_Urgent = 0x0080,
 };
 
 enum CompTaskStates {
