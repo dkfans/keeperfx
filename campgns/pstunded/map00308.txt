@@ -2,6 +2,7 @@ REM ----------------------------------------------------------------------------
 REM Post Undead Keeper
 REM Chaerith
 REM Made by Duke Ragereaver
+REM	updated for pot file by dayokay (Nov-2020)
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
 COMPUTER_PLAYER(PLAYER3,0)
@@ -164,7 +165,8 @@ CREATE_PARTY(ELITES)
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
-QUICK_OBJECTIVE(0,"The Heroes have restored a fortress here that belonged to some legendary Samurai warrior. Alas, he was slain along with his men and his castle fell into ruin. I must say this was not a smart move on the Heroes' part because the piles of corpses will provide you with a steady amount of warriors. However, you are not the only one with the ability of necromancy, Nex seeks to make this realm a paradise of darkness. Destroy her, and raze this fortress to the ground. It seems like deja vu all over again!",PLAYER0)
+REM	QUICK_OBJECTIVE(0,"The Heroes have restored a fortress here that belonged to some legendary Samurai warrior. Alas, he was slain along with his men and his castle fell into ruin. I must say this was not a smart move on the Heroes' part because the piles of corpses will provide you with a steady amount of warriors. However, you are not the only one with the ability of necromancy, Nex seeks to make this realm a paradise of darkness. Destroy her, and raze this fortress to the ground. It seems like deja vu all over again!",PLAYER0)
+DISPLAY_OBJECTIVE(31,PLAYER0)
 
 IF_ACTION_POINT(3,PLAYER0)
     SET_TIMER(PLAYER_GOOD,TIMER0)
@@ -217,7 +219,8 @@ ENDIF
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
     IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
         IF(PLAYER_GOOD,FLAG1 == 1)
-            QUICK_OBJECTIVE(1,"Nex wanted to make this realm a paradise of darkness. It will be one but, rightfully, under your banner!",PLAYER0)
+            REM	QUICK_OBJECTIVE(1,"Nex wanted to make this realm a paradise of darkness. It will be one but, rightfully, under your banner!",PLAYER0)
+			DISPLAY_OBJECTIVE(32,PLAYER0)
             WIN_GAME
         ENDIF
     ENDIF
