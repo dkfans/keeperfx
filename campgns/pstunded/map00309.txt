@@ -2,6 +2,7 @@ REM ----------------------------------------------------------------------------
 REM Undead Keeper
 REM Nazirite
 REM Made by Duke Ragereaver
+REM	updated for use of pot file by dayokay (Nov2020)
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
@@ -211,7 +212,8 @@ CREATE_PARTY(BOSS)
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
-QUICK_OBJECTIVE(0,"The Heroes are preparing for their last stand, which is, naturally, only delaying the inevitable. The Wizard Lucian himself will be present, so prepare for a long and tough fight. They are coming!",PLAYER0)
+REM	QUICK_OBJECTIVE(0,"The Heroes are preparing for their last stand, which is, naturally, only delaying the inevitable. The Wizard Lucian himself will be present, so prepare for a long and tough fight. They are coming!",PLAYER0)
+DISPLAY_OBJECTIVE(33,PLAYER0)
 SET_TIMER(PLAYER0,TIMER0)
 SET_TIMER(PLAYER_GOOD,TIMER0)
 
@@ -221,7 +223,8 @@ IF(PLAYER_GOOD,TIMER0 >= 6100)
     SET_TIMER(PLAYER_GOOD,TIMER2)
     SET_TIMER(PLAYER_GOOD,TIMER3)
     SET_TIMER(PLAYER_GOOD,TIMER4)
-QUICK_OBJECTIVE(1,"Lucian has spoken out a spell that disables your Creatures from gaining experience from fighting. The essence of this magic is bound by 5 Generals that lead the armies against you. Find them and kill them before you are overrun.",PLAYER0)
+	REM	QUICK_OBJECTIVE(1,"Lucian has spoken out a spell that disables your Creatures from gaining experience from fighting. The essence of this magic is bound by 5 Generals that lead the armies against you. Find them and kill them before you are overrun.",PLAYER0)
+	DISPLAY_OBJECTIVE(34,PLAYER0)
 ENDIF
 
 IF(PLAYER_GOOD,KNIGHT == 3)
@@ -234,7 +237,8 @@ IF(PLAYER_GOOD,KNIGHT == 3)
     SET_TIMER(PLAYER_GOOD,TIMER5)
     SET_TIMER(PLAYER_GOOD,TIMER6)
     SET_TIMER(PLAYER_GOOD,TIMER7)
-    QUICK_OBJECTIVE(2,"That is one less, well done. Be warned, I can sense something powerful stir up the Heroes in the west...",PLAYER0)
+    REM	QUICK_OBJECTIVE(2,"That is one less, well done. Be warned, I can sense something powerful stir up the Heroes in the west...",PLAYER0)
+	DISPLAY_OBJECTIVE(35,PLAYER0)
 ENDIF
 
 IF(PLAYER_GOOD,KNIGHT == 2)
@@ -247,7 +251,8 @@ IF(PLAYER_GOOD,KNIGHT == 2)
     SET_TIMER(PLAYER_GOOD,TIMER0)
     SET_TIMER(PLAYER2,TIMER0)
     SET_TIMER(PLAYER2,TIMER1)
-QUICK_OBJECTIVE(3,"I have discovered that an all-powerful Keeper by the name of Leto is present in this realm. I thought he was only a legend; the reputation of his ruthlessness, malice and cruelity alone is staggering. But it's his passion for warfare that makes him one of the most feared opponents you will ever find. Deliberate and cunning, he will use every dirty trick and dishonest tactic at his disposal to win the day.",PLAYER0)
+	REM	QUICK_OBJECTIVE(3,"I have discovered that an all-powerful Keeper by the name of Leto is present in this realm. I thought he was only a legend; the reputation of his ruthlessness, malice and cruelity alone is staggering. But it's his passion for warfare that makes him one of the most feared opponents you will ever find. Deliberate and cunning, he will use every dirty trick and dishonest tactic at his disposal to win the day.",PLAYER0)
+	DISPLAY_OBJECTIVE(36,PLAYER0)
 ENDIF
 
 IF(PLAYER_GOOD,KNIGHT == 1)
@@ -268,7 +273,8 @@ IF(PLAYER_GOOD,KNIGHT == 0)
     SET_CREATURE_MAX_LEVEL(PLAYER0,GHOST,9)
     MAX_CREATURES(PLAYER1,40)
     SET_FLAG(PLAYER_GOOD,FLAG0,4)
-QUICK_OBJECTIVE(5,"You have slain the 4th General and cut off their attack routes in the process, but the last and greatest of the Generals has been captured alive by Leto. You have to retrieve him somehow of Leto's clutches... Noone said this would be easy, wouldn't it?",PLAYER0)
+	REM	QUICK_OBJECTIVE(5,"You have slain the 4th General and cut off their attack routes in the process, but the last and greatest of the Generals has been captured alive by Leto. You have to retrieve him somehow of Leto's clutches... Noone said this would be easy, wouldn't it?",PLAYER0)
+	DISPLAY_OBJECTIVE(37,PLAYER0)
 ENDIF
 
 IF(PLAYER_GOOD,AVATAR == 0)
@@ -280,7 +286,8 @@ IF(PLAYER_GOOD,AVATAR == 0)
         MAX_CREATURES(PLAYER1,50)
         SET_FLAG(PLAYER_GOOD,FLAG0,5)
         TRAP_AVAILABLE(PLAYER0,BOULDER,0,0)
-        QUICK_OBJECTIVE(6,"With the death of all the Generals, I can already smell the fear from Lucian across the realm. Put his head on a spike when you are ready for it.",PLAYER0)
+        REM	QUICK_OBJECTIVE(6,"With the death of all the Generals, I can already smell the fear from Lucian across the realm. Put his head on a spike when you are ready for it.",PLAYER0)
+		DISPLAY_OBJECTIVE(38,PLAYER0)
     ENDIF
 ENDIF
 
@@ -427,7 +434,8 @@ ENDIF
 IF(PLAYER0,FLAG1 == 1)
     IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
         IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-QUICK_OBJECTIVE(7,"I had never dreamed you were this powerful, master. You have won, there is nothing left to conquer... for the moment... for I have this feeling we have not seen the last of either Leto and the Heroes....",PLAYER0)
+		REM	QUICK_OBJECTIVE(7,"I had never dreamed you were this powerful, master. You have won, there is nothing left to conquer... for the moment... for I have this feeling we have not seen the last of either Leto and the Heroes....",PLAYER0)
+		DISPLAY_OBJECTIVE(39,PLAYER0)
             WIN_GAME
         ENDIF
     ENDIF
