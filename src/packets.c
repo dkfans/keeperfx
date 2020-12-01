@@ -466,6 +466,13 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     }
     else
     {
+        struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+        if (slabmap_owner(slb) != plyr_idx)
+        {
+            WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)stl_x, (int)stl_y);
+            unset_packet_control(pckt, PCtr_LBtnClick);
+            return false;
+        }
         // Subtile Mode
         if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
         {
