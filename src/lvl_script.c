@@ -1603,7 +1603,7 @@ void command_door_available(long plr_range_id, const char *doorname, unsigned lo
   command_add_value(Cmd_DOOR_AVAILABLE, plr_range_id, door_id, a3, a4);
 }
 
-void display_objective_check(const struct ScriptLine *scline)
+static void display_objective_check(const struct ScriptLine *scline)
 {
   long msg_num = scline->np[0];
   const char *where = scline->tp[1];
@@ -1620,7 +1620,7 @@ void display_objective_check(const struct ScriptLine *scline)
   command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
 }
 
-void display_objective_process(struct ScriptContext *context)
+static void display_objective_process(struct ScriptContext *context)
 {
       if ( (my_player_number >= context->plr_start) && (my_player_number < context->plr_end) )
       {
