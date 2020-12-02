@@ -1606,18 +1606,28 @@ void command_door_available(long plr_range_id, const char *doorname, unsigned lo
 static void display_objective_check(const struct ScriptLine *scline)
 {
   long msg_num = scline->np[0];
-  const char *where = scline->tp[1];
-  long x = scline->np[1]; 
-  long y = scline->np[2];
-  TbMapLocation location;
+  long x, y;
+  TbMapLocation location = 0;
   if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
   {
     SCRPTERRLOG("Invalid TEXT number");
     return;
   }
-  if (!get_map_location_id(where, &location))
-    return;
-  command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
+  if (scline->index == Cmd_DISPLAY_OBJECTIVE)
+  {
+    const char *where = scline->tp[1];
+    if (!get_map_location_id(where, &location))
+    {
+      return;
+    }
+    command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, 0);
+  }
+  else
+  {
+    x = scline->np[1]; 
+    y = scline->np[2];
+    command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
+  }
 }
 
 static void display_objective_process(struct ScriptContext *context)
