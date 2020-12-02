@@ -49,7 +49,7 @@ enum LightFlags {
 struct Light { // sizeof = 46
   unsigned char flags;
   unsigned char field_1;
-  unsigned char field_2;
+  unsigned char intensity;
   unsigned char field_3[2];
   unsigned char range;
   unsigned char field_6;
@@ -58,7 +58,7 @@ struct Light { // sizeof = 46
   unsigned short index;
   unsigned short shadow_index;
   long field_12;
-  unsigned short field_16;
+  unsigned short radius;
   short field_18;
   short field_1A;
   unsigned char field_1C[10];
@@ -117,10 +117,11 @@ void light_initialise_lighting_tables(void);
 void light_initialise(void);
 void light_turn_light_off(long num);
 void light_turn_light_on(long num);
-long light_get_light_intensity(long idx);
-long light_set_light_intensity(long a1, long a2);
+unsigned char light_get_light_intensity(long idx);
+void light_set_light_intensity(long idx, unsigned char intensity);
 long light_create_light(struct InitLight *ilght);
 void light_set_light_never_cache(long lgt_id);
+TbBool light_is_invalid(const struct Light *lgt);
 long light_is_light_allocated(long lgt_id);
 void light_set_light_position(long lgt_id, struct Coord3d *pos);
 void light_set_lights_on(char state);

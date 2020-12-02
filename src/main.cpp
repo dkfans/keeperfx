@@ -4089,6 +4089,8 @@ void init_level(void)
     check_and_auto_fix_stats();
 
     // We should do this after 'load stats'
+    update_room_tab_to_config();
+    update_powers_tab_to_config();
     update_trap_tab_to_config();
 
     init_creature_scores();

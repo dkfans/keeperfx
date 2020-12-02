@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/POT-Creation-"
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2020-11-12 20:11+0900\n"
+"PO-Revision-Date: 2020-11-19 16:22+0900\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: ko_KR\n"
@@ -6660,49 +6660,49 @@ msgstr "숨겨진 문"
 #: guitext:996
 msgctxt "Mouse"
 msgid "Scroll Wheel Up"
-msgstr ""
+msgstr "마우스 휠 위로"
 
 #: guitext:997
 msgctxt "Mouse"
 msgid "Scroll Wheel Down"
-msgstr ""
+msgstr "마우스 휠 아래로"
 
 #: guitext:998
 msgctxt "Mouse"
 msgid "Mouse Button"
-msgstr ""
+msgstr "마우스 버튼"
 
 #: guitext:999
 msgctxt "Game controls"
 msgid "Build Square Room"
-msgstr ""
+msgstr "정사각형으로 방 만들기"
 
 #: guitext:1000
 msgctxt "Game controls"
 msgid "Detect Room"
-msgstr ""
+msgstr "방 감지하기"
 
 #: guitext:1001
 msgctxt "Game controls"
 msgid "Increase Room Size"
-msgstr ""
+msgstr "방 크기 늘리기"
 
 #: guitext:1002
 msgctxt "Game controls"
 msgid "Decrease Room Size"
-msgstr ""
+msgstr "방 크기 줄이기"
 
 #: guitext:1003
 msgctxt "Game controls"
 msgid "Precision Sell"
-msgstr ""
+msgstr "정확히 팔기"
 
 #: guitext:1004
 msgctxt "Game controls"
 msgid "Snap Camera"
-msgstr ""
+msgstr "스넵 카메라"
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
-msgstr ""
+msgstr "신비한 상자: 이게 뭘 할지 알 수 없어요."

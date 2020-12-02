@@ -1,4 +1,12 @@
-﻿REM Don't Fear the Reaper
+﻿REM ****************************************************
+REM Don't Fear The Reaper
+REM
+REM Assmist Isle Campaign by Kix
+REM
+REM v2.0 for DAT file objectives (by dayokay)
+REM 14-Nov-2020
+REM ****************************************************
+
 LEVEL_VERSION(1)
 COMPUTER_PLAYER(PLAYER1,0)
 ALLY_PLAYERS(PLAYER0,PLAYER1,1)
@@ -94,14 +102,18 @@ IF(PLAYER1,ORC>0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN>555)
-	QUICK_INFORMATION(8,"You're at the shores of Acemist isle. An awfully poor and Christian place where its citizens die of old age, live a boring puritanical life and enjoy spreading their ludicrous beliefs. Some call it the second Poland. Do not underestimate them, however: they even managed to convert some of your minions which they'll gladly use against you. Their abominable accent makes the isle name sound as if they were mumbling 'Assmist isle'. A fitting future name once your bile demons are done with it, don't you think?",ALL_PLAYERS)
+REM	QUICK_INFORMATION(8,"You're at the shores of Acemist isle. An awfully poor and Christian place where its citizens die of old age, live a boring puritanical life and enjoy spreading their ludicrous beliefs. Some call it the second Poland. Do not underestimate them, however: they even managed to convert some of your minions which they'll gladly use against you. Their abominable accent makes the isle name sound as if they were mumbling 'Assmist isle'. A fitting future name once your bile demons are done with it, don't you think?",ALL_PLAYERS)
+	DISPLAY_INFORMATION(13,PLAYER0)
 ENDIF
-QUICK_OBJECTIVE(1,"The people have been alarmed concerning your arrival. As a way of saving money, a converted horned reaper was offered to take on not one but two pathetic keepers and their minions all alone! An offer he just could not resist. A simple but uneasy task: make the day his last one.",-1)
+
+REM	QUICK_OBJECTIVE(1,"The people have been alarmed concerning your arrival. As a way of saving money, a converted horned reaper was offered to take on not one but two pathetic keepers and their minions all alone! An offer he just could not resist. A simple but uneasy task: make the day his last one.",-1)
+ DISPLAY_OBJECTIVE(12,-1)
 
 REVEAL_MAP_LOCATION(PLAYER0,-1,25)
 
 IF(PLAYER_GOOD,HORNY==0)
-	QUICK_OBJECTIVE(2,"Horny is not so horny anymore. Good job",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(2,"Horny is not so horny anymore. Good job",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(14,PLAYER0)
 	IF(PLAYER0,FLAG0==0)
 		SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG0,0)
 		SET_TIMER(PLAYER0,TIMER1)
@@ -109,6 +121,7 @@ IF(PLAYER_GOOD,HORNY==0)
 	IF(PLAYER0,FLAG0>0)
 		SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG0,20000)
 		REM QUICK_OBJECTIVE(11,"20000 gold transferred!",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(15,PLAYER0)
 		SET_TIMER(PLAYER0,TIMER1)
 	ENDIF
 ENDIF
@@ -117,10 +130,13 @@ IF(PLAYER0,TIMER1>50)
 ENDIF
 
 IF(PLAYER0,TOTAL_CREATURES>6)
-	QUICK_INFORMATION(3,"Creature limit reached. Do not expect any new arrivals until you lose a creature.",ALL_PLAYERS)
+REM	QUICK_INFORMATION(3,"Creature limit reached. Do not expect any new arrivals until you lose a creature.",ALL_PLAYERS)
+	DISPLAY_INFORMATION(16,PLAYER0)
 ENDIF
+
 IF(PLAYER0,TIMER2>1500)
-	QUICK_INFORMATION(4,"A couple of dwarf miners to the north-west mined this land of quite some riches. The treasure is stored in a garrison they guard nearby. There, a warlock Dr. Goldstein has prepared a portal possessing a power to transport the fortune to another dungeon. Touch-activate it before they do if you wish for some gold bonus in the next realm!",2)
+REM	QUICK_INFORMATION(4,"A couple of dwarf miners to the north-west mined this land of quite some riches. The treasure is stored in a garrison they guard nearby. There, a warlock Dr. Goldstein has prepared a portal possessing a power to transport the fortune to another dungeon. Touch-activate it before they do if you wish for some gold bonus in the next realm!",2)
+	DISPLAY_INFORMATION(17,2)
 	REVEAL_MAP_LOCATION(PLAYER0,2,25)
 	BONUS_LEVEL_TIME(10000)
 	SET_TIMER(PLAYER0,TIMER0)
@@ -130,15 +146,17 @@ ENDIF
 IF(PLAYER0,TIMER0>10000)
 IF(PLAYER0,FLAG0==0)
 	BONUS_LEVEL_TIME(0)
-	QUICK_INFORMATION(6,"All of Dr. Goldstein's treasure has just been transmitted away by the portal. No way of snatching it now...",2)
+REM	QUICK_INFORMATION(6,"All of Dr. Goldstein's treasure has just been transmitted away by the portal. No way of snatching it now...",2)
+	DISPLAY_INFORMATION(18,2)
 ENDIF
 ENDIF
 
 IF_ACTION_POINT(2,PLAYER0)
 IF(PLAYER0,TIMER0<10000)
 	SET_FLAG(PLAYER0,FLAG0,1)
-	QUICK_INFORMATION(5,"Well done, all of Dr. Goldstein's goods were teleported to the halls nearby! You will be 20000 gold richer in the Martyr Halls dungeon!",2)
+REM	QUICK_INFORMATION(5,"Well done, all of Dr. Goldstein's goods were teleported to the halls nearby! You will be 20000 gold richer in the Martyr Halls dungeon!",2)
 	rem cold puff
+	DISPLAY_INFORMATION(19,2)
 	PLAY_MESSAGE(PLAYER0,SOUND,49)
 	BONUS_LEVEL_TIME(0)
 ENDIF
@@ -162,14 +180,16 @@ IF(PLAYER0,FLAG1==1)
 ENDIF
 
 IF(PLAYER0,WIZARD>0)
-	QUICK_INFORMATION(9,"Hint: wizards are limited to level 5 in this land.",ALL_PLAYERS)
+REM	QUICK_INFORMATION(9,"Hint: wizards are limited to level 5 in this land.",ALL_PLAYERS)
+	DISPLAY_INFORMATION(20,PLAYER0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN>600)
 IF(PLAYER0,GAME_TURN<1200)
 IF(PLAYER0,SKELETON>0)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,VAMPIRE,3,1,1,500)
-	QUICK_INFORMATION(10,"Your undead fiend has just attracted a vampire!",ALL_PLAYERS)
+REM	QUICK_INFORMATION(10,"Your undead fiend has just attracted a vampire!",ALL_PLAYERS)
+	DISPLAY_INFORMATION(21,PLAYER0)
 ENDIF
 ENDIF
 ENDIF

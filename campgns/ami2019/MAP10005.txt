@@ -1,4 +1,12 @@
+REM ****************************************************
 REM Opulent Point
+REM
+REM Assmist Isle Campaign by Kix
+REM
+REM v2.0 for DAT file objectives (by dayokay)
+REM 14-Nov-2020
+REM ****************************************************
+
 LEVEL_VERSION(1)
 
 COMPUTER_PLAYER(PLAYER1,0)
@@ -76,13 +84,15 @@ CREATURE_AVAILABLE(PLAYER1,DRAGON,1,0)
 
 IF_CONTROLS(PLAYER0,HORNY>0)
 IF(PLAYER_GOOD,AVATAR==0)
-	QUICK_OBJECTIVE(5,"The symbol of your power is rightfully reclaimed making you victorious! Onto the next realm!",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(5,"The symbol of your power is rightfully reclaimed making you victorious! Onto the next realm!",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(55,PLAYER0)
 	WIN_GAME
 ENDIF
 ENDIF
 
 IF(PLAYER0,HORNY==0)
-	QUICK_OBJECTIVE(6,"The symbol of your power is gone, no chance to keep the riches now.",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(6,"The symbol of your power is gone, no chance to keep the riches now.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(54,PLAYER0)
 	LOSE_GAME
 ENDIF
 
@@ -90,7 +100,8 @@ IF(PLAYER0,IMP>0)
 	SET_TIMER(PLAYER0,TIMER0)
 	MAGIC_AVAILABLE(PLAYER1,POWER_IMP,1,1)
 	ADD_PARTY_TO_LEVEL(PLAYER0,PINTRO,-1,1)
-	QUICK_OBJECTIVE(4,"Some traitors entered the tombs through the surface gate, this time under your command. Lead their way and free the wizard.",-1)
+REM	QUICK_OBJECTIVE(4,"Some traitors entered the tombs through the surface gate, this time under your command. Lead their way and free the wizard.",-1)
+	DISPLAY_OBJECTIVE(52,-1)
 ENDIF
 
 IF(PLAYER0,TIMER0>5000)
@@ -105,14 +116,23 @@ ENDIF
 IF_CONTROLS(PLAYER0,WIZARD>0)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
 	TUTORIAL_FLASH_BUTTON(18,100)
-	QUICK_INFORMATION(3,"The wise bearded man is no longer heroes' trophy, now set the reaper free before he dies of starvation!",ALL_PLAYERS)
+REM	QUICK_INFORMATION(3,"The wise bearded man is no longer heroes' trophy, now set the reaper free before he dies of starvation!",ALL_PLAYERS)
+	DISPLAY_INFORMATION(53,-1)
 ENDIF
 
 
-QUICK_OBJECTIVE(1,"You've found a rich vein below one of the towers. The word spread quickly and people lurk western tombs hoping to find anything worth snatching. Some of them were greedy enough to join you as it is clear you are the richest around here. That's why you can expect a visit from the two keepers who combined their powers defeat you. Free your trapped reaper to return to your former glory. No one will dare to attack you when you have one of them!",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(1,"You've found a rich vein below one of the towers. The word spread quickly and people lurk western tombs hoping to find anything worth snatching. Some of them were greedy enough to join you as it is clear you are the richest around here. That's why you can expect a visit from the two keepers who combined their powers defeat you. Free your trapped reaper to return to your former glory. No one will dare to attack you when you have one of them!",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(48,PLAYER0)
 
 IF(PLAYER0,GAME_TURN>360)
-	QUICK_INFORMATION(2,"You'll need a bridge to get to the walled-in reaper. Your imprisoned wizard has the plans, getting to him won't be easy though. Due to massive treasure beneath your territory you'll never run out of gold in this land. Use it in combination with call to arms spell to reclaim the tombs and to free the wizard.",2)
+REM	QUICK_INFORMATION(2,"You'll need a bridge to get to the walled-in reaper. Your imprisoned wizard has the plans, getting to him won't be easy though. Due to massive treasure beneath your territory you'll never run out of gold in this land. Use it in combination with call to arms spell to reclaim the tombs and to free the wizard.",2)
+	DISPLAY_INFORMATION(49,2)
+	TUTORIAL_FLASH_BUTTON(23,100)
+ENDIF
+
+IF(PLAYER0,GAME_TURN>460)
+REM	QUICK_INFORMATION(2,"You'll need a bridge to get to the walled-in reaper. Your imprisoned wizard has the plans, getting to him won't be easy though. Due to massive treasure beneath your territory you'll never run out of gold in this land. Use it in combination with call to arms spell to reclaim the tombs and to free the wizard.",2)
+	DISPLAY_OBJECTIVE(50,2)
 	TUTORIAL_FLASH_BUTTON(23,100)
 ENDIF
 
@@ -130,5 +150,6 @@ ENDIF
 
 
 IF_ACTION_POINT(3,PLAYER0)
-	QUICK_INFORMATION(9,"I can hear water dripping near the corner behind the guard post. A secret passage, perhaps?",3)
+REM	QUICK_INFORMATION(9,"I can hear water dripping near the corner behind the guard post. A secret passage, perhaps?",3)
+	DISPLAY_INFORMATION(51,3)
 ENDIF

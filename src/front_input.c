@@ -474,7 +474,7 @@ short get_global_inputs(void)
 
   for (int idx = KC_F1; idx <= KC_F8; idx++)
   {
-      if ( is_key_pressed(idx,KMod_ALT) )
+      if ( is_key_pressed(idx,KMod_CONTROL) )
       {
         set_players_packet_action(player, PckA_PlyrFastMsg, idx-KC_F1, 0, 0, 0);
         clear_key_pressed(idx);

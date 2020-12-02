@@ -135,6 +135,7 @@ enum TbScriptCommands {
     Cmd_USE_SPECIAL_MAKE_SAFE             = 115,
     Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 116,
     Cmd_CHANGE_CREATURES_ANNOYANCE        = 117,
+    Cmd_COMPUTER_DIG_TO_LOCATION          = 118,
 };
 
 enum ScriptVariables {

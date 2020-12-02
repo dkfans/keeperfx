@@ -2745,7 +2745,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
         break;
       i = pckt->actn_par1;
       inst_inf = creature_instance_info_get(i);
-      if (!inst_inf->field_0)
+      if (!inst_inf->instant)
       {
         cctrl->active_instance_id = i;
       } else

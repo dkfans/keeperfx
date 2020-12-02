@@ -19,11 +19,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2014-10-28 21:22+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
+"Last-Translator: Endrix \n"
+"Language-Team: KeeperFX Team\n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -2348,7 +2348,7 @@ msgstr "Heilung: [26.11]"
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you. And nasty smells of course.""
+"away from you. And nasty smells of course."
 msgstr "Wind: [26.22]"
 
 #: guitext:250
@@ -6080,17 +6080,17 @@ msgstr "Neue Level"
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Please insert Data Disk CD-ROM"
-msgstr "Bitte legen Sie die Zusatz-CD ein."
+msgstr "Bitte legen Sie die Zusatz-CD ein"
 
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Bitte legen Sie die Dungeon-Keeper-CD ein."
+msgstr "Bitte legen Sie die Dungeon-Keeper-CD ein"
 
 #: guitext:891
 msgctxt "Menu interface message"
 msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Bitte legen Sie die The Deeper Dungeons-CD ein."
+msgstr "Bitte legen Sie die The Deeper Dungeons-CD ein"
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -6568,28 +6568,28 @@ msgstr "Moo2"
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
-msgstr ""
+msgstr "Frei spielbare Levels"
 
 #: guitext:942
 #, fuzzy
 msgctxt "Menu interface item"
 msgid "Land selection"
-msgstr ""
+msgstr "Landauswahl"
 
 #: guitext:943
 msgctxt "Menu interface item"
 msgid "Campaigns"
-msgstr ""
+msgstr "Kampagnen"
 
 #: guitext:944
 msgctxt "Menu interface item"
 msgid "Add computer"
-msgstr ""
+msgstr "Computer hinzufügen"
 
 #: guitext:945
 msgctxt "Game event name"
 msgid "Your creature cannot reach the room it needs"
-msgstr ""
+msgstr "Deine Kreatur kann den Raum, den sie benötigt, nicht erreichen"
 
 #: guitext:946
 #, fuzzy
@@ -6602,14 +6602,14 @@ msgstr ""
 #: guitext:947
 msgctxt "Game event name"
 msgid "Your Imp cannot reach a room to drag something into"
-msgstr ""
+msgstr "Dein Imp kann keinen Raum erreichen, in den er etwas bringen kann"
 
 #: guitext:948
 #, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr ""
-"Storage room unreachable: Mit der linken Maustaste lesen. Mit der rechten "
+"Lagerraum nicht erreichbar: Mit der linken Maustaste umschalten. Mit der rechten "
 "Maustaste löschen."
 
 #: guitext:949
@@ -6617,23 +6617,25 @@ msgctxt "In-game interface description"
 msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
-msgstr ""
+msgstr "Ein Teil des Schadens, der die Gesundheit der Kreaturen nicht beeinträchtigt. Der höhere "
+"Die Zahl, der größte Teil des Schadens wird verworfen."
 
 #: guitext:950
 msgctxt "In-game interface description"
 msgid "Speed: How fast the creature moves and perform its dungeon tasks."
-msgstr ""
+msgstr "Geschwindigkeit: Wie schnell sich die Kreatur bewegt und ihre Dungeonaufgaben ausführt."
 
 #: guitext:951
 msgctxt "In-game interface description"
 msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
-msgstr ""
+msgstr "Loyalität: Wie widerstandsfähig die Kreatur gegen das Anschließen des Feindes ist."
 
 #: guitext:952
 msgctxt "In-game interface description"
 msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
 "the better the creature's performance."
-msgstr ""
+msgstr "Forschungsfähigkeit: Wie schnell die Kreatur in der Bibliothek arbeitet. Je höher die Fähigkeitsstufe "
+"Je besser die Leistung der Kreatur."
 
 #: guitext:953
 #, fuzzy
@@ -6641,7 +6643,9 @@ msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "Fähigkeit: Die Fähigkeit der Kreatur, Aufgaben zu erfüllen. [23.14]"
+msgstr ""
+"Fertigkeit herstellen: Wie schnell die Kreatur in der Werkstatt arbeitet. Je höher die"
+"Fähigkeitsstufe, je besser die Leistung der Kreatur ist." 
 
 #: guitext:954
 #, fuzzy
@@ -6649,7 +6653,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "Fähigkeit: Die Fähigkeit der Kreatur, Aufgaben zu erfüllen. [23.14]"
+msgstr "Trainingsfähigkeit: Wie schnell die Kreatur am Training arbeitet."
 
 #: guitext:955
 #, fuzzy
@@ -6657,17 +6661,19 @@ msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "Fähigkeit: Die Fähigkeit der Kreatur, Aufgaben zu erfüllen. [23.14]"
+msgstr ""
+"Köderfähigkeit: Wie schnell die Kreatur am Scavenging arbeitet. Je höher die"
+"Fähigkeitsstufe, je besser die Leistung der Kreatur ist."
 
 #: guitext:956
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr ""
+msgstr "Trainingskosten: Gold, das zum Trainieren der Kreatur verwendet wird."
 
 #: guitext:957
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr ""
+msgstr "Köderkosten: Gold, das zum Trainieren der Kreatur verwendet wird."
 
 #: guitext:958
 msgctxt "In-game interface description"
@@ -6675,6 +6681,8 @@ msgid ""
 "Best Damage: How much harm can be done by the strongest attack the creature "
 "has."
 msgstr ""
+"Bester Schaden: Wie viel Schaden kann der stärkste Angriff der Kreatur anrichten?"
+"hat."
 
 #: guitext:959
 msgctxt "In-game interface description"
@@ -6682,16 +6690,18 @@ msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
 msgstr ""
+"Gewicht: Masse der Kreatur. Einige Leute sagen, Übergewicht führt zu Herz "
+"Attacken."
 
 #: guitext:960
 msgctxt "In-game interface description"
 msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
-msgstr ""
+msgstr "Punktzahl: Schätzung eines Gesamtkreaturwerts. Wird der Spielerpunktzahl nach Abschluss des Levels hinzugefügt."
 
 #: guitext:961
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
-msgstr ""
+msgstr "Hand des Bösen"
 
 #: guitext:962
 msgctxt "Keeper spell name"
@@ -6702,7 +6712,8 @@ msgstr "Schläge"
 msgctxt "Keeper spell description"
 msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
-msgstr ""
+msgstr "Hand des Bösen: Fähigkeit, deine Kreaturen aufzunehmen und in deiner Hand zu halten."
+"Halte sie einfach nicht für immer fest, sonst könnten sie gereizt werden."
 
 #: guitext:964
 msgctxt "Keeper spell description"
@@ -6719,12 +6730,14 @@ msgctxt "In-game interface description"
 msgid ""
 "Health: How much health points the creature has left to lose."
 msgstr ""
+"Gesundheit: Wie viele Gesundheitspunkte die Kreatur noch zu verlieren hat."
 
 #: guitext:966
 msgctxt "In-game interface description"
 msgid ""
 "Health: The maximum amount of health points for this creature."
 msgstr ""
+"Gesundheit: Die maximale Anzahl an Gesundheitspunkten für diese Kreatur."
 
 #: guitext:967
 msgctxt "Menu interface item"
@@ -6734,169 +6747,169 @@ msgstr "NACHRICHT WECHSELN"
 #: guitext:968
 msgctxt "Menu interface item"
 msgid "Return to Free Play levels"
-msgstr ""
+msgstr "Zurück zu den Freispiel-Levels"
 
 #: guitext:969
 msgctxt "Menu interface item"
 msgid "Map packs"
-msgstr ""
+msgstr "Kartenpakete"
 
 #: guitext:970
 msgctxt "Menu interface item"
 msgid "The Deeper Dungeons"
-msgstr ""
+msgstr "The Deeper Dungeons"
 
 #: guitext:971
 msgctxt "Menu interface item"
 msgid "Standard Levels"
-msgstr ""
+msgstr "Standard Levels"
 
 #: guitext:972
 msgctxt "Menu interface item"
 msgid "Classic Levels"
-msgstr ""
+msgstr "Klassische Levels"
 
 #: guitext:973
 msgctxt "Menu interface item"
 msgid "Legacy Levels"
-msgstr ""
+msgstr "Geerbte Levels"
 
 #: guitext:974
 msgctxt "Menu interface item"
 msgid "Personal Levels"
-msgstr ""
+msgstr "Persönliche Levels"
 
 #: guitext:975
 msgctxt "Menu interface item"
 msgid "Lost Levels"
-msgstr ""
+msgstr "Verlorene Levels"
 
 #: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
-msgstr ""
+msgstr "Moo3"
 
 #: guitext:981
 msgctxt "Trap names"
 msgid "Special Trap"
-msgstr ""
+msgstr "Spezial-Falle"
 
 #: guitext:982
 msgctxt "Trap names"
 msgid "Freeze Trap"
-msgstr ""
+msgstr "Einfrier-Falle"
 
 #: guitext:983
 msgctxt "Trap names"
 msgid "Fear Trap"
-msgstr ""
+msgstr "Angst-Falle"
 
 #: guitext:984
 msgctxt "Trap names"
 msgid "Sentry Trap"
-msgstr ""
+msgstr "Wachposten-Falle"
 
 #: guitext:985
 msgctxt "Trap names"
 msgid "Mimic Trap"
-msgstr ""
+msgstr "Nachahmen-Falle"
 
 #: guitext:986
 msgctxt "Trap names"
 msgid "Spawn Trap"
-msgstr ""
+msgstr "Brut-Falle"
 
 #: guitext:987
 msgctxt "Trap names"
 msgid "Wind Trap"
-msgstr ""
+msgstr "Wind-Falle"
 
 #: guitext:988
 msgctxt "Trap names"
 msgid "Spitfire Trap"
-msgstr ""
+msgstr "Flammenatem-Falle"
 
 #: guitext:989
 msgctxt "Trap names"
 msgid "Chicken Trap"
-msgstr ""
+msgstr "Hühnchen-Falle"
 
 #: guitext:990
 msgctxt "Trap names"
 msgid "Disease Trap"
-msgstr ""
+msgstr "Krankheit-Falle"
 
 #: guitext:991
 msgctxt "Trap names"
 msgid "Power Trap"
-msgstr ""
+msgstr "Power-Falle"
 
 #: guitext:992
 msgctxt "Trap names"
 msgid "Switch"
-msgstr ""
+msgstr "Schalter"
 
 #: guitext:993
 msgctxt "Trap names"
 msgid "Hidden Switch"
-msgstr ""
+msgstr "Versteckter Schalter"
 
 #: guitext:994
 msgctxt "Door name"
 msgid "Special Door"
-msgstr ""
+msgstr "Spezielle Tür"
 
 #: guitext:995
 msgctxt "Door name"
 msgid "Hidden Door"
-msgstr ""
+msgstr "Versteckte Tür"
 
 #: guitext:996
 msgctxt "Mouse"
 msgid "Scroll Wheel Up"
-msgstr ""
+msgstr "Nach oben scrollen"
 
 #: guitext:997
 msgctxt "Mouse"
 msgid "Scroll Wheel Down"
-msgstr ""
+msgstr "Nach unten scrollen"
 
 #: guitext:998
 msgctxt "Mouse"
 msgid "Mouse Button"
-msgstr ""
+msgstr "Maustaste"
 
 #: guitext:999
 msgctxt "Game controls"
 msgid "Build Square Room"
-msgstr ""
+msgstr "Baue einen quadratischen Raum"
 
 #: guitext:1000
 msgctxt "Game controls"
 msgid "Detect Room"
-msgstr ""
+msgstr "Raum erkennen"
 
 #: guitext:1001
 msgctxt "Game controls"
 msgid "Increase Room Size"
-msgstr ""
+msgstr "Raumgröße erhöhen"
 
 #: guitext:1002
 msgctxt "Game controls"
 msgid "Decrease Room Size"
-msgstr ""
+msgstr "Raumgröße verringern"
 
 #: guitext:1003
 msgctxt "Game controls"
 msgid "Precision Sell"
-msgstr ""
+msgstr "Präzisionsverkauf"
 
 #: guitext:1004
 msgctxt "Game controls"
 msgid "Snap Camera"
-msgstr ""
+msgstr "Kamera einrasten"
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
-msgstr ""
+msgstr "Mysteriöse Box: Es ist nicht abzusehen, was dies bewirken wird."
