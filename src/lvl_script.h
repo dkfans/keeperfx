@@ -263,6 +263,7 @@ struct CommandDesc { // sizeof = 14 // originally was 13
 };
 
 struct ScriptLine {
+  enum TbScriptCommands command;
   long np[COMMANDDESC_ARGS_COUNT]; /**< Numeric parameters (to be changed into interpreted parameters, containing ie. in-game random) */
   char tcmnd[MAX_TEXT_LENGTH]; /**< Command text */
   char tp[COMMANDDESC_ARGS_COUNT][MAX_TEXT_LENGTH]; /**< Text parameters */

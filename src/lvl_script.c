@@ -1613,7 +1613,7 @@ static void display_objective_check(const struct ScriptLine *scline)
     SCRPTERRLOG("Invalid TEXT number");
     return;
   }
-  if (scline->index == Cmd_DISPLAY_OBJECTIVE)
+  if (scline->command == Cmd_DISPLAY_OBJECTIVE)
   {
     const char *where = scline->tp[1];
     if (!get_map_location_id(where, &location))
@@ -3528,6 +3528,7 @@ long script_scan_line(char *line,TbBool preloaded)
         LbMemoryFree(scline);
         return 0;
     }
+    scline->command = cmd_desc->index;
     // selecting only preloaded/not preloaded commands
     if (script_is_preloaded_command(cmd_desc->index) != preloaded)
     {
