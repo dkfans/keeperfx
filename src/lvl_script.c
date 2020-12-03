@@ -918,6 +918,29 @@ long pop_condition(void)
   return script_current_condition;
 }
 
+static void delete_from_party_check(const struct ScriptLine *scline)
+{
+    int party_id = get_party_index_of_name(scline->tp[0]);
+    if (party_id < 0)
+    {
+        SCRPTERRLOG("Invalid Party:%s",scline->tp[1]);
+        return;
+    }
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        delete_member_from_party(party_id, scline->np[1]);
+    } else
+    {
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        pr_trig->flags = TrgF_DELETE_FROM_PARTY;
+        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
+        pr_trig->party_id = party_id;
+        pr_trig->creatr_id = scline->np[1];
+        pr_trig->condit_idx = script_current_condition;
+
+        game.script.party_triggers_num++;
+    }
+}
 
 static void add_to_party_check(const struct ScriptLine *scline)
 {
@@ -5011,6 +5034,9 @@ static void process_party(struct PartyTrigger* pr_trig)
     {
     case TrgF_ADD_TO_PARTY:
         add_to_party_process(&context);
+        break;
+    case TrgF_DELETE_FROM_PARTY:
+        delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id);
         break;
     case TrgF_CREATE_OBJECT:
         n |= ((pr_trig->crtr_level & 7) << 7);

@@ -33,6 +33,7 @@ enum TriggerFlags {
     TrgF_CREATE_CREATURE               =  0x01,
     TrgF_CREATE_OBJECT                 =  0x02,
     TrgF_ADD_TO_PARTY                  =  0x03,
+    TrgF_DELETE_FROM_PARTY             =  0x04,
     TrgF_COMMAND_MASK                  =  0x0F,
 
     TrgF_DISABLED                      =  0x40,
@@ -74,6 +75,7 @@ TbBool make_group_member_leader(struct Thing *leadtng);
 TbBool create_party(const char *prtname);
 int get_party_index_of_name(const char *prtname);
 TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown);
+TbBool delete_member_from_party(int party_id, int index);
 long process_obey_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *leadtng);
 /******************************************************************************/

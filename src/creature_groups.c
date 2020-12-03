@@ -529,6 +529,31 @@ TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long 
     return true;
 }
 
+TbBool delete_member_from_party(int party_id, int index)
+{
+    if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
+    {
+        SCRPTERRLOG("Party:%d is not defined", party_id);
+        return false;
+    }
+    struct Party* party = &game.script.creature_partys[party_id];
+    int new_index = index;
+    if (index < 0)
+    {
+        // Negative index means last, prev to last and so on
+        new_index = party->members_num + index;
+    }
+    if (new_index >= party->members_num)
+    {
+        SCRPTERRLOG("Invalid party:%s index:%d", party->prtname);
+        return false;
+    }
+    struct PartyMember* member = &(party->members[new_index]);
+    memmove(member, member + 1, sizeof(*member) * (party->members_num - new_index - 1));
+    party->members_num--;
+    return true;
+}
+
 TbBool make_group_member_leader(struct Thing *leadtng)
 {
     struct Thing* prvtng = get_group_leader(leadtng);
