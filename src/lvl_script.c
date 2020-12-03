@@ -918,31 +918,58 @@ long pop_condition(void)
   return script_current_condition;
 }
 
-void command_add_to_party(const char *prtname, const char *crtr_name, long crtr_level, long carried_gold, const char *objectv, long countdown)
+
+static void add_to_party_check(const struct ScriptLine *scline)
 {
-    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    int party_id = get_party_index_of_name(scline->tp[0]);
+    if (party_id < 0)
     {
-      SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",crtr_level,1,CREATURE_MAX_LEVEL);
+        SCRPTERRLOG("Invalid Party:%s",scline->tp[1]);
+        return;
+    }
+    if ((scline->np[2] < 1) || (scline->np[2] > CREATURE_MAX_LEVEL))
+    {
+      SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",scline->np[2],1,CREATURE_MAX_LEVEL);
       return;
     }
-    long crtr_id = get_rid(creature_desc, crtr_name);
+    long crtr_id = get_rid(creature_desc, scline->tp[1]);
     if (crtr_id == -1)
     {
-      SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+      SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
       return;
     }
-    long objctv_id = get_rid(hero_objective_desc, objectv);
-    if (objctv_id == -1)
+    long objective_id = get_rid(hero_objective_desc, scline->tp[4]);
+    if (objective_id == -1)
     {
-      SCRPTERRLOG("Unknown party member objective, '%s'", objectv);
+      SCRPTERRLOG("Unknown party member objective, '%s'", scline->tp[4]);
       return;
     }
   //SCRPTLOG("Party '%s' member kind %d, level %d",prtname,crtr_id,crtr_level);
-    if (script_current_condition != -1)
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
     {
-      SCRPTWRNLOG("Party '%s' member added inside conditional statement",prtname);
+        add_member_to_party(party_id, crtr_id, scline->np[2], scline->np[3], objective_id, scline->np[5]);
+    } else
+    {
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        pr_trig->flags = TrgF_ADD_TO_PARTY;
+        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
+        pr_trig->party_id = party_id;
+        pr_trig->creatr_id = crtr_id;
+        pr_trig->crtr_level = scline->np[2];
+        pr_trig->carried_gold = scline->np[3];
+        pr_trig->objectv = objective_id;
+        pr_trig->countdown = scline->np[5];
+        pr_trig->condit_idx = script_current_condition;
+
+        game.script.party_triggers_num++;
     }
-    add_member_to_party_name(prtname, crtr_id, crtr_level, carried_gold, objctv_id, countdown);
+}
+
+static void add_to_party_process(struct ScriptContext *context)
+{
+    struct PartyTrigger* pr_trig = context->pr_trig;
+    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
 }
 
 void command_tutorial_flash_button(long btn_id, long duration)
@@ -986,10 +1013,10 @@ void command_add_party_to_level(long plr_range_id, const char *prtname, const ch
     } else
     {
         struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
+        pr_trig->flags = TrgF_CREATE_PARTY;
+        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->plyr_idx = plr_id;
-        pr_trig->creatr_id = -prty_id;
+        pr_trig->creatr_id = prty_id;
         pr_trig->location = location;
         pr_trig->ncopies = ncopies;
         pr_trig->condit_idx = script_current_condition;
@@ -1020,12 +1047,11 @@ void command_add_object_to_level(const char *obj_name, const char *locname, long
     } else
     {
         struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
+        pr_trig->flags = TrgF_CREATE_OBJECT;
+        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->plyr_idx = 0; //That is because script is inside `struct Game` and it is not possible to enlarge it
         pr_trig->creatr_id = obj_id & 0x7F;
-        pr_trig->crtr_level = 128 // Used as a marker "this is not a creature"
-            | ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
+        pr_trig->crtr_level = ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
         pr_trig->carried_gold = arg;
         pr_trig->location = location;
         pr_trig->ncopies = 1;
@@ -1073,8 +1099,9 @@ void command_add_creature_to_level(long plr_range_id, const char *crtr_name, con
     } else
     {
         struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
+        pr_trig->flags = TrgF_CREATE_CREATURE;
+        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
+
         pr_trig->plyr_idx = plr_id;
         pr_trig->creatr_id = crtr_id;
         pr_trig->crtr_level = crtr_level-1;
@@ -2888,9 +2915,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     {
     case Cmd_CREATE_PARTY:
         command_create_party(scline->tp[0]);
-        break;
-    case Cmd_ADD_TO_PARTY:
-        command_add_to_party(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3], scline->tp[4], scline->np[5]);
         break;
     case Cmd_ADD_PARTY_TO_LEVEL:
         command_add_party_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -4976,6 +5000,36 @@ void process_conditions(void)
     }
 }
 
+static void process_party(struct PartyTrigger* pr_trig)
+{
+    struct ScriptContext context = {0};
+    long n = pr_trig->creatr_id;
+
+    context.pr_trig = pr_trig;
+
+    switch (pr_trig->flags & TrgF_COMMAND_MASK)
+    {
+    case TrgF_ADD_TO_PARTY:
+        add_to_party_process(&context);
+        break;
+    case TrgF_CREATE_OBJECT:
+        n |= ((pr_trig->crtr_level & 7) << 7);
+        SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
+        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold);
+        break;
+    case TrgF_CREATE_PARTY:
+        SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
+        script_process_new_party(&game.script.creature_partys[n],
+            pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
+        break;
+    case TrgF_CREATE_CREATURE:
+        SCRIPTDBG(6, "Adding creature %d", n);
+        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
+            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+        break;
+    }
+}
+
 void process_check_new_creature_partys(void)
 {
     for (long i = 0; i < game.script.party_triggers_num; i++)
@@ -4985,28 +5039,7 @@ void process_check_new_creature_partys(void)
         {
             if (is_condition_met(pr_trig->condit_idx))
             {
-                long n = pr_trig->creatr_id;
-                if (pr_trig->crtr_level & 128)
-                {
-                    n |= ((pr_trig->crtr_level & 7) << 7);
-                    SYNCDBG(6, "Adding object %d in location %d", (int)n, (int)pr_trig->location);
-                    script_process_new_object(n, pr_trig->location, pr_trig->carried_gold);
-                }
-                else
-                {
-                    if (n <= 0)
-                    {
-                        SYNCDBG(6, "Adding player %d party %d in location %d", (int)pr_trig->plyr_idx, (int)-n, (int)pr_trig->location);
-                        script_process_new_party(&game.script.creature_partys[-n],
-                            pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
-                    }
-                    else
-                    {
-                        SCRIPTDBG(6, "Adding creature %d", n);
-                        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
-                            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
-                    }
-                }
+                process_party(pr_trig);
                 if ((pr_trig->flags & TrgF_REUSABLE) == 0)
                     set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
             }
@@ -5910,7 +5943,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
  */
 const struct CommandDesc command_desc[] = {
   {"CREATE_PARTY",                      "A       ", Cmd_CREATE_PARTY, NULL, NULL},
-  {"ADD_TO_PARTY",                      "ACNNAN  ", Cmd_ADD_TO_PARTY, NULL, NULL},
+  {"ADD_TO_PARTY",                      "ACNNAN  ", Cmd_ADD_TO_PARTY, &add_to_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
   {"ADD_OBJECT_TO_LEVEL",               "AAN     ", Cmd_ADD_OBJECT_TO_LEVEL, NULL, NULL},

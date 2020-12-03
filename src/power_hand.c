@@ -1335,7 +1335,7 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return Lb_OK;
     }
-    if (is_dungeon_special(thing))
+    if (thing_is_special_box(thing))
     {
         activate_dungeon_special(thing, player);
         return Lb_OK;

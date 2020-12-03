@@ -29,9 +29,14 @@ extern "C" {
 #define GROUP_MEMBERS_COUNT 8
 
 enum TriggerFlags {
-    TrgF_NONE                          =  0x00,
-    TrgF_REUSABLE                      =  0x01,
-    TrgF_DISABLED                      =  0x02,
+    TrgF_CREATE_PARTY                  =  0x00,
+    TrgF_CREATE_CREATURE               =  0x01,
+    TrgF_CREATE_OBJECT                 =  0x02,
+    TrgF_ADD_TO_PARTY                  =  0x03,
+    TrgF_COMMAND_MASK                  =  0x0F,
+
+    TrgF_DISABLED                      =  0x40,
+    TrgF_REUSABLE                      =  0x80,
 };
 
 /******************************************************************************/
@@ -68,7 +73,7 @@ TbBool make_group_member_leader(struct Thing *leadtng);
 
 TbBool create_party(const char *prtname);
 int get_party_index_of_name(const char *prtname);
-TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown);
+TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown);
 long process_obey_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *leadtng);
 /******************************************************************************/

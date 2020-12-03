@@ -503,18 +503,18 @@ TbBool create_party(const char *prtname)
     return true;
 }
 
-TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown)
+TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown)
 {
-    struct Party* party = get_party_of_name(prtname);
-    if (party == NULL)
+    if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
-      SCRPTERRLOG("Party of requested name, '%s', is not defined", prtname);
-      return false;
+        SCRPTERRLOG("Party:%d is not defined", party_id);
+        return false;
     }
+    struct Party* party = &game.script.creature_partys[party_id];
     if (party->members_num >= GROUP_MEMBERS_COUNT)
     {
       SCRPTERRLOG("Too many creatures in party '%s' (limit is %d members)",
-          prtname, GROUP_MEMBERS_COUNT);
+          party->prtname, GROUP_MEMBERS_COUNT);
       return false;
     }
     struct PartyMember* member = &(party->members[party->members_num]);
