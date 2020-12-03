@@ -1808,15 +1808,27 @@ void command_set_music(long val)
   }
 }
 
-void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, long hate_val)
+static void set_hate_check(const struct ScriptLine *scline)
 {
+    long enmy_plr_range_id = scline->np[1];
     // Verify enemy player
     long enmy_plr_id = get_players_range_single(enmy_plr_range_id);
     if (enmy_plr_id < 0) {
         SCRPTERRLOG("Given enemy player is not supported in this command");
         return;
     }
-    command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
+    command_add_value(Cmd_SET_HATE, scline->np[0], enmy_plr_id, scline->np[2], 0);
+}
+
+static void set_hate_process(struct ScriptContext *context)
+{
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+      struct Dungeon *dungeon = get_dungeon(i);
+      if (dungeon_invalid(dungeon))
+          continue;
+      dungeon->hates_player[context->value->arg0%DUNGEONS_COUNT] = context->value->arg1;
+    }
 }
 
 void command_if_available(long plr_range_id, const char *varib_name, const char *operatr, long value)
@@ -2906,9 +2918,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ENDIF:
         pop_condition();
-        break;
-    case Cmd_SET_HATE:
-        command_set_hate(scline->np[0], scline->np[1], scline->np[2]);
         break;
     case Cmd_SET_GENERATE_SPEED:
         command_set_generate_speed(scline->np[0]);
@@ -5159,15 +5168,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   
   switch (var_index)
   {
-  case Cmd_SET_HATE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-        dungeon = get_dungeon(i);
-        if (dungeon_invalid(dungeon))
-            continue;
-        dungeon->hates_player[val2%DUNGEONS_COUNT] = val3;
-      }
-      break;
   case Cmd_SET_GENERATE_SPEED:
       game.generate_speed = saturate_set_unsigned(val2, 16);
       update_dungeon_generation_speeds();
@@ -5917,7 +5917,7 @@ const struct CommandDesc command_desc[] = {
   {"IF",                                "PAON    ", Cmd_IF, NULL, NULL},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
-  {"SET_HATE",                          "PPN     ", Cmd_SET_HATE, NULL, NULL},
+  {"SET_HATE",                          "PPN     ", Cmd_SET_HATE, &set_hate_check, &set_hate_process},
   {"SET_GENERATE_SPEED",                "N       ", Cmd_SET_GENERATE_SPEED, NULL, NULL},
   {"REM",                               "        ", Cmd_REM, NULL, NULL},
   {"START_MONEY",                       "PN      ", Cmd_START_MONEY, NULL, NULL},
@@ -6011,7 +6011,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"IF",                           "PAON    ", Cmd_IF, NULL, NULL},
   {"IF_ACTION_POINT",              "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                        "        ", Cmd_ENDIF, NULL, NULL},
-  {"SET_HATE",                     "PPN     ", Cmd_SET_HATE, NULL, NULL},
+  {"SET_HATE",                     "PPN     ", Cmd_SET_HATE, &set_hate_check, &set_hate_process},
   {"SET_GENERATE_SPEED",           "N       ", Cmd_SET_GENERATE_SPEED, NULL, NULL},
   {"REM",                          "        ", Cmd_REM, NULL, NULL},
   {"START_MONEY",                  "PN      ", Cmd_START_MONEY, NULL, NULL},
