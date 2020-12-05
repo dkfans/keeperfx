@@ -2404,22 +2404,7 @@ void command_quick_information(int idx, const char *msgtext, const char *where, 
 
 void command_create_text(int idx, const char *msgtext)
 {
-  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
-  {
-    SCRPTERRLOG("Invalid information ID number (%d)", idx);
-    return;
-  }
-  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
-  {
-      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
-  }
-  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
-  command_add_value(Cmd_CREATE_TEXT, 0, idx, 0, 0);
+  command_add_value(Cmd_CREATE_TEXT, 0, idx, msgtext, 0);
 }
 
 void command_play_message(long plr_range_id, const char *msgtype, int msg_num)
@@ -5503,7 +5488,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_ADD_TO_CAMPAIGN_FLAG:
-
       for (i=plr_start; i < plr_end; i++)
       {
           intralvl.campaign_flags[i][val2] = saturate_set_signed(intralvl.campaign_flags[i][val2] + val3, 32);
@@ -5525,6 +5509,25 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   {
       show_onscreen_msg(val3, "%s", gameadd.quick_messages[val2]);
       break;
+  }
+  case Cmd_CREATE_TEXT:
+  {
+    if ((val2 < 0) || (val2 >= QUICK_MESSAGES_COUNT))
+    {
+        SCRPTERRLOG("Invalid information ID number (%d)", val2);
+        return;
+    }
+    if (strlen((const char*)val3) > MESSAGE_TEXT_LEN)
+    {
+      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+    }
+    if ( ((gameadd.quick_messages[val2][0] != '\0')) && (strcmp(gameadd.quick_messages[val2],(const char*)val3) != 0) )
+    {
+      SCRPTWRNLOG("Quick Message no %d overwritten by different text: %s", val2, (const char*)val3);
+    }
+    strncpy(gameadd.quick_messages[val2], (const char*)val3, MESSAGE_TEXT_LEN-1);
+    gameadd.quick_messages[val2][MESSAGE_TEXT_LEN-1] = '\0';
+    break;
   }
   case Cmd_SET_GAME_RULE:
       switch (val2)
