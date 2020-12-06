@@ -765,11 +765,11 @@ void event_process_events(void)
             {
                 struct Event* subevent = &game.event[subev_idx];
                 event_update_last_use(subevent);
-                for (int i = 0; i <= EVENT_BUTTONS_COUNT; i++)
+                for (int j = 0; j <= EVENT_BUTTONS_COUNT; j++)
                 {
-                    if (dungeon->event_button_index[i] == subev_idx) {
-                        turn_off_event_box_if_necessary(ev_owner, dungeon->event_button_index[i]);
-                        dungeon->event_button_index[i] = 0;
+                    if (dungeon->event_button_index[j] == subev_idx) {
+                        turn_off_event_box_if_necessary(ev_owner, dungeon->event_button_index[j]);
+                        dungeon->event_button_index[j] = 0;
                         break;
                     }
                 }
