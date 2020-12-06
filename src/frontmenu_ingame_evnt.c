@@ -402,7 +402,7 @@ void draw_timer(void)
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
-    if (bonus_timer_enabled())
+    if ( (bonus_timer_enabled()) || (game.armageddon_cast_turn != 0) )
     {
         scr_y <<= 2;
     }
