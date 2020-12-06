@@ -1716,7 +1716,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                            cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner);
         cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
         i = dig_to_position(dungeon->owner, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
-            cdig->direction_around, cdig->hug_side);
+            cdig->direction_around, cdig->hug_side, digflags);
         if (i == -1) {
             SYNCDBG(5,"%s: Player %d short digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)cdig->pos_next.x.stl.num,(int)cdig->pos_next.y.stl.num);
             return -2;
@@ -1736,7 +1736,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     } else
     {
         SYNCDBG(4,"%s: Player %d does long distance digging",func_name,(int)dungeon->owner);
-        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->hug_side);
+        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->hug_side, digflags);
         if (i == -1) {
             SYNCDBG(5,"%s: Player %d long digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
             return -2;
@@ -2837,7 +2837,7 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     short digret;
-    digret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
+    digret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowLiquidWBridge);
     if (digret == -5)
     {
         ctask->ottype = ctask->ttype;

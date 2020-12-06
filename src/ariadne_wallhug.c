@@ -34,6 +34,7 @@
 #include "creature_control.h"
 #include "creature_states.h"
 #include "config_creature.h"
+#include "player_computer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1067,7 +1068,15 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
     return false;
 }
 
-TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+TbBool slab_good_for_computer_claim_path(const struct SlabMap* slb)
+{
+    const struct SlabAttr* slbattr = get_slab_attrs(slb);
+    if (((slbattr->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
+        return true;
+    return false;
+}
+
+TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned short digflags)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     const struct SlabAttr* slbattr = get_slab_attrs(slb);
@@ -1079,6 +1088,14 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
             return false;
         }
     }
+    if ((digflags & ToolDig_AllowLiquidWBridge) != 1)
+    {
+        if (!slab_good_for_computer_claim_path(slb))
+        {
+            SYNCDBG(17, "Subtile (%d,%d) rejected as not good for wet dig", (int)stl_x, (int)stl_y);
+            return false;
+        }
+    } else
     if (!slab_good_for_computer_dig_path(slb)) {
         SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
         return false;
@@ -1086,7 +1103,7 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     return true;
 }
 
-long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside)
+long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside, unsigned short digflags)
 {
     long round_change;
     //return _DK_dig_to_position(a1, a2, a3, start_side, revside);
@@ -1101,7 +1118,7 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     {
         MapSubtlCoord stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
         MapSubtlCoord stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
-        if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx))
+        if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx, digflags))
         {
             SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
             SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
@@ -1122,7 +1139,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     int dx = small_around[round_idx].delta_x;
     int dy = small_around[round_idx].delta_y;
     // If we can follow direction straight to the target, and we will get closer to it, then do it
-    if ((dist <= *maxdist) && is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
+    if ((dist <= *maxdist) && is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, 0)) //todo set 0 to digflag
     {
         curr_stl_x += STL_PER_SLB*dx;
         curr_stl_y += STL_PER_SLB*dy;
@@ -1142,7 +1159,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         {
             dx = small_around[round_idx].delta_x;
             dy = small_around[round_idx].delta_y;
-            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
+            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, 0)) //todo set 0 to digflags
             {
                 break;
             }
