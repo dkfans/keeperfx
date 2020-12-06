@@ -1445,7 +1445,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     return ctask;
 }
 
-short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short direction, PlayerNumber plyr_idx)
+short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short direction, PlayerNumber plyr_idx, unsigned short digflags)
 {
     SYNCDBG(4,"Starting");
     MapSubtlCoord stl_b_x;
@@ -1453,7 +1453,7 @@ short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoor
     MapSubtlCoord stl_a_x;
     MapSubtlCoord stl_a_y;
     int i;
-    i = get_hug_side_options(stl1_x, stl1_y, stl2_x, stl2_y, direction, plyr_idx, &stl_a_x, &stl_a_y, &stl_b_x, &stl_b_y);
+    i = get_hug_side_options(stl1_x, stl1_y, stl2_x, stl2_y, direction, plyr_idx, &stl_a_x, &stl_a_y, &stl_b_x, &stl_b_y, digflags);
     if ((i == 0) || (i == 1)) {
         return i;
     }
@@ -1682,7 +1682,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             cdig->distance = get_2d_distance(&cdig->pos_next, &cdig->pos_dest);
             // In case we're finishing the easy road, prepare vars for long distance digging
             cdig->hug_side = get_hug_side(cdig, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
-                cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner);
+                cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner, digflags);
             cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
             SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
             return 0;
@@ -1713,7 +1713,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         cdig->sub4C_stl_y = gldstl_y;
         cdig->distance = get_2d_distance(&cdig->pos_next, &cdig->pos_dest);
         cdig->hug_side = get_hug_side(cdig, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
-                           cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner);
+                           cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner, digflags);
         cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
         i = dig_to_position(dungeon->owner, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
             cdig->direction_around, cdig->hug_side, digflags);

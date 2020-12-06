@@ -1130,7 +1130,7 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
 }
 
 static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y, int dirctn, PlayerNumber plyr_idx,
-    char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, short *round, int *maxdist)
+    char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, short *round, int *maxdist, unsigned short digflags)
 {
     MapSubtlCoord curr_stl_x = *ostl_x;
     MapSubtlCoord curr_stl_y = *ostl_y;
@@ -1139,7 +1139,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     int dx = small_around[round_idx].delta_x;
     int dy = small_around[round_idx].delta_y;
     // If we can follow direction straight to the target, and we will get closer to it, then do it
-    if ((dist <= *maxdist) && is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, 0)) //todo set 0 to digflag
+    if ((dist <= *maxdist) && is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
     {
         curr_stl_x += STL_PER_SLB*dx;
         curr_stl_y += STL_PER_SLB*dy;
@@ -1159,7 +1159,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         {
             dx = small_around[round_idx].delta_x;
             dy = small_around[round_idx].delta_y;
-            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, 0)) //todo set 0 to digflags
+            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
             {
                 break;
             }
@@ -1180,7 +1180,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
 }
 
 short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y,
-    unsigned short direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y)
+    unsigned short direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y, unsigned short digflags)
 {
     SYNCDBG(4,"Starting");
 
@@ -1205,7 +1205,7 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
         }
         if (state_a != WaHSS_Val2)
         {
-            get_hug_side_next_step(dst_stl_x, dst_stl_y, -1, plyr_idx, &state_a, &stl_a_x, &stl_a_y, &round_a, &maxdist_a);
+            get_hug_side_next_step(dst_stl_x, dst_stl_y, -1, plyr_idx, &state_a, &stl_a_x, &stl_a_y, &round_a, &maxdist_a, digflags);
             if ((stl_a_x == dst_stl_x) && (stl_a_y == dst_stl_y)) {
                 *ostla_x = stl_a_x;
                 *ostla_y = stl_a_y;
@@ -1216,7 +1216,7 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
         }
         if (state_b != WaHSS_Val2)
         {
-            get_hug_side_next_step(dst_stl_x, dst_stl_y, 1, plyr_idx, &state_b, &stl_b_x, &stl_b_y, &round_b, &maxdist_b);
+            get_hug_side_next_step(dst_stl_x, dst_stl_y, 1, plyr_idx, &state_b, &stl_b_x, &stl_b_y, &round_b, &maxdist_b, digflags);
             if ((stl_b_x == dst_stl_x) && (stl_b_y == dst_stl_y)) {
                 *ostla_x = stl_a_x;
                 *ostla_y = stl_a_y;
