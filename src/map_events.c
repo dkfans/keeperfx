@@ -98,7 +98,8 @@ struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_i
  */
 EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
 {
-    struct Event* event = get_event_nearby_of_type_for_player(map_x, map_y, subtile_coord(5, 0), evkind, dngn_id);
+    short range = (evkind == EvKind_HeartAttacked) ? 35 : 5;
+    struct Event* event = get_event_nearby_of_type_for_player(map_x, map_y, subtile_coord(range, 0), evkind, dngn_id);
     if (!event_is_invalid(event))
     {
         SYNCDBG(3,"Updating event %d to be kind %d at (%d,%d)",(int)event->index,(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
@@ -728,6 +729,7 @@ ThingIndex get_thing_index_event_is_attached_to(const struct Event *event)
     case EvKind_TrapCrateFound:
     case EvKind_DoorCrateFound:
     case EvKind_DnSpecialFound:
+    case EvKind_HeartAttacked:
         i = event->target;
         break;
     default:
@@ -764,11 +766,11 @@ void event_process_events(void)
             {
                 struct Event* subevent = &game.event[subev_idx];
                 event_update_last_use(subevent);
-                for (int i = 0; i <= EVENT_BUTTONS_COUNT; i++)
+                for (int j = 0; j <= EVENT_BUTTONS_COUNT; j++)
                 {
-                    if (dungeon->event_button_index[i] == subev_idx) {
-                        turn_off_event_box_if_necessary(ev_owner, dungeon->event_button_index[i]);
-                        dungeon->event_button_index[i] = 0;
+                    if (dungeon->event_button_index[j] == subev_idx) {
+                        turn_off_event_box_if_necessary(ev_owner, dungeon->event_button_index[j]);
+                        dungeon->event_button_index[j] = 0;
                         break;
                     }
                 }
