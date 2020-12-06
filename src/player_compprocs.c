@@ -944,7 +944,7 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     if (comp->sim_before_dig)
     {
         unsigned long dig_distance = 0;
-        if (!simulate_dig_to(comp, &startpos, &endpos, &dig_distance, ToolDig_BasicOnly))
+        if (!simulate_dig_to(comp, &startpos, &endpos, &dig_distance, ToolDig_AllowValuable))
         {
             entroom->player_interested[dungeon->owner] |= 0x02;
             return CProcRet_Fail;

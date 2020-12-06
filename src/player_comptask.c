@@ -849,7 +849,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     struct Coord3d pos;
-    switch (tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly))
+    switch (tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowLiquidWBridge))
     {
     case -5:
         ctask->ottype = ctask->ttype;
@@ -1163,7 +1163,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     struct ComputerTask *curtask;
     if (dig_ret == 0)
     {
-        dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
+        dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowValuable);
         if ((ctask->flags & ComTsk_AddTrapLocation) != 0) {
             ctask->flags &= ~ComTsk_AddTrapLocation;
             add_to_trap_location(comp, &ctask->dig.pos_next);
@@ -1910,7 +1910,7 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     long retval;
     do
     {
-        retval = tool_dig_to_pos2(comp, &cdig, 1, ToolDig_BasicOnly);
+        retval = tool_dig_to_pos2(comp, &cdig, 1, ToolDig_AllowLiquidWBridge);
         SYNCDBG(5,"retval=%d, dig.distance=%d, dig.subfield_54=%d",
             retval, cdig.distance, cdig.calls_count);
     } while (retval == 0);
@@ -1988,7 +1988,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
 
-    long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowValuable);
+    long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowLiquidWBridge);
 
     if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
     {
@@ -2087,7 +2087,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
     long dig_ret;
-    dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
+    dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowLiquidWBridge);
     int i;
     switch (dig_ret)
     {
