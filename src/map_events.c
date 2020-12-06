@@ -728,6 +728,7 @@ ThingIndex get_thing_index_event_is_attached_to(const struct Event *event)
     case EvKind_TrapCrateFound:
     case EvKind_DoorCrateFound:
     case EvKind_DnSpecialFound:
+    case EvKind_HeartAttacked:
         i = event->target;
         break;
     default:

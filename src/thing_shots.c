@@ -613,7 +613,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         }
         event_create_event_or_update_nearby_existing_event(
             creatng->mappos.x.val, creatng->mappos.y.val,
-          EvKind_HeartAttacked, target->owner, 0);
+          EvKind_HeartAttacked, target->owner, creatng->index);
         if (is_my_player_number(target->owner)) {
             output_message(SMsg_HeartUnderAttack, 400, true);
         }
