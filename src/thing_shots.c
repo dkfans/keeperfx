@@ -886,7 +886,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
-            pos2.z.val = crstat->eye_height + ((crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) + killertng->mappos.z.val;
+            pos2.z.val = crstat->eye_height + killertng->mappos.z.val;
             clear_thing_acceleration(shotng);
             set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
             shotng->parent_idx = trgtng->parent_idx;
