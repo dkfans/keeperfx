@@ -3647,7 +3647,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     remainder_limit = (distance_a+1)/2;
     if (distance_a == 0)
     {
-        remainder == 0;
+        remainder = 0;
     }
     else
     {
