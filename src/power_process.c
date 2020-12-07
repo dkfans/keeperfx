@@ -162,13 +162,16 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
 {
     if (game.armageddon_cast_turn != 0)
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        // If Armageddon is on, teleport creature to its position
-        if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
+        if (!thing_is_creature_special_digger(creatng))
         {
-            cctrl->armageddon_teleport_turn = 0;
-            create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
-            move_thing_in_map(creatng, &game.armageddon.mappos);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+            // If Armageddon is on, teleport creature to its position
+            if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
+            {
+                cctrl->armageddon_teleport_turn = 0;
+                create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+                move_thing_in_map(creatng, &game.armageddon.mappos);
+            }
         }
     }
 }
