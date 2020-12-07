@@ -3603,7 +3603,14 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     // Clip line within engine_window
     remainder_limit = (distance_b+1)/2;
     // Find starting A coord
-    remainder = start_b_dist_from_window * distance_a % distance_b;
+    if (distance_b == 0)
+    {
+        remainder = 0;
+    }
+    else
+    {
+        remainder = start_b_dist_from_window * distance_a % distance_b;
+    }
     long min_a_start = 0;
     if ((b1 < 0 || b1 > relative_window_b))
     {
@@ -3616,7 +3623,14 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     }
     long a_start = max(a1, min_a_start);
     // Find ending A coord
-    remainder = end_b_dist_from_window * distance_a % distance_b;
+    if (distance_b == 0)
+    {
+        remainder = 0;
+    }
+    else
+    {
+        remainder = end_b_dist_from_window * distance_a % distance_b;
+    }
     long max_a_end = relative_window_a;
     if (b2 < 0 || b2 > relative_window_b)
     {
@@ -3631,7 +3645,14 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     long a_end = min(a2, max_a_end);
     // Find starting B coord
     remainder_limit = (distance_a+1)/2;
-    remainder = (a_start - a1) * distance_b % distance_a; // initialise remainder for loop
+    if (distance_a == 0)
+    {
+        remainder == 0;
+    }
+    else
+    {
+        remainder = (a_start - a1) * distance_b % distance_a; // initialise remainder for loop
+    }
     long b_start =  b1 + ( b_increment * (a_start - a1) * distance_b / distance_a );
     if (remainder >= remainder_limit)
     {
