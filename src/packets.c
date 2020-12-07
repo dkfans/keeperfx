@@ -1762,7 +1762,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             {
                 const char* name = thing_model_name(thing);
                 zero_messages();
-                message_add_fmt(plyr_idx, "%s owner: %d %s: %d", name, thing->owner, (thing->class_id == TCls_Trap) ? "shots" : "health", (thing->class_id == TCls_Trap) ? thing->trap.num_shots : thing->health);
+                message_add_fmt(plyr_idx, "%d %s owner: %d %s: %d", thing->index, name, thing->owner, (thing->class_id == TCls_Trap) ? "shots" : "health", (thing->class_id == TCls_Trap) ? thing->trap.num_shots : thing->health);
                 free(name);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);    
