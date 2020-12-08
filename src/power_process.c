@@ -32,6 +32,7 @@
 #include "thing_physics.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "creature_instances.h"
 #include "creature_states.h"
 #include "creature_senses.h"
 #include "ariadne_wallhug.h"
@@ -162,11 +163,11 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
 {
     if (game.armageddon_cast_turn != 0)
     {
-        if (!thing_is_creature_special_digger(creatng))
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        // If Armageddon is on, teleport creature to its position
+        if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
-            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-            // If Armageddon is on, teleport creature to its position
-            if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
+            if (cctrl->instance_id != CrInst_PRETTY_PATH)
             {
                 cctrl->armageddon_teleport_turn = 0;
                 create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
