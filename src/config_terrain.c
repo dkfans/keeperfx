@@ -52,11 +52,10 @@ const struct NamedCommand terrain_slab_commands[] = {
   {"FILLSTYLE",       7},
   {"CATEGORY",        8},
   {"SLBID",           9},
-  {"WIBBLE",        10},
+  {"WIBBLE",         10},
   {"ISSAFELAND",     11},
-  {"ISUNKN13",        12},
-  {"ISDIGGABLE",     13},
-  {"WLBTYPE",        14},
+  {"ISDIGGABLE",     12},
+  {"WLBTYPE",        13},
   {NULL,              0},
 };
 
@@ -711,22 +710,6 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    slbattr->is_unknflg13 = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-            case 13:
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
                     slbattr->is_diggable = k;
                     n++;
                 }
@@ -737,7 +720,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 14:
+            case 13:
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
