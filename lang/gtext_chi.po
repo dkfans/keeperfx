@@ -6034,7 +6034,6 @@ msgid "Speed: How fast the creature moves and perform its dungeon tasks."
 msgstr ""
 "速度：怪物在地下城执行任务时的移动速度有多快。"
 
-
 #: guitext:951
 msgctxt "In-game interface description"
 msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
