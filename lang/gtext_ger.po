@@ -1982,6 +1982,9 @@ msgid ""
 "There's only one Keeper to get rid of before becoming the absolute master! "
 "So, what are you waiting for?"
 msgstr ""
+"Wunderbar, Keeper! Der Avatar und seine ganze erbärmliche Armee sind endlich tot!"
+"Es gibt nur einen Keeper, den man loswerden muss, bevor man der absolute Meister wird!"
+"Also, worauf wartest Du?"
 
 #. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
@@ -1990,6 +1993,8 @@ msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
 "to reduce your enemies into ashes!"
 msgstr ""
+"Hast du gesehen? Deine Dämonenechse hat sich zu einem mächtigen Drachen entwickelt."
+"um deine Feinde in Asche zu verwandeln!"
 
 #. Level Bonus 6 objective
 #: guitext:175
@@ -1998,6 +2003,8 @@ msgid ""
 "Well done! Your immense wealth has drawn the attention of a Thief. He will "
 "serve you well in the next realm!"
 msgstr ""
+"Gut gemacht! Ihr immenser Reichtum hat die Aufmerksamkeit eines Diebes auf sich gezogen. Er wird"
+"dir gut Dienen im nächsten Reich!"
 
 #. Level Flowerhat information
 #: guitext:176
@@ -2007,6 +2014,9 @@ msgid ""
 "replenish the health of your creatures and keep them from dying for a while "
 "longer."
 msgstr ""
+"Ihre Forscher haben den Zauber" Kreatur heilen "entdeckt, der es ermöglicht"
+"die Gesundheit deiner Kreaturen wieder aufzufüllen und sie für eine Weile vom Sterben"
+"abzuhalten."
 
 #. Level Tulipscent information
 #: guitext:177
@@ -2017,6 +2027,10 @@ msgid ""
 "possibility for them to take a nap. Be sure to have plenty of money so that "
 "the spell will stay activated."
 msgstr ""
+"Versuchen Sie den Zauber Gehorsam. Wenn er aktiviert ist, werden Ihre Kreaturen ständig gezwungen."
+"all Ihren Befehlen Folge zu leisten und sie alle schneller arbeiten zu lassen, ohne die"
+"Möglichkeit für sie, ein Nickerchen zu machen. Stellen Sie sicher, dass Sie genügend Geld haben, damit"
+"Der Zauber aktiviert bleibt."
 
 #. Level Tulipscent information
 #: guitext:178
@@ -2026,6 +2040,9 @@ msgid ""
 "in water and their spine can even pierce the most solid armors and paralyze "
 "your enemies! Marvellous!"
 msgstr ""
+"Ein Tentakel hat sich deinem Dungeon angeschlossen. Diese seltenen kleinen Kreaturen sind gerne"
+"im Wasser und ihr Dorn kann sogar die festesten Rüstungen durchbohren"
+"und deine Feinde lähmen! Wunderbar!"
 
 #. Level Bonus 1 objective
 #: guitext:179
@@ -2035,6 +2052,9 @@ msgid ""
 "got the creature from start, so you must only keep it safe. And the only way "
 "to make this place safe is to kill every hero in the realm."
 msgstr ""
+"Du hast dieses Reich betreten, um eine Kreatur für deine weiteren Bemühungen zu gewinnen. Du."
+"hast die Kreatur von Anfang an, also musst du sie nur sicher aufbewahren. Und der einzige Weg"
+"um diesen Ort sicher zu machen, ist jeden Held im Reich töten."
 
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191

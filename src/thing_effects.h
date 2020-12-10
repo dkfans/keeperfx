@@ -151,7 +151,7 @@ struct EffectGeneratorStats { // sizeof = 57
 };
 
 struct EffectElementStats { // sizeof = 79
-  unsigned char field_0;
+  unsigned char draw_class;
   unsigned char field_1;
   unsigned char field_2;
   short numfield_3;

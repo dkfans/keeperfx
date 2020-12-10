@@ -269,7 +269,9 @@ void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
             cproc->flags &= ~ComProc_Unkn0020;
             cproc->flags &= ~ComProc_Unkn0008;
         }
-    } else {
+    } 
+    else 
+    {
         ERRORLOG("Invalid computer process %d referenced",(int)ctask->field_8C);
     }
     remove_task(comp, ctask);
@@ -852,7 +854,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
     case -5:
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
-        return 4;
+        return CTaskRet_Unk4;
     case -3:
     case -2:
         shut_down_task_process(comp, ctask);
@@ -875,9 +877,9 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
         ctask->ttype = CTT_DigRoom;
         return 1;
     default:
-        if ((ctask->flags & ComTsk_Unkn0004) != 0)
+        if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
         {
-            ctask->flags &= ~ComTsk_Unkn0004;
+            ctask->flags &= ~ComTsk_AddTrapLocation;
             add_to_trap_location(comp, &ctask->dig.pos_next);
         }
         return 2;
@@ -1162,8 +1164,8 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     if (dig_ret == 0)
     {
         dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
-        if ((ctask->flags & ComTsk_Unkn0004) != 0) {
-            ctask->flags &= ~ComTsk_Unkn0004;
+        if ((ctask->flags & ComTsk_AddTrapLocation) != 0) {
+            ctask->flags &= ~ComTsk_AddTrapLocation;
             add_to_trap_location(comp, &ctask->dig.pos_next);
         }
     }
@@ -1436,7 +1438,8 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         ctask->create_room.area = area_buildable;
         ctask->create_room.long_80 = rkind;
         ctask->flags |= ComTsk_Unkn0002;
-        ctask->flags |= ComTsk_Unkn0004;
+        ctask->flags |= ComTsk_AddTrapLocation;
+        ctask->flags |= ComTsk_Urgent;
         setup_dig_to(&ctask->dig, ctask->create_room.startpos, ctask->pos_64);
     }
     return ctask;
@@ -1987,9 +1990,9 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowValuable);
 
-    if ((ctask->flags & ComTsk_Unkn0004) != 0)
+    if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
     {
-        ctask->flags &= ~ComTsk_Unkn0004;
+        ctask->flags &= ~ComTsk_AddTrapLocation;
         add_to_trap_location(comp, &ctask->dig.pos_next);
     }
 
@@ -2004,7 +2007,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         ctask->ttype = CTT_WaitForBridge;
 
         SYNCDBG(6,"Player %d is waiting for bridge",(int)dungeon->owner);
-        return 4;
+        return CTaskRet_Unk4;
     }
 
     if ((retval < -3) || (retval > -1))
@@ -2075,11 +2078,11 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         if (slabmap_owner(slb) != comp->dungeon->owner) {
             return CTaskRet_Unk4;
         }
-        if ((ctask->flags & ComTsk_Unkn0004) != 0)
+        if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
         {
           ctask->lastrun_turn++;
           if (ctask->lastrun_turn > 5)
-              ctask->flags &= ~ComTsk_Unkn0004;
+              ctask->flags &= ~ComTsk_AddTrapLocation;
           add_to_trap_location(comp, &ctask->dig.pos_next);
         }
     }
@@ -2839,15 +2842,15 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
-        return 4;
+        return CTaskRet_Unk4;
     }
     if ((digret >= -3) && (digret <= -1))
     {
         suspend_task_process(comp,ctask);
         return digret;
     }
-    if ((ctask->flags & ComTsk_Unkn0004) != 0) {
-        ctask->flags &= ~ComTsk_Unkn0004;
+    if ((ctask->flags & ComTsk_AddTrapLocation) != 0) {
+        ctask->flags &= ~ComTsk_AddTrapLocation;
         add_to_trap_location(comp, &ctask->dig.pos_next);
     }
     return digret;
@@ -2898,51 +2901,48 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
 {
-    SYNCDBG(9,"Starting");
-    if (game.play_gameturn - ctask->created_turn > 7500)
-    {
-        restart_task_process(comp, ctask);
-        return 0;
-    }
+    SYNCDBG(9, "Starting");
     PlayerNumber plyr_idx;
-    MapSubtlCoord basestl_x;
-    MapSubtlCoord basestl_y;
     plyr_idx = comp->dungeon->owner;
-    basestl_x = ctask->dig.pos_next.x.stl.num;
-    basestl_y = ctask->dig.pos_next.y.stl.num;
-    if (!can_build_room_at_slab(plyr_idx, RoK_BRIDGE, subtile_slab(basestl_x), subtile_slab(basestl_y)))
+    if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT)
     {
+        //If the task has been active too long, restart the process to try a different approach.
         restart_task_process(comp, ctask);
-        return 0;
+        return CTaskRet_Unk0;
     }
-    if (!is_room_available(plyr_idx, RoK_BRIDGE))
+    if (game.play_gameturn - ctask->created_turn > COMPUTER_URGENT_BRIDGE_TIMEOUT)
     {
-        return 4;
-    }
-    long n;
-    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
-    {
-        MapSlabCoord slb_x;
-        MapSlabCoord slb_y;
-        slb_x = subtile_slab_fast(basestl_x) + (long)small_around[n].delta_x;
-        slb_y = subtile_slab_fast(basestl_y) + (long)small_around[n].delta_y;
-        struct SlabMap *slb;
-        slb = get_slabmap_block(slb_x, slb_y);
-        if (slabmap_owner(slb) == plyr_idx)
+        if ((is_room_available(plyr_idx, RoK_BRIDGE)) || (ctask->flags & ComTsk_Urgent))
         {
-            if (try_game_action(comp, plyr_idx, GA_PlaceRoom, 0, basestl_x, basestl_y, 1, RoK_BRIDGE) > Lb_OK)
-            {
-                long i;
-                i = ctask->ottype;
-                ctask->ttype = i;
-                if (i == 0) {
-                    ERRORLOG("Bad set Task State");
-                }
-                return 1;
-            }
+            //When the player already has the bridge available, or is doing an urgent task, don't keep the task active as long.
+            restart_task_process(comp, ctask);
+            return CTaskRet_Unk0;
         }
     }
-    return 4;
+
+    MapSubtlCoord basestl_x;
+    MapSubtlCoord basestl_y;
+    basestl_x = ctask->dig.pos_next.x.stl.num;
+    basestl_y = ctask->dig.pos_next.y.stl.num;
+    if (!is_room_available(plyr_idx, RoK_BRIDGE))
+    {
+        return CTaskRet_Unk4;
+    }
+    if (!can_build_room_at_slab(plyr_idx, RoK_BRIDGE, subtile_slab(basestl_x), subtile_slab(basestl_y)))
+    {
+        return CTaskRet_Unk4;
+    }
+    if (try_game_action(comp, plyr_idx, GA_PlaceRoom, 0, basestl_x, basestl_y, 1, RoK_BRIDGE) > Lb_OK)
+    {
+        long i;
+        i = ctask->ottype;
+        ctask->ttype = i;
+        if (i == 0) {
+            ERRORLOG("Bad set Task State");
+        }
+        return CTaskRet_Unk1;
+    }
+    return CTaskRet_Unk4;
 }
 
 long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -3452,7 +3452,7 @@ TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d st
     ctask->field_8C = parent_cproc_idx;
     ctask->dig_somewhere.target_plyr_idx = victim_plyr_idx;
     ctask->lastrun_turn = 0;
-    ctask->flags |= 0x04;
+    ctask->flags |= ComTsk_AddTrapLocation;
     // Setup the digging
     setup_dig_to(&ctask->dig, startpos, endpos);
     return true;
@@ -3477,7 +3477,7 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
     ctask->dig_somewhere.endpos.x.val = endpos.x.val;
     ctask->dig_somewhere.endpos.y.val = endpos.y.val;
     ctask->dig_somewhere.endpos.z.val = endpos.z.val;
-    ctask->flags |= ComTsk_Unkn0004;
+    ctask->flags |= ComTsk_AddTrapLocation;
     ctask->created_turn = game.play_gameturn;
     setup_dig_to(&ctask->dig, startpos, endpos);
     return true;
@@ -3495,7 +3495,7 @@ TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d star
         message_add_fmt(comp->dungeon->owner, "Time to dig more gold.");
     }
     ctask->ttype = CTT_DigToGold;
-    ctask->flags |= ComTsk_Unkn0004;
+    ctask->flags |= ComTsk_AddTrapLocation;
     ctask->dig_to_gold.startpos.x.val = startpos.x.val;
     ctask->dig_to_gold.startpos.y.val = startpos.y.val;
     ctask->dig_to_gold.startpos.z.val = startpos.z.val;
@@ -3524,7 +3524,8 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
         message_add_fmt(comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_DigToEntrance;
-    ctask->flags |= ComTsk_Unkn0004;
+    ctask->flags |= ComTsk_AddTrapLocation;
+    ctask->flags |= ComTsk_Urgent;
     ctask->dig_to_room.startpos.x.val = startpos.x.val;
     ctask->dig_to_room.startpos.y.val = startpos.y.val;
     ctask->dig_to_room.startpos.z.val = startpos.z.val;

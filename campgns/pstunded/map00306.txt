@@ -2,6 +2,7 @@ REM ----------------------------------------------------------------------------
 REM Post Undead Keeper
 REM Havoth Dir
 REM Made by Duke Ragereaver
+REM	updated for pot file messaging by dayokay (Nov2020)
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
 START_MONEY(PLAYER0,50000)
@@ -151,7 +152,8 @@ CREATE_PARTY(BOSS)
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
-QUICK_OBJECTIVE(0,"The Heroes are getting somewhat nervous and have send an army to attack you. Use the resources you have available to build an even bigger force and crush that so-called army.",PLAYER0)
+REM	QUICK_OBJECTIVE(0,"The Heroes are getting somewhat nervous and have send an army to attack you. Use the resources you have available to build an even bigger force and crush that so-called army.",PLAYER0)
+DISPLAY_OBJECTIVE(25,PLAYER0)
 
 SET_TIMER(PLAYER0,TIMER0)
 
@@ -250,7 +252,8 @@ IF(PLAYER_GOOD,TIMER0 >= 12500)
         IF(PLAYER_GOOD,FLAG0 == 1)
             SET_FLAG(PLAYER_GOOD,FLAG0,2)
             SET_TIMER(PLAYER_GOOD,TIMER5)
-QUICK_OBJECTIVE(1,"You have slaughtered the vast majority of the Heroes, now prepare yourself for their elite warriors. Maybe they can provide some some actual fight.",PLAYER0)
+REM	QUICK_OBJECTIVE(1,"You have slaughtered the vast majority of the Heroes, now prepare yourself for their elite warriors. Maybe they can provide some some actual fight.",PLAYER0)
+			DISPLAY_OBJECTIVE(26,PLAYER0)
         ENDIF
     ENDIF
 ENDIF
@@ -282,7 +285,8 @@ ENDIF
 IF(PLAYER_GOOD,TIMER5 >= 13250)
     IF(PLAYER_GOOD,FLAG0 == 4)
         IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-QUICK_OBJECTIVE(3,"With so many deaths here on the field, I have good reason to believe this place will forever be haunted with wailing, vengeful revenants untill the end of time. Outstanding!",PLAYER0)
+REM	QUICK_OBJECTIVE(3,"With so many deaths here on the field, I have good reason to believe this place will forever be haunted with wailing, vengeful revenants untill the end of time. Outstanding!",PLAYER0)
+		DISPLAY_OBJECTIVE(28,PLAYER0)
             WIN_GAME
         ENDIF
     ENDIF

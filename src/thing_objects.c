@@ -441,7 +441,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       i = convert_td_iso(objdat->sprite_anim_idx);
       k = -1;
     }
-    set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->field_11);
+    set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
     set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->field_5);
     set_flag_byte(&thing->field_4F, TF4F_Unknown01, objdat->field_3 & 0x01);
 
@@ -998,7 +998,7 @@ long food_moves(struct Thing *objtng)
         if (objtng->food.byte_15 == 0)
         {
             objtng->food.byte_15 = -1;
-            set_thing_draw(objtng, 820, -1, -1, -1, 0, 2u);
+            set_thing_draw(objtng, 820, -1, -1, -1, 0, 2);
             if (dirct_ctrl) {
                 objtng->food.byte_16 = 6;
             } else {
@@ -1007,7 +1007,7 @@ long food_moves(struct Thing *objtng)
         }
         if ((has_near_creature && (objtng->food.byte_16 < 5)) || (objtng->food.byte_16 == 0))
         {
-            set_thing_draw(objtng, 819, -1, -1, -1, 0, 2u);
+            set_thing_draw(objtng, 819, -1, -1, -1, 0, 2);
             objtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x39);
             objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
             objtng->food.byte_16 = 0;
@@ -1647,7 +1647,7 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     if ((i & 0x8000u) != 0) {
         i = objdat->sprite_anim_idx;
     }
-    set_thing_draw(objtng, i, objdat->anim_speed, objtng->word_15, 0, start_frame, objdat->field_11);
+    set_thing_draw(objtng, i, objdat->anim_speed, objtng->word_15, 0, start_frame, objdat->draw_class);
     return 1;
 }
 
@@ -1945,7 +1945,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     if ((n & 0x8000u) == 0) {
       i = n;
     }
-    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->field_11);
+    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
     return amount;
 }
 
@@ -1998,7 +1998,7 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     if ((n & 0x8000u) == 0) {
       i = n;
     }
-    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->field_11);
+    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
     return amount;
 }
 

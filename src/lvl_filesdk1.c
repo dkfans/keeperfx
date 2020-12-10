@@ -1188,7 +1188,28 @@ short load_and_setup_map_info(unsigned long lv_num)
     return true;
 }
 
-short load_level_file(LevelNumber lvnum)
+static void load_ext_slabs(LevelNumber lvnum)
+{
+    short fgroup = get_level_fgroup(lvnum);
+    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slx", (unsigned long)lvnum);
+    if (LbFileExists(fname))
+    {
+        if (sizeof(slab_ext_data) != LbFileLoadAt(fname, slab_ext_data))
+        {
+            JUSTLOG("Invalid ExtSlab data from %s", fname);
+            memset(slab_ext_data, 0, sizeof(slab_ext_data));
+        }
+        SYNCDBG(1, "ExtSlab file:%s ok", fname);
+        return;
+    }
+    else
+    {
+        SYNCDBG(1, "No ExtSlab file:%s", fname);
+        memset(slab_ext_data, 0, sizeof(slab_ext_data));
+    }
+}
+
+static short load_level_file(LevelNumber lvnum)
 {
     short result;
     short fgroup = get_level_fgroup(lvnum);
@@ -1216,6 +1237,10 @@ short load_level_file(LevelNumber lvnum)
           result = false;
         reinitialise_map_rooms();
         ceiling_init(0, 1);
+        if (result)
+        {
+            load_ext_slabs(lvnum);
+        }
     } else
     {
         ERRORLOG("The level \"map%05lu\" doesn't exist; creating empty map.",lvnum);

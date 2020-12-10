@@ -678,6 +678,12 @@
     <ClCompile Include="src\hookfn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\roomspace.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\roomspace_detection.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -1272,6 +1278,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\vidmode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\roomspace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\roomspace_detection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
