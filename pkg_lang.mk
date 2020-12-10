@@ -17,6 +17,7 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
+LANGUAGE ?= eng
 
 NGTEXTDATS = \
 pkg/fxdata/gtext_chi.dat \
@@ -36,10 +37,13 @@ pkg/fxdata/gtext_swe.dat \
 pkg/fxdata/gtext_eng.dat
 
 NCTEXTDATS = \
+pkg/campgns/ami2019/text_eng.dat \
+pkg/campgns/ami2019/text_chi.dat \
 pkg/campgns/ancntkpr/text_eng.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
 pkg/campgns/ancntkpr/text_ger.dat \
 pkg/campgns/ancntkpr/text_pol.dat \
+pkg/campgns/ancntkpr/text_chi.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/burdnimp/text_pol.dat \
 pkg/campgns/cqarctic/text_eng.dat \
@@ -63,11 +67,18 @@ pkg/campgns/questfth/text_fre.dat \
 pkg/campgns/questfth/text_pol.dat \
 pkg/campgns/twinkprs/text_eng.dat \
 pkg/campgns/twinkprs/text_pol.dat \
+pkg/campgns/twinkprs/text_chi.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
 pkg/campgns/undedkpr/text_pol.dat
 
-pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS) pkg-before
+pkg-languages: lang-before $(NGTEXTDATS) $(NCTEXTDATS) pkg-before
+
+lang-before:
+	$(MKDIR) pkg/fxdata
+
+# Creation of Only single language engine language files from PO/POT files (for development)
+pkg-lang-single: lang-before pkg/fxdata/gtext_$(LANGUAGE).dat
 
 # Creation of engine language files from PO/POT files
 pkg/fxdata/gtext_jpn.dat: lang/gtext_jpn.po tools/po2ngdat/res/char_encoding_tbl_jp.txt $(POTONGDAT)
@@ -114,6 +125,14 @@ pkg/fxdata/gtext_%.dat: lang/gtext_%.pot tools/po2ngdat/res/char_encoding_tbl_eu
 
 # Creation of engine language files for campaigns
 define define_campaign_language_rule
+
+pkg/campgns/$(1)/text_ch%.dat: lang/$(1)/text_ch%.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
 pkg/campgns/$(1)/%.dat: lang/$(1)/%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
 	-$$(ECHO) 'Building language file: $$@'
 	@$$(MKDIR) $$(@D)

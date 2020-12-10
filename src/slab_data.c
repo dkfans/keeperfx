@@ -285,6 +285,106 @@ TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
     return (slb->kind == SlbT_CLAIMED);
 }
 
+TbBool can_build_room_at_slab_fast(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    if (rkind == RoK_BRIDGE)
+    {
+        return (slab_kind_is_liquid(slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y));
+    }
+    else
+    {
+        if (slb->kind == SlbT_CLAIMED)
+        {
+            return (slabmap_owner(slb) == plyr_idx);
+        }
+    }
+    return false;
+}
+
+int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y, int looseness)
+{
+    // looseness:
+    // don't allow tile = 0
+    // valid tile to place room = 1 (i.e. tile owned by current player, and is claimed path)
+    // allow same room type = 2
+    // allow other room types = 3
+    // allow gems = 4
+    // allow gold = 5
+    // allow liquid = 6
+    // allow rock = 7
+    // allow path = 8
+    // allow path claimed by others = 9
+
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    int result = 0;
+    if (rkind == RoK_BRIDGE)
+    {
+        result = (slab_kind_is_liquid(slb->kind) && slab_by_players_land(plyr_idx, slb_x, slb_y)); // 0 or 1
+    }
+    else
+    {
+        if (slb->kind == SlbT_CLAIMED)
+        {
+            if (slabmap_owner(slb) == plyr_idx)
+            {
+                result = 1; // valid tile
+            }
+            else
+            {
+                result = 9; // claimed dirt owned by other player
+            }
+        }
+        else
+        {
+            if (slab_is_wall(slb_x, slb_y))
+            {
+                if (slb->kind == SlbT_GEMS)
+                {
+                    result = 4;
+                }
+                else if (slb->kind == SlbT_GOLD)
+                {
+                    result = 5;
+                }
+                else if (slb->kind == SlbT_ROCK)
+                {
+                    result = 7; // is unbreakable rock
+                }
+            }
+            else if (slab_kind_is_liquid(slb->kind))
+            {
+                result = 6; // is water or lava
+            }
+            else if (slb->kind == SlbT_PATH)
+            {
+                result = 8; //unclaimed path
+            }
+            else if (slabmap_owner(slb) == plyr_idx)
+            {
+                int slab_type_from_room_kind = room_corresponding_slab(rkind);
+                
+                if (slab_type_from_room_kind == slb->kind)
+                {
+                    result = 3; // same room type
+                }
+                else if (slab_type_from_room_kind > 0)
+                {
+                    result = 2; // different room type
+                }
+                
+            }
+        }
+    }
+    if (result > looseness)
+    {
+        // adjusting the "looseness" that is passed to this function allows different slab types to be considered "valid" tiles to place a room, for the purposes of finding a room.
+        // A room is checked for valid/invalid tiles later in the process, before it is shown to the user with the bounding box.
+        result = 0;
+    }
+    return result;
+}
+
 /**
  * Clears all SlabMap structures in the map.
  */

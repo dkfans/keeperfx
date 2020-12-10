@@ -313,9 +313,9 @@ void untint_thing(struct Thing *thing)
     thing->field_4F &= ~(TF4F_Unknown04|TF4F_Unknown08);
 }
 
-void tint_thing(struct Thing *thing, TbPixel colour, unsigned char nframe)
+void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 {
-    thing->field_4F ^= (thing->field_4F ^ (nframe << 2)) & (TF4F_Unknown04|TF4F_Unknown08);
+    thing->field_4F ^= (thing->field_4F ^ (tint << 2)) & (TF4F_Unknown04|TF4F_Unknown08);
     thing->field_51 = colour;
 }
 
@@ -345,8 +345,7 @@ void update_creature_graphic_field_4F(struct Thing *thing)
 {
     // Clear related flags
     thing->field_4F &= ~TF4F_Unknown01;
-    thing->field_4F &= ~TF4F_Unknown10;
-    thing->field_4F &= ~TF4F_Unknown20;
+    thing->field_4F &= ~TF4F_Transpar_Flags;
     thing->field_4F &= ~TF4F_Unknown40;
     // Now set only those that should be
     if (((thing->alloc_flags & TAlF_IsControlled) != 0) && is_my_player_number(thing->owner))
@@ -355,15 +354,14 @@ void update_creature_graphic_field_4F(struct Thing *thing)
     } else
     if (creatures[thing->model].field_7)
     {
-        thing->field_4F |= TF4F_Unknown10;
-        thing->field_4F |= TF4F_Unknown20;
+        thing->field_4F |= TF4F_Transpar_Alpha;
     } else
     if (creature_is_invisible(thing))
     {
       if (is_my_player_number(thing->owner))
       {
-          thing->field_4F &= ~TF4F_Unknown10;
-          thing->field_4F |= TF4F_Unknown20;
+          thing->field_4F &= ~TF4F_Transpar_Flags;
+          thing->field_4F |= TF4F_Transpar_4;
       } else
       {
           thing->field_4F |= TF4F_Unknown01;
@@ -393,7 +391,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
           if (cctrl->instance_id == CrInst_TORTURED)
           {
-              thing->field_4F &= ~(TF4F_Unknown20|TF4F_Unknown10);
+              thing->field_4F &= ~(TF4F_Transpar_Flags);
           }
           struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->instance_anim_step_turns, inst_inf->graphics_idx);
@@ -421,7 +419,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         } else
         if (thing->active_state == CrSt_CreatureSleep)
         {
-            thing->field_4F &= ~(TF4F_Unknown20|TF4F_Unknown10);
+            thing->field_4F &= ~(TF4F_Transpar_Flags);
             update_creature_anim(thing, 128, 12);
         } else
         if (cctrl->field_9 == 0)
@@ -445,12 +443,12 @@ void update_creature_graphic_anim(struct Thing *thing)
             i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
             if (!update_creature_anim(thing, i, 1))
             {
-                thing->field_3E = i;
+                thing->anim_speed = i;
             }
         }
     } else
     {
-        thing->field_4F &= ~(TF4F_Unknown10|TF4F_Unknown20);
+        thing->field_4F &= ~(TF4F_Transpar_Flags);
         if (cctrl->field_9 == 0)
         {
             update_creature_anim_td(thing, 256, 820);
@@ -467,7 +465,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
             if (!update_creature_anim_td(thing, i, 819))
             {
-                thing->field_3E = i;
+                thing->anim_speed = i;
             }
         }
     }
@@ -490,7 +488,7 @@ void update_creature_graphic_tint(struct Thing *thing)
         untint_thing(thing);
     } else
     {
-        switch (thing->owner)
+        switch (thing->owner) //TODO: move player colors to array
         {
         case 0:
             tint_thing(thing, colours[15][0][0], 1);

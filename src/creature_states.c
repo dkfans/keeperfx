@@ -1569,8 +1569,8 @@ short creature_change_from_chicken(struct Thing *creatng)
             long n = (10 - cctrl->countdown_282) * (crtr_conf.sprite_size + (crtr_conf.sprite_size * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, 2);
-            efftng->field_4F &= ~TF4F_Unknown20;
-            efftng->field_4F |= TF4F_Unknown10;
+            efftng->field_4F &= ~TF4F_Transpar_Flags;
+            efftng->field_4F |= TF4F_Transpar_8;
         }
         return 0;
     } else
@@ -1600,8 +1600,8 @@ short creature_change_to_chicken(struct Thing *creatng)
       {
           unsigned long k = convert_td_iso(819);
           set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + crtr_conf.sprite_size, -1, 0, 2);
-          efftng->field_4F &= ~TF4F_Unknown20;
-          efftng->field_4F |= TF4F_Unknown10;
+          efftng->field_4F &= ~TF4F_Transpar_Flags;
+          efftng->field_4F |= TF4F_Transpar_8;
       }
       return 0;
     }
@@ -4630,4 +4630,163 @@ void process_person_moods_and_needs(struct Thing *thing)
     process_training_need(thing, crstat);
     process_piss_need(thing, crstat);
 }
+
+TbBool setup_move_off_lava(struct Thing* thing)
+{
+    //return _DK_setup_move_off_lava(thing);
+    MapSlabCoord slb_x;
+    MapSlabCoord slb_y;
+    slb_x = subtile_slab(thing->mappos.x.stl.num);
+    slb_y = subtile_slab(thing->mappos.y.stl.num);
+    long i;
+    for (i = 0; i < 32; i++)
+    {
+        struct MapOffset* sstep;
+        MapSubtlCoord cx;
+        MapSubtlCoord cy;
+        sstep = &spiral_step[i];
+        cx = slab_subtile_center(slb_x + sstep->h);
+        cy = slab_subtile_center(slb_y + sstep->v);
+        struct SlabMap* slb;
+        slb = get_slabmap_for_subtile(cx, cy);
+        if (slabmap_block_invalid(slb))
+            continue;
+        const struct SlabAttr* slbattr;
+        slbattr = get_slab_attrs(slb);
+        if (!slbattr->is_safe_land)
+            continue;
+        // Check all subtiles of the slab in random order
+        long k;
+        long n;
+        n = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
+        for (k = 0; k < AROUND_TILES_COUNT; k++, n = (n + 1) % AROUND_TILES_COUNT)
+        {
+            struct Map* mapblk;
+            long stl_x;
+            long stl_y;
+            stl_x = cx + around[k].delta_x;
+            stl_y = cy + around[k].delta_y;
+            mapblk = get_map_block_at(stl_x, stl_y);
+            if (!map_block_invalid(mapblk))
+            {
+                if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
+                {
+                    if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+//todo CAVE_IN_NEAR_FLEE_POSITION into config file
+#define CAVE_IN_NEAR_FLEE_POSITION 200
+TbBool setup_move_out_of_cave_in(struct Thing* thing)
+{
+    // return _DK_setup_move_out_of_cave_in(thing);
+    MapSlabCoord bx = 0;
+    MapSlabCoord by = 0;
+    MapSubtlCoord cx = 0;
+    MapSubtlCoord cy = 0;
+    struct Thing* tng;
+    struct MapOffset* sstep;
+    struct Map* blk;
+    if (setup_combat_flee_position(thing))
+    {
+        struct CreatureControl* cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        long dist = LbDiagonalLength(abs(thing->mappos.x.val - cctrl->flee_pos.x.val), abs(thing->mappos.y.val - cctrl->flee_pos.y.val));
+        // If you're too close to the flee position, no point in going there to escape cave in damage.
+        if (dist <= CAVE_IN_NEAR_FLEE_POSITION)
+        {
+            // Heroes that are near to a hero gate, should escape through it if they can.
+            if (is_hero_thing(thing))
+            {
+                if (good_leave_through_exit_door(thing))
+                {
+                    return true;
+                }
+                if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
+                {
+                    return true;
+                }
+            }
+            // Creatures (or weird heroes) at their flee position should find a random space in the dungeon.
+            struct Coord3d pos;
+            if (get_random_position_in_dungeon_for_creature(thing->owner, CrWaS_WithinDungeon, thing, &pos))
+            {
+                if (setup_person_move_to_coord(thing, &pos, 0))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else
+        {
+            if (setup_person_move_to_coord(thing, &cctrl->flee_pos, 0))
+            {
+                return true;
+            }
+        }
+    }
+    else
+    {
+        MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
+        MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
+        for (signed int i = 0; i < 32; i++)
+        {
+            sstep = &spiral_step[i];
+            bx = sstep->h + slb_x;
+            by = sstep->v + slb_y;
+            struct SlabMap* slb;
+            slb = get_slabmap_block(bx, by);
+            if (slabmap_block_invalid(slb))
+            {
+                continue;
+            }
+            blk = get_map_block_at(slab_subtile(bx, 0), slab_subtile(by, 0));
+            long n = get_mapwho_thing_index(blk);
+            while (n != 0)
+            {
+                tng = thing_get(n);
+                TRACE_THING(tng);
+                if (tng->class_id == TCls_EffectElem && tng->model == 46)
+                {
+                    break;
+                }
+                n = tng->next_on_mapblk;
+                if (thing_is_invalid(tng))
+                {
+                    bx = sstep->h + slb_x;
+                    break;
+                }
+            }
+            bx = sstep->h + slb_x;
+            cx = slab_subtile_center(bx);
+            cy = slab_subtile_center(by);
+            long j = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
+            for (long k = 0; k < AROUND_TILES_COUNT; k++, j = (j + 1) % AROUND_TILES_COUNT)
+            {
+                MapSubtlCoord stl_x = cx + around[j].delta_x;
+                MapSubtlCoord stl_y = cy + around[j].delta_y;
+                struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+                if (!map_block_invalid(mapblk))
+                {
+                    if (subtile_is_blocking_wall_or_lava(stl_x, stl_y, thing->owner) == 0)
+                    {
+                        if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 /******************************************************************************/

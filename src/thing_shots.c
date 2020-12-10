@@ -553,7 +553,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
         if (is_my_player_number(shotng->owner))
         {
             struct PlayerInfo* player = get_player(target->owner);
-            if (player_exists(player) && (player->is_active == 1))
+            if (player_exists(player) && (player->is_active == 1) && (shotng->owner != target->owner))
             {
                 output_message(SMsg_DefeatedKeeper, 0, true);
             }
@@ -922,20 +922,24 @@ static long shot_hit_creature_at(struct Thing *shooter, struct Thing *shotng, st
             apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
         }
     }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
     if (shotst->old->field_24 != 0)
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
         if (cctrl->field_B1 == 0) {
             cctrl->field_B1 = shotst->old->field_24;
         }
     }
     if (shotst->cast_spell_kind != 0)
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(shooter);
-        if (!creature_control_invalid(cctrl)) {
-            n = cctrl->explevel;
+        struct CreatureControl* scctrl = creature_control_get_from_thing(shooter);
+        if (!creature_control_invalid(scctrl)) {
+            n = scctrl->explevel;
         } else {
             n = 0;
+        }
+        if (shotst->cast_spell_kind == SplK_Disease)
+        {
+            cctrl->disease_caster_plyridx = shotng->owner;
         }
         apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
     }
@@ -1378,6 +1382,15 @@ TngUpdateRet update_shot(struct Thing *thing)
               }
             }
             break;
+        case ShM_Disease:
+            for (i = 1; i > 0; i--)
+            {
+              pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(511) + 255;
+              pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(511) + 255;
+              pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(511) + 255;
+              create_thing(&pos1, TCls_EffectElem, 95, thing->owner, -1);
+            }
+            break;
         default:
             // All shots that do not require special processing
             break;
@@ -1423,12 +1436,12 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & TF4F_Unknown02;
-    thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Unknown10 * shotst->old->field_8) & (TF4F_Unknown10|TF4F_Unknown20));
+    thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Transpar_8 * shotst->old->field_8) & (TF4F_Transpar_Flags));
     thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;
     thing->clipbox_size_xy = shotst->old->size_xy;
-    thing->clipbox_size_yz = shotst->old->field_B;
+    thing->clipbox_size_yz = shotst->old->size_yz;
     thing->solid_size_xy = shotst->old->size_xy;
-    thing->field_5C = shotst->old->field_B;
+    thing->solid_size_yz = shotst->old->size_yz;
     thing->shot.damage = shotst->old->damage;
     thing->shot.dexterity = 255;
     thing->health = shotst->health;

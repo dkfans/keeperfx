@@ -23,6 +23,10 @@
 #include "bflib_math.h"
 #include "bflib_memory.h"
 #include "config_creature.h"
+#include "power_specials.h"
+#include "room_jobs.h"
+#include "room_library.h"
+#include "room_workshop.h"
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "thing_list.h"
@@ -31,9 +35,6 @@
 #include "thing_traps.h"
 #include "thing_corpses.h"
 #include "thing_effects.h"
-#include "room_jobs.h"
-#include "room_library.h"
-#include "room_workshop.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "ariadne_wallhug.h"
@@ -54,6 +55,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
 /******************************************************************************/
+extern void research_found_room(PlayerNumber plyr_idx, RoomKind rkind);
+
 void count_slabs_all_only(struct Room *room);
 void count_slabs_all_wth_effcncy(struct Room *room);
 void count_slabs_div2_wth_effcncy(struct Room *room);
@@ -2146,7 +2149,7 @@ TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlC
     }
     int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
     room->used_capacity += required_cap;
-    foodtng->belongs_to = (foodtng->field_49 << 8) / foodtng->field_3E - 1;
+    foodtng->belongs_to = (foodtng->field_49 << 8) / foodtng->anim_speed - 1;
     return true;
 }
 
@@ -3968,7 +3971,7 @@ TbBool add_item_to_room_capacity(struct Room *room, TbBool force)
  * @param parent_idx The new thing parent. Parent for objects is a slab number. Not all objects have the parent set.
  * @param newowner
  */
-void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
+static void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
 {
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     struct Objects* objdat = get_objects_data_for_thing(thing);
@@ -4063,6 +4066,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
     default:
         break;
     }
+
     // If an object has parent slab, then it should change owner with that slab
     if (thing->parent_idx != -1)
     {
@@ -4148,7 +4152,7 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num)
  * @param plyr_idx The player which is claiming the room subtile.
  * @return True on success, false otherwise.
  */
-TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+static TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     long parent_idx = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
@@ -4193,7 +4197,7 @@ TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl
  * @param room The room to be affected.
  * @param plyr_idx The new owner.
  */
-void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
+static void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     {
@@ -4347,6 +4351,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     {
         return 0;
     }
+    research_found_room(claimtng->owner, room->kind);
     room->owner = claimtng->owner;
     room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     add_room_to_players_list(room, claimtng->owner);
@@ -4375,6 +4380,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     {
         return 0;
     }
+    research_found_room(claimtng->owner, room->kind);
     reset_state_of_creatures_working_in_room(room);
     remove_room_from_players_list(room,oldowner);
     room->owner = claimtng->owner;
@@ -4400,6 +4406,10 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
 {
     SYNCDBG(7, "Starting for %s index %d claimed by player %d", room_code_name(room->kind), (int)room->index, newowner);
     PlayerNumber oldowner = room->owner;
+
+    // Mark that player 'knows' about such room
+    research_found_room(newowner, room->kind);
+
     if (oldowner == game.neutral_player_num)
     {
         room->owner = newowner;

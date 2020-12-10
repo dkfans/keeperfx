@@ -37,6 +37,8 @@
 #include "config_magic.h"
 #include "config_creature.h"
 #include "config_effects.h"
+#include "creature_states_mood.h"
+#include "creature_control.h"
 #include "gui_soundmsgs.h"
 #include "frontmenu_ingame_tabs.h"
 #include "player_instances.h"
@@ -50,9 +52,12 @@
 #include "creature_states.h"
 #include "creature_states_hero.h"
 #include "creature_groups.h"
+#include "power_hand.h"
 #include "room_library.h"
 #include "room_entrance.h"
 #include "room_util.h"
+#include "magic.h"
+#include "power_specials.h"
 #include "map_blocks.h"
 #include "lvl_filesdk1.h"
 #include "frontend.h"
@@ -77,6 +82,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_PARTY",                      "ACNNAN  ", Cmd_ADD_TO_PARTY},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL},
+  {"ADD_OBJECT_TO_LEVEL",               "AAN     ", Cmd_ADD_OBJECT_TO_LEVEL},
   {"IF",                                "PAON    ", Cmd_IF},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT},
   {"ENDIF",                             "        ", Cmd_ENDIF},
@@ -139,6 +145,16 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION},
   {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE},
+  {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION},
+  {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE},
+  {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE},
+  {"USE_POWER_AT_LOCATION",             "PNANN   ", Cmd_USE_POWER_AT_LOCATION},
+  {"USE_POWER",                         "PAN     ", Cmd_USE_POWER},
+  {"USE_SPECIAL_INCREASE_LEVEL",        "PN      ", Cmd_USE_SPECIAL_INCREASE_LEVEL},
+  {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES},
+  {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE},
+  {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD},
+  {"CHANGE_CREATURES_ANNOYANCE",        "PAN     ", Cmd_CHANGE_CREATURES_ANNOYANCE},
   {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG},
   {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG},
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG},
@@ -466,6 +482,16 @@ const struct NamedCommand campaign_flag_desc[] = {
   {"CAMPAIGN_FLAG7",  7},
   {NULL,     0},
 };
+
+const struct NamedCommand script_operator_desc[] = {
+  {"SET",         1},
+  {"INCREASE",    2},
+  {"DECREASE",    3},
+  {NULL,          0},
+};
+
+/******************************************************************************/
+static struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
 
 /******************************************************************************/
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
@@ -813,6 +839,21 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
         *location = ((unsigned long)i << 12) | ((unsigned long)my_player_number << 4) | MLoc_ROOMKIND;
         return true;
     }
+    // Todo list of functions
+    if (strcmp(locname, "TRIGGERED_OBJECT") == 0)
+    {
+        *location = (((unsigned long)MML_TRIGGERED_OBJECT) << 12)
+            | (((unsigned long)CurrentPlayer) << 4) //TODO: other players
+            | MLoc_METALOCATION;
+        return true;
+    }
+    else if (strcmp(locname, "COMBAT") == 0)
+    {
+        *location = (((unsigned long)MML_RECENT_COMBAT) << 12)
+            | ((unsigned long)my_player_number << 4)
+            | MLoc_METALOCATION;
+        return true;
+    }
     i = atol(locname);
     // Negative number means Hero Gate
     if (i < 0)
@@ -1114,6 +1155,43 @@ void command_add_party_to_level(long plr_range_id, const char *prtname, const ch
     }
 }
 
+void command_add_object_to_level(const char *obj_name, const char *locname, long arg)
+{
+    TbMapLocation location;
+    long obj_id = get_rid(object_desc, obj_name);
+    if (obj_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", obj_name);
+        return;
+    }
+    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        return;
+    }
+    // Recognize place where party is created
+    if (!get_map_location_id(locname, &location))
+        return;
+    if (script_current_condition < 0)
+    {
+        script_process_new_object(obj_id, location, arg);
+    } else
+    {
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
+        set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
+        pr_trig->plyr_idx = 0; //That is because script is inside `struct Game` and it is not possible to enlarge it
+        pr_trig->creatr_id = obj_id & 0x7F;
+        pr_trig->crtr_level = 128 // Used as a marker "this is not a creature"
+            | ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
+        pr_trig->carried_gold = arg;
+        pr_trig->location = location;
+        pr_trig->ncopies = 1;
+        pr_trig->condit_idx = script_current_condition;
+        game.script.party_triggers_num++;
+    }
+}
+
 void command_add_creature_to_level(long plr_range_id, const char *crtr_name, const char *locname, long ncopies, long crtr_level, long carried_gold)
 {
     TbMapLocation location;
@@ -1168,6 +1246,7 @@ void command_add_creature_to_level(long plr_range_id, const char *crtr_name, con
 
 void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
 {
+    // TODO: replace with pointer to functions
     struct Condition* condt = &game.script.conditions[game.script.conditions_num];
     condt->condit_idx = script_current_condition;
     condt->plyr_range = plr_range_id;
@@ -1190,6 +1269,113 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     game.script.conditions_num++;
 }
 
+static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
+{
+    char c;
+
+    if (level_file_version > 0)
+    {
+        *varib_type = get_id(variable_desc, varib_name);
+    } else
+    {
+        *varib_type = get_id(dk1_variable_desc, varib_name);
+    }
+    if (*varib_type == -1)
+      *varib_id = -1;
+    else
+      *varib_id = 0;
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(creature_desc, varib_name);
+      *varib_type = SVar_CREATURE_NUM;
+    }
+    //TODO: list of lambdas
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(room_desc, varib_name);
+      *varib_type = SVar_ROOM_SLABS;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(timer_desc, varib_name);
+      *varib_type = SVar_TIMER;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(flag_desc, varib_name);
+      *varib_type = SVar_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(door_desc, varib_name);
+      *varib_type = SVar_DOOR_NUM;
+    }
+    if (*varib_id == -1)
+    {
+        *varib_id = get_id(trap_desc, varib_name);
+        *varib_type = SVar_TRAP_NUM;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(campaign_flag_desc, varib_name);
+      *varib_type = SVar_CAMPAIGN_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+        if (2 == sscanf(varib_name, "BOX%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_BOX_ACTIVATED;
+        }
+        else
+        {
+          *varib_id = -1;
+        }
+    }
+    if (*varib_id == -1)
+    {
+      SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
+      return false;
+    }
+    return true;
+}
+
+// Variables that could be set
+static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
+{
+    char c;
+
+    *varib_id = -1;
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(flag_desc, varib_name);
+      *varib_type = SVar_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(campaign_flag_desc, varib_name);
+      *varib_type = SVar_CAMPAIGN_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+        if (2 == sscanf(varib_name, "BOX%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_BOX_ACTIVATED;
+        }
+        else
+        {
+          *varib_id = -1;
+        }
+    }
+    if (*varib_id == -1)
+    {
+      SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
+      return false;
+    }
+    return true;
+}
+
 void command_if(long plr_range_id, const char *varib_name, const char *operatr, long value)
 {
     long varib_type;
@@ -1199,57 +1385,10 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
     }
-    // Recognize variable TODO: Move to separate func?
-    if (level_file_version > 0)
+    // Recognize variable
+    if (!parse_get_varib(varib_name, &varib_id, &varib_type))
     {
-        varib_type = get_id(variable_desc, varib_name);
-    } else
-    {
-        varib_type = get_id(dk1_variable_desc, varib_name);
-    }
-    if (varib_type == -1)
-      varib_id = -1;
-    else
-      varib_id = 0;
-    if (varib_id == -1)
-    {
-      varib_id = get_id(creature_desc, varib_name);
-      varib_type = SVar_CREATURE_NUM;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(room_desc, varib_name);
-      varib_type = SVar_ROOM_SLABS;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(timer_desc, varib_name);
-      varib_type = SVar_TIMER;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(flag_desc, varib_name);
-      varib_type = SVar_FLAG;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(door_desc, varib_name);
-      varib_type = SVar_DOOR_NUM;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(trap_desc, varib_name);
-        varib_type = SVar_TRAP_NUM;
-    }
-    if (varib_id == -1)
-    {
-      varib_id = get_id(campaign_flag_desc, varib_name);
-      varib_type = SVar_CAMPAIGN_FLAG;
-    }
-    if (varib_id == -1)
-    {
-      SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
-      return;
+        return;
     }
     { // Warn if using the command for a player without Dungeon struct
         int plr_start;
@@ -1571,13 +1710,27 @@ void command_lose_game(void)
 
 void command_set_flag(long plr_range_id, const char *flgname, long val)
 {
-    long flg_id = get_rid(flag_desc, flgname);
-    if (flg_id == -1)
+    long flg_id;
+    long flag_type;
+    if (!parse_set_varib(flgname, &flg_id, &flag_type))
     {
         SCRPTERRLOG("Unknown flag, '%s'", flgname);
         return;
-  }
-  command_add_value(Cmd_SET_FLAG, plr_range_id, flg_id, val, 0);
+    }
+    command_add_value(Cmd_SET_FLAG, plr_range_id, flg_id, val, flag_type);
+}
+
+void command_add_to_flag(long plr_range_id, const char *flgname, long val)
+{
+    long flg_id;
+    long flag_type;
+
+    if (!parse_set_varib(flgname, &flg_id, &flag_type))
+    {
+        SCRPTERRLOG("Unknown flag, '%s'", flgname);
+        return;
+    }
+    command_add_value(Cmd_ADD_TO_FLAG, plr_range_id, flg_id, val, flag_type);
 }
 
 void command_max_creatures(long plr_range_id, long val)
@@ -1966,6 +2119,46 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
   SCRIPTDBG(6,"Altered %d checks named '%s'",n,chkname);
 }
 
+
+void refresh_trap_anim(long trap_id)
+{
+    int k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
+    int i = slist->index;
+    while (i != 0)
+    {
+        struct Thing* traptng = thing_get(i);
+        if (thing_is_invalid(traptng))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = traptng->next_of_class;
+        // Per thing code
+        if (traptng->model == trap_id)
+        {
+            traptng->anim_sprite = gameadd.trap_stats[trap_id].sprite_anim_idx;
+            struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+            char start_frame;
+            if (trapstat->field_13) {
+                start_frame = -1;
+            }
+            else {
+                start_frame = 0;
+            }
+            set_thing_draw(traptng, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, 2);
+        }
+        // Per thing code ends
+        k++;
+        if (k > slist->index)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}
+
+
                                                  // Name, Shots, TimeBetweenShots, Model, TriggerType, ActivationType, EffectType, Hidden
 void command_set_trap_configuration(const char* trapname, long val1, long val2, long val3, long val4, long val5, long val6, long val7)
 {
@@ -2046,16 +2239,17 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
         struct ManfctrConfig* mconf;
         trapst = &trapdoor_conf.trap_cfgstats[trap_id];   
         mconf = &gameadd.traps_config[trap_id];
-        SCRIPTDBG(7, "Changing trap %d configuration from (%d,%d,%d,%d,%d,%d,%d)", trap_id, mconf->shots, mconf->shots_delay, trap_stats[trap_id].sprite_anim_idx, trap_stats[trap_id].trigger_type, trap_stats[trap_id].activation_type, trap_stats[trap_id].created_itm_model,trapst->hidden);
+        SCRIPTDBG(7, "Changing trap %d configuration from (%d,%d,%d,%d,%d,%d,%d)", trap_id, mconf->shots, mconf->shots_delay, gameadd.trap_stats[trap_id].sprite_anim_idx, gameadd.trap_stats[trap_id].trigger_type, gameadd.trap_stats[trap_id].activation_type, gameadd.trap_stats[trap_id].created_itm_model,trapst->hidden);
         SCRIPTDBG(7, "Changing trap %d configuration to (%d,%d,%d,%d,%d,%d,%d)", trap_id, val1, val2, val3, val4, val5, val6, val7);
         mconf->shots = val1;
         mconf->shots_delay = val2;
-        trap_stats[trap_id].sprite_anim_idx = val3;
-        trap_stats[trap_id].trigger_type = val4;
-        trap_stats[trap_id].activation_type = val5;
-        trap_stats[trap_id].created_itm_model = val6;
+        gameadd.trap_stats[trap_id].sprite_anim_idx = val3;
+        gameadd.trap_stats[trap_id].trigger_type = val4;
+        gameadd.trap_stats[trap_id].activation_type = val5;
+        gameadd.trap_stats[trap_id].created_itm_model = val6;
         trapst->hidden = val7;
         //trapst->notify = val8; cannot fit 9 variables
+        refresh_trap_anim(trap_id);
     } else
     {
         return;
@@ -2506,6 +2700,211 @@ void command_level_up_creature(long plr_range_id, const char *crtr_name, const c
   command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
+void command_use_power_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, char free)
+{
+  SCRIPTDBG(11, "Starting");
+  if (splevel < 1)
+  {
+    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+    splevel = 1;
+  }
+  if (splevel > MAGIC_OVERCHARGE_LEVELS)
+  {
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
+    splevel = MAGIC_OVERCHARGE_LEVELS;
+  }
+  splevel--;
+  long mag_id = get_rid(power_desc, magname);
+  if (mag_id == -1)
+  {
+    SCRPTERRLOG("Unknown magic, '%s'", magname);
+    return;
+  }
+  long crtr_id = get_rid(creature_desc, crtr_name);
+  if (crtr_id == -1) {
+    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+    return;
+  }
+  long select_id = get_rid(creature_select_criteria_desc, criteria);
+  if (select_id == -1) {
+    SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
+    return;
+  }
+  PowerKind pwr = mag_id;
+  if((PlayerNumber) caster_plyr_idx > PLAYER3)
+  {
+    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
+    {
+        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
+        return;
+    }
+  }
+
+  // encode params: free, magic, caster, level -> into 4xbyte: FMCL
+  long fmcl_bytes;
+  {
+      signed char f = free, m = mag_id, c = caster_plyr_idx, lvl = splevel;
+      fmcl_bytes = (f << 24) | (m << 16) | (c << 8) | lvl;
+  }
+  command_add_value(Cmd_USE_POWER_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
+}
+
+void command_use_power_at_subtile(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, char free)
+{
+  SCRIPTDBG(11, "Starting");
+  if (splevel < 1)
+  {
+    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+    splevel = 1;
+  }
+  if (splevel > MAGIC_OVERCHARGE_LEVELS)
+  {
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
+    splevel = MAGIC_OVERCHARGE_LEVELS;
+  }
+  splevel--;
+  long mag_id = get_rid(power_desc, magname);
+  if (mag_id == -1)
+  {
+    SCRPTERRLOG("Unknown magic, '%s'", magname);
+    return;
+  }
+  PowerKind pwr = mag_id;
+  if((PlayerNumber) plr_range_id > PLAYER3)
+  {
+    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
+    {
+        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
+        return;
+    }
+  }
+
+  // encode params: free, magic, level -> into 3xbyte: FML
+  long fml_bytes;
+  {
+      signed char f = free, m = mag_id, lvl = splevel;
+      fml_bytes = (f << 16) | (m << 8) | lvl;
+  }
+  command_add_value(Cmd_USE_POWER_AT_SUBTILE, plr_range_id, stl_x, stl_y, fml_bytes);
+}
+
+void command_use_power_at_location(long plr_range_id, const char *locname, const char *magname, int splevel, char free)
+{
+  SCRIPTDBG(11, "Starting");
+  if (splevel < 1)
+  {
+    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+    splevel = 1;
+  }
+  if (splevel > MAGIC_OVERCHARGE_LEVELS)
+  {
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
+    splevel = MAGIC_OVERCHARGE_LEVELS;
+  }
+  splevel--;
+  long mag_id = get_rid(power_desc, magname);
+  if (mag_id == -1)
+  {
+    SCRPTERRLOG("Unknown magic, '%s'", magname);
+    return;
+  }
+  PowerKind pwr = mag_id;
+  if((PlayerNumber) plr_range_id > PLAYER3)
+  {
+    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
+    {
+        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
+        return;
+    }
+  }
+
+  TbMapLocation location;
+  if (!get_map_location_id(locname, &location))
+  {
+    SCRPTWRNLOG("Use power script command at invalid location: %s", locname);
+    return;
+  }
+
+  // encode params: free, magic, level -> into 3xbyte: FML
+  long fml_bytes;
+  {
+      signed char f = free, m = mag_id, lvl = splevel;
+      fml_bytes = (f << 16) | (m << 8) | lvl;
+  }
+  command_add_value(Cmd_USE_POWER_AT_LOCATION, plr_range_id, location, fml_bytes, 0);
+}
+
+void command_use_power(long plr_range_id, const char *magname, char free)
+{
+    SCRIPTDBG(11, "Starting");
+    long mag_id = get_rid(power_desc, magname);
+    if (mag_id == -1)
+    {
+        SCRPTERRLOG("Unknown magic, '%s'", magname);
+        return;
+    }
+    PowerKind pwr = mag_id;
+    if (pwr == PwrK_ARMAGEDDON && (PlayerNumber) plr_range_id > PLAYER3)
+    {
+        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
+        return;
+    }
+    command_add_value(Cmd_USE_POWER, plr_range_id, mag_id, free, 0);
+}
+
+void command_use_special_increase_level(long plr_range_id, long count)
+{
+    if (count < 1)
+    {
+        SCRPTWRNLOG("Invalid count: %d, setting to 1.", count);
+        count = 1;
+    }
+
+    if (count > 9)
+    {
+        SCRPTWRNLOG("Count too high: %d, setting to 9.", count);
+        count = 9;
+    }
+    command_add_value(Cmd_USE_SPECIAL_INCREASE_LEVEL, plr_range_id, count, 0, 0);
+}
+
+void command_use_special_multiply_creatures(long plr_range_id, long count)
+{
+    if (count < 1)
+    {
+        SCRPTWRNLOG("Invalid count: %d, setting to 1.", count);
+        count = 1;
+    }
+
+    if (count > 9)
+    {
+        SCRPTWRNLOG("Count too high: %d, setting to 9.", count);
+        count = 9;
+    }
+    command_add_value(Cmd_USE_SPECIAL_MULTIPLY_CREATURES, plr_range_id, count, 0, 0);
+}
+
+void command_use_special_make_safe(long plr_range_id)
+{
+    command_add_value(Cmd_USE_SPECIAL_MAKE_SAFE, plr_range_id, 0, 0, 0);
+}
+
+void command_use_special_locate_hidden_world()
+{
+    command_add_value(Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
+}
+
+void command_change_creatures_annoyance(long plr_range_id, const char *operation, long anger)
+{
+    long op_id = get_rid(script_operator_desc, operation);
+    if (op_id == -1)
+    {
+        SCRPTERRLOG("Invalid operation for changing creatures' annoyance: '%s'", operation);
+        return;
+    }
+    command_add_value(Cmd_CHANGE_CREATURES_ANNOYANCE, plr_range_id, op_id, anger, 0);
+}
+
 void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
 {
     SCRIPTDBG(11, "Starting");
@@ -2523,15 +2922,23 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
   command_add_value(Cmd_CHANGE_CREATURE_OWNER, origin_plyr_idx, crtr_id, select_id, dest_plyr_idx);
 }
 
-void command_add_to_flag(long plr_range_id, const char *flgname, long val)
+
+void command_computer_dig_to_location(long plr_range_id, const char* origin, const char* destination)
 {
-    long flg_id = get_rid(flag_desc, flgname);
-    if (flg_id == -1)
+    TbMapLocation orig_loc;
+    if (!get_map_location_id(origin, &orig_loc))
     {
-        SCRPTERRLOG("Unknown flag, '%s'", flgname);
+        SCRPTWRNLOG("Dig to location script command has invalid source location: %s", origin);
         return;
-  }
-  command_add_value(Cmd_ADD_TO_FLAG, plr_range_id, flg_id, val, 0);
+    }
+    TbMapLocation dest_loc;
+    if (!get_map_location_id(destination, &dest_loc))
+    {
+        SCRPTWRNLOG("Dig to location script command has invalid destination location: %s", destination);
+        return;
+    }
+
+    command_add_value(Cmd_COMPUTER_DIG_TO_LOCATION, plr_range_id, orig_loc, dest_loc, 0);
 }
 
 void command_set_campaign_flag(long plr_range_id, const char *cmpflgname, long val)
@@ -2558,8 +2965,8 @@ void command_add_to_campaign_flag(long plr_range_id, const char *cmpflgname, lon
 
 void command_export_variable(long plr_range_id, const char *varib_name, const char *cmpflgname)
 {
-    long varib_type;
-    long varib_id;
+    long src_type;
+    long src_id;
     // Recognize flag
     long flg_id = get_rid(campaign_flag_desc, cmpflgname);
     if (flg_id == -1)
@@ -2567,54 +2974,12 @@ void command_export_variable(long plr_range_id, const char *varib_name, const ch
         SCRPTERRLOG("Unknown CAMPAIGN FLAG, '%s'", cmpflgname);
         return;
     }
-    // Recognize variable
-    if (level_file_version > 0)
-    {
-        varib_type = get_id(variable_desc, varib_name);
-    } else
-    {
-        varib_type = get_id(dk1_variable_desc, varib_name);
-    }
-    if (varib_type == -1)
-        varib_id = -1;
-    else
-        varib_id = 0;
-    if (varib_id == -1)
-    {
-        varib_id = get_id(creature_desc, varib_name);
-        varib_type = SVar_CREATURE_NUM;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(room_desc, varib_name);
-        varib_type = SVar_ROOM_SLABS;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(timer_desc, varib_name);
-        varib_type = SVar_TIMER;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(flag_desc, varib_name);
-        varib_type = SVar_FLAG;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(door_desc, varib_name);
-        varib_type = SVar_DOOR_NUM;
-    }
-    if (varib_id == -1)
-    {
-        varib_id = get_id(trap_desc, varib_name);
-        varib_type = SVar_TRAP_NUM;
-    }
-    if (varib_id == -1)
+    if (!parse_set_varib(varib_name, &src_id, &src_type))
     {
         SCRPTERRLOG("Unknown VARIABLE, '%s'", varib_name);
         return;
     }
-    command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, varib_type, varib_id, flg_id);
+    command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, src_type, src_id, flg_id);
 }
 
 void command_set_game_rule(const char* objectv, unsigned long roomvar)
@@ -2648,6 +3013,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ADD_CREATURE_TO_LEVEL:
         command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
+        break;
+    case Cmd_ADD_OBJECT_TO_LEVEL:
+        command_add_object_to_level(scline->tp[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_IF:
         command_if(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -2854,6 +3222,33 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_LEVEL_UP_CREATURE:
         command_level_up_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
+    case Cmd_USE_POWER_ON_CREATURE:
+        command_use_power_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5], scline->np[6]);
+        break;
+    case Cmd_USE_POWER_AT_SUBTILE:
+        command_use_power_at_subtile(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->np[5]);
+        break;
+    case Cmd_USE_POWER_AT_LOCATION:
+        command_use_power_at_location(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4]);
+        break;
+    case Cmd_USE_POWER:
+        command_use_power(scline->np[0], scline->tp[1], scline->np[2]);
+        break;
+    case Cmd_USE_SPECIAL_INCREASE_LEVEL:
+        command_use_special_increase_level(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_USE_SPECIAL_MULTIPLY_CREATURES:
+        command_use_special_multiply_creatures(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_USE_SPECIAL_MAKE_SAFE:
+        command_use_special_make_safe(scline->np[0]);
+        break;
+    case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
+        command_use_special_locate_hidden_world();
+        break;
+    case Cmd_CHANGE_CREATURES_ANNOYANCE:
+        command_change_creatures_annoyance(scline->np[0], scline->tp[1], scline->np[2]);
+        break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
@@ -2893,6 +3288,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_CHANGE_SLAB_TYPE:
         command_change_slab_type(scline->np[0], scline->np[1], scline->np[2]);
+        break;
+    case Cmd_COMPUTER_DIG_TO_LOCATION:
+        command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -3477,139 +3875,101 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
     return thing;
 }
 
-long script_support_create_thing_at_hero_door(long gate_num, ThingClass tngclass, ThingModel tngmodel, unsigned char tngowner, unsigned char random_factor)
+static TbBool get_coords_at_hero_door(struct Coord3d *pos, long gate_num, unsigned char random_factor)
 {
-    SYNCDBG(7,"Starting creation of %s at HG%d",thing_class_and_model_name(tngclass,tngmodel),(int)gate_num);
+    SYNCDBG(7,"Starting at HG%d", (int)gate_num);
     if (gate_num <= 0)
     {
         ERRORLOG("Script error - invalid hero gate index %d",(int)gate_num);
-        return 0;
+        return false;
     }
     struct Thing* gatetng = find_hero_gate_of_number(gate_num);
     if (thing_is_invalid(gatetng))
     {
         ERRORLOG("Script error - attempt to create thing at non-existing hero gate index %d",(int)gate_num);
-        return 0;
+        return false;
     }
-    struct Coord3d pos;
-    pos.x.val = gatetng->mappos.x.val;
-    pos.y.val = gatetng->mappos.y.val;
-    pos.z.val = gatetng->mappos.z.val + 384;
-    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, tngmodel, tngowner);
-    if (thing_is_invalid(thing))
-    {
-        // Error is already logged
-        return 0;
-    }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_AE |= 0x02;
-    cctrl->spell_flags |= CSAfF_MagicFall;
-    // Random: Are we creating a creature at the same turn on each client?!
-    thing->veloc_push_add.x.val += GAME_RANDOM(193) - 96;
-    thing->veloc_push_add.y.val += GAME_RANDOM(193) - 96;
-    if ((thing->movement_flags & TMvF_Flying) != 0) {
-        thing->veloc_push_add.z.val -= GAME_RANDOM(32);
-    } else {
-        thing->veloc_push_add.z.val += GAME_RANDOM(96) + 80;
-    }
-    thing->state_flags |= TF1_PushAdd;
-
-    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
-    {
-        output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
-        output_message(SMsg_EnemyLordQuote + GAME_RANDOM(8), MESSAGE_DELAY_LORD, 1);
-    }
-    return thing->index;
+    pos->x.val = gatetng->mappos.x.val;
+    pos->y.val = gatetng->mappos.y.val;
+    pos->z.val = gatetng->mappos.z.val + 384;
+    return true;
 }
 
-long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngclass, ThingModel tngmodel, PlayerNumber tngowner, unsigned char random_factor)
+static TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor)
 {
-    SYNCDBG(7,"Starting creation of %s at action point %d",thing_class_and_model_name(tngclass,tngmodel),(int)apt_idx);
+    SYNCDBG(7,"Starting at action point %d", (int)apt_idx);
 
-    struct Coord3d pos;
     struct ActionPoint* apt = action_point_get(apt_idx);
     if (!action_point_exists(apt))
     {
         ERRORLOG("Script error - attempt to create thing at non-existing action point %d",(int)apt_idx);
-        return 0;
+        return false;
     }
 
     if ( (random_factor == 0) || (apt->range == 0) )
     {
-        pos.x.val = apt->mappos.x.val;
-        pos.y.val = apt->mappos.y.val;
+        pos->x.val = apt->mappos.x.val;
+        pos->y.val = apt->mappos.y.val;
     } else
     {
         // Random: Are we creating a creature at the same turn on each client?!
         long direction = GAME_RANDOM(2 * LbFPMath_PI);
         long delta_x = (apt->range * LbSinL(direction) >> 8);
         long delta_y = (apt->range * LbCosL(direction) >> 8);
-        pos.x.val = apt->mappos.x.val + (delta_x >> 8);
-        pos.y.val = apt->mappos.y.val - (delta_y >> 8);
+        pos->x.val = apt->mappos.x.val + (delta_x >> 8);
+        pos->y.val = apt->mappos.y.val - (delta_y >> 8);
     }
-
-    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, tngmodel, tngowner);
-    if (thing_is_invalid(thing))
-    {
-        // Error is already logged
-        return 0;
-    }
-
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (thing->owner != PLAYER_NEUTRAL)
-    {
-        struct Thing* heartng = get_player_soul_container(thing->owner);
-        if (thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner))
-        {
-            cctrl->field_AE |= 0x01;
-        }
-    }
-
-    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
-    {
-        output_message(SMsg_LordOfLandComming, 0, 1);
-        output_message(SMsg_EnemyLordQuote + GAME_RANDOM(8), 0, 1);
-    }
-    return thing->index;
+    return true;
 }
 
 /**
  * Creates a thing on given players dungeon heart.
  * Originally was script_support_create_creature_at_dungeon_heart().
- * @param tngclass
- * @param tngmodel
- * @param tngowner
  * @param plyr_idx
  */
-long script_support_create_thing_at_dungeon_heart(ThingClass tngclass, ThingModel tngmodel, PlayerNumber tngowner, PlayerNumber plyr_idx)
+TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx)
 {
-    SYNCDBG(7,"Starting creation of %s at player %d",thing_class_and_model_name(tngclass,tngmodel),(int)plyr_idx);
+    SYNCDBG(7,"Starting at player %d", (int)plyr_idx);
     struct Thing* heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng))
     {
         ERRORLOG("Script error - attempt to create thing in player %d dungeon with no heart",(int)plyr_idx);
-        return 0;
+        return false;
     }
-    struct Coord3d pos;
-    pos.x.val = heartng->mappos.x.val + GAME_RANDOM(65) - 32;
-    pos.y.val = heartng->mappos.y.val + GAME_RANDOM(65) - 32;
-    pos.z.val = heartng->mappos.z.val;
-    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, tngmodel, tngowner);
-    if (thing_is_invalid(thing))
+    pos->x.val = heartng->mappos.x.val + GAME_RANDOM(65) - 32;
+    pos->y.val = heartng->mappos.y.val + GAME_RANDOM(65) - 32;
+    pos->z.val = heartng->mappos.z.val;
+    return true;
+}
+
+TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i)
+{
+    SYNCDBG(7,"Starting with loc:%ld", i);
+    struct Coord3d *src;
+    PlayerNumber loc_player = i & 0xF;
+    if (loc_player == 15) // CURRENT_PLAYER
+        loc_player = gameadd.script_current_player;
+
+    struct DungeonAdd* dungeonadd = get_dungeonadd(loc_player);
+
+    switch (i >> 8)
     {
-        // Error is already logged
-        return 0;
+    case MML_TRIGGERED_OBJECT:
+        src = &gameadd.triggered_object_location;
+        break;
+    case MML_RECENT_COMBAT:
+        src = &dungeonadd->last_combat_location;
+        break;
+    default:
+        return false;
     }
-    if (thing_is_creature(thing))
-    {
-        if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
-        {
-            output_message(SMsg_LordOfLandComming, 0, 1);
-            output_message(SMsg_EnemyLordQuote + GAME_RANDOM(8), 0, 1);
-        }
-    }
-    return thing->index;
+
+    pos->x.val = src->x.val + GAME_RANDOM(33) - 16;
+    pos->y.val = src->y.val + GAME_RANDOM(33) - 16;
+    pos->z.val = src->z.val;
+
+    return true;
 }
 
 long send_tunneller_to_point(struct Thing *thing, struct Coord3d *pos)
@@ -3652,7 +4012,7 @@ TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNum
     struct Coord3d pos;
     if (!get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos)) {
         WARNLOG("Tried to send %s to player %d but can't find position", thing_model_name(creatng), (int)plyr_idx);
-        return false;
+        return send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &heartng->mappos);
     }
     if (!send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos)) {
         WARNLOG("Tried to send %s to player %d but can't start the task", thing_model_name(creatng), (int)plyr_idx);
@@ -3697,28 +4057,46 @@ TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatn
     return send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
 }
 
-struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
+static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
 {
-    long tng_idx;
     long effect;
-    long i;
+    long i = get_map_location_longval(location);
+    struct Coord3d pos;
+    TbBool fall_from_gate = false;
+
+    const unsigned char tngclass = TCls_Creature;
+
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
-        i = get_map_location_longval(location);
-        tng_idx = script_support_create_thing_at_action_point(i, TCls_Creature, crmodel, plyr_idx, 1);
+        if (!get_coords_at_action_point(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
         effect = 1;
         break;
     case MLoc_HEROGATE:
-        i = get_map_location_longval(location);
-        tng_idx = script_support_create_thing_at_hero_door(i, TCls_Creature, crmodel, plyr_idx, 1);
+        if (!get_coords_at_hero_door(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
         effect = 0;
+        fall_from_gate = true;
         break;
     case MLoc_PLAYERSHEART:
-        i = get_map_location_longval(location);
-        tng_idx = script_support_create_thing_at_dungeon_heart(TCls_Creature, crmodel, plyr_idx, i);
+        if (!get_coords_at_dungeon_heart(&pos, i))
+        {
+            return INVALID_THING;
+        }
         effect = 0;
         break;
+    case MLoc_METALOCATION:
+        if (!get_coords_at_meta_action(&pos, plyr_idx, i))
+        {
+            return INVALID_THING;
+        }
+        effect = 0;
+        break;      
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
@@ -3729,17 +4107,46 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     case MLoc_TRAPKIND:
     case MLoc_NONE:
     default:
-        tng_idx = 0;
         effect = 0;
-        break;
+        return INVALID_THING;
     }
-    struct Thing* thing = thing_get(tng_idx);
+    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, crmodel, plyr_idx);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(TCls_Creature,crmodel),(int)location);
+        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, crmodel),(int)location);
+            // Error is already logged
         return INVALID_THING;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (fall_from_gate)
+    {
+        cctrl->field_AE |= 0x02;
+        cctrl->spell_flags |= CSAfF_MagicFall;
+        thing->veloc_push_add.x.val += GAME_RANDOM(193) - 96;
+        thing->veloc_push_add.y.val += GAME_RANDOM(193) - 96;
+        if ((thing->movement_flags & TMvF_Flying) != 0) {
+            thing->veloc_push_add.z.val -= GAME_RANDOM(32);
+        } else {
+            thing->veloc_push_add.z.val += GAME_RANDOM(96) + 80;
+        }
+        thing->state_flags |= TF1_PushAdd;
+    }
+
+    if (thing->owner != PLAYER_NEUTRAL)
+    {   // Was set only when spawned from action point
+
+        struct Thing* heartng = get_player_soul_container(thing->owner);
+        if (thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner))
+        {
+            cctrl->field_AE |= 0x01;
+        }
+    }
+    
+    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
+    {
+        output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
+        output_message(SMsg_EnemyLordQuote + GAME_RANDOM(8), MESSAGE_DELAY_LORD, 1);
+    }
     switch (effect)
     {
     case 1:
@@ -3784,6 +4191,83 @@ struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation 
         break;
     }
     return creatng;
+}
+
+static struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, long arg)
+{
+    long i = get_map_location_longval(location);
+    int tngowner = 5; // Neutral
+    struct Coord3d pos;
+
+    const unsigned char tngclass = TCls_Object;
+
+    // TODO: move into a function
+    switch (get_map_location_type(location))
+    {
+    case MLoc_ACTIONPOINT:
+        if (!get_coords_at_action_point(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
+        break;
+    case MLoc_HEROGATE:
+        if (!get_coords_at_hero_door(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
+        break;
+    case MLoc_PLAYERSHEART:
+        if (!get_coords_at_dungeon_heart(&pos, i))
+        {
+            return INVALID_THING;
+        }
+        break;
+    case MLoc_METALOCATION:
+        if (!get_coords_at_meta_action(&pos, 0, i))
+        {
+            return INVALID_THING;
+        }
+        break;      
+    case MLoc_CREATUREKIND:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    case MLoc_THING:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    case MLoc_NONE:
+    default:
+        return INVALID_THING;
+    }
+    struct Thing* thing = create_thing(&pos, tngclass, tngmodel, tngowner, -1);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, tngmodel),(int)location);
+        return INVALID_THING;
+    }
+    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+    // Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        if (!move_creature_to_nearest_valid_position(thing)) {
+            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
+            delete_thing_structure(thing, 0);
+            return INVALID_THING;
+        }
+    }
+    switch (tngmodel)
+    {
+        case OBJECT_TYPE_SPECBOX_CUSTOM: // Custom box from SPECBOX_HIDNWRL
+            thing->custom_box.box_kind = (unsigned char)arg;
+            break;
+        case 3:
+        case 6: //GOLD
+        case 43:
+            thing->valuable.gold_stored = arg;
+            break;
+    }
+    return thing;
 }
 
 /**
@@ -3911,6 +4395,44 @@ struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
     return INVALID_THING;
 }
 
+struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria) {
+    switch (criteria)
+    {
+    case CSelCrit_Any:
+        return get_random_players_creature_of_model(plyr_idx, crmodel);
+    case CSelCrit_MostExperienced:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+    case CSelCrit_MostExpWandering:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+    case CSelCrit_MostExpWorking:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+    case CSelCrit_MostExpFighting:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_LeastExperienced:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+    case CSelCrit_LeastExpWandering:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+    case CSelCrit_LeastExpWorking:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+    case CSelCrit_LeastExpFighting:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_NearOwnHeart:
+    {
+        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
+        return get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx);
+    }
+    case CSelCrit_NearEnemyHeart:
+        return get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
+    case CSelCrit_OnEnemyGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 0);
+    case CSelCrit_OnFriendlyGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 1);
+    default:
+        ERRORLOG("Invalid level up criteria %d",(int)criteria);
+        return INVALID_THING;
+    }
+}
+
 /**
  * Kills a creature which meets given criteria.
  * @param plyr_idx The player whose creature will be affected.
@@ -3920,56 +4442,7 @@ struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
  */
 TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
 {
-    struct Thing *thing;
-    switch (criteria)
-    {
-    case CSelCrit_Any:
-        thing = get_random_players_creature_of_model(plyr_idx, crmodel);
-        break;
-    case CSelCrit_MostExperienced:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWandering:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWorking:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpFighting:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExperienced:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWandering:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWorking:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpFighting:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
-        break;
-    case CSelCrit_NearOwnHeart:
-    {
-        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
-        thing = get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx);
-        break;
-    }
-    case CSelCrit_NearEnemyHeart:
-        thing = get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
-        break;
-    case CSelCrit_OnEnemyGround:
-        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,0);
-        break;
-    case CSelCrit_OnFriendlyGround:
-        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,1);
-        break;
-    default:
-        ERRORLOG("Invalid kill criteria %d",(int)criteria);
-        thing = INVALID_THING;
-        break;
-    }
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
         SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)plyr_idx,(int)crmodel);
         return false;
@@ -3987,56 +4460,7 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
  */
 TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, long crmodel, long criteria, PlayerNumber dest_plyr_idx)
 {
-    struct Thing *thing;
-    switch (criteria)
-    {
-    case CSelCrit_Any:
-        thing = get_random_players_creature_of_model(origin_plyr_idx, crmodel);
-        break;
-    case CSelCrit_MostExperienced:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWandering:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWorking:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpFighting:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExperienced:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWandering:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWorking:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpFighting:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, origin_plyr_idx, 0);
-        break;
-    case CSelCrit_NearOwnHeart:
-    {
-        const struct Coord3d* pos = dungeon_get_essential_pos(origin_plyr_idx);
-        thing = get_creature_near_and_owned_by(pos->x.val, pos->y.val, origin_plyr_idx);
-        break;
-    }
-    case CSelCrit_NearEnemyHeart:
-        thing = get_creature_in_range_around_any_of_enemy_heart(origin_plyr_idx, crmodel, 11);
-        break;
-    case CSelCrit_OnEnemyGround:
-        thing = get_random_players_creature_of_model_on_territory(origin_plyr_idx, crmodel,0);
-        break;
-    case CSelCrit_OnFriendlyGround:
-        thing = get_random_players_creature_of_model_on_territory(origin_plyr_idx, crmodel,1);
-        break;
-    default:
-        ERRORLOG("Invalid selection criterium %d",(int)criteria);
-        thing = INVALID_THING;
-        break;
-    }
+    struct Thing *thing = script_get_creature_by_criteria(origin_plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
         SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)origin_plyr_idx,(int)crmodel);
         return false;
@@ -4063,62 +4487,264 @@ void script_kill_creatures(PlayerNumber plyr_idx, long crmodel, long criteria, l
  */
 TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criteria, int count)
 {
-    struct Thing *thing;
-    switch (criteria)
-    {
-    case CSelCrit_Any:
-        thing = get_random_players_creature_of_model(plyr_idx, crmodel);
-        break;
-    case CSelCrit_MostExperienced:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWandering:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpWorking:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
-        break;
-    case CSelCrit_MostExpFighting:
-        thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExperienced:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWandering:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpWorking:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
-        break;
-    case CSelCrit_LeastExpFighting:
-        thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
-        break;
-    case CSelCrit_NearOwnHeart:
-    {
-        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
-        thing = get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx);
-        break;
-    }
-    case CSelCrit_NearEnemyHeart:
-        thing = get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
-        break;
-    case CSelCrit_OnEnemyGround:
-        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,0);
-        break;
-    case CSelCrit_OnFriendlyGround:
-        thing = get_random_players_creature_of_model_on_territory(plyr_idx, crmodel,1);
-        break;
-    default:
-        ERRORLOG("Invalid level up criteria %d",(int)criteria);
-        thing = INVALID_THING;
-        break;
-    }
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
         SYNCDBG(5,"No matching player %d creature of model %d found to level up",(int)plyr_idx,(int)crmodel);
         return false;
     }
     creature_increase_multiple_levels(thing,count);
     return true;
+}
+
+/**
+ * Cast a spell on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5,"No matching player %d creature of model %d found to use power on.",(int)plyr_idx,(int)crmodel);
+        return Lb_FAIL;
+    }
+
+    char is_free = (fmcl_bytes >> 24) != 0;
+    PowerKind pwkind = (fmcl_bytes >> 16) & 255;
+    PlayerNumber caster =  (fmcl_bytes >> 8) & 255;
+    long splevel = fmcl_bytes & 255;
+
+    if (thing_is_in_power_hand_list(thing, plyr_idx))
+    {
+        char block = pwkind == PwrK_SLAP;
+        block |= pwkind == PwrK_CALL2ARMS;
+        block |= pwkind == PwrK_CAVEIN;
+        block |= pwkind == PwrK_LIGHTNING;
+        block |= pwkind == PwrK_MKDIGGER;
+        block |= pwkind == PwrK_SIGHT;
+        if (block)
+        {
+          SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
+          return Lb_FAIL;
+        }
+    }
+
+    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
+    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
+    unsigned long spell_flags = is_free ? PwMod_CastForFree : 0;
+
+    switch (pwkind)
+    {
+      case PwrK_HEALCRTR:
+        return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_SPEEDCRTR:
+        return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_PROTECT:
+        return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_CONCEAL:
+        return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_DISEASE:
+        return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_CHICKEN:
+        return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_SLAP:
+        return magic_use_power_slap_thing(caster, thing, spell_flags);
+      case PwrK_CALL2ARMS:
+        return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_LIGHTNING:
+        return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_CAVEIN:
+        return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_MKDIGGER:
+        return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
+      case PwrK_SIGHT:
+        return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
+      default:
+        ERRORLOG("Power not supported at script use_power_on_creature: %d", (int) pwkind);
+        return Lb_FAIL;
+    }
+}
+
+/**
+ * Adds a dig task for the player between 2 map locations.
+ * @param plyr_idx: The player who does the task.
+ * @param origin: The start location of the disk task.
+ * @param destination: The desitination of the disk task.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destination)
+{
+    struct Computer2* comp = get_computer_player(plyr_idx);
+    long orig_x, orig_y = 0;
+    long dest_x, dest_y = 0;
+
+    //dig origin
+    find_map_location_coords(origin, &orig_x, &orig_y, __func__);
+    if ((orig_x == 0) && (orig_y == 0))
+    {
+        WARNLOG("Can't decode origin location %d", origin);
+        return Lb_FAIL;
+    }
+    struct Coord3d startpos;
+    startpos.x.val = subtile_coord_center(stl_slab_center_subtile(orig_x));
+    startpos.y.val = subtile_coord_center(stl_slab_center_subtile(orig_y));
+    startpos.z.val = subtile_coord(1, 0);
+
+    //dig destination
+    find_map_location_coords(destination, &dest_x, &dest_y, __func__);
+    if ((dest_x == 0) && (dest_y == 0))
+    {
+        WARNLOG("Can't decode destination location %d", destination);
+        return Lb_FAIL;
+    }
+    struct Coord3d endpos;
+    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(dest_x));
+    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(dest_y));
+    endpos.z.val = subtile_coord(1, 0);
+
+    if (create_task_dig_to_neutral(comp, startpos, endpos))
+    {
+        return Lb_SUCCESS;
+    }
+    return Lb_FAIL;
+}
+
+/**
+ * Casts spell at a location set by subtiles.
+ * @param plyr_idx caster player.
+ * @param stl_x subtile's x position.
+ * @param stl_y subtile's y position
+ * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
+{
+    char is_free = (fml_bytes >> 16) != 0;
+    PowerKind powerKind = (fml_bytes >> 8) & 255;
+    long splevel = fml_bytes & 255;
+    
+    unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
+    if (is_free)
+        spell_flags |= PwMod_CastForFree;
+
+    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
+}
+
+/**
+ * Casts spell at a location set by action point/hero gate.
+ * @param plyr_idx caster player.
+ * @param target action point/hero gate.
+ * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
+{
+    SYNCDBG(0, "Using power at location of type %d", target);
+    long x = 0;
+    long y = 0;
+    find_map_location_coords(target, &x, &y, __func__);
+    if ((x == 0) && (y == 0))
+    {
+        WARNLOG("Can't decode location %d", target);
+        return Lb_FAIL;
+    }
+    return script_use_power_at_subtile(plyr_idx, x, y, fml_bytes);
+}
+
+/**
+ * Casts a spell for player.
+ * @param plyr_idx caster player.
+ * @param power_kind the spell: magic id.
+ * @param free cast for free flag.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free)
+{
+    return magic_use_power_on_level(plyr_idx, power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // splevel gets ignored anyway -> pass 1
+}
+
+/**
+ * Reveals every tile for player.
+ * @param plyr_idx target player
+ */
+void script_use_special_increase_level(PlayerNumber plyr_idx, int count)
+{
+    increase_level(get_player(plyr_idx), count);
+}
+
+/**
+ * Multiplies every creature for player.
+ * @param plyr_idx target player
+ */
+void script_use_special_multiply_creatures(PlayerNumber plyr_idx)
+{
+    multiply_creatures(get_player(plyr_idx));
+}
+
+/**
+ * Fortifies player's dungeon.
+ * @param plyr_idx target player
+ */
+void script_use_special_make_safe(PlayerNumber plyr_idx)
+{
+    make_safe(get_player(plyr_idx));
+}
+
+/**
+ * Modifies player's creatures' anger.
+ * @param plyr_idx target player
+ * @param anger anger value. Use double AnnoyLevel (from creature's config file) to fully piss creature. More for longer calm time
+ */
+TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, long operation, long anger)
+{
+    SYNCDBG(8,"Starting");
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        if (operation == SOpr_SET)
+        {
+            anger_set_creature_anger(thing, anger, AngR_Other);
+        }
+        else if (operation == SOpr_INCREASE)
+        {
+            anger_increase_creature_anger(thing, anger, AngR_Other);
+        }
+        else if (operation == SOpr_DECREASE)
+        {
+            anger_reduce_creature_anger(thing, -anger, AngR_Other);
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return true;
+}
+
+/**
+ * Enables bonus level for current player.
+ */
+TbBool script_use_special_locate_hidden_world()
+{
+    return activate_bonus_level(get_player(my_player_number));
 }
 
 /**
@@ -4307,7 +4933,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
               + dungeonadd->mnfct_info.door_amount_offmap[validx%trapdoor_conf.door_types_count];
     case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
         dungeon = get_dungeon(plyr_idx);
-        return dungeon->room_buildable[validx%ROOM_TYPES_COUNT];
+        return (dungeon->room_buildable[validx%ROOM_TYPES_COUNT] & 1);
     case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
         dungeon = get_dungeon(plyr_idx);
         if (creature_will_generate_for_dungeon(dungeon, validx)) {
@@ -4358,10 +4984,10 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return count_creatures_in_dungeon_controlled_and_of_model_flags(dungeon, CMF_IsEvil, CMF_IsSpectator|CMF_IsSpecDigger);
     case SVar_CAMPAIGN_FLAG:
-        dungeon = get_dungeon(plyr_idx);
         return intralvl.campaign_flags[plyr_idx][validx];
-        break;
-    break;
+    case SVar_BOX_ACTIVATED:
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->box_info.activated[validx];
     default:
         break;
     };
@@ -4442,7 +5068,10 @@ void process_condition(struct Condition *condt)
             {
                 long k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
                 new_status = get_condition_status(condt->operation, k, condt->rvalue);
-                if (new_status != false) break;
+                if (new_status != false)
+                {
+                  break;
+                }
             }
         }
     }
@@ -4479,17 +5108,26 @@ void process_check_new_creature_partys(void)
             if (is_condition_met(pr_trig->condit_idx))
             {
                 long n = pr_trig->creatr_id;
-                if (n <= 0)
+                if (pr_trig->crtr_level & 128)
                 {
-                    SYNCDBG(6, "Adding player %d party %d in location %d", (int)pr_trig->plyr_idx, (int)-n, (int)pr_trig->location);
-                    script_process_new_party(&game.script.creature_partys[-n],
-                        pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
+                    n |= ((pr_trig->crtr_level & 7) << 7);
+                    SYNCDBG(6, "Adding object %d in location %d", (int)n, (int)pr_trig->location);
+                    script_process_new_object(n, pr_trig->location, pr_trig->carried_gold);
                 }
                 else
                 {
-                    SCRIPTDBG(6, "Adding creature %d", n);
-                    script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
-                        pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+                    if (n <= 0)
+                    {
+                        SYNCDBG(6, "Adding player %d party %d in location %d", (int)pr_trig->plyr_idx, (int)-n, (int)pr_trig->location);
+                        script_process_new_party(&game.script.creature_partys[-n],
+                            pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
+                    }
+                    else
+                    {
+                        SCRIPTDBG(6, "Adding creature %d", n);
+                        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
+                            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+                    }
                 }
                 if ((pr_trig->flags & TrgF_REUSABLE) == 0)
                     set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
@@ -4582,6 +5220,24 @@ void process_values(void)
     }
 }
 
+static void set_variable(int player_idx, long var_type, long var_idx, long new_val)
+{
+    struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
+    switch (var_type)
+    {
+    case SVar_FLAG:
+        set_script_flag(player_idx, var_idx, saturate_set_unsigned(new_val, 8));
+        break;
+    case SVar_CAMPAIGN_FLAG:
+        intralvl.campaign_flags[player_idx][var_idx] = new_val;
+        break;
+    case SVar_BOX_ACTIVATED:
+        dungeonadd->box_info.activated[var_idx] = new_val;
+        break;
+    default:
+        WARNLOG("Unexpected type:%d",(int)var_type);
+    }
+}
 /**
  * Processes given VALUE immediately.
  * This processes given script command. It is used to process VALUEs at start when they have
@@ -4672,7 +5328,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_SET_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_script_flag(i,val2,saturate_set_unsigned(val3, 8));
+          set_variable(i, val4, val2, val3);
+      }
+      break;
+  case Cmd_ADD_TO_FLAG:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          set_variable(i, val4, val2, get_condition_value(i, val4, val2) + val3);
       }
       break;
   case Cmd_MAX_CREATURES:
@@ -4925,7 +5587,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               crconf->model_flags ^= CMF_OneOfKind;
           }
           break; 
-      case 24: // NO_INPRISONMENT
+      case 24: // NO_IMPRISONMENT
           if (val4 >= 1)
           {
               crconf->model_flags |= CMF_NoImprisonment;
@@ -4935,6 +5597,19 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               crconf->model_flags ^= CMF_NoImprisonment;
           }
           break; 
+      case 25: // NEVER_SICK
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_NeverSick;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_NeverSick;
+          }
+          break;
+      case 26: // ILLUMINATED
+          crstat->illuminated = val4;
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
           break;
@@ -5073,17 +5748,70 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           script_level_up_creature(i, val2, val3, val4);
       }
       break;
+    case Cmd_USE_POWER_ON_CREATURE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_power_on_creature(i, val2, val3, val4);
+      }
+      break;
+    case Cmd_COMPUTER_DIG_TO_LOCATION:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_computer_dig_to_location(i, val2, val3);
+        }
+        break;
+    case Cmd_USE_POWER_AT_SUBTILE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_power_at_subtile(i, val2, val3, val4);
+      }
+      break;
+    case Cmd_USE_POWER_AT_LOCATION:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_power_at_location(i, val2, val3);
+      }
+      break;
+    case Cmd_USE_POWER:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_power(i, val2, val3);
+      }
+      break;
+    case Cmd_USE_SPECIAL_INCREASE_LEVEL:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_special_increase_level(i, val2);
+      }
+      break;
+    case Cmd_USE_SPECIAL_MULTIPLY_CREATURES:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          for (int count = 0; count < val2; count++)
+          {
+            script_use_special_multiply_creatures(i);
+          }
+      }
+      break;
+    case Cmd_USE_SPECIAL_MAKE_SAFE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_special_make_safe(i);
+      }
+      break;
+    case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
+      script_use_special_locate_hidden_world();
+      break;
+    case Cmd_CHANGE_CREATURES_ANNOYANCE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_change_creatures_annoyance(i, val2, val3);
+      }
+      break;
     case Cmd_CHANGE_CREATURE_OWNER:
       for (i=plr_start; i < plr_end; i++)
       {
           script_change_creature_owner_with_criteria(i, val2, val3, val4);
-      }
-      break;
-  case Cmd_ADD_TO_FLAG:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          dungeon = get_dungeon(i);
-          set_script_flag(i, val2, dungeon->script_flags[val2] + val3);
       }
       break;
   case Cmd_SET_CAMPAIGN_FLAG:

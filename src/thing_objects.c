@@ -221,14 +221,14 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1}, //1 BARREL
   {0, 0, 1, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1}, //2 TORCH
   {0, 0, 0, 0, 0, 934, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1}, //3 GOLD_CHEST
-  {0, 0, 0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1}, //4
+  {0, 0, 0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1}, //4 STATUE_LIT
   {0, 0, 0, 0, 0, 948, 0x0100,0x200,0x200, 525, 0, 0, 2, 0,  0, ObOC_Unknown0, 0}, //5 SOUL_CONTAINER
-  {0, 0, 0, 0, 0, 934, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1}, //6
-  {0, 0, 0, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1}, //7 TORCHUN
-  {0, 0, 0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1}, //8
+  {0, 0, 0, 0, 0, 934, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1}, //6 GOLD_POT
+  {0, 0, 0, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1}, //7 TORCH_UNLIT
+  {0, 0, 0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1}, //8 STATUE_UNLIT
   {2, 0, 0, 0, 0, 893, 0x0008, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //9 CHICKEN_GRW
   {1, 0, 0, 0, 0, 819, 0x0100, 0x80, 0x80, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1}, //10 CHICKEN_MAT
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //11
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //11 SPELLBOOK
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //12
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //13
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //14
@@ -245,15 +245,15 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObOC_Unknown0, 0}, //25
   {0, 0, 0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //26 ANVIL
   {0, 0, 0, 0, 0, 796, 0x0100,    0,    0, 200, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //27 PRISON_BAR
-  {0, 0, 1, 0, 0, 791, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1}, //28
+  {0, 0, 1, 0, 0, 791, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1}, //28 CANDLE_UNLIT
   {0, 0, 0, 0, 0, 793, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //29 GRAVE_STONE
-  {0, 0, 0, 0, 0, 905, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //30
+  {0, 0, 0, 0, 0, 905, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //30 STATUE_SKELETON
   {0, 0, 1, 0, 0, 795, 0x0100,    0,    0, 375, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //31 TRAINING_POST
   {0, 0, 1, 0, 0, 892, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //32 TORTURE_SPIKE
   {0, 0, 0, 0, 0, 797, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1}, //33 TEMPLE_SPANGLE
-  {0, 0, 0, 0, 0, 804, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1}, //34 POTION1
-  {0, 0, 0, 0, 0, 806, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1}, //35
-  {0, 0, 0, 0, 0, 808, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1}, //36
+  {0, 0, 0, 0, 0, 804, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1}, //34 POTION_PURPLE
+  {0, 0, 0, 0, 0, 806, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1}, //35 POTION_BLUE
+  {0, 0, 0, 0, 0, 808, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1}, //36 POTION_GREEN
   {0, 0, 0, 0, 0, 782, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //37 POWER_HAND
   {0, 0, 0, 0, 0, 783, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //38 POWER_HAND_GRAB
   {0, 0, 0, 0, 0, 785, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //39 POWER_HAND_WHIP
@@ -266,14 +266,14 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
   {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
   {0, 0, 0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
-  {0, 0, 0, 0, 0, 776, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown1, 0}, //49
-  {0, 0, 0, 0, 0, 818, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown0, 0}, //50
-  {0, 0, 1, 0, 0, 850, 0x0100,    0,    0, 144, 3, 0, 2, 0,  0, ObOC_Unknown0, 0}, //51
-  {0, 0, 0, 0, 0, 936, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1}, //52
-  {0, 0, 0, 0, 0, 937, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1}, //53
-  {0, 0, 0, 0, 0, 938, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1}, //54
-  {0, 0, 0, 0, 0, 939, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1}, //55
-  {0, 0, 0, 0, 0, 940, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1}, //56
+  {0, 0, 0, 0, 0, 776, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown1, 0}, //49 HERO_GATE
+  {0, 0, 0, 0, 0, 818, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown0, 0}, //50 SPINNING_KEY
+  {0, 0, 1, 0, 0, 850, 0x0100,    0,    0, 144, 3, 0, 2, 0,  0, ObOC_Unknown0, 0}, //51 LIGHT_BALL
+  {0, 0, 0, 0, 0, 936, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1}, //52 GOLD_PILE
+  {0, 0, 0, 0, 0, 937, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1}, //53 GOLD_HORDE1
+  {0, 0, 0, 0, 0, 938, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1}, //54 GOLD_HORDE2
+  {0, 0, 0, 0, 0, 939, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1}, //55 GOLD_HORDE3
+  {0, 0, 0, 0, 0, 940, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1}, //56 GOLD_HORDE4
   {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  1, ObOC_Unknown2, 0}, //57 LAIR_WIZRD
   {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  2, ObOC_Unknown2, 0}, //58 LAIR_BARBR
   {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  3, ObOC_Unknown2, 0}, //59
@@ -287,7 +287,7 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 11, ObOC_Unknown2, 0}, //67
   {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 12, ObOC_Unknown2, 0}, //68
   {0, 0, 0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 13, ObOC_Unknown2, 0}, //69
-  {0, 0, 0, 0, 0, 158, 0x0100,    0,    0, 300, 0, 0, 2, 0, 14, ObOC_Unknown2, 0}, //70
+  {0, 0, 0, 0, 0, 158, 0x0100,    0,    0, 300, 0, 0, 2, 0, 14, ObOC_Unknown2, 0}, //70 LAIR_REAPER
   {0, 0, 0, 0, 0, 156, 0x0100,    0,    0, 300, 0, 0, 2, 0, 15, ObOC_Unknown2, 0}, //71
   {0, 0, 0, 0, 0, 154, 0x0100,    0,    0, 300, 0, 0, 2, 0, 16, ObOC_Unknown2, 0}, //72
   {0, 0, 0, 0, 0, 152, 0x0100,    0,    0, 300, 0, 0, 2, 0, 17, ObOC_Unknown2, 0}, //73
@@ -311,7 +311,7 @@ struct Objects objects_data[] = {
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0},
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0},
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0},
-  {0, 0, 1, 0, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //94
+  {0, 0, 1, 0, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //94 CRATE
   {0, 0, 1, 0, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
   {0, 0, 1, 0, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
   {0, 0, 1, 0, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
@@ -327,7 +327,7 @@ struct Objects objects_data[] = {
   {0, 0, 1, 0, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0},
   {0, 0, 1, 0, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0},
   {0, 0, 1, 0, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0},
-  {0, 0, 0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //110
+  {0, 0, 0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //110 ANVIL
   {0, 0, 1, 0, 0, 798, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0}, //111 HEARTFLAME_RED
   {0, 0, 1, 0, 0, 851, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown0, 0}, //112 DISEASE
   {0, 0, 1, 0, 0, 130, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //113 SCAVENGE_EYE
@@ -336,7 +336,7 @@ struct Objects objects_data[] = {
   {0, 0, 1, 0, 0, 104, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //116
   {0, 0, 1, 0, 0, 106, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //117
   {0, 0, 1, 0, 0, 108, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //118
-  {0, 0, 1, 0, 0, 100, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //119
+  {0, 0, 1, 0, 0, 100, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //119 GURDFLAG_POLE
   {0, 0, 1, 0, 0, 799, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0}, //120 HEARTFLAME_BLUE
   {0, 0, 1, 0, 0, 800, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0}, //121
   {0, 0, 1, 0, 0, 801, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0}, //122 HEARTFLAME_YELLOW
@@ -344,14 +344,14 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0}, //124 POWER_LIGHTNG
   {0, 0, 0, 0, 0,  46, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //125 TORTURER
   {0, 0, 0, 0, 0, 126, 0x0100,    0,    0, 300, 0, 0, 2, 0, 30, ObOC_Unknown2, 0}, //126 LAIR_ORC
-  {0, 0, 0, 0, 1, 781, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown0, 0}, //127
-  {4, 0, 1, 0, 1, 780, 0x0100,    0,    0, 500, 0, 0, 2, 1,  0, ObOC_Unknown0, 0}, //128
-  {0, 0, 0, 0, 0, 952, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //129
-  {0, 0, 0, 0, 0, 954, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //130
-  {0, 0, 0, 0, 0, 956, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //131
-  {0, 0, 0, 0, 0, 958, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //132
-  {0, 0, 0, 0, 0, 960, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //133
-  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //134
+  {0, 0, 0, 0, 1, 781, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown0, 0}, //127 HAND_WITH_GOLD
+  {4, 0, 1, 0, 1, 780, 0x0100,    0,    0, 500, 0, 0, 2, 1,  0, ObOC_Unknown0, 0}, //128 COIN
+  {0, 0, 0, 0, 0, 952, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //129 STATUE_UNLIT
+  {0, 0, 0, 0, 0, 954, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //130 STATUE_PLACEHOLDER3
+  {0, 0, 0, 0, 0, 956, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //131 STATUE_PLACEHOLDER4
+  {0, 0, 0, 0, 0, 958, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //132 STATUE_PLACEHOLDER5
+  {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
+  {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //134 SPELLBOOK
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //135
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0},
 };
@@ -420,7 +420,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->clipbox_size_xy = objdat->size_xy;
     thing->clipbox_size_yz = objdat->size_yz;
     thing->solid_size_xy = objdat->size_xy;
-    thing->field_5C = objdat->size_yz;
+    thing->solid_size_yz = objdat->size_yz;
     thing->health = saturate_set_signed(objconf->health,16);
     thing->field_20 = objconf->field_4;
     thing->field_23 = 204;
@@ -444,8 +444,10 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->field_11);
     set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->field_5);
     set_flag_byte(&thing->field_4F, TF4F_Unknown01, objdat->field_3 & 0x01);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown10, objdat->field_F & 0x01);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown20, objdat->field_F & 0x02);
+
+    set_flag_byte(&thing->field_4F, TF4F_Transpar_4, objdat->field_F & 0x01);
+    set_flag_byte(&thing->field_4F, TF4F_Transpar_8, objdat->field_F & 0x02);
+
     thing->active_state = objdat->initial_state;
     if (objconf->ilght.field_0 != 0)
     {
@@ -469,9 +471,9 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         thing->byte_14 = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
-      case 33:
-        set_flag_byte(&thing->field_4F, TF4F_Unknown10, false);
-        set_flag_byte(&thing->field_4F, TF4F_Unknown20, true);
+      case 33: // Why it is hardcoded? And what is TempleS
+        thing->field_4F &= TF4F_Transpar_Flags;
+        thing->field_4F |= TF4F_Transpar_4;
         break;
       case 3:
       case 6:
@@ -575,15 +577,6 @@ struct Objects *get_objects_data(unsigned int tmodel)
     if (tmodel >= OBJECT_TYPES_COUNT)
         return &objects_data[0];
     return &objects_data[tmodel];
-}
-
-SpecialKind box_thing_to_special(const struct Thing *thing)
-{
-    if (thing_is_invalid(thing))
-        return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
-        return 0;
-    return object_conf.object_to_special_artifact[thing->model];
 }
 
 /**
@@ -1019,7 +1012,7 @@ long food_moves(struct Thing *objtng)
             objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
             objtng->food.byte_16 = 0;
         } else
-        if ((objtng->field_3E * objtng->field_49 <= objtng->field_3E + objtng->field_40) && (objtng->food.byte_16 < 5))
+        if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->field_40) && (objtng->food.byte_16 < 5))
         {
             objtng->food.byte_16--;
         }
@@ -1089,7 +1082,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[0], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->field_3E - 1;
+            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1098,7 +1091,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[1], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->field_3E - 1);
+            nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->anim_speed - 1);
         }
         ret = -1;
         break;
@@ -1107,7 +1100,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[2], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->field_3E - 1;
+            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1352,7 +1345,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     if (heartng->active_state != ObSt_BeingDestroyed)
     {
         long i = (char)heartng->byte_14;
-        heartng->field_3E = 0;
+        heartng->anim_speed = 0;
         struct ObjectConfig* objconf = get_object_model_stats2(5);
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);

@@ -106,6 +106,7 @@ static void init_level(void)
     //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
+    game.action_rand_seed = 1;
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
@@ -121,6 +122,8 @@ static void init_level(void)
     check_and_auto_fix_stats();
 
     // We should do this after 'load stats'
+    update_room_tab_to_config();
+    update_powers_tab_to_config();
     update_trap_tab_to_config();
 
     init_creature_scores();

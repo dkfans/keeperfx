@@ -30,6 +30,8 @@ extern "C" {
 /******************************************************************************/
 #define OBJECT_TYPES_COUNT  136
 
+#define OBJECT_TYPE_SPECBOX_CUSTOM    133
+
 enum ObjectStates {
     ObSt_Unused = 0,
     ObSt_FoodMoves,
@@ -67,7 +69,7 @@ struct Objects {
     short size_xy;
     short size_yz;
     short sprite_size_max;
-    unsigned char field_F;
+    unsigned char field_F;      // Lower 2 bits are transparency flags
     unsigned char field_10;
     unsigned char field_11;
     unsigned char destroy_on_lava;

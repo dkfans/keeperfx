@@ -734,6 +734,7 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
     {
         set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
         settings.tooltips_on = 0;
+        copy_settings_to_dk_settings();
         set_flag_byte(&player->field_1, 0x01, toggle_status_menu(0));
   }
   set_engine_view(player, PVM_ParchFadeIn);
@@ -751,6 +752,7 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
   set_player_mode(player, PVT_MapScreen);
   if (is_my_player(player))
     settings.tooltips_on = ((player->field_1 & 0x02) != 0);
+  copy_settings_to_dk_settings();
   player->allocflags &= ~PlaF_Unknown80;
   return 0;
 }
@@ -762,6 +764,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
     settings.tooltips_on = 0;
+    copy_settings_to_dk_settings();
     game.operation_flags &= ~GOF_ShowPanel;
   }
   player->field_4BD = 32;
@@ -782,6 +785,7 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
     set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
         settings.tooltips_on = ((player->field_1 & 2) != 0);
+        copy_settings_to_dk_settings();
         toggle_status_menu(player->field_1 & 1);
     }
     player->allocflags &= ~0x80;
@@ -946,7 +950,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
           disband_creatures_group(thing);
         }
     }
-    if (thing->light_id != 0) {
+    if ( (thing->light_id != 0) && (!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)) ) {
         light_delete_light(thing->light_id, thing->index);
         thing->light_id = 0;
     }
@@ -1149,11 +1153,28 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         play_non_3d_sample(119);
       return INVALID_ROOM;
     }
-    if (take_money_from_dungeon(plyr_idx, rstat->cost, 1) < 0)
+    if (player->boxsize == 0)
     {
-      if (is_my_player(player))
-        output_message(SMsg_GoldNotEnough, 0, true);
-      return INVALID_ROOM;
+        player->boxsize++;
+    }
+    if (dungeon->total_money_owned >= rstat->cost * player->boxsize)
+    {
+        if (take_money_from_dungeon(plyr_idx, rstat->cost, 1) < 0)
+        {
+            if (is_my_player(player))
+                output_message(SMsg_GoldNotEnough, 0, true);
+            return INVALID_ROOM;
+        }
+        if (player->boxsize > 0)
+        {
+        player->boxsize--;
+        }
+    }
+    else
+    {
+        if (is_my_player(player))
+            output_message(SMsg_GoldNotEnough, 0, true);
+        return INVALID_ROOM;
     }
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);
     if (!room_is_invalid(room))
@@ -1161,7 +1182,14 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
       if (rkind == RoK_BRIDGE)
         dungeon->lvstats.bridges_built++;
       if (is_my_player(player))
-        play_non_3d_sample(77);
+      {
+          play_non_3d_sample(77);
+          if (player->boxsize > 1)
+          {
+              play_non_3d_sample(959);
+              play_non_3d_sample(856);
+          }
+      }
     }
     return room;
 }

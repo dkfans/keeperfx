@@ -256,6 +256,7 @@ void mouseControl(unsigned int action, struct TbPoint *pos)
             lbDisplay.RMouseX = lbDisplay.MMouseX;
             lbDisplay.RMouseY = lbDisplay.MMouseY;
             lbDisplay.RMiddleButton = 1;
+            lbDisplay.MiddleButton = 0; // lbDisplay.MiddleButton is not handled as well as lbDisplay.LeftButton and lbDisplay.RightButton, so reset it here
         }
         break;
     case MActn_WHEELMOVEUP:

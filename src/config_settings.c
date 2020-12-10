@@ -36,6 +36,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
+struct GameSettings settings;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -57,39 +58,45 @@ void setup_default_settings(void)
      0,                         // gamma_correction
      Lb_SCREEN_MODE_INVALID,    // Screen mode, set to correct value below
      {
-          {KC_W, KMod_NONE},   // Gkey_MoveUp
-          {KC_S, KMod_NONE}, // Gkey_MoveDown
-          {KC_A, KMod_NONE}, // Gkey_MoveLeft
-          {KC_D, KMod_NONE},// Gkey_MoveRight
-          {KC_LCONTROL, KMod_NONE},//Gkey_RotateMod
-          {KC_LSHIFT, KMod_NONE},//Gkey_SpeedMod
-          {KC_DELETE, KMod_NONE},//Gkey_RotateCW
-          {KC_PGDOWN, KMod_NONE},//Gkey_RotateCCW
-          {KC_HOME, KMod_NONE}, // Gkey_ZoomIn
-          {KC_END, KMod_NONE},  // Gkey_ZoomOut
-          {KC_T, KMod_NONE},    // Gkey_ZoomRoom00
-          {KC_L, KMod_NONE},    // Gkey_ZoomRoom01
-          {KC_L, KMod_SHIFT},   // Gkey_ZoomRoom02
-          {KC_P, KMod_SHIFT},   // Gkey_ZoomRoom03
-          {KC_T, KMod_ALT},     // Gkey_ZoomRoom04
-          {KC_T, KMod_SHIFT},   // Gkey_ZoomRoom05
-          {KC_H, KMod_NONE},    // Gkey_ZoomRoom06
-          {KC_W, KMod_ALT},		// Gkey_ZoomRoom07
-          {KC_S, KMod_ALT},		// Gkey_ZoomRoom08
-          {KC_T, KMod_CONTROL}, // Gkey_ZoomRoom09
-          {KC_G, KMod_NONE},    // Gkey_ZoomRoom10
-          {KC_B, KMod_NONE},    // Gkey_ZoomRoom11
-          {KC_H, KMod_SHIFT},   // Gkey_ZoomRoom12
-          {KC_G, KMod_SHIFT},   // Gkey_ZoomRoom13
-          {KC_B, KMod_SHIFT},   // Gkey_ZoomRoom14
-          {KC_F, KMod_NONE},    // Gkey_ZoomToFight
-          {KC_A, KMod_ALT},		// Gkey_ZoomCrAnnoyed
-          {KC_LSHIFT, KMod_NONE},//Gkey_CrtrContrlMod
-          {KC_Q, KMod_NONE},	//Gkey_CrtrQueryMod
-          {KC_BACK, KMod_NONE}, // Gkey_DumpToOldPos
-          {KC_P, KMod_NONE},    // Gkey_TogglePause
-          {KC_M, KMod_NONE},    // Gkey_SwitchToMap
-          {KC_E, KMod_NONE},    // Gkey_ToggleMessage
+          {KC_W, KMod_NONE},                 // Gkey_MoveUp
+          {KC_S, KMod_NONE},                 // Gkey_MoveDown
+          {KC_A, KMod_NONE},                 // Gkey_MoveLeft
+          {KC_D, KMod_NONE},                 // Gkey_MoveRight
+          {KC_LCONTROL, KMod_NONE},          // Gkey_RotateMod
+          {KC_LSHIFT, KMod_NONE},            // Gkey_SpeedMod
+          {KC_DELETE, KMod_NONE},            // Gkey_RotateCW
+          {KC_PGDOWN, KMod_NONE},            // Gkey_RotateCCW
+          {KC_HOME, KMod_NONE},              // Gkey_ZoomIn
+          {KC_END, KMod_NONE},               // Gkey_ZoomOut
+          {KC_T, KMod_NONE},                 // Gkey_ZoomRoom00
+          {KC_L, KMod_NONE},                 // Gkey_ZoomRoom01
+          {KC_L, KMod_SHIFT},                // Gkey_ZoomRoom02
+          {KC_P, KMod_SHIFT},                // Gkey_ZoomRoom03
+          {KC_T, KMod_ALT},                  // Gkey_ZoomRoom04
+          {KC_T, KMod_SHIFT},                // Gkey_ZoomRoom05
+          {KC_H, KMod_NONE},                 // Gkey_ZoomRoom06
+          {KC_W, KMod_ALT},                  // Gkey_ZoomRoom07
+          {KC_S, KMod_ALT},                  // Gkey_ZoomRoom08
+          {KC_T, KMod_CONTROL},              // Gkey_ZoomRoom09
+          {KC_G, KMod_NONE},                 // Gkey_ZoomRoom10
+          {KC_B, KMod_NONE},                 // Gkey_ZoomRoom11
+          {KC_H, KMod_SHIFT},                // Gkey_ZoomRoom12
+          {KC_G, KMod_SHIFT},                // Gkey_ZoomRoom13
+          {KC_B, KMod_SHIFT},                // Gkey_ZoomRoom14
+          {KC_F, KMod_NONE},                 // Gkey_ZoomToFight
+          {KC_A, KMod_ALT},                  // Gkey_ZoomCrAnnoyed
+          {KC_LSHIFT, KMod_NONE},            // Gkey_CrtrContrlMod
+          {KC_Q, KMod_NONE},                 // Gkey_CrtrQueryMod
+          {KC_BACK, KMod_NONE},              // Gkey_DumpToOldPos
+          {KC_P, KMod_NONE},                 // Gkey_TogglePause
+          {KC_M, KMod_NONE},                 // Gkey_SwitchToMap
+          {KC_E, KMod_NONE},                 // Gkey_ToggleMessage
+          {KC_MOUSE3, KMod_NONE},            // Gkey_SnapCamera
+          {KC_LSHIFT, KMod_NONE},            // Gkey_BestRoomSpace
+          {KC_LCONTROL, KMod_NONE},          // Gkey_SquareRoomSpace
+          {KC_MOUSEWHEEL_DOWN, KMod_NONE},   // Gkey_RoomSpaceIncSize
+          {KC_MOUSEWHEEL_UP, KMod_NONE},     // Gkey_RoomSpaceDecSize
+          {KC_LALT, KMod_NONE},              // Gkey_SellTrapOnSubtile
      },                         // kbkeys
      1,                         // tooltips_on
      0,                         // first_person_move_invert
@@ -106,6 +113,28 @@ void setup_default_settings(void)
     }
 }
 
+void copy_settings_to_dk_settings(void)
+{
+    _DK_settings.field_0 = settings.field_0;
+    _DK_settings.video_shadows = settings.video_shadows;
+    _DK_settings.view_distance = settings.view_distance;
+    _DK_settings.video_rotate_mode = settings.video_rotate_mode;
+    _DK_settings.video_textures = settings.video_textures;
+    _DK_settings.video_cluedo_mode = settings.video_cluedo_mode;
+    _DK_settings.sound_volume = settings.sound_volume;
+    _DK_settings.redbook_volume = settings.redbook_volume;
+    _DK_settings.roomflags_on = settings.roomflags_on;
+    _DK_settings.gamma_correction = settings.gamma_correction;
+    _DK_settings.video_scrnmode = settings.video_scrnmode;
+    for (int i = 0; i < DK_GAME_KEYS_COUNT; i++)
+    {
+        _DK_settings.kbkeys[i] = settings.kbkeys[i];
+    }
+    _DK_settings.tooltips_on = settings.tooltips_on;
+    _DK_settings.first_person_move_invert = settings.first_person_move_invert;
+    _DK_settings.first_person_move_sensitivity = settings.first_person_move_sensitivity;
+}
+
 TbBool load_settings(void)
 {
     SYNCDBG(6,"Starting");
@@ -114,7 +143,10 @@ TbBool load_settings(void)
     if (len == sizeof(struct GameSettings))
     {
       if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
+      { 
+          copy_settings_to_dk_settings();
           return true;
+      }
     }
     setup_default_settings();
     LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
@@ -123,6 +155,7 @@ TbBool load_settings(void)
 
 short save_settings(void)
 {
+    copy_settings_to_dk_settings();
     char* fname = prepare_file_path(FGrp_Save, "settings.dat");
     LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
     return true;

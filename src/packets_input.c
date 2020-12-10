@@ -22,6 +22,7 @@
 #include "config_players.h"
 #include "config_terrain.h"
 #include "creature_states.h"
+#include "front_input.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
 #include "game_legacy.h"
@@ -65,6 +66,77 @@ static void set_untag_mode(struct PlayerInfo* player)
         player->allocflags |= PlaF_Unknown20;
     else
         player->allocflags &= ~PlaF_Unknown20;
+}
+
+static TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    MapCoord x = ((unsigned short)pckt->pos_x);
+    MapCoord y = ((unsigned short)pckt->pos_y);
+    MapSubtlCoord stl_x = coord_subtile(x);
+    MapSubtlCoord stl_y = coord_subtile(y);
+    int mode = box_placement_mode;
+    long keycode = 0;
+    if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
+    {
+      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+      {
+        player->field_4AF = 0;
+        clear_input(pckt);
+      }
+      return false;
+    }
+    player->field_4A4 = 1;
+    if (is_my_player(player))
+    {
+        gui_room_type_highlighted = player->chosen_room_kind;
+    }
+    TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
+    get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, stl_x, stl_y, &mode, drag_check);
+    long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->field_4A4);
+
+    if (mode != drag_placement_mode) // allows the user to hold the left mouse to use "paint mode"
+    {
+        if ((pckt->control_flags & PCtr_LBtnClick) == 0)
+        {
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+            {
+                player->field_4AF = 0;
+                clear_input(pckt);
+            }
+            return false;
+        }
+    }
+    else if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
+    {
+        if (player->boxsize == 0)
+        {
+            return false; //stops attempts at invalid rooms, if left mouse button held (i.e. don't repeat failure sound repeatedly in paint mode)
+        }
+    }
+    if (i == 0)
+    {
+      if (is_my_player(player))
+      {
+        play_non_3d_sample(119);
+        clear_input(pckt);
+      }
+      return false;
+    }
+    if (player->boxsize > 0)
+    {
+        keeper_build_roomspace(render_roomspace);
+    }
+    else
+    {
+        if (is_my_player(player))
+        {
+            play_non_3d_sample(119);
+        }
+    }
+    clear_input(pckt);
+    return true;
 }
 
 static TbBool process_dungeon_power_hand_state(struct PlayerInfo* player, struct Packet* pckt)
@@ -433,11 +505,13 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
 }
 
 /*
+  Client side
 */
 static void process_dungeon_control_packet_sell_operation(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
+    long keycode = 0;
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
@@ -454,8 +528,11 @@ static void process_dungeon_control_packet_sell_operation(long plyr_idx)
     player->field_4A4 = 1;
     if (is_my_player(player))
     {
-      if (!game_is_busy_doing_gui())
-        tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->field_4A4, (is_key_pressed(KC_LSHIFT, KMod_DONTCARE)));
+        if (!game_is_busy_doing_gui())
+        {
+            get_dungeon_sell_user_roomspace(stl_x, stl_y);
+            tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->field_4A4, (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true)));
+        }
     }
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
@@ -473,29 +550,45 @@ static void process_dungeon_control_packet_sell_operation(long plyr_idx)
         clear_input(pckt);
         return;
     }
-    // Trying to sell room
-    if (!is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
+    if (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
     {
-        if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
+        //Slab Mode
+        if (render_roomspace.slab_count > 1)
         {
-            player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
-        } else
-        // Trying to sell door
-        if (player_sell_door_at_subtile(plyr_idx, stl_x, stl_y))
+            keeper_sell_roomspace(render_roomspace);
+        }
+        else
         {
+            struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+            if (slabmap_owner(slb) != plyr_idx)
+            {
+                WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)stl_x, (int)stl_y);
+                clear_input(pckt);
+                return;
+            }
+            // Trying to sell room
+            if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
+            {
+                player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
+            } else
+            // Trying to sell door
+            if (player_sell_door_at_subtile(plyr_idx, stl_x, stl_y))
+            {
             // Nothing to do here - door already sold
-        } else
-        // Trying to sell trap
-        if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
-        {
+            } else
+            // Trying to sell trap
+            if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
+            {
             // Nothing to do here - trap already sold
-        } else
-        {
-            WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
+            } else
+            {
+                WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
+            }
         }
     }
     else
     {
+        // Subtile Mode
         if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
         {
             // Nothing to do here - trap already sold

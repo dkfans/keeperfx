@@ -125,6 +125,17 @@ enum TbScriptCommands {
     Cmd_SET_DOOR_CONFIGURATION            = 105,
     Cmd_SET_CREATURE_PROPERTY             = 106,
     Cmd_SET_CREATURE_FEARSOME_FACTOR      = 107,
+    Cmd_USE_POWER_ON_CREATURE             = 108,
+    Cmd_USE_POWER_AT_SUBTILE              = 109,
+    Cmd_USE_POWER                         = 110,
+    Cmd_USE_POWER_AT_LOCATION             = 111,
+    Cmd_ADD_OBJECT_TO_LEVEL               = 112,
+    Cmd_USE_SPECIAL_INCREASE_LEVEL        = 113,
+    Cmd_USE_SPECIAL_MULTIPLY_CREATURES    = 114,
+    Cmd_USE_SPECIAL_MAKE_SAFE             = 115,
+    Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 116,
+    Cmd_CHANGE_CREATURES_ANNOYANCE        = 117,
+    Cmd_COMPUTER_DIG_TO_LOCATION          = 118,
 };
 
 enum ScriptVariables {
@@ -190,6 +201,7 @@ enum ScriptVariables {
   SVar_TIMES_LEVELUP_CREATURE          = 63,
   SVar_TOTAL_SALARY                    = 64,
   SVar_CURRENT_SALARY                  = 65,
+  SVar_BOX_ACTIVATED                   = 66,
  };
 
 enum MapLocationTypes {
@@ -197,14 +209,30 @@ enum MapLocationTypes {
     MLoc_ACTIONPOINT,
     MLoc_HEROGATE,
     MLoc_PLAYERSHEART,
-    MLoc_CREATUREKIND,
+    MLoc_CREATUREKIND, // 4
     MLoc_OBJECTKIND,
     MLoc_ROOMKIND,
     MLoc_THING,
-    MLoc_PLAYERSDUNGEON,
+    MLoc_PLAYERSDUNGEON, // 8
     MLoc_APPROPRTDUNGEON,
     MLoc_DOORKIND,
     MLoc_TRAPKIND,
+    MLoc_METALOCATION, // 12 // Triggered box, Combat, Last entered creature etc
+};
+
+enum MetaLocation {
+  MML_TRIGGERED_OBJECT = 1,
+  MML_RECENT_COMBAT,
+};
+
+enum ScriptOperator {
+    SOpr_SET = 1,
+    SOpr_INCREASE,
+    SOpr_DECREASE,
+};
+
+enum {
+    CurrentPlayer = 15
 };
 
 /******************************************************************************/

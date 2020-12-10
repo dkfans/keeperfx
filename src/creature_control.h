@@ -629,11 +629,11 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char slaps_to_kill;
     short lair_enemy;
     short hero_vs_keeper_cost;
-    unsigned char rebirth;
-    unsigned char can_see_invisible;
-    unsigned char can_go_locked_doors;
-    unsigned char bleeds;
-    unsigned char affected_by_wind;
+    TbBool rebirth;
+    TbBool can_see_invisible;
+    TbBool can_go_locked_doors;
+    TbBool bleeds;
+    TbBool affected_by_wind;
     unsigned short thing_size_xy;
     unsigned short thing_size_yz;
     short annoy_eat_food;
@@ -645,6 +645,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short entrance_score;
     short annoy_going_postal;
     short toking_recovery;
+    TbBool illuminated;
 };
 
 struct Persons {

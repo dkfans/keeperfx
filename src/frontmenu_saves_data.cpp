@@ -69,7 +69,7 @@ struct GuiButtonInit frontend_load_menu_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 150,  82, 150,450,182, frontend_draw_scroll_box,          0, GUIStr_Empty,  0,      {26},            0, NULL },
   { 1,  0, 0, 0, frontend_load_game_up,NULL,frontend_over_button,     0, 532, 149, 532, 149, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, frontend_load_game_up_maintain },
   { 1,  0, 0, 0, frontend_load_game_down,NULL,frontend_over_button,   0, 532, 317, 532, 317, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, frontend_load_game_down_maintain },
-  { 0,  0, 0, 0, frontend_load_game_scroll,NULL,  NULL,               0, 536, 163, 534, 163, 20,154, frontend_draw_games_scroll_tab,    0, GUIStr_Empty,  0,      {40},            0, NULL },
+  { 1,  0, 0, 0, frontend_load_game_scroll,NULL,  NULL,               0, 536, 163, 534, 163, 20,154, frontend_draw_games_scroll_tab,    0, GUIStr_Empty,  0,      {40},            0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 102, 125, 102, 125,220, 26, frontend_draw_text,                0, GUIStr_Empty,  0,      {30},            0, NULL },
   { 0,  0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 157,  95, 157,424, 22, frontend_draw_load_game_button,    0, GUIStr_Empty,  0,      {45},            0, frontend_load_game_maintain },
   { 0,  0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 185,  95, 185,424, 22, frontend_draw_load_game_button,    0, GUIStr_Empty,  0,      {46},            0, frontend_load_game_maintain },

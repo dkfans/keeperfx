@@ -75,7 +75,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Flying       = 0x0010,
     CSAfF_Invisibility = 0x0020,
     CSAfF_Sight        = 0x0040,
-    CSAfF_Unkn0080     = 0x0080,
+    CSAfF_Light        = 0x0080, // this was originally Freeze, but that is now done via stateblock_flags
     CSAfF_Disease      = 0x0100,
     CSAfF_Chicken      = 0x0200,
     CSAfF_PoisonCloud  = 0x0400,
@@ -309,9 +309,9 @@ struct ShotStats // sizeof = 101
   unsigned char field_4[2];
   unsigned char field_6;
   unsigned char field_7;
-  unsigned char field_8;
+  unsigned char field_8; // transparency mode
   short size_xy;
-  short field_B;
+  short size_yz;
   short field_D;
   unsigned char field_F;
   unsigned char field_10;

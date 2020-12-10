@@ -1047,10 +1047,11 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
         return false;
     }
     dungeon->room_resrchable[room_idx] = resrch;
+    // This doesnt reset if player has room in the past
     if (resrch != 0)
-        dungeon->room_buildable[room_idx] = avail;
+        dungeon->room_buildable[room_idx] |= (avail? 1 : 0 );
     else
-        dungeon->room_buildable[room_idx] = 0;
+        dungeon->room_buildable[room_idx] &= ~1;
     return true;
 }
 
@@ -1075,7 +1076,7 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
       ERRORLOG("Incorrect room %d (player %d)",(int)room_idx, (int)plyr_idx);
       return false;
     }
-    if (dungeon->room_buildable[room_idx]) {
+    if (dungeon->room_buildable[room_idx] & 1) {
         return true;
     }
     return false;

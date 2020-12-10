@@ -1,4 +1,12 @@
+REM ****************************************************
 REM Reapers' Yard
+REM
+REM Assmist Isle Campaign by Kix
+REM
+REM v2.0 for DAT file objectives (by dayokay)
+REM 14-Nov-2020
+REM ****************************************************
+
 LEVEL_VERSION(1)
 
 REM aps:
@@ -87,10 +95,12 @@ ADD_TO_PARTY(FIN,WITCH,10,0,ATTACK_DUNGEON_HEART,0)
 ADD_TO_PARTY(FIN,BARBARIAN,10,0,ATTACK_DUNGEON_HEART,0)
 ADD_TO_PARTY(FIN,KNIGHT,10,0,ATTACK_DUNGEON_HEART,0)
 
-QUICK_OBJECTIVE(1,"The platform's got four entries. Expect human parties attacking from all around. Protect the dungeon heart at all cost!",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(1,"The platform's got four entries. Expect human parties attacking from all around. Protect the dungeon heart at all cost!",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(144,PLAYER0)
 
 IF(PLAYER0,BATTLES_WON>0)
-	QUICK_OBJECTIVE(2,"The eastern lava-flooded area is where the toughest troops guard your imprisoned units. Your dragons used to carry quite some treasures, now the knights possess them. For every defeated knight some amount of gold is returned to you.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(2,"The eastern lava-flooded area is where the toughest troops guard your imprisoned units. Your dragons used to carry quite some treasures, now the knights possess them. For every defeated knight some amount of gold is returned to you.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(145,PLAYER0)
 ENDIF
 
 
@@ -109,7 +119,8 @@ IF(PLAYER0,TIMER0>600)
 	ENDIF
 	IF(PLAYER0,FLAG1>=8)
 		REM SECOND TYPE OF WAVES
-		QUICK_OBJECTIVE(8,"The end of the resistance is near, Keeper. I can smell the desperation in their greedy faces.",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(8,"The end of the resistance is near, Keeper. I can smell the desperation in their greedy faces.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(146,PLAYER0)
 		SET_FLAG(PLAYER0,FLAG0,0)
 		NEXT_COMMAND_REUSABLE
 		SET_FLAG(PLAYER0,FLAG7,2)
@@ -215,7 +226,8 @@ IF(PLAYER0,FLAG7==2)
 			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,B1,-4,2)
 		ENDIF
 		IF(PLAYER0,FLAG2>1)
-			QUICK_OBJECTIVE(4,"This is it. The final pathetic attempt to bring you down. Withstand the attack, defeat every knight in this land and the land is yours.",ALL_PLAYERS)
+			REM	QUICK_OBJECTIVE(4,"This is it. The final pathetic attempt to bring you down. Withstand the attack, defeat every knight in this land and the land is yours.",ALL_PLAYERS)
+			DISPLAY_OBJECTIVE(147,PLAYER0)
 			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FIN,DRAWFROM(-1,-2),2)
 			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FIN,DRAWFROM(-3,-4),2)
 			SET_FLAG(PLAYER0,FLAG6,1)
@@ -234,7 +246,8 @@ IF(PLAYER0,FLAG7==2)
 ENDIF
 
 IF(PLAYER_GOOD,KNIGHT<7)
-	QUICK_INFORMATION(3,"Gold falls from knight's pockets as he mumbles something in Polish. Then he shuts up and dies. Kill some more of them. Not just for the fun but also for the gold they owe you.",ALL_PLAYERS)
+	REM	QUICK_INFORMATION(3,"Gold falls from knight's pockets as he mumbles something in Polish. Then he shuts up and dies. Kill some more of them. Not just for the fun but also for the gold they owe you.",ALL_PLAYERS)
+	DISPLAY_INFORMATION(148,ALL_PLAYERS)
 	ADD_GOLD_TO_PLAYER(PLAYER0,35000)
 ENDIF
 
@@ -261,13 +274,15 @@ ENDIF
 IF(PLAYER_GOOD,RESEARCH==0)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
 	TUTORIAL_FLASH_BUTTON(18,100)
-	QUICK_OBJECTIVE(7,"The library you just claimed contained plans to build bridges. Useful stuff.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(7,"The library you just claimed contained plans to build bridges. Useful stuff.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(149,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,FLAG6>0)
 	IF(PLAYER_GOOD,KNIGHT==0)
-	IF(PLAYER_GOOG,AVATAR==0)
-		QUICK_OBJECTIVE(5,"Fantastic work, Keeper. Just one more land and the isle is free from the Polish empire.",ALL_PLAYERS)
+	IF(PLAYER_GOOD,AVATAR==0)
+		REM	QUICK_OBJECTIVE(5,"Fantastic work, Keeper. Just one more land and the isle is free from the Polish empire.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(150,ALL_PLAYERS)
 		WIN_GAME
 	ENDIF
 	ENDIF

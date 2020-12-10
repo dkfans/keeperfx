@@ -1,0 +1,338 @@
+REM ****************************************************************************
+REM  Free Play levels - KeeperFX
+REM ****************************************************************************
+REM  Script for Level 458 - Ghost in the Machine
+REM  Author:  Loobinex
+REM  Date:    2020-01-05
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+
+REM Brief: Player gets more ghosts as he kills units, and can teleport them to an unaccesible enemy dungeon when he gets rid of his imps. Attacks keep happening in the meantime. Find and kill monks to increase the power of the attacking ghosts.
+
+LEVEL_VERSION(1)
+DEAD_CREATURES_RETURN_TO_POOL(0)
+SET_GENERATE_SPEED(650)
+
+COMPUTER_PLAYER(PLAYER3,0)
+
+REM Blocks people with wrong version from attemting this map. If-statement will be ignored on old versions as it is followed by a 'new' command.
+IF (PLAYER0,CAMPAIGN_FLAG7 == 1)
+	QUICK_OBJECTIVE(40,"You have an old version of KeeperFX. Update to play this map.",PLAYER0)
+	IF(PLAYER0,GAME_TURN >= 100)
+		LOSE_GAME
+	ENDIF
+ENDIF
+
+START_MONEY(PLAYER0,5000)
+START_MONEY(PLAYER3,400000)
+
+MAX_CREATURES(PLAYER0,75)
+MAX_CREATURES(PLAYER3,75)
+
+SET_CREATURE_TENDENCIES(PLAYER3,FLEE,1)
+
+REM ****************************************************************************
+REM Flags used:
+REM  PLAYER0,FLAG1		0: No yellow attack in progress, regular game.
+REM						1: Yellow under attack, no ghosts will spawn and no power hand available. 
+REM  PLAYER0,FLAG2		: Amount of ghosts that will spawn attacking yellow dungeon
+REM  PLAYER0,FLAG3		: Amount of ghosts that will spawn from killed barbarians
+REM  PLAYER_GOOD,FLAG1	: Determines spawn of repeating hero wave 1
+REM  PLAYER_GOOD,FLAG2	: Determines spawn of repeating hero wave 2
+REM  PLAYER_GOOD,FLAG3	: Determines spawn of repeating hero wave 3
+REM  PLAYER_GOOD,FLAG4	: Determines spawn of repeating hero wave 4
+REM  PLAYER_GOOD,FLAG5	: Doubles the speed of repeating hero waves 2, 3 and 4
+
+REM Timers used:
+REM   PLAYER0,TIMER1 		- Victory delay
+REM   PLAYER3,TIMER1	 	- Gives a few game turns for ghosts to spawn without it triggering the 'all ghosts are dead condition'.
+REM   PLAYER_GOOD,TIMER1 	- Increases GOOD Flag 1 every 30 seconds
+
+REM ****************************************************************************
+REM Initial availability
+REM ****************************************************************************
+
+ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
+ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
+ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
+ROOM_AVAILABLE(PLAYER0,GUARD_POST,1,1)
+ROOM_AVAILABLE(PLAYER0,BARRACKS,1,1)
+
+MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_PROTECT,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(PLAYER3,POWER_HOLD_AUDIENCE,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,0,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,1)
+
+DOOR_AVAILABLE(PLAYER0,WOOD,1,0)
+DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+DOOR_AVAILABLE(PLAYER0,STEEL,1,0)
+DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
+TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+TRAP_AVAILABLE(PLAYER0,WORD_OF_POWER,1,0)
+TRAP_AVAILABLE(PLAYER0,BOULDER,1,0)
+
+ADD_CREATURE_TO_POOL(SORCEROR,2)
+ADD_CREATURE_TO_POOL(DRAGON,3)
+ADD_CREATURE_TO_POOL(WIZARD,3)
+
+CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
+CREATURE_AVAILABLE(PLAYER0,DRAGON,1,0)
+CREATURE_AVAILABLE(PLAYER3,WIZARD,1,0)
+
+REM ****************************************************************************
+REM Additional availability
+REM ****************************************************************************
+
+IF(PLAYER0,RESEARCH >= 1)
+	ROOM_AVAILABLE(PLAYER0,RESEARCH,1,0)
+ENDIF
+
+IF(PLAYER0,WORKSHOP >= 1)
+	ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
+ENDIF
+
+IF(PLAYER0,RESEARCH >= 1)
+	ROOM_AVAILABLE(PLAYER0,RESEARCH,1,0)
+ENDIF
+
+IF(PLAYER0,GRAVEYARD >= 1)
+	ROOM_AVAILABLE(PLAYER0,GRAVEYARD,1,0)
+ENDIF
+
+IF(PLAYER0,TORTURE >= 1)
+	ROOM_AVAILABLE(PLAYER0,TORTURE,1,0)
+ENDIF
+
+REM ****************************************************************************
+REM Hero Parties
+REM ****************************************************************************
+
+REM ****************************************************************************
+REM Level starts here
+REM ****************************************************************************
+
+QUICK_OBJECTIVE(1,"The yellow wizards are using powerful magic to hold you at bay. You can't reach them but the dark gods will help. Sacrifice all imps in battle or at the temple and they will send your ghosts to fight them.",ALL_PLAYERS)
+IF(PLAYER0,TEMPLE <= 8)
+	QUICK_OBJECTIVE(2,"You have angered the gods and have lost all hope of victory",ALL_PLAYERS)
+	LOSE_GAME
+ENDIF
+
+IF(PLAYER0,TENTACLE > 0)
+	CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,0)
+ENDIF
+
+REM ****************************************************************************
+REM Heroes spawn, based on ever increasing flags.
+SET_TIMER(PLAYER_GOOD,TIMER1)
+IF(PLAYER_GOOD,TIMER1 >= 600)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG1,1)
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER_GOOD,TIMER1)
+ENDIF
+
+REM After 6 minutes start to spawn barbarians, adds ghost to pool for each barbarian spawned. Sets Flag1 back by 3 minutes.And increases the next flag by 1.
+REM HERO WAVE 1 - time based
+IF(PLAYER_GOOD,FLAG1 >= 12)
+	QUICK_INFORMATION(3,"Barbarians have started to attack. They will only increase in number. Kill them and you can use their ghosts on this level.",-1)
+	ADD_CREATURE_TO_POOL(WIZARD,1)
+	ADD_CREATURE_TO_POOL(TENTACLE,2)
+	NEXT_COMMAND_REUSABLE
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,-1,4,1,50)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER0,FLAG3,4)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG1,-6)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG2,1)
+ENDIF
+
+REM HERO WAVE 2 - triggered by WAVE 1
+IF(PLAYER_GOOD,FLAG2 >= 6)
+	QUICK_INFORMATION(4,"The wizards will keep sending their barbarians in ever greater numbers but it is all a distraction. They will use this time to grow beyond your might. Keep their power in check by regularly attacking them.",-1)
+	ADD_CREATURE_TO_POOL(WIZARD,3)
+	ADD_CREATURE_TO_POOL(SORCEROR,1)
+	ADD_CREATURE_TO_POOL(TENTACLE,1)
+	NEXT_COMMAND_REUSABLE
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,-1,2,3,70)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER0,FLAG3,2)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG1,1)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG2,-2)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG3,1)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG4,1)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG5,1)
+ENDIF
+
+REM HERO WAVE 3 - triggered by WAVE 2
+IF(PLAYER_GOOD,FLAG3 >= 4)
+	ADD_CREATURE_TO_POOL(SORCEROR,1)
+	ADD_CREATURE_TO_POOL(WIZARD,2)
+	NEXT_COMMAND_REUSABLE
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,-2,4,4,135)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER0,FLAG3,4)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG3,-2)
+ENDIF
+
+REM HERO WAVE 4 - triggered by WAVE 2
+IF(PLAYER_GOOD,FLAG4 >= 9)
+	ADD_CREATURE_TO_POOL(TENTACLE,3)
+	ADD_CREATURE_TO_POOL(DRAGON,2)
+	ADD_CREATURE_TO_POOL(WIZARD,2)
+	NEXT_COMMAND_REUSABLE
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,-2,8,6,180)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER0,FLAG3,8)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG4,-2)
+ENDIF
+
+REM After wave 2 spawned 15 times, doubles the speed of waves 2, 3 and 4.
+IF(PLAYER_GOOD,FLAG5 >= 15)
+	ADD_CREATURE_TO_POOL(WIZARD,2)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG2,1)
+	NEXT_COMMAND_REUSABLE
+	ADD_TO_FLAG(PLAYER_GOOD,FLAG5,-1)
+ENDIF
+
+REM ****************************************************************************
+REM Ghost will be killed in red dungeon and moved to yellow dungeon when there are no red imps alive. FLAG2 counts the ghosts.
+
+IF(PLAYER0,FLAG1 == 0)
+	REM Player will get ghosts from spawner in own dungeon when he kills barbarians. Only when not attacking yellow.
+	IF(PLAYER_GOOD,BARBARIAN <= 0)
+		IF(PLAYER0,FLAG3 >= 1)
+			QUICK_INFORMATION(5,"The barbarians you've killed have returned as ghosts and joined your army. I suggest you keep killing all the barbarians you can find.",1)
+				IF(PLAYER_GOOD,MONK >= 3)
+					NEXT_COMMAND_REUSABLE
+					ADD_CREATURE_TO_LEVEL(PLAYER0,GHOST,1,1,1,0)
+				ENDIF
+				IF(PLAYER_GOOD,MONK == 2)
+					ADD_CREATURE_TO_POOL(DRAGON,1)
+					NEXT_COMMAND_REUSABLE
+					ADD_CREATURE_TO_LEVEL(PLAYER0,GHOST,1,1,3,0)
+					QUICK_INFORMATION(6,"With a monk killed, the ghost are gaining in strenght. Keep killing monks as well as barbarians.",1)
+				ENDIF
+				IF(PLAYER_GOOD,MONK == 1)
+					ADD_CREATURE_TO_POOL(SORCEROR,2)
+					NEXT_COMMAND_REUSABLE
+					ADD_CREATURE_TO_LEVEL(PLAYER0,GHOST,1,1,7,0)
+				ENDIF
+				IF(PLAYER_GOOD,MONK <= 0)
+					QUICK_OBJECTIVE(7,"There's no more monks so your ghosts are as strong as they can get. This way they should be able to do some serious damage to the yellow wizards. Get rid of your imps to initiate the attack.",1)
+					NEXT_COMMAND_REUSABLE
+					ADD_CREATURE_TO_LEVEL(PLAYER0,GHOST,1,1,10,0)
+				ENDIF
+			NEXT_COMMAND_REUSABLE
+			ADD_TO_FLAG(PLAYER0,FLAG3,-1)
+		ENDIF
+	ENDIF
+	IF(PLAYER0,IMP <= 0)
+		IF(PLAYER0,GHOST >= 1)
+			NEXT_COMMAND_REUSABLE
+			KILL_CREATURE(PLAYER0,GHOST,LEAST_EXPERIENCED,1)
+			NEXT_COMMAND_REUSABLE
+			ADD_TO_FLAG(PLAYER0,FLAG2,1)
+		ENDIF
+		IF(PLAYER0,GHOST <= 0)
+			NEXT_COMMAND_REUSABLE
+			SET_FLAG(PLAYER0,FLAG1,1)
+			NEXT_COMMAND_REUSABLE
+			SET_TIMER(PLAYER3,TIMER1)
+		ENDIF
+	ENDIF
+ENDIF
+REM Attack on yellow underway. Ghosts are spawned in yellow dungeon, and while they are alive no new ghosts will appear and no power_hand.
+IF(PLAYER0,FLAG1 == 1)
+	QUICK_INFORMATION(8,"Your ghosts are being moved to the yellow hero stronghold. With their heart destroyed the realm is yours.",PLAYER3)
+	NEXT_COMMAND_REUSABLE
+	MAGIC_AVAILABLE(PLAYER0,POWER_HAND,0,0)
+                                 
+	ADD_CREATURE_TO_POOL(DRAGON,1)
+	IF(PLAYER0,FLAG2 >= 1)
+		IF(PLAYER_GOOD,MONK >= 3)
+			NEXT_COMMAND_REUSABLE
+			ADD_CREATURE_TO_LEVEL(PLAYER0,GHOST,3,1,1,0)
+			NEXT_COMMAND_REUSABLE
+			ADD_TO_FLAG(PLAYER0,FLAG2,-1)
+		ENDIF
+		IF(PLAYER_GOOD,MONK == 2)
+			NEXT_COMMAND_REUSABLE
+			ADD_CREATURE_TO_LEVEL(PLAYER0,GHOST,3,1,3,0)
+			NEXT_COMMAND_REUSABLE
+			ADD_TO_FLAG(PLAYER0,FLAG2,-1)
+		ENDIF
+		IF(PLAYER_GOOD,MONK == 1)
+			NEXT_COMMAND_REUSABLE
+			ADD_CREATURE_TO_LEVEL(PLAYER0,GHOST,3,1,7,0)
+			NEXT_COMMAND_REUSABLE
+			ADD_TO_FLAG(PLAYER0,FLAG2,-1)
+		ENDIF
+		IF(PLAYER_GOOD,MONK <= 0)
+			QUICK_INFORMATION(9,"These ghosts are at maximum power. Surely the wizards don't stand a chance now.",PLAYER3)
+			NEXT_COMMAND_REUSABLE
+			ADD_CREATURE_TO_LEVEL(PLAYER0,GHOST,3,1,10,0)
+			NEXT_COMMAND_REUSABLE
+			ADD_TO_FLAG(PLAYER0,FLAG2,-1)
+		ENDIF
+	ENDIF
+	REM  When ghosts all die, return to normal and get 8 imps back.
+	IF(PLAYER3,TIMER1 >= 20)
+		IF(PLAYER0,GHOST <= 0)
+			REM If player manages to kill most heroes, he gets stronger imps.
+			IF(PLAYER_GOOD,TOTAL_CREATURES >= 5)
+				NEXT_COMMAND_REUSABLE
+				ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,PLAYER0,8,1,0)
+			ENDIF
+			IF(PLAYER_GOOD,TOTAL_CREATURES <= 4)
+				NEXT_COMMAND_REUSABLE
+				ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,PLAYER0,8,3,250)
+			ENDIF
+			NEXT_COMMAND_REUSABLE
+			SET_FLAG(PLAYER0,FLAG1,0)
+			QUICK_OBJECTIVE(10,"Your ghosts failed and paid the price for it. Luckily there's always more death. When you have enough ghosts, get rid of your imps to try again."PLAYER0)
+			NEXT_COMMAND_REUSABLE
+			MAGIC_AVAILABLE(PLAYER0,POWER_HAND,1,1)
+		ENDIF
+	ENDIF
+ENDIF
+
+IF(PLAYER0,GHOST >= 150)
+	NEXT_COMMAND_REUSABLE
+	KILL_CREATURE(PLAYER0,IMP,LEAST_EXPERIENCED,10)
+	QUICK_INFORMATION(11,"This is taking too long. Let's see what happens.",PLAYER3)
+ENDIF
+
+REM ****************************************************************************
+REM Win game
+REM ****************************************************************************
+
+IF(PLAYER0,ALL_DUNGEONS_DESTROYED >= 1)
+	KILL_CREATURE(PLAYER0,GHOST,LEAST_EXPERIENCED,250)
+	SET_TIMER(PLAYER0,TIMER1)
+	IF(PLAYER0,TIMER1 >= 80)
+		QUICK_OBJECTIVE(39,"Your message could be posted here. Victory!",ALL_PLAYERS)
+		WIN_GAME
+	ENDIF
+ENDIF
+
+REM ****************************************************************************
+REM End of file
+REM ****************************************************************************

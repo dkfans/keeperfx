@@ -1,5 +1,14 @@
+REM ****************************************************
 REM Spring Execration
+REM
+REM Assmist Isle Campaign by Kix
+REM
+REM v2.0 for DAT file objectives (by dayokay)
+REM 17-Oct-2020
+REM ****************************************************
+
 LEVEL_VERSION(1)
+
 COMPUTER_PLAYER(PLAYER2,7)
 START_MONEY(ALL_PLAYERS,35000)
 
@@ -120,8 +129,10 @@ REM
 REM
 REM
 
-QUICK_OBJECTIVE(1,"As if keeper to the east was not enough, people of this land already know where the intruders are and will start offense soon. Defeat the other keeper, withstand all waves and the land is yours.",PLAYER2)
-QUICK_INFORMATION(2,"Many people see joining you as the only way to defeat the vampire group east keeper controls. Use this to your advantage: not only you will receive powerful troops on your side, but also some financial income. Touch all the 4 colored flames and to keep receiving full power of the sentinels.",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(1,"As if keeper to the east was not enough, people of this land already know where the intruders are and will start offense soon. Defeat the other keeper, withstand all waves and the land is yours.",PLAYER2)
+DISPLAY_OBJECTIVE(85,PLAYER2)
+REM	QUICK_INFORMATION(2,"Many people see joining you as the only way to defeat the vampire group east keeper controls. Use this to your advantage: not only you will receive powerful troops on your side, but also some financial income. Touch all the 4 colored flames and to keep receiving full power of the sentinels.",ALL_PLAYERS)
+DISPLAY_INFORMATION(86,ALL_PLAYERS)
 
 ADD_CREATURE_TO_POOL(TROLL,4)
 CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
@@ -144,7 +155,8 @@ ENDIF
 IF(PLAYER_GOOD,BATTLES_LOST>12)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,BARBARIAN,5,IMPORT(PLAYER0,CAMPAIGN_FLAG7),2,0)
 	IF(PLAYER0,BARBARIAN>0)
-		QUICK_INFORMATION(13,"Look! A few barbarians have joined you!",5)
+	REM	QUICK_INFORMATION(13,"Look! A few barbarians have joined you!",5)
+	DISPLAY_INFORMATION(87,5)
 	ENDIF
 ENDIF
 
@@ -166,7 +178,8 @@ IF(PLAYER0,TIMER0>655)
 			NEXT_COMMAND_REUSABLE
 			ADD_GOLD_TO_PLAYER(PLAYER0,1000)
 			IF(PLAYER0,FLAG4>=4)
-				QUICK_INFORMATION(11,"All sentinel dwellings captured.",ALL_PLAYERS)
+				REM	QUICK_INFORMATION(11,"All sentinel dwellings captured.",ALL_PLAYERS)
+				DISPLAY_INFORMATION(88,ALL_PLAYERS)
 				IF(PLAYER0,BARBARIAN<3)
 					NEXT_COMMAND_REUSABLE
 					ADD_CREATURE_TO_LEVEL(PLAYER0,BARBARIAN,5,IMPORT(PLAYER0,CAMPAIGN_FLAG6),8,0)
@@ -235,22 +248,26 @@ ENDIF
 IF_ACTION_POINT(1,PLAYER0)
 	SET_FLAG(PLAYER0,FLAG0,1)
 	ADD_TO_FLAG(PLAYER0,FLAG4,1)
-	QUICK_INFORMATION(3,"Fairies have joined your cause.",1)
+REM	QUICK_INFORMATION(3,"Fairies have joined your cause.",1)
+	DISPLAY_INFORMATION(90,1)
 ENDIF
 IF_ACTION_POINT(2,PLAYER0)
 	SET_FLAG(PLAYER0,FLAG1,1)
 	ADD_TO_FLAG(PLAYER0,FLAG4,1)
-	QUICK_INFORMATION(4,"Monks have joined your cause.",2)
+REM	QUICK_INFORMATION(4,"Monks have joined your cause.",2)
+	DISPLAY_INFORMATION(91,2)
 ENDIF
 IF_ACTION_POINT(3,PLAYER0)
 	SET_FLAG(PLAYER0,FLAG2,1)
 	ADD_TO_FLAG(PLAYER0,FLAG4,1)
-	QUICK_INFORMATION(5,"Archers have joined your cause.",3)
+REM	QUICK_INFORMATION(5,"Archers have joined your cause.",3)
+	DISPLAY_INFORMATION(92,3)
 ENDIF
 IF_ACTION_POINT(4,PLAYER0)
 	SET_FLAG(PLAYER0,FLAG3,1)
 	ADD_TO_FLAG(PLAYER0,FLAG4,1)
-	QUICK_INFORMATION(6,"Priestesses have joined your cause.",4)
+REM	QUICK_INFORMATION(6,"Priestesses have joined your cause.",4)
+	DISPLAY_INFORMATION(93,4)
 ENDIF
 
 
@@ -266,7 +283,8 @@ ENDIF
 IF(PLAYER0,TIMER1>7660)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,W1,-3,3)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,W1,-4,3)
-	QUICK_INFORMATION(7,"You can thank those people for one thing though. A group of autistic monks have managed to limit the east keeper's vampires' power for some time.",PLAYER2)
+	REM	QUICK_INFORMATION(7,"You can thank those people for one thing though. A group of autistic monks have managed to limit the east keeper's vampires' power for some time.",PLAYER2)
+	DISPLAY_INFORMATION(94,PLAYER2)
 ENDIF
 
 IF(PLAYER0,TIMER1>14000)
@@ -315,7 +333,8 @@ IF(PLAYER0,TIMER1>60000)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,X2,DRAWFROM(-4,-5),2)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,X2,-1,3)
 	IF(PLAYER2,DUNGEON_DESTROYED==0)
-		QUICK_INFORMATION(8,"Autistic monks' curse seems to have dissipated.",PLAYER2)
+		REM	QUICK_INFORMATION(8,"Autistic monks' curse seems to have dissipated.",PLAYER2)
+		DISPLAY_INFORMATION(95,PLAYER2)
 		SET_CREATURE_MAX_LEVEL(PLAYER2,VAMPIRE,10)
 	ENDIF
 ENDIF
@@ -336,13 +355,15 @@ IF(PLAYER0,TIMER1>82000)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SIDEKICK,DRAWFROM(-4,-5),2)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SIDEKICK,DRAWFROM(-4,-5),2)
 	SET_FLAG(PLAYER0,FLAG5,1)
-	QUICK_OBJECTIVE(10,"The lord of the land took his time but is finally here to revenge his comrades. Send him where he belongs.",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(10,"The lord of the land took his time but is finally here to revenge his comrades. Send him where he belongs.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(96,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,FLAG5>0)
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED==1)
 IF(PLAYER_GOOD,AVATAR==0)
-	QUICK_OBJECTIVE(12,"What are you waiting for? You're done. To the next realm!",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(12,"What are you waiting for? You're done. To the next realm!",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(97,ALL_PLAYERS)
 	WIN_GAME
 ENDIF
 ENDIF
@@ -367,5 +388,6 @@ ENDIF
 ENDIF
 
 IF(PLAYER2,VAMPIRE>8)
-	QUICK_INFORMATION(9,"The other keeper's vampire army is expanding. Interfere if you do not wish to bow before him later.",PLAYER2)
+REM	QUICK_INFORMATION(9,"The other keeper's vampire army is expanding. Interfere if you do not wish to bow before him later.",PLAYER2)
+	DISPLAY_INFORMATION(98,PLAYER2)
 ENDIF

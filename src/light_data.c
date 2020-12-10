@@ -152,8 +152,8 @@ long light_create_light(struct InitLight *ilght)
     lgt->mappos.x.val = ilght->mappos.x.val;
     lgt->mappos.y.val = ilght->mappos.y.val;
     lgt->mappos.z.val = ilght->mappos.z.val;
-    lgt->field_16 = ilght->field_0;
-    lgt->field_2 = ilght->field_2;
+    lgt->radius = ilght->field_0;
+    lgt->intensity = ilght->field_2;
     unsigned long k = 2 * ilght->field_3;
     lgt->field_1 = k ^ ((k ^ lgt->field_1) & 0x01);
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
@@ -445,14 +445,70 @@ void light_turn_light_on(long idx)
     }
 }
 
-long light_get_light_intensity(long idx)
+unsigned char light_get_light_intensity(long idx)
 {
-  return _DK_light_get_light_intensity(idx);
+  // return _DK_light_get_light_intensity(idx);
+  if ( idx )
+  {
+    if ( game.lish.lights[idx].flags & LgtF_Allocated )
+    {
+      return game.lish.lights[idx].intensity;
+    }
+    else
+    {
+      ERRORLOG("Attempt to get intensity of unallocated light structure");
+      return 0;
+    }
+  }
+  else
+  {
+    ERRORLOG("Attempt to get intensity of light 0");
+    return 0;
+  }
 }
 
-long light_set_light_intensity(long a1, long a2)
+void light_set_light_intensity(long idx, unsigned char intensity)
 {
-  return _DK_light_set_light_intensity(a1, a2);
+  // return _DK_light_set_light_intensity(a1, a2);
+  struct Light *lgt = &game.lish.lights[idx];
+  long x1,x2,y1,y2;
+  if ( !light_is_invalid(lgt) )
+  {
+    if ((lgt->flags & LgtF_Allocated) != 0)
+    {
+      if ( lgt->intensity != intensity )
+      {
+        if ((lgt->flags & LgtF_Dynamic) == 0)
+        {
+          y2 = lgt->mappos.y.stl.num + lgt->range;
+          if ( y2 > 255 )
+            y2 = 255;
+          x2 = lgt->mappos.x.stl.num + lgt->range;
+          if ( x2 > 255 )
+            x2 = 255;
+          y1 = lgt->mappos.y.stl.num - lgt->range;
+          if ( y1 < 0 )
+            y1 = 0;
+          x1 = lgt->mappos.x.stl.num - lgt->range;
+          if ( x1 < 0 )
+            x1 = 0;
+          light_signal_stat_light_update_in_area(x1, y1, x2, y2);
+          stat_light_needs_updating = 1;
+        }
+        lgt->intensity = intensity;
+        if ( *(unsigned short *)&lgt->field_1C[8] < intensity )
+          lgt->flags |= LgtF_Unkn08;
+      }
+    }
+    else
+    {
+      ERRORLOG("Attempt to set intensity of unallocated light structure");
+    }
+  }
+  else
+  {
+    ERRORLOG("Attempt to set intensity of invalid light");
+  }
 }
 
 void clear_stat_light_map(void)

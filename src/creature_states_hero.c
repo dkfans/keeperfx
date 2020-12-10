@@ -923,8 +923,11 @@ short good_leave_through_exit_door(struct Thing *thing)
     cctrl->countdown_282 = game.hero_door_wait_time;
     cctrl->byte_8A = tmptng->creation_turn;
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    creature_drop_dragged_object(thing, dragtng);
-    destroy_object(dragtng);
+    if (cctrl->dragtng_idx != 0)
+    {
+        creature_drop_dragged_object(thing, dragtng);
+        destroy_object(dragtng);
+    }
     place_thing_in_creature_controlled_limbo(thing);
     internal_set_thing_state(thing, CrSt_GoodWaitInExitDoor);
     return 1;
@@ -1071,6 +1074,7 @@ TbBool send_tunneller_to_point_in_dungeon(struct Thing *creatng, PlayerNumber pl
 short tunneller_doing_nothing(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    PlayerNumber CurrentTarget = cctrl->party.target_plyr_idx;
     // Wait for some time
     if (game.play_gameturn - cctrl->last_mood_sound_turn <= 1) {
         return 1;
@@ -1091,25 +1095,43 @@ short tunneller_doing_nothing(struct Thing *creatng)
         }
     }
     cctrl->party.target_plyr_idx = good_find_enemy_dungeon(creatng);
-    if (cctrl->party.target_plyr_idx != -1)
+    if ( (cctrl->party.target_plyr_idx != -1) && (cctrl->party.target_plyr_idx != CurrentTarget) )
     {
         internal_set_thing_state(creatng, CrSt_GoodDoingNothing);
         return 1;
     }
 
+    // int plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
     int plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
+    if (CurrentTarget != -1)
+    {
+        plyr_idx = CurrentTarget;
+    }
     if (plyr_idx == -1) {
       return 1;
     }
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    if ((dungeon->num_active_creatrs > 0) || (dungeon->num_active_diggers > 0))
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if ( (player_exists(player)) && (player_has_heart(plyr_idx)) )
     {
+        struct Dungeon* dungeon = get_dungeon(plyr_idx);
         struct Coord3d pos;
-        get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos);
-        send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
-    } else
-    {
-        good_setup_wander_to_dungeon_heart(creatng, plyr_idx);
+        if ((dungeon->num_active_creatrs > 0) || (dungeon->num_active_diggers > 0))
+        {
+            get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos);
+            send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
+        } else
+        {
+            struct Thing* heartng = get_player_soul_container(plyr_idx);
+            if (creature_can_navigate_to_with_storage(creatng, &heartng->mappos, NavRtF_Default))
+            {
+                good_setup_wander_to_dungeon_heart(creatng, plyr_idx);
+            }
+            else
+            {
+                get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos);
+                send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
+            }
+        }
     }
     return 1;
 }
@@ -1147,7 +1169,15 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
         } else
         if (cctrl->instance_id == CrInst_NULL)
         {
-            set_creature_instance(creatng, CrInst_TUNNEL, 0, 0, 0);
+            MapSubtlCoord stl_x = stl_num_decode_x(cctrl->navi.field_15);
+            MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.field_15);
+            struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+            if ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_EARTH || (slb->kind == SlbT_TORCHDIRT)) ) { // if this is false, that means the current tile must have changed to an undiggable wall
+                set_creature_instance(creatng, CrInst_TUNNEL, 0, 0, 0);
+            }
+        else {
+            return 1;
+        }
         }
     }
     MapCoordDelta dist = get_2d_distance(&creatng->mappos, &cctrl->navi.pos_next);

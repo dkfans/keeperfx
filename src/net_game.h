@@ -82,7 +82,7 @@ const char *network_player_name(int plyr_idx);
 void set_network_player_name(int plyr_idx, const char *name);
 /******************************************************************************/
 
-static unsigned short packpos_2d(const struct Coord3d *pos)
+inline static unsigned short packpos_2d(const struct Coord3d *pos)
 {
     return (pos->x.stl.num & 0xFF) | ((pos->y.stl.num & 0xFF) << 8);
 }

@@ -28,6 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define STRINGS_MAX       1000
 #define DK_STRINGS_MAX     941
+#define GUI_STRINGS_COUNT 1006
 
 struct GameCampaign;
 
@@ -409,6 +410,16 @@ enum GUIStrings {
     GUIStr_MnuMapPacks = STRINGS_MAX + 969,
     GUIStr_MnuDungeonKeeperLevels = STRINGS_MAX+970, // range 970..975
     GUIStr_TrapDoorNames = STRINGS_MAX + 981, // range 981..995
+    GUIStr_MouseScrollWheelUp = STRINGS_MAX + 996,
+    GUIStr_MouseScrollWheelDown = STRINGS_MAX + 997,
+    GUIStr_MouseButton = STRINGS_MAX + 998,
+    GUIStr_SquareRoomSpace = STRINGS_MAX + 999,
+    GUIStr_BestRoomSpace = STRINGS_MAX + 1000,
+    GUIStr_RoomSpaceIncrease = STRINGS_MAX + 1001,
+    GUIStr_RoomSpaceDecrease = STRINGS_MAX + 1002,
+    GUIStr_SellTrapOnSubtile = STRINGS_MAX + 1003,
+    GUIStr_SnapCamera = STRINGS_MAX + 1004,
+    GUIStr_MysteryBox = STRINGS_MAX + 1005,
 };
 
 enum CampaignStrings {
@@ -467,7 +478,7 @@ enum CampaignStrings {
 /******************************************************************************/
 TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);
-TbBool reset_strings(char **strings);
+TbBool reset_strings(char **strings, int max);
 const char * get_string(TextStringId stridx);
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
 /******************************************************************************/

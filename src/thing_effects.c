@@ -65,7 +65,7 @@ struct EffectGeneratorStats effect_generator_stats[] = {
     { 2,  5,  1, 37, 0,  0,-15, 15,-15, 15,  0,  0,  0,  0, 0}
 };
 
-//start_health;generation_type;accel_xy_min;accel_xy_max;accel_z_min;accel_z_max;field_B;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
+//start_health;generation_type;accel_xy_min;accel_xy_max;accel_z_min;accel_z_max;size_yz;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
 struct InitEffect effect_info[] = {
     { 0, 1,   0,   0,  0,    0,  0,   0,  0,  0,  AAffT_None, 0, {0}, 0},
     { 1, 1,  32,  32, -32,  32,  1,  47,  1,  1,  AAffT_None, 1, { 512, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
@@ -295,7 +295,7 @@ struct EffectElementStats effect_element_stats[] = {
     0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
    {4, 4, 0, 16, 16, 0, 256, 256, 0, 256, 256, 1, 1, 0,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0, 0,
-    0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // #41 Floating number then gold is spent.
    {2, 5, 0, 2, 4, 964, 128, 172, 1, 256, 256, 1, 1,
     3, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0,
     0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -475,6 +475,10 @@ struct EffectElementStats effect_element_stats[] = {
    {2, 5, 0, -1, -1, 837, 200, 256, 1, 16, 32, 1, 0,
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0,
     0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    // [95]
+   {2, 5, 0, 4, 4, 851, 172, 172, 1, 256, 256, 1, 1,
+    3, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0,
+    0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, //Copy of 45, used for CREATURE DISEASE
 };
 
 long const bounce_table[] = { -160, -160, -120, -120, -80, -40, -20, 0, 20, 40, 80, 120, 120, 160, 160, 160 };
@@ -535,7 +539,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->clipbox_size_xy = 1;
     thing->clipbox_size_yz = 1;
     thing->solid_size_xy = 1;
-    thing->field_5C = 1;
+    thing->solid_size_yz = 1;
 
     if (eestat->sprite_idx != -1)
     {
@@ -543,7 +547,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         long n = GAME_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->field_0);
         set_flag_byte(&thing->field_4F,TF4F_Unknown02,eestat->field_13);
-        thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & (TF4F_Unknown10|TF4F_Unknown20);
+        thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & (TF4F_Transpar_Flags);
         set_flag_byte(&thing->field_4F,TF4F_Unknown40,eestat->field_D);
     } else
     {
@@ -564,7 +568,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         thing->health = eestat->numfield_3 + i;
     } else
     {
-        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->field_3E);
+        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     }
 
     if (eestat->field_17 != 0)
@@ -681,10 +685,11 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         effeltng = create_effect_element(&thing->mappos, TngEff_Unknown18, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
-            memcpy(&effeltng->field_3E, &thing->field_3E, 0x14u);
-            effeltng->field_4F &= ~TF4F_Unknown10;
-            effeltng->field_4F |= TF4F_Unknown20;
-            effeltng->field_3E = 0;
+            // TODO: looks like some "struct AnimSpeed"
+            memcpy(&effeltng->anim_speed, &thing->anim_speed, 20);
+            effeltng->field_4F &= ~TF4F_Transpar_8;
+            effeltng->field_4F |= TF4F_Transpar_4;
+            effeltng->anim_speed = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
         }
     }
@@ -698,10 +703,10 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_effect_element(&thing->mappos, TngEff_Unknown18, thing->owner);
             if (!thing_is_invalid(effeltng))
             {
-                memcpy(&effeltng->field_3E, &thing->field_3E, 0x14u);
-                effeltng->field_4F &= ~TF4F_Unknown10;
-                effeltng->field_4F |= TF4F_Unknown20;
-                effeltng->field_3E = 0;
+                memcpy(&effeltng->anim_speed, &thing->anim_speed, 0x14u);
+                effeltng->field_4F &= ~TF4F_Transpar_8;
+                effeltng->field_4F |= TF4F_Transpar_4;
+                effeltng->anim_speed = 0;
                 effeltng->move_angle_xy = thing->move_angle_xy;
             }
         } else
@@ -821,12 +826,12 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * eestat->field_13) & TF4F_Unknown02;
-    thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & (TF4F_Unknown10|TF4F_Unknown20);
+    thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & (TF4F_Transpar_Flags);
     thing->field_20 = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
     if (eestat->numfield_3 <= 0) {
-        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->field_3E);
+        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     } else {
         thing->health = GAME_RANDOM(eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
     }
@@ -857,7 +862,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     if (!eestats->field_12)
     {
         if (elemtng->field_60 >= (int)elemtng->mappos.z.val)
-          elemtng->field_3E = 0;
+          elemtng->anim_speed = 0;
     }
     if (eestats->field_15)
     {
@@ -944,7 +949,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     long prop_val = i / (LbFPMath_PI / 8);
     elemtng->move_angle_xy = get_angle_xy_to_vec(&elemtng->veloc_base);
     elemtng->field_48 = prop_val;
-    elemtng->field_3E = 0;
+    elemtng->anim_speed = 0;
     elemtng->field_40 = (prop_val & 0xff) << 8;
     SYNCDBG(18,"Finished");
     return TUFRet_Modified;

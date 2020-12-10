@@ -99,6 +99,7 @@ DLLIMPORT long _DK_key_to_string[256];
 
 #pragma pack()
 /******************************************************************************/
+extern TbBool defined_keys_that_have_been_swapped[];
 extern TbBool wheel_scrolled_up;
 extern TbBool wheel_scrolled_down;
 

@@ -325,8 +325,12 @@ short save_packets(void);
 void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
 
+struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
+TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
+
 #define SHIFT_CHECKSUM(X) {X = (X << 1) | (X >> 31);}
 void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, enum ChecksumKind kind);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

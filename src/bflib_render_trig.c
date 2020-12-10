@@ -2727,7 +2727,7 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
                  :
                  : "memory", "cc", "%eax", "%ebx", "%edx", "%ecx", "%edi", "%esi");
 #endif
-        // no break - fall to mode01
+        // fall through - fall to mode01
     case RendVec_mode01:
 #if __GNUC__
         asm volatile (" \

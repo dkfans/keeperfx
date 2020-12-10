@@ -261,9 +261,9 @@ void game_loop(void);
 short reset_game(void);
 void update(void);
 
-int can_thing_be_queried(struct Thing *thing, long a2);
+TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
-TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4, TbBool Subtile);
+TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4, TbBool single_subtile);
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
 TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4);
 TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
@@ -353,8 +353,6 @@ void process_dungeon_destroy(struct Thing *thing);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
-TbBool setup_move_off_lava(struct Thing *thing);
-TbBool setup_move_out_of_cave_in(struct Thing *thing);
 
 TbPixel get_player_path_colour(unsigned short owner);
 

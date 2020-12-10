@@ -200,7 +200,7 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   LbMemorySet(campgn->movie_outro_fname,0,DISKPATH_SIZE);
   LbMemorySet(campgn->strings_fname,0,DISKPATH_SIZE);
   campgn->strings_data = NULL;
-  reset_strings(campgn->strings);
+  reset_strings(campgn->strings, STRINGS_MAX);
   LbMemorySet(campgn->hiscore_fname,0,DISKPATH_SIZE);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = 0;

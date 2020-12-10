@@ -449,8 +449,15 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 
     struct RoomStats* rstat = room_stats_get_for_kind(rkind);
     //game.chosen_room_kind
-    sprintf(gui_textbuf, "%ld", (long)rstat->cost);
-    if (rstat->cost <= dungeon->total_money_owned)
+    if (player->boxsize > 1)
+    {
+        sprintf(gui_textbuf, "%ld", (long)rstat->cost * player->boxsize);
+    }
+    else
+    {
+        sprintf(gui_textbuf, "%ld", (long)rstat->cost);
+    }
+    if (rstat->cost * player->boxsize <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn & 1) == 0))
@@ -952,7 +959,7 @@ void maintain_room(struct GuiButton *gbtn)
         ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)my_player_number);
         return;
     }
-    if (dungeon->room_buildable[rkind]) {
+    if (dungeon->room_buildable[rkind] & 1) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
@@ -975,7 +982,7 @@ void maintain_big_room(struct GuiButton *gbtn)
     gbtn->content = (unsigned long *)rkind;
     gbtn->sprite_idx = game.chosen_room_spridx;
     gbtn->tooltip_stridx = game.chosen_room_tooltip;
-    if (dungeon->room_buildable[rkind]) {
+    if (dungeon->room_buildable[rkind] & 1) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
@@ -1166,6 +1173,19 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
         draw_gui_panel_sprite_left(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx);
     }
 }
+unsigned short get_creature_pick_flags(TbBool pick_up)
+{
+    unsigned short pick_flags = pick_up ? TPF_PickableCheck : 0;
+    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
+    {
+        pick_flags |= TPF_OrderedPick;
+    }
+    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
+    {
+        pick_flags |= TPF_OrderedPick | TPF_ReverseOrder;
+    }
+    return pick_flags;
+}
 
 void pick_up_creature_doing_activity(struct GuiButton *gbtn)
 {
@@ -1178,11 +1198,7 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
         crmodel = get_players_special_digger_model(my_player_number);
     // Get index from pointer
     long job_idx = ((long*)gbtn->content - &activity_list[0]);
-    unsigned char pick_flags = TPF_PickableCheck;
-    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
-        pick_flags |= TPF_OrderedPick;
-    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
-        pick_flags |= TPF_OrderedPick | TPF_ReverseOrder;
+    unsigned char pick_flags = get_creature_pick_flags(1);
     pick_up_creature_of_model_and_gui_job(crmodel, (job_idx & 0x03), my_player_number, pick_flags);
 }
 
@@ -1197,7 +1213,8 @@ void gui_go_to_next_creature_activity(struct GuiButton *gbtn)
     }
     // Get index from pointer
     int job_idx = ((long*)gbtn->content - &activity_list[0]);
-    go_to_next_creature_of_model_and_gui_job(crmodel, (job_idx & 0x3));
+    unsigned short pick_flags = get_creature_pick_flags(0);
+    go_to_next_creature_of_model_and_gui_job(crmodel, (job_idx & 0x3), pick_flags);
 }
 
 RoomIndex find_my_next_room_of_type(RoomKind rkind)
@@ -1268,7 +1285,11 @@ void gui_area_room_button(struct GuiButton *gbtn)
     RoomKind rkind = (long)gbtn->content;
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, 24);
     struct Dungeon* dungeon = get_my_dungeon();
-    if (dungeon->room_resrchable[rkind] || dungeon->room_buildable[rkind])
+    if ((dungeon->room_buildable[rkind] & 1) // One can build it now
+         || (dungeon->room_resrchable[rkind] == 1) // One can research it at any time
+         || (dungeon->room_resrchable[rkind] == 2) // One can research it and get instantly then found
+         || ((dungeon->room_resrchable[rkind] == 4) && (dungeon->room_buildable[rkind] & 2)) // Player able to research
+         )
     {
         if ((gbtn->flags & LbBtnF_Enabled) != 0)
         {
@@ -1301,11 +1322,7 @@ void pick_up_next_creature(struct GuiButton *gbtn)
         kind = get_players_special_digger_model(my_player_number);
     }
 
-    unsigned short pick_flags = TPF_PickableCheck;
-    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
-        pick_flags |= TPF_OrderedPick;
-    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
-        pick_flags |= TPF_ReverseOrder;
+    unsigned short pick_flags = get_creature_pick_flags(1);
     pick_up_creature_of_model_and_gui_job(kind, CrGUIJob_Any, my_player_number, pick_flags);
 }
 
@@ -1319,7 +1336,8 @@ void gui_go_to_next_creature(struct GuiButton *gbtn)
     } else {
         crmodel = get_players_special_digger_model(my_player_number);
     }
-    go_to_next_creature_of_model_and_gui_job(crmodel, CrGUIJob_Any);
+    unsigned char pick_flags = get_creature_pick_flags(0);
+    go_to_next_creature_of_model_and_gui_job(crmodel, CrGUIJob_Any, pick_flags);
 }
 
 void gui_area_anger_button(struct GuiButton *gbtn)
@@ -1905,47 +1923,38 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
 
 void pick_up_next_wanderer(struct GuiButton *gbtn)
 {
-    unsigned short pick_flags = TPF_PickableCheck;
-    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
-        pick_flags |= TPF_OrderedPick;
-    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
-        pick_flags |= TPF_ReverseOrder;
+    unsigned short pick_flags = get_creature_pick_flags(1);
     pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_wanderer(struct GuiButton *gbtn)
 {
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering);
+    unsigned short pick_flags = get_creature_pick_flags(0);
+    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Wandering, pick_flags);
 }
 
 void pick_up_next_worker(struct GuiButton *gbtn)
 {
-    unsigned short pick_flags = TPF_PickableCheck;
-    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
-        pick_flags |= TPF_OrderedPick;
-    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
-        pick_flags |= TPF_ReverseOrder;
+    unsigned short pick_flags = get_creature_pick_flags(1);
     pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Working, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_worker(struct GuiButton *gbtn)
 {
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Working);
+    unsigned short pick_flags = get_creature_pick_flags(0);
+    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Working, pick_flags);
 }
 
 void pick_up_next_fighter(struct GuiButton *gbtn)
 {
-    unsigned short pick_flags = TPF_PickableCheck;
-    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
-        pick_flags |= TPF_OrderedPick;
-    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
-        pick_flags |= TPF_ReverseOrder;
+    unsigned short pick_flags = get_creature_pick_flags(1);
     pick_up_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_fighter(struct GuiButton *gbtn)
 {
-    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting);
+    unsigned short pick_flags = get_creature_pick_flags(0);
+    go_to_next_creature_of_model_and_gui_job(-1, CrGUIJob_Fighting, pick_flags);
 }
 
 void gui_area_payday_button(struct GuiButton *gbtn)

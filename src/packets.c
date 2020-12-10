@@ -33,6 +33,7 @@
 #include "bflib_planar.h"
 
 #include "kjm_input.h"
+#include "front_input.h"
 #include "front_simple.h"
 #include "front_network.h"
 #include "frontend.h"
@@ -172,7 +173,14 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
     struct Room* room = player_build_room_at(x, y, plyr_idx, rkind);
     if (!room_is_invalid(room))
     {
-        dungeon->camera_deviate_jump = 192;
+        if (player->boxsize > 1)
+        {
+            dungeon->camera_deviate_jump = 240;
+        }
+        else
+        {
+            dungeon->camera_deviate_jump = 192;
+        }
         struct Coord3d pos;
         set_coords_to_slab_center(&pos, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
         create_price_effect(&pos, plyr_idx, rstat->cost);
@@ -1292,7 +1300,7 @@ static void process_players_creature_control_packet_action(
         break;
       i = packet->arg0;
       inst_inf = creature_instance_info_get(i);
-      if (!inst_inf->field_0)
+      if (!inst_inf->instant)
       {
         cctrl->active_instance_id = i;
       } else

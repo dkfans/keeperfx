@@ -490,7 +490,7 @@ static TbBool get_global_inputs(struct PacketEx *packet)
 
   for (int idx = KC_F1; idx <= KC_F8; idx++)
   {
-      if ( is_key_pressed(idx,KMod_ALT) )
+      if ( is_key_pressed(idx,KMod_CONTROL) )
       {
         create_packet_action(player, PckA_PlyrFastMsg, idx-KC_F1, 0);
         clear_key_pressed(idx);
@@ -810,11 +810,11 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
           toggle_gui();
       }
       // Middle mouse camera actions for IsometricView
-      if (lbDisplay.MiddleButton >= 1)
+      if (is_game_key_pressed(Gkey_SnapCamera, &val, true))
       {
           struct Camera* cam = &player->cameras[CamIV_Isometric];
           int angle = cam->orient_a;
-          if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
+          if (lbKeyOn[KC_LCONTROL])
           {
               if ((angle >= 0 && angle < 256) || angle == 2048)
               {
@@ -884,9 +884,9 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
         {
             (angle = 0);
         }
-        packet->packet.action = PckA_SetMapRotation;
-        packet->packet.actn_par1 = angle;
-        lbDisplay.MiddleButton = 0;
+        check_set_packet_action(packet, PckA_SetMapRotation, angle, 0, 0);
+        clear_key_pressed(val);
+        lbDisplay.MiddleButton = 0; // WTF is this? and why it is on Display?
       }
     }
     if (player->view_mode == PVM_FrontView)
@@ -901,13 +901,11 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
           toggle_gui();
       }
       // Middle mouse camera actions for FrontView
-      if (lbDisplay.MiddleButton >= 1)
+      if (is_game_key_pressed(Gkey_SnapCamera, &val, true))
       {
-        struct Camera* cam = &player->cameras[CamIV_FrontView];
-        int angle = cam->orient_a;
         if (is_game_key_pressed(Gkey_RotateMod, NULL, false))
         {
-              packet->packet.control_flags |= PCtr_ViewRotateCW;
+            packet->packet.control_flags |= PCtr_ViewRotateCW;
         }
         else if (lbKeyOn[KC_LSHIFT])
         {
@@ -915,6 +913,8 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
         }
         else
         {
+            struct Camera* cam = &player->cameras[CamIV_FrontView];
+            int angle = cam->orient_a;
             if (angle == 0 || angle == 2048)
             {
                 (angle = 1024);
@@ -931,10 +931,10 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
             {
                 (angle = 0);
             }
-        packet->packet.action = PckA_SetMapRotation;
-        packet->packet.actn_par1 = angle;
+            packet->packet.action = PckA_SetMapRotation;
+            packet->packet.actn_par1 = angle;
         }
-      lbDisplay.MiddleButton = 0;
+        clear_key_pressed(val);
       }
     }
 

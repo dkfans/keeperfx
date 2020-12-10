@@ -88,7 +88,7 @@ struct Thing;
 typedef long (*Creature_Instf_Func)(struct Thing *, long *);
 
 struct InstanceInfo { // sizeof = 42
-unsigned char field_0;
+    TbBool instant;
     long time;
     long fp_time;
     long action_time;

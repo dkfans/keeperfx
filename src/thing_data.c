@@ -93,7 +93,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
 
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
 {
-    if (game.free_things_start_index > THINGS_COUNT - 50)
+    if (game.free_things_start_index > THINGS_COUNT - 5)
     {
         show_onscreen_msg(game.num_fps, "Warning: thing slots used %d/%d", game.free_things_start_index+1, THINGS_COUNT);
     }
@@ -239,7 +239,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     thing->field_50 |= (draw_class << 2);
     thing->field_49 = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {
-        thing->field_3E = speed;
+        thing->anim_speed = speed;
     }
     if (scale != -1) {
         thing->sprite_size = scale;

@@ -76,6 +76,12 @@ const long definable_key_string[] = {
     GUIStr_Pause,
     GUIStr_Map,
     GUIStr_ToggleMessage,
+    GUIStr_SnapCamera,
+    GUIStr_BestRoomSpace,
+    GUIStr_SquareRoomSpace,
+    GUIStr_RoomSpaceIncrease,
+    GUIStr_RoomSpaceDecrease,
+    GUIStr_SellTrapOnSubtile,
 };
 /******************************************************************************/
 #ifdef __cplusplus
@@ -147,6 +153,8 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     }
     if (frontend_mouse_over_button == content) {
         LbTextSetFont(frontend_font[2]);
+    } else if (defined_keys_that_have_been_swapped[key_id]) {
+        LbTextSetFont(frontend_font[3]);
     } else {
         LbTextSetFont(frontend_font[1]);
     }
@@ -164,17 +172,17 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     if (mods & KMod_CONTROL)
     {
         strcat(text, get_string(GUIStr_KeyControl));
-        strcat(text, " ");
+        strcat(text, " + ");
     }
     if (mods & KMod_ALT)
     {
         strcat(text, get_string(GUIStr_KeyAlt));
-        strcat(text, " ");
+        strcat(text, " + ");
     }
     if (mods & KMod_SHIFT)
     {
         strcat(text, get_string(GUIStr_KeyShift));
-        strcat(text, " ");
+        strcat(text, " + ");
     }
 
     unsigned char code = settings.kbkeys[key_id].code;
@@ -194,6 +202,27 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       case KC_RALT:
         keytext = get_string(GUIStr_KeyAlt);
         break;
+      case KC_MOUSE9:
+      case KC_MOUSE8:
+      case KC_MOUSE7:
+      case KC_MOUSE6:
+      case KC_MOUSE5:
+      case KC_MOUSE4:
+      case KC_MOUSE3:
+      case KC_MOUSE2:
+      case KC_MOUSE1:
+      {
+        char mouse_button_label[255] = "";
+        const char* mouse_gui_string = get_string(key_to_string[(long)code]);
+        int mouse_button_number = (KC_MOUSE1 + 1 - code);
+        char mouse_button_number_string[8];
+        itoa(mouse_button_number, mouse_button_number_string, 10);
+        strcat(mouse_button_label, mouse_gui_string);
+        strcat(mouse_button_label, " ");
+        strcat(mouse_button_label, mouse_button_number_string);
+        keytext = mouse_button_label;
+        break;
+      }
       default:
       {
         long i = key_to_string[code];
@@ -216,11 +245,13 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
 void gui_video_shadows(struct GuiButton *gbtn)
 {
     settings.video_shadows = _DK_video_shadows;
+    copy_settings_to_dk_settings();
 }
 
 void gui_video_view_distance_level(struct GuiButton *gbtn)
 {
     settings.view_distance = video_view_distance_level;
+    copy_settings_to_dk_settings();
 }
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)

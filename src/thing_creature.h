@@ -159,7 +159,7 @@ void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
 void change_creature_owner(struct Thing *thing, PlayerNumber nowner);
 struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags);
 struct Thing *pick_up_creature_of_model_and_gui_job(long breed_idx, long job_idx, PlayerNumber owner, unsigned char pick_flags);
-void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx);
+void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx, unsigned char pick_flags);
 struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const struct Thing *dragtng);
 struct Thing *find_creature_dragging_thing(const struct Thing *dragtng);
 struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind);
@@ -176,6 +176,12 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
 long update_creature_levels(struct Thing *thing);
 TngUpdateRet update_creature(struct Thing *thing);
 TbBool creature_stats_debug_dump(void);
+
+void create_light_for_possession(struct Thing *creatng);
+void illuminate_creature(struct Thing *creatng);
+
+long get_spell_slot(const struct Thing *thing, SpellKind spkind);
+TbBool free_spell_slot(struct Thing *thing, long slot_idx);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

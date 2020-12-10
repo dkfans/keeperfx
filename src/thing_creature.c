@@ -297,20 +297,10 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
             make_group_member_leader(thing);
         }
     }
-    struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
-    ilght.mappos.x.val = thing->mappos.x.val;
-    ilght.mappos.y.val = thing->mappos.y.val;
-    ilght.mappos.z.val = thing->mappos.z.val;
-    ilght.field_3 = 1;
-    ilght.field_2 = 36;
-    ilght.field_0 = 2560;
-    ilght.is_dynamic = 1;
-    thing->light_id = light_create_light(&ilght);
-    if (thing->light_id != 0) {
-        light_set_light_never_cache(thing->light_id);
-    } else {
-      ERRORLOG("Cannot allocate light to new controlled thing");
+    crstat = creature_stats_get(thing->model);
+    if ( (!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)) )
+    {
+        create_light_for_possession(thing);
     }
     if (is_my_player_number(thing->owner))
     {
@@ -636,7 +626,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
     }
     if (thing_is_creature(foodtng))
     {
-        foodtng->health = -1;
+        thing_death_flesh_explosion(foodtng);
     } else
     {
         delete_thing_structure(foodtng, 0);
@@ -730,7 +720,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Wind:
         return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_Light:
-        return false;//TODO CREATURE_SPELL find out how to check this
+        return ((cctrl->spell_flags & CSAfF_Light) != 0);
     case SplK_Hailstorm:
         return false;//TODO CREATURE_SPELL find out how to check this
     case SplK_CrazyGas:
@@ -876,6 +866,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     struct Thing *ntng;
     long i;
     long k;
+    struct CreatureStats* crstat;
     if (spell_lev > SPELL_MAX_LEVEL)
         spell_lev = SPELL_MAX_LEVEL;
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
@@ -1002,14 +993,19 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         }
         break;
     case SplK_Disease:
+    if ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
+    {
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
+          if (cctrl->disease_caster_plyridx == thing->owner)
+          {
+              cctrl->disease_caster_plyridx = game.neutral_player_num;
+          }
+          pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
           fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
           n = 0;
           cctrl->spell_flags |= CSAfF_Disease;
-          cctrl->disease_caster_plyridx = thing->owner;
           cctrl->disease_start_turn = game.play_gameturn;
           for (k=0; k < 3; k++)
           {
@@ -1037,8 +1033,11 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
               n += 2*LbFPMath_PI/3;
           }
         }
+    }
         break;
     case SplK_Chicken:
+    if ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0)
+    {
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
@@ -1047,6 +1046,23 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
             cctrl->countdown_282 = 10;
             cctrl->spell_flags |= CSAfF_Chicken;
+        }
+    }
+        break;
+    case SplK_Light:
+        crstat = creature_stats_get(thing->model);
+        if (!crstat->illuminated)
+        {
+            i = get_free_spell_slot(thing);
+            if (i != -1)
+            {
+                fill_spell_slot(thing, i, spell_idx, splconf->duration);
+                if (!creature_affected_by_spell(thing, SplK_Light))
+                {
+                    cctrl->spell_flags |= CSAfF_Light;
+                    illuminate_creature(thing);
+                }
+            }
         }
         break;
     default:
@@ -1117,7 +1133,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     case SplK_Disease:
         pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
         cspell->duration = pwrdynst->strength[spell_lev];
-        cctrl->disease_caster_plyridx = thing->owner;
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
@@ -1162,6 +1177,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     int slot_idx = get_spell_slot(thing, spkind);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long i;
+    struct CreatureStats* crstat;
     switch (spkind)
     {
     case SplK_Freeze:
@@ -1230,6 +1246,27 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
         cctrl->countdown_282 = 10;
         break;
+    case SplK_Light:
+    crstat = creature_stats_get(thing->model);
+    if (!crstat->illuminated)
+    {
+        if (thing->light_id != 0) 
+        {
+            cctrl->spell_flags &= ~CSAfF_Light;
+            if ((thing->field_4F & TF4F_Unknown01) != 0)
+            {
+                light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
+                struct Light* lgt = &game.lish.lights[thing->light_id];
+                lgt->radius = 2560;
+            }
+            else
+            {
+                light_delete_light(thing->light_id, thing->index);
+                thing->light_id = 0;
+            }
+        }
+        break;
+    }
     }
     if (slot_idx >= 0) {
         free_spell_slot(thing, slot_idx);
@@ -1486,6 +1523,9 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing)
     // Slap is not in spell array, it is so common that has its own dedicated duration
     if (cctrl->slap_turns > 0) {
         cctrl->slap_turns--;
+            if (cctrl->slap_turns <= 0) {
+            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        }
     }
 }
 
@@ -3450,7 +3490,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->clipbox_size_xy = crstat->size_xy;
     crtng->clipbox_size_yz = crstat->size_yz;
     crtng->solid_size_xy = crstat->thing_size_xy;
-    crtng->field_5C = crstat->thing_size_yz;
+    crtng->solid_size_yz = crstat->thing_size_yz;
     crtng->field_20 = 32;
     crtng->field_22 = 0;
     crtng->field_23 = 32;
@@ -3499,8 +3539,11 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     struct CreatureData* crdata = creature_data_get(crtng->model);
     cctrl->active_instance_id = crdata->flags;
 
-    net_remap_creature_created(owner, crtng->index);
+    if (crstat->illuminated) {
+        illuminate_creature(crtng);
+    }
 
+    net_remap_creature_created(owner, crtng->index);
     return crtng;
 }
 
@@ -4106,13 +4149,13 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     struct Thing* thing = INVALID_THING;
-    if ((is_spec_digger) || (crmodel == -1))
-    {
-        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
-    }
-    if (((!is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
+    if ((!is_spec_digger) || (crmodel == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    }
+    if (((is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
+    {
+        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return thing;
 }
@@ -4347,12 +4390,13 @@ struct Thing *pick_up_creature_of_model_and_gui_job(long crmodel, long job_idx, 
  *
  * @param crmodel
  * @param job_idx
+  * @param pick_flags
  * @note originally was go_to_next_creature_of_breed_and_job()
  */
-void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx)
+void go_to_next_creature_of_model_and_gui_job(long crmodel, long job_idx, unsigned char pick_flags)
 {
     //_DK_go_to_next_creature_of_breed_and_job(crmodel, job_idx); return;
-    struct Thing* creatng = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, my_player_number, 0);
+    struct Thing* creatng = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, my_player_number, pick_flags);
     if (!thing_is_invalid(creatng))
     {
         struct PlayerInfo* player = get_my_player();
@@ -5326,82 +5370,6 @@ TbBool update_creature_pool_state(void)
 }
 
 /******************************************************************************/
-TbBool setup_move_out_of_cave_in(struct Thing *thing)
-{
-    // return _DK_setup_move_out_of_cave_in(thing);
-    MapSlabCoord bx = 0;
-    MapSlabCoord by = 0;
-    MapSubtlCoord cx = 0;
-    MapSubtlCoord cy = 0;
-    struct Thing *tng;
-    struct MapOffset *sstep;
-    struct Map* blk;
-    if (setup_combat_flee_position(thing))
-    {
-        struct CreatureControl* cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if ( setup_person_move_to_coord(thing, &cctrl->flee_pos, 0) )
-        {
-            return true;
-        }
-    }
-    else
-    {
-        MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
-        MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
-        for (signed int i=0; i < 32; i++)
-        {
-            sstep = &spiral_step[i];
-            bx = sstep->h + slb_x;
-            by = sstep->v + slb_y;
-            struct SlabMap *slb;
-            slb = get_slabmap_block(bx, by);
-            if ( slabmap_block_invalid(slb) )
-            {
-                continue;
-            }
-            blk = get_map_block_at(slab_subtile(bx, 0), slab_subtile(by, 0));
-            long n = get_mapwho_thing_index(blk);
-            while ( n != 0 )
-            {
-                tng = thing_get(n);
-                TRACE_THING(tng);
-                // This is single case where TCls_EffectElem is ever synced in multiplayer?
-                if ( tng->class_id == TCls_EffectElem && tng->model == 46 )
-                {
-                    break;
-                }
-                n = tng->next_on_mapblk;
-                if (thing_is_invalid(tng))
-                {
-                    bx = sstep->h + slb_x;
-                    break;
-                }
-            }
-            bx = sstep->h + slb_x;
-            cx = slab_subtile_center(bx);
-            cy = slab_subtile_center(by);
-            long j = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
-            for (long k=0; k < AROUND_TILES_COUNT; k++, j=(j + 1) % AROUND_TILES_COUNT)
-            {
-                MapSubtlCoord stl_x = cx + around[j].delta_x;
-                MapSubtlCoord stl_y = cy + around[j].delta_y;
-                struct Map *mapblk = get_map_block_at(stl_x,stl_y);
-                if (!map_block_invalid(mapblk))
-                {
-                    if (subtile_is_blocking_wall_or_lava(stl_x, stl_y, thing->owner) == 0)
-                    {
-                        if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) 
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return false;
-}
 
 TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param)
 {
@@ -5432,6 +5400,37 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
     }
     return TUFRet_Unchanged;
 }
+
+void create_light_for_possession(struct Thing *creatng)
+{
+    struct InitLight ilght;
+    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    ilght.mappos.x.val = creatng->mappos.x.val;
+    ilght.mappos.y.val = creatng->mappos.y.val;
+    ilght.mappos.z.val = creatng->mappos.z.val;
+    ilght.field_3 = 1;
+    ilght.field_2 = 36;
+    ilght.field_0 = 2560;
+    ilght.is_dynamic = 1;
+    creatng->light_id = light_create_light(&ilght);
+    if (creatng->light_id != 0) {
+        light_set_light_never_cache(creatng->light_id);
+    } else {
+      ERRORLOG("Cannot allocate light to new controlled thing");
+    }
+}
+
+void illuminate_creature(struct Thing *creatng)
+{
+    if (creatng->light_id == 0)
+    {
+        create_light_for_possession(creatng);
+    }
+    light_set_light_intensity(creatng->light_id, (light_get_light_intensity(creatng->light_id) + 20));
+    struct Light* lgt = &game.lish.lights[creatng->light_id];
+    lgt->radius <<= 1;    
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

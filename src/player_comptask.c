@@ -1212,7 +1212,7 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, lo
     }
     if (!dungeon->room_resrchable[rkind])
         return IAvail_Never;
-    if (!dungeon->room_buildable[rkind])
+    if ((dungeon->room_buildable[rkind] & 1) == 0)
         return IAvail_NeedResearch;
     return IAvail_Now;
 }

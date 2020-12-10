@@ -2275,7 +2275,7 @@ msgstr ""
 
 #: guitext:327
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. Get over lava by casting Cave-In or building a Bridge."
+msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr ""
 
 #: guitext:328
@@ -3049,172 +3049,172 @@ msgstr ""
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
+msgid "Left Control"
 msgstr ""
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
+msgid "Right Control"
 msgstr ""
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
+msgid "Left Shift"
 msgstr ""
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
+msgid "Right Shift"
 msgstr ""
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
+msgid "Left Alt"
 msgstr ""
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
+msgid "Right Alt"
 msgstr ""
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
+msgid "Space"
 msgstr ""
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
+msgid "Return"
 msgstr ""
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
+msgid "Tab"
 msgstr ""
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
+msgid "Caps Lock"
 msgstr ""
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
+msgid "Backspace"
 msgstr ""
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
+msgid "Insert"
 msgstr ""
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
+msgid "Delete"
 msgstr ""
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
+msgid "Home"
 msgstr ""
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
+msgid "End"
 msgstr ""
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
+msgid "Page Up"
 msgstr ""
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
+msgid "Page Down"
 msgstr ""
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
+msgid "Num Lock"
 msgstr ""
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
+msgid "Num /"
 msgstr ""
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
+msgid "Num *"
 msgstr ""
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
+msgid "Num -"
 msgstr ""
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
+msgid "Num +"
 msgstr ""
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
+msgid "Num Enter"
 msgstr ""
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
+msgid "Num Delete"
 msgstr ""
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
+msgid "Num 1"
 msgstr ""
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
+msgid "Num 2"
 msgstr ""
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
+msgid "Num 3"
 msgstr ""
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
+msgid "Num 4"
 msgstr ""
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
+msgid "Num 5"
 msgstr ""
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
+msgid "Num 6"
 msgstr ""
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
+msgid "Num 7"
 msgstr ""
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
+msgid "Num 8"
 msgstr ""
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
+msgid "Num 9"
 msgstr ""
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
+msgid "Num 0"
 msgstr ""
 
 #: guitext:515
@@ -3279,22 +3279,22 @@ msgstr ""
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
+msgid "Up"
 msgstr ""
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
+msgid "Down"
 msgstr ""
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
+msgid "Left"
 msgstr ""
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
+msgid "Right"
 msgstr ""
 
 #: guitext:531
@@ -5620,8 +5620,7 @@ msgstr ""
 
 #: guitext:953
 msgctxt "In-game interface description"
-msgid "Manufacture Skill: How fast the creature works in Workshop. The higher the Skill level, "
-"the better the creature's performance."
+msgid "Manufacture Skill: How fast the creature works in Workshop. The higher the Skill level, the better the creature's performance."
 msgstr ""
 
 #: guitext:954
@@ -5632,8 +5631,7 @@ msgstr ""
 
 #: guitext:955
 msgctxt "In-game interface description"
-msgid "Scavenge Skill: How fast the creature works on scavenging. The higher the Skill level, "
-"the better the creature's performance."
+msgid "Scavenge Skill: How fast the creature works on scavenging. The higher the Skill level, the better the creature's performance."
 msgstr ""
 
 #: guitext:956
@@ -5818,4 +5816,54 @@ msgstr ""
 #: guitext:995
 msgctxt "Door name"
 msgid "Hidden Door"
+msgstr ""
+
+#: guitext:996
+msgctxt "Mouse"
+msgid "Scroll Wheel Up"
+msgstr ""
+
+#: guitext:997
+msgctxt "Mouse"
+msgid "Scroll Wheel Down"
+msgstr ""
+
+#: guitext:998
+msgctxt "Mouse"
+msgid "Mouse Button"
+msgstr ""
+
+#: guitext:999
+msgctxt "Game controls"
+msgid "Build Square Room"
+msgstr ""
+
+#: guitext:1000
+msgctxt "Game controls"
+msgid "Detect Room"
+msgstr ""
+
+#: guitext:1001
+msgctxt "Game controls"
+msgid "Increase Room Size"
+msgstr ""
+
+#: guitext:1002
+msgctxt "Game controls"
+msgid "Decrease Room Size"
+msgstr ""
+
+#: guitext:1003
+msgctxt "Game controls"
+msgid "Precision Sell"
+msgstr ""
+
+#: guitext:1004
+msgctxt "Game controls"
+msgid "Snap Camera"
+msgstr ""
+
+#: guitext:1005
+msgctxt "Dungeon special decription"
+msgid "Mysterious Box: There's no telling what this will do."
 msgstr ""
