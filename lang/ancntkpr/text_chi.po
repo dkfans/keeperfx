@@ -2,12 +2,11 @@
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
 #   @file ancntkpr/text_eng.pot
-#      KeeperFX Campaign Strings translation template
+#      KeeperFX GUI Strings translation file
 #  @par Purpose:
-#      Allows to create .po files used for translating the game.
-#      Also, acts as a source of english translation strings.
+#      Contains translation of the national strings in the game.
 #  @par Comment:
-#      Use this file to create or update source strings in translations.
+#      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
 #  @date     25 Aug 2012 - 02 Oct 2012
 #  @par  Copying and copyrights:
