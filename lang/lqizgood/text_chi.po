@@ -37,7 +37,7 @@ msgid ""
 "Evil keepers."
                                                                            
                
-msgstr ""
+msgstr "欢迎来到人类英雄的战役。你的使命是彻底消灭邪恶的地下城守护者。"
 
                                          
 #: guitext:2
@@ -45,7 +45,8 @@ msgctxt "In-game message"
 msgid ""
 "Gather up some gold, and forces, as rumour has it an evil keeper is "
 "gathering forces in the south! Nip him in the bud!"
-msgstr ""
+msgstr "积蓄一些黄金和力量，传言说南边有一个邪恶守护者也在蠢蠢欲动！"
+"把他扼杀在摇篮之中！"
 
                                                
 #: guitext:3
@@ -54,7 +55,8 @@ msgid ""
 "You have found a holy monk, ready to attack the enemy, but you got there "
 "first! Take him to the next level, he will be very useful."
                                                               
-msgstr ""
+msgstr "你发现了一位神圣的僧侣，他正准备进攻敌人，不过你先来了一步！"
+"把他带入下一个王国吧，他会对你很有帮助的。"
 
                                         
 #: guitext:4
@@ -63,7 +65,8 @@ msgid ""
 "Ah, a Dwarf has joined you, they are weak alone, but in a pack, can cause "
 "serious damage."
                                              
-msgstr ""
+msgstr "啊，一个矮人加入了你的阵营。他们虽然每个人都很弱小，但只要团结一致，"
+"也能对敌人造成严重打击。"
 
                                              
 #: guitext:5
@@ -72,7 +75,8 @@ msgid ""
 "You have recruited a Tunneller! They are like imps, but stronger. They are, "
 "however less efficient because they need food, sleep and gold."
                              
-msgstr ""
+msgstr "你获得了一名挖掘者！他们和小鬼做同样的工作，但是力量更强大。"
+"然而，他们的工作效率并不如小鬼高，因为他们也要吃饭睡觉发薪水。"
 
                                             
 #: guitext:6 guitext:7 guitext:8 guitext:9
@@ -83,7 +87,7 @@ msgstr ""
 #: guitext:10
 msgctxt "In-game message"
 msgid "The Spawners have come, be ready for their offspring."
-msgstr ""
+msgstr "恶魔之母已经来了，小心它诞下的恶魔之子。"
 
 #: guitext:11
 msgctxt "In-game message"
@@ -91,7 +95,8 @@ msgid ""
 "Welcome to this realm, noble hero. It is your holy quest to vanquish the "
 "spawners from here forever. They spawn in a pit of lava, heavily guarded. If "
 "only you could cover it up....."
-msgstr ""
+msgstr "欢迎来到这个王国，高贵的英雄。你神圣的使命是彻底消灭这里的恶魔之母。"
+"它习惯在一片守卫森严的岩浆中生育后代。但愿你能将那里填平……"
 
 #: guitext:12
             
@@ -100,7 +105,9 @@ msgid ""
 "There is new technology available to you, oh noble one. Build a library to "
 "research them. Wizards are attracted to libraries, but they do not see the "
 "spawners as much of a threat, and so will not come. Make do without them!"
-msgstr ""
+msgstr "一些新技术已经可以使用了，高贵的英雄。建造一座图书馆来研究它们吧。"
+"巫师会被图书馆吸引，但他们还没把恶魔之母放在眼里，所以暂时不会前来。"
+"不管他们了，继续做我们的事情吧！"
 
 #: guitext:13
             
@@ -109,7 +116,8 @@ msgid ""
 "A Thief has joined you! They are weak at low levels, but later they can "
 "become very sneaky. One day, they will learn the error of their ways (level "
 "11) :P"
-msgstr ""
+msgstr "一个小偷加入了你！他们在低等级的时候很脆弱，但升到高级后会变得十分狡猾。"
+"总有一天，他们会认识到他们所犯下的错误（也许到11级的时候…）"
 
 #: guitext:14
             
@@ -118,26 +126,27 @@ msgid ""
 "A Barbarian has joined you! These are mean, strong heroes, with attitude!"
                                                                            
                       
-msgstr ""
+msgstr "一名野蛮人加入了你！这些英雄不仅身体强壮，意志也同样强大！"
 
 #: guitext:15
              
 msgctxt "In-game message"
 msgid "A Fairy, how lovely! They are good researchers, and very destructive."
-msgstr ""
+msgstr "看，一个仙女，多么可爱啊！她们是优秀的研究人员，"
+"并且有着毁灭性的魔法攻击力。"
 
 #: guitext:16
 msgctxt "In-game message"
 msgid ""
 "Very clever! But it looks like a Horned Reaper has come for revenge... and "
 "he looks angry!"
-msgstr ""
+msgstr "干得漂亮！不过似乎有一只冥界使者前来复仇了…它看起来很愤怒！"
 
 #: guitext:17
              
 msgctxt "In-game message"
 msgid "Well done! That's another bit of evil destroyed! Congratulations!"
-msgstr ""
+msgstr "干得好！又一股邪恶势力被摧毁了！恭喜你！"
 
 #: guitext:18 guitext:19
 msgctxt "In-game message"
@@ -150,7 +159,9 @@ msgid ""
 "Welcome noble one. I have terrible news for you. Snow white and the 7 "
 "dwarves have been captured along with Jack, the beanstalk AND the giant!! "
 "The wizards have realised how important this is and joined you!"
-msgstr ""
+msgstr "欢迎你，高贵的英雄。我有坏消息要告诉你。白雪公主和七个小矮人，"
+"还有那个巨人跟瘦子杰克，都被敌人抓起来了！！巫师们终于意识到了事情的严重性，"
+"并决定加入你的阵营！"
 
 #: guitext:21
              
@@ -158,18 +169,19 @@ msgctxt "In-game message"
 msgid ""
 "A Wizard has come. They are truly the masters of research, and the best "
 "spellcaster in the game!"
-msgstr ""
+msgstr "一位巫师来了。他们是研究领域真正的大师，也是最强大的魔法师！"
 
 #: guitext:22
              
 msgctxt "In-game message"
 msgid "A giant! This Slow, Brutal killing machine is a tank! Use him wisely!"
-msgstr ""
+msgstr "一个巨人来了！这个行动缓慢但力大无穷的杀戮机器犹如一架坦克！"
+"明智地使用他吧！"
 
 #: guitext:23
 msgctxt "In-game message"
 msgid "A noble knight has come. They are powerful, and will never surrender!"
-msgstr ""
+msgstr "一位高贵的骑士来了。他们是强大的战士，而且永远不会屈服！"
 
 #: guitext:24
 msgctxt "In-game message"
@@ -177,13 +189,13 @@ msgid ""
 "Oh thank god! Jack and the Giant are safe! Who knows what these monsters did "
 "to the beanstalk!"
            
-msgstr ""
+msgstr "哦，谢天谢地！杰克和那个巨人终于安全了！天知道那些怪物们对这个瘦子做了些什么！"
 
 #: guitext:25
              
 msgctxt "In-game message"
 msgid "Snow white and the 7 dwarves are safe! Rejoice!"
-msgstr ""
+msgstr "白雪公主和七个小矮人终于安全了！谢天谢地！"
 
 #: guitext:26 guitext:27 guitext:28 guitext:29
 msgctxt "In-game message"
@@ -196,7 +208,8 @@ msgid ""
 "All you have is one thief. You must use brains, courage and skill to pass "
 "the initial test, and then you must vanquish the evil Warlocks that keep you "
 "enslaved, and destroy the evil keeper once and for all!"
-msgstr ""
+msgstr "你拥有的只有一个小偷。你必须开动脑筋，凭借勇气和技巧来通过这最初的考验，"
+"然后你必须杀死那些奴役你的魔术师们，并把邪恶守护者也一同消灭！"
 
 #: guitext:31
              
@@ -205,18 +218,19 @@ msgid ""
 "The first warlock is dead! Use the limitless gold to build up enough force "
 "to take the rest of the dungeon!"
        
-msgstr ""
+msgstr "第一个魔术师被杀死了！利用这无尽的黄金资源来建立一支军队，"
+"摧毁敌人地下城的其余力量吧！"
 
 #: guitext:32
              
 msgctxt "In-game message"
 msgid "You have killed the second warlock! Only 1 stands in your way!"
-msgstr ""
+msgstr "你已经杀死了第二个魔术师！只剩下最后一个了！"
 
 #: guitext:33
 msgctxt "In-game message"
 msgid "You have killed all the warlocks! Destroy the dungeon heart!"
-msgstr ""
+msgstr "你已经杀死了全部三个魔术师！现在摧毁敌人的地下城心脏吧！"
 
 #: guitext:34 guitext:35 guitext:36 guitext:37 guitext:38 guitext:39
 msgctxt "In-game message"
@@ -229,7 +243,8 @@ msgid ""
 "We have stumbled across a land with no accessible portals. You also have "
 "the torture chamber and prison available, you know what to do! Persuade some "
 "people to join you, and torture the rest!"
-msgstr ""
+msgstr "我们来到的这片土地，附近没有可以占领的入口。你现在可以建造监狱和审讯室了，"
+"你知道该怎么做了吧！说服其中一部分人加入你的阵营，然后拷打其余不服的！"
 
 #: guitext:41
              
@@ -238,7 +253,7 @@ msgid ""
 "There is a band of heroes that have joined the enemy under the lead of Ug the "
 "Barbarian! Convert them all!"
                                                                             
-msgstr ""
+msgstr "这里有一群英雄在野蛮人乌格的带领下投敌了！把他们全部招降过来吧！"
 
                                                                  
 #: guitext:42 guitext:43 guitext:44 guitext:45 guitext:46 guitext:47
@@ -255,7 +270,9 @@ msgid ""
 "must destroy both. The good news is that they are very preoccupied. If I "
 "were you, I would concentrate on blue first, and rumour has it there is a "
 "weakness at the back of blue's fortress."
-msgstr ""
+msgstr "哦，高贵的英雄，当两名敌对守护者不断交战的时候，你踏入了这里。"
+"你必须把他们两个都消灭。好消息是他们现在忙得不可开交。如果我是你的话，"
+"我会先去对付蓝色守护者，因为传言说他的地下城心脏后面有一处缺口。"
 
 #: guitext:51
              
@@ -263,7 +280,7 @@ msgctxt "In-game message"
 msgid ""
 "Graveyards and temples are available, which make monks also available, use "
 "them well."
-msgstr ""
+msgstr "陵墓和寺庙可以建造了，因此僧侣也会被吸引而来了，好好使用他们吧。"
 
 #: guitext:52
              
@@ -271,7 +288,8 @@ msgctxt "In-game message"
 msgid ""
 "A holy monk has come! They are very good at healing and preventing damage, "
 "making them a very good tank."
-msgstr ""
+msgstr "一位神圣的僧侣来了！他们擅长治疗术和保护术魔法，"
+"使得他们可以抵御大量的伤害。"
 
 #: guitext:53 guitext:54 guitext:55 guitext:56 guitext:57 guitext:58
 #: guitext:59
@@ -286,26 +304,30 @@ msgid ""
 "to ally against you. There is not much gold, so you must capture the centre "
 "gems and starve your enemies out! Traps are a good idea on this level, to "
 "prevent corridor rushing!"
-msgstr ""
+msgstr "这些守护者们似乎从上次的经历中吸取了教训。他们这次决定联手对抗你。"
+"这里的金矿有限，所以你必须抢占中间的宝石矿，并把敌人拒之门外，耗尽他们的经济！"
+"使用陷阱也是不错的主意，可以防止敌人从通道攻进来！"
 
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
 "Well that was easy, wasn't it! I hear the evil keepers in the next realm are "
 "not such a push over."
-msgstr ""
+msgstr "轻而易举就胜利了，不是吗！"
+"不过我听说下一个王国的守护者们可不会这么不堪一击了。"
 
 #: guitext:62
 msgctxt "In-game message"
 msgid "You have a witch! They are full of powerful spells!"
-msgstr ""
+msgstr "你得到了一名女祭司！她们精通各种强力的魔法！"
 
 #: guitext:63
 msgctxt "In-game message"
 msgid ""
 "The scavenger room has been discovered. When combined with the torture "
 "chamber, you can first convert 1 enemy, and then take them all!"
-msgstr ""
+msgstr "你已经研究出了招募中心。你可以把它与审讯室结合使用，先招降一名敌人，"
+"然后把他的同类全都招募过来！"
 
 #: guitext:64 guitext:65 guitext:66 guitext:67 guitext:68 guitext:69
 msgctxt "In-game message"
@@ -318,7 +340,8 @@ msgid ""
 "This time there are 3 keepers after your blood, noble one. Starvation wont "
 "work this time, as they all have gem veins. Take one early to get a "
 "foothold, and the others will soon fall."
-msgstr ""
+msgstr "这一次有三个守护者都在垂涎于你了，高贵的英雄。他们都有各自的宝石矿，"
+"因此你没法耗尽他们的经济。先消灭一家作为你的立足之地，剩余的两家很快也会被击溃。"
 
 #: guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76
 #: guitext:77 guitext:78 guitext:79
@@ -352,14 +375,15 @@ msgid ""
 "You have come into the dungeon of a previous hero who attempted to destroy "
 "the evil fortress. He failed, but you shall succeed! YOu have all the time, "
 "and resources in the world to build up an army and crush the evil forever!"
-msgstr ""
+msgstr "你来到了一座由一位曾经和邪恶势力作斗争的英雄遗留下的地下城。他已经战败了，"
+"但你一定会胜利的！你拥有天时地利人和的条件，足以建立一支军队彻底消灭邪恶势力！"
 
 #: guitext:81
 msgctxt "In-game message"
 msgid ""
 "You have reached the heart of the vampires! Drive a steak through every "
 "heart in this room!"
-msgstr ""
+msgstr "你踏入了吸血鬼的老巢！把这间房间里每一个敌人的心脏都刺穿吧！"
 
 #: guitext:82 guitext:83 guitext:84 guitext:85 guitext:86 guitext:87
 #: guitext:88 guitext:89
@@ -372,13 +396,13 @@ msgctxt "In-game message"
 msgid ""
 "The evil keepers, father and son, have imprisoned our savior, the Avatar. Go "
 "and rescue him!"
-msgstr ""
+msgstr "邪恶的守护者父子，囚禁了我们的救世主，圣者。快去把他救出来！"
 
 #: guitext:91
 msgctxt "In-game message"
 msgid ""
 "Thank God! The Avatar is safe! Now we must destroy Evil once and for all!"
-msgstr ""
+msgstr "谢天谢地！圣者终于安全了！现在我们可以一劳永逸地消灭邪恶势力了！"
 
 #: guitext:92 guitext:93 guitext:94 guitext:95 guitext:96 guitext:97
 #: guitext:98 guitext:99
@@ -391,13 +415,14 @@ msgctxt "In-game message"
 msgid ""
 "This is it, do or die. Use the Avatar to kill the evil at it's source. "
 "Killing this will wipe out all evil! YOU CAN DO IT!"
-msgstr ""
+msgstr "就是这样，决一死战！控制圣者，到达邪恶势力的根源之处，"
+"将邪恶势力斩草除根吧！你能做到的！"
 
 #: guitext:101
 msgctxt "In-game message"
 msgid ""
 "You have defeated evil forever and your name will live on for centuries!"
-msgstr ""
+msgstr "你彻底消灭了邪恶势力，而你也将名垂千古！"
 
 #: guitext:102 guitext:103 guitext:104 guitext:105 guitext:106 guitext:107
 #: guitext:108 guitext:109 guitext:110 guitext:111 guitext:112 guitext:113
@@ -424,57 +449,57 @@ msgstr ""
 #: guitext:202
 msgctxt "Level name"
 msgid "First step"
-msgstr ""
+msgstr "初出茅庐"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Offspring"
-msgstr ""
+msgstr "恶魔之子"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Snow white and dwarves"
-msgstr ""
+msgstr "白雪公主和七个小矮人"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Warlocks slave"
-msgstr ""
+msgstr "魔术师的奴役"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Ug the Barbarian"
-msgstr ""
+msgstr "野蛮人乌格"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Power of Faith"
-msgstr ""
+msgstr "信念的力量"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Indoctrination"
-msgstr ""
+msgstr "英雄的教条"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Three on One"
-msgstr ""
+msgstr "三位一体"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Impure Blood"
-msgstr ""
+msgstr "不洁之血"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "Save the Savior"
-msgstr ""
+msgstr "拯救救世主"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Do or die"
-msgstr ""
+msgstr "决一死战"
 #: guitext:213 guitext:214 guitext:215 guitext:216 guitext:217 guitext:218
 #: guitext:219 guitext:220 guitext:221 guitext:222 guitext:223 guitext:224
 #: guitext:225
