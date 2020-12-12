@@ -29,35 +29,38 @@
 msgctxt "In-game message"
 msgid ""
 "Success! The district is yours. Press Space to proceed to the next realm."
-msgstr ""
+msgstr "成功了！你拥有了这片土地。按空格键进入下一个王国。"
 
 #: guitext:1
 msgctxt "In-game message"
 msgid ""
 "Enemy Shogun stands on our way to the province Iga. We need to kill him so "
 "we can continue our journey."
-msgstr ""
+msgstr "敌人的将军挡在了我们前往伊贺的道路上。我们必须杀死他才能继续前行。"
 
 #: guitext:2
 msgctxt "In-game message"
 msgid ""
 "We have defeated the enemy Shogun. Now we can safely pass to the province "
 "Iga and visit our clan. Perfect work, mighty man of the shadow!"
-msgstr ""
+msgstr "我们已经杀死了敌方将军。现在我们可以安全抵达伊贺来会见我们的族人了。"
+"完美的行动，幻影之勇者！"
 
 #: guitext:3
 msgctxt "In-game message"
 msgid ""
 "We cannot turn our eyes while enemy ruler ravages this land. We have to stop "
 "him, so that local people can live without fear and worry."
-msgstr ""
+msgstr "我们不能再对敌方首领的所作所为置之不理了。我们必须阻止他，"
+"让当地居民不再生活在担忧和恐惧之中。"
 
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
 "Is not for the man of the shadow to hesitate and question the order of "
 "things. You are wise to know that truth. Perfect work!"
-msgstr ""
+msgstr "幻影之勇者行事是绝不会优柔寡断，手忙脚乱的。"
+"你能认识到这一点真是非常聪明。干得漂亮！"
 
 #: guitext:5
 msgctxt "In-game message"
@@ -65,12 +68,13 @@ msgid ""
 "We have been trapped into a magic barrier. We cannot progress the journey to "
 "Iga until be break it. The only way to do that is to kill enemy shogun which "
 "is in this land."
-msgstr ""
+msgstr "我们被困在了一个魔法结界之中。在将其打破之前，我们无法继续前往伊贺。"
+"打破结界的唯一办法就是杀死这片土地上的敌方将军。"
 
 #: guitext:6
 msgctxt "In-game message"
 msgid "Excellent work, assassin! Now we can safely reach the province Iga."
-msgstr ""
+msgstr "出色的表现，犹如一名刺客！现在我们可以安全前往伊贺了。"
 
 #: guitext:7
 msgctxt "In-game message"
@@ -79,12 +83,13 @@ msgid ""
 "evil. In this case, it is enemy shogun which rules over this village. His "
 "death will bring us closer to our ultimate goal, which is killing Emperor of "
 "Japan."
-msgstr ""
+msgstr "做好准备，幻影之勇者，一举摧毁邪恶势力的心脏吧。现在，"
+"敌方的将军霸占了这个村庄。杀死他，我们就离我们的终极任务——杀死日本天皇，更近了一步。"
 
 #: guitext:8
 msgctxt "In-game message"
 msgid "You made it! Now we can work on a plan to reach the emperor's palace!"
-msgstr ""
+msgstr "你做到了！现在我们可以计划潜入皇宫了！"
 
 #: guitext:9
 msgctxt "In-game message"
@@ -93,55 +98,62 @@ msgid ""
 "If the enemies notice anyone, their army will come to crush you. It is vital "
 "that you reach their heart without causing alarm. Use your spells sensibly, "
 "because your gold reserves are limited."
-msgstr ""
+msgstr "要完成这个任务，你的每一步行动都必须小心谨慎。如果被敌人发现了，"
+"他们就会派出大军来消灭你。取胜的关键是在不触发警报的情况下到达敌人的心脏处。"
+"明智地使用你的魔法，因为你手头的黄金有限。"
 
 #: guitext:10
 msgctxt "In-game message"
 msgid ""
 "Congratulations, I did not expected you to deal with this so flawlessly!"
-msgstr ""
+msgstr "恭喜你，我没想到你能如此天衣无缝地完成这次行动！"
 
 #: guitext:11
 msgctxt "In-game message"
 msgid ""
 "Ninja, another enemy Shogun is here. He is wicked and dishonorable, so we "
 "shall flush his kind from the surface of the the earth!"
-msgstr ""
+msgstr "忍者大人，另一名敌方将军就在这里。他是个邪恶与不忠的家伙，"
+"我们必须把他和他的同党从这里彻底铲除掉！"
 
 #: guitext:12
 msgctxt "In-game message"
 msgid ""
 "Excellent, Ninja! You were quicker than the blade of fate. I did not expect "
 "this of you."
-msgstr ""
+msgstr "棒极了，忍者大人！你的速度比命运的刀刃划过的速度更加迅捷。"
+"我真是感到难以置信。"
 
 #: guitext:13
 msgctxt "In-game message"
 msgid ""
 "Seek, Ninja, our enemy in these hardly accessible rocky regions. Surely "
 "somewhere here he hides."
-msgstr ""
+msgstr "看，忍者大人，我们的敌人就在这片难以进入的岩石区域之中。"
+"他肯定就藏在某个地方。"
 
 #: guitext:14
 msgctxt "In-game message"
 msgid ""
 "Perfect, you are a courageous warrior of the shadow. Even in this region you "
 "were able to find and eliminate the enemy!"
-msgstr ""
+msgstr "干得好，你真是一名勇敢的幻影之勇者。即使身处这种地方，"
+"你也能找到并杀死你的敌人！"
 
 #: guitext:15
 msgctxt "In-game message"
 msgid ""
 "Ruthless Shogun sulks in these dungeons. You must seek him out and destroy, "
 "that is the task from your master."
-msgstr ""
+msgstr "这座地下城中的残忍无情的敌方将军感到十分生气。你必须找到他并杀死他，"
+"这就是你这次的任务，主人。"
 
 #: guitext:16
 msgctxt "In-game message"
 msgid ""
 "Excellent work, man of the shadow! You've crushed the enemy with great skill "
 "and conviction."
-msgstr ""
+msgstr "出色的表现，幻影之勇者！你凭借过人的技巧与意志消灭了敌人。"
 
 #: guitext:17
 msgctxt "In-game message"
@@ -149,14 +161,15 @@ msgid ""
 "Your progress has finally led us to the emperor. He hides behind the walls "
 "of his castle. We must find and kill him, so that Japan can again bloom with "
 "flowers of cherry tree."
-msgstr ""
+msgstr "你终于一步步来到了天皇面前。他躲在了城堡后方的城墙里。"
+"我们必须找到他并杀死他，让日本的樱花再次绽放。"
 
 #: guitext:18
 msgctxt "In-game message"
 msgid ""
 "Success is ours! You are truly swift and clever warrior. Congratulations on "
 "the completion of The Destiny of Ninja campaign!"
-msgstr ""
+msgstr "胜利属于我们！你是一名真正迅捷而聪明的战士。恭喜你完成了忍者的命运战役！"
 
 #: guitext:19 guitext:20 guitext:21 guitext:22 guitext:23 guitext:24
 #: guitext:25 guitext:26 guitext:27 guitext:28 guitext:29 guitext:30
@@ -196,47 +209,47 @@ msgstr ""
 #: guitext:202
 msgctxt "Level name"
 msgid "Shadow Ninja"
-msgstr ""
+msgstr "幻影忍者"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Extreme Ninja"
-msgstr ""
+msgstr "极致忍者"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Escape"
-msgstr ""
+msgstr "逃亡行动"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Dungeon Ninja"
-msgstr ""
+msgstr "地城忍者"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Spectre"
-msgstr ""
+msgstr "幽灵行动"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Speed Ninja"
-msgstr ""
+msgstr "迅捷忍者"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Secret Ninja"
-msgstr ""
+msgstr "神秘忍者"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Kill shogun"
-msgstr ""
+msgstr "刺杀将军"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Kill emperor"
-msgstr ""
+msgstr "刺杀天皇"
 
 #: guitext:211 guitext:212 guitext:213 guitext:214 guitext:215 guitext:216
 #: guitext:217 guitext:218 guitext:219 guitext:220 guitext:221 guitext:222
