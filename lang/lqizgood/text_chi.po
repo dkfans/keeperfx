@@ -35,11 +35,8 @@ msgctxt "In-game message"
 msgid ""
 "Welcome to the Good Guys campaign. It is your job to utterly destroy the "
 "Evil keepers."
-                                                                           
-               
 msgstr "欢迎来到人类英雄的战役。你的使命是彻底消灭邪恶的地下城守护者。"
 
-                                         
 #: guitext:2
 msgctxt "In-game message"
 msgid ""
@@ -48,37 +45,30 @@ msgid ""
 msgstr "积蓄一些黄金和力量，传言说南边有一个邪恶守护者也在蠢蠢欲动！"
 "把他扼杀在摇篮之中！"
 
-                                               
 #: guitext:3
 msgctxt "In-game message"
 msgid ""
 "You have found a holy monk, ready to attack the enemy, but you got there "
 "first! Take him to the next level, he will be very useful."
-                                                              
 msgstr "你发现了一位神圣的僧侣，他正准备进攻敌人，不过你先来了一步！"
 "把他带入下一个王国吧，他会对你很有帮助的。"
 
-                                        
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
 "Ah, a Dwarf has joined you, they are weak alone, but in a pack, can cause "
 "serious damage."
-                                             
 msgstr "啊，一个矮人加入了你的阵营。他们虽然每个人都很弱小，但只要团结一致，"
 "也能对敌人造成严重打击。"
 
-                                             
 #: guitext:5
 msgctxt "In-game message"
 msgid ""
 "You have recruited a Tunneller! They are like imps, but stronger. They are, "
 "however less efficient because they need food, sleep and gold."
-                             
 msgstr "你获得了一名挖掘者！他们和小鬼做同样的工作，但是力量更强大。"
 "然而，他们的工作效率并不如小鬼高，因为他们也要吃饭睡觉发薪水。"
 
-                                            
 #: guitext:6 guitext:7 guitext:8 guitext:9
 msgctxt "In-game message"
 msgid "Moo2"
@@ -99,7 +89,6 @@ msgstr "欢迎来到这个王国，高贵的英雄。你神圣的使命是彻底
 "它习惯在一片守卫森严的岩浆中生育后代。但愿你能将那里填平……"
 
 #: guitext:12
-            
 msgctxt "In-game message"
 msgid ""
 "There is new technology available to you, oh noble one. Build a library to "
@@ -110,7 +99,6 @@ msgstr "一些新技术已经可以使用了，高贵的英雄。建造一座图
 "不管他们了，继续做我们的事情吧！"
 
 #: guitext:13
-            
 msgctxt "In-game message"
 msgid ""
 "A Thief has joined you! They are weak at low levels, but later they can "
@@ -120,16 +108,12 @@ msgstr "一个小偷加入了你！他们在低等级的时候很脆弱，但升
 "总有一天，他们会认识到他们所犯下的错误（也许到11级的时候…）"
 
 #: guitext:14
-            
 msgctxt "In-game message"
 msgid ""
 "A Barbarian has joined you! These are mean, strong heroes, with attitude!"
-                                                                           
-                      
 msgstr "一名野蛮人加入了你！这些英雄不仅身体强壮，意志也同样强大！"
 
 #: guitext:15
-             
 msgctxt "In-game message"
 msgid "A Fairy, how lovely! They are good researchers, and very destructive."
 msgstr "看，一个仙女，多么可爱啊！她们是优秀的研究人员，"
@@ -143,7 +127,6 @@ msgid ""
 msgstr "干得漂亮！不过似乎有一只冥界使者前来复仇了…它看起来很愤怒！"
 
 #: guitext:17
-             
 msgctxt "In-game message"
 msgid "Well done! That's another bit of evil destroyed! Congratulations!"
 msgstr "干得好！又一股邪恶势力被摧毁了！恭喜你！"
@@ -164,7 +147,6 @@ msgstr "欢迎你，高贵的英雄。我有坏消息要告诉你。白雪公主
 "并决定加入你的阵营！"
 
 #: guitext:21
-             
 msgctxt "In-game message"
 msgid ""
 "A Wizard has come. They are truly the masters of research, and the best "
@@ -172,7 +154,6 @@ msgid ""
 msgstr "一位巫师来了。他们是研究领域真正的大师，也是最强大的魔法师！"
 
 #: guitext:22
-             
 msgctxt "In-game message"
 msgid "A giant! This Slow, Brutal killing machine is a tank! Use him wisely!"
 msgstr "一个巨人来了！这个行动缓慢但力大无穷的杀戮机器犹如一架坦克！"
@@ -188,11 +169,9 @@ msgctxt "In-game message"
 msgid ""
 "Oh thank god! Jack and the Giant are safe! Who knows what these monsters did "
 "to the beanstalk!"
-           
 msgstr "哦，谢天谢地！杰克和那个巨人终于安全了！天知道那些怪物们对这个瘦子做了些什么！"
 
 #: guitext:25
-             
 msgctxt "In-game message"
 msgid "Snow white and the 7 dwarves are safe! Rejoice!"
 msgstr "白雪公主和七个小矮人终于安全了！谢天谢地！"
@@ -212,17 +191,14 @@ msgstr "你拥有的只有一个小偷。你必须开动脑筋，凭借勇气和
 "然后你必须杀死那些奴役你的魔术师们，并把邪恶守护者也一同消灭！"
 
 #: guitext:31
-             
 msgctxt "In-game message"
 msgid ""
 "The first warlock is dead! Use the limitless gold to build up enough force "
 "to take the rest of the dungeon!"
-       
 msgstr "第一个魔术师被杀死了！利用这无尽的黄金资源来建立一支军队，"
 "摧毁敌人地下城的其余力量吧！"
 
 #: guitext:32
-             
 msgctxt "In-game message"
 msgid "You have killed the second warlock! Only 1 stands in your way!"
 msgstr "你已经杀死了第二个魔术师！只剩下最后一个了！"
@@ -247,22 +223,18 @@ msgstr "我们来到的这片土地，附近没有可以占领的入口。你现
 "你知道该怎么做了吧！说服其中一部分人加入你的阵营，然后拷打其余不服的！"
 
 #: guitext:41
-             
 msgctxt "In-game message"
 msgid ""
 "There is a band of heroes that have joined the enemy under the lead of Ug the "
 "Barbarian! Convert them all!"
-                                                                            
 msgstr "这里有一群英雄在野蛮人乌格的带领下投敌了！把他们全部招降过来吧！"
 
-                                                                 
 #: guitext:42 guitext:43 guitext:44 guitext:45 guitext:46 guitext:47
 #: guitext:48 guitext:49
 msgctxt "In-game message"
 msgid "Moo18"
 msgstr ""
 
-                                                            
 #: guitext:50
 msgctxt "In-game message"
 msgid ""
@@ -275,7 +247,6 @@ msgstr "哦，高贵的英雄，当两名敌对守护者不断交战的时候，
 "我会先去对付蓝色守护者，因为传言说他的地下城心脏后面有一处缺口。"
 
 #: guitext:51
-             
 msgctxt "In-game message"
 msgid ""
 "Graveyards and temples are available, which make monks also available, use "
@@ -283,7 +254,6 @@ msgid ""
 msgstr "陵墓和寺庙可以建造了，因此僧侣也会被吸引而来了，好好使用他们吧。"
 
 #: guitext:52
-             
 msgctxt "In-game message"
 msgid ""
 "A holy monk has come! They are very good at healing and preventing damage, "
@@ -345,26 +315,6 @@ msgstr "这一次有三个守护者都在垂涎于你了，高贵的英雄。他
 
 #: guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76
 #: guitext:77 guitext:78 guitext:79
-                                                                    
-                                                                    
-                                                                     
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                                          
-                                                  
 msgctxt "In-game message"
 msgid "Moo21"
 msgstr ""
@@ -993,10 +943,8 @@ msgid "Avatar"
 msgstr "圣者"
 
 #: guitext:548 guitext:549 guitext:550 guitext:551
-       
 msgctxt "Unused"
 msgid "Moo7"
-                                                                  
 msgstr ""
 
 #: guitext:552
