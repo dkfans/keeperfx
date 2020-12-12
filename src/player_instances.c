@@ -648,6 +648,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   {
      timerstarttime = LbTimerClock();
   }
+  TimerFreeze = false;
   return 0;
 }
 

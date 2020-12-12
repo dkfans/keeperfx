@@ -367,6 +367,7 @@ struct TimerTime {
 };
 extern struct TimerTime Timer;
 extern TbBool TimerGame;
+extern TbBool TimerFreeze;
 
 #ifdef __cplusplus
 }

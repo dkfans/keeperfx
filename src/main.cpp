@@ -176,6 +176,7 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 TbClockMSec timerstarttime = 0;
 struct TimerTime Timer;
 TbBool TimerGame = false;
+TbBool TimerFreeze = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -4538,7 +4539,8 @@ void game_loop(void)
       dungeon->lvstats.end_time = starttime;
       if (!TimerNoReset)
       {
-        timerstarttime = starttime;
+        TimerFreeze = true;
+        Timer = (struct TimerTime){0};
       }
       LbScreenClear(0);
       LbScreenSwap();
