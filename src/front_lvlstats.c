@@ -249,7 +249,7 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
         }
         if ( (timer_enabled()) && (stat->name_stridx == 1746) )
         {
-            LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld", hours, minutes, seconds);       
+            LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld:%03ld", Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);       
         }
         else
         {    
