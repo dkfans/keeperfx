@@ -5046,7 +5046,7 @@ int main(int argc, char *argv[])
 void update_time(void)
 {
     asm (" \
-    call _LbTimerClock_1000\n \
+    call    _clock\n \
     subl    %4,%%eax\n \
     movl    $0x3E8,%%ecx\n \
     xorl    %%edx,%%edx\n \

@@ -109,15 +109,24 @@ void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
     va_end(val);
 }
 
-void show_game_time_taken(unsigned long turns)
+__attribute__((fastcall)) void show_game_time_taken(unsigned char fps, unsigned long turns)
 {
-    unsigned long secs = turns / game.num_fps;
-    unsigned long mins = secs / 60;
-    unsigned long hrs = mins / 60;
-    secs %= 60;
-    mins %= 60;
+    unsigned char Hours,Minutes,Seconds;
+    asm (" \
+    movl %%edx, %%eax\n \
+    xorl %%edx, %%edx\n \
+    divl %%ecx\n \
+    movl $0x3C, %%ecx\n \
+    xorl %%edx, %%edx\n \
+    divl %%ecx\n \
+    movb %%dl, %0\n \
+    xorl %%edx, %%edx\n \
+    divl %%ecx\n \
+    movb %%dl, %1\n \
+    movb %%al, %2\n \
+    " : "=m" (Seconds), "=m" (Minutes), "=m" (Hours) : : "cc", "%eax","%ecx", "%edx");
     struct PlayerInfo* player = get_my_player();
-    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld", get_string(746), hrs, mins, secs);
+    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld", get_string(746), Hours, Minutes, Seconds);
 }
 
 void show_real_time_taken(void)

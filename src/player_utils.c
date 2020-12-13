@@ -108,7 +108,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   {
     if (TimerGame)
     {
-        show_game_time_taken(dungeon->lvstats.hopes_dashed);
+        show_game_time_taken(game.num_fps, dungeon->lvstats.hopes_dashed);
         TimerTurns = dungeon->lvstats.hopes_dashed;
         update_time();
     }
