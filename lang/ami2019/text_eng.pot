@@ -19,11 +19,11 @@
 # *****************************************************************************
 
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues"
 "POT-Creation-Date: 2020-09-20 13:28+0100\n"
 "PO-Revision-Date: 2013-11-13 19:11+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
+"Language-Team: KeeperFX Team"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2037,6 +2037,7 @@ msgid "Bonus"
 msgctxt "Unused"
 msgid "Moo6"
 msgstr ""
+
 #: guitext:544
 msgctxt "Slab description"
 msgid "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but takes longer to mine than Gold."
