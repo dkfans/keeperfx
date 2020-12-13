@@ -1,0 +1,683 @@
+#. *****************************************************************************
+#.  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+#. *****************************************************************************
+#.   @file revlord/text_eng.pot
+#.      KeeperFX Campaign Strings translation file
+#.  @par Purpose:
+#      Contains translation of the national strings in the game.
+#.  @par Comment:
+#      Use this file to improve the translation for specific language.
+#.  @author   KeeperFX Team
+#.  @date     25 Aug 2012 - 02 Oct 2012
+#.  @par  Copying and copyrights:
+#.      This program is free software; you can redistribute it and/or modify
+#.      it under the terms of the GNU General Public License as published by
+#.      the Free Software Foundation; either version 2 of the License, or
+#.      (at your option) any later version.
+#. *****************************************************************************
+"Project-Id-Version: Revenge of the Lord campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2020-11-19 10:34+0100\n"
+"Language-Team: KeeperFX Team \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"Last-Translator: \n"
+"Language: chi\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid "Success! The land is yours. Press Space to proceed to the next realm."
+msgstr "成功了！你拥有了这片土地。按空格键进入下一个王国。"
+
+#. Dwarfton (lv1) Opening Message
+#: guitext:1
+msgctxt "In-game message"
+msgid "An evil keeper has laid siege over the Dwarfton. Lazy and overconfident, he delegated command over  lowly creatures like spiders, hell hounds and skeletons to his lieutenants - Dark Mistresses, Warlocks and  Vampires. Kill all of the enemy leadership, then find the keeper's heart and destroy it."
+msgstr "一个邪恶的守护者正在围攻矮人小镇。这个懒惰和自负的家伙把对蜘蛛、地狱之犬和骷髅等低等生物的控制权交给了他的副手——黑暗女王、魔术师和吸血鬼。杀死所有敌人的指挥官，然后找到守护者的心脏并摧毁它。"
+
+#. Dwarfton (lv1)
+#: guitext:2
+msgctxt "In-game message"
+msgid "You have received an ambassador from fairies of Sparkleforest. They are interested in studying malicious Warlocks to further their knowledge of evil."
+msgstr "你得到了一位来自星火丛林的仙女使者。她们很有兴趣研究邪恶的魔术师们研究的魔法，以进一步提高她们对抗邪恶势力的能力。"
+
+#. Dwarfton (lv1)
+#: guitext:3
+msgctxt "In-game message"
+msgid "The Dark Mistresses are all killed; their subservient spiders are dispersed and will not bother you any longer."
+msgstr "黑暗女王已经被杀光了；她们统帅的蜘蛛也都落荒而逃，不敢再骚扰你了。"
+
+#. Dwarfton (lv1)
+#: guitext:4
+msgctxt "In-game message"
+msgid "The Vampires and their undead minions are all annihilated; they will no longer threaten the Dwarfton."
+msgstr "吸血鬼和其统帅的亡灵大军已经全军覆没了；它们已经不能再对矮人小镇构成威胁了。"
+
+#. Dwarfton (lv1)
+#: guitext:5
+msgctxt "In-game message"
+msgid "The evil Warlocks are executed! Their infernal portal is thwarted and their Hell Hounds will attack no more."
+msgstr "邪恶的魔术师们都被干掉了；他们使用的地狱传送门已经关闭，无法再召唤地狱之犬了。"
+
+#. Dwarfton (lv1)
+#: guitext:6
+msgctxt "In-game message"
+msgid "My Liege, one of the fleeing monks from besieged Abbeystone has joined your cause. He seeks to restore the toppled temples of Dwarfton, a noble goal the success of which will surely attract more of his surviving brothers."
+msgstr "陛下，一个从被围困的修道院逃出来的僧侣加入了你的阵营。他打算重建矮人小镇被推翻的寺庙，这是一个崇高的目标，如果达成这一目标，必将吸引其他幸存的僧侣加入。"
+
+#. Dwarfton (lv1)
+#: guitext:7
+msgctxt "In-game message"
+msgid "My Liege, you shouldn't have heard that!"
+msgstr "陛下，你无意中听到了什么声音！"
+
+#. Dwarfton (lv1)
+#: guitext:8
+msgctxt "In-game message"
+msgid "The besieging forces of an evil keeper are broken, and only his personal Orcish guards remain. It's time to finish this coward - strike its heart! "
+msgstr "邪恶守护者的围城兵力已经被摧毁了，只剩下他的兽人保镖还在做最后抵抗。是时候除掉这个懦夫了——攻击他的心脏！"
+
+#. Dwarfton (lv1)
+#: guitext:9
+msgctxt "In-game message"
+msgid "The Second Lieutenant of the evil keeper is dead. Keep up with good work, my Liege! "
+msgstr "邪恶守护者的第二名副官被杀死了。继续努力，陛下！"
+
+#. Dwarfton (lv1)
+#: guitext:10
+msgctxt "In-game message"
+msgid "My Liege, there is mad cackling heard in the distance! Something terrible is about to happen. "
+msgstr "陛下，远处传来疯狂的咯咯声！可怕的事情就要发生了。"
+
+#. Dwarfton (lv1)
+#: guitext:11
+msgctxt "In-game message"
+msgid "You have an old version of KeeperFX. You need to update to play this campaign correctly with all available features.  Go to www.keeperklan.com"
+msgstr "你的FX版游戏是旧版的。你需要更新至新版本才能正常游玩本战役。请访问www.keeperklan.com"
+
+#. Dwarfton (lv1)
+#: guitext:12
+msgctxt "In-game message"
+msgid "The First Lieutenant of the evil keeper is dead. This has surely enraged the survivors! "
+msgstr "邪恶守护者的第一名副官被杀死了。这一举动肯定激怒了其他幸存的敌人！"
+
+#. Dwarfton (lv1)
+#: guitext:13
+msgctxt "In-game message"
+msgid "My Liege, bands of orcs and trolls from Widerwilds have arrived to these lands, lured by promises of great wealth! Their vanguard is already here, tunnelling towards our fortress. "
+msgstr "陛下，成群的兽人和精灵，被这里的财富所诱惑，从无边荒野来到了这片土地！它们的先锋队已经到了，正在挖隧道通向我们的要塞。"
+
+#. Dwarfton (lv1)
+#: guitext:14
+msgctxt "In-game message"
+msgid "Once again the orcs and trolls from Widerwilds are attacking our fortress. They follow the well-trodden roads, surely a mistake which will see them crushed?"
+msgstr "从无边荒野而来的兽人和精灵又一次袭击了我们的要塞。它们选择走看似比较平坦的一条路，这一定会是一个使它们丧命的严重错误吧？"
+
+#. Dwarfton (lv1)
+#: guitext:15
+msgctxt "In-game message"
+msgid "Another band of Orcs from Widerwilds have arrived at our fortress. It's hopefully the last we've seen of them, for now."
+msgstr "另一支来自无边荒野的兽人部队前来进攻我们的要塞。希望这是我们最后一次见到它们。"
+
+#. Dwarfton (lv1)
+#: guitext:16
+msgctxt "In-game message"
+msgid "Here it is, the Heart of the evil Keeper who laid siege to Dwarfton, bared to your eyes. In an effort to stop you, he will surely summon all his surviving minions!"
+msgstr "就是这里，围攻矮人小镇的邪恶守护者的心脏映入眼帘。为了阻止你，他肯定会召集所有还活着的爪牙一起对付你！"
+
+#. Dwarfton (lv1)
+#: guitext:17
+msgctxt "In-game message"
+msgid "Your discovery of this arcane library will attract more of the Fairies from Sparkleforest. Just ensure nothing chews on the tomes? "
+msgstr "你占领了一个神秘的图书馆，它将吸引更多来自星火丛林的的仙女。只是要确保不要让怪物闯进来啃食书卷。"
+
+#. Dwarfton (lv1)
+#: guitext:18
+msgctxt "In-game message"
+msgid "Those temples took quite a lot of refurbishing, but the Abbeystone Monks managed the task with the aid of your dwarves."
+msgstr "这座寺庙花了很多功夫来重建，但是修道院的僧侣们在你部下的矮人帮助下完成了这项任务。"
+
+#. Dwarfton (lv1)
+#: guitext:19
+msgctxt "In-game message"
+msgid "The evil keeper is no more and the inhabitants of Dwarfton are now safe, my Liege. But your revenge upon this evil has only just started - the long road to Wickedridge lies ahead."
+msgstr "邪恶的守护者已经不复存在了，矮人小镇的居民现在安全了，陛下。但你对邪恶势力的复仇才刚刚开始，通往恶魔山脊的路还很长。"
+
+#. Dwarfton (lv1)
+#: guitext:20
+msgctxt "In-game message"
+msgid "The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!"
+msgstr "多米努斯的居民不允许你建造太长的桥梁。你只能造短一点的！"
+
+#. Sparkleforest (lv2)
+#: guitext:21
+msgctxt "In-game message"
+msgid "This realm is located beneath a beautiful forest. The inhabitants are Fairies and Elves, who live in constant fear of marauding Orcs and Trolls from the dark river below. With the aid of your subjects from Dwarfton, you are to drive these evil creatures from their dungeons. Seek their four main barracks, but be aware that all their rooms are home to monsters!"
+msgstr "这个王国位于一片美丽丛林之中。仙女和妖精居住在这里，她们因常年遭受河流下游的兽人和精灵的侵掠而感到恐惧。在矮人小镇居民的帮助下，你要把所有邪恶的怪物从它们自己的地下城里赶走。它们大多聚集在四个兵营处，但要注意这里的每一个房间都是怪物的家！"
+
+#. Sparkleforest (lv2)
+#: guitext:22
+msgctxt "In-game message"
+msgid "Make haste, my Liege: the longer you let the vile monsters breed, the harder it will be to overcome their numbers! "
+msgstr "抓紧时间，陛下：你放任邪恶的怪物繁殖的时间越长，想控制住它们的数量就越困难！"
+
+#. Sparkleforest (lv2)
+#: guitext:23
+msgctxt "In-game message"
+msgid "It seems the first monsters are already headed towards your dungeon, my Liege - mostly overgrown vermin which breed within piles of scrap, but your presence will surely be noticed by the sounds of combat. "
+msgstr "似乎第一波怪物已经向你的地下城进发了，陛下——它们大多只是一群垃圾堆里长大的臭虫。但是一旦战斗打响，更多的敌人会注意到你的存在。"
+
+#. Sparkleforest (lv2)
+#: guitext:24
+msgctxt "In-game message"
+msgid "While monsters still plunder the surface, your presence has attracted the attention of their leaders. Prepare for their counterattack!"
+msgstr "当怪物们还在继续侵掠外面的领地时，你的出现似乎引起了它们首领的注意。准备迎接它们的反击！"
+
+#. Sparkleforest (lv2)
+#: guitext:25
+msgctxt "In-game message"
+msgid "The rallying cries of Orcs and Trolls can be heard all along the underground river. They are preparing for an all-out onslaught!"
+msgstr "兽人和精灵的嚎叫响彻整条地下河流。它们正准备发动全面进攻！"
+
+#. Sparkleforest (lv2)
+#: guitext:26
+msgctxt "In-game message"
+msgid "Hearing of your victory at Dwarfton, several Barbarians from eastern Widerwilds have arrived to this underground realm. They have lost their families to raiders from Sparkleforest and thirst for revenge against the Orcs."
+msgstr "听闻你在矮人小镇取得了胜利，几个来自东部无边荒野的野蛮人来到了你的地下城。由于星火丛林的战争，他们痛失了亲人，因此渴望向兽人复仇。"
+
+#. Sparkleforest (lv2)
+#: guitext:27
+msgctxt "In-game message"
+msgid "The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones! "
+msgstr "多米努斯的居民不允许你建造太长的桥梁。你只能造短一点的！"
+
+#. Sparkleforest (lv2)
+#: guitext:28
+msgctxt "In-game message"
+msgid "All of the monsters are dead, and the people of Sparkleforest are now safe. But it is now time to head towards besieged Abbeystone, where the evil keeper seeks to quash one of the last few bastions of virtue in Dominus. "
+msgstr "所有的怪物都被消灭了，星火丛林的居民现在安全了。现在是时候前往被围困的修道院了，那里的邪恶守护者正试图摧毁多米努斯仅存的最后几座英雄的堡垒。"
+
+#. Abbeystone (lv3)
+#: guitext:29
+msgctxt "In-game message"
+msgid "The Monastery of Abbeystone is under attack by the forces of evil. Marshal your forces quickly and crush the heart of the evil keeper before he breaks through the walls of the sacred keep and slaughters the defenders. The enemy forces seem to be gathering at various rooms across the region. If you can kill the guards and capture these rooms, the flow of attackers will abate."
+msgstr "修道院正遭到邪恶势力的攻击。在邪恶守护者闯入神圣的城墙并屠杀守卫之前，迅速集结你的军队并摧毁他的心脏。敌军似乎聚集在这个地区的各个房间里。如果你能杀死守卫的敌军并占领这些房间，敌军发动攻击的次数就会减少。"
+
+#. Abbeystone (lv3)
+#: guitext:30
+msgctxt "In-game message"
+msgid "The attack upon the monastery is already underway, while you are unprepared. The monsters will not hesitate to crush your unskilled troops. Do not rush into the fray, my Liege; as long as all the Monks are alive, they can take care of themselves for a while longer."
+msgstr "敌军已经开始对修道院进行攻击了，而你现在还来不及准备。敌人的怪物可以毫不犹豫地碾碎你的低等级部队。因此不要轻举妄动，陛下；只要所有的僧侣都还活着，他们就可以靠自己的力量支撑一段时间。"
+
+#. Abbeystone (lv3)
+#: guitext:31
+msgctxt "In-game message"
+msgid "The Monks of Abbeystone are holding steady, but they warn you that the besieging forces are gathering their strength for a final assault. However it may be unwise to expose yourself just yet?"
+msgstr "修道院的僧侣们守住了城池，但他们告诫你，敌军正在集结力量准备发动最后的围攻。现在暴露自己的位置是不明智的，对吧？"
+
+#. Abbeystone (lv3)
+#: guitext:32
+msgctxt "In-game message"
+msgid "My Liege, whilst your presence is not yet known to the beseiging forces, it is only a matterof time before your presence is known. An attack could come without any warning, so you must be prepared!"
+msgstr "陛下，你目前还没被敌军发现，但你不可能一直不漏蛛丝马迹。谁也不知道什么时候敌方守护者会突然来进攻你，所以你必须做好准备！"
+
+#. Abbeystone (lv3)
+#: guitext:33
+msgctxt "In-game message"
+msgid "My liege, the Monks have sent a missive. They sensed the presence of multiple Horned Reapers among besieging forces earlier, but very few have been sighted recently. It is possible they are bound with powerful magic, awaiting your counterattack to be unleashed."
+msgstr "陛下，僧侣们寄了一封密信。他们早些时候发现敌军的围攻部队中有很多冥界使者，但最近又很少看到了。它们有可能正被强大的魔法束缚着，等待着你发动反击。"
+
+#. Abbeystone (lv3)
+#: guitext:34
+msgctxt "In-game message"
+msgid "My Liege, I have divined that a force of vampires from Misty Bog is approaching from the south-east, and will arrive shortly after the next payday. I fear they will support the final assault upon Abbeystone, necessitating your involvement."
+msgstr "陛下，我已经察觉到一支来自迷雾沼泽的吸血鬼部队正从东南方向靠近，并将在下一个发薪日后不久到达。我担心它们是来支援修道院的最后攻坚战的，你必须参与处理此事。"
+
+#. Abbeystone (lv3)
+#: guitext:35
+msgctxt "In-game message"
+msgid "It is time! The Monks of Abbeystone have sounded the alarm, with the forces of evil battering at their walls!"
+msgstr "是时候了！修道院的僧侣拉响了警报，邪恶势力正在破坏他们的城墙！"
+
+#. Abbeystone (lv3)
+#: guitext:36
+msgctxt "In-game message"
+msgid "Grave news, my Liege, - the enemy forces are gathering in great numbers! "
+msgstr "陛下，情况不妙——敌军正在大量集结！"
+
+#. Abbeystone (lv3)
+#: guitext:37
+msgctxt "In-game message"
+msgid "The Abbeystone has fallen, my Liege!.. It is a grim day indeed. "
+msgstr "修道院被攻破了，陛下！……这真是悲惨的一天！"
+
+#. Abbeystone (lv3)
+#: guitext:38
+msgctxt "In-game message"
+msgid "We are victorious, my Liege! The siege of Abbeystone is broken. While the undead of Misty Bog are still a threat, you must first head towards the Widerwilds, where the Barbarians resist the demonic incursions from the underground realm. "
+msgstr "我们胜利了，陛下——敌军对修道院的围攻计划被挫败了。但迷雾沼泽中的亡灵仍然是一个威胁，你首先要前往无边荒野，那里的野蛮人正在与地下王国入侵的怪物抗战。"
+
+#. Widerwilds (lv4)
+#: guitext:39
+msgctxt "In-game message"
+msgid "Here in the Widerwilds, a local chieftain rules the land with an iron fist. Upon your arrival, he has challenged you for supremacy, despite the monsters running wild in this land. Build up your army and prove your strength to this filthy barbarian!"
+msgstr "这里是无边荒野，由当地看起来十分威严的酋长统帅。当你来到这里的时候，他想要挑战你的权威，尽管在他的统治下，这里已经怪物横行。建立你的军队，向这个肮脏的野蛮人证明你的力量！"
+
+#. Widerwilds (lv4)
+#: guitext:40
+msgctxt "In-game message"
+msgid "You have received a message from the clan of Samurai, hitherto neutral to your cause. They are willing to join forces if you can defeat the Barbarian Chieftain. This may be through battle, or by trickery and sleight of hand?"
+msgstr "你收到了来自中立的忍者氏族的信息。他们愿意加入你的阵营，只要你能战胜那个野蛮人酋长，无论是通过战斗，还是通过诡计和花招。"
+
+#. Widerwilds (lv4)
+#: guitext:41
+msgctxt "In-game message"
+msgid "One of the Samurai has joined your cause. His clan is looking for their bretheren, imprisoned by the evil monsters in this region. It's possible they might join the Barbarian clans if you do not find them first. Make haste!"
+msgstr "一名忍者加入了你的阵营。他的氏族正在寻找被这个地区的邪恶怪物囚禁的兄弟们。如果你不先找到他们，他们可能会加入野蛮人部落。快点行动吧！"
+
+#. Widerwilds (lv4)
+#: guitext:42
+msgctxt "In-game message"
+msgid "Grave news, my Liege! Some crazed Barbarians have allied with the monsters and are sowing chaos across the land! "
+msgstr "情况危急，陛下！一些疯狂的野蛮人选择与怪物结盟，已经把这片土地搅和得混乱不堪！"
+
+#. Widerwilds (lv4)
+#: guitext:43
+msgctxt "In-game message"
+msgid "Well done, my Liege! You have utterly destroyed the fortress of this evil Keeper. You're now free to finish your contest  with the Barbarian Chieftain!"
+msgstr "干得好，陛下！你彻底摧毁了这个邪恶守护者的城池。你现在可以腾出时间来与野蛮人酋长较量了！"
+
+#. Widerwilds (lv4)
+#: guitext:44
+msgctxt "In-game message"
+msgid "Congratulations, my Liege! You have defeated the barbarian chieftain fair and square. "
+msgstr "恭喜你，陛下！你光明正大地打败了野蛮人酋长。"
+
+#. Widerwilds (lv4)
+#: guitext:45
+msgctxt "In-game message"
+msgid "Treachery! The Barbarian who challenged you has turned out to have been a Demon all along! Put him and his remaining minions down, quickly! "
+msgstr "造反了！那个挑衅你的野蛮人原来是只恶魔！赶快把他和他的爪牙镇压住！"
+
+#. Widerwilds (lv4) victory message
+#: guitext:46
+msgctxt "In-game message"
+msgid "It's done at last. Widerwilds are safe from the depredations of its vile Demon overlord. Now it's time to take revenge for the siege upon Dwarfston and Abbeystone and stake some vampires in the Misty Bog!"
+msgstr "终于大功告成了。无边荒野从邪恶的恶魔领主手里夺回来了，现在安定了。是时候为曾经围攻矮人小镇和修道院的敌人报仇了，消灭迷雾沼泽中的吸血鬼！"
+
+#. Misty Bog (lv5)
+#: guitext:47
+msgctxt "In-game message"
+msgid "The vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires who have brought the Knightly Order of Dominus to ruin!"
+msgstr "邪恶的死灵法师将这个王国变得死气沉沉。召集当地人打败亡灵，并对那些摧毁了多米努斯骑士团的吸血鬼进行复仇！"
+
+#. Misty Bog (lv5)
+#: guitext:48
+msgctxt "In-game message"
+msgid "The Necromancer you oppose has created phylactery to protect himself from death. It will be probably difficult to defeat him once and for all?"
+msgstr "你的对手，死灵法师，创造了一种魔法护符来保护自己免受死亡之灾。要彻底打败他可能会很困难。"
+
+#. Misty Bog (lv5)
+#: guitext:49
+msgctxt "In-game message"
+msgid "My liege, the silence of the Misty Bog has turned especially oppressive and eerie - your presence has not gone unnoticed. It will be wise to prepare for an attack. "
+msgstr "陛下，迷雾沼泽中的寂静变得十分压抑和可怕——你的存在已经被敌人看在眼里了。是时候准备抵御敌人的进攻了。"
+
+#. Misty Bog (lv5)
+#: guitext:50
+msgctxt "In-game message"
+msgid "Although his undead minions are many, the Necromancer himself controls several vampires and a large host of powerful watery beasts known as tentacles, native to underwater streams of the region. It might be wise to avoid direct confrontation with his forces until you are ready?If that's possible, of course."
+msgstr "尽管他的亡灵仆从很多，但死灵法师自己似乎还控制着几个吸血鬼和一大群强大的水生野兽，它们被称为水怪，是该地区水下溪流的原生生物。在你准备充分之前，最好避免与他的军队硬拼，可以吧？这当然是可以做到的。"
+
+#. Misty Bog (lv5)
+#: guitext:51
+msgctxt "In-game message"
+msgid "I have divined more Undead minions of the Necromancer, who are approaching from the north. "
+msgstr "我发现很多死灵法师的亡灵仆从正从北方逼近。"
+
+#. Misty Bog (lv5)
+#: guitext:52
+msgctxt "In-game message"
+msgid "My Liege, the Necromancer has finally requested aid from the Vampires. They have been scarce in the surface world for the last fortnight!"
+msgstr "陛下，死灵法师似乎终于向吸血鬼请求了援助——在过去的四十天里，地下世界外面的吸血鬼正大量涌入地下城！"
+
+#. Misty Bog (lv5)
+#: guitext:53
+msgctxt "In-game message"
+msgid "Our dungeon heart is breached by the Undead forces! "
+msgstr "我们的地下城心脏被亡灵大军围攻了！"
+
+#. Misty Bog (lv5)
+#: guitext:54
+msgctxt "In-game message"
+msgid "The people speak of a haunted Temple in the area. You would be wise to cleanse it of the taint? "
+msgstr "人们说这一带有一座闹鬼的寺庙。最好先把它净化一下？"
+
+#. Misty Bog (lv5)
+#: guitext:55
+msgctxt "In-game message"
+msgid "The heart of one evil Necromancer is destroyed, but there is another! Find and destroy his second phylactery, and then proceed to  stake all surviving vampires in the bog. "
+msgstr "邪恶的死灵法师的一颗心脏被摧毁了，但他还有另一颗心脏。找到并摧毁他的第二颗心脏，然后把所有幸存的吸血鬼都消灭在沼泽地里。"
+
+#. Misty Bog (lv5)
+#: guitext:56
+msgctxt "In-game message"
+msgid "The last Necromancer is defeated. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance on your heroes."
+msgstr "邪恶的死灵法师被击败了。现在，你必须把所有幸存的吸血鬼都消灭在沼泽地里，它们会不断前来向你的英雄们复仇。"
+
+#. Misty Bog (lv5)
+#: guitext:57
+msgctxt "In-game message"
+msgid "The heart of an evil Necromancer is destroyed, but another remains. Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog. "
+msgstr "邪恶的死灵法师的一颗心脏被摧毁了，但他还有另一颗心脏。找到并摧毁他的第二颗心脏，然后把所有幸存的吸血鬼都消灭在沼泽地里。"
+
+#. Misty Bog (lv5) victory message
+#: guitext:58
+msgctxt "In-game message"
+msgid "Glorious victory, my Liege! The Undead are defeated and Misty Bog is safe! It is now possible to restore Knight's Castle, which fell into disrepair after the Vampires settled here."
+msgstr "光荣的胜利，陛下！所有的亡灵都被消灭了，迷雾沼泽现在安全了。现在我们可以去修复一直被吸血鬼占领的骑士城堡了，它已经年久失修。"
+
+#. Widerwilds (lv3)
+#: guitext:59
+msgctxt "In-game message"
+msgid "Treachery! The Barbarian who challenged you has turned out to have been a demon all along! You now must breach his fortress and destroy both the dungeon heart and the monster himself!"
+msgstr "造反了！那个挑衅你的野蛮人原来是只恶魔！你现在必须攻入他的要塞，摧毁地下城心脏，消灭这个恶魔本人！"
+
+#. Knight's castle (lv6)
+#: guitext:60
+msgctxt "In-game message"
+msgid "While your masons rebuild the foundations, you must restore the lost glory of Knights' Castle. It'd be fitting if you create a  new Knightly Order comprised of at least five Knights, and deliver a valiant victory against the forces of evil nested in  this underground realm."
+msgstr "你的石匠正在重建废弃的城堡，而你也必须恢复骑士城堡当年失去的荣耀。你最好创建一个至少由五名骑士组成的新骑士团，并且赢得与这个地下王国里的邪恶势力的战争。"
+
+#. Knight's castle (lv6)
+#: guitext:61
+msgctxt "In-game message"
+msgid "My Liege, the cellars of Knight's Castle are mostly empty of gold and grain. It will be necessary to expand outwards very soon, and this will expose you to attack from two enemy keepers controlling the region. It might be wise to focus on a single opponent at a time?"
+msgstr "陛下，骑士城堡里的金库和谷仓基本都空空如也。我们很快就必须向外扩张，但这可能会使我们同时承受两个控制该区域的敌人守护者的攻击。每次只集中力量对付一个对手可能是更明智的选择，对吧？"
+
+#. Knight's castle (lv6)
+#: guitext:62
+msgctxt "In-game message"
+msgid "My Liege, the monsters are attacking! They seem to be gathering at the libraries and workshops, as well as dungeons of enemy keepers. "
+msgstr "陛下，怪物们正在进攻！它们似乎聚集在图书馆和工厂里，以及敌人守护者的地下城里。"
+
+#. Knight's castle (lv6)
+#: guitext:63
+msgctxt "In-game message"
+msgid "The enemy keepers have constructed infernal gates which are connected to the dungeons of Wickedridge, and are now staging more attacks  upon your castle's cellar. If you do not capture or destroy the libraries and workshops soon, they will bring in even more reinforcements."
+msgstr "敌人守护者已经建造了与恶魔山脊的地下城连接的地狱传送门，现在正在对骑士城堡的地下城发动更多的攻击。如果你不尽快占领或摧毁图书馆和工厂，他们将带来更多的增援。"
+
+#. Knight's castle (lv6)
+#: guitext:64
+msgctxt "In-game message"
+msgid "Infernal heat scours the tunnels; forces of Wickedridge have arrived to drive you out. Rally your troops, and defeat the invaders."
+msgstr "地狱般的热浪在地下城里翻滚；恶魔山脊的援军已经到达，要把你赶出这里。集结你的军队，打败侵略者。"
+
+#. Knight's castle (lv6)
+#: guitext:65
+msgctxt "In-game message"
+msgid "My Liege, after your last offensive the vile monsters are staging a counterattack!"
+msgstr "陛下，在你最后一次进攻之后，邪恶的怪物们正在进行反击！"
+
+#. Knight's castle (lv6)
+#: guitext:66
+msgctxt "In-game message"
+msgid "My Liege, an alarm has sounded within the enemy dungeon. Undoubtedly more monsters will arrive soon as reinforcements! "
+msgstr "陛下，敌人的地下城里响起了警报声——毫无疑问，更多的怪物将前来增援！"
+
+#. Knight's castle (lv6)
+#: guitext:67
+msgctxt "In-game message"
+msgid "You have established a new Knightly Order, and a wise and powerful Wizard has joined your cause! he brings with him the ability to  Destroy Walls. It is now possible to finally eradicate the evil presence in these lands by destroying its very heart."
+msgstr "你建立了一个新的骑士团，一个聪明而强大的巫师加入了你的阵营，并带来了一本破坏墙壁的魔法书。现在你可以摧毁邪恶势力的心脏，彻底根除这片土地上的邪恶存在。"
+
+#. Knight's castle (lv6)
+#: guitext:68
+msgctxt "In-game message"
+msgid "The evil polluting this land is no more, and the walls of Knights' Castle once again stand proud at the dawn. It is now time to move  upon the Wickedridge itself."
+msgstr "污染这片土地的邪恶已经不复存在，骑士城堡的城墙又一次在黎明时分巍然矗立。是时候向邪恶山脊进发了。"
+
+#. Knight's castle (lv6)
+#: guitext:69
+msgctxt "In-game message"
+msgid "By capturing this portal, you have established a firm foothold which allows you to build more Hatcheries and Treasure Rooms."
+msgstr "通过占领这个入口，你已经建立了一个坚实的立足之地，使得你可以建造更大的孵化室和储金室。"
+
+#. Intentional blank
+#: guitext:70
+msgctxt "In-game message"
+msgid "The Ziggurat carries the stench of dead people. Good job. Two of your Vampires will accompany you to the next realm!"
+msgstr "这座塔庙里已经充满了死尸的恶臭。干得漂亮。两个吸血鬼将陪你进入下一个王国！"
+
+#. Hellspring (lv7)
+#: guitext:71
+msgctxt "In-game message"
+msgid "The Hellspring is home to many monsters we'd rather see dead. Yet the reason we're here is to destroy enchantments upon the magma  streams which bar your way to Wickedridge. It's best to search the local keeper's sanctum?"
+msgstr "地狱之泉是许多怪物的家园，但我们宁愿让它们去死。不过我们来这里的主要原因是来解除岩浆上游的魔法，它阻碍了你从上游进入恶魔山脊。最好先查清楚这里的守护者的藏身之处。"
+
+#. Hellspring (lv7)
+#: guitext:72
+msgctxt "In-game message"
+msgid "It turns out we have forgotten to pack the library books and workshop schemes, thus we'll likely have to rely on the few scriptures provided by the local shrine."
+msgstr "结果我们来这里的时候忘记携带图书馆的书籍和工厂的设计图了，因此我们很可能只能依靠当地神社提供的几本经书。"
+
+#. Hellspring (lv7)
+#: guitext:73
+msgctxt "In-game message"
+msgid "The enemy keeper gathers his hellhounds and demonspawns at the Scavenger and Training rooms, while Warlocks reside within Library. Capture or destroy those rooms, and the tide of attackers will be lessened. "
+msgstr "敌方守护者把他的地狱之犬和恶鬼安置在招募中心和训练室，而魔术师则住在图书馆里。占领或摧毁这些房间，敌人发动攻击的次数就会减少。"
+
+#. Hellspring (lv7)
+#: guitext:74
+msgctxt "In-game message"
+msgid "Some dragons were attracted by the recently unearthed treasures. It might be wise to destroy the enemy keeper as quickly as possible, for these beasts will not otherwise relent. "
+msgstr "一些龙被最近出土的财宝吸引到了这里。最好尽快消灭敌人守护者，否则这些怪物是不会罢休的。"
+
+#. Hellspring (lv7)
+#: guitext:75
+msgctxt "In-game message"
+msgid "My Liege, the infernal baying and frenzied shrieks sound across the river of lava. It means your presence here has been discovered, and an attack is imminent. "
+msgstr "陛下，地狱般的嚎叫和疯狂的尖叫声响彻整条岩浆河。这意味着你在这里的存在已经暴露了，敌人的进攻即将到来。"
+
+#. Hellspring (lv7)
+#: guitext:76
+msgctxt "In-game message"
+msgid "No longer agitated by demons of Wickedridge, the volcanoes of Hellspring stop flooding the land with fiery death. It is now safe to pass towards Verminfeast."
+msgstr "地狱之泉的火山不再被恶魔山脊的恶魔搅动，不再以炽热的死亡炙烤大地。朝着臭虫之巢的方向进发已经没有问题了。"
+
+#. Hellspring (lv7)
+#: guitext:77
+msgctxt "In-game message"
+msgid "My Liege, the captured monster has been interrogated. Whilst largely ignorant of Verminfeast, it revealed the last refuge of Vampires from Misty Bog. Those bloodsuckers thirst for revenge - now that you are aware of their presence, expect them to arrive shortly. "
+msgstr "陛下，俘虏的怪物已经招供了。虽然它对臭虫之巢几乎一无所知，但它透露出除了迷雾沼泽以外，吸血鬼最后的避难所。那些吸血鬼渴望复仇——现在你知道他们的存在了，他们估计很快就会到来。"
+
+#. Hellspring (lv7)
+#: guitext:78
+msgctxt "In-game message"
+msgid "The multitude of magical tomes and arcane grimoires hidden within this library, provide you with evidence that enchantments protecting Wickedridge are of ancient origin and have nothing to do with the local keeper. It changes nothing, since the only way through to the vale  of Verminfeast is beyond the enemy's inner sanctum. "
+msgstr "收藏在这个图书馆里的很多神秘的魔法书籍，为你提供了证据，证明保护恶魔山脊的魔法起源于古代，与当地的守护者无关。我们什么也改变不了，因为通往臭虫之巢的唯一途径就是穿过敌人领地内部的神殿。"
+
+#. Hellspring (lv7)
+#: guitext:79
+msgctxt "In-game message"
+msgid "So far, we know next to nothing about the Vale of Verminfeast. Capture one of the monsters to learn about this realm."
+msgstr "到目前为止，我们对臭虫之巢所在的山谷几乎一无所知。俘虏一个怪物来拷问这个地区的信息。"
+
+#. Wickedrige (lv8)
+#: guitext:80
+msgctxt "In-game message"
+msgid "You have arrived to the source of all evil in Dominus. Gather your heroes, and strike into the heart of darkness!"
+msgstr "你已经到达了多米努斯所有邪恶势力的源头之处。集结你的英雄们，摧毁邪恶势力的心脏吧！"
+
+#. Wickedrige (lv8)
+#: guitext:81
+msgctxt "In-game message"
+msgid "The monstrous beings in this land are many, and they are mostly self-sufficient and set apart from the supreme keeper who seems care little for your invasion. The Orcs live in their barracks, Demonspawns and Dragons reside in their training rooms. Undead creatures rise from the temples, and the Bile Demons lazily fart within their filthy lairs. Capture these rooms, and their attacks will weaken and finally cease. "
+msgstr "这片土地上的怪物很多，它们大多自给自足，与似乎对你的入侵漠不关心的高阶守护者并不住在一起。兽人住在它们的兵营里，恶鬼和龙住在训练室里，亡灵从寺庙中升起，巨魔懒洋洋地在它们肮脏的巢穴里放屁。占领这些房间，它们的攻击就会逐渐减弱并最终停止。"
+
+#. Wickedrige (lv8)
+#: guitext:82
+msgctxt "In-game message"
+msgid "Your troops have breached the final bastion of evil! Beware, for the last vile creatures are pouring forth! "
+msgstr "你的部队已经攻破了邪恶势力的最后一座堡垒；小心，因为最后的一群邪恶怪物正在倾巢出动！"
+
+#. Wickedrige (lv8)
+#: guitext:83
+msgctxt "In-game message"
+msgid "Warning drums can be faintly heard in the distance! The evil Keeper will soon attempt to remove you from this land. "
+msgstr "远处传来微弱的警报声！邪恶的守护者很快就会试图把你从这片土地上除掉。"
+
+#. Wickedrige (lv8)
+#: guitext:84
+msgctxt "In-game message"
+msgid "Your crusade against forces of evil entrenched at Wickedridge ends! Dominus is safe, and the Lord has his Revenge!  Congratulations!"
+msgstr "你与邪恶势力的征战在恶魔山脊的尽头取得了胜利！多米努斯安然无恙，人类领主最终完成了他的复仇！恭喜你！"
+
+#. Verminfeast (lv9)secret 1
+#: guitext:85
+msgctxt "In-game message"
+msgid "The haunted land of Verminfeast is crawling with insects. The food is scarce, and the training room and library cannot be built here. It will be necessary to capture Hatcheries to sustain even your modest army. "
+msgstr "臭虫之巢的土地上到处都是爬虫。这里食物匮乏，也不能建造训练室和图书馆。你必须占领更多的孵化室来供养你的军队，尽管一开始你只有一间狭小的孵化室。"
+
+#. Verminfeast (lv9)secret 1
+#: guitext:86
+msgctxt "In-game message"
+msgid "My Liege, the vermin infesting this land grow agitated. You must protect your hatcheries from their attacks, as you prepare your forces  to destroy the Keeper who stands on your way to Wickedridge. "
+msgstr "陛下，这片土地上的臭虫开始躁动不安了。你必须保护你的孵化室不受它们的袭击，同时你必须准备好你的部队来消灭那个挡在你去恶魔山脊路上的守护者。"
+
+#. Verminfeast (lv9) secret 1
+#: guitext:87
+msgctxt "In-game message"
+msgid "The Verminfeast crawls no more with itchies and insects. The road to the last bastion of evil at Wickedridge is now open! "
+msgstr "臭虫之巢的这些令人瘙痒的爬虫终于不复存在了！通往恶魔山脊中最后一个邪恶堡垒的道路已经打开！"
+
+#. Thiefhaven (lv10) secret 2
+#: guitext:88
+msgctxt "In-game message"
+msgid "A fearsome Horned Reaper commands the forces of evil in this land, hidden beyond a labyrinthine maze of traps and many bodyguards. Find a way into his fortress using your Thieves, and kill the demon! "
+msgstr "一个可怕的冥界使者统帅着这片土地上的邪恶势力。它隐藏在陷阱迷宫和众多守卫的保护之中。用你的小偷找到一条通入它的堡垒的路，然后杀死这个恶魔！"
+
+#. Thiefhaven (lv10) secret 2
+#: guitext:89
+msgctxt "In-game message"
+msgid "The forces of evil have grown immensely strong. It is no longer possible to prevail. "
+msgstr "邪恶的力量已经变得非常强大，再也不可能战胜了。"
+
+#. Thiefhaven (lv10) secret 2
+#: guitext:90
+msgctxt "In-game message"
+msgid "Beware - the first attackers are approaching Thiefhaven! "
+msgstr "当心——第一批袭击者正在接近小偷之窝！"
+
+#. Thiefhaven (lv10) secret 2
+#: guitext:91
+msgctxt "In-game message"
+msgid "The forces of evil are attacking once again!"
+msgstr "邪恶势力再次发起进攻！"
+
+#. Thiefhaven (lv10) secret 2
+#: guitext:92
+msgctxt "In-game message"
+msgid "More Demonspawn have departed their lair, and are on their way! "
+msgstr "一群恶鬼离开了它们的巢穴，正在前往这里！"
+
+#. Thiefhaven (lv10) secret 2
+#: guitext:93
+msgctxt "In-game message"
+msgid "The fortress of the Horned Reaper is demolished, with its heart shattered. Brace yourself, for the Demon is angry at your defiance  and his minions will soon attack!"
+msgstr "冥界使者的堡垒与它的地下城心脏一同被摧毁了。打起精神，因为这个恶魔对你的挑衅十分愤怒，它的部下很快就会发起进攻！"
+
+#. Thiefhaven (lv10) secret 2
+#: guitext:94
+msgctxt "In-game message"
+msgid "The Horned Reaper is dead, and you now can enlist any hero to accompany you into the next realm. But be wary for this land isn't safe, even now! "
+msgstr "冥界使者终于死了，你现在可以选择一个英雄来陪你进入下一个王国。但要注意，这片土地现在还没有彻底安定下来！"
+
+#. Coldamned (lv11) secret 3
+#: guitext:95
+msgctxt "In-game message"
+msgid "Victory! The Wizard is dead, and it is time to leave this dungeon. "
+msgstr "成功了！邪恶的巫师终于死了，是时候离开这个地下城了。"
+
+#. Coldamned (lv11) secret 3
+#: guitext:96
+msgctxt "In-game message"
+msgid "An evil Wizard rules this frozen underground realm. He has imprisoned two Heroes somewhere in his dungeon. If rescued, they will gladly accompany you in future conquests if you help them slay the renegade Wizard. Make haste, for the way back will not remain open for much longer! "
+msgstr "一个邪恶的巫师统治着这个冰冻的地下世界。他把两个英雄囚禁在这个地下城的某个地方；如果你救出他们并帮助他们杀死这个叛徒巫师，他们会很愿意在未来的任务中帮助你。抓紧时间，因为这里已经没有回头路可以走了！"
+
+#. Coldamned (lv11) secret 3
+#: guitext:97
+msgctxt "In-game message"
+msgid "The evil Wizard has finished his sinister spell, and the way back is now barred. "
+msgstr "邪恶的巫师已经完成了他的邪恶咒语，返回的路被永远地封住了。"
+
+#. Coldamned (lv11) secret 3
+#: guitext:98
+msgctxt "In-game message"
+msgid "All of your Heroes are dead, while the evil Wizard survives. This realm is lost. "
+msgstr "你所有的英雄都死了，而邪恶的巫师还活着。任务失败。"
+
+#: guitext:201
+msgctxt "Level name"
+msgid "Revenge of the Lord"
+msgstr "领主的复仇"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Dwarfton"
+msgstr "矮人小镇"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Sparkleforest"
+msgstr "星火丛林"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Abbeystone"
+msgstr "修道院"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Widerwilds"
+msgstr "无边荒野"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Misty Bog"
+msgstr "迷雾沼泽"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Knight's Castle"
+msgstr "骑士城堡"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Hellspring"
+msgstr "地狱之泉"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Wickedridge"
+msgstr "恶魔山脊"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Verminfeast"
+msgstr "臭虫之巢"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Thiefhaven"
+msgstr "小偷之窝"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Coldamned"
+msgstr "极寒之境"
+
