@@ -2,7 +2,8 @@ REM ********************************************
 REM  Hero campaign by Alexsa
 REM  map 1238, level 5 - Misty Bog
 REM  Script for the map
-REM  Version 0.00
+REM Update 1.00, august 2018: lowered difficulty. Somewhat reduced endless imps.
+REM  V2.0 by dayokay to use pot file (Dec2020)
 REM ********************************************
 REM Fifth map in campaign. AI gets endless amounts of imps.
 REM First version was absolutely non-playable. Very strong hero attacks all day long, and to top it off AI will crush you if you don't wall in or post in.
@@ -10,8 +11,7 @@ REM It's highly advised to make no wall breaches in the mainland, so that stupid
 REM The party protecting Hero Heart is 16 creatures strong... that's bogus.
 REM also, I've attacked Hero Heart using water-wall exploit. Doing it the proper way would've been really hard.
 REM ********************************************
-REM Update 1.00, august 2018: lowered difficulty. 
-REM Somewhat reduced endless imps.
+REM 
 REM ********************************************
 LEVEL_VERSION(1)
 
@@ -191,7 +191,8 @@ REM Startup
     SET_TIMER(PLAYER0,TIMER0)
     SET_TIMER(PLAYER1,TIMER0)
 REM The hint about hell hounds attacking you from south is here. I mean seriously, lava does give you a hint.
-    QUICK_OBJECTIVE(1,"The vile necromancer holds this realm in the deathgrip. Rally the locals to vanquish the undead and enact your revenge against vampires who have brought the Knightly Order of Dominus to ruin.", PLAYER0)
+REM    QUICK_OBJECTIVE(1,"The vile necromancer holds this realm in the deathgrip. Rally the locals to vanquish the undead and enact your revenge against vampires who have brought the Knightly Order of Dominus to ruin.", PLAYER0)
+	DISPLAY_OBJECTIVE(47,PLAYER0)
 
 REM Add imps for AI if some are dead. ...I played version where it happened instantly, and gotten 70 vampires. Yuck.
 IF(PLAYER1,TIMER0 >= 500)
@@ -220,32 +221,37 @@ REM Flag2 - Warlock
 REM Flag4 - hero heart under attack, 1 - entrance breached.
 REM FLAG5 - increase kill counter
 REM Add Fairy
-	    QUICK_INFORMATION(2,"The necromancer you oppose has created at least phylactery to protect himself from deat. It will be probably difficult to defeat him once and for all.", PLAYER0)
+REM	QUICK_INFORMATION(2,"The necromancer you oppose has created at least phylactery to protect himself from deat. It will be probably difficult to defeat him once and for all.", PLAYER0)
+DISPLAY_INFORMATION(48,PLAYER0)
 ENDIF
 REM Start weak attacks
 IF(PLAYER0,TIMER0 >= 10000)
     SET_TIMER(PLAYER0,TIMER1)
-    QUICK_INFORMATION(3,"My liege, the silence of the Misty Bog has turned especially oppressive and eerie - your presence has not went unnoticed. It will be wise to prepare for an attack.", PLAYER0)
+REM	QUICK_INFORMATION(3,"My liege, the silence of the Misty Bog has turned especially oppressive and eerie - your presence has not went unnoticed. It will be wise to prepare for an attack.", PLAYER0)
+	DISPLAY_INFORMATION(49,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELSMAL,-2,1)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELSMAL,-4,1)
 ENDIF
 REM Warn to wall in
 IF(PLAYER0,TIMER0 >= 20000)
-	QUICK_INFORMATION(9,"Although his undead minions are many, the necromancer himself seems to be controlling several vampires and a large host of powerful watery beasts known as tentacles, native to underwater streams of the region. It might be wise to avoid direct confrontation with his forces, if at all possible, until you are ready.", PLAYER0)
+REM	QUICK_INFORMATION(9,"Although his undead minions are many, the necromancer himself seems to be controlling several vampires and a large host of powerful watery beasts known as tentacles, native to underwater streams of the region. It might be wise to avoid direct confrontation with his forces, if at all possible, until you are ready.", PLAYER0)
+	DISPLAY_INFORMATION(50,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELSMAL,-4,1)
 ENDIF
 
 REM Start stronger attacks
 IF(PLAYER0,TIMER0 >= 40000)
         SET_TIMER(PLAYER0,TIMER2)
-        QUICK_INFORMATION(4,"I have divined more undead minions of the necromancer who are approaching from the north.", PLAYER0)
+REM		QUICK_INFORMATION(4,"I have divined more undead minions of the necromancer who are approaching from the north.", PLAYER0)
+		DISPLAY_INFORMATION(51,PLAYER0)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELGARD,-2,1)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELROOM,-2,1)
 ENDIF
 
 IF(PLAYER0,TIMER0 >= 70000)
         SET_TIMER(PLAYER0,TIMER3)
-        QUICK_INFORMATION(5,"My liege, the necromancer seems to have finally requested aid from the vampires - far fewer of them were seen in the surface world for the last forthnight!", PLAYER0)
+REM		QUICK_INFORMATION(5,"My liege, the necromancer seems to have finally requested aid from the vampires - far fewer of them were seen in the surface world for the last forthnight!", PLAYER0)
+		DISPLAY_INFORMATION(52,PLAYER0)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPIRES,-2,1)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPGOLD,-2,1)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_VAMPSPEL,-2,1)
@@ -253,7 +259,8 @@ ENDIF
 
 REM In fact, it's wholly possible that if you don't wall yourself in, you'll face those 30 lv 10 Tentacles and die.
 IF(PLAYER0,TIMER0 >= 110000)
-	QUICK_INFORMATION(6,"Our dungeon heart is breached by the undead forces!", PLAYER0)
+REM	QUICK_INFORMATION(6,"Our dungeon heart is breached by the undead forces!", PLAYER0)
+	DISPLAY_INFORMATION(53,PLAYER0)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELGARD,-7,3)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-7,4,3,0)
 ENDIF
@@ -263,7 +270,8 @@ REM If AI keeper is dead, attack with strongest skeletons instead, harrassing yo
 IF(PLAYER0,TIMER1 >= 5000)
     NEXT_COMMAND_REUSABLE
     SET_TIMER(PLAYER0,TIMER1)
-	QUICK_INFORMATION(8,"The people speak of a haunted temple in the area. It will be wise to cleanse it of the taint.", PLAYER0)
+REM	QUICK_INFORMATION(8,"The people speak of a haunted temple in the area. It will be wise to cleanse it of the taint.", PLAYER0)
+	DISPLAY_INFORMATION(54,PLAYER0)
 	IF(PLAYER_GOOD,GUARD_POST >= 60)
 		NEXT_COMMAND_REUSABLE
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_SKELSMAL,-1,1)
@@ -332,7 +340,8 @@ IF(PLAYER_GOOD, DUNGEON_DESTROYED>=1)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-6,4,3,0)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-7,4,3,0)
 		IF(PLAYER1, DUNGEON_DESTROYED==0)
-	QUICK_OBJECTIVE(16,"The heart of an evil necromancer is destroyed, but he still has another one. Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog.", PLAYER0)
+REM	QUICK_OBJECTIVE(16,"The heart of an evil necromancer is destroyed, but he still has another one. Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog.", PLAYER0)
+			DISPLAY_OBJECTIVE(55,PLAYER0)
 		ENDIF
 ENDIF
 
@@ -346,19 +355,22 @@ IF(PLAYER1, DUNGEON_DESTROYED>=1)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-5,4,3,0)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-7,4,3,0)
 		IF(PLAYER_GOOD, DUNGEON_DESTROYED>=1)
-		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FINAL,-3,1)
-		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FINAL,-2,1)
-		SET_TIMER(PLAYER0,TIMER4)
-	QUICK_OBJECTIVE(18,"The evil necromancer is defeated. Now, you must stake all surviving vampires in the bog, who have belatedly arrived to enact vengeance upon your heroes.", PLAYER0)
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FINAL,-3,1)
+			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FINAL,-2,1)
+			SET_TIMER(PLAYER0,TIMER4)
+REM			QUICK_OBJECTIVE(18,"The evil necromancer is defeated. Now, you must stake all surviving vampires in the bog, who have belatedly arrived to enact vengeance upon your heroes.", PLAYER0)
+			DISPLAY_OBJECTIVE(56,PLAYER0)
 		ENDIF
 		IF(PLAYER_GOOD, DUNGEON_DESTROYED==0)
-	QUICK_OBJECTIVE(16,"The heart of an evil necromancer is destroyed, but he still has another one. Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog.", PLAYER0)
+REM	QUICK_OBJECTIVE(16,"The heart of an evil necromancer is destroyed, but he still has another one. Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog.", PLAYER0)
+		DISPLAY_OBJECTIVE(57,PLAYER0)
 		ENDIF
 ENDIF
 
 IF(PLAYER0,TIMER4 >= 200)
 	IF_CONTROLS(PLAYER_GOOD, VAMPIRE<=0)
-		QUICK_OBJECTIVE(17,"Glorious victory, my liege! All of the undead is destroyed, and the Misty Bog is safe. It is now possible to restore Knight's Castle, which fell into disrepair after the vampires have settled here.", PLAYER0)
+REM		QUICK_OBJECTIVE(17,"Glorious victory, my liege! All of the undead is destroyed, and the Misty Bog is safe. It is now possible to restore Knight's Castle, which fell into disrepair after the vampires have settled here.", PLAYER0)
+		DISPLAY_OBJECTIVE(58,PLAYER0)
 		WIN_GAME
 	ENDIF
 ENDIF
@@ -394,7 +406,8 @@ IF(PLAYER1,ENTRANCE >= 10)
 ENDIF
 
 IF(PLAYER0,BRIDGE >= 1)
-    QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+REM	QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+	DISPLAY_INFORMATION(27,PLAYER0)
     NEXT_COMMAND_REUSABLE
     ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
 ENDIF
