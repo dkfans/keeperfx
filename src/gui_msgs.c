@@ -109,7 +109,7 @@ void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
     va_end(val);
 }
 
-__attribute__((fastcall)) void show_game_time_taken(unsigned char fps, unsigned long turns)
+__attribute__((fastcall)) void show_game_time_taken(unsigned long fps, unsigned long turns)
 {
     unsigned char Hours,Minutes,Seconds;
     asm (" \
