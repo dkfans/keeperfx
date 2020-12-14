@@ -1258,49 +1258,7 @@ msgid ""
 "Look! That wall can be dug through!"
 msgstr ""
 
-#. Levels Moonbrush Wood and Bonus 1 information
-#: guitext:174
-msgctxt "In-game message"
-msgid "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready to reduces your enemies into ashes!"
-msgstr ""
-
-#. Level Bonus 6 objective
-#: guitext:175
-msgctxt "In-game message"
-msgid "Well done! Your immense wealth has drew the attention of a Thief. He will serve you well in the next realm!"
-msgstr ""
-
-#. Level Flowerhat information
-#: guitext:176
-msgctxt "In-game message"
-msgid ""
-"Your researchers have discovered the Heal Creature spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
-msgstr ""
-
-#. Level Tulipscent information
-#: guitext:177
-msgctxt "In-game message"
-msgid ""
-"Try the Must Obey spell. When activated, it constantly forces your creatures to obey to all your orders, making all of them working faster without the "
-"possibility for them to take a nap. Be sure to have plenty of money so that the spell will stay activated."
-msgstr ""
-
-#. Level Tulipscent information
-#: guitext:178
-msgctxt "In-game message"
-msgid ""
-"A Tentacle has joined your dungeon. These rare little creatures enjoy to be in water and their spine can even pierce the most solid armors and paralyze your "
-"enemies! Marvellous!"
-msgstr ""
-
-#. Level Bonus 1 objective
-#: guitext:179
-msgctxt "In-game message"
-msgid ""
-"You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to "
-"make this place safe is to kill every hero in the realm."
-msgstr ""
-
+#: guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191 guitext:192
 #: guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
@@ -1367,29 +1325,14 @@ msgctxt "Level name"
 msgid "Coldamned"
 msgstr ""
 
-#: guitext:213 guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219 guitext:220 guitext:221 guitext:222
+#: guitext:213 guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219 guitext:220 guitext:221
 msgctxt "In-game message"
 msgid "Moo2 "
 msgstr ""
 
-#: guitext:222
-msgctxt "In-game interface description"
-msgid "Name and Health: Each creature has its own name. Behind is the creature health bar. The higher the red bar, the better health the creature is in."
-msgstr ""
-
-#: guitext:223
-msgctxt "In-game interface description"
-msgid "Experience: The creature's experience level. Behind the level number is a bar indicating the creatures progress towards attaining more experience."
-msgstr ""
-
-#: guitext:224
-msgctxt "In-game interface description"
-msgid "Hunger: How badly a creature needs to suck down a chicken or two."
-msgstr ""
-
-#: guitext:225
-msgctxt "In-game interface description"
-msgid "Cancel"
+#: guitext:222 guitext:223 guitext:224 guitext:225
+msgctxt "Level name"
+msgid "Unused"
 msgstr ""
 
 #: guitext:226
@@ -1470,7 +1413,7 @@ msgstr ""
 
 #: guitext:241
 msgctxt "Creature spell"
-msgid "Flame Breath: The devasting constant stream of searing fire."
+msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr ""
 
 #: guitext:242
