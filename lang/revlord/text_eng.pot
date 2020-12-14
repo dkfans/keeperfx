@@ -18,11 +18,10 @@
 #
 # *****************************************************************************
 
-"Project-Id-Version: GUI Strings for KeeperFX\n"
+"Project-Id-Version: Revenge of the Lord campaign for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues"
-"POT-Creation-Date: 2020-09-20 13:28+0100\n"
-"PO-Revision-Date: 2013-11-13 19:11+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2020-11-19 10:34+0100\n"
 "Language-Team: KeeperFX Team"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -1303,7 +1302,7 @@ msgid ""
 msgstr ""
 
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191 guitext:192
-#: guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200 guitext:221 guitext:222
+#: guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
@@ -1368,39 +1367,9 @@ msgctxt "Level name"
 msgid "Coldamned"
 msgstr ""
 
-#: guitext:213
-msgctxt "Level name"
-msgid ""
-msgstr ""
-
-#: guitext:214
-msgctxt "Level name"
-msgid ""
-msgstr ""
-
-#: guitext:215
-msgctxt "Level name"
-msgid ""
-msgstr ""
-
-#: guitext:216
-msgctxt "Level name"
-msgid ""
-msgstr ""
-
-#: guitext:217
-msgctxt "Level name"
-msgid ""
-msgstr ""
-
-#: guitext:218
-msgctxt "Level name"
-msgid ""
-msgstr ""
-
-#: guitext:219
-msgctxt "Level name"
-msgid ""
+#: guitext:213 guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219 guitext:220 guitext:221 guitext:222
+msgctxt "In-game message"
+msgid "Moo2 "
 msgstr ""
 
 #: guitext:222
