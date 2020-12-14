@@ -397,7 +397,7 @@ void draw_timer(void)
         {
             update_time();
         }
-        text = buf_sprintf("%02ld:%02ld:%02ld", Timer.Hours, Timer.Minutes, Timer.Seconds);
+        text = buf_sprintf("%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
     }
     LbTextSetFont(winfont); 
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 4);

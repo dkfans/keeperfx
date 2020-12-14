@@ -116,7 +116,8 @@ void set_player_as_won_level(struct PlayerInfo *player)
     {
         show_real_time_taken();
     }
-    SYNCMSG("Won level %ld. Total turns taken: %ld. CPU time elapsed: %02ld:%02ld:%02ld:%03ld.",game.loaded_level_number, dungeon->lvstats.hopes_dashed, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+    struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game.num_fps);
+    SYNCMSG("Won level %ld. Total turns taken: %ld. Real time elapsed: %02d:%02d:%02d:%03d. Game time taken: %02d:%02d:%02d.",game.loaded_level_number, dungeon->lvstats.hopes_dashed, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds, GameT.Hours, GameT.Minutes, GameT.Seconds);
   }
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);

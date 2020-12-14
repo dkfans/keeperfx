@@ -368,6 +368,13 @@ struct TimerTime {
 extern struct TimerTime Timer;
 extern TbBool TimerGame;
 extern TbBool TimerFreeze;
+struct GameTime {
+    unsigned char Seconds;
+    unsigned char Minutes;
+    unsigned char Hours;
+};
+
+__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps);
 
 #ifdef __cplusplus
 }

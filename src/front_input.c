@@ -509,7 +509,8 @@ short get_global_inputs(void)
         if ( timer_enabled() )
         {
             update_time();
-            SYNCMSG("Finished level %ld. Total turns taken: %ld. CPU time elapsed: %02ld:%02ld:%02ld:%03ld.",game.loaded_level_number, game.play_gameturn, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+            struct GameTime GameT = get_game_time(game.play_gameturn, game.num_fps);
+            SYNCMSG("Finished level %ld. Total turns taken: %ld. Real time elapsed: %02d:%02d:%02d:%03d. Game time taken: %02d:%02d:%02d.",game.loaded_level_number, game.play_gameturn, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds, GameT.Hours, GameT.Minutes, GameT.Seconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);

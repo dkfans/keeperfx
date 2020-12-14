@@ -247,7 +247,7 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
         {
             stat_val = -1;
         }
-        if ( (timer_enabled()) && (stat->name_stridx == 1746) )
+        if ( (timer_enabled()) && (stat->name_stridx == 1746) && (!TimerGame) )
         {
             LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld:%03ld", Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);       
         }

@@ -5060,7 +5060,26 @@ void update_time(void)
     divl    %%ecx\n \
     movb    %%dl,%2\n \
     movb    %%al,%3\n \
-" : "=m" (Timer.MSeconds), "=m" (Timer.Seconds), "=m" (Timer.Minutes), "=m" (Timer.Hours) : "m" (timerstarttime) : "cc", "%eax","%ecx", "%edx");
+" : "=m" (Timer.MSeconds), "=m" (Timer.Seconds), "=m" (Timer.Minutes), "=m" (Timer.Hours) : "m" (timerstarttime) : "cc", "%eax", "%ecx", "%edx");
+}
+
+__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps)
+{
+    struct GameTime GameT;
+    asm (" \
+    movl %%edx, %%eax\n \
+    xorl %%edx, %%edx\n \
+    divl %%ecx\n \
+    movl $0x3C, %%ecx\n \
+    xorl %%edx, %%edx\n \
+    divl %%ecx\n \
+    movb %%dl, %0\n \
+    xorl %%edx, %%edx\n \
+    divl %%ecx\n \
+    movb %%dl, %1\n \
+    movb %%al, %2\n \
+    " : "=m" (GameT.Seconds), "=m" (GameT.Minutes), "=m" (GameT.Hours) : : "cc", "%eax", "%ecx", "%edx");
+    return GameT;
 }
 
 #ifdef __cplusplus
