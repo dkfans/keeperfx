@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+typedef unsigned short Thingid;
+
 /******************************************************************************/
 /** Enums for thing->field_0 bit fields. */
 enum ThingAllocFlags {
@@ -251,6 +253,7 @@ struct ThingAdd // Additional thing data
 {
     unsigned long rand_seed;
     unsigned long flags; //ThingAddFlags
+    Thingid       next_ghost;
 };
 
 #pragma pack()

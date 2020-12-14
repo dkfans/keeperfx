@@ -249,7 +249,14 @@ void netremap_make_ghost_maybe(struct Thing *thing, int client_id)
     {
         NETDBG(3, "ghost:%d", thing->index);
         thingadd->flags |= TA_NetGhost;
+
+        
         //TODO: add to list and remove sometimes
+        if (gameadd.first_ghost != 0)
+        {
+            thingadd->next_ghost = gameadd.first_ghost;
+        }
+        gameadd.first_ghost = thing->index;
     }
 }
 

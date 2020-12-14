@@ -957,7 +957,8 @@ short imp_digs_mines(struct Thing *spdigtng)
             drop_gold_pile(
                 spdigtng->creature.gold_carried - crstat->gold_hold,
                 &spdigtng->mappos,
-                spdigtng->owner
+                spdigtng->owner,
+                true
                 );
 
             spdigtng->creature.gold_carried = crstat->gold_hold;

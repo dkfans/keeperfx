@@ -444,7 +444,7 @@ static struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoo
     // If there's still gold left, just drop it as pile
     if (gold_gathered > 0)
     {
-        drop_gold_pile(gold_gathered, &pos, room->owner);
+        drop_gold_pile(gold_gathered, &pos, room->owner, false);
     }
     return hoardtng;
 }
@@ -474,7 +474,7 @@ void count_gold_hoardes_in_room(struct Room *room)
             pos.y.val = gldtng->mappos.y.val;
             pos.z.val = gldtng->mappos.z.val;
             long drop_amount = remove_gold_from_hoarde(gldtng, room, gldtng->valuable.gold_stored - max_hoard_size_in_room);
-            drop_gold_pile(drop_amount, &pos, room->owner);
+            drop_gold_pile(drop_amount, &pos, room->owner, false);
             gold_amount = gldtng->valuable.gold_stored;
         } else
         {
@@ -3547,7 +3547,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                 if (!dungeon_invalid(dungeon)) {
                     dungeon->total_money_owned -= gldtng->valuable.gold_stored;
                 }
-                drop_gold_pile(gldtng->valuable.gold_stored, &gldtng->mappos, room->owner);
+                drop_gold_pile(gldtng->valuable.gold_stored, &gldtng->mappos, room->owner, false);
                 delete_thing_structure(gldtng, 0);
             }
         }

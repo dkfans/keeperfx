@@ -164,6 +164,7 @@ struct GameAdd {
     unsigned long action_turn_rand_seed; // This is a base for action_rand_seed each turn
 
     struct ThingAdd things[THINGS_COUNT];
+    Thingid         first_ghost;
 };
 
 #pragma pack()

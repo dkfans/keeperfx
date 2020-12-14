@@ -17,8 +17,7 @@
  */
 /******************************************************************************/
 #include "packets.h"
-
-typedef unsigned short Thingid;
+#include "thing_data.h"
 
 void net_remap_init(Thingid thing_num);
 Thingid net_remap_thingid(int client_id, Thingid id);
