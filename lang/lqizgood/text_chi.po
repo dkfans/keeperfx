@@ -488,7 +488,6 @@ msgid "Fear: Causes the opponent to be terrified and wanting to skip engageing i
 msgstr "恐惧术: 使敌人感到害怕并试图放弃参与战斗。"
 
 #: guitext:232
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Sight: Allows the creature to temporarely increase its awareness and notice the invisible."
 msgstr "邪眼术: 使怪物暂时集中精力，可以看破隐身的怪物。"
