@@ -623,555 +623,453 @@ msgstr "你所有的英雄都死了，而邪恶的巫师还活着。任务失败
 #: guitext:99
 msgctxt "In-game message"
 msgid "Some of the resistance has arrived!"
-msgstr ""
+msgstr "一些反击部队已经到来！"
 
 #. Abandoned Sanctum (lv9) after 4 creatures gained
 #: guitext:100
 msgctxt "In-game message"
-msgid "The land is unusable with this many insects crawling around. Your task is to find and case any insect and spider lairs you find. Careful, "
-"for they are hidden well and they do like revenge. Flush them out."
-msgstr ""
+msgid "The land is unusable with this many insects crawling around. Your task is to find and case any insect and spider lairs you find. Careful, for they are hidden well and they do like revenge. Flush them out."
+msgstr "由于大群昆虫在这片土地上爬来爬去，这片土地已经荒芜了。你的任务是找到并处理你发现的昆虫和蜘蛛巢穴。注意，它们藏得很好，而且它们会对入侵者进行报复。把它们弄出来。"
 
 #. Abandoned Sanctum (lv9) Opening Objective
 #: guitext:101
 msgctxt "In-game message"
 msgid "This realm was once an Imp prison beneath a monastery. A place of great suffering, it has now been abandoned. For good reason!"
-msgstr ""
+msgstr "这个王国曾经是一个修道院地下的小鬼集中营。这个令人十分痛苦的地方现在被废弃了。一定有什么原因！"
 
 #. Abandoned Sanctum (lv9) cannot have more than 3 vampires
 #: guitext:102
 msgctxt "In-game message"
-msgid ""
-"Worms have spread through the bodies of your Vampires, killing some. Keeping more than a few vampires is impossible as they're getting eaten 'alive'!"
-msgstr ""
+msgid "Worms have spread through the bodies of your Vampires, killing some. Keeping more than a few vampires is impossible as they're getting eaten 'alive'!"
+msgstr "寄生虫已经在你吸血鬼的体内传播，并杀死了几个吸血鬼。养更多的吸血鬼是不可能的了，因为它们会被“活活”吃掉的！"
 
 #. Abandoned Sanctum (lv9) - spare / unused message
 #: guitext:103
 msgctxt "In-game message"
 msgid "The enemy are upon us. I'm just telling you in case you were having a doze."
-msgstr ""
+msgstr "敌人迫近了，我提醒你是因为怕你在打瞌睡。"
 
 #. Abandoned Sanctum (lv9) action point 10
 #: guitext:104
 msgctxt "In-game message"
-msgid "You've activated an old Imp portal from the time of the Monastery. Some imps may die, and you can no longer summon them at will. However, there remains "
-"other strange Imp magic in this land for you to discover!"
-msgstr ""
+msgid "You've activated an old Imp portal from the time of the Monastery. Some imps may die, and you can no longer summon them at will. However, there remains other strange Imp magic in this land for you to discover!"
+msgstr "你开启了一个修道院里留下来的古老的小鬼传送门。你的一些小鬼被杀死了，制造小鬼魔法也无法使用了。不过，这片土地上还有着其他神秘的小鬼魔法等待你去发现！"
 
 #. Abandoned Sanctum (lv9) Heroes lose first guard post
 #: guitext:105
 msgctxt "In-game message"
-msgid ""
-"You hear insect noise in the tunnels... they sound angry."
-msgstr ""
+msgid "You hear insect noise in the tunnels... they sound angry."
+msgstr "你在隧道里听到昆虫的声音……它们似乎很愤怒！"
 
 #. Abandoned Sanctum (lv9) Heroes lose 2nd guard post
 #: guitext:106
 msgctxt "In-game message"
-msgid ""
-"You hear insect noise in the tunnels... as if they seemed even more angry!"
-msgstr ""
+msgid "You hear insect noise in the tunnels... as if they seemed even more angry!"
+msgstr "你在隧道里听到昆虫的声音……它们似乎更加愤怒了！"
 
 #. Abandoned Sanctum (lv9) Heroes lose 3rd guard post
 #: guitext:107
 msgctxt "In-game message"
 msgid "You have conquered more than half of the insect lairs now Master!"
-msgstr ""
+msgstr "超过一半的昆虫巢穴已经被攻破了。"
 
 #. Abandoned Sanctum (lv9) Heroes lose 4th guard post
 #: guitext:108
 msgctxt "In-game message"
 msgid "Just a few more lairs to destroy now!"
-msgstr ""
+msgstr "只剩下最后几个巢穴了！"
 
 #. Abandoned Sanctum (lv9) Heroes lose all guard posts
 #: guitext:109
 msgctxt "In-game message"
-msgid ""
-"you have destroyed all the insect lairs now, and the inevitable counter-attack is imminent!"
-msgstr ""
+msgid "you have destroyed all the insect lairs now, and the inevitable counter-attack is imminent!"
+msgstr "所有的巢穴都已被攻破了。一场不可避免的反击即将到来！"
 
 #. Abandoned Sanctum (lv9) Final assault
 #: guitext:110
 msgctxt "In-game message"
-msgid ""
-"They are here, Keeper. Eliminate every foe, be it bug or otherwise!"
-msgstr ""
+msgid "They are here, Keeper. Eliminate every foe, be it bug or otherwise!"
+msgstr "它们来了，守护者。消灭每一个敌人，不管它是不是虫子！"
 
 #. Abandoned Sanctum (lv9) Victory message
 #: guitext:111
 msgctxt "In-game message"
 msgid "Finally. This land is now suitable to be added to your domain."
-msgstr ""
+msgstr "最后，这片土地也可以被划入到你的领土之中了。"
 
 #. Fervent Asylum (lv10) Opening objective
 #: guitext:112
 msgctxt "In-game message"
-msgid "Insufferable heat, lack of portals and the constant danger of being raided by heroes makes this dune treasury a truly forsaken place. "
-"Could it be the mysterious scavenger eye that attracts them?"
-msgstr ""
+msgid "Insufferable heat, lack of portals and the constant danger of being raided by heroes makes this dune treasury a truly forsaken place. Could it be the mysterious scavenger eye that attracts them?"
+msgstr "难以忍受的高温，外加缺少入口，和不断遭受英雄袭击的风险，使这个充满财宝的沙丘成为一个很少有人敢踏足的地方。这些家伙是被这座神秘的招募中心之眼吸引而来的吗？"
 
 #. Fervent Asylum (lv10) Opening Information
 #: guitext:113
 msgctxt "In-game message"
-msgid "This eerie scavenger eye works differently to a portal or a scavenger room. It attracts creatures from other realms based on the rooms "
-"you own. Claiming and expanding those rooms will summon higher level creatures. Barracks will summon Archers, hatchery summons Bile Demons. "
-"Warlocks and Wizards are attracted to your library, whilst Dragons are attracted by various other rooms you claim. The summoning works until "
-"your army is 30 strong!"
-msgstr ""
+msgid "This eerie scavenger eye works differently to a portal or a scavenger room. It attracts creatures from other realms based on the rooms you own. Claiming and expanding those rooms will summon higher level creatures. Barracks will summon Archers, hatchery summons Bile Demons. Warlocks and Wizards are attracted to your library, whilst Dragons are attracted by various other rooms you claim. The summoning works until your army is 30 strong!"
+msgstr "这里有一个怪异的招募中心之眼，它的工作原理不同于入口或其他招募中心。它根据你拥有的房间吸引来自其他地下城的怪物。占领和扩大这些房间可以招募更高级别的怪物。兵营可以招募弓箭手。孵化室招募巨魔。图书馆吸引魔术师和巫师，而龙被你占领的多种其他房间所吸引。这一招募过程只有在你的部队数少于30个时才有效。"
 
 #. Fervent Asylum (lv10) Avatar Message
 #: guitext:114
 msgctxt "In-game message"
 msgid "One of the heroes' most dangerous insurgents has entered this realm. Recruit him and he'll serve you well..."
-msgstr ""
+msgstr "英雄中最危险的反动分子进入了这片土地。招募他，他会很好地为你服务……"
 
 #. Fervent Asylum (lv10)
 #: guitext:115
 msgctxt "In-game message"
-msgid "People of this land are sending their troops periodically. As they foolishly think you are outnumbered they prioritize mobilising their "
-"tougher parties to other realms. Find and destroy their dungeon heart before the offense becomes overwhelming and eliminate every foe to win this land."
-msgstr ""
+msgid "People of this land are sending their troops periodically. As they foolishly think you are outnumbered they prioritize mobilising their tougher parties to other realms. Find and destroy their dungeon heart before the offense becomes overwhelming and eliminate every foe to win this land."
+msgstr "这片土地上的人们定期向这里派遣军队。他们仍然愚蠢地认为他们的部队人数比你多，所以他们优先考虑将他们的精锐部队派遣到其他王国。在敌人的进攻变得势不可挡之前，找到并摧毁他们的地下城心脏，消灭所有敌人以赢得这片土地。"
 
 #. Fervent Asylum (lv10) unused message / blank for future use
 #: guitext:116
 msgctxt "In-game message"
-msgid ""
-"This ancient dungeon possesses great archaeological significance. This simply means there should be some interesting treasure worth stealing. Now that's what I "
-"call practical archaeology."
-msgstr ""
+msgid "This ancient dungeon possesses great archaeological significance. This simply means there should be some interesting treasure worth stealing. Now that's what I call practical archaeology."
+msgstr "这个古代的地下城有重大的考古学价值。这意味着这里有一些有趣的宝藏值得窃取。这就是我所谓的实用主义的考古学。"
 
 #. Fervent Asylum (lv10)
 #: guitext:117
 msgctxt "In-game message"
 msgid "The Mysterious Scavenger Eye will transfer your gold to the next realm when you are victorious. So amass what you can!"
-msgstr ""
+msgstr "当你获得胜利后，神秘的招募中心之眼会将你拥有的黄金传送到下一个王国。尽可能地积攒黄金吧！"
 
 #. Fervent Asylum (lv10)
 #: guitext:118
 msgctxt "In-game message"
 msgid "Spies have discovered that the dwarves will recede in the absence of workshops Master."
-msgstr ""
+msgstr "你的探子发现只要能占领敌人的工厂，就能让矮人部队撤退。"
 
 #. Fervent Asylum (lv10)
 #: guitext:119
 msgctxt "In-game message"
 msgid "Look! The Scavenger Eye has summoned a few barbarians from Cloud Temple Ruins! It senses your impending victory perhaps?"
-msgstr ""
+msgstr "看！招募中心之眼从云之寺庙遗迹中招募了几个野蛮人！也许它预见到了你即将到来的胜利？"
 
 #. Fervent Asylum (lv10)
 #: guitext:120
 msgctxt "In-game message"
-msgid ""
-"You have finally caught their attention. They have begun sending their most forceful troops. Good luck!"
-msgstr ""
+msgid "You have finally caught their attention. They have begun sending their most forceful troops. Good luck!"
+msgstr "你终于引起了他们的注意。他们已经派出了主力部队。祝你好运。"
 
 #. Fervent Asylum (lv10) Final Party
 #: guitext:121
 msgctxt "In-game message"
-msgid ""
-"The final group is here to finish you off. Wreck them. Eliminate every foe in this land to win. "
-msgstr ""
+msgid "The final group is here to finish you off. Wreck them. Eliminate every foe in this land to win. "
+msgstr "最后一波敌军已经赶来消灭你。干掉他们，消灭这片土地上的每一个敌人以取得胜利。"
 
 #. Fervent Asylum (lv10) Victory Message
 #: guitext:122
 msgctxt "In-game message"
-msgid ""
-"The Heroes are despatched and you have plundered the riches of this realm to fund your next conquest. Excellent! Now you may "
-"depart this unbearably hot land."
-msgstr ""
+msgid "The Heroes are despatched and you have plundered the riches of this realm to fund your next conquest. Excellent! Now you may depart this unbearably hot land."
+msgstr "这里的英雄都被杀死了，财宝也被你抢劫一空，带到了下一个王国。棒极了！现在你可以离开这片酷热的土地了。"
 
 #. Phoenix Penitentiary (lv11) Opening Message
 #: guitext:123
 msgctxt "In-game message"
-msgid "The Phoenix Penitentiary. Where Knights keep watch over convicted Sorcerors, and the Polish government send their Warlocks for injecting"
-" whole marijuanas. And a home to two and a half keepers. Every keeper in this land has his own reason for dwelling this place. It's futile to "
-" expect mercy from any of them; as if you care, right? Your task is to eliminate the Keepers and all Knights."
-msgstr ""
+msgid "The Phoenix Penitentiary. Where Knights keep watch over convicted Sorcerors, and the Polish government send their Warlocks for injecting whole marijuanas. And a home to two and a half keepers. Every keeper in this land has his own reason for dwelling this place. It's futile to  expect mercy from any of them; as if you care, right? Your task is to eliminate the Keepers and all Knights."
+msgstr "这里是凤凰监狱。骑士们看守着被定罪的魔术师。波兰政府把这些魔术师送来注射大麻。这里也是两个守护者的家，他们都由于某种原因而居住在这里。指望他们中的任何一个对你手下留情都是不可能的。你根本不在乎这一点，不是吗？现在，消灭他们。两个守护者和所有骑士。"
 
 #. Phoenix Penitentiary (lv11) Opening Information
 #: guitext:124
 msgctxt "In-game message"
-msgid ""
-"Spies have discovered that you may recruit Imps from the cavern to the east of your dungeon."
-msgstr ""
+msgid "Spies have discovered that you may recruit Imps from the cavern to the east of your dungeon."
+msgstr "你的探子发现你地下城东边的洞穴里可以获得一些小鬼。"
 
 #. Phoenix Penitentiary (lv11) on gaining an imp
 #: guitext:125
 msgctxt "In-game message"
 msgid "These Knights are not exactly the loyal types. Convert as many of them as possible. Perhaps you could talk them into joining you in the next realm?"
-msgstr ""
+msgstr "这四个骑士并不是真的那么忠心耿耿。尽可能多地招降他们。或许你还可以说服他们陪你进入下一个王国？"
 
 #. Phoenix Penitentiary (lv11) AP6
 #: guitext:126
 msgctxt "In-game message"
 msgid "You have desecrated their Portal, so the Fairies should be no more."
-msgstr ""
+msgstr "传送门被你的邪恶力量亵渎了。仙女们应该不会再出现了。"
 
 #. Phoenix Penitentiary (lv11) AP7
 #: guitext:127
 msgctxt "In-game message"
-msgid ""
-"The Gems were surrounded by intruder alarms, so guess what? Heroes are on their way!"
-msgstr ""
+msgid "The Gems were surrounded by intruder alarms, so guess what? Heroes are on their way!"
+msgstr "宝石矿周围装了用于侦测入侵者的警报。你猜怎么样？英雄们已经上路了！"
 
 #. Phoenix Penitentiary (lv11) Timer0
 #: guitext:128
 msgctxt "In-game message"
-msgid "The heroes have opened a fairy portal in a lava cove nearby. Though annoying, it is very delicate: desecrate the portal by touching it and "
-"it'll stop working. Simple, right?"
-msgstr ""
+msgid "The heroes have opened a fairy portal in a lava cove nearby. Though annoying, it is very delicate: desecrate the portal by touching it and it'll stop working. Simple, right?"
+msgstr "英雄们在附近的一个熔岩湾打开了一个仙女传送门。虽然很烦人，但这个传送门非常脆弱：只要你接触到它，传送门就会被亵渎，并停止工作。很简单，对吧？"
 
 #. Phoenix Penitentiary (lv11) Flag0
 #: guitext:129
 msgctxt "In-game message"
 msgid "You are taking too long, keeper. You don't want to be here when the heroes come to clean up!"
-msgstr ""
+msgstr "你花的时间太长了，守护者。你肯定不想在这里坐以待毙，等待英雄们来清理你吧！"
 
 #. Phoenix Penitentiary (lv11) Timer4
 #: guitext:130
 msgctxt "In-game message"
-msgid "Careful keeper, retribution has arrived. Eliminate every rival keeper and the four knights to win. Don't forget to convert knights if you "
-" wish to see them accompany you in the next realm! Also, be aware that Spies inform us that this land has access to a hidden realm!"
-msgstr ""
+msgid "Careful keeper, retribution has arrived. Eliminate every rival keeper and the four knights to win. Don't forget to convert knights if you  wish to see them accompany you in the next realm! Also, be aware that Spies inform us that this land has access to a hidden realm!"
+msgstr "小心一点，守护者，复仇者已经到来。消灭所有敌对守护者和四个骑士才能获胜。如果你想让骑士陪伴你进入下一个王国，别忘了先招降他们！另外，你的探子回报，这片土地上还有一个通往隐藏关卡的宝物！"
 
 #. Phoenix Penitentiary (lv11) All dungeons destroyed
 #: guitext:131
 msgctxt "In-game message"
-msgid ""
-"Impressive job, Keeper. Most of the isle is now yours. "
-msgstr ""
+msgid "Impressive job, Keeper. Most of the isle is now yours. "
+msgstr "干得不错，守护者。这座岛上的绝大部分领土都属于你了。"
 
 #. Phoenix Penitentiary (lv11) Knight transfer
 #: guitext:132
 msgctxt "In-game message"
 msgid "Impressive job, Keeper. One of your knights will join you in the next realm."
-msgstr ""
+msgstr "干得不错，守护者。一名骑士会陪你进入下一个王国。"
 
 #. Phoenix Penitentiary (lv11) Knights transfer
 #: guitext:133
 msgctxt "In-game message"
-msgid ""
-"Impressive job, Keeper. A couple of your knights will join you in the next realm. "
-msgstr ""
+msgid "Impressive job, Keeper. A couple of your knights will join you in the next realm. "
+msgstr "干得不错，守护者。两名骑士会一起陪你进入下一个王国。"
 
 #. Phoenix Penitentiary (lv11)
 #: guitext:134
 msgctxt "In-game message"
 msgid "This realm is begging to be plunged into darkness. The Avatar himself has a castle here. Another Keeper also seeks his soul. This could get messy."
-msgstr ""
+msgstr "这个王国乞求投入黑暗的怀抱。圣者自己拥有一个城堡。另一个守护者也在寻找他的灵魂。这可能会使你有麻烦。"
 
 #. Mill Vault (lv12) Opening Message
 #: guitext:135
 msgctxt "In-game message"
-msgid ""
-"The plan for a first strike went bust. The people of this land have already launched attacks upon your dungeon from multiple directions. "
-"It's up to you to take control. Withstand the smite and defeat the lord of the land."
-msgstr ""
+msgid "The plan for a first strike went bust. The people of this land have already launched attacks upon your dungeon from multiple directions. It's up to you to take control. Withstand the smite and defeat the lord of the land."
+msgstr "我们第一次进攻的计划被挫败了。这片土地的人民已经从四面八方向你的地下城发起了进攻。是时候来处理一下这个局面了。你要抵挡住这些进攻，并击败这里的国王。"
 
 #. Mill Vault (lv12) Opening Information
 #: guitext:136
 msgctxt "In-game message"
-msgid ""
-"There are 4 creature dwelling bases in this land: orc, comprising Samurai, Warlock and Bile Demon forts. Choose the one to raid, get one of their "
-"troops to join you and they'll be joining your army from the portal at a maximum 6 of each (of level of the unit type you obtain as first). "
-"Be careful, however: they will be only willing to join you as long as you have at least one of a kind in your dungeon! If they die off their time "
-" is over in this land!"
-msgstr ""
+msgid "There are 4 creature dwelling bases in this land: orc, comprising Samurai, Warlock and Bile Demon forts. Choose the one to raid, get one of their troops to join you and they'll be joining your army from the portal at a maximum 6 of each (of level of the unit type you obtain as first). Be careful, however: they will be only willing to join you as long as you have at least one of a kind in your dungeon! If they die off their time  is over in this land!"
+msgstr "这片土地上有4种怪物的住所：兽人、忍者、魔术师和巨魔。选择进攻其中一家，获得其中一个怪物，它们的同类将通过入口加入你的阵营，每种怪物最多6个（等级与你获得的第一只怪物相同）。但是要注意：只有当你的地下城里至少有一个它们的同类，它们才会愿意加入你！如果它们全都死了，就再也无法获得了！"
 
 #. Mill Vault (lv12) Game Turn >15000
 #: guitext:137
 msgctxt "In-game message"
-msgid ""
-"Occupying a fort absorbs their building knowledge and provides a financial income. The Samuari can build Training Rooms. Orcs build Guard posts. "
-"Warlocks can build bridges, and Bile Demons use the Workshop. Plan your strategy Keeper!"
-msgstr ""
+msgid "Occupying a fort absorbs their building knowledge and provides a financial income. The Samuari can build Training Rooms. Orcs build Guard posts. Warlocks can build bridges, and Bile Demons use the Workshop. Plan your strategy Keeper!"
+msgstr "占领一种怪物的住所也能获得建造房间的知识和收获一些黄金。忍者能建造训练室。兽人能建造警戒哨所。魔术师能建造桥梁。巨魔能建造工厂。计划好进攻策略吧，守护者！"
 
 #. Mill Vault (lv12) Game Turn >15000
 #: guitext:138
 msgctxt "In-game message"
-msgid ""
-"You cannot own a Torture Chamber in this land. Get rid of the prisoners as soon as possible, or the Heroes will try to rescue them on their way to erase you!"
-msgstr ""
+msgid "You cannot own a Torture Chamber in this land. Get rid of the prisoners as soon as possible, or the Heroes will try to rescue them on their way to erase you!"
+msgstr "在这片土地上你无法得到审讯室。尽快把监狱里的俘虏处理掉，因为英雄们会试图前来营救他们并除掉你！"
 
 #. Mill Vault (lv12) Flag1 Objective
 #: guitext:139
 msgctxt "In-game message"
 msgid "The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours."
-msgstr ""
+msgstr "这片土地的统治者进入了你的地下城。我可以感觉到他的恐惧。打败他，这片王国就是你的了。"
 
 #. Mill Vault (lv12)
 #: guitext:140
 msgctxt "In-game message"
-msgid ""
-"Highly skilled Imps will join your army through the Portal when you seize any fort."
-"ahead."
-msgstr ""
+msgid "Highly skilled Imps will join your army through the Portal when you seize any fort.ahead."
+msgstr "当你占领了任何一个怪物的住所后，就会有高等级的小鬼从入口进入你的地下城。"
 
 #. Mill Vault (lv12) Victory Message
 #: guitext:141
 msgctxt "In-game message"
 msgid "Perfect! Another piece of land added to your domain."
-msgstr ""
+msgstr "完美！又一片土地被划入到你的领土中。"
 
 #. Mill Vault (lv12) Bridge Message
 #: guitext:142
 msgctxt "In-game message"
-msgid "Careful keeper. Resources are insufficient to build more than one slab of bridge! Think well where you place it as that is the last slab "
-" of bridge you will ever build!"
-msgstr ""
+msgid "Careful keeper. Resources are insufficient to build more than one slab of bridge! Think well where you place it as that is the last slab  of bridge you will ever build!"
+msgstr "小心一点，守护者。你的资源不足，无法建造大于一格的桥！好好想想这一格桥应该造在哪里，因为这将是你可以建造的唯一一格桥！"
 
 #. Mill Vault (lv12) Vampires Message
 #: guitext:143
 msgctxt "In-game message"
-msgid ""
-"Autistic monks are at it again! Their exorcistical incantations prevent you from recruiting any more undead creatures."
-msgstr ""
+msgid "Autistic monks are at it again! Their exorcistical incantations prevent you from recruiting any more undead creatures."
+msgstr "这些讨厌的僧侣又来了！他们的驱魔咒语阻止你得到更多的亡灵生物。"
 
 #. Reapers' Yard (lv13) opening objective
 #: guitext:144
 msgctxt "In-game message"
 msgid "The platform has four points of access. Expect human parties attacking from all directions. You must protect your dungeon heart at all cost!"
-msgstr ""
+msgstr "这块平台有四个地方可以进来。预计人类会从四面八方发起攻击。不惜一切代价保护地下城心脏！"
 
 #. Reapers' Yard (lv13) after battle wins
 #: guitext:145
 msgctxt "In-game message"
-msgid "Your once wealthy minions are guarded by Heroes in the eastern lava-flooded area. These Knights have confiscated their gold, so you have extra "
-"motivation to defeat them and reclaim what is rightfully yours!"
-msgstr ""
+msgid "Your once wealthy minions are guarded by Heroes in the eastern lava-flooded area. These Knights have confiscated their gold, so you have extra motivation to defeat them and reclaim what is rightfully yours!"
+msgstr "你曾经十分富有的怪物们被英雄囚禁在东部充满岩浆的地区。现在骑士们没收了它们的黄金，所以你更加渴望击败这些骑士夺回本来属于你的黄金！"
 
 #. Reapers' Yard (lv13) 2nd wave Flag1
 #: guitext:146
 msgctxt "In-game message"
 msgid "The end of the resistance is near, Keeper. I can smell the desperation in their greedy faces!"
-msgstr ""
+msgstr "抗战即将结束，守护者。我能从他们贪婪的脸上看到绝望的表情！"
 
 #. Reapers' Yard (lv13) Flag2
 #: guitext:147
 msgctxt "In-game message"
-msgid ""
-"The final pathetic attempt to bring you down is on its way. Withstand the attack, defeat every Knight and the land is yours."
-msgstr ""
+msgid "The final pathetic attempt to bring you down is on its way. Withstand the attack, defeat every Knight and the land is yours."
+msgstr "敌人正准备向你发起最后一次可悲的进攻。抵御住这次进攻，击败这片土地上的每一位骑士，这片土地就是你的了。"
 
 #. Reapers' Yard (lv13) less than 7 Knights
 #: guitext:148
 msgctxt "In-game message"
-msgid "Gold falls from the Knight's pockets as he mumbles something in Polish. Then he shuts up and dies. Kill some more of them. Not just for the fun "
-"but also for the gold they owe you."
-msgstr ""
+msgid "Gold falls from the Knight's pockets as he mumbles something in Polish. Then he shuts up and dies. Kill some more of them. Not just for the fun but also for the gold they owe you."
+msgstr "当一名骑士用波兰语咕哝着什么时，金子从口袋里掉了下来。然后他被杀死了，永远地闭上了嘴。再多杀几个。不仅是为了好玩，也因为这是他们欠你的金子。"
 
 #. Reapers' Yard (lv13) when heroes lose library
 #: guitext:149
 msgctxt "In-game message"
-msgid ""
-"The library you have claimed contains plans for bridge building. Useful stuff! You know what to do. . "
-msgstr ""
+msgid "The library you have claimed contains plans for bridge building. Useful stuff! You know what to do. . "
+msgstr "你刚才占领的图书馆里找到了桥梁的设计图。很有用的东西！你知道该做什么了吧。"
 
 #. Reapers' Yard (lv13) Victory Message
 #: guitext:150
 msgctxt "In-game message"
 msgid "Fantastic work, Keeper. Just one more land and the Isle is free from the Polish empire."
-msgstr ""
+msgstr "很出色，守护者。再征服最后一片土地，我们就能从波兰帝国手中彻底夺走这个岛了。"
 
 #. Comet Landing Grotto (lv14) Opening Objective
 #: guitext:151
 msgctxt "In-game message"
-msgid "Something has fallen out of the sky, opening a path to the surface, and bestowing the area with life and riches. Could the esoteric Altars "
-"have attracted this object?"
-msgstr ""
+msgid "Something has fallen out of the sky, opening a path to the surface, and bestowing the area with life and riches. Could the esoteric Altars have attracted this object?"
+msgstr "有什么东西从天上掉了下来，打开了一条通往地表的道路，赋予这片土地生命与财富。这些掉下来的东西是被神秘的祭坛吸引来的吗？"
 
 #. Comet Landing Grotto (lv14) Opening Information
 #: guitext:152
 msgctxt "In-game message"
-msgid ""
-"Touch the red Altar of the Elders to grant you a boulder trap. Touch the blue Altar of Kings to receive 25,000 gold. Touch the green Altar of the "
-"Damned and the Gods will destroy ten Undead minions in this realm. Touch the yellow Altar of Light and the Gods kill ten of the most powerful "
-"Monks and Priestesses. Touching an Altar makes you unable to activate another for some time. It also causes some dismay to the heroes on the surface."
-msgstr ""
+msgid "Touch the red Altar of the Elders to grant you a boulder trap. Touch the blue Altar of Kings to receive 25,000 gold. Touch the green Altar of the Damned and the Gods will destroy ten Undead minions in this realm. Touch the yellow Altar of Light and the Gods kill ten of the most powerful Monks and Priestesses. Touching an Altar makes you unable to activate another for some time. It also causes some dismay to the heroes on the surface."
+msgstr "触摸红色的长老祭坛会赐予你一个圆石陷阱。触摸蓝色的王者祭坛会赐予你25000黄金。触摸绿色的被诅咒的祭坛，神灵会消灭10个最强大的亡灵生物。触摸黄色的光明祭坛，神灵会消灭10个最强大的僧侣和女祭司。触摸一座祭坛会使你在一段时间内无法激活其他祭坛。这也给地表上的英雄们带来了恐慌。"
 
 #. Comet Landing Grotto (lv14) Green Altar activated
 #: guitext:153
 msgctxt "In-game message"
-msgid ""
-"You have activated the Green Altar and destroyed the Heroes Undead allies! However, they are in no way defeated. Prepare well for they are greedy "
-"in nature, and will not relinquish their riches without a fight!"
-msgstr ""
+msgid "You have activated the Green Altar and destroyed the Heroes Undead allies! However, they are in no way defeated. Prepare well for they are greedy in nature, and will not relinquish their riches without a fight!"
+msgstr "你激活了绿色祭坛的力量，消灭了英雄们最强大的亡灵同盟！但他们绝没有被击败。准备好了，因为他们天性贪婪，不经历一场战斗是不会轻易放弃这么多财富的！"
 
 #. Comet Landing Grotto (lv14) Red Altar activated
 #: guitext:154
 msgctxt "In-game message"
-msgid ""
-"You have activated the Red Altar and gained a single boulder trap. use it wisely."
-msgstr ""
+msgid "You have activated the Red Altar and gained a single boulder trap. use it wisely."
+msgstr "你激活了红色祭坛的力量，获得了一个圆石陷阱。请明智地使用它。"
 
 #. Comet Landing Grotto (lv14) Blue Altar activated
 #: guitext:155
 msgctxt "In-game message"
 msgid "You have activated the Blue Altar and gained great wealth. Spend it wisely preparing for the battles to come."
-msgstr ""
+msgstr "你激活了蓝色祭坛的力量，获得了大量黄金。在后面的战斗中明智地使用它们。"
 
 #. Comet Landing Grotto (lv14) Yellow Altar activated
 #: guitext:156
 msgctxt "In-game message"
-msgid ""
-"You have activated the Yellow Altar and eliminated the enemy Monks & Priestesses! These Altars do indeed have great power!" 
-msgstr ""
+msgid "You have activated the Yellow Altar and eliminated the enemy Monks & Priestesses! These Altars do indeed have great power!"
+msgstr "你激活了黄色祭坛的力量，消灭了敌人的僧侣和女祭司！这些祭坛的力量真是强大！"
 
 #. Comet Landing Grotto (lv14) Avatar arrival
 #: guitext:157
 msgctxt "In-game message"
-msgid "The lord of the land has visited this land to examine the regeneration caused by the strange comet. He has now sealed himself off to "
-"raise an army of Fairies. Be aware that the Wizards in this realm are unusually powerful, and one of them guards a spell that can "
-"destroy walls. You must defeat them and use this valuable power!"
-msgstr ""
+msgid "The lord of the land has visited this land to examine the regeneration caused by the strange comet. He has now sealed himself off to raise an army of Fairies. Be aware that the Wizards in this realm are unusually powerful, and one of them guards a spell that can destroy walls. You must defeat them and use this valuable power!"
+msgstr "\"这片土地的国王已经来到了这里，来观查这枚奇异的彗星带来的生命力量。他本人躲在城堡里，同时他正在动员仙女们进攻。注意，这个王国的巫师异乎寻常地强大，并且其中一人保留着破坏墙壁魔法书。你必须击败他，并使用这强大的魔法！"
 
 #. Comet Landing Grotto (lv14)
 #: guitext:158
 msgctxt "In-game message"
-msgid "The Heroes and the Undead are allied in this strange land! These traditional foes must both sense your impending conquest? "
-"Quickly possess your Ghost and use the power of the Green Altar to send them back to where they belong!"
-msgstr ""
+msgid "The Heroes and the Undead are allied in this strange land! These traditional foes must both sense your impending conquest? Quickly possess your Ghost and use the power of the Green Altar to send them back to where they belong!"
+msgstr "在这片奇怪的土地中，英雄们居然和亡灵生物结盟了！这些宿敌一定已经预感到你即将获得的胜利了吧？快点，控制你的鬼魂，激活绿色祭坛的力量，把他们送回他们该去的地方吧！"
 
 #. Comet Landing Grotto (lv14) gaining destroy wall spell
 #: guitext:159
 msgctxt "In-game message"
-msgid ""
-"You have claimed the spell which destroys walls! As a bonus you also extracted Torture Chamber plans, which will make it interesting "
-"when you make a social call to your uninvited guests?"
-msgstr ""
+msgid "You have claimed the spell which destroys walls! As a bonus you also extracted Torture Chamber plans, which will make it interesting when you make a social call to your uninvited guests?"
+msgstr "你得到破坏墙壁魔法了！你还额外收获了审讯室的设计图，这下你可以对那些不速之客做一些有趣的事情了吧？"
 
 #. Comet Landing Grotto (lv14) Avatar defeated
 #: guitext:160
 msgctxt "In-game message"
-msgid "Is it not over yet? The altars begin to glow strangely... It's as if their glow is directed to the center of the impact, "
-"embodying the spirits glow into living beings! Eliminate every hero in this land to win!"
-msgstr ""
+msgid "Is it not over yet? The altars begin to glow strangely... It's as if their glow is directed to the center of the impact, embodying the spirits glow into living beings! Eliminate every hero in this land to win!"
+msgstr "还没有结束吗？祭坛突然开始发出奇怪的光……它们的光束似乎指向了脉冲的中心，象征着灵魂的光芒获得了生命！消灭这片土地上的每一个英雄来赢得胜利！"
 
 #. Comet Landing Grotto (lv14) Hero replenishment
 #: guitext:161
 msgctxt "In-game message"
 msgid "Seems like they won't give up! Defeat them all!"
-msgstr ""
+msgstr "看来他们不会放弃的！打败他们！"
 
 #. Comet Landing Grotto (lv14) Hero replenishment
 #: guitext:162
 msgctxt "In-game message"
 msgid "Another party of Heroes! Where are they coming from?!"
-msgstr ""
+msgstr "另一群英雄！他们是从哪里来的？！"
 
 #. Comet Landing Grotto (lv14) Victory message
 #: guitext:163
 msgctxt "In-game message"
-msgid "I see dead people. And dead undead. Congratulations, the Assmist Isle is yours! You'll be surprised to hear that living here "
-"has actually improved. Thanks for playing."
-msgstr ""
+msgid "I see dead people. And dead undead. Congratulations, the Assmist Isle is yours! You'll be surprised to hear that living here has actually improved. Thanks for playing."
+msgstr "这里的人类已经尸横遍野。亡灵们也都被消灭。恭喜你。亚米斯特岛属于你了！听说这里的人民生活确实有所“改善”，你会感到很惊喜的。感谢你游玩本战役。"
 
 #. Cloud Temple Ruins (bonus lv21) opening Objective
 #: guitext:164
 msgctxt "In-game message"
-msgid ""
-"You'll be battling two Keepers and the natives for the riches of the land. Eliminate them all and the barbarians will be joining you "
-"throughout the campaign! Good luck!"
-msgstr ""
+msgid "You'll be battling two Keepers and the natives for the riches of the land. Eliminate them all and the barbarians will be joining you throughout the campaign! Good luck!"
+msgstr "你将与两个守护者和当地居民争夺这片土地的财富。消灭所有敌人，野蛮人将会在后面的战役中陪伴你！祝你好运！"
 
 #. Cloud Temple Ruins (bonus lv21) Hero Heart destroyed
 #: guitext:165
 msgctxt "In-game message"
 msgid "A new group of natives has appeared!"
-msgstr ""
+msgstr "又一群当地土著人出现了！"
 
 #. Cloud Temple Ruins (bonus lv21)
 #: guitext:166
 msgctxt "In-game message"
 msgid "Legends say the barbaric natives keep fairies somewhere near the ruins..."
-msgstr ""
+msgstr "传说遗迹附近的野蛮土著人看守着仙女一族……"
 
 #. Cloud Temple Ruins (bonus lv21) Victory message
 #: guitext:167
 msgctxt "In-game message"
 msgid "The natives are now under your command. New slaves! Wonderful!"
-msgstr ""
+msgstr "当地居民现在拜倒在你的麾下。一群新的奴隶！棒极了！"
 
 #. Thieves Den Detour (bonus lv22) Opening objective
 #: guitext:168
 msgctxt "In-game message"
 msgid "A den of thieves. Or at least it used to be. Now it's training grounds for crusaders. FIX IT"
-msgstr ""
+msgstr "这里是个贼窝。或者至少以前是这样。现在这里要作为十字军的训练场。修好它。"
 
 #. Thieves Den Detour (bonus lv22) Opening information
 #: guitext:169
 msgctxt "In-game message"
 msgid "There are no libraries in this land. Acquire spellbooks as you find them. Bridge-building will be possible when you gather some gold."
-msgstr ""
+msgstr "这里没有图书馆。你只需要接触到一本魔法书，就能立即学会一项魔法。一旦你收集了一些黄金，就可以造桥了。"
 
 #. Thieves Den Detour (bonus lv22) Opening information
 #: guitext:170
 msgctxt "In-game message"
 msgid "Be aware Keeper that victory in this realm is not possible if you sell any rooms."
-msgstr ""
+msgstr "注意，守护者：一旦你出售了任何房间，你将无法获得胜利。"
 
 #. Thieves Den Detour (bonus lv22)
 #: guitext:171
 msgctxt "In-game message"
 msgid "Eliminate the Knight and dungeon heart located southward to win this scenario. But first... reach them..."
-msgstr ""
+msgstr "消灭位于南部的骑士和地下城心脏，以赢得胜利。但首先……先见到他们……"
 
 #. Thieves Den Detour (bonus lv22) Victory message
 #: guitext:172
 msgctxt "In-game message"
 msgid "Good job! Use the Transfer Creature special to bring one of your minions to the next realm."
-msgstr ""
+msgstr "干得好。使用传送怪物宝物，选择一只怪物传送到下一个王国。"
 
 #. Thieves Den Detour (bonus lv22) AP1
 #: guitext:173
 msgctxt "In-game message"
-msgid ""
-"Look! That wall can be dug through!"
-msgstr ""
+msgid "Look! That wall can be dug through!"
+msgstr "看！这里有一堵墙可以挖穿！"
 
-#. Levels Moonbrush Wood and Bonus 1 information
-#: guitext:174
-msgctxt "In-game message"
-msgid "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready to reduces your enemies into ashes!"
-msgstr ""
 
-#. Level Bonus 6 objective
-#: guitext:175
-msgctxt "In-game message"
-msgid "Well done! Your immense wealth has drew the attention of a Thief. He will serve you well in the next realm!"
-msgstr ""
-
-#. Level Flowerhat information
-#: guitext:176
-msgctxt "In-game message"
-msgid ""
-"Your researchers have discovered the Heal Creature spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
-msgstr ""
-
-#. Level Tulipscent information
-#: guitext:177
-msgctxt "In-game message"
-msgid ""
-"Try the Must Obey spell. When activated, it constantly forces your creatures to obey to all your orders, making all of them working faster without the "
-"possibility for them to take a nap. Be sure to have plenty of money so that the spell will stay activated."
-msgstr ""
-
-#. Level Tulipscent information
-#: guitext:178
-msgctxt "In-game message"
-msgid ""
-"A Tentacle has joined your dungeon. These rare little creatures enjoy to be in water and their spine can even pierce the most solid armors and paralyze your "
-"enemies! Marvellous!"
-msgstr ""
-
-#. Level Bonus 1 objective
-#: guitext:179
-msgctxt "In-game message"
-msgid ""
-"You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to "
-"make this place safe is to kill every hero in the realm."
-msgstr ""
 
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191 guitext:192
 #: guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
