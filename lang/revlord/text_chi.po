@@ -1069,8 +1069,7 @@ msgctxt "In-game message"
 msgid "Look! That wall can be dug through!"
 msgstr "看！这里有一堵墙可以挖穿！"
 
-
-
+#: guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191 guitext:192
 #: guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
@@ -1136,10 +1135,15 @@ msgstr "小偷之窝"
 msgctxt "Level name"
 msgid "Coldamned"
 msgstr "极寒之境"
-#: guitext:213 guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219 guitext:220 guitext:221 guitext:222
+#: guitext:213 guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219 guitext:220 guitext:221
 msgctxt "In-game message"
 msgid "Moo2 "
-msgstr ""              
+msgstr ""
+
+#: guitext:222 guitext:223 guitext:224 guitext:225
+msgctxt "Level name"
+msgid "Unused"
+msgstr "未使用"                                                  
 
 #: guitext:226
 msgctxt "Creature spell"
@@ -1632,50 +1636,47 @@ msgid "Moo5"
 msgstr ""
 
 #: guitext:420
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "显示地图: 为你显示这个地下城的地图。"
 
 #: guitext:421
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr "复活怪物: 你可以将一个已经死亡的你的怪物复活。"
 
 #: guitext:422
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
 msgstr "传送怪物: 选择一个你的怪物带入下一个任务。"
 
 #: guitext:423
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "偷英雄: 使一个英雄倒戈。"
 
 #: guitext:424
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "繁殖怪物: 加倍你的每一种怪物。"
 
 #: guitext:425
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "提高等级: 授予你全部的怪物更高的等级。"
 
 #: guitext:426
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "安全: 强化你的整个地下城。"
 
 #: guitext:427
 msgctxt "Dungeon special decription"
-msgid ""
-"Locate Kantars Realms: You will be transported to a secret realm after you "
-"have conquered this one."
-msgstr ""
-"找出了坎塔斯的王国：在你征服这里后将可以通往一个秘密王国。"
+msgid "Locate Hidden World: You will be transported to a secret realm after you have conquered this one."
+msgstr "找出了隐藏的世界: 在你征服这里后将被传送到秘密王国。"
 
 #: guitext:428
 msgctxt "Dungeon special name"
@@ -1689,8 +1690,8 @@ msgstr "传送怪物"
 
 #: guitext:430
 msgctxt "Menu interface item"
-msgid "Underworld Amusement"
-msgstr "娱乐时间"
+msgid "Bonus"
+msgstr "奖金"
 
 #: guitext:431 guitext:432 guitext:433 guitext:434 guitext:435 guitext:436
 #: guitext:437 guitext:438 guitext:439 guitext:440 guitext:441 guitext:442
@@ -2343,3 +2344,7 @@ msgid ""
 "for a final, decisive battle. LMB select. [18.15]"
 msgstr ""
 "末日审判: 将地下所有的怪物传送至地下城的心脏，进行大决战。左键选择。[18.15]"
+#: guitext:1005
+msgctxt "Dungeon special decription"
+msgid "Mysterious Box: There's no telling what this will do."
+msgstr "神秘物品：没有说明它是干什么用的。"

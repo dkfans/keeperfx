@@ -1858,7 +1858,8 @@ msgstr "奖金"
 #: guitext:539 guitext:540 guitext:541 guitext:542 guitext:543
 msgctxt "Unused"
 msgid "Moo6"
-msgstr ""                                                                          
+msgstr ""
+
 #: guitext:544
 msgctxt "Slab description"
 msgid "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but takes longer to mine than Gold."
