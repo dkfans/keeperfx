@@ -1244,13 +1244,11 @@ msgid "Moo2 "
 msgstr ""              
 
 #: guitext:226
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
 msgstr "箭: 基本的远程武器，在远距离使用时效果很好。"
 
 #: guitext:227
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
@@ -1258,7 +1256,6 @@ msgid ""
 msgstr "冰冻术: 把一只怪物冻成冰，并暂停它的行动，还可以使它能被猛力地一击打碎。"
 
 #: guitext:228
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
@@ -1266,7 +1263,6 @@ msgid ""
 msgstr "装甲: 可以降低怪物每次受到的伤害，并且使其完全免疫守护者的闪电术。"
 
 #: guitext:229
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
@@ -1274,13 +1270,11 @@ msgid ""
 msgstr "闪电术: 一个使用闪电攻击的强力魔法武器。可以使怪物释放出一道闪电。"
 
 #: guitext:230
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
 msgstr "反弹术: 将向你发射的所有投射物反弹给攻击者。"
 
 #: guitext:231
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fear: Causes the opponent to be terrified and wanting to skip engaging into "
@@ -1288,7 +1282,6 @@ msgid ""
 msgstr "恐惧术: 使敌人感到害怕并试图放弃参与战斗。"
 
 #: guitext:232
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Sight: Allows the creature to temporarily increase its awareness and notice "
@@ -1296,7 +1289,6 @@ msgid ""
 msgstr "邪眼术: 使怪物暂时集中精力，可以看破隐身的怪物。"
 
 #: guitext:233
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
@@ -1306,7 +1298,6 @@ msgstr ""
 "令人感到十分不安。"
 
 #: guitext:234
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
@@ -1316,7 +1307,6 @@ msgstr ""
 "并且由传统的延时引线引爆。"
 
 #: guitext:235
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Navigating Missile: A spell that sends a screaming magic reptile homing "
@@ -1327,7 +1317,6 @@ msgstr ""
 "它会自动追踪最近的英雄或敌方怪物，并造成双倍伤害。真不错。"
 
 #: guitext:236
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
@@ -1335,7 +1324,6 @@ msgid ""
 msgstr "速度术: 使怪物的速度提高，使其在战斗中或工作中行动非常迅速。"
 
 #: guitext:237 guitext:253
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
@@ -1345,13 +1333,11 @@ msgstr ""
 "所有呼吸到毒气的怪物都会受到它的影响。"
 
 #: guitext:238
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Group: Not used"
 msgstr "集结术: 未使用"
 
 #: guitext:239
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Invisibility: Cast on one of your minions, it makes the host creature "
@@ -1361,7 +1347,6 @@ msgstr ""
 "除非拥有超常视力的敌人才能看破隐身。"
 
 #: guitext:240
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Teleport: With this spell, a creature can teleport anywhere on the map. If "
@@ -1372,13 +1357,11 @@ msgstr ""
 "它会传送到它的巢穴处或地下城心脏处。"
 
 #: guitext:241
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr "火焰术: 持续喷射具有毁灭性威力的灼热火焰。"
 
 #: guitext:242
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
@@ -1386,7 +1369,6 @@ msgid ""
 msgstr "照明术: 为黑暗带来光明，使怪物能看清别人，但同时也会被别人看到。"
 
 #: guitext:243
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
@@ -1396,20 +1378,17 @@ msgstr ""
 "并能飞越岩浆而不受伤害。"
 
 #: guitext:244
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a fury of hailstones."
 msgstr "冰雹术: 发射密集的冰雹块。"
 
 #: guitext:245
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Slow: Slows down the target creature, making it attacks and movement delayed."
 msgstr "缓慢术:降低目标怪物的速度，使它的行动和攻击变得迟缓。"
 
 #: guitext:246
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Drain: This spell drains the target creature a part of its health and gives it "
@@ -1417,7 +1396,6 @@ msgid ""
 msgstr "吸精术: 这项魔法可以吸取目标的一部分生命值为自己所用。"
 
 #: guitext:247
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Word of Power: Causes rings of demonic energy to emanate from the creature's "
@@ -1428,7 +1406,6 @@ msgstr ""
 "对成群的敌人非常有效，同时也能将他们击退。"
 
 #: guitext:248
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Heal: When this is cast, the creature is massively healed. Also, any nearby "
@@ -1438,7 +1415,6 @@ msgstr ""
 "周围的怪物也会获得四分之一的治疗量。"
 
 #: guitext:249
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your dungeon blowing every creature "
@@ -1448,7 +1424,6 @@ msgstr ""
 "肯定还夹杂着一股臭气。"
 
 #: guitext:250
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Meteor: More powerful than the fireball, this spell throws out a solid ball "
@@ -1458,7 +1433,6 @@ msgstr ""
 "并对敌人造成大量伤害。"
 
 #: guitext:251
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
@@ -1466,7 +1440,6 @@ msgid ""
 msgstr "火球术: 发射一颗火球，瞄准最近的敌人。对地下城的墙壁和门也会造成轻微伤害。"
 
 #: guitext:252
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
@@ -1474,7 +1447,6 @@ msgid ""
 msgstr "近战攻击: 允许徒手或用剑攻击敌人的基本战斗技能。"
 
 #: guitext:254
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Dig: This is the basic ability of the Imp and allows it to tunnel through "
@@ -1482,7 +1454,6 @@ msgid ""
 msgstr "挖掘: 这是小鬼的基本能力，使它可以在地底下挖掘隧道。"
 
 #: guitext:255
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Disease: Fired at a foe, gives them a Disease which is then spread to other "
@@ -1493,7 +1464,6 @@ msgstr ""
 "被感染的怪物将会慢慢死去，只能在寺庙里获得治愈。"
 
 #: guitext:256
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
@@ -1504,7 +1474,6 @@ msgstr ""
 "因此不会像一只普通的小鸡那么容易被杀死。"
 
 #: guitext:257
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
 msgstr "定时炸弹"
@@ -1689,7 +1658,6 @@ msgstr ""
 "左键可解除标记。"
 
 #: guitext:326
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
@@ -1705,7 +1673,6 @@ msgid "Lava: Burns any creature that step on it. Get over lava by building a Bri
 msgstr "岩浆: 灼烧任何触碰到它的生物。施放一个塌方术或者建造一座桥来越过它。"
 
 #: guitext:328
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Water: Creatures move more slowly through water. Build the Bridge to make "
@@ -1713,7 +1680,6 @@ msgid ""
 msgstr "水: 怪物在水中移动得很慢。在水上造桥可以创造出水上的平地。"
 
 #: guitext:329
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Wall: A reinforced stone wall that enemies cannot break through. At least "
@@ -2018,7 +1984,6 @@ msgstr ""
 "同样会受到伤害。左键选择。右键缩放。"
 
 #: guitext:587
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
@@ -2028,7 +1993,6 @@ msgstr ""
 "左键选择。右键缩放。"
 
 #: guitext:588
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Word of Power Trap: Radiates devastating rings of demonic energy, pushing "
@@ -2038,7 +2002,6 @@ msgstr ""
 "择。右键缩放。"
 
 #: guitext:589
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
@@ -2069,7 +2032,6 @@ msgid "Magic Door"
 msgstr "魔法门"
 
 #: guitext:594
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Wooden Door: The simplest means of restricting access. Can be broken down "
@@ -2077,7 +2039,6 @@ msgid ""
 msgstr "木门: 最简单的限制通行的工具。可以轻易地摧毁。左键选择。右键缩放。"
 
 #: guitext:595
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
@@ -2085,7 +2046,6 @@ msgid ""
 msgstr "铁皮门: 包有铁皮的木门，使其耐久更高。左键选择。右键缩放。"
 
 #: guitext:596
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
@@ -2093,7 +2053,6 @@ msgid ""
 msgstr "铁门: 重而坚固的门，可以承受巨大的攻击。左键选择。右键缩放。"
 
 #: guitext:597
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
