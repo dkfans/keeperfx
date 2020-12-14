@@ -1696,196 +1696,20 @@ msgctxt "Creature name"
 msgid "Monk"
 msgstr ""
 
-#: guitext:287
-msgctxt "In-game interface description"
-msgid "Query: Select this and left click on a creature to view information on that creature and track it on screen. LMB select."
-msgstr ""
-
-#: guitext:288
-msgctxt "Menu interface item"
-msgid "Select game"
-msgstr ""
-
-#: guitext:289
-msgctxt "Menu interface item"
-msgid "Network Menu"
-msgstr ""
-
-#: guitext:290
-msgctxt "Menu interface item"
-msgid "Main Menu"
-msgstr ""
-
-#: guitext:343
-msgctxt "Menu interface, Main Menu title"
-msgid "Main Menu"
-msgstr ""
-
-#: guitext:291
-msgctxt "In-game interface description"
-msgid "Anger: How angry the creature is. The higher the bar is, the angrier the creature is."
-msgstr ""
-
-#: guitext:292
-msgctxt "In-game interface description"
-msgid "Creature Kills: The total number of enemies the creature has slain."
-msgstr ""
-
-#: guitext:293
-msgctxt "In-game interface description"
-msgid "Strength: The amount of damage the creature inflicts upon it's enemies with each hit."
-msgstr ""
-
-#: guitext:294
-msgctxt "In-game interface description"
-msgid "Wage: The creature's salary in gold which it takes on each payday."
-msgstr ""
-
-#: guitext:295
-msgctxt "In-game interface description"
-msgid "Gold Held: The amount of gold the creature is carrying."
-msgstr ""
-
-#: guitext:296
-msgctxt "In-game interface description"
-msgid "Defence: The chance a creature will avoid a blow. The higher the number, the greater the chance of avoidance."
-msgstr ""
-
-#: guitext:297
-msgctxt "In-game interface description"
-msgid "Skill: The creature's ability to perform tasks. The higher the Skill level, the better the creature's performance."
-msgstr ""
-
-#: guitext:298
-msgctxt "In-game interface description"
-msgid "Age/Time In Dungeon: The length of time you have employed the creature."
-msgstr ""
-
-#: guitext:299
-msgctxt "In-game interface description"
-msgid "Dexterity: The chance of a successful attack. Used to break enemy defence. The higher the number, the greater the chance of hitting."
-msgstr ""
-
-#: guitext:300
-msgctxt "In-game interface description"
-msgid "Luck: The chance that a creature will do a double attack or a double defence in combat. Taken into account only when the hit is not avoided."
-msgstr ""
-
-#: guitext:301
-msgctxt "In-game interface description"
-msgid "Blood type: As if you care. Blood is blood, right?"
-msgstr ""
-
-#: guitext:302
-msgctxt "In-game interface description"
-msgid "Idle: The creature is either sleeping or not working. It's not involved in anything constructive or useful. LMB pick up creature. RMB zoom."
-msgstr ""
-
-#: guitext:303
-msgctxt "In-game interface description"
-msgid "Working: The creature is performing tasks and doing work for you. LMB pick up creature. RMB zoom."
-msgstr ""
-
-#: guitext:304
-msgctxt "In-game interface description"
-msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom."
-msgstr ""
-
-#: guitext:305
-msgctxt "In-game interface description"
-msgid "Fight: Your creatures always attack and not avoid any combat. LMB select."
-msgstr ""
-
-#: guitext:306
-msgctxt "In-game interface description"
-msgid "Flee: Your creatures attempt to preserve their lives, running away if they are too badly injured. LMB select."
-msgstr ""
-
-#: guitext:307
-msgctxt "In-game interface description"
-msgid "Imprison: Your creatures stun their enemies in battle and imprison those they defeat. LMB select."
-msgstr ""
-
-#: guitext:308
-msgctxt "In-game interface description"
-msgid "Defending: The creature is concentrating on avoiding its adversary's blows."
-msgstr ""
-
-#: guitext:309
-msgctxt "In-game interface item"
-msgid "Are you sure?"
-msgstr ""
-
-#: guitext:310
-msgctxt "In-game interface item"
-msgid "Yes"
-msgstr ""
-
-#: guitext:311
-msgctxt "In-game interface item"
-msgid "No"
-msgstr ""
-
-#: guitext:312
-msgctxt "In-game interface item"
-msgid "For"
-msgstr ""
-
-#: guitext:313
-msgctxt "In-game interface description"
-msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
-msgstr ""
-
-#: guitext:314
-msgctxt "In-game interface description"
-msgid ""
-"View Type: Swap between the default and forced perspective views. Default view has warped walls and can be rotated, forced perspective shows larger area but "
-"can only be rotated 90 degrees. LMB toggle."
-msgstr ""
-
-#: guitext:315
-msgctxt "In-game interface description"
-msgid "Wall Height: Swap between high or low walls. If you make the walls one block high, they are easier to see over. LMB toggle."
-msgstr ""
-
-#: guitext:316
-msgctxt "In-game interface description"
-msgid "View Distance: The amount of dungeon drawn. This directly affects the speed of the game. LMB toggle."
-msgstr ""
-
-#: guitext:317
-msgctxt "In-game interface description"
-msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
-msgstr ""
-
-#: guitext:318
-msgctxt "In-game interface item"
-msgid "Of"
+#: guitext:287 guitext:288 guitext:289 guitext:290 guitext:343 guitext:291
+#: guitext:292 guitext:293 guitext:294 guitext:295 guitext:296 guitext:297
+#: guitext:298 guitext:299 guitext:300 guitext:301 guitext:302 guitext:303
+#: guitext:304 guitext:305 guitext:306 guitext:307 guitext:308 guitext:309
+#: guitext:310 guitext:311 guitext:312 guitext:313 guitext:314 guitext:315
+#: guitext:316 guitext:317 guitext:318 guitext:320 guitext:321 guitext:322
+#: guitext:323 guitext:333
+msgctxt "Unused"
+msgid "Moo9"
 msgstr ""
 
 #: guitext:319
 msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
-msgstr ""
-
-#: guitext:320
-msgctxt "Menu interface item"
-msgid "Paused"
-msgstr ""
-
-#: guitext:321
-msgctxt "In-game interface description"
-msgid "Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB select."
-msgstr ""
-
-#: guitext:322
-msgctxt "In-game interface description"
-msgid "Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB select."
-msgstr ""
-
-#: guitext:323
-msgctxt "In-game interface description"
-msgid "Full Screen Map: Takes you to the Map Screen which displays your entire Dungeon and the surrounding area. LMB select."
 msgstr ""
 
 #: guitext:324
@@ -1901,12 +1725,13 @@ msgstr ""
 #: guitext:326
 msgctxt "Slab description"
 msgid ""
-"Gold Seam: Your source of wealth. Dig this out and your Imps will take it to your Treasure Room. You can also pick up the lumps of treasure left on the ground."
+"Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
+"your Treasure Room. You can also pick up the lumps of treasure left on the ground."
 msgstr ""
 
 #: guitext:327
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. Get over lava by casting Cave-In or building a Bridge."
+msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr ""
 
 #: guitext:328
@@ -1934,11 +1759,6 @@ msgctxt "Slab description"
 msgid "Claimed area: Your dungeon territory. You can build rooms and drop your creatures on it."
 msgstr ""
 
-#: guitext:333
-msgctxt "In-game interface item"
-msgid "More..."
-msgstr ""
-
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
@@ -1949,43 +1769,64 @@ msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
 msgstr ""
 
+#: guitext:336 guitext:337 guitext:338 guitext:339 guitext:340 guitext:341
+#: guitext:342 guitext:344 guitext:345 guitext:346 guitext:347 guitext:348
+#: guitext:349 guitext:350 guitext:351 guitext:352 guitext:353 guitext:354
+#: guitext:355 guitext:356 guitext:357 guitext:358 guitext:359 guitext:360
+#: guitext:361 guitext:362 guitext:363 guitext:364 guitext:365 guitext:366
+#: guitext:367 guitext:368 guitext:369 guitext:370 guitext:371 guitext:372
+#: guitext:373 guitext:374 guitext:375 guitext:376 guitext:377 guitext:378
+#: guitext:379 guitext:380 guitext:381 guitext:382 guitext:383 guitext:384
+#: guitext:385 guitext:386 guitext:387 guitext:388 guitext:389 guitext:390
+#: guitext:391 guitext:392 guitext:393 guitext:394 guitext:395 guitext:396
+#: guitext:397 guitext:398 guitext:399 guitext:400 guitext:401 guitext:402
+#: guitext:403 guitext:404 guitext:405 guitext:406 guitext:407 guitext:408
+#: guitext:409 guitext:410 guitext:411 guitext:412 guitext:413 guitext:414
+#: guitext:415 guitext:416 guitext:417 guitext:418 guitext:419
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
 #: guitext:420
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr ""
 
 #: guitext:421
-msgctxt "Dungeon special decription"
-msgid "Resurrect Creature: You may raise one of your fallen minions from the dead."
+msgctxt "Dungeon special description"
+msgid ""
+"Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr ""
 
 #: guitext:422
-msgctxt "Dungeon special decription"
-msgid "Transfer Creature: Pick one of your creatures to accompany you to the next realm."
+msgctxt "Dungeon special description"
+msgid ""
+"Transfer Creature: Pick one of your creatures to accompany you to the next "
+"realm."
 msgstr ""
 
 #: guitext:423
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr ""
 
 #: guitext:424
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr ""
 
 #: guitext:425
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr ""
 
 #: guitext:426
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr ""
 
 #: guitext:427
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Locate Hidden World: You will be transported to a secret realm after you have conquered this one."
 msgstr ""
 
@@ -2002,6 +1843,7 @@ msgstr ""
 #: guitext:430
 msgctxt "Menu interface item"
 msgid "Bonus"
+msgstr ""
 
 #: guitext:431 guitext:432 guitext:433 guitext:434 guitext:435 guitext:436
 #: guitext:437 guitext:438 guitext:439 guitext:440 guitext:441 guitext:442
@@ -2567,6 +2409,6 @@ msgid "Armageddon: Transports all the creatures in the land to your Dungeon Hear
 msgstr ""
 
 #: guitext:1005
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr ""
