@@ -241,14 +241,29 @@ enum {
 struct Condition;
 struct Party;
 typedef unsigned long TbMapLocation;
+struct ScriptLine;
+struct ScriptValue;
+
+struct ScriptContext
+{
+    int plr_start;
+    int plr_end;
+
+    union {
+      struct ScriptValue *value;
+    };
+};
 
 struct CommandDesc { // sizeof = 14 // originally was 13
   const char *textptr;
   char args[COMMANDDESC_ARGS_COUNT+1]; // originally was [8]
   unsigned char index;
+  void (*check_fn)(const struct ScriptLine *scline); // should check
+  void (*process_fn)(struct ScriptContext *context); // called from value or from
 };
 
 struct ScriptLine {
+  enum TbScriptCommands command;
   long np[COMMANDDESC_ARGS_COUNT]; /**< Numeric parameters (to be changed into interpreted parameters, containing ie. in-game random) */
   char tcmnd[MAX_TEXT_LENGTH]; /**< Command text */
   char tp[COMMANDDESC_ARGS_COUNT][MAX_TEXT_LENGTH]; /**< Text parameters */
@@ -282,9 +297,9 @@ struct ScriptValue { // sizeof = 16
   char condit_idx;
   unsigned char valtype;
   unsigned char plyr_range;
-  long field_4;
-  long field_8;
-  long field_C;
+  long arg0;
+  long arg1;
+  long arg2;
 };
 
 struct Condition { // sizeof = 12
@@ -366,7 +381,7 @@ short clear_script(void);
 short load_script(long lvl_num);
 short preload_script(long lvnum);
 /******************************************************************************/
-void script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
+void script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4, struct ScriptValue *value);
 void script_process_win_game(PlayerNumber plyr_idx);
 void script_process_lose_game(PlayerNumber plyr_idx);
 struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
