@@ -529,7 +529,7 @@ TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long 
     return true;
 }
 
-TbBool delete_member_from_party(int party_id, int index)
+TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level)
 {
     if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
@@ -537,21 +537,19 @@ TbBool delete_member_from_party(int party_id, int index)
         return false;
     }
     struct Party* party = &game.script.creature_partys[party_id];
-    int new_index = index;
-    if (index < 0)
+    int new_index = party->members_num;
+    for (int i = 0; i < party->members_num; i++)
     {
-        // Negative index means last, prev to last and so on
-        new_index = party->members_num + index;
+        struct PartyMember* member = &(party->members[i]);
+        if ((member->crtr_kind == crtr_model) && (member->crtr_level == crtr_level))
+        {
+            memmove(member, member + 1, sizeof(*member) * (party->members_num - new_index - 1));
+            party->members_num--;
+            return true;
+        }
     }
-    if ((new_index < 0) || (new_index >= party->members_num))
-    {
-        SCRPTERRLOG("Invalid party:%s index:%d", party->prtname, index);
-        return false;
-    }
-    struct PartyMember* member = &(party->members[new_index]);
-    memmove(member, member + 1, sizeof(*member) * (party->members_num - new_index - 1));
-    party->members_num--;
-    return true;
+    SCRPTERRLOG("Creature not found party:%s model:%d level:%d", party->prtname, crtr_model, crtr_level);
+    return false;
 }
 
 TbBool make_group_member_leader(struct Thing *leadtng)
