@@ -1164,6 +1164,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
 static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
 {
     char c;
+    int len = 0;
 
     if (level_file_version > 0)
     {
@@ -1219,6 +1220,11 @@ static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *vari
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
+        else if (1 == sscanf(varib_name, "SACRIFICED_%n%c", &len, &c))
+        {
+            *varib_id = get_id(creature_desc, varib_name + len);
+            *varib_type = SVar_SACRIFICED;
+        }
         else
         {
           *varib_id = -1;
@@ -1236,6 +1242,7 @@ static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *vari
 static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
 {
     char c;
+    int len = 0;
 
     *varib_id = -1;
     if (*varib_id == -1)
@@ -1254,6 +1261,11 @@ static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *vari
         {
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
+        }
+        else if (1 == sscanf(varib_name, "SACRIFICED_%n%c", &len, &c))
+        {
+            *varib_id = get_id(creature_desc, varib_name + len);
+            *varib_type = SVar_SACRIFICED;
         }
         else
         {
@@ -4913,6 +4925,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_BOX_ACTIVATED:
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->box_info.activated[validx];
+    case SVar_SACRIFICED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->creature_sacrifice[validx];
     default:
         break;
     };
@@ -5159,6 +5174,7 @@ void process_values(void)
 
 static void set_variable(int player_idx, long var_type, long var_idx, long new_val)
 {
+    struct Dungeon *dungeon = get_dungeon(player_idx);
     struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
     switch (var_type)
     {
@@ -5170,6 +5186,9 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
         break;
     case SVar_BOX_ACTIVATED:
         dungeonadd->box_info.activated[var_idx] = new_val;
+        break;
+    case SVar_SACRIFICED:
+        dungeon->creature_sacrifice[var_idx] = new_val;
         break;
     default:
         WARNLOG("Unexpected type:%d",(int)var_type);
