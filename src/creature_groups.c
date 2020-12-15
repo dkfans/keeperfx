@@ -543,9 +543,9 @@ TbBool delete_member_from_party(int party_id, int index)
         // Negative index means last, prev to last and so on
         new_index = party->members_num + index;
     }
-    if (new_index >= party->members_num)
+    if ((new_index < 0) || (new_index >= party->members_num))
     {
-        SCRPTERRLOG("Invalid party:%s index:%d", party->prtname);
+        SCRPTERRLOG("Invalid party:%s index:%d", party->prtname, index);
         return false;
     }
     struct PartyMember* member = &(party->members[new_index]);
