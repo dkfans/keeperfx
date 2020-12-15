@@ -206,7 +206,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     lairtng->move_angle_xy = ACTION_RANDOM(2*LbFPMath_PI);
     struct Objects* objdat = get_objects_data_for_thing(lairtng);
     unsigned long i = convert_td_iso(objdat->sprite_anim_idx);
-    set_thing_draw(lairtng, i, objdat->anim_speed, lairtng->word_15, 0, -1, objdat->field_11);
+    set_thing_draw(lairtng, i, objdat->anim_speed, lairtng->word_15, 0, -1, objdat->draw_class);
     thing_play_sample(creatng, 158, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
     create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
     anger_set_creature_anger(creatng, 0, AngR_NoLair);

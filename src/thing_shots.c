@@ -613,7 +613,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         }
         event_create_event_or_update_nearby_existing_event(
             creatng->mappos.x.val, creatng->mappos.y.val,
-          EvKind_HeartAttacked, target->owner, 0);
+          EvKind_HeartAttacked, target->owner, creatng->index);
         if (is_my_player_number(target->owner)) {
             output_message(SMsg_HeartUnderAttack, 400, true);
         }
@@ -783,7 +783,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         shooter = thing_get(shotng->parent_idx);
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(trgtng);
     long damage = get_damage_of_melee_shot(shotng, trgtng);
-    if (damage != 0)
+    if (damage > 0)
     {
       if (shotst->old->hit_sound > 0)
       {
@@ -886,7 +886,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
-            pos2.z.val = crstat->eye_height + ((crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) + killertng->mappos.z.val;
+            pos2.z.val = crstat->eye_height + killertng->mappos.z.val;
             clear_thing_acceleration(shotng);
             set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
             shotng->parent_idx = trgtng->parent_idx;

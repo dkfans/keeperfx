@@ -2,6 +2,7 @@ REM ----------------------------------------------------------------------------
 REM Undead Keeper
 REM Elysium
 REM Made by Duke Ragereaver
+REM	updated for pot file by dayokay (Nov2020)
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
 START_MONEY(PLAYER0,39500)
@@ -77,7 +78,8 @@ CREATE_PARTY(LAST_STAND)
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
-QUICK_OBJECTIVE(0,"The Ancient Spirits of Intregity, Valor and Justice keep this realm protected with their ancient magic. They just missed one tiny detail, the elderly Vampire Lord Jedidiah was burried here long ago by those same spirits and is in slumber, awake him! For that, you will need some power structures with the Heroes protecting them, find and secure them. The Heroes will not hesitate to destroy them if nessesary so keep your eyes on the rascals.",PLAYER0)
+REM	QUICK_OBJECTIVE(0,"The Ancient Spirits of Intregity, Valor and Justice keep this realm protected with their ancient magic. They just missed one tiny detail, the elderly Vampire Lord Jedidiah was burried here long ago by those same spirits and is in slumber, awake him! For that, you will need some power structures with the Heroes protecting them, find and secure them. The Heroes will not hesitate to destroy them if nessesary so keep your eyes on the rascals.",PLAYER0)
+DISPLAY_OBJECTIVE(40,PLAYER0)
 
 REM Beginning
 
@@ -88,12 +90,14 @@ ENDIF
 
 IF_ACTION_POINT(3,PLAYER0)
     SET_FLAG(PLAYER1,FLAG0,1)
-    QUICK_OBJECTIVE(3,"You have reached and secured one of the power structures. Remember, the goal is to secure them, NOT destroy them!",PLAYER0)
+    REM	QUICK_OBJECTIVE(3,"You have reached and secured one of the power structures. Remember, the goal is to secure them, NOT destroy them!",PLAYER0)
+	DISPLAY_OBJECTIVE(41,3)
 ENDIF
 
 IF_ACTION_POINT(4,PLAYER0)
     SET_FLAG(PLAYER2,FLAG0,1)
-    QUICK_OBJECTIVE(3,"You have reached and secured one of the power structures. Remember, the goal is to secure them, NOT destroy them!",PLAYER0)
+    REM	QUICK_OBJECTIVE(3,"You have reached and secured one of the power structures. Remember, the goal is to secure them, NOT destroy them!",PLAYER0)
+	DISPLAY_OBJECTIVE(41,4)
 ENDIF
 
 IF_ACTION_POINT(5,PLAYER0)
@@ -102,14 +106,16 @@ ENDIF
 
 IF_ACTION_POINT(7,PLAYER0)
     SET_FLAG(PLAYER3,FLAG0,1)
-    QUICK_OBJECTIVE(3,"You have reached and secured one of the power structures. Remember, the goal is to secure them, NOT destroy them!",PLAYER0)
+    REM	QUICK_OBJECTIVE(3,"You have reached and secured one of the power structures. Remember, the goal is to secure them, NOT destroy them!",PLAYER0)
+	DISPLAY_OBJECTIVE(41,7)
 ENDIF
 
 IF(PLAYER1,FLAG0 == 1)
     IF(PLAYER2,FLAG0 == 1)
         IF(PLAYER3,FLAG0 == 1)
             ADD_CREATURE_TO_LEVEL(PLAYER0,VAMPIRE,1,1,10,9001)
-QUICK_OBJECTIVE(1,"Jeddiah has awakened and is very eager on vengeance on those had imprisoned him, lead on. Your forces will gradually appear as the battle progresses... as do some special allies...",PLAYER0)
+			REM	QUICK_OBJECTIVE(1,"Jeddiah has awakened and is very eager on vengeance on those had imprisoned him, lead on. Your forces will gradually appear as the battle progresses... as do some special allies...",PLAYER0)
+			DISPLAY_OBJECTIVE(42,PLAYER0)
         ENDIF
     ENDIF
 ENDIF
@@ -133,17 +139,20 @@ ENDIF
 
 IF_ACTION_POINT(9,PLAYER0)
     SET_FLAG(PLAYER1,FLAG1,1)
-    QUICK_OBJECTIVE(4,"More reinforcements are on the way to assist you.",PLAYER0)
+    REM	QUICK_OBJECTIVE(4,"More reinforcements are on the way to assist you.",PLAYER0)
+	DISPLAY_OBJECTIVE(43,9)
 ENDIF
 
 IF_ACTION_POINT(10,PLAYER0)
     SET_FLAG(PLAYER2,FLAG1,1)
-    QUICK_OBJECTIVE(4,"More reinforcements are on the way to assist you.",PLAYER0)
+    REM	QUICK_OBJECTIVE(4,"More reinforcements are on the way to assist you.",PLAYER0)
+	DISPLAY_OBJECTIVE(43,10)
 ENDIF
 
 IF_ACTION_POINT(11,PLAYER0)
     SET_FLAG(PLAYER3,FLAG1,1)
-    QUICK_OBJECTIVE(4,"More reinforcements are on the way to assist you.",PLAYER0)
+    REM	QUICK_OBJECTIVE(4,"More reinforcements are on the way to assist you.",PLAYER0)
+	DISPLAY_OBJECTIVE(43,11)
 ENDIF
 
 IF_ACTION_POINT(12,PLAYER0)
@@ -181,7 +190,8 @@ ENDIF
 IF(PLAYER_GOOD,GHOST == 0)
     TUTORIAL_FLASH_BUTTON(13,PLAYER0)
     MAGIC_AVAILABLE(PLAYER0,POWER_DESTROY_WALLS,1,1)
-    QUICK_OBJECTIVE(2,"Use this spell to break down the walls and destroy the remaining opposition!",PLAYER0)
+    REM	QUICK_OBJECTIVE(2,"Use this spell to break down the walls and destroy the remaining opposition!",PLAYER0)
+	DISPLAY_OBJECTIVE(44,PLAYER0)
 ENDIF
 
 REM The gang, part 1
@@ -263,7 +273,8 @@ ENDIF
 
 IF(PLAYER_GOOD,AVATAR == 0)
     IF(PLAYER_GOOD,FLAG0 == 1)
-        QUICK_OBJECTIVE(5,"The enemies of darkness and death have been shown no mercy... as it should be.... well done...",PLAYER0)
+        REM	QUICK_OBJECTIVE(5,"The enemies of darkness and death have been shown no mercy... as it should be.... well done...",PLAYER0)
+		DISPLAY_OBJECTIVE(45,PLAYER0)
         WIN_GAME
     ENDIF
 ENDIF

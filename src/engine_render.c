@@ -563,7 +563,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
-        hmin = floor_height[fulmask_and & 0xff];
+        hmin = _DK_floor_height[fulmask_and & 0xff];
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         long hpos;
@@ -765,7 +765,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
-        hmin = floor_height[fulmask_and & 0xff];
+        hmin = _DK_floor_height[fulmask_and & 0xff];
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
@@ -996,7 +996,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
-        hmin = floor_height[fulmask_and & 0xff];
+        hmin = _DK_floor_height[fulmask_and & 0xff];
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
@@ -2551,6 +2551,13 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
     poly->z = coord.z;
 }
 
+unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id)
+{
+    long slb_x = stl_x / 3;
+    long slb_y = stl_y / 3;
+    return tex_id + (slab_ext_data[85 * slb_y + slb_x] & 0xF) * TEXTURE_BLOCKS_COUNT;
+}
+
 void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
 {
     struct Column *blank_colmn;
@@ -2637,25 +2644,25 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
             {
               if ((solidmsk_top & height_bit) == 0)
               {
-                  textr_idx = texturing->texture_id[sideoris[0].field_0];
+                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_0]);
                   do_a_trig_gourad_tr(&bec[1].cors[bepos+1], &bec[0].cors[bepos+1], &bec[0].cors[bepos],   textr_idx, normal_shade_back);
                   do_a_trig_gourad_bl(&bec[0].cors[bepos],   &bec[1].cors[bepos],   &bec[1].cors[bepos+1], textr_idx, normal_shade_back);
               }
               if ((solidmsk_bottom & height_bit) == 0)
               {
-                  textr_idx = texturing->texture_id[sideoris[0].field_2];
+                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_2]);
                   do_a_trig_gourad_tr(&fec[0].cors[fepos+1], &fec[1].cors[fepos+1], &fec[1].cors[fepos],   textr_idx, normal_shade_front);
                   do_a_trig_gourad_bl(&fec[1].cors[fepos],   &fec[0].cors[fepos],   &fec[0].cors[fepos+1], textr_idx, normal_shade_front);
               }
               if ((solidmsk_left & height_bit) == 0)
               {
-                  textr_idx = texturing->texture_id[sideoris[0].field_3];
+                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_3]);
                   do_a_trig_gourad_tr(&bec[0].cors[bepos+1], &fec[0].cors[fepos+1], &fec[0].cors[fepos],   textr_idx, normal_shade_left);
                   do_a_trig_gourad_bl(&fec[0].cors[fepos],   &bec[0].cors[bepos],   &bec[0].cors[bepos+1], textr_idx, normal_shade_left);
               }
               if ((solidmsk_right & height_bit) == 0)
               {
-                  textr_idx = texturing->texture_id[sideoris[0].field_1];
+                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_1]);
                   do_a_trig_gourad_tr(&fec[1].cors[fepos+1], &bec[1].cors[bepos+1], &bec[1].cors[bepos],   textr_idx, normal_shade_right);
                   do_a_trig_gourad_bl(&bec[1].cors[bepos],   &fec[1].cors[fepos],   &fec[1].cors[fepos+1], textr_idx, normal_shade_right);
               }
@@ -2665,18 +2672,18 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
             height_bit = height_bit << 1;
         }
 
-        ecpos = floor_height[solidmsk_center];
+        ecpos = _DK_floor_height[solidmsk_center];
         if (ecpos > 0)
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
             texturing = &game.cubes_data[*cubenum_ptr];
-            textr_idx = texturing->texture_id[4];
+            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         } else
         {
             ecpos = 0;
-            textr_idx = colmn->baseblock;
+            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), colmn->baseblock);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         }
@@ -2686,19 +2693,19 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
             texturing = &game.cubes_data[*cubenum_ptr];
-            textr_idx = texturing->texture_id[4];
+            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
 
             ecpos =  lintel_bottom_height[solidmsk_center];
-            textr_idx = texturing->texture_id[5];
+            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[5]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         }
         // Draw the universal ceiling on top of the columns
         ecpos = 8;
         {
-            textr_idx = floor_to_ceiling_map[colmn->baseblock];
+            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), floor_to_ceiling_map[colmn->baseblock]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         }
@@ -2852,64 +2859,69 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             }
             if ((mask & solidmsk_back) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_0];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_0]);
                 do_a_gpoly_gourad_tr(&bec[1].cors[ncor+1], &bec[0].cors[ncor+1], &bec[0].cors[ncor],   textr_id, normal_shade_back);
                 do_a_gpoly_gourad_bl(&bec[0].cors[ncor],   &bec[1].cors[ncor],   &bec[1].cors[ncor+1], textr_id, normal_shade_back);
             }
             if ((solidmsk_front & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_2];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_2]);
                 do_a_gpoly_gourad_tr(&fec[0].cors[ncor+1], &fec[1].cors[ncor+1], &fec[1].cors[ncor],   textr_id, normal_shade_front);
                 do_a_gpoly_gourad_bl(&fec[1].cors[ncor],   &fec[0].cors[ncor],   &fec[0].cors[ncor+1], textr_id, normal_shade_front);
             }
             if ((solidmsk_left & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_3];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_3]);
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor+1], &fec[0].cors[ncor+1], &fec[0].cors[ncor],   textr_id, normal_shade_left);
                 do_a_gpoly_gourad_bl(&fec[0].cors[ncor],   &bec[0].cors[ncor],   &bec[0].cors[ncor+1], textr_id, normal_shade_left);
             }
             if ((solidmsk_right & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_1];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_1]);
                 do_a_gpoly_gourad_tr(&fec[1].cors[ncor+1], &bec[1].cors[ncor+1], &bec[1].cors[ncor],   textr_id, normal_shade_right);
                 do_a_gpoly_gourad_bl(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
             }
         }
 
-        ncor = floor_height[solidmsk_cur];
+        ncor = _DK_floor_height[solidmsk_cur];
         if ((ncor > 0) && (ncor <= COLUMN_STACK_HEIGHT))
         {
             int ncor_raw;
-            ncor_raw = floor_height[solidmsk_cur_raw];
+            ncor_raw = _DK_floor_height[solidmsk_cur_raw];
             if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
             {
                 if ((ncor_raw > 0) && (ncor_raw <= COLUMN_STACK_HEIGHT))
                 {
-                    struct CubeAttribs * cubed;
-                    cubed = &game.cubes_data[cur_colmn->cubes[ncor_raw-1]];
-                    do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
-                    do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+                    struct CubeAttribs * cubed = &game.cubes_data[cur_colmn->cubes[ncor_raw-1]];
+                    unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
+                    // Top surface in cluedo mode
+                    do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
+                    do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
                 }
             } else
             if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 579);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 579);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             } else
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 578);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
         } else
         {
             if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
             {
-                do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], cur_colmn->baseblock, -1);
-                do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], cur_colmn->baseblock, -1);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->baseblock);
+                do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
+                do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
             } else
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], 578);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id);
             }
         }
         ncor = lintel_top_height[solidmsk_cur];
@@ -2917,8 +2929,9 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         {
             struct CubeAttribs * cubed;
             cubed = &game.cubes_data[cur_colmn->cubes[ncor-1]];
-            do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
-            do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+            unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
+            do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
+            do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
         }
     }
 }
@@ -3034,59 +3047,65 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             }
             if ((mask & solidmsk_back) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_0];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_0]);
                 do_a_gpoly_gourad_tr(&bec[1].cors[ncor+1], &bec[0].cors[ncor+1], &bec[0].cors[ncor],   textr_id, normal_shade_back);
                 do_a_gpoly_gourad_bl(&bec[0].cors[ncor],   &bec[1].cors[ncor],   &bec[1].cors[ncor+1], textr_id, normal_shade_back);
             }
             if ((solidmsk_front & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_2];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_2]);
                 do_a_gpoly_gourad_tr(&fec[0].cors[ncor+1], &fec[1].cors[ncor+1], &fec[1].cors[ncor],   textr_id, normal_shade_front);
                 do_a_gpoly_gourad_bl(&fec[1].cors[ncor],   &fec[0].cors[ncor],   &fec[0].cors[ncor+1], textr_id, normal_shade_front);
             }
             if ((solidmsk_left & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_3];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_3]);
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor+1], &fec[0].cors[ncor+1], &fec[0].cors[ncor],   textr_id, normal_shade_left);
                 do_a_gpoly_gourad_bl(&fec[0].cors[ncor],   &bec[0].cors[ncor],   &bec[0].cors[ncor+1], textr_id, normal_shade_left);
             }
             if ((solidmsk_right & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_1];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_1]);
                 do_a_gpoly_gourad_tr(&fec[1].cors[ncor+1], &bec[1].cors[ncor+1], &bec[1].cors[ncor],   textr_id, normal_shade_right);
                 do_a_gpoly_gourad_bl(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
             }
         }
 
-        ncor = floor_height[solidmsk_cur];
+        ncor = _DK_floor_height[solidmsk_cur];
         if (ncor > 0)
         {
             if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
             {
                 struct CubeAttribs * cubed;
                 cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
-                do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
-                do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
+                // Top surface on full iso mode
+                do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
+                do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
             } else
             if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 579);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 579);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             } else
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 578);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
         } else
         {
             if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
             {
-                do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], cur_colmn->baseblock, -1);
-                do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], cur_colmn->baseblock, -1);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->baseblock);
+                do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
+                do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
             } else
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], 578);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id);
             }
         }
         ncor = lintel_top_height[solidmsk_cur];
@@ -3094,8 +3113,9 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
         {
             struct CubeAttribs * cubed;
             cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
-            do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
-            do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+            unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
+            do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
+            do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
         }
     }
 }
@@ -3583,7 +3603,14 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     // Clip line within engine_window
     remainder_limit = (distance_b+1)/2;
     // Find starting A coord
-    remainder = start_b_dist_from_window * distance_a % distance_b;
+    if (distance_b == 0)
+    {
+        remainder = 0;
+    }
+    else
+    {
+        remainder = start_b_dist_from_window * distance_a % distance_b;
+    }
     long min_a_start = 0;
     if ((b1 < 0 || b1 > relative_window_b))
     {
@@ -3596,7 +3623,14 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     }
     long a_start = max(a1, min_a_start);
     // Find ending A coord
-    remainder = end_b_dist_from_window * distance_a % distance_b;
+    if (distance_b == 0)
+    {
+        remainder = 0;
+    }
+    else
+    {
+        remainder = end_b_dist_from_window * distance_a % distance_b;
+    }
     long max_a_end = relative_window_a;
     if (b2 < 0 || b2 > relative_window_b)
     {
@@ -3611,7 +3645,14 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     long a_end = min(a2, max_a_end);
     // Find starting B coord
     remainder_limit = (distance_a+1)/2;
-    remainder = (a_start - a1) * distance_b % distance_a; // initialise remainder for loop
+    if (distance_a == 0)
+    {
+        remainder = 0;
+    }
+    else
+    {
+        remainder = (a_start - a1) * distance_b % distance_a; // initialise remainder for loop
+    }
     long b_start =  b1 + ( b_increment * (a_start - a1) * distance_b / distance_a );
     if (remainder >= remainder_limit)
     {
@@ -4482,7 +4523,7 @@ void display_drawlist(void)
         //JUSTLOG("%d",(int)item.b->kind);
         switch ( item.b->kind )
         {
-        case QK_PolyTriangle:
+        case QK_PolyTriangle: // Used in dungeon view and FAR part of FPS view
           vec_mode = VM_Unknown5;
           vec_map = block_ptrs[item.unk00->block];
           draw_gpoly(&item.unk00->p1, &item.unk00->p2, &item.unk00->p3);
@@ -4847,13 +4888,13 @@ static void draw_texturedquad_block(struct TexturedQuad *txquad)
         struct PolyPoint point_c;
         struct PolyPoint point_d;
         vec_mode = VM_Unknown5;
-        switch (txquad->field_2A)
+        switch (txquad->field_2A) // Is visible/selected
         {
         case 0:
-            vec_map = block_ptrs[578];
+            vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
             break;
         case 1:
-            vec_map = block_ptrs[579];
+            vec_map = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
             break;
         case 3:
         default:
@@ -4888,14 +4929,14 @@ static void draw_texturedquad_block(struct TexturedQuad *txquad)
         switch (txquad->field_2A)
         {
         case 0:
-            gtb.field_0 = block_ptrs[578];
+            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_LAND];
             gtb.field_C = txquad->field_1A >> 16;
             gtb.field_10 = txquad->field_1E >> 16;
             gtb.field_18 = txquad->field_22 >> 16;
             gtb.field_14 = txquad->field_26 >> 16;
             break;
         case 1:
-            gtb.field_0 = block_ptrs[579];
+            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
             gtb.field_C = txquad->field_1A >> 16;
             gtb.field_10 = txquad->field_1E >> 16;
             gtb.field_18 = txquad->field_22 >> 16;

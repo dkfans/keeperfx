@@ -1,363 +1,262 @@
-# ******************************************************************************
+# *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
-# ******************************************************************************
-#   @file undedkpr/text_chi.po
+# *****************************************************************************
+#   @file dstninja/text_chi.po
 #      KeeperFX Campaign Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Jan 2014
+#  @date     25 Aug 2012 - 12 Dec 2020
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-# ******************************************************************************
-msgid ""
-msgstr ""
-"Project-Id-Version: Undead Keeper campaign for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-01-03 20:55+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
-"Language: zh_CN\n"
+# *****************************************************************************
+
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
-"Project-Id-Version: Undead Keeper\n"
+"Project-Id-Version: KeeperFX\n"
+"Language: chi\n"
 
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
-msgid "Success! The land is yours. Press Space to proceed to the next realm."
+msgid ""
+"Success! The district is yours. Press Space to proceed to the next realm."
 msgstr "成功了！你拥有了这片土地。按空格键进入下一个王国。"
 
 #: guitext:1
 msgctxt "In-game message"
-msgid "Make haste master, it won't be long before your rival breaks into this realm."
-msgstr "快点行动吧，主人，你的敌人用不了多久就要来到这个王国了。"
+msgid ""
+"Enemy Shogun stands on our way to the province Iga. We need to kill him so "
+"we can continue our journey."
+msgstr "敌人的将军挡在了我们前往伊贺的道路上。我们必须杀死他才能继续前行。"
 
 #: guitext:2
 msgctxt "In-game message"
-msgid "Your rival is advancing from the south. There is also word that reinforcements from Rosefield have arrived."
-msgstr "你的敌人正从南方前往这里。还有消息说罗斯菲尔德的援军也已经赶来了。"
+msgid ""
+"We have defeated the enemy Shogun. Now we can safely pass to the province "
+"Iga and visit our clan. Perfect work, mighty man of the shadow!"
+msgstr "我们已经杀死了敌方将军。现在我们可以安全抵达伊贺来会见我们的族人了。"
+"完美的行动，幻影之勇者！"
 
 #: guitext:3
 msgctxt "In-game message"
-msgid "The first domino falls here. The prisoners will be taken care off properly, I hope?"
-msgstr "第一块多米诺骨牌被推倒了。我希望你明白如何好好照料这些囚犯，没问题吧？"
+msgid ""
+"We cannot turn our eyes while enemy ruler ravages this land. We have to stop "
+"him, so that local people can live without fear and worry."
+msgstr "我们不能再对敌方首领的所作所为置之不理了。我们必须阻止他，"
+"让当地居民不再生活在担忧和恐惧之中。"
 
 #: guitext:4
 msgctxt "In-game message"
-msgid "The Cathedral is currently under siege by one of Keeper Bane's underlings. Make haste and unearth the treasuries burried here."
-msgstr "这里的大教堂正被守护者贝恩的一支军队围攻。抓紧行动，把国库中的财宝挖掘出来。"
+msgid ""
+"Is not for the man of the shadow to hesitate and question the order of "
+"things. You are wise to know that truth. Perfect work!"
+msgstr "幻影之勇者行事是绝不会优柔寡断，手忙脚乱的。"
+"你能认识到这一点真是非常聪明。干得漂亮！"
 
 #: guitext:5
 msgctxt "In-game message"
-msgid "Outstanding, master. Now things will be a little more intresting."
-msgstr "很出色，主人。现在事情开始变得更加有趣了。"
+msgid ""
+"We have been trapped into a magic barrier. We cannot progress the journey to "
+"Iga until be break it. The only way to do that is to kill enemy shogun which "
+"is in this land."
+msgstr "我们被困在了一个魔法结界之中。在将其打破之前，我们无法继续前往伊贺。"
+"打破结界的唯一办法就是杀死这片土地上的敌方将军。"
 
 #: guitext:6
 msgctxt "In-game message"
-msgid "Just as I thought, the victor was decided before the fight even began!"
-msgstr "正如我想象的一样，战斗还没有开始，胜负就已然分晓了！"
+msgid "Excellent work, assassin! Now we can safely reach the province Iga."
+msgstr "出色的表现，犹如一名刺客！现在我们可以安全前往伊贺了。"
 
 #: guitext:7
 msgctxt "In-game message"
-msgid "This fortress is the last bastion of the Heroes. Some people claim its construction took several hunderd years, so perhaps you can demolish it in a worldrecord. Be alert though, I can sense something evil within those walls."
-msgstr "这座要塞是英雄们的最后一座堡垒了。有人声称它的建造工程已经花了几百年的时间，也许你可以彻底摧毁它，将它从世界记录上抹除。不过要小心，我感觉到这些墙壁后面还散发着邪恶的气息。"
+msgid ""
+"Prepare yourself, warrior of the shadow, then strike right into the heart of "
+"evil. In this case, it is enemy shogun which rules over this village. His "
+"death will bring us closer to our ultimate goal, which is killing Emperor of "
+"Japan."
+msgstr "做好准备，幻影之勇者，一举摧毁邪恶势力的心脏吧。现在，"
+"敌方的将军霸占了这个村庄。杀死他，我们就离我们的终极任务——杀死日本天皇，更近了一步。"
 
 #: guitext:8
 msgctxt "In-game message"
-msgid "The Wizards of this realm have robbed you of your spells. They haven't obvious ever heard of the saying ''What goes around comes around''! Expect some reprisals for doing that though."
-msgstr "这个王国的巫师们偷走了你的魔法书。他们显然还不明白“出来混，迟早是要还的”道理！当然，他们肯定不会乖乖就范的。"
+msgid "You made it! Now we can work on a plan to reach the emperor's palace!"
+msgstr "你做到了！现在我们可以计划潜入皇宫了！"
 
 #: guitext:9
 msgctxt "In-game message"
-msgid "The Avatar is present aswel! May I suggest we capture, torture him and listen to the wonderful sound of bones being shattered?"
-msgstr "圣者出现了！我建议你把他抓起来拷打，然后聆听他的骨头被打断的美妙声音，怎么样？"
+msgid ""
+"To succeed with this mission, you must be careful and mind your every move. "
+"If the enemies notice anyone, their army will come to crush you. It is vital "
+"that you reach their heart without causing alarm. Use your spells sensibly, "
+"because your gold reserves are limited."
+msgstr "要完成这个任务，你的每一步行动都必须小心谨慎。如果被敌人发现了，"
+"他们就会派出大军来消灭你。取胜的关键是在不触发警报的情况下到达敌人的心脏处。"
+"明智地使用你的魔法，因为你手头的黄金有限。"
 
 #: guitext:10
 msgctxt "In-game message"
-msgid "Ahh, now this is what I like to call absolute CARNAGE! Can we move on, please? This place has gone too corpsy to my liking."
-msgstr "啊，这才是我所谓的真正的大屠杀！请问，我们能进入下一个王国了吗？这里的尸气已经让我有点难以忍受了。"
+msgid ""
+"Congratulations, I did not expected you to deal with this so flawlessly!"
+msgstr "恭喜你，我没想到你能如此天衣无缝地完成这次行动！"
 
 #: guitext:11
 msgctxt "In-game message"
-msgid "You are outnumbered here, so use the land itself to your advantage. Speaking of that; this ancient realm is full of riches, all for you for the taking. Also, your library has been captured by some vile rogue warlocks in the east, make them regret it with their lifes."
-msgstr "这个王国中，敌人的力量远超于你，所以你必须充分利用这片土地的资源来取得优势。说起这一点，这个远古王国充满各种财富，任由你来掠夺。另外，你的图书馆被东边的一群卑鄙的邪恶魔术师占领了，让他们交出性命来作为代价吧。"
+msgid ""
+"Ninja, another enemy Shogun is here. He is wicked and dishonorable, so we "
+"shall flush his kind from the surface of the the earth!"
+msgstr "忍者大人，另一名敌方将军就在这里。他是个邪恶与不忠的家伙，"
+"我们必须把他和他的同党从这里彻底铲除掉！"
 
 #: guitext:12
 msgctxt "In-game message"
-msgid "Excellent, now we can research spells and rooms!"
-msgstr "棒极了，现在我们可以开始研究房间和魔法了！"
+msgid ""
+"Excellent, Ninja! You were quicker than the blade of fate. I did not expect "
+"this of you."
+msgstr "棒极了，忍者大人！你的速度比命运的刀刃划过的速度更加迅捷。"
+"我真是感到难以置信。"
 
 #: guitext:13
 msgctxt "In-game message"
-msgid "Another one bites the dust. Let us not waste too much time on these rookies, there are more challenges on the horizon."
-msgstr "你又一次把敌人打得一败涂地了。我们没必要在这些菜鸟身上浪费时间了，这里还有更多的挑战等待着你。"
+msgid ""
+"Seek, Ninja, our enemy in these hardly accessible rocky regions. Surely "
+"somewhere here he hides."
+msgstr "看，忍者大人，我们的敌人就在这片难以进入的岩石区域之中。"
+"他肯定就藏在某个地方。"
 
 #: guitext:14
 msgctxt "In-game message"
-msgid "A vast legion is hosted in this realm, however with it's commanders at odds this make the fight quite more diverse. Quickly, gather your forces and attack while there is still a state of confusion!"
-msgstr "这个王国有一支人数众多的军团，不过，由于指挥官之间产生了分歧，使得战况可能会有所改变。快一点，集结你的部队，趁着敌军混乱之时发起进攻！"
+msgid ""
+"Perfect, you are a courageous warrior of the shadow. Even in this region you "
+"were able to find and eliminate the enemy!"
+msgstr "干得好，你真是一名勇敢的幻影之勇者。即使身处这种地方，"
+"你也能找到并杀死你的敌人！"
 
 #: guitext:15
 msgctxt "In-game message"
-msgid "You cannot hope for victory without a portal to attract creatures. Go out and seek one."
-msgstr "如果你没有入口吸引怪物加入的话，你根本不可能取得胜利。先去寻找一个入口吧。"
+msgid ""
+"Ruthless Shogun sulks in these dungeons. You must seek him out and destroy, "
+"that is the task from your master."
+msgstr "这座地下城中的残忍无情的敌方将军感到十分生气。你必须找到他并杀死他，"
+"这就是你这次的任务，主人。"
 
 #: guitext:16
 msgctxt "In-game message"
-msgid "A truly devastating victory. You've just routed and destroyed the last barrier between Keeper Bane and you, now... let's kill that dirtbag."
-msgstr "一次真正可怕的胜利。你已经清除了你和守护者贝恩之间的最后一道障碍，现在…是时候杀掉这个混蛋了。"
+msgid ""
+"Excellent work, man of the shadow! You've crushed the enemy with great skill "
+"and conviction."
+msgstr "出色的表现，幻影之勇者！你凭借过人的技巧与意志消灭了敌人。"
 
 #: guitext:17
 msgctxt "In-game message"
-msgid "Keeper Bane has barricaded himself in, the pathetic wretch. But the more suprising news is that most of the Elite Heroes along with their leader, the Avatar, have survived and are preparing to attack you!"
-msgstr "守护者贝恩已经把自己封在了城墙里，真是个可悲的蠢货。不过更令人震惊的消息是，绝大部分英雄精锐部队和他们的首领，圣者，居然都还活着，并且他们正准备向你发起进攻！"
+msgid ""
+"Your progress has finally led us to the emperor. He hides behind the walls "
+"of his castle. We must find and kill him, so that Japan can again bloom with "
+"flowers of cherry tree."
+msgstr "你终于一步步来到了天皇面前。他躲在了城堡后方的城墙里。"
+"我们必须找到他并杀死他，让日本的樱花再次绽放。"
 
 #: guitext:18
 msgctxt "In-game message"
-msgid "Keeper Bane is very powerful because all creatures in this realm are supporting him. The Dark Gods, however, are willing to help you, but they demand a tribute in the form of 100 Souls, preferably dead, of course!"
-msgstr "守护者贝恩非常强大，因为这个王国中的所有怪物都听命于他。不过，黑暗之神将会帮助你，只要你能献祭给他100个怪物的灵魂，当然了，最好是亡灵生物！"
+msgid ""
+"Success is ours! You are truly swift and clever warrior. Congratulations on "
+"the completion of The Destiny of Ninja campaign!"
+msgstr "胜利属于我们！你是一名真正迅捷而聪明的战士。恭喜你完成了忍者的命运战役！"
 
-#: guitext:19
-msgctxt "In-game message"
-msgid "The Dark Gods are pleased with your sacrifice!"
-msgstr "黑暗之神对你的祭祀感到满意！"
-
-#: guitext:20
-msgctxt "In-game message"
-msgid "Beware, the Avatar has returned and he's stronger than ever. Make this lunatic see the error of his ways because he just won't give up!"
-msgstr "注意，圣者又一次回来了，而且他变得比从前更加强大了。让这个疯子认识到他的一切所作所为都是错误的吧，因为他不撞南墙是不会回头的！"
-
-#: guitext:21
-msgctxt "In-game message"
-msgid "The Avatar is badly wounded, finish him off now so we can turn to the real prize of this realm, Bane."
-msgstr "圣者已经身负重伤，现在是时候解决掉他了。这样我们就能得到这个王国最终的奖赏了：守护者贝恩。"
-
-#: guitext:22
-msgctxt "In-game message"
-msgid "Finally, Keeper Bane is destroyed, all his minions dead, and so are the Heroes. There are no more living creatures on this continent, and there is nothing left to conquer; you have won."
-msgstr "终于，守护者贝恩被击败了，他的所有爪牙都死了，所有的英雄也都被杀光了。在这片大陆中已经见不到任何存活的生灵了，也已经没有其他王国可以征服了。你取得了最终的胜利。"
-
-#: guitext:23
-msgctxt "In-game message"
-msgid "An evil Keeper by the name of Dracovich has his designs for this realm. Let him know how you feel about those plans... in the appriopiate way of course."
-msgstr "一个名为德拉克维奇的邪恶守护者计划要征服这个王国。告诉他，你对他的这一计划有些看法……当然了，要以一种恰当的方式。"
-
-#: guitext:24
-msgctxt "In-game message"
-msgid "That is one less, well done."
-msgstr "又解决了一个，干的漂亮。"
-
-#: guitext:25
-msgctxt "In-game message"
-msgid "The Heroes are getting somewhat nervous and have send an army to attack you. Use the resources you have available to build an even bigger force and crush that so-called army."
-msgstr "英雄们有些紧张了，他们已经开始派出军队来进攻你。利用你能获得的一切资源来建立一股更强大的力量，并碾碎这支所谓的“军队”。"
-
-#: guitext:26
-msgctxt "In-game message"
-msgid "You have slaughtered the vast majority of the Heroes, now prepare yourself for their elite warriors. Maybe they can provide some some actual fight."
-msgstr "你已经屠杀了绝大部分的英雄，现在准备面对他们的精锐战士吧。也许对这些家伙才能勉强体验一下像模像样的战斗。"
-
-#: guitext:27
-msgctxt "In-game message"
-msgid "Here they come again."
-msgstr "看，他们又来了。"
-
-#: guitext:28
-msgctxt "In-game message"
-msgid "With so many deaths here on the field, I have good reason to believe this place will forever be haunted with wailing, vengeful revenants until the end of time. Outstanding!"
-msgstr "这里已经尸横遍野，因此我非常确信这片土地会经常有哭嚎的、怨恨的亡魂出没，直到永远。太棒了！"
-
-#: guitext:29
-msgctxt "In-game message"
-msgid "A pathetic duo known as Umbra and Abominor pride themselves being an unbeatable team, claiming that even Gods cower in their presence. Show them the error of their ways once seperated, the hard way."
-msgstr "安布拉和阿勃米诺，一对可悲的守护者，自以为是地组成了黄金搭档，甚至扬言连神都会畏惧他们的存在。用一种残酷的方法，让他们认识到他们所作所为的错误吧。"
-
-#: guitext:30
-msgctxt "In-game message"
-msgid "Together they stand, together they fall!"
-msgstr "他们选择站在一起，也必将死在一起！"
-
-#: guitext:31
-msgctxt "In-game message"
-msgid "The Heroes have restored a fortress here that belonged to some legendary Samurai warrior. Alas, he was slain along with his men and his castle fell into ruin. I must say this was not a smart move on the Heroes' part because the piles of corpses will provide you with a steady amount of warriors. However, you are not the only one with the ability of necromancy, Nex seeks to make this realm a paradise of darkness. Destroy her, and raze this fortress to the ground. It seems like deja vu all over again!"
-msgstr "英雄们已经修复了这座曾经属于一位传奇武士的城堡。唉，当年他被他的同党杀害了，他的城堡也变成了一片废墟。不过，我不得不说这对英雄们而言并不是明智之举，因为这里成堆的尸体可以为你提供稳定的兵力来源。但是，你并不是唯一会使用死灵巫术的人，尼克丝也在计划着把这个王国变成黑暗势力的天堂。消灭她，并把这座城堡夷为平地。这一切场景好像都似曾相识！"
-
-#: guitext:32
-msgctxt "In-game message"
-msgid "Nex wanted to make this realm a paradise of darkness. It will be one but, rightfully, under your banner!"
-msgstr "尼克丝想要把这个王国变成黑暗势力的天堂。这倒是没错，不过，还应该在你的统治下才对！"
-
-#: guitext:33
-msgctxt "In-game message"
-msgid "The Heroes are preparing for their last stand, which is, naturally, only delaying the inevitable. The Wizard Lucian himself will be present, so prepare for a long and tough fight. They are coming!"
-msgstr "英雄们正准备背水一战，其实自然只是在做失败之前无谓的挣扎。巫师卢锡安亲自上阵了，所以准备好一场艰苦的持久战吧。他们就要来了！"
-
-#: guitext:34
-msgctxt "In-game message"
-msgid "Lucian has spoken out a spell that disables your Creatures from gaining experience from fighting. The essence of this magic is bound by 5 Generals that lead the armies against you. Find them and kill them before you are overrun."
-msgstr "卢锡安念出了一句咒语，使你的怪物无法在战斗中获得经验了。这个魔法由5名将领所看守，他们将带领各自的军队来进攻你。在你的领土被他们践踏之前，找到他们并杀死他们。"
-
-#: guitext:35
-msgctxt "In-game message"
-msgid "That is one less, well done. Be warned, I can sense something powerful stir up the Heroes in the west..."
-msgstr "又解决了一个，干得不错。不过注意了，我感觉到有一股强大的力量正在搅动着西边的英雄……"
-
-#: guitext:36
-msgctxt "In-game message"
-msgid "I have discovered that an all-powerful Keeper by the name of Leto is present in this realm. I thought he was only a legend; the reputation of his ruthlessness, malice and cruelity alone is staggering. But it's his passion for warfare that makes him one of the most feared opponents you will ever find. Deliberate and cunning, he will use every dirty trick and dishonest tactic at his disposal to win the day."
-msgstr "这个王国中有一位名叫莱托的强大守护者。我觉得他应该是一位传奇人物；仅仅是他的冷酷、恶毒和残酷的名声就能令人闻风丧胆。而他对战争的热爱也使他将成为你遇到的最可怕的对手之一。他思维缜密而且阴险狡诈，会利用一切肮脏的伎俩和欺骗的手段来赢得胜利。"
-
-#: guitext:37
-msgctxt "In-game message"
-msgid "You have slain the 4th General and cut off their attack routes in the process, but the last and greatest of the Generals has been captured alive by Leto. You have to retrieve him somehow of Leto's clutches... Noone said this would be easy, wouldn't it?"
-msgstr "你已经杀死了第4名将领并且切断了他们的进攻路线，但是最后一名，也是最强大的一名将领已经被莱托活捉了。你得想办法把他从莱托的魔爪中解救出来……当然了，这肯定不是件容易事，不是吗？"
-
-#: guitext:38
-msgctxt "In-game message"
-msgid "With the death of all the Generals, I can already smell the fear from Lucian across the realm. Put his head on a spike when you are ready for it."
-msgstr "随着5名将领的死亡，我已经感受到了巫师卢锡安的恐惧。当你准备好了，就用尖刺刺穿他的头颅吧。"
-
-#: guitext:39
-msgctxt "In-game message"
-msgid "I had never dreamed you were this powerful, master. You have won, there is nothing left to conquer... for the moment... for I have this feeling we have not seen the last of either Leto and the Heroes...."
-msgstr "我做梦也没想到你居然如此的强大，主人。你已经胜利了，至少暂时…已经没有什么需要征服的了…不过，我也预感到了，这还不是你将遇到的最后一名守护者和最后一群英雄……"
-
-#: guitext:40
-msgctxt "In-game message"
-msgid "The Ancient Spirits of Intregity, Valor and Justice keep this realm protected with their ancient magic. They just missed one tiny detail, the elderly Vampire Lord Jedidiah was burried here long ago by those same spirits and is in slumber, awake him! For that, you will need some power structures with the Heroes protecting them, find and secure them. The Heroes will not hesitate to destroy them if nessesary so keep your eyes on the rascals."
-msgstr "远古英雄的无畏、勇敢与正义的英灵用古老的魔法保护着这个王国。不过他们忽略了一件事情，年迈的吸血鬼领主辛迪加的灵魂很久以前同样被埋在这里，现在正在沉睡中，是时候唤醒他了！为此，你首先需要准备几个能量体，它们正被英雄看守着，找到并保护它们。不过，如果必要的话，英雄们也会毫不犹豫地摧毁它们，所以你一定要盯紧这些无赖。"
-
-#: guitext:41
-msgctxt "In-game message"
-msgid "You have reached and secured one of the power structures. Remember, the goal is to secure them, NOT destroy them!"
-msgstr "你已经发现了一个能量体。记住，我们的目标是保护它们，而不是摧毁它们！"
-
-#: guitext:42
-msgctxt "In-game message"
-msgid "Jeddiah has awakened and is very eager on vengeance on those had imprisoned him, lead on. Your forces will gradually appear as the battle progresses... as do some special allies..."
-msgstr "辛迪加已经苏醒了，他非常渴望向囚禁他的人复仇，为他带路吧。随着战斗的进行，你的力量会逐渐强大…此外，还有一些特殊的盟友会加入…"
-
-#: guitext:43
-msgctxt "In-game message"
-msgid "More reinforcements are on the way to assist you."
-msgstr "更多的援军正在前往支援你。"
-
-#: guitext:44
-msgctxt "In-game message"
-msgid "Use this spell to break down the walls and destroy the remaining opposition!"
-msgstr "使用这个魔法来破坏墙壁，并消灭剩余的敌军！"
-
-#: guitext:45
-msgctxt "In-game message"
-msgid "The enemies of darkness and death have been shown no mercy... as it should be.... well done..."
-msgstr "与黑暗和死亡作对的人没有得到任何怜悯…本该如此……做得好…"
-
-#: guitext:46
-#: guitext:47 guitext:48 guitext:49 guitext:50 guitext:51 guitext:52
-#: guitext:53 guitext:54 guitext:55 guitext:56 guitext:57 guitext:58
-#: guitext:59 guitext:60 guitext:61 guitext:62 guitext:63 guitext:64
-#: guitext:65 guitext:66 guitext:67 guitext:68 guitext:69 guitext:70
-#: guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76
-#: guitext:77 guitext:78 guitext:79 guitext:80 guitext:81 guitext:82
-#: guitext:83 guitext:84 guitext:85 guitext:86 guitext:87 guitext:88
-#: guitext:89 guitext:90 guitext:91 guitext:92 guitext:93 guitext:94
-#: guitext:95 guitext:96 guitext:97 guitext:98 guitext:99 guitext:100
-#: guitext:101 guitext:102 guitext:103 guitext:104 guitext:105 guitext:106
-#: guitext:107 guitext:108 guitext:109 guitext:110 guitext:111 guitext:112
-#: guitext:113 guitext:114 guitext:115 guitext:116 guitext:117 guitext:118
-#: guitext:119 guitext:120 guitext:121 guitext:122 guitext:123 guitext:124
-#: guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130
-#: guitext:131 guitext:132 guitext:133 guitext:134 guitext:135 guitext:136
-#: guitext:137 guitext:138 guitext:139 guitext:140 guitext:141 guitext:142
-#: guitext:143 guitext:144 guitext:145 guitext:146 guitext:147 guitext:148
-#: guitext:149 guitext:150 guitext:151 guitext:152 guitext:153 guitext:154
-#: guitext:155 guitext:156 guitext:157 guitext:158 guitext:159 guitext:160
-#: guitext:161 guitext:162 guitext:163 guitext:164 guitext:165 guitext:166
-#: guitext:167 guitext:168 guitext:169 guitext:170 guitext:171 guitext:172
-#: guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178
-#: guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184
-#: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
-#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
-#: guitext:197 guitext:198 guitext:199 guitext:200
+#: guitext:19 guitext:20 guitext:21 guitext:22 guitext:23 guitext:24
+#: guitext:25 guitext:26 guitext:27 guitext:28 guitext:29 guitext:30
+#: guitext:31 guitext:32 guitext:33 guitext:34 guitext:35 guitext:36
+#: guitext:37 guitext:38 guitext:39 guitext:40 guitext:41 guitext:42
+#: guitext:43 guitext:44 guitext:45 guitext:46 guitext:47 guitext:48
+#: guitext:49 guitext:50 guitext:51 guitext:52 guitext:53 guitext:54
+#: guitext:55 guitext:56 guitext:57 guitext:58 guitext:59 guitext:60
+#: guitext:61 guitext:62 guitext:63 guitext:64 guitext:65 guitext:66
+#: guitext:67 guitext:68 guitext:69 guitext:70 guitext:71 guitext:72
+#: guitext:73 guitext:74 guitext:75 guitext:76 guitext:77 guitext:78
+#: guitext:79 guitext:80 guitext:81 guitext:82 guitext:83 guitext:84
+#: guitext:85 guitext:86 guitext:87 guitext:88 guitext:89 guitext:90
+#: guitext:91 guitext:92 guitext:93 guitext:94 guitext:95 guitext:96
+#: guitext:97 guitext:98 guitext:99 guitext:100 guitext:101 guitext:102
+#: guitext:103 guitext:104 guitext:105 guitext:106 guitext:107 guitext:108
+#: guitext:109 guitext:110 guitext:111 guitext:112 guitext:113 guitext:114
+#: guitext:115 guitext:116 guitext:117 guitext:118 guitext:119 guitext:120
+#: guitext:121 guitext:122 guitext:123 guitext:124 guitext:125 guitext:126
+#: guitext:127 guitext:128 guitext:129 guitext:130 guitext:131 guitext:132
+#: guitext:133 guitext:134 guitext:135 guitext:136 guitext:137 guitext:138
+#: guitext:139 guitext:140 guitext:141 guitext:142 guitext:143 guitext:144
+#: guitext:145 guitext:146 guitext:147 guitext:148 guitext:149 guitext:150
+#: guitext:151 guitext:152 guitext:153 guitext:154 guitext:155 guitext:156
+#: guitext:157 guitext:158 guitext:159 guitext:160 guitext:161 guitext:162
+#: guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168
+#: guitext:169 guitext:170 guitext:171 guitext:172 guitext:173 guitext:174
+#: guitext:175 guitext:176 guitext:177 guitext:178 guitext:179 guitext:180
+#: guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186
+#: guitext:187 guitext:188 guitext:189 guitext:190 guitext:191 guitext:192
+#: guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198
+#: guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Moo"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
-msgid "Winterrage"
-msgstr "凛冬之怒"
+msgid "Shadow Ninja"
+msgstr "幻影忍者"
 
 #: guitext:203
 msgctxt "Level name"
-msgid "Rosefield Cathedral"
-msgstr "罗斯菲尔德大教堂"
+msgid "Extreme Ninja"
+msgstr "极致忍者"
 
 #: guitext:204
 msgctxt "Level name"
-msgid "Arbor Heights"
-msgstr "阿勃海茨"
+msgid "Escape"
+msgstr "逃亡行动"
 
 #: guitext:205
 msgctxt "Level name"
-msgid "Drachenfeld"
-msgstr "德拉奇菲尔德"
+msgid "Dungeon Ninja"
+msgstr "地城忍者"
 
 #: guitext:206
 msgctxt "Level name"
-msgid "Ashspire"
-msgstr "灰烬尖塔"
+msgid "Spectre"
+msgstr "幽灵行动"
 
 #: guitext:207
 msgctxt "Level name"
-msgid "Dawnterror"
-msgstr "黎明恐惧"
+msgid "Speed Ninja"
+msgstr "迅捷忍者"
 
 #: guitext:208
 msgctxt "Level name"
-msgid "Ludim"
-msgstr "卢迪姆"
+msgid "Secret Ninja"
+msgstr "神秘忍者"
 
 #: guitext:209
 msgctxt "Level name"
-msgid "Havoth Dir"
-msgstr "哈沃斯迪尔"
+msgid "Kill shogun"
+msgstr "刺杀将军"
 
 #: guitext:210
 msgctxt "Level name"
-msgid "Ebenazer"
-msgstr "埃比尼泽"
+msgid "Kill emperor"
+msgstr "刺杀天皇"
 
-#: guitext:211
-msgctxt "Level name"
-msgid "Chaerith"
-msgstr "奇尔瑞斯"
-
-#: guitext:212
-msgctxt "Level name"
-msgid "Nazirite"
-msgstr "拿撒勒"
-
-#: guitext:213
-msgctxt "Level name"
-msgid "Elysium"
-msgstr "极乐世界"
-
-#: guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219
-#: guitext:220 guitext:221 guitext:222 guitext:223 guitext:224 guitext:225
+#: guitext:211 guitext:212 guitext:213 guitext:214 guitext:215 guitext:216
+#: guitext:217 guitext:218 guitext:219 guitext:220 guitext:221 guitext:222
+#: guitext:223 guitext:224 guitext:225
 msgctxt "Level name"
 msgid "Unused"
-msgstr "未使用"
+msgstr ""
 
 #: guitext:226
 msgctxt "Creature spell"
@@ -386,12 +285,12 @@ msgstr "反弹术: 将向你发射的所有投射物反弹给攻击者。"
 
 #: guitext:231
 msgctxt "Creature spell"
-msgid "Fear: Causes the opponent to be terrified and wanting to skip engaging into combat."
+msgid "Fear: Causes the opponent to be terrified and wanting to skip engageing into combat."
 msgstr "恐惧术: 使敌人感到害怕并试图放弃参与战斗。"
 
 #: guitext:232
 msgctxt "Creature spell"
-msgid "Sight: Allows the creature to temporarily increase its awareness and notice the invisible."
+msgid "Sight: Allows the creature to temporarely increase its awareness and notice the invisible."
 msgstr "邪眼术: 使怪物暂时集中精力，可以看破隐身的怪物。"
 
 #: guitext:233
@@ -406,7 +305,7 @@ msgstr "手榴弹: 向靠近的敌人投掷一枚强力的爆弹。它可以通�
 
 #: guitext:235
 msgctxt "Creature spell"
-msgid "Navigating Missile: A spell that sends a screaming magic reptile homing in on the nearest hero or enemy creature for double damage. Nice."
+msgid "Navigating Missile: This homes in on the nearest hero or enemy creature and explodes with devastating force."
 msgstr "巡航导弹: 这枚导弹会自动追踪最近的英雄或敌方怪物，并且以破坏性的力量爆炸。"
 
 #: guitext:236
@@ -436,7 +335,7 @@ msgstr "传送术: 一个拥有这项技能的怪物可以传送到地图的任�
 
 #: guitext:241
 msgctxt "Creature spell"
-msgid "Flame Breath: The devastating constant stream of searing fire."
+msgid "Flame Breath: The devasting constant stream of searing fire."
 msgstr "火焰术: 持续喷射具有毁灭性威力的灼热火焰。"
 
 #: guitext:242
@@ -446,12 +345,12 @@ msgstr "照明术: 为黑暗带来光明，使怪物能看清别人，但同时�
 
 #: guitext:243
 msgctxt "Creature spell"
-msgid "Flight: Causes the creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgid "Flight: Causes the creature to take off from the ground and attack creatures from the air."
 msgstr "飞行术:使怪物可以离开地面，从而在空中向其他怪物发起攻击。"
 
 #: guitext:244
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a fury of hailstones."
+msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
 msgstr "冰雹术: 向施法的区域大面积发射密集的冰雹块。"
 
 #: guitext:245
@@ -461,7 +360,7 @@ msgstr "缓慢术:降低目标怪物的速度，使它的行动和攻击变得�
 
 #: guitext:246
 msgctxt "Creature spell"
-msgid "Drain: This spell drains the target creature a part of its health and gives it to the caster."
+msgid "Drain: This spell drains the target creature a fair part of its health and magical abilities."
 msgstr "吸精术: 这项魔法可以吸取目标的一部分生命值和魔法能力。"
 
 #: guitext:247
@@ -471,17 +370,17 @@ msgstr "强力咒语: 从怪物的身体中释放出恶魔般的能量，并对�
 
 #: guitext:248
 msgctxt "Creature spell"
-msgid "Heal: When this is cast, the creature is massively healed."
+msgid "Heal: When this is cast, the creature is massively healed. Also, any nearby creatures are healed by a quarter."
 msgstr "治疗术: 施放时，使目标怪物回复大量生命值。周围的怪物也会获得四分之一的治疗量。"
 
 #: guitext:249
 msgctxt "Creature spell"
-msgid "Wind: Creates a force twelve gale in your dungeon blowing every creature away from you. And nasty smells of course."
+msgid "Wind: Creates a force twelve gale in your Dungeon blowing every creature away from you."
 msgstr "风暴术: 在地下城中制造12股风暴力量，把所有怪物都向外吹走。"
 
 #: guitext:250
 msgctxt "Creature spell"
-msgid "Meteor: More powerful than the fireball, this spell throws out a solid ball of fire which does a lot of damage to an enemy."
+msgid "Meteor: More powerful that the fireball, this spell throws out a solid ball of fire which does a lot of damage to an enemy."
 msgstr "流星术: 比火球术更强大，这个魔法能发射一颗固体的火球，并对敌人造成大量伤害。"
 
 #: guitext:251
@@ -673,53 +572,35 @@ msgstr ""
 #: guitext:319
 msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
-msgstr "空巢穴: 将满足投奔的怪物。"
+msgstr ""
 
 #: guitext:324
 msgctxt "Slab description"
-msgid ""
-"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
-"to go round. It is visible even if far from your territory."
+msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
 msgstr ""
-"无法挖掘的岩石: 你的小鬼无法挖穿这样的岩石，唯一的办法就是绕过它。这类岩石永"
-"远可见。"
-
 #: guitext:325
 msgctxt "Slab description"
-msgid ""
-"Earth: You can excavate this. To dig out some new caverns, choose a location "
-"and tag for digging with LMB. Press LMB again to untag."
-msgstr ""
-"土块: 你可以将其凿开。想要挖开一些洞穴，用鼠标左键标记一个区域。再次按下鼠标"
-"左键可解除标记。"
+msgid "Earth: You can excavate this. To dig out some new caverns, choose a location and tag for digging with LMB. Press LMB again to untag."
+msgstr "土块: 你可以将其凿开。想要挖开一些洞穴，用鼠标左键标记一个区域。再次按下鼠标左键可解除标记。"
 
 #: guitext:326
 msgctxt "Slab description"
-msgid ""
-"Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
-"your Treasure Room. You can also pick up the lumps of treasure left on the "
-"ground."
-msgstr ""
-"金矿: 你的财富的源泉。挖掘它，你的小鬼将把它带入你的储金室。"
-"你也可以拿起留在地上的金子。"
+msgid "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to your Treasure Room. You can also pick up the lumps of treasure left on the ground."
+msgstr "金矿: 你的财富的源泉。挖掘它，你的小鬼将把它带入你的储金室。你也可以拿起留在地上的金子。"
 
 #: guitext:327
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
+msgid "Lava: Burns any creature that step on it. Get over lava by casting Cave-In or building a Bridge."
 msgstr "岩浆: 灼烧任何触碰到它的生物。施放一个塌方术或者建造一座桥来越过它。"
 
 #: guitext:328
 msgctxt "Slab description"
-msgid ""
-"Water: Creatures move more slowly through water. Build the Bridge to make "
-"new land on the water."
+msgid "Water: Creatures move more slowly through water. Build the Bridge to make new land on the water."
 msgstr "水: 怪物在水中移动得很慢。在水上造桥可以创造出水上的平地。"
 
 #: guitext:329
 msgctxt "Slab description"
-msgid ""
-"Wall: A reinforced stone wall that enemies cannot break through. At least "
-"without the Destroy Walls spell."
+msgid "Wall: A reinforced stone wall that enemies cannot break through. At least without the Destroy Walls spell."
 msgstr "墙: 敌人无法穿越加固过的墙。至少在他们还没有破坏墙壁魔法的时候。"
 
 #: guitext:330
@@ -729,16 +610,12 @@ msgstr "被损坏的墙: 除非进行修复，否则将最终倒塌。"
 
 #: guitext:331
 msgctxt "Slab description"
-msgid ""
-"Path: Unclaimed earth floor. You can claim it if it is connected to already "
-"claimed territory."
+msgid "Path: Unclaimed earth floor. You can claim it if it is connected to already claimed territory."
 msgstr "泥地: 未占领的地面。如果这里与你的领地相邻，你就可以占有此地。"
 
 #: guitext:332
 msgctxt "Slab description"
-msgid ""
-"Claimed area: Your dungeon territory. You can build rooms and drop your "
-"creatures on it."
+msgid "Claimed area: Your dungeon territory. You can build rooms and drop your creatures on it."
 msgstr "已占领的地面:你的地下城领地。你可以在此建造房间或是放置你的怪物。"
 
 #: guitext:334
@@ -750,7 +627,6 @@ msgstr "任务完成 - 按ESCAPE键继续"
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
 msgstr "任务失败 - 按ESCAPE键重新开始"
-
 #: guitext:336 guitext:337 guitext:338 guitext:339 guitext:340 guitext:341
 #: guitext:342 guitext:344 guitext:345 guitext:346 guitext:347 guitext:348
 #: guitext:349 guitext:350 guitext:351 guitext:352 guitext:353 guitext:354
@@ -806,7 +682,7 @@ msgstr "安全: 强化你的整个地下城。"
 
 #: guitext:427
 msgctxt "Dungeon special decription"
-msgid "Locate Hidden World: You will get access to a secret realm after you have conquered this one."
+msgid "Locate Hidden World: You will be transported to a secret realm after you have conquered this one."
 msgstr "找出了隐藏的世界: 在你征服这里后将被传送到秘密王国。"
 
 #: guitext:428
@@ -845,8 +721,7 @@ msgstr "奖金"
 #: guitext:539 guitext:540 guitext:541 guitext:542 guitext:543
 msgctxt "Unused"
 msgid "Moo6"
-msgstr ""
-
+msgstr ""                                                                          
 #: guitext:544
 msgctxt "Slab description"
 msgid "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but takes longer to mine than Gold."
@@ -868,8 +743,10 @@ msgid "Avatar"
 msgstr "圣者"
 
 #: guitext:548 guitext:549 guitext:550 guitext:551
+       
 msgctxt "Unused"
 msgid "Moo7"
+                                                                  
 msgstr ""
 
 #: guitext:552
@@ -985,19 +862,12 @@ msgstr "岩浆陷井"
 
 #: guitext:584
 msgctxt "Trap description"
-msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
-"when enemy creature is close and within line of sight, or when slapped by a "
-"Keeper. LMB select. RMB zoom."
-msgstr ""
-"圆石陷井: 一个滚动的巨石将碾碎一切阻挡它的东西。当敌方怪物进入它的视野时，"
-"或被守护者打耳光时，圆石陷井将会被触发。左键选择。右键缩放。"
+msgid "Boulder Trap: A rolling rock that crushes everything in its path. Triggered when enemy creature is close and within line of sight, or when slapped by a Keeper. LMB select. RMB zoom."
+msgstr "圆石陷井: 一个滚动的巨石将碾碎一切阻挡它的东西。当敌方怪物进入它的视野时，或被守护者打耳光时，圆石陷井将会被触发。左键选择。右键缩放。"
 
 #: guitext:585
 msgctxt "Trap description"
-msgid ""
-"Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
-"summoned to it. LMB select. RMB zoom."
+msgid "Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are summoned to it. LMB select. RMB zoom."
 msgstr "警戒陷井: 被触发后施展召唤军队魔法，召唤附近的怪物集合。左键选择。右键缩放。"
 
 #: guitext:586
@@ -1052,19 +922,13 @@ msgstr "铁皮门: 包有铁皮的木门，使其耐久更高。左键选择。�
 
 #: guitext:596
 msgctxt "Door description"
-msgid ""
-"Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
-"select. RMB zoom."
+msgid "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB select. RMB zoom."
 msgstr "铁门: 重而坚固的门，可以承受巨大的攻击。左键选择。右键缩放。"
 
 #: guitext:597
 msgctxt "Door description"
-msgid ""
-"Magic Door: A special door, highly resistant to physical damage but "
-"susceptible to magical damage. LMB select. RMB zoom."
-msgstr ""
-"魔法门: 一种特殊的门，可以极大地抵抗物理攻击，但易受魔法攻击。左键选择。右键"
-"缩放。 "
+msgid "Magic Door: A special door, highly resistant to physical damage but susceptible to magical damage. LMB select. RMB zoom."
+msgstr "魔法门: 一种特殊的门，可以极大地抵抗物理攻击，但易受魔法攻击。左键选择。右键缩放。"
 
 #: guitext:598
 msgctxt "Room name"
@@ -1203,8 +1067,8 @@ msgstr "孵化室: 怪物在这里可以吃到可爱而无助的小鸡。左键�
 
 #: guitext:625
 msgctxt "Room description"
-msgid "Lair: Where your creatures sleep and replenish their health. LMB select. RMB zoom. [17.2]"
-msgstr "巢穴: 怪物睡觉和补充体力的地方。左键选择。右键缩放。"
+msgid "Lair: Where your creatures sleep and replenish their energy. LMB select. RMB zoom. [17.2]"
+msgstr "巢穴: 怪物睡觉和补充体力的地方。左键选择。右键缩放。[17.2]"
 
 #: guitext:626
 msgctxt "Room description"
@@ -1218,8 +1082,8 @@ msgstr "警戒哨所: 怪物被放置到上面后会侦察敌人的动向。左�
 
 #: guitext:628
 msgctxt "Room description"
-msgid "Temple: Worshipping the dark gods makes creatures happier. Sacrifice creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
-msgstr "寺庙: 祭祀黑暗之神可以使怪物更快乐。将怪物放到祭坛上作祭品。左键选择。右键缩放。"
+msgid "Temple: Worshipping the dark gods makes creatures happier. Sacrifice creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+msgstr "寺庙: 祭祀黑暗之神可以使怪物更快乐。将怪物放到祭坛上作祭品。左键选择。右键缩放。[17.12]"
 
 #: guitext:629
 msgctxt "Room description"
@@ -1328,8 +1192,8 @@ msgstr "邪恶之眼: 在有限时间内揭示地图上的一个隐藏区域。�
 
 #: guitext:650
 msgctxt "Keeper spell description"
-msgid "Call To Arms: Calls creatures in range to any destination. LMB Select. Cast in range of creatures to gather, cast again for destination. RMB zoom. LMB Cancel. [18.6]"
-msgstr "召唤军队: 召唤在地下城的这个区域的全部怪物。左键选择，再按左键重新选择，第三次按左键取消。右键缩放。"
+msgid "Call To Arms: Calls all your creatures to an area of your dungeon. LMB select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+msgstr "召唤军队: 召唤在地下城的这个区域的全部怪物。左键选择，再按左键重新选择，第三次按左键取消。右键缩放。[18.6]"
 
 #: guitext:651
 msgctxt "Keeper spell description"
@@ -1378,21 +1242,20 @@ msgstr "疾病术: 使一个敌人的怪物染上致命的瘟疫。左键选择�
 
 #: guitext:660
 msgctxt "Keeper spell description"
-msgid "Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
-msgstr "破坏墙壁: 击毁加固过的敌人的墙壁。左键选择。"
+msgid "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+msgstr "破坏墙壁: 击毁加固过的敌人的墙壁。左键选择。[18.16]"
 
 #: guitext:661
 msgctxt "Keeper spell description"
-msgid "Heal: Cast on a creature to improve its health. LMB select. [18.9]"
-msgstr "治疗术: 可以使一个区域内的你的怪物的健康恢复。左键选择。"
+msgid "Heal: Cast on an area of the dungeon to improve the health of your creatures. LMB select. [18.9]"
+msgstr "治疗术: 可以使一个区域内的你的怪物的健康恢复。左键选择。[18.9]"
 
 #: guitext:662
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "定时炸弹：将你的怪物变为一个自杀式爆破者。"
+msgstr "定时炸弹"
 
 #: guitext:663
 msgctxt "Keeper spell description"
 msgid "Armageddon: Transports all the creatures in the land to your Dungeon Heart for a final, decisive battle. LMB select. [18.15]"
 msgstr "末日审判: 将地下所有的怪物传送至地下城的心脏，进行大决战。左键选择。[18.15]"
-

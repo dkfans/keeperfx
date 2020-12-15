@@ -189,10 +189,183 @@ msgid ""
 "nothing left to conquer; you have won."
 msgstr ""
 
-#: guitext:23 guitext:24 guitext:25 guitext:26 guitext:27 guitext:28
-#: guitext:29 guitext:30 guitext:31 guitext:32 guitext:33 guitext:34
-#: guitext:35 guitext:36 guitext:37 guitext:38 guitext:39 guitext:40
-#: guitext:41 guitext:42 guitext:43 guitext:44 guitext:45 guitext:46
+#: guitext:23
+msgctxt "In-game message"
+msgid ""
+"An evil Keeper by the name of Dracovich has his designs for this realm. Let "
+"him know how you feel about those plans... in the appriopiate way of course."
+msgstr ""
+
+#: guitext:24
+msgctxt "In-game message"
+msgid "That is one less, well done."
+msgstr ""
+
+#: guitext:25
+msgctxt "In-game message"
+msgid ""
+"The Heroes are getting somewhat nervous and have sent an army to attack you. "
+"Use the resources you have available to build an even bigger force and crush "
+"that so-called army."
+msgstr ""
+
+#: guitext:26
+msgctxt "In-game message"
+msgid ""
+"You have slaughtered the vast majority of the Heroes, now prepare yourself "
+"for their elite warriors. Maybe they can provide some some actual fight?"
+msgstr ""
+
+#: guitext:27
+msgctxt "In-game message"
+msgid "Here they come again."
+msgstr ""
+
+#: guitext:28
+msgctxt "In-game message"
+msgid ""
+"With so many deaths here on the field, I have good reason to believe this "
+"place will forever be haunted with wailing, vengeful revenants until the end "
+"of time. Outstanding!"
+msgstr ""
+
+#: guitext:29
+msgctxt "In-game message"
+msgid ""
+"A pathetic duo known as Umbra and Abominor pride themselves being an "
+"unbeatable team, claiming that even Gods cower in their presence. Show them "
+"the error of their ways once seperated, the hard way."
+msgstr ""
+
+#: guitext:30
+msgctxt "In-game message"
+msgid "Together they stand, together they fall!"
+msgstr ""
+
+#: guitext:31
+msgctxt "In-game message"
+msgid ""
+"The Heroes have restored a fortress here that belonged to a legendary "
+"Samurai warrior. Alas, he was slain along with his men and his castle fell "
+"into ruin. I must say this was not a smart move on the Heroes' part because "
+"the piles of corpses will provide you with a steady stream of warriors. "
+"However, you are not the only one with the ability of necromancy; Nex seeks "
+"to make this realm a paradise of darkness. Destroy her, and raze this "
+"fortress to the ground. It seems like deja vu all over again!"
+msgstr ""
+
+#: guitext:32
+msgctxt "In-game message"
+msgid ""
+"Nex wanted to make this realm a paradise of darkness. It will be one but, "
+"rightfully, under your banner!"
+msgstr ""
+
+#: guitext:33
+msgctxt "In-game message"
+msgid ""
+"The Heroes are preparing for their last stand, which is, naturally, only "
+"delaying the inevitable. The Wizard Lucian himself will be present, so "
+"prepare for a long and tough fight. They are coming!"
+msgstr ""
+
+#: guitext:34
+msgctxt "In-game message"
+msgid ""
+"Lucian has spoken out a spell that disables your Creatures from gaining "
+"experience from fighting. The essence of this magic is bound by 5 Generals "
+"that lead the armies against you. Find them and kill them before you are "
+"overrun."
+msgstr ""
+
+#: guitext:35
+msgctxt "In-game message"
+msgid ""
+"That is one less, well done. Be warned, I can sense something powerful stirring "
+"up the Heroes in the west..."
+msgstr ""
+
+#: guitext:36
+msgctxt "In-game message"
+msgid ""
+"I have discovered that an all-powerful Keeper by the name of Leto is present "
+"in this realm. I thought he was only a legend; the reputation of his "
+"ruthlessness, malice and cruelty alone is staggering. But it's his passion "
+"for warfare that makes him one of the most feared opponents you will ever "
+"find. Deliberate and cunning, he will use every dirty trick and dishonest "
+"tactic at his disposal to win the day."
+msgstr ""
+
+#: guitext:37
+msgctxt "In-game message"
+msgid ""
+"You have slain the 4th General and cut off their attack routes in the "
+"process, but the last and greatest of the Generals has been captured alive "
+"by Leto. You have to retrieve him from Leto's clutches somehow... No-one said "
+"this would be easy, did they?"
+msgstr ""
+
+#: guitext:38
+msgctxt "In-game message"
+msgid ""
+"With the death of all the Generals, I can already smell the fear from Lucian "
+"across the realm. Put his head on a spike when you are ready for it."
+msgstr ""
+
+#: guitext:39
+msgctxt "In-game message"
+msgid ""
+"I had never dreamed you were this powerful, Master. You have won, there is "
+"nothing left to conquer... for the moment... I have this feeling we have "
+"not seen the last of either Leto or the Heroes...."
+msgstr ""
+
+#: guitext:40
+msgctxt "In-game message"
+msgid ""
+"The Ancient Spirits of Intregity, Valour and Justice keep this realm "
+"protected with their ancient magic. They just missed one tiny detail, the "
+"elderly Vampire Lord Jedidiah was burried here long ago by those same "
+"spirits and is in slumber. Awake him! For that, you will need some power "
+"structures with the Heroes protecting them, find and secure them. The Heroes "
+"will not hesitate to destroy them if nessesary so keep your eyes on the "
+"rascals."
+msgstr ""
+
+#: guitext:41
+msgctxt "In-game message"
+msgid ""
+"You have reached and secured one of the power structures. Remember, the goal "
+"is to secure them, NOT destroy them!"
+msgstr ""
+
+#: guitext:42
+msgctxt "In-game message"
+msgid ""
+"Jeddiah has awakened and is eager on vengeance against those who imprisoned "
+"him. Lead on! Your forces will gradually appear as the battle progresses... "
+"as will some special allies..."
+msgstr ""
+
+#: guitext:43
+msgctxt "In-game message"
+msgid "More reinforcements are on the way to assist you."
+msgstr ""
+
+#: guitext:44
+msgctxt "In-game message"
+msgid ""
+"Use this spell to break down the walls and destroy the remaining opposition!"
+msgstr ""
+
+#: guitext:45
+msgctxt "In-game message"
+msgid ""
+"The enemies of darkness and death have been shown no mercy... as it should "
+"be.... well done..."
+msgstr ""
+
+#: guitext:46
 #: guitext:47 guitext:48 guitext:49 guitext:50 guitext:51 guitext:52
 #: guitext:53 guitext:54 guitext:55 guitext:56 guitext:57 guitext:58
 #: guitext:59 guitext:60 guitext:61 guitext:62 guitext:63 guitext:64
@@ -253,7 +426,36 @@ msgctxt "Level name"
 msgid "Dawnterror"
 msgstr ""
 
-#: guitext:208 guitext:209 guitext:210 guitext:211 guitext:212 guitext:213
+#: guitext:208
+msgctxt "Level name"
+msgid "Ludim"
+msgstr ""
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Havoth Dir"
+msgstr ""
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Ebenazer"
+msgstr ""
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Chaerith"
+msgstr ""
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Nazirite"
+msgstr ""
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Elysium"
+msgstr ""
+
 #: guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219
 #: guitext:220 guitext:221 guitext:222 guitext:223 guitext:224 guitext:225
 msgctxt "Level name"
