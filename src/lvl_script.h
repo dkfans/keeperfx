@@ -136,6 +136,7 @@ enum TbScriptCommands {
     Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 116,
     Cmd_CHANGE_CREATURES_ANNOYANCE        = 117,
     Cmd_COMPUTER_DIG_TO_LOCATION          = 118,
+    Cmd_DELETE_FROM_PARTY                 = 119,
 };
 
 enum ScriptVariables {
