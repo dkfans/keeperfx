@@ -75,7 +75,7 @@ TbBool make_group_member_leader(struct Thing *leadtng);
 TbBool create_party(const char *prtname);
 int get_party_index_of_name(const char *prtname);
 TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown);
-TbBool delete_member_from_party(int party_id, int index);
+TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level);
 long process_obey_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *leadtng);
 /******************************************************************************/

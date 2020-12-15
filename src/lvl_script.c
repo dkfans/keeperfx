@@ -923,19 +923,26 @@ static void delete_from_party_check(const struct ScriptLine *scline)
     int party_id = get_party_index_of_name(scline->tp[0]);
     if (party_id < 0)
     {
-        SCRPTERRLOG("Invalid Party:%s",scline->tp[1]);
+        SCRPTERRLOG("Invalid Party:%s",scline->tp[0]);
         return;
+    }
+    long creature_id = get_rid(creature_desc, scline->tp[1]);
+    if (creature_id == -1)
+    {
+      SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+      return;
     }
     if ((script_current_condition < 0) && (next_command_reusable == 0))
     {
-        delete_member_from_party(party_id, scline->np[1]);
+        delete_member_from_party(party_id, creature_id, scline->np[2]);
     } else
     {
         struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_DELETE_FROM_PARTY;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->party_id = party_id;
-        pr_trig->creatr_id = scline->np[1];
+        pr_trig->creatr_id = creature_id;
+        pr_trig->crtr_level = scline->np[2];
         pr_trig->condit_idx = script_current_condition;
 
         game.script.party_triggers_num++;
@@ -5051,7 +5058,7 @@ static void process_party(struct PartyTrigger* pr_trig)
         add_to_party_process(&context);
         break;
     case TrgF_DELETE_FROM_PARTY:
-        delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id);
+        delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level);
         break;
     case TrgF_CREATE_OBJECT:
         n |= ((pr_trig->crtr_level & 7) << 7);
@@ -5989,7 +5996,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
 const struct CommandDesc command_desc[] = {
   {"CREATE_PARTY",                      "A       ", Cmd_CREATE_PARTY, NULL, NULL},
   {"ADD_TO_PARTY",                      "ACNNAN  ", Cmd_ADD_TO_PARTY, &add_to_party_check, NULL},
-  {"DELETE_FROM_PARTY",                 "AN      ", Cmd_DELETE_FROM_PARTY, &delete_from_party_check, NULL},
+  {"DELETE_FROM_PARTY",                 "ACN     ", Cmd_DELETE_FROM_PARTY, &delete_from_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
   {"ADD_OBJECT_TO_LEVEL",               "AAN     ", Cmd_ADD_OBJECT_TO_LEVEL, NULL, NULL},
