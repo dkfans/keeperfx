@@ -6072,7 +6072,7 @@ const struct CommandDesc command_desc[] = {
 
 const struct CommandDesc dk1_command_desc[] = {
   {"CREATE_PARTY",                 "A       ", Cmd_CREATE_PARTY, NULL, NULL},
-  {"ADD_TO_PARTY",                 "ACNNAN  ", Cmd_ADD_TO_PARTY, NULL, NULL},
+  {"ADD_TO_PARTY",                 "ACNNAN  ", Cmd_ADD_TO_PARTY, &add_to_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",           "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_LEVEL",        "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
   {"IF",                           "PAON    ", Cmd_IF, NULL, NULL},

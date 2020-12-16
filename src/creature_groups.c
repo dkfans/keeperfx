@@ -537,13 +537,13 @@ TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level)
         return false;
     }
     struct Party* party = &game.script.creature_partys[party_id];
-    int new_index = party->members_num;
+
     for (int i = 0; i < party->members_num; i++)
     {
         struct PartyMember* member = &(party->members[i]);
-        if ((member->crtr_kind == crtr_model) && (member->crtr_level == crtr_level))
+        if ((member->crtr_kind == crtr_model) && (member->crtr_level == (crtr_level-1)))
         {
-            memmove(member, member + 1, sizeof(*member) * (party->members_num - new_index - 1));
+            memmove(member, member + 1, sizeof(*member) * (party->members_num - i - 1));
             party->members_num--;
             return true;
         }
