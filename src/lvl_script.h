@@ -197,13 +197,14 @@ enum ScriptVariables {
   SVar_TOTAL_TRAPS_USED                = 58,
   SVar_TOTAL_DOORS_USED                = 59,
   SVar_KEEPERS_DESTROYED               = 60,
-  SVar_CREATURES_SACRIFICED            = 61,
-  SVar_CREATURES_FROM_SACRIFICE        = 62,
+  SVar_CREATURES_SACRIFICED            = 61, // Total
+  SVar_CREATURES_FROM_SACRIFICE        = 62, // Total
   SVar_TIMES_LEVELUP_CREATURE          = 63,
   SVar_TOTAL_SALARY                    = 64,
   SVar_CURRENT_SALARY                  = 65,
   SVar_BOX_ACTIVATED                   = 66,
-  SVar_SACRIFICED                      = 67,
+  SVar_SACRIFICED                      = 67,  // Per model
+  SVar_REWARDED                        = 68,  // Per model
  };
 
 enum MapLocationTypes {

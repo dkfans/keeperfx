@@ -383,7 +383,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
     if (isalpha(chr))
     {
         // Read the parameter
-        while (isalnum(chr) || (chr == '_'))
+        while (isalnum(chr) || (chr == '_') || (chr == '[') || (chr == ']'))
         {
             param[pos] = chr;
             pos++;
@@ -1172,6 +1172,7 @@ static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *vari
 {
     char c;
     int len = 0;
+    char arg[MAX_TEXT_LENGTH];
 
     if (level_file_version > 0)
     {
@@ -1227,14 +1228,19 @@ static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *vari
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
-        else if (1 == sscanf(varib_name, "SACRIFICED_%n%c", &len, &c))
-        {
-            *varib_id = get_id(creature_desc, varib_name + len);
-            *varib_type = SVar_SACRIFICED;
-        }
         else
         {
-          *varib_id = -1;
+            *varib_id = -1;
+        }
+        if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_SACRIFICED;
+        }
+        if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_REWARDED;
         }
     }
     if (*varib_id == -1)
@@ -1250,6 +1256,7 @@ static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *vari
 {
     char c;
     int len = 0;
+    char arg[MAX_TEXT_LENGTH];
 
     *varib_id = -1;
     if (*varib_id == -1)
@@ -1269,14 +1276,19 @@ static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *vari
             // activateD
             *varib_type = SVar_BOX_ACTIVATED;
         }
-        else if (1 == sscanf(varib_name, "SACRIFICED_%n%c", &len, &c))
-        {
-            *varib_id = get_id(creature_desc, varib_name + len);
-            *varib_type = SVar_SACRIFICED;
-        }
         else
         {
-          *varib_id = -1;
+            *varib_id = -1;
+        }
+        if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_SACRIFICED;
+        }
+        if (2 == sscanf(varib_name, "REWARDED(%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_REWARDED;
         }
     }
     if (*varib_id == -1)
