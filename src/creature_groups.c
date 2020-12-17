@@ -507,13 +507,13 @@ TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long 
 {
     if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
-        SCRPTERRLOG("Party:%d is not defined", party_id);
+        ERRORLOG("Party:%d is not defined", party_id);
         return false;
     }
     struct Party* party = &game.script.creature_partys[party_id];
     if (party->members_num >= GROUP_MEMBERS_COUNT)
     {
-      SCRPTERRLOG("Too many creatures in party '%s' (limit is %d members)",
+      ERRORLOG("Too many creatures in party '%s' (limit is %d members)",
           party->prtname, GROUP_MEMBERS_COUNT);
       return false;
     }
@@ -533,7 +533,7 @@ TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level)
 {
     if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
-        SCRPTERRLOG("Party:%d is not defined", party_id);
+        ERRORLOG("Party:%d is not defined", party_id);
         return false;
     }
     struct Party* party = &game.script.creature_partys[party_id];
@@ -548,7 +548,7 @@ TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level)
             return true;
         }
     }
-    SCRPTERRLOG("Creature not found party:%s model:%d level:%d", party->prtname, crtr_model, crtr_level);
+    WARNLOG("Creature not found party:%s model:%d level:%d", party->prtname, crtr_model, crtr_level);
     return false;
 }
 
