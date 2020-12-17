@@ -1047,6 +1047,11 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     {
         param = get_id(spell_desc, scline->tp[1]);
     }
+    if (param == -1 && (strcmp(scline->tp[1], "NONE") == 0))
+    {
+        param = 0;
+    }
+
     if (param < 0)
     {
         param = 0;
