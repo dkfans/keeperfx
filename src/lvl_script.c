@@ -682,9 +682,9 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
         return true;
     }
     // Todo list of functions
-    if (strcmp(locname, "TRIGGERED_OBJECT") == 0)
+    if (strcmp(locname, "LAST_EVENT") == 0)
     {
-        *location = (((unsigned long)MML_TRIGGERED_OBJECT) << 12)
+        *location = (((unsigned long)MML_LAST_EVENT) << 12)
             | (((unsigned long)CurrentPlayer) << 4) //TODO: other players
             | MLoc_METALOCATION;
         return true;
@@ -3911,7 +3911,7 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
 
     switch (i >> 8)
     {
-    case MML_TRIGGERED_OBJECT:
+    case MML_LAST_EVENT:
         src = &gameadd.triggered_object_location;
         break;
     case MML_RECENT_COMBAT:
