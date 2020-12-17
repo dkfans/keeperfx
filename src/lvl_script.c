@@ -1474,7 +1474,7 @@ static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *vari
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_SACRIFICED;
         }
-        if (2 == sscanf(varib_name, "REWARDED(%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
         {
             *varib_id = get_id(creature_desc, arg);
             *varib_type = SVar_REWARDED;
@@ -5147,6 +5147,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_SACRIFICED:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->creature_sacrifice[validx];
+    case SVar_REWARDED:
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->creature_awarded[validx];
     default:
         break;
     };
@@ -5408,6 +5411,9 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
         break;
     case SVar_SACRIFICED:
         dungeon->creature_sacrifice[var_idx] = new_val;
+        break;
+    case SVar_REWARDED:
+        dungeonadd->creature_awarded[var_idx] = new_val;
         break;
     default:
         WARNLOG("Unexpected type:%d",(int)var_type);

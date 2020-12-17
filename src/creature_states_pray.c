@@ -449,6 +449,7 @@ TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct Sacrifice
 long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Player %d cannot sacrifice creatures.", (int)plyr_idx);
@@ -486,7 +487,10 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
         case SacA_MkCreature:
             if (explevel >= CREATURE_MAX_LEVEL) explevel = CREATURE_MAX_LEVEL-1;
             if ( summon_creature(sac->param, pos, plyr_idx, explevel) )
-              dungeon->lvstats.creatures_from_sacrifice++;
+            {
+                dungeon->lvstats.creatures_from_sacrifice++;
+                dungeonadd->creature_awarded[sac->param]++;
+            }
             ret = SacR_Awarded;
             break;
         case SacA_MkGoodHero:

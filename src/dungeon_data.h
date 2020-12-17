@@ -300,6 +300,7 @@ struct DungeonAdd
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;
+    int                   creature_awarded[CREATURE_TYPES_COUNT];
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
