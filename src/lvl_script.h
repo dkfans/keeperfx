@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "config.h"
+#include "config_rules.h"
 #include "creature_groups.h"
 
 #ifdef __cplusplus
@@ -137,6 +138,10 @@ enum TbScriptCommands {
     Cmd_CHANGE_CREATURES_ANNOYANCE        = 117,
     Cmd_COMPUTER_DIG_TO_LOCATION          = 118,
     Cmd_DELETE_FROM_PARTY                 = 119,
+    Cmd_SET_SACRIFICE_RECIPE              = 120,
+    Cmd_REMOVE_SACRIFICE_RECIPE           = 121,
+    Cmd_SET_BOX_TOOLTIP                   = 122,
+    Cmd_SET_BOX_TOOLTIP_TR                = 123,
 };
 
 enum ScriptVariables {
@@ -314,10 +319,24 @@ struct ScriptValue { // sizeof = 16
   char condit_idx;
   unsigned char valtype;
   unsigned char plyr_range;
-  long arg0;
-  long arg1;
-  long arg2;
+  union
+  {
+    struct
+    {
+      long arg0;
+      long arg1;
+      long arg2;
+    };
+    struct
+    {
+        char action;
+        char param;
+        char victims[MAX_SACRIFICE_VICTIMS];
+    } sac;
+  };
 };
+
+static_assert(sizeof(struct ScriptValue) == 16, "");
 
 struct Condition { // sizeof = 12
   short condit_idx;

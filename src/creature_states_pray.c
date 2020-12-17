@@ -509,6 +509,12 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
         case SacA_PosUniqFunc:
             ret = create_sacrifice_unique_award(pos, plyr_idx, sac->param, explevel);
             break;
+        case SacA_CustomReward:
+            ret = SacR_Awarded;
+            break;
+        case SacA_CustomPunish:
+            ret = SacR_Punished;
+            break;
         default:
             ERRORLOG("Unsupported sacrifice action %d!",(int)sac->action);
             ret = SacR_Pleased;

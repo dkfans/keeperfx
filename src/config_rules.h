@@ -39,6 +39,8 @@ enum SacrificeAction {
     SacA_PosSpellAll,
     SacA_NegUniqFunc,
     SacA_PosUniqFunc,
+    SacA_CustomReward,
+    SacA_CustomPunish,
 };
 
 enum UniqueFunctions {
@@ -69,8 +71,12 @@ extern const struct NamedCommand research_desc[];
 /******************************************************************************/
 long get_research_id(long item_type, const char *trg_name, const char *func_name);
 TbBool load_rules_config(const char *conf_fname, unsigned short flags);
+struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void);
 
 const char *player_code_name(PlayerNumber plyr_idx);
+
+extern const struct NamedCommand rules_sacrifices_commands[];
+extern const struct NamedCommand sacrifice_unique_desc[];
 /******************************************************************************/
 #ifdef __cplusplus
 }
