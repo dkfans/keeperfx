@@ -144,7 +144,7 @@ msgid ""
 "One heart destroyed, Keeper. You must now prepare for an attack on the lair "
 "to the south, but beware; I smell heroes!"
 msgstr ""
-敌人的地下城心脏被摧毁了，守护者。你现在必须准备迎接来自南面的敌人攻击，"
+"敌人的地下城心脏被摧毁了，守护者。你现在必须准备迎接来自南面的敌人攻击，"
 "但要注意：我闻到了英雄的气息！"
 
 #: guitext:14
