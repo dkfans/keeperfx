@@ -46,6 +46,7 @@ extern "C" {
 #define MAX_SOE_RADIUS              13
 #define CREATURE_GUI_JOBS_COUNT     3
 #define CUSTOM_BOX_COUNT            256
+#define FX_LINES_COUNT              32
 
 #define INVALID_DUNGEON (&bad_dungeon)
 #define INVALID_DUNGEON_ADD (&bad_dungeonadd)

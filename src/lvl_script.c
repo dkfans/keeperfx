@@ -16,6 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include <math.h>
+
 #include "lvl_script.h"
 
 #include "globals.h"
@@ -75,6 +77,7 @@ extern "C" {
 static struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
 static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 static struct ScriptValue *allocate_script_value(void);
+static TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor);
 
 const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
@@ -1189,6 +1192,144 @@ static void set_box_tooltip_tr(const struct ScriptLine *scline)
   int idx = scline->np[0];
   strncpy(gameadd.box_tooltip[idx], get_string(scline->np[1]), MESSAGE_TEXT_LEN-1);
   gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
+}
+
+static void create_fx_line_check(const struct ScriptLine *scline)
+{
+    struct ScriptValue tmp_value = {0};
+    struct ScriptValue* value;
+    long i;
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        // Fill local structure
+        value = &tmp_value;
+    }
+    else
+    {
+        value = allocate_script_value();
+        if (value == NULL)
+        {
+            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
+            return;
+        }
+    }
+
+    command_init_value(value, scline->command, 0);
+    if (get_map_location_type(scline->np[0]) != MLoc_ACTIONPOINT)
+    {
+        SCRPTERRLOG("Only action points allowed");
+        return;
+    }
+    i = get_map_location_longval(scline->np[0]);
+    if ((i <= 0) || (i > 127))
+    {
+        SCRPTERRLOG("AP number invalid %d", i);
+        return;
+    }
+    value->bytes[0] = i; // AP `from` number
+    if (get_map_location_type(scline->np[1]) != MLoc_ACTIONPOINT)
+    {
+        SCRPTERRLOG("Only action points allowed");
+        return;
+    }
+    i = get_map_location_longval(scline->np[1]);
+    if ((i <= 0) || (i > 127))
+    {
+        SCRPTERRLOG("AP number invalid %d", i);
+        return;
+    }
+    value->bytes[1] = i; // AP `to` number
+    value->bytes[2] = scline->np[2]; // curvature
+    value->bytes[3] = scline->np[3]; // spatial stepping
+    value->bytes[4] = scline->np[4]; // temporal stepping
+    value->bytes[5] = scline->np[5]; // effect
+
+    if (value->bytes[3] < 1)
+    {
+        value->bytes[3] = 1;
+    }
+    if (value->bytes[4] < 1)
+    {
+        value->bytes[4] = 127;
+    }
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        script_process_value(scline->command, 0, 0, 0, 0, value);
+    }
+}
+
+static void create_fx_line_process(struct ScriptContext *context)
+{
+    struct ScriptFxLine *fx_line = NULL;
+    for (int i = 0; i < (sizeof(gameadd.fx_lines) / sizeof(gameadd.fx_lines[0])); i++)
+    {
+        if (!gameadd.fx_lines[i].used)
+        {
+            fx_line = &gameadd.fx_lines[i];
+            fx_line->used = true;
+            gameadd.active_fx_lines++;
+            break;
+        }
+    }
+    if (fx_line == NULL)
+    {
+        ERRORLOG("Too many fx_lines");
+        return;
+    }
+    get_coords_at_action_point(&fx_line->from, context->value->bytes[0], 0);
+    get_coords_at_action_point(&fx_line->to, context->value->bytes[1], 0);
+    fx_line->curvature = context->value->bytes[2] * 8;
+    fx_line->spatial_step = context->value->bytes[3] * 32;
+    fx_line->steps_per_turn = context->value->bytes[4];
+    fx_line->effect = context->value->bytes[5];
+    fx_line->here = fx_line->from;
+
+    int dx = fx_line->to.x.val - fx_line->from.x.val;
+    int dy = fx_line->to.y.val - fx_line->from.y.val;
+    if ((dx * dx + dy * dy) != 0)
+    {
+        int len = (int) sqrt(dx * dx + dy * dy);
+        fx_line->dx = (dx * fx_line->spatial_step) / len; // let each slab divided by 8 points in each dir
+        fx_line->dy = (dy * fx_line->spatial_step) / len;
+
+        fx_line->ax = (-dy * fx_line->curvature) / len; // let each slab divided by 8 points in each dir
+        fx_line->ay = (+dx * fx_line->curvature) / len;
+
+        fx_line->remain_steps = (len / fx_line->spatial_step);
+
+        fx_line->dx -= fx_line->ax * fx_line->remain_steps / 2;
+        fx_line->dy -= fx_line->ay * fx_line->remain_steps / 2;
+    }
+    else
+    {
+        fx_line->dx = 0;
+        fx_line->dy = 0;
+        fx_line->ax = 0;
+        fx_line->ay = 0;
+        fx_line->remain_steps = 1;
+    }
+}
+
+static void process_fx_line(struct ScriptFxLine *fx_line)
+{
+    for (int t = 0; t < fx_line->steps_per_turn; t++)
+    {
+        create_effect(&fx_line->here, fx_line->effect, 0); //TODO owner
+
+        fx_line->here.x.val += fx_line->dx;
+        fx_line->here.y.val += fx_line->dy;
+        fx_line->dx += fx_line->ax;
+        fx_line->dy += fx_line->ay;
+
+        fx_line->remain_steps--;
+        if (fx_line->remain_steps <= 0)
+        {
+            fx_line->used = false;
+            break;
+        }
+    }
 }
 
 void command_tutorial_flash_button(long btn_id, long duration)
@@ -5392,6 +5533,22 @@ void process_values(void)
             }
         }
     }
+
+    for (int i = 0; i < gameadd.active_fx_lines; i++)
+    {
+        if (gameadd.fx_lines[i].used)
+        {
+            process_fx_line(&gameadd.fx_lines[i]);
+        }
+    }
+    for (int i = gameadd.active_fx_lines; i > 0; i--)
+    {
+        if (gameadd.fx_lines[i-1].used)
+        {
+            break;
+        }
+        gameadd.active_fx_lines--;
+    }
 }
 
 static void set_variable(int player_idx, long var_type, long var_idx, long new_val)
@@ -6306,6 +6463,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_BOX_TOOLTIP_TR",                "NN      ", Cmd_SET_BOX_TOOLTIP_TR, &set_box_tooltip_tr, &null_process},
   {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
   {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
+  {"CREATE_FX_LINE",                    "LLNNNN  ", Cmd_CREATE_FX_LINE, &create_fx_line_check, &create_fx_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},

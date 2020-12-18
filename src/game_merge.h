@@ -31,6 +31,7 @@
 #include "thing_creature.h"
 #include "creature_control.h"
 #include "light_data.h"
+#include "lvl_script.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -146,7 +147,9 @@ struct GameAdd {
     int                   script_current_player;
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
 
-    char box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
+    char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
+    struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
+    int                   active_fx_lines;
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };

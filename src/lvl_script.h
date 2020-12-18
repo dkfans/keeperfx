@@ -142,6 +142,7 @@ enum TbScriptCommands {
     Cmd_REMOVE_SACRIFICE_RECIPE           = 121,
     Cmd_SET_BOX_TOOLTIP                   = 122,
     Cmd_SET_BOX_TOOLTIP_TR                = 123,
+    Cmd_CREATE_FX_LINE                    = 124,
 };
 
 enum ScriptVariables {
@@ -333,6 +334,7 @@ struct ScriptValue { // sizeof = 16
         char param;
         char victims[MAX_SACRIFICE_VICTIMS];
     } sac;
+    char bytes[12];
   };
 };
 
@@ -364,6 +366,23 @@ struct Party { // sizeof = 208
   char prtname[100];
   struct PartyMember members[GROUP_MEMBERS_COUNT];
   unsigned long members_num;
+};
+
+struct ScriptFxLine
+{
+    int used;
+    struct Coord3d from;
+    struct Coord3d here;
+    struct Coord3d to;
+
+    int dx, dy;
+    int ax, ay;
+
+    int curvature;
+    int spatial_step;
+    int steps_per_turn;
+    int remain_steps;
+    int effect;
 };
 
 struct LevelScript { // sizeof = 5884
