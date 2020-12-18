@@ -103,7 +103,7 @@ enum ThingEffectKind {
     TngEff_Unknown46,
     TngEff_Unknown47,
     TngEff_Unknown48,
-    TngEff_Unknown49,
+    TngEff_GodLightning,
     TngEff_Unknown50,
     TngEff_Unknown51,
     TngEff_Unknown52,
