@@ -1085,6 +1085,7 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
         if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == plyr_idx)) {
             SYNCDBG(17,"Subtile (%d,%d) rejected based on attrs",(int)stl_x,(int)stl_y);
+            JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d is invalid", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
             return false;
         }
     }
@@ -1093,13 +1094,16 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         if (!slab_good_for_computer_claim_path(slb))
         {
             SYNCDBG(17, "Subtile (%d,%d) rejected as not good for wet dig", (int)stl_x, (int)stl_y);
+            JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d rejected as claim path", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
             return false;
         }
     } else
     if (!slab_good_for_computer_dig_path(slb)) {
         SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
+        JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d rejected as dig path", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
         return false;
     }
+    JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d is accepted as hug slab", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
     return true;
 }
 
@@ -1118,12 +1122,15 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     {
         MapSubtlCoord stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
         MapSubtlCoord stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
+        struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y); // TODO, remove. Added for TESTLOG
         if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx, digflags))
         {
+            JUSTMSG("TESTLOG: dig_to_position - not valid is %d at %d,%d", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
             SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
             SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
             return stl_num;
         }
+        JUSTMSG("TESTLOG: dig_to_position - valid is %d at %d,%d", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
         round_idx = (round_idx + round_change) % SMALL_AROUND_LENGTH;
     }
     return -1;
@@ -1141,6 +1148,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     // If we can follow direction straight to the target, and we will get closer to it, then do it
     if ((dist <= *maxdist) && is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
     {
+        JUSTMSG("TESTLOG: get_hug_side_next_step -  deemed next step ok");
         curr_stl_x += STL_PER_SLB*dx;
         curr_stl_y += STL_PER_SLB*dy;
         *state = WaHSS_Val1;
@@ -1161,6 +1169,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
             dy = small_around[round_idx].delta_y;
             if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
             {
+                JUSTMSG("TESTLOG: get_hug_side_next_step - Non-hugging step is is %d,%d", subtile_slab(curr_stl_x + STL_PER_SLB * dx), subtile_slab(curr_stl_y + STL_PER_SLB * dy));
                 break;
             }
             // If direction not for wallhug, try next
@@ -1175,6 +1184,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         }
     }
 
+    JUSTMSG("TESTLOG: get_hug_side_next_step - end of function, ostl_ set to %d,%d", subtile_slab(curr_stl_x), subtile_slab(curr_stl_y));
     *ostl_x = curr_stl_x;
     *ostl_y = curr_stl_y;
 }

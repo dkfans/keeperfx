@@ -1609,6 +1609,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         cdig->pos_next.x.stl.num = *nextstl_x;
         cdig->pos_next.y.stl.num = *nextstl_y;
         SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)nextslb_x,(int)nextslb_y);
+        JUSTMSG("testlog: we reached destination (%d,%d)",(int)nextslb_x, (int)nextslb_y);
         return -1;
     }
     return i;
@@ -1685,6 +1686,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                 cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner, digflags);
             cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
             SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
+            JUSTMSG("TESTLOG: tool_dig_to_pos2_f - we're trying at slab %d,%d now.", subtile_slab(gldstl_x), subtile_slab(gldstl_y));
             return 0;
         }
         if (cdig->subfield_2C == comp->field_C)
@@ -1714,10 +1716,12 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         cdig->distance = get_2d_distance(&cdig->pos_next, &cdig->pos_dest);
         cdig->hug_side = get_hug_side(cdig, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
                            cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner, digflags);
+        JUSTMSG("TESTLOG: tool_dig_to_pos2_f - Position 2 - at slab %d,%d now", subtile_slab(gldstl_x), subtile_slab(gldstl_y));
         cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
         i = dig_to_position(dungeon->owner, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
             cdig->direction_around, cdig->hug_side, digflags);
         if (i == -1) {
+            JUSTMSG("TESTLOG: tool_dig_to_pos2_f - did not get a return slab from dig to position, failed at %d,%d", subtile_slab(digstl_x), subtile_slab(digstl_y));
             SYNCDBG(5,"%s: Player %d short digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)cdig->pos_next.x.stl.num,(int)cdig->pos_next.y.stl.num);
             return -2;
         }
@@ -1727,6 +1731,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         digslb_y = subtile_slab(digstl_y);
         slb = get_slabmap_block(digslb_x, digslb_y);
         if (slab_kind_is_liquid(slb->kind) && (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now))
+        JUSTMSG("TESTLOG: LOOK AT %d,%d for slab %d", digstl_x, digstl_y, slb->kind);
         {
             cdig->pos_next.y.stl.num = digstl_y;
             cdig->pos_next.x.stl.num = digstl_x;
