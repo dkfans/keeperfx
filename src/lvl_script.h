@@ -136,6 +136,7 @@ enum TbScriptCommands {
     Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 116,
     Cmd_CHANGE_CREATURES_ANNOYANCE        = 117,
     Cmd_COMPUTER_DIG_TO_LOCATION          = 118,
+    Cmd_DELETE_FROM_PARTY                 = 119,
 };
 
 enum ScriptVariables {
@@ -243,6 +244,7 @@ struct Party;
 typedef unsigned long TbMapLocation;
 struct ScriptLine;
 struct ScriptValue;
+struct PartyTrigger;
 
 struct ScriptContext
 {
@@ -251,6 +253,7 @@ struct ScriptContext
 
     union {
       struct ScriptValue *value;
+      struct PartyTrigger *pr_trig;
     };
 };
 
@@ -285,11 +288,23 @@ struct PartyTrigger { // sizeof = 13
   unsigned char flags;
   char condit_idx;
   char creatr_id;
-  unsigned char plyr_idx;
-  unsigned long location;
+  union
+  {
+      unsigned char plyr_idx;
+      char party_id; // for add_to_party
+  };
+  union
+  {
+      unsigned long location;
+      unsigned long countdown;
+  };
   unsigned char crtr_level;
   unsigned short carried_gold;
-  unsigned short ncopies;
+  union
+  {
+      unsigned short ncopies;
+      unsigned char objectv;
+  };
 };
 
 struct ScriptValue { // sizeof = 16
