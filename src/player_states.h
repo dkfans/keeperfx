@@ -82,7 +82,6 @@ enum PlayerStates {
     PSt_MkAngry,
     PSt_PlaceTerrain,
     PSt_DestroyThing,
-    PSt_ThingQuery,
     PSt_ListEnd
 };
 
