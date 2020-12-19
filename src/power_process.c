@@ -167,7 +167,7 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
         // If Armageddon is on, teleport creature to its position
         if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
-            if (cctrl->instance_id == CrInst_NULL) // teleporting an Imp to a Dungeon Heart as he's claiming something can result in it being bizarrely destroyed!
+            if (cctrl->instance_id == CrInst_NULL) // Avoid corruption from in progress instances, like claiming floors.
             {
                 cctrl->armageddon_teleport_turn = 0;
                 create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
