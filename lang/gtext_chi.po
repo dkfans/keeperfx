@@ -6032,8 +6032,7 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid "Speed: How fast the creature moves and perform its dungeon tasks."
 msgstr ""
-"速度：怪物在地下城走动和执行任务的速度有多快。"
-
+"速度：怪物在地下城执行任务时的移动速度有多快。"
 
 #: guitext:951
 msgctxt "In-game interface description"
@@ -6045,38 +6044,38 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
 "the better the creature's performance."
-msgstr "研究能力：怪物在图书馆研究的速度。这个数值越高，怪物的表现就越好。"
+msgstr "研究能力：怪物在图书馆研究的效率。这个数值越高，怪物的表现就越好。"
 
 #: guitext:953
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "制造能力：怪物在工厂做工的速度。这个能力值越高，怪物的表现越好。"
+msgstr "制造能力：怪物在工厂做工的效率。这个能力值越高，怪物的表现越好。"
 
 #: guitext:954
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "训练能力：怪物在训练室训练的速度。这个能力值越高，怪物的表现越好。"
+msgstr "训练能力：怪物在训练室训练的效率。这个能力值越高，怪物的表现越好。"
 
 #: guitext:955
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "招募能力：怪物在招募中心招募的速度。这个能力值越高，怪物的表现越好。"
+msgstr "招募能力：怪物在招募中心招募的效率。这个能力值越高，怪物的表现越好。"
 
 #: guitext:956
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr "训练费用：用于训练怪物花费的黄金数量。"
+msgstr "训练费用：用于训练这个怪物花费的黄金数量。"
 
 #: guitext:957
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr "招募费用：用于招募怪物花费的黄金数量。"
+msgstr "招募费用：用于招募这个怪物花费的黄金数量。"
 
 #: guitext:958
 msgctxt "In-game interface description"
@@ -6153,7 +6152,7 @@ msgstr "地图包"
 #: guitext:970
 msgctxt "Menu interface item"
 msgid "The Deeper Dungeons"
-msgstr "更深的地下城"
+msgstr "原版扩展关卡"
 
 #: guitext:971
 msgctxt "Menu interface item"
@@ -6168,7 +6167,7 @@ msgstr "经典关卡"
 #: guitext:973
 msgctxt "Menu interface item"
 msgid "Legacy Levels"
-msgstr "保留关卡"
+msgstr "复古关卡"
 
 #: guitext:974
 msgctxt "Menu interface item"
@@ -6178,7 +6177,7 @@ msgstr "个人关卡"
 #: guitext:975
 msgctxt "Menu interface item"
 msgid "Lost Levels"
-msgstr "失去关卡"
+msgstr "失落关卡"
 
 #: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
@@ -6238,7 +6237,7 @@ msgstr "疾病陷井"
 #: guitext:991
 msgctxt "Trap names"
 msgid "Power Trap"
-msgstr "力量陷井"
+msgstr "能量陷井"
 
 #: guitext:992
 msgctxt "Trap names"

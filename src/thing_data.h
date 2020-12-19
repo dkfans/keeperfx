@@ -213,7 +213,6 @@ unsigned short anim_sprite;
 
 unsigned char field_48;     // current frame
 unsigned char field_49;     // max frames
-
     char field_4A;          // thing growth speed (when it is growing/shrinking)
 unsigned short field_4B;    // min_sprite_size
 unsigned short field_4D;    // max_sprite_size

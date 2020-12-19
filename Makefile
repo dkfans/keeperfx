@@ -353,6 +353,7 @@ ncastles \
 postanck \
 pstunded \
 questfth \
+revlord \
 twinkprs \
 undedkpr
 

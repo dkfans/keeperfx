@@ -2,7 +2,7 @@ REM ****************+****************************
 REM  Hero campaign by Alexsa
 REM  map 1235, level 2 - Sparkleforest
 REM  Script for the map
-REM  Version 1.00
+REM  Version 2.00 (messages from pot file by dayokay)
 REM ********************************************
 REM Fairy and archer realm. Monks at Abbeystone seem to have run into problems too.
 REM Your enemies here are good ol' orcs and trolls en masse. The goal is to kill all the Bile Demons despoiling this land.
@@ -127,7 +127,8 @@ REM Start the primary timer.
 
 REM Startup
     SET_TIMER(PLAYER0,TIMER0)
-    QUICK_OBJECTIVE(1,"The orcs and trolls are plundering the beautiful forest of fairies and elves, located above this underground riverstream. With the aid of your subjects from Dwarfton, you are to drive out all and every evil creature from their own dungeons. They mostly gather at four barracks, but every other room under their control is a home to monsters.", PLAYER0)
+REM	QUICK_OBJECTIVE(1,"The orcs and trolls are plundering the beautiful forest of fairies and elves, located above this underground riverstream. With the aid of your subjects from Dwarfton, you are to drive out all and every evil creature from their own dungeons. They mostly gather at four barracks, but every other room under their control is a home to monsters.", PLAYER0)
+DISPLAY_OBJECTIVE(21,PLAYER0)
 
 REM Inital flag setup
 IF(PLAYER0,TIMER0 >= 200)
@@ -137,19 +138,22 @@ REM PLAYER_GOOD
     SET_TIMER(PLAYER2,TIMER1)
     SET_TIMER(PLAYER3,TIMER1)
     SET_TIMER(PLAYER_GOOD,TIMER1)
-	QUICK_INFORMATION(2,"Make haste, my liege: the longer you let the vile monsters breed, the harder it will be to overcome their numbers.", PLAYER0)
+REM	QUICK_INFORMATION(2,"Make haste, my liege: the longer you let the vile monsters breed, the harder it will be to overcome their numbers.", PLAYER0)
+DISPLAY_INFORMATION(22,PLAYER0)
 ENDIF
 
 REM Start weak attacks and add a tunneller to breach the turtling player (who doesn't make use of really plentiful gold, that is).
 IF(PLAYER0,TIMER0 >= 6000)
-    QUICK_INFORMATION(3,"It seems the first monsters are already headed towards your dungeon, my liege - mostly overgrown vermin which breeds within piles of scrap, but your presence will surely be noticed by the sounds of combat.", PLAYER0)
-    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TWO,5,1)
-    ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,5,1,2,500)
+REM QUICK_INFORMATION(3,"It seems the first monsters are already headed towards your dungeon, my liege - mostly overgrown vermin which breeds within piles of scrap, but your presence will surely be noticed by the sounds of combat.", PLAYER0)
+	DISPLAY_INFORMATION(23,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TWO,5,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,5,1,2,500)
 ENDIF
 
 REM Start medium attacks on third payday.
 IF(PLAYER0,TIMER0 >= 31000)
-    QUICK_INFORMATION(4,"While monsters still continue plundering the surface lands, your presence seems to have caught the attention of their leaders. Prepare for their counterattack.", PLAYER0)
+REM	QUICK_INFORMATION(4,"While monsters still continue plundering the surface lands, your presence seems to have caught the attention of their leaders. Prepare for their counterattack.", PLAYER0)
+	DISPLAY_INFORMATION(24,PLAYER0)
 	SET_FLAG(PLAYER_GOOD,FLAG1,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_TRAINING,5,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_WORKSHOP,5,1)
@@ -162,7 +166,8 @@ ENDIF
 
 REM Start strong attacks on sixth payday. You should've get all lv 10 by this point, shouldn't you?
 IF(PLAYER0,TIMER0 >= 61000)
-    QUICK_INFORMATION(5,"The rallying cries of orcs and trolls can be heard all across the underground river. They are preparing for an all-out onslaught!", PLAYER0)
+REM	QUICK_INFORMATION(5,"The rallying cries of orcs and trolls can be heard all across the underground river. They are preparing for an all-out onslaught!", PLAYER0)
+	DISPLAY_INFORMATION(25,PLAYER0)
 	SET_FLAG(PLAYER_GOOD,FLAG1,2)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_MECHANIC,5,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_ELITE,5,1)
@@ -330,13 +335,15 @@ IF(PLAYER0,ENTRANCE >= 10)
 ENDIF
 IF(PLAYER0,ENTRANCE >= 20)
     MAX_CREATURES(PLAYER0,30)
-	QUICK_INFORMATION(8,"Hearing of your victory at Dwarfton, several barbarians from eastern Widerwilds have arrived to this underground. They have lost their families to raiders from Sparkleforest and thirst for revenge against the orcs.", PLAYER0)
+REM	QUICK_INFORMATION(8,"Hearing of your victory at Dwarfton, several barbarians from eastern Widerwilds have arrived to this underground. They have lost their families to raiders from Sparkleforest and thirst for revenge against the orcs.", PLAYER0)
+	DISPLAY_INFORMATION(26,PLAYER0)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,BARBARIAN,PLAYER0,2,4,0)
 	CREATURE_AVAILABLE(ALL_PLAYERS,BARBARIAN,1,0)
 ENDIF
 
 IF(PLAYER0,BRIDGE >= 1)
-    QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+REM	QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+	DISPLAY_INFORMATION(27,PLAYER0)
     NEXT_COMMAND_REUSABLE
     ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
 ENDIF
@@ -349,6 +356,7 @@ REM Should insert some mention of monks
 
 REM Win when all hostile creatures are dead
     IF(PLAYER_GOOD,TOTAL_CREATURES <= 0)
-            QUICK_OBJECTIVE(16,"All of the monsters are dead, and the people of Sparkleforest are now safe. But it is now time to head towards besieged Abbeystone, where the evil keeper seeks to quash one of the last few bastions of virtue in Dominus.", PLAYER0)
+    REM		QUICK_OBJECTIVE(16,"All of the monsters are dead, and the people of Sparkleforest are now safe. But it is now time to head towards besieged Abbeystone, where the evil keeper seeks to quash one of the last few bastions of virtue in Dominus.", PLAYER0)
+			DISPLAY_OBJECTIVE(28,PLAYER0)
             WIN_GAME
     ENDIF

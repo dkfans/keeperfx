@@ -1213,13 +1213,11 @@ msgid "Skybird Trill"
 msgstr "太阳鸟鸣"
 
 #: guitext:222
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Name and Health: Each creature has its own name. Behind is the creature health bar. The higher the red bar, the better health the creature is in."
 msgstr "名字和生命值：每一个怪物都有自己的名字。名字后面的是怪物的生命条。红色部分越长，表明怪物的生命值越高。"
 
 #: guitext:223
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Experience: The creature's experience level. Behind the level number is a bar indicating the creatures progress towards attaining more experience."
 msgstr "经验: 怪物的经验等级。等级数字后面的经验条表明怪物获得的经验情况。"
@@ -1235,187 +1233,156 @@ msgid "Cancel"
 msgstr "取消"
 
 #: guitext:226
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
 msgstr "箭: 基本的远程武器，在远距离使用时效果很好。"
 
 #: guitext:227
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Freeze: Changes the target creature to ice. It is then in suspended animation and can be shattered with a well-aimed blow."
 msgstr "冰冻术: 把一只怪物冻成冰，并暂停它的行动，还可以使它能被猛力地一击打碎。"
 
 #: guitext:228
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Armour: This lowers the amount of damage a creature takes each time it is hit, and provides complete immunity to electric shocks."
 msgstr "装甲: 可以降低怪物每次受到的伤害，并且使其完全免疫守护者的闪电术。"
 
 #: guitext:229
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Lightning: A powerful magical weapon with electric attack. Casts a bolt of lighting from the creature."
 msgstr "闪电术: 一个使用闪电攻击的强力魔法武器。可以使怪物释放出一道闪电。"
 
 #: guitext:230
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
 msgstr "反弹术: 将向你发射的所有投射物反弹给攻击者。"
 
 #: guitext:231
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Fear: Causes the opponent to be terrified and wanting to skip engageing into combat."
 msgstr "恐惧术: 使敌人感到害怕并试图放弃参与战斗。"
 
 #: guitext:232
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Sight: Allows the creature to temporarely increase its awareness and notice the invisible."
 msgstr "邪眼术: 使怪物暂时集中精力，可以看破隐身的怪物。"
 
 #: guitext:233
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Missile: A simple spell that sends a screaming magic reptile at the invaders. Very disconcerting."
 msgstr "导弹: 一个简单的魔法，可以向入侵者发射一枚发出尖叫声的魔法蜥蜴导弹。令人感到十分不安。"
 
 #: guitext:234
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Grenade: Throws a powerful explosive at the approaching enemy. It can also bounce off walls and has the traditional delayed fuse."
 msgstr "手榴弹: 向靠近的敌人投掷一枚强力的爆弹。它可以通过墙壁反弹，并且由传统的延时引线引爆。"
 
 #: guitext:235
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Navigating Missile: This homes in on the nearest hero or enemy creature and explodes with devastating force."
 msgstr "巡航导弹: 这枚导弹会自动追踪最近的英雄或敌方怪物，并且以破坏性的力量爆炸。"
 
 #: guitext:236
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Speed: Speeds up the creature so that it can perform fighting and working tasks really quickly."
 msgstr "速度术: 使怪物的速度提高，使其在战斗中或工作中行动非常迅速。"
 
 #: guitext:237 guitext:253
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the enemy and your own creatures. The gas affects all who breathe it."
 msgstr "毒云术: 生成一片毒云，会同时对敌军和友军造成伤害。所有呼吸到毒气的怪物都会受到它的影响。"
 
 #: guitext:238
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Group: Not used"
 msgstr "集结术: 未使用"
 
 #: guitext:239
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Invisibility: Cast on one of your minions, it makes the host creature invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr "隐身术: 对你的一个怪物使用，使其对敌人隐身。除非拥有超常视力的敌人才能看破隐身。"
 
 #: guitext:240
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Teleport: With this spell, a creature can teleport anywhere on the map. If you are Possessing a creature, then it teleports to its Lair or to the Dungeon Heart."
 msgstr "传送术: 一个拥有这项技能的怪物可以传送到地图的任何区域。如果你正在控制这个怪物，它会传送到它的巢穴处或地下城心脏处。"
 
 #: guitext:241
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Flame Breath: The devasting constant stream of searing fire."
 msgstr "火焰术: 持续喷射具有毁灭性威力的灼热火焰。"
 
 #: guitext:242
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Illumination: Brings light onto darkness, allowing the creature to see but also be seen by others."
 msgstr "照明术: 为黑暗带来光明，使怪物能看清别人，但同时也会被别人看到。"
 
 #: guitext:243
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Flight: Causes the creature to take off from the ground and attack creatures from the air."
 msgstr "飞行术:使怪物可以离开地面，从而在空中向其他怪物发起攻击。"
 
 #: guitext:244
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
 msgstr "冰雹术: 向施法的区域大面积发射密集的冰雹块。"
 
 #: guitext:245
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Slow: Slows down the target creature, making it attacks and movement delayed."
 msgstr "缓慢术:降低目标怪物的速度，使它的行动和攻击变得迟缓。"
 
 #: guitext:246
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Drain: This spell drains the target creature a fair part of its health and magical abilities."
 msgstr "吸精术: 这项魔法可以吸取目标的一部分生命值和魔法能力。"
 
 #: guitext:247
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Word of Power: Causes rings of demonic energy to emanate from the creature's body and inflicts massive damage on the vicinity. Very effective against crowded hordes of enemies, also pushes them back."
 msgstr "强力咒语: 从怪物的身体中释放出恶魔般的能量，并对周围造成巨大伤害。对成群的敌人非常有效，同时也能将他们击退。"
 
 #: guitext:248
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Heal: When this is cast, the creature is massively healed. Also, any nearby creatures are healed by a quarter."
 msgstr "治疗术: 施放时，使目标怪物回复大量生命值。周围的怪物也会获得四分之一的治疗量。"
 
 #: guitext:249
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Wind: Creates a force twelve gale in your Dungeon blowing every creature away from you."
 msgstr "风暴术: 在地下城中制造12股风暴力量，把所有怪物都向外吹走。"
 
 #: guitext:250
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Meteor: More powerful that the fireball, this spell throws out a solid ball of fire which does a lot of damage to an enemy."
 msgstr "流星术: 比火球术更强大，这个魔法能发射一颗固体的火球，并对敌人造成大量伤害。"
 
 #: guitext:251
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Fireball: Fires a single fireball which homes in on the nearest enemy. Also inflicts minor damage to a Dungeon's walls and doors."
 msgstr "火球术: 发射一颗火球，瞄准最近的敌人。对地下城的墙壁和门也会造成轻微伤害。"
 
 #: guitext:252
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Hand to Hand: The basic battle ability that allows to attack the enemy with either bare hands or a sword."
 msgstr "近战攻击: 允许徒手或用剑攻击敌人的基本战斗技能。"
 
 #: guitext:254
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Dig: This is the basic ability of the Imp and allows it to tunnel through earth."
 msgstr "挖掘: 这是小鬼的基本能力，使它可以在地底下挖掘隧道。"
 
 #: guitext:255
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Disease: Fired at a foe, gives them a Disease which is then spread to other creatures. The infected are slowly dying and can only be healed in the Temple."
 msgstr "疾病术: 对敌人使用，会让它们染上疾病，并可以传染给其他怪物。被感染的怪物将会慢慢死去，只能在寺庙里获得治愈。"
 
 #: guitext:256
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Chicken: Turns enemy into chicken for a while. The enemy isn't able to attack but has the same strength and thus won't be as easy to kill as a normal chicken."
 msgstr "变为小鸡:暂时把敌人变成一只小鸡。敌人不能攻击，但拥有同样的力量，因此不会像一只普通的小鸡那么容易被杀死。"
 
 #: guitext:257
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
 msgstr "定时炸弹：将你的怪物变为一个自杀式爆破者。"
@@ -1566,7 +1533,6 @@ msgid "Monk"
 msgstr "僧侣"
 
 #: guitext:287
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Query: Select this and left click on a creature to view information on that creature and track it on screen. LMB select."
 msgstr "查询: 选择它并左键单击一个怪物察看怪物的信息，并在屏幕上跟踪它。左键选择。"
@@ -1587,109 +1553,91 @@ msgid "Main Menu"
 msgstr "主菜单"
 
 #: guitext:343
-#, fuzzy
 msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
 msgstr "主菜单"
 
 #: guitext:291
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Anger: How angry the creature is. The higher the bar is, the angrier the creature is."
 msgstr "愤怒: 怪物生气的程度。条的长度越长，表示怪物越生气。"
 
 #: guitext:292
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Creature Kills: The total number of enemies the creature has slain."
 msgstr "杀敌: 怪物杀死的敌人的数量。"
 
 #: guitext:293
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Strength: The amount of damage the creature inflicts upon it's enemies with each hit."
 msgstr "力量: 怪物每一次击中敌人可以对敌人造成的伤害数量。"
 
 #: guitext:294
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Wage: The creature's salary in gold which it takes on each payday."
 msgstr "薪水: 怪物每次发薪时领取的金子。"
 
 #: guitext:295
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "财产: 这个怪物所带有的金子。"
 
 #: guitext:296
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Defence: The chance a creature will avoid a blow. The higher the number, the greater the chance of avoidance."
 msgstr "防御: 怪物躲避一次攻击的机会。这个数值越高，躲避的成功率就越大。"
 
 #: guitext:297
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Skill: The creature's ability to perform tasks. The higher the Skill level, the better the creature's performance."
 msgstr "技巧: 怪物执行任务的能力。这个数值越高，怪物的表现就越好。"
 
 #: guitext:298
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Age/Time In Dungeon: The length of time you have employed the creature."
 msgstr "在地下城中的时间: 你雇佣了这个怪物多长时间。"
 
 #: guitext:299
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Dexterity: The chance of a successful attack. Used to break enemy defence. The higher the number, the greater the chance of hitting."
 msgstr "敏捷: 一次攻击成功的机会。用于破解敌人的防御。这个数值越高，击中的几率就越大。"
 
 #: guitext:300
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Luck: The chance that a creature will do a double attack or a double defence in combat. Taken into account only when the hit is not avoided."
 msgstr "幸运: 在战斗中怪物施展一次双倍攻击或防御的机会。只有在此次攻击没被躲避的情况下生效。"
 
 #: guitext:301
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Blood type: As if you care. Blood is blood, right?"
 msgstr "血型: 仿佛你关心。血就是血，对吗？"
 
 #: guitext:302
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Idle: The creature is either sleeping or not working. It's not involved in anything constructive or useful. LMB pick up creature. RMB zoom."
 msgstr "空闲: 怪物睡觉或不工作的时间。怪物没有涉及任何建设性或有用的事情。左键拿起怪物。右键缩放。"
 
 #: guitext:303
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Working: The creature is performing tasks and doing work for you. LMB pick up creature. RMB zoom."
 msgstr "工作中: 怪物正在为你执行任务。左键拿起怪物。右键缩放。"
 
 #: guitext:304
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom."
 msgstr "战斗中: 怪物正在进行战斗。左键拿起怪物。右键缩放。"
 
 #: guitext:305
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Fight: Your creatures always attack and not avoid any combat. LMB select."
 msgstr "战斗: 你的怪物总是会攻击敌人，不会逃离战斗。左键选择。"
 
 #: guitext:306
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Flee: Your creatures attempt to preserve their lives, running away if they are too badly injured. LMB select."
 msgstr "逃跑: 你的怪物试着保护自己，在严重受伤时会开始逃跑。 左键选择。"
 
 #: guitext:307
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Imprison: Your creatures stun their enemies in battle and imprison those they defeat. LMB select."
 msgstr "囚禁: 你的怪物在战斗中只将敌人打晕并将其囚禁。左键选择。"
@@ -1720,31 +1668,26 @@ msgid "For"
 msgstr "为"
 
 #: guitext:313
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
 msgstr "影子: 每个怪物的影子的数量。左键切换。"
 
 #: guitext:314
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "View Type: Swap between the default and forced perspective views. Default view has warped walls and can be rotated, forced perspective shows larger area but can only be rotated 90 degrees. LMB toggle."
 msgstr "视角: 在默认视角和强制透视视角间切换。默认视角有弯曲的墙壁，可以旋转，而强制透视视角显示的区域较大，但只能一次旋转90度。左键切换。"
 
 #: guitext:315
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Wall Height: Swap between high or low walls. If you make the walls one block high, they are easier to see over. LMB toggle."
 msgstr "墙高: 在高墙和低墙间切换。如果你把墙调成一格高，就更容易看清地图。左键切换。"
 
 #: guitext:316
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "View Distance: The amount of dungeon drawn. This directly affects the speed of the game. LMB toggle."
 msgstr "距离: 决定你从多高的地方俯视地下城。这将直接影响游戏的速度。左键切换。"
 
 #: guitext:317
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
 msgstr "伽马校正: 调整游戏的亮度。左键切换。"
@@ -1765,19 +1708,16 @@ msgid "Paused"
 msgstr "暂停"
 
 #: guitext:321
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB select."
 msgstr "放大: 放大动态地图。这会扩大你所看到的地图尺寸。左键选择。"
 
 #: guitext:322
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB select."
 msgstr "缩小: 缩小动态地图。这会缩小你所看到的地图尺寸。左键选择。"
 
 #: guitext:323
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Full Screen Map: Takes you to the Map Screen which displays your entire Dungeon and the surrounding area. LMB select."
 msgstr "全屏地图: 进入全屏地图画面，显示你的整个地下城和周围的区域。左键选择。"
@@ -1793,7 +1733,6 @@ msgid "Earth: You can excavate this. To dig out some new caverns, choose a locat
 msgstr "土块: 你可以将其凿开。想要挖开一些洞穴，用鼠标左键标记一个区域。再次按下鼠标左键可解除标记。"
 
 #: guitext:326
-#, fuzzy
 msgctxt "Slab description"
 msgid "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to your Treasure Room. You can also pick up the lumps of treasure left on the ground."
 msgstr "金矿: 你的财富的源泉。挖掘它，你的小鬼将把它带入你的储金室。你也可以拿起留在地上的金子。"
@@ -1804,13 +1743,11 @@ msgid "Lava: Burns any creature that step on it. Get over lava by casting Cave-I
 msgstr "岩浆: 灼烧任何触碰到它的生物。施放一个塌方术或者建造一座桥来越过它。"
 
 #: guitext:328
-#, fuzzy
 msgctxt "Slab description"
 msgid "Water: Creatures move more slowly through water. Build the Bridge to make new land on the water."
 msgstr "水: 怪物在水中移动得很慢。在水上造桥可以创造出水上的平地。"
 
 #: guitext:329
-#, fuzzy
 msgctxt "Slab description"
 msgid "Wall: A reinforced stone wall that enemies cannot break through. At least without the Destroy Walls spell."
 msgstr "墙: 敌人无法穿越加固过的墙。至少在他们还没有破坏墙壁魔法的时候。"
@@ -1921,15 +1858,14 @@ msgstr "奖金"
 #: guitext:539 guitext:540 guitext:541 guitext:542 guitext:543
 msgctxt "Unused"
 msgid "Moo6"
-msgstr ""                                                                          
+msgstr ""
+
 #: guitext:544
-#, fuzzy
 msgctxt "Slab description"
 msgid "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but takes longer to mine than Gold."
 msgstr "宝石: 供小鬼开采的无限的财富。宝石矿不会被摧毁，但从中挖金子花费的时间比金矿更长。"
 
 #: guitext:545
-#, fuzzy
 msgctxt "Object description"
 msgid "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be closed on your side."
 msgstr "英雄门: 英雄们通过这个入口入侵你的地下城。你无法将其关闭。"
@@ -2063,37 +1999,31 @@ msgid "Lava Trap"
 msgstr "岩浆陷井"
 
 #: guitext:584
-#, fuzzy
 msgctxt "Trap description"
 msgid "Boulder Trap: A rolling rock that crushes everything in its path. Triggered when enemy creature is close and within line of sight, or when slapped by a Keeper. LMB select. RMB zoom."
 msgstr "圆石陷井: 一个滚动的巨石将碾碎一切阻挡它的东西。当敌方怪物进入它的视野时，或被守护者打耳光时，圆石陷井将会被触发。左键选择。右键缩放。"
 
 #: guitext:585
-#, fuzzy
 msgctxt "Trap description"
 msgid "Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are summoned to it. LMB select. RMB zoom."
 msgstr "警戒陷井: 被触发后施展召唤军队魔法，召唤附近的怪物集合。左键选择。右键缩放。"
 
 #: guitext:586
-#, fuzzy
 msgctxt "Trap description"
 msgid "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can hurt owner creatures if they inhale it. LMB select. RMB zoom."
 msgstr "毒气陷井: 被你的敌人触发后放出有毒的烟雾。如果自己的怪物吸入毒气，同样会受到伤害。左键选择。右键缩放。"
 
 #: guitext:587
-#, fuzzy
 msgctxt "Trap description"
 msgid "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when tripped. Does no harm to owner creatures. LMB select. RMB zoom."
 msgstr "闪电陷井: 用闪电攻击附近的敌人的怪物。不会伤害到自己的怪物。左键选择。右键缩放。"
 
 #: guitext:588
-#, fuzzy
 msgctxt "Trap description"
 msgid "Word of Power Trap: Radiates devastating rings of demonic energy, pushing and damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr "强力咒语陷井: 释放出恶魔般的环形能量，击退和伤害一切在它的作用范围内的怪物。左键选择。右键缩放。"
 
 #: guitext:589
-#, fuzzy
 msgctxt "Trap description"
 msgid "Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects are irreversible, so Bridge is needed to be able to step on affected area again. LMB select. RMB zoom."
 msgstr "岩浆陷井: 使一格地板熔化成为炙热的岩浆。此效果不可挽回，所以必须造桥才能再次通过这个区域。左键选择。右键缩放。"
@@ -2119,25 +2049,21 @@ msgid "Magic Door"
 msgstr "魔法门"
 
 #: guitext:594
-#, fuzzy
 msgctxt "Door description"
 msgid "Wooden Door: The simplest means of restricting access. Can be broken down easily. LMB select. RMB zoom."
 msgstr "木门: 最简单的限制通行的工具。可以轻易地摧毁。左键选择。右键缩放。"
 
 #: guitext:595
-#, fuzzy
 msgctxt "Door description"
 msgid "Braced Door: A wooden door reinforced with iron to last longer. LMB select. RMB zoom."
 msgstr "铁皮门: 包有铁皮的木门，使其耐久更高。左键选择。右键缩放。"
 
 #: guitext:596
-#, fuzzy
 msgctxt "Door description"
 msgid "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB select. RMB zoom."
 msgstr "铁门: 重而坚固的门，可以承受巨大的攻击。左键选择。右键缩放。"
 
 #: guitext:597
-#, fuzzy
 msgctxt "Door description"
 msgid "Magic Door: A special door, highly resistant to physical damage but susceptible to magical damage. LMB select. RMB zoom."
 msgstr "魔法门: 一种特殊的门，可以极大地抵抗物理攻击，但易受魔法攻击。左键选择。右键缩放。"

@@ -72,168 +72,13 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-/**
- * Descriptions of script commands for parser.
- * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind, X- creature property
- * Lower case letters are optional arguments.
- */
-const struct CommandDesc command_desc[] = {
-  {"CREATE_PARTY",                      "A       ", Cmd_CREATE_PARTY},
-  {"ADD_TO_PARTY",                      "ACNNAN  ", Cmd_ADD_TO_PARTY},
-  {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL},
-  {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL},
-  {"ADD_OBJECT_TO_LEVEL",               "AAN     ", Cmd_ADD_OBJECT_TO_LEVEL},
-  {"IF",                                "PAON    ", Cmd_IF},
-  {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT},
-  {"ENDIF",                             "        ", Cmd_ENDIF},
-  {"SET_HATE",                          "PPN     ", Cmd_SET_HATE},
-  {"SET_GENERATE_SPEED",                "N       ", Cmd_SET_GENERATE_SPEED},
-  {"REM",                               "        ", Cmd_REM},
-  {"START_MONEY",                       "PN      ", Cmd_START_MONEY},
-  {"ROOM_AVAILABLE",                    "PRNN    ", Cmd_ROOM_AVAILABLE},
-  {"CREATURE_AVAILABLE",                "PCNN    ", Cmd_CREATURE_AVAILABLE},
-  {"MAGIC_AVAILABLE",                   "PANN    ", Cmd_MAGIC_AVAILABLE},
-  {"TRAP_AVAILABLE",                    "PANN    ", Cmd_TRAP_AVAILABLE},
-  {"RESEARCH",                          "PAAN    ", Cmd_RESEARCH},
-  {"RESEARCH_ORDER",                    "PAAN    ", Cmd_RESEARCH_ORDER},
-  {"COMPUTER_PLAYER",                   "PN      ", Cmd_COMPUTER_PLAYER},
-  {"SET_TIMER",                         "PA      ", Cmd_SET_TIMER},
-  {"ADD_TUNNELLER_TO_LEVEL",            "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL},
-  {"WIN_GAME",                          "        ", Cmd_WIN_GAME},
-  {"LOSE_GAME",                         "        ", Cmd_LOSE_GAME},
-  {"SET_FLAG",                          "PAN     ", Cmd_SET_FLAG},
-  {"MAX_CREATURES",                     "PN      ", Cmd_MAX_CREATURES},
-  {"NEXT_COMMAND_REUSABLE",             "        ", Cmd_NEXT_COMMAND_REUSABLE},
-  {"DOOR_AVAILABLE",                    "PANN    ", Cmd_DOOR_AVAILABLE},
-  {"DISPLAY_OBJECTIVE",                 "NL      ", Cmd_DISPLAY_OBJECTIVE},
-  {"DISPLAY_OBJECTIVE_WITH_POS",        "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS},
-  {"DISPLAY_INFORMATION",               "NL      ", Cmd_DISPLAY_INFORMATION},
-  {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS},
-  {"ADD_TUNNELLER_PARTY_TO_LEVEL",      "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL},
-  {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL},
-  {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT},
-  {"SET_CREATURE_MAX_LEVEL",            "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL},
-  {"SET_MUSIC",                         "N       ", Cmd_SET_MUSIC},
-  {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON},
-  {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH},
-  {"SET_CREATURE_HEALTH",               "CN      ", Cmd_SET_CREATURE_HEALTH},
-  {"SET_CREATURE_ARMOUR",               "CN      ", Cmd_SET_CREATURE_ARMOUR},
-  {"SET_CREATURE_FEAR_WOUNDED",         "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
-  {"SET_CREATURE_FEAR_STRONGER",        "CN      ", Cmd_SET_CREATURE_FEAR_STRONGER},
-  {"SET_CREATURE_FEARSOME_FACTOR",      "CN      ", Cmd_SET_CREATURE_FEARSOME_FACTOR},
-  {"SET_CREATURE_PROPERTY",             "CXN     ", Cmd_SET_CREATURE_PROPERTY},
-  {"IF_AVAILABLE",                      "PAON    ", Cmd_IF_AVAILABLE},
-  {"IF_CONTROLS",                       "PAON    ", Cmd_IF_CONTROLS},
-  {"SET_COMPUTER_GLOBALS",              "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
-  {"SET_COMPUTER_CHECKS",               "PANNNNN ", Cmd_SET_COMPUTER_CHECKS},
-  {"SET_COMPUTER_EVENT",                "PANNNNN ", Cmd_SET_COMPUTER_EVENT},
-  {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS},
-  {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS},
-  {"DEAD_CREATURES_RETURN_TO_POOL",     "N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL},
-  {"BONUS_LEVEL_TIME",                  "N       ", Cmd_BONUS_LEVEL_TIME},
-  {"QUICK_OBJECTIVE",                   "NAL     ", Cmd_QUICK_OBJECTIVE},
-  {"QUICK_INFORMATION",                 "NAL     ", Cmd_QUICK_INFORMATION},
-  {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS},
-  {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS},
-  {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE},
-  {"PRINT",                             "A       ", Cmd_PRINT},
-  {"MESSAGE",                           "A       ", Cmd_MESSAGE},
-  {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE},
-  {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER},
-  {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES},
-  {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT},
-  {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION},
-  {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION},
-  {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE},
-  {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION},
-  {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE},
-  {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE},
-  {"USE_POWER_AT_LOCATION",             "PNANN   ", Cmd_USE_POWER_AT_LOCATION},
-  {"USE_POWER",                         "PAN     ", Cmd_USE_POWER},
-  {"USE_SPECIAL_INCREASE_LEVEL",        "PN      ", Cmd_USE_SPECIAL_INCREASE_LEVEL},
-  {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES},
-  {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE},
-  {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD},
-  {"CHANGE_CREATURES_ANNOYANCE",        "PAN     ", Cmd_CHANGE_CREATURES_ANNOYANCE},
-  {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG},
-  {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG},
-  {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG},
-  {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE},
-  {"RUN_AFTER_VICTORY",                 "N       ", Cmd_RUN_AFTER_VICTORY},
-  {"LEVEL_UP_CREATURE",                 "PCAN    ", Cmd_LEVEL_UP_CREATURE},
-  {"CHANGE_CREATURE_OWNER",             "PCAP    ", Cmd_CHANGE_CREATURE_OWNER},
-  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE},
-  {"SET_TRAP_CONFIGURATION",            "ANNNNNNN", Cmd_SET_TRAP_CONFIGURATION},
-  {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION},
-  {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER},
-  {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE},
-  {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER},
-  {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE},
-  {NULL,                                "        ", Cmd_NONE},
-};
-
-const struct CommandDesc dk1_command_desc[] = {
-  {"CREATE_PARTY",                 "A       ", Cmd_CREATE_PARTY},
-  {"ADD_TO_PARTY",                 "ACNNAN  ", Cmd_ADD_TO_PARTY},
-  {"ADD_PARTY_TO_LEVEL",           "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL},
-  {"ADD_CREATURE_TO_LEVEL",        "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL},
-  {"IF",                           "PAON    ", Cmd_IF},
-  {"IF_ACTION_POINT",              "NP      ", Cmd_IF_ACTION_POINT},
-  {"ENDIF",                        "        ", Cmd_ENDIF},
-  {"SET_HATE",                     "PPN     ", Cmd_SET_HATE},
-  {"SET_GENERATE_SPEED",           "N       ", Cmd_SET_GENERATE_SPEED},
-  {"REM",                          "        ", Cmd_REM},
-  {"START_MONEY",                  "PN      ", Cmd_START_MONEY},
-  {"ROOM_AVAILABLE",               "PRNN    ", Cmd_ROOM_AVAILABLE},
-  {"CREATURE_AVAILABLE",           "PCNN    ", Cmd_CREATURE_AVAILABLE},
-  {"MAGIC_AVAILABLE",              "PANN    ", Cmd_MAGIC_AVAILABLE},
-  {"TRAP_AVAILABLE",               "PANN    ", Cmd_TRAP_AVAILABLE},
-  {"RESEARCH",                     "PAAN    ", Cmd_RESEARCH_ORDER},
-  {"COMPUTER_PLAYER",              "PN      ", Cmd_COMPUTER_PLAYER},
-  {"SET_TIMER",                    "PA      ", Cmd_SET_TIMER},
-  {"ADD_TUNNELLER_TO_LEVEL",       "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL},
-  {"WIN_GAME",                     "        ", Cmd_WIN_GAME},
-  {"LOSE_GAME",                    "        ", Cmd_LOSE_GAME},
-  {"SET_FLAG",                     "PAN     ", Cmd_SET_FLAG},
-  {"MAX_CREATURES",                "PN      ", Cmd_MAX_CREATURES},
-  {"NEXT_COMMAND_REUSABLE",        "        ", Cmd_NEXT_COMMAND_REUSABLE},
-  {"DOOR_AVAILABLE",               "PANN    ", Cmd_DOOR_AVAILABLE},
-  {"DISPLAY_OBJECTIVE",            "NA      ", Cmd_DISPLAY_OBJECTIVE},
-  {"DISPLAY_OBJECTIVE_WITH_POS",   "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS},
-  {"DISPLAY_INFORMATION",          "N       ", Cmd_DISPLAY_INFORMATION},
-  {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS},
-  {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL},
-  {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL},
-  {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT},
-  {"SET_CREATURE_MAX_LEVEL",       "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL},
-  {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC},
-  {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON},
-  {"SET_CREATURE_STRENGTH",        "CN      ", Cmd_SET_CREATURE_STRENGTH},
-  {"SET_CREATURE_HEALTH",          "CN      ", Cmd_SET_CREATURE_HEALTH},
-  {"SET_CREATURE_ARMOUR",          "CN      ", Cmd_SET_CREATURE_ARMOUR},
-  {"SET_CREATURE_FEAR",            "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
-  {"IF_AVAILABLE",                 "PAON    ", Cmd_IF_AVAILABLE},
-  {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
-  {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS},
-  {"SET_COMPUTER_EVENT",           "PANN    ", Cmd_SET_COMPUTER_EVENT},
-  {"SET_COMPUTER_PROCESS",         "PANNNNN ", Cmd_SET_COMPUTER_PROCESS},
-  {"ALLY_PLAYERS",                 "PP      ", Cmd_ALLY_PLAYERS},
-  {"DEAD_CREATURES_RETURN_TO_POOL","N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL},
-  {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME},
-  {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE},
-  {"QUICK_INFORMATION",            "NA      ", Cmd_QUICK_INFORMATION},
-  {"SWAP_CREATURE",                "AC      ", Cmd_SWAP_CREATURE},
-  {"PRINT",                        "A       ", Cmd_PRINT},
-  {"MESSAGE",                      "A       ", Cmd_MESSAGE},
-  {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION},
-  {NULL,                           "        ", Cmd_NONE},
-};
-
+static struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
+const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
-    {"RANDOM",                     "Aaaaaaaa", Cmd_RANDOM},
-    {"DRAWFROM",                   "Aaaaaaaa", Cmd_DRAWFROM},
-    {"IMPORT",                     "PA      ", Cmd_IMPORT},
-    {NULL,                         "        ", Cmd_NONE},
+    {"RANDOM",                     "Aaaaaaaa", Cmd_RANDOM, NULL, NULL},
+    {"DRAWFROM",                   "Aaaaaaaa", Cmd_DRAWFROM, NULL, NULL},
+    {"IMPORT",                     "PA      ", Cmd_IMPORT, NULL, NULL},
+    {NULL,                         "        ", Cmd_NONE, NULL, NULL},
   };
 
 const struct NamedCommand newcrtr_desc[] = {
@@ -489,9 +334,6 @@ const struct NamedCommand script_operator_desc[] = {
   {"DECREASE",    3},
   {NULL,          0},
 };
-
-/******************************************************************************/
-static struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
 
 /******************************************************************************/
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
@@ -1076,31 +918,88 @@ long pop_condition(void)
   return script_current_condition;
 }
 
-void command_add_to_party(const char *prtname, const char *crtr_name, long crtr_level, long carried_gold, const char *objectv, long countdown)
+static void delete_from_party_check(const struct ScriptLine *scline)
 {
-    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    int party_id = get_party_index_of_name(scline->tp[0]);
+    if (party_id < 0)
     {
-      SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",crtr_level,1,CREATURE_MAX_LEVEL);
+        SCRPTERRLOG("Invalid Party:%s",scline->tp[0]);
+        return;
+    }
+    long creature_id = get_rid(creature_desc, scline->tp[1]);
+    if (creature_id == -1)
+    {
+      SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
       return;
     }
-    long crtr_id = get_rid(creature_desc, crtr_name);
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        delete_member_from_party(party_id, creature_id, scline->np[2]);
+    } else
+    {
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        pr_trig->flags = TrgF_DELETE_FROM_PARTY;
+        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
+        pr_trig->party_id = party_id;
+        pr_trig->creatr_id = creature_id;
+        pr_trig->crtr_level = scline->np[2];
+        pr_trig->condit_idx = script_current_condition;
+
+        game.script.party_triggers_num++;
+    }
+}
+
+static void add_to_party_check(const struct ScriptLine *scline)
+{
+    int party_id = get_party_index_of_name(scline->tp[0]);
+    if (party_id < 0)
+    {
+        SCRPTERRLOG("Invalid Party:%s",scline->tp[1]);
+        return;
+    }
+    if ((scline->np[2] < 1) || (scline->np[2] > CREATURE_MAX_LEVEL))
+    {
+      SCRPTERRLOG("Invalid Creature Level parameter; %ld not in range (%d,%d)",scline->np[2],1,CREATURE_MAX_LEVEL);
+      return;
+    }
+    long crtr_id = get_rid(creature_desc, scline->tp[1]);
     if (crtr_id == -1)
     {
-      SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+      SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
       return;
     }
-    long objctv_id = get_rid(hero_objective_desc, objectv);
-    if (objctv_id == -1)
+    long objective_id = get_rid(hero_objective_desc, scline->tp[4]);
+    if (objective_id == -1)
     {
-      SCRPTERRLOG("Unknown party member objective, '%s'", objectv);
+      SCRPTERRLOG("Unknown party member objective, '%s'", scline->tp[4]);
       return;
     }
   //SCRPTLOG("Party '%s' member kind %d, level %d",prtname,crtr_id,crtr_level);
-    if (script_current_condition != -1)
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
     {
-      SCRPTWRNLOG("Party '%s' member added inside conditional statement",prtname);
+        add_member_to_party(party_id, crtr_id, scline->np[2], scline->np[3], objective_id, scline->np[5]);
+    } else
+    {
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        pr_trig->flags = TrgF_ADD_TO_PARTY;
+        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
+        pr_trig->party_id = party_id;
+        pr_trig->creatr_id = crtr_id;
+        pr_trig->crtr_level = scline->np[2];
+        pr_trig->carried_gold = scline->np[3];
+        pr_trig->objectv = objective_id;
+        pr_trig->countdown = scline->np[5];
+        pr_trig->condit_idx = script_current_condition;
+
+        game.script.party_triggers_num++;
     }
-    add_member_to_party_name(prtname, crtr_id, crtr_level, carried_gold, objctv_id, countdown);
+}
+
+static void add_to_party_process(struct ScriptContext *context)
+{
+    struct PartyTrigger* pr_trig = context->pr_trig;
+    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
 }
 
 void command_tutorial_flash_button(long btn_id, long duration)
@@ -1144,10 +1043,10 @@ void command_add_party_to_level(long plr_range_id, const char *prtname, const ch
     } else
     {
         struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
+        pr_trig->flags = TrgF_CREATE_PARTY;
+        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->plyr_idx = plr_id;
-        pr_trig->creatr_id = -prty_id;
+        pr_trig->creatr_id = prty_id;
         pr_trig->location = location;
         pr_trig->ncopies = ncopies;
         pr_trig->condit_idx = script_current_condition;
@@ -1178,12 +1077,11 @@ void command_add_object_to_level(const char *obj_name, const char *locname, long
     } else
     {
         struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
+        pr_trig->flags = TrgF_CREATE_OBJECT;
+        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->plyr_idx = 0; //That is because script is inside `struct Game` and it is not possible to enlarge it
         pr_trig->creatr_id = obj_id & 0x7F;
-        pr_trig->crtr_level = 128 // Used as a marker "this is not a creature"
-            | ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
+        pr_trig->crtr_level = ((obj_id >> 7) & 7); // No more than 1023 different classes of objects :)
         pr_trig->carried_gold = arg;
         pr_trig->location = location;
         pr_trig->ncopies = 1;
@@ -1231,8 +1129,9 @@ void command_add_creature_to_level(long plr_range_id, const char *crtr_name, con
     } else
     {
         struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
+        pr_trig->flags = TrgF_CREATE_CREATURE;
+        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
+
         pr_trig->plyr_idx = plr_id;
         pr_trig->creatr_id = crtr_id;
         pr_trig->crtr_level = crtr_level-1;
@@ -1425,25 +1324,37 @@ struct ScriptValue *allocate_script_value(void)
 
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
+    struct ScriptValue tmp_value = {0};
+    struct ScriptValue* value;
+
     if ((script_current_condition < 0) && (next_command_reusable == 0))
     {
-        script_process_value(var_index, plr_range_id, val2, val3, val4);
-        return;
+        // Fill local structure
+        value = &tmp_value;
     }
-    struct ScriptValue* value = allocate_script_value();
-    if (value == NULL)
+    else
     {
-        SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
-        return;
+        value = allocate_script_value();
+        if (value == NULL)
+        {
+            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
+            return;
+        }
     }
     set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
     set_flag_byte(&value->flags, TrgF_DISABLED, false);
     value->valtype = var_index;
     value->plyr_range = plr_range_id;
-    value->field_4 = val2;
-    value->field_8 = val3;
-    value->field_C = val4;
+    value->arg0 = val2;
+    value->arg1 = val3;
+    value->arg2 = val4;
     value->condit_idx = script_current_condition;
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        script_process_value(var_index, plr_range_id, val2, val3, val4, value);
+        return;
+    }
 }
 
 void command_display_information(long msg_num, const char *where, long x, long y)
@@ -1749,17 +1660,42 @@ void command_door_available(long plr_range_id, const char *doorname, unsigned lo
   command_add_value(Cmd_DOOR_AVAILABLE, plr_range_id, door_id, a3, a4);
 }
 
-void command_display_objective(long msg_num, const char *where, long x, long y)
+static void display_objective_check(const struct ScriptLine *scline)
 {
-  TbMapLocation location;
+  long msg_num = scline->np[0];
+  long x, y;
+  TbMapLocation location = 0;
   if ((msg_num < 0) || (msg_num >= STRINGS_MAX))
   {
     SCRPTERRLOG("Invalid TEXT number");
     return;
   }
-  if (!get_map_location_id(where, &location))
-    return;
-  command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
+  if (scline->command == Cmd_DISPLAY_OBJECTIVE)
+  {
+    const char *where = scline->tp[1];
+    if (!get_map_location_id(where, &location))
+    {
+      return;
+    }
+    command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, 0);
+  }
+  else
+  {
+    x = scline->np[1]; 
+    y = scline->np[2];
+    command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
+  }
+}
+
+static void display_objective_process(struct ScriptContext *context)
+{
+      if ( (my_player_number >= context->plr_start) && (my_player_number < context->plr_end) )
+      {
+          set_general_objective(context->value->arg0,
+              context->value->arg1,
+              stl_num_decode_x(context->value->arg2),
+              stl_num_decode_y(context->value->arg2));
+      }
 }
 
 void command_add_tunneller_to_level(long plr_range_id, const char *locname, const char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold)
@@ -3000,13 +2936,15 @@ void command_set_game_rule(const char* objectv, unsigned long roomvar)
  */
 void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptLine *scline)
 {
+    if (cmd_desc->check_fn != NULL)
+    {
+        cmd_desc->check_fn(scline);
+        return;
+    }
     switch (cmd_desc->index)
     {
     case Cmd_CREATE_PARTY:
         command_create_party(scline->tp[0]);
-        break;
-    case Cmd_ADD_TO_PARTY:
-        command_add_to_party(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3], scline->tp[4], scline->np[5]);
         break;
     case Cmd_ADD_PARTY_TO_LEVEL:
         command_add_party_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -3084,9 +3022,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_DOOR_AVAILABLE:
         command_door_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
-    case Cmd_DISPLAY_OBJECTIVE:
-        command_display_objective(scline->np[0], scline->tp[1], 0, 0);
-        break;
     case Cmd_DISPLAY_INFORMATION:
         if (level_file_version > 0)
           command_display_information(scline->np[0], scline->tp[1], 0, 0);
@@ -3134,9 +3069,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_CREATURE_PROPERTY:
         command_set_creature_property(scline->tp[0], scline->np[1], scline->np[2]);
-        break;
-    case Cmd_DISPLAY_OBJECTIVE_WITH_POS:
-        command_display_objective(scline->np[0], NULL, scline->np[1], scline->np[2]);
         break;
     case Cmd_IF_AVAILABLE:
         command_if_available(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -3650,6 +3582,7 @@ long script_scan_line(char *line,TbBool preloaded)
         LbMemoryFree(scline);
         return 0;
     }
+    scline->command = cmd_desc->index;
     // selecting only preloaded/not preloaded commands
     if (script_is_preloaded_command(cmd_desc->index) != preloaded)
     {
@@ -5097,6 +5030,39 @@ void process_conditions(void)
     }
 }
 
+static void process_party(struct PartyTrigger* pr_trig)
+{
+    struct ScriptContext context = {0};
+    long n = pr_trig->creatr_id;
+
+    context.pr_trig = pr_trig;
+
+    switch (pr_trig->flags & TrgF_COMMAND_MASK)
+    {
+    case TrgF_ADD_TO_PARTY:
+        add_to_party_process(&context);
+        break;
+    case TrgF_DELETE_FROM_PARTY:
+        delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level);
+        break;
+    case TrgF_CREATE_OBJECT:
+        n |= ((pr_trig->crtr_level & 7) << 7);
+        SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
+        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold);
+        break;
+    case TrgF_CREATE_PARTY:
+        SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
+        script_process_new_party(&game.script.creature_partys[n],
+            pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
+        break;
+    case TrgF_CREATE_CREATURE:
+        SCRIPTDBG(6, "Adding creature %d", n);
+        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
+            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+        break;
+    }
+}
+
 void process_check_new_creature_partys(void)
 {
     for (long i = 0; i < game.script.party_triggers_num; i++)
@@ -5106,28 +5072,7 @@ void process_check_new_creature_partys(void)
         {
             if (is_condition_met(pr_trig->condit_idx))
             {
-                long n = pr_trig->creatr_id;
-                if (pr_trig->crtr_level & 128)
-                {
-                    n |= ((pr_trig->crtr_level & 7) << 7);
-                    SYNCDBG(6, "Adding object %d in location %d", (int)n, (int)pr_trig->location);
-                    script_process_new_object(n, pr_trig->location, pr_trig->carried_gold);
-                }
-                else
-                {
-                    if (n <= 0)
-                    {
-                        SYNCDBG(6, "Adding player %d party %d in location %d", (int)pr_trig->plyr_idx, (int)-n, (int)pr_trig->location);
-                        script_process_new_party(&game.script.creature_partys[-n],
-                            pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
-                    }
-                    else
-                    {
-                        SCRIPTDBG(6, "Adding creature %d", n);
-                        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
-                            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
-                    }
-                }
+                process_party(pr_trig);
                 if ((pr_trig->flags & TrgF_REUSABLE) == 0)
                     set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
             }
@@ -5211,7 +5156,7 @@ void process_values(void)
         {
             if (is_condition_met(value->condit_idx))
             {
-                script_process_value(value->valtype, value->plyr_range, value->field_4, value->field_8, value->field_C);
+                script_process_value(value->valtype, value->plyr_range, value->arg0, value->arg1, value->arg2, value);
                 if ((value->flags & TrgF_REUSABLE) == 0)
                   set_flag_byte(&value->flags, TrgF_DISABLED, true);
             }
@@ -5242,7 +5187,7 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
  * This processes given script command. It is used to process VALUEs at start when they have
  * no conditions, or during the gameplay when conditions are met.
  */
-void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
+void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value)
 {
   struct CreatureStats *crstat;
   struct CreatureModelConfig *crconf;
@@ -5257,6 +5202,27 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       WARNLOG("Invalid player range %d in VALUE command %d.",(int)plr_range_id,(int)var_index);
       return;
   }
+  //TODO: split and make indexed by var_index
+  const struct CommandDesc *desc;
+  for (desc = command_desc; desc->textptr != NULL; desc++)
+      if (desc-> index == var_index)
+          break;
+  if (desc == NULL)
+  {
+      WARNLOG("Unexpected index:%d", var_index);
+      return;
+  }
+  if (desc->process_fn)
+  {
+      // TODO: move two functions up
+      struct ScriptContext context;
+      context.plr_start = plr_start;
+      context.plr_end = plr_end;
+      context.value = value;
+      desc->process_fn(&context);
+      return;
+  }
+  
   switch (var_index)
   {
   case Cmd_SET_HATE:
@@ -5349,11 +5315,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_DOOR_AVAILABLE:
       for (i=plr_start; i < plr_end; i++) {
           set_door_buildable_and_add_to_amount(i, val2, val3, val4);
-      }
-      break;
-  case Cmd_DISPLAY_OBJECTIVE:
-      if ( (my_player_number >= plr_start) && (my_player_number < plr_end) ) {
-          set_general_objective(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       }
       break;
   case Cmd_DISPLAY_INFORMATION:
@@ -6006,6 +5967,166 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
   }
 }
+
+/******************************************************************************/
+/**
+ * Descriptions of script commands for parser.
+ * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind, X- creature property
+ * Lower case letters are optional arguments.
+ */
+const struct CommandDesc command_desc[] = {
+  {"CREATE_PARTY",                      "A       ", Cmd_CREATE_PARTY, NULL, NULL},
+  {"ADD_TO_PARTY",                      "ACNNAN  ", Cmd_ADD_TO_PARTY, &add_to_party_check, NULL},
+  {"DELETE_FROM_PARTY",                 "ACN     ", Cmd_DELETE_FROM_PARTY, &delete_from_party_check, NULL},
+  {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
+  {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
+  {"ADD_OBJECT_TO_LEVEL",               "AAN     ", Cmd_ADD_OBJECT_TO_LEVEL, NULL, NULL},
+  {"IF",                                "PAON    ", Cmd_IF, NULL, NULL},
+  {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
+  {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
+  {"SET_HATE",                          "PPN     ", Cmd_SET_HATE, NULL, NULL},
+  {"SET_GENERATE_SPEED",                "N       ", Cmd_SET_GENERATE_SPEED, NULL, NULL},
+  {"REM",                               "        ", Cmd_REM, NULL, NULL},
+  {"START_MONEY",                       "PN      ", Cmd_START_MONEY, NULL, NULL},
+  {"ROOM_AVAILABLE",                    "PRNN    ", Cmd_ROOM_AVAILABLE, NULL, NULL},
+  {"CREATURE_AVAILABLE",                "PCNN    ", Cmd_CREATURE_AVAILABLE, NULL, NULL},
+  {"MAGIC_AVAILABLE",                   "PANN    ", Cmd_MAGIC_AVAILABLE, NULL, NULL},
+  {"TRAP_AVAILABLE",                    "PANN    ", Cmd_TRAP_AVAILABLE, NULL, NULL},
+  {"RESEARCH",                          "PAAN    ", Cmd_RESEARCH, NULL, NULL},
+  {"RESEARCH_ORDER",                    "PAAN    ", Cmd_RESEARCH_ORDER, NULL, NULL},
+  {"COMPUTER_PLAYER",                   "PN      ", Cmd_COMPUTER_PLAYER, NULL, NULL},
+  {"SET_TIMER",                         "PA      ", Cmd_SET_TIMER, NULL, NULL},
+  {"ADD_TUNNELLER_TO_LEVEL",            "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL, NULL, NULL},
+  {"WIN_GAME",                          "        ", Cmd_WIN_GAME, NULL, NULL},
+  {"LOSE_GAME",                         "        ", Cmd_LOSE_GAME, NULL, NULL},
+  {"SET_FLAG",                          "PAN     ", Cmd_SET_FLAG, NULL, NULL},
+  {"MAX_CREATURES",                     "PN      ", Cmd_MAX_CREATURES, NULL, NULL},
+  {"NEXT_COMMAND_REUSABLE",             "        ", Cmd_NEXT_COMMAND_REUSABLE, NULL, NULL},
+  {"DOOR_AVAILABLE",                    "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
+  {"DISPLAY_OBJECTIVE",                 "NL      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
+  {"DISPLAY_OBJECTIVE_WITH_POS",        "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
+  {"DISPLAY_INFORMATION",               "NL      ", Cmd_DISPLAY_INFORMATION, NULL, NULL},
+  {"DISPLAY_INFORMATION_WITH_POS",      "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
+  {"ADD_TUNNELLER_PARTY_TO_LEVEL",      "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
+  {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
+  {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
+  {"SET_CREATURE_MAX_LEVEL",            "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
+  {"SET_MUSIC",                         "N       ", Cmd_SET_MUSIC, NULL, NULL},
+  {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
+  {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
+  {"SET_CREATURE_HEALTH",               "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},
+  {"SET_CREATURE_ARMOUR",               "CN      ", Cmd_SET_CREATURE_ARMOUR, NULL, NULL},
+  {"SET_CREATURE_FEAR_WOUNDED",         "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED, NULL, NULL},
+  {"SET_CREATURE_FEAR_STRONGER",        "CN      ", Cmd_SET_CREATURE_FEAR_STRONGER, NULL, NULL},
+  {"SET_CREATURE_FEARSOME_FACTOR",      "CN      ", Cmd_SET_CREATURE_FEARSOME_FACTOR, NULL, NULL},
+  {"SET_CREATURE_PROPERTY",             "CXN     ", Cmd_SET_CREATURE_PROPERTY, NULL, NULL},
+  {"IF_AVAILABLE",                      "PAON    ", Cmd_IF_AVAILABLE, NULL, NULL},
+  {"IF_CONTROLS",                       "PAON    ", Cmd_IF_CONTROLS, NULL, NULL},
+  {"SET_COMPUTER_GLOBALS",              "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS, NULL, NULL},
+  {"SET_COMPUTER_CHECKS",               "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
+  {"SET_COMPUTER_EVENT",                "PANNNNN ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
+  {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, NULL, NULL},
+  {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS, NULL, NULL},
+  {"DEAD_CREATURES_RETURN_TO_POOL",     "N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
+  {"BONUS_LEVEL_TIME",                  "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
+  {"QUICK_OBJECTIVE",                   "NAL     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
+  {"QUICK_INFORMATION",                 "NAL     ", Cmd_QUICK_INFORMATION, NULL, NULL},
+  {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
+  {"QUICK_INFORMATION_WITH_POS",        "NANN    ", Cmd_QUICK_INFORMATION_WITH_POS, NULL, NULL},
+  {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
+  {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
+  {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
+  {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE, NULL, NULL},
+  {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER, NULL, NULL},
+  {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
+  {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
+  {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION, NULL, NULL},
+  {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
+  {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE, NULL, NULL},
+  {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
+  {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
+  {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE, NULL, NULL},
+  {"USE_POWER_AT_LOCATION",             "PNANN   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
+  {"USE_POWER",                         "PAN     ", Cmd_USE_POWER, NULL, NULL},
+  {"USE_SPECIAL_INCREASE_LEVEL",        "PN      ", Cmd_USE_SPECIAL_INCREASE_LEVEL, NULL, NULL},
+  {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES, NULL, NULL},
+  {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE, NULL, NULL},
+  {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, NULL, NULL},
+  {"CHANGE_CREATURES_ANNOYANCE",        "PAN     ", Cmd_CHANGE_CREATURES_ANNOYANCE, NULL, NULL},
+  {"ADD_TO_FLAG",                       "PAN     ", Cmd_ADD_TO_FLAG, NULL, NULL},
+  {"SET_CAMPAIGN_FLAG",                 "PAN     ", Cmd_SET_CAMPAIGN_FLAG, NULL, NULL},
+  {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG, NULL, NULL},
+  {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE, NULL, NULL},
+  {"RUN_AFTER_VICTORY",                 "N       ", Cmd_RUN_AFTER_VICTORY, NULL, NULL},
+  {"LEVEL_UP_CREATURE",                 "PCAN    ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
+  {"CHANGE_CREATURE_OWNER",             "PCAP    ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
+  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
+  {"SET_TRAP_CONFIGURATION",            "ANNNNNNN", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
+  {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
+  {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
+  {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
+  {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
+  {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
+  {NULL,                                "        ", Cmd_NONE, NULL, NULL},
+};
+
+const struct CommandDesc dk1_command_desc[] = {
+  {"CREATE_PARTY",                 "A       ", Cmd_CREATE_PARTY, NULL, NULL},
+  {"ADD_TO_PARTY",                 "ACNNAN  ", Cmd_ADD_TO_PARTY, &add_to_party_check, NULL},
+  {"ADD_PARTY_TO_LEVEL",           "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
+  {"ADD_CREATURE_TO_LEVEL",        "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
+  {"IF",                           "PAON    ", Cmd_IF, NULL, NULL},
+  {"IF_ACTION_POINT",              "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
+  {"ENDIF",                        "        ", Cmd_ENDIF, NULL, NULL},
+  {"SET_HATE",                     "PPN     ", Cmd_SET_HATE, NULL, NULL},
+  {"SET_GENERATE_SPEED",           "N       ", Cmd_SET_GENERATE_SPEED, NULL, NULL},
+  {"REM",                          "        ", Cmd_REM, NULL, NULL},
+  {"START_MONEY",                  "PN      ", Cmd_START_MONEY, NULL, NULL},
+  {"ROOM_AVAILABLE",               "PRNN    ", Cmd_ROOM_AVAILABLE, NULL, NULL},
+  {"CREATURE_AVAILABLE",           "PCNN    ", Cmd_CREATURE_AVAILABLE, NULL, NULL},
+  {"MAGIC_AVAILABLE",              "PANN    ", Cmd_MAGIC_AVAILABLE, NULL, NULL},
+  {"TRAP_AVAILABLE",               "PANN    ", Cmd_TRAP_AVAILABLE, NULL, NULL},
+  {"RESEARCH",                     "PAAN    ", Cmd_RESEARCH_ORDER, NULL, NULL},
+  {"COMPUTER_PLAYER",              "PN      ", Cmd_COMPUTER_PLAYER, NULL, NULL},
+  {"SET_TIMER",                    "PA      ", Cmd_SET_TIMER, NULL, NULL},
+  {"ADD_TUNNELLER_TO_LEVEL",       "PAANNN  ", Cmd_ADD_TUNNELLER_TO_LEVEL, NULL, NULL},
+  {"WIN_GAME",                     "        ", Cmd_WIN_GAME, NULL, NULL},
+  {"LOSE_GAME",                    "        ", Cmd_LOSE_GAME, NULL, NULL},
+  {"SET_FLAG",                     "PAN     ", Cmd_SET_FLAG, NULL, NULL},
+  {"MAX_CREATURES",                "PN      ", Cmd_MAX_CREATURES, NULL, NULL},
+  {"NEXT_COMMAND_REUSABLE",        "        ", Cmd_NEXT_COMMAND_REUSABLE, NULL, NULL},
+  {"DOOR_AVAILABLE",               "PANN    ", Cmd_DOOR_AVAILABLE, NULL, NULL},
+  {"DISPLAY_OBJECTIVE",            "NA      ", Cmd_DISPLAY_OBJECTIVE, &display_objective_check, &display_objective_process},
+  {"DISPLAY_OBJECTIVE_WITH_POS",   "NNN     ", Cmd_DISPLAY_OBJECTIVE_WITH_POS, &display_objective_check, &display_objective_process},
+  {"DISPLAY_INFORMATION",          "N       ", Cmd_DISPLAY_INFORMATION, NULL, NULL},
+  {"DISPLAY_INFORMATION_WITH_POS", "NNN     ", Cmd_DISPLAY_INFORMATION_WITH_POS, NULL, NULL},
+  {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
+  {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
+  {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
+  {"SET_CREATURE_MAX_LEVEL",       "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
+  {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC, NULL, NULL},
+  {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
+  {"SET_CREATURE_STRENGTH",        "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
+  {"SET_CREATURE_HEALTH",          "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},
+  {"SET_CREATURE_ARMOUR",          "CN      ", Cmd_SET_CREATURE_ARMOUR, NULL, NULL},
+  {"SET_CREATURE_FEAR",            "CN      ", Cmd_SET_CREATURE_FEAR_WOUNDED, NULL, NULL},
+  {"IF_AVAILABLE",                 "PAON    ", Cmd_IF_AVAILABLE, NULL, NULL},
+  {"SET_COMPUTER_GLOBALS",         "PNNNNNN ", Cmd_SET_COMPUTER_GLOBALS, NULL, NULL},
+  {"SET_COMPUTER_CHECKS",          "PANNNNN ", Cmd_SET_COMPUTER_CHECKS, NULL, NULL},
+  {"SET_COMPUTER_EVENT",           "PANN    ", Cmd_SET_COMPUTER_EVENT, NULL, NULL},
+  {"SET_COMPUTER_PROCESS",         "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, NULL, NULL},
+  {"ALLY_PLAYERS",                 "PP      ", Cmd_ALLY_PLAYERS, NULL, NULL},
+  {"DEAD_CREATURES_RETURN_TO_POOL","N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
+  {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
+  {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
+  {"QUICK_INFORMATION",            "NA      ", Cmd_QUICK_INFORMATION, NULL, NULL},
+  {"SWAP_CREATURE",                "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
+  {"PRINT",                        "A       ", Cmd_PRINT, NULL, NULL},
+  {"MESSAGE",                      "A       ", Cmd_MESSAGE, NULL, NULL},
+  {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
+  {NULL,                           "        ", Cmd_NONE, NULL, NULL},
+};
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

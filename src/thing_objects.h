@@ -117,7 +117,6 @@ SpecialKind box_thing_to_special(const struct Thing *thing);
 PowerKind book_thing_to_power_kind(const struct Thing *thing);
 
 TbBool thing_is_special_box(const struct Thing *thing);
-#define is_dungeon_special thing_is_special_box
 TbBool thing_is_workshop_crate(const struct Thing *thing);
 TbBool thing_is_trap_crate(const struct Thing *thing);
 TbBool thing_is_door_crate(const struct Thing *thing);

@@ -59,6 +59,10 @@ long tri_new(void)
             erstat_inc(ESE_NoFreeTriangls);
             return -1;
         }
+        if (i > (TRIANLGLES_COUNT * 999 / 1000))
+        {
+            WARNLOG("TRIANGLES near limit: %d", i);
+        }
         ix_Triangles++;
     } else
     {
