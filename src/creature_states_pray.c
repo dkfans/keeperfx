@@ -514,9 +514,17 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
             ret = create_sacrifice_unique_award(pos, plyr_idx, sac->param, explevel);
             break;
         case SacA_CustomReward:
+            if (sac->param > 0) // Zero means do nothing
+            {
+                dungeon->script_flags[sac->param - 1]++;
+            }
             ret = SacR_Awarded;
             break;
         case SacA_CustomPunish:
+            if (sac->param > 0)
+            {
+                dungeon->script_flags[sac->param - 1]++;
+            }
             ret = SacR_Punished;
             break;
         default:

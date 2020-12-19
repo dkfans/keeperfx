@@ -1038,14 +1038,27 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     command_init_value(value, scline->command, 0);
 
     value->sac.action = get_rid(rules_sacrifices_commands, scline->tp[0]);
-    long param = get_id(creature_desc, scline->tp[1]);
-    if (param == -1)
+    if (value->sac.action == -1)
     {
-        param = get_id(sacrifice_unique_desc, scline->tp[1]);
+        SCRPTERRLOG("Unexpcepdted action:%s", scline->tp[0]);
+        return;
     }
-    if (param == -1)
+    long param;
+    if ((value->sac.action == SacA_CustomPunish) || (value->sac.action == SacA_CustomReward))
     {
-        param = get_id(spell_desc, scline->tp[1]);
+        param = get_id(flag_desc, scline->tp[1]) + 1;
+    }
+    else
+    {
+        param = get_id(creature_desc, scline->tp[1]);
+        if (param == -1)
+        {
+            param = get_id(sacrifice_unique_desc, scline->tp[1]);
+        }
+        if (param == -1)
+        {
+            param = get_id(spell_desc, scline->tp[1]);
+        }
     }
     if (param == -1 && (strcmp(scline->tp[1], "NONE") == 0))
     {
