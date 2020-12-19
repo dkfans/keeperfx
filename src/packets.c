@@ -1504,7 +1504,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
               thing = get_player_soul_container(PlayerToKill->id_number);
               if (thing_is_dungeon_heart(thing))
               {
-                    thing->health = -1;
+                    thing->health = 0;
               }
           }
         break;
