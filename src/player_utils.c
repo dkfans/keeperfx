@@ -819,7 +819,7 @@ void process_player_states(void)
         struct PlayerInfo* player = get_player(plyr_idx);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            if (player->work_state == PSt_CreatrInfo)
+            if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
             {
                 struct Thing* thing = thing_get(player->controlled_thing_idx);
                 struct Camera* cam = player->acamera;

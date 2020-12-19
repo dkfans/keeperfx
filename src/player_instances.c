@@ -556,7 +556,8 @@ long pinstfs_query_creature(struct PlayerInfo *player, long *n)
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
     set_selected_creature(player, thing);
-    set_player_state(player, PSt_CreatrInfo, 0);
+    unsigned char state = ( (player->work_state == PSt_CreatrQueryAll) || (player->work_state == PSt_CreatrInfoAll) ) ? PSt_CreatrInfoAll : PSt_CreatrInfo;
+    set_player_state(player, state, 0);
     return 0;
 }
 
@@ -1050,7 +1051,7 @@ TbBool is_thing_query_controlled(const struct Thing *thing)
     if (is_neutral_thing(thing))
         return false;
     struct PlayerInfo* player = get_player(thing->owner);
-    if (player->work_state != PSt_CreatrInfo)
+    if ( (player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CreatrInfoAll) )
         return false;
     switch (player->instance_num)
     {

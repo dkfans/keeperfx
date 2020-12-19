@@ -853,6 +853,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
+    case PSt_CreatrInfoAll:
     case PSt_CreatrQueryAll:
         set_pointer_graphic(MousePG_Query);
         break;

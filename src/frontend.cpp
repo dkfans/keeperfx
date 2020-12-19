@@ -490,7 +490,7 @@ void get_player_gui_clicks(void)
               set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
               right_button_released = 0;
             } else
-            if ((player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CtrlDungeon))
+            if ((player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CreatrInfoAll) && (player->work_state != PSt_CtrlDungeon))
             {
               set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
               right_button_released = 0;
