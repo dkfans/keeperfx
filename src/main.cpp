@@ -392,7 +392,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
         pos.y.val = thing->mappos.y.val - (delta_y >> 8);
         pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, TngEff_Unknown45, thing->owner);
+        create_effect_element(&pos, 45, thing->owner); // Heal
     }
 }
 

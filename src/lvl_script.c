@@ -1194,6 +1194,9 @@ static void set_box_tooltip_tr(const struct ScriptLine *scline)
   gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
 }
 
+// 1/4 turn minimal
+#define FX_LINE_TIME_PARTS 4
+
 static void create_fx_line_check(const struct ScriptLine *scline)
 {
     struct ScriptValue tmp_value = {0};
@@ -1243,15 +1246,12 @@ static void create_fx_line_check(const struct ScriptLine *scline)
     value->bytes[2] = scline->np[2]; // curvature
     value->bytes[3] = scline->np[3]; // spatial stepping
     value->bytes[4] = scline->np[4]; // temporal stepping
+    // TODO: use effect elements when below zero?
     value->bytes[5] = scline->np[5]; // effect
 
     if (value->bytes[3] < 1)
     {
         value->bytes[3] = 1;
-    }
-    if (value->bytes[4] < 1)
-    {
-        value->bytes[4] = 127;
     }
 
     if ((script_current_condition < 0) && (next_command_reusable == 0))
@@ -1286,6 +1286,11 @@ static void create_fx_line_process(struct ScriptContext *context)
     fx_line->effect = context->value->bytes[5];
     fx_line->here = fx_line->from;
 
+    if (fx_line->steps_per_turn <= 0)
+    {
+        fx_line->steps_per_turn = 32 * 255; // whole map
+    }
+
     int dx = fx_line->to.x.val - fx_line->from.x.val;
     int dy = fx_line->to.y.val - fx_line->from.y.val;
     if ((dx * dx + dy * dy) != 0)
@@ -1297,7 +1302,7 @@ static void create_fx_line_process(struct ScriptContext *context)
         fx_line->ax = (-dy * fx_line->curvature) / len; // let each slab divided by 8 points in each dir
         fx_line->ay = (+dx * fx_line->curvature) / len;
 
-        fx_line->remain_steps = (len / fx_line->spatial_step);
+        fx_line->remain_steps = (int)(len * sqrt(1.f + abs(fx_line->curvature) / (float)(fx_line->spatial_step)) / fx_line->spatial_step);
 
         fx_line->dx -= fx_line->ax * fx_line->remain_steps / 2;
         fx_line->dy -= fx_line->ay * fx_line->remain_steps / 2;
@@ -1310,13 +1315,22 @@ static void create_fx_line_process(struct ScriptContext *context)
         fx_line->ay = 0;
         fx_line->remain_steps = 1;
     }
+    fx_line->partial_steps = FX_LINE_TIME_PARTS;
 }
 
 static void process_fx_line(struct ScriptFxLine *fx_line)
 {
-    for (int t = 0; t < fx_line->steps_per_turn; t++)
+    fx_line->partial_steps += fx_line->steps_per_turn;
+    for (;fx_line->partial_steps >= FX_LINE_TIME_PARTS; fx_line->partial_steps -= FX_LINE_TIME_PARTS)
     {
-        create_effect(&fx_line->here, fx_line->effect, 0); //TODO owner
+        if (fx_line->effect > 0)
+        {
+            create_effect(&fx_line->here, fx_line->effect, 5); // Owner - neutral
+        }
+        else if (fx_line->effect < 0)
+        {
+            create_effect_element(&fx_line->here, -fx_line->effect, 5); // Owner - neutral
+        }
 
         fx_line->here.x.val += fx_line->dx;
         fx_line->here.y.val += fx_line->dy;

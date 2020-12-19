@@ -382,6 +382,7 @@ struct ScriptFxLine
     int spatial_step;
     int steps_per_turn;
     int remain_steps;
+    int partial_steps;
     int effect;
 };
 

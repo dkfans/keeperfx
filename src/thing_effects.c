@@ -670,7 +670,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
             pos.x.val = thing->mappos.x.val + shift_x;
             pos.y.val = thing->mappos.y.val + shift_y;
-            effeltng = create_thing(&pos, TCls_EffectElem, 0x11u, thing->owner, -1);
+            effeltng = create_thing(&pos, TCls_EffectElem, 17, thing->owner, -1);
         }
     }
 
@@ -681,7 +681,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
 
     if ((cctrl->spell_flags & CSAfF_Speed) != 0)
     {
-        effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
+        effeltng = create_effect_element(&thing->mappos, 18, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
             // TODO: looks like some "struct AnimSpeed"
