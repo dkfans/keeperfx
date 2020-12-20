@@ -1252,6 +1252,24 @@ TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSub
     powerst = get_power_model_stats(PwrK_HEALCRTR);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Heal, splevel);
+    if (gameadd.heal_radius)
+    {
+        unsigned char radius = splevel + 1;
+        for (MapSubtlCoord stl_x = (thing->mappos.x.stl.num - (radius >> 1)); stl_x <= (thing->mappos.x.stl.num + (radius >> 1)); stl_x++)
+        {
+            for (MapSubtlCoord stl_y = (thing->mappos.y.stl.num - (radius >> 1)); stl_y <= (thing->mappos.y.stl.num + (radius >> 1)); stl_y++)
+            {
+                struct thing* creatng = get_creature_near_and_owned_by(subtile_coord_center(stl_x), subtile_coord_center(stl_y), plyr_idx);
+                if (!thing_is_invalid(creatng))
+                {
+                    if (creatng != thing)
+                    {
+                        apply_spell_effect_to_thing(creatng, SplK_Heal, splevel);    
+                    }
+                }                
+            }
+        }
+    }
     return Lb_SUCCESS;
 }
 

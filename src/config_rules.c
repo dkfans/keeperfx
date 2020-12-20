@@ -130,6 +130,7 @@ const struct NamedCommand rules_magic_commands[] = {
   {"POWERHANDGOLDGRABAMOUNT",      14},
   {"FRIENDLYFIGHTAREARANGEPERCENT",15},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT",16},
+  {"HEALRADIUS",                    17},
   {NULL,                            0},
   };
 
@@ -1268,6 +1269,19 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           {
             k = atoi(word_buf);
             gameadd.friendly_fight_area_damage_permil = k * 10;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 17: // HEALRADIUS
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.heal_radius = k;
             n++;
           }
           if (n < 1)
