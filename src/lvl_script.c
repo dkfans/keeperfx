@@ -75,6 +75,7 @@ extern "C" {
 static struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
 static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 static struct ScriptValue *allocate_script_value(void);
+extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner);
 
 const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
@@ -1131,6 +1132,7 @@ static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
 static void set_sacrifice_recipe_process(struct ScriptContext *context)
 {
     long victims[MAX_SACRIFICE_VICTIMS];
+    struct Coord3d pos;
     int action = context->value->sac.action;
     int param = context->value->sac.param;
     for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
@@ -1170,6 +1172,14 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
     memcpy(sac->victims, victims, sizeof(victims));
     sac->action = action;
     sac->param = param;
+
+    // Check if sacrifice pool already matches
+    for (int i = 0; i < sizeof(victims); i++)
+    {
+        if (victims[i] == 0)
+            break;
+        process_sacrifice_creature(&pos, victims[i], context->player_idx);
+    }
 }
 
 static void set_box_tooltip(const struct ScriptLine *scline)
@@ -5411,6 +5421,8 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
 {
     struct Dungeon *dungeon = get_dungeon(player_idx);
     struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
+    struct Coord3d pos = {0};
+
     switch (var_type)
     {
     case SVar_FLAG:
@@ -5424,6 +5436,7 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
         break;
     case SVar_SACRIFICED:
         dungeon->creature_sacrifice[var_idx] = new_val;
+        process_sacrifice_creature(&pos, var_idx, player_idx);
         break;
     case SVar_REWARDED:
         dungeonadd->creature_awarded[var_idx] = new_val;
@@ -5468,8 +5481,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       struct ScriptContext context;
       context.plr_start = plr_start;
       context.plr_end = plr_end;
-      context.value = value;
-      desc->process_fn(&context);
+      // TODO: this should be checked for sanity
+      //for (i=plr_start; i < plr_end; i++)
+      {
+          context.player_idx = plr_start;
+          context.value = value;
+          desc->process_fn(&context);
+      }
       return;
   }
   

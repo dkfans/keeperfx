@@ -546,6 +546,35 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
   return ret;
 }
 
+void process_sacrifice_creature(struct Coord3d *pos, int model, int owner)
+{
+    long award = process_sacrifice_award(pos, model, owner);
+    if (is_my_player_number(owner))
+    {
+      switch (award)
+      {
+      case SacR_AngryWarn:
+          output_message(SMsg_SacrificeBad, 0, true);
+          break;
+      case SacR_DontCare:
+          output_message(SMsg_SacrificeNeutral, 0, true);
+          break;
+      case SacR_Pleased:
+          output_message(SMsg_SacrificeGood, 0, true);
+          break;
+      case SacR_Awarded:
+          output_message(SMsg_SacrificeReward, 0, true);
+          break;
+      case SacR_Punished:
+          output_message(SMsg_SacrificePunish, 0, true);
+          break;
+      default:
+          ERRORLOG("Invalid sacrifice return, %d",(int)award);
+          break;
+      }
+    }
+}
+
 // This is state-process function of a creature
 short creature_being_sacrificed(struct Thing *thing)
 {
@@ -572,31 +601,7 @@ short creature_being_sacrificed(struct Thing *thing)
     memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
 
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
-    long award = process_sacrifice_award(&pos, model, owner);
-    if (is_my_player_number(owner))
-    {
-      switch (award)
-      {
-      case SacR_AngryWarn:
-          output_message(SMsg_SacrificeBad, 0, true);
-          break;
-      case SacR_DontCare:
-          output_message(SMsg_SacrificeNeutral, 0, true);
-          break;
-      case SacR_Pleased:
-          output_message(SMsg_SacrificeGood, 0, true);
-          break;
-      case SacR_Awarded:
-          output_message(SMsg_SacrificeReward, 0, true);
-          break;
-      case SacR_Punished:
-          output_message(SMsg_SacrificePunish, 0, true);
-          break;
-      default:
-          ERRORLOG("Invalid sacrifice return, %d",(int)award);
-          break;
-      }
-    }
+    process_sacrifice_creature(&pos, model, owner);
     return -1;
 }
 
