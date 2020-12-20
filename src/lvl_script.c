@@ -75,7 +75,8 @@ extern "C" {
 static struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
 static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 static struct ScriptValue *allocate_script_value(void);
-extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner);
+extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial);
+extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 
 const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
@@ -1173,12 +1174,15 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
     sac->action = action;
     sac->param = param;
 
-    // Check if sacrifice pool already matches
-    for (int i = 0; i < sizeof(victims); i++)
+    if (find_temple_pool(context->player_idx, &pos))
     {
-        if (victims[i] == 0)
-            break;
-        process_sacrifice_creature(&pos, victims[i], context->player_idx);
+        // Check if sacrifice pool already matches
+        for (int i = 0; i < sizeof(victims); i++)
+        {
+            if (victims[i] == 0)
+                break;
+            process_sacrifice_creature(&pos, victims[i], context->player_idx, false);
+        }
     }
 }
 
@@ -5436,7 +5440,10 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
         break;
     case SVar_SACRIFICED:
         dungeon->creature_sacrifice[var_idx] = new_val;
-        process_sacrifice_creature(&pos, var_idx, player_idx);
+        if (find_temple_pool(player_idx, &pos))
+        {
+            process_sacrifice_creature(&pos, var_idx, player_idx, false);
+        }
         break;
     case SVar_REWARDED:
         dungeonadd->creature_awarded[var_idx] = new_val;

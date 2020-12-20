@@ -546,7 +546,7 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
   return ret;
 }
 
-void process_sacrifice_creature(struct Coord3d *pos, int model, int owner)
+void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial)
 {
     long award = process_sacrifice_award(pos, model, owner);
     if (is_my_player_number(owner))
@@ -554,13 +554,22 @@ void process_sacrifice_creature(struct Coord3d *pos, int model, int owner)
       switch (award)
       {
       case SacR_AngryWarn:
-          output_message(SMsg_SacrificeBad, 0, true);
+          if (partial)
+          {
+              output_message(SMsg_SacrificeBad, 0, true);
+          }
           break;
       case SacR_DontCare:
-          output_message(SMsg_SacrificeNeutral, 0, true);
+          if (partial)
+          {
+              output_message(SMsg_SacrificeNeutral, 0, true);
+          }
           break;
       case SacR_Pleased:
-          output_message(SMsg_SacrificeGood, 0, true);
+          if (partial)
+          {
+              output_message(SMsg_SacrificeGood, 0, true);
+          }
           break;
       case SacR_Awarded:
           output_message(SMsg_SacrificeReward, 0, true);
@@ -601,7 +610,7 @@ short creature_being_sacrificed(struct Thing *thing)
     memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
 
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
-    process_sacrifice_creature(&pos, model, owner);
+    process_sacrifice_creature(&pos, model, owner, true);
     return -1;
 }
 
@@ -640,4 +649,23 @@ short creature_sacrifice(struct Thing *thing)
     return 1;
 }
 
+
+TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
+{
+    struct Room *room;
+    long spare_cap;
+    struct Dungeon *dungeon = get_dungeon(player_idx);
+
+    if (dungeon->room_kind[RoK_TEMPLE] == 0)
+    {
+        return false; // No room
+    }
+    room = find_room_with_most_spare_capacity_starting_with(dungeon->room_kind[RoK_TEMPLE], &spare_cap);
+    if (room_is_invalid(room))
+    {
+        return false; // No room
+    }
+
+    return find_random_position_at_area_of_room(pos, room, RoArC_CENTER);;
+}
 /******************************************************************************/
