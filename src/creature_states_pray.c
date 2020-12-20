@@ -652,20 +652,44 @@ short creature_sacrifice(struct Thing *thing)
 
 TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
 {
-    struct Room *room;
-    long spare_cap;
+    struct Room *best_room = NULL;
+    long max_value = 0;
     struct Dungeon *dungeon = get_dungeon(player_idx);
 
-    if (dungeon->room_kind[RoK_TEMPLE] == 0)
+    int k = 0, i = dungeon->room_kind[RoK_TEMPLE];
+    while (i != 0)
     {
-        return false; // No room
+        struct Room* room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        if (find_random_position_at_area_of_room(pos, room, RoArC_CENTER))
+        {
+            if (max_value < room->total_capacity)
+            {
+                max_value = room->total_capacity;
+                best_room = room;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
     }
-    room = find_room_with_most_spare_capacity_starting_with(dungeon->room_kind[RoK_TEMPLE], &spare_cap);
-    if (room_is_invalid(room))
+
+    if (room_is_invalid(best_room))
     {
+        memset(pos, 0, sizeof(*pos));
         return false; // No room
     }
 
-    return find_random_position_at_area_of_room(pos, room, RoArC_CENTER);;
+    return true;
 }
 /******************************************************************************/
