@@ -686,6 +686,7 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
 
     if (room_is_invalid(best_room))
     {
+        WARNLOG("No temple to spawn a creature");
         memset(pos, 0, sizeof(*pos));
         return false; // No room
     }
