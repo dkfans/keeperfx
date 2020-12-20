@@ -1638,7 +1638,7 @@ void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
     SYNCDBG(0, "Revealing location type %d", target);
     long x = 0;
     long y = 0;
-    find_map_location_coords(target, &x, &y, __func__);
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
         WARNLOG("Can't decode location %d", target);
@@ -4751,7 +4751,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     long dest_x, dest_y = 0;
 
     //dig origin
-    find_map_location_coords(origin, &orig_x, &orig_y, __func__);
+    find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
     if ((orig_x == 0) && (orig_y == 0))
     {
         WARNLOG("Can't decode origin location %d", origin);
@@ -4763,7 +4763,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     startpos.z.val = subtile_coord(1, 0);
 
     //dig destination
-    find_map_location_coords(destination, &dest_x, &dest_y, __func__);
+    find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
     if ((dest_x == 0) && (dest_y == 0))
     {
         WARNLOG("Can't decode destination location %d", destination);
@@ -4814,7 +4814,7 @@ TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation targe
     SYNCDBG(0, "Using power at location of type %d", target);
     long x = 0;
     long y = 0;
-    find_map_location_coords(target, &x, &y, __func__);
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
         WARNLOG("Can't decode location %d", target);

@@ -85,6 +85,7 @@ CrStateRet process_temple_visuals(struct Thing *creatng, struct Room *room)
     return CrStRet_Modified;
 }
 
+// This is state-process function of a creature
 short at_temple(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -110,6 +111,7 @@ short at_temple(struct Thing *thing)
     return 1;
 }
 
+// This is state-process function of a creature
 CrStateRet praying_in_temple(struct Thing *thing)
 {
     TRACE_THING(thing);
@@ -144,6 +146,7 @@ long process_temple_cure(struct Thing *creatng)
     return 1;
 }
 
+// This is state-movecheck function of a creature
 CrCheckRet process_temple_function(struct Thing *thing)
 {
     struct Room* room = get_room_thing_is_on(thing);
@@ -321,6 +324,7 @@ void kill_all_players_chickens(PlayerNumber plyr_idx)
     do_to_players_all_creatures_of_model(plyr_idx, -1, kill_creature_if_under_chicken_spell);
 }
 
+// This is state-process function of a creature
 short creature_being_summoned(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -542,6 +546,7 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
   return ret;
 }
 
+// This is state-process function of a creature
 short creature_being_sacrificed(struct Thing *thing)
 {
     SYNCDBG(6,"Starting");
@@ -595,6 +600,7 @@ short creature_being_sacrificed(struct Thing *thing)
     return -1;
 }
 
+// This is state-process function of a creature
 short creature_sacrifice(struct Thing *thing)
 {
     //return _DK_creature_sacrifice(thing);
