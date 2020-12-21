@@ -649,6 +649,45 @@ short creature_sacrifice(struct Thing *thing)
     return 1;
 }
 
+TbBool find_random_sacrifice_center(struct Coord3d *pos, const struct Room *room)
+{
+    // Find a random slab in the room to be used as our starting point
+    long i = ACTION_RANDOM(room->slabs_count);
+    unsigned long n = room->slabs_list;
+    while (i > 0)
+    {
+        n = get_next_slab_number_in_room(n);
+        i--;
+    }
+    // Now loop starting from that point
+    i = room->slabs_count;
+    while (i > 0)
+    {
+        // Loop the slabs list
+        if (n <= 0) {
+            n = room->slabs_list;
+        }
+        MapSlabCoord slb_x = slb_num_decode_x(n);
+        MapSlabCoord slb_y = slb_num_decode_y(n);
+        if  (slab_is_area_inner_fill(slb_x, slb_y))
+        {
+            // In case we will select a column on that subtile, do 3 tries
+            pos->x.val = subtile_coord_center(slab_subtile_center(slb_x));
+            pos->y.val = subtile_coord_center(slab_subtile_center(slb_y));
+            pos->z.val = subtile_coord(1,0);
+            struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
+                && (get_navigation_map_floor_height(pos->x.stl.num, pos->y.stl.num) < 4)
+                )
+            {
+                return true;
+            }
+        }
+        n = get_next_slab_number_in_room(n);
+        i--;
+    }
+    return false;
+}
 
 TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
 {
@@ -667,7 +706,7 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
         }
         i = room->next_of_owner;
         // Per-room code
-        if (find_random_position_at_area_of_room(pos, room, RoArC_CENTER))
+        if (find_random_sacrifice_center(pos, room))
         {
             if (max_value < room->total_capacity)
             {
