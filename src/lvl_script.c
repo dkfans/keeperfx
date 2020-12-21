@@ -29,14 +29,14 @@
 
 #include "front_simple.h"
 #include "config.h"
+#include "config_creature.h"
 #include "config_crtrmodel.h"
-#include "config_terrain.h"
-#include "config_trapdoor.h"
-#include "config_rules.h"
+#include "config_effects.h"
 #include "config_lenses.h"
 #include "config_magic.h"
-#include "config_creature.h"
-#include "config_effects.h"
+#include "config_rules.h"
+#include "config_terrain.h"
+#include "config_trapdoor.h"
 #include "creature_states_mood.h"
 #include "creature_control.h"
 #include "gui_soundmsgs.h"
@@ -73,6 +73,11 @@ extern "C" {
 
 /******************************************************************************/
 static struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
+static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
+static struct ScriptValue *allocate_script_value(void);
+extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial);
+extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
+
 const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
     {"RANDOM",                     "Aaaaaaaa", Cmd_RANDOM, NULL, NULL},
@@ -383,7 +388,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
     if (isalpha(chr))
     {
         // Read the parameter
-        while (isalnum(chr) || (chr == '_'))
+        while (isalnum(chr) || (chr == '_') || (chr == '[') || (chr == ']'))
         {
             param[pos] = chr;
             pos++;
@@ -682,9 +687,9 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
         return true;
     }
     // Todo list of functions
-    if (strcmp(locname, "TRIGGERED_OBJECT") == 0)
+    if (strcmp(locname, "LAST_EVENT") == 0)
     {
-        *location = (((unsigned long)MML_TRIGGERED_OBJECT) << 12)
+        *location = (((unsigned long)MML_LAST_EVENT) << 12)
             | (((unsigned long)CurrentPlayer) << 4) //TODO: other players
             | MLoc_METALOCATION;
         return true;
@@ -875,6 +880,10 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long
     return true;
 }
 
+static void null_process(struct ScriptContext *context)
+{
+}
+
 TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
 {
     SYNCDBG(8,"Starting for player %d",(int)plyridx);
@@ -1000,6 +1009,213 @@ static void add_to_party_process(struct ScriptContext *context)
 {
     struct PartyTrigger* pr_trig = context->pr_trig;
     add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
+}
+
+static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
+{
+    const char *a = (const char*)ptr_a;
+    const char *b = (const char*)ptr_b;
+    return *a < *b;
+}
+static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
+{
+    struct ScriptValue tmp_value = {0};
+    struct ScriptValue* value;
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        // Fill local structure
+        value = &tmp_value;
+    }
+    else
+    {
+        value = allocate_script_value();
+        if (value == NULL)
+        {
+            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
+            return;
+        }
+    }
+
+    command_init_value(value, scline->command, 0);
+
+    value->sac.action = get_rid(rules_sacrifices_commands, scline->tp[0]);
+    if (value->sac.action == -1)
+    {
+        SCRPTERRLOG("Unexpcepdted action:%s", scline->tp[0]);
+        return;
+    }
+    long param;
+    if ((value->sac.action == SacA_CustomPunish) || (value->sac.action == SacA_CustomReward))
+    {
+        param = get_id(flag_desc, scline->tp[1]) + 1;
+    }
+    else
+    {
+        param = get_id(creature_desc, scline->tp[1]);
+        if (param == -1)
+        {
+            param = get_id(sacrifice_unique_desc, scline->tp[1]);
+        }
+        if (param == -1)
+        {
+            param = get_id(spell_desc, scline->tp[1]);
+        }
+    }
+    if (param == -1 && (strcmp(scline->tp[1], "NONE") == 0))
+    {
+        param = 0;
+    }
+
+    if (param < 0)
+    {
+        param = 0;
+        value->sac.action = SacA_None;
+        SCRPTERRLOG("Unexpcepdted parameter:%s", scline->tp[1]);
+    }
+    value->sac.param = param;
+
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    {
+       long vi = get_rid(creature_desc, scline->tp[i + 2]);
+       if (vi < 0)
+         vi = 0;
+       value->sac.victims[i] = vi;
+    }
+    qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        script_process_value(scline->command, 0, 0, 0, 0, value);
+    }
+}
+
+static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
+{
+    struct ScriptValue tmp_value = {0};
+    struct ScriptValue* value;
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        // Fill local structure
+        value = &tmp_value;
+    }
+    else
+    {
+        value = allocate_script_value();
+        if (value == NULL)
+        {
+            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
+            return;
+        }
+    }
+
+    command_init_value(value, scline->command, 0);
+
+    value->sac.action = SacA_None;
+    value->sac.param = 0;
+
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    {
+       long vi = get_rid(creature_desc, scline->tp[i]);
+       if (vi < 0)
+         vi = 0;
+       value->sac.victims[i] = vi;
+    }
+    qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        script_process_value(scline->command, 0, 0, 0, 0, value);
+    }
+}
+
+static void set_sacrifice_recipe_process(struct ScriptContext *context)
+{
+    long victims[MAX_SACRIFICE_VICTIMS];
+    struct Coord3d pos;
+    int action = context->value->sac.action;
+    int param = context->value->sac.param;
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    {
+        victims[i] = context->value->sac.victims[i];
+    }
+    for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
+    {
+        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        if (sac->action == (long)SacA_None)
+        {
+            break;
+        }
+        if (memcmp(victims, sac->victims, sizeof(victims)) == 0)
+        {
+            sac->action = action;
+            sac->param = param;
+            if (action == (long)SacA_None)
+            {
+                // remove empty space
+                memmove(sac, sac + 1, (MAX_SACRIFICE_RECIPES - 1 - (sac - &gameadd.sacrifice_recipes[0])) * sizeof(*sac));
+            }
+            return;
+        }
+    }
+    if (action == (long)SacA_None) // No rule found
+    {
+        WARNLOG("Unable to find sacrifice rule to remove");
+        return;
+    }
+    struct SacrificeRecipe* sac = get_unused_sacrifice_recipe_slot();
+    if (sac == &gameadd.sacrifice_recipes[0])
+    {
+        ERRORLOG("No free sacrifice rules");
+        return;
+    }
+    memcpy(sac->victims, victims, sizeof(victims));
+    sac->action = action;
+    sac->param = param;
+
+    if (find_temple_pool(context->player_idx, &pos))
+    {
+        // Check if sacrifice pool already matches
+        for (int i = 0; i < sizeof(victims); i++)
+        {
+            if (victims[i] == 0)
+                break;
+            process_sacrifice_creature(&pos, victims[i], context->player_idx, false);
+        }
+    }
+}
+
+static void set_box_tooltip(const struct ScriptLine *scline)
+{
+  if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
+  {
+    SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
+    return;
+  }
+  int idx = scline->np[0];
+  if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
+  {
+      SCRPTWRNLOG("Tooltip TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+  }
+  if ((gameadd.box_tooltip[idx][0] != '\0') && (strcmp(gameadd.box_tooltip[idx], scline->tp[1]) != 0))
+  {
+      SCRPTWRNLOG("Box tooltip #%d overwritten by different text", idx);
+  }
+  strncpy(gameadd.box_tooltip[idx], scline->tp[1], MESSAGE_TEXT_LEN-1);
+  gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
+}
+
+static void set_box_tooltip_id(const struct ScriptLine *scline)
+{
+  if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
+  {
+    SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
+    return;
+  }
+  int idx = scline->np[0];
+  strncpy(gameadd.box_tooltip[idx], get_string(scline->np[1]), MESSAGE_TEXT_LEN-1);
+  gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
 }
 
 void command_tutorial_flash_button(long btn_id, long duration)
@@ -1171,6 +1387,8 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
 static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
 {
     char c;
+    int len = 0;
+    char arg[MAX_TEXT_LENGTH];
 
     if (level_file_version > 0)
     {
@@ -1228,7 +1446,17 @@ static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *vari
         }
         else
         {
-          *varib_id = -1;
+            *varib_id = -1;
+        }
+        if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_SACRIFICED;
+        }
+        if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_REWARDED;
         }
     }
     if (*varib_id == -1)
@@ -1243,6 +1471,8 @@ static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *vari
 static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
 {
     char c;
+    int len = 0;
+    char arg[MAX_TEXT_LENGTH];
 
     *varib_id = -1;
     if (*varib_id == -1)
@@ -1264,7 +1494,17 @@ static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *vari
         }
         else
         {
-          *varib_id = -1;
+            *varib_id = -1;
+        }
+        if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_SACRIFICED;
+        }
+        if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_REWARDED;
         }
     }
     if (*varib_id == -1)
@@ -1313,13 +1553,22 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
     command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
 }
 
-struct ScriptValue *allocate_script_value(void)
+static struct ScriptValue *allocate_script_value(void)
 {
   if (game.script.values_num >= SCRIPT_VALUES_COUNT)
     return NULL;
   struct ScriptValue* value = &game.script.values[game.script.values_num];
   game.script.values_num++;
   return value;
+}
+
+static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id)
+{
+    set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
+    set_flag_byte(&value->flags, TrgF_DISABLED, false);
+    value->valtype = var_index;
+    value->plyr_range = plr_range_id;
+    value->condit_idx = script_current_condition;
 }
 
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
@@ -1341,14 +1590,11 @@ void command_add_value(unsigned long var_index, unsigned long plr_range_id, long
             return;
         }
     }
-    set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
-    set_flag_byte(&value->flags, TrgF_DISABLED, false);
-    value->valtype = var_index;
-    value->plyr_range = plr_range_id;
+
+    command_init_value(value, var_index, plr_range_id);
     value->arg0 = val2;
     value->arg1 = val3;
     value->arg2 = val4;
-    value->condit_idx = script_current_condition;
 
     if ((script_current_condition < 0) && (next_command_reusable == 0))
     {
@@ -1406,7 +1652,7 @@ void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
     SYNCDBG(0, "Revealing location type %d", target);
     long x = 0;
     long y = 0;
-    find_map_location_coords(target, &x, &y, __func__);
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
         WARNLOG("Can't decode location %d", target);
@@ -3337,10 +3583,10 @@ TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, in
 
 int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level)
 {
-    int i;
-    for (i=0; i <= COMMANDDESC_ARGS_COUNT; i++)
+    int i, j;
+    for (i = 0, j = 0; i <= COMMANDDESC_ARGS_COUNT; i++, j++)
     {
-        char chr = cmd_desc->args[i];
+        char chr = cmd_desc->args[j];
         if (*para_level < expect_level)
             break;
         // Read the next parameter
@@ -3404,7 +3650,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
                 if (level_file_version > 0)
                 {
-                    chr = cmd_desc->args[i];
+                    chr = cmd_desc->args[j];
                     int ri;
                     for (fi = 0, ri = 0; fi < COMMANDDESC_ARGS_COUNT; fi++, ri++)
                     {
@@ -3490,7 +3736,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
                 {
                     if ((range_index >= range_total) && (range_index <= range_total + ranges[fi].max - ranges[fi].min)) {
-                        chr = cmd_desc->args[i];
+                        chr = cmd_desc->args[j];
                         if (toupper(chr) == 'A') {
                             strcpy(scline->tp[i], funscline->tp[ranges[fi].min]);
                         } else {
@@ -3537,7 +3783,12 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
         if (*para_level > expect_level+2) {
             SCRPTWRNLOG("Parameter %d of command \"%s\", value \"%s\", is at too high paraenesis level %d", i+1, scline->tcmnd, scline->tp[i], (int)*para_level);
         }
-        chr = cmd_desc->args[i];
+        chr = cmd_desc->args[j];
+        if (cmd_desc->args[j+1] == '+')
+        {
+            // All other parameters will be same
+            j -= 1;
+        }
         if (!script_command_param_to_number(chr, scline, i)) {
             SCRPTERRLOG("Parameter %d of command \"%s\", type %c, has unexpected value; discarding command", i+1, scline->tcmnd, chr);
             return -1;
@@ -3887,7 +4138,7 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
 
     switch (i >> 8)
     {
-    case MML_TRIGGERED_OBJECT:
+    case MML_LAST_EVENT:
         src = &gameadd.triggered_object_location;
         break;
     case MML_RECENT_COMBAT:
@@ -4514,7 +4765,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     long dest_x, dest_y = 0;
 
     //dig origin
-    find_map_location_coords(origin, &orig_x, &orig_y, __func__);
+    find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
     if ((orig_x == 0) && (orig_y == 0))
     {
         WARNLOG("Can't decode origin location %d", origin);
@@ -4526,7 +4777,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     startpos.z.val = subtile_coord(1, 0);
 
     //dig destination
-    find_map_location_coords(destination, &dest_x, &dest_y, __func__);
+    find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
     if ((dest_x == 0) && (dest_y == 0))
     {
         WARNLOG("Can't decode destination location %d", destination);
@@ -4577,7 +4828,7 @@ TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation targe
     SYNCDBG(0, "Using power at location of type %d", target);
     long x = 0;
     long y = 0;
-    find_map_location_coords(target, &x, &y, __func__);
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
         WARNLOG("Can't decode location %d", target);
@@ -4920,6 +5171,12 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_BOX_ACTIVATED:
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->box_info.activated[validx];
+    case SVar_SACRIFICED:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->creature_sacrifice[validx];
+    case SVar_REWARDED:
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->creature_awarded[validx];
     default:
         break;
     };
@@ -5166,7 +5423,10 @@ void process_values(void)
 
 static void set_variable(int player_idx, long var_type, long var_idx, long new_val)
 {
+    struct Dungeon *dungeon = get_dungeon(player_idx);
     struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
+    struct Coord3d pos = {0};
+
     switch (var_type)
     {
     case SVar_FLAG:
@@ -5177,6 +5437,16 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
         break;
     case SVar_BOX_ACTIVATED:
         dungeonadd->box_info.activated[var_idx] = new_val;
+        break;
+    case SVar_SACRIFICED:
+        dungeon->creature_sacrifice[var_idx] = new_val;
+        if (find_temple_pool(player_idx, &pos))
+        {
+            process_sacrifice_creature(&pos, var_idx, player_idx, false);
+        }
+        break;
+    case SVar_REWARDED:
+        dungeonadd->creature_awarded[var_idx] = new_val;
         break;
     default:
         WARNLOG("Unexpected type:%d",(int)var_type);
@@ -5218,8 +5488,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       struct ScriptContext context;
       context.plr_start = plr_start;
       context.plr_end = plr_end;
-      context.value = value;
-      desc->process_fn(&context);
+      // TODO: this should be checked for sanity
+      //for (i=plr_start; i < plr_end; i++)
+      {
+          context.player_idx = plr_start;
+          context.value = value;
+          desc->process_fn(&context);
+      }
       return;
   }
   
@@ -6063,6 +6338,10 @@ const struct CommandDesc command_desc[] = {
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
   {"SET_TRAP_CONFIGURATION",            "ANNNNNNN", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
   {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
+  {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
+  {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
+  {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
+  {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
   {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
   {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},

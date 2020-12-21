@@ -146,6 +146,8 @@ struct GameAdd {
     int                   script_current_player;
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
 
+    char box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
+
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };
 

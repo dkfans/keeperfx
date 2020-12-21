@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "config.h"
+#include "config_rules.h"
 #include "creature_groups.h"
 
 #ifdef __cplusplus
@@ -137,6 +138,10 @@ enum TbScriptCommands {
     Cmd_CHANGE_CREATURES_ANNOYANCE        = 117,
     Cmd_COMPUTER_DIG_TO_LOCATION          = 118,
     Cmd_DELETE_FROM_PARTY                 = 119,
+    Cmd_SET_SACRIFICE_RECIPE              = 120,
+    Cmd_REMOVE_SACRIFICE_RECIPE           = 121,
+    Cmd_SET_BOX_TOOLTIP                   = 122,
+    Cmd_SET_BOX_TOOLTIP_ID                = 123,
 };
 
 enum ScriptVariables {
@@ -197,12 +202,14 @@ enum ScriptVariables {
   SVar_TOTAL_TRAPS_USED                = 58,
   SVar_TOTAL_DOORS_USED                = 59,
   SVar_KEEPERS_DESTROYED               = 60,
-  SVar_CREATURES_SACRIFICED            = 61,
-  SVar_CREATURES_FROM_SACRIFICE        = 62,
+  SVar_CREATURES_SACRIFICED            = 61, // Total
+  SVar_CREATURES_FROM_SACRIFICE        = 62, // Total
   SVar_TIMES_LEVELUP_CREATURE          = 63,
   SVar_TOTAL_SALARY                    = 64,
   SVar_CURRENT_SALARY                  = 65,
   SVar_BOX_ACTIVATED                   = 66,
+  SVar_SACRIFICED                      = 67,  // Per model
+  SVar_REWARDED                        = 68,  // Per model
  };
 
 enum MapLocationTypes {
@@ -222,7 +229,7 @@ enum MapLocationTypes {
 };
 
 enum MetaLocation {
-  MML_TRIGGERED_OBJECT = 1,
+  MML_LAST_EVENT = 1,
   MML_RECENT_COMBAT,
 };
 
@@ -250,6 +257,7 @@ struct ScriptContext
 {
     int plr_start;
     int plr_end;
+    int player_idx;
 
     union {
       struct ScriptValue *value;
@@ -312,10 +320,24 @@ struct ScriptValue { // sizeof = 16
   char condit_idx;
   unsigned char valtype;
   unsigned char plyr_range;
-  long arg0;
-  long arg1;
-  long arg2;
+  union
+  {
+    struct
+    {
+      long arg0;
+      long arg1;
+      long arg2;
+    };
+    struct
+    {
+        char action;
+        char param;
+        char victims[MAX_SACRIFICE_VICTIMS];
+    } sac;
+  };
 };
+
+static_assert(sizeof(struct ScriptValue) == 16, "");
 
 struct Condition { // sizeof = 12
   short condit_idx;
@@ -391,6 +413,7 @@ unsigned long get_map_location_longval(TbMapLocation location);
 unsigned long get_map_location_plyrval(TbMapLocation location);
 unsigned short get_map_location_plyridx(TbMapLocation location);
 TbBool get_map_location_code_name(TbMapLocation location, char *name);
+TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i);
 
 short clear_script(void);
 short load_script(long lvl_num);
