@@ -1206,7 +1206,7 @@ static void set_box_tooltip(const struct ScriptLine *scline)
   gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
 }
 
-static void set_box_tooltip_tr(const struct ScriptLine *scline)
+static void set_box_tooltip_id(const struct ScriptLine *scline)
 {
   if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
   {
@@ -6341,7 +6341,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
-  {"SET_BOX_TOOLTIP_TR",                "NN      ", Cmd_SET_BOX_TOOLTIP_TR, &set_box_tooltip_tr, &null_process},
+  {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
   {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
   {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
