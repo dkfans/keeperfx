@@ -148,7 +148,7 @@ TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
         return false;
     }
     unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT * 32 * 32);
-    for (int i = 1; i < TEXTURE_FILES_COUNT; i++, dst += (TEXTURE_BLOCKS_STAT_COUNT * 32 * 32))
+    for (int i = 0; i < TEXTURE_FILES_COUNT; i++, dst += (TEXTURE_BLOCKS_STAT_COUNT * 32 * 32))
     {
         if (!load_one_file(i, dst))
         {

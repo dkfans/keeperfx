@@ -839,39 +839,6 @@ TbBool right_time_to_choose_target_entrance(struct ComputerProcess *cproc, long 
     return (turns_to_capture/entrances_div <= turns_delta);
 }
 
-/**
- * Simulates digging from and to given coords with given flags.
- * @param comp Computer player which does the simulation.
- * @param startpos Digging start point, may be updated in a berrer one is seen.
- * @param endpos Digging final point, constant.
- * @param dig_distance Value which is increased by the amount of slabs travelled.
- * @param digflags Digging flags to be used.
- */
-TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const struct Coord3d *endpos, unsigned long *dig_distance, unsigned short digflags)
-{
-    struct Dungeon* dungeon = comp->dungeon;
-    struct ComputerDig cdig;
-    long digres;
-    // Setup the digging on dummy ComputerDig, to compute distance and move start position near to wall
-    setup_dig_to(&cdig, *startpos, *endpos);
-    while ( 1 )
-    {
-        digres = tool_dig_to_pos2(comp, &cdig, true, digflags);
-        if (digres != 0)
-          break;
-        // If the slab we've got from digging is safe to walk and connected to original room, use it as starting position
-        // But don't change distance - it should be computed from our rooms (and resetting it could lead to infinite loop)
-        // Note: when verifying the path traced by computer player, we might want to disable this to see the full path
-        if (slab_is_safe_land(dungeon->owner, coord_slab(cdig.pos_next.x.val), coord_slab(cdig.pos_next.y.val))) {
-            if (navigation_points_connected(startpos, &cdig.pos_next)) {
-                *startpos = cdig.pos_next;
-            }
-        }
-        (*dig_distance)++;
-    }
-    return ((digres == -1) || (digres == -5));
-}
-
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     struct Dungeon* dungeon = comp->dungeon;

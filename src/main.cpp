@@ -3850,6 +3850,7 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     MapSlabCoord slb_y;
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);

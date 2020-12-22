@@ -240,6 +240,7 @@ obj/packets.o \
 obj/player_compchecks.o \
 obj/player_compevents.o \
 obj/player_complookup.o \
+obj/player_compnav.o \
 obj/config_compp.o \
 obj/player_compprocs.o \
 obj/player_comptask.o \
