@@ -4540,7 +4540,7 @@ void game_loop(void)
       if (!TimerNoReset)
       {
         TimerFreeze = true;
-        Timer = (struct TimerTime){0};
+        memset(&Timer, 0, sizeof(Timer));
       }
       LbScreenClear(0);
       LbScreenSwap();
