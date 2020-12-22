@@ -78,6 +78,8 @@ static struct Thing *script_process_new_object(long crmodel, TbMapLocation locat
 static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 static struct ScriptValue *allocate_script_value(void);
 static TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor);
+extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial);
+extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 
 const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
@@ -1041,14 +1043,27 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     command_init_value(value, scline->command, 0);
 
     value->sac.action = get_rid(rules_sacrifices_commands, scline->tp[0]);
-    long param = get_id(creature_desc, scline->tp[1]);
-    if (param == -1)
+    if (value->sac.action == -1)
     {
-        param = get_id(sacrifice_unique_desc, scline->tp[1]);
+        SCRPTERRLOG("Unexpcepdted action:%s", scline->tp[0]);
+        return;
     }
-    if (param == -1)
+    long param;
+    if ((value->sac.action == SacA_CustomPunish) || (value->sac.action == SacA_CustomReward))
     {
-        param = get_id(spell_desc, scline->tp[1]);
+        param = get_id(flag_desc, scline->tp[1]) + 1;
+    }
+    else
+    {
+        param = get_id(creature_desc, scline->tp[1]);
+        if (param == -1)
+        {
+            param = get_id(sacrifice_unique_desc, scline->tp[1]);
+        }
+        if (param == -1)
+        {
+            param = get_id(spell_desc, scline->tp[1]);
+        }
     }
     if (param == -1 && (strcmp(scline->tp[1], "NONE") == 0))
     {
@@ -1121,6 +1136,7 @@ static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
 static void set_sacrifice_recipe_process(struct ScriptContext *context)
 {
     long victims[MAX_SACRIFICE_VICTIMS];
+    struct Coord3d pos;
     int action = context->value->sac.action;
     int param = context->value->sac.param;
     for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
@@ -1160,6 +1176,17 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
     memcpy(sac->victims, victims, sizeof(victims));
     sac->action = action;
     sac->param = param;
+
+    if (find_temple_pool(context->player_idx, &pos))
+    {
+        // Check if sacrifice pool already matches
+        for (int i = 0; i < sizeof(victims); i++)
+        {
+            if (victims[i] == 0)
+                break;
+            process_sacrifice_creature(&pos, victims[i], context->player_idx, false);
+        }
+    }
 }
 
 static void set_box_tooltip(const struct ScriptLine *scline)
@@ -1182,7 +1209,7 @@ static void set_box_tooltip(const struct ScriptLine *scline)
   gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
 }
 
-static void set_box_tooltip_tr(const struct ScriptLine *scline)
+static void set_box_tooltip_id(const struct ScriptLine *scline)
 {
   if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
   {
@@ -1780,7 +1807,7 @@ void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
     SYNCDBG(0, "Revealing location type %d", target);
     long x = 0;
     long y = 0;
-    find_map_location_coords(target, &x, &y, __func__);
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
         WARNLOG("Can't decode location %d", target);
@@ -4893,7 +4920,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     long dest_x, dest_y = 0;
 
     //dig origin
-    find_map_location_coords(origin, &orig_x, &orig_y, __func__);
+    find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
     if ((orig_x == 0) && (orig_y == 0))
     {
         WARNLOG("Can't decode origin location %d", origin);
@@ -4905,7 +4932,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     startpos.z.val = subtile_coord(1, 0);
 
     //dig destination
-    find_map_location_coords(destination, &dest_x, &dest_y, __func__);
+    find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
     if ((dest_x == 0) && (dest_y == 0))
     {
         WARNLOG("Can't decode destination location %d", destination);
@@ -4956,7 +4983,7 @@ TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation targe
     SYNCDBG(0, "Using power at location of type %d", target);
     long x = 0;
     long y = 0;
-    find_map_location_coords(target, &x, &y, __func__);
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
         WARNLOG("Can't decode location %d", target);
@@ -5569,6 +5596,8 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
 {
     struct Dungeon *dungeon = get_dungeon(player_idx);
     struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
+    struct Coord3d pos = {0};
+
     switch (var_type)
     {
     case SVar_FLAG:
@@ -5582,6 +5611,10 @@ static void set_variable(int player_idx, long var_type, long var_idx, long new_v
         break;
     case SVar_SACRIFICED:
         dungeon->creature_sacrifice[var_idx] = new_val;
+        if (find_temple_pool(player_idx, &pos))
+        {
+            process_sacrifice_creature(&pos, var_idx, player_idx, false);
+        }
         break;
     case SVar_REWARDED:
         dungeonadd->creature_awarded[var_idx] = new_val;
@@ -5626,8 +5659,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       struct ScriptContext context;
       context.plr_start = plr_start;
       context.plr_end = plr_end;
-      context.value = value;
-      desc->process_fn(&context);
+      // TODO: this should be checked for sanity
+      //for (i=plr_start; i < plr_end; i++)
+      {
+          context.player_idx = plr_start;
+          context.value = value;
+          desc->process_fn(&context);
+      }
       return;
   }
   
@@ -6474,7 +6512,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
-  {"SET_BOX_TOOLTIP_TR",                "NN      ", Cmd_SET_BOX_TOOLTIP_TR, &set_box_tooltip_tr, &null_process},
+  {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
   {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
   {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
   {"CREATE_FX_LINE",                    "LLNNNN  ", Cmd_CREATE_FX_LINE, &create_fx_line_check, &create_fx_line_process},

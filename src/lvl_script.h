@@ -141,7 +141,7 @@ enum TbScriptCommands {
     Cmd_SET_SACRIFICE_RECIPE              = 120,
     Cmd_REMOVE_SACRIFICE_RECIPE           = 121,
     Cmd_SET_BOX_TOOLTIP                   = 122,
-    Cmd_SET_BOX_TOOLTIP_TR                = 123,
+    Cmd_SET_BOX_TOOLTIP_ID                = 123,
     Cmd_CREATE_FX_LINE                    = 124,
 };
 
@@ -258,6 +258,7 @@ struct ScriptContext
 {
     int plr_start;
     int plr_end;
+    int player_idx;
 
     union {
       struct ScriptValue *value;
@@ -432,6 +433,7 @@ unsigned long get_map_location_longval(TbMapLocation location);
 unsigned long get_map_location_plyrval(TbMapLocation location);
 unsigned short get_map_location_plyridx(TbMapLocation location);
 TbBool get_map_location_code_name(TbMapLocation location, char *name);
+TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i);
 
 short clear_script(void);
 short load_script(long lvl_num);

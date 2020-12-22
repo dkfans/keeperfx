@@ -622,7 +622,7 @@ void create_error_box(TextStringId msg_idx)
     if (!game.packet_load_enable)
     {
         //change the length into  when gui_error_text will not be exported
-        strncpy(gui_error_text, get_string(msg_idx), TEXT_BUFFER_LENGTH-1);
+        strncpy(gui_error_text, get_string(msg_idx), sizeof(gui_error_text)-1);
         turn_on_menu(GMnu_ERROR_BOX);
     }
 }

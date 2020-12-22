@@ -1957,20 +1957,22 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void find_map_location_coords(long location, long *x, long *y, const char *func_name)
+void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name)
 {
     struct ActionPoint *apt;
     struct Thing *thing;
+    struct Coord3d pos;
+
     long pos_x;
     long pos_y;
     long i;
     SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, *x, *y);
     pos_y = 0;
     pos_x = 0;
+    i = get_map_location_longval(location);
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
-        i = get_map_location_longval(location);
         // Location stores action point index
         apt = action_point_get(i);
         if (!action_point_is_invalid(apt))
@@ -1981,7 +1983,6 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
           WARNMSG("%s: Action Point %d location not found",func_name,i);
         break;
     case MLoc_HEROGATE:
-        i = get_map_location_longval(location);
         thing = find_hero_gate_of_number(i);
         if (!thing_is_invalid(thing))
         {
@@ -1991,7 +1992,6 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
           WARNMSG("%s: Hero Gate %d location not found",func_name,i);
         break;
     case MLoc_PLAYERSHEART:
-        i = get_map_location_longval(location);
         if (i < PLAYERS_COUNT)
         {
             thing = get_player_soul_container(i);
@@ -2009,7 +2009,6 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
         pos_x = *x;
         break;
     case MLoc_THING:
-        i = get_map_location_longval(location);
         thing = thing_get(i);
         if (!thing_is_invalid(thing))
         {
@@ -2017,6 +2016,15 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
           pos_x = thing->mappos.x.stl.num;
         } else
           WARNMSG("%s: Thing %d location not found",func_name,i);
+        break;
+    case MLoc_METALOCATION:
+        if (get_coords_at_meta_action(&pos, plyr_idx, i))
+        {
+            pos_x = pos.x.stl.num;
+            pos_y = pos.y.stl.num;
+        }
+        else
+          WARNMSG("%s: Metalocation not found %d",func_name,i);
         break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
@@ -2039,7 +2047,7 @@ void set_general_information(long msg_id, long target, long x, long y)
     long pos_x;
     long pos_y;
     player = get_my_player();
-    find_map_location_coords(target, &x, &y, __func__);
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
     pos_x = 0;
     pos_y = 0;
     if ((x != 0) || (y != 0))
@@ -2056,7 +2064,7 @@ void set_quick_information(long msg_id, long target, long x, long y)
     long pos_x;
     long pos_y;
     player = get_my_player();
-    find_map_location_coords(target, &x, &y, __func__);
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
     pos_x = 0;
     pos_y = 0;
     if ((x != 0) || (y != 0))
@@ -2078,7 +2086,7 @@ void process_objective(const char *msg_text, long target, long x, long y)
     long pos_x;
     long pos_y;
     player = get_my_player();
-    find_map_location_coords(target, &x, &y, __func__);
+    find_map_location_coords(target, &x, &y, my_player_number, __func__);
     pos_y = y;
     pos_x = x;
     set_level_objective(msg_text);
@@ -3842,8 +3850,6 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     MapSlabCoord slb_y;
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
-    struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
