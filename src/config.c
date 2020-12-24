@@ -788,11 +788,6 @@ short load_configuration(void)
                 COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-          }
-          break;
       case 0: // comment
           break;
       case -1: // end of buffer
