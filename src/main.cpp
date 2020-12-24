@@ -5045,40 +5045,23 @@ int main(int argc, char *argv[])
 
 void update_time(void)
 {
-    asm (" \
-    call    _clock\n \
-    subl    %4,%%eax\n \
-    movl    $0x3E8,%%ecx\n \
-    xorl    %%edx,%%edx\n \
-    divl    %%ecx\n \
-    movw    %%dx,%0\n \
-    movl    $0x3C,%%ecx\n \
-    xorl    %%edx,%%edx\n \
-    divl    %%ecx\n\
-    movb    %%dl,%1\n \
-    xorl    %%edx,%%edx\n \
-    divl    %%ecx\n \
-    movb    %%dl,%2\n \
-    movb    %%al,%3\n \
-" : "=m" (Timer.MSeconds), "=m" (Timer.Seconds), "=m" (Timer.Minutes), "=m" (Timer.Hours) : "m" (timerstarttime) : "cc", "%eax", "%ecx", "%edx");
+    unsigned long time = ((unsigned long)clock()) - timerstarttime;
+    Timer.MSeconds = time % 1000;
+    time /= 1000;
+    Timer.Seconds = time % 60;
+    time /= 60;
+    Timer.Minutes = time % 60;
+    Timer.Hours = time / 60;
 }
 
 __attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps)
 {
     struct GameTime GameT;
-    asm (" \
-    movl %%edx, %%eax\n \
-    xorl %%edx, %%edx\n \
-    divl %%ecx\n \
-    movl $0x3C, %%ecx\n \
-    xorl %%edx, %%edx\n \
-    divl %%ecx\n \
-    movb %%dl, %0\n \
-    xorl %%edx, %%edx\n \
-    divl %%ecx\n \
-    movb %%dl, %1\n \
-    movb %%al, %2\n \
-    " : "=m" (GameT.Seconds), "=m" (GameT.Minutes), "=m" (GameT.Hours) : : "cc", "%eax", "%ecx", "%edx");
+    unsigned long time = turns / fps;
+    GameT.Seconds = time % 60;
+    time /= 60;
+    GameT.Minutes = time % 60;
+    GameT.Hours = time / 60;
     return GameT;
 }
 
