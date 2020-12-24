@@ -176,6 +176,7 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 TbClockMSec timerstarttime = 0;
 struct TimerTime Timer;
 TbBool TimerGame = false;
+TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
@@ -4773,6 +4774,12 @@ short process_command_line(unsigned short argc, char *argv[])
           else if (strcasecmp(pr2str, "real") == 0)
           {
               TimerGame = false;
+              narg++;
+          }
+          else if (strcasecmp(pr2str, "continuous") == 0)
+          {
+              TimerGame = false;
+              TimerNoReset = true;
               narg++;
           }
       }

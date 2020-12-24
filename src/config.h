@@ -171,7 +171,6 @@ extern unsigned short AtmosStart;
 extern unsigned short AtmosEnd;
 extern TbBool AssignCpuKeepers;
 
-extern TbBool TimerNoReset;
 
 extern unsigned int vid_scale_flags;
 /******************************************************************************/
