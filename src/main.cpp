@@ -4771,14 +4771,8 @@ short process_command_line(unsigned short argc, char *argv[])
               TimerGame = true;
               narg++;
           }
-          else if (strcasecmp(pr2str, "real") == 0)
-          {
-              TimerGame = false;
-              narg++;
-          }
           else if (strcasecmp(pr2str, "continuous") == 0)
           {
-              TimerGame = false;
               TimerNoReset = true;
               narg++;
           }
