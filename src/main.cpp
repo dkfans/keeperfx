@@ -4769,13 +4769,12 @@ short process_command_line(unsigned short argc, char *argv[])
           if (strcasecmp(pr2str, "game") == 0)
           {
               TimerGame = true;
-              narg++;
           }
           else if (strcasecmp(pr2str, "continuous") == 0)
           {
               TimerNoReset = true;
-              narg++;
           }
+          narg++;
       }
 #ifdef AUTOTESTING
       else if (strcasecmp(parstr, "exit_at_turn") == 0)
