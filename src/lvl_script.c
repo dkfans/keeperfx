@@ -1307,11 +1307,12 @@ static void create_fx_line_process(struct ScriptContext *context)
     }
     get_coords_at_action_point(&fx_line->from, context->value->bytes[0], 0);
     get_coords_at_action_point(&fx_line->to, context->value->bytes[1], 0);
-    fx_line->curvature = context->value->bytes[2] * 8;
+    fx_line->curvature = context->value->bytes[2];
     fx_line->spatial_step = context->value->bytes[3] * 32;
     fx_line->steps_per_turn = context->value->bytes[4];
     fx_line->effect = context->value->bytes[5];
     fx_line->here = fx_line->from;
+    fx_line->step = 0;
 
     if (fx_line->steps_per_turn <= 0)
     {
@@ -1322,25 +1323,17 @@ static void create_fx_line_process(struct ScriptContext *context)
     int dy = fx_line->to.y.val - fx_line->from.y.val;
     if ((dx * dx + dy * dy) != 0)
     {
-        int len = (int) sqrt(dx * dx + dy * dy);
-        fx_line->dx = (dx * fx_line->spatial_step) / len; // let each slab divided by 8 points in each dir
-        fx_line->dy = (dy * fx_line->spatial_step) / len;
+        float len = sqrt((float)dx * dx + dy * dy);
+        fx_line->total_steps = (int)(len / fx_line->spatial_step) + 1;
 
-        fx_line->ax = (-dy * fx_line->curvature) / len; // let each slab divided by 8 points in each dir
-        fx_line->ay = (+dx * fx_line->curvature) / len;
-
-        fx_line->remain_steps = (int)(len * sqrt(1.f + abs(fx_line->curvature) / (float)(fx_line->spatial_step)) / fx_line->spatial_step);
-
-        fx_line->dx -= fx_line->ax * fx_line->remain_steps / 2;
-        fx_line->dy -= fx_line->ay * fx_line->remain_steps / 2;
+        int d_cx = -dy * fx_line->curvature / 32;
+        int d_cy = +dx * fx_line->curvature / 32;
+        fx_line->cx = (fx_line->to.x.val + fx_line->from.x.val - d_cx)/2;
+        fx_line->cy = (fx_line->to.y.val + fx_line->from.y.val - d_cy)/2;
     }
     else
     {
-        fx_line->dx = 0;
-        fx_line->dy = 0;
-        fx_line->ax = 0;
-        fx_line->ay = 0;
-        fx_line->remain_steps = 1;
+      fx_line->total_steps = 1;
     }
     fx_line->partial_steps = FX_LINE_TIME_PARTS;
 }
@@ -1350,6 +1343,7 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
     fx_line->partial_steps += fx_line->steps_per_turn;
     for (;fx_line->partial_steps >= FX_LINE_TIME_PARTS; fx_line->partial_steps -= FX_LINE_TIME_PARTS)
     {
+        fx_line->here.z.val = get_floor_height_at(&fx_line->here);
         if (fx_line->effect > 0)
         {
             create_effect(&fx_line->here, fx_line->effect, 5); // Owner - neutral
@@ -1359,17 +1353,22 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
             create_effect_element(&fx_line->here, -fx_line->effect, 5); // Owner - neutral
         }
 
-        fx_line->here.x.val += fx_line->dx;
-        fx_line->here.y.val += fx_line->dy;
-        fx_line->dx += fx_line->ax;
-        fx_line->dy += fx_line->ay;
-
-        fx_line->remain_steps--;
-        if (fx_line->remain_steps <= 0)
+        fx_line->step++;
+        if (fx_line->step >= fx_line->total_steps)
         {
-            fx_line->used = false;
-            break;
+          fx_line->used = false;
+          break;
         }
+
+        int remain_t = fx_line->total_steps - fx_line->step;
+
+        int bx = fx_line->from.x.val * remain_t + fx_line->cx * fx_line->step;
+        int by = fx_line->from.y.val * remain_t + fx_line->cy * fx_line->step;
+        int dx = fx_line->cx * remain_t + fx_line->to.x.val * fx_line->step;
+        int dy = fx_line->cy * remain_t + fx_line->to.y.val * fx_line->step;
+
+        fx_line->here.x.val = (bx * remain_t + dx * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
+        fx_line->here.y.val = (by * remain_t + dy * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
     }
 }
 

@@ -376,15 +376,16 @@ struct ScriptFxLine
     struct Coord3d here;
     struct Coord3d to;
 
-    int dx, dy;
-    int ax, ay;
+    int cx, cy; // midpoint
 
     int curvature;
     int spatial_step;
     int steps_per_turn;
-    int remain_steps;
     int partial_steps;
     int effect;
+
+    int total_steps;
+    int step;
 };
 
 struct LevelScript { // sizeof = 5884
