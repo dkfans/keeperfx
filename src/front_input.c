@@ -1239,12 +1239,22 @@ short get_creature_control_action_inputs(void)
         }
     }
         long val;
+        TextStringId StrID = 0;
         for (int i = 0; i <= 15; i++)
         {
             if (is_game_key_pressed(Gkey_ZoomRoom00 + i, &val, false))
             {
                 clear_key_pressed(val);
                 teleport_destination = i;
+                if (teleport_destination == 15)
+                {
+                    StrID = 567;
+                }
+                else
+                {
+                    struct RoomConfigStats* roomst = get_room_kind_stats(zoom_key_room_order[teleport_destination]);
+                    StrID = roomst->name_stridx;
+                }
             }
         
         }
@@ -1255,10 +1265,18 @@ short get_creature_control_action_inputs(void)
         else if (is_key_pressed(KC_SLASH,KMod_DONTCARE))
         {
             teleport_destination = 17; // Call to Arms
+            struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
+            StrID = powerst->name_stridx;
         }
         else if (is_key_pressed(KC_COMMA,KMod_DONTCARE))
         {
             teleport_destination = 18;
+            StrID = 609;
+        }
+        struct Thing* creatng = thing_get(player->controlled_thing_idx);
+        if ( (StrID != 0) && (creature_instance_is_available(creatng, CrInst_TELEPORT)) )
+        {
+            show_onscreen_msg(100, get_string(StrID));
         }
     // In possession sets the screen blue when frozen, and to default when not.
     if (creature_affected_by_spell(thing, SplK_Freeze)) 
