@@ -1246,7 +1246,7 @@ short get_creature_control_action_inputs(void)
             {
                 clear_key_pressed(val);
                 teleport_destination = i;
-                if (teleport_destination == 15)
+                if (i == 15)
                 {
                     StrID = 567;
                 }
