@@ -3924,7 +3924,7 @@ void initialise_map_health(void)
             slb = get_slabmap_block(slb_x, slb_y);
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            slb->health = game.block_health[slbattr->field_4];
+            slb->health = game.block_health[slbattr->block_health_index];
         }
     }
 }
