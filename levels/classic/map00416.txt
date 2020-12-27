@@ -1,3 +1,8 @@
+REM	Level 'Return to Skybird Trill'
+REM	Level 416
+REM	v1.1 written by Diety Demon, Created on 21 Apr 2009
+REM	v2.0 updated to use pot file by dayokay Dec2020, with some text changes
+
 DEAD_CREATURES_RETURN_TO_POOL(0)
 
 SET_GENERATE_SPEED(72)
@@ -67,22 +72,27 @@ TRAP_AVAILABLE(PLAYER1,LAVA,1,0)
 
 MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,0)
 
-QUICK_OBJECTIVE(0,"There is, and only should be, one reason for the trouble of you returning to this holy saint of a land, my lord. Four powerful magical beings plan on creating a Dungeon Keeper to service them. Don't expect this to be anything like your last visit. This is the perfect chance to show the punishment for those heroes who still wish to defy you in your rule. Go for it master.",PLAYER0)
+REM	QUICK_OBJECTIVE(0,"There is, and only should be, one reason for the trouble of you returning to this holy saint of a land, my lord. Four powerful magical beings plan on creating a Dungeon Keeper to service them. Don't expect this to be anything like your last visit. This is the perfect chance to show the punishment for those heroes who still wish to defy you in your rule. Go for it master.",PLAYER0)
+DISPLAY_OBJECTIVE(40,PLAYER0)
 
 IF(PLAYER0,GAME_TURN>=240)
-	QUICK_INFORMATION(18,"A powerful curse forbids most of your powers, placed by these four. Yet another reason to kill them. As a result of thier stuckup additudes, they all work sepperately, thus making it easier for you to slay them all.",PLAYER0)
+REM	QUICK_INFORMATION(18,"A powerful curse forbids most of your powers, placed by these four. Yet another reason to kill them. As a result of thier stuckup additudes, they all work sepperately, thus making it easier for you to slay them all.",PLAYER0)
+	DISPLAY_INFORMATION(41,PLAYER0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN>=2000)
-	QUICK_INFORMATION(1,"Why not take a trip down memory lane, it might hold some useful memories.",PLAYER0)
+REM		QUICK_INFORMATION(1,"Why not take a trip down memory lane, it might hold some useful memories.",PLAYER0)
+		DISPLAY_INFORMATION(42,PLAYER0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN>=3600)
-	QUICK_INFORMATION(2,"Your majasty, I've received word that the Witch of Summonings awaits for you. As rude as it would be not to visit her, she holds the resorces you require, so lets make the visit short and simple.",PLAYER0)
+REM	QUICK_INFORMATION(2,"Your majasty, I've received word that the Witch of Summonings awaits for you. As rude as it would be not to visit her, she holds the resorces you require, so lets make the visit short and simple.",PLAYER0)
+	DISPLAY_INFORMATION(43,PLAYER0)
 ENDIF
 
 IF_ACTION_POINT(18,PLAYER0)
-	QUICK_INFORMATION(3,"I hope this isn't her only defense against you. Someone of your ability can pass through this easily, now it is time to deal with the menace.",PLAYER0)
+REM	QUICK_INFORMATION(3,"I hope this isn't her only defense against you. Someone of your ability can pass through this easily, now it is time to deal with the menace.",PLAYER0)
+	DISPLAY_INFORMATION(44,18)
 ENDIF
 
 IF_ACTION_POINT(8,PLAYER0)
@@ -138,30 +148,36 @@ IF(PLAYER0,TIMER0>=142)
 ENDIF
 
 IF_ACTION_POINT(17,PLAYER0)
-	QUICK_INFORMATION(4,"You've found some orcs. These will go well with your army, to crush those who are against you.",PLAYER0)
+REM	QUICK_INFORMATION(4,"You've found some orcs. These will go well with your army, to crush those who are against you.",PLAYER0)
+	DISPLAY_INFORMATION(45,17)
 ENDIF
 
 IF(PLAYER_GOOD,WITCH==1)
 	IF(PLAYER_GOOD,BILE_DEMON==0)
 		NEXT_COMMAND_REUSABLE
 		ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BILE_DEMON,16,1,1,0)
+		DISPLAY_OBJECTIVE(46,16)
 	ENDIF
 ENDIF
 
 IF_ACTION_POINT(16,PLAYER0)
-	QUICK_OBJECTIVE(5,"Here is the Witch of Summonings. Isn't she happy to see you? Why don't you repay the compliment. Remember what you've been told on how to treat a woman.",PLAYER0)
+REM	QUICK_OBJECTIVE(5,"Here is the Witch of Summonings. Isn't she happy to see you? Why don't you repay the compliment. Remember what you've been told on how to treat a woman.",PLAYER0)
+	DISPLAY_OBJECTIVE(47,16)
 ENDIF
 
 IF(PLAYER_GOOD,WITCH==0)
-	QUICK_OBJECTIVE(6,"Now the Witch of Summonings has fallen to her demise. Take her spells as a treat, and head for the east. You'll need the gold, and there is someone you have to get rid of as well.",PLAYER0)
+REM	QUICK_OBJECTIVE(6,"Now the Witch of Summonings has fallen to her demise. Take her spells as a treat, and head for the east. You'll need the gold, and there is someone you have to get rid of as well.",PLAYER0)
+	DISPLAY_OBJECTIVE(48,16)
 ENDIF
 
 IF_ACTION_POINT(19,PLAYER0)
-	QUICK_OBJECTIVE(7,"Because of these do-gooders, keeping your former wealth will come difficult. But the heroes would say to have faith. Now take thier faith and toss it in the lava or boulder trap because it will get someone of your power nowhere, just use sheer force to break down their doors and make them know the real meaning of fear. The Monk of Might should be your perfect victom. He is nearby, awaiting to face you. And faith won't get you what power shall in this case.",PLAYER0)
+REM	QUICK_OBJECTIVE(7,"Because of these do-gooders, keeping your former wealth will come difficult. But the heroes would say to have faith. Now take thier faith and toss it in the lava or boulder trap because it will get someone of your power nowhere, just use sheer force to break down their doors and make them know the real meaning of fear. The Monk of Might should be your perfect victom. He is nearby, awaiting to face you. And faith won't get you what power shall in this case.",PLAYER0)
+	DISPLAY_OBJECTIVE(49,19)
 ENDIF
 
 IF_ACTION_POINT(20,PLAYER0)
-	QUICK_INFORMATION(8,"Correct me if I'm wrong, which I doubt, but wasn't there a third way in?",PLAYER0)
+REM	QUICK_INFORMATION(8,"Correct me if I'm wrong, which I doubt, but wasn't there a third way in?",PLAYER0)
+	DISPLAY_INFORMATION(50,20)
 ENDIF
 
 IF_ACTION_POINT(6,PLAYER0)
@@ -169,11 +185,13 @@ IF_ACTION_POINT(6,PLAYER0)
 ENDIF
 
 IF_ACTION_POINT(5,PLAYER0)
-	QUICK_INFORMATION(9,"Which way is the Monk of Cowardness hiding in. Choose wisely, and such decision making is why this job is worthy of your talants.",PLAYER0)
+REM	QUICK_INFORMATION(9,"Which way is the Monk of Cowardness hiding in. Choose wisely, and such decision making is why this job is worthy of your talants.",PLAYER0)
+	DISPLAY_INFORMATION(51,5)
 ENDIF
 
 IF_ACTION_POINT(4,PLAYER0)
-	QUICK_INFORMATION(10,"Looks like this worthlessness of a dwarf had been hiding behind locked doors thinking he was safe by creating boulder traps. He was stupid enough not to use all of them, this makes everything easier for our part.",PLAYER0)
+REM	QUICK_INFORMATION(10,"Looks like this worthlessness of a dwarf had been hiding behind locked doors thinking he was safe by creating boulder traps. He was stupid enough not to use all of them, this makes everything easier for our part.",PLAYER0)
+	DISPLAY_INFORMATION(52,4)
 ENDIF
 
 IF_ACTION_POINT(2,PLAYER0)
@@ -185,26 +203,31 @@ IF_ACTION_POINT(3,PLAYER0)
 ENDIF
 
 IF_ACTION_POINT(22,PLAYER0)
-	QUICK_OBJECTIVE(11,"Such holy actions by such a holy monk. Now take his holyness and corrupt it with your dark ways. This should be fun, right my lord?",PLAYER0)
+REM	QUICK_OBJECTIVE(11,"Such holy actions by such a holy monk. Now take his holyness and corrupt it with your dark ways. This should be fun, right my lord?",PLAYER0)
+	DISPLAY_OBJECTIVE(53,22)
 ENDIF
 
 IF(PLAYER_GOOD,MONK==0)
-	QUICK_OBJECTIVE(12,"And now you are granted more power. Such as being able to attract the mistress. And without this monk to get in your way, you may proceed to where an old rival used to be. The Fairy of Lava awaits there. Lets stop by to visit, to tell her how her friends are doing.",PLAYER0)
+REM	QUICK_OBJECTIVE(12,"And now you are granted more power. Such as being able to attract the mistress. And without this monk to get in your way, you may proceed to where an old rival used to be. The Fairy of Lava awaits there. Lets stop by to visit, to tell her how her friends are doing.",PLAYER0)
+	DISPLAY_OBJECTIVE(54,PLAYER0)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
 	ROOM_AVAILABLE(PLAYER0,TORTURE,1,0)
 ENDIF
 
 IF_ACTION_POINT(23,PLAYER0)
-	QUICK_OBJECTIVE(13,"And now for the Fairy of Lava to face you. Look at her abilities, and then look at her pitifulness to call upon the great spirits to aid her in her 'holy' quest. How brave, noble, and stupid!",PLAYER0)
+REM	QUICK_OBJECTIVE(13,"And now for the Fairy of Lava to face you. Look at her abilities, and then look at her pitifulness to call upon the great spirits to aid her in her 'holy' quest. How brave, noble, and stupid!",PLAYER0)
+	DISPLAY_OBJECTIVE(55,23)
 ENDIF
 
 IF(PLAYER_GOOD,FAIRY==0)
-	QUICK_OBJECTIVE(14,"And now with her gone, and the Training Room yours to build, you should go after the Wizard of Allknowing in the northwestern area of this land. His power his great, yet yours is supurb. Show him what he doesn't know, and that is wretched evil doings by someone dark and powerful who will show absolutely no mercy and pay him a visit of agony, something he might look back on.",PLAYER0)
+REM	QUICK_OBJECTIVE(14,"And now with her gone, and the Training Room yours to build, you should go after the Wizard of Allknowing in the northwestern area of this land. His power his great, yet yours is supurb. Show him what he doesn't know, and that is wretched evil doings by someone dark and powerful who will show absolutely no mercy and pay him a visit of agony, something he might look back on.",PLAYER0)
+	DISPLAY_OBJECTIVE(56,23)
 	ROOM_AVAILABLE(PLAYER0,TRAINING,1,0)
 ENDIF
 
 IF_ACTION_POINT(24,PLAYER0)
-	QUICK_OBJECTIVE(15,"The mighty Wizard of Allknowing! 'Mighty'? Yeah right, show him who is 'Mighty', and the correction to his flaw of aiding goodness.",PLAYER0)
+REM	QUICK_OBJECTIVE(15,"The mighty Wizard of Allknowing! 'Mighty'? Yeah right, show him who is 'Mighty', and the correction to his flaw of aiding goodness.",PLAYER0)
+	DISPLAY_OBJECTIVE(57,24)
 ENDIF
 
 CREATE_PARTY(KNIGHT)
@@ -220,7 +243,8 @@ IF(PLAYER_GOOD,WIZARD==0)
 	IF(PLAYER_GOOD,FAIRY==0)
 		IF(PLAYER_GOOD,WITCH==0)
 			IF(PLAYER_GOOD,MONK==0)
-				QUICK_OBJECTIVE(16,"And now the four magical beings are defeated, yet they managed to give thier last remaining stength to the Hero Dungeon Keeper in which they tried to create. Unfortunately, he awoke. And now we must finish him off, and take what is rightfully yours, the throne over this land. We shall return it to the glory it shared after your last visit.",PLAYER0)
+				REM	QUICK_OBJECTIVE(16,"And now the four magical beings are defeated, yet they managed to give thier last remaining stength to the Hero Dungeon Keeper in which they tried to create. Unfortunately, he awoke. And now we must finish him off, and take what is rightfully yours, the throne over this land. We shall return it to the glory it shared after your last visit.",PLAYER0)
+				DISPLAY_OBJECTIVE(58,24)
 				MAGIC_AVAILABLE(PLAYER1,POWER_IMP,1,1)
 				MAGIC_AVAILABLE(PLAYER1,POWER_OBEY,1,1)
 				MAGIC_AVAILABLE(PLAYER1,POWER_SIGHT,1,1)
@@ -275,5 +299,6 @@ ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED==1)
 	WIN_GAME
-	QUICK_OBJECTIVE(17,"And now your goal has been acomplished. Now you may exit this holy land. But first... let us go to the above grounds and bring down order with chaos. This trully is a victory, no one should ever question your great power.",PLAYER0)
+	REM	QUICK_OBJECTIVE(17,"And now your goal has been acomplished. Now you may exit this holy land. But first... let us go to the above grounds and bring down order with chaos. This trully is a victory, no one should ever question your great power.",PLAYER0)
+	DISPLAY_OBJECTIVE(59,PLAYER0)
 ENDIF
