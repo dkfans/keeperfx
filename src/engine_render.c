@@ -2553,8 +2553,8 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 
 unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id)
 {
-    long slb_x = stl_x / 3;
-    long slb_y = stl_y / 3;
+    long slb_x = subtile_slab(stl_x);
+    long slb_y = subtile_slab(stl_y);
     return tex_id + (slab_ext_data[85 * slb_y + slb_x] & 0xF) * TEXTURE_BLOCKS_COUNT;
 }
 
