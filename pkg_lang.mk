@@ -37,15 +37,20 @@ pkg/fxdata/gtext_swe.dat \
 pkg/fxdata/gtext_eng.dat
 
 NCTEXTDATS = \
+pkg/campgns/ami2019/text_eng.dat \
+pkg/campgns/ami2019/text_chi.dat \
 pkg/campgns/ancntkpr/text_eng.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
 pkg/campgns/ancntkpr/text_ger.dat \
 pkg/campgns/ancntkpr/text_pol.dat \
+pkg/campgns/ancntkpr/text_chi.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/burdnimp/text_pol.dat \
 pkg/campgns/cqarctic/text_eng.dat \
+pkg/campgns/cqarctic/text_chi.dat \
 pkg/campgns/cqarctic/text_pol.dat \
 pkg/campgns/dstninja/text_eng.dat \
+pkg/campgns/dstninja/text_chi.dat \
 pkg/campgns/dstninja/text_pol.dat \
 pkg/campgns/evilkeep/text_eng.dat \
 pkg/campgns/evilkeep/text_fre.dat \
@@ -54,16 +59,18 @@ pkg/campgns/evilkeep/text_pol.dat \
 pkg/campgns/grkreign/text_eng.dat \
 pkg/campgns/grkreign/text_pol.dat \
 pkg/campgns/lqizgood/text_eng.dat \
+pkg/campgns/lqizgood/text_chi.dat \
 pkg/campgns/lqizgood/text_pol.dat \
 pkg/campgns/ncastles/text_eng.dat \
 pkg/campgns/ncastles/text_pol.dat \
-pkg/campgns/pstunded/text_eng.dat \
-pkg/campgns/pstunded/text_pol.dat \
 pkg/campgns/questfth/text_eng.dat \
 pkg/campgns/questfth/text_fre.dat \
+pkg/campgns/revlord/text_eng.dat \
+pkg/campgns/revlord/text_chi.dat \
 pkg/campgns/questfth/text_pol.dat \
 pkg/campgns/twinkprs/text_eng.dat \
 pkg/campgns/twinkprs/text_pol.dat \
+pkg/campgns/twinkprs/text_chi.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
 pkg/campgns/undedkpr/text_pol.dat
@@ -121,6 +128,14 @@ pkg/fxdata/gtext_%.dat: lang/gtext_%.pot tools/po2ngdat/res/char_encoding_tbl_eu
 
 # Creation of engine language files for campaigns
 define define_campaign_language_rule
+
+pkg/campgns/$(1)/text_ch%.dat: lang/$(1)/text_ch%.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
 pkg/campgns/$(1)/%.dat: lang/$(1)/%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
 	-$$(ECHO) 'Building language file: $$@'
 	@$$(MKDIR) $$(@D)

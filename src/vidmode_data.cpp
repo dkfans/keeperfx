@@ -232,7 +232,7 @@ struct TbLoadFiles legal_load_files[] = {
 
 struct TbLoadFiles game_load_files[] = {
     {"*SCRATCH",         &scratch,                               NULL,                                    0x10000, 0, 0},
-    {"*TEXTURE_PAGE",    &block_mem,                             NULL,                     max(544*32*32,960*720), 0, 0},// Store whole texture image or land view image
+    {"*TEXTURE_PAGE",    (unsigned char **)&block_mem,                             NULL,                     max(sizeof(block_mem),960*720u), 0, 0},// Store whole texture image or land view image
 #ifdef SPRITE_FORMAT_V2
     {"data/thingspr-32.tab",(unsigned char**)&creature_table,    NULL,                                          0, 0, 0},
 #else

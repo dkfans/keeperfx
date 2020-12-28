@@ -107,6 +107,9 @@ pkg/data/tmapa004.dat \
 pkg/data/tmapa005.dat \
 pkg/data/tmapa006.dat \
 pkg/data/tmapa007.dat \
+pkg/data/tmapa008.dat \
+pkg/data/tmapa009.dat \
+pkg/data/tmapa010.dat \
 pkg/data/swipe01.dat \
 pkg/data/swipe02.dat \
 pkg/data/swipe03.dat \
@@ -232,6 +235,9 @@ pkg/data/tmapa004.dat: gfx/textures-32/filelist_tmapa004.txt pkg/data/palette.da
 pkg/data/tmapa005.dat: gfx/textures-32/filelist_tmapa005.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/tmapa006.dat: gfx/textures-32/filelist_tmapa006.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/tmapa007.dat: gfx/textures-32/filelist_tmapa007.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa008.dat: gfx/textures-32/filelist_tmapa008.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa009.dat: gfx/textures-32/filelist_tmapa009.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/tmapa010.dat: gfx/textures-32/filelist_tmapa010.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 
 pkg/data/gmap32.raw: gfx/guimap/gmap-32.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gmap64.raw: gfx/guimap/gmap-64.png pkg/data/palette.dat $(PNGTORAW) $(RNC)

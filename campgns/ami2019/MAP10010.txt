@@ -1,5 +1,14 @@
+REM ****************************************************
 REM Fervent Asylum
+REM
+REM Assmist Isle Campaign by Kix
+REM
+REM v2.0 for DAT file objectives (by dayokay)
+REM 17-Oct-2020
+REM ****************************************************
+
 LEVEL_VERSION(1)
+
 REM aps:
 REM 1 portal
 REM 2 south gold pot room
@@ -155,8 +164,10 @@ ADD_TO_PARTY(CLOSEFINAL,GIANT,10,0,ATTACK_DUNGEON_HEART,0)
 REM ********************************************
 REM flags: flag0=barracks/archers FLAG1=hatchery/BILES flag2=library/WRLWIZ flag3=dragons
 REM TODO ONE MORE HATCHERY MAYBE
-QUICK_OBJECTIVE(1,"Insufferable heat, lack of portals and the constant danger of being raided by heroes makes this dune treasury a truly forsaken place. Could it be the mysterious scavenger that attracts them?",1)
-QUICK_INFORMATION(3,"This eerie scavenger eye works different from portal or a scavenger room. It attracts creatures from other realms based on the rooms you own. Expanding and claiming those rooms results in summoning higher level creatures. (hint: so do not the sell rooms you claim) Barracks will summon archers, hatchery summons bile demons, library attracks warlocks along with wizards and dragons are attracted by various rooms you claim. The summoning only works if you have less than 30 (non-imp) units.",1)
+REM	QUICK_OBJECTIVE(1,"Insufferable heat, lack of portals and the constant danger of being raided by heroes makes this dune treasury a truly forsaken place. Could it be the mysterious scavenger that attracts them?",1)
+	DISPLAY_OBJECTIVE(112,1)
+REM	QUICK_INFORMATION(3,"This eerie scavenger eye works different from portal or a scavenger room. It attracts creatures from other realms based on the rooms you own. Expanding and claiming those rooms results in summoning higher level creatures. (hint: so do not the sell rooms you claim) Barracks will summon archers, hatchery summons bile demons, library attracks warlocks along with wizards and dragons are attracted by various rooms you claim. The summoning only works if you have less than 30 (non-imp) units.",1)
+	DISPLAY_INFORMATION(113,1)
 
 IF(PLAYER0,BARRACKS>=9)
 	ADD_TO_FLAG(PLAYER0,FLAG0,1)
@@ -218,7 +229,8 @@ IF(PLAYER0,TIMER1>3000)
 	rem ***********************
 	REM presence of avatar
 	PLAY_MESSAGE(PLAYER0,SPEECH,107)
-	QUICK_INFORMATION(2,"One of the heroes' most dangerous insurgents paid a visit to this land. Recruit him and he'll serve you well...",12)
+	REM	QUICK_INFORMATION(2,"One of the heroes' most dangerous insurgents paid a visit to this land. Recruit him and he'll serve you well...",12)
+	DISPLAY_INFORMATION(114,12)
 	REVEAL_MAP_LOCATION(PLAYER0,12,12)
 	REVEAL_MAP_LOCATION(PLAYER0,13,12)
 
@@ -317,7 +329,8 @@ IF(PLAYER_GOOD,DUNGEON_DESTROYED==0)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,INTRO2,-2,1)
 		NEXT_COMMAND_REUSABLE
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,CLOSE2,-1,1)
-		QUICK_OBJECTIVE(4,"People of this land are sending their troops periodically. As they are still foolishly thinking you are outnumbered they prioritize mobilising their tougher parties to other realms. Find and destroy their dungeon heart before the offense becomes overwhelming and eliminate every foe to win this land.",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(4,"People of this land are sending their troops periodically. As they are still foolishly thinking you are outnumbered they prioritize mobilising their tougher parties to other realms. Find and destroy their dungeon heart before the offense becomes overwhelming and eliminate every foe to win this land.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(115,ALL_PLAYERS)
 	ENDIF
 	ENDIF
 	IF(PLAYER0,BATTLES_WON>=250)
@@ -328,8 +341,10 @@ IF(PLAYER_GOOD,DUNGEON_DESTROYED==0)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,CLOSE1,-1,1)
 		NEXT_COMMAND_REUSABLE
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,CLOSE2,-1,1)
-		QUICK_INFORMATION(6,"Hint: the gold you have when you win will be transfered to the next realm by the mysterious scavenger.",ALL_PLAYERS)
-		QUICK_INFORMATION(10,"Hint: steal all the workshops so the dwarven forces recede.",ALL_PLAYERS)
+	REM	QUICK_INFORMATION(6,"Hint: the gold you have when you win will be transfered to the next realm by the mysterious scavenger.",ALL_PLAYERS)
+		DISPLAY_INFORMATION(117,ALL_PLAYERS)
+	REM	QUICK_INFORMATION(10,"Hint: steal all the workshops so the dwarven forces recede.",ALL_PLAYERS)
+		DISPLAY_INFORMATION(118,ALL_PLAYERS)
 	ENDIF
 	ENDIF
 	IF(PLAYER0,BATTLES_WON>=375)
@@ -342,7 +357,8 @@ IF(PLAYER_GOOD,DUNGEON_DESTROYED==0)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ONE,3,3)
 		ADD_CREATURE_TO_LEVEL(PLAYER0,BARBARIAN,1,IMPORT(PLAYER0,CAMPAIGN_FLAG7),7,0)
 		IF(PLAYER0,BARBARIAN>0)
-			QUICK_INFORMATION(8,"Look! The scavenger has summoned a few barbarians from Cloud Temple Ruins!",1)
+		REM	QUICK_INFORMATION(8,"Look! The scavenger has summoned a few barbarians from Cloud Temple Ruins!",1)
+			DISPLAY_INFORMATION(119,1)
 		ENDIF
 	ENDIF
 	ENDIF
@@ -370,7 +386,8 @@ IF(PLAYER_GOOD,DUNGEON_DESTROYED==0)
 		NEXT_COMMAND_REUSABLE
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FIVE,-1,2)
 		ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,VAMPIRE,10,3,10,0)
-		QUICK_INFORMATION(5,"You finally caught their attention. They have begun sending their most forceful troops. Good luck.",ALL_PLAYERS)
+	REM	QUICK_INFORMATION(5,"You finally caught their attention. They have begun sending their most forceful troops. Good luck.",ALL_PLAYERS)
+		DISPLAY_INFORMATION(120,ALL_PLAYERS)
 	ENDIF
 	ENDIF
 	IF(PLAYER0,BATTLES_WON>=825)
@@ -384,7 +401,8 @@ IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
 ENDIF
 
 IF(PLAYER0,FLAG7>0)
-	QUICK_OBJECTIVE(9,"Final group is here to finish you off. Wreck them. Eliminate every foe in this land to win.",PLAYER_GOOD)
+REM	QUICK_OBJECTIVE(9,"Final group is here to finish you off. Wreck them. Eliminate every foe in this land to win.",PLAYER_GOOD)
+	DISPLAY_OBJECTIVE(121,PLAYER_GOOD)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FIN,-2,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SIDEKICK,-2,2)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,CLOSEFINAL,-1,2)
@@ -395,7 +413,8 @@ IF(PLAYER0,FLAG7>0)
 	IF(PLAYER_GOOD,TOTAL_CREATURES<1)
 		SET_CAMPAIGN_FLAG(PLAYER0,CAMPAIGN_FLAG3,0)
 		EXPORT_VARIABLE(PLAYER0,MONEY,CAMPAIGN_FLAG3)
-		QUICK_OBJECTIVE(7,"The heat is unbearable, the land is devoid of its riches and all the good is dead. Excellent.",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(7,"The heat is unbearable, the land is devoid of its riches and all the good is dead. Excellent.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(122,ALL_PLAYERS)
 		WIN_GAME
 	ENDIF
 ENDIF

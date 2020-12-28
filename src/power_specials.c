@@ -391,7 +391,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   int spkindidx = cratetng->model - 86;
   short used = 0;
   TbBool no_speech = false;
-  if (thing_exists(cratetng) && is_dungeon_special(cratetng))
+  if (thing_exists(cratetng) && thing_is_special_box(cratetng))
   {
     switch (cratetng->model)
     {

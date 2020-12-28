@@ -403,11 +403,11 @@ void set_engine_view(struct PlayerInfo *player, long val)
         if (!is_my_player(player))
             break;
         // If it's local human player, then setting this mode is an error
-        // no break
+        // fall through
     default:
         ERRORLOG("Invalid view mode %d",(int)val);
         val = PVM_CreatureView;
-        // no break
+        // fall through
     case PVM_CreatureView:
         player->acamera = &player->cameras[CamIV_FirstPerson];
         if (!is_my_player(player))

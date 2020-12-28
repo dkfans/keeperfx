@@ -9,6 +9,7 @@ REM ********************************************
 REM Update 1.00, august 2018: adjusted difficulty. 
 REM Lowered maximal amounts of troops to 7 each, some thiefs are often claimed by AI which is an issue alright
 REM Added much more gold to mob groups which can be disabled.
+REM v2.0 by dayokay to use pot file (Dec2020)
 REM ********************************************
 LEVEL_VERSION(1)
 
@@ -256,7 +257,8 @@ REM 7 - eastern gold
 REM Startup
     SET_TIMER(PLAYER0,TIMER0)
     SET_TIMER(PLAYER1,TIMER0)
-    QUICK_OBJECTIVE(1,"You have arrived to the source of all evil in Dominus. Gather your heroes, and strike into the heart of darkness.", PLAYER0)
+REM	QUICK_OBJECTIVE(1,"You have arrived to the source of all evil in Dominus. Gather your heroes, and strike into the heart of darkness.", PLAYER0)
+	DISPLAY_OBJECTIVE(80,PLAYER0)
 
 
 REM Add imps for AI if some are dead.
@@ -278,7 +280,8 @@ ENDIF
 
 REM First timer and first wave.
 IF(PLAYER0,TIMER1 >=9000)
-	QUICK_INFORMATION(5,"The monstrous beings in this land are many, and they are mostly self-sufficient and set apart from the supreme keeper who seems care little for your invasion. The orcs live in their barracks, demonspawns and dragons reside at the training rooms, undead rises from the temples and the bile demons lazily fart within their filthy lairs. Capture these rooms, and their attacks will weaken and finally cease.", PLAYER0)
+REM	QUICK_INFORMATION(5,"The monstrous beings in this land are many, and they are mostly self-sufficient and set apart from the supreme keeper who seems care little for your invasion. The orcs live in their barracks, demonspawns and dragons reside at the training rooms, undead rises from the temples and the bile demons lazily fart within their filthy lairs. Capture these rooms, and their attacks will weaken and finally cease.", PLAYER0)
+	DISPLAY_INFORMATION(81,PLAYER0)
     IF(PLAYER_GOOD,TRAINING >= 9)
         NEXT_COMMAND_REUSABLE
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DRAGON_LOW,-3,1)
@@ -385,7 +388,8 @@ IF_ACTION_POINT(2,PLAYER0)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HORNY,-2,3,4,0)
 ENDIF
 IF(PLAYER_GOOD,FLAG5 >= 1)
-	QUICK_OBJECTIVE(4,"Your troops have breached the final bastion of evil; beware, for the last vile creatures are pouring forth!.", PLAYER0)
+REM	QUICK_OBJECTIVE(4,"Your troops have breached the final bastion of evil; beware, for the last vile creatures are pouring forth!.", PLAYER0)
+	DISPLAY_OBJECTIVE(82,PLAYER0)
 	SET_TIMER(PLAYER_GOOD,TIMER5)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HORNY,-4,3,4,0)
 ENDIF
@@ -449,7 +453,8 @@ IF_ACTION_POINT(25,PLAYER0)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HELL_HOUND,-2,3,10,0)
 ENDIF
 IF(PLAYER0,FLAG1 == 1)
-	QUICK_INFORMATION(3,"A faint drumming of alarm is heard in the distance - the evil keeper will soon attempt to remove you from this land.", PLAYER0)
+REM	QUICK_INFORMATION(3,"A faint drumming of alarm is heard in the distance - the evil keeper will soon attempt to remove you from this land.", PLAYER0)
+	DISPLAY_INFORMATION(83,PLAYER0)
 	SET_TIMER(PLAYER0,TIMER1)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-5,2,1,0)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,-6,2,1,0)
@@ -458,7 +463,8 @@ ENDIF
 REM Destruction of both hearts ends the game.
 IF(PLAYER1, DUNGEON_DESTROYED>=1)
 	IF(PLAYER_GOOD, DUNGEON_DESTROYED>=1)
-		QUICK_OBJECTIVE(16,"Your crusade against forces of evil entrenched at Wickedridge ends. Dominus is safe, and so the Revenge of the Lord is over. Congratulations!", PLAYER0)
+	REM	QUICK_OBJECTIVE(16,"Your crusade against forces of evil entrenched at Wickedridge ends. Dominus is safe, and so the Revenge of the Lord is over. Congratulations!", PLAYER0)
+	DISPLAY_OBJECTIVE)84,PLAYER0)
 		WIN_GAME
 	ENDIF
 ENDIF
@@ -507,7 +513,8 @@ IF(PLAYER0,ENTRANCE >= 10)
 ENDIF
 
 IF(PLAYER0,BRIDGE >= 1)
-    QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+REM	QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+	DISPLAY_INFORMATION(27,PLAYER0)
     NEXT_COMMAND_REUSABLE
     ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
 ENDIF

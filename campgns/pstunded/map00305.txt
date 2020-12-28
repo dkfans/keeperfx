@@ -2,6 +2,7 @@ REM ----------------------------------------------------------------------------
 REM Post Undead Keeper
 REM Ludim
 REM Made by Duke Ragereaver
+REM	change to pot file usage by dayokay (Nov 2020)
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
 COMPUTER_PLAYER(PLAYER1,0)
@@ -130,7 +131,8 @@ CREATE_PARTY(DEFENDERS)
 
 REM --------------------------------------------------------------------------------------------------------------------------------------------
 
-QUICK_OBJECTIVE(0,"An evil Keeper by the name of Dracovich has his designs for this realm. Let him know how you feel about those plans... in the appriopiate way of course.",PLAYER0)
+REM	QUICK_OBJECTIVE(0,"An evil Keeper by the name of Dracovich has his designs for this realm. Let him know how you feel about those plans... in the appriopiate way of course.",PLAYER0)
+DISPLAY_OBJECTIVE(23,PLAYER0)
 
 SET_TIMER(PLAYER_GOOD,TIMER0)
 SET_TIMER(PLAYER_GOOD,TIMER1)
@@ -204,7 +206,8 @@ ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
     IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-        QUICK_OBJECTIVE(1,"That is one less, well done.",PLAYER0)
+        REM	QUICK_OBJECTIVE(1,"That is one less, well done.",PLAYER0)
+		DISPLAY_OBJECTIVE(24,PLAYER0)
         WIN_GAME
     ENDIF
 ENDIF

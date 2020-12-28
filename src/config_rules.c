@@ -203,6 +203,8 @@ const struct NamedCommand rules_sacrifices_commands[] = {
   {"POSSPELLALL",         SacA_PosSpellAll},
   {"NEGUNIQFUNC",         SacA_NegUniqFunc},
   {"POSUNIQFUNC",         SacA_PosUniqFunc},
+  {"CUSTOMREWARD",        SacA_CustomReward},
+  {"CUSTOMPUNISH",        SacA_CustomPunish},
   {NULL,                  0},
   };
 

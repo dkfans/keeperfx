@@ -189,10 +189,183 @@ msgid ""
 "nothing left to conquer; you have won."
 msgstr ""
 
-#: guitext:23 guitext:24 guitext:25 guitext:26 guitext:27 guitext:28
-#: guitext:29 guitext:30 guitext:31 guitext:32 guitext:33 guitext:34
-#: guitext:35 guitext:36 guitext:37 guitext:38 guitext:39 guitext:40
-#: guitext:41 guitext:42 guitext:43 guitext:44 guitext:45 guitext:46
+#: guitext:23
+msgctxt "In-game message"
+msgid ""
+"An evil Keeper by the name of Dracovich has his designs for this realm. Let "
+"him know how you feel about those plans... in the appriopiate way of course."
+msgstr ""
+
+#: guitext:24
+msgctxt "In-game message"
+msgid "That is one less, well done."
+msgstr ""
+
+#: guitext:25
+msgctxt "In-game message"
+msgid ""
+"The Heroes are getting somewhat nervous and have sent an army to attack you. "
+"Use the resources you have available to build an even bigger force and crush "
+"that so-called army."
+msgstr ""
+
+#: guitext:26
+msgctxt "In-game message"
+msgid ""
+"You have slaughtered the vast majority of the Heroes, now prepare yourself "
+"for their elite warriors. Maybe they can provide some some actual fight?"
+msgstr ""
+
+#: guitext:27
+msgctxt "In-game message"
+msgid "Here they come again."
+msgstr ""
+
+#: guitext:28
+msgctxt "In-game message"
+msgid ""
+"With so many deaths here on the field, I have good reason to believe this "
+"place will forever be haunted with wailing, vengeful revenants until the end "
+"of time. Outstanding!"
+msgstr ""
+
+#: guitext:29
+msgctxt "In-game message"
+msgid ""
+"A pathetic duo known as Umbra and Abominor pride themselves being an "
+"unbeatable team, claiming that even Gods cower in their presence. Show them "
+"the error of their ways once seperated, the hard way."
+msgstr ""
+
+#: guitext:30
+msgctxt "In-game message"
+msgid "Together they stand, together they fall!"
+msgstr ""
+
+#: guitext:31
+msgctxt "In-game message"
+msgid ""
+"The Heroes have restored a fortress here that belonged to a legendary "
+"Samurai warrior. Alas, he was slain along with his men and his castle fell "
+"into ruin. I must say this was not a smart move on the Heroes' part because "
+"the piles of corpses will provide you with a steady stream of warriors. "
+"However, you are not the only one with the ability of necromancy; Nex seeks "
+"to make this realm a paradise of darkness. Destroy her, and raze this "
+"fortress to the ground. It seems like deja vu all over again!"
+msgstr ""
+
+#: guitext:32
+msgctxt "In-game message"
+msgid ""
+"Nex wanted to make this realm a paradise of darkness. It will be one but, "
+"rightfully, under your banner!"
+msgstr ""
+
+#: guitext:33
+msgctxt "In-game message"
+msgid ""
+"The Heroes are preparing for their last stand, which is, naturally, only "
+"delaying the inevitable. The Wizard Lucian himself will be present, so "
+"prepare for a long and tough fight. They are coming!"
+msgstr ""
+
+#: guitext:34
+msgctxt "In-game message"
+msgid ""
+"Lucian has spoken out a spell that disables your Creatures from gaining "
+"experience from fighting. The essence of this magic is bound by 5 Generals "
+"that lead the armies against you. Find them and kill them before you are "
+"overrun."
+msgstr ""
+
+#: guitext:35
+msgctxt "In-game message"
+msgid ""
+"That is one less, well done. Be warned, I can sense something powerful stirring "
+"up the Heroes in the west..."
+msgstr ""
+
+#: guitext:36
+msgctxt "In-game message"
+msgid ""
+"I have discovered that an all-powerful Keeper by the name of Leto is present "
+"in this realm. I thought he was only a legend; the reputation of his "
+"ruthlessness, malice and cruelty alone is staggering. But it's his passion "
+"for warfare that makes him one of the most feared opponents you will ever "
+"find. Deliberate and cunning, he will use every dirty trick and dishonest "
+"tactic at his disposal to win the day."
+msgstr ""
+
+#: guitext:37
+msgctxt "In-game message"
+msgid ""
+"You have slain the 4th General and cut off their attack routes in the "
+"process, but the last and greatest of the Generals has been captured alive "
+"by Leto. You have to retrieve him from Leto's clutches somehow... No-one said "
+"this would be easy, did they?"
+msgstr ""
+
+#: guitext:38
+msgctxt "In-game message"
+msgid ""
+"With the death of all the Generals, I can already smell the fear from Lucian "
+"across the realm. Put his head on a spike when you are ready for it."
+msgstr ""
+
+#: guitext:39
+msgctxt "In-game message"
+msgid ""
+"I had never dreamed you were this powerful, Master. You have won, there is "
+"nothing left to conquer... for the moment... I have this feeling we have "
+"not seen the last of either Leto or the Heroes...."
+msgstr ""
+
+#: guitext:40
+msgctxt "In-game message"
+msgid ""
+"The Ancient Spirits of Intregity, Valour and Justice keep this realm "
+"protected with their ancient magic. They just missed one tiny detail, the "
+"elderly Vampire Lord Jedidiah was burried here long ago by those same "
+"spirits and is in slumber. Awake him! For that, you will need some power "
+"structures with the Heroes protecting them, find and secure them. The Heroes "
+"will not hesitate to destroy them if nessesary so keep your eyes on the "
+"rascals."
+msgstr ""
+
+#: guitext:41
+msgctxt "In-game message"
+msgid ""
+"You have reached and secured one of the power structures. Remember, the goal "
+"is to secure them, NOT destroy them!"
+msgstr ""
+
+#: guitext:42
+msgctxt "In-game message"
+msgid ""
+"Jeddiah has awakened and is eager on vengeance against those who imprisoned "
+"him. Lead on! Your forces will gradually appear as the battle progresses... "
+"as will some special allies..."
+msgstr ""
+
+#: guitext:43
+msgctxt "In-game message"
+msgid "More reinforcements are on the way to assist you."
+msgstr ""
+
+#: guitext:44
+msgctxt "In-game message"
+msgid ""
+"Use this spell to break down the walls and destroy the remaining opposition!"
+msgstr ""
+
+#: guitext:45
+msgctxt "In-game message"
+msgid ""
+"The enemies of darkness and death have been shown no mercy... as it should "
+"be.... well done..."
+msgstr ""
+
+#: guitext:46
 #: guitext:47 guitext:48 guitext:49 guitext:50 guitext:51 guitext:52
 #: guitext:53 guitext:54 guitext:55 guitext:56 guitext:57 guitext:58
 #: guitext:59 guitext:60 guitext:61 guitext:62 guitext:63 guitext:64
@@ -253,7 +426,36 @@ msgctxt "Level name"
 msgid "Dawnterror"
 msgstr ""
 
-#: guitext:208 guitext:209 guitext:210 guitext:211 guitext:212 guitext:213
+#: guitext:208
+msgctxt "Level name"
+msgid "Ludim"
+msgstr ""
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Havoth Dir"
+msgstr ""
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Ebenazer"
+msgstr ""
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Chaerith"
+msgstr ""
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Nazirite"
+msgstr ""
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Elysium"
+msgstr ""
+
 #: guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219
 #: guitext:220 guitext:221 guitext:222 guitext:223 guitext:224 guitext:225
 msgctxt "Level name"
@@ -294,14 +496,14 @@ msgstr ""
 #: guitext:231
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
 msgstr ""
 
 #: guitext:232
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
 msgstr ""
 
@@ -322,8 +524,8 @@ msgstr ""
 #: guitext:235
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: This homes in on the nearest hero or enemy creature and "
-"explodes with devastating force."
+"Navigating Missile: A spell that sends a screaming magic reptile homing "
+"in on the nearest hero or enemy creature for double damage. Nice."
 msgstr ""
 
 #: guitext:236
@@ -362,7 +564,7 @@ msgstr ""
 
 #: guitext:241
 msgctxt "Creature spell"
-msgid "Flame Breath: The devasting constant stream of searing fire."
+msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr ""
 
 #: guitext:242
@@ -376,12 +578,12 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
+"from the air or cross lava unharmed."
 msgstr ""
 
 #: guitext:244
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
+msgid "Hail Storm: Creates a fury of hailstones."
 msgstr ""
 
 #: guitext:245
@@ -393,35 +595,35 @@ msgstr ""
 #: guitext:246
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a fair part of its health and "
-"magical abilities."
+"Drain: This spell drains the target creature a part of its health and gives it "
+"to the caster."
 msgstr ""
 
 #: guitext:247
 msgctxt "Creature spell"
 msgid ""
-"Word of Power: Causes rings of fire to emanate from the creature's body and "
-"inflicts massive damage on the vicinity."
+"Word of Power: Causes rings of demonic energy to emanate from the creature's body and "
+"inflicts massive damage on the vicinity. Very effective against crowded hordes of enemies, "
+"also pushes them back."
 msgstr ""
 
 #: guitext:248
 msgctxt "Creature spell"
 msgid ""
-"Heal: When this is cast, the creature is massively healed. Also, any nearby "
-"creatures are healed by a quarter."
+"Heal: When this is cast, the creature is massively healed."
 msgstr ""
 
 #: guitext:249
 msgctxt "Creature spell"
 msgid ""
-"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you."
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
+"away from you. And nasty smells of course."
 msgstr ""
 
 #: guitext:250
 msgctxt "Creature spell"
 msgid ""
-"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"Meteor: More powerful than the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
 msgstr ""
 
@@ -744,7 +946,7 @@ msgstr ""
 #: guitext:427
 msgctxt "Dungeon special decription"
 msgid ""
-"Locate Hidden World: You will be transported to a secret realm after you "
+"Locate Hidden World: You will get access to a secret realm after you "
 "have conquered this one."
 msgstr ""
 
@@ -788,12 +990,12 @@ msgstr ""
 
 #: guitext:544
 msgctxt "Slab description"
-msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgid "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but takes longer to mine than Gold."
 msgstr ""
 
 #: guitext:545
 msgctxt "Object description"
-msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgid "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be closed on your side."
 msgstr ""
 
 #: guitext:546
@@ -937,29 +1139,29 @@ msgstr ""
 #: guitext:586
 msgctxt "Trap description"
 msgid ""
-"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
-"select. RMB zoom. [20.3]"
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can hurt owner creatures if they inhale it. LMB "
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:587
 msgctxt "Trap description"
 msgid ""
-"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
-"select. RMB zoom. [20.4]"
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when tripped. Does no harm to owner creatures. LMB "
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:588
 msgctxt "Trap description"
 msgid ""
-"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
-"all creatures within range. LMB select. RMB zoom. [20.5]"
+"Word of Power Trap: Radiates devastating rings of demonic energy, pushing and "
+"damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:589
 msgctxt "Trap description"
 msgid ""
-"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
-"select. RMB zoom. [20.6]"
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects are irreversible, so Bridge is needed to be able to step on affected area again. LMB "
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:590
@@ -985,14 +1187,13 @@ msgstr ""
 #: guitext:594
 msgctxt "Door description"
 msgid ""
-"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
-"[21.1]"
+"Wooden Door: The simplest means of restricting access. Can be broken down easily. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:595
 msgctxt "Door description"
 msgid ""
-"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+"Braced Door: A wooden door reinforced with iron to last longer. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:596
@@ -1162,7 +1363,7 @@ msgstr ""
 #: guitext:625
 msgctxt "Room description"
 msgid ""
-"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"Lair: Where your creatures sleep and replenish their health. LMB select. RMB "
 "zoom. [17.2]"
 msgstr ""
 
@@ -1184,7 +1385,7 @@ msgstr ""
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
 msgstr ""
 
 #: guitext:629
@@ -1301,8 +1502,9 @@ msgstr ""
 #: guitext:650
 msgctxt "Keeper spell description"
 msgid ""
-"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
-"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+"Call To Arms: Calls creatures in range to any destination. LMB Select. "
+"Cast in range of creatures to gather, cast again for destination. "
+"RMB zoom. LMB Cancel. [18.6]"
 msgstr ""
 
 #: guitext:651
@@ -1363,14 +1565,13 @@ msgstr ""
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
-"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
 msgstr ""
 
 #: guitext:661
 msgctxt "Keeper spell description"
 msgid ""
-"Heal: Cast on an area of the dungeon to improve the health of your "
-"creatures. LMB select. [18.9]"
+"Heal: Cast on a creature to improve its health. LMB select. [18.9]"
 msgstr ""
 
 #: guitext:662

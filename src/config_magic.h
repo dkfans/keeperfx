@@ -75,7 +75,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Flying       = 0x0010,
     CSAfF_Invisibility = 0x0020,
     CSAfF_Sight        = 0x0040,
-    CSAfF_Unkn0080     = 0x0080,
+    CSAfF_Light        = 0x0080, // this was originally Freeze, but that is now done via stateblock_flags
     CSAfF_Disease      = 0x0100,
     CSAfF_Chicken      = 0x0200,
     CSAfF_PoisonCloud  = 0x0400,
