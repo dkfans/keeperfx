@@ -3505,7 +3505,7 @@ static void draw_engine_room_flag_top(struct RoomFlag *rflg)
 
 static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line_color)
 {
-    if ((x1 == x2) && (y1 == y2)) return;
+    if ((x1 == x2) && (y1 == y2)) return; // todo if distance is 0, provide a red square
 
     // get the 4 least significant bits of game.play_gameturn, to loop through the starting index of the color array, using numbers 0-15.
     unsigned char color_index = game.play_gameturn & 0xf;
