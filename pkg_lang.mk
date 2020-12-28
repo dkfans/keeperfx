@@ -73,7 +73,9 @@ pkg/campgns/twinkprs/text_pol.dat \
 pkg/campgns/twinkprs/text_chi.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
-pkg/campgns/undedkpr/text_pol.dat
+pkg/campgns/undedkpr/text_pol.dat \
+pkg/campgns/classic/text_eng.dat \
+pkg/campgns/classic/text_chi.dat 
 
 pkg-languages: lang-before $(NGTEXTDATS) $(NCTEXTDATS) pkg-before
 
