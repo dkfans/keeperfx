@@ -40,23 +40,20 @@ msgstr ""
 #: guitext:1
 msgctxt "In-game message"
 msgid ""
-"Here you are in enemy territory Keeper. The smugglers are organised and have numerous defense posts at their disposal. "
-"Be quick and tactical to ensure your victory!"
+"Here you are in enemy territory Keeper. The smugglers are organised and have numerous defense posts at their disposal. Be quick and tactical to ensure your victory!"
 msgstr ""
 
 #. Syndika (lv206)
 #: guitext:2
 msgctxt "In-game message"
-msgid "A Baron whose lands have been pillaged has joined your lines. Your chances of victory over the syndicate's agents "
-"have improved significantly!"
+msgid "A Baron whose lands have been pillaged has joined your lines. Your chances of victory over the syndicate's agents have improved significantly!"
 msgstr ""
 
 #. Syndika (lv206)
 #: guitext:3
 msgctxt "In-game message"
 msgid ""
-"Now that you have slaughtered the syndicate's troops, his director seems pretty angry. Atrociously played Keeper! Now you must "
-"decimate his army, a necessary task in order to take control over these lands."
+"Now that you have slaughtered the syndicate's troops, his director seems pretty angry. Atrociously played Keeper! Now you must decimate his army, a necessary task in order to take control over these lands."
 msgstr ""
 
 #. Syndika (lv206)
@@ -69,8 +66,7 @@ msgstr ""
 #. Kzelbatu (lv207)
 #: guitext:5
 msgctxt "In-game message"
-msgid "Magic powers in this realm have reduced your abilities. The meager resources of this realm are fiercely guarded by smugglers "
-"whom you must overcome if you are to be victorious Keeper! Maybe separate them from their heads?"
+msgid "Magic powers in this realm have reduced your abilities. The meager resources of this realm are fiercely guarded by smugglers whom you must overcome if you are to be victorious Keeper! Maybe separate them from their heads?"
 msgstr ""
 
 #. Kzelbatu (lv207)
@@ -90,8 +86,7 @@ msgstr ""
 #. Kzelbatu (lv207)
 #: guitext:8
 msgctxt "In-game message"
-msgid "A second bandit king has been raised in the secret altar, with a formidable army. When he counts his troops after the forthcoming "
-"battles, teach him to understand the number zero!"
+msgid "A second bandit king has been raised in the secret altar, with a formidable army. When he counts his troops after the forthcoming battles, teach him to understand the number zero!"
 msgstr ""
 
 #. Kzelbatu (lv207)
@@ -183,8 +178,7 @@ msgstr ""
 #. Vassago (lv302)
 #: guitext:21
 msgctxt "In-game message"
-msgid "Yet more Hero reinforcements are on their way! But I think this is their last desperate attack. Survive this and victory "
-"may be yours!"
+msgid "Yet more Hero reinforcements are on their way! But I think this is their last desperate attack. Survive this and victory may be yours!"
 msgstr ""
 
 #. Vassago (lv302)
@@ -233,15 +227,7 @@ msgstr ""
 #: guitext:28
 msgctxt "In-game message"
 msgid ""
-"The Battle of Midway is afoot. Beware Evil one, the enemy is strong and well defended. Turn their misled minions against each "
-"other, sit back and let the butchery begin."
-msgstr ""
-
-#. Midway (lv336)
-#: guitext:29
-msgctxt "In-game message"
-msgid ""
-"A fine victory Keeper!"
+"The Battle of Midway is afoot. Beware Evil one, the enemy is strong and well defended. Turn their misled minions against each other, sit back and let the butchery begin."
 msgstr ""
 
 #. Midway (lv336)
@@ -255,8 +241,7 @@ msgstr ""
 #: guitext:30
 msgctxt "In-game message"
 msgid ""
-"Noble one, a massive army serves a Keeper by the name of Urien in this realm. Many of your forces are engaged in the East against Urien. "
-"However, you must also support our ally Keeper Morgant in the North who is also suffering from Urien's advancing onslaught. "
+"Noble one, a massive army serves a Keeper by the name of Urien in this realm. Many of your forces are engaged in the East against Urien. However, you must also support our ally Keeper Morgant in the North who is also suffering from Urien's advancing onslaught. "
 " Quite a task Keeper! "
 msgstr ""
 
@@ -299,16 +284,14 @@ msgstr ""
 #: guitext:36
 msgctxt "In-game message"
 msgid ""
-"Welcome Noble one! The ruler of this realm, Lord Davaraux, has gone rogue at the expense of the innocent citizens who are now overtaxed. "
-"Deal with this bandit king appropriately! Do not let other matters distract you; he is your first and only priority."
+"Welcome Noble one! The ruler of this realm, Lord Davaraux, has gone rogue at the expense of the innocent citizens who are now overtaxed. Deal with this bandit king appropriately! Do not let other matters distract you; he is your first and only priority."
 msgstr ""
 
 #. Frostsorrow Glacier (lv407)
 #: guitext:37
 msgctxt "In-game message"
 msgid ""
-"Beware, we have detected the presence of a relentless Keeper called Eis whose massive demonic army will arrive within some days. Deal with "
-"Lord Davaraux swiftly, as you cannot hold Eis out indefinitely. "
+"Beware, we have detected the presence of a relentless Keeper called Eis whose massive demonic army will arrive within some days. Deal with Lord Davaraux swiftly, as you cannot hold Eis out indefinitely. "
 msgstr ""
 
 #. Frostsorrow Glacier (lv407)
@@ -346,8 +329,7 @@ msgstr ""
 #: guitext:41
 msgctxt "In-game message"
 msgid ""
-"Your powers in this realm have been limited by the Magical Heroes, which will make progress difficult. However, their "
-"arrogance prevents them working together effectively, which will give you an opportunity to slay them all! "
+"Your powers in this realm have been limited by the Magical Heroes, which will make progress difficult. However, their arrogance prevents them working together effectively, which will give you an opportunity to slay them all! "
 msgstr ""
 
 #. Return to Skybird Trill (lv416)
@@ -390,8 +372,7 @@ msgstr ""
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
-"Behold the Witch of Summonings! Isn't she happy to see you? Why don't you repay the compliment. Good manners demand that you "
-" introduce yourself properly? "
+"Behold the Witch of Summonings! Isn't she happy to see you? Why don't you repay the compliment. Good manners demand that you introduce yourself properly? "
 msgstr ""
 
 #. Return to Skybird Trill (lv416)
@@ -592,8 +573,7 @@ msgstr ""
 #: guitext:73
 msgctxt "In-game message"
 msgid ""
-"And so the Avatar has returned with a formidable army! Prepare for the final battle Keeper. The fate of this realm must "
-"be decided very soon. "
+"And so the Avatar has returned with a formidable army! Prepare for the final battle Keeper. The fate of this realm must be decided very soon. "
 msgstr ""
 
 #: guitext:74 guitext:75 guitext:76 guitext:77
