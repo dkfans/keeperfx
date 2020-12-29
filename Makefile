@@ -334,6 +334,7 @@ CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit 
 LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 
 CAMPAIGNS  = \
+ami2019 \
 ancntkpr \
 burdnimp \
 cqarctic \
@@ -352,6 +353,7 @@ ncastles \
 postanck \
 pstunded \
 questfth \
+revlord \
 twinkprs \
 undedkpr
 

@@ -173,7 +173,7 @@ struct Creatures { // sizeof = 16
   unsigned char natural_death_kind;
   unsigned char field_5;
   unsigned char field_6;
-  unsigned char field_7;
+  unsigned char field_7; // is transparent
   unsigned char swipe_idx;
   short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
   short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
@@ -320,6 +320,7 @@ CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_fl
 CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify_flags, unsigned long prevent_flags);
 CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qualify_flags, unsigned long prevent_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
+void thing_death_flesh_explosion(struct Thing* thing);
 /******************************************************************************/
 const char *attack_type_job_code_name(CrAttackType attack_type);
 /******************************************************************************/

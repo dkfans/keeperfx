@@ -397,7 +397,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->clipbox_size_xy = 0;
     thing->clipbox_size_yz = 0;
     thing->solid_size_xy = 0;
-    thing->field_5C = 0;
+    thing->solid_size_yz = 0;
     thing->field_20 = 16;
     thing->field_23 = 204;
     thing->field_24 = 51;
@@ -405,7 +405,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
     if (creatures[model].field_7) {
-        thing->field_4F |= (TF4F_Unknown10|TF4F_Unknown20);
+        thing->field_4F |= (TF4F_Transpar_Alpha);
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
@@ -421,7 +421,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         thing->active_state = DCrSt_Unknown01;
         k = get_creature_anim(thing, 15);
         set_thing_draw(thing, k, 128, crtr_conf.sprite_size, 0, 0, 2);
-        thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->field_3E);
+        thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
     }

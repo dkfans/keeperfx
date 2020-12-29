@@ -67,6 +67,7 @@ enum SlabTypes {
     SlbT_DOORIRON2          =  47,
     SlbT_DOORMAGIC1         =  48,
     SlbT_DOORMAGIC2         =  49,
+    SlbT_SLAB50             =  50, //Has special properties and is known as slab50 until a better name is found
     SlbT_BRIDGE             =  51,
     SlbT_GEMS               =  52,
     SlbT_GUARDPOST          =  53,

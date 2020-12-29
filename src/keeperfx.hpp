@@ -256,7 +256,7 @@ void game_loop(void);
 short reset_game(void);
 void update(void);
 
-int can_thing_be_queried(struct Thing *thing, long a2);
+TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4, TbBool single_subtile);
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
@@ -304,7 +304,7 @@ void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_p
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
 void update_creatr_model_activities_list(void);
-void find_map_location_coords(long location, long *x, long *y, const char *func_name);
+void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name);
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
 void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);

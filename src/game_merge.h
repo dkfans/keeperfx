@@ -74,6 +74,7 @@ enum ClassicBugFlags {
     ClscBug_AlwaysTunnelToRed      = 0x0080,
     ClscBug_FullyHappyWithGold     = 0x0100,
     ClscBug_FaintedImmuneToBoulder = 0x0200,
+    ClscBug_RebirthKeepsSpells     = 0x0400,
 };
 
 enum GameFlags2 {
@@ -146,6 +147,14 @@ struct GameAdd {
 
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
+    struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
+
+    uint8_t               max_custom_box_kind;
+    unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
+    int                   script_current_player;
+    struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
+
+    char box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };

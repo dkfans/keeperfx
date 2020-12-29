@@ -487,7 +487,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].trigger_type = k;
+                gameadd.trap_stats[i].trigger_type = k;
                 n++;
             }
           }
@@ -503,7 +503,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].activation_type = k;
+                gameadd.trap_stats[i].activation_type = k;
                 n++;
             }
           }
@@ -519,7 +519,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].created_itm_model = k;
+                gameadd.trap_stats[i].created_itm_model = k;
                 n++;
             }
           }
@@ -535,7 +535,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].sprite_anim_idx = k;
+                gameadd.trap_stats[i].sprite_anim_idx = k;
                 n++;
             }
           }
@@ -551,7 +551,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].sprite_size_max = k;
+                gameadd.trap_stats[i].sprite_size_max = k;
                 n++;
             }
           }
@@ -567,7 +567,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].anim_speed = k;
+                gameadd.trap_stats[i].anim_speed = k;
                 n++;
             }
           }
@@ -583,7 +583,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
             k = atoi(word_buf);
             if (k >= 0)
             {
-                trap_stats[i].unanimated = k;
+                gameadd.trap_stats[i].unanimated = k;
                 n++;
             }
           }
@@ -1016,6 +1016,7 @@ TbBool create_manufacture_array_from_trapdoor_data(void)
 
 TbBool load_trapdoor_config(const char *conf_fname, unsigned short flags)
 {
+    memcpy(gameadd.trap_stats, old_trap_stats, sizeof(old_trap_stats));
     static const char config_global_textname[] = "global traps and doors config";
     static const char config_campgn_textname[] = "campaign traps and doors config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);

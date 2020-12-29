@@ -1,11 +1,25 @@
+REM ****************************************************
 REM Thieves Den Detour
+REM
+REM Assmist Isle Campaign by Kix
+REM
+REM v2.0 for DAT file objectives (by dayokay)
+REM 14-Nov-2020
+REM ****************************************************
+
 LEVEL_VERSION(1)
-QUICK_OBJECTIVE(4,"A den of thieves. Or at least it used to be. Now it's training grounds for crusaders. FIX IT",ALL_PLAYERS)
-QUICK_INFORMATION(2,"Hint: bridge becomes available once you gather some gold. There is no need for library in this scenario: touch a spellbook to learn a spell. ",ALL_PLAYERS)
-QUICK_INFORMATION(3,"Hint: this scenario is a challenge that you can succeed only if you do not sell any rooms. ",ALL_PLAYERS)
+
+REM	QUICK_OBJECTIVE(4,"A den of thieves. Or at least it used to be. Now it's training grounds for crusaders. FIX IT",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(168,ALL_PLAYERS)
+REM	QUICK_INFORMATION(2,"Hint: bridge becomes available once you gather some gold. There is no need for library in this scenario: touch a spellbook to learn a spell. ",ALL_PLAYERS)
+DISPLAY_INFORMATION(169,ALL_PLAYERS)
+REM	QUICK_INFORMATION(3,"Hint: this scenario is a challenge that you can succeed only if you do not sell any rooms. ",ALL_PLAYERS)
+DISPLAY_INFORMATION(170,ALL_PLAYERS)
+
 REVEAL_MAP_LOCATION(PLAYER0,2,15)
 IF(PLAYER0,GAME_TURN>530)
-	QUICK_OBJECTIVE(5,"Eliminate the knight and dungeon heart located southward to win this scenario. But first... reach them...",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(5,"Eliminate the knight and dungeon heart located southward to win this scenario. But first... reach them...",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(171,ALL_PLAYERS)
 ENDIF
 IF(PLAYER0,MONEY>=30)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
@@ -21,13 +35,15 @@ IF(PLAYER_GOOD,KNIGHT==0)
 	KILL_CREATURE(PLAYER0,DWARFA,LEAST_EXPERIENCED,5)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,WITCH,3,2,9,0)
 	IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
-		QUICK_OBJECTIVE(6,"Good job. Use transfer creature special to transfer a creature of your choice to the next realm.",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(6,"Good job. Use transfer creature special to transfer a creature of your choice to the next realm.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(172,ALL_PLAYERS)
 		WIN_GAME
 	ENDIF
 ENDIF
 
 IF_ACTION_POINT(1,PLAYER0)
-	QUICK_INFORMATION(1,"Look! That wall can be dug through!",1)
+	REM	QUICK_INFORMATION(1,"Look! That wall can be dug through!",1)
+	DISPLAY_INFORMATION(173,1)
 ENDIF
 
 IF_ACTION_POINT(2,PLAYER0)

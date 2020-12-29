@@ -2,14 +2,14 @@ REM ****************+****************************
 REM  Hero campaign by Alexsa
 REM  map 1237, level 4 - Widerwilds
 REM  Script for the map
-REM  Version 1.00
+REM  Version 2.00 (pot messages by dayokay Dec-2020)
 REM ********************************************
 REM Update 1.00, august 2018: lowered difficulty. 
 REM AI gets fewer gold, but still has a prebuilt dungeon.
 REM AI only has max 24 creatures as opposed to old 30, but gets 2 extra Archers when you get a Samurai.
 REM Also, reduced non-dwarfs/barbs/giants to 8.
 REM Tentacle respawn is disabled. Note: AI is allowed to build library once it captures temple.
-REM Note: someone better proofread my texts!
+REM 
 REM Reduced AI-side hero parties spawn, some appear at treasury and not over at green side.
 REM ********************************************
 LEVEL_VERSION(1)
@@ -139,16 +139,19 @@ REM though it's probably safe to admit 20 lv 10 hellhounds guarding Multiply box
 
 REM Startup
     SET_TIMER(PLAYER0,TIMER0)
-    QUICK_OBJECTIVE(1,"Here in the Widerwilds, a local chieftain rules the land with an iron fist. Upon your arrival, he has challenged you for supremacy, despite the monsters running wild in this land. Build up your army and prove your strength to this filthy barbarian.", PLAYER0)
+    REM	QUICK_OBJECTIVE(1,"Here in the Widerwilds, a local chieftain rules the land with an iron fist. Upon your arrival, he has challenged you for supremacy, despite the monsters running wild in this land. Build up your army and prove your strength to this filthy barbarian.", PLAYER0)
+	DISPLAY_OBJECTIVE(39,PLAYER0)
 
 REM Inital samurai messages
 IF(PLAYER0,TIMER0 >= 500)
-	QUICK_INFORMATION(7,"You have received a message from the clan of samurai, neutral to your cause. They are willing to join your forces if you can win your contest with barbarian chieftain, be it through battle or by trickery and sleight of hand.", PLAYER0)
+	REM	QUICK_INFORMATION(7,"You have received a message from the clan of samurai, neutral to your cause. They are willing to join your forces if you can win your contest with barbarian chieftain, be it through battle or by trickery and sleight of hand.", PLAYER0)
+	DISPLAY_INFORMATION(40,PLAYER0)
 ENDIF
 IF(PLAYER0,TIMER0 >= 5000)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,SAMURAI,PLAYER0,1,3,0)
 	ADD_CREATURE_TO_LEVEL(PLAYER2,ARCHER,PLAYER2,2,4,0)
-	QUICK_INFORMATION(2,"One of Samurai has joined your cause. His clan is looking for their bretheren, imprisoned by the evil monsters in the region. It's possible they might join the barbarian clans if you do not find them first.", PLAYER0)
+	REM	QUICK_INFORMATION(2,"One of Samurai has joined your cause. His clan is looking for their bretheren, imprisoned by the evil monsters in the region. It's possible they might join the barbarian clans if you do not find them first.", PLAYER0)
+	DISPLAY_INFORMATION(41,PLAYER0)
 ENDIF
 
 REM On second payday, add imp+party attack if treasury isn't yet captured, and start southern monster harrassment.
@@ -217,7 +220,8 @@ ENDIF
 
 REM Punish walling in with gems by adding attacking parties through portals, to the point when Corrupt harrasment is started despite keeper still being alive. And kills it obviously.
 IF(PLAYER0,TOTAL_GOLD_MINED >= 50000)
-	QUICK_INFORMATION(5,"Grave news, my liege! Some crazed barbarians have allied with the monsters and are sowing chaos across the land.", PLAYER0)
+	REM	QUICK_INFORMATION(5,"Grave news, my liege! Some crazed barbarians have allied with the monsters and are sowing chaos across the land.", PLAYER0)
+	DISPLAY_INFORMATION(42,PLAYER0)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,-1,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_CORRUPT,6,1)
 ENDIF
@@ -273,7 +277,8 @@ IF(PLAYER2,TEMPLE >= 1)
 ENDIF
 
 IF(PLAYER0,BRIDGE >= 1)
-    QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+    REM	QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
+	DISPLAY_INFORMATION(27,PLAYER0)
     NEXT_COMMAND_REUSABLE
     ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
 ENDIF
@@ -285,12 +290,14 @@ ENDIF
 
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
-            QUICK_OBJECTIVE(19,"Well done, my liege! You have utterly destroyed the fortress of an evil keeper. You're now free to finish your contest against the barbarian chieftain.", PLAYER0)
+            REM	QUICK_OBJECTIVE(19,"Well done, my liege! You have utterly destroyed the fortress of an evil keeper. You're now free to finish your contest against the barbarian chieftain.", PLAYER0)
+			DISPLAY_OBJECTIVE(43,PLAYER_GOOD)
 ENDIF
 
 REM If the keeper's Dungeon heart is destroyed, start Horny sequence. If you destroyed white and secured gems first, well, now reap the whirlwind!
 IF(PLAYER2,DUNGEON_DESTROYED >= 1)
-	QUICK_OBJECTIVE(16,"Congratulations, my liege! You have defeated the barbarian chieftain fair and square.", PLAYER0)
+	REM	QUICK_OBJECTIVE(16,"Congratulations, my liege! You have defeated the barbarian chieftain fair and square.", PLAYER0)
+	DISPLAY_OBJECTIVE(44,PLAYER2)
 	SET_TIMER(PLAYER1,TIMER6)
 ENDIF
 IF(PLAYER1,TIMER6 >= 200)
@@ -300,17 +307,20 @@ IF(PLAYER1,TIMER6 >= 200)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_FIGHTERS,-2,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_MAGICAL,-2,1)
 	IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
-		QUICK_OBJECTIVE(17,"Treachery! The barbarian who challenged you has turned out to have been a demon all along! Put him and his remaining minions down, quickly!", PLAYER0)
+		REM	QUICK_OBJECTIVE(17,"Treachery! The barbarian who challenged you has turned out to have been a demon all along! Put him and his remaining minions down, quickly!", PLAYER0)
+		DISPLAY_OBJECTIVE(45,PLAYER0)
 	ENDIF
 	IF(PLAYER_GOOD,DUNGEON_DESTROYED == 0)
-		QUICK_OBJECTIVE(18,"Treachery! The barbarian who challenged you has turned out to have been a demon all along! You now must breach into his fortress and destroy both the dungeon heart and the monster himself.", PLAYER0)
+		REM	QUICK_OBJECTIVE(18,"Treachery! The barbarian who challenged you has turned out to have been a demon all along! You now must breach into his fortress and destroy both the dungeon heart and the monster himself.", PLAYER0)
+		DISPLAY_OBJECTIVE(59,PLAYER_GOOD)
 	ENDIF
 ENDIF
 
 IF(PLAYER1,TIMER6 >= 400)
 	IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
 		IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-			QUICK_OBJECTIVE(20,"It's done at last. Widerwilds are safe from depredations of its vile demon overlord. Now it's time to take revenge for siege upon Dwarfston and Abbeystone and stake some vampires in the Misty Bog.", PLAYER0)
+			REM	QUICK_OBJECTIVE(20,"It's done at last. Widerwilds are safe from depredations of its vile demon overlord. Now it's time to take revenge for siege upon Dwarfston and Abbeystone and stake some vampires in the Misty Bog.", PLAYER0)
+			DISPLAY_OBJECTIVE(46,PLAYER0)
 			WIN_GAME
 		ENDIF
 	ENDIF

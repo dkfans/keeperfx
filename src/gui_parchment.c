@@ -58,6 +58,8 @@
 #include "keeperfx.hpp"
 
 /******************************************************************************/
+unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id);
+/******************************************************************************/
 void load_parchment_file(void)
 {
     if ( !parchment_loaded )
@@ -436,6 +438,20 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             if (is_hero_tunnelling_to_attack(thing))
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                TbPixel col;
+                if ((game.play_gameturn & 4) == 0)
+                {
+                    col1 = player_room_colours[cctrl->party.target_plyr_idx];
+                    col2 = player_room_colours[thing->owner];
+                }
+                if (thing->owner == plyr_idx)
+                {
+                    col = col2;
+                } 
+                else 
+                {
+                    col = col1;
+                }
                 for (int m = 0; m < 5; m++)
                 {
                     long memberpos = cctrl->party.member_pos_stl[m];
@@ -443,14 +459,14 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                         break;
                     long pos_x = map_area->left + block_size * stl_num_decode_x(memberpos) / STL_PER_SLB;
                     long pos_y = map_area->top + block_size * stl_num_decode_y(memberpos) / STL_PER_SLB;
-                    LbDrawPixel(pos_x, pos_y, col1);
+                    LbDrawPixel(pos_x, pos_y, col);
                     // These only draw if screen resolution is high (not the 640x480)
                     // TODO: scale appropriately for windowed mode
                     if (!isLowRes)
                     {
-                        LbDrawPixel(pos_x+1, pos_y, col1);
-                        LbDrawPixel(pos_x, pos_y+1, col1);
-                        LbDrawPixel(pos_x+1, pos_y+1, col1);
+                        LbDrawPixel(pos_x+1, pos_y, col);
+                        LbDrawPixel(pos_x, pos_y+1, col);
+                        LbDrawPixel(pos_x+1, pos_y+1, col);
                     }
                     n++;
                 }
@@ -718,6 +734,7 @@ void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, P
             if (map_block_revealed(mapblk, plyr_idx))
             {
                 int k = element_top_face_texture(mapblk);
+                k = engine_remap_texture_blocks(stl_x + map_dx, stl_y + map_dy, k);
                 draw_texture(scr_x, scr_y, subtile_size, subtile_size, k, 0, -1);
             } else
           {

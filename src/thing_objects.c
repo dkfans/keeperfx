@@ -349,7 +349,7 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 0, 954, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //130 STATUE_PLACEHOLDER3
   {0, 0, 0, 0, 0, 956, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //131 STATUE_PLACEHOLDER4
   {0, 0, 0, 0, 0, 958, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //132 STATUE_PLACEHOLDER5
-  {0, 0, 0, 0, 0, 960, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1}, //133 STATUE_PLACEHOLDER6
+  {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //134 SPELLBOOK
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //135
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0},
@@ -419,7 +419,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->clipbox_size_xy = objdat->size_xy;
     thing->clipbox_size_yz = objdat->size_yz;
     thing->solid_size_xy = objdat->size_xy;
-    thing->field_5C = objdat->size_yz;
+    thing->solid_size_yz = objdat->size_yz;
     thing->health = saturate_set_signed(objconf->health,16);
     thing->field_20 = objconf->field_4;
     thing->field_23 = 204;
@@ -440,11 +440,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       i = convert_td_iso(objdat->sprite_anim_idx);
       k = -1;
     }
-    set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->field_11);
+    set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
     set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->field_5);
     set_flag_byte(&thing->field_4F, TF4F_Unknown01, objdat->field_3 & 0x01);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown10, objdat->field_F & 0x01);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown20, objdat->field_F & 0x02);
+
+    set_flag_byte(&thing->field_4F, TF4F_Transpar_4, objdat->field_F & 0x01);
+    set_flag_byte(&thing->field_4F, TF4F_Transpar_8, objdat->field_F & 0x02);
+
     thing->active_state = objdat->initial_state;
     if (objconf->ilght.field_0 != 0)
     {
@@ -468,9 +470,9 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         thing->byte_14 = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
-      case 33:
-        set_flag_byte(&thing->field_4F, TF4F_Unknown10, false);
-        set_flag_byte(&thing->field_4F, TF4F_Unknown20, true);
+      case 33: // Why it is hardcoded? And what is TempleS
+        thing->field_4F &= TF4F_Transpar_Flags;
+        thing->field_4F |= TF4F_Transpar_4;
         break;
       case 3:
       case 6:
@@ -574,15 +576,6 @@ struct Objects *get_objects_data(unsigned int tmodel)
     if (tmodel >= OBJECT_TYPES_COUNT)
         return &objects_data[0];
     return &objects_data[tmodel];
-}
-
-SpecialKind box_thing_to_special(const struct Thing *thing)
-{
-    if (thing_is_invalid(thing))
-        return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
-        return 0;
-    return object_conf.object_to_special_artifact[thing->model];
 }
 
 /**
@@ -1004,7 +997,7 @@ long food_moves(struct Thing *objtng)
         if (objtng->food.byte_15 == 0)
         {
             objtng->food.byte_15 = -1;
-            set_thing_draw(objtng, 820, -1, -1, -1, 0, 2u);
+            set_thing_draw(objtng, 820, -1, -1, -1, 0, 2);
             if (dirct_ctrl) {
                 objtng->food.byte_16 = 6;
             } else {
@@ -1013,12 +1006,12 @@ long food_moves(struct Thing *objtng)
         }
         if ((has_near_creature && (objtng->food.byte_16 < 5)) || (objtng->food.byte_16 == 0))
         {
-            set_thing_draw(objtng, 819, -1, -1, -1, 0, 2u);
+            set_thing_draw(objtng, 819, -1, -1, -1, 0, 2);
             objtng->food.byte_15 = ACTION_RANDOM(0x39);
             objtng->food.word_18 = ACTION_RANDOM(0x7FF);
             objtng->food.byte_16 = 0;
         } else
-        if ((objtng->field_3E * objtng->field_49 <= objtng->field_3E + objtng->field_40) && (objtng->food.byte_16 < 5))
+        if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->field_40) && (objtng->food.byte_16 < 5))
         {
             objtng->food.byte_16--;
         }
@@ -1088,7 +1081,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[0], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->field_3E - 1;
+            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1097,7 +1090,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[1], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->field_3E - 1);
+            nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->anim_speed - 1);
         }
         ret = -1;
         break;
@@ -1106,7 +1099,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[2], tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->field_3E - 1;
+            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1351,7 +1344,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     if (heartng->active_state != ObSt_BeingDestroyed)
     {
         long i = (char)heartng->byte_14;
-        heartng->field_3E = 0;
+        heartng->anim_speed = 0;
         struct ObjectConfig* objconf = get_object_model_stats2(5);
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);
@@ -1653,7 +1646,7 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     if ((i & 0x8000u) != 0) {
         i = objdat->sprite_anim_idx;
     }
-    set_thing_draw(objtng, i, objdat->anim_speed, objtng->word_15, 0, start_frame, objdat->field_11);
+    set_thing_draw(objtng, i, objdat->anim_speed, objtng->word_15, 0, start_frame, objdat->draw_class);
     return 1;
 }
 
@@ -1951,7 +1944,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     if ((n & 0x8000u) == 0) {
       i = n;
     }
-    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->field_11);
+    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
     return amount;
 }
 
@@ -2004,7 +1997,7 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     if ((n & 0x8000u) == 0) {
       i = n;
     }
-    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->field_11);
+    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
     return amount;
 }
 

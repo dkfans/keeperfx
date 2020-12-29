@@ -55,14 +55,18 @@ enum ThingFlags2 {
 };
 
 enum ThingFlags4F {
-    TF4F_Unknown01     = 0x01, /** Affected by global spell? **/
-    TF4F_Unknown02     = 0x02,
-    TF4F_Unknown04     = 0x04,
-    TF4F_Unknown08     = 0x08,
-    TF4F_Unknown10     = 0x10,    // Transparency_10
-    TF4F_Unknown20     = 0x20,    // Transparency_20
-    TF4F_Unknown40     = 0x40,
-    TF4F_Unknown80     = 0x80,
+    TF4F_Unknown01     = 0x01, /** Not Drawn **/
+    TF4F_Unknown02     = 0x02, // Not shaded
+    TF4F_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
+    TF4F_Unknown08     = 0x08, // Tint2 (not used?)
+
+    TF4F_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
+    TF4F_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
+    TF4F_Transpar_Alpha = 0x30,
+    TF4F_Transpar_Flags = 0x30,
+
+    TF4F_Unknown40     = 0x40,    // Unconscious
+    TF4F_Unknown80     = 0x80,    // Being hit (draw red sometimes)
 };
 
 enum FreeThingAllocFlags {
@@ -75,7 +79,7 @@ enum ThingMovementFlags {
     TMvF_Default            = 0x00,
     TMvF_IsOnWater          = 0x01,
     TMvF_IsOnLava           = 0x02,
-    TMvF_Unknown04          = 0x04,
+    TMvF_Unknown04          = 0x04, //Touching ground? Also don't cast shadows when this is set
     TMvF_Unknown08          = 0x08,
     TMvF_Unknown10          = 0x10,
     TMvF_Flying             = 0x20,
@@ -171,6 +175,9 @@ struct Thing {
       unsigned char byte_19a;
       };
       struct {
+      unsigned char box_kind;
+      } custom_box;
+      struct {
         unsigned char byte_13;
         unsigned char byte_14;
         unsigned char byte_15;
@@ -199,24 +206,25 @@ unsigned char field_22;
     struct CoordDelta3d veloc_push_add;
     struct CoordDelta3d velocity;
     // Push when moving; needs to be signed
-    short field_3E;
-    long field_40;
+    short anim_speed;
+    long field_40; // animation time (measured in 1/256 of a frame)
 unsigned short anim_sprite;
     unsigned short sprite_size;
-unsigned char field_48;
-unsigned char field_49;
-    char field_4A;
-unsigned short field_4B;
-unsigned short field_4D;
+
+unsigned char field_48;     // current frame
+unsigned char field_49;     // max frames
+    char field_4A;          // thing growth speed (when it is growing/shrinking)
+unsigned short field_4B;    // min_sprite_size
+unsigned short field_4D;    // max_sprite_size
     unsigned char field_4F;
-    unsigned char field_50;
-unsigned char field_51;
+    unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
+unsigned char field_51;   // Tint color (from colours)
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;
     unsigned short clipbox_size_yz;
     unsigned short solid_size_xy;
-    unsigned short field_5C;
+    unsigned short solid_size_yz;
     short health; //signed
 unsigned short field_60;
     unsigned short light_id;
@@ -253,7 +261,7 @@ long thing_get_index(const struct Thing *thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char a7);
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char draw_class);
 /******************************************************************************/
 #ifdef __cplusplus
 }

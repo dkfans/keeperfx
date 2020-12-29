@@ -621,8 +621,10 @@ void draw_power_hand(void)
               break;
             } else
             if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
-              break;
-            // no break
+            {
+                break;
+            }
+            // fall through
         default:
             inputpos_x = GetMouseX();
             inputpos_y = GetMouseY();
@@ -856,6 +858,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
     droptng->mappos.z.val = subtile_coord(8,0);
     long fall_dist;
     fall_dist = get_ceiling_height_at(&droptng->mappos) - get_floor_height_at(&droptng->mappos);
+    struct CreatureStats* crstat;
     if (fall_dist < 0) {
         fall_dist = 0;
     } else
@@ -872,6 +875,11 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
             play_creature_sound(droptng, 6, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
+        crstat = creature_stats_get(droptng->model);
+        if ( (crstat->illuminated) || (creature_affected_by_spell(droptng, SplK_Light)) )
+        {
+            illuminate_creature(droptng);
+        }
     } else
     if (thing_is_object(droptng))
     {
@@ -1260,6 +1268,11 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             i = convert_td_iso(122);
         else
             i = get_creature_anim(thing, 9);
+        if (thing->light_id != 0)
+        {
+            light_delete_light(thing->light_id);
+            thing->light_id = 0;   
+        }
         set_thing_draw(thing, i, 256, -1, -1, 0, 2);
     } else
     if (thing_is_object(thing))
@@ -1322,7 +1335,7 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
         ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return Lb_OK;
     }
-    if (is_dungeon_special(thing))
+    if (thing_is_special_box(thing))
     {
         activate_dungeon_special(thing, player);
         return Lb_OK;

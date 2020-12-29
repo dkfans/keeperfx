@@ -70,7 +70,7 @@ unsigned long field_0;
 unsigned char unanimated;
   unsigned long anim_speed;
 unsigned char field_11;
-  unsigned char field_12;
+  unsigned char field_12; // transparency in lower 2 bits
 unsigned char field_13;
   short size_xy;
 short field_16;
@@ -120,7 +120,7 @@ long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand);
 TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
-extern struct TrapStats trap_stats[];
+extern struct TrapStats old_trap_stats[7];
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -45,6 +45,17 @@ const struct NamedCommand terrain_common_commands[] = {
 const struct NamedCommand terrain_slab_commands[] = {
   {"NAME",            1},
   {"TOOLTIPTEXTID",   2},
+  {"BLOCKFLAGSHEIGHT",3},
+  {"BLOCKHEALTHINDEX",4},
+  {"BLOCKFLAGS",      5},
+  {"NOBLOCKFLAGS",    6},
+  {"FILLSTYLE",       7},
+  {"CATEGORY",        8},
+  {"SLBID",           9},
+  {"WIBBLE",         10},
+  {"ISSAFELAND",     11},
+  {"ISDIGGABLE",     12},
+  {"WLBTYPE",        13},
   {NULL,              0},
 };
 
@@ -244,6 +255,18 @@ struct SlabAttr slab_attrs[] = {
   {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
   {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
 };
+
+const struct NamedCommand terrain_flags[] = {
+  {"VALUABLE",          1},
+  {"IS_ROOM",           2},
+  {"UNEXPLORED",        3},
+  {"DIGGABLE",          4},
+  {"BLOCKING",          5},
+  {"FILLED",            6},
+  {"IS_DOOR",           7},
+  {"TAGGED_VALUABLE",   8},
+  {NULL,                0},
+  };
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -481,6 +504,211 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 if (k > 0)
                 {
                     slbattr->tooltip_stridx = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 3:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->block_flags_height = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 4:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->block_health_index = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 5:
+            case 6:
+            {
+                unsigned long *flg = (cmd_num == 5) ? &slbattr->block_flags : &slbattr->noblck_flags;
+                *flg = 0;
+                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = get_id(terrain_flags, word_buf);
+                    switch(k)
+                    {
+                        case 1:
+                        {
+                            *flg |= SlbAtFlg_Valuable;
+                            break;
+                        }
+                        case 2:
+                        {
+                            *flg |= SlbAtFlg_IsRoom;
+                            break;    
+                        }
+                        case 3:
+                        {
+                            *flg |= SlbAtFlg_Unexplored;
+                            break;    
+                        }
+                        case 4:
+                        {
+                            *flg |= SlbAtFlg_Digable;
+                            break;   
+                        }
+                        case 5:
+                        {
+                            *flg |= SlbAtFlg_Blocking;
+                            break;    
+                        }
+                        case 6:
+                        {
+                            *flg |= SlbAtFlg_Filled;
+                            break;    
+                        }
+                        case 7:
+                        {
+                            *flg |= SlbAtFlg_IsDoor;
+                            break;    
+                        }
+                        case 8:
+                        {
+                            *flg |= SlbAtFlg_TaggedValuable;
+                            break;   
+                        }
+                        default:
+                        {
+                            CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                            COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                            break;
+                        }
+                    }
+                    n++;
+                }
+                break;
+            }
+            case 7:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->fill_style = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 8:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->category = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 9:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->slb_id = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 10:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->wibble = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 11:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->is_safe_land = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 12:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->is_diggable = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+            case 13:
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->wlb_type = k;
                     n++;
                 }
             }
@@ -1047,10 +1275,11 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
         return false;
     }
     dungeon->room_resrchable[room_idx] = resrch;
+    // This doesnt reset if player has room in the past
     if (resrch != 0)
-        dungeon->room_buildable[room_idx] = avail;
+        dungeon->room_buildable[room_idx] |= (avail? 1 : 0 );
     else
-        dungeon->room_buildable[room_idx] = 0;
+        dungeon->room_buildable[room_idx] &= ~1;
     return true;
 }
 
@@ -1075,7 +1304,7 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
       ERRORLOG("Incorrect room %d (player %d)",(int)room_idx, (int)plyr_idx);
       return false;
     }
-    if (dungeon->room_buildable[room_idx]) {
+    if (dungeon->room_buildable[room_idx] & 1) {
         return true;
     }
     return false;

@@ -2,6 +2,7 @@ REM ----------------------------------------------------------------------------
 REM Undead Keeper
 REM Ebenazer
 REM Made by Duke Ragereaver
+REM	updated for pot file by dayokay (Nov2020)
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
 COMPUTER_PLAYER(PLAYER1,0)
@@ -125,9 +126,11 @@ TRAP_AVAILABLE(ALL_PLAYERS,BOULDER,1,0)
 
 REM -----------------------------------------------------------------------------------------------------------------------
 
-QUICK_OBJECTIVE(0,"A pathetic duo known as Umbra and Abominor pride themselves being an unbeatable team, claiming that even Gods cower in their presence. Show them the error of their ways once seperated, the hard way.",PLAYER0)
+REM	QUICK_OBJECTIVE(0,"A pathetic duo known as Umbra and Abominor pride themselves being an unbeatable team, claiming that even Gods cower in their presence. Show them the error of their ways once seperated, the hard way.",PLAYER0)
+DISPLAY_OBJECTIVE(29,PLAYER0)
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    QUICK_OBJECTIVE(1,"Together they stand, together they fall!",PLAYER0)
+    REM	QUICK_OBJECTIVE(1,"Together they stand, together they fall!",PLAYER0)
+	DISPLAY_OBJECTIVE(30,PLAYER0)
     WIN_GAME
 ENDIF

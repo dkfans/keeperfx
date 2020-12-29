@@ -22,7 +22,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define TRIANLGLES_COUNT 54000
+#define TRIANLGLES_COUNT 100000
 
 #ifdef __cplusplus
 extern "C" {

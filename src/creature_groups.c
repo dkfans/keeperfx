@@ -503,18 +503,18 @@ TbBool create_party(const char *prtname)
     return true;
 }
 
-TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown)
+TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown)
 {
-    struct Party* party = get_party_of_name(prtname);
-    if (party == NULL)
+    if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
-      SCRPTERRLOG("Party of requested name, '%s', is not defined", prtname);
-      return false;
+        ERRORLOG("Party:%d is not defined", party_id);
+        return false;
     }
+    struct Party* party = &game.script.creature_partys[party_id];
     if (party->members_num >= GROUP_MEMBERS_COUNT)
     {
-      SCRPTERRLOG("Too many creatures in party '%s' (limit is %d members)",
-          prtname, GROUP_MEMBERS_COUNT);
+      ERRORLOG("Too many creatures in party '%s' (limit is %d members)",
+          party->prtname, GROUP_MEMBERS_COUNT);
       return false;
     }
     struct PartyMember* member = &(party->members[party->members_num]);
@@ -527,6 +527,29 @@ TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_
     member->countdown = countdown;
     party->members_num++;
     return true;
+}
+
+TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level)
+{
+    if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
+    {
+        ERRORLOG("Party:%d is not defined", party_id);
+        return false;
+    }
+    struct Party* party = &game.script.creature_partys[party_id];
+
+    for (int i = 0; i < party->members_num; i++)
+    {
+        struct PartyMember* member = &(party->members[i]);
+        if ((member->crtr_kind == crtr_model) && (member->crtr_level == (crtr_level-1)))
+        {
+            memmove(member, member + 1, sizeof(*member) * (party->members_num - i - 1));
+            party->members_num--;
+            return true;
+        }
+    }
+    WARNLOG("Creature not found party:%s model:%d level:%d", party->prtname, crtr_model, crtr_level);
+    return false;
 }
 
 TbBool make_group_member_leader(struct Thing *leadtng)

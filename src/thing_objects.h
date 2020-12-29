@@ -30,6 +30,8 @@ extern "C" {
 /******************************************************************************/
 #define OBJECT_TYPES_COUNT  136
 
+#define OBJECT_TYPE_SPECBOX_CUSTOM    133
+
 enum ObjectStates {
     ObSt_Unused = 0,
     ObSt_FoodMoves,
@@ -67,9 +69,9 @@ struct Objects {
     short size_xy;
     short size_yz;
     short sprite_size_max;
-    unsigned char field_F;
+    unsigned char field_F;      // Lower 2 bits are transparency flags
     unsigned char field_10;
-    unsigned char field_11;
+    unsigned char draw_class;
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     unsigned char related_creatr_model;
@@ -115,7 +117,6 @@ SpecialKind box_thing_to_special(const struct Thing *thing);
 PowerKind book_thing_to_power_kind(const struct Thing *thing);
 
 TbBool thing_is_special_box(const struct Thing *thing);
-#define is_dungeon_special thing_is_special_box
 TbBool thing_is_workshop_crate(const struct Thing *thing);
 TbBool thing_is_trap_crate(const struct Thing *thing);
 TbBool thing_is_door_crate(const struct Thing *thing);

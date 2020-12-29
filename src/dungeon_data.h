@@ -36,15 +36,16 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define DUNGEONS_COUNT          5
-#define DIGGER_TASK_MAX_COUNT  64
-#define DUNGEON_RESEARCH_COUNT 34
-#define MAX_THINGS_IN_HAND      8
-#define KEEPER_POWERS_COUNT    20
-#define TURN_TIMERS_COUNT       8
-#define SCRIPT_FLAGS_COUNT      8
-#define MAX_SOE_RADIUS         13
-#define CREATURE_GUI_JOBS_COUNT 3
+#define DUNGEONS_COUNT              5
+#define DIGGER_TASK_MAX_COUNT       64
+#define DUNGEON_RESEARCH_COUNT      34
+#define MAX_THINGS_IN_HAND          8
+#define KEEPER_POWERS_COUNT         20
+#define TURN_TIMERS_COUNT           8
+#define SCRIPT_FLAGS_COUNT          8
+#define MAX_SOE_RADIUS              13
+#define CREATURE_GUI_JOBS_COUNT     3
+#define CUSTOM_BOX_COUNT            256
 
 #define INVALID_DUNGEON (&bad_dungeon)
 #define INVALID_DUNGEON_ADD (&bad_dungeonadd)
@@ -289,9 +290,17 @@ struct TrapInfo
 
 };
 
+struct BoxInfo
+{
+    uint8_t               activated[CUSTOM_BOX_COUNT];
+};
+
 struct DungeonAdd
 {
-    struct TrapInfo mnfct_info;
+    struct TrapInfo       mnfct_info;
+    struct BoxInfo        box_info;
+    struct Coord3d        last_combat_location;
+    int                   creature_awarded[CREATURE_TYPES_COUNT];
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

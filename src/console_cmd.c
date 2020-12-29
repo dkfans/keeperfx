@@ -341,7 +341,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             int id = atoi(pr2str);
             if (id <= 0 || id > trapdoor_conf.door_types_count)
                 return false;
-            script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, 1);
+
+            struct ScriptValue tmp_value = {0};
+            script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, 1, &tmp_value);
             update_trap_tab_to_config();
             message_add(plyr_idx, "done!");
             return true;

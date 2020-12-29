@@ -151,7 +151,7 @@ struct EffectGeneratorStats { // sizeof = 57
 };
 
 struct EffectElementStats { // sizeof = 79
-  unsigned char field_0;
+  unsigned char draw_class;
   unsigned char field_1;
   unsigned char field_2;
   short numfield_3;
@@ -164,7 +164,7 @@ struct EffectElementStats { // sizeof = 79
   unsigned short sprite_speed_max;
   unsigned char field_12;
   unsigned char field_13;
-  unsigned char field_14;
+  unsigned char field_14;  // transparency flags in bits 4-5
   unsigned char field_15;
   unsigned char field_16;
   unsigned char field_17;
