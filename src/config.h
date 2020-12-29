@@ -171,7 +171,6 @@ extern unsigned short AtmosStart;
 extern unsigned short AtmosEnd;
 extern TbBool AssignCpuKeepers;
 
-
 extern unsigned int vid_scale_flags;
 /******************************************************************************/
 DLLIMPORT extern float _DK_phase_of_moon;

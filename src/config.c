@@ -50,7 +50,6 @@ unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
 extern TbBool AssignCpuKeepers = 0;
 
-
 /**
  * Language 3-char abbreviations.
  * These are selected from ISO 639-2/B naming standard.
