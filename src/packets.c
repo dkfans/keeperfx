@@ -1113,7 +1113,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 const char* name = thing_model_name(thing);
                 const char owner[24]; 
                 const char health[24];
-                const char* num[10];
+                const char num[10];
                 strcpy(title, "Thing ID: ");
                 itoa(thing->index, num, 10);
                 strcat(&title, num);
