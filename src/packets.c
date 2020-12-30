@@ -1109,10 +1109,30 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
             else
             {
+                const char title[24];
                 const char* name = thing_model_name(thing);
-                zero_messages();
-                message_add_fmt(plyr_idx, "%d %s owner: %d %s: %d", thing->index, name, thing->owner, (thing->class_id == TCls_Trap) ? "shots" : "health", (thing->class_id == TCls_Trap) ? thing->trap.num_shots : thing->health);
-                free(name);    
+                const char owner[24]; 
+                const char health[24];
+                const char* num[10];
+                strcpy(title, "Thing ID: ");
+                itoa(thing->index, num, 10);
+                strcat(&title, num);
+                strcpy(owner, "Owner: ");
+                itoa(thing->owner, num ,10);
+                strcat(&owner, num);
+                if (thing->class_id == TCls_Trap)
+                {
+                    strcpy(health, "Shots: ");
+                    itoa(thing->trap.num_shots, num, 10);
+                    strcat(&health, num);                    
+                }  
+                else
+                {
+                    strcpy(health, "Health: ");
+                    itoa(thing->health, num, 10);
+                    strcat(&health, num);
+                }
+                create_message_box(&title, name, &owner, &health);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }

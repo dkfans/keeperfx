@@ -186,6 +186,7 @@ struct GuiMenu *menu_list[] = {
     &frontend_error_box,
     &frontend_add_session_box,
     &frontend_select_mappack_menu,
+    &message_box,
     NULL,
 };
 
@@ -374,6 +375,7 @@ long num_chars_in_font = 128;
 #endif
 
 int status_panel_width = 140;
+// struct MsgBoxInfo MsgBox;
 
 /******************************************************************************/
 short menu_is_active(short idx)
@@ -625,6 +627,17 @@ void create_error_box(TextStringId msg_idx)
         strncpy(gui_error_text, get_string(msg_idx), sizeof(gui_error_text)-1);
         turn_on_menu(GMnu_ERROR_BOX);
     }
+}
+
+
+void create_message_box(const char *title, const char *line1, const char *line2, const char *line3)
+{
+    memset(&MsgBox,NULL,sizeof(MsgBox));
+    memcpy(&MsgBox.title, title, sizeof(MsgBox.title)-1);
+    memcpy(&MsgBox.line1, line1, sizeof(MsgBox.line1)-1);
+    memcpy(&MsgBox.line2, line2, sizeof(MsgBox.line2)-1);
+    memcpy(&MsgBox.line3, line3, sizeof(MsgBox.line3)-1);
+    turn_on_menu(GMnu_MSG_BOX);
 }
 
 short game_is_busy_doing_gui(void)
