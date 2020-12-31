@@ -1113,24 +1113,27 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 const char* name = thing_model_name(thing);
                 const char owner[24]; 
                 const char health[24];
-                const char num[10];
-                strcpy(title, "Thing ID: ");
-                itoa(thing->index, num, 10);
-                strcat(&title, num);
-                strcpy(owner, "Owner: ");
-                itoa(thing->owner, num ,10);
-                strcat(&owner, num);
+                sprintf(title, "Thing ID: %d", thing->index);
+                sprintf(owner, "Owner: %d", thing->owner);
                 if (thing->class_id == TCls_Trap)
                 {
-                    strcpy(health, "Shots: ");
-                    itoa(thing->trap.num_shots, num, 10);
-                    strcat(&health, num);                    
+                    struct ManfctrConfig *mconf = &gameadd.traps_config[thing->model];
+                    sprintf(health, "Shots: %d/%d", thing->trap.num_shots, mconf->shots);
                 }  
                 else
                 {
-                    strcpy(health, "Health: ");
-                    itoa(thing->health, num, 10);
-                    strcat(&health, num);
+                    sprintf(health, "Health: %d", thing->health);
+                    if (thing->class_id == TCls_Door)
+                    {
+                        sprintf(health, "%s/%d", health, door_stats[thing->model][0].health);
+                    }
+                    else if (thing->class_id == TCls_Object)
+                    {
+                        if (thing->model == 5)
+                        {
+                            sprintf(health, "%s/%d", health, game.dungeon_heart_health);
+                        }
+                    }
                 }
                 create_message_box(&title, name, &owner, &health);
             }
