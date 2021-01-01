@@ -1957,6 +1957,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
+// TODO: replace this function by find_location_pos
 void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name)
 {
     struct ActionPoint *apt;

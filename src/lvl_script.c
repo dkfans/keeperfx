@@ -80,6 +80,7 @@ static struct ScriptValue *allocate_script_value(void);
 static TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor);
 extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial);
 extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
+extern void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
 const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
@@ -1246,40 +1247,13 @@ static void create_fx_line_check(const struct ScriptLine *scline)
     }
 
     command_init_value(value, scline->command, 0);
-    if (get_map_location_type(scline->np[0]) != MLoc_ACTIONPOINT)
-    {
-        SCRPTERRLOG("Only action points allowed");
-        return;
-    }
-    i = get_map_location_longval(scline->np[0]);
-    if ((i <= 0) || (i > 127))
-    {
-        SCRPTERRLOG("AP number invalid %d", i);
-        return;
-    }
-    value->bytes[0] = i; // AP `from` number
-    if (get_map_location_type(scline->np[1]) != MLoc_ACTIONPOINT)
-    {
-        SCRPTERRLOG("Only action points allowed");
-        return;
-    }
-    i = get_map_location_longval(scline->np[1]);
-    if ((i <= 0) || (i > 127))
-    {
-        SCRPTERRLOG("AP number invalid %d", i);
-        return;
-    }
-    value->bytes[1] = i; // AP `to` number
-    value->bytes[2] = scline->np[2]; // curvature
-    value->bytes[3] = scline->np[3]; // spatial stepping
-    value->bytes[4] = scline->np[4]; // temporal stepping
+    ((long*)(&value->bytes[0]))[0] = scline->np[0]; // AP `from`
+    ((long*)(&value->bytes[4]))[0] = scline->np[1]; // AP `to`
+    value->bytes[8] = scline->np[2]; // curvature
+    value->bytes[9] = scline->np[3]; // spatial stepping
+    value->bytes[10] = scline->np[4]; // temporal stepping
     // TODO: use effect elements when below zero?
-    value->bytes[5] = scline->np[5]; // effect
-
-    if (value->bytes[3] < 1)
-    {
-        value->bytes[3] = 1;
-    }
+    value->bytes[11] = scline->np[5]; // effect
 
     if ((script_current_condition < 0) && (next_command_reusable == 0))
     {
@@ -1290,6 +1264,7 @@ static void create_fx_line_check(const struct ScriptLine *scline)
 static void create_fx_line_process(struct ScriptContext *context)
 {
     struct ScriptFxLine *fx_line = NULL;
+    long x, y;
     for (int i = 0; i < (sizeof(gameadd.fx_lines) / sizeof(gameadd.fx_lines[0])); i++)
     {
         if (!gameadd.fx_lines[i].used)
@@ -1305,12 +1280,12 @@ static void create_fx_line_process(struct ScriptContext *context)
         ERRORLOG("Too many fx_lines");
         return;
     }
-    get_coords_at_action_point(&fx_line->from, context->value->bytes[0], 0);
-    get_coords_at_action_point(&fx_line->to, context->value->bytes[1], 0);
-    fx_line->curvature = context->value->bytes[2];
-    fx_line->spatial_step = context->value->bytes[3] * 32;
-    fx_line->steps_per_turn = context->value->bytes[4];
-    fx_line->effect = context->value->bytes[5];
+    find_location_pos(((long *)(&context->value->bytes[0]))[0], context->player_idx, &fx_line->from, __func__);
+    find_location_pos(((long *)(&context->value->bytes[4]))[0], context->player_idx, &fx_line->to, __func__);
+    fx_line->curvature = context->value->bytes[8];
+    fx_line->spatial_step = context->value->bytes[9] * 32;
+    fx_line->steps_per_turn = context->value->bytes[10];
+    fx_line->effect = context->value->bytes[11];
     fx_line->here = fx_line->from;
     fx_line->step = 0;
 
@@ -1344,13 +1319,15 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
     for (;fx_line->partial_steps >= FX_LINE_TIME_PARTS; fx_line->partial_steps -= FX_LINE_TIME_PARTS)
     {
         fx_line->here.z.val = get_floor_height_at(&fx_line->here);
-        if (fx_line->effect > 0)
+        if (fx_line->here.z.val < FILLED_COLUMN_HEIGHT)
         {
+          if (fx_line->effect > 0)
+          {
             create_effect(&fx_line->here, fx_line->effect, 5); // Owner - neutral
-        }
-        else if (fx_line->effect < 0)
-        {
+          } else if (fx_line->effect < 0)
+          {
             create_effect_element(&fx_line->here, -fx_line->effect, 5); // Owner - neutral
+          }
         }
 
         fx_line->step++;
@@ -1812,7 +1789,7 @@ void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
         WARNLOG("Can't decode location %d", target);
         return;
   }
-  reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r%1), y-(r>>1), y+(r>>1)+(r%1));
+  reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
 void command_set_start_money(long plr_range_id, long gold_val)
@@ -6413,6 +6390,76 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   }
 }
 
+// TODO: z location
+void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name)
+{
+  struct ActionPoint *apt;
+  struct Thing *thing;
+  unsigned long i = get_map_location_longval(location);
+  memset(pos, 0, sizeof(*pos));
+
+  switch (get_map_location_type(location))
+  {
+    case MLoc_ACTIONPOINT:
+      // Location stores action point index
+      apt = action_point_get(i);
+      if (!action_point_is_invalid(apt))
+      {
+        pos->x.val = apt->mappos.x.val;
+        pos->y.val = apt->mappos.y.val;
+      } else
+        WARNMSG("%s: Action Point %d location not found",func_name,i);
+      break;
+    case MLoc_HEROGATE:
+      thing = find_hero_gate_of_number(i);
+      if (!thing_is_invalid(thing))
+      {
+        *pos = thing->mappos;
+      } else
+        WARNMSG("%s: Hero Gate %d location not found",func_name,i);
+      break;
+    case MLoc_PLAYERSHEART:
+      if (i < PLAYERS_COUNT)
+      {
+        thing = get_player_soul_container(i);
+      } else
+        thing = INVALID_THING;
+      if (!thing_is_invalid(thing))
+      {
+        *pos = thing->mappos;
+      } else
+        WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
+      break;
+    case MLoc_NONE:
+      pos->x.val = 0;
+      pos->y.val = 0;
+      pos->z.val = 0;
+      break;
+    case MLoc_THING:
+      thing = thing_get(i);
+      if (!thing_is_invalid(thing))
+      {
+        *pos = thing->mappos;
+      } else
+        WARNMSG("%s: Thing %d location not found",func_name,i);
+      break;
+    case MLoc_METALOCATION:
+      if (!get_coords_at_meta_action(pos, plyr_idx, i))
+        WARNMSG("%s: Metalocation not found %d",func_name,i);
+      break;
+    case MLoc_CREATUREKIND:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    default:
+      WARNMSG("%s: Unsupported location, %lu.",func_name,location);
+      break;
+  }
+  SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, pos->x.stl.num, pos->y.stl.num);
+}
 /******************************************************************************/
 /**
  * Descriptions of script commands for parser.
