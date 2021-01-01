@@ -306,8 +306,8 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
         if (flags & MapCoord_ClipY) cor_y = subtile_coord(map_subtiles_y,255);
         corrected = true;
     }
-    if (cor_z >= subtile_coord(map_subtiles_z,255)) {
-        if (flags & MapCoord_ClipZ) cor_z = subtile_coord(map_subtiles_z,255);
+    if (cor_z > subtile_coord(map_subtiles_z,8)) {
+        if (flags & MapCoord_ClipZ) cor_z = subtile_coord(map_subtiles_z,8);
         corrected = true;
     }
     if (cor_x < subtile_coord(0,0)) {
@@ -318,9 +318,12 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
         if (flags & MapCoord_ClipY) cor_y = subtile_coord(0,0);
         corrected = true;
     }
-    if (cor_z < subtile_coord(0,0)) {
-        if (flags & MapCoord_ClipZ) cor_z = subtile_coord(0,0);
-        corrected = true;
+    if ( (!subtile_has_water_on_top(coord_subtile(cor_x), coord_subtile(cor_y))) && (!subtile_has_lava_on_top(coord_subtile(cor_x), coord_subtile(cor_y))) )
+    {
+        if (cor_z < subtile_coord(0,0)) {
+            if (flags & MapCoord_ClipZ) cor_z = subtile_coord(0,0);
+            corrected = true;
+        }
     }
     pos->x.val = cor_x;
     pos->y.val = cor_y;
