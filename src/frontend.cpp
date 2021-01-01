@@ -630,13 +630,14 @@ void create_error_box(TextStringId msg_idx)
 }
 
 
-void create_message_box(const char *title, const char *line1, const char *line2, const char *line3)
+void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char* line4)
 {
     memset(&MsgBox,NULL,sizeof(MsgBox));
     memcpy(&MsgBox.title, title, sizeof(MsgBox.title)-1);
     memcpy(&MsgBox.line1, line1, sizeof(MsgBox.line1)-1);
     memcpy(&MsgBox.line2, line2, sizeof(MsgBox.line2)-1);
     memcpy(&MsgBox.line3, line3, sizeof(MsgBox.line3)-1);
+    memcpy(&MsgBox.line4, line4, sizeof(MsgBox.line4)-1);
     turn_on_menu(GMnu_MSG_BOX);
 }
 

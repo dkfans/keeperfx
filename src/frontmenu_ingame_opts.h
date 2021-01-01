@@ -47,6 +47,7 @@ struct MsgBoxInfo {
     char line1[24];
     char line2[24];
     char line3[24];
+    char line4[24];
 };
 extern struct MsgBoxInfo MsgBox;
 /******************************************************************************/

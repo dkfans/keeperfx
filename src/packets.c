@@ -1113,8 +1113,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 const char* name = thing_model_name(thing);
                 const char owner[24]; 
                 const char health[24];
+                const char position[24];
                 sprintf(title, "Thing ID: %d", thing->index);
                 sprintf(owner, "Owner: %d", thing->owner);
+                sprintf(position, "Pos: X:%d Y:%d Z:%d", thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
                 if (thing->class_id == TCls_Trap)
                 {
                     struct ManfctrConfig *mconf = &gameadd.traps_config[thing->model];
@@ -1136,6 +1138,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     }
                 }
                 create_message_box(&title, name, &owner, &health);
+                create_message_box(&title, name, &owner, &health, &position);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
