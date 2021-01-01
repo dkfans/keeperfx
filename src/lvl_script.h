@@ -142,7 +142,7 @@ enum TbScriptCommands {
     Cmd_REMOVE_SACRIFICE_RECIPE           = 121,
     Cmd_SET_BOX_TOOLTIP                   = 122,
     Cmd_SET_BOX_TOOLTIP_ID                = 123,
-    Cmd_CREATE_FX_LINE                    = 124,
+    Cmd_CREATE_EFFECTS_LINE               = 124,
 };
 
 enum ScriptVariables {

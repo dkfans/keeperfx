@@ -1225,7 +1225,7 @@ static void set_box_tooltip_id(const struct ScriptLine *scline)
 // 1/4 turn minimal
 #define FX_LINE_TIME_PARTS 4
 
-static void create_fx_line_check(const struct ScriptLine *scline)
+static void create_effects_line_check(const struct ScriptLine *scline)
 {
     struct ScriptValue tmp_value = {0};
     struct ScriptValue* value;
@@ -1261,7 +1261,7 @@ static void create_fx_line_check(const struct ScriptLine *scline)
     }
 }
 
-static void create_fx_line_process(struct ScriptContext *context)
+static void create_effects_line_process(struct ScriptContext *context)
 {
     struct ScriptFxLine *fx_line = NULL;
     long x, y;
@@ -6561,7 +6561,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
   {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
   {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
-  {"CREATE_FX_LINE",                    "LLNNNN  ", Cmd_CREATE_FX_LINE, &create_fx_line_check, &create_fx_line_process},
+  {"CREATE_EFFECTS_LINE",               "LLNNNN  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
