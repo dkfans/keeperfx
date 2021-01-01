@@ -172,6 +172,13 @@ DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
+
+TbClockMSec timerstarttime = 0;
+struct TimerTime Timer;
+TbBool TimerGame = false;
+TbBool TimerNoReset = false;
+TbBool TimerFreeze = false;
+
 TbPixel get_player_path_colour(unsigned short owner)
 {
   return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
@@ -3849,6 +3856,7 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     //return _DK_tag_cursor_blocks_place_room(plyr_idx, a2, a3, a4);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
+    struct SlabMap* slb;
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
     struct PlayerInfo *player;
@@ -3861,7 +3869,8 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     }
     else
     {
-        SYNCDBG(7,"Cannot build %s on %d slabs centred at (%d,%d)",slab_code_name(slb->kind),room_code_name(player->chosen_room_kind),(int)slb_x,(int)slb_y);
+        slb = get_slabmap_block(slb_x, slb_y);
+        SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
     }
     
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
@@ -3923,7 +3932,7 @@ void initialise_map_health(void)
             slb = get_slabmap_block(slb_x, slb_y);
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            slb->health = game.block_health[slbattr->field_4];
+            slb->health = game.block_health[slbattr->block_health_index];
         }
     }
 }
@@ -4085,6 +4094,7 @@ void init_level(void)
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
+    game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
     reset_heap_manager();
     lens_mode = 0;
@@ -4552,6 +4562,11 @@ void game_loop(void)
       starttime = LbTimerClock();
       dungeon->lvstats.start_time = starttime;
       dungeon->lvstats.end_time = starttime;
+      if (!TimerNoReset)
+      {
+        TimerFreeze = true;
+        memset(&Timer, 0, sizeof(Timer));
+      }
       LbScreenClear(0);
       LbScreenSwap();
       keeper_gameplay_loop();
@@ -4771,6 +4786,19 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          start_params.frame_skip = atoi(pr2str);
          narg++;
+      }
+      else if (strcasecmp(parstr, "timer") == 0)
+      {
+          game_flags2 |= GF2_Timer;
+          if (strcasecmp(pr2str, "game") == 0)
+          {
+              TimerGame = true;
+          }
+          else if (strcasecmp(pr2str, "continuous") == 0)
+          {
+              TimerNoReset = true;
+          }
+          narg++;
       }
 #ifdef AUTOTESTING
       else if (strcasecmp(parstr, "exit_at_turn") == 0)
@@ -5037,6 +5065,28 @@ int main(int argc, char *argv[])
 //  LbFileSaveAt("!tmp_file", &_DK_game, sizeof(struct Game));
 
   return 0;
+}
+
+void update_time(void)
+{
+    unsigned long time = ((unsigned long)clock()) - timerstarttime;
+    Timer.MSeconds = time % 1000;
+    time /= 1000;
+    Timer.Seconds = time % 60;
+    time /= 60;
+    Timer.Minutes = time % 60;
+    Timer.Hours = time / 60;
+}
+
+__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps)
+{
+    struct GameTime GameT;
+    unsigned long time = turns / fps;
+    GameT.Seconds = time % 60;
+    time /= 60;
+    GameT.Minutes = time % 60;
+    GameT.Hours = time / 60;
+    return GameT;
 }
 
 #ifdef __cplusplus

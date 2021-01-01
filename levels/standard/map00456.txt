@@ -1,7 +1,7 @@
 REM ****************************************************************************
 REM  Free Play levels - KeeperFX
 REM ****************************************************************************
-REM  Script for Level 7227 - Shores of Battle
+REM  Script for Level 456 - Shores of Battle
 REM  Author:  Loobinex
 REM  Date:    2017-09-13
 REM  Copying and copyrights:

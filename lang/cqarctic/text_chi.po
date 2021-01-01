@@ -40,7 +40,6 @@ msgid ""
 msgstr "欢迎来到征服北极战役，守护者。这次我们将在北极的冰天雪地中展开激战。"
 "我们必须不惜一切代价找到敌方首领并杀死他！现在，先从占领其他守护者的地下城开始！"
 
-                                         
 #: guitext:2
 msgctxt "In-game message"
 msgid ""
@@ -48,7 +47,6 @@ msgid ""
 "this land is ours to rule!"
 msgstr "第一个任务已经完成了。你杀死了你可悲的对手，这片土地现在属于我们了！"
 
-                                               
 #: guitext:3
 msgctxt "In-game message"
 msgid ""
@@ -59,7 +57,6 @@ msgstr "强大的野蛮人们统治着这个王国。不过他们并不知道，
 "圣者就居住在西边的洞穴里。我听说他研究出了好几种有趣的魔法。"
 "也许我们应该去见一下他？"
 
-                                        
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
@@ -69,7 +66,6 @@ msgid ""
 msgstr "野蛮人现在已经不复存在了，你征服了这个王国。"
 "关于你当权的消息在整个北极都引起了轰动。现在，我们下一步要进攻哪里？"
 
-                                             
 #: guitext:5
 msgctxt "In-game message"
 msgid ""
@@ -79,7 +75,6 @@ msgid ""
 msgstr "这块土地由善良的英雄保护着。但是这里还有另一个守护者，"
 "他似乎并不喜欢你来陪伴他。看来我们也必须把他处理掉！"
 
-                                            
 #: guitext:6
 msgctxt "In-game message"
 msgid ""
@@ -87,7 +82,6 @@ msgid ""
 "the next task would be?"
 msgstr "善良的英雄们留下的腐烂的尸体作为了蟑螂的食物。我们的下一个目标在哪里？"
 
-                                             
 #: guitext:7
 msgctxt "In-game message"
 msgid ""
@@ -97,7 +91,6 @@ msgid ""
 msgstr "这片土地由强大的圣者统治，他藏在自己在南方的城堡里。我们必须杀了他，"
 "来赢得这片土地！征服北极将成为我们的命运！"
 
-                                                 
 #: guitext:8
 msgctxt "In-game message"
 msgid ""
@@ -105,7 +98,6 @@ msgid ""
 "perfect work, my lord!"
 msgstr "强大的圣者被我们出色的暗影战士杀死了，真是完美的行动，主人！"
 
-                                 
 #: guitext:9
 msgctxt "In-game message"
 msgid ""
@@ -115,7 +107,6 @@ msgid ""
 msgstr "这片土地上的英雄雇佣了两个守护者，指派他们杀掉你，"
 "他们自己却躲在了北方自己的城堡里。是时候把他们都清除出这片土地了！"
 
-                                             
 #: guitext:10
 msgctxt "In-game message"
 msgid ""
@@ -123,7 +114,6 @@ msgid ""
 "Ninja!"
 msgstr "没有人的力量能够战胜我们，没有人！完美的行动，忍者大人！"
 
-                                   
 #: guitext:11
 msgctxt "In-game message"
 msgid ""
@@ -133,7 +123,6 @@ msgid ""
 msgstr "善良的人们统治着这片土地，他们并不害怕其他两个想要征服这片土地的守护者。"
 "他们一定更想要经历一场战斗，而不是看清真相吧？"
 
-                                                    
 #: guitext:12
 msgctxt "In-game message"
 msgid ""
@@ -141,7 +130,6 @@ msgid ""
 "Congratulations, Ninja!"
 msgstr "你总是能神奇地完成如此伟大的任务，令我印象深刻！恭喜你,忍者大人！"
 
-                                                      
 #: guitext:13
 msgctxt "In-game message"
 msgid ""
@@ -151,7 +139,6 @@ msgid ""
 msgstr "这片土地位于两条沟壑之中，第一条沟壑里住着人类，第二条沟壑里住着我们。"
 "还有其他的守护者也要试图接管这块土地，不要给他机会！"
 
-                                                                
 #: guitext:14
 msgctxt "In-game message"
 msgid ""
@@ -160,7 +147,6 @@ msgid ""
 msgstr "这个王国的统治者和他的心脏就这样被击破了，现在这块土地是属于我们的！"
 "恭喜你，暗影之勇者！"
 
-                                                                                     
 #: guitext:15
 msgctxt "In-game message"
 msgid ""
@@ -170,7 +156,6 @@ msgid ""
 msgstr "这片土地的中心有着大量的财富，被他们的人民保护着。不仅如此，"
 "另外两个守护者也想过来插一脚，是时候去见见他们了！"
 
-                                                                   
 #: guitext:16
 msgctxt "In-game message"
 msgid ""
@@ -178,7 +163,6 @@ msgid ""
 "made this! Congratulations!"
 msgstr "完美的行动，年轻的战士，即使顶着其他两个守护者的攻势，你还是做到了！恭喜你！"
 
-                                                        
 #: guitext:17
 msgctxt "In-game message"
 msgid ""
@@ -188,13 +172,11 @@ msgid ""
 msgstr "其他三个守护者中的一个拥有破坏墙壁的魔法，而这片土地的统治者封锁了"
 "通往自己心脏的入口。要想攻进他的心脏，你必须拥有这项魔法。继续吧！"
 
-                                                                 
 #: guitext:18
 msgctxt "In-game message"
 msgid "The following subject land, nobody is in a position to overcome us!"
 msgstr "在这些被我们所征服的土地上，没有人能够战胜我们！"
 
-                                                            
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
@@ -203,7 +185,6 @@ msgid ""
 msgstr "这里已经是人类和守护者们居住的最后一块土地了。这里有来自北极的最优秀的战士，"
 "令人印象深刻的是，他们现在竟然踌躇不前。"
 
-                                                                 
 #: guitext:20
 msgctxt "In-game message"
 msgid ""
@@ -211,13 +192,11 @@ msgid ""
 "Arctic belongs to You!"
 msgstr "祝贺你，你完成了征服北极战役！北极的领土都属于你了！"
 
-                                                                   
 #: guitext:21
 msgctxt "In-game message"
 msgid "The moonshine showed me this land, the time has come to conquer!"
 msgstr "月光照亮着这片土地，是时候征服它了！"
 
-                                               
 #: guitext:22
 msgctxt "In-game message"
 msgid "It's time to watch this land in the bright of full moon..."
@@ -256,7 +235,6 @@ msgstr "你现在可以在明亮的满月下观赏这片土地了…"
 msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
-
 
 #: guitext:202
 msgctxt "Level name"

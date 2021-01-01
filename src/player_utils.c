@@ -32,8 +32,10 @@
 #include "power_hand.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
+#include "frontmenu_ingame_evnt.h"
 #include "front_simple.h"
 #include "front_lvlstats.h"
+#include "gui_msgs.h"
 #include "gui_soundmsgs.h"
 #include "gui_frontmenu.h"
 #include "config_settings.h"
@@ -102,6 +104,20 @@ void set_player_as_won_level(struct PlayerInfo *player)
     frontstats_initialise();
   player->victory_state = VicS_WonLevel;
   struct Dungeon* dungeon = get_dungeon(player->id_number);
+  if ( timer_enabled() )
+  {
+    if (TimerGame)
+    {
+        TimerTurns = dungeon->lvstats.hopes_dashed;
+        update_time();
+    }
+    else
+    {
+        show_real_time_taken();
+    }
+    struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game.num_fps);
+    SYNCMSG("Won level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, dungeon->lvstats.hopes_dashed, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+  }
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
