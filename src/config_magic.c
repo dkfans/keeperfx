@@ -122,6 +122,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"NO_HIT",            9},
   {"STRENGTH_BASED",   10},
   {"ALARMS_UNITS",     11},
+  {"CAN_COLLIDE",      12},
   {NULL,                0},
   };
 
@@ -873,6 +874,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 11: // ALARMS_UNITS
                 shotst->model_flags |= ShMF_AlarmsUnits;
+                n++;
+                break;
+            case 12: // CAN_COLLIDE
+                shotst->model_flags |= ShMF_CanCollide;
                 n++;
                 break;
             default:
@@ -1833,8 +1838,4 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
   return ret;
 }
 
-TbBool shot_can_collide_other_shots(ThingModel shotkind)
-{
-    return (shotkind == 2) || (shotkind == 11) || (shotkind == 15);
-}
 /******************************************************************************/

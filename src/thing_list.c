@@ -2903,7 +2903,8 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
     }
     if (thing_is_shot(thing))
     {
-        if (shot_can_collide_other_shots(thing->model))
+        struct ShotConfigStats* shotst = get_shot_model_stats(thing->model);
+        if (shotst->model_flags & ShMF_CanCollide)
         {
             if (shot_owner == thing->owner) {
                 return ((hit_targets & HitTF_OwnedShotsCollide) != 0);
