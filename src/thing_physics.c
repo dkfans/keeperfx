@@ -21,7 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "thing_shots.h"
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "thing_creature.h"
@@ -344,6 +344,13 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
  */
 TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
 {
+    if (thing_is_shot(thing))
+    {
+        if (shot_is_boulder(thing))
+        {
+            return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, MapCoord_ClipX|MapCoord_ClipY|MapCoord_ClipZ);   
+        }
+    }
     // Don't clip the Z coord - clipping would make impossible to hit base ground (ie. water drip over water)
     return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, MapCoord_ClipX|MapCoord_ClipY);
 }
@@ -631,7 +638,7 @@ TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const st
     struct CoordDelta3d dt;
     dt.x.val = dstpos->x.val - (MapCoordDelta)firstng->mappos.x.val;
     dt.y.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
-    dt.z.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
+    dt.z.val = dstpos->z.val - (MapCoordDelta)firstng->mappos.z.val;
     // Compute amount of interpoints for collision check
     int interpoints;
     {
