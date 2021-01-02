@@ -302,7 +302,7 @@ int frontend_font_string_width(int fnt_idx, const char *str);
 TbBool frontend_font_string_draw(int scr_x, int scr_y, int dst_width, int dst_height, int fnt_idx, const char *str, unsigned short fdflags);
 
 void create_error_box(TextStringId msg_idx);
-void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4);
+void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4, const char* line5);
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
 const char *frontend_button_caption_text(const struct GuiButton *gbtn);

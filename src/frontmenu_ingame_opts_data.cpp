@@ -103,11 +103,12 @@ struct GuiButtonInit sound_menu_buttons[] = {
 
 struct GuiButtonInit message_box_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_Empty,            0,       {(long)&MsgBox.title},            0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  45, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line1}, 0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  65, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line2}, 0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  85, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line3}, 0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999, 105, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line4}, 0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0, 999, 100, 999, 132, 46, 34, gui_area_normal_button,           48, GUIStr_CloseWindow,      0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  35, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line1}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  55, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line2}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  75, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line3}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  95, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line4}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999, 115, 999,  0, 250, 32, gui_area_text,                     0, GUIStr_Empty,            0,       {(long)&MsgBox.line5}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0, 999, 115, 999, 132, 46, 34, gui_area_normal_button,           48, GUIStr_CloseWindow,      0,       {0},            0, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 
