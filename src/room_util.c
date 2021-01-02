@@ -523,7 +523,6 @@ void query_room(struct Room *room)
     const char health[24];
     const char capacity[24];
     const char efficiency[24] = "\0";
-    const char percent[1] = "%";
     sprintf(title, "Room ID: %d", room->index);
     sprintf(owner, "Owner: %d", room->owner);
     sprintf(health, "Health: %d", room->health);
