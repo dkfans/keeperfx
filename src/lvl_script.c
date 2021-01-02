@@ -16,6 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include <math.h>
+
 #include "lvl_script.h"
 
 #include "globals.h"
@@ -75,8 +77,10 @@ extern "C" {
 static struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
 static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 static struct ScriptValue *allocate_script_value(void);
+static TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor);
 extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial);
 extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
+extern void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
 const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
@@ -1218,6 +1222,133 @@ static void set_box_tooltip_id(const struct ScriptLine *scline)
   gameadd.box_tooltip[idx][MESSAGE_TEXT_LEN-1] = '\0';
 }
 
+// 1/4 turn minimal
+#define FX_LINE_TIME_PARTS 4
+
+static void create_effects_line_check(const struct ScriptLine *scline)
+{
+    struct ScriptValue tmp_value = {0};
+    struct ScriptValue* value;
+    long i;
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        // Fill local structure
+        value = &tmp_value;
+    }
+    else
+    {
+        value = allocate_script_value();
+        if (value == NULL)
+        {
+            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
+            return;
+        }
+    }
+
+    command_init_value(value, scline->command, 0);
+    ((long*)(&value->bytes[0]))[0] = scline->np[0]; // AP `from`
+    ((long*)(&value->bytes[4]))[0] = scline->np[1]; // AP `to`
+    value->bytes[8] = scline->np[2]; // curvature
+    value->bytes[9] = scline->np[3]; // spatial stepping
+    value->bytes[10] = scline->np[4]; // temporal stepping
+    // TODO: use effect elements when below zero?
+    value->bytes[11] = scline->np[5]; // effect
+
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        script_process_value(scline->command, 0, 0, 0, 0, value);
+    }
+}
+
+static void create_effects_line_process(struct ScriptContext *context)
+{
+    struct ScriptFxLine *fx_line = NULL;
+    long x, y;
+    for (int i = 0; i < (sizeof(gameadd.fx_lines) / sizeof(gameadd.fx_lines[0])); i++)
+    {
+        if (!gameadd.fx_lines[i].used)
+        {
+            fx_line = &gameadd.fx_lines[i];
+            fx_line->used = true;
+            gameadd.active_fx_lines++;
+            break;
+        }
+    }
+    if (fx_line == NULL)
+    {
+        ERRORLOG("Too many fx_lines");
+        return;
+    }
+    find_location_pos(((long *)(&context->value->bytes[0]))[0], context->player_idx, &fx_line->from, __func__);
+    find_location_pos(((long *)(&context->value->bytes[4]))[0], context->player_idx, &fx_line->to, __func__);
+    fx_line->curvature = context->value->bytes[8];
+    fx_line->spatial_step = context->value->bytes[9] * 32;
+    fx_line->steps_per_turn = context->value->bytes[10];
+    fx_line->effect = context->value->bytes[11];
+    fx_line->here = fx_line->from;
+    fx_line->step = 0;
+
+    if (fx_line->steps_per_turn <= 0)
+    {
+        fx_line->steps_per_turn = 32 * 255; // whole map
+    }
+
+    int dx = fx_line->to.x.val - fx_line->from.x.val;
+    int dy = fx_line->to.y.val - fx_line->from.y.val;
+    if ((dx * dx + dy * dy) != 0)
+    {
+        float len = sqrt((float)dx * dx + dy * dy);
+        fx_line->total_steps = (int)(len / fx_line->spatial_step) + 1;
+
+        int d_cx = -dy * fx_line->curvature / 32;
+        int d_cy = +dx * fx_line->curvature / 32;
+        fx_line->cx = (fx_line->to.x.val + fx_line->from.x.val - d_cx)/2;
+        fx_line->cy = (fx_line->to.y.val + fx_line->from.y.val - d_cy)/2;
+    }
+    else
+    {
+      fx_line->total_steps = 1;
+    }
+    fx_line->partial_steps = FX_LINE_TIME_PARTS;
+}
+
+static void process_fx_line(struct ScriptFxLine *fx_line)
+{
+    fx_line->partial_steps += fx_line->steps_per_turn;
+    for (;fx_line->partial_steps >= FX_LINE_TIME_PARTS; fx_line->partial_steps -= FX_LINE_TIME_PARTS)
+    {
+        fx_line->here.z.val = get_floor_height_at(&fx_line->here);
+        if (fx_line->here.z.val < FILLED_COLUMN_HEIGHT)
+        {
+          if (fx_line->effect > 0)
+          {
+            create_effect(&fx_line->here, fx_line->effect, 5); // Owner - neutral
+          } else if (fx_line->effect < 0)
+          {
+            create_effect_element(&fx_line->here, -fx_line->effect, 5); // Owner - neutral
+          }
+        }
+
+        fx_line->step++;
+        if (fx_line->step >= fx_line->total_steps)
+        {
+          fx_line->used = false;
+          break;
+        }
+
+        int remain_t = fx_line->total_steps - fx_line->step;
+
+        int bx = fx_line->from.x.val * remain_t + fx_line->cx * fx_line->step;
+        int by = fx_line->from.y.val * remain_t + fx_line->cy * fx_line->step;
+        int dx = fx_line->cx * remain_t + fx_line->to.x.val * fx_line->step;
+        int dy = fx_line->cy * remain_t + fx_line->to.y.val * fx_line->step;
+
+        fx_line->here.x.val = (bx * remain_t + dx * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
+        fx_line->here.y.val = (by * remain_t + dy * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
+    }
+}
+
 void command_tutorial_flash_button(long btn_id, long duration)
 {
     command_add_value(Cmd_TUTORIAL_FLASH_BUTTON, ALL_PLAYERS, btn_id, duration, 0);
@@ -1658,7 +1789,7 @@ void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
         WARNLOG("Can't decode location %d", target);
         return;
   }
-  reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r%1), y-(r>>1), y+(r>>1)+(r%1));
+  reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
 void command_set_start_money(long plr_range_id, long gold_val)
@@ -5419,6 +5550,22 @@ void process_values(void)
             }
         }
     }
+
+    for (int i = 0; i < gameadd.active_fx_lines; i++)
+    {
+        if (gameadd.fx_lines[i].used)
+        {
+            process_fx_line(&gameadd.fx_lines[i]);
+        }
+    }
+    for (int i = gameadd.active_fx_lines; i > 0; i--)
+    {
+        if (gameadd.fx_lines[i-1].used)
+        {
+            break;
+        }
+        gameadd.active_fx_lines--;
+    }
 }
 
 static void set_variable(int player_idx, long var_type, long var_idx, long new_val)
@@ -6243,6 +6390,76 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   }
 }
 
+// TODO: z location
+void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name)
+{
+  struct ActionPoint *apt;
+  struct Thing *thing;
+  unsigned long i = get_map_location_longval(location);
+  memset(pos, 0, sizeof(*pos));
+
+  switch (get_map_location_type(location))
+  {
+    case MLoc_ACTIONPOINT:
+      // Location stores action point index
+      apt = action_point_get(i);
+      if (!action_point_is_invalid(apt))
+      {
+        pos->x.val = apt->mappos.x.val;
+        pos->y.val = apt->mappos.y.val;
+      } else
+        WARNMSG("%s: Action Point %d location not found",func_name,i);
+      break;
+    case MLoc_HEROGATE:
+      thing = find_hero_gate_of_number(i);
+      if (!thing_is_invalid(thing))
+      {
+        *pos = thing->mappos;
+      } else
+        WARNMSG("%s: Hero Gate %d location not found",func_name,i);
+      break;
+    case MLoc_PLAYERSHEART:
+      if (i < PLAYERS_COUNT)
+      {
+        thing = get_player_soul_container(i);
+      } else
+        thing = INVALID_THING;
+      if (!thing_is_invalid(thing))
+      {
+        *pos = thing->mappos;
+      } else
+        WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
+      break;
+    case MLoc_NONE:
+      pos->x.val = 0;
+      pos->y.val = 0;
+      pos->z.val = 0;
+      break;
+    case MLoc_THING:
+      thing = thing_get(i);
+      if (!thing_is_invalid(thing))
+      {
+        *pos = thing->mappos;
+      } else
+        WARNMSG("%s: Thing %d location not found",func_name,i);
+      break;
+    case MLoc_METALOCATION:
+      if (!get_coords_at_meta_action(pos, plyr_idx, i))
+        WARNMSG("%s: Metalocation not found %d",func_name,i);
+      break;
+    case MLoc_CREATUREKIND:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    default:
+      WARNMSG("%s: Unsupported location, %lu.",func_name,location);
+      break;
+  }
+  SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, pos->x.stl.num, pos->y.stl.num);
+}
 /******************************************************************************/
 /**
  * Descriptions of script commands for parser.
@@ -6344,6 +6561,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
   {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
   {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
+  {"CREATE_EFFECTS_LINE",               "LLNNNN  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},

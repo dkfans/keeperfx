@@ -284,7 +284,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       struct Thing* efftng;
       if (object_is_slappable(thing, player->id_number))
       {
-        efftng = create_effect(&thing->mappos, TngEff_Unknown49, thing->owner);
+        efftng = create_effect(&thing->mappos, TngEff_DamageBlood, thing->owner);
         if (!thing_is_invalid(efftng))
           thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         slap_object(thing);

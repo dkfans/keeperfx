@@ -413,7 +413,7 @@ unsigned char field_27F;
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
 short field_2AE;
-    unsigned char field_2B0;
+    unsigned char field_2B0; // 7 == heal
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];

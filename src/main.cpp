@@ -399,7 +399,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
         pos.y.val = thing->mappos.y.val - (delta_y >> 8);
         pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, TngEff_Unknown45, thing->owner);
+        create_effect_element(&pos, 45, thing->owner); // Heal
     }
 }
 
@@ -1964,6 +1964,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
+// TODO: replace this function by find_location_pos
 void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name)
 {
     struct ActionPoint *apt;
