@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "map_data.h"
 #include "globals.h"
-
+#include "map_columns.h"
 #include "bflib_math.h"
 #include "bflib_memory.h"
 #include "slab_data.h"
@@ -306,9 +306,13 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
         if (flags & MapCoord_ClipY) cor_y = subtile_coord(map_subtiles_y,255);
         corrected = true;
     }
-    if (cor_z > subtile_coord(map_subtiles_z,8)) {
-        if (flags & MapCoord_ClipZ) cor_z = subtile_coord(map_subtiles_z,8);
-        corrected = true;
+    MapSubtlCoord stl_x = coord_subtile(cor_x);
+    MapSubtlCoord stl_y = coord_subtile(cor_y);
+    MapCoord height = get_ceiling_height_at_subtile(stl_x, stl_y);
+    if (cor_z > height)
+    {
+        if (flags & MapCoord_ClipZ) cor_z = height;
+        corrected = true;  
     }
     if (cor_x < subtile_coord(0,0)) {
         if (flags & MapCoord_ClipX) cor_x = subtile_coord(0,0);
@@ -318,11 +322,13 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
         if (flags & MapCoord_ClipY) cor_y = subtile_coord(0,0);
         corrected = true;
     }
-    if ( (!subtile_has_water_on_top(coord_subtile(cor_x), coord_subtile(cor_y))) && (!subtile_has_lava_on_top(coord_subtile(cor_x), coord_subtile(cor_y))) )
+    if ( (!subtile_has_water_on_top(stl_x, stl_y)) && (!subtile_has_lava_on_top(stl_x, stl_y)) )
     {
-        if (cor_z < subtile_coord(0,0)) {
-            if (flags & MapCoord_ClipZ) cor_z = subtile_coord(0,0);
-            corrected = true;
+        height = get_floor_height(stl_x, stl_y);
+        if (cor_z < height)
+        {
+            if (flags & MapCoord_ClipZ) cor_z = height;
+            corrected = true;   
         }
     }
     pos->x.val = cor_x;

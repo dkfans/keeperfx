@@ -344,15 +344,8 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
  */
 TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
 {
-    if (thing_is_shot(thing))
-    {
-        if (shot_is_boulder(thing))
-        {
-            return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, MapCoord_ClipX|MapCoord_ClipY|MapCoord_ClipZ);   
-        }
-    }
     // Don't clip the Z coord - clipping would make impossible to hit base ground (ie. water drip over water)
-    return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, MapCoord_ClipX|MapCoord_ClipY);
+    return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, MapCoord_ClipX|MapCoord_ClipY|MapCoord_ClipZ);
 }
 
 long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
