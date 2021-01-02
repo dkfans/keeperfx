@@ -975,6 +975,14 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             create_gold_pot_at(x, y, player->id_number);
+            room = subtile_room_get(stl_x, stl_y);
+            if (room_exists(room))
+            {
+                if (room->kind == RoK_TREASURE)
+                {
+                    count_gold_hoardes_in_room(room);
+                }
+            }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
