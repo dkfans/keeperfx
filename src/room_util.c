@@ -38,6 +38,8 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "frontend.h"
+#include "math.h"
 
 /******************************************************************************/
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
@@ -512,4 +514,24 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
     }
     return evidx;
 }
+
+void query_room(struct Room *room)
+{
+    const char title[24];
+    const char* name = room_code_name(room->kind);
+    const char owner[24]; 
+    const char health[24];
+    const char capacity[24];
+    const char efficiency[24] = "\0";
+    const char percent[1] = "%";
+    sprintf(title, "Room ID: %d", room->index);
+    sprintf(owner, "Owner: %d", room->owner);
+    sprintf(health, "Health: %d", room->health);
+    float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
+    sprintf(efficiency, "Efficiency: %d%%", (unsigned char)round(room_efficiency_percent));
+    float room_capacity_percent = ((float)room->used_capacity / (float)room->total_capacity) * 100;
+    sprintf(capacity, "Capacity: %d/%d (%d%%)", room->used_capacity, room->total_capacity, (unsigned char)round(room_capacity_percent));
+    create_message_box(&title, name, &owner, &health, &capacity, &efficiency);    
+}
+
 /******************************************************************************/

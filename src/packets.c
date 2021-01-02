@@ -945,7 +945,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     short influence_own_creatures = false;
     struct SlabMap *slb;
     long i;
-    struct Room* room;
+    struct Room* room = NULL;
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     switch (player->work_state)
@@ -1086,9 +1086,12 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             {
                 thing = get_nearest_thing_at_position(stl_x, stl_y);
                 CanQuery = (!thing_is_invalid(thing));
+                if (!CanQuery)
+                {
+                    room = subtile_room_get(stl_x, stl_y);
+                }
             }
         }
-
         if (!CanQuery)
         {
             player->thing_under_hand = 0;
@@ -1117,45 +1120,13 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
             else
             {
-                const char title[24];
-                const char* name = thing_model_name(thing);
-                const char owner[24]; 
-                const char health[24];
-                const char position[24];
-                const char amount[24] = "\0";
-                sprintf(title, "Thing ID: %d", thing->index);
-                sprintf(owner, "Owner: %d", thing->owner);
-                sprintf(position, "Pos: X:%d Y:%d Z:%d", thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
-                if (thing->class_id == TCls_Trap)
-                {
-                    struct ManfctrConfig *mconf = &gameadd.traps_config[thing->model];
-                    sprintf(health, "Shots: %d/%d", thing->trap.num_shots, mconf->shots);
-                }
-                else
-                {
-                    if (thing->class_id == TCls_Object)
-                    {
-                        if (object_is_gold(thing))
-                        {
-                            sprintf(amount, "Amount: %d", thing->valuable.gold_stored);   
-                        }
-                    }  
-                    sprintf(health, "Health: %d", thing->health);
-                    if (thing->class_id == TCls_Door)
-                    {
-                        sprintf(health, "%s/%d", health, door_stats[thing->model][0].health);
-                    }
-                    else if (thing->class_id == TCls_Object)
-                    {
-                        if (thing->model == 5)
-                        {
-                            sprintf(health, "%s/%d", health, game.dungeon_heart_health);
-                        }
-                    }
-                }
-                create_message_box(&title, name, &owner, &health, &position, &amount);
+                query_thing(thing);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
+          }
+          else if ( (All) && (room_exists(room)) )
+          {
+             query_room(room);
           }
         }
         if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
