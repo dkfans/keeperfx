@@ -974,13 +974,20 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_MkGoldPot:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            create_gold_pot_at(x, y, player->id_number);
-            room = subtile_room_get(stl_x, stl_y);
-            if (room_exists(room))
+            thing = create_gold_pot_at(x, y, player->id_number);
+            if (!thing_is_invalid(thing))
             {
-                if (room->kind == RoK_TREASURE)
+                if (thing_in_wall_at(thing, &thing->mappos))
                 {
-                    count_gold_hoardes_in_room(room);
+                    move_creature_to_nearest_valid_position(thing);
+                }
+                room = subtile_room_get(stl_x, stl_y);
+                if (room_exists(room))
+                {
+                    if (room->kind == RoK_TREASURE)
+                    {
+                        count_gold_hoardes_in_room(room);
+                    }
                 }
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
