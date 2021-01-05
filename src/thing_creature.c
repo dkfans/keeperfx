@@ -3458,7 +3458,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     }
 }
 
-struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
+struct Thing *create_creature_no_remap(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
     struct CreatureStats* crstat = creature_stats_get(model);
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
@@ -3542,7 +3542,16 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     if (crstat->illuminated) {
         illuminate_creature(crtng);
     }
+    return crtng;
+}
 
+struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
+{
+    struct Thing *crtng = create_creature_no_remap(pos, model, owner);
+    if (thing_is_invalid(crtng))
+    {
+        return crtng;
+    }
     net_remap_creature_created(owner, crtng->index);
     return crtng;
 }

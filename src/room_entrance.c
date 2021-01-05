@@ -33,6 +33,8 @@
 #include "config_terrain.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "net_remap.h"
+#include "net_sync.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,7 +52,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     pos.x.val = room->central_stl_x;
     pos.y.val = room->central_stl_y;
     pos.z.val = subtile_coord(1,0);
-    struct Thing* creatng = create_creature(&pos, crkind, room->owner);
+    struct Thing* creatng = create_creature_no_remap(&pos, crkind, room->owner);
     if (thing_is_invalid(creatng)) {
         ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
         return INVALID_THING;
@@ -301,12 +303,40 @@ TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel
     if (thing_is_invalid(creatng)) {
         return false;
     }
+    struct BigActionPacket * big = create_packet_action_big(get_player(dungeon->owner), PckA_CreatureEntered, 0);
+    big->head.arg[0] = room->index;
+    big->head.arg[1] = crmodel;
+    big->head.arg[2] = creatng->index;
+    // This should be done in CB
+    // remove_creature_from_generate_pool(crmodel);
+    return true;
+}
+
+TbBool entrance_packet_cb(int player_id, struct BigActionPacket * big)
+{
+    ThingModel crmodel = big->head.arg[1];
     remove_creature_from_generate_pool(crmodel);
+    if (!netremap_is_mine(player_id))
+    {
+        struct Room* room = room_get(big->head.arg[0]);
+        struct Thing* creatng = create_creature_at_entrance(room, crmodel);
+        if (thing_is_invalid(creatng))
+        {
+            net_resync_needed();
+            return false;
+        }
+        net_remap_update(player_id, big->arg2, creatng->index);
+    }
     return true;
 }
 
 void generate_creature_for_dungeon(struct Dungeon * dungeon)
 {
+    if (!netremap_is_mine(dungeon->owner))
+    {
+        SYNCDBG(12,"This is not my portal");
+        return;
+    }
     SYNCDBG(9,"Starting");
 
     ThingModel crmodel = calculate_creature_to_generate_for_dungeon(dungeon);

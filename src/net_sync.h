@@ -67,6 +67,10 @@ void net_force_sync(unsigned long expected_turn);
 TbBool net_sync_process_force_packet(unsigned long turn, int plyr_idx, unsigned char kind, void *data, short size);
 
 TbBool check_resync_turn();
+
+typedef void (*EmptyLambda)();
+EmptyLambda net_resync_needed_f(const char *fn_name);
+#define net_resync_needed net_resync_needed_f(__func__)
 /******************************************************************************/
 #ifdef __cplusplus
 }

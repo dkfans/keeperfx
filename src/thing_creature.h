@@ -83,6 +83,7 @@ extern unsigned char teleport_destination;
 extern BattleIndex battleid;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
+struct Thing *create_creature_no_remap(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 long move_creature(struct Thing *thing);
 TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);

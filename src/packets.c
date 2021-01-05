@@ -90,6 +90,7 @@
 #include "keeperfx.hpp"
 
 #include "music_player.h"
+#include "room_entrance.h"
 
 TbBool packets_first_resync = true;
 
@@ -947,6 +948,9 @@ static TbBool process_players_global_packet_action(
       net_remap_update(player_to_client(player->id_number), pckt->arg[1], thing->index);
       NETDBG(4, "PckA_CreateGoldPile their:%d, mine:%d", (int)pckt->arg[1], (int)thing->index);
       pckt->arg[1] = thing->index;
+      return true;
+  case PckA_CreatureEntered:
+      entrance_packet_cb(player->id_number, (struct BigActionPacket *)pckt);
       return true;
   default:
       return false;

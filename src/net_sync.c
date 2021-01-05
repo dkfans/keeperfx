@@ -599,6 +599,17 @@ TbBool net_sync_process_force_packet(unsigned long turn, int plyr_idx, unsigned 
     return false;
 }
 
+static void null_fn()
+{
+}
+
+EmptyLambda net_resync_needed_f(const char *fn_name)
+{
+    JUSTLOG("%s: Resync needed", fn_name);
+    net_force_sync(game.play_gameturn);
+    return &null_fn;
+}
+
 void net_force_sync(unsigned long expected_turn)
 {
     if ((next_resync_turn >= game.play_gameturn) && (next_resync_turn < expected_turn))
