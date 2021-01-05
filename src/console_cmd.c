@@ -365,7 +365,7 @@ static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const
 {
   if (creature == NULL)
     return false;
-  long kind = get_rid(creature_desc, creature);
+  long kind = get_id(creature_desc, creature);
   if (kind == -1)
   {
     if (0 == strcasecmp(creature, "EMPTY"))
