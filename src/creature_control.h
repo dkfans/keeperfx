@@ -141,8 +141,8 @@ struct CreatureControl {
     unsigned char flgfield_2;
     unsigned char combat_flags;
     unsigned char party_objective;
-    long field_5;
-    short field_9;
+    unsigned long wait_to_turn;
+    short distance_to_destination;
     short opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
     short opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
     unsigned char opponents_melee_count;
@@ -408,7 +408,7 @@ unsigned char field_27F;
     unsigned char joining_age;
     unsigned char blood_type;
     struct Coord3d flee_pos;
-    long start_turn_28E;
+    long flee_start_turn;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
