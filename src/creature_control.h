@@ -408,7 +408,7 @@ unsigned char field_27F;
     unsigned char joining_age;
     unsigned char blood_type;
     struct Coord3d flee_pos;
-    long start_turn_28E;
+    long flee_start_turn;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
