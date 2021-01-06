@@ -285,6 +285,11 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         SYNCDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
         return true;
     }
+    // Units dropped will fight stronger units for a bit
+    if ((cctrl->delay > (long)game.play_gameturn))
+    {
+        return false;
+    }
     // If the enemy is way stronger, a creature may be scared anyway
     fear = crstat->fear_stronger;
     long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enmstat->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;
@@ -2789,7 +2794,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     }
 
     // If not too scared for combat, then do the combat
-    if (!creature_too_scared_for_combat(creatng, enmtng))
+    if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->delay > (long)game.play_gameturn) )
     {
         set_creature_in_combat(creatng, enmtng, attack_type);
         return true;

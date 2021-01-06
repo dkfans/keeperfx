@@ -141,8 +141,8 @@ struct CreatureControl {
     unsigned char flgfield_2;
     unsigned char combat_flags;
     unsigned char party_objective;
-    long field_5;
-    short field_9;
+    long delay;
+    short distance_to_destination;
     short opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
     short opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
     unsigned char opponents_melee_count;

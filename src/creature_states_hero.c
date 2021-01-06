@@ -771,7 +771,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // Do some wandering also if can't find any task to do
-    if (cctrl->field_5 > (long)game.play_gameturn)
+    if (cctrl->delay > (long)game.play_gameturn)
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
             creatng->continue_state = CrSt_GoodDoingNothing;
@@ -866,7 +866,7 @@ short good_doing_nothing(struct Thing *creatng)
                 creatng->continue_state = CrSt_GoodDoingNothing;
                 return 1;
             }
-            cctrl->field_5 = game.play_gameturn + 16;
+            cctrl->delay = game.play_gameturn + 16;
         }
         return 1;
     }
@@ -874,7 +874,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // If there are problems with the task, do a break before re-trying
-    cctrl->field_5 = game.play_gameturn + 200;
+    cctrl->delay = game.play_gameturn + 200;
     return 0;
 }
 

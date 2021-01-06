@@ -2149,7 +2149,7 @@ long move_creature(struct Thing *thing)
         {
             dist = -get_2d_distance(&pvpos, tngpos);
         }
-        cctrl->field_9 = dist;
+        cctrl->distance_to_destination = dist;
     }
     return 1;
 }
