@@ -4611,7 +4611,7 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
               cctrl->party_objective = member->objectv;
-              cctrl->delay = game.play_gameturn + member->countdown;
+              cctrl->wait_to_turn = game.play_gameturn + member->countdown;
               if (thing_is_invalid(grptng))
               {
                   // If it is the first creature - set it as only group member and leader

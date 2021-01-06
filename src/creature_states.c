@@ -1384,7 +1384,7 @@ short cleanup_seek_the_enemy(struct Thing *creatng)
 void set_flee_delay(struct Thing* creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->delay = game.play_gameturn + 160;
+    cctrl->wait_to_turn = game.play_gameturn + FIGHT_FEAR_DELAY;
 }
 
 short creature_being_dropped(struct Thing *creatng)
