@@ -191,6 +191,7 @@ extern "C" {
   #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val)
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
   #define EVM_GLOBAL_EVENT(event_fmt, ...)
+inline void evm_stat(int force_new, const char *fmt, ...) {}
 #endif
 
 void replaceFn(void* oldFn, void* newFn);
