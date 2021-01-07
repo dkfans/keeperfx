@@ -28,44 +28,6 @@
 
 static Thingid thing_map[NET_PLAYERS_COUNT][THINGS_COUNT];
 
-enum MappingLinkage
-{
-    None = 0,
-    Thing,
-    Room,
-};
-
-struct ThingRemapData
-{
-    Thingid unmapped_next;
-    Thingid linkage;
-    enum MappingLinkage linkage_type;
-};
-
-struct IncomingRemapData
-{
-    Thingid linkage;
-    enum MappingLinkage linkage_type;
-    Thingid mapped_next;
-};
-
-struct IncomingClientData
-{
-    // index is Their id
-    struct IncomingRemapData thing_map[THINGS_COUNT];
-    Thingid mapped_first;
-    unsigned int mapped_cnt;
-};
-
-static struct
-{
-    struct ThingRemapData thing_data[THINGS_COUNT];
-    Thingid unmapped_first;
-    Thingid unmapped_cnt;
-
-    struct IncomingClientData incoming_data[NET_PLAYERS_COUNT];
-} remap_info;
-
 static struct
 {
     unsigned short message_id;
@@ -96,8 +58,6 @@ void net_remap_init(Thingid thing_num)
             }
         }
     }
-
-    memset(&remap_info, 0, sizeof(remap_info));
 }
 
 Thingid net_remap_thingid(int client_id, Thingid id)
@@ -312,82 +272,7 @@ TbBool netremap_is_mine(PlayerNumber plyr_id)
     return false;
 }
 
-/*
- * May be used only from `game turn` events. (Not as a reaction on some packets)
- * Source of new mapped thing should call remap_send_remap_*
- * Other peers should call remap_wait_for with expected linkage
- *
- */
-void remap_send_remap_any(enum MappingLinkage linkage, unsigned short index, Thingid mine)
-{
-    remap_info.thing_data[mine].unmapped_next = remap_info.unmapped_first;
-    remap_info.thing_data[mine].linkage_type = linkage;
-    remap_info.thing_data[mine].linkage = index;
-    remap_info.unmapped_first = mine;
-    remap_info.unmapped_cnt++
-}
-
-void remap_send_remap_room(unsigned short index, Thingid mine)
-{
-    remap_send_remap_any(Room, index, mine);
-}
-
 void send_remap_packets()
 {
-
 }
 
-/*
- * There are two cases:
- * 1) We are behind so we already have a linkage
- * 2) We are ahead of time so we have no data to link with
- */
-void remap_wait_for(PlayerNumber owner, enum MappingLinkage linkage, unsigned short index, Thingid mine)
-{
-    // TODO: client_id is not a player_id
-    struct IncomingClientData *client_data = &remap_info.incoming_data[owner];
-    Thingid idx = client_data->mapped_first;
-    Thingid prev = 0;
-    while (idx != 0)
-    {
-        if ((client_data->thing_map[idx].linkage_type == linkage) && (client_data->thing_map[idx].linkage == index))
-        {
-            // remove from list
-            if (prev == 0)
-            {
-                client_data->mapped_first = client_data->thing_map[idx].mapped_next;
-            }
-            else
-            {
-                client_data->thing_map[prev].mapped_next = client_data->thing_map[idx].mapped_next;
-            }
-            client_data->mapped_cnt--;
-            // add to notify list
-            // TOOD:
-            // remap id
-            net_remap_update(owner, idx, mine);
-            return;
-        }
-        prev = idx;
-        idx = client_data->thing_map[idx].mapped_next;
-    }
-    // We are unable to find a linkage so add it to the list
-    client_data->thing_map[mine].linkage_type = linkage;
-    client_data->thing_map[mine].linkage = index;
-    client_data->thing_map[mine].waiting_next = client_data->waiting_first;
-    client_data->waiting_first = mine;
-    remap_info.unmapped_cnt++;
-}
-
-void netremap_room_object(struct Room *room, Thingid mine)
-{
-    struct PlayerInfo *player = get_player(room->owner);
-    if (is_my_player(player))
-    {
-        create_packet_action(player, PckA_CreateRoomObject, room->index, mine);
-        remap_send_remap_room(room->index, mine);
-    } else
-    {
-        remap_wait_for(room->owner, Room, room->index, mine);
-    }
-}

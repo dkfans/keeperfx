@@ -102,15 +102,19 @@ Skeletons/Ghosts/Converted prisoners?
 
 === Exact sequence of a chicken buisines ===
 
-Each version of a room creates a chicken at same time. (?)
-> This may create a conflict. It possible not to have a room at some turn.
+Each version of a room cant creates a chicken at same time.
+> It possible not to have a room at some turn.
 
-Each side creates a chicken. (?)
-> Because of a location problem
+Each side creates a chicken.
+> But dont know where
 
+So only way is to:
+
+```
 Owner -> Server: I am spawning a chicken, my id=42
 Server -> Others: He is spawning a chicken, my id=34
 alt
 Server -> Owner: confirmed
 Other -> Server: confirmed
-end
+end alt
+```

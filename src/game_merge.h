@@ -194,7 +194,9 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 
-struct ThingAdd *get_thingadd(int thing_idx);
+struct ThingAdd *get_thingadd(Thingid thing_idx);
+void set_creature_random_seed(Thingid thing_idx, unsigned long seed);
+unsigned long get_creature_random_seed(Thingid thing_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

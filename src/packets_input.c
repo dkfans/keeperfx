@@ -299,7 +299,7 @@ static void client_control_use_power_on_thing(
 {
     NETDBG(5, "x:%d y:%d plyr:%d power:%d %s level:%d",
         stl_x, stl_y, player->id_number, (int)pwkind, power_code_name(pwkind), (int)splevel);
-    struct BigActionPacket * big = create_packet_action_big(player, PckA_UsePower, AP_PlusTwo);
+    struct BigActionPacket * big = create_packet_action_big(player, PckA_UsePower, 0);
     big->head.arg[0] = pwkind | (splevel << 8);
     big->head.arg[1] = thing_idx;
     big->head.arg[2] = stl_x;

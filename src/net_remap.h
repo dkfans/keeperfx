@@ -54,8 +54,3 @@ TbBool netremap_is_mine(PlayerNumber plyr_id);
  * Called before each packet exchange cycle to create one time packets
  */
 void send_remap_packets();
-
-/*
-  Remap an object created by room (chickens, spellbooks, boxes etc)
- */
-void netremap_room_object(struct Room *room, Thingid mine);

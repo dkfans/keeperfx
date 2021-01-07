@@ -943,11 +943,11 @@ static TbBool process_players_global_packet_action(
       set_engine_view(player, player->view_mode_restore);
       return false;
   case PckA_CreateGoldPile:
-      unpackpos_2d(&pos, pckt->arg0);
-      thing = create_gold_pile(&pos, pckt->arg[2] | (pckt->arg[3] << 8));
-      net_remap_update(player_to_client(player->id_number), pckt->arg[1], thing->index);
-      NETDBG(4, "PckA_CreateGoldPile their:%d, mine:%d", (int)pckt->arg[1], (int)thing->index);
-      pckt->arg[1] = thing->index;
+      unpackpos_2d(&pos, &pckt->arg[3]);
+      thing = create_gold_pile(&pos, pckt->arg[1] | (pckt->arg[2] << 16));
+      net_remap_update(player_to_client(player->id_number), pckt->arg[0], thing->index);
+      NETDBG(4, "PckA_CreateGoldPile their:%d, mine:%d", (int)pckt->arg[0], (int)thing->index);
+      pckt->arg[0] = thing->index;
       return true;
   case PckA_CreatureEntered:
       entrance_packet_cb(player->id_number, (struct BigActionPacket *)pckt);
@@ -1340,6 +1340,8 @@ static TbBool process_packet_cb(
         return net_remap_packet_cb(turn, plyr_idx, kind, data, size);
     case PckA_ForceResync:
         return net_sync_process_force_packet(turn, plyr_idx, kind, data, size);
+    case PckA_CreateObject:
+        return object_packet_cb(turn, plyr_idx, data, size);
     default:
         break;
     }

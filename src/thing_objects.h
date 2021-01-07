@@ -162,6 +162,8 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel);
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
+
+TbBool object_packet_cb(unsigned long turn, PlayerNumber net_idx, void *data_ptr, short size);
 /******************************************************************************/
 #ifdef __cplusplus
 }

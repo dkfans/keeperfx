@@ -133,7 +133,7 @@ typedef struct CompoundTngFilterParam * MaxTngFilterParam;
 typedef struct CompoundTngFilterParam * ModTngFilterParam;
 
 /** Definition of a callback type used for updating thing which is in specific state. */
-typedef long (*Thing_State_Func)(struct Thing *);
+typedef TngUpdateRet (*Thing_State_Func)(struct Thing *);
 /** Definition of a callback type used for updating thing of specific class or model. */
 typedef TngUpdateRet (*Thing_Class_Func)(struct Thing *);
 /** Definition of a callback type which can modify the thing and receives additional parameters. */

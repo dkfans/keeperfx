@@ -216,9 +216,19 @@ void update_extra_levels_visibility(void)
 {
 }
 
-struct ThingAdd *get_thingadd(int thing_idx)
+struct ThingAdd *get_thingadd(Thingid thing_idx)
 {
     return &gameadd.things[thing_idx];
+}
+
+void set_creature_random_seed(Thingid thing_idx, unsigned long seed)
+{
+    get_thingadd(thing_idx)->rand_seed = seed;
+}
+
+unsigned long get_creature_random_seed(Thingid thing_idx)
+{
+    return get_thingadd(thing_idx)->rand_seed;
 }
 /******************************************************************************/
 #ifdef __cplusplus

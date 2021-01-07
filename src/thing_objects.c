@@ -53,11 +53,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-long food_moves(struct Thing *objtng);
-long food_grows(struct Thing *objtng);
-long object_being_dropped(struct Thing *objtng);
+TngUpdateRet food_moves(struct Thing *objtng);
+TngUpdateRet food_grows(struct Thing *objtng);
+TngUpdateRet object_being_dropped(struct Thing *objtng);
 TngUpdateRet object_update_dungeon_heart(struct Thing *heartng);
-TngUpdateRet object_update_call_to_arms(struct Thing *objtng);
+TngUpdateRet object_update_call_to_arms(struct Thing *thing);
 TngUpdateRet object_update_armour(struct Thing *objtng);
 TngUpdateRet object_update_object_scale(struct Thing *objtng);
 TngUpdateRet object_update_armour2(struct Thing *objtng);
@@ -921,7 +921,7 @@ TbBool delete_lair_totem(struct Thing *lairtng)
     return true;
 }
 
-long food_moves(struct Thing *objtng)
+TngUpdateRet food_moves(struct Thing *objtng)
 {
     //return _DK_food_moves(objtng);
     struct Coord3d pos;
@@ -1064,7 +1064,57 @@ long food_moves(struct Thing *objtng)
     return 1;
 }
 
-long food_grows(struct Thing *objtng)
+struct Thing* food_create_food(PlayerNumber owner, struct Coord3d *pos, unsigned long rand)
+{
+    struct Thing* nobjtng = create_object(pos, 10, owner, -1);
+    if (!thing_is_invalid(nobjtng))
+    {
+        set_creature_random_seed(nobjtng->index, rand);
+
+        nobjtng->move_angle_xy = CREATURE_RANDOM(nobjtng, 0x800);
+        nobjtng->food.byte_15 = CREATURE_RANDOM(nobjtng, 0x6FF);
+        nobjtng->food.byte_16 = 0;
+        thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
+        if (!is_neutral_thing(nobjtng))
+        {
+            struct Dungeon *dungeon;
+            dungeon = get_dungeon(nobjtng->owner);
+            dungeon->lvstats.chickens_hatched++;
+        }
+        nobjtng->food.word_13 = -1;
+    }
+    return nobjtng;
+}
+
+TbBool object_packet_cb(unsigned long turn, PlayerNumber net_idx, void *data_ptr, short size)
+{
+    NETDBG(6, "net_idx:%d size:%d", net_idx, size);
+
+    struct Coord3d pos;
+    struct BigActionPacket* big = data_ptr;
+    Thingid their = big->head.arg1;
+    struct Thing *objtng;
+
+    switch(big->head.arg0 & 0xFF) // model
+    {
+        case 10:
+        {
+            unsigned int rand = big->arg2 | (big->arg3 << 16);
+            unpackpos_2d(&pos, &big->head.arg[4]);
+            objtng = food_create_food(big->head.arg0 >> 8, &pos, rand);
+            if (thing_is_invalid(objtng))
+            {
+                return false;
+            }
+            net_remap_update(net_idx, their, objtng->index);
+        }
+        default:
+            return false;
+    }
+    return true;
+}
+
+TngUpdateRet food_grows(struct Thing *objtng)
 {
     //return _DK_food_grows(objtng);
     if (objtng->food.word_13 > 0)
@@ -1110,38 +1160,29 @@ long food_grows(struct Thing *objtng)
         break;
       case 896:
       case 900:
-        delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, 10, tngowner, -1);
-
-        if (!thing_is_invalid(nobjtng))
-        {
-
-            nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
-            nobjtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x6FF);
-            nobjtng->food.byte_16 = 0;
-            thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
-            if (!is_neutral_thing(nobjtng))
+          {
+            unsigned long rand = get_creature_random_seed(objtng->index);
+            PlayerNumber owner = objtng->owner;
+            delete_thing_structure(objtng, 0);
+            if (netremap_is_mine(owner))
             {
-                struct Dungeon *dungeon;
-                dungeon = get_dungeon(nobjtng->owner);
-                dungeon->lvstats.chickens_hatched++;
+                // create a packet
+                nobjtng = food_create_food(owner, &pos, rand);
+                if (!thing_is_invalid(nobjtng))
+                {
+                    struct BigActionPacket *big = create_packet_action_big(get_player(owner), PckA_CreateObject,
+                                                                           AP_PlusTwo);
+                    big->head.arg[0] = 10 | (owner << 8); // model + owner
+                    big->head.arg[1] = nobjtng->index;
+                    big->head.arg[2] = rand & 0xFFFF;
+                    big->head.arg[3] = rand >> 16;
+                    packpos_2d(&big->head.arg[4], &pos);
+                    LbNetwork_MoveToOutgoingQueue(big);
+                }
             }
-            nobjtng->food.word_13 = -1;
-
-            // This may happens only in room
-            struct Room* room = slab_room_get(subtile_slab(pos.x.stl.num), subtile_slab(pos.y.stl.num));
-            if (room_is_invalid(room))
-            {
-                ERRORLOG("Unable to find room from chicken");
-                delete_thing_structure(nobjtng, 0);
-            }
-            else
-            {
-                netremap_room_object(room, nobjtng->index);
-            }
+            ret = -1;
+            break;
         }
-        ret = -1;
-        break;
       default:
         break;
     }
@@ -1311,7 +1352,7 @@ struct Thing *find_base_thing_on_mapwho_excluding_self(struct Thing *thing)
     return _DK_find_base_thing_on_mapwho_excluding_self(thing);
 }
 
-long object_being_dropped(struct Thing *thing)
+TngUpdateRet object_being_dropped(struct Thing *thing)
 {
     if (!thing_touching_floor(thing)) {
         return 1;
@@ -2118,11 +2159,11 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
 
 static void create_gold_packet(const struct Coord3d *pos, long value, PlayerNumber cause_plyr_idx, short index)
 {
-    struct BigActionPacket *big = create_packet_action_big(get_player(cause_plyr_idx), PckA_CreateGoldPile, 0);
-    big->head.arg[0] = packpos_2d(pos);
-    big->head.arg[1] = index;
-    big->head.arg[2] = (value & 0xFFFF);
-    big->head.arg[3] = (value >> 16);
+    struct BigActionPacket *big = create_packet_action_big(get_player(cause_plyr_idx), PckA_CreateGoldPile, AP_PlusTwo);
+    big->head.arg[0] = index;
+    big->head.arg[1] = (value & 0xFFFF);
+    big->head.arg[2] = (value >> 16);
+    packpos_2d(&big->head.arg[4], pos);
     LbNetwork_MoveToOutgoingQueue(big);
 }
 
