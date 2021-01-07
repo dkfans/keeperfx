@@ -1112,17 +1112,33 @@ long food_grows(struct Thing *objtng)
       case 900:
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, 10, tngowner, -1);
-        if (!thing_is_invalid(nobjtng)) {
+
+        if (!thing_is_invalid(nobjtng))
+        {
+
             nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
             nobjtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x6FF);
             nobjtng->food.byte_16 = 0;
-          thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
-          if (!is_neutral_thing(nobjtng)) {
-              struct Dungeon *dungeon;
-              dungeon = get_dungeon(nobjtng->owner);
-              dungeon->lvstats.chickens_hatched++;
-          }
-          nobjtng->food.word_13 = -1;
+            thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
+            if (!is_neutral_thing(nobjtng))
+            {
+                struct Dungeon *dungeon;
+                dungeon = get_dungeon(nobjtng->owner);
+                dungeon->lvstats.chickens_hatched++;
+            }
+            nobjtng->food.word_13 = -1;
+
+            // This may happens only in room
+            struct Room* room = slab_room_get(subtile_slab(pos.x.stl.num), subtile_slab(pos.y.stl.num));
+            if (room_is_invalid(room))
+            {
+                ERRORLOG("Unable to find room from chicken");
+                delete_thing_structure(nobjtng, 0);
+            }
+            else
+            {
+                netremap_room_object(room, nobjtng->index);
+            }
         }
         ret = -1;
         break;
@@ -1735,6 +1751,7 @@ TngUpdateRet update_object(struct Thing *thing)
             return TUFRet_Deleted;
         }
     }
+    // TODO: this may be moved to a custom update function
     Thing_State_Func stcallback = NULL;
     if (thing->active_state < sizeof(object_state_functions)/sizeof(object_state_functions[0])) {
         stcallback = object_state_functions[thing->active_state];

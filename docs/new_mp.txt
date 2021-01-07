@@ -30,16 +30,16 @@ Action is a small chunk of data related to some game event or action.
 
 Actions are identified by incremental `uint16_t seq_num`. 
 Only actions in some window of seq_nums from "now" are valid.
-Seq_num has "transport-like" boundry. Server renumbers his proxied actions.
+Seq_num has "transport-like" boundary. Server renumbers his proxied actions.
 
-Most of actions have `uint32_t` turn_number field when that action occured. Some (Which?) have 0.
+Most of actions have `uint32_t` turn_number field when that action occurred. Some (Which?) have 0.
 
-Each action is orginated from some client. 
+Each action is originated from some client.
 > There is a mess between client_id (network layer) and player_number (game related number)
 
 On server actions should be reliably delivered to all clients.
 So when any peer got batch of actions it confirms that got all actions in batch.
-Peer should ignore actions theese actions.
+Peer should ignore actions these actions.
 Actions with seq_num == 0xFFFF are unreliable and should be sent once and then discarded
 
 There are three queues:
@@ -72,7 +72,7 @@ There are different checksums so host may send less info.
 * Rooms
 
 Now it is one-way communication from host to client.
-What is sent is choosen based on which checksums are different.
+What is sent is chosen based on which checksums are different.
 It should be improved so host could query each client what to send.
 
 == Actions
@@ -92,10 +92,25 @@ Things are created by their owner.
 Server owns neutral/heroes objects.
 
 I.e. when an imp dig gold to floor each client creates ghost of gold except owner of an imp (or maybe server?)
-Should other imps walk towards gostly gold?
+Should other imps walk towards ghostly gold?
 Owner of 'real' gold send a packet to others with Id for mapping.
 
 Ghost chickens are not created. Just wait for a message from owner of hatchery.
+Portals units are created by owner of portal
 
-Portals?
 Skeletons/Ghosts/Converted prisoners?
+
+=== Exact sequence of a chicken buisines ===
+
+Each version of a room creates a chicken at same time. (?)
+> This may create a conflict. It possible not to have a room at some turn.
+
+Each side creates a chicken. (?)
+> Because of a location problem
+
+Owner -> Server: I am spawning a chicken, my id=42
+Server -> Others: He is spawning a chicken, my id=34
+alt
+Server -> Owner: confirmed
+Other -> Server: confirmed
+end

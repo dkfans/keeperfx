@@ -168,6 +168,7 @@ enum TbPacketAction {
         PckA_HandPreGrab, //135
         PckA_CreateGoldPile,
         PckA_CreatureEntered,
+        PckA_CreateRoomObject,
 };
 
 /** Packet flags for non-action player operation. */

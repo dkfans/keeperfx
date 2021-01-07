@@ -49,3 +49,13 @@ void netremap_make_ghost_maybe(struct Thing *thing, int client_id);
 
 /* return true if this side is responsible for something belonging to this player_idx */
 TbBool netremap_is_mine(PlayerNumber plyr_id);
+
+/*
+ * Called before each packet exchange cycle to create one time packets
+ */
+void send_remap_packets();
+
+/*
+  Remap an object created by room (chickens, spellbooks, boxes etc)
+ */
+void netremap_room_object(struct Room *room, Thingid mine);

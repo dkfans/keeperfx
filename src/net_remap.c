@@ -28,7 +28,46 @@
 
 static Thingid thing_map[NET_PLAYERS_COUNT][THINGS_COUNT];
 
-static struct {
+enum MappingLinkage
+{
+    None = 0,
+    Thing,
+    Room,
+};
+
+struct ThingRemapData
+{
+    Thingid unmapped_next;
+    Thingid linkage;
+    enum MappingLinkage linkage_type;
+};
+
+struct IncomingRemapData
+{
+    Thingid linkage;
+    enum MappingLinkage linkage_type;
+    Thingid mapped_next;
+};
+
+struct IncomingClientData
+{
+    // index is Their id
+    struct IncomingRemapData thing_map[THINGS_COUNT];
+    Thingid mapped_first;
+    unsigned int mapped_cnt;
+};
+
+static struct
+{
+    struct ThingRemapData thing_data[THINGS_COUNT];
+    Thingid unmapped_first;
+    Thingid unmapped_cnt;
+
+    struct IncomingClientData incoming_data[NET_PLAYERS_COUNT];
+} remap_info;
+
+static struct
+{
     unsigned short message_id;
     unsigned short message_data[MAX_CREATURES_PER_PACKET];
 
@@ -40,7 +79,7 @@ static struct {
     unsigned short *dst_last;
     unsigned short *dst_end;
 
-    unsigned short  net_player_id;
+    unsigned short net_player_id;
 } addendum;
 
 void net_remap_init(Thingid thing_num)
@@ -57,6 +96,8 @@ void net_remap_init(Thingid thing_num)
             }
         }
     }
+
+    memset(&remap_info, 0, sizeof(remap_info));
 }
 
 Thingid net_remap_thingid(int client_id, Thingid id)
@@ -85,7 +126,7 @@ void net_remap_update(int net_player_id, Thingid their, Thingid mine)
     {
         ERRORLOG("Remap from their:%d to ZERO?!");
         return;
-    }else if (their == 0)
+    } else if (their == 0)
     {
         ERRORLOG("Remap from ZERO to mine:%d ?!", mine);
         return;
@@ -103,7 +144,7 @@ void net_remap_start(int net_player_id, unsigned char packet_kind, void *data, s
         switch (packet_kind)
         {
             case PckA_UsePower:
-                addendum.src_last = (unsigned short*)(((unsigned char *)data) + sizeof(struct BigActionPacket));
+                addendum.src_last = (unsigned short *) (((unsigned char *) data) + sizeof(struct BigActionPacket));
                 addendum.src_end = addendum.src_last + 1; //Only one creature
                 break;
             default:
@@ -111,19 +152,18 @@ void net_remap_start(int net_player_id, unsigned char packet_kind, void *data, s
                 addendum.src_end = addendum.src_last + MAX_CREATURES_PER_PACKET;
         }
         NETDBG(10, "reserving %p[%d]", addendum.src_last, addendum.src_end - addendum.src_last);
-    }
-    else
+    } else
     {
         addendum.dst_last = addendum.dst_buf;
         addendum.dst_end = addendum.dst_buf + 2 * MAX_CREATURES_PER_PACKET;
 
         switch (packet_kind)
         {
-        case PckA_UsePower:
-            addendum.src_last = (unsigned short*)(((unsigned char *)data) + sizeof(struct BigActionPacket));
-            addendum.src_end = addendum.src_last + 1; //Only one creature
-        default:
-            break;
+            case PckA_UsePower:
+                addendum.src_last = (unsigned short *) (((unsigned char *) data) + sizeof(struct BigActionPacket));
+                addendum.src_end = addendum.src_last + 1; //Only one creature
+            default:
+                break;
         }
     }
 }
@@ -137,7 +177,8 @@ static void net_remap_thing_created_internal(int owner, Thingid mine)
     }
     if (addendum.src_last >= addendum.src_end)
     {
-        ERRORLOG("Too many creatures per packet created! last:%d %p[%d]", mine, addendum.src_last, addendum.src_end - addendum.src_last);
+        ERRORLOG("Too many creatures per packet created! last:%d %p[%d]", mine, addendum.src_last,
+                 addendum.src_end - addendum.src_last);
         return;
     }
     if (addendum.net_player_id == my_player_number)
@@ -145,8 +186,7 @@ static void net_remap_thing_created_internal(int owner, Thingid mine)
         NETDBG(6, "master mine:%d", mine);
         *addendum.src_last = mine;
         addendum.src_last++;
-    }
-    else
+    } else
     {
         Thingid their = *addendum.src_last;
         net_remap_update(addendum.net_player_id, their, mine);
@@ -154,7 +194,7 @@ static void net_remap_thing_created_internal(int owner, Thingid mine)
         {
             //TODO: When is it possible?
             ERRORLOG("Too many creatures per packet created! last:%d", mine);
-            return;        
+            return;
         }
         *addendum.dst_last = their;
         addendum.dst_last++;
@@ -210,8 +250,10 @@ void net_remap_finish()
         int i = 0;
         for (unsigned short *val = addendum.dst_buf; val <= addendum.dst_last;)
         {
-            packet_data[i++] = *val; val++; // other's
-            packet_data[i++] = *val; val++; // mine
+            packet_data[i++] = *val;
+            val++; // other's
+            packet_data[i++] = *val;
+            val++; // mine
         }
     }
     addendum.src_last = NULL;
@@ -230,9 +272,9 @@ void net_remap_flush_things()
 TbBool net_remap_packet_cb(unsigned long turn, int net_idx, unsigned char kind, void *data_ptr, short size)
 {
     NETDBG(6, "net_idx:%d size:%d", net_idx, size);
-    unsigned short *src = (unsigned short *)data_ptr;
+    unsigned short *src = (unsigned short *) data_ptr;
     unsigned short *src_end = src + (size / sizeof(short));
-    while(src < src_end)
+    while (src < src_end)
     {
         unsigned short mine = *(src++);
         unsigned short their = *(src++);
@@ -245,12 +287,12 @@ void netremap_make_ghost_maybe(struct Thing *thing, int client_id)
 {
     struct ThingAdd *thingadd = get_thingadd(thing->index);
     // TODO: use some kind of my_client_id
-    if ( client_id != my_player_number )
+    if (client_id != my_player_number)
     {
         NETDBG(3, "ghost:%d", thing->index);
         thingadd->flags |= TA_NetGhost;
 
-        
+
         //TODO: add to list and remove sometimes
         if (gameadd.first_ghost != 0)
         {
@@ -264,8 +306,88 @@ TbBool netremap_is_mine(PlayerNumber plyr_id)
 {
     if (plyr_id == my_player_number)
         return true;
-    // TODO: Computers?
+        // TODO: Computers?
     else if (my_player_number == 0)
         return (plyr_id == game.neutral_player_num) || (plyr_id == game.hero_player_num);
     return false;
+}
+
+/*
+ * May be used only from `game turn` events. (Not as a reaction on some packets)
+ * Source of new mapped thing should call remap_send_remap_*
+ * Other peers should call remap_wait_for with expected linkage
+ *
+ */
+void remap_send_remap_any(enum MappingLinkage linkage, unsigned short index, Thingid mine)
+{
+    remap_info.thing_data[mine].unmapped_next = remap_info.unmapped_first;
+    remap_info.thing_data[mine].linkage_type = linkage;
+    remap_info.thing_data[mine].linkage = index;
+    remap_info.unmapped_first = mine;
+    remap_info.unmapped_cnt++
+}
+
+void remap_send_remap_room(unsigned short index, Thingid mine)
+{
+    remap_send_remap_any(Room, index, mine);
+}
+
+void send_remap_packets()
+{
+
+}
+
+/*
+ * There are two cases:
+ * 1) We are behind so we already have a linkage
+ * 2) We are ahead of time so we have no data to link with
+ */
+void remap_wait_for(PlayerNumber owner, enum MappingLinkage linkage, unsigned short index, Thingid mine)
+{
+    // TODO: client_id is not a player_id
+    struct IncomingClientData *client_data = &remap_info.incoming_data[owner];
+    Thingid idx = client_data->mapped_first;
+    Thingid prev = 0;
+    while (idx != 0)
+    {
+        if ((client_data->thing_map[idx].linkage_type == linkage) && (client_data->thing_map[idx].linkage == index))
+        {
+            // remove from list
+            if (prev == 0)
+            {
+                client_data->mapped_first = client_data->thing_map[idx].mapped_next;
+            }
+            else
+            {
+                client_data->thing_map[prev].mapped_next = client_data->thing_map[idx].mapped_next;
+            }
+            client_data->mapped_cnt--;
+            // add to notify list
+            // TOOD:
+            // remap id
+            net_remap_update(owner, idx, mine);
+            return;
+        }
+        prev = idx;
+        idx = client_data->thing_map[idx].mapped_next;
+    }
+    // We are unable to find a linkage so add it to the list
+    client_data->thing_map[mine].linkage_type = linkage;
+    client_data->thing_map[mine].linkage = index;
+    client_data->thing_map[mine].waiting_next = client_data->waiting_first;
+    client_data->waiting_first = mine;
+    remap_info.unmapped_cnt++;
+}
+
+void netremap_room_object(struct Room *room, Thingid mine)
+{
+    struct PlayerInfo *player = get_player(room->owner);
+    if (is_my_player(player))
+    {
+        create_packet_action(player, PckA_CreateRoomObject, room->index, mine);
+        remap_send_remap_room(room->index, mine);
+    } else
+    {
+        remap_wait_for(room->owner, Room, room->index, mine);
+    }
 }

@@ -1412,6 +1412,7 @@ void process_packets(void)
                 set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
                 set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
             }
+            send_remap_packets();
             switch(LbNetwork_Exchange(&context, &process_packet_cb))
             {
             case NR_FAIL:
