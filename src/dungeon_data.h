@@ -31,6 +31,7 @@
 #include "map_events.h"
 #include "tasks_list.h"
 #include "thing_traps.h"
+#include "roomspace.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -302,6 +303,7 @@ struct DungeonAdd
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;
     int                   creature_awarded[CREATURE_TYPES_COUNT];
+    struct RoomSpace      roomspace;
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
