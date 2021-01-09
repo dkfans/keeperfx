@@ -230,9 +230,9 @@ static char *cmd_strtok(char *tail)
     return next;
 }
 
-static TbBool cmd_magic_instance(const char* creature_str, const char*  slot_str, const char* insance_str)
+static TbBool cmd_magic_instance(const char* creature_str, const char*  slot_str, const char* instance_str)
 {
-    if (creature_str == NULL || slot_str == NULL || insance_str == NULL)
+    if (creature_str == NULL || slot_str == NULL || instance_str == NULL)
         return false;
     int creature = get_id(creature_desc, creature_str);
     if (creature == -1)
@@ -246,8 +246,12 @@ static TbBool cmd_magic_instance(const char* creature_str, const char*  slot_str
         message_add(10, "Invalid slot");
         return false;
     }
-    int instance = get_id(instance_desc, insance_str);
+    int instance = get_id(instance_desc, instance_str);
     if (instance == -1)
+    {
+        instance = atoi(instance_str);
+    }
+    if (instance <= 0)
     {
         message_add(10, "Invalid instance");
         return false;
