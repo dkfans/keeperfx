@@ -1229,7 +1229,6 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 {
     struct ScriptValue tmp_value = {0};
     struct ScriptValue* value;
-    long i;
 
     if ((script_current_condition < 0) && (next_command_reusable == 0))
     {
@@ -1264,7 +1263,6 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 static void create_effects_line_process(struct ScriptContext *context)
 {
     struct ScriptFxLine *fx_line = NULL;
-    long x, y;
     for (int i = 0; i < (sizeof(gameadd.fx_lines) / sizeof(gameadd.fx_lines[0])); i++)
     {
         if (!gameadd.fx_lines[i].used)
@@ -4611,7 +4609,7 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
               cctrl->party_objective = member->objectv;
-              cctrl->field_5 = game.play_gameturn + member->countdown;
+              cctrl->wait_to_turn = game.play_gameturn + member->countdown;
               if (thing_is_invalid(grptng))
               {
                   // If it is the first creature - set it as only group member and leader

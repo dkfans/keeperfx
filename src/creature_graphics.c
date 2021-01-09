@@ -421,7 +421,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             thing->field_4F &= ~(TF4F_Transpar_Flags);
             update_creature_anim(thing, 128, 12);
         } else
-        if (cctrl->field_9 == 0)
+        if (cctrl->distance_to_destination == 0)
         {
             update_creature_anim(thing, 256, 0);
         } else
@@ -431,7 +431,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         } else
         if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
         {
-            i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
             update_creature_anim(thing, i, 2);
         } else
         if (creatures[thing->model].field_6 == 4)
@@ -439,7 +439,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             update_creature_anim(thing, 256, 1);
         } else
         {
-            i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
             if (!update_creature_anim(thing, i, 1))
             {
                 thing->anim_speed = i;
@@ -448,7 +448,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     {
         thing->field_4F &= ~(TF4F_Transpar_Flags);
-        if (cctrl->field_9 == 0)
+        if (cctrl->distance_to_destination == 0)
         {
             update_creature_anim_td(thing, 256, 820);
         } else
@@ -461,7 +461,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             update_creature_anim_td(thing, 256, 819);
         } else
         {
-            i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
             if (!update_creature_anim_td(thing, i, 819))
             {
                 thing->anim_speed = i;

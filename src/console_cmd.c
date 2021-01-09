@@ -46,7 +46,10 @@ struct GuiBoxOption cmd_comp_checks_data[COMPUTER_CHECKS_COUNT + 1] = { 0 };
 static char cmd_comp_checks_label[COMPUTER_CHECKS_COUNT][COMMAND_WORD_LEN + 8];
 
 struct GuiBoxOption cmd_comp_events_data[COMPUTER_EVENTS_COUNT + 1] = { 0 };
-  static char cmd_comp_events_label[COMPUTER_EVENTS_COUNT][COMMAND_WORD_LEN + 8];
+
+static TbBool script_set_pool(PlayerNumber player_idx, const char *creature, const char *num);
+
+static char cmd_comp_events_label[COMPUTER_EVENTS_COUNT][COMMAND_WORD_LEN + 8];
 
 static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *args)
 {
@@ -219,10 +222,14 @@ static void cmd_comp_checks(PlayerNumber plyr_idx)
 static char *cmd_strtok(char *tail)
 {
     if (tail == NULL)
+    {
         return NULL;
+    }
     char* next = strchr(tail,' ');
     if (next == NULL)
+    {
         return NULL;
+    }
     next[0] = '\0';
     next++; // it was space
     while (*next == ' ')
@@ -280,6 +287,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     const char * pr2str = cmd_strtok(msg + 1);
     const char * pr3str = cmd_strtok((char*)pr2str);
     const char * pr4str = cmd_strtok((char*)pr3str);
+
     if (strcmp(parstr, "stats") == 0)
     {
       message_add_fmt(plyr_idx, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
@@ -398,9 +406,34 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             update_trap_tab_to_config();
             message_add(plyr_idx, "done!");
             return true;
+        } else if (strcmp(parstr, "map.pool") == 0)
+        {
+            return script_set_pool(plyr_idx, pr2str, pr3str);
         }
     }
     return false;
+}
+
+static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const char *str_num)
+{
+  if (creature == NULL)
+    return false;
+  long kind = get_id(creature_desc, creature);
+  if (kind == -1)
+  {
+    if (0 == strcasecmp(creature, "EMPTY"))
+    {
+      clear_creature_pool();
+      return true;
+    }
+    message_add_fmt(10, "Invalid creature");
+    return false;
+  }
+  int num = atoi(str_num);
+  if (num < 0)
+    return false;
+  game.pool.crtr_kind[kind] = num;
+  return true;
 }
 
 
