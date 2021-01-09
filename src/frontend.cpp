@@ -3623,7 +3623,7 @@ FrontendMenuState get_startup_menu_state(void)
           {
               net_session_index_active = 0;
               frontnet_session_join(NULL);
-              return FeSt_NET_START;
+              return frontend_menu_state;
           }
       }
   }
