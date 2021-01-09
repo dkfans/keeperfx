@@ -20,9 +20,9 @@
 #include "thing_data.h"
 
 void net_remap_init(Thingid thing_num);
-Thingid net_remap_thingid(int client_id, Thingid id);
+Thingid net_remap_thingid_f(int client_id, Thingid id, const char *func);
 void net_remap_update(int net_player_id, Thingid their, Thingid mine);
-
+#define net_remap_thingid(client_id,id) net_remap_thingid_f(client_id, id, __func__)
 /*
     This function is called at start of processing each network packet.
     It should read addendum data from packet (if any) and setup remapping of thing_id

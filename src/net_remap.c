@@ -60,7 +60,7 @@ void net_remap_init(Thingid thing_num)
     }
 }
 
-Thingid net_remap_thingid(int client_id, Thingid id)
+Thingid net_remap_thingid_f(int client_id, Thingid id, const char *func)
 {
     Thingid mine;
     if (id == 0)
@@ -71,7 +71,8 @@ Thingid net_remap_thingid(int client_id, Thingid id)
     mine = thing_map[client_id][id];
     if (mine == 0)
     {
-        WARNMSG("not found their:%d", id);
+        WARNMSG("%s: not found their:%d", func, id);
+        message_add_fmt(10, "not found their:%d", id);
     }
     return mine;
 }
@@ -81,14 +82,17 @@ void net_remap_update(int net_player_id, Thingid their, Thingid mine)
     if (thing_map[net_player_id][their] != 0)
     {
         ERRORLOG("found unexpected id:%d", their);
+        message_add_fmt(10, "found unexpected id:%d", their);
     }
     if (mine == 0)
     {
-        ERRORLOG("Remap from their:%d to ZERO?!");
+        ERRORLOG("Remap from their:%d to ZERO?!", their);
+        message_add_fmt(10, "Remap from their:%d to ZERO?!", their);
         return;
     } else if (their == 0)
     {
         ERRORLOG("Remap from ZERO to mine:%d ?!", mine);
+        message_add_fmt(10, "Remap from ZERO to mine:%d ?!", mine);
         return;
     }
     NETDBG(6, "Remap from their:%d to mine:%d", their, mine);
