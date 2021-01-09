@@ -1246,13 +1246,11 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
         // Clipping coordinates
         if (*map_y < 0)
           *map_y = 0;
-        else
-        if (*map_y > subtile_coord(map_subtiles_y,-1))
+        else if (*map_y > subtile_coord(map_subtiles_y,-1))
           *map_y = subtile_coord(map_subtiles_y,-1);
         if (*map_x < 0)
           *map_x = 0;
-        else
-        if (*map_x > subtile_coord(map_subtiles_x,-1))
+        else if (*map_x > subtile_coord(map_subtiles_x,-1))
           *map_x = subtile_coord(map_subtiles_x,-1);
         return true;
     }

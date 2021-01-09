@@ -169,6 +169,8 @@ enum TbPacketAction {
         PckA_CreateGoldPile,
         PckA_CreatureEntered,
         PckA_CreateObject,
+        PckA_SellRoom,
+        PckA_SellObject,
 };
 
 /** Packet flags for non-action player operation. */

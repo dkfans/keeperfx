@@ -539,10 +539,9 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
 /*
   Client side
 */
-static void process_dungeon_control_packet_sell_operation(long plyr_idx)
+static void process_dungeon_control_packet_sell_operation(long plyr_idx, struct Packet* pckt)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
     long keycode = 0;
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
@@ -580,7 +579,10 @@ static void process_dungeon_control_packet_sell_operation(long plyr_idx)
         //Slab Mode
         if (render_roomspace.slab_count > 1)
         {
-            keeper_sell_roomspace(render_roomspace);
+            struct BigActionPacket * big = create_packet_action_big(player, PckA_SellRoom, 0);
+            big->head.arg[0] = plyr_idx;
+            big->head.arg[1] = subtile_slab(render_roomspace.left) | (subtile_slab(render_roomspace.top) << 8);
+            big->head.arg[2] = subtile_slab(render_roomspace.right) | (subtile_slab(render_roomspace.bottom) << 8);
         }
         else
         {
@@ -594,20 +596,15 @@ static void process_dungeon_control_packet_sell_operation(long plyr_idx)
             // Trying to sell room
             if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
             {
-                player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
-            } else
-            // Trying to sell door
-            if (player_sell_door_at_subtile(plyr_idx, stl_x, stl_y))
-            {
-            // Nothing to do here - door already sold
-            } else
-            // Trying to sell trap
-            if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
-            {
-            // Nothing to do here - trap already sold
+                //player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
+                struct BigActionPacket * big = create_packet_action_big(player, PckA_SellRoom, 0);
+                big->head.arg[0] = plyr_idx;
+                big->head.arg[1] = subtile_slab(stl_x) | (subtile_slab(stl_y) << 8);
+                big->head.arg[2] = subtile_slab(stl_x) | (subtile_slab(stl_y) << 8);
             } else
             {
-                WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
+                create_packet_action(player, PckA_SellObject, 0,
+                    stl_x | (stl_y << 8));
             }
         }
     }
@@ -621,25 +618,10 @@ static void process_dungeon_control_packet_sell_operation(long plyr_idx)
             return;
         }
         // Subtile Mode
-        if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
-        {
-            // Nothing to do here - trap already sold
-        } else
-        if (player_sell_door_at_subtile(plyr_idx, stl_x, stl_y))
-        {
-            // Nothing to do here - door already sold
-        } else
-        if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
-        {
-            player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
-        }
-        else
-        {
-            WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
-        }
+        create_packet_action(player, PckA_SellObject, 0,
+                             stl_x | (stl_y << 8));
     }
     clear_input(pckt);
-    return;
 }
 
 static TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
@@ -728,9 +710,7 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     short influence_own_creatures = false;
-    struct SlabMap *slb;
     long i;
-    struct Room* room;
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     switch (player->work_state)
@@ -943,7 +923,7 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         }
         break;
     case PSt_Sell:
-        process_dungeon_control_packet_sell_operation(plyr_idx);
+        process_dungeon_control_packet_sell_operation(plyr_idx, pckt);
         break;
     case PSt_CreateDigger:
     case PSt_DestroyWalls:

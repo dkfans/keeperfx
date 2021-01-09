@@ -559,7 +559,6 @@ static TbBool process_players_global_packet_action(
   struct Dungeon *dungeon;
   Thingid thing_id;
   struct Thing *thing;
-  struct ThingAdd *thingadd;
   struct Coord3d pos;
   int i;
 
@@ -1079,6 +1078,38 @@ static void process_players_dungeon_control_packet_action(
             big->head.arg[2] //player->chosen_room_kind
             );
         break;
+    case PckA_SellRoom:
+        {
+            struct RoomSpace roomspace;
+            roomspace.plyr_idx = plyr_idx;
+            roomspace.left = (big->head.arg1 & 255);
+            roomspace.top = (big->head.arg1 >> 8);
+            roomspace.right = (big->arg2 & 255);
+            roomspace.bottom = (big->arg2 >> 8);
+            keeper_sell_roomspace(roomspace);
+            break;
+        }
+    case PckA_SellObject:
+        {
+            MapSubtlCoord stl_x = packet->arg1 & 255;
+            MapSubtlCoord stl_y = packet->arg1 >> 8;
+            // Trying to sell door
+            if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
+            {
+                // Nothing to do here - door already sold
+            } else if (player_sell_door_at_subtile(plyr_idx, stl_x, stl_y))
+            {
+                // Nothing to do here - trap already sold
+            } else if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
+            {
+                player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
+            }
+            else
+            {
+                WARNLOG("Unable to sell anything player:%d stl_x:%d stl_y:%d", (int)plyr_idx, stl_x, stl_y);
+            }
+            break;
+        }
     case PckA_UsePower:
         thing_id = net_remap_thingid(player_to_client(player->id_number), big->head.arg[1]);
         NETDBG(5, "plyr:%d power:%d %s level:%d x:%d y:%d thing:%d(%d)",
