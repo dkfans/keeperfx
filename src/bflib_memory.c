@@ -103,16 +103,16 @@ short update_memory_constraits(void)
 {
   LbMemoryCheck();
   if ( lbMemoryAvailable <= (8*1024*1024) )
-      mem_size = 8;
+      _DK_mem_size = 8;
   else
   if ( lbMemoryAvailable <= (16*1024*1024) )
-      mem_size = 16;
+      _DK_mem_size = 16;
   else
   if ( lbMemoryAvailable <= (24*1024*1024) )
-      mem_size = 24;
+      _DK_mem_size = 24;
   else
 //  if ( lbMemoryAvailable <= (32*1024*1024) )
-      mem_size = 32;
+      _DK_mem_size = 32;
 /*
   else
   if ( lbMemoryAvailable <= (48*1024*1024) )
@@ -120,7 +120,7 @@ short update_memory_constraits(void)
   else
       mem_size = 64;
 */
-  LbSyncLog("PhysicalMemory %d\n", mem_size);
+  LbSyncLog("PhysicalMemory %d\n", _DK_mem_size);
   return true;
 }
 

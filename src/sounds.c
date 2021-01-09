@@ -488,7 +488,7 @@ TbBool init_sound(void)
     snd_settng->dir3 = sound_dir;
     snd_settng->field_12 = 1;
     snd_settng->stereo = 1;
-    unsigned long i = get_best_sound_heap_size(mem_size);
+    unsigned long i = get_best_sound_heap_size(_DK_mem_size);
     if (i < 1048576)
       snd_settng->max_number_of_samples = 10;
     else

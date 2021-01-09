@@ -111,7 +111,7 @@ TbBool setup_heap_memory(void)
     LbMemoryFree(heap);
     heap = NULL;
   }
-  long i = mem_size;
+  long i = _DK_mem_size;
   heap_size = get_best_sound_heap_size(i);
   while ( 1 )
   {
@@ -184,7 +184,7 @@ TbBool setup_heaps(void)
     // Allocate sound heap
     if (!SoundDisabled)
     {
-      i = mem_size;
+      i = _DK_mem_size;
       while (sound_heap_memory == NULL)
       {
         sound_heap_size = get_best_sound_heap_size(i);
@@ -198,7 +198,7 @@ TbBool setup_heaps(void)
       }
     }
     // Allocate graphics heap
-    i = mem_size;
+    i = _DK_mem_size;
     while (heap == NULL)
     {
       heap_size = get_best_sound_heap_size(i);

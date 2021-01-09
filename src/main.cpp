@@ -1033,7 +1033,7 @@ short setup_game(void)
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
   update_memory_constraits();
   // Enable features that require more resources
-  update_features(mem_size);
+  update_features(_DK_mem_size);
 
   // Configuration file
   if ( !load_configuration() )
