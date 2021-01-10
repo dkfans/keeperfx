@@ -884,7 +884,7 @@ static TbBool get_dungeon_control_action_inputs(struct PacketEx *packet)
         {
             (angle = 0);
         }
-        check_set_packet_action(packet, PckA_SetMapRotation, angle, 0, 0);
+        check_set_packet_action(player, packet, PckA_SetMapRotation, angle, 0);
         clear_key_pressed(val);
         lbDisplay.MiddleButton = 0; // WTF is this? and why it is on Display?
       }

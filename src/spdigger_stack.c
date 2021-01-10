@@ -48,6 +48,7 @@
 #include "gui_soundmsgs.h"
 #include "front_simple.h"
 #include "game_legacy.h"
+#include "packets_updating.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -487,10 +488,12 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     if (min_taskid == 1)
     {
         thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
+        send_update_job(thing);
         return 1;
     } else
     {
         thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
+        send_update_job(thing);
         return 1;
     }
     return 0;
@@ -523,6 +526,7 @@ TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, Map
         return false;
     }
     creatng->continue_state = CrSt_ImpArrivesAtConvertDungeon;
+    send_update_job(creatng);
     return true;
 }
 
@@ -803,6 +807,7 @@ TbBool check_out_unconverted_place(struct Thing *thing)
         if (setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
         {
             thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
+            send_update_job(thing);
             return true;
         }
     }
@@ -830,11 +835,13 @@ long check_out_unprettied_place(struct Thing *thing)
         if (setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
         {
             thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
+            send_update_job(thing);
             return true;
         }
   }
   if ( check_out_unprettied_spiral(thing, 1) )
   {
+      send_update_job(thing);
       return true;
   }
   return false;
@@ -2571,8 +2578,9 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *ds
     }
     thing->continue_state = CrSt_ImpArrivesAtReinforce;
     cctrl->digger.byte_93 = 0;
-    cctrl->word_8D = dstack->stl_num;
+    cctrl->digger.working_stl = dstack->stl_num;
     cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
+    send_update_job(thing);
     return 1;
 }
 
@@ -2665,6 +2673,7 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *d
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->pickup_object_id = deadtng->index;
+    send_update_job(creatng);
     return 1;
 }
 
@@ -2706,6 +2715,7 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->pickup_object_id = sectng->index;
+    send_update_job(thing);
     return 1;
 }
 
@@ -2755,6 +2765,7 @@ long check_out_worker_pickup_crate_to_arm(struct Thing *creatng, struct DiggerSt
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->pickup_object_id = cratng->index;
     cctrl->arming_thing_id = armtng->index;
+    send_update_job(creatng);
     return 1;
 }
 
@@ -2812,6 +2823,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->pickup_object_id = sectng->index;
+    send_update_job(thing);
     return 1;
 }
 

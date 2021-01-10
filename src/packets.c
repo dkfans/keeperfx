@@ -91,6 +91,7 @@
 
 #include "music_player.h"
 #include "room_entrance.h"
+#include "packets_updating.h"
 
 TbBool packets_first_resync = true;
 
@@ -950,6 +951,9 @@ static TbBool process_players_global_packet_action(
       return true;
   case PckA_CreatureEntered:
       entrance_packet_cb(player->id_number, (struct BigActionPacket *)pckt);
+      return true;
+  case PckA_UpdateJob:
+      process_update_job((struct BigActionPacket *)pckt);
       return true;
   default:
       return false;

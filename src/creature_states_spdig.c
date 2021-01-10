@@ -48,6 +48,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "packets_updating.h"
 
 const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 
@@ -128,6 +129,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
                     if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) {
                         spdigtng->continue_state = CrSt_CreaturePickUpUnconsciousBody;
                         cctrl->pickup_creature_id = thing->index;
+                        send_update_job(thing);
                         return 1;
                     }
                 }
@@ -180,6 +182,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
                             thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
                         spdigtng->continue_state = CrSt_CreaturePicksUpCorpse;
                         cctrl->pickup_object_id = thing->index;
+                        send_update_job(spdigtng);
                         return 1;
                     }
                 }
@@ -243,6 +246,7 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
                             }
                             spdigtng->continue_state = CrSt_CreaturePicksUpSpellObject;
                             cctrl->pickup_object_id = thing->index;
+                            send_update_job(spdigtng);
                             return 1;
                         }
                     }
@@ -298,6 +302,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
                             spdigtng->continue_state = CrSt_CreaturePicksUpTrapObject;
                             cctrl->pickup_object_id = thing->index;
                             cctrl->arming_thing_id = traptng->index;
+                            send_update_job(spdigtng);
                             return 1;
                         }
                     }
@@ -366,6 +371,7 @@ long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord s
                 if (setup_person_move_to_position(thing, slab_subtile_center(sslb_x), slab_subtile_center(sslb_y), 0))
                 {
                     thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
+                    send_update_job(thing);
                     return 1;
                 }
             }
@@ -386,14 +392,19 @@ long check_out_unconverted_drop_place(struct Thing *thing)
             if (setup_person_move_to_position(thing, slab_subtile_center(slb_x), slab_subtile_center(slb_y), 0))
             {
                 thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
+                send_update_job(thing);
                 return 1;
             }
         }
     }
-    if (check_out_unconverted_spiral(thing, 1)) {
+    if (check_out_unconverted_spiral(thing, 1))
+    {
+        send_update_job(thing);
         return 1;
     }
-    if (check_out_place_for_convert_behind_door(thing, slb_x, slb_y) >= 1) {
+    if (check_out_place_for_convert_behind_door(thing, slb_x, slb_y) >= 1)
+    {
+        send_update_job(thing);
         return 1;
     }
     return 0;
@@ -401,6 +412,7 @@ long check_out_unconverted_drop_place(struct Thing *thing)
 
 long check_out_undug_drop_place(struct Thing *thing)
 {
+    // TODO: shit!
     return _DK_check_out_undug_drop_place(thing);
 }
 
@@ -462,14 +474,31 @@ long check_out_unprettied_drop_place(struct Thing *thing)
         && !imp_will_soon_be_working_at_excluding(thing, 3 * v1 + 1, a3)
         && setup_person_move_to_position(thing, 3 * v1 + 1, a3, 0))
     {
-        thing->continue_state = 9;
+        thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
+        send_update_job(thing);
         return 1;
     }
 
     if (_DK_check_out_unprettied_spiral(thing, 1))
+    {
+        // TODO: decompile
+        if (thing->continue_state == CrSt_ImpArrivesAtImproveDungeon)
+        {
+            send_update_job(thing);
+        }
         return 1;
+    }
 
-    return _DK_sub_4D2A60(thing, v1, v2) >= 1u;
+    if (_DK_sub_4D2A60(thing, v1, v2) >= 1u)
+    {
+        // TODO: decompile
+        if (thing->continue_state == CrSt_ImpArrivesAtImproveDungeon)
+        {
+            send_update_job(thing);
+        }
+        return 1;
+    }
+    return 0;
 }
 
 long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
@@ -508,6 +537,7 @@ long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
                         spdigtng->continue_state = CrSt_CreaturePicksUpTrapObject;
                         cctrl->pickup_object_id = thing->index;
                         cctrl->arming_thing_id = traptng->index;
+                        send_update_job(spdigtng);
                         return 1;
                     }
                 }
@@ -589,6 +619,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
                     thing->continue_state = CrSt_ImpArrivesAtReinforce;
                     cctrl->digger.working_stl = stl_num;
                     cctrl->digger.byte_93 = 0;
+                    send_update_job(thing);
                     SYNCDBG(8,"Assigned reinforce at (%d,%d) to %s index %d",(int)pos_x,(int)pos_y,thing_model_name(thing),(int)thing->index);
                     return 1;
                 }

@@ -174,6 +174,7 @@ enum TbPacketAction {
         PckA_PlaceTrap,
         PckA_PlaceDoor,
         PckA_ToggleObject,
+        PckA_UpdateJob,
 };
 
 /** Packet flags for non-action player operation. */
