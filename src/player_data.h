@@ -45,7 +45,7 @@ enum PlayerInitFlags {
     PlaF_Allocated          = 0x01,
     PlaF_Unknown2           = 0x02,
     PlaF_NewMPMessage       = 0x04,
-    PlaF_Unknown8           = 0x08,
+    PlaF_Unknown8           = 0x08, // Disabled possession control?
     PlaF_Unknown10          = 0x10,
     PlaF_Unknown20          = 0x20, // Player is untagging blocks
     PlaF_CompCtrl           = 0x40,

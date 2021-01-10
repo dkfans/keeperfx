@@ -440,10 +440,11 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
         if ((player->thing_under_hand != 0) && (player->input_crtr_control != 0)
           && (dungeon->things_in_hand[0] != player->thing_under_hand))
         {
-            set_player_state(player, PSt_CtrlDirect, 0);
+            client_control_use_power_on_thing(player, PwrK_POSSESS, 0, stl_x, stl_y, thing->index);
+            /*set_player_state(player, PSt_CtrlDirect, 0);
             if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default) == Lb_FAIL) {
                 set_player_state(player, player->continue_work_state, 0);
-            }
+            }*/
             clear_input(pckt);
         } else
         if (player->input_crtr_query != 0)

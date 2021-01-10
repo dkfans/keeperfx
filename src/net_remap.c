@@ -115,6 +115,7 @@ void net_remap_start(int net_player_id, unsigned char packet_kind, void *data, s
         case PckA_UsePower:
             addendum.src_last = (unsigned short *) (((unsigned char *) data) + sizeof(struct BigActionPacket));
             addendum.src_end = addendum.src_last + 1; //Only one creature
+            break;
         case PckA_PlaceDoor:
         case PckA_PlaceTrap:
             addendum.src_last = (unsigned short *) (((unsigned char *) data) + sizeof(struct SmallActionPacket));

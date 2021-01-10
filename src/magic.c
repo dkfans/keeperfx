@@ -1721,6 +1721,8 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
+    set_player_state(player, PSt_CtrlDirect, 0);
+
     return Lb_SUCCESS;
 }
 

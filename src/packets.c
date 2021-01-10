@@ -1420,6 +1420,7 @@ static TbBool process_packet_cb(
             process_players_dungeon_control_packet_control(player, &packet_ex->packet);
             break;
         case PVT_CreaturePasngr:
+        case PVT_CreatureContrl:
             process_players_creature_control_packet_control(player, &packet_ex->packet);
             break;
         case PVT_MapScreen:
