@@ -244,6 +244,7 @@ obj/packets_cheats.o \
 obj/packets_frontend.o \
 obj/packets_input.o \
 obj/packets_misc.o \
+obj/packets_updating.o \
 obj/player_compchecks.o \
 obj/player_compevents.o \
 obj/player_complookup.o \
@@ -332,9 +333,10 @@ else
   endif
 endif
 
+AUTOTESTING ?=
 # logging level flags
 STLOGFLAGS = -DBFDEBUG_LEVEL=0
-HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DNETDBG_LEVEL=10 -DAUTOTESTING=1
+HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DNETDBG_LEVEL=10
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
 # disabled warnings: -Wextra -Wtype-limits
@@ -389,6 +391,11 @@ include prebuilds.mk
 -include $(filter %.d,$(HVLOGOBJS:%.o=%.d))
 
 all: standard
+
+ifneq (, $(AUTOTESTING))
+STLOGFLAGS += -DAUTOTESTING=1
+HVLOGFLAGS += -DAUTOTESTING=1
+endif
 
 standard: CXXFLAGS += $(STLOGFLAGS)
 standard: CFLAGS += $(STLOGFLAGS)

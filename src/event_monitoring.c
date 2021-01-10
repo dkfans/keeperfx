@@ -76,6 +76,7 @@ void evm_done()
     }
 }
 
+#if AUTOTESTING
 void evm_stat(int force_new, const char *event_fmt, ...)
 {
     int len, remain;
@@ -134,3 +135,4 @@ void evm_stat(int force_new, const char *event_fmt, ...)
         evm_packet->len = 0;
     }
 }
+#endif
