@@ -267,7 +267,9 @@ static TbBool client_control_dungeon_build_room(struct PlayerInfo* player, struc
 
     if (player->boxsize > 0)
     {
-        keeper_build_roomspace(render_roomspace);
+        //keeper_build_roomspace(render_roomspace);
+        if (player->boxsize > 1)
+            message_add(10, "Merge required");
     }
     else
     {
