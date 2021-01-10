@@ -3600,15 +3600,19 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return allowed;
 }
 
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, unsigned char a5)
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool able)
 {
     //return _DK_packet_place_door(a1, a2, a3, a4, a5);
-    if (!a5) {
+    delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)));
+
+    if (!able)
+    {
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(119);
         return 0;
     }
-    if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
+    if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel))
+    {
         return 0;
     }
     remove_dead_creatures_from_slab(subtile_slab(stl_x), subtile_slab(stl_y));

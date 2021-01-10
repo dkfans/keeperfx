@@ -1044,6 +1044,9 @@ static void process_players_dungeon_control_packet_action(
     struct BigActionPacket *big = (struct BigActionPacket *)packet;
     int plyr_idx = player->id_number;
     Thingid thing_id;
+    TbBool ok;
+    MapSubtlCoord stl_x = packet->arg1 & 255;
+    MapSubtlCoord stl_y = packet->arg1 >> 8;
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)action);
     switch (action)
     {
@@ -1091,8 +1094,6 @@ static void process_players_dungeon_control_packet_action(
         }
     case PckA_SellObject:
         {
-            MapSubtlCoord stl_x = packet->arg1 & 255;
-            MapSubtlCoord stl_y = packet->arg1 >> 8;
             // Trying to sell door
             if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
             {
@@ -1174,6 +1175,20 @@ static void process_players_dungeon_control_packet_action(
             {
                 NETDBG(6, "unable to tag - too many tasks for player:%d ", player->id_number);
             }
+        }
+        break;
+    case PckA_PlaceTrap:
+        if (!player_place_trap_at(stl_x, stl_y, plyr_idx, packet->arg0))
+        {
+            WARNMSG("unable to place trap plyr:%d stl_x:%d stl_y:%d", plyr_idx, stl_x, stl_y);
+        }
+        break;
+    case PckA_PlaceDoor:
+        ok = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
+
+        if (!packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, ok))
+        {
+            WARNMSG("unable to place door plyr:%d stl_x:%d stl_y:%d", plyr_idx, stl_x, stl_y);
         }
         break;
     default:

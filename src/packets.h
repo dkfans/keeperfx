@@ -170,7 +170,9 @@ enum TbPacketAction {
         PckA_CreatureEntered,
         PckA_CreateObject,
         PckA_SellRoom,
-        PckA_SellObject,
+        PckA_SellObject, //140
+        PckA_PlaceTrap,
+        PckA_PlaceDoor,
 };
 
 /** Packet flags for non-action player operation. */

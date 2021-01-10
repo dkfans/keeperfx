@@ -624,10 +624,9 @@ static void process_dungeon_control_packet_sell_operation(long plyr_idx, struct 
     clear_input(pckt);
 }
 
-static TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
+static TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx, struct Packet* pckt)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt = get_packet_direct(player->packet_num);
     MapCoord x = ((unsigned short)pckt->pos_x);
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
@@ -660,11 +659,7 @@ static TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         clear_input(pckt);
         return false;
     }
-    if (!player_place_trap_at(stl_x, stl_y, plyr_idx, player->chosen_trap_kind))
-    {
-        clear_input(pckt);
-        return false;
-    }
+    create_packet_action(player, PckA_PlaceTrap, player->chosen_trap_kind, stl_x | (stl_y << 8));
     clear_input(pckt);
     return true;
 }
@@ -863,7 +858,7 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         }
         break;
     case PSt_PlaceTrap:
-        process_dungeon_control_packet_dungeon_place_trap(plyr_idx);
+        process_dungeon_control_packet_dungeon_place_trap(plyr_idx, pckt);
         break;
     case PSt_Lightning:
         player->thing_under_hand = 0;
@@ -882,12 +877,9 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         {
             player->field_4A4 = 1;
             // Make the frame around active slab
-            i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
             if ((pckt->control_flags & PCtr_LBtnClick) != 0)
             {
-              k = get_slab_number(slb_x, slb_y);
-              delete_room_slabbed_objects(k);
-              packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, i);
+                create_packet_action(player, PckA_PlaceDoor, player->chosen_door_kind, stl_x | (stl_y << 8));
             }
             clear_input(pckt);
         }
