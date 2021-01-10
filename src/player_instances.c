@@ -55,6 +55,7 @@
 #include "thing_shots.h"
 
 #include "keeperfx.hpp"
+#include "net_remap.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1212,6 +1213,8 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     delete_room_slabbed_objects(get_slab_number(subtile_slab_fast(stl_x),subtile_slab_fast(stl_y)));
     struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
+    net_remap_thing_created(plyr_idx, traptng->index);
+    WARNDBG(2, "thing_id:%d model:%d stl_x:%d stl_y:%d", traptng->index, tngmodel, stl_x, stl_y);
     if (thing_is_invalid(traptng)) {
         return false;
     }

@@ -33,9 +33,9 @@ void net_remap_update(int net_player_id, Thingid their, Thingid mine);
 void net_remap_start(int client_id, unsigned char packet_kind, void *data, short size);
 
 // Used for things
-void net_remap_thing_created(Thingid mine);
+void net_remap_thing_created(PlayerNumber client_id, Thingid mine);
 // Used for creatures (TODO: check is owner is player_id or net_id)
-void net_remap_creature_created(int client_id, Thingid mine);
+void net_remap_creature_created(PlayerNumber client_id, Thingid mine);
 
 // Used to create a new remap packet
 void net_remap_flush_things();

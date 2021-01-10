@@ -95,7 +95,7 @@ void net_remap_update(int net_player_id, Thingid their, Thingid mine)
         message_add_fmt(10, "Remap from ZERO to mine:%d ?!", mine);
         return;
     }
-    NETDBG(6, "Remap from their:%d to mine:%d", their, mine);
+    NETDBG(5, "Remap from their:%d to mine:%d", their, mine);
     thing_map[net_player_id][their] = mine;
 }
 
@@ -115,7 +115,7 @@ void net_remap_start(int net_player_id, unsigned char packet_kind, void *data, s
                 addendum.src_last = addendum.message_data;
                 addendum.src_end = addendum.src_last + MAX_CREATURES_PER_PACKET;
         }
-        NETDBG(10, "reserving %p[%d]", addendum.src_last, addendum.src_end - addendum.src_last);
+        NETDBG(8, "reserving %p[%d]", addendum.src_last, addendum.src_end - addendum.src_last);
     } else
     {
         addendum.dst_last = addendum.dst_buf;
@@ -147,7 +147,7 @@ static void net_remap_thing_created_internal(int owner, Thingid mine)
     }
     if (addendum.net_player_id == my_player_number)
     {
-        NETDBG(6, "master mine:%d", mine);
+        NETDBG(5, "master mine:%d", mine);
         *addendum.src_last = mine;
         addendum.src_last++;
     } else
@@ -176,7 +176,7 @@ static void net_remap_pre_create_packet()
     NETDBG(6, "%p[%d]", addendum.src_last, addendum.src_end - addendum.src_last);
 }
 
-void net_remap_creature_created(int owner, Thingid mine)
+void net_remap_creature_created(PlayerNumber owner, Thingid mine)
 {
     if (addendum.src_last == NULL)
     {
@@ -185,13 +185,13 @@ void net_remap_creature_created(int owner, Thingid mine)
     net_remap_thing_created_internal(owner, mine);
 }
 
-void net_remap_thing_created(Thingid mine)
+void net_remap_thing_created(PlayerNumber owner, Thingid mine)
 {
     if (addendum.src_last == NULL)
     {
         net_remap_pre_create_packet();
     }
-    net_remap_thing_created_internal(my_player_number, mine);
+    net_remap_thing_created_internal(owner, mine);
 }
 
 void net_remap_finish()
@@ -204,7 +204,7 @@ void net_remap_finish()
             // We should alter original packet for others
         }
 
-        NETDBG(7, "sending remap notification");
+        NETDBG(6, "sending remap notification");
         size_t size = sizeof(Thingid) * (addendum.dst_last - addendum.dst_buf);
         Thingid *packet_data = LbNetwork_AddPacket(PckA_RemapNotify, 0, size);
 
@@ -235,7 +235,7 @@ void net_remap_flush_things()
 */
 TbBool net_remap_packet_cb(unsigned long turn, int net_idx, unsigned char kind, void *data_ptr, short size)
 {
-    NETDBG(6, "net_idx:%d size:%d", net_idx, size);
+    NETDBG(5, "net_idx:%d size:%d", net_idx, size);
     unsigned short *src = (unsigned short *) data_ptr;
     unsigned short *src_end = src + (size / sizeof(short));
     while (src < src_end)
