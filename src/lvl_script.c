@@ -41,7 +41,9 @@
 #include "config_trapdoor.h"
 #include "creature_states_mood.h"
 #include "creature_control.h"
+#include "gui_msgs.h"
 #include "gui_soundmsgs.h"
+#include "gui_topmsg.h"
 #include "frontmenu_ingame_tabs.h"
 #include "player_instances.h"
 #include "player_data.h"
@@ -2933,6 +2935,63 @@ void command_message(const char *msgtext, unsigned char kind)
   SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
 }
 
+void command_printfx(int idx, const char *msgtext, const char *range_id)
+{
+  if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+  {
+      SCRPTERRLOG("Invalid information ID number (%d)", idx);
+      return;
+  }
+  if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+  {
+      SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+  }
+  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
+  {
+      SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+  }
+  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
+  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
+  char id = get_rid(player_desc, range_id);
+  if (id == -1)
+  {
+    id = get_rid(cmpgn_human_player_options, range_id);
+    if (id == -1)
+    {
+        id = get_rid(creature_desc, range_id);
+        if (id == -1)
+        {
+            id = atoi(range_id);
+        }
+        else
+        {
+            id = (~id) + 1;
+        }   
+    }        
+  }
+  command_add_value(Cmd_PRINTFX, 0, id, idx, 0);
+}
+
+void command_messagefx(int idx, const char *msgtext, unsigned long nturns)
+{
+    if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
+    {
+        SCRPTERRLOG("Invalid information ID number (%d)", idx);
+        return;
+    }
+    if (strlen(msgtext) > MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+    }
+    if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
+    {
+        SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
+    }
+    strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
+    gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
+    command_add_value(Cmd_MESSAGEFX, 0, idx, nturns, 0);
+}
+
 void command_swap_creature(const char *ncrt_name, const char *crtr_name)
 {
     long ncrt_id = get_rid(newcrtr_desc, ncrt_name);
@@ -3507,8 +3566,14 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_PRINT:
         command_message(scline->tp[0],80);
         break;
+    case Cmd_PRINTFX:
+        command_printfx(scline->np[0], scline->tp[1], scline->tp[2]);
+        break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
+        break;
+    case Cmd_MESSAGEFX:
+        command_messagefx(scline->np[0],scline->tp[1], scline->np[2]);
         break;
     case Cmd_PLAY_MESSAGE:
         command_play_message(scline->np[0], scline->tp[1], scline->np[2]);
@@ -6216,6 +6281,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           intralvl.campaign_flags[i][val4] = get_condition_value(i, val2, val3);
       }
       break;
+  case Cmd_PRINTFX:
+  {
+      message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
+      break;
+  }
+ case Cmd_MESSAGEFX:
+  {
+      show_onscreen_msg(val3, "%s", gameadd.quick_messages[val2]);
+      break;
+  }
   case Cmd_SET_GAME_RULE:
       switch (val2)
       {
@@ -6564,6 +6639,8 @@ const struct CommandDesc command_desc[] = {
   {"CREATE_EFFECTS_LINE",               "LLNNNN  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
+  {"PRINT",                             "NAA     ", Cmd_PRINTFX, NULL, NULL},
+  {"MESSAGE",                           "NAN     ", Cmd_MESSAGEFX, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

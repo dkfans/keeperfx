@@ -143,6 +143,8 @@ enum TbScriptCommands {
     Cmd_SET_BOX_TOOLTIP                   = 122,
     Cmd_SET_BOX_TOOLTIP_ID                = 123,
     Cmd_CREATE_EFFECTS_LINE               = 124,
+    Cmd_MESSAGEFX                         = 125,
+    Cmd_CREATE_TEXT                       = 126,
 };
 
 enum ScriptVariables {
