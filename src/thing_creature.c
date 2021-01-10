@@ -3552,6 +3552,11 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     {
         return crtng;
     }
+    if (game.play_gameturn == 0)
+    {
+        NETDBG(6, "loading level thing:%d", crtng->index);
+        return crtng;
+    }
     net_remap_creature_created(owner, crtng->index);
     return crtng;
 }

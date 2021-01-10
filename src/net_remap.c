@@ -104,54 +104,46 @@ void net_remap_start(int net_player_id, unsigned char packet_kind, void *data, s
     addendum.net_player_id = net_player_id;
     if (net_player_id == my_player_number)
     {
-        // We are source of event
-        switch (packet_kind)
-        {
-            case PckA_UsePower:
-                addendum.src_last = (unsigned short *) (((unsigned char *) data) + sizeof(struct BigActionPacket));
-                addendum.src_end = addendum.src_last + 1; //Only one creature
-                break;
-            default:
-                addendum.src_last = addendum.message_data;
-                addendum.src_end = addendum.src_last + MAX_CREATURES_PER_PACKET;
-        }
-        NETDBG(8, "reserving %p[%d]", addendum.src_last, addendum.src_end - addendum.src_last);
+        // We are source of event so we dont need a notification
     } else
     {
         addendum.dst_last = addendum.dst_buf;
         addendum.dst_end = addendum.dst_buf + 2 * MAX_CREATURES_PER_PACKET;
-
-        switch (packet_kind)
-        {
-            case PckA_UsePower:
-                addendum.src_last = (unsigned short *) (((unsigned char *) data) + sizeof(struct BigActionPacket));
-                addendum.src_end = addendum.src_last + 1; //Only one creature
-            default:
-                break;
-        }
     }
+    switch (packet_kind)
+    {
+        case PckA_UsePower:
+            addendum.src_last = (unsigned short *) (((unsigned char *) data) + sizeof(struct BigActionPacket));
+            addendum.src_end = addendum.src_last + 1; //Only one creature
+        case PckA_PlaceDoor:
+        case PckA_PlaceTrap:
+            addendum.src_last = (unsigned short *) (((unsigned char *) data) + sizeof(struct SmallActionPacket));
+            addendum.src_end = addendum.src_last + 2; //We have space for two
+            break;
+        default:
+            addendum.src_last = addendum.message_data;
+            addendum.src_end = addendum.src_last + MAX_CREATURES_PER_PACKET;
+    }
+    NETDBG(8, "reserving %p[%d]", addendum.src_last, addendum.src_end - addendum.src_last);
 }
 
 static void net_remap_thing_created_internal(int owner, Thingid mine)
 {
-    if (game.play_gameturn == 0)
-    {
-        NETDBG(6, "loading level thing:%d", mine);
-        return;
-    }
     if (addendum.src_last >= addendum.src_end)
     {
         ERRORLOG("Too many creatures per packet created! last:%d %p[%d]", mine, addendum.src_last,
                  addendum.src_end - addendum.src_last);
         return;
     }
-    if (addendum.net_player_id == my_player_number)
+    if (netremap_is_mine(addendum.net_player_id))
     {
+        // We want to spawn a thing
         NETDBG(5, "master mine:%d", mine);
         *addendum.src_last = mine;
         addendum.src_last++;
     } else
     {
+        // Someone spawned a thing
         Thingid their = *addendum.src_last;
         net_remap_update(addendum.net_player_id, their, mine);
         if (addendum.dst_last >= addendum.dst_end)

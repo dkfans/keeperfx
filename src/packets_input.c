@@ -656,7 +656,11 @@ static TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx, s
         clear_input(pckt);
         return false;
     }
-    create_packet_action(player, PckA_PlaceTrap, player->chosen_trap_kind, stl_x | (stl_y << 8));
+    // Big packet used for addendum
+    struct BigActionPacket *big = create_packet_action_big(player, PckA_PlaceTrap, 0);
+    big->head.arg0 = player->chosen_trap_kind;
+    big->head.arg1 = stl_x | (stl_y << 8);
+
     clear_input(pckt);
     return true;
 }
@@ -869,14 +873,16 @@ TbBool process_dungeon_control_packet_clicks(struct PlayerInfo* player, struct P
         break;
     case PSt_PlaceDoor:
     {
-        long k;
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
         {
             player->field_4A4 = 1;
             // Make the frame around active slab
             if ((pckt->control_flags & PCtr_LBtnClick) != 0)
             {
-                create_packet_action(player, PckA_PlaceDoor, player->chosen_door_kind, stl_x | (stl_y << 8));
+                // Big packet used for addendum
+                struct BigActionPacket *big = create_packet_action_big(player, PckA_PlaceDoor, 0);
+                big->head.arg0 = player->chosen_door_kind;
+                big->head.arg1 = stl_x | (stl_y << 8);
             }
             clear_input(pckt);
         }
