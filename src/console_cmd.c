@@ -32,6 +32,7 @@
 #include "player_computer.h"
 #include "slab_data.h"
 #include "creature_instances.h"
+#include "thing_effects.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -443,6 +444,16 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             update_trap_tab_to_config();
             message_add(plyr_idx, "done!");
             return true;
+        }
+        else if (strcmp(parstr, "discord") == 0)
+        {
+            // Used to create "soft" desync in thing numbers
+            struct Thing* thing = get_player_soul_container(plyr_idx);
+            if (!thing_is_invalid(thing) && (my_player_number == plyr_idx))
+            {
+                create_effect(&thing->mappos, TngEff_ImpSpangleGreen, plyr_idx);
+                message_add_fmt(10, "granted!");
+            }
         }
         else if (strcmp(parstr, "desync") == 0)
         {
