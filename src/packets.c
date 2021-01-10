@@ -1191,6 +1191,9 @@ static void process_players_dungeon_control_packet_action(
             WARNMSG("unable to place door plyr:%d stl_x:%d stl_y:%d", plyr_idx, stl_x, stl_y);
         }
         break;
+    case PckA_ToggleObject:
+        player_toggle_door(player->id_number, packet->arg0, packet->arg1);
+        break;
     default:
         NETLOG("unexpected action: %d", (int) action);
     }

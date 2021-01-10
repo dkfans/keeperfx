@@ -164,7 +164,7 @@ static void net_remap_thing_created_internal(int owner, Thingid mine)
         addendum.dst_last++;
         *addendum.dst_last = mine;
         addendum.dst_last++;
-        NETDBG(6, "slave mine:%d their:%d", mine, their);
+        NETDBG(5, "slave mine:%d their:%d", mine, their);
         addendum.src_last++;
     }
 }

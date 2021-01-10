@@ -173,6 +173,7 @@ enum TbPacketAction {
         PckA_SellObject, //140
         PckA_PlaceTrap,
         PckA_PlaceDoor,
+        PckA_ToggleObject,
 };
 
 /** Packet flags for non-action player operation. */

@@ -349,10 +349,7 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
             ERRORLOG("Door thing not found at map pos (%d,%d)", (int)player->hand_stl_x, (int)player->hand_stl_y);
             break;
           }
-          if (thing->byte_18)
-            unlock_door(thing);
-          else
-            lock_door(thing);
+          create_packet_action(player, PckA_ToggleObject, thing->index, thing->door.is_locked);
           break;
         case P454_Unkn3:
           if (player->thing_under_hand == 0)

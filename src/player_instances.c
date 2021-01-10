@@ -1272,4 +1272,17 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     return 1;
 }
+
+void player_toggle_door(PlayerNumber plyr_idx, Thingid thingid, TbBool is_locked)
+{
+    struct Thing *thing = thing_get(thingid);
+    if (thing_is_invalid(thing) || thing->class_id != TCls_Door || thing->owner != plyr_idx)
+    {
+        ERRORLOG("Invalid door thing:%d cls:%d owner:%d", thingid, thing->class_id, thing->owner);
+    }
+    if (is_locked)
+        unlock_door(thing);
+    else
+        lock_door(thing);
+}
 /******************************************************************************/

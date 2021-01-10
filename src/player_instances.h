@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "thing_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,6 +106,8 @@ TbBool is_thing_some_way_controlled(const struct Thing *thing);
 struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind);
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);
 TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);
+
+void player_toggle_door(PlayerNumber plyr_idx, Thingid thingid, TbBool is_locked);
 /******************************************************************************/
 #ifdef __cplusplus
 }
