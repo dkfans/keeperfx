@@ -237,10 +237,20 @@ static char *cmd_strtok(char *tail)
     return next;
 }
 
-static TbBool cmd_magic_instance(const char* creature_str, const char*  slot_str, const char* instance_str)
+static void str_replace(char *str, int from, int to)
+{
+    for (char *p = strchr(str, from); p != NULL; p = strchr(p+1, from))
+    {
+        *p = to;
+    }
+}
+
+static TbBool cmd_magic_instance(char* creature_str, const char*  slot_str, char* instance_str)
 {
     if (creature_str == NULL || slot_str == NULL || instance_str == NULL)
         return false;
+    str_replace(creature_str, '.', '_');
+    str_replace(instance_str, '.', '_');
     int creature = get_id(creature_desc, creature_str);
     if (creature == -1)
     {
@@ -385,7 +395,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             return true;
         } else if (strcmp(parstr, "magic.instance") == 0)
         {
-            return cmd_magic_instance(pr2str, pr3str, pr4str);
+            return cmd_magic_instance((char*)pr2str, pr3str, (char*)pr4str);
         } else if (strcmp(parstr, "give.trap") == 0)
         {
             int id = atoi(pr2str);
