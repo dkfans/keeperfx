@@ -52,7 +52,7 @@ void message_draw(void)
         unsigned long spr_idx; // = ((char)gameadd.messages[i].plyr_idx < 0) ? get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol) : 488+gameadd.messages[i].plyr_idx;
         if ((char)gameadd.messages[i].plyr_idx < 0)
         {
-            y -= 20;
+            y -= (20 * units_per_pixel / 16);
             spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
         }
         else
