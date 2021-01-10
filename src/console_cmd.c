@@ -30,6 +30,7 @@
 #include "keeperfx.hpp"
 #include "player_computer.h"
 #include "slab_data.h"
+#include "creature_instances.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -221,15 +222,72 @@ static void cmd_comp_checks(PlayerNumber plyr_idx)
 static char *cmd_strtok(char *tail)
 {
     if (tail == NULL)
-      return NULL;
+    {
+        return NULL;
+    }
     char* next = strchr(tail,' ');
     if (next == NULL)
+    {
         return NULL;
+    }
     next[0] = '\0';
     next++; // it was space
     while (*next == ' ')
       next++;
     return next;
+}
+
+static void str_replace(char *str, int from, int to)
+{
+    for (char *p = strchr(str, from); p != NULL; p = strchr(p+1, from))
+    {
+        *p = to;
+    }
+}
+
+static TbBool cmd_magic_instance(char* creature_str, const char*  slot_str, char* instance_str)
+{
+    if (creature_str == NULL || slot_str == NULL || instance_str == NULL)
+        return false;
+    str_replace(creature_str, '.', '_');
+    str_replace(instance_str, '.', '_');
+    int creature = get_id(creature_desc, creature_str);
+    if (creature == -1)
+    {
+        message_add(10, "Invalid creature");
+        return false;
+    }
+    int slot = atoi(slot_str);
+    if (slot < 0 || slot > 9)
+    {
+        message_add(10, "Invalid slot");
+        return false;
+    }
+    int instance = get_id(instance_desc, instance_str);
+    if (instance == -1)
+    {
+        instance = atoi(instance_str);
+    }
+    if (instance <= 0)
+    {
+        message_add(10, "Invalid instance");
+        return false;
+    }
+    struct CreatureStats* crstat = creature_stats_get(creature);
+    crstat->learned_instance_id[slot] = instance;
+    for (long i = 0; i < THINGS_COUNT; i++)
+    {
+        struct Thing* thing = thing_get(i);
+        if ((thing->alloc_flags & TAlF_Exists) != 0)
+        {
+            if (thing->class_id == TCls_Creature)
+            {
+                creature_increase_available_instances(thing);
+            }
+        }
+    }
+
+    return true;
 }
 
 TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
@@ -238,6 +296,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     const char * parstr = msg + 1;
     const char * pr2str = cmd_strtok(msg + 1);
     const char * pr3str = cmd_strtok((char*)pr2str);
+    const char * pr4str = cmd_strtok((char*)pr3str);
+
     if (strcmp(parstr, "stats") == 0)
     {
       message_add_fmt(plyr_idx, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
@@ -333,6 +393,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             } else
                 message_add_fmt(plyr_idx, "computer assistant is %d", atoi(pr2str));
             return true;
+        } else if (strcmp(parstr, "magic.instance") == 0)
+        {
+            return cmd_magic_instance((char*)pr2str, pr3str, (char*)pr4str);
         } else if (strcmp(parstr, "give.trap") == 0)
         {
             int id = atoi(pr2str);

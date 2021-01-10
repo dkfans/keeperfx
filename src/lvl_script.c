@@ -1229,7 +1229,6 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 {
     struct ScriptValue tmp_value = {0};
     struct ScriptValue* value;
-    long i;
 
     if ((script_current_condition < 0) && (next_command_reusable == 0))
     {
@@ -1264,7 +1263,6 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 static void create_effects_line_process(struct ScriptContext *context)
 {
     struct ScriptFxLine *fx_line = NULL;
-    long x, y;
     for (int i = 0; i < (sizeof(gameadd.fx_lines) / sizeof(gameadd.fx_lines[0])); i++)
     {
         if (!gameadd.fx_lines[i].used)
