@@ -851,6 +851,7 @@ void process_player_states(void)
 void process_players(void)
 {
     SYNCDBG(5,"Starting");
+    update_roomspaces();
     process_player_instances();
     process_player_states();
     for (int i = 0; i < PLAYERS_COUNT; i++)

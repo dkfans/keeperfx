@@ -433,7 +433,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
         //Slab Mode
         if (render_roomspace.slab_count > 1)
         {
-            keeper_sell_roomspace(render_roomspace);
+            keeper_sell_roomspace(&render_roomspace);
         }
         else
         {
@@ -621,7 +621,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     }
     if (player->boxsize > 0)
     {
-        keeper_build_roomspace(render_roomspace);
+        keeper_build_roomspace(&render_roomspace);
     }
     else
     {

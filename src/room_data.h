@@ -53,6 +53,7 @@ enum RoomKinds {
     RoK_BRIDGE              =  15,
     RoK_GUARDPOST           =  16,
     RoK_TYPES_COUNT         =  17,
+    RoK_SELL                = 255,
 };
 
 enum RoomAreaChoose {
