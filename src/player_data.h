@@ -197,8 +197,8 @@ char field_462;
     char chosen_trap_kind;
     char chosen_door_kind;
     char field_4A7[4];
-    short field_4AB; /* stl_x */
-    short field_4AD; /* stl_y */
+    short hand_stl_x;
+    short hand_stl_y;
     unsigned char field_4AF; /* do action this turn? */
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;

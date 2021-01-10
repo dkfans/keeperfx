@@ -61,7 +61,7 @@ static void create_tag_action(struct PlayerInfo* player, MapSubtlCoord stl_x, Ma
 
 static void set_untag_mode(struct PlayerInfo* player)
 {
-    int i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
+    int i = get_subtile_number(stl_slab_center_subtile(player->hand_stl_x), stl_slab_center_subtile(player->hand_stl_y));
     if (find_from_task_list(player->id_number, i) != -1)
         player->allocflags |= PlaF_Unknown20;
     else
@@ -333,8 +333,8 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
       }
       if ((pckt->control_flags & PCtr_LBtnClick) != 0)
       {
-        player->field_4AB = stl_x;
-        player->field_4AD = stl_y;
+        player->hand_stl_x = stl_x;
+        player->hand_stl_y = stl_y;
         player->field_4AF = 1;
         player->field_455 = player->field_454;
         switch (player->field_454)
@@ -343,10 +343,10 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
           set_untag_mode(player);
           break;
         case P454_Unkn2:
-          thing = get_door_for_position(player->field_4AB, player->field_4AD);
+          thing = get_door_for_position(player->hand_stl_x, player->hand_stl_y);
           if (thing_is_invalid(thing))
           {
-            ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->field_4AB,(int)player->field_4AD);
+            ERRORLOG("Door thing not found at map pos (%d,%d)", (int)player->hand_stl_x, (int)player->hand_stl_y);
             break;
           }
           if (thing->byte_18)
@@ -366,8 +366,8 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
       }
       if ((pckt->control_flags & PCtr_RBtnClick) != 0)
       {
-        player->field_4AB = stl_x;
-        player->field_4AD = stl_y;
+        player->hand_stl_x = stl_x;
+        player->hand_stl_y = stl_y;
         player->field_4AF = 1;
         clear_input(pckt);
       }
