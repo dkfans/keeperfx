@@ -31,6 +31,7 @@
 #include "thing_creature.h"
 #include "creature_control.h"
 #include "light_data.h"
+#include "lvl_script.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,6 +76,14 @@ enum ClassicBugFlags {
     ClscBug_FullyHappyWithGold     = 0x0100,
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_RebirthKeepsSpells     = 0x0400,
+};
+
+enum GameFlags2 {
+    GF2_ClearPauseOnSync          = 0x0001,
+    GF2_ClearPauseOnPacket        = 0x0002,
+    GF2_Timer                     = 0x0004,
+    GF2_ShowEventLog              = 0x00010000,
+    GF2_PERSISTENT_FLAGS          = 0xFFFF0000
 };
 
 /******************************************************************************/
@@ -146,12 +155,17 @@ struct GameAdd {
     int                   script_current_player;
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
 
-    char box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
+    char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
+    struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
+    int                   active_fx_lines;
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 };
 
+extern unsigned long game_flags2; // Should be reset to zero on new level
+
 #pragma pack()
+
 /******************************************************************************/
 extern struct GameAdd gameadd;
 extern struct IntralevelData intralvl;

@@ -172,6 +172,13 @@ DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
+
+TbClockMSec timerstarttime = 0;
+struct TimerTime Timer;
+TbBool TimerGame = false;
+TbBool TimerNoReset = false;
+TbBool TimerFreeze = false;
+
 TbPixel get_player_path_colour(unsigned short owner)
 {
   return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
@@ -392,7 +399,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
         pos.y.val = thing->mappos.y.val - (delta_y >> 8);
         pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, TngEff_Unknown45, thing->owner);
+        create_effect_element(&pos, 45, thing->owner); // Heal
     }
 }
 
@@ -1957,6 +1964,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
+// TODO: replace this function by find_location_pos
 void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name)
 {
     struct ActionPoint *apt;
@@ -2711,7 +2719,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
                 ndist = get_2d_box_distance(srcpos, &thing->mappos);
                 if (ndist < near_distance[0])
                 {
-                    if (((cctrl->field_9 != 0) && ((int)thing->field_60 >= (int)thing->mappos.z.val))
+                    if (((cctrl->distance_to_destination != 0) && ((int)thing->field_60 >= (int)thing->mappos.z.val))
                       || ((thing->movement_flags & TMvF_Flying) != 0))
                     {
                         // Insert the new item to our list
@@ -3924,7 +3932,7 @@ void initialise_map_health(void)
             slb = get_slabmap_block(slb_x, slb_y);
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            slb->health = game.block_health[slbattr->field_4];
+            slb->health = game.block_health[slbattr->block_health_index];
         }
     }
 }
@@ -4086,6 +4094,7 @@ void init_level(void)
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
+    game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
     reset_heap_manager();
     lens_mode = 0;
@@ -4553,6 +4562,11 @@ void game_loop(void)
       starttime = LbTimerClock();
       dungeon->lvstats.start_time = starttime;
       dungeon->lvstats.end_time = starttime;
+      if (!TimerNoReset)
+      {
+        TimerFreeze = true;
+        memset(&Timer, 0, sizeof(Timer));
+      }
       LbScreenClear(0);
       LbScreenSwap();
       keeper_gameplay_loop();
@@ -4772,6 +4786,19 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          start_params.frame_skip = atoi(pr2str);
          narg++;
+      }
+      else if (strcasecmp(parstr, "timer") == 0)
+      {
+          game_flags2 |= GF2_Timer;
+          if (strcasecmp(pr2str, "game") == 0)
+          {
+              TimerGame = true;
+          }
+          else if (strcasecmp(pr2str, "continuous") == 0)
+          {
+              TimerNoReset = true;
+          }
+          narg++;
       }
 #ifdef AUTOTESTING
       else if (strcasecmp(parstr, "exit_at_turn") == 0)
@@ -5038,6 +5065,28 @@ int main(int argc, char *argv[])
 //  LbFileSaveAt("!tmp_file", &_DK_game, sizeof(struct Game));
 
   return 0;
+}
+
+void update_time(void)
+{
+    unsigned long time = ((unsigned long)clock()) - timerstarttime;
+    Timer.MSeconds = time % 1000;
+    time /= 1000;
+    Timer.Seconds = time % 60;
+    time /= 60;
+    Timer.Minutes = time % 60;
+    Timer.Hours = time / 60;
+}
+
+__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps)
+{
+    struct GameTime GameT;
+    unsigned long time = turns / fps;
+    GameT.Seconds = time % 60;
+    time /= 60;
+    GameT.Minutes = time % 60;
+    GameT.Hours = time / 60;
+    return GameT;
 }
 
 #ifdef __cplusplus

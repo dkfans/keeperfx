@@ -24,8 +24,8 @@
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
 #include "bflib_video.h"
-#include "bflib_vidsurface.h"
 #include "bflib_planar.h"
+#include "bflib_mshandler.hpp"
 #include <SDL2/SDL.h>
 
 using namespace std;
@@ -40,6 +40,10 @@ extern SDL_Color lbPaletteColors[PALETTE_COLORS];
 
 volatile TbBool lbAppActive;
 volatile int lbUserQuit = 0;
+
+static int prevMouseX = 0, prevMouseY = 0;
+static TbBool isMouseActive = true;
+static TbBool isMouseActivated = false;
 
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
@@ -70,8 +74,10 @@ static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseB
     return MActn_NONE;
 }
 
-void prepare_keys_mapping(void)
+void init_inputcontrol(void)
 {
+    SDL_GetMouseState(&prevMouseX, &prevMouseY);
+
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_a, KC_A));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_b, KC_B));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_c, KC_C));
@@ -257,7 +263,6 @@ static void process_event(const SDL_Event *ev)
 {
     struct TbPoint mouseDelta;
     int x;
-    int y;
     SYNCDBG(10, "Starting");
 
     switch (ev->type)
@@ -275,6 +280,11 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEMOTION:
+        if (!isMouseActive)
+        {
+          SDL_GetMouseState(&prevMouseX, &prevMouseY);
+          return;
+        }
         if (lbMouseGrab && lbDisplay.MouseMoveRatio > 0)
         {
             mouseDelta.x = ev->motion.xrel * lbDisplay.MouseMoveRatio / 256;
@@ -284,12 +294,23 @@ static void process_event(const SDL_Event *ev)
         {
             mouseDelta.x = ev->motion.xrel;
             mouseDelta.y = ev->motion.yrel;
+            if (isMouseActivated)
+            {
+                isMouseActivated = 0;
+                pointerHandler.SetPosition(ev->motion.x + lbDisplay.MouseWindowY, ev->motion.y + lbDisplay.MouseWindowY);
+                mouseDelta.x = 0;
+                mouseDelta.y = 0;
+            }
         }
         mouseControl(MActn_MOUSEMOVE, &mouseDelta);
         break;
 
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
+        if (!isMouseActive)
+        {
+          return;
+        }
         mouseDelta.x = 0;
         mouseDelta.y = 0;
         mouseControl(mouse_button_actions_mapping(ev->type, &ev->button), &mouseDelta);
@@ -302,14 +323,27 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_WINDOWEVENT:
-        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+        {
             lbAppActive = true;
+            isMouseActive = true;
+            isMouseActivated = true;
         }
-        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+        else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+        {
             lbAppActive = false;
+            isMouseActive = false;
+        }
+        else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
+        {
+            isMouseActive = true;
+            isMouseActivated = true;
+        }
+        else if (ev->window.event == SDL_WINDOWEVENT_LEAVE)
+        {
+            isMouseActive = false;
         }
         break;
-
     case SDL_JOYAXISMOTION:
     case SDL_JOYBALLMOTION:
     case SDL_JOYHATMOTION:
@@ -345,6 +379,11 @@ TbBool LbIsActive(void)
         return true;
 
     return lbAppActive;
+}
+
+TbBool LbIsMouseActive(void)
+{
+    return isMouseActive;
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -555,7 +555,7 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
     }
     struct SlabAttr* slbattr = get_slab_kind_attrs(slbkind);
     unsigned long nflags;
-    if (slbattr->field_2 < stl_z) {
+    if (slbattr->block_flags_height < stl_z) {
       nflags = slbattr->block_flags;
     } else {
       nflags = slbattr->noblck_flags;

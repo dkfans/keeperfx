@@ -75,7 +75,10 @@ struct RoomSpace {
     int invalid_slabs_count;
     PlayerNumber plyr_idx;
     RoomKind rkind;
-	TbBool is_roomspace_a_single_subtile;
+	  TbBool is_roomspace_a_single_subtile;
+
+	  MapSlabCoord buildx, buildy;
+	  TbBool is_active;
 };
 /******************************************************************************/
 extern int user_defined_roomspace_width;
@@ -109,9 +112,11 @@ void get_dungeon_sell_user_roomspace(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check);
 
-void keeper_sell_roomspace(struct RoomSpace roomspace);
+void keeper_sell_roomspace(struct RoomSpace *roomspace);
 
-void keeper_build_roomspace(struct RoomSpace roomspace);
+void keeper_build_roomspace(struct RoomSpace *roomspace);
+
+void update_roomspaces();
 /******************************************************************************/
 #include "roomspace_detection.h"
 /******************************************************************************/
