@@ -322,7 +322,9 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
         if (flags & MapCoord_ClipY) cor_y = subtile_coord(0,0);
         corrected = true;
     }
-    if ( (!subtile_has_water_on_top(stl_x, stl_y)) && (!subtile_has_lava_on_top(stl_x, stl_y)) && (!slab_is_wall(subtile_slab(stl_x), subtile_slab(stl_y))) )
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    if ( (!slab_is_liquid(slb_x, slb_y)) && (!slab_is_door(slb_x, slb_y)) && (!slab_is_wall(slb_x, slb_y)) )
     {
         height = get_floor_height(stl_x, stl_y);
         if (cor_z < height)
