@@ -59,7 +59,10 @@ void message_draw(void)
         {
             spr_idx = 488+gameadd.messages[i].plyr_idx;
         }
-        draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
+        if (gameadd.messages[i].plyr_idx != 127)
+        {
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
+        }
         y += h*units_per_pixel/16;
     }
 }

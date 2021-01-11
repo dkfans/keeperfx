@@ -2952,7 +2952,15 @@ void command_printfx(int idx, const char *msgtext, const char *range_id)
   }
   strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
   gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
-  char id = get_rid(player_desc, range_id);
+  char id;
+  if (strcasecmp(range_id, "None") == 0)
+  {
+      id = 127;
+  }
+  else
+  {
+    id = get_rid(player_desc, range_id);
+  }
   if (id == -1)
   {
     id = get_rid(creature_desc, range_id);
