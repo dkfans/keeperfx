@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "map_data.h"
 #include "globals.h"
-
+#include "map_columns.h"
 #include "bflib_math.h"
 #include "bflib_memory.h"
 #include "slab_data.h"
@@ -306,8 +306,12 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
         if (flags & MapCoord_ClipY) cor_y = subtile_coord(map_subtiles_y,255);
         corrected = true;
     }
-    if (cor_z >= subtile_coord(map_subtiles_z,255)) {
-        if (flags & MapCoord_ClipZ) cor_z = subtile_coord(map_subtiles_z,255);
+    MapSubtlCoord stl_x = coord_subtile(cor_x);
+    MapSubtlCoord stl_y = coord_subtile(cor_y);
+    MapCoord height = get_ceiling_height_at_subtile(stl_x, stl_y);
+    if (cor_z > height)
+    {
+        if (flags & MapCoord_ClipZ) cor_z = height;
         corrected = true;
     }
     if (cor_x < subtile_coord(0,0)) {
@@ -318,9 +322,16 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
         if (flags & MapCoord_ClipY) cor_y = subtile_coord(0,0);
         corrected = true;
     }
-    if (cor_z < subtile_coord(0,0)) {
-        if (flags & MapCoord_ClipZ) cor_z = subtile_coord(0,0);
-        corrected = true;
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    if ( (!slab_is_liquid(slb_x, slb_y)) && (!slab_is_door(slb_x, slb_y)) && (!slab_is_wall(slb_x, slb_y)) )
+    {
+        height = get_floor_height(stl_x, stl_y);
+        if (cor_z < height)
+        {
+            if (flags & MapCoord_ClipZ) cor_z = height;
+            corrected = true;
+        }
     }
     pos->x.val = cor_x;
     pos->y.val = cor_y;
