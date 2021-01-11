@@ -312,7 +312,7 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
     if (cor_z > height)
     {
         if (flags & MapCoord_ClipZ) cor_z = height;
-        corrected = true;  
+        corrected = true;
     }
     if (cor_x < subtile_coord(0,0)) {
         if (flags & MapCoord_ClipX) cor_x = subtile_coord(0,0);
@@ -322,13 +322,13 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
         if (flags & MapCoord_ClipY) cor_y = subtile_coord(0,0);
         corrected = true;
     }
-    if ( (!subtile_has_water_on_top(stl_x, stl_y)) && (!subtile_has_lava_on_top(stl_x, stl_y)) )
+    if ( (!subtile_has_water_on_top(stl_x, stl_y)) && (!subtile_has_lava_on_top(stl_x, stl_y)) && (!slab_is_wall(subtile_slab(stl_x), subtile_slab(stl_y))) )
     {
         height = get_floor_height(stl_x, stl_y);
         if (cor_z < height)
         {
             if (flags & MapCoord_ClipZ) cor_z = height;
-            corrected = true;   
+            corrected = true;
         }
     }
     pos->x.val = cor_x;
