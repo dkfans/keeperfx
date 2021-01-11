@@ -71,6 +71,10 @@ void gui_draw_tick_time(void);
 
 void net_load_config_file(void);
 void net_write_config_file(void);
+
+typedef int (*PlotFn)(int x);
+typedef TbBool (*PlotCommentFn)(int row, char *left, char *right);
+void front_set_plot_fn(PlotFn data_fn, PlotCommentFn comment_fn);
 /******************************************************************************/
 #ifdef __cplusplus
 }

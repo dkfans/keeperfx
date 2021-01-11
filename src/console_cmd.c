@@ -307,6 +307,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         game_flags2 ^= GF2_ShowEventLog;
         return true;
+    } else if (strcmp(parstr, "show.actions") == 0)
+    {
+        if (!is_my_player_number(plyr_idx))
+        {
+            return false;
+        }
+        game_flags2 ^= GF2_ShowPlot;
+        return true;
     } else if (strcmp(parstr, "show.ticks") == 0)
     {
         if (!is_my_player_number(plyr_idx))

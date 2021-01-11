@@ -184,7 +184,7 @@ void gui_draw_tick_time()
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
-void draw_event_log()
+static void draw_event_log()
 {
     const int lines = 9;
     const int width = 500;
@@ -222,6 +222,80 @@ void draw_event_log()
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * (i+1),
             tx_units_per_px, right_buf);
+    }
+}
+
+static int get_val_def(int x)
+{
+    return (game.play_gameturn - 64 + x) % 50;
+}
+
+static TbBool comment_fn_def(int i, char *left, char *right)
+{
+    switch (i)
+    {
+        case 0:
+            strcpy(left, "turn");
+            sprintf(right, "%6ld", game.play_gameturn);
+            return true;
+        case 1:
+            strcpy(left, "mod");
+            strcpy(right, "");
+            return true;
+        default:
+            return false;
+    }
+}
+
+static PlotFn get_val = &get_val_def;
+static PlotCommentFn get_comment = &comment_fn_def;
+
+void front_set_plot_fn(PlotFn data_fn, PlotCommentFn comment_fn)
+{
+    get_val = data_fn;
+    get_comment = comment_fn;
+}
+
+static void draw_plot()
+{
+    const int width = 128 + 8;
+    const int height = 100 + 8;
+    const int font_size = 16;
+    const int margin_y = 5;
+    char left_buf[64], right_buf[32];
+    int x = MyScreenWidth - width - 8;
+    int y = 100;
+    int units_per_px = units_per_pixel;
+    if ((game_flags2 & GF2_ShowPlot) == 0)
+    {
+        return;
+    }
+    LbTextSetFont(winfont);
+    int tx_units_per_px = (font_size * units_per_px) / LbTextLineHeight();
+    long text_h = LbTextLineHeight() * tx_units_per_px / 16;
+
+    LbDrawBox(x, y, width, height, 0);
+
+    LbTextSetWindow(x+4, y, width-8, height);
+
+    int text_row = 0;
+    while (get_comment(text_row, left_buf, right_buf))
+    {
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+        LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * text_row,
+                          tx_units_per_px, left_buf);
+        LbTextDrawResized(width/2, margin_y*units_per_px/16 + text_h * text_row,
+                          tx_units_per_px, right_buf);
+        text_row++;
+    }
+    // green 164
+    LbDrawHVLine(x + 4, y + height - 4 - 25, x + width -  4, y + height - 4 - 25, 166);
+    for (int i = 0; i < 64; i++)
+    {
+        TbPixel color = 200; // orange
+        int val = get_val(i);
+        LbDrawHVLine(x + 4 + 2 * i, y + height - 4 - val, x + 4 + 2 * i, y + height - 4, color);
+        LbDrawHVLine(x + 4 + 2 * i + 1, y + height - 4 - val, x + 4 + 2 * i + 1, y + height - 4, color);
     }
 }
 
@@ -286,6 +360,7 @@ void gui_draw_network_state()
     }
     gui_draw_tick_time();
     draw_event_log();
+    draw_plot();
 }
 
 TbBool setup_alliances(CoroutineLoop *loop)
