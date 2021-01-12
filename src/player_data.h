@@ -172,7 +172,7 @@ char field_E8[2];
     struct Wander wandr_within;
     struct Wander wandr_outside;
     short hand_thing_idx;
-    short field_43C;
+    short call_to_arms_banner;
     short influenced_thing_idx;
     long influenced_thing_creation;
     short engine_window_width;

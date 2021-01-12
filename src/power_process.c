@@ -417,7 +417,7 @@ void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
     }
     struct PlayerInfo* player = get_player(plyr_idx);
     {
-        struct Thing* objtng = thing_get(player->field_43C);
+        struct Thing* objtng = thing_get(player->call_to_arms_banner);
         set_call_to_arms_as_dying(objtng);
         struct Dungeon* dungeon = get_players_dungeon(player);
         dungeon->cta_start_turn = 0;

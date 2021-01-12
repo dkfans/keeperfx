@@ -1571,7 +1571,7 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
 TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 {
     struct PlayerInfo* player = get_player(thing->owner);
-    if (thing->index != player->field_43C)
+    if (thing->index != player->call_to_arms_banner)
     {
         delete_thing_structure(thing, 0);
         return -1;
@@ -1595,7 +1595,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     case CTAOL_Dying:
         if (thing->field_49 - 1 == thing->field_48)
         {
-            player->field_43C = 0;
+            player->call_to_arms_banner = 0;
             delete_thing_structure(thing, 0);
             return -1;
         }

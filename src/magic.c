@@ -1647,7 +1647,7 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_floor_height_at(&pos);
     struct Thing *objtng;
-    objtng = thing_get(player->field_43C);
+    objtng = thing_get(player->call_to_arms_banner);
     if ((dungeon->cta_start_turn == 0) || !thing_is_object(objtng))
     {
           objtng = create_object(&pos, 24, plyr_idx, -1);
@@ -1659,7 +1659,7 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
           dungeon->cta_splevel = splevel;
           dungeon->cta_stl_x = stl_x;
           dungeon->cta_stl_y = stl_y;
-          player->field_43C = objtng->index;
+          player->call_to_arms_banner = objtng->index;
           objtng->mappos.z.val = get_thing_height_at(objtng, &objtng->mappos);
           set_call_to_arms_as_birthing(objtng);
           SYNCDBG(9,"Created birthing CTA");
