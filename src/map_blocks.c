@@ -1353,7 +1353,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     slb = get_slabmap_block(slb_x, slb_y);
     slb->kind = slbkind;
     pannel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
-    if ((slbkind == 50) || (slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS) || (slbkind == 54))
+    if ((slbkind == 50) || (slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_PURPLE))
     {
         MapSubtlCoord stl_xb;
         MapSubtlCoord stl_yb;

@@ -70,6 +70,7 @@ enum SlabTypes {
     SlbT_BRIDGE             =  51,
     SlbT_GEMS               =  52,
     SlbT_GUARDPOST          =  53,
+    SlbT_PURPLE             =  54,
 };
 
 /******************************************************************************/
