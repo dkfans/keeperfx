@@ -6664,7 +6664,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            add_number_to_polypool(ecor.view_width, ecor.view_height, thing->long_13, 1);
+            add_number_to_polypool(ecor.view_width, ecor.view_height, thing->price.number, 1);
         }
         break;
     case 5:

@@ -82,13 +82,13 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
     {
         dungeon->field_14BC = thing->index;
         GoldAmount gold_req;
-        if (lbKeyOn[KC_LCONTROL])
+        if (lbKeyOn[KC_LCONTROL]) // WTF?! other players?
         {
-            gold_req = thing->long_13;
+            gold_req = thing->valuable.gold_stored;
         }
         else
         {
-            gold_req = thing->long_13 / 4 + 1;
+            gold_req = thing->valuable.gold_stored / 4 + 1;
         }
         if (gold_req <= 100)
             gold_req = 100;
@@ -112,12 +112,12 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
         objtng = create_object(&pos, 43, game.neutral_player_num, -1);
         if (!thing_is_invalid(objtng))
         {
-            objtng->long_13 = gold_picked;
+            objtng->valuable.gold_stored = gold_picked;
             pos.z.val += 128;
             struct Thing *efftng;
             efftng = create_effect_element(&pos, TngEff_Unknown41, owner);
             if (!thing_is_invalid(efftng))
-                efftng->long_13 = gold_picked;
+                efftng->price.number = gold_picked;
         }
     }
     return objtng;

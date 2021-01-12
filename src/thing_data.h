@@ -151,10 +151,6 @@ struct Thing {
         unsigned char byte_19r;
       } roomflag;
       struct {
-      long long_13;
-      short word_17a;
-      };
-      struct {
       short word_13a;
       long long_15;
       };
