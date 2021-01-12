@@ -106,6 +106,7 @@ void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
 void change_object_owner(struct Thing *objtng, PlayerNumber nowner);
+void destroy_food(struct Thing *foodtng);
 
 struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
