@@ -256,7 +256,7 @@ TbBool slab_kind_is_animated(SlabKind slbkind)
     if (slab_kind_is_door(slbkind))
         return true;
     // if ((slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
-        if (slbkind >= SlbT_SLAB50)
+        if (slbkind >= 50)
         return true;
     return false;
 }
