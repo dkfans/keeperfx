@@ -521,11 +521,6 @@ void destroy_food(struct Thing *foodtng)
     {
         if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == foodtng->owner))
         {
-            int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
-            if (room->used_capacity >= required_cap)
-            {
-                room->used_capacity -= required_cap;
-            }
             foodtng->belongs_to = game.food_life_out_of_hatchery;
         }
     }
