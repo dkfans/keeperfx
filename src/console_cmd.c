@@ -33,6 +33,7 @@
 #include "slab_data.h"
 #include "creature_instances.h"
 #include "thing_effects.h"
+#include "front_network.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -307,13 +308,28 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         game_flags2 ^= GF2_ShowEventLog;
         return true;
-    } else if (strcmp(parstr, "show.actions") == 0)
+    } else if (strcmp(parstr, "show.plot") == 0)
     {
         if (!is_my_player_number(plyr_idx))
         {
             return false;
         }
-        game_flags2 ^= GF2_ShowPlot;
+        if (pr2str == NULL)
+            pr2str = "";
+        if (strcmp(pr2str, "sent.bytes") == 0)
+        {
+            front_set_plot_fn(stat_get_sent_bytes, NULL);
+            game_flags2 |= GF2_ShowPlot;
+        }
+        else if (strcmp(pr2str, "created.bytes") == 0)
+        {
+            front_set_plot_fn(stat_get_created_bytes, NULL);
+            game_flags2 |= GF2_ShowPlot;
+        }
+        else
+        {
+            game_flags2 ^= GF2_ShowPlot;
+        }
         return true;
     } else if (strcmp(parstr, "show.ticks") == 0)
     {

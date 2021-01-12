@@ -35,6 +35,7 @@
 #include "net_game.h"
 #include "packets.h"
 #include "front_landview.h"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -335,6 +336,11 @@ const struct NetSP nullSP =
 };
 // New network code data definitions end here =================================
 /*****/
+static int stat_sent_bytes[64];
+static int stat_created_bytes[64];
+static int stat_created_actions[64];
+static int stat_sent_actions[64];
+static int stat_turn;
 
 static SeqType current_packet_id = 0;
 
@@ -343,6 +349,22 @@ static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout, struct Packe
 static void process_confirmation(bool is_server, unsigned int netuser_idx, SeqType tail_num);
 static void create_update_seq_packet(NetUserId id);
 static void log_nodes(struct NetBufferList *lst, int player_idx);
+/*****/
+
+int stat_get_sent_bytes(int x)
+{
+    int t = stat_turn - x;
+    if (t < 0) t += 64;
+    return stat_sent_bytes[t] / 10;
+}
+
+int stat_get_created_bytes(int x)
+{
+    int t = stat_turn - x;
+    if (t < 0) t += 64;
+    return stat_created_bytes[t] / 10;
+}
+
 /*****/
 
 /**
@@ -753,6 +775,10 @@ static void SendServerFrame()
     ptr ++;
     saved_ptr = ptr;
 
+    int sent_bytes = 0;
+    int sent_clients = 0;
+    int sent_actions = 0;
+
     for (int id = 1; id < MAX_N_USERS; ++id)
     {
         if (netstate.users[id].progress != USER_LOGGEDIN)
@@ -809,6 +835,18 @@ static void SendServerFrame()
         sm_count[0] = (unsigned char)cnt;
 
         netstate.sp->sendmsg_single(id, temp_buffer_data, ptr - temp_buffer_data);
+        sent_bytes += ptr - temp_buffer_data;
+        sent_clients++;
+    }
+    if (sent_clients == 0)
+    {
+        stat_sent_bytes[stat_turn] = 0;
+        stat_sent_actions[stat_turn] = 0;
+    }
+    else
+    {
+        stat_sent_bytes[stat_turn] = sent_bytes / sent_clients;
+        stat_sent_actions[stat_turn] = sent_actions / sent_clients;
     }
 }
 
@@ -827,6 +865,8 @@ static void SendClientFrame(int seq_nbr) //seq_nbr because it isn't necessarily 
     const char *ptr_end = temp_buffer_data + MAX_OUTGOING_SIZE - sizeof(struct NetBufferItem) - 2;
     unsigned char *sm_count;
     int cnt = 0;
+    int sent_bytes = 0;
+    int sent_actions = 0;
 
     NETDBG(10, "Starting");
     ptr = temp_buffer_data;
@@ -876,6 +916,10 @@ static void SendClientFrame(int seq_nbr) //seq_nbr because it isn't necessarily 
         return;
     }
     netstate.sp->sendmsg_single(SERVER_ID, temp_buffer_data, ptr - temp_buffer_data);
+    sent_bytes += ptr - temp_buffer_data;
+
+    stat_sent_bytes[stat_turn] = sent_bytes;
+    stat_sent_actions[stat_turn] = sent_actions;
 }
 
 static TbBool HandleFrame(NetUserId source, char * ptr, char * end, bool is_server)
@@ -1086,6 +1130,12 @@ static void network_init_common(unsigned long maxplayers)
     netstate.max_players = maxplayers;
     netstate.resync_mode = 0;
     netstate.resync_prev_turn = 0;
+
+    stat_turn = 0;
+    memset(stat_sent_bytes, 0, sizeof(stat_sent_bytes));
+    memset(stat_sent_actions, 0, sizeof(stat_sent_actions));
+    memset(stat_created_bytes, 0, sizeof(stat_created_bytes));
+    memset(stat_created_actions, 0, sizeof(stat_created_actions));
 }
 
 TbError LbNetwork_InitSingleplayer()
@@ -1382,6 +1432,9 @@ void *LbNetwork_AddPacket_f(unsigned char kind, unsigned long turn, short size, 
     struct NetBufferNode *node = sm_append(netstate.created_list, sizeof(struct NetBufferItem) + size);
     struct NetBufferItem *buf_struct = (struct NetBufferItem *)node->data;
 
+    stat_created_bytes[stat_turn] += node->size;
+    stat_created_actions[stat_turn] += 1;
+
     NETDBG(9, "from:%s size:%d seq:%d base:%p", func, size, netstate.out_seq, node);
 
     buf_struct->turn = turn;
@@ -1631,6 +1684,10 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
 
     TbClockMSec now = LbTimerClock();
     assert(UserIdentifiersValid());
+
+    stat_turn = (stat_turn + 1) % 64;
+    stat_created_bytes[stat_turn] = 0;
+    stat_created_actions[stat_turn] = 0;
 
     memset(netstate.confirmed_this_turn, 0, sizeof(netstate.confirmed_this_turn));
 

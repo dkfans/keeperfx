@@ -227,7 +227,7 @@ static void draw_event_log()
 
 static int get_val_def(int x)
 {
-    return (game.play_gameturn - 64 + x) % 50;
+    return (game.play_gameturn - x) % 50;
 }
 
 static TbBool comment_fn_def(int i, char *left, char *right)
@@ -278,24 +278,62 @@ static void draw_plot()
 
     LbTextSetWindow(x+4, y, width-8, height);
 
-    int text_row = 0;
-    while (get_comment(text_row, left_buf, right_buf))
-    {
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-        LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * text_row,
-                          tx_units_per_px, left_buf);
-        LbTextDrawResized(width/2, margin_y*units_per_px/16 + text_h * text_row,
-                          tx_units_per_px, right_buf);
-        text_row++;
-    }
+    int min_val = 101;
+    int max_val = 0;
+
     // green 164
     LbDrawHVLine(x + 4, y + height - 4 - 25, x + width -  4, y + height - 4 - 25, 166);
+    int val;
     for (int i = 0; i < 64; i++)
     {
         TbPixel color = 200; // orange
-        int val = get_val(i);
+        val = get_val(64 - 1 - i);
+        if (val < min_val)
+        {
+            min_val = val;
+        }
+        if (val > max_val)
+        {
+            max_val = val;
+        }
         LbDrawHVLine(x + 4 + 2 * i, y + height - 4 - val, x + 4 + 2 * i, y + height - 4, color);
         LbDrawHVLine(x + 4 + 2 * i + 1, y + height - 4 - val, x + 4 + 2 * i + 1, y + height - 4, color);
+    }
+
+    int text_row = 0;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    strcpy(left_buf, "min");
+    sprintf(right_buf, "%3d", min_val);
+    LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * text_row ,
+                      tx_units_per_px, left_buf);
+    LbTextDrawResized(width/2, margin_y*units_per_px/16 + text_h * text_row,
+                      tx_units_per_px, right_buf);
+    text_row++;
+
+    strcpy(left_buf, "max");
+    sprintf(right_buf, "%3d", max_val);
+    LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * text_row ,
+                      tx_units_per_px, left_buf);
+    LbTextDrawResized(width/2, margin_y*units_per_px/16 + text_h * text_row,
+                      tx_units_per_px, right_buf);
+    text_row++;
+
+    strcpy(left_buf, "last");
+    sprintf(right_buf, "%3d", val);
+    LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * text_row ,
+                      tx_units_per_px, left_buf);
+    LbTextDrawResized(width/2, margin_y*units_per_px/16 + text_h * text_row,
+                      tx_units_per_px, right_buf);
+
+    text_row = 0;
+    while ((get_comment != NULL) && get_comment(text_row, left_buf, right_buf))
+    {
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+        LbTextDrawResized(0, margin_y*units_per_px/16 + text_h * (text_row + 3),
+                          tx_units_per_px, left_buf);
+        LbTextDrawResized(width/2, margin_y*units_per_px/16 + text_h * (text_row + 3),
+                          tx_units_per_px, right_buf);
+        text_row++;
     }
 }
 

@@ -335,6 +335,12 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
+
+extern TbBool stat_get_sent_bytes_comment(int i, char *left, char *right);
+extern int stat_get_sent_bytes(int x);
+extern TbBool stat_get_created_bytes_comment(int i, char *left, char *right);
+extern int stat_get_created_bytes(int x);
+
 #ifdef __cplusplus
 }
 #endif
