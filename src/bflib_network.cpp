@@ -1847,7 +1847,7 @@ static int try_read_buf(NetUserId user_id, void *buf, size_t len)
 }
 
 
-extern int player_to_client(PlayerNumber player_idx)
+int player_to_client(PlayerNumber player_idx)
 {
     return player_idx;
 }

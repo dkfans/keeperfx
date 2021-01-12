@@ -21,6 +21,7 @@
 #define PACKETS_UPDATING_H
 
 #include "globals.h"
+#include "config.h"
 
 struct Thing;
 struct BigActionPacket;
@@ -29,6 +30,6 @@ struct SmallActionPacket;
 void send_update_job(struct Thing *thing);
 void process_update_job(struct BigActionPacket *big);
 
-void send_update_land(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind nslab);
-void process_update_land(struct SmallActionPacket *pckt);
+TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind nslab);
+void process_update_land(int client_id, struct BigActionPacket *big);
 #endif

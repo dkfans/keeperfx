@@ -928,6 +928,7 @@ static TbBool process_players_global_packet_action(
       return false;
   case PckA_UsePwrOnThing:
       i = get_power_overcharge_level(player);
+      //TODO: is it used actually?
       directly_cast_spell_on_thing(player->id_number, pckt->arg0, pckt->arg1, i);
       return 0;
   case PckA_PlyrToggleAlly:
@@ -954,6 +955,9 @@ static TbBool process_players_global_packet_action(
       return true;
   case PckA_UpdateJob:
       process_update_job((struct BigActionPacket *)pckt);
+      return true;
+  case PckA_UpdateLand:
+      process_update_land(player_to_client(player->id_number), (struct BigActionPacket *)pckt);
       return true;
   default:
       return false;
