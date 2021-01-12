@@ -571,9 +571,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
     } else
     if (object_is_mature_food(target))
     {
-        thing_play_sample(shotng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        remove_food_from_food_room_if_possible(target);
-        delete_thing_structure(target, 0);
+        destroy_food(target);
     } else
     {
         WARNLOG("Killing %s by %s is not supported",thing_model_name(target),thing_model_name(shotng));

@@ -516,21 +516,17 @@ void destroy_food(struct Thing *foodtng)
     pos.z.val = foodtng->mappos.z.val + 256;
     create_effect(&foodtng->mappos, TngEff_Unknown51, plyr_idx);
     create_effect(&pos, TngEff_Unknown07, plyr_idx);
-    if (!is_neutral_thing(foodtng))
+    struct Room* room = get_room_thing_is_on(foodtng);
+    if (!room_is_invalid(room))
     {
-        if (foodtng->belongs_to == -1)
+        if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == foodtng->owner))
         {
-            struct Room* room = get_room_thing_is_on(foodtng);
-            if (!room_is_invalid(room))
+            int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
+            if (room->used_capacity >= required_cap)
             {
-                if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == foodtng->owner))
-                {
-                    int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
-                    if (room->used_capacity >= required_cap)
-                        room->used_capacity -= required_cap;
-                    foodtng->belongs_to = game.food_life_out_of_hatchery;
-                }
-          }
+                room->used_capacity -= required_cap;
+            }
+            foodtng->belongs_to = game.food_life_out_of_hatchery;
         }
     }
     delete_thing_structure(foodtng, 0);
