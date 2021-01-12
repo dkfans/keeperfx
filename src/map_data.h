@@ -45,6 +45,7 @@ struct Map {
 #define MOVE_VELOCITY_LIMIT 256
 #define STL_PER_SLB 3
 #define COORD_PER_STL 256
+#define FILLED_COLUMN_HEIGHT 1280
 
 #pragma pack()
 /******************************************************************************/

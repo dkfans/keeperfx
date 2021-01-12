@@ -55,74 +55,74 @@ enum AreaAffectTypes {
 
 enum ThingEffectKind {
     TngEff_None = 0,
-    TngEff_Unknown01,
+    TngEff_Unknown01, // expl small
     TngEff_Unknown02,
     TngEff_Unknown03,
     TngEff_Unknown04,
-    TngEff_Unknown05,
-    TngEff_Unknown06,
+    TngEff_Unknown05, // expl big
+    TngEff_Unknown06, // blood small
     TngEff_Unknown07,
     TngEff_Unknown08,
     TngEff_Unknown09,
-    TngEff_Unknown10,
-    TngEff_Unknown11,
-    TngEff_Unknown12,
-    TngEff_Unknown13,
+    TngEff_Unknown10, // blood big
+    TngEff_Unknown11, // fart
+    TngEff_Unknown12, // fart
+    TngEff_Unknown13, // fart
     TngEff_WoPExplosion,
-    TngEff_Unknown15,
-    TngEff_Unknown16,
-    TngEff_Unknown17,
-    TngEff_Unknown18,
-    TngEff_Unknown19,
+    TngEff_Unknown15, // Ice shard
+    TngEff_Unknown16, // fart without damage
+    TngEff_Unknown17, // fart without damage
+    TngEff_Unknown18, // fart without damage
+    TngEff_Unknown19, // water drip
     TngEff_Unknown20,
     TngEff_Unknown21,
-    TngEff_Unknown22,
+    TngEff_Unknown22, // long ice shard
     TngEff_Unknown23,
     TngEff_Unknown24,
-    TngEff_Unknown25,
+    TngEff_Unknown25, // less dirt
     TngEff_DirtRubble,
-    TngEff_Unknown27,
+    TngEff_Unknown27, // more dirt
     TngEff_ImpSpangleRed,
-    TngEff_Unknown29,
-    TngEff_Unknown30,
-    TngEff_Unknown31,
-    TngEff_Unknown32,
+    TngEff_Unknown29, // ice drip?
+    TngEff_Unknown30, // super long cloud?
+    TngEff_Unknown31, // super wide cloud?
+    TngEff_Unknown32, // small gold coins
     TngEff_GoldRubble,
-    TngEff_Unknown34,
-    TngEff_Unknown35,
-    TngEff_Unknown36,
-    TngEff_Unknown37,
-    TngEff_Unknown38,
-    TngEff_Unknown39,
-    TngEff_Unknown40,
+    TngEff_Unknown34, // big gold chunks
+    TngEff_Unknown35, // big splash
+    TngEff_Unknown36, // big earth chunks
+    TngEff_Unknown37, // strange gas
+    TngEff_Unknown38, // strange gas
+    TngEff_Unknown39, // strange gas
+    TngEff_Unknown40, // fart slow
     TngEff_Unknown41,
     TngEff_Unknown42,
-    TngEff_Unknown43,
-    TngEff_Unknown44,
-    TngEff_Unknown45,
+    TngEff_Unknown43, // lava trap (turns to lava)
+    TngEff_Unknown44, // lightning fog
+    TngEff_Unknown45, // claim with sound???
     TngEff_Unknown46,
-    TngEff_Unknown47,
-    TngEff_Unknown48,
-    TngEff_Unknown49,
-    TngEff_Unknown50,
-    TngEff_Unknown51,
+    TngEff_Unknown47, // spiral fx
+    TngEff_Unknown48, // flash with whiteout
+    TngEff_DamageBlood,
+    TngEff_Unknown50, // temple? explosion with sound
+    TngEff_Unknown51, // killed chicken
     TngEff_Unknown52,
-    TngEff_Unknown53,
-    TngEff_Unknown54,
-    TngEff_Unknown55,
-    TngEff_Unknown56,
+    TngEff_Unknown53, // research complete
+    TngEff_Unknown54, // research tick1
+    TngEff_Unknown55, // research tick2
+    TngEff_Unknown56, // research tick3
     TngEff_ImpSpangleBlue,
     TngEff_ImpSpangleGreen,
     TngEff_ImpSpangleYellow,
-    TngEff_Unknown60,
+    TngEff_Unknown60, // teleport puff red
     TngEff_Unknown61,
     TngEff_Unknown62,
-    TngEff_Unknown63,
-    TngEff_Unknown64,
-    TngEff_Unknown65,
-    TngEff_Unknown66,
-    TngEff_Unknown67,
-    TngEff_Unknown68,
+    TngEff_Unknown63, // teleport puff yellow
+    TngEff_Unknown64, // teleport puff white
+    TngEff_Unknown65, // blood step
+    TngEff_Unknown66, // blood splat
+    TngEff_Unknown67, // magicbox activated
+    TngEff_Unknown68, // boulder sink
     TngEff_Unknown69,
 };
 

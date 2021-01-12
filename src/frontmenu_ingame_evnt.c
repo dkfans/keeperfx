@@ -26,6 +26,7 @@
 
 #include "player_data.h"
 #include "player_states.h"
+#include "player_utils.h"
 #include "dungeon_data.h"
 #include "creature_battle.h"
 #include "creature_graphics.h"
@@ -39,6 +40,10 @@
 #include "front_input.h"
 #include "vidfade.h"
 #include "game_legacy.h"
+
+#include "keeperfx.hpp"
+
+unsigned long TimerTurns = 0;
 
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
@@ -373,5 +378,46 @@ void draw_bonus_timer(void)
 TbBool bonus_timer_enabled(void)
 {
   return ((game.flags_gui & GGUI_CountdownTimer) != 0);
+}
+
+void draw_timer(void)
+{
+    char* text;
+    if (TimerGame)
+    {
+        if (get_my_player()->victory_state != VicS_WonLevel)
+        {
+            TimerTurns = game.play_gameturn;
+        }
+        text = buf_sprintf("%08ld", TimerTurns);
+    }
+    else
+    {
+        if (!TimerFreeze)
+        {
+            update_time();
+        }
+        text = buf_sprintf("%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
+    }
+    LbTextSetFont(winfont); 
+    long width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 4);
+    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    long scr_y = 16 * units_per_pixel / 16;
+    if ( (bonus_timer_enabled()) || (game.armageddon_cast_turn != 0) )
+    {
+        scr_y <<= 2;
+    }
+    LbTextSetWindow(scr_x, scr_y, width, height);
+    draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
+    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+TbBool timer_enabled(void)
+{
+  return ((game_flags2 & GF2_Timer) != 0);
 }
 /******************************************************************************/

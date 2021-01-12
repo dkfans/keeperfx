@@ -31,7 +31,7 @@ extern "C" {
 /******************************************************************************/
 int user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
 int roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-struct RoomSpace render_roomspace = { {{false}}, 1, true, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false };
+struct RoomSpace render_roomspace = { {{false}}, 1, true, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, false };
 /******************************************************************************/
 TbBool can_afford_roomspace(PlayerNumber plyr_idx, RoomKind rkind, int slab_count)
 {
@@ -382,64 +382,135 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
     render_roomspace = best_roomspace; // make sure we can render the correct boundbox to the user
 }
 
-void keeper_sell_roomspace(struct RoomSpace roomspace)
+static void sell_at_point(struct RoomSpace *roomspace)
 {
-    struct SlabMap* slb;
-    for (MapSubtlCoord selly = roomspace.top; selly <= roomspace.bottom; selly++)
+    struct SlabMap *slb = get_slabmap_block(roomspace->buildx, roomspace->buildy);
+    if (slabmap_owner(slb) == roomspace->plyr_idx)
     {
-        for (MapSubtlCoord sellx = roomspace.left; sellx <= roomspace.right; sellx++)
+        if (subtile_is_sellable_room(roomspace->plyr_idx,slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0)))// Trying to sell room
         {
-            slb = get_slabmap_block(sellx, selly);
-            if (slabmap_owner(slb) == roomspace.plyr_idx)
-            {
-                if (subtile_is_sellable_room(roomspace.plyr_idx, sellx * 3, selly * 3))// Trying to sell room
-                {
-                    player_sell_room_at_subtile(roomspace.plyr_idx, sellx * 3, selly * 3);
-                }
-                else if (player_sell_door_at_subtile(roomspace.plyr_idx, sellx * 3, selly * 3)) // Trying to sell door
-                {
-                    // Nothing to do here - door already sold
-                }
-                else if (player_sell_trap_at_subtile(roomspace.plyr_idx, sellx * 3, selly * 3)) // Trying to sell trap
-                {
-                    // Nothing to do here - trap already sold
-                }
-                else
-                {
-                    WARNLOG("Nothing to do for player %d request", (int)roomspace.plyr_idx);
-                }
-            }
-            else
-            {
-                WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).", (int)roomspace.plyr_idx, slab_code_name(slb->kind), (int)slabmap_owner(slb), (int)sellx * 3, (int)selly * 3);
-            }
+            player_sell_room_at_subtile(roomspace->plyr_idx,slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0));
+        }
+        else if (player_sell_door_at_subtile(roomspace->plyr_idx, slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0))) // Trying to sell door
+        {
+            // Nothing to do here - door already sold
+        }
+        else if (player_sell_trap_at_subtile(roomspace->plyr_idx, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy))) // Trying to sell trap
+        {
+            // Nothing to do here - trap already sold
+        }
+    }
+}
+static void find_next_point(struct RoomSpace *roomspace)
+{
+    // these store the coordinates of roomspace.slab_grid[][], rather than the in-game map coordinates
+    int room_x = roomspace->buildx - roomspace->left;
+    int room_y = roomspace->buildy - roomspace->top;
+    while ((roomspace->buildy <= roomspace->bottom) && (roomspace->buildx <= roomspace->right))
+    {
+        if (roomspace->slab_grid[room_x][room_y]) // the slab is part of the room
+        {
+            break;
+        }
+        room_x++;
+        roomspace->buildx++;
+        if (roomspace->buildx > roomspace->right)
+        {
+            room_x = 0;
+            roomspace->buildx = roomspace->left;
+            room_y++;
+            roomspace->buildy++;
         }
     }
 }
 
-void keeper_build_roomspace(struct RoomSpace roomspace)
+void keeper_sell_roomspace(struct RoomSpace *roomspace)
 {
-    int room_x = 0, room_y = 0; // these store the coordinates of roomspace.slab_grid[][], rather than the in-game map coordinates
-    for (MapSlabCoord buildy = roomspace.top; buildy <= roomspace.bottom; buildy++)
+    struct DungeonAdd *dungeonadd = get_dungeonadd(roomspace->plyr_idx);
+    if (dungeonadd->roomspace.is_active)
     {
-        for (MapSlabCoord buildx = roomspace.left; buildx <= roomspace.right; buildx++)
-        {
-            if (!roomspace.is_roomspace_a_box) // if the room shape is not a perfect square/rectangle...
-            {
-                if (roomspace.slab_grid[room_x][room_y] == false) // check the slab is part of the room
-                {
-                    room_x++;
-                    continue; // skip to the next tile if the current tile is not part of the room
-                }
-            }
-            keeper_build_room((buildx * STL_PER_SLB), (buildy * STL_PER_SLB), roomspace.plyr_idx, roomspace.rkind);
-            room_x++;
-        }
-        room_y++;
-        room_x = 0;
+        ERRORLOG("Building roomspace while it is still in progress plyr:%d", roomspace->plyr_idx);
+        return;
+    }
+    roomspace->rkind = RoK_SELL;
+    memcpy(&dungeonadd->roomspace, roomspace, sizeof(dungeonadd->roomspace));
+    // Init
+    dungeonadd->roomspace.is_active = true;
+    dungeonadd->roomspace.buildx = roomspace->left;
+    dungeonadd->roomspace.buildy = roomspace->top;
+    if (!roomspace->is_roomspace_a_box)
+    {
+        // We want to find first point
+        find_next_point(&dungeonadd->roomspace);
     }
 }
 
+void keeper_build_roomspace(struct RoomSpace *roomspace)
+{
+    struct DungeonAdd *dungeonadd = get_dungeonadd(roomspace->plyr_idx);
+    if (dungeonadd->roomspace.is_active)
+    {
+        ERRORLOG("Building roomspace while it is still in progress plyr:%d", roomspace->plyr_idx);
+        return;
+    }
+    memcpy(&dungeonadd->roomspace, roomspace, sizeof(dungeonadd->roomspace));
+    // Init
+    dungeonadd->roomspace.is_active = true;
+    dungeonadd->roomspace.buildx = roomspace->left;
+    dungeonadd->roomspace.buildy = roomspace->top;
+    if (!roomspace->is_roomspace_a_box)
+    {
+        dungeonadd->roomspace.buildx--; // We want to find first point
+        find_next_point(&dungeonadd->roomspace);
+    }
+}
+
+static void keeper_update_roomspace(struct RoomSpace *roomspace)
+{
+    if (!roomspace->is_active)
+        return;
+    // build a room
+    if (roomspace->rkind == RoK_SELL)
+        sell_at_point(roomspace);
+    else
+    {
+        if (!is_room_available(roomspace->plyr_idx, roomspace->rkind))
+        {
+            roomspace->is_active = false;
+            return;
+        }
+        keeper_build_room(slab_subtile(roomspace->buildx, 0), slab_subtile(roomspace->buildy, 0),
+                          roomspace->plyr_idx, roomspace->rkind);
+    }
+    // find next point
+    roomspace->buildx++;
+    if (roomspace->buildx > roomspace->right)
+    {
+        roomspace->buildx = roomspace->left;
+        roomspace->buildy++;
+    }
+    if (!roomspace->is_roomspace_a_box)
+    {
+        find_next_point(roomspace);
+    }
+
+    if ((roomspace->buildy > roomspace->bottom) || (roomspace->buildx > roomspace->right))
+    {
+        roomspace->is_active = false;
+        return;
+    }
+}
+
+void update_roomspaces()
+{
+    for (PlayerNumber plyr_idx = 0; plyr_idx < DUNGEONS_COUNT; plyr_idx++)
+    {
+        if (get_player(plyr_idx)->is_active)
+        {
+            keeper_update_roomspace(&get_dungeonadd(plyr_idx)->roomspace);
+        }
+    }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

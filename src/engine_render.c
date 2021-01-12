@@ -59,7 +59,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *outbuf);
-DLLIMPORT void _DK_draw_stripey_line(long pos_x, long pos_z, long beg_y, long end_y, unsigned char scale);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
 DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
@@ -2553,8 +2552,8 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 
 unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id)
 {
-    long slb_x = stl_x / 3;
-    long slb_y = stl_y / 3;
+    long slb_x = subtile_slab(stl_x);
+    long slb_y = subtile_slab(stl_y);
     return tex_id + (slab_ext_data[85 * slb_y + slb_x] & 0xF) * TEXTURE_BLOCKS_COUNT;
 }
 
@@ -3506,7 +3505,7 @@ static void draw_engine_room_flag_top(struct RoomFlag *rflg)
 
 static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line_color)
 {
-    //_DK_draw_stripey_line(x1, y1, x2, y2, line_color);
+    if ((x1 == x2) && (y1 == y2)) return; // todo if distance is 0, provide a red square
 
     // get the 4 least significant bits of game.play_gameturn, to loop through the starting index of the color array, using numbers 0-15.
     unsigned char color_index = game.play_gameturn & 0xf;

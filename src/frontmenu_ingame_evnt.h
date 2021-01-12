@@ -54,6 +54,10 @@ short zoom_to_fight(PlayerNumber plyr_idx);
 
 void draw_bonus_timer(void);
 TbBool bonus_timer_enabled(void);
+void draw_timer(void);
+TbBool timer_enabled(void);
+
+extern unsigned long TimerTurns;
 /******************************************************************************/
 #ifdef __cplusplus
 }
