@@ -512,7 +512,11 @@ void destroy_food(struct Thing *foodtng)
     pos.z.val = foodtng->mappos.z.val + 256;
     if (object_is_mature_food(foodtng))
     {
-        create_effect(&foodtng->mappos, TngEff_FeatherPuff, plyr_idx);
+        struct Thing* efftng = create_effect(&foodtng->mappos, TngEff_FeatherPuff, plyr_idx);
+        if (!thing_is_invalid(efftng)) 
+        {
+            thing_play_sample(efftng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        }
     }
     create_effect(&pos, TngEff_ChickenBlood, plyr_idx);
     struct Room* room = get_room_thing_is_on(foodtng);
