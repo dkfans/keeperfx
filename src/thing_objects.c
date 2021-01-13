@@ -533,7 +533,7 @@ void destroy_food(struct Thing *foodtng)
 
 void destroy_object(struct Thing *thing)
 {
-    if (object_is_mature_food(thing))
+    if (object_is_mature_food(thing) || object_is_growing_food(thing))
     {
         destroy_food(thing);
     } else
