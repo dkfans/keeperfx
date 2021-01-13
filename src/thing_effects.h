@@ -61,7 +61,7 @@ enum ThingEffectKind {
     TngEff_Unknown04,
     TngEff_Unknown05, // expl big
     TngEff_Unknown06, // blood small
-    TngEff_Unknown07,
+    TngEff_ChickenBlood,
     TngEff_Unknown08,
     TngEff_Unknown09,
     TngEff_Unknown10, // blood big
@@ -105,7 +105,7 @@ enum ThingEffectKind {
     TngEff_Unknown48, // flash with whiteout
     TngEff_DamageBlood,
     TngEff_Unknown50, // temple? explosion with sound
-    TngEff_Unknown51, // killed chicken
+    TngEff_FeatherPuff,
     TngEff_Unknown52,
     TngEff_Unknown53, // research complete
     TngEff_Unknown54, // research tick1
