@@ -156,16 +156,11 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
         S3DDestroySoundEmitterAndSamples(thing->snd_emitter_id);
         thing->snd_emitter_id = 0;
     }
-    struct Room* room = get_room_thing_is_on(thing);
     remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
     if (thing->index > 0) {
         game.free_things_start_index--;
         game.free_things[game.free_things_start_index] = thing->index;
-        if (!room_is_invalid(room))
-        {
-            update_room_contents(room);
-        }
     } else {
 #if (BFDEBUG_LEVEL > 0)
         ERRORMSG("%s: Performed deleting of thing with bad index %d!",func_name,(int)thing->index);
