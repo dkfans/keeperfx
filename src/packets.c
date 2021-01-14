@@ -1779,6 +1779,13 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     }
                     default:
                     {
+                        if (thing_is_spellbook(thing))
+                        {
+                            if (!is_neutral_thing(thing)) 
+                            {
+                                remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
+                            }
+                        }
                         destroy_object(thing);
                         break;
                     }
