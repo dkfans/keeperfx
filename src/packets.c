@@ -1786,6 +1786,16 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                                 remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
                             }
                         }
+                        else if (thing_is_workshop_crate(thing))
+                        {
+                            if (!is_neutral_thing(thing)) 
+                            {
+                                ThingClass tngclass = crate_thing_to_workshop_item_class(thing);
+                                ThingModel tngmodel = crate_thing_to_workshop_item_model(thing);
+                                remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap);
+                                remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);                                
+                            }
+                        }
                         destroy_object(thing);
                         break;
                     }
