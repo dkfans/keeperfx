@@ -1764,6 +1764,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
             if (player->thing_under_hand > 0)
             {
+                struct Room* room = get_room_thing_is_on(thing);
                 switch(thing->class_id)
                 {
                     case TCls_Door:
@@ -1781,6 +1782,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                         destroy_object(thing);
                         break;
                     }
+                }
+                if (!room_is_invalid(room))
+                {
+                    update_room_contents(room);
                 }
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);    
