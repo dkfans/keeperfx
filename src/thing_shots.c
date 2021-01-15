@@ -565,11 +565,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
         return 1;
     }
     else
-    if (object_is_growing_food(target))
-    {
-        delete_thing_structure(target, 0);
-    } else
-    if (object_is_mature_food(target))
+    if (object_is_mature_food(target) || object_is_growing_food(target))
     {
         destroy_food(target);
     } else

@@ -506,16 +506,19 @@ void destroy_food(struct Thing *foodtng)
         struct Dungeon* dungeon = get_dungeon(plyr_idx);
         dungeon->lvstats.chickens_wasted++;
     }
-    struct Thing* efftng = create_effect(&foodtng->mappos, TngEff_DamageBlood, plyr_idx);
-    if (!thing_is_invalid(efftng)) {
-        thing_play_sample(efftng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    }
     struct Coord3d pos;
     pos.x.val = foodtng->mappos.x.val;
     pos.y.val = foodtng->mappos.y.val;
     pos.z.val = foodtng->mappos.z.val + 256;
-    create_effect(&foodtng->mappos, TngEff_Unknown51, plyr_idx);
-    create_effect(&pos, TngEff_Unknown07, plyr_idx);
+    if (object_is_mature_food(foodtng))
+    {
+        struct Thing* efftng = create_effect(&foodtng->mappos, TngEff_FeatherPuff, plyr_idx);
+        if (!thing_is_invalid(efftng)) 
+        {
+            thing_play_sample(efftng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        }
+    }
+    create_effect(&pos, TngEff_ChickenBlood, plyr_idx);
     struct Room* room = get_room_thing_is_on(foodtng);
     if (!room_is_invalid(room))
     {
@@ -534,7 +537,7 @@ void destroy_food(struct Thing *foodtng)
 
 void destroy_object(struct Thing *thing)
 {
-    if (object_is_mature_food(thing))
+    if (object_is_mature_food(thing) || object_is_growing_food(thing))
     {
         destroy_food(thing);
     } else
@@ -955,8 +958,8 @@ long food_moves(struct Thing *objtng)
         {
             struct Dungeon* dungeon = get_dungeon(objtng->owner);
             dungeon->lvstats.chickens_wasted++;
-            create_effect(&objtng->mappos, TngEff_Unknown51, objtng->owner);
-            create_effect(&objtng->mappos, TngEff_Unknown07, objtng->owner);
+            create_effect(&objtng->mappos, TngEff_FeatherPuff, objtng->owner);
+            create_effect(&objtng->mappos, TngEff_ChickenBlood, objtng->owner);
             delete_thing_structure(objtng, 0);
             return -1;
         }
