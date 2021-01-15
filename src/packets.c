@@ -1765,6 +1765,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             if (player->thing_under_hand > 0)
             {
                 struct Room* room = get_room_thing_is_on(thing);
+                TbBool IsRoom = (!room_is_invalid(room));
                 switch(thing->class_id)
                 {
                     case TCls_Door:
@@ -1792,7 +1793,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                             {
                                 ThingClass tngclass = crate_thing_to_workshop_item_class(thing);
                                 ThingModel tngmodel = crate_thing_to_workshop_item_model(thing);
-                                remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap);
+                                if (IsRoom)
+                                {
+                                    remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap);
+                                }
                                 remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);                                
                             }
                         }
@@ -1800,7 +1804,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                         break;
                     }
                 }
-                if (!room_is_invalid(room))
+                if (IsRoom)
                 {
                     update_room_contents(room);
                 }
