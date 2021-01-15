@@ -247,7 +247,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           pos.y.val = thing->mappos.y.val;
           pos.z.val = thing->mappos.z.val + (thing->clipbox_size_yz >> 1);
           if ( creature_model_bleeds(thing->model) )
-              create_effect(&pos, TngEff_Unknown06, thing->owner);
+              create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
           thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
           struct Camera* cam = player->acamera;
           if (cam != NULL)

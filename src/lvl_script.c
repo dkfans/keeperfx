@@ -4465,7 +4465,7 @@ static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, T
         if (plyr_idx == game.hero_player_num)
         {
             thing->mappos.z.val = get_ceiling_height(&thing->mappos);
-            create_effect(&thing->mappos, TngEff_Unknown36, thing->owner);
+            create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
             initialise_thing_state(thing, CrSt_CreatureHeroEntering);
             thing->field_4F |= TF4F_Unknown01;
             cctrl->countdown_282 = 24;

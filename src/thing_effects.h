@@ -60,7 +60,7 @@ enum ThingEffectKind {
     TngEff_Unknown03,
     TngEff_Unknown04,
     TngEff_Unknown05, // expl big
-    TngEff_Unknown06, // blood small
+    TngEff_HitBleedingUnit,
     TngEff_ChickenBlood,
     TngEff_Unknown08,
     TngEff_Unknown09,
@@ -76,10 +76,10 @@ enum ThingEffectKind {
     TngEff_Unknown19, // water drip
     TngEff_Unknown20,
     TngEff_Unknown21,
-    TngEff_Unknown22, // long ice shard
+    TngEff_HitFrozenUnit,
     TngEff_Unknown23,
-    TngEff_Unknown24,
-    TngEff_Unknown25, // less dirt
+    TngEff_DeathIceExplosion,
+    TngEff_RockChips, // less dirt
     TngEff_DirtRubble,
     TngEff_Unknown27, // more dirt
     TngEff_ImpSpangleRed,
@@ -89,16 +89,16 @@ enum ThingEffectKind {
     TngEff_Unknown32, // small gold coins
     TngEff_GoldRubble,
     TngEff_Unknown34, // big gold chunks
-    TngEff_Unknown35, // big splash
-    TngEff_Unknown36, // big earth chunks
+    TngEff_TempleSplash,
+    TngEff_CeilingBreach,
     TngEff_Unknown37, // strange gas
     TngEff_Unknown38, // strange gas
     TngEff_Unknown39, // strange gas
     TngEff_Unknown40, // fart slow
-    TngEff_Unknown41,
+    TngEff_NumberHop,
     TngEff_Unknown42,
-    TngEff_Unknown43, // lava trap (turns to lava)
-    TngEff_Unknown44, // lightning fog
+    TngEff_LavaTrap,
+    TngEff_HearthCollapse,
     TngEff_Unknown45, // claim with sound???
     TngEff_Unknown46,
     TngEff_Unknown47, // spiral fx
@@ -107,10 +107,10 @@ enum ThingEffectKind {
     TngEff_Unknown50, // temple? explosion with sound
     TngEff_FeatherPuff,
     TngEff_Unknown52,
-    TngEff_Unknown53, // research complete
-    TngEff_Unknown54, // research tick1
-    TngEff_Unknown55, // research tick2
-    TngEff_Unknown56, // research tick3
+    TngEff_ResearchComplete,
+    TngEff_RoomSparkeSmall,
+    TngEff_RoomSparkeMedium,
+    TngEff_RoomSparkeLarge,
     TngEff_ImpSpangleBlue,
     TngEff_ImpSpangleGreen,
     TngEff_ImpSpangleYellow,
@@ -119,9 +119,9 @@ enum ThingEffectKind {
     TngEff_Unknown62,
     TngEff_Unknown63, // teleport puff yellow
     TngEff_Unknown64, // teleport puff white
-    TngEff_Unknown65, // blood step
+    TngEff_BloodyFootstep,
     TngEff_Unknown66, // blood splat
-    TngEff_Unknown67, // magicbox activated
+    TngEff_SpecialBox,
     TngEff_Unknown68, // boulder sink
     TngEff_Unknown69,
 };

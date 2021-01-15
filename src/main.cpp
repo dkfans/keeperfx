@@ -244,7 +244,7 @@ void process_dungeon_destroy(struct Thing *heartng)
         if (dungeon->heart_destroy_turn < 32)
         {
             if ( ACTION_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32 ) {
-                create_effect(central_pos, TngEff_Unknown44, plyr_idx);
+                create_effect(central_pos, TngEff_HearthCollapse, plyr_idx);
             }
         } else
         { // Got to next phase
@@ -256,7 +256,7 @@ void process_dungeon_destroy(struct Thing *heartng)
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {
-            create_effect(central_pos, TngEff_Unknown44, plyr_idx);
+            create_effect(central_pos, TngEff_HearthCollapse, plyr_idx);
         } else
         { // Got to next phase
             dungeon->heart_destroy_state = 3;

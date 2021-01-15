@@ -705,10 +705,10 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case ShM_SwingSword:
         case ShM_SwingFist:
             if (creature_affected_by_spell(target, SplK_Freeze)) {
-                efftng = create_effect(&shotng->mappos, TngEff_Unknown22, shotng->owner);
+                efftng = create_effect(&shotng->mappos, TngEff_HitFrozenUnit, shotng->owner);
             } else
             if (creature_model_bleeds(target->model)) {
-                efftng = create_effect(&shotng->mappos, TngEff_Unknown06, shotng->owner);
+                efftng = create_effect(&shotng->mappos, TngEff_HitBleedingUnit, shotng->owner);
             }
             break;
         }
