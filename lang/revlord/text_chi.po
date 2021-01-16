@@ -1536,6 +1536,77 @@ msgctxt "Unused"
 msgid "Moo9"
 msgstr "Moo9"
 
+#: guitext:320
+msgctxt "Menu interface item"
+msgid "Paused"
+msgstr "暂停"
+
+#: guitext:324
+msgctxt "Slab description"
+msgid ""
+"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"to go round. It is visible even if far from your territory."
+msgstr ""
+"无法挖掘的岩石: 你的小鬼无法挖穿这样的岩石，唯一的办法就是绕过它。这类岩石永"
+"远可见。"
+
+#: guitext:325
+msgctxt "Slab description"
+msgid ""
+"Earth: You can excavate this. To dig out some new caverns, choose a location "
+"and tag for digging with LMB. Press LMB again to untag."
+msgstr ""
+"土块: 你可以将其凿开。想要挖开一些洞穴，用鼠标左键标记一个区域。再次按下鼠标"
+"左键可解除标记。"
+
+#: guitext:326
+msgctxt "Slab description"
+msgid ""
+"Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
+"your Treasure Room. You can also pick up the lumps of treasure left on the "
+"ground."
+msgstr ""
+"金矿: 你的财富的源泉。挖掘它，你的小鬼将把它带入你的储金室。"
+"你也可以拿起留在地上的金子。"
+
+#: guitext:327
+msgctxt "Slab description"
+msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
+msgstr "岩浆: 灼烧任何触碰到它的生物。施放一个塌方术或者建造一座桥来越过它。"
+
+#: guitext:328
+msgctxt "Slab description"
+msgid ""
+"Water: Creatures move more slowly through water. Build the Bridge to make "
+"new land on the water."
+msgstr "水: 怪物在水中移动得很慢。在水上造桥可以创造出水上的平地。"
+
+#: guitext:329
+msgctxt "Slab description"
+msgid ""
+"Wall: A reinforced stone wall that enemies cannot break through. At least "
+"without the Destroy Walls spell."
+msgstr "墙: 敌人无法穿越加固过的墙。至少在他们还没有破坏墙壁魔法的时候。"
+
+#: guitext:330
+msgctxt "Slab description"
+msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
+msgstr "被损坏的墙: 除非进行修复，否则将最终倒塌。"
+
+#: guitext:331
+msgctxt "Slab description"
+msgid ""
+"Path: Unclaimed earth floor. You can claim it if it is connected to already "
+"claimed territory."
+msgstr "泥地: 未占领的地面。如果这里与你的领地相邻，你就可以占有此地。"
+
+#: guitext:332
+msgctxt "Slab description"
+msgid ""
+"Claimed area: Your dungeon territory. You can build rooms and drop your "
+"creatures on it."
+msgstr "已占领的地面:你的地下城领地。你可以在此建造房间或是放置你的怪物。"
+
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
