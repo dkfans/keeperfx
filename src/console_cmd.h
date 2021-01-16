@@ -27,6 +27,8 @@ extern "C" {
 #endif
 
 TbBool cmd_exec(PlayerNumber plyr_idx, char *msg);
+long get_creature_model_for_command(char *msg);
+PlayerNumber get_player_number_for_command(char *msg);
 
 #ifdef __cplusplus
 }
