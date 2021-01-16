@@ -1536,6 +1536,11 @@ msgctxt "Unused"
 msgid "Moo9"
 msgstr "Moo9"
 
+#: guitext:319
+msgctxt "Slab description"
+msgid "Empty Lair: Would suit itinerant creature."
+msgstr "空巢穴: 将满足投奔的怪物。"
+
 #: guitext:320
 msgctxt "Menu interface item"
 msgid "Paused"
