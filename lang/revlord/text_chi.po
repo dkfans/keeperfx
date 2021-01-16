@@ -1541,11 +1541,6 @@ msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
 msgstr "空巢穴: 将满足投奔的怪物。"
 
-#: guitext:320
-msgctxt "Menu interface item"
-msgid "Paused"
-msgstr "暂停"
-
 #: guitext:324
 msgctxt "Slab description"
 msgid ""
