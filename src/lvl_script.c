@@ -2935,7 +2935,7 @@ void command_message(const char *msgtext, unsigned char kind)
   SCRPTWRNLOG("Command '%s' is only supported in Dungeon Keeper Beta", cmd);
 }
 
-void command_printfx(int idx, const char *msgtext, const char *range_id)
+void command_quick_message(int idx, const char *msgtext, const char *range_id)
 {
   if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
   {
@@ -2973,7 +2973,7 @@ void command_printfx(int idx, const char *msgtext, const char *range_id)
         id = (~id) + 1;
     }           
   }
-  command_add_value(Cmd_PRINTFX, 0, id, idx, 0);
+  command_add_value(Cmd_QUICK_MESSAGE, 0, id, idx, 0);
 }
 
 void command_swap_creature(const char *ncrt_name, const char *crtr_name)
@@ -3550,8 +3550,8 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_PRINT:
         command_message(scline->tp[0],80);
         break;
-    case Cmd_PRINTFX:
-        command_printfx(scline->np[0], scline->tp[1], scline->tp[2]);
+    case Cmd_QUICK_MESSAGE:
+        command_quick_message(scline->np[0], scline->tp[1], scline->tp[2]);
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
@@ -6262,7 +6262,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           intralvl.campaign_flags[i][val4] = get_condition_value(i, val2, val3);
       }
       break;
-  case Cmd_PRINTFX:
+  case Cmd_QUICK_MESSAGE:
   {
       message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
       break;
@@ -6613,7 +6613,7 @@ const struct CommandDesc command_desc[] = {
   {"CREATE_EFFECTS_LINE",               "LLNNNN  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
-  {"PRINT",                             "NAA     ", Cmd_PRINTFX, NULL, NULL},
+  {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
