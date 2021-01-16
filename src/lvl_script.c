@@ -2976,6 +2976,36 @@ void command_quick_message(int idx, const char *msgtext, const char *range_id)
   command_add_value(Cmd_QUICK_MESSAGE, 0, id, idx, 0);
 }
 
+void command_messagefx(int msg_num, const char *range_id)
+{
+    char id;
+    if (strcasecmp(range_id, "None") == 0)
+    {
+        id = 127;
+    }
+    else
+    {
+        id = get_rid(player_desc, range_id);
+    }
+    if (id == -1)
+    {
+        id = get_rid(cmpgn_human_player_options, range_id);
+        if (id == -1)
+        {
+            id = get_rid(creature_desc, range_id);
+            if (id == -1)
+            {
+                id = atoi(range_id);
+            }
+            else
+            {
+                id = (~id) + 1;
+            }   
+        }        
+    }
+    command_add_value(Cmd_MESSAGEFX, 0, id, msg_num, 0);
+}
+
 void command_swap_creature(const char *ncrt_name, const char *crtr_name)
 {
     long ncrt_id = get_rid(newcrtr_desc, ncrt_name);
@@ -3552,6 +3582,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_QUICK_MESSAGE:
         command_quick_message(scline->np[0], scline->tp[1], scline->tp[2]);
+        break;
+    case Cmd_MESSAGEFX:
+        command_messagefx(scline->np[0], scline->tp[1]);
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
@@ -6267,6 +6300,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
       break;
   }
+  case Cmd_MESSAGEFX:
+  {
+        message_add_fmt(val2, "%s", get_string(val3));
+        break;        
+  }
   case Cmd_SET_GAME_RULE:
       switch (val2)
       {
@@ -6614,6 +6652,7 @@ const struct CommandDesc command_desc[] = {
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
+  {"MESSAGE",                           "NA      ", Cmd_MESSAGEFX, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
