@@ -1,9 +1,10 @@
 REM ****************************************************************************
 REM  Free Play levels - KeeperFX
 REM ****************************************************************************
-REM  Script for Level 250 - My Pet Dungeon
+REM  Script for Level 457 - My Pet Dungeon
 REM  Author:  Loobinex
 REM  Date:    2017-11-13
+REM		modified to use pot file for messages by dayokay Jan2021
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
@@ -205,19 +206,23 @@ REM ****************************************************************************
 REM Level starts here
 REM ****************************************************************************
 
-QUICK_OBJECTIVE(1,"Welcome to SimDungeon. You can attract 25 evil creatures per portal. Heroes can be summoned at the spawner.",-4)
+REM	QUICK_OBJECTIVE(1,"Welcome to SimDungeon. You can attract 25 evil creatures per portal. Heroes can be summoned at the spawner.",-4)
+DISPLAY_OBJECTIVE(83,-4)
 IF(PLAYER0,FLAG0 == 0)
 	IF(PLAYER0,TOTAL_CREATURES >= 25)
 		IF_AVAILABLE(PLAYER0,BRIDGE == 0)
-			QUICK_OBJECTIVE(2,"Find a way to build a bridge. It will help you to expand in this realm.",ALL_PLAYERS)
+			REM	QUICK_OBJECTIVE(2,"Find a way to build a bridge. It will help you to expand in this realm.",ALL_PLAYERS)
+			DISPLAY_OBJECTIVE(84,ALL_PLAYERS)
 		ENDIF
 	ENDIF
 	IF(PLAYER0,TOTAL_CREATURES >= 50)
-		QUICK_OBJECTIVE(3,"You're well on your way to an impressive dungeon. Get to one hundred units and we'll talk.",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(3,"You're well on your way to an impressive dungeon. Get to one hundred units and we'll talk.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(85,ALL_PLAYERS)
 	ENDIF
 	IF(PLAYER0,TOTAL_CREATURES >= 74)
 		IF(PLAYER0,ENTRANCE <= 18)
-			QUICK_OBJECTIVE(4,"There is a way to breach the white wall and take over the north-west corner of the map. Useful but optional.",-5)
+			REM	QUICK_OBJECTIVE(4,"There is a way to breach the white wall and take over the north-west corner of the map. Useful but optional.",-5)
+			DISPLAY_OBJECTIVE(86,-5)
 		ENDIF
 	ENDIF
 ENDIF
@@ -268,7 +273,8 @@ ENDIF
 REM When at 100 creatures, player may trigger a full invasion by selling his prison.
 IF(PLAYER0,TOTAL_CREATURES >= 100)
 	SET_FLAG(PLAYER0,FLAG0,1)
-	QUICK_OBJECTIVE(5,"You have a most impressive army. When you're done sell your prison. It will trigger an endless invasion.",-5)
+	REM	QUICK_OBJECTIVE(5,"You have a most impressive army. When you're done sell your prison. It will trigger an endless invasion.",-5)
+	DISPLAY_OBJECTIVE(87,-5)
 	PLAY_MESSAGE(PLAYER0,SOUND,116)
 ENDIF
 IF(PLAYER0,FLAG0 == 1)
@@ -280,7 +286,8 @@ IF(PLAYER0,FLAG0 == 1)
 		SET_TIMER(PLAYER0,TIMER5)
 		BONUS_LEVEL_TIME(36000)
 		PLAY_MESSAGE(PLAYER0,SOUND,84)
-		QUICK_OBJECTIVE(6,"Let's see how well your dungeon really is. How long can you survive?",PLAYER0)
+		REM	QUICK_OBJECTIVE(6,"Let's see how well your dungeon really is. How long can you survive?",PLAYER0)
+		DISPLAY_OBJECTIVE(88,PLAYER0)
 		ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,-5,DUNGEON,0,5,500)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,weak,-4,1)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,weak,-5,1)
@@ -385,7 +392,8 @@ IF(PLAYER0,TIMER5 >= 36000)
 	MAGIC_AVAILABLE(PLAYER0,POWER_HAND,1,1)
 	MAGIC_AVAILABLE(PLAYER0,POWER_POSSESS,1,1)
 	SET_FLAG(PLAYER0,FLAG0,2)
-	QUICK_OBJECTIVE(9,"You've done the impossible. Victory.",PLAYER0)
+	REM	QUICK_OBJECTIVE(9,"You've done the impossible. Victory.",PLAYER0)
+	DISPLAY_OBJECTIVE(89,PLAYER0)
 	BONUS_LEVEL_TIME(0)
 	WIN_GAME
 ENDIF

@@ -1,9 +1,10 @@
 REM ****************************************************************************
-REM  Free Play levels - KeeperFX
+REM  Free Play levels : Standard Map Pack - KeeperFX
 REM ****************************************************************************
-REM  Script for Level 2017 - Wetlands
+REM  Script for Level 452 - Wetlands
 REM  Author:  Loobinex
 REM  Date:    2015-07-28
+REM		updated to use pot file for messages by dayokay Jan2021
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
@@ -193,11 +194,13 @@ REM ****************************************************************************
 REM Level starts here
 REM ****************************************************************************
 
-QUICK_OBJECTIVE(1,"I'll keep it simple: Get a horned reaper and use it to destroy the lord of the land.",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(1,"I'll keep it simple: Get a horned reaper and use it to destroy the lord of the land.",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(32,ALL_PLAYERS)
 
 REM: Only 9 tiles of Temple are in play. When they are sold/destroyed the player can rebuild them.
 IF(PLAYER_GOOD,TEMPLE < 9)
-	QUICK_OBJECTIVE(2,"You'll need a bridge to get a Horned reaper. Wizards have a spell in play to stop you from building one.",5)
+	REM	QUICK_OBJECTIVE(2,"You'll need a bridge to get a Horned reaper. Wizards have a spell in play to stop you from building one.",5)
+	DISPLAY_OBJECTIVE(33,5)
 	REVEAL_MAP_LOCATION(PLAYER0,5,7)
 	IF(PLAYER0,TEMPLE >= 3)
 		NEXT_COMMAND_REUSABLE
@@ -219,7 +222,8 @@ IF(PLAYER_GOOD,TEMPLE < 6)
 	ENDIF
 ENDIF
 IF(PLAYER_GOOD,TEMPLE <= 0)
-	QUICK_OBJECTIVE(4,"We can't build temples in this realm, but we can move the pieces we have. Summon Horny.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(4,"We can't build temples in this realm, but we can move the pieces we have. Summon Horny.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(34,ALL_PLAYERS)
 	IF(PLAYER0,TEMPLE >= 9)
 		NEXT_COMMAND_REUSABLE
 		ROOM_AVAILABLE(PLAYER0,TEMPLE,0,0)
@@ -236,7 +240,8 @@ IF_ACTION_POINT(5,PLAYER0)
 		ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
 		ADD_CREATURE_TO_LEVEL(PLAYER0,TENTACLE,7,1,1,0)
 		ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,6,4,5,250)
-		QUICK_OBJECTIVE(3,"Great, you can now make bridges. Use them to get a horned reaper to join you.",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(3,"Great, you can now make bridges. Use them to get a horned reaper to join you.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(35,ALL_PLAYERS)
 		TUTORIAL_FLASH_BUTTON(18,100)
 	ENDIF
 ENDIF
@@ -253,13 +258,15 @@ IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	DOOR_AVAILABLE(PLAYER0,STEEL,1,0)
 	TUTORIAL_FLASH_BUTTON(60,60)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,TENTACLE,7,1,1,0)
-	QUICK_INFORMATION(5,"Well done. Bile demons may now join us.",7)
+	REM	QUICK_INFORMATION(5,"Well done. Bile demons may now join us.",7)
+	DISPLAY_INFORMATION(36,7)
 ENDIF
 
 REM When horny is acquired dwarfs open up the hero fortress and it is populated with heroes.
 IF(PLAYER0,HORNY >= 1)
 	SET_FLAG(PLAYER0,FLAG0,1)
-	QUICK_OBJECTIVE(6,"Well done. Destroy the heroes and their stronghold. Keep Horny alive or all is lost.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(6,"Well done. Destroy the heroes and their stronghold. Keep Horny alive or all is lost.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(37,ALL_PLAYERS)
 	ADD_TUNNELLER_TO_LEVEL(PLAYER_GOOD,8,ACTION_POINT,4,7,1000)
 	ADD_TUNNELLER_TO_LEVEL(PLAYER_GOOD,8,ACTION_POINT,6,7,1000)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Fodder,8,1)
@@ -272,7 +279,8 @@ IF(PLAYER0,FLAG0 == 1)
 	KILL_CREATURE(PLAYER0,TROLL,MOST_EXPERIENCED,10)
 	IF(PLAYER0,HORNY <= 0)
 		LOSE_GAME
-		QUICK_OBJECTIVE(10,"You've lost horny. No second chances.",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(10,"You've lost horny. No second chances.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(38,ALL_PLAYERS)
 	ENDIF
 ENDIF
 
@@ -288,7 +296,8 @@ IF(PLAYER0,TOTAL_CREATURES >= 7)
 ENDIF
 IF(PLAYER_GOOD,BARRACKS >= 1)
 	IF(PLAYER_GOOD,TIMER1 >= 3600)
-		QUICK_INFORMATION(7,"Heroes think you are vulnerable and will try to attack you until the bitter end.",ALL_PLAYERS)
+		REM	QUICK_INFORMATION(7,"Heroes think you are vulnerable and will try to attack you until the bitter end.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(39,ALL_PLAYERS)
 		NEXT_COMMAND_REUSABLE
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Buzz,-1,1)
 		NEXT_COMMAND_REUSABLE
@@ -340,7 +349,8 @@ IF(PLAYER0,SKELETON >= DRAWFROM(3,6))
 	SET_FLAG(PLAYER_GOOD,FLAG1,1)
 ENDIF
 IF(PLAYER_GOOD,FLAG1 == 1)
-	QUICK_INFORMATION(11,"Your enemies have learned that getting captured by you is a fate worse than death. They will avoid your prison at all cost.",ALL_PLAYERS)
+	REM	QUICK_INFORMATION(11,"Your enemies have learned that getting captured by you is a fate worse than death. They will avoid your prison at all cost.",ALL_PLAYERS)
+	DISPLAY_INFORMATION(40,ALL_PLAYERS)
 	TUTORIAL_FLASH_BUTTON(69,250)
 	NEXT_COMMAND_REUSABLE
 	SET_CREATURE_TENDENCIES(PLAYER0,IMPRISON,0)
@@ -355,11 +365,12 @@ REM ****************************************************************************
 REM Win game
 REM ****************************************************************************
 
-REM Summon horny than kill hero heart and lord of the land.
+REM Summon horny then kill hero heart and lord of the land.
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
 	IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
 		IF(PLAYER0,FLAG0 >= 1)
-			QUICK_OBJECTIVE(9,"Victory.",PLAYER0)
+			REM	QUICK_OBJECTIVE(9,"Victory.",PLAYER0)
+			DISPLAY_OBJECTIVE(41,PLAYER0)
 			WIN_GAME
 		ENDIF
 	ENDIF

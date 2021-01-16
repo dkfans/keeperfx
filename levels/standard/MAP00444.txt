@@ -1,3 +1,7 @@
+REM	Level 444 Grail Run
+REM	Author: Kix, Created on 17 Jun 2018
+REM	updated to use pot file messages by dayokay Jan2021
+
 LEVEL_VERSION(1)
 
 START_MONEY(PLAYER0,12000)
@@ -207,11 +211,13 @@ IF(PLAYER0,TIMER0>650)
 ENDIF
 
 IF(PLAYER0,FLAG7>0)
-SET_TIMER(PLAYER0,TIMER1)
-QUICK_OBJECTIVE(2,"As you got your first room, heroes have started gathering their troops and will be here soon. The more heroes are wiped out, the stronger the groups they will form.",ALL_PLAYERS)
+	SET_TIMER(PLAYER0,TIMER1)
+	REM	QUICK_OBJECTIVE(2,"As you got your first room, heroes have started gathering their troops and will be here soon. The more heroes are wiped out, the stronger the groups they will form.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(103,ALL_PLAYERS)
 IF(PLAYER0,TIMER1>4500)
 	IF(PLAYER0,BATTLES_WON<100)
-		QUICK_OBJECTIVE(3,"First party has arrived! They seem to go lightly on on you. For now...",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(3,"First party has arrived! They seem to go lightly on on you. For now...",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(104,ALL_PLAYERS)
 		NEXT_COMMAND_REUSABLE
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ONE_NORTH,-2,3)
 		NEXT_COMMAND_REUSABLE
@@ -220,8 +226,9 @@ IF(PLAYER0,TIMER1>4500)
 	
 	
 	IF(PLAYER0,BATTLES_WON>=100)
-	IF(PLAYER0,BATTLES_WON<200)
-		QUICK_OBJECTIVE(4,"Seeing their previous efforts went in vain heroes formed a new group.",ALL_PLAYERS)
+		IF(PLAYER0,BATTLES_WON<200)
+		REM	QUICK_OBJECTIVE(4,"Seeing their previous efforts went in vain heroes formed a new group.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(105,ALL_PLAYERS)
 		NEXT_COMMAND_REUSABLE
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,TWO_NORTH,-2,2)
 		NEXT_COMMAND_REUSABLE
@@ -231,7 +238,8 @@ IF(PLAYER0,TIMER1>4500)
 	
 	IF(PLAYER0,BATTLES_WON>=200)
 	IF(PLAYER0,BATTLES_WON<270)
-		QUICK_OBJECTIVE(5,"Heroes arrived again, this time with modified creatures to aid them! Careful, as these are definitely tougher than any common dungeon creatures!",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(5,"Heroes arrived again, this time with modified creatures to aid them! Careful, as these are definitely tougher than any common dungeon creatures!",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(106,ALL_PLAYERS)
 		NEXT_COMMAND_REUSABLE
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,THREE_NORTH,-2,3)
 		NEXT_COMMAND_REUSABLE
@@ -241,7 +249,8 @@ IF(PLAYER0,TIMER1>4500)
 	
 	IF(PLAYER0,BATTLES_WON>=270)
 	IF(PLAYER0,BATTLES_WON<315)
-		QUICK_OBJECTIVE(6,"Heroes formed a new group again. If this attempt fails, the avatar will come and take care of you.",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(6,"Heroes formed a new group again. If this attempt fails, the avatar will come and take care of you.",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(107,ALL_PLAYERS)
 		NEXT_COMMAND_REUSABLE
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FOUR_NORTH,-2,2)
 		NEXT_COMMAND_REUSABLE
@@ -258,7 +267,8 @@ IF(PLAYER0,TIMER1>4500)
 	
 	IF(PLAYER0,BATTLES_WON>=315)
 		PLAY_MESSAGE(PLAYER0,SPEECH,106)
-		QUICK_OBJECTIVE(7,"It's time to prove yourself, Keeper. Clear the last wave and the land is yours!",ALL_PLAYERS)
+		REM	QUICK_OBJECTIVE(7,"It's time to prove yourself, Keeper. Clear the last wave and the land is yours!",ALL_PLAYERS)
+		DISPLAY_OBJECTIVE(108,ALL_PLAYERS)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FINAL_NORTH,-2,1)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FINAL_SOUTH,-3,1)
 		SET_TIMER(PLAYER0,TIMER2)
@@ -274,7 +284,8 @@ IF(PLAYER0,TIMER2>60)
 	SET_TIMER(PLAYER0,TIMER2)
 	IF(PLAYER_GOOD,AVATAR==0)
 		IF(PLAYER_GOOD,KNIGHT==0)
-			QUICK_OBJECTIVE(8,"Humiliating defeat for the heroes. Congratulations!",ALL_PLAYERS)
+			REM	QUICK_OBJECTIVE(8,"Humiliating defeat for the heroes. Congratulations!",ALL_PLAYERS)
+			DISPLAY_OBJECTIVE(109,ALL_PLAYERS)
 			WIN_GAME
 		ENDIF
 	ENDIF
@@ -284,7 +295,8 @@ ENDIF
 
 REM ******************************************************************************************************************
 
-QUICK_OBJECTIVE(1,"You are in possession of very unusual hero gate located to the east of your dungeon heart. It attracts units from other realms based on your dungeon room pool. Get rooms to attract more and stronger units to help you. Barracks=Barbarians, Workshop=Dwarves, Library=Warlocks, Temple=Monks, Training Rooms=Archers. New units arrive in groups and will only arrive if you have less than 22 of units. Withstand the hero waves, defeat the avatar along with his guards and this land is yours!",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(1,"You are in possession of very unusual hero gate located to the east of your dungeon heart. It attracts units from other realms based on your dungeon room pool. Get rooms to attract more and stronger units to help you. Barracks=Barbarians, Workshop=Dwarves, Library=Warlocks, Temple=Monks, Training Rooms=Archers. New units arrive in groups and will only arrive if you have less than 22 of units. Withstand the hero waves, defeat the avatar along with his guards and this land is yours!",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(110,PLAYER0)
 
 
 ADD_TO_PARTY(ONE_NORTH,BARBARIAN,4,0,ATTACK_DUNGEON_HEART,0)
