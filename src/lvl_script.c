@@ -2952,57 +2952,13 @@ void command_quick_message(int idx, const char *msgtext, const char *range_id)
   }
   strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
   gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
-  char id;
-  if (strcasecmp(range_id, "None") == 0)
-  {
-      id = 127;
-  }
-  else
-  {
-    id = get_rid(player_desc, range_id);
-  }
-  if (id == -1)
-  {
-    id = get_rid(creature_desc, range_id);
-    if (id == -1)
-    {
-        id = atoi(range_id);
-    }
-    else
-    {
-        id = (~id) + 1;
-    }           
-  }
+  char id = get_player_number_from_value(range_id);
   command_add_value(Cmd_QUICK_MESSAGE, 0, id, idx, 0);
 }
 
 void command_messagefx(int msg_num, const char *range_id)
 {
-    char id;
-    if (strcasecmp(range_id, "None") == 0)
-    {
-        id = 127;
-    }
-    else
-    {
-        id = get_rid(player_desc, range_id);
-    }
-    if (id == -1)
-    {
-        id = get_rid(cmpgn_human_player_options, range_id);
-        if (id == -1)
-        {
-            id = get_rid(creature_desc, range_id);
-            if (id == -1)
-            {
-                id = atoi(range_id);
-            }
-            else
-            {
-                id = (~id) + 1;
-            }   
-        }        
-    }
+    char id = get_player_number_from_value(range_id);
     command_add_value(Cmd_MESSAGEFX, 0, id, msg_num, 0);
 }
 
@@ -6548,6 +6504,36 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
       break;
   }
   SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, pos->x.stl.num, pos->y.stl.num);
+}
+
+char get_player_number_from_value(const char* txt)
+{
+    char id;
+    if (strcasecmp(txt, "None") == 0)
+    {
+        id = 127;
+    }
+    else
+    {
+        id = get_rid(player_desc, txt);
+    }
+    if (id == -1)
+    {
+        id = get_rid(cmpgn_human_player_options, txt);
+        if (id == -1)
+        {
+            id = get_rid(creature_desc, txt);
+            if (id == -1)
+            {
+                id = atoi(txt);
+            }
+            else
+            {
+                id = (~id) + 1;
+            }   
+        }        
+    }
+    return id;
 }
 /******************************************************************************/
 /**
