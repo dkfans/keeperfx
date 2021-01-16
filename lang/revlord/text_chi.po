@@ -8,7 +8,7 @@
 #.  @par Comment:
 #      Use this file to improve the translation for specific language.
 #.  @author   KeeperFX Team
-#.  @date     25 Aug 2012 - 02 Oct 2012
+#.  @date     Jan 2021
 #.  @par  Copying and copyrights:
 #.      This program is free software; you can redistribute it and/or modify
 #.      it under the terms of the GNU General Public License as published by
@@ -1525,21 +1525,242 @@ msgctxt "Creature name"
 msgid "Monk"
 msgstr "僧侣"
 
-#: guitext:287 guitext:288 guitext:289 guitext:290 guitext:343 guitext:291
-#: guitext:292 guitext:293 guitext:294 guitext:295 guitext:296 guitext:297
-#: guitext:298 guitext:299 guitext:300 guitext:301 guitext:302 guitext:303
-#: guitext:304 guitext:305 guitext:306 guitext:307 guitext:308 guitext:309
-#: guitext:310 guitext:311 guitext:312 guitext:313 guitext:314 guitext:315
-#: guitext:316 guitext:317 guitext:318 guitext:320 guitext:321 guitext:322
-#: guitext:323 guitext:333
-msgctxt "Unused"
-msgid "Moo9"
+#: guitext:287
+msgctxt "In-game interface description"
+msgid ""
+"Query: Select this and left click on a creature to view information on that "
+"creature and track it on screen. LMB select."
+msgstr "查询: 选择它并左键单击一个怪物察看怪物的信息，并在屏幕上跟踪它。左键选择。"
+
+#: guitext:288
+msgctxt "Menu interface item"
+msgid "Select game"
+msgstr "选择游戏"
+
+#: guitext:289
+msgctxt "Menu interface item"
+msgid "Network Menu"
+msgstr "网络菜单"
+
+#: guitext:290
+msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr "主菜单"
+
+#: guitext:343
+msgctxt "Menu interface, Main Menu title"
+msgid "Main Menu"
+msgstr "主菜单"
+
+#: guitext:291
+msgctxt "In-game interface description"
+msgid ""
+"Anger: How angry the creature is. The higher the bar is, the angrier the "
+"creature is."
+msgstr "愤怒: 怪物生气的程度。条的长度越长，表示怪物越生气。"
+
+#: guitext:292
+msgctxt "In-game interface description"
+msgid "Creature Kills: The total number of enemies the creature has slain."
+msgstr "杀敌: 怪物杀死的敌人的数量。"
+
+#: guitext:293
+msgctxt "In-game interface description"
+msgid ""
+"Strength: The amount of damage the creature inflicts upon its enemies with "
+"each hit."
+msgstr "力量: 怪物每一次击中敌人可以对敌人造成的伤害数量。"
+
+#: guitext:294
+msgctxt "In-game interface description"
+msgid "Wage: The creature's salary in gold which it takes on each payday."
+msgstr "薪水: 怪物每次发薪时领取的金子。"
+
+#: guitext:295
+msgctxt "In-game interface description"
+msgid "Gold Held: The amount of gold the creature is carrying."
+msgstr "财产: 这个怪物所带有的金子。"
+
+#: guitext:296
+msgctxt "In-game interface description"
+msgid ""
+"Defence: The chance a creature will avoid a blow. The higher the number, the "
+"greater the chance of avoidance."
+msgstr "防御: 怪物躲避一次攻击的机会。这个数值越高，躲避的成功率就越大。"
+
+#: guitext:297
+msgctxt "In-game interface description"
+msgid ""
+"Skill: The creature's ability to perform tasks. The higher the Skill level, "
+"the better the creature's performance."
+msgstr "技巧: 怪物执行任务的能力。这个数值越高，怪物的表现就越好。"
+
+#: guitext:298
+msgctxt "In-game interface description"
+msgid "Age/Time In Dungeon: The length of time you have employed the creature."
+msgstr "在地下城中的时间: 你雇佣了这个怪物多长时间。"
+
+#: guitext:299
+msgctxt "In-game interface description"
+msgid ""
+"Dexterity: The chance of a successful attack. Used to break enemy defence. "
+"The higher the number, the greater the chance of hitting."
 msgstr ""
+"敏捷: 一次攻击成功的机会。用于破解敌人的防御。"
+"这个数值越高，击中的几率就越大。"
+
+#: guitext:300
+msgctxt "In-game interface description"
+msgid ""
+"Luck: The chance that a creature will do a double attack or a double defence "
+"in combat. Taken into account only when the hit is not avoided."
+msgstr ""
+"幸运: 在战斗中怪物施展一次双倍攻击或防御的机会。"
+"只有在此次攻击没被躲避的情况下生效。"
+
+#: guitext:301
+msgctxt "In-game interface description"
+msgid "Blood type: As if you care. Blood is blood, right?"
+msgstr "血型: 仿佛你关心。血就是血，对吗？"
+
+#: guitext:302
+msgctxt "In-game interface description"
+msgid ""
+"Idle: The creature is either sleeping or not working. It's not involved in "
+"anything constructive or useful. LMB pick up creature. RMB zoom."
+msgstr ""
+"空闲: 怪物睡觉或不工作的时间。怪物没有涉及任何建设性或有用的事情。"
+"左键拿起怪物。右键缩放。"
+
+#: guitext:303
+msgctxt "In-game interface description"
+msgid ""
+"Working: The creature is performing tasks and doing work for you. LMB pick "
+"up creature. RMB zoom."
+msgstr "工作中: 怪物正在执行任务。左键拿起怪物。右键缩放。"
+
+#: guitext:304
+msgctxt "In-game interface description"
+msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom."
+msgstr "战斗中: 怪物正在进行战斗。左键拿起怪物。右键缩放。 "
+
+#: guitext:305
+msgctxt "In-game interface description"
+msgid ""
+"Fight: Your creatures always attack and not avoid any combat. LMB select."
+msgstr "战斗: 你的怪物总是会攻击敌人，不会逃离战斗。左键选择。"
+
+#: guitext:306
+msgctxt "In-game interface description"
+msgid ""
+"Flee: Your creatures attempt to preserve their lives, running away if they "
+"are too badly injured. LMB select."
+msgstr "逃跑: 你的怪物试着保护自己，在严重受伤时会开始逃跑。 左键选择。"
+
+#: guitext:307
+msgctxt "In-game interface description"
+msgid ""
+"Imprison: Your creatures stun their enemies in battle and imprison those "
+"they defeat. LMB select."
+msgstr "囚禁: 你的怪物在战斗中只将敌人打晕并将其囚禁。左键选择。"
+
+#: guitext:308
+msgctxt "In-game interface description"
+msgid ""
+"Defending: The creature is concentrating on avoiding its adversary's blows."
+msgstr "防御:  怪物专注于避免敌人的打击。"
+
+#: guitext:309
+msgctxt "In-game interface item"
+msgid "Are you sure?"
+msgstr "你确定吗？"
+
+#: guitext:310
+msgctxt "In-game interface item"
+msgid "Yes"
+msgstr "是"
+
+#: guitext:311
+msgctxt "In-game interface item"
+msgid "No"
+msgstr "否"
+
+#: guitext:312
+msgctxt "In-game interface item"
+msgid "For"
+msgstr "为"
+
+#: guitext:313
+msgctxt "In-game interface description"
+msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
+msgstr "影子: 每个怪物的影子的数量。左键切换。"
+
+#: guitext:314
+msgctxt "In-game interface description"
+msgid ""
+"View Type: Swap between the default and forced perspective views. Default "
+"view has warped walls and can be rotated, forced perspective shows larger "
+"area but can only be rotated 90 degrees. LMB toggle."
+msgstr ""
+"视角: 在默认视角和强制透视视角间切换。默认视角有弯曲的墙壁，可以旋转，"
+"而强制透视视角显示的区域较大，但只能一次旋转90度。左键切换。"
+
+#: guitext:315
+msgctxt "In-game interface description"
+msgid ""
+"Wall Height: Swap between high or low walls. If you make the walls one block "
+"high, they are easier to see over. LMB toggle."
+msgstr ""
+"墙高: 在高墙和低墙间切换。如果你把墙调成一格高，就更容易看清地图。"
+"左键切换。"
+
+#: guitext:316
+msgctxt "In-game interface description"
+msgid ""
+"View Distance: The amount of dungeon drawn. This directly affects the speed "
+"of the game. LMB toggle."
+msgstr "距离: 决定你从多高的地方俯视地下城。这将直接影响游戏的速度。左键切换。"
+
+#: guitext:317
+msgctxt "In-game interface description"
+msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
+msgstr "伽马校正: 调整游戏的亮度。左键切换。"
+
+#: guitext:318
+msgctxt "In-game interface item"
+msgid "Of"
+msgstr "的"
 
 #: guitext:319
 msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
 msgstr "空巢穴: 将满足投奔的怪物。"
+
+#: guitext:320
+msgctxt "Menu interface item"
+msgid "Paused"
+msgstr "暂停"
+
+#: guitext:321
+msgctxt "In-game interface description"
+msgid ""
+"Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
+"select."
+"放大: 放大动态地图。这会扩大你所看到的地图尺寸。左键选择。"
+
+#: guitext:322
+msgctxt "In-game interface description"
+msgid ""
+"Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
+"select."
+msgstr "缩小: 缩小动态地图。这会缩小你所看到的地图尺寸。左键选择。"
+
+#: guitext:323
+msgctxt "In-game interface description"
+msgid ""
+"Full Screen Map: Takes you to the Map Screen which displays your entire "
+"Dungeon and the surrounding area. LMB select."
+msgstr "全屏地图: 进入全屏地图画面，显示你的整个地下城和周围的区域。左键选择。"
 
 #: guitext:324
 msgctxt "Slab description"
@@ -1606,6 +1827,11 @@ msgid ""
 "Claimed area: Your dungeon territory. You can build rooms and drop your "
 "creatures on it."
 msgstr "已占领的地面:你的地下城领地。你可以在此建造房间或是放置你的怪物。"
+
+#: guitext:333
+msgctxt "In-game interface item"
+msgid "More..."
+msgstr "更多..."
 
 #: guitext:334
 msgctxt "In-game message"
@@ -1691,7 +1917,7 @@ msgstr "传送怪物"
 #: guitext:430
 msgctxt "Menu interface item"
 msgid "Bonus"
-msgstr "奖金"
+msgstr "奖励关卡"
 
 #: guitext:431 guitext:432 guitext:433 guitext:434 guitext:435 guitext:436
 #: guitext:437 guitext:438 guitext:439 guitext:440 guitext:441 guitext:442
@@ -2344,6 +2570,141 @@ msgid ""
 "for a final, decisive battle. LMB select. [18.15]"
 msgstr ""
 "末日审判: 将地下所有的怪物传送至地下城的心脏，进行大决战。左键选择。[18.15]"
+
+#: guitext:664 guitext:665 guitext:666 guitext:667 guitext:668 guitext:669
+#: guitext:670
+#: guitext:671 guitext:672 guitext:673 guitext:674 guitext:675 guitext:676
+#: guitext:677 guitext:678 guitext:679 guitext:680 guitext:681 guitext:682
+#: guitext:683 guitext:684 guitext:685 guitext:686 guitext:687 guitext:688
+#: guitext:689 guitext:690 guitext:691 guitext:692 guitext:693 guitext:694
+#: guitext:695 guitext:696 guitext:697 guitext:698 guitext:699 guitext:700
+#: guitext:701 guitext:702 guitext:703 guitext:704 guitext:705 guitext:706
+#: guitext:707 guitext:708 guitext:709 guitext:710 guitext:711 guitext:712
+#: guitext:713 guitext:714 guitext:715 guitext:716 guitext:717 guitext:718
+#: guitext:719 guitext:720 guitext:721 guitext:722 guitext:723 guitext:724
+#: guitext:725 guitext:726 guitext:727 guitext:728 guitext:729 guitext:730
+#: guitext:731 guitext:732 guitext:733 guitext:734 guitext:735 guitext:736
+#: guitext:737 guitext:738 guitext:739 guitext:740 guitext:741 guitext:742
+#: guitext:743 guitext:744 guitext:745 guitext:746 guitext:747 guitext:748
+#: guitext:749 guitext:750 guitext:751 guitext:752 guitext:753 guitext:754
+#: guitext:755 guitext:756 guitext:757 guitext:758 guitext:759 guitext:760
+#: guitext:761 guitext:762 guitext:763 guitext:764 guitext:765 guitext:766
+#: guitext:767 guitext:768 guitext:769 guitext:770 guitext:771 guitext:772
+#: guitext:773 guitext:774 guitext:775 guitext:776 guitext:777 guitext:778
+#: guitext:779 guitext:780 guitext:781 guitext:782 guitext:783 guitext:784
+#: guitext:785 guitext:786 guitext:787 guitext:788 guitext:789 guitext:790
+#: guitext:791 guitext:792 guitext:793 guitext:794 guitext:795 guitext:796
+#: guitext:797 guitext:798 guitext:799 guitext:800
+#: guitext:801 guitext:802 guitext:803 guitext:804 guitext:805 guitext:806
+#: guitext:807 guitext:808 guitext:809 guitext:810 guitext:811 guitext:812
+#: guitext:813 guitext:814 guitext:815 guitext:816 guitext:817 guitext:818
+#: guitext:819 guitext:820 guitext:821 guitext:822 guitext:823 guitext:824
+#: guitext:825 guitext:826 guitext:827 guitext:828 guitext:829 guitext:830
+#: guitext:831 guitext:832 guitext:833 guitext:834 guitext:835 guitext:836
+#: guitext:837 guitext:838 guitext:839 guitext:840 guitext:841 guitext:842
+#: guitext:843 guitext:844 guitext:845 guitext:846 guitext:847 guitext:848
+#: guitext:849 guitext:850 guitext:851 guitext:852 guitext:853 guitext:854
+#: guitext:855 guitext:856 guitext:857 guitext:858 guitext:859 guitext:860
+#: guitext:861 guitext:862 guitext:863 guitext:864 guitext:865 guitext:866
+#: guitext:867 guitext:868 guitext:869 guitext:870 guitext:871 guitext:872
+#: guitext:873 guitext:874 guitext:875 guitext:876 guitext:877 guitext:878
+#: guitext:879 guitext:880 guitext:881 guitext:882 guitext:883 guitext:884
+#: guitext:885 guitext:886 guitext:887 guitext:888 guitext:889 guitext:890
+#: guitext:891 guitext:892 guitext:893 guitext:894 guitext:895 guitext:896
+#: guitext:897 guitext:898 guitext:899 guitext:900
+#: guitext:901 guitext:902 guitext:903 guitext:904 guitext:905 guitext:906
+#: guitext:907 guitext:908 guitext:909 guitext:910 guitext:911 guitext:912
+#: guitext:913 guitext:914 guitext:915 guitext:916 guitext:917 guitext:918
+#: guitext:919 guitext:920 guitext:921 guitext:922 guitext:923 guitext:924
+#: guitext:925 guitext:926 guitext:927 guitext:928 guitext:929 guitext:930
+#: guitext:931 guitext:932 guitext:933 guitext:934 guitext:935 guitext:936
+#: guitext:937 guitext:938 guitext:939 guitext:940 guitext:941 guitext:942
+#: guitext:943 guitext:944 guitext:945 guitext:946 guitext:947 guitext:948
+#: guitext:949 guitext:950 guitext:951 guitext:952 guitext:953 guitext:954
+#: guitext:955 guitext:956 guitext:957 guitext:958 guitext:959 guitext:960
+#: guitext:961 guitext:962 guitext:963 guitext:964 guitext:965 guitext:966
+#: guitext:967 guitext:968 guitext:969 guitext:970 guitext:971 guitext:972
+#: guitext:973 guitext:974 guitext:975 guitext:976 guitext:977 guitext:978
+#: guitext:979 guitext:980
+
+#: guitext:981
+msgctxt "Trap names"
+msgid "Special Trap"
+msgstr "特殊陷井"
+
+#: guitext:982
+msgctxt "Trap names"
+msgid "Freeze Trap"
+msgstr "冰冻陷井"
+
+#: guitext:983
+msgctxt "Trap names"
+msgid "Fear Trap"
+msgstr "恐惧陷井"
+
+#: guitext:984
+msgctxt "Trap names"
+msgid "Sentry Trap"
+msgstr "岗哨陷井"
+
+#: guitext:985
+msgctxt "Trap names"
+msgid "Mimic Trap"
+msgstr "模拟陷井"
+
+#: guitext:986
+msgctxt "Trap names"
+msgid "Spawn Trap"
+msgstr "召唤陷井"
+
+#: guitext:987
+msgctxt "Trap names"
+msgid "Wind Trap"
+msgstr "风暴陷井"
+
+#: guitext:988
+msgctxt "Trap names"
+msgid "Spitfire Trap"
+msgstr "喷火陷井"
+
+#: guitext:989
+msgctxt "Trap names"
+msgid "Chicken Trap"
+msgstr "小鸡陷井"
+
+#: guitext:990
+msgctxt "Trap names"
+msgid "Disease Trap"
+msgstr "疾病陷井"
+
+#: guitext:991
+msgctxt "Trap names"
+msgid "Power Trap"
+msgstr "能量陷井"
+
+#: guitext:992
+msgctxt "Trap names"
+msgid "Switch"
+msgstr "开关"
+
+#: guitext:993
+msgctxt "Trap names"
+msgid "Hidden Switch"
+msgstr "隐藏开关"
+
+#: guitext:994
+msgctxt "Door name"
+msgid "Special Door"
+msgstr "特殊门"
+
+#: guitext:995
+msgctxt "Door name"
+msgid "Hidden Door"
+msgstr "隐藏门"
+
+#: guitext:996 guitext:997 guitext:998 guitext:999 guitext:1000 guitext:1001
+#: guitext:1002 guitext:1003 guitext:1004
+
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
