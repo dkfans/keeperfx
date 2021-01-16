@@ -2976,26 +2976,6 @@ void command_printfx(int idx, const char *msgtext, const char *range_id)
   command_add_value(Cmd_PRINTFX, 0, id, idx, 0);
 }
 
-void command_messagefx(int idx, const char *msgtext, unsigned long nturns)
-{
-    if ((idx < 0) || (idx >= QUICK_MESSAGES_COUNT))
-    {
-        SCRPTERRLOG("Invalid information ID number (%d)", idx);
-        return;
-    }
-    if (strlen(msgtext) > MESSAGE_TEXT_LEN)
-    {
-        SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-    }
-    if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
-    {
-        SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
-    }
-    strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-    gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
-    command_add_value(Cmd_MESSAGEFX, 0, idx, nturns, 0);
-}
-
 void command_swap_creature(const char *ncrt_name, const char *crtr_name)
 {
     long ncrt_id = get_rid(newcrtr_desc, ncrt_name);
@@ -3575,9 +3555,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
-        break;
-    case Cmd_MESSAGEFX:
-        command_messagefx(scline->np[0],scline->tp[1], scline->np[2]);
         break;
     case Cmd_PLAY_MESSAGE:
         command_play_message(scline->np[0], scline->tp[1], scline->np[2]);
@@ -6290,11 +6267,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
       break;
   }
- case Cmd_MESSAGEFX:
-  {
-      show_onscreen_msg(val3, "%s", gameadd.quick_messages[val2]);
-      break;
-  }
   case Cmd_SET_GAME_RULE:
       switch (val2)
       {
@@ -6642,7 +6614,6 @@ const struct CommandDesc command_desc[] = {
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {"PRINT",                             "NAA     ", Cmd_PRINTFX, NULL, NULL},
-  {"MESSAGE",                           "NAN     ", Cmd_MESSAGEFX, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
