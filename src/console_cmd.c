@@ -457,7 +457,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             return script_set_pool(plyr_idx, pr2str, pr3str);
         }
-        else if (strcasecmp(parstr, "gold.create") == 0)
+        else if ( (strcasecmp(parstr, "gold.create") == 0) || (strcasecmp(parstr, "create.gold") == 0) )
         {
             if (pr2str != NULL)
             {
@@ -486,7 +486,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
             }           
         }
-        else if (strcasecmp(parstr, "object.create") == 0)
+        else if ( (strcasecmp(parstr, "object.create") == 0) || (strcasecmp(parstr, "create.object") == 0) )
         {
             if (pr2str != NULL)
             {
@@ -509,7 +509,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
             }
         }
-        else if (strcasecmp(parstr, "creature.create") == 0)
+        else if ( (strcasecmp(parstr, "creature.create") == 0) || (strcasecmp(parstr, "create.creature") == 0) )
         {
             if (pr2str != NULL)
             {
@@ -548,7 +548,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
             }
         }
-        else if (strcasecmp(parstr, "thing.create") == 0)
+        else if ( (strcasecmp(parstr, "thing.create") == 0) || (strcasecmp(parstr, "create.thing") == 0) )
         {
             if ( (pr2str != NULL) && (pr3str != NULL) )
             {
@@ -563,7 +563,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return (!thing_is_invalid(thing));
             }
         }
-        else if (strcasecmp(parstr, "slab.place") == 0)
+        else if ( (strcasecmp(parstr, "slab.place") == 0) || (strcasecmp(parstr, "place.slab") == 0) )
         {
             if (pr2str != NULL)
             {
