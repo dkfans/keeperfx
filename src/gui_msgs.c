@@ -65,7 +65,11 @@ void message_draw(void)
         {
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
         }
-        y += h*units_per_pixel/16 + ((20 * units_per_pixel / 16)*(unsigned char)NotPlayer);
+        y += h*units_per_pixel/16;
+        if (NotPlayer)
+        {
+            y += (20 * units_per_pixel / 16);
+        }        
     }
 }
 
