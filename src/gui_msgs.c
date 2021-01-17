@@ -52,6 +52,7 @@ void message_draw(void)
         unsigned long spr_idx;
         if ((char)gameadd.messages[i].plyr_idx < 0)
         {
+            x -= (7 * units_per_pixel / 16);
             y -= (20 * units_per_pixel / 16);
             spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
         }
