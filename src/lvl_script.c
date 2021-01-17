@@ -2956,10 +2956,10 @@ void command_quick_message(int idx, const char *msgtext, const char *range_id)
   command_add_value(Cmd_QUICK_MESSAGE, 0, id, idx, 0);
 }
 
-void command_messagefx(int msg_num, const char *range_id)
+void command_display_message(int msg_num, const char *range_id)
 {
     char id = get_player_number_from_value(range_id);
-    command_add_value(Cmd_MESSAGEFX, 0, id, msg_num, 0);
+    command_add_value(Cmd_DISPLAY_MESSAGE, 0, id, msg_num, 0);
 }
 
 void command_swap_creature(const char *ncrt_name, const char *crtr_name)
@@ -3539,8 +3539,8 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_QUICK_MESSAGE:
         command_quick_message(scline->np[0], scline->tp[1], scline->tp[2]);
         break;
-    case Cmd_MESSAGEFX:
-        command_messagefx(scline->np[0], scline->tp[1]);
+    case Cmd_DISPLAY_MESSAGE:
+        command_display_message(scline->np[0], scline->tp[1]);
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
@@ -6256,7 +6256,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
       break;
   }
-  case Cmd_MESSAGEFX:
+  case Cmd_DISPLAY_MESSAGE:
   {
         message_add_fmt(val2, "%s", get_string(val3));
         break;        
@@ -6638,7 +6638,7 @@ const struct CommandDesc command_desc[] = {
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
-  {"MESSAGE",                           "NA      ", Cmd_MESSAGEFX, NULL, NULL},
+  {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
