@@ -1000,14 +1000,6 @@ static TbBool HandleFrame(NetUserId source, char * ptr, char * end, bool is_serv
             process_confirmation(is_server, source, seq);
             ptr += size;
             continue;
-        } else if (buf_struct->kind == PckA_UpdateBaseSeq)
-        {
-            struct NetBufferNode *node = sm_append(netstate.incoming_list, size);
-            node->delivery_flag = 0xFFFFFFFF; //We got an update - dont send it to anyone
-
-            memcpy(node->data, ptr, size);
-            ptr += size;
-            continue;
         }
 
         struct NetBufferNode *node = sm_append(netstate.incoming_list, size);
@@ -1630,6 +1622,7 @@ static void process_lists(
         if (item->kind == PckA_UpdateBaseSeq)
         {
             process_update_seq(player_idx, item);
+            node->delivery_flag = 0xFFFFFFFF; //We got an update - dont send it to anyone
             continue;
         }
 
@@ -1638,7 +1631,8 @@ static void process_lists(
         {
             // Single shot packets
             callback(context, item->turn, item->player, item->kind, item->buffer, item->size);
-            // SEQ_ALWAYS also proxied by server
+            // SEQ_ALWAYS cant be proxied by server because it is not possible to get delivery message
+            node->delivery_flag |= 0xFFFFFFFF;
         }
         else
         {
