@@ -23,6 +23,10 @@
 #include "globals.h"
 #include "config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct Thing;
 struct BigActionPacket;
 struct SmallActionPacket;
@@ -32,4 +36,9 @@ void process_update_job(struct BigActionPacket *big);
 
 TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind nslab);
 void process_update_land(int client_id, struct BigActionPacket *big);
+void process_updating_packets();
+#ifdef __cplusplus
+}
+#endif
+
 #endif

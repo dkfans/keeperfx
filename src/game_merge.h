@@ -166,6 +166,8 @@ struct GameAdd {
 
     struct ThingAdd things[THINGS_COUNT];
     Thingid         first_ghost;
+
+    Thingid         first_updated_land; // List of all my creatures that updated land this tick
 };
 
 #pragma pack()

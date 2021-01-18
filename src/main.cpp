@@ -126,6 +126,7 @@
 #include "KeeperSpeech.h"
 
 #include "music_player.h"
+#include "packets_updating.h"
 
 #ifdef AUTOTESTING
 #include "event_monitoring.h"
@@ -2845,12 +2846,14 @@ void update(void)
             process_computer_players2();
         process_players();
         process_action_points();
+        process_armageddon();
+        process_updating_packets();
+
         player = get_my_player();
         if (player->view_mode == PVM_CreatureView)
             update_flames_nearest_camera(player->acamera);
         update_footsteps_nearest_camera(player->acamera);
         PaletteFadePlayer(player);
-        process_armageddon();
 #if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();

@@ -127,20 +127,66 @@ TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord sl
 {
     if (!netremap_is_mine(thing->owner))
         return false;
-    struct BigActionPacket *big = create_packet_action_big(get_player(thing->owner), PckA_UpdateLand, AP_PlusTwo);
+    struct ThingAdd *thingadd = get_thingadd(thing->index);
     NETDBG(5, "imp:%d owner:%d st:%s x:%d y:%d slb:%d", thing->owner, thing->index, creature_state_code_name(thing->active_state),
            slb_x, slb_y, nslab);
+
+    thingadd->next_updated_land = gameadd.first_updated_land;
+    thingadd->update_land_slab = nslab;
+    thingadd->update_land_pos = slb_x | (slb_y << 8);
+
+    gameadd.first_updated_land = thing->index;
+    return true;
+}
+
+static void send_postupdate_land(struct Thing *thing, struct ThingAdd *thingadd);
+
+void process_updating_packets()
+{
+    unsigned long k = 0;
+    Thingid i = gameadd.first_updated_land;
+    gameadd.first_updated_land = 0;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        struct ThingAdd *thingadd = get_thingadd(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thingadd->next_updated_land;
+        thingadd->next_updated_land = 0;
+        // Per-thing code
+        send_postupdate_land(thing, thingadd);
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}
+
+static void send_postupdate_land(struct Thing *thing, struct ThingAdd *thingadd)
+{
+    struct BigActionPacket *big = create_packet_action_big(get_player(thing->owner), PckA_UpdateLand, AP_PlusTwo);
     big->head.arg[0] = thing->index;
-    big->head.arg[1] = nslab | (thing->active_state << 8);
+    big->head.arg[1] = thingadd->update_land_slab | (thing->active_state << 8);
     big->head.arg[2] = thing->mappos.x.val; // precise position only because of possession
     big->head.arg[3] = thing->mappos.y.val;
-    big->head.arg[4] = slb_x | (slb_y << 8);
-    return true;
+    big->head.arg[4] = thingadd->update_land_pos;
+    big->head.arg[5] = (unsigned short)thingadd->rand_seed;
+    thingadd->rand_seed = big->head.arg[5];
+    // + instance_id
+    // + inst_turn
 }
 
 void process_update_land(int client_id, struct BigActionPacket *big)
 {
     struct Thing *thing = thing_get(net_remap_thingid(client_id, big->head.arg0));
+    struct ThingAdd *thingadd = get_thingadd(thing->index);
     SlabKind nslab = big->head.arg[1] & 255;
     unsigned char new_state = big->head.arg[1] >> 8;
     MapSlabCoord slb_x = big->head.arg[4] & 255;
@@ -171,6 +217,7 @@ void process_update_land(int client_id, struct BigActionPacket *big)
 
     thing->active_state = new_state;
     thing->continue_state = CrSt_Unused;
+    thingadd->rand_seed = big->head.arg[5];
 
     if (nslab == SlbT_PATH)
     {

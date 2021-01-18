@@ -250,6 +250,10 @@ struct ThingAdd // Additional thing data
     unsigned long rand_seed;
     unsigned long flags; //ThingAddFlags
     Thingid       next_ghost;
+
+    Thingid next_updated_land;
+    SlabKind update_land_slab;
+    MapSlabCoord update_land_pos;
 };
 
 #pragma pack()
