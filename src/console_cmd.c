@@ -496,8 +496,13 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 pos.y.stl.num = coord_subtile(((unsigned short)pckt->pos_y));
                 if (!subtile_coords_invalid(pos.x.stl.num, pos.y.stl.num))
                 {
+                    long ObjModel = get_rid(object_desc, pr2str);
+                    if (ObjModel == -1)
+                    {
+                        ObjModel = atoi(pr2str);
+                    }
                     PlayerNumber id = get_player_number_for_command(pr3str);
-                    thing = create_object(&pos, atoi(pr2str), id, -1);
+                    thing = create_object(&pos, ObjModel, id, -1);
                     if (thing_is_object(thing))
                     {
                         if (thing_in_wall_at(thing, &thing->mappos))
