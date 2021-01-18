@@ -751,7 +751,7 @@ Send something like this:
     char sm_count;
     struct NetBufferItem items[sm_count];
 */
-static void SendServerFrame()
+static void SendServerFrame(TbClockMSec now)
 {
     //netstate.server_header->num_clients = CountLoggedInClients() + 1;
 
@@ -858,7 +858,7 @@ Send something like this:
     char sm_count;
     struct NetBufferItem items[sm_count];
 */
-static void SendClientFrame(int seq_nbr) //seq_nbr because it isn't necessarily determined
+static void SendClientFrame(int seq_nbr, TbClockMSec now) //seq_nbr because it isn't necessarily determined
 {
     char *ptr;
     // We should reserve some space for confirmation packet
@@ -1673,7 +1673,7 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
     bool is_server = (netstate.users[netstate.my_id].progress == USER_SERVER);
     TbBool ok;
 
-    struct PacketBuffer packet_buffer = {0, .max_size = MAX_FRAME_DATA_SIZE, 0 };
+    struct PacketBuffer packet_buffer = {.size = 0, .max_size = MAX_FRAME_DATA_SIZE, .data={0} };
 
     NETDBG(11, "Starting");
     if (netstate.resync_mode == 1)
@@ -1783,7 +1783,7 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
         }
         */
 
-        SendServerFrame();
+        SendServerFrame(now);
     }
     else
     {
@@ -1795,7 +1795,7 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
         }
         */
 
-        SendClientFrame(netstate.seq_nbr);
+        SendClientFrame(netstate.seq_nbr, now);
         netstate.incoming_list.clear();
     }
 

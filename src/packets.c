@@ -616,10 +616,20 @@ static TbBool process_players_global_packet_action(
       {
         frontend_save_continue_game(false);
       }
-      return 0;
+      return false;
+  case  PckA_PlyrMsgChar:
+      if ((player->allocflags & PlaF_NewMPMessage) != 0)
+      {
+        process_players_message_character(player, pckt);
+      }
+      else
+      {
+        WARNLOG("MsgChar without PlaF_NewMPMessage player:%d", player->id_number);
+      }
+      return true;
   case PckA_PlyrMsgBegin:
       player->allocflags |= PlaF_NewMPMessage;
-      return 1;
+      return true;
   case PckA_PlyrMsgEnd:
       player->allocflags &= ~PlaF_NewMPMessage;
       if (player->mp_message_text[0] == '!')
@@ -720,8 +730,6 @@ static TbBool process_players_global_packet_action(
       return 0;
   }
   case PckA_CheatCrAllSpls:
-      //TODO: remake from beta
-      return 0;
   case PckA_Unknown065:
       //TODO: remake from beta
       return 0;
@@ -732,8 +740,6 @@ static TbBool process_players_global_packet_action(
       make_available_all_researchable_rooms(my_player_number);
       return 0;
   case PckA_Unknown068:
-      //TODO: remake from beta
-      return 0;
   case PckA_Unknown069:
       //TODO: remake from beta
       return 0;
@@ -995,18 +1001,7 @@ static void process_players_packet(
 {
     SYNCDBG(6, "Processing player %d packet of type %d.", player->id_number, (int)kind);
 
-    if (kind == PckA_PlyrMsgChar)
-    {
-        if ((player->allocflags & PlaF_NewMPMessage) != 0)
-        {
-            process_players_message_character(player, packet_short);
-        }
-        else
-        {
-            WARNLOG("MsgChar without PlaF_NewMPMessage player:%d", player->id_number);
-        }
-    }
-    else if (!process_players_global_packet_action(player, kind, packet_short))
+    if (!process_players_global_packet_action(player, kind, packet_short))
     {
       // Different changes to the game are possible for different views.
       // For each there can be a control change (which is view change or mouse event not translated to action),
