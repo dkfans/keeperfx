@@ -34,7 +34,7 @@ extern "C" {
 
 struct GuiMessage { // sizeof = 0x45 (69)
     char text[64];
-unsigned char plyr_idx;
+PlayerNumber plyr_idx;
 unsigned long creation_turn;
 };
 

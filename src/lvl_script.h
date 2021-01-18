@@ -143,6 +143,8 @@ enum TbScriptCommands {
     Cmd_SET_BOX_TOOLTIP                   = 122,
     Cmd_SET_BOX_TOOLTIP_ID                = 123,
     Cmd_CREATE_EFFECTS_LINE               = 124,
+    Cmd_DISPLAY_MESSAGE                   = 125,
+    Cmd_QUICK_MESSAGE                     = 126,
 };
 
 enum ScriptVariables {
@@ -466,6 +468,7 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx);
 void script_process_new_creatures(PlayerNumber plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level);
 void process_check_new_creature_partys(void);
 void process_check_new_tunneller_partys(void);
+char get_player_number_from_value(const char* txt);
 /******************************************************************************/
 #ifdef __cplusplus
 }
