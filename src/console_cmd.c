@@ -583,7 +583,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     PlayerNumber id = (pr3str == NULL) ? slabmap_owner(slb) : get_player_number_for_command(pr3str);
                     short slbkind = get_rid(slab_desc, pr2str);
-                    if (slbkind <= 0)
+                    if (slbkind < 0)
                     {
                         long rid = get_rid(room_desc, pr2str);
                         if (rid > 0)
@@ -611,25 +611,30 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                             }
                             else
                             {
-                                slbkind = atoi(pr2str);
+                                if (parameter_is_number(pr2str))
+                                {
+                                    slbkind = atoi(pr2str);
+                                }
                             }
                         }
                     }
-                    if (subtile_is_room(stl_x, stl_y)) 
+                    if ( (slbkind >= 0) && (slbkind <= slab_conf.slab_types_count) )
                     {
-                        room = subtile_room_get(stl_x, stl_y);
-                        delete_room_slab(slb_x, slb_y, true);
+                        if (subtile_is_room(stl_x, stl_y)) 
+                        {
+                            delete_room_slab(slb_x, slb_y, true);
+                        }
+                        if (slab_kind_is_animated(slbkind))
+                        {
+                            place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, id);  
+                        }
+                        else
+                        {
+                            place_slab_type_on_map(slbkind, stl_x, stl_y, id, 0);
+                        }
+                        do_slab_efficiency_alteration(slb_x, slb_y);
+                        return true;
                     }
-                    if (slab_kind_is_animated(slbkind))
-                    {
-                        place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, id);  
-                    }
-                    else
-                    {
-                        place_slab_type_on_map(slbkind, stl_x, stl_y, id, 0);
-                    }
-                    do_slab_efficiency_alteration(slb_x, slb_y);
-                    return true;
                 }
             }
         }
@@ -726,6 +731,18 @@ PlayerNumber get_player_number_for_command(char *msg)
         }                            
     }
     return id;
+}
+
+TbBool parameter_is_number(char* parstr)
+{
+    for (int i = 0; parstr[i] != '\0'; i++)
+    {
+        if (!isdigit(parstr[i]))
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 #ifdef __cplusplus
