@@ -1580,8 +1580,15 @@ TbBool frontmap_process_screen_packet(void *context_data, unsigned long turn, in
     struct NetMapPlayersState *context = context_data;
     struct ScreenPacket* nspck = (struct ScreenPacket*)packet_data;
     NETDBG(11, "size:%d plyr_idx:%d", size, plyr_idx);
+    assert(plyr_idx >=0 && plyr_idx < MAX_N_USERS);
+
+    if (kind != PckA_LandView)
+    {
+        // TODO: process ping packets
+        return true;
+    }
     assert(size == sizeof(struct ScreenPacket));
-    assert(plyr_idx >=0 && plyr_idx < 4);
+
     net_screen_packet_NEW[plyr_idx] = *nspck;
 
     context->players_count++; // TODO: just put it into packet

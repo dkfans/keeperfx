@@ -69,7 +69,11 @@ static TbBool process_frontend_packet_cb(void *context, unsigned long turn, int 
             ui_turn, plyr_idx, nspck->flags_4 >> 3, nspck->flags_4 & SPF_FlagsMask);
     }
 #endif
-
+    if (kind != PckA_Frontmenu)
+    {
+        // TODO: process ping packets
+        return true;
+    }
     if ((nspck->flags_4 & SPF_PlayerActive) != 0)
     {
         long k;

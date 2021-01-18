@@ -743,6 +743,37 @@ static char * send_confirm_packet(SeqType last_confirmed[], char *ptr, int id, i
     return ptr;
 }
 
+#pragma pack(1)
+union PingPacketData
+{
+    struct NetBufferNode node;
+    struct
+    {
+        char tmp1[sizeof(node)];
+        struct NetBufferItem item;
+    };
+    struct
+    {
+        char tmp2[sizeof(node) + sizeof(item)];
+        TbClockMSec time;
+    };
+};
+#pragma pack()
+
+static void init_ping_packet(TbClockMSec now, union PingPacketData *packet_data)
+{
+    packet_data->node.out_seq = SEQ_ALWAYS;
+    packet_data->node.next = netstate.outgoing_list.first;
+    packet_data->node.size = sizeof(packet_data->item) + sizeof(packet_data->time);
+
+    packet_data->item.turn = game.play_gameturn;
+    packet_data->item.size = sizeof(packet_data->time);
+    packet_data->item.in_seq = SEQ_ALWAYS;
+    packet_data->item.kind = PckA_Ping;
+    packet_data->item.player = netstate.my_id;
+    packet_data->time = now;
+}
+
 /*
 Send something like this:
 
@@ -779,6 +810,12 @@ static void SendServerFrame(TbClockMSec now)
     int sent_clients = 0;
     int sent_actions = 0;
 
+    // This hack would break list.remove
+    union PingPacketData temp_data={};
+    init_ping_packet(now, &temp_data);
+
+    struct NetBufferNode *start_node = &temp_data.node;
+
     for (int id = 1; id < MAX_N_USERS; ++id)
     {
         if (netstate.users[id].progress != USER_LOGGEDIN)
@@ -789,7 +826,7 @@ static void SendServerFrame(TbClockMSec now)
         ptr = saved_ptr;
         cnt = 0;
 
-        for (struct NetBufferNode *node = netstate.outgoing_list.first;
+        for (struct NetBufferNode *node = start_node;
             node != NULL;
             node = node->next
             )
@@ -881,7 +918,13 @@ static void SendClientFrame(int seq_nbr, TbClockMSec now) //seq_nbr because it i
 
     unsigned int id = 0;
 
-    for (struct NetBufferNode *node = netstate.outgoing_list.first;
+    // This hack would break list.remove
+    union PingPacketData temp_data={};
+    init_ping_packet(now, &temp_data);
+
+    struct NetBufferNode *start_node = &temp_data.node;
+
+    for (struct NetBufferNode *node = start_node;
         node != NULL;
         node = node->next
         )
@@ -1595,8 +1638,7 @@ static void process_lists(
         {
             // Single shot packets
             callback(context, item->turn, item->player, item->kind, item->buffer, item->size);
-            // TODO: delete this node after sending to each peer
-            assert(false && "Unexpected");
+            // SEQ_ALWAYS also proxied by server
         }
         else
         {
@@ -1755,7 +1797,7 @@ enum NetResponse LbNetwork_Exchange(void *context, LbNetwork_Packet_Callback cal
         if (netstate.delivery_mask == 1)
             netstate.outgoing_list.clear(); // Single player
         else
-          netstate.outgoing_list.join_list(&netstate.incoming_list);
+            netstate.outgoing_list.join_list(&netstate.incoming_list);
 
         for (struct NetBufferNode *node = netstate.outgoing_list.first;
             node != NULL;
