@@ -2008,7 +2008,10 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
         ((chr >= 'A') && (chr <= 'Z')) ||
         ((chr >= '0') && (chr <= '9')) ||
         (chr == ' ')  || (chr == '!') || (chr == ':') || (chr == ';') ||
-        (chr == '(') || (chr == ')') || (chr == '.'))
+        (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_') 
+        || (chr == "'") || (chr == '+') || (chr == '=') || (chr == '-')
+        || (chr == '"') || (chr == '?') || (chr == '/') || (chr == '#')
+        || (chr == '<') || (chr == '>') || (chr == '^'))
     {
         if (chpos < maxlen)
         {
