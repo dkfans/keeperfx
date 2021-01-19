@@ -145,6 +145,7 @@ enum TbScriptCommands {
     Cmd_CREATE_EFFECTS_LINE               = 124,
     Cmd_DISPLAY_MESSAGE                   = 125,
     Cmd_QUICK_MESSAGE                     = 126,
+    Cmd_USE_SPELL_ON_CREATURE             = 127,
 };
 
 enum ScriptVariables {
