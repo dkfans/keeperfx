@@ -624,9 +624,20 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     pckt = get_packet_direct(player->packet_num);
                     pos.x.stl.num = coord_subtile(((unsigned short)pckt->pos_x));
                     pos.y.stl.num = coord_subtile(((unsigned short)pckt->pos_y));
-                    PlayerNumber id = get_player_number_for_command(pr4str);
-                    thing = create_thing(&pos, tngclass, tngmodel, id, -1);
-                    return (!thing_is_invalid(thing));
+                    if (!subtile_coords_invalid(pos.x.stl.num, pos.y.stl.num))
+                    {
+                        pos.z.stl.num = get_floor_height(pos.x.stl.num, pos.y.stl.num);
+                        PlayerNumber id = get_player_number_for_command(pr4str);
+                        thing = create_thing(&pos, tngclass, tngmodel, id, -1);
+                        if (!thing_is_invalid(thing))
+                        {
+                            if (thing_in_wall_at(thing, &thing->mappos))
+                            {
+                                move_creature_to_nearest_valid_position(thing);
+                            }
+                            return true;
+                        }
+                    }
                 }
             }
         }
