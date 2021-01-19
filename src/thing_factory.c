@@ -111,7 +111,7 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigne
         thing = create_cave_in(pos, tngmodel, owner);
         break;
     case TCls_Door:
-        thing = create_door(pos, tngmodel, find_door_angle(pos->x.stl.num, pos->y.stl.num, owner), owner, 0);
+        thing = create_door(pos, tngmodel, find_door_angle(pos->x.stl.num, pos->y.stl.num, owner), owner, false);
         break;
     default:
         break;
