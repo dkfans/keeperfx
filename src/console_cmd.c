@@ -567,7 +567,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if ( (pr2str != NULL) && (pr3str != NULL) )
             {
-                short tngclass, tngmodel = -1;
+                short tngclass = -1;
+                short tngmodel = -1;
                 if (strcasecmp(pr2str, "object") == 0)
                 {
                     tngclass = TCls_Object;
