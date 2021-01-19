@@ -612,9 +612,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 if (tngmodel < 0)
                 {
-                    if (parameter_is_number(pr2str))
+                    if (parameter_is_number(pr3str))
                     {
-                        tngmodel = atoi(pr2str);
+                        tngmodel = atoi(pr3str);
                     }
                 }
                 if ( (tngclass >= 0) && (tngmodel >= 0) )
