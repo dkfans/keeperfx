@@ -459,7 +459,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if ( (strcasecmp(parstr, "gold.create") == 0) || (strcasecmp(parstr, "create.gold") == 0) )
         {
-            if (pr2str != NULL)
+            if ( (pr2str != NULL) && (parameter_is_number(pr2str)) )
             {
                 player = get_player(plyr_idx);
                 pckt = get_packet_direct(player->packet_num);
@@ -499,17 +499,23 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     long ObjModel = get_rid(object_desc, pr2str);
                     if (ObjModel == -1)
                     {
-                        ObjModel = atoi(pr2str);
-                    }
-                    PlayerNumber id = get_player_number_for_command(pr3str);
-                    thing = create_object(&pos, ObjModel, id, -1);
-                    if (thing_is_object(thing))
-                    {
-                        if (thing_in_wall_at(thing, &thing->mappos))
+                        if (parameter_is_number(pr2str))
                         {
-                            move_creature_to_nearest_valid_position(thing);
+                            ObjModel = atoi(pr2str);
                         }
+                    }
+                    if (ObjNumber >= 0)
+                    {
+                        PlayerNumber id = get_player_number_for_command(pr3str);
+                        thing = create_object(&pos, ObjModel, id, -1);
+                        if (thing_is_object(thing))
+                        {
+                            if (thing_in_wall_at(thing, &thing->mappos))
+                            {
+                                move_creature_to_nearest_valid_position(thing);
+                            }
                         return true;
+                        }
                     }
                 }
             }
@@ -521,7 +527,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 long crmodel = get_creature_model_for_command(pr2str);
                 if (crmodel == -1)
                 {
-                    crmodel = atoi(pr2str);
+                    if (parameter_is_number(pr2str))
+                    {
+                        crmodel = atoi(pr2str);
+                    }
                 }
                 if ( (crmodel > 0) && (crmodel <= 31) )
                 {
