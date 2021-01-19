@@ -93,6 +93,7 @@ void process_update_job(struct BigActionPacket *big)
     }
     if (active_state)
     {
+        EVM_CREATURE_EVENT_WITH_TARGET("state", thing->owner, thing, active_state);
         thing->active_state = active_state;
         thing->mappos.x.stl.num = big->head.arg[2] & 255;
         thing->mappos.y.stl.num = big->head.arg[2] >> 8;
@@ -181,6 +182,7 @@ static void send_postupdate_land(struct Thing *thing, struct ThingAdd *thingadd)
     thingadd->rand_seed = big->head.arg[5];
     // + instance_id
     // + inst_turn
+    // + digger.task_idx
 }
 
 void process_update_land(int client_id, struct BigActionPacket *big)
@@ -215,6 +217,8 @@ void process_update_land(int client_id, struct BigActionPacket *big)
     move_thing_in_map(thing, &newpos);
     ariadne_invalidate_creature_route(thing);
 
+    EVM_CREATURE_EVENT_WITH_TARGET("state", thing->owner, thing, new_state);
+    EVM_CREATURE_EVENT_WITH_TARGET("net.state", thing->owner, thing, new_state);
     thing->active_state = new_state;
     thing->continue_state = CrSt_Unused;
     thingadd->rand_seed = big->head.arg[5];

@@ -888,6 +888,7 @@ long check_out_undug_place(struct Thing *creatng)
     base_stl_x = stl_num_decode_x(cctrl->digger.task_stl);
     base_stl_y = stl_num_decode_y(cctrl->digger.task_stl);
     // Random: Is it creature dependent or player dependent actually?
+    // It would work good if it is a creature random
     n = CREATURE_RANDOM(creatng, 4);
     for (i=0; i < 4; i++)
     {

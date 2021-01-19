@@ -4020,6 +4020,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
 /******************************************************************************/
 TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
 {
+    EVM_CREATURE_EVENT_WITH_TARGET("state", thing->owner, thing, nState);
     thing->active_state = nState;
     thing->state_flags &= ~TF1_Unkn10;
     thing->continue_state = CrSt_Unused;
@@ -4035,6 +4036,7 @@ TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const c
     SYNCDBG(9,"%s: State change %s to %s for %s index %d",func_name,creature_state_code_name(thing->active_state),
         creature_state_code_name(nState), thing_model_name(thing),(int)thing->index);
     cleanup_current_thing_state(thing);
+    EVM_CREATURE_EVENT_WITH_TARGET("state", thing->owner, thing, nState);
     thing->active_state = nState;
     thing->state_flags &= ~TF1_Unkn10;
     thing->continue_state = CrSt_Unused;

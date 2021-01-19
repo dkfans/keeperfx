@@ -448,6 +448,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     set_flag_byte(&thing->field_4F, TF4F_Transpar_4, objdat->field_F & 0x01);
     set_flag_byte(&thing->field_4F, TF4F_Transpar_8, objdat->field_F & 0x02);
 
+    EVM_CREATURE_EVENT_WITH_TARGET("state", thing->owner, thing, objdat->initial_state);
     thing->active_state = objdat->initial_state;
     if (objconf->ilght.field_0 != 0)
     {
@@ -1395,6 +1396,7 @@ TngUpdateRet object_being_dropped(struct Thing *thing)
             return -1;
         }
     }
+    EVM_CREATURE_EVENT_WITH_TARGET("state", thing->owner, thing, thing->continue_state);
     thing->active_state = thing->continue_state;
     return 1;
 }
