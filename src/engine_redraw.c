@@ -972,7 +972,13 @@ void redraw_display(void)
         draw_spell_cost = 0;
     }
     if (bonus_timer_enabled())
+    {
         draw_bonus_timer();
+    }
+    if (timer_enabled())
+    {
+        draw_timer();
+    }
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     {
           LbTextSetFont(winfont);

@@ -357,6 +357,25 @@ void startup_network_game(TbBool local);
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
+void update_time(void);
+extern TbClockMSec timerstarttime;
+struct TimerTime {
+        unsigned char Hours;
+        unsigned char Minutes;
+        unsigned char Seconds;
+        unsigned short MSeconds;
+};
+extern struct TimerTime Timer;
+extern TbBool TimerGame;
+extern TbBool TimerNoReset;
+extern TbBool TimerFreeze;
+struct GameTime {
+    unsigned char Seconds;
+    unsigned char Minutes;
+    unsigned char Hours;
+};
+
+__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps);
 
 #ifdef __cplusplus
 }

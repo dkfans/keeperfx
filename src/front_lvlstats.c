@@ -34,12 +34,15 @@
 #include "config_settings.h"
 #include "front_highscore.h"
 #include "front_landview.h"
+#include "frontmenu_ingame_evnt.h"
 #include "frontend.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "room_list.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -244,7 +247,14 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
         {
             stat_val = -1;
         }
-        LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%d", stat_val);
+        if ( (timer_enabled()) && (stat->name_stridx == 1746) && (!TimerGame) )
+        {
+            LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld:%03ld", Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);       
+        }
+        else
+        {    
+            LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%d", stat_val);
+        }
         pos_y += ln_height + 1 * units_per_pixel / 16;
     }
 }

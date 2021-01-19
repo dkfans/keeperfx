@@ -330,7 +330,7 @@ void process_player_research(PlayerNumber plyr_idx)
                 move_thing_in_map(spelltng, &pos);
                 add_item_to_room_capacity(room, true);
                 event_create_event(spelltng->mappos.x.val, spelltng->mappos.y.val, EvKind_NewSpellResrch, spelltng->owner, pwkind);
-                create_effect(&pos, TngEff_Unknown53, spelltng->owner);
+                create_effect(&pos, TngEff_ResearchComplete, spelltng->owner);
             }
             else
             {
@@ -358,7 +358,7 @@ void process_player_research(PlayerNumber plyr_idx)
                 pos.x.val = subtile_coord_center(room->central_stl_x);
                 pos.y.val = subtile_coord_center(room->central_stl_y);
                 pos.z.val = get_floor_height_at(&pos);
-                create_effect(&pos, TngEff_Unknown53, room->owner);
+                create_effect(&pos, TngEff_ResearchComplete, room->owner);
             }
         }
         break;

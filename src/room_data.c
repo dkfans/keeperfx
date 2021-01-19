@@ -3574,14 +3574,14 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                 {
                     pos.z.val = get_thing_height_at(thing, &pos);
                     move_thing_in_map(thing, &pos);
-                    create_effect(&pos, TngEff_Unknown56, thing->owner);
+                    create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
                 } else
                 // Try to move spellbook to another library
                 if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
                 {
                     pos.z.val = get_thing_height_at(thing, &pos);
                     move_thing_in_map(thing, &pos);
-                    create_effect(&pos, TngEff_Unknown56, thing->owner);
+                    create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
                     struct Room *nxroom;
                     nxroom = get_room_thing_is_on(thing);
                     update_room_contents(nxroom);
@@ -3626,14 +3626,14 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                 {
                     pos.z.val = get_thing_height_at(thing, &pos);
                     move_thing_in_map(thing, &pos);
-                    create_effect(&pos, TngEff_Unknown56, thing->owner);
+                    create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
                 } else
                 // Try to move crate to another workshop
                 if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
                 {
                     pos.z.val = get_thing_height_at(thing, &pos);
                     move_thing_in_map(thing, &pos);
-                    create_effect(&pos, TngEff_Unknown56, thing->owner);
+                    create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
                     struct Room *nxroom;
                     nxroom = get_room_thing_is_on(thing);
                     update_room_contents(nxroom);

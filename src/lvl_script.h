@@ -142,6 +142,9 @@ enum TbScriptCommands {
     Cmd_REMOVE_SACRIFICE_RECIPE           = 121,
     Cmd_SET_BOX_TOOLTIP                   = 122,
     Cmd_SET_BOX_TOOLTIP_ID                = 123,
+    Cmd_CREATE_EFFECTS_LINE               = 124,
+    Cmd_DISPLAY_MESSAGE                   = 125,
+    Cmd_QUICK_MESSAGE                     = 126,
 };
 
 enum ScriptVariables {
@@ -334,6 +337,7 @@ struct ScriptValue { // sizeof = 16
         char param;
         char victims[MAX_SACRIFICE_VICTIMS];
     } sac;
+    char bytes[12];
   };
 };
 
@@ -365,6 +369,25 @@ struct Party { // sizeof = 208
   char prtname[100];
   struct PartyMember members[GROUP_MEMBERS_COUNT];
   unsigned long members_num;
+};
+
+struct ScriptFxLine
+{
+    int used;
+    struct Coord3d from;
+    struct Coord3d here;
+    struct Coord3d to;
+
+    int cx, cy; // midpoint
+
+    int curvature;
+    int spatial_step;
+    int steps_per_turn;
+    int partial_steps;
+    int effect;
+
+    int total_steps;
+    int step;
 };
 
 struct LevelScript { // sizeof = 5884
@@ -445,6 +468,7 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx);
 void script_process_new_creatures(PlayerNumber plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level);
 void process_check_new_creature_partys(void);
 void process_check_new_tunneller_partys(void);
+char get_player_number_from_value(const char* txt);
 /******************************************************************************/
 #ifdef __cplusplus
 }

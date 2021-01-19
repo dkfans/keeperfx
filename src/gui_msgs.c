@@ -22,12 +22,15 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_sprfnt.h"
-
+#include "creature_graphics.h"
 #include "gui_draw.h"
 #include "frontend.h"
 #include "game_legacy.h"
 
+#include "keeperfx.hpp"
+
 /******************************************************************************/
+
 void message_draw(void)
 {
     SYNCDBG(7,"Starting");
@@ -39,15 +42,34 @@ void message_draw(void)
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     int h = LbTextLineHeight();
-    long x = 148 * units_per_pixel / 16;
     long y = 28 * units_per_pixel / 16;
     for (int i = 0; i < game.active_messages_count; i++)
     {
+        long x = 148 * units_per_pixel / 16;
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
         LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
-        draw_gui_panel_sprite_left(x, y, ps_units_per_px, 488+gameadd.messages[i].plyr_idx);
+        unsigned long spr_idx;
+        TbBool NotPlayer = ((char)gameadd.messages[i].plyr_idx < 0);
+        if (NotPlayer)
+        {
+            x -= (7 * units_per_pixel / 16);
+            y -= (20 * units_per_pixel / 16);
+            spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
+        }
+        else
+        {
+            spr_idx = 488+gameadd.messages[i].plyr_idx;
+        }
+        if (gameadd.messages[i].plyr_idx != 127)
+        {
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
+        }
         y += h*units_per_pixel/16;
+        if (NotPlayer)
+        {
+            y += (20 * units_per_pixel / 16);
+        }        
     }
 }
 
@@ -105,5 +127,19 @@ void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
     va_start(val, fmt_str);
     message_add_va(plyr_idx, fmt_str, val);
     va_end(val);
+}
+
+void show_game_time_taken(unsigned long fps, unsigned long turns)
+{
+    struct GameTime gt = get_game_time(turns, fps);
+    struct PlayerInfo* player = get_my_player();
+    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld", get_string(746), gt.Hours, gt.Minutes, gt.Seconds);
+}
+
+void show_real_time_taken(void)
+{
+    update_time();
+    struct PlayerInfo* player = get_my_player();
+    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld:%03ld", get_string(746), Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
 }
 /******************************************************************************/

@@ -177,7 +177,7 @@ long destroy_door(struct Thing *doortng)
         create_dirt_rubble_for_dug_block(stl_x + 1, stl_y, 4, plyr_idx);
         create_dirt_rubble_for_dug_block(stl_x - 1, stl_y, 4, plyr_idx);
     }
-    struct Thing* efftng = create_effect(&pos, TngEff_Unknown49, plyr_idx);
+    struct Thing* efftng = create_effect(&pos, TngEff_DamageBlood, plyr_idx);
     if (!thing_is_invalid(efftng)) {
         thing_play_sample(efftng, 72 + UNSYNC_RANDOM(4), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }

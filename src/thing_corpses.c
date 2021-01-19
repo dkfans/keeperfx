@@ -186,7 +186,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             pos.z.val = thing->mappos.z.val;
             pos.z.val += 3 * (int)thing->clipbox_size_yz / 4;
             if (creature_model_bleeds(thing->model)) {
-                create_effect(&pos, TngEff_Unknown65, thing->owner);
+                create_effect(&pos, TngEff_BloodyFootstep, thing->owner);
             }
             if (thing->health > 0)
                 thing->health--;

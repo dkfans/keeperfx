@@ -565,15 +565,9 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
         return 1;
     }
     else
-    if (object_is_growing_food(target))
+    if (object_is_mature_food(target) || object_is_growing_food(target))
     {
-        delete_thing_structure(target, 0);
-    } else
-    if (object_is_mature_food(target))
-    {
-        thing_play_sample(shotng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        remove_food_from_food_room_if_possible(target);
-        delete_thing_structure(target, 0);
+        destroy_food(target);
     } else
     {
         WARNLOG("Killing %s by %s is not supported",thing_model_name(target),thing_model_name(shotng));
@@ -711,10 +705,10 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case ShM_SwingSword:
         case ShM_SwingFist:
             if (creature_affected_by_spell(target, SplK_Freeze)) {
-                efftng = create_effect(&shotng->mappos, TngEff_Unknown22, shotng->owner);
+                efftng = create_effect(&shotng->mappos, TngEff_HitFrozenUnit, shotng->owner);
             } else
             if (creature_model_bleeds(target->model)) {
-                efftng = create_effect(&shotng->mappos, TngEff_Unknown06, shotng->owner);
+                efftng = create_effect(&shotng->mappos, TngEff_HitBleedingUnit, shotng->owner);
             }
             break;
         }

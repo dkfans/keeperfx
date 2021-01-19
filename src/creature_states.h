@@ -26,6 +26,8 @@
 /** Count of creature states, originally 147. */
 #define CREATURE_STATES_COUNT CrSt_ListEnd
 
+#define FIGHT_FEAR_DELAY 160
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_datetm.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "bflib_planar.h"
@@ -246,7 +247,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           pos.y.val = thing->mappos.y.val;
           pos.z.val = thing->mappos.z.val + (thing->clipbox_size_yz >> 1);
           if ( creature_model_bleeds(thing->model) )
-              create_effect(&pos, TngEff_Unknown06, thing->owner);
+              create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
           thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
           struct Camera* cam = player->acamera;
           if (cam != NULL)
@@ -283,7 +284,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       struct Thing* efftng;
       if (object_is_slappable(thing, player->id_number))
       {
-        efftng = create_effect(&thing->mappos, TngEff_Unknown49, thing->owner);
+        efftng = create_effect(&thing->mappos, TngEff_DamageBlood, thing->owner);
         if (!thing_is_invalid(efftng))
           thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         slap_object(thing);
@@ -643,6 +644,11 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->zoom = 24000;
   }
   cam->orient_a = 0;
+  if (!TimerNoReset)
+  {
+     timerstarttime = LbTimerClock();
+  }
+  TimerFreeze = false;
   return 0;
 }
 

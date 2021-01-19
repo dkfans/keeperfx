@@ -119,7 +119,7 @@ void play_thing_walking(struct Thing *thing)
             S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->field_9) && get_foot_creature_has_down(thing))
+        if ((cctrl->distance_to_destination) && get_foot_creature_has_down(thing))
         {
             int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->field_67 & 0x1F)];
             long smpl_idx;

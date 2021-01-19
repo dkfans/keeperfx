@@ -58,6 +58,8 @@
 #include "keeperfx.hpp"
 
 /******************************************************************************/
+unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id);
+/******************************************************************************/
 void load_parchment_file(void)
 {
     if ( !parchment_loaded )
@@ -732,6 +734,7 @@ void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, P
             if (map_block_revealed(mapblk, plyr_idx))
             {
                 int k = element_top_face_texture(mapblk);
+                k = engine_remap_texture_blocks(stl_x + map_dx, stl_y + map_dy, k);
                 draw_texture(scr_x, scr_y, subtile_size, subtile_size, k, 0, -1);
             } else
           {
