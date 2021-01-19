@@ -24,6 +24,7 @@
 #include "bflib_sound.h"
 #include "config.h"
 #include "config_campaigns.h"
+#include "config_effects.h"
 #include "config_magic.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -566,15 +567,70 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if ( (pr2str != NULL) && (pr3str != NULL) )
             {
-                player = get_player(plyr_idx);
-                pckt = get_packet_direct(player->packet_num);
-                pos.x.stl.num = coord_subtile(((unsigned short)pckt->pos_x));
-                pos.y.stl.num = coord_subtile(((unsigned short)pckt->pos_y));
-                unsigned short tngclass = atoi(pr2str);
-                unsigned short tngmodel = atoi(pr3str);
-                PlayerNumber id = get_player_number_for_command(pr4str);
-                thing = create_thing(&pos, tngclass, tngmodel, id, -1);
-                return (!thing_is_invalid(thing));
+                short tngclass, tngmodel;
+                if (strcasecmp(pr2str, "object") == 0)
+                {
+                    tngclass = TCls_Object;
+                    tngmodel = get_rid(object_desc, pr3str);
+                }
+                else if (strcasecmp(pr2str, "corpse") == 0)
+                {
+                    tngclass = TCls_DeadCreature;
+                    tngmodel = get_creature_model_for_command(pr3str);
+                }
+                else if (strcasecmp(pr2str, "creature") == 0)
+                {
+                    tngclass = TCls_Creature;
+                    tngmodel = get_creature_model_for_command(pr3str);
+                }
+                else if (strcasecmp(pr2str, "trap") == 0)
+                {
+                    tngclass = TCls_Trap;
+                    tngmodel = get_trap_number_for_command(pr3str);
+                }
+                else if (strcasecmp(pr2str, "door") == 0)
+                {
+                    tngclass = TCls_Door;
+                    tngmodel = get_door_number_for_command(pr3str);
+                }
+                else if (strcasecmp(pr2str, "effect") == 0)
+                {
+                    tngclass = TCls_Effect;
+                    tngmodel = get_rid(effect_desc, pr3str);
+                }
+                else if (strcasecmp(pr2str, "shot") == 0)
+                {
+                    tngclass = TCls_Shot;
+                    tngmodel = get_rid(shot_desc, pr3str);
+                }
+                if (tngclass < 0)
+                {
+                    if (parameter_is_number(pr2str))
+                    {
+                        tngclass = atoi(pr2str);
+                    }
+                    if (parameter_is_number(pr3str))
+                    {
+                        tngmodel = atoi(pr3str);
+                    }
+                }
+                if (tngmodel < 0)
+                {
+                    if (parameter_is_number(pr2str))
+                    {
+                        tngmodel = atoi(pr2str);
+                    }
+                }
+                if ( (tngclass >= 0) && (tngmodel >= 0) )
+                {
+                    player = get_player(plyr_idx);
+                    pckt = get_packet_direct(player->packet_num);
+                    pos.x.stl.num = coord_subtile(((unsigned short)pckt->pos_x));
+                    pos.y.stl.num = coord_subtile(((unsigned short)pckt->pos_y));
+                    PlayerNumber id = get_player_number_for_command(pr4str);
+                    thing = create_thing(&pos, tngclass, tngmodel, id, -1);
+                    return (!thing_is_invalid(thing));
+                }
             }
         }
         else if ( (strcasecmp(parstr, "slab.place") == 0) || (strcasecmp(parstr, "place.slab") == 0) )
@@ -752,6 +808,58 @@ TbBool parameter_is_number(char* parstr)
         }
     }
     return true;
+}
+
+char get_trap_number_for_command(char* msg)
+{
+    char id = get_rid(trap_desc, msg);
+    if (id < 0)
+    {
+        if ( (strcasecmp(msg, "gas") == 0) || (strcasecmp(msg, "poison") == 0) || (strcasecmp(msg, "poisongas") == 0) )
+        {
+            id = 3;
+        }
+        else if ( (strcasecmp(msg, "word") == 0) || (strcasecmp(msg, "wordofpower") == 0) )
+        {
+            id = 5;
+        }
+        else
+        {
+            if (parameter_is_number(msg))
+            {
+                id = atoi(msg);
+            }
+        }
+    }
+    return id;
+}
+
+char get_door_number_for_command(char* msg)
+{
+    long id = get_rid(door_desc, msg);
+    if (id < 0)
+    {
+        if (strcasecmp(msg, "wooden") == 0)
+        {
+           id = 1;
+        }
+        else if (strcasecmp(msg, "iron") == 0)
+        {
+            id = 3;
+        }
+        else if (strcasecmp(msg, "magical") == 0)
+        {
+            id = 4;
+        }
+        else
+        {
+            if (parameter_is_number(msg))
+            {
+                id = atoi(msg);
+            }
+        }
+    }
+    return id;
 }
 
 #ifdef __cplusplus
