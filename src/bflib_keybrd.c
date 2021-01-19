@@ -84,17 +84,19 @@ char lbInkeyToAsciiShift[] = {
 };
 
 /******************************************************************************/
-extern void prepare_keys_mapping(void);
+extern void init_inputcontrol(void);
+extern void done_inputcontrol();
 /******************************************************************************/
 /******************************************************************************/
 short LbIKeyboardClose(void)
 {
-  return 1;
+    done_inputcontrol();
+    return 1;
 }
 
 short LbIKeyboardOpen(void)
 {
-    prepare_keys_mapping();
+    init_inputcontrol();
     return 1;
 }
 
