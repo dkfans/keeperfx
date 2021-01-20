@@ -119,6 +119,17 @@ void zero_messages(void)
     }
 }
 
+void clear_messages_from_player(char plyr_idx)
+{
+    for (int i = 0; i < game.active_messages_count; i++)
+    {
+        if ((char)gameadd.messages[i].plyr_idx == plyr_idx)
+        {
+            memset(&gameadd.messages[i], 0, sizeof(struct GuiMessage));
+        }
+    }
+}
+
 void message_add(PlayerNumber plyr_idx, const char *text)
 {
     SYNCDBG(2,"Player %d: %s",(int)plyr_idx,text);

@@ -1282,7 +1282,12 @@ short get_creature_control_action_inputs(void)
         struct Thing* creatng = thing_get(player->controlled_thing_idx);
         if ( (StrID != 0) && (creature_instance_is_available(creatng, CrInst_TELEPORT)) )
         {
-            message_add((~(CrInst_TELEPORT + 31) + 1), get_string(StrID));
+            char CrInst = (~(CrInst_TELEPORT + 31) + 1);
+            if (game.active_messages_count > 0)
+            {
+                clear_messages_from_player(CrInst);
+            }
+            message_add(CrInst, get_string(StrID));
         }
     // In possession sets the screen blue when frozen, and to default when not.
     if (creature_affected_by_spell(thing, SplK_Freeze)) 
