@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_sprfnt.h"
 #include "creature_graphics.h"
+#include "creature_instances.h"
 #include "gui_draw.h"
 #include "frontend.h"
 #include "game_legacy.h"
@@ -50,12 +51,24 @@ void message_draw(void)
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
         LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
         unsigned long spr_idx;
+        TbBool IsCreature, IsCreatureSpell;
         TbBool NotPlayer = ((char)gameadd.messages[i].plyr_idx < 0);
         if (NotPlayer)
         {
-            x -= (7 * units_per_pixel / 16);
-            y -= (20 * units_per_pixel / 16);
-            spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
+            IsCreature = ( ((char)gameadd.messages[i].plyr_idx >= -31) && ((char)gameadd.messages[i].plyr_idx <= -1) );
+            IsCreatureSpell = ((char)gameadd.messages[i].plyr_idx < -31);
+            if (IsCreature)
+            {
+                spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
+                x -= (7 * units_per_pixel / 16);
+                y -= (20 * units_per_pixel / 16);
+            }
+            else if (IsCreatureSpell)
+            {
+                spr_idx = instance_button_init[~((char)((char)gameadd.messages[i].plyr_idx) + 31) + 1].symbol_spridx;
+                x -= (7 * units_per_pixel / 16);
+                y -= (10 * units_per_pixel / 16);
+            }
         }
         else
         {
@@ -68,7 +81,14 @@ void message_draw(void)
         y += h*units_per_pixel/16;
         if (NotPlayer)
         {
-            y += (20 * units_per_pixel / 16);
+            if (IsCreature)
+            {
+                y += (20 * units_per_pixel / 16);
+            }
+            else if (IsCreatureSpell)
+            {
+                y += (10 * units_per_pixel / 16);
+            }
         }        
     }
 }
