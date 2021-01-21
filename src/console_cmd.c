@@ -505,7 +505,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                             ObjModel = atoi(pr2str);
                         }
                     }
-                    if (ObjNumber >= 0)
+                    if (ObjModel >= 0)
                     {
                         PlayerNumber id = get_player_number_for_command(pr3str);
                         thing = create_object(&pos, ObjModel, id, -1);
