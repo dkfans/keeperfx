@@ -331,7 +331,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     char * pr5str = (pr4str != NULL) ? cmd_strtok(pr4str + 1) : NULL;
     struct PlayerInfo* player;
     struct Thing* thing;
-    struct Dungeon* dungeon;
     struct Room* room;
     struct Packet* pckt;
     struct SlabMap *slb;
@@ -409,7 +408,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             return true;
         } else if (strcasecmp(parstr, "reveal") == 0)
         {
-            struct PlayerInfo* player = get_my_player();
+            player = get_my_player();
             reveal_whole_map(player);
             return true;
         } else if (strcasecmp(parstr, "comp.kill") == 0)
@@ -419,11 +418,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             int id = atoi(pr2str);
             if (id < 0 || id > PLAYERS_COUNT)
                 return false;
-            struct Thing* thing = get_player_soul_container(id);
+            thing = get_player_soul_container(id);
             thing->health = 0;
         } else if (strcasecmp(parstr, "comp.me") == 0)
         {
-            struct PlayerInfo* player = get_player(plyr_idx);
             if (pr2str == NULL)
                 return false;
             if (!setup_a_computer_player(plyr_idx, atoi(pr2str))) {
