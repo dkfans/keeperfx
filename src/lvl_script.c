@@ -3341,9 +3341,9 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
     SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
     splevel = 1;
   }
-  if (splevel > MAGIC_OVERCHARGE_LEVELS)
+  if (splevel > (MAGIC_OVERCHARGE_LEVELS+1)) //Creatures cast spells from level 1 to 10, but 10=9.
   {
-    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, (MAGIC_OVERCHARGE_LEVELS+1));
     splevel = MAGIC_OVERCHARGE_LEVELS;
   }
   splevel--;
