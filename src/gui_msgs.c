@@ -139,7 +139,7 @@ void delete_message(unsigned char msg_idx)
         {
             gameadd.messages[i] = gameadd.messages[i+1]; 
         }
-        memset(&gameadd.messages[game.active_messages_count], 0, sizeof(struct GuiMessage));        
+        memset(&gameadd.messages[game.active_messages_count - 1], 0, sizeof(struct GuiMessage));        
     }
     game.active_messages_count--;    
 }
