@@ -125,9 +125,23 @@ void clear_messages_from_player(char plyr_idx)
     {
         if ((char)gameadd.messages[i].plyr_idx == plyr_idx)
         {
-            memset(&gameadd.messages[i], 0, sizeof(struct GuiMessage));
+            delete_message(i);
         }
     }
+}
+
+void delete_message(unsigned char msg_idx)
+{
+    memset(&gameadd.messages[msg_idx], 0, sizeof(struct GuiMessage));
+    if (msg_idx < game.active_messages_count)
+    {
+        for (int i = msg_idx; i < game.active_messages_count; i++)
+        {
+            gameadd.messages[i] = gameadd.messages[i+1]; 
+        }
+        memset(&gameadd.messages[game.active_messages_count], 0, sizeof(struct GuiMessage));        
+    }
+    game.active_messages_count--;    
 }
 
 void message_add(PlayerNumber plyr_idx, const char *text)
