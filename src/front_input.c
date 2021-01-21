@@ -1282,7 +1282,7 @@ short get_creature_control_action_inputs(void)
         struct Thing* creatng = thing_get(player->controlled_thing_idx);
         if ( (StrID != 0) && (creature_instance_is_available(creatng, CrInst_TELEPORT)) )
         {
-            char CrInst = (~(CrInst_TELEPORT + 31) + 1);
+            char CrInst = -45;
             if (game.active_messages_count > 0)
             {
                 clear_messages_from_player(CrInst);
