@@ -4917,7 +4917,7 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         block |= pwkind == PwrK_SIGHT;
         if (block)
         {
-          SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
+          SYNCDBG(5,"Found creature to use power on but it is being held.");
           return Lb_FAIL;
         }
     }
@@ -4953,7 +4953,7 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
       case PwrK_SIGHT:
         return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
       default:
-        ERRORLOG("Power not supported at script use_power_on_creature: %d", (int) pwkind);
+        SCRPTERRLOG("Power not supported for this command: %d", (int) pwkind);
         return Lb_FAIL;
     }
 }
@@ -5009,6 +5009,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
     }
     else
     {
+        SCRPTERRLOG("Spell not supported for this command: %d", (int)spkind);
         return Lb_FAIL; 
     }
 }
