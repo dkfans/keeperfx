@@ -133,7 +133,7 @@ void clear_messages_from_player(char plyr_idx)
 void delete_message(unsigned char msg_idx)
 {
     memset(&gameadd.messages[msg_idx], 0, sizeof(struct GuiMessage));
-    if (msg_idx < game.active_messages_count)
+    if (msg_idx < game.active_messages_count - 1)
     {
         for (int i = msg_idx; i < game.active_messages_count; i++)
         {
