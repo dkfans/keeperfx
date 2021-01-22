@@ -135,7 +135,7 @@ void delete_message(unsigned char msg_idx)
     memset(&gameadd.messages[msg_idx], 0, sizeof(struct GuiMessage));
     if (msg_idx < game.active_messages_count)
     {
-        for (int i = msg_idx; i < game.active_messages_count; i++)
+        for (int i = msg_idx; i < game.active_messages_count - 1; i++)
         {
             gameadd.messages[i] = gameadd.messages[i+1]; 
         }
