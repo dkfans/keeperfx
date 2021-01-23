@@ -432,27 +432,27 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         } else if (strcasecmp(parstr, "magic.instance") == 0)
         {
             return cmd_magic_instance((char*)pr2str, pr3str, (char*)pr4str);
-        } else if (strcasecmp(parstr, "give.trap") == 0)
+        } else if ( (strcasecmp(parstr, "give.trap") == 0) || (strcasecmp(parstr, "trap.give") == 0) )
         {
-            int id = atoi(pr2str);
+            long id = get_trap_number_for_command(pr2str);
             if (id <= 0 || id > trapdoor_conf.trap_types_count)
                 return false;
-            command_add_value(Cmd_TRAP_AVAILABLE, plyr_idx, id, 1, 1);
+            unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
+            command_add_value(Cmd_TRAP_AVAILABLE, plyr_idx, id, 1, num);
             update_trap_tab_to_config();
             message_add(plyr_idx, "done!");
             return true;
-        } else if (strcasecmp(parstr, "give.door") == 0)
+        } else if ( (strcasecmp(parstr, "give.door") == 0) || (strcasecmp(parstr, "door.give") == 0) )
         {
-            int id = atoi(pr2str);
+            long id = get_door_number_for_command(pr2str);
             if (id <= 0 || id > trapdoor_conf.door_types_count)
                 return false;
-
-            struct ScriptValue tmp_value = {0};
-            script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, 1, &tmp_value);
+            unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
+            script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, num);
             update_trap_tab_to_config();
             message_add(plyr_idx, "done!");
             return true;
-        } else if (strcasecmp(parstr, "map.pool") == 0)
+        } else if ( (strcasecmp(parstr, "map.pool") == 0) || (strcasecmp(parstr, "creature.pool") == 0) )
         {
             return script_set_pool(plyr_idx, pr2str, pr3str);
         }
@@ -706,6 +706,548 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         do_slab_efficiency_alteration(slb_x, slb_y);
                         return true;
                     }
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "room.available") == 0)
+        {
+            long roomid = get_rid(room_desc, pr2str);
+            if (roomid <= 0)
+            {
+                if (strcasecmp(pr2str, "Hatchery" ) == 0)
+                {
+                    roomid = RoK_GARDEN;
+                }
+                else if ( (strcasecmp(pr2str, "Guard" ) == 0) || (strcasecmp(pr2str, "GuardPost" ) == 0) )
+                {
+                    roomid = RoK_GUARDPOST;
+                }
+                else
+                {
+                    roomid = atoi(pr2str);
+                }
+            }
+            unsigned char available = (pr3str == NULL) ? 1 : atoi(pr3str);
+            PlayerNumber id = get_player_number_for_command(pr4str);
+            script_process_value(Cmd_ROOM_AVAILABLE, id, roomid, (TbBool)available, (TbBool)available);
+            update_room_tab_to_config();
+            return true;
+        }
+        else if ( (strcasecmp(parstr, "power.give") == 0) || (strcasecmp(parstr, "spell.give") == 0) )
+        {
+            long power = get_rid(power_desc, pr2str);
+            if (power <= 0)
+            {
+                if ( (strcasecmp(pr2str, "Imp" ) == 0) || (strcasecmp(pr2str, "CreateImp" ) == 0) )
+                {
+                    power = PwrK_MKDIGGER;
+                }
+                else if ( (strcasecmp(pr2str, "Possess" ) == 0) || (strcasecmp(pr2str, "Possession" ) == 0)  || (strcasecmp(pr2str, "PossessCreature" ) == 0))
+                {
+                    power = PwrK_POSSESS;
+                }
+                else if ( (strcasecmp(pr2str, "Sight" ) == 0) || (strcasecmp(pr2str, "SightOfEvil" ) == 0) )
+                {
+                    power = PwrK_SIGHT;
+                }
+                else if ( (strcasecmp(pr2str, "Speed" ) == 0) || (strcasecmp(pr2str, "SpeedMonster" ) == 0) || (strcasecmp(pr2str, "SpeedCreature" ) == 0) )
+                {
+                    power = PwrK_SPEEDCRTR;
+                }
+                else if ( (strcasecmp(pr2str, "Obey" ) == 0) || (strcasecmp(pr2str, "MustObey" ) == 0) )
+                {
+                    power = PwrK_OBEY;
+                }
+                else if ( (strcasecmp(pr2str, "CTA" ) == 0) || (strcasecmp(pr2str, "CallToArms" ) == 0) )
+                {
+                    power = PwrK_CALL2ARMS;
+                }
+                else if (strcasecmp(pr2str, "CaveIn" ) == 0)
+                {
+                    power = PwrK_CAVEIN;
+                }
+                else if (strcasecmp(pr2str, "Heal" ) == 0)
+                {
+                    power = PwrK_HEALCRTR;
+                }
+                else if ( (strcasecmp(pr2str, "Audience" ) == 0) || (strcasecmp(pr2str, "HoldAudience" ) == 0) )
+                {
+                    power = PwrK_HOLDAUDNC;
+                }
+                else if ( (strcasecmp(pr2str, "Lightning" ) == 0) || (strcasecmp(pr2str, "LightningStrike" ) == 0) )
+                {
+                    power = PwrK_LIGHTNING;
+                }
+                else if ( (strcasecmp(pr2str, "Protect" ) == 0) || (strcasecmp(pr2str, "ProtectMonster" ) == 0) || (strcasecmp(pr2str, "ProtectCreature" ) == 0) || (strcasecmp(pr2str, "Armour" ) == 0))
+                {
+                    power = PwrK_PROTECT;
+                }
+                else if ( (strcasecmp(pr2str, "Conceal" ) == 0) || (strcasecmp(pr2str, "ConcealMonster" ) == 0) || (strcasecmp(pr2str, "ConcealCreature" ) == 0) || (strcasecmp(pr2str, "Invisibility" ) == 0))
+                {
+                    power = PwrK_CONCEAL;
+                }
+                else if (strcasecmp(pr2str, "Disease" ) == 0)
+                {
+                    power = PwrK_DISEASE;
+                }
+                else if (strcasecmp(pr2str, "Chicken" ) == 0)
+                {
+                    power = PwrK_CHICKEN;
+                }
+                else if ( (strcasecmp(pr2str, "Destroy" ) == 0) || (strcasecmp(pr2str, "DestroyWalls" ) == 0) )
+                {
+                    power = PwrK_DESTRWALLS;
+                }
+                else if ( (strcasecmp(pr2str, "Bomb" ) == 0) || (strcasecmp(pr2str, "Time" ) == 0) || (strcasecmp(pr2str, "TimeBomb" ) == 0) )
+                {
+                    power = PwrK_TIMEBOMB;
+                }
+                else if (strcasecmp(pr2str, "Armageddon" ) == 0)
+                {
+                    power = PwrK_ARMAGEDDON;
+                }
+                else if (strcasecmp(pr2str, "all") == 0)
+                {
+                    for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
+                    {
+                        script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, pw, 1, 1);                     
+                    }
+                    update_powers_tab_to_config();
+                    return true; 
+                }
+                else
+                {
+                    power = atoi(pr2str);
+                }                
+            }
+            script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, power, 1, 1);
+            update_powers_tab_to_config();
+            return true;
+        }
+        else if (strcasecmp(parstr, "player.heart.health") == 0)
+        {
+            PlayerNumber id = get_player_number_for_command(pr2str);
+            thing = get_player_soul_container(id);
+            if (thing_is_dungeon_heart(thing))
+            {
+                if (pr3str == NULL)
+                {
+                    float percent = ((float)thing->health / (float)game.dungeon_heart_health) * 100;
+                    message_add_fmt(plyr_idx, "Player %d heart health: %ld (%.2f per cent)", id, thing->health, percent);
+                    return true;
+                }
+                else
+                {
+                    short Health = atoi(pr3str);
+                    thing->health = Health;
+                    return true;
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "creature.available") == 0)
+        {
+            long crmodel = get_creature_model_for_command(pr2str);
+            unsigned char available = (pr3str == NULL) ? 1 : atoi(pr3str);
+            PlayerNumber id = get_player_number_for_command(pr4str);
+            script_process_value(Cmd_CREATURE_AVAILABLE, id, crmodel, (TbBool)available, (TbBool)available);
+            return true;
+        }
+        else if ( (strcasecmp(parstr, "creature.addhealth") == 0) || (strcasecmp(parstr, "creature.health.add") == 0) )
+        {
+            player = get_my_player();
+            thing = thing_get(player->influenced_thing_idx);
+            if (thing_is_creature(thing))
+            {
+                thing->health += atoi(pr2str);
+                return true;
+            }
+        }
+        else if ( (strcasecmp(parstr, "creature.subhealth") == 0) || (strcasecmp(parstr, "creature.health.sub") == 0) )
+        {
+            player = get_my_player();
+            thing = thing_get(player->influenced_thing_idx);
+            if (thing_is_creature(thing))
+            {
+                thing->health -= atoi(pr2str);
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "digger.sendto") == 0)
+        {
+            PlayerNumber id = get_player_number_for_command(pr2str);
+            player = get_my_player();
+            thing = thing_get(player->influenced_thing_idx);
+            if (thing_is_creature(thing))
+            {
+                if (thing->model == get_players_special_digger_model(thing->owner))
+                {
+                    player = get_player(id);
+                    if (player_exists(player))
+                    {
+                        get_random_position_in_dungeon_for_creature(id, CrWaS_WithinDungeon, thing, &pos);
+                        return send_tunneller_to_point_in_dungeon(thing, id, &pos);
+                    }
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "creature.instance.set") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                player = get_player(plyr_idx);
+                thing = thing_get(player->influenced_thing_idx);
+                unsigned char inst = atoi(pr2str);
+                if (thing_is_creature(thing))
+                {
+                    set_creature_instance(thing, inst, 0, 0, 0);
+                    return true;
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "creature.state.set") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                player = get_player(plyr_idx);
+                thing = thing_get(player->influenced_thing_idx);
+                if (thing_is_creature(thing))
+                {
+                        unsigned char state = atoi(pr2str);
+                        if (can_change_from_state_to(thing, thing->active_state, state))
+                        {
+                            return internal_set_thing_state(thing, state);
+                        }
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "creature.job.set") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                player = get_player(plyr_idx);
+                thing = thing_get(player->influenced_thing_idx);
+                if (thing_is_creature(thing))
+                {
+                    unsigned char new_job = atoi(pr2str);
+                    if (creature_can_do_job_for_player(thing, thing->owner, 1LL<<new_job, JobChk_None))
+                    {
+                        return send_creature_to_job_for_player(thing, thing->owner, 1LL<<new_job);
+                    }
+                    else
+                    {
+                        message_add_fmt(plyr_idx, "Cannot do job %d.", new_job);
+                        return true;
+                    }
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "creature.attackheart") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                player = get_player(plyr_idx);
+                thing = thing_get(player->influenced_thing_idx);
+                if (thing_is_creature(thing))
+                {
+                    PlayerNumber id = get_player_number_for_command(pr2str);
+                    struct Thing* heartng = get_player_soul_container(id);
+                    if (thing_is_dungeon_heart(heartng))
+                    {
+                        TRACE_THING(heartng);
+                        set_creature_object_combat(thing, heartng);
+                        return true;
+                    }
+                }
+            }
+        }
+        else if ( (strcasecmp(parstr, "player.addgold") == 0) || (strcasecmp(parstr, "player.gold.add") == 0) )
+        {
+            PlayerNumber id = get_player_number_for_command(pr2str);
+            player = get_player(id);
+            if (player_exists(player))
+            {
+                if (pr3str == NULL)
+                {
+                    return false;
+                }
+                else
+                {
+                    script_process_value(Cmd_ADD_GOLD_TO_PLAYER, id, atoi(pr3str), 0, 0);
+                    return true;
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "thing.get") == 0)
+        {
+            player = get_player(plyr_idx);
+            pckt = get_packet_direct(player->packet_num);
+            MapSubtlCoord stl_x = coord_subtile(((unsigned short)pckt->pos_x));
+            MapSubtlCoord stl_y = coord_subtile(((unsigned short)pckt->pos_y));
+            thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_object_at_position(stl_x, stl_y);
+            if (!thing_is_invalid(thing))
+            {
+                message_add_fmt(plyr_idx, "Got thing ID %d", thing->index);
+                player->influenced_thing_idx = thing->index;
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "thing.health") == 0)
+        {
+            player = get_player(plyr_idx);
+            thing = thing_get(player->influenced_thing_idx);
+            if (!thing_is_invalid(thing))
+            {
+                if (pr2str != NULL)
+                {
+                    thing->health = atoi(pr2str);
+                }
+                else
+                {
+                    message_add_fmt(plyr_idx, "Thing ID: %d health: %d", thing->index, thing->health);
+                }
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "thing.pos") == 0)
+        {
+            player = get_player(plyr_idx);
+            thing = thing_get(player->influenced_thing_idx);
+            if (pr4str != NULL)
+            {
+                pos.x.stl.num = atoi(pr2str);
+                pos.y.stl.num = atoi(pr3str);
+                pos.z.stl.num = atoi(pr4str);
+                move_thing_in_map(thing, &pos);                
+            }
+            else if (!thing_is_invalid(thing))
+            {
+                message_add_fmt(plyr_idx, "Thing ID %d X: %d Y: %d Z: %d", thing->index, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "thing.destroy") == 0)
+        {
+            player = get_player(plyr_idx);
+            thing = thing_get(player->influenced_thing_idx);
+            if (!thing_is_invalid(thing))
+            {
+                destroy_object(thing);
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "room.get") == 0 )
+        {
+            player = get_player(plyr_idx);
+            pckt = get_packet_direct(player->packet_num);
+            MapSubtlCoord stl_x = coord_subtile(((unsigned short)pckt->pos_x));
+            MapSubtlCoord stl_y = coord_subtile(((unsigned short)pckt->pos_y));
+            room = (pr2str != NULL) ? room_get(atoi(pr2str)) : subtile_room_get(stl_x, stl_y);
+            if (room_exists(room))
+            {
+                message_add_fmt(plyr_idx, "Got room ID %d", room->index);
+                player->influenced_thing_idx = room->index;
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "room.health") == 0)
+        {
+            player = get_player(plyr_idx);
+            room = room_get(player->influenced_thing_idx);
+            if (!room_is_invalid(room))
+            {
+                if (pr2str == NULL)
+                {
+                    message_add_fmt(plyr_idx, "Room ID %d health: %d", room->index, room->health);
+                    return true;
+                }
+                else
+                {
+                    room-> health = atoi(pr2str);
+                    return true;
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "slab.health") == 0)
+        {
+            player = get_player(plyr_idx);
+            pckt = get_packet_direct(player->packet_num);
+            MapSubtlCoord stl_x = coord_subtile(((unsigned short)pckt->pos_x));
+            MapSubtlCoord stl_y = coord_subtile(((unsigned short)pckt->pos_y));
+            slb = get_slabmap_for_subtile(stl_x, stl_y);
+            if (!slabmap_block_invalid(slb))
+            {
+                if (pr2str == NULL)
+                {                    
+                    message_add_fmt(plyr_idx, "Slab health: %d", slb->health);
+                    return true;
+                }
+                else
+                {
+                    slb->health = atoi(pr2str);
+                    return true;
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "creature.pool.add") == 0)
+        {
+            if (pr3str != NULL)
+            {
+                long crmodel = get_creature_model_for_command(pr2str);
+                if (crmodel == -1)
+                {
+                    crmodel = atoi(pr2str);
+                }
+                game.pool.crtr_kind[crmodel] += atoi(pr3str);
+                return true;
+            }
+        }
+        else if ( (strcasecmp(parstr, "creature.pool.sub") == 0) || (strcasecmp(parstr, "creature.pool.remove") == 0) )
+        {
+            if (pr3str != NULL)
+            {
+                long crmodel = get_creature_model_for_command(pr2str);
+                if (crmodel == -1)
+                {
+                    crmodel = atoi(pr2str);
+                }
+                game.pool.crtr_kind[crmodel] -= atoi(pr3str);
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "creature.level") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                player = get_player(plyr_idx);
+                thing = thing_get(player->influenced_thing_idx);
+                if (thing_is_creature(thing))
+                {
+                    set_creature_level(thing, (atoi(pr2str)-1));
+                    return true;
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "creature.freeze") == 0)
+        {
+            player = get_player(plyr_idx);
+            thing = thing_get(player->influenced_thing_idx);
+            if (thing_is_creature(thing))
+            {
+                thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+                apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "creature.slow") == 0)
+        {
+            player = get_player(plyr_idx);
+            thing = thing_get(player->influenced_thing_idx);
+            if (thing_is_creature(thing))
+            {
+                thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+                apply_spell_effect_to_thing(thing, SplK_Slow, 8);
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "music.set") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                int track = atoi(pr2str);
+                if (track >= FIRST_TRACK && track <= max_track)
+                {
+                    StopMusicPlayer();
+                    game.audiotrack = track;
+                    PlayMusicPlayer(track);
+                    return true;
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "zoomto") == 0)
+        {
+            if ( (pr2str != NULL) && (pr3str != NULL) )
+            {
+                MapSubtlCoord stl_x = atoi(pr2str);
+                MapSubtlCoord stl_y = atoi(pr3str);
+                if (!subtile_coords_invalid(stl_x, stl_y))
+                {
+                    player = get_player(plyr_idx);
+                    player->zoom_to_pos_x = subtile_coord_center(stl_x);
+                    player->zoom_to_pos_y = subtile_coord_center(stl_y);
+                    set_player_instance(player, PI_ZoomToPos, 0);
+                    return true;
+                }
+                else
+                {
+                    message_add_fmt(plyr_idx, "Co-ordinates specified are invalid");
+                    return true;
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "bug.toggle") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                unsigned char bug = atoi(pr2str);
+                unsigned short flg = (bug > 2) ? (1 << (bug - 1)) : bug; 
+                toggle_flag_word(&gameadd.classic_bugs_flags, flg);
+                message_add_fmt(plyr_idx, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((gameadd.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "actionpoint.pos") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                unsigned char ap = atoi(pr2str);
+                if (action_point_exists_idx(ap))
+                {
+                    struct ActionPoint* actionpt = action_point_get(ap);
+                    message_add_fmt(plyr_idx, "Action Point %d X: %d Y: %d", ap, actionpt->mappos.x.stl.num, actionpt->mappos.y.stl.num);
+                    return true;
+                }
+            }            
+        }
+        else if (strcasecmp(parstr, "actionpoint.zoomto") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                unsigned char ap = atoi(pr2str);
+                if (action_point_exists_idx(ap))
+                {
+                    struct ActionPoint* actionpt = action_point_get(ap);
+                    player = get_player(plyr_idx);
+                    player->zoom_to_pos_x = subtile_coord_center(actionpt->mappos.x.stl.num);
+                    player->zoom_to_pos_y = subtile_coord_center(actionpt->mappos.y.stl.num);
+                    set_player_instance(player, PI_ZoomToPos, 0);
+                    return true;
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "actionpoint.reset") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                unsigned char ap = atoi(pr2str);
+                if (action_point_exists_idx(ap))
+                {
+                    return action_point_reset_idx(ap);
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "herogate.zoomto") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                unsigned char hg = atoi(pr2str);
+                thing = find_hero_gate_of_number(hg);
+                if ( (thing_is_object(thing)) && (object_is_hero_gate(thing)) )
+                {
+                    player = get_player(plyr_idx);
+                    player->zoom_to_pos_x = subtile_coord_center(thing->mappos.x.stl.num);
+                    player->zoom_to_pos_y = subtile_coord_center(thing->mappos.y.stl.num);
+                    set_player_instance(player, PI_ZoomToPos, 0);
+                    return true;
                 }
             }
         }
