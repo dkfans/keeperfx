@@ -1284,6 +1284,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     RoomKind rkind = 0;
     long i;
     TbBool allowed = true;
+    clear_messages_from_player(-45);
     if (cspell->duration == splconf->duration / 2)
     {
         struct Coord3d pos;
