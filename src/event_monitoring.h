@@ -27,6 +27,8 @@ extern void evm_init(char *hostport, int client_no);
 extern void evm_done();
 extern void evm_stat(int force_new, const char *event_fmt, ...);
 
+extern const char *evm_get_suffix();
+
 #ifdef __cplusplus
 }
 #endif

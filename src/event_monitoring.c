@@ -13,6 +13,11 @@ static char evm_suffix[SUFFIX_SIZE+1] = {0};
 static UDPsocket evm_socket = 0;
 static UDPpacket * evm_packet = NULL;
 
+const char *evm_get_suffix()
+{
+    return evm_suffix;
+}
+
 void evm_init(char *hostport, int client_no)
 {
     int port = 8089;
@@ -56,7 +61,7 @@ void evm_init(char *hostport, int client_no)
         return;
     }
 
-    sprintf(evm_suffix, ",s=%d", client_no);
+    sprintf(evm_suffix, "s=%d", client_no);
 
     evm_packet->channel = -1;
     evm_packet->len = 0;
@@ -76,6 +81,7 @@ void evm_done()
     }
 }
 
+#if AUTOTESTING
 void evm_stat(int force_new, const char *event_fmt, ...)
 {
     int len, remain;
@@ -122,8 +128,6 @@ void evm_stat(int force_new, const char *event_fmt, ...)
     }
     va_end(lst);
     va_end(lst2);
-    memcpy(packet_data + len, evm_suffix, SUFFIX_SIZE); // Here we add suffix for different clients
-    len += SUFFIX_SIZE;
     packet_data[len] = '\n';
     evm_packet->len += len + 1;
 
@@ -134,3 +138,4 @@ void evm_stat(int force_new, const char *event_fmt, ...)
         evm_packet->len = 0;
     }
 }
+#endif
