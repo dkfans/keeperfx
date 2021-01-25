@@ -196,6 +196,7 @@ extern "C" {
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
   #define EVM_GLOBAL_EVENT(event_fmt, ...)
 inline void evm_stat(int force_new, const char *fmt, ...) {}
+inline const char *evm_get_suffix() { return "s=0"; }
 #endif
 
 void replaceFn(void* oldFn, void* newFn);

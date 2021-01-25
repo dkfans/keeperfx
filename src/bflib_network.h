@@ -341,6 +341,7 @@ extern int stat_get_sent_bytes(int x);
 extern TbBool stat_get_created_bytes_comment(int i, char *left, char *right);
 extern int stat_get_created_bytes(int x);
 
+extern TbBool process_ping_packet_cb(int client_id, void *data, short size);
 #ifdef __cplusplus
 }
 #endif

@@ -498,8 +498,10 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
 
-    evm_stat(0, "ev.ocreate,mdl=%s,thing=%d,plyr=%d cnt=1,x=%d,y=%d", get_object_model_stats(thing->model)->code_name,
-                thing->index, owner, thing->mappos.x.stl.num,  thing->mappos.y.stl.num);
+    evm_stat(0, "ev.ocreate,%s,mdl=%s,thing=%d,plyr=%d cnt=1,x=%d,y=%d",
+             evm_get_suffix(),
+             get_object_model_stats(thing->model)->code_name,
+             thing->index, owner, thing->mappos.x.stl.num,  thing->mappos.y.stl.num);
 
     return thing;
 }

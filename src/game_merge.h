@@ -168,6 +168,9 @@ struct GameAdd {
     Thingid         first_ghost;
 
     Thingid         first_updated_land; // List of all my creatures that updated land this tick
+    PlayerNumber    unit_update_player;
+    Thingid         unit_update_thing; // next thing to send across net
+    TbBool          unit_update_list_idx; // diggers_list or creatures_list
 };
 
 #pragma pack()

@@ -31,7 +31,8 @@
 #include "creature_graphics.h"
 #include "game_legacy.h"
 #include "engine_arrays.h"
-#include "gui_topmsg.h" 
+#include "gui_topmsg.h"
+#include "packets_updating.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -134,6 +135,8 @@ TbBool is_in_free_things_list(long tng_idx)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
 {
     TRACE_THING(thing);
+    remove_update_thing(thing);
+
     if ((thing->alloc_flags & TAlF_InDungeonList) != 0) {
         remove_first_creature(thing);
     }

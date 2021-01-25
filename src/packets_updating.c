@@ -42,6 +42,8 @@ void send_update_job(struct Thing *thing)
     big->head.arg[0] = thing->index;
     big->head.arg[1] = thing->continue_state | (thing->active_state << 8);
     big->head.arg[2] = thing->mappos.x.stl.num | (thing->mappos.y.stl.num << 8);
+    // + rand
+    // + digger.task_idx
     switch (thing->active_state)
     {
         case CrSt_MoveToPosition:
@@ -141,6 +143,79 @@ TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord sl
 }
 
 static void send_postupdate_land(struct Thing *thing, struct ThingAdd *thingadd);
+static void find_next_update_thing();
+void remove_update_thing(struct Thing *thing)
+{
+    // Dont care if it is not "next thing"
+    if (thing->index != gameadd.unit_update_thing)
+        return;
+    find_next_update_thing();
+}
+
+static void send_update_thing(Thingid thingid)
+{
+    struct Thing *thing = thing_get(thingid);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+
+    NETDBG(7, "thing:%d owner:%d kind:%s", thingid, thing->owner, get_string(creature_data_get(thing->model)->namestr_idx));
+    // + pos_x + pos_y
+    // + active_state + continue_state
+    // + instance_id
+    // + inst_turn
+    // + digger.task_idx
+}
+
+static void find_next_update_thing()
+{
+    Thingid ret = 0;
+    if (gameadd.unit_update_thing != 0)
+    {
+        struct Thing *thing = thing_get(gameadd.unit_update_thing);
+        if ((thing->alloc_flags & TAlF_InDungeonList) == 0)
+        {
+            ret = 0;
+        } else
+        {
+            struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+            ret = cctrl->players_next_creature_idx;
+        }
+    }
+    int p = PLAYERS_EXT_COUNT + 1;
+    while (ret == 0)
+    {
+        if (p <= 0) // No creatures at all
+            break;
+        if (!gameadd.unit_update_list_idx)
+        {
+            gameadd.unit_update_player++;
+            p--;
+            if (!netremap_is_mine(gameadd.unit_update_player))
+            {
+                if (gameadd.unit_update_player >= PLAYERS_COUNT)
+                    gameadd.unit_update_player = -1;
+                continue;
+            }
+            // First we list all diggers
+            if (gameadd.unit_update_player < PLAYERS_COUNT)
+            {
+                ret = get_dungeon(gameadd.unit_update_player)->digger_list_start;
+                gameadd.unit_update_list_idx = true;
+            }
+            else
+            {
+                gameadd.unit_update_player = -1; // it will be incremented on next turn
+                ret = game.nodungeon_creatr_list_start;
+            }
+        }
+        else
+        {
+            // Then we list all creatures
+            gameadd.unit_update_list_idx = false;
+            ret = get_dungeon(gameadd.unit_update_player)->creatr_list_start;
+        }
+    }
+    gameadd.unit_update_thing = ret;
+}
 
 void process_updating_packets()
 {
@@ -167,6 +242,11 @@ void process_updating_packets()
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
         }
+    }
+    find_next_update_thing();
+    if (gameadd.unit_update_thing)
+    {
+        send_update_thing(gameadd.unit_update_thing);
     }
 }
 

@@ -1394,6 +1394,8 @@ static TbBool process_packet_cb(
         return net_sync_process_force_packet(turn, plyr_idx, kind, data, size);
     case PckA_CreateObject:
         return object_packet_cb(turn, plyr_idx, data, size);
+    case PckA_Ping:
+        return process_ping_packet_cb(plyr_idx, data, size);
     default:
         break;
     }

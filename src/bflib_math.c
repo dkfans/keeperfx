@@ -751,7 +751,8 @@ unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const cha
   *seed = _lrotr(i, 13);
   i = (*seed) % range;
 #ifdef AUTOTESTING
-  evm_stat(0, "rnd.%s,fn=%s,range=%ld val=%ld,range=%ld", tag, func_name, range, i, range);
+  evm_stat(0, "rnd.%s,%s,fn=%s,range=%ld val=%ld,range=%ld", tag,
+           evm_get_suffix(), func_name, range, i, range);
 #endif
   return i;
 }

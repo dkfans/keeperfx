@@ -759,6 +759,10 @@ union PingPacketData
     };
 };
 #pragma pack()
+TbBool process_ping_packet_cb(int client_id, void *data, short size)
+{
+    return true;
+}
 
 static void init_ping_packet(TbClockMSec now, union PingPacketData *packet_data)
 {
