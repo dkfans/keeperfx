@@ -31,6 +31,7 @@
 #include "map_blocks.h"
 #include "engine_render.h"
 
+static TbBool update_thing_do_update = false;
 /******************************************************************************/
 void send_update_job(struct Thing *thing)
 {
@@ -152,19 +153,6 @@ void remove_update_thing(struct Thing *thing)
     find_next_update_thing();
 }
 
-static void send_update_thing(Thingid thingid)
-{
-    struct Thing *thing = thing_get(thingid);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-
-    NETDBG(7, "thing:%d owner:%d kind:%s", thingid, thing->owner, get_string(creature_data_get(thing->model)->namestr_idx));
-    // + pos_x + pos_y
-    // + active_state + continue_state
-    // + instance_id
-    // + inst_turn
-    // + digger.task_idx
-}
-
 static void find_next_update_thing()
 {
     Thingid ret = 0;
@@ -215,6 +203,78 @@ static void find_next_update_thing()
         }
     }
     gameadd.unit_update_thing = ret;
+}
+
+static void send_update_thing(Thingid thingid)
+{
+    struct Thing *thing = thing_get(thingid);
+    struct ThingAdd *thingadd = get_thingadd(thingid);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+
+    struct BigActionPacket *big = create_packet_action_big(get_player(thing->owner), PckA_UpdateThing, AP_PlusSix);
+
+    NETDBG(7, "thing:%d owner:%d kind:%s", thingid, thing->owner, get_string(creature_data_get(thing->model)->namestr_idx));
+    big->head.arg[0] = thingid;
+    big->head.arg[1] = thing->continue_state | (thing->active_state << 8);
+    big->head.arg[2] = thing->mappos.x.val;
+    big->head.arg[3] = thing->mappos.y.val;
+    big->head.arg[4] = thing->mappos.z.val;
+    big->head.arg[5] = thingadd->rand_seed;
+    thingadd->rand_seed = big->head.arg[5];
+    // TODO: state->job on each such sync
+    big->head.arg[6] = cctrl->digger.task_idx;
+    // + instance_id
+    // + inst_turn
+    // + digger.task_idx
+}
+
+void process_update_thing(int client_id, struct BigActionPacket *big)
+{
+    // TODO: this should be delayed a bit and reordered
+    struct Thing *thing = thing_get(net_remap_thingid(client_id, big->head.arg0));
+    struct ThingAdd *thingadd = get_thingadd(thing->index);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    unsigned char new_cstate = big->head.arg[1] & 255;
+    unsigned char new_state = big->head.arg[1] >> 8;
+    struct Coord3d newpos;
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("unexpected thing_id:%d(%d)", net_remap_thingid(client_id, big->head.arg0), big->head.arg0);
+        net_resync_needed();
+        return;
+    }
+    if (netremap_is_mine(thing->owner))
+    {
+        if (client_id != player_to_client(my_player_number))
+        {
+            ERRORLOG("thing is mine! thing_id:%d(%d)", net_remap_thingid(client_id, big->head.arg0), big->head.arg0);
+        }
+        return;
+    }
+    NETDBG(6, "thing:%d owner:%d", thing->index, thing->owner);
+
+    newpos.x.val = big->head.arg[2];
+    newpos.y.val = big->head.arg[3];
+    newpos.z.val = big->head.arg[4];
+
+    MapCoordDelta dist = get_3d_distance_squared(&thing->mappos, &newpos);
+    evm_stat(0, "ev." "net.update" ",%s,cr=%s,thing=%d,plyr=%d dsq=%ld,st=%d,nst=%d,cst=%d,ncst=%d"
+                                   ",job=%d,njob=%d",
+            evm_get_suffix(), get_string(creature_data_get(thing->model)->namestr_idx), thing->index, client_id, \
+            dist, thing->active_state, new_state, thing->continue_state, new_cstate,
+             cctrl->digger.task_idx, big->head.arg[6]);
+
+    if (update_thing_do_update)
+    {
+        move_thing_in_map(thing, &newpos);
+        ariadne_invalidate_creature_route(thing);
+
+        EVM_CREATURE_EVENT_WITH_TARGET("state", thing->owner, thing, new_state);
+        EVM_CREATURE_EVENT_WITH_TARGET("net.state", thing->owner, thing, new_state);
+        thing->active_state = new_state;
+        thing->continue_state = new_cstate;
+        thingadd->rand_seed = big->head.arg[5];
+    }
 }
 
 void process_updating_packets()
@@ -282,6 +342,10 @@ void process_update_land(int client_id, struct BigActionPacket *big)
     }
     if (netremap_is_mine(thing->owner))
     {
+        if (client_id != player_to_client(my_player_number))
+        {
+            ERRORLOG("thing is mine! thing_id:%d(%d)", net_remap_thingid(client_id, big->head.arg0), big->head.arg0);
+        }
         return;
     }
     NETDBG(5, "imp:%d owner:%d", thing->index, thing->owner);

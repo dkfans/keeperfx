@@ -396,6 +396,8 @@ struct BigActionPacket *create_packet_action_big(struct PlayerInfo *player, enum
     size_t size = sizeof(struct BigActionPacket);
     if (flags & AP_PlusTwo)
         size += sizeof(short) * 2;
+    if (flags & AP_PlusSix)
+        size += sizeof(short) * 6;
 
     struct BigActionPacket *ret = LbNetwork_AddPacket(
         action, game.play_gameturn, size);

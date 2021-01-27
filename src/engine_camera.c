@@ -120,6 +120,18 @@ MapCoordDelta get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *
     return LbDiagonalLength(abs(dist_x), abs(dist_y));
 }
 
+MapCoordDelta get_3d_distance_squared(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+    long dist_x = (long)pos1->x.val - (long)pos2->x.val;
+    long dist_y = (long)pos1->y.val - (long)pos2->y.val;
+    long dist_z = (long)pos1->z.val - (long)pos2->z.val;
+    long ret = dist_x * dist_x;
+    ret += dist_y * dist_y;
+    ret += dist_z * dist_z;
+    ret >>= 8;
+    return ret;
+}
+
 MapCoordDelta get_2d_distance_squared(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
     long dist_x = (long)pos1->x.val - (long)pos2->x.val;

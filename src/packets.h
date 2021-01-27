@@ -176,7 +176,8 @@ enum TbPacketAction {
         PckA_ToggleObject,
         PckA_UpdateJob,
         PckA_UpdateLand, //145
-        PckA_Ping
+        PckA_Ping,
+        PckA_UpdateThing
 };
 
 /** Packet flags for non-action player operation. */
@@ -230,10 +231,9 @@ enum ChecksumKind {
 enum ActionPacketFlags
 {
   AP_Confirmed    = 0x01, // Not used
-  AP_Rejected     = 0x02, // Not used
-  AP_NetworkMask  = 0x03, // Not used
-  AP_Big          = 0x04, // It is a BigActionPacket
-  AP_PlusTwo      = 0x08, // It is two shorts bigger than big
+  AP_Big          = 0x02, // It is a BigActionPacket
+  AP_PlusTwo      = 0x04, // It is two shorts bigger than big
+  AP_PlusSix      = 0x08, // Another 6 short
 };
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
 #define PCtr_RBtnAnyAction (PCtr_RBtnClick | PCtr_RBtnHeld | PCtr_RBtnRelease)

@@ -520,12 +520,12 @@ long instf_dig(struct Thing *creatng, long *param)
     {
         struct MapTask* task = get_dungeon_task_list_entry(dungeon, task_idx);
         taskkind = task->kind;
-        if (task->coords != cctrl->word_8F)
+        if (task->coords != cctrl->digger.task_stl)
         {
             return 0;
       }
-      stl_x = stl_num_decode_x(cctrl->word_8F);
-      stl_y = stl_num_decode_y(cctrl->word_8F);
+      stl_x = stl_num_decode_x(cctrl->digger.task_stl);
+      stl_y = stl_num_decode_y(cctrl->digger.task_stl);
     }
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb)) {
