@@ -34,6 +34,7 @@
 #include "creature_instances.h"
 #include "thing_effects.h"
 #include "front_network.h"
+#include "packets_updating.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -412,6 +413,32 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             if (!is_my_player_number(plyr_idx))
                 return false;
             cmd_comp_checks(id);
+            return true;
+        } else if (strcmp(parstr, "probe.thing") == 0)
+        {
+            if (pr2str == NULL)
+                return false;
+            int id = atoi(pr2str);
+            if (is_my_player_number(plyr_idx))
+            {
+                if (id <= 0 || id >= THINGS_COUNT)
+                {
+                    message_add_fmt(10, "invalid id");
+                    return false;
+                }
+                return false;
+            }
+            if (id <= 0 || id >= THINGS_COUNT)
+            {
+                return false;
+            }
+            int opt = 0;
+            if (pr3str)
+            {
+                opt = atoi(pr3str);
+            }
+            probe_thing(id, opt);
+            message_add_fmt(plyr_idx, "!probe.thing %d %d", id, opt);
             return true;
         } else if (strcmp(parstr, "reveal") == 0)
         {

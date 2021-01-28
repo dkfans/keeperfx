@@ -42,6 +42,8 @@ void process_updating_packets();
 
 void remove_update_thing(struct Thing *to_delete);
 
+void probe_thing(Thingid id, int opt);
+
 #ifdef __cplusplus
 }
 #endif

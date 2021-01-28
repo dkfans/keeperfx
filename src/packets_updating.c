@@ -376,3 +376,51 @@ void process_update_land(int client_id, struct BigActionPacket *big)
         place_slab_type_on_map(nslab, slab_subtile_center(slb_x), slab_subtile_center(slb_y), thing->owner, 1);
     }
 }
+
+void probe_thing(Thingid id, int opt)
+{
+    const int size = sizeof(struct SmallActionPacket) + 100;
+    struct Thing *thing = NULL;
+    struct ThingAdd * thingadd = NULL;
+    struct SmallActionPacket *packet = LbNetwork_AddPacket(PckA_ProbeThing, game.play_gameturn, size);
+    packet->action = 0;
+    packet->flags = 0;
+    packet->arg0 = id;
+    packet->arg1 = opt;
+    char * dst = ((char*)packet) + sizeof(struct SmallActionPacket);
+    const char *code_name;
+    thing = thing_get(id);
+    thingadd = get_thingadd(id);
+    if (thing_is_invalid(thing))
+    {
+        sprintf(dst, "%d: invalid");
+        return;
+    }
+    switch(thing->class_id)
+    {
+        case TCls_Creature:
+            code_name = creature_code_name(thing->model);
+            break;
+        case TCls_Object:
+            code_name = object_code_name(thing->model);
+            break;
+        case TCls_Door:
+            code_name = door_code_name(thing->model);
+            break;
+        case TCls_Trap:
+            code_name = trap_code_name(thing->model);
+            break;
+        default:
+            code_name="unknown";
+    }
+    switch(opt)
+    {
+        case 0:
+            sprintf(dst, "%d: cl:%d mdl:%d o:%d %s (%d,%d)",
+                    id, thing->class_id, thing->model, thing->owner, code_name,
+                    thing->mappos.x.stl.num/3, thing->mappos.y.stl.num/3);
+            break;
+        default:
+            *dst = 0;
+    }
+}

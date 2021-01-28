@@ -1399,6 +1399,8 @@ static TbBool process_packet_cb(
         return object_packet_cb(turn, plyr_idx, data, size);
     case PckA_Ping:
         return process_ping_packet_cb(plyr_idx, data, size);
+    case PckA_ProbeThing:
+        message_add(10, ((const char *)data + sizeof(struct SmallActionPacket)));
     default:
         break;
     }

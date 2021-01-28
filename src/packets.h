@@ -177,7 +177,8 @@ enum TbPacketAction {
         PckA_UpdateJob,
         PckA_UpdateLand, //145
         PckA_Ping,
-        PckA_UpdateThing
+        PckA_UpdateThing,
+        PckA_ProbeThing
 };
 
 /** Packet flags for non-action player operation. */
