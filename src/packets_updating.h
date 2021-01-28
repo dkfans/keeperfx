@@ -44,6 +44,9 @@ void remove_update_thing(struct Thing *to_delete);
 
 void probe_thing(Thingid id, int opt);
 
+void update_combat_prepare(struct Thing *thing, struct Thing *target);
+void update_combat_process(int client_id, struct BigActionPacket *big);
+
 #ifdef __cplusplus
 }
 #endif

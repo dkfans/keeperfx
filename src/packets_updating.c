@@ -30,6 +30,7 @@
 #include "map_columns.h"
 #include "map_blocks.h"
 #include "engine_render.h"
+#include "creature_states_combt.h"
 
 static TbBool update_thing_do_update = false;
 /******************************************************************************/
@@ -144,7 +145,9 @@ TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord sl
 }
 
 static void send_postupdate_land(struct Thing *thing, struct ThingAdd *thingadd);
+static void send_new_combats();
 static void find_next_update_thing();
+
 void remove_update_thing(struct Thing *thing)
 {
     // Dont care if it is not "next thing"
@@ -277,7 +280,7 @@ void process_update_thing(int client_id, struct BigActionPacket *big)
     }
 }
 
-void process_updating_packets()
+static void send_new_lands()
 {
     unsigned long k = 0;
     Thingid i = gameadd.first_updated_land;
@@ -303,6 +306,13 @@ void process_updating_packets()
             break;
         }
     }
+}
+
+void process_updating_packets()
+{
+    send_new_lands(); // each land claimed this turn
+    send_new_combats(); // each combat started this turn
+    /// Update each thing
     find_next_update_thing();
     if (gameadd.unit_update_thing)
     {
@@ -423,4 +433,91 @@ void probe_thing(Thingid id, int opt)
         default:
             *dst = 0;
     }
+}
+/******************************************************************************/
+
+void update_combat_prepare(struct Thing *thing, struct Thing *enemy)
+{
+    if (!netremap_is_mine(thing->owner))
+        return;
+    struct ThingAdd *thingadd = get_thingadd(thing->index);
+    thingadd->next_updated_combatant = gameadd.first_updated_combatant;
+    thingadd->updated_combat_enemy = enemy->index;
+
+    gameadd.first_updated_combatant = thing->index;
+}
+
+static void send_update_combat(struct Thing *thing, struct ThingAdd *thingadd)
+{
+    struct BigActionPacket *big = create_packet_action_big(get_player(thing->owner), PckA_StartCombat, AP_PlusTwo);
+    big->head.arg[0] = thing->index;
+    big->head.arg[1] = thingadd->updated_combat_enemy;
+    big->head.arg[2] = thing->mappos.x.val; // precise position because of possession
+    big->head.arg[3] = thing->mappos.y.val;
+    big->head.arg[4] = thing->mappos.z.val;
+    big->head.arg[5] = (unsigned short)thingadd->rand_seed;
+    thingadd->rand_seed = big->head.arg[5];
+}
+
+static void send_new_combats()
+{
+    unsigned long k = 0;
+    Thingid i = gameadd.first_updated_combatant;
+    gameadd.first_updated_combatant = 0;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        struct ThingAdd *thingadd = get_thingadd(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thingadd->next_updated_combatant;
+        thingadd->next_updated_combatant = 0;
+        // Per-thing code
+        send_update_combat(thing, thingadd);
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}
+
+void update_combat_process(int client_id, struct BigActionPacket *big)
+{
+    struct Thing *thing = thing_get(net_remap_thingid(client_id, big->head.arg0));
+    struct Thing *enemytng = thing_get(net_remap_thingid(client_id, big->head.arg1));
+    struct ThingAdd *thingadd = get_thingadd(thing->index);
+
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("invalid fighter %d(%d) vs %d(%d)",
+                 net_remap_thingid(client_id, big->head.arg0), big->head.arg0,
+                 net_remap_thingid(client_id, big->head.arg1), big->head.arg1);
+        return;
+    }
+    if (thing_is_invalid(enemytng))
+    {
+        ERRORLOG("invalid enemy %d(%d) vs %d(%d)",
+                 net_remap_thingid(client_id, big->head.arg0), big->head.arg0,
+                 net_remap_thingid(client_id, big->head.arg1), big->head.arg1);
+        return;
+    }
+
+    struct Coord3d newpos;
+    newpos.x.val = big->head.arg[2];
+    newpos.y.val = big->head.arg[3];
+    newpos.z.val = big->head.arg[4];
+
+    move_thing_in_map(thing, &newpos);
+    ariadne_invalidate_creature_route(thing);
+
+    thingadd->rand_seed = big->head.arg[5];
+
+    // TODO: add to enemy list etc.
+    battle_add(thing, enemytng);
 }

@@ -254,6 +254,9 @@ struct ThingAdd // Additional thing data
     Thingid next_updated_land;
     SlabKind update_land_slab;
     MapSlabCoord update_land_pos;
+
+    Thingid next_updated_combatant;
+    Thingid updated_combat_enemy;
 };
 
 #pragma pack()

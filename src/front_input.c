@@ -2134,7 +2134,7 @@ static TbBool get_inputs()
         get_dungeon_speech_inputs();
         if (packet->packet.control_flags & (PCtr_LBtnAnyAction | PCtr_RBtnAnyAction))
         {
-          NETDBG(5, "turn:%04ld control_flags:%04x", game.play_gameturn, (int)packet->packet.control_flags);
+          NETDBG(6, "turn:%04ld control_flags:%04x", game.play_gameturn, (int)packet->packet.control_flags);
         }
         fake_packet = *packet;
         process_dungeon_control_packet_clicks(player, &fake_packet.packet);

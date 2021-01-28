@@ -178,6 +178,7 @@ enum TbPacketAction {
         PckA_UpdateLand, //145
         PckA_Ping,
         PckA_UpdateThing,
+        PckA_StartCombat,
         PckA_ProbeThing
 };
 

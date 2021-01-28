@@ -46,6 +46,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
+#include "packets_updating.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1064,6 +1065,7 @@ TbBool add_waiting_attacker(struct Thing *fighter, struct Thing *enemy)
 TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrAttackType attack_type)
 {
     SYNCDBG(18,"Starting for %s index %d and %s index %d",thing_model_name(fighter),(int)fighter->index,thing_model_name(enemy),(int)enemy->index);
+    update_combat_prepare(fighter, enemy);
     struct CreatureControl* figctrl = creature_control_get_from_thing(fighter);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enemy);
     {

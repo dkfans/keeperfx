@@ -171,6 +171,8 @@ struct GameAdd {
     PlayerNumber    unit_update_player;
     Thingid         unit_update_thing; // next thing to send across net
     TbBool          unit_update_list_idx; // diggers_list or creatures_list
+
+    Thingid         first_updated_combatant; // first thing who started combat now
 };
 
 #pragma pack()
