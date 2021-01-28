@@ -127,7 +127,7 @@ void process_update_job(struct BigActionPacket *big)
         }
     }
 }
-
+/******************************************************************************/
 TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind nslab)
 {
     if (!netremap_is_mine(thing->owner))
@@ -384,6 +384,16 @@ void process_update_land(int client_id, struct BigActionPacket *big)
     else
     {
         place_slab_type_on_map(nslab, slab_subtile_center(slb_x), slab_subtile_center(slb_y), thing->owner, 1);
+        if (nslab == SlbT_CLAIMED)
+        {
+            // TODO join with instf_pretty_path(struct Thing *creatng, long *param)
+            do_unprettying(thing->owner, slb_x, slb_y);
+            do_slab_efficiency_alteration(slb_x, slb_y);
+            increase_dungeon_area(thing->owner, 1);
+            get_dungeon(thing->owner)->lvstats.area_claimed++;
+            EVM_MAP_EVENT("claimed", thing->owner, slb_x, slb_y, "");
+            remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
+        }
     }
 }
 
@@ -403,7 +413,7 @@ void probe_thing(Thingid id, int opt)
     thingadd = get_thingadd(id);
     if (thing_is_invalid(thing))
     {
-        sprintf(dst, "%d: invalid");
+        sprintf(dst, "%d: invalid", id);
         return;
     }
     switch(thing->class_id)

@@ -47,6 +47,7 @@
 
 #include "keeperfx.hpp"
 #include "packets_updating.h"
+#include "net_remap.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -746,6 +747,10 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
     create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
     thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    if (!netremap_is_mine(creatng->owner))
+    {
+        return 1;
+    }
     place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
     send_update_land(creatng, slb_x, slb_y, SlbT_CLAIMED);
     do_unprettying(creatng->owner, slb_x, slb_y);
