@@ -1253,7 +1253,7 @@ CrAttackType check_for_possible_combat_within_distance(struct Thing *creatng, st
 short creature_combat_flee(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    GameTurnDelta turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->start_turn_28E;
+    GameTurnDelta turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->flee_start_turn;
     if (get_2d_box_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
     {
         SYNCDBG(8,"Starting distant flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
@@ -1266,7 +1266,7 @@ short creature_combat_flee(struct Thing *creatng)
                 cctrl->flee_pos.y.val = creatng->mappos.y.val;
                 cctrl->flee_pos.z.val = creatng->mappos.z.val;
             }
-            cctrl->start_turn_28E = game.play_gameturn;
+            cctrl->flee_start_turn = game.play_gameturn;
         } else
         if (turns_in_flee <= game.game_turns_in_flee)
         {
@@ -2614,7 +2614,7 @@ short creature_in_combat(struct Thing *creatng)
             ERRORLOG("Cannot get %s index %d into flee",thing_model_name(creatng),(int)creatng->index);
             return 0;
         }
-        cctrl->start_turn_28E = game.play_gameturn;
+        cctrl->flee_start_turn = game.play_gameturn;
         return 0;
     }
     CombatState combat_func;
@@ -2762,12 +2762,12 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         {
             set_creature_instance(creatng, inst_id, 0, 0, 0);
             return false;
-        } else
-        if (!external_set_thing_state(creatng, CrSt_CreatureCombatFlee)) {
+        } else if (!external_set_thing_state(creatng, CrSt_CreatureCombatFlee))
+        {
             return false;
         }
         setup_combat_flee_position(creatng);
-        cctrl->start_turn_28E = game.play_gameturn;
+        cctrl->flee_start_turn = game.play_gameturn;
         return true;
     }
 
@@ -2808,7 +2808,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         return false;
     }
     setup_combat_flee_position(creatng);
-    cctrl->start_turn_28E = game.play_gameturn;
+    cctrl->flee_start_turn = game.play_gameturn;
     return true;
 }
 

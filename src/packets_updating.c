@@ -211,7 +211,7 @@ static void send_update_thing(Thingid thingid)
     struct ThingAdd *thingadd = get_thingadd(thingid);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
 
-    struct BigActionPacket *big = create_packet_action_big(get_player(thing->owner), PckA_UpdateThing, AP_PlusSix);
+    struct BigActionPacket *big = create_packet_action_big(NULL, PckA_UpdateThing, AP_PlusSix);
 
     NETDBG(7, "thing:%d owner:%d kind:%s", thingid, thing->owner, get_string(creature_data_get(thing->model)->namestr_idx));
     big->head.arg[0] = thingid;
