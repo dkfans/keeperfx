@@ -188,8 +188,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CrScavenge))
     {
         ERRORLOG("Room %s at (%d,%d) disappeared",room_code_name(RoK_SCAVENGER),(int)stl_x,(int)stl_y);
-        kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
-        return -1;
+        return kill_creature_sync(thing, INVALID_THING, -1, CrDed_NoEffects);
     }
     if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
@@ -206,8 +205,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     } else
     {
         ERRORLOG("No valid position inside %s room for %s index %d",room_code_name(room->kind),thing_model_name(thing),(int)thing->index);
-        kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
-        return -1;
+        return kill_creature_sync(thing, INVALID_THING, -1, CrDed_NoEffects);
     }
 }
 

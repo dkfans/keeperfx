@@ -244,7 +244,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       struct Coord3d pos;
       if (creature_affected_by_spell(thing, SplK_Freeze))
       {
-          kill_creature(thing, INVALID_THING, thing->owner, CrDed_Default);
+          kill_creature_sync(thing, INVALID_THING, thing->owner, CrDed_Default);
       } else
       {
           slap_creature(player, thing);

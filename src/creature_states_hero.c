@@ -989,7 +989,7 @@ short good_wait_in_exit_door(struct Thing *thing)
         {
             delete_thing_structure(tmptng, 0);
         }
-        kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
+        kill_creature_sync(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     }
     return 0;
 }

@@ -506,7 +506,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     struct CreatureControl* cctrl = creature_control_get_from_thing(transftng);
     set_transfered_creature(plyr_idx, transftng->model, cctrl->explevel);
     remove_thing_from_power_hand_list(transftng, plyr_idx);
-    kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
+    kill_creature_sync(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     create_special_used_effect(&boxtng->mappos, plyr_idx);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);

@@ -2553,6 +2553,22 @@ static TbBool creature_must_die(struct Thing *creatng)
           ;
 }
 
+short kill_creature_sync(struct Thing *creatng, struct Thing *killertng,
+                        PlayerNumber killer_plyr_idx, CrDeathFlags flags)
+{
+    if (netremap_is_mine(creatng->owner))
+    {
+        kill_creature(creatng, killertng, killer_plyr_idx, flags);
+        return CrStRet_Deleted;
+    }
+    clear_creature_instance(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    creatng->active_state = CrSt_Braindead;
+    cctrl->flgfield_1 |= CCFlg_PreventDamage;
+    cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    creatng->health = 1;
+    return CrStRet_Modified;
+}
 
 TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags)
@@ -4150,7 +4166,7 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
     {
     default:
         WARNLOG("Invalid check selection, %d",(int)pick_check);
-        // no break
+        // fall through
     case 0:
         filter = player_list_creature_filter_most_experienced;
         break;
@@ -4193,7 +4209,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
     {
     default:
         WARNLOG("Invalid check selection, %d",(int)pick_check);
-        // no break
+        // fall through
     case 0:
         filter = player_list_creature_filter_least_experienced;
         break;
@@ -4238,7 +4254,7 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
     {
     default:
         WARNLOG("Invalid check selection, %d",(int)pick_check);
-        // no break
+        // fall through
     case 0:
         filter = player_list_creature_filter_of_gui_job;
         break;

@@ -151,6 +151,7 @@ short state_cleanup_unable_to_fight(struct Thing *creatng);
 short state_cleanup_unconscious(struct Thing *creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
 short creature_pick_up_spell_to_steal(struct Thing *creatng);
+short creature_braindead(struct Thing *creatng);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -457,6 +458,8 @@ struct StateInfo states[] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
+  {creature_braindead, NULL, NULL, NULL,
+      0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0, 54, 1, 0, 1},
   // Some redundant NULLs
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
@@ -1953,8 +1956,7 @@ short creature_exempt(struct Thing *creatng)
         return CrCkRet_Continue;
     }
     play_creature_sound_and_create_sound_thing(creatng, CrSnd_Sad, 2);
-    kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
-    return CrCkRet_Deleted;
+    return kill_creature_sync(creatng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
 }
 
 short creature_follow_leader(struct Thing *creatng)
@@ -3376,6 +3378,12 @@ short person_sulk_head_for_lair(struct Thing *creatng)
         return 0;
     }
     internal_set_thing_state(creatng, CrSt_CreatureLeavingDungeon);
+    return 0;
+}
+
+short creature_braindead(struct Thing *creatng)
+{
+    TRACE_THING(creatng);
     return 0;
 }
 
