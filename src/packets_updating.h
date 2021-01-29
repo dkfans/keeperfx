@@ -38,6 +38,7 @@ void process_update_job(struct BigActionPacket *big);
 TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind nslab);
 void process_update_land(int client_id, struct BigActionPacket *big);
 void process_update_thing(int client_id, struct BigActionPacket *big);
+void set_update_thing_job(TbBool new_val);
 void process_updating_packets();
 
 void remove_update_thing(struct Thing *to_delete);

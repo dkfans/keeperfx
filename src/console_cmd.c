@@ -344,6 +344,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     {
         net_force_sync(game.play_gameturn + 5);
         return true;
+    } else if (strcmp(parstr, "net.autosync") == 0)
+    {
+        if (pr2str == NULL)
+            return false;
+        set_update_thing_job(atoi(pr2str));
+        return true;
     } else if (strcmp(parstr, "turn") == 0)
     {
         message_add_fmt(plyr_idx, "turn %ld", game.play_gameturn);

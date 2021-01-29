@@ -228,9 +228,12 @@ static void send_update_thing(Thingid thingid)
     thingadd->rand_seed = big->head.arg[5];
     // TODO: state->job on each such sync
     big->head.arg[6] = cctrl->digger.task_idx;
+    big->head.arg[7] = thing->health;
     // + instance_id
     // + inst_turn
     // + digger.task_idx
+    // + hp
+    // TODO: special packet for affected spells?
 }
 
 void process_update_thing(int client_id, struct BigActionPacket *big)
@@ -279,7 +282,14 @@ void process_update_thing(int client_id, struct BigActionPacket *big)
         thing->active_state = new_state;
         thing->continue_state = new_cstate;
         thingadd->rand_seed = big->head.arg[5];
+        //TODO: cctrl->digger.task_idx
+        thing->health = big->head.arg[7];
     }
+}
+
+void set_update_thing_job(TbBool new_val)
+{
+    update_thing_do_update = new_val;
 }
 
 static void send_new_lands()
