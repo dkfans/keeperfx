@@ -768,7 +768,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
     if (shotng->owner == creatng->owner) {
         dieflags |= CrDed_NoUnconscious;
     }
-    return kill_creature(creatng, killertng, shotng->owner, dieflags);
+    return kill_creature_sync(creatng, killertng, shotng->owner, dieflags);
 }
 
 static long melee_shot_hit_creature_at(struct Thing *shooter, struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)

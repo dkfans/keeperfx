@@ -135,7 +135,8 @@ struct CastedSpellData {
 
 #define SIZEOF_CreatureControl 776
 
-struct CreatureControl {
+struct CreatureControl
+{
     unsigned char index;
     unsigned char flgfield_1;
     unsigned char flgfield_2;
@@ -153,11 +154,11 @@ struct CreatureControl {
     unsigned char explevel;
     long exp_points;
     long prev_exp_points;
-unsigned char field_2C;
+    unsigned char field_2C;
     struct Coord3d moveto_pos;
-unsigned char field_33[2];
+    unsigned char field_33[2];
     short field_35;
-unsigned char field_37[2];
+    unsigned char field_37[2];
     long hunger_level;
     long temple_cure_gameturn;
     unsigned char hunger_amount;
@@ -168,13 +169,13 @@ unsigned char field_37[2];
     unsigned char prepayments_received;
     long annoy_untrained_turn;
     unsigned long last_roar_turn;
-   /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
-    * When the highest value is above CreatureStats->annoy_level, the creature becomes angry/livid,
-    * depending on how high the highest value is.
-    */
+    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
+     * When the highest value is above CreatureStats->annoy_level, the creature becomes angry/livid,
+     * depending on how high the highest value is.
+     */
     long annoyance_level[5];
     unsigned char mood_flags; /* also hold foot sound sample variation */
-unsigned char field_67; /* foot sound variation timer (0x1F) */
+    unsigned char field_67; /* foot sound variation timer (0x1F) */
     /** Lair room index, that is the room which holds creature's lair object. */
     unsigned short lair_room_id;
     /** Lair object thing index. */
@@ -198,162 +199,182 @@ unsigned char field_67; /* foot sound variation timer (0x1F) */
     short blocking_door_id;
     unsigned char move_flags;
 // Hard to tell where exactly, but somewhere here a kind-specific, job-specific or owner-specific data starts
-  union {
-  struct {
-    char target_plyr_idx;
-    unsigned char byte_8Ax;
-    long long_8B;
-    unsigned char byte_8F;
-    unsigned short member_pos_stl[5];
-  } party;
-  struct {
-    long stack_update_turn;
-    short working_stl;
-    unsigned short task_stl;
-    unsigned short task_idx;
-    unsigned char byte_93;
-    unsigned char last_did_job;
-    unsigned char task_stack_pos;
-    unsigned short task_repeats;
-    unsigned char field_98[2];
-  } digger;
-  struct {
-    short word_89;
-    short word_8B;
-    short word_8D;
-    unsigned char byte_8F;
-    unsigned short word_90[5];
-  } patrol;
-  struct {
-    char sbyte_89;
-    unsigned char byte_8A;
-    unsigned char byte_8B;
-    unsigned char byte_8C;
-    short word_8D;
-    unsigned short word_8F;
-    short word_91;
-    short word_93;
-    unsigned char field_95;
-    unsigned char field_96[4];
-  };
-  struct {
-    long long_89;
-    long long_8D;
-    long long_91;
-    unsigned char field_95x;
-    unsigned char field_96x[4];
-  };
-  };
+    union
+    {
+        struct
+        {
+            char target_plyr_idx;
+            unsigned char byte_8Ax;
+            long long_8B;
+            unsigned char byte_8F;
+            unsigned short member_pos_stl[5];
+        } party;
+        struct
+        {
+            long stack_update_turn;
+            short working_stl;
+            unsigned short task_stl;
+            unsigned short task_idx;
+            unsigned char byte_93;
+            unsigned char last_did_job;
+            unsigned char task_stack_pos;
+            unsigned short task_repeats;
+            unsigned char field_98[2];
+        } digger;
+        struct
+        {
+            short word_89;
+            short word_8B;
+            short word_8D;
+            unsigned char byte_8F;
+            unsigned short word_90[5];
+        } patrol;
+        struct
+        {
+            char sbyte_89;
+            unsigned char byte_8A;
+            unsigned char byte_8B;
+            unsigned char byte_8C;
+            short word_8D;
+            unsigned short word_8F;
+            short word_91;
+            short word_93;
+            unsigned char field_95;
+            unsigned char field_96[4];
+        };
+        struct
+        {
+            long long_89;
+            long long_8D;
+            long long_91;
+            unsigned char field_95x;
+            unsigned char field_96x[4];
+        };
+    };
 
-  union {
-  struct {
-        long start_gameturn;
-        long long_9Ex;
-        long long_A2x;
-        short word_A6;
-        unsigned char vis_state;
-  } tortured;
-  struct {
-        long start_gameturn;
-        long long_9Ex;
-        long long_A2x;
-  } idle;
-  struct {
-    unsigned char byte_9A;
-    unsigned char byte_9B;
-    unsigned char byte_9C;
-    unsigned char byte_9D;
-    unsigned char byte_9E;
-    unsigned char byte_9F;
-    unsigned char byte_A0;
-    unsigned char byte_A1;
-    unsigned char byte_A2;
-    unsigned char byte_A3;
-    unsigned char byte_A4;
-    unsigned char byte_A5;
-  };
-  struct {
-    unsigned char byte_9A_scv;
-    unsigned char byte_9B_scv;
-    unsigned char byte_9C_scv;
-    unsigned char stl_9D_x;
-    unsigned char stl_9D_y;
-    unsigned char byte_9F_scv;
-    unsigned char byte_A0_scv;
-    unsigned char byte_A1_scv;
-    unsigned char byte_A2_scv;
-    unsigned char byte_A3_scv;
-    unsigned char byte_A4_scv;
-    unsigned char byte_A5_scv;
-  } scavenge;
-  struct {
-    unsigned char mode;// offset 9A
-    unsigned char train_timeout;
-    unsigned char pole_stl_x;
-    unsigned char pole_stl_y;
-    unsigned char search_timeout;
-    short partner_idx;
-    long partner_creation;
-    unsigned char byte_A5x;
-  } training;
-  struct {
-    long seen_enemy_turn;
-    long battle_enemy_crtn;
-    short battle_enemy_idx;
-    short seen_enemy_idx;
-    unsigned char state_id;
-    unsigned char attack_type;
-    unsigned char seen_enemy_los;
-  } combat;
-  struct {
-    unsigned long start_gameturn;
-    unsigned long last_mood_sound_turn;
-  } imprison;
-  struct {
-    short word_9A;
-    short word_9C;
-    short word_9E;
-    long long_A0;
-    short word_A4;
-    short word_A6;
-  };
-  struct {
-    short word_9A_cp2;
-    long long_9C;
-    long long_A0_cp2;
-    short word_A4_cp2;
-    short word_A6_cp2;
-  };
-  struct {
-    long long_9A;
-    long long_9E;
-    long long_A2;
-  };
-  struct {
-    unsigned long last_mood_sound_turn;
-    long long_9E_cp2;
-    long long_A2_cp2;
-    short word_A6_cp3;
-  };
-  struct {
-    unsigned char byte_9A_cp2;
-    long long_9B;
-    short word_9F_cp2;
-    long long_A1;
-    unsigned char byte_A5_cp2;
-    short word_A6_cp4;
-  };
-  struct {
-    unsigned char byte_9A_cp3;
-    short word_9B;
-    short word_9D;
-    short word_9F;
-    short word_A1;
-    short word_A3;
-    unsigned char byte_A5_cp3;
-    short word_A6_cp5;
-  };
-  };
+    union
+    {
+        struct
+        {
+            long start_gameturn;
+            long long_9Ex;
+            long long_A2x;
+            short word_A6;
+            unsigned char vis_state;
+        } tortured;
+        struct
+        {
+            long start_gameturn;
+            long long_9Ex;
+            long long_A2x;
+        } idle;
+        struct
+        {
+            unsigned char byte_9A;
+            unsigned char byte_9B;
+            unsigned char byte_9C;
+            unsigned char byte_9D;
+            unsigned char byte_9E;
+            unsigned char byte_9F;
+            unsigned char byte_A0;
+            unsigned char byte_A1;
+            unsigned char byte_A2;
+            unsigned char byte_A3;
+            unsigned char byte_A4;
+            unsigned char byte_A5;
+        };
+        struct
+        {
+            unsigned char byte_9A_scv;
+            unsigned char byte_9B_scv;
+            unsigned char byte_9C_scv;
+            unsigned char stl_9D_x;
+            unsigned char stl_9D_y;
+            unsigned char byte_9F_scv;
+            unsigned char byte_A0_scv;
+            unsigned char byte_A1_scv;
+            unsigned char byte_A2_scv;
+            unsigned char byte_A3_scv;
+            unsigned char byte_A4_scv;
+            unsigned char byte_A5_scv;
+        } scavenge;
+        struct
+        {
+            unsigned char mode;// offset 9A
+            unsigned char train_timeout;
+            unsigned char pole_stl_x;
+            unsigned char pole_stl_y;
+            unsigned char search_timeout;
+            short partner_idx;
+            long partner_creation;
+            unsigned char byte_A5x;
+        } training;
+        struct
+        {
+            long seen_enemy_turn;
+            long battle_enemy_crtn;
+            short battle_enemy_idx;
+            short seen_enemy_idx;
+            unsigned char state_id;
+            unsigned char attack_type;
+            unsigned char seen_enemy_los;
+        } combat;
+        struct
+        {
+            unsigned long start_gameturn;
+            unsigned long last_mood_sound_turn;
+        } imprison;
+        struct
+        {
+            short word_9A;
+            short word_9C;
+            short word_9E;
+            long long_A0;
+            short word_A4;
+            short word_A6;
+        };
+        struct
+        {
+            short word_9A_cp2;
+            long long_9C;
+            long long_A0_cp2;
+            short word_A4_cp2;
+            short word_A6_cp2;
+        };
+        struct
+        {
+            long long_9A;
+            long long_9E;
+            long long_A2;
+        };
+        struct
+        {
+            unsigned long last_mood_sound_turn;
+            long long_9E_cp2;
+            long long_A2_cp2;
+            short word_A6_cp3;
+        };
+        struct
+        {
+            unsigned char byte_9A_cp2;
+            long long_9B;
+            short word_9F_cp2;
+            long long_A1;
+            unsigned char byte_A5_cp2;
+            short word_A6_cp4;
+        };
+        struct
+        {
+            unsigned char byte_9A_cp3;
+            short word_9B;
+            short word_9D;
+            short word_9F;
+            short word_A1;
+            short word_A3;
+            unsigned char byte_A5_cp3;
+            short word_A6_cp5;
+        };
+    };
     unsigned char fight_til_death;
     unsigned char field_AA;
     unsigned char stateblock_flags;
@@ -394,14 +415,14 @@ unsigned char field_67; /* foot sound variation timer (0x1F) */
     char active_instance_id;
     unsigned char field_1E9;
     struct Navigation navi;
-unsigned char field_211[6];
+    unsigned char field_211[6];
     /* Creature movement path data. */
     struct Ariadne arid;
     /* State backup when a creature temporarily changes its state due to being slapped. */
     unsigned char active_state_bkp;
     /* State backup when a creature temporarily changes its state due to being slapped. */
     unsigned char continue_state_bkp;
-unsigned char field_27F;
+    unsigned char field_27F;
     short conscious_back_turns;
     short countdown_282; // signed
     unsigned short field_284;
@@ -412,15 +433,15 @@ unsigned char field_27F;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
-short field_2AE;
+    short field_2AE;
     unsigned char field_2B0;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
-unsigned char field_2BF[2];
-unsigned short shot_shift_x;
-unsigned short shot_shift_y;
-unsigned short shot_shift_z;
+    unsigned char field_2BF[2];
+    unsigned short shot_shift_x;
+    unsigned short shot_shift_y;
+    unsigned short shot_shift_z;
     unsigned long tasks_check_turn;
     unsigned long wander_around_check_turn;
     unsigned long job_primary_check_turn;
@@ -429,7 +450,11 @@ unsigned short shot_shift_z;
     unsigned long garden_eat_check_turn;
     unsigned long temple_pray_check_turn;
     unsigned long sulking_sleep_check_turn;
-    unsigned long job_assigned_check_turn;
+    union
+    {
+        unsigned long job_assigned_check_turn;
+        unsigned long braindead_lost_turn;
+    };
     unsigned long disease_start_turn;
     unsigned long armageddon_teleport_turn;
     short battle_prev_creatr;

@@ -208,7 +208,7 @@ TbBool packets_process_cheats(
         {
             if (player->thing_under_hand > 0)
             {
-                kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
+                kill_creature_sync(thing, INVALID_THING, -1, CrDed_NoUnconscious);
             }
             clear_input(pckt);    
         }

@@ -1805,7 +1805,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
         // If the thing is a dying creature
         if ((tngdst->class_id == TCls_Creature) && (tngdst->health < 0))
         {
-            kill_creature(tngdst, tngsrc, owner, CrDed_DiedInBattle);
+            kill_creature_sync(tngdst, tngsrc, owner, CrDed_DiedInBattle);
             affected = true;
         }
     }
@@ -3609,7 +3609,7 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
             dump_thing_held_by_any_player(thing);
         }
         // And kill it
-        kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+        kill_creature_sync(thing, INVALID_THING, -1, CrDed_Default);
         return true;
     }
     SYNCDBG(19,"Skipped %s index %d",thing_model_name(thing),(int)thing->index);

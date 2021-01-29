@@ -1300,7 +1300,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
-                    kill_creature(tngdst, tngsrc, -1, dieflags);
+                    kill_creature_sync(tngdst, tngsrc, -1, dieflags);
                     affected = true;
                 }
             }

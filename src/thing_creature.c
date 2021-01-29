@@ -86,6 +86,7 @@
 #include "thing_navigate.h"
 
 #include "keeperfx.hpp"
+#include "net_sync.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2535,14 +2536,6 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     }
 }
 
-// Old code compatibility function - to be removed when no references remain unrewritten
-TbBool kill_creature_compat(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx,
-      TbBool no_effects, TbBool died_in_battle, TbBool disallow_unconscious)
-{
-    return kill_creature(creatng, killertng, killer_plyr_idx,
-        (no_effects?CrDed_NoEffects:0) | (died_in_battle?CrDed_DiedInBattle:0) | (disallow_unconscious?CrDed_NoUnconscious:0) );
-}
-
 static TbBool creature_must_die(struct Thing *creatng)
 {
     return ((get_creature_model_flags(creatng) & CMF_IsEvil)
@@ -2561,12 +2554,20 @@ short kill_creature_sync(struct Thing *creatng, struct Thing *killertng,
         kill_creature(creatng, killertng, killer_plyr_idx, flags);
         return CrStRet_Deleted;
     }
+    struct BigActionPacket *big = create_packet_action_big(NULL, PckA_KilledCreature, 0);
+    big->head.arg[0] = creatng->index;
+    big->head.arg[1] = killertng->index;
+    big->head.arg[2] = (flags << 8) | (unsigned char)killer_plyr_idx;
+    big->head.arg[3] = 0;
+
     clear_creature_instance(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     creatng->active_state = CrSt_Braindead;
     cctrl->flgfield_1 |= CCFlg_PreventDamage;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     creatng->health = 1;
+    // Creature should not be dead for whole second
+    cctrl->braindead_lost_turn = game.play_gameturn + 20;
     return CrStRet_Modified;
 }
 
@@ -5096,19 +5097,18 @@ TngUpdateRet update_creature(struct Thing *thing)
     if ((thing->active_state == CrSt_CreatureUnconscious) && subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
         SYNCDBG(8,"Killing unconscious %s index %d on door block.",thing_model_name(thing),(int)thing->index);
-        kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NoUnconscious);
-        return TUFRet_Deleted;
+        return kill_creature_sync(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NoUnconscious);
     }
     if (thing->health < 0)
     {
-        kill_creature(thing, INVALID_THING, -1, CrDed_Default);
-        return TUFRet_Deleted;
+        return kill_creature_sync(thing, INVALID_THING, -1, CrDed_Default);
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+        net_resync_needed();
         return TUFRet_Deleted;
     }
     process_armageddon_influencing_creature(thing);
@@ -5424,7 +5424,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
             return TUFRet_Modified;
         } else
         {
-            kill_creature(thing, INVALID_THING, param->num1, CrDed_NoEffects|CrDed_DiedInBattle);
+            return kill_creature_sync(thing, INVALID_THING, param->num1, CrDed_NoEffects|CrDed_DiedInBattle);
             return TUFRet_Deleted;
         }
     }

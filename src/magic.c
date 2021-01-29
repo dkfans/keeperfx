@@ -881,7 +881,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
         // Creatures killed by Armageddon
         if (creature_affected_by_spell(thing, SplK_Chicken))
         {
-            kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
+            kill_creature_sync(thing, heartng, plyr_idx, CrDed_DiedInBattle);
         } else
         // Creatures teleported by Armageddon
         {

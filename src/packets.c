@@ -971,6 +971,9 @@ static TbBool process_players_global_packet_action(
   case PckA_StartCombat:
       update_combat_process(player_to_client(player->id_number), (struct BigActionPacket *)pckt);
       return true;
+  case PckA_KilledCreature:
+      process_kill_creature(player_to_client(player->id_number), (struct BigActionPacket *)pckt);
+      return true;
   default:
       return false;
   }

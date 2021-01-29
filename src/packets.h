@@ -179,7 +179,8 @@ enum TbPacketAction {
         PckA_Ping,
         PckA_UpdateThing,
         PckA_StartCombat,
-        PckA_ProbeThing
+        PckA_ProbeThing,
+        PckA_KilledCreature //150
 };
 
 /** Packet flags for non-action player operation. */

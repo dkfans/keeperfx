@@ -3516,7 +3516,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
         {
             if (creature_is_being_sacrificed(thing))
             {
-                kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
+                kill_creature_sync(thing, INVALID_THING, -1, CrDed_NoEffects);
             } else
             if (room->owner == thing->owner)
             {

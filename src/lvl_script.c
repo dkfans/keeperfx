@@ -4447,7 +4447,7 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
         SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)plyr_idx,(int)crmodel);
         return false;
     }
-    kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
+    return kill_creature_sync(thing, INVALID_THING, -1, CrDed_NoUnconscious);
     return true;
 }
 /**

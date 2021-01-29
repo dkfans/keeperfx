@@ -294,7 +294,7 @@ void update_god_lightning_ball(struct Thing *thing)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(target);
             cctrl->shot_model = ShM_GodLightBall;
-            kill_creature(target, INVALID_THING, thing->owner, CrDed_DiedInBattle);
+            kill_creature_sync(target, INVALID_THING, thing->owner, CrDed_DiedInBattle);
         }
         thing->shot.target_idx = 0;
         break;

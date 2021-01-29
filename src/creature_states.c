@@ -2150,8 +2150,7 @@ short creature_leaves(struct Thing *creatng)
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         apply_anger_to_all_players_creatures_excluding(creatng->owner, crstat->annoy_others_leaving, AngR_Other, creatng);
     }
-    kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects||CrDed_NotReallyDying);
-    return CrStRet_Deleted;
+    return kill_creature_sync(creatng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
 }
 
 short setup_creature_leaves_or_dies(struct Thing *creatng)
@@ -2161,13 +2160,11 @@ short setup_creature_leaves_or_dies(struct Thing *creatng)
     struct Room* room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, NavRtF_Default);
     if (room_is_invalid(room))
     {
-        kill_creature(creatng, INVALID_THING, -1, CrDed_Default);
-        return -1;
+        return kill_creature_sync(creatng, INVALID_THING, -1, CrDed_Default);
     }
     if (!creature_setup_random_move_for_job_in_room(creatng, room, Job_EXEMPT, NavRtF_Default))
     {
-        kill_creature(creatng, INVALID_THING, -1, CrDed_Default);
-        return -1;
+        return kill_creature_sync(creatng, INVALID_THING, -1, CrDed_Default);
     }
     creatng->continue_state = CrSt_LeavesBecauseOwnerLost;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -2183,7 +2180,7 @@ short creature_leaves_or_dies(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     if (!room_is_invalid(room) && room_role_matches(room->kind, RoRoF_CrPoolLeave))
     {
-        kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects);
+        return kill_creature_sync(creatng, INVALID_THING, -1, CrDed_NoEffects);
         return -1;
     }
     // Otherwise, try heading for nearest entrance
@@ -3384,6 +3381,12 @@ short person_sulk_head_for_lair(struct Thing *creatng)
 short creature_braindead(struct Thing *creatng)
 {
     TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->braindead_lost_turn == game.play_gameturn)
+    {
+        JUSTLOG("braindead id:%d", creatng->index);
+        message_add_fmt(10, "braindead id:%d", creatng->index);
+    }
     return 0;
 }
 

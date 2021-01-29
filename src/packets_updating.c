@@ -531,3 +531,25 @@ void update_combat_process(int client_id, struct BigActionPacket *big)
     // TODO: add to enemy list etc.
     battle_add(thing, enemytng);
 }
+/******************************************************************************/
+
+void process_kill_creature(int client_id, struct BigActionPacket *big)
+{
+    struct Thing *creatng = thing_get(net_remap_thingid(client_id, big->head.arg0));
+    struct Thing *killertng = thing_get(net_remap_thingid(client_id, big->head.arg1));;
+    PlayerNumber killer_plyr_idx = big->arg2 & 255;
+    CrDeathFlags flags = big->arg2 >> 8;
+    if (thing_is_invalid(creatng))
+    {
+        ERRORLOG("invalid killed %d(%d) by %d(%d)",
+                 net_remap_thingid(client_id, big->head.arg0), big->head.arg0,
+                 net_remap_thingid(client_id, big->head.arg1), big->head.arg1);
+        return;
+    }
+    if (thing_is_invalid(killertng))
+    {
+        killertng = NULL;
+        return;
+    }
+    kill_creature(creatng, killertng, killer_plyr_idx, flags);
+}

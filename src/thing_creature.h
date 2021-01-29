@@ -89,8 +89,6 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);
 short kill_creature_sync(struct Thing *creatng, struct Thing *killertng,
                    PlayerNumber killer_plyr_idx, CrDeathFlags flags);
-TbBool kill_creature_compat(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx,
-      TbBool no_effects, TbBool died_in_battle, TbBool disallow_unconscious);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
 
