@@ -745,12 +745,12 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
-    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
-    thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if (!netremap_is_mine(creatng->owner))
     {
         return 1;
     }
+    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
     send_update_land(creatng, slb_x, slb_y, SlbT_CLAIMED);
     do_unprettying(creatng->owner, slb_x, slb_y);
@@ -774,15 +774,15 @@ long instf_reinforce(struct Thing *creatng, long *param)
     if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0) {
         return 0;
     }
-    if (cctrl->digger.byte_93 <= 25)
+    if (cctrl->digger.reinforce_turn <= 25)
     {
-        cctrl->digger.byte_93++;
+        cctrl->digger.reinforce_turn++;
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0)) {
             thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, 32);
         }
         return 0;
     }
-    cctrl->digger.byte_93 = 0;
+    cctrl->digger.reinforce_turn = 0;
     place_and_process_pretty_wall_slab(creatng, slb_x, slb_y);
     send_update_land(creatng, slb_x, slb_y, get_slabmap_block(slb_x,slb_y)->kind);
     struct Coord3d pos;

@@ -2578,7 +2578,7 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *ds
         return 0;
     }
     thing->continue_state = CrSt_ImpArrivesAtReinforce;
-    cctrl->digger.byte_93 = 0;
+    cctrl->digger.reinforce_turn = 0;
     cctrl->digger.working_stl = dstack->stl_num;
     cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
     send_update_job(thing);

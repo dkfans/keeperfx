@@ -31,6 +31,8 @@
 #include "map_blocks.h"
 #include "engine_render.h"
 #include "creature_states_combt.h"
+#include "thing_effects.h"
+#include "config_effects.h"
 
 static TbBool update_thing_do_update = false;
 /******************************************************************************/
@@ -387,6 +389,8 @@ void process_update_land(int client_id, struct BigActionPacket *big)
         if (nslab == SlbT_CLAIMED)
         {
             // TODO join with instf_pretty_path(struct Thing *creatng, long *param)
+            create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
+            thing_play_sample(thing, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             do_unprettying(thing->owner, slb_x, slb_y);
             do_slab_efficiency_alteration(slb_x, slb_y);
             increase_dungeon_area(thing->owner, 1);

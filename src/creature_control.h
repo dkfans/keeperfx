@@ -215,7 +215,7 @@ struct CreatureControl
             short working_stl;
             unsigned short task_stl;
             unsigned short task_idx;
-            unsigned char byte_93;
+            unsigned char reinforce_turn;
             unsigned char last_did_job;
             unsigned char task_stack_pos;
             unsigned short task_repeats;
