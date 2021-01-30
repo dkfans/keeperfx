@@ -68,9 +68,14 @@ TbBool player_can_afford_to_train_creature(const struct Thing *thing)
 void setup_training_move(struct Thing *creatng, SubtlCodedCoords stl_num)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->moveto_pos.x.val = subtile_coord_center(stl_num_decode_x(stl_num));
-    cctrl->moveto_pos.y.val = subtile_coord_center(stl_num_decode_y(stl_num));
-    cctrl->moveto_pos.z.val = get_thing_height_at(creatng, &cctrl->moveto_pos);
+    struct Coord3d dst;
+
+    dst.x.val = subtile_coord_center(stl_num_decode_x(stl_num));
+    dst.y.val = subtile_coord_center(stl_num_decode_y(stl_num));
+    dst.z.val = get_thing_height_at(creatng, &dst);
+
+    setup_thing_move_to(creatng, &dst);
+
     if (thing_in_wall_at(creatng, &cctrl->moveto_pos))
     {
         ERRORLOG("Illegal setup to wall at (%d,%d)",

@@ -40,6 +40,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+TbBool debug_notify_flag = false;
+int debug_player_idx = 0;
 /******************************************************************************/
 DLLIMPORT long _DK_creature_turn_to_face_backwards(struct Thing *creatng, struct Coord3d *pos);
 DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *creatng, long a2);
@@ -51,6 +53,11 @@ DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *creat
 }
 #endif
 /******************************************************************************/
+void set_navigate_debug_flag(TbBool new_val)
+{
+    debug_notify_flag = new_val;
+}
+
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name)
 {
     NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(creatng),(int)creatng->index,
@@ -115,9 +122,7 @@ TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x,
     }
     cctrl->move_flags = flags;
     internal_set_thing_state(thing, CrSt_MoveToPosition);
-    cctrl->moveto_pos.x.val = locpos.x.val;
-    cctrl->moveto_pos.y.val = locpos.y.val;
-    cctrl->moveto_pos.z.val = locpos.z.val;
+    setup_thing_move_to_f(thing, &locpos, func_name);
     SYNCDBG(19,"%s: Done",func_name);
     return true;
 }
@@ -144,9 +149,7 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord st
     }
     cctrl->move_flags = flags;
     internal_set_thing_state(thing, CrSt_MoveToPosition);
-    cctrl->moveto_pos.x.val = navpos.x.val;
-    cctrl->moveto_pos.y.val = navpos.y.val;
-    cctrl->moveto_pos.z.val = navpos.z.val;
+    setup_thing_move_to(thing, &navpos);
     return true;
 }
 
@@ -171,9 +174,7 @@ TbBool setup_person_move_backwards_to_position_f(struct Thing *thing, MapSubtlCo
     }
     cctrl->move_flags = flags;
     internal_set_thing_state(thing, CrSt_MoveBackwardsToPosition);
-    cctrl->moveto_pos.x.val = locpos.x.val;
-    cctrl->moveto_pos.y.val = locpos.y.val;
-    cctrl->moveto_pos.z.val = locpos.z.val;
+    setup_thing_move_to(thing, &locpos);
     return true;
 }
 
@@ -593,4 +594,17 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
     return flags;
 }
 
+void setup_thing_move_to_f(struct Thing *thing, struct Coord3d *new_pos, const char *func)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    cctrl->moveto_pos.x.val = new_pos->x.val;
+    cctrl->moveto_pos.y.val = new_pos->y.val;
+    cctrl->moveto_pos.z.val = new_pos->z.val;
+#if BFDEBUG_LEVEL > 1
+    if (debug_notify_flag)
+    {
+        message_add_fmt(10, "nav_to id:%d %s", thing->index, func);
+    }
+#endif
+}
 /******************************************************************************/

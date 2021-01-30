@@ -34,7 +34,7 @@
 #include "thing_effects.h"
 #include "config_effects.h"
 
-static TbBool update_thing_do_update = false;
+static TbBool update_thing_do_update = true;
 /******************************************************************************/
 void send_update_job(struct Thing *thing)
 {
@@ -84,6 +84,7 @@ void send_update_job(struct Thing *thing)
 
 void process_update_job(struct BigActionPacket *big)
 {
+    // TOOD: refactor this
     // TODO: this should be delayed a bit and reordered
     struct Thing *thing = thing_get(big->head.arg0);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -216,7 +217,7 @@ static void send_update_thing(Thingid thingid)
     struct ThingAdd *thingadd = get_thingadd(thingid);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
 
-    struct BigActionPacket *big = create_packet_action_big(NULL, PckA_UpdateThing, AP_PlusSix);
+    struct BigActionPacket *big = create_packet_action_big(NULL, PckA_UpdateThing, AP_PlusSix + AP_PlusTwo);
 
     NETDBG(7, "thing:%d owner:%d kind:%s", thingid, thing->owner, get_string(creature_data_get(thing->model)->namestr_idx));
     big->head.arg[0] = thingid;
@@ -229,10 +230,12 @@ static void send_update_thing(Thingid thingid)
     // TODO: state->job on each such sync
     big->head.arg[6] = cctrl->digger.task_idx;
     big->head.arg[7] = thing->health;
+    big->head.arg[8] = (unsigned short)thing->move_angle_xy;
+    big->head.arg[9] = cctrl->moveto_pos.x.val;
+    big->head.arg[10] = cctrl->moveto_pos.y.val;
     // + instance_id
     // + inst_turn
     // + digger.task_idx
-    // + hp
     // TODO: special packet for affected spells?
 }
 
@@ -274,14 +277,22 @@ void process_update_thing(int client_id, struct BigActionPacket *big)
 
     if (update_thing_do_update)
     {
-        move_thing_in_map(thing, &newpos);
-        ariadne_invalidate_creature_route(thing);
+        if (get_2d_box_distance(&thing->mappos, &newpos) > 256 * 2)
+        {
+            move_thing_in_map(thing, &newpos);
+            thing->move_angle_xy = (short)big->head.arg[8];
+            cctrl->moveto_pos.x.val = big->head.arg[9];
+            cctrl->moveto_pos.y.val = big->head.arg[10];
+            // TODO: it may be at another height
+            cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
+            ariadne_invalidate_creature_route(thing);
 
-        EVM_CREATURE_EVENT_WITH_TARGET("state", thing->owner, thing, new_state);
-        EVM_CREATURE_EVENT_WITH_TARGET("net.state", thing->owner, thing, new_state);
-        thing->active_state = new_state;
-        thing->continue_state = new_cstate;
-        thingadd->rand_seed = big->head.arg[5];
+            EVM_CREATURE_EVENT_WITH_TARGET("state", thing->owner, thing, new_state);
+            EVM_CREATURE_EVENT_WITH_TARGET("net.state", thing->owner, thing, new_state);
+            thing->active_state = new_state;
+            thing->continue_state = new_cstate;
+            thingadd->rand_seed = big->head.arg[5];
+        }
         //TODO: cctrl->digger.task_idx
         thing->health = big->head.arg[7];
     }

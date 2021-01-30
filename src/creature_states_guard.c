@@ -56,9 +56,7 @@ short at_guard_post_room(struct Thing *thing)
     internal_set_thing_state(thing, get_continue_state_for_job(Job_GUARD));
     if (!person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos))
     {
-        cctrl->moveto_pos.x.val = thing->mappos.x.val;
-        cctrl->moveto_pos.y.val = thing->mappos.y.val;
-        cctrl->moveto_pos.z.val = thing->mappos.z.val;
+        setup_thing_move_to(thing, &thing->mappos);
     }
     return 1;
 }
@@ -80,9 +78,7 @@ CrStateRet guarding(struct Thing *thing)
     }
     if (!person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos))
     {
-        cctrl->moveto_pos.x.val = thing->mappos.x.val;
-        cctrl->moveto_pos.y.val = thing->mappos.y.val;
-        cctrl->moveto_pos.z.val = thing->mappos.z.val;
+        setup_thing_move_to(thing, &thing->mappos);
     }
     return CrStRet_Modified;
 }

@@ -35,6 +35,7 @@
 #include "thing_effects.h"
 #include "front_network.h"
 #include "packets_updating.h"
+#include "thing_navigate.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -344,11 +345,17 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     {
         net_force_sync(game.play_gameturn + 5);
         return true;
-    } else if (strcmp(parstr, "net.autosync") == 0)
+    } else if (strcmp(parstr, "net.opt") == 0)
     {
         if (pr2str == NULL)
             return false;
-        set_update_thing_job(atoi(pr2str));
+        int opt = 0;
+        if (sscanf(pr2str, "%x", &opt))
+        {
+            message_add_fmt(10, "net.autosync %x", opt);
+            set_update_thing_job(opt & 1);
+            set_navigate_debug_flag(opt & 2);
+        }
         return true;
     } else if (strcmp(parstr, "turn") == 0)
     {

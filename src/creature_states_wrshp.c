@@ -54,11 +54,15 @@ TbBool creature_can_do_manufacturing(const struct Thing *creatng)
 TbBool setup_workshop_move(struct Thing *thing, SubtlCodedCoords stl_num)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->moveto_pos.x.stl.num = stl_num_decode_x(stl_num);
-    cctrl->moveto_pos.x.stl.pos = 128;
-    cctrl->moveto_pos.y.stl.num = stl_num_decode_y(stl_num);
-    cctrl->moveto_pos.y.stl.pos = 128;
-    cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
+    struct Coord3d dst;
+
+    dst.x.stl.num = stl_num_decode_x(stl_num);
+    dst.x.stl.pos = 128;
+    dst.y.stl.num = stl_num_decode_y(stl_num);
+    dst.y.stl.pos = 128;
+    dst.z.val = get_thing_height_at(thing, &dst);
+
+    setup_thing_move_to(thing, &dst);
     if (thing_in_wall_at(thing, &cctrl->moveto_pos))
     {
         ERRORLOG("Illegal setup to subtile (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);

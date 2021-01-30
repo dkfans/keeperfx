@@ -1054,9 +1054,12 @@ short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x
     if ( internal_set_thing_state(creatng, CrSt_Tunnelling) )
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        cctrl->moveto_pos.x.val = subtile_coord_center(stl_x);
-        cctrl->moveto_pos.y.val = subtile_coord_center(stl_y);
-        cctrl->moveto_pos.z.val = get_thing_height_at(creatng, &cctrl->moveto_pos);
+        struct Coord3d dst;
+        dst.x.val = subtile_coord_center(stl_x);
+        dst.y.val = subtile_coord_center(stl_y);
+        dst.z.val = get_thing_height_at(creatng, &dst);
+
+        setup_thing_move_to(creatng, &dst);
     }
     return 0;
 }

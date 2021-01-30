@@ -85,6 +85,9 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
 long thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2);
 long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
 
+void setup_thing_move_to_f(struct Thing *thing, struct Coord3d *new_pos, const char *func);
+#define setup_thing_move_to(thing, pos) setup_thing_move_to_f(thing, pos, __func__)
+void set_navigate_debug_flag(TbBool new_val);
 /******************************************************************************/
 #ifdef __cplusplus
 }
