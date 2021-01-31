@@ -230,6 +230,11 @@ unsigned long get_creature_random_seed(Thingid thing_idx)
 {
     return get_thingadd(thing_idx)->rand_seed;
 }
+
+unsigned long get_land_random_f(int slb_x, int slb_y, PlayerNumber player, unsigned long range, const char *func_name)
+{
+    return ((3 * slb_x + 17 * player + slb_y + gameadd.land_random_seed)) % range;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -159,6 +159,8 @@ static void init_level(void)
         gameadd.action_turn_rand_seed = (unsigned long)LbTimeSec();
     }
 #endif
+    gameadd.land_random_seed = gameadd.action_turn_rand_seed + 1;
+
     if (!SoundDisabled)
     {
         game.field_14BB54 = (UNSYNC_RANDOM(67) % 3 + 1);

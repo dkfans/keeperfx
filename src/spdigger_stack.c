@@ -1287,7 +1287,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
         around_flags = 0;
         long i;
         long n;
-        n = PLAYER_RANDOM(dungeon->owner, 4);
+        n = LAND_RANDOM(base_slb_x, base_slb_y, dungeon->owner, 4);
         for (i=0; i < SMALL_AROUND_LENGTH; i++)
         {
             slb_x = base_slb_x + (long)small_around[n].delta_x;

@@ -57,6 +57,7 @@ struct SyncPartCommon
 {
     unsigned long play_gameturn;
     unsigned long action_turn_rand_seed;
+    unsigned long land_random_seed;
     int free_things_start_index;
     short nodungeon_creatr_list_start;
     struct SyncDungeonInfo dungeons[DUNGEONS_COUNT];
@@ -154,6 +155,7 @@ static TbBool send_resync_game(TbBool first_resync)
         struct SyncPartCommon part1 = {
             .play_gameturn = game.play_gameturn,
             .action_turn_rand_seed = gameadd.action_turn_rand_seed,
+            .land_random_seed = gameadd.land_random_seed,
             .free_things_start_index = game.free_things_start_index,
             .nodungeon_creatr_list_start = game.nodungeon_creatr_list_start
         };
@@ -255,6 +257,7 @@ static TbBool receive_resync_game(TbBool first_resync)
         NETDBG(6, "free_things %d -> %d", game.free_things_start_index, part1.free_things_start_index);
         game.play_gameturn = part1.play_gameturn;
         gameadd.action_turn_rand_seed = part1.action_turn_rand_seed;
+        gameadd.land_random_seed = part1.land_random_seed;
         game.nodungeon_creatr_list_start = part1.nodungeon_creatr_list_start;
 
         for (int i = 0; i < DUNGEONS_COUNT; i++)

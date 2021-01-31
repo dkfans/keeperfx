@@ -52,6 +52,8 @@ extern "C" {
 #define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
 #define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
 
+#define LAND_RANDOM(slb_x, slb_y, plyr, range) get_land_random_f(slb_x, slb_y, plyr, range, __func__)
+
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
     GSF_NetGameNoSync    = 0x0002,
@@ -163,6 +165,7 @@ struct GameAdd {
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
     unsigned long action_turn_rand_seed; // This is a base for action_rand_seed each turn
+    unsigned long land_random_seed;
 
     struct ThingAdd things[THINGS_COUNT];
     Thingid         first_ghost;
@@ -205,6 +208,7 @@ TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *play
 struct ThingAdd *get_thingadd(Thingid thing_idx);
 void set_creature_random_seed(Thingid thing_idx, unsigned long seed);
 unsigned long get_creature_random_seed(Thingid thing_idx);
+unsigned long get_land_random_f(int slb_x, int slb_y, PlayerNumber player, unsigned long range, const char *func_name);
 /******************************************************************************/
 #ifdef __cplusplus
 }
