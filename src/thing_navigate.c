@@ -594,7 +594,7 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
     return flags;
 }
 
-void setup_thing_move_to_f(struct Thing *thing, struct Coord3d *new_pos, const char *func)
+void setup_thing_move_to_f(struct Thing *thing, struct Coord3d *new_pos, const char *func_name)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->moveto_pos.x.val = new_pos->x.val;
@@ -603,8 +603,10 @@ void setup_thing_move_to_f(struct Thing *thing, struct Coord3d *new_pos, const c
 #if BFDEBUG_LEVEL > 1
     if (debug_notify_flag)
     {
-        message_add_fmt(10, "nav_to id:%d %s", thing->index, func);
+        message_add_fmt(10, "nav_to id:%d %s", thing->index, func_name);
     }
+    evm_stat(0, "ev.nav_to,%s,fn=%s,cr=%d xy=%ld_%ld",
+       evm_get_suffix(), func_name, thing->index, new_pos->x.stl.num, new_pos->y.stl.num);
 #endif
 }
 /******************************************************************************/
