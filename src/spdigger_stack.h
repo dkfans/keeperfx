@@ -91,7 +91,8 @@ long find_in_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task
 long find_in_imp_stack_starting_at(SpDiggerTaskType task_type, long start_pos, const struct Dungeon *dungeon);
 long find_in_imp_stack_task_other_than_starting_at(SpDiggerTaskType excl_task_type, long start_pos, const struct Dungeon *dungeon);
 
-TbBool add_to_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, struct Dungeon *dungeon);
+#define add_to_imp_stack_using_pos(stl_num, task_type, dungeon) add_to_imp_stack_using_pos_f(stl_num, task_type, dungeon, __func__)
+TbBool add_to_imp_stack_using_pos_f(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, struct Dungeon *dungeon, const char *func_name);
 TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
 void setup_imp_stack(struct Dungeon *dungeon);
 int add_undug_to_imp_stack(struct Dungeon *dungeon, int max_tasks);

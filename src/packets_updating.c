@@ -34,7 +34,7 @@
 #include "thing_effects.h"
 #include "config_effects.h"
 
-static TbBool update_thing_do_update = true;
+static TbBool update_thing_do_update = false;
 /******************************************************************************/
 void send_update_job(struct Thing *thing)
 {

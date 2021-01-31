@@ -88,12 +88,16 @@ TbBool creature_task_needs_check_out_after_digger_stack_change(const struct Thin
  * @param dungeon The dungeon to which task is to be added.
  * @return True if there is still free slot on the stack after adding, false otherwise.
  */
-TbBool add_to_imp_stack_using_pos(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, struct Dungeon *dungeon)
+TbBool add_to_imp_stack_using_pos_f(SubtlCodedCoords stl_num, SpDiggerTaskType task_type, struct Dungeon *dungeon, const char *func_name)
 {
     struct DiggerStack *dstack;
     SYNCDBG(19,"Task %d at %d,%d",(int)task_type,(int)stl_num_decode_x(stl_num),(int)stl_num_decode_y(stl_num));
     if (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT)
         return false;
+    evm_stat(0, "stk.put,%s,plr=%d row=%d,job=%d,xy=%d_%d,t=%04ld,f=%s",
+        evm_get_suffix(), dungeon->owner, dungeon->digger_stack_length, task_type,
+        subtile_slab(stl_num_decode_x(stl_num)), subtile_slab(stl_num_decode_y(stl_num)),
+        game.play_gameturn,func_name);
     dstack = &dungeon->digger_stack[dungeon->digger_stack_length];
     dungeon->digger_stack_length++;
     dstack->stl_num = stl_num;
@@ -1570,6 +1574,8 @@ void setup_imp_stack(struct Dungeon *dungeon)
     dungeon->digger_stack_update_turn = game.play_gameturn;
     dungeon->digger_stack_length = 0;
     r_stackpos = 0;
+    evm_stat(0, "stk.clear,%s,plr=%d t=%04ld",
+             evm_get_suffix(), dungeon->owner, game.play_gameturn);
 }
 
 int add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
