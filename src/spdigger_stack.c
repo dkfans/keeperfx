@@ -2982,8 +2982,8 @@ TbBool check_out_imp_stack(struct Thing *creatng)
         }
         if (ret > 0) {
             SYNCDBG(9,"Assigned task type %d, new state %s",task_type,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
-            evm_stat(0,"stk.get,%s,plr=%d row=%d,job=%d,xy=%d_%d,t=%04ld",
-                evm_get_suffix(), dungeon->owner, task_pos, task_type,
+            evm_stat(0,"stk.get,%s,plr=%d row=%d,job=%d,id=%d,xy=%d_%d,t=%04ld",
+                evm_get_suffix(), dungeon->owner, task_pos, task_type, creatng->index,
                      subtile_slab(stl_num_decode_x(dstack->stl_num)), subtile_slab(stl_num_decode_y(dstack->stl_num)),
                      game.play_gameturn);
             return true;

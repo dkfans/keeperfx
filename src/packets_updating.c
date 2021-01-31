@@ -136,7 +136,7 @@ TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord sl
     if (!netremap_is_mine(thing->owner))
         return false;
     struct ThingAdd *thingadd = get_thingadd(thing->index);
-    NETDBG(5, "imp:%d owner:%d st:%s x:%d y:%d slb:%d", thing->owner, thing->index, creature_state_code_name(thing->active_state),
+    NETDBG(5, "imp:%d owner:%d st:%s x:%d y:%d slb:%d", thing->index, thing->owner, creature_state_code_name(thing->active_state),
            slb_x, slb_y, nslab);
 
     thingadd->next_updated_land = gameadd.first_updated_land;
@@ -345,6 +345,7 @@ void process_updating_packets()
 
 static void send_postupdate_land(struct Thing *thing, struct ThingAdd *thingadd)
 {
+//    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct BigActionPacket *big = create_packet_action_big(get_player(thing->owner), PckA_UpdateLand, AP_PlusTwo);
     big->head.arg[0] = thing->index;
     big->head.arg[1] = thingadd->update_land_slab | (thing->active_state << 8);
@@ -353,6 +354,20 @@ static void send_postupdate_land(struct Thing *thing, struct ThingAdd *thingadd)
     big->head.arg[4] = thingadd->update_land_pos;
     big->head.arg[5] = (unsigned short)thingadd->rand_seed;
     thingadd->rand_seed = big->head.arg[5];
+//    big->head.arg[6] = cctrl->moveto_pos.x.val; // Not required for ImpLastDidJob
+//    big->head.arg[7] = cctrl->moveto_pos.y.val;
+
+#if NETDBG_LEVEL > 1
+    if (thing->active_state != CrSt_ImpLastDidJob)
+    {
+        WARNLOG("id:%d as:%d",
+                        thing->index,
+                        thing->active_state);
+        message_add_fmt(10, "id:%d as:%s",
+                        thing->index,
+                        creature_state_code_name(thing->active_state));
+    }
+#endif
     // + instance_id
     // + inst_turn
     // + digger.task_idx
@@ -393,6 +408,12 @@ void process_update_land(int client_id, struct BigActionPacket *big)
     newpos.z.val = get_thing_height_at(thing, &newpos);
     move_thing_in_map(thing, &newpos);
     ariadne_invalidate_creature_route(thing);
+
+    // This is not required for ImpLastDidJob
+    //struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    //cctrl->moveto_pos.x.val = big->head.arg[6];
+    //cctrl->moveto_pos.y.val = big->head.arg[7];
+    //cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
 
     EVM_CREATURE_EVENT_WITH_TARGET("state", thing->owner, thing, new_state);
     EVM_CREATURE_EVENT_WITH_TARGET("net.state", thing->owner, thing, new_state);

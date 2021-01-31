@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 #define COROUTINE_MAX_NUM 8
+#define COROUTINE_ARGS 2
 struct CoroutineLoopS;
 typedef TbBool (*CoroutineFn)(struct CoroutineLoopS *loop_context);
 
@@ -33,14 +34,14 @@ typedef struct CoroutineLoopS
     int         read_idx;
     int         write_idx;
     CoroutineFn fns[COROUTINE_MAX_NUM];
-    int         args[COROUTINE_MAX_NUM][2];
+    int         args[COROUTINE_MAX_NUM * COROUTINE_ARGS];
     TbBool      error;
 } CoroutineLoop;
 
 // add a new coroutine to the list
 extern void coroutine_add(CoroutineLoop *context, CoroutineFn fn);
 // add a new coroutine to the list with args
-extern void coroutine_add_args(CoroutineLoop *context, CoroutineFn fn, int args[2]);
+extern void coroutine_add_args(CoroutineLoop *context, CoroutineFn fn, int args[COROUTINE_ARGS]);
 // remove all remaining coroutines from list (i.e. in case of error)
 extern void coroutine_clear(CoroutineLoop *context);
 // exec all coroutines from the list

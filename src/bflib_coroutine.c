@@ -27,11 +27,11 @@ void coroutine_add(CoroutineLoop *context, CoroutineFn fn)
     context->fns[context->write_idx++] = fn;
 }
 
-void coroutine_add_args(CoroutineLoop *context, CoroutineFn fn, int args[2])
+void coroutine_add_args(CoroutineLoop *context, CoroutineFn fn, int args[COROUTINE_ARGS])
 {
     assert(context->write_idx < COROUTINE_MAX_NUM);
     context->fns[context->write_idx] = fn;
-    memcpy(&context->args[context->write_idx][0], args, sizeof(args));
+    memcpy(&context->args[context->write_idx * COROUTINE_ARGS], args, COROUTINE_ARGS * sizeof(int));
     context->write_idx++;
 }
 
@@ -55,7 +55,7 @@ void coroutine_process(CoroutineLoop *context)
 
 int *coroutine_args(CoroutineLoop *context)
 {
-    return context->args[context->read_idx];
+    return &context->args[context->read_idx * COROUTINE_ARGS];
 }
 
 void coroutine_clear(CoroutineLoop *context)

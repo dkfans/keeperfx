@@ -202,7 +202,7 @@ int LbMemorySetup()
     return 1;
 }
 
-int LbMemoryReset(void)
+short LbMemoryReset(void)
 {
     if (lbMemorySetup == 0)
         return 0;

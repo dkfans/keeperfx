@@ -151,14 +151,14 @@ static void init_level(void)
       srand(1);
     }
     else
-#else
+#endif
     {
         // Initialize unsynchronized random seed (the value may be different
         // on computers in MP, as it shouldn't affect game actions)
         game.unsync_rand_seed = (unsigned long)LbTimeSec();
         gameadd.action_turn_rand_seed = (unsigned long)LbTimeSec();
     }
-#endif
+
     gameadd.land_random_seed = gameadd.action_turn_rand_seed + 1;
 
     if (!SoundDisabled)
@@ -309,7 +309,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         init_players_network_game(context);
     }
 
-    int args[2] = {ShouldAssignCpuKeepers, 0};
+    int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};
     coroutine_add_args(context, &startup_network_game_tail, args);
 }
 
