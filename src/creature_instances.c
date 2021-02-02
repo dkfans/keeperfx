@@ -570,7 +570,7 @@ long instf_dig(struct Thing *creatng, long *param)
     if (taskkind == SDDigTask_DigEarth)
     {
         dig_out_block(stl_x, stl_y, creatng->owner);
-        send_update_land(creatng, subtile_slab(stl_x), subtile_slab(stl_y), slb->kind);
+        update_land_prepare(creatng, subtile_slab(stl_x), subtile_slab(stl_y), slb->kind);
         EVM_MAP_EVENT("dig", creatng->owner, stl_x, stl_y, "");
 
         if (dig_has_revealed_area(stl_x, stl_y, creatng->owner))
@@ -688,7 +688,8 @@ long instf_damage_wall(struct Thing *creatng, long *param)
     } else
     {
         place_slab_type_on_map(SlbT_EARTH, stl_x, stl_y, creatng->owner, 0);
-        send_update_land(creatng, subtile_slab(stl_x), subtile_slab(stl_y), slb->kind);
+        // We are digging own wall
+        update_land_prepare(creatng, subtile_slab(stl_x), subtile_slab(stl_y), slb->kind);
         do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
     }
     thing_play_sample(creatng, 63+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -752,7 +753,7 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
     thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
-    send_update_land(creatng, slb_x, slb_y, SlbT_CLAIMED);
+    update_land_prepare(creatng, slb_x, slb_y, SlbT_CLAIMED);
     do_unprettying(creatng->owner, slb_x, slb_y);
     do_slab_efficiency_alteration(slb_x, slb_y);
     increase_dungeon_area(creatng->owner, 1);
@@ -783,8 +784,13 @@ long instf_reinforce(struct Thing *creatng, long *param)
         return 0;
     }
     cctrl->digger.reinforce_turn = 0;
+    if (!netremap_is_mine(creatng->owner))
+    {
+        return 0;
+    }
+    // TODO: move to process_update_land
     place_and_process_pretty_wall_slab(creatng, slb_x, slb_y);
-    send_update_land(creatng, slb_x, slb_y, get_slabmap_block(slb_x,slb_y)->kind);
+    update_land_prepare(creatng, slb_x, slb_y, get_slabmap_block(slb_x, slb_y)->kind);
     struct Coord3d pos;
     pos.x.stl.pos = 128;
     pos.y.stl.pos = 128;
@@ -826,7 +832,7 @@ long instf_tunnel(struct Thing *creatng, long *param)
         slb->health--;
         } else {
         dig_out_block(stl_x, stl_y, creatng->owner);
-        send_update_land(creatng, subtile_slab(stl_x), subtile_slab(stl_y), slb->kind);
+            update_land_prepare(creatng, subtile_slab(stl_x), subtile_slab(stl_y), slb->kind);
         }
     return 1;
 }

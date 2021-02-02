@@ -131,7 +131,7 @@ void process_update_job(struct BigActionPacket *big)
     }
 }
 /******************************************************************************/
-TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind nslab)
+TbBool update_land_prepare(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind nslab)
 {
     if (!netremap_is_mine(thing->owner))
         return false;
@@ -147,7 +147,7 @@ TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord sl
     return true;
 }
 
-static void send_postupdate_land(struct Thing *thing, struct ThingAdd *thingadd);
+static void send_update_land(struct Thing *thing, struct ThingAdd *thingadd);
 static void send_new_combats();
 static void find_next_update_thing();
 
@@ -320,7 +320,7 @@ static void send_new_lands()
         i = thingadd->next_updated_land;
         thingadd->next_updated_land = 0;
         // Per-thing code
-        send_postupdate_land(thing, thingadd);
+        send_update_land(thing, thingadd);
         // Per-thing code ends
         k++;
         if (k > THINGS_COUNT)
@@ -343,7 +343,7 @@ void process_updating_packets()
     }
 }
 
-static void send_postupdate_land(struct Thing *thing, struct ThingAdd *thingadd)
+static void send_update_land(struct Thing *thing, struct ThingAdd *thingadd)
 {
 //    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct BigActionPacket *big = create_packet_action_big(get_player(thing->owner), PckA_UpdateLand, AP_PlusTwo);

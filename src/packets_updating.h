@@ -35,7 +35,7 @@ struct SmallActionPacket;
 void send_update_job(struct Thing *thing);
 void process_update_job(struct BigActionPacket *big);
 
-TbBool send_update_land(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind nslab);
+TbBool update_land_prepare(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind nslab);
 void process_update_land(int client_id, struct BigActionPacket *big);
 void process_update_thing(int client_id, struct BigActionPacket *big);
 void set_update_thing_job(TbBool new_val);
