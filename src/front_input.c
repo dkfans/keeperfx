@@ -1812,8 +1812,16 @@ void get_dungeon_control_nonaction_inputs(void)
   }
   if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
   {
-    clear_key_pressed(KC_X);
-    turn_on_menu(GMnu_QUIT);
+      clear_key_pressed(KC_X);
+      if (menu_id_to_number(GMnu_QUIT) != MENU_INVALID_ID)
+      {
+          set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+          return;
+      }
+      else
+      {
+          turn_on_menu(GMnu_QUIT);
+      }
   }
   switch (player->view_mode)
   {
