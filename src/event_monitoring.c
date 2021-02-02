@@ -13,11 +13,6 @@ static char evm_suffix[SUFFIX_SIZE+1] = {0};
 static UDPsocket evm_socket = 0;
 static UDPpacket * evm_packet = NULL;
 
-const char *evm_get_suffix()
-{
-    return evm_suffix;
-}
-
 void evm_init(char *hostport, int client_no)
 {
     int port = 8089;
@@ -82,58 +77,60 @@ void evm_done()
 }
 
 #if AUTOTESTING
+const char *evm_get_suffix()
+{
+    return evm_suffix;
+}
+
 void evm_stat(int force_new, const char *event_fmt, ...)
 {
-    int len, remain;
+    int len, ret;
     if (evm_packet == NULL)
     {
         return;
     }
 
-    char *packet_data = ((char*)evm_packet->data) + evm_packet->len;
+    char packet_data[MAX_PACKET_SIZE];
+    packet_data[MAX_PACKET_SIZE-1] = 0;
 
     if (force_new && (evm_packet->len > 0))
     {
         // Send old data
         SDLNet_UDP_Send(evm_socket, -1, evm_packet);
         evm_packet->len = 0;
-        packet_data = (char*)evm_packet->data;
     }
 
-    va_list lst, lst2;
+    va_list lst;
     va_start(lst, event_fmt);
-    va_copy(lst2, lst);
+    ret = vsnprintf(packet_data, MAX_PACKET_SIZE - 1, event_fmt, lst);
+    va_end(lst);
 
-    remain = MAX_PACKET_SIZE - evm_packet->len - 1;
-    len = vsnprintf(packet_data, remain, event_fmt, lst);
-    if (len < 0)
-    {
-        // That means `Truncated` under old libc
-        len = remain;
-    }
-    if (len + SUFFIX_SIZE + 1>= MAX_PACKET_SIZE)
+    len = strlen(packet_data);
+    if ((ret < 0) || (len >= MAX_PACKET_SIZE))
     {
         ERRORMSG("Packet too big");
         return;
     }
-    else if (len + SUFFIX_SIZE + 1 >= remain)
+    else if (evm_packet->len + len + 1 >= MAX_PACKET_SIZE)
     {
         // Not enough remaining space. Send old data and try again
         SDLNet_UDP_Send(evm_socket, -1, evm_packet);
-        remain = MAX_PACKET_SIZE - 1;
         evm_packet->len = 0;
-        packet_data = (char*)evm_packet->data;
-
-        len = vsnprintf(packet_data, remain, event_fmt, lst2);
     }
-    va_end(lst);
-    va_end(lst2);
-    packet_data[len] = '\n';
-    evm_packet->len += len + 1;
-
-    if (MAX_PACKET_SIZE - evm_packet->len < 16)
+    if (evm_packet->len > 0)
     {
-        packet_data[evm_packet->len] = 0;
+        evm_packet->data[evm_packet->len] = '\n';
+        memcpy(evm_packet->data + 1 + evm_packet->len, packet_data, len);
+        evm_packet->len += len + 1;
+    }
+    else
+    {
+        memcpy(evm_packet->data + evm_packet->len, packet_data, len);
+        evm_packet->len += len;
+    }
+
+    if (16 + evm_packet->len > MAX_PACKET_SIZE)
+    {
         SDLNet_UDP_Send(evm_socket, -1, evm_packet);
         evm_packet->len = 0;
     }
