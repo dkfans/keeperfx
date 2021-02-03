@@ -109,6 +109,8 @@ static void init_level(void)
     game.action_rand_seed = 1;
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
+    evm_stat(1, "turn,edg=%d,%s val=0,t=%ld",
+             game.play_gameturn & 1, evm_get_suffix(), -game.play_gameturn);
     game.play_gameturn = 0;
     game_flags2 &= GF2_PERSISTENT_FLAGS;
     clear_game();
