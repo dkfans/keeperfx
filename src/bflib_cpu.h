@@ -134,6 +134,8 @@ struct CPU_INFO {
   long feature_edx;
   TbBool timeStampCounter;
   char vendor[17];
+  TbBool BrandString;
+  char brand[48];
 };
 
 /******************************************************************************/
