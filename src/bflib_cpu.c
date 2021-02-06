@@ -89,7 +89,7 @@ void cpu_detect(struct CPU_INFO *cpu)
   }
 }
 
-unsigned short cpu_get_type(struct CPU_INFO *cpu)
+unsigned char cpu_get_type(struct CPU_INFO *cpu)
 {
   if (cpu->feature_intl != 0)
     return (cpu->feature_intl>>12) & 0x3;
@@ -97,22 +97,42 @@ unsigned short cpu_get_type(struct CPU_INFO *cpu)
     return CPUID_TYPE_OEM;
 }
 
-unsigned short cpu_get_family(struct CPU_INFO *cpu)
+unsigned char cpu_get_family(struct CPU_INFO *cpu)
 {
   if (cpu->feature_intl != 0)
-    return (cpu->feature_intl>>8) & 0xF;
+  {
+    unsigned char family = (cpu->feature_intl>>8) & 0xF;
+    if (family == 15)
+    {
+        return ((cpu->feature_intl>>20) & 0xFF) + family;
+    }
+    else
+    {
+        return family;
+    }
+  }
   else
+  {
     return CPUID_FAMILY_486;
+  }
 }
 
-unsigned short cpu_get_model(struct CPU_INFO *cpu)
+unsigned char cpu_get_model(struct CPU_INFO *cpu)
 {
-  return (cpu->feature_intl>>4) & 0xF;
+    unsigned char family = cpu_get_family(cpu);
+    if ( (family == 6) || (family == 15) )
+    {
+        return (((cpu->feature_intl>>16 & 0xF)) << 4) + ((cpu->feature_intl>>4) & 0xF); 
+    }
+    else
+    {
+        return (cpu->feature_intl>>4) & 0xF;   
+    }
 }
 
-unsigned short cpu_get_stepping(struct CPU_INFO *cpu)
+unsigned char cpu_get_stepping(struct CPU_INFO *cpu)
 {
-  return (cpu->feature_intl) & 0x7;
+  return (cpu->feature_intl) & 0xF;
 }
 
 /******************************************************************************/
