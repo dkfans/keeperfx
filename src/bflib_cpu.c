@@ -77,7 +77,7 @@ void cpu_detect(struct CPU_INFO *cpu)
       if (cpu->feature_edx & CPUID_FEAT_EDX_TSC)
         cpu->timeStampCounter = 1;
     }
-    cpuid(0x80000000, &where[0], &where[3]);
+    cpuid(CPUID_INTELEXTENDED, &where[0], &where[3]);
     cpu->BrandString = (where[0] >= CPUID_INTELBRANDSTRING);
     if (cpu->BrandString)
     {
