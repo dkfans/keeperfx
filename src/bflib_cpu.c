@@ -120,13 +120,14 @@ unsigned char cpu_get_family(struct CPU_INFO *cpu)
 unsigned char cpu_get_model(struct CPU_INFO *cpu)
 {
     unsigned char family = cpu_get_family(cpu);
+    unsigned char model = ((cpu->feature_intl>>4) & 0xF);
     if ( (family == 6) || (family == 15) )
     {
-        return (((cpu->feature_intl>>16 & 0xF)) << 4) + ((cpu->feature_intl>>4) & 0xF); 
+        return (((cpu->feature_intl>>16 & 0xF)) << 4) + model; 
     }
     else
     {
-        return (cpu->feature_intl>>4) & 0xF;   
+        return model;   
     }
 }
 
