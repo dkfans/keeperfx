@@ -149,6 +149,7 @@ struct SampleInfo * __stdcall GetFirstSampleInfoStructure(void)
     return (struct SampleInfo *)proc();
 }
 
+/*
 int __stdcall LoadMusic(int i)
 {
     HMODULE hModule = GetModuleHandle("WSND7R");
@@ -157,6 +158,7 @@ int __stdcall LoadMusic(int i)
     { ERRORLOG("Can't get address of LoadMusic function; skipped."); return 0; }
     return ((FARPROCI)proc)(i);
 }
+*/
 
 int __stdcall InitAudio(void *i)
 {
@@ -239,6 +241,7 @@ int __stdcall GetCurrentSoundMasterVolume(void)
     return proc();
 }
 
+/*
 int __stdcall StopMusic(void)
 {
     HMODULE hModule = GetModuleHandle("WSND7R");
@@ -265,6 +268,7 @@ int __stdcall StartMusic(int i,int v)
     { ERRORLOG("Can't get address of StartMusic function; skipped."); return 0; }
     return ((FARPROCII)proc)(i,v);
 }
+*/
 
 int __stdcall StopSample(int a,int b)
 {

@@ -497,13 +497,13 @@ TbBool init_sound(void)
     snd_settng->no_load_music = 0;
     snd_settng->no_load_sounds = 1;
     snd_settng->field_16 = 1;
-    if ((game.flags_font & FFlg_UsrSndFont) == 0)
-      snd_settng->field_16 = 0;
+    // if ((game.flags_font & FFlg_UsrSndFont) == 0)
+      // snd_settng->field_16 = 0;
     snd_settng->field_18 = 1;
     snd_settng->redbook_enable = ((game.flags_cd & MFlg_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
-    LoadMusic(0);
+    // LoadMusic(0);
     InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
@@ -587,6 +587,7 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
     return true;
 }
 
+/*
 void randomize_sound_font(void)
 {
     StopMusic();
@@ -606,6 +607,7 @@ void randomize_sound_font(void)
         break;
     }
 }
+*/
 
 struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
@@ -675,9 +677,9 @@ void sound_reinit_after_load(void)
         Non3DEmitter = 0;
     }
     ambient_sound_stop();
-    StartMusic(1, 127);
+    // StartMusic(1, 127);
     init_messages();
-    randomize_sound_font();
+    // randomize_sound_font();
 }
 
 void stop_thing_playing_sample(struct Thing *heartng, short a2)
