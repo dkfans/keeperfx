@@ -496,9 +496,9 @@ TbBool init_sound(void)
     snd_settng->danger_music = 0;
     snd_settng->no_load_music = 0;
     snd_settng->no_load_sounds = 1;
-    snd_settng->field_16 = 1;
+    // snd_settng->field_16 = 1;
     // if ((game.flags_font & FFlg_UsrSndFont) == 0)
-      // snd_settng->field_16 = 0;
+    snd_settng->field_16 = 0;
     snd_settng->field_18 = 1;
     snd_settng->redbook_enable = ((game.flags_cd & MFlg_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
