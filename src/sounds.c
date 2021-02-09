@@ -482,7 +482,7 @@ TbBool init_sound(void)
       return false;
     struct SoundSettings* snd_settng = &game.sound_settings;
     SetupAudioOptionDefaults(snd_settng);
-    snd_settng->field_E = 2;
+    snd_settng->flags = SndSetting_Sound;
     snd_settng->sound_type = 1622;
     snd_settng->sound_data_path = sound_dir;
     snd_settng->dir3 = sound_dir;

@@ -39,7 +39,7 @@ struct SoundSettings {
   char *music_data_path;
   char *dir3;
   unsigned short sound_type;
-  unsigned short field_E;
+  unsigned short flags;
   unsigned char max_number_of_samples;
   unsigned char stereo;
   unsigned char field_12;
@@ -74,6 +74,12 @@ struct SoundBankEntry { // sizeof = 16
   unsigned long field_4;
   unsigned long field_8;
   unsigned long field_C;
+};
+
+enum SoundSettingsFlags {
+    SndSetting_None    = 0x00,
+    SndSetting_MIDI = 0x01,
+    SndSetting_Sound = 0x02,
 };
 
 extern int atmos_sound_frequency;
