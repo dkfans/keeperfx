@@ -482,7 +482,7 @@ TbBool init_sound(void)
       return false;
     struct SoundSettings* snd_settng = &game.sound_settings;
     SetupAudioOptionDefaults(snd_settng);
-    snd_settng->field_E = 3;
+    snd_settng->field_E = 2;
     snd_settng->sound_type = 1622;
     snd_settng->sound_data_path = sound_dir;
     snd_settng->dir3 = sound_dir;
@@ -494,7 +494,7 @@ TbBool init_sound(void)
     else
       snd_settng->max_number_of_samples = 16;
     snd_settng->danger_music = 0;
-    snd_settng->no_load_music = 0;
+    snd_settng->no_load_music = 1;
     snd_settng->no_load_sounds = 1;
     // snd_settng->field_16 = 1;
     // if ((game.flags_font & FFlg_UsrSndFont) == 0)
