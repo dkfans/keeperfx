@@ -83,8 +83,7 @@ void cpu_detect(struct CPU_INFO *cpu)
     {
         cpuid_string(CPUID_INTELBRANDSTRING, &cpu->brand[0]);
         cpuid_string(CPUID_INTELBRANDSTRINGMORE, &cpu->brand[16]);
-        cpuid_string(CPUID_INTELBRANDSTRINGEND, &cpu->brand[32]);
-        cpu->brand[48] = '\0';       
+        cpuid_string(CPUID_INTELBRANDSTRINGEND, &cpu->brand[32]);       
     }
   }
 }

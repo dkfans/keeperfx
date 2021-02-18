@@ -135,7 +135,7 @@ struct CPU_INFO {
   TbBool timeStampCounter;
   char vendor[17];
   TbBool BrandString;
-  char brand[48];
+  char brand[47];
 };
 
 /******************************************************************************/
