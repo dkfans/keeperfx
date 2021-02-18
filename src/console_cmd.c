@@ -735,94 +735,26 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if ( (strcasecmp(parstr, "power.give") == 0) || (strcasecmp(parstr, "spell.give") == 0) )
         {
-            long power = get_rid(power_desc, pr2str);
-            if (power <= 0)
+            if (strcasecmp(pr2str, "all") == 0)
             {
-                if ( (strcasecmp(pr2str, "Imp" ) == 0) || (strcasecmp(pr2str, "CreateImp" ) == 0) )
+                for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
                 {
-                    power = PwrK_MKDIGGER;
+                    script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, pw, 1, 1);                     
                 }
-                else if ( (strcasecmp(pr2str, "Possess" ) == 0) || (strcasecmp(pr2str, "Possession" ) == 0)  || (strcasecmp(pr2str, "PossessCreature" ) == 0))
-                {
-                    power = PwrK_POSSESS;
-                }
-                else if ( (strcasecmp(pr2str, "Sight" ) == 0) || (strcasecmp(pr2str, "SightOfEvil" ) == 0) )
-                {
-                    power = PwrK_SIGHT;
-                }
-                else if ( (strcasecmp(pr2str, "Speed" ) == 0) || (strcasecmp(pr2str, "SpeedMonster" ) == 0) || (strcasecmp(pr2str, "SpeedCreature" ) == 0) )
-                {
-                    power = PwrK_SPEEDCRTR;
-                }
-                else if ( (strcasecmp(pr2str, "Obey" ) == 0) || (strcasecmp(pr2str, "MustObey" ) == 0) )
-                {
-                    power = PwrK_OBEY;
-                }
-                else if ( (strcasecmp(pr2str, "CTA" ) == 0) || (strcasecmp(pr2str, "CallToArms" ) == 0) )
-                {
-                    power = PwrK_CALL2ARMS;
-                }
-                else if (strcasecmp(pr2str, "CaveIn" ) == 0)
-                {
-                    power = PwrK_CAVEIN;
-                }
-                else if (strcasecmp(pr2str, "Heal" ) == 0)
-                {
-                    power = PwrK_HEALCRTR;
-                }
-                else if ( (strcasecmp(pr2str, "Audience" ) == 0) || (strcasecmp(pr2str, "HoldAudience" ) == 0) )
-                {
-                    power = PwrK_HOLDAUDNC;
-                }
-                else if ( (strcasecmp(pr2str, "Lightning" ) == 0) || (strcasecmp(pr2str, "LightningStrike" ) == 0) )
-                {
-                    power = PwrK_LIGHTNING;
-                }
-                else if ( (strcasecmp(pr2str, "Protect" ) == 0) || (strcasecmp(pr2str, "ProtectMonster" ) == 0) || (strcasecmp(pr2str, "ProtectCreature" ) == 0) || (strcasecmp(pr2str, "Armour" ) == 0))
-                {
-                    power = PwrK_PROTECT;
-                }
-                else if ( (strcasecmp(pr2str, "Conceal" ) == 0) || (strcasecmp(pr2str, "ConcealMonster" ) == 0) || (strcasecmp(pr2str, "ConcealCreature" ) == 0) || (strcasecmp(pr2str, "Invisibility" ) == 0))
-                {
-                    power = PwrK_CONCEAL;
-                }
-                else if (strcasecmp(pr2str, "Disease" ) == 0)
-                {
-                    power = PwrK_DISEASE;
-                }
-                else if (strcasecmp(pr2str, "Chicken" ) == 0)
-                {
-                    power = PwrK_CHICKEN;
-                }
-                else if ( (strcasecmp(pr2str, "Destroy" ) == 0) || (strcasecmp(pr2str, "DestroyWalls" ) == 0) )
-                {
-                    power = PwrK_DESTRWALLS;
-                }
-                else if ( (strcasecmp(pr2str, "Bomb" ) == 0) || (strcasecmp(pr2str, "Time" ) == 0) || (strcasecmp(pr2str, "TimeBomb" ) == 0) )
-                {
-                    power = PwrK_TIMEBOMB;
-                }
-                else if (strcasecmp(pr2str, "Armageddon" ) == 0)
-                {
-                    power = PwrK_ARMAGEDDON;
-                }
-                else if (strcasecmp(pr2str, "all") == 0)
-                {
-                    for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
-                    {
-                        script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, pw, 1, 1);                     
-                    }
-                    update_powers_tab_to_config();
-                    return true; 
-                }
-                else
+                update_powers_tab_to_config();
+                return true; 
+            }
+            else
+            {
+                long power = get_rid(power_desc, pr2str);
+                if (power < 0)
                 {
                     power = atoi(pr2str);
-                }                
-            }
-            script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, power, 1, 1);
-            update_powers_tab_to_config();
-            return true;
+                }
+                script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, power, 1, 1);
+                update_powers_tab_to_config();
+                return true;
+            }                
         }
         else if (strcasecmp(parstr, "player.heart.health") == 0)
         {
