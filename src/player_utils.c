@@ -434,7 +434,6 @@ void init_player_music(struct PlayerInfo *player)
 {
     LevelNumber lvnum = get_loaded_level_number();
     game.audiotrack = 3 + ((lvnum - 1) % 4);
-    // randomize_sound_font();
 }
 
 TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)

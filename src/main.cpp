@@ -4573,7 +4573,6 @@ void game_loop(void)
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();
-      // StopMusic();
       StopMusicPlayer();
       turn_off_all_menus();
       delete_all_structures();
@@ -4694,11 +4693,7 @@ short process_command_line(unsigned short argc, char *argv[])
           narg++;
           default_loc_player = atoi(pr2str);
           force_player_num = true;
-      } /* else
-      if (strcasecmp(parstr, "usersfont") == 0)
-      {
-          set_flag_byte(&start_params.flags_font,FFlg_UsrSndFont,true);
-      } */ else
+      } else
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {
           smooth_on = 1;
