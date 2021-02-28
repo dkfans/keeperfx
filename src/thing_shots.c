@@ -82,6 +82,15 @@ TbBool shot_is_boulder(const struct Thing *shotng)
     return ((shotst->model_flags & ShMF_Boulder) != 0);
 }
 
+TbBool shot_is_grenade(const struct Thing *shotng)
+{
+    if (thing_is_shot(shotng))
+    {
+        return ( (shotng->model == ShM_Lizard) || (shotng->model == ShM_Grenade) );
+    }
+    return false;
+}
+
 TbBool detonate_shot(struct Thing *shotng)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
@@ -409,7 +418,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     {
         if ((blocked_flags & (SlbBloF_WalledX|SlbBloF_WalledY)) != 0)
         {
-            if (shotng->model == ShM_Lizard)
+            if (shot_is_grenade(shotng))
             {
                 if (shotng->shot.dexterity >= ACTION_RANDOM(90))
                 {

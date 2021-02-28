@@ -83,6 +83,7 @@ TbBool shot_model_is_navigable(long tngmodel);
 TbBool shot_model_makes_flesh_explosion(long shot_model);
 TbBool detonate_shot(struct Thing *shotng);
 TbBool shot_is_boulder(const struct Thing *shotng);
+TbBool shot_is_grenade(const struct Thing *shotng);
 
 struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5);
 /******************************************************************************/
