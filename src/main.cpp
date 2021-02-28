@@ -1035,6 +1035,10 @@ short setup_game(void)
   SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
       (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
+  if (cpu_info.BrandString)
+  {
+      SYNCMSG("%s", &cpu_info.brand[0]);
+  }  
   update_memory_constraits();
   // Enable features that require more resources
   update_features(mem_size);
