@@ -26,6 +26,7 @@
 #include "thing_stats.h"
 #include "thing_creature.h"
 #include "thing_list.h"
+#include "thing_navigate.h"
 #include "creature_control.h"
 #include "config_creature.h"
 #include "config_terrain.h"
@@ -66,9 +67,73 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
     _DK_slide_thing_against_wall_at(thing, pos, a3); return;
 }
 
-void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
+void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
-    _DK_bounce_thing_off_wall_at(thing, pos, a3); return;
+   // _DK_bounce_thing_off_wall_at(thing, pos, a3); return;
+  short x = *(short*)&thing->veloc_base.x.stl;
+  short y = *(short*)&thing->veloc_base.y.stl;
+  short z = *(short*)&thing->veloc_base.z.stl;
+  int i;
+  switch ( blocked_flags )
+  {
+    case SlbBloF_WalledX:
+      *(short*)&pos->x.stl = *(short*)&thing->mappos.x.stl;
+      *(short*)&thing->veloc_base.x.stl = -(short)(x * thing->field_22 / 128);
+      i = 256 - thing->field_23;
+      *(short*)&thing->veloc_base.y.stl = i * *(short*)&thing->veloc_base.y.stl / 256;
+      *(short*)&thing->veloc_base.z.stl = i * *(short*)&thing->veloc_base.z.stl / 256;
+      break;
+    case SlbBloF_WalledY:
+      *(short*)&pos->y.stl = *(short*)&thing->mappos.y.stl;
+      *(short*)&thing->veloc_base.y.stl = -(short)(y * thing->field_22 / 128);
+      i = 256 - thing->field_23;
+      *(short*)&thing->veloc_base.x.stl = i * *(short*)&thing->veloc_base.x.stl / 256;
+      *(short*)&thing->veloc_base.z.stl = i * *(short*)&thing->veloc_base.z.stl / 256;
+      break;
+    case 3: // SlbBloF_WalledX and SlbBloF_WalledY
+      *(short*)&pos->x.stl = *(short*)&thing->mappos.x.stl;
+      *(short*)&pos->y.stl = *(short*)&thing->mappos.y.stl;
+      i = thing->field_22;
+      *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
+      *(short*)&thing->veloc_base.y.stl = -(short)(i * y / 128);
+      break;
+    case SlbBloF_WalledZ:
+      *(short*)&pos->z.stl = *(short*)&thing->mappos.z.stl;
+      *(short*)&thing->veloc_base.z.stl = -(short)(z * thing->field_22 / 128);
+      i = 256 - thing->field_23;
+      *(short*)&thing->veloc_base.x.stl = i * *(short*)&thing->veloc_base.x.stl / 256;
+      *(short*)&thing->veloc_base.y.stl = i * *(short*)&thing->veloc_base.y.stl / 256;
+      break;
+    case 5: // SlbBloF_WalledZ and SlbBloF_WalledX
+      *(short*)&pos->z.stl = *(short*)&thing->mappos.z.stl;
+      *(short*)&pos->x.stl = *(short*)&thing->mappos.x.stl;
+      i = thing->field_22;
+      *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
+      *(short*)&thing->veloc_base.z.stl = -(short)(i * z / 128);
+      break;
+    case 6: // SlbBloF_WalledZ and SlbBloF_WalledY
+      *(short*)&pos->y.stl = *(short*)&thing->mappos.y.stl;
+      *(short*)&pos->z.stl = *(short*)&thing->mappos.z.stl;
+      i = thing->field_22;
+      *(short*)&thing->veloc_base.y.stl = -(short)(i * y / 128);
+      int n = i * y;
+      int j = thing->field_23;
+      int k = *(short*)&thing->veloc_base.x.stl;
+      *(short*)&thing->veloc_base.z.stl = -(short)(n / 128);
+      *(short*)&thing->veloc_base.x.stl = k * (256 - j) / 256;
+      break;
+    case 7: // SlbBloF_WalledX and SlbBloF_WalledY and SlbBloF_WalledZ
+      *(short*)&pos->x.stl = *(short*)&thing->mappos.x.stl;
+      *(short*)&pos->y.stl = *(short*)&thing->mappos.y.stl;
+      *(short*)&pos->z.stl = *(short*)&thing->mappos.z.stl;
+      i = thing->field_22;
+      *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
+      *(short*)&thing->veloc_base.y.stl = -(short)(i * y / 128);
+      *(short*)&thing->veloc_base.z.stl = -(short)(i * z / 128);
+      break;
+    default:
+      return;
+  }
 }
 
 void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long a3)

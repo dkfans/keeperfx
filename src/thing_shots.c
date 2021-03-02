@@ -217,7 +217,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     return true;
 }
 
-void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
+void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -364,7 +364,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     struct Thing* efftng = INVALID_THING;
     TbBool shot_explodes = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    unsigned long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
+    long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (shotst->model_flags & ShMF_Digging)
     {
         process_dig_shot_hit_wall(shotng, blocked_flags);
