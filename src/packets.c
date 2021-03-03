@@ -1007,9 +1007,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_FreeCtrlPassngr:
         influence_own_creatures = 1;
         if (player->work_state == PSt_CtrlPassngr)
-            thing = get_creature_near_and_owned_by(x, y, plyr_idx);
+            thing = get_creature_near_and_owned_by(x, y, plyr_idx, -1);
         else
-            thing = get_creature_near_and_owned_by(x, y, -1);
+            thing = get_creature_near_and_owned_by(x, y, -1, -1);
         if (thing_is_invalid(thing))
             player->thing_under_hand = 0;
         else

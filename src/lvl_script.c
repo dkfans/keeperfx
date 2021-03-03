@@ -84,6 +84,8 @@ extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner
 extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 extern void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
+extern long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
+
 const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
     {"RANDOM",                     "Aaaaaaaa", Cmd_RANDOM, NULL, NULL},
@@ -348,6 +350,16 @@ const struct NamedCommand script_operator_desc[] = {
 
 /******************************************************************************/
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
+/******************************************************************************/
+static int filter_criteria_type(long desc_type)
+{
+    return desc_type & 0x0F;
+}
+
+static long filter_criteria_loc(long desc_type)
+{
+    return desc_type >> 4;
+}
 /******************************************************************************/
 /**
  * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
@@ -1646,6 +1658,41 @@ static TbBool parse_set_varib(const char *varib_name, long *varib_id, long *vari
     return true;
 }
 
+static long parse_criteria(const char *criteria)
+{
+    char c;
+    int arg;
+
+    long ret = get_id(creature_select_criteria_desc, criteria);
+    if (ret == -1)
+    {
+        if (2 == sscanf(criteria, "AT_ACTION_POINT[%d%c", &arg, &c) && (c == ']'))
+        {
+            ActionPointId loc = action_point_number_to_index(arg);
+            if (loc == -1)
+            {
+                SCRPTERRLOG("Unknown action point at criteria, '%s'", criteria);
+                return -1;
+            }
+            ret = (CSelCrit_NearAP) | (loc << 4);
+        }
+    }
+    return ret;
+}
+
+static long parse_creature_name(const char *creature_name)
+{
+    long ret = get_rid(creature_desc, creature_name);
+    if (ret == -1)
+    {
+        if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
+        {
+            return -2;
+        }
+    }
+    return ret;
+}
+
 void command_if(long plr_range_id, const char *varib_name, const char *operatr, long value)
 {
     long varib_type;
@@ -2058,7 +2105,7 @@ static void display_objective_check(const struct ScriptLine *scline)
   }
   else
   {
-    x = scline->np[1]; 
+    x = scline->np[1];
     y = scline->np[2];
     command_add_value(Cmd_DISPLAY_OBJECTIVE, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
   }
@@ -2235,7 +2282,7 @@ void command_set_music(long val)
   {
     game.audiotrack = val;
   }
-  else 
+  else
   {
     SCRPTERRLOG("Invalid music track %d, track must be between %d and %d", val,FIRST_TRACK,max_track);
     return;
@@ -2524,11 +2571,11 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
     case TrpAcT_Power:
         validval5 = 1;
         break;
-    default: 
+    default:
         SCRPTERRLOG("No ActivationType '%d' found", val5);
     }
     int validval6 = 1;
-    if ((val6 <= 0) || 
+    if ((val6 <= 0) ||
         ((val6 > magic_conf.shot_types_count) && (val5 == (TrpAcT_HeadforTarget90 || TrpAcT_ShotonTrap || TrpAcT_CreatureShot))) ||
         ((val6 > slab_conf.slab_types_count ) && (val5 == TrpAcT_SlabChange)) ||
         ((val6 > effects_conf.effect_types_count) && (val5 == TrpAcT_EffectonTrap)) ||
@@ -2550,7 +2597,7 @@ void command_set_trap_configuration(const char* trapname, long val1, long val2, 
     {
         struct TrapConfigStats* trapst;
         struct ManfctrConfig* mconf;
-        trapst = &trapdoor_conf.trap_cfgstats[trap_id];   
+        trapst = &trapdoor_conf.trap_cfgstats[trap_id];
         mconf = &gameadd.traps_config[trap_id];
         SCRIPTDBG(7, "Changing trap %d configuration from (%d,%d,%d,%d,%d,%d,%d)", trap_id, mconf->shots, mconf->shots_delay, gameadd.trap_stats[trap_id].sprite_anim_idx, gameadd.trap_stats[trap_id].trigger_type, gameadd.trap_stats[trap_id].activation_type, gameadd.trap_stats[trap_id].created_itm_model,trapst->hidden);
         SCRIPTDBG(7, "Changing trap %d configuration to (%d,%d,%d,%d,%d,%d,%d)", trap_id, val1, val2, val3, val4, val5, val6, val7);
@@ -2997,13 +3044,14 @@ void command_kill_creature(long plr_range_id, const char *crtr_name, const char 
         SCRPTERRLOG("Bad creatures count, %d", count);
         return;
   }
-  long crtr_id = get_rid(creature_desc, crtr_name);
+  long crtr_id = parse_creature_name(crtr_name);
   if (crtr_id == -1) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
-  long select_id = get_rid(creature_select_criteria_desc, criteria);
-  if (select_id == -1) {
+  long select_id = parse_criteria(criteria);
+  if (select_id == -1)
+  {
     SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
     return;
   }
@@ -3015,15 +3063,16 @@ void command_level_up_creature(long plr_range_id, const char *crtr_name, const c
     SCRIPTDBG(11, "Starting");
     if (count <= 0)
     {
-        SCRPTERRLOG("Bad creatures count, %d", count);
+        SCRPTERRLOG("Bad count, %d", count);
         return;
   }
-  long crtr_id = get_rid(creature_desc, crtr_name);
-  if (crtr_id == -1) {
+  long crtr_id = parse_creature_name(crtr_name);
+  if (crtr_id == -1)
+  {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
-  long select_id = get_rid(creature_select_criteria_desc, criteria);
+  long select_id = parse_criteria(criteria);
   if (select_id == -1) {
     SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
     return;
@@ -3060,12 +3109,12 @@ void command_use_power_on_creature(long plr_range_id, const char *crtr_name, con
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
   }
-  long crtr_id = get_rid(creature_desc, crtr_name);
+  long crtr_id = parse_creature_name(crtr_name);
   if (crtr_id == -1) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
-  long select_id = get_rid(creature_select_criteria_desc, criteria);
+  long select_id = parse_criteria(criteria);
   if (select_id == -1) {
     SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
     return;
@@ -3254,7 +3303,7 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
   }
-  long select_id = get_rid(creature_select_criteria_desc, criteria);
+  long select_id = parse_criteria(criteria);
   if (select_id == -1) {
     SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
     return;
@@ -3640,7 +3689,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     }
 }
 
-TbBool script_command_param_to_number(char type_chr, struct ScriptLine *scline, int idx)
+static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *scline, int idx, TbBool extended)
 {
     switch (toupper(type_chr))
     {
@@ -3662,7 +3711,18 @@ TbBool script_command_param_to_number(char type_chr, struct ScriptLine *scline, 
         };break;
     case 'C':{
         long crtr_id = get_rid(creature_desc, scline->tp[idx]);
-        if (crtr_id == -1) {
+        if (extended)
+        {
+            if (crtr_id == -1)
+            {
+                if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
+                {
+                    crtr_id = 0;
+                }
+            }
+        }
+        if (crtr_id == -1)
+        {
             SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[idx]);
             return false;
         }
@@ -3712,6 +3772,8 @@ TbBool script_command_param_to_number(char type_chr, struct ScriptLine *scline, 
     }; break;
     case 'A':
         break;
+    case '!': // extended sign
+        return true;
     default:
         return false;
     }
@@ -3739,20 +3801,48 @@ TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, in
         break;
     case 'A':
         break;
+    case '!': // extended sign
+        return true;
     default:
         return false;
     }
     return true;
 }
 
+static int count_required_parameters(const char *args)
+{
+    int required = 0;
+    for (int i = 0; i < COMMANDDESC_ARGS_COUNT; i++)
+    {
+        char chr = args[i];
+        if (isupper(chr)) // Required arguments have upper-case type letters
+        {
+            required++;
+        }
+        else if (chr == '!')
+        {
+            continue;
+        }
+        else
+            break;
+    }
+    return required;
+}
+
 int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level)
 {
-    int i, j;
-    for (i = 0, j = 0; i <= COMMANDDESC_ARGS_COUNT; i++, j++)
+    int dst, src;
+    for (dst = 0, src = 0; dst <= COMMANDDESC_ARGS_COUNT; dst++, src++)
     {
-        char chr = cmd_desc->args[j];
+        TbBool extended = false;
+        char chr = cmd_desc->args[src];
         if (*para_level < expect_level)
             break;
+        if (chr == '!')
+        {
+            dst--;
+            continue;
+        }
         // Read the next parameter
         const struct CommandDesc *funcmd_desc;
         {
@@ -3765,19 +3855,20 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 // Break the loop keeping variables as if the parameter wasn't read
                 break;
             }
-            if (funpara_level > (*para_level)+(i > 0 ? 0 : 1)) {
-                SCRPTWRNLOG("Unexpected paraenesis in parameter %d of command \"%s\"", i+1, scline->tcmnd);
+            if (funpara_level > (*para_level)+(dst > 0 ? 0 : 1)) {
+                SCRPTWRNLOG("Unexpected paraenesis in parameter %d of command \"%s\"", dst + 1, scline->tcmnd);
             }
             *line = funline;
             *para_level = funpara_level;
-            if (!isalpha(chr)) {
-                // Don't show parameter index - it may be bad, as we're decreasing i to not overflow cmd_desc->args
+            if (!isalpha(chr))
+            {
+                // Don't show parameter index - it may be bad, as we're decreasing dst to not overflow cmd_desc->args
                 SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, funcmd_buf);
-                i--;
+                dst--;
                 continue;
             }
-            // Access tp[i] only if we're sure i < COMMANDDESC_ARGS_COUNT
-            LbMemoryCopy(scline->tp[i],  funcmd_buf, MAX_TEXT_LENGTH);
+            // Access tp[dst] only if we're sure dst < COMMANDDESC_ARGS_COUNT
+            LbMemoryCopy(scline->tp[dst], funcmd_buf, MAX_TEXT_LENGTH);
         }
         if (funcmd_desc != NULL)
         {
@@ -3787,17 +3878,18 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 return -1;
             }
             LbMemorySet(funscline, 0, sizeof(struct ScriptLine));
-            LbMemoryCopy(funscline->tcmnd,  scline->tp[i], MAX_TEXT_LENGTH);
+            LbMemoryCopy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
             int args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level);
             if (args_count < 0)
             {
                 LbMemoryFree(funscline);
                 return -1;
             }
+            // Count valid args
             if (args_count < COMMANDDESC_ARGS_COUNT)
             {
-                chr = funcmd_desc->args[args_count];
-                if (isupper(chr)) // Required arguments have upper-case type letters
+                int required = count_required_parameters(funcmd_desc->args);
+                if (args_count < required)
                 {
                   SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", funcmd_desc->textptr,(int)args_count);
                   LbMemoryFree(funscline);
@@ -3814,7 +3906,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
                 if (level_file_version > 0)
                 {
-                    chr = cmd_desc->args[j];
+                    chr = cmd_desc->args[src];
                     int ri;
                     for (fi = 0, ri = 0; fi < COMMANDDESC_ARGS_COUNT; fi++, ri++)
                     {
@@ -3839,7 +3931,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                             // Second step of defining range
                             ri--;
                             fi++;
-                            if (!script_command_param_to_number(chr, funscline, fi)) {
+                            if (!script_command_param_to_number(chr, funscline, fi, false)) {
                                 SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected range end value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
                                 LbMemoryFree(funscline);
                                 return -1;
@@ -3853,7 +3945,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                         } else
                         {
                             // Single value or first step of defining range
-                            if (!script_command_param_to_number(chr, funscline, fi)) {
+                            if (!script_command_param_to_number(chr, funscline, fi, false)) {
                                 SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
                                 LbMemoryFree(funscline);
                                 return -1;
@@ -3900,19 +3992,19 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
                 {
                     if ((range_index >= range_total) && (range_index <= range_total + ranges[fi].max - ranges[fi].min)) {
-                        chr = cmd_desc->args[j];
+                        chr = cmd_desc->args[src];
                         if (toupper(chr) == 'A') {
-                            strcpy(scline->tp[i], funscline->tp[ranges[fi].min]);
+                            strcpy(scline->tp[dst], funscline->tp[ranges[fi].min]);
                         } else {
-                            scline->np[i] = ranges[fi].min + range_index - range_total;
+                            scline->np[dst] = ranges[fi].min + range_index - range_total;
                             // Set text value for that number
-                            script_command_param_to_text(chr, scline, i);
+                            script_command_param_to_text(chr, scline, dst);
                         }
                         break;
                     }
                     range_total += ranges[fi].max - ranges[fi].min + 1;
                 }
-                SCRPTLOG("Function \"%s\" returned value \"%s\"", funcmd_desc->textptr, scline->tp[i]);
+                SCRPTLOG("Function \"%s\" returned value \"%s\"", funcmd_desc->textptr, scline->tp[dst]);
                 };break;
             case Cmd_IMPORT:
             {
@@ -3920,45 +4012,49 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 if (player_id >= PLAYERS_FOR_CAMPAIGN_FLAGS)
                 {
                     SCRPTERRLOG("Cannot fetch flag values for player, '%s'", funscline->tp[0]);
-                    strcpy(scline->tp[i], "0");
+                    strcpy(scline->tp[dst], "0");
                     break;
                 }
                 long flag_id = get_id(campaign_flag_desc, funscline->tp[1]);
                 if (flag_id == -1)
                 {
                     SCRPTERRLOG("Unknown campaign flag name, '%s'", funscline->tp[1]);
-                    strcpy(scline->tp[i], "0");
+                    strcpy(scline->tp[dst], "0");
                     break;
                 }
                 SCRPTLOG("Function \"%s\" returned value \"%ld\"", funcmd_desc->textptr,
                     intralvl.campaign_flags[player_id][flag_id]);
-                ltoa(intralvl.campaign_flags[player_id][flag_id], scline->tp[i], 10);
+                ltoa(intralvl.campaign_flags[player_id][flag_id], scline->tp[dst], 10);
                 break;
             }
             default:
-                SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[i]);
+                SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[dst]);
                 break;
             }
             LbMemoryFree(funscline);
         }
-        if (scline->tp[i][0] == '\0') {
+        if (scline->tp[dst][0] == '\0') {
           break;
         }
         if (*para_level > expect_level+2) {
-            SCRPTWRNLOG("Parameter %d of command \"%s\", value \"%s\", is at too high paraenesis level %d", i+1, scline->tcmnd, scline->tp[i], (int)*para_level);
+            SCRPTWRNLOG("Parameter %d of command \"%s\", value \"%s\", is at too high paraenesis level %d", dst + 1, scline->tcmnd, scline->tp[dst], (int)*para_level);
         }
-        chr = cmd_desc->args[j];
-        if (cmd_desc->args[j+1] == '+')
+        chr = cmd_desc->args[src];
+        if (cmd_desc->args[src + 1] == '+')
         {
             // All other parameters will be same
-            j -= 1;
+            src -= 1;
         }
-        if (!script_command_param_to_number(chr, scline, i)) {
-            SCRPTERRLOG("Parameter %d of command \"%s\", type %c, has unexpected value; discarding command", i+1, scline->tcmnd, chr);
+        if (cmd_desc->args[src + 1] == '!') //extended set (dst.e. ANY_CREATURE)
+        {
+            extended = true;
+        }
+        if (!script_command_param_to_number(chr, scline, dst, extended)) {
+            SCRPTERRLOG("Parameter %d of command \"%s\", type %c, has unexpected value; discarding command", dst + 1, scline->tcmnd, chr);
             return -1;
         }
     }
-    return i;
+    return dst;
 }
 
 long script_scan_line(char *line,TbBool preloaded)
@@ -4013,8 +4109,8 @@ long script_scan_line(char *line,TbBool preloaded)
     }
     if (args_count < COMMANDDESC_ARGS_COUNT)
     {
-        char chr = cmd_desc->args[args_count];
-        if (isupper(chr)) // Required arguments have upper-case type letters
+        int required = count_required_parameters(cmd_desc->args);
+        if (args_count < required) // Required arguments have upper-case type letters
         {
             SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", cmd_desc->textptr,(int)args_count);
             LbMemoryFree(scline);
@@ -4743,7 +4839,7 @@ struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
 }
 
 struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria) {
-    switch (criteria)
+    switch (filter_criteria_type(criteria))
     {
     case CSelCrit_Any:
         return get_random_players_creature_of_model(plyr_idx, crmodel);
@@ -4766,7 +4862,7 @@ struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
     case CSelCrit_NearOwnHeart:
     {
         const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
-        return get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx);
+        return get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx, crmodel);
     }
     case CSelCrit_NearEnemyHeart:
         return get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
@@ -4774,6 +4870,28 @@ struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
         return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 0);
     case CSelCrit_OnFriendlyGround:
         return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 1);
+    case CSelCrit_NearAP:
+    {
+        int loc = filter_criteria_loc(criteria);
+        struct ActionPoint *apt = action_point_get(loc);
+        if (!action_point_exists(apt))
+        {
+            WARNLOG("Action point is invalid loc:%d", loc);
+            return INVALID_THING;
+        }
+        int dist = 2 * apt->range; // TODO: valid scale required
+
+        Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_owned_by;
+        struct CompoundTngFilterParam param;
+        param.class_id = TCls_Creature;
+        param.model_id = crmodel;
+        param.plyr_idx = (unsigned char)plyr_idx;
+        param.num1 = apt->mappos.x.val;
+        param.num2 = apt->mappos.y.val;
+        return get_thing_spiral_near_map_block_with_filter(apt->mappos.x.val, apt->mappos.y.val,
+                                                           dist * dist,
+                                                           filter, &param);
+    }
     default:
         ERRORLOG("Invalid level up criteria %d",(int)criteria);
         return INVALID_THING;
@@ -6607,7 +6725,7 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
   {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION, NULL, NULL},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
-  {"KILL_CREATURE",                     "PCAN    ", Cmd_KILL_CREATURE, NULL, NULL},
+  {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
   {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
   {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE, NULL, NULL},
@@ -6623,7 +6741,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG, NULL, NULL},
   {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE, NULL, NULL},
   {"RUN_AFTER_VICTORY",                 "N       ", Cmd_RUN_AFTER_VICTORY, NULL, NULL},
-  {"LEVEL_UP_CREATURE",                 "PCAN    ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
+  {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PCAP    ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
   {"SET_TRAP_CONFIGURATION",            "ANNNNNNN", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},

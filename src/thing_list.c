@@ -509,6 +509,11 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFi
 {
     if (thing->class_id == param->class_id)
     {
+        if (param->model_id != -2 && (thing->model == param->model_id))
+        {
+            // Skip wrong models
+            return -1;
+        }
         switch(param->class_id)
         {
         case TCls_Creature:
@@ -1659,7 +1664,7 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             struct Thing* thing = creature_of_model_in_prison_or_tortured(crtr_model);
-            if (thing > 0)
+            if (!thing_is_invalid(thing))
             {
                 if (player_keeping_creature_in_custody(thing) == my_player_number)
                 {
@@ -3298,9 +3303,10 @@ struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, 
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
  * @param plyr_idx Player whose creature from revealed position will be returned.
+ * @param crmodel Creature model or 0 for any
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
+struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, long crmodel)
 {
     SYNCDBG(19,"Starting");
     //return get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
@@ -3308,6 +3314,7 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, Pla
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
     param.plyr_idx = plyr_idx;
+    param.model_id = crmodel;
     param.num1 = pos_x;
     param.num2 = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
