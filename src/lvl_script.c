@@ -4885,7 +4885,7 @@ struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
             return INVALID_THING;
         }
         // Action point range should be inside spiral in subtiles
-        int dist = 1 + coord_subtile((apt->range + COORD_PER_STL - 1) ) * 8;
+        int dist = 1 + coord_subtile((2 * apt->range + COORD_PER_STL - 1) ) * 8;
 
         Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_thing_of_class_and_model_owned_by;
         struct CompoundTngFilterParam param;
@@ -4894,6 +4894,7 @@ struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
         param.plyr_idx = (unsigned char)plyr_idx;
         param.num1 = apt->mappos.x.val;
         param.num2 = apt->mappos.y.val;
+        param.num3 = apt->range;
         return get_thing_spiral_near_map_block_with_filter(apt->mappos.x.val, apt->mappos.y.val,
                                                            dist,
                                                            filter, &param);

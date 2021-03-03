@@ -415,8 +415,11 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
                     refpos.x.val = param->num1;
                     refpos.y.val = param->num2;
                     refpos.z.val = 0;
+                    MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                    if (dist > param->num3) // Too far away
+                        return -1;
                     // This function should return max value when the distance is minimal, so:
-                    return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
+                    return LONG_MAX-dist;
                 }
             }
         }
@@ -1464,7 +1467,7 @@ struct Thing *get_nearest_thing_of_class_and_model_owned_by(MapCoord pos_x, MapC
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
-    param.num3 = 0;
+    param.num3 = LONG_MAX;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
