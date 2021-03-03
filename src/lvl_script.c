@@ -3351,7 +3351,6 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
     splevel = MAGIC_OVERCHARGE_LEVELS;
   }
   splevel--;
-  long mag_id = get_rid(spell_desc, magname);
   if (mag_id == -1)
   {
     SCRPTERRLOG("Unknown magic, '%s'", magname);
