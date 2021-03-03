@@ -841,8 +841,8 @@ unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d
 {
   unsigned short clipbox_size = thing->clipbox_size_yz;
   long height = get_ceiling_height_above_thing_at(thing, pos);
-  short z_thing = *(short*)&thing->mappos.z.val;
-  short z_pos = *(short*)&pos->z.val;
+  short z_thing = (short)thing->mappos.z.val;
+  short z_pos = (short)pos->z.val;
   if ( (height - 1) <= (z_pos + clipbox_size) )
   {
     return (height - clipbox_size) - 1;
