@@ -836,7 +836,7 @@ TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const st
     return thing_on_thing_at(firstng, dstpos, sectng);
 }
 
-short get_slide_z_coord(const struct Thing *thing, const struct Coord3d *pos)
+unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d *pos)
 // function at 451700. Original name unknown.
 {
   unsigned short clipbox_size = thing->clipbox_size_yz;
