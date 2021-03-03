@@ -38,17 +38,13 @@
 #include "power_hand.h"
 #include "magic.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
-#include "config_objects.h"
 #include "config_creature.h"
 #include "config_magic.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "player_instances.h"
 #include "engine_camera.h"
-#include "gui_topmsg.h"
 #include "game_legacy.h"
-#include "engine_redraw.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -1929,7 +1925,7 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((crmodel <= 0) || (thing->model == crmodel))
+        if ((crmodel == 0) || (thing->model == crmodel))
         {
             count++;
         }
@@ -1998,10 +1994,10 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
       struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
       i = cctrl->players_next_creature_idx;
       // Per creature code
-      if ((crtr_idx <= 0) || (thing->model == crmodel && crtr_idx <= 1))
-          return thing;
       if ((crmodel <= 0) || (thing->model == crmodel))
           crtr_idx--;
+      if (crtr_idx == -1)
+          return thing;
       // Per creature code ends
       k++;
       if (k > THINGS_COUNT)
@@ -2130,7 +2126,7 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
     {
         return INVALID_THING;
     }
-    long crtr_idx = ACTION_RANDOM(total_count) + 1;
+    long crtr_idx = ACTION_RANDOM(total_count);
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model(dungeon->digger_list_start, crmodel, crtr_idx);

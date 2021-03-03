@@ -84,7 +84,7 @@ extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner
 extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 extern void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
-extern long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
+extern long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
 
 const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
@@ -1687,7 +1687,7 @@ static long parse_creature_name(const char *creature_name)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
         {
-            return -2;
+            return 0;
         }
     }
     return ret;
@@ -4876,20 +4876,26 @@ struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
         struct ActionPoint *apt = action_point_get(loc);
         if (!action_point_exists(apt))
         {
-            WARNLOG("Action point is invalid loc:%d", loc);
+            WARNLOG("Action point is invalid:%d", apt->num);
             return INVALID_THING;
         }
-        int dist = 2 * apt->range; // TODO: valid scale required
+        if (apt->range == 0)
+        {
+            WARNLOG("Action point with zero range:%d", apt->num);
+            return INVALID_THING;
+        }
+        // Action point range should be inside spiral in subtiles
+        int dist = 1 + coord_subtile((apt->range + COORD_PER_STL - 1) ) * 8;
 
-        Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_owned_by;
+        Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_thing_of_class_and_model_owned_by;
         struct CompoundTngFilterParam param;
         param.class_id = TCls_Creature;
-        param.model_id = crmodel;
+        param.model_id = (crmodel == 0)?-1:crmodel;
         param.plyr_idx = (unsigned char)plyr_idx;
         param.num1 = apt->mappos.x.val;
         param.num2 = apt->mappos.y.val;
         return get_thing_spiral_near_map_block_with_filter(apt->mappos.x.val, apt->mappos.y.val,
-                                                           dist * dist,
+                                                           dist,
                                                            filter, &param);
     }
     default:
