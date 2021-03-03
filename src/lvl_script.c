@@ -3297,7 +3297,7 @@ void command_change_creatures_annoyance(long plr_range_id, const char *operation
 void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
 {
     SCRIPTDBG(11, "Starting");
-    long crtr_id = get_rid(creature_desc, crtr_name);
+    long crtr_id = parse_creature_name(crtr_name);
     if (crtr_id == -1)
     {
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
@@ -4937,7 +4937,7 @@ TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, 
         SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)origin_plyr_idx,(int)crmodel);
         return false;
     }
-    change_creature_owner(thing,dest_plyr_idx);
+    change_creature_owner(thing, dest_plyr_idx);
     return true;
 }
 
@@ -6734,7 +6734,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
-  {"USE_POWER_ON_CREATURE",             "PCAPANN ", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
+  {"USE_POWER_ON_CREATURE",             "PC!APANN", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
   {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE, NULL, NULL},
   {"USE_POWER_AT_LOCATION",             "PNANN   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
   {"USE_POWER",                         "PAN     ", Cmd_USE_POWER, NULL, NULL},
@@ -6749,7 +6749,7 @@ const struct CommandDesc command_desc[] = {
   {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE, NULL, NULL},
   {"RUN_AFTER_VICTORY",                 "N       ", Cmd_RUN_AFTER_VICTORY, NULL, NULL},
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
-  {"CHANGE_CREATURE_OWNER",             "PCAP    ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
+  {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
   {"SET_TRAP_CONFIGURATION",            "ANNNNNNN", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
   {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
