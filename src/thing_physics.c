@@ -62,9 +62,127 @@ TbBool thing_touching_flight_altitude(const struct Thing *thing)
         && (thing->mappos.z.val <= floor_height + 19*NORMAL_FLYING_ALTITUDE/17);
 }
 
-void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
+void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
-    _DK_slide_thing_against_wall_at(thing, pos, a3); return;
+   // _DK_slide_thing_against_wall_at(thing, pos, a3); return;
+  unsigned short x_thing;
+  unsigned short sizexy;
+  unsigned short x_pos;
+  unsigned short y_thing;
+  unsigned short y_pos;
+  switch ( blocked_flags )
+  {
+    case SlbBloF_WalledX:
+      x_thing = *(unsigned short *)&thing->mappos.x.stl;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      x_pos = *(unsigned short *)&pos->x.stl;
+      if ( x_pos != x_thing )
+      {
+        if ( x_pos > x_thing )
+        {
+          *(unsigned short *)&pos->x.stl = ((x_pos + sizexy) & 0xFF00) - sizexy - 1;
+          return;
+        }
+        x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+      }
+      *(unsigned short *)&pos->x.stl = x_thing;
+      break;
+    case SlbBloF_WalledY:
+      y_thing = *(unsigned short *)&thing->mappos.y.stl;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      y_pos = *(unsigned short *)&pos->y.stl;
+      if ( y_thing != y_pos )
+      {
+        if ( y_thing < y_pos )
+        {
+          *(unsigned short *)&pos->y.stl = ((y_pos + sizexy) & 0xFF00) - sizexy - 1;
+          return;
+        }
+        y_thing = ((y_pos - sizexy & 0xFF00) + sizexy + 256);
+      }
+      *(unsigned short *)&pos->y.stl = y_thing;
+      break;
+    case 3:
+      x_thing = *(unsigned short *)&thing->mappos.x.stl;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      x_pos = *(unsigned short *)&pos->x.stl;
+      if ( x_pos != x_thing )
+      {
+        if ( x_pos <= x_thing )
+          x_thing = ((x_pos - sizexy & 0xFF00) + sizexy + 256);
+        else
+          x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
+      }
+      y_thing = *(unsigned short *)&thing->mappos.y.stl;
+      y_pos = *(unsigned short *)&pos->y.stl;
+      if ( y_pos != y_thing )
+      {
+        if ( y_pos <= y_thing )
+          y_thing = ((y_pos - sizexy & 0xFF00) + sizexy + 256);
+        else
+          y_thing = (((sizexy + y_pos) & 0xFF00) - sizexy - 1);
+      }
+      *(unsigned short *)&pos->x.stl = x_thing;
+      *(unsigned short *)&pos->y.stl = y_thing;
+      break;
+    case SlbBloF_WalledZ:
+      *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
+      break;
+    case 5:
+      x_thing = *(unsigned short *)&thing->mappos.x.stl;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      x_pos = *(unsigned short *)&pos->x.stl;
+      if ( x_pos != x_thing )
+      {
+        if ( x_pos <= x_thing )
+          x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+        else
+          x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
+      }
+      *(unsigned short *)&pos->x.stl = x_thing;
+      *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
+      break;
+    case 6:
+      y_thing = *(unsigned short *)&thing->mappos.y.stl;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      y_pos = *(unsigned short *)&pos->y.stl;
+      if ( y_thing != y_pos )
+      {
+        if ( y_thing >= y_pos )
+          y_thing = ((y_pos - sizexy & 0xFF00) + sizexy + 256);
+        else
+          y_thing = (((y_pos + sizexy) & 0xFF00) - sizexy - 1);
+      }
+      *(unsigned short *)&pos->y.stl = y_thing;
+      *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
+      break;
+    case 7:
+      x_thing = *(unsigned short *)&thing->mappos.x.stl;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      x_pos = *(unsigned short *)&pos->x.stl;
+      if ( x_pos != x_thing )
+      {
+        if ( x_pos <= x_thing )
+          x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+        else
+          x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
+      }
+      y_pos = *(unsigned short *)&pos->y.stl;
+      y_thing = *(unsigned short *)&thing->mappos.y.stl;
+      if ( y_pos != y_thing )
+      {
+        if ( y_pos <= y_thing )
+          y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
+        else
+          y_thing = (((sizexy + y_pos) & 0xFF00) - sizexy - 1);
+      }
+      *(unsigned short *)&pos->x.stl = x_thing;
+      *(unsigned short *)&pos->y.stl = y_thing;
+      *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
+      break;
+    default:
+      return;
+  }
 }
 
 void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
@@ -717,6 +835,29 @@ TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const st
     }
     return thing_on_thing_at(firstng, dstpos, sectng);
 }
+
+short get_slide_z_coord(const struct Thing *thing, const struct Coord3d *pos)
+// function at 451700. Original name unknown.
+{
+  unsigned short clipbox_size = thing->clipbox_size_yz;
+  long height = get_ceiling_height_above_thing_at(thing, pos);
+  short z_thing = *(short*)&thing->mappos.z.val;
+  short z_pos = *(short*)&pos->z.val;
+  if ( (height - 1) <= (z_pos + clipbox_size) )
+  {
+    return (height - clipbox_size) - 1;
+  }
+  if ( z_pos == z_thing )
+  {
+    return pos->z.val;
+  }
+  if ( z_pos < z_thing )
+  {
+    return (z_pos & 0xFF00) + 256;
+  }
+  return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) - 1);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
