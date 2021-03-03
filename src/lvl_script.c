@@ -3336,9 +3336,13 @@ void command_set_game_rule(const char* objectv, unsigned long roomvar)
 void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, int splevel)
 {
   SCRIPTDBG(11, "Starting");
+  long mag_id = get_rid(spell_desc, magname);
   if (splevel < 1)
   {
-    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+    if ( (mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Chicken) )
+    {
+        SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
+    }
     splevel = 1;
   }
   if (splevel > (MAGIC_OVERCHARGE_LEVELS+1)) //Creatures cast spells from level 1 to 10, but 10=9.
