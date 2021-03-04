@@ -867,7 +867,6 @@ unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d
   }
   return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) - 1);
 }
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
