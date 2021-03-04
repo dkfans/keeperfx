@@ -76,8 +76,8 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
 long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos);
 void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor);
-TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing);
 unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d *pos);
+TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
