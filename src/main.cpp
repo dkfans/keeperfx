@@ -694,8 +694,8 @@ long process_boulder_collision(struct Thing *thing, struct Coord3d *pos, int a3,
 // Function at 493690. Original name unknown.
 { 
   unsigned long i = (thing->clipbox_size_xy >> 1);
-  SubtlCodedCoords pos_x = (pos->x.val + i * a3) >> 8;
-  SubtlCodedCoords pos_y = (i * a4 + pos->y.val) >> 8;
+  unsigned long pos_x = (pos->x.val + i * a3) >> 8;
+  unsigned long pos_y = (i * a4 + pos->y.val) >> 8;
   MapSlabCoord slb_x = *((unsigned long *)&map_to_slab + pos_x);
   MapSlabCoord slb_y = *((unsigned long *)&map_to_slab + pos_y);
   MapSubtlCoord stl_x = slab_subtile_center(slb_x);
