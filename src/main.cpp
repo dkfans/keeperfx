@@ -575,7 +575,178 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
 
 long apply_wallhug_force_to_boulder(struct Thing *thing)
 {
-  return _DK_apply_wallhug_force_to_boulder(thing);
+  // return _DK_apply_wallhug_force_to_boulder(thing);
+  int i = 4 * thing->move_angle_xy;
+  unsigned short angle;
+  long collide;
+  unsigned short new_angle;
+  struct Coord3d pos2;
+  struct Coord3d pos;
+  struct ShotStats *shotst = &shot_stats[thing->model];
+  unsigned short speed = (unsigned short)shotst->speed;
+  *(unsigned short *)&pos.x.stl = *(unsigned short *)&thing->mappos.x.stl
+                           + ((speed * *(int *)((char *)lbSinTable + i)) >> 16);
+  int n = speed * *(int *)((char *)lbCosTable + i);
+  *(unsigned short *)&pos.y.stl = *(unsigned short *)&thing->mappos.y.stl + (-(n >> 8) >> 8);
+  *(unsigned short *)&pos.z.stl = *(unsigned short *)&thing->mappos.z.stl;
+  unsigned long seed = 9377 * game.action_rand_seed + 9439;
+  game.action_rand_seed = LB_RANDOM(4294967296, &seed);
+  if ( !(game.action_rand_seed & 7) && (!*(unsigned short *)&thing->velocity.z.stl ) )
+  {
+    if ( thing_touching_floor(thing) )
+    {
+      long top_cube = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num, NULL);
+      if ( ((top_cube & 0xFFFFFFFE) != 40) && (top_cube != 39) )
+      {
+        *(unsigned short *)&thing->veloc_push_add.z.stl += 48;
+        thing->state_flags |= TF1_PushAdd;
+      }
+    }
+  }
+  if ( thing_in_wall_at(thing, &pos) )
+  {
+    long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+    if ( blocked_flags & SlbBloF_WalledX )
+    {
+      angle = thing->move_angle_xy;
+      if ( (angle) && (angle <= 0x400u) )
+        collide = process_boulder_collision(thing, &pos, 1, 0);
+      else
+        collide = process_boulder_collision(thing, &pos, -1, 0);
+    }
+    else if ( blocked_flags & SlbBloF_WalledY )
+    {
+      angle = thing->move_angle_xy;
+      if ( (angle <= 0x200u) || (angle > 0x600u) )
+        collide = process_boulder_collision(thing, &pos, 0, -1);
+      else
+        collide = process_boulder_collision(thing, &pos, 0, 1);
+    }
+    else
+    {
+      collide = 0;
+    }
+    if ( collide != 1 )
+    {
+      if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
+      {
+        thing->health -= game.boulder_reduce_health_wall;
+      }
+      slide_thing_against_wall_at(thing, &pos, blocked_flags);
+      if ( blocked_flags & SlbBloF_WalledX )
+      {
+        angle = thing->move_angle_xy;
+        if ( (angle) && ( (angle <= 0x200u) || (angle > 0x600u) ) )
+        {
+          unsigned short y = *(unsigned short *)&thing->mappos.y.stl;
+          *(unsigned short *)&pos2.x.stl = *(unsigned short *)&thing->mappos.x.stl;
+          *(unsigned short *)&pos2.z.stl = 0;
+          *(unsigned short *)&pos2.y.stl = y - 3 * speed;
+          *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400;
+        }
+        else
+        {
+          *(unsigned short *)&pos2.x.stl = *(unsigned short *)&thing->mappos.x.stl;
+          *(unsigned short *)&pos2.z.stl = 0;
+          *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl + 3 * speed;
+          *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;
+        }
+      }
+      else if ( blocked_flags & SlbBloF_WalledY )
+      {
+        angle = thing->move_angle_xy;
+        if ( (angle) && (angle <= 0x400u) ) 
+        {
+          *(unsigned short *)&pos2.z.stl = 0;
+          *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl;
+          *(unsigned short *)&pos2.x.stl = *(unsigned short *)&thing->mappos.x.stl + 3 * speed;
+          *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536;
+        }
+        else
+        {
+          unsigned short x = *(unsigned short *)&thing->mappos.x.stl;
+          *(unsigned short *)&pos2.z.stl = 0;
+          *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl;
+          *(unsigned short *)&pos2.x.stl = x - 3 * speed;
+          *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1536 : 512;
+        }
+      }
+      else
+      {
+        ERRORLOG("Cannot find boulder wall hug angle!");
+        new_angle = 0;
+      }
+      thing->move_angle_xy = new_angle;
+    }
+  }
+  angle = thing->move_angle_xy;
+  *(unsigned short *)&thing->velocity.x.stl = shotst->speed
+                                       * lbSinTable[angle] >> 16;
+  *(unsigned short *)&thing->velocity.y.stl = -(shotst->speed * lbCosTable[angle] >> 8) >> 8;
+  return 0;
+}
+
+long process_boulder_collision(struct Thing *thing, struct Coord3d *pos, int a3, int a4)
+// Function at 493690. Original name unknown.
+{ 
+  unsigned short i = (thing->clipbox_size_xy >> 1);
+  SubtlCodedCoords pos_x = (pos->x.val + i * a3) >> 8;
+  SubtlCodedCoords pos_y = (i * a4 + pos->y.val) >> 8;
+  MapSlabCoord slb_x = *((unsigned long *)&map_to_slab + pos_x);
+  MapSlabCoord slb_y = *((unsigned long *)&map_to_slab + pos_y);
+  MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+  MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+  struct Room *room = subtile_room_get(stl_x, stl_y);
+  if ( room_is_invalid(room) )
+  {
+      struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+      if (!map_block_invalid(mapblk))
+      {
+        if ( (!mapblk->flags & SlbAtFlg_IsDoor) )
+        {
+            return 0;
+        }
+      }
+    struct Thing *doortng = get_door_for_position(stl_x, stl_y);
+    if ( thing_is_invalid(doortng) )
+    {
+      return 0;
+    }
+    short door_health = doortng->health;
+    doortng->health = door_health - thing->health;
+    thing->health -= door_health;
+    if ( doortng->health <= 0 )
+    {
+      return 2;
+    }
+    return 0;
+  }
+  if ( room->kind != RoK_GUARDPOST )
+  {
+    return 0;
+  }
+  if ( game.neutral_player_num != room->owner )
+  {
+    struct Dungeon *dungeon = get_dungeon(room->owner);
+    if (!dungeon_invalid(dungeon))
+    {
+        dungeon->rooms_destroyed++;
+    }
+  }
+  delete_room_slab(slb_x, slb_y, 0);
+  for (long k = 0; k < AROUND_TILES_COUNT; k++)
+  {
+    create_dirt_rubble_for_dug_block(stl_x + around[k].delta_x, stl_y + around[k].delta_y, 4, room->owner);
+  }
+  if ( thing->trap.num_shots != 20 )
+  {
+    thing->health -= game.boulder_reduce_health_room;
+  }
+  return 1;
 }
 
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step)
