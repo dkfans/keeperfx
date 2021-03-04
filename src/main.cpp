@@ -693,7 +693,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
 long process_boulder_collision(struct Thing *thing, struct Coord3d *pos, int a3, int a4)
 // Function at 493690. Original name unknown.
 { 
-  unsigned long i = (thing->clipbox_size_xy >> 1);
+  unsigned short i = (thing->clipbox_size_xy >> 1);
   unsigned long pos_x = (pos->x.val + i * a3) >> 8;
   unsigned long pos_y = (i * a4 + pos->y.val) >> 8;
   MapSlabCoord slb_x = *((unsigned long *)&map_to_slab + pos_x);
