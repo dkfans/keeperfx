@@ -19,6 +19,7 @@
 #include "thing_data.h"
 
 #include "globals.h"
+#include "bflib_keybrd.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
 #include "bflib_memory.h"
@@ -32,6 +33,7 @@
 #include "game_legacy.h"
 #include "engine_arrays.h"
 #include "gui_topmsg.h" 
+#include "kjm_input.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -268,7 +270,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
 void query_thing(struct Thing *thing)
 {
     struct Thing *querytng;
-    if ( (thing->class_id == TCls_Object) && (thing->model == 44) )
+    if ( (thing->class_id == TCls_Object) && (thing->model == 44) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
     {
         querytng = get_door_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     }   
