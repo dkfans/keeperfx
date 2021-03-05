@@ -267,43 +267,55 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
 
 void query_thing(struct Thing *thing)
 {
-    const char title[24];
-    const char* name = thing_model_name(thing);
-    const char owner[24]; 
-    const char health[24];
-    const char position[24];
-    const char amount[24] = "\0";
-    sprintf(title, "Thing ID: %d", thing->index);
-    sprintf(owner, "Owner: %d", thing->owner);
-    sprintf(position, "Pos: X:%d Y:%d Z:%d", thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
-    if (thing->class_id == TCls_Trap)
+    struct Thing *querytng;
+    if ( (thing->class_id == TCls_Object) && (thing->model == 44) )
     {
-        struct ManfctrConfig *mconf = &gameadd.traps_config[thing->model];
-        sprintf(health, "Shots: %d/%d", thing->trap.num_shots, mconf->shots);
-    }
+        querytng = get_door_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    }   
     else
     {
-        if (thing->class_id == TCls_Object)
-        {
-            if (object_is_gold(thing))
-            {
-                sprintf(amount, "Amount: %d", thing->valuable.gold_stored);   
-            }
-        }  
-        sprintf(health, "Health: %d", thing->health);
-        if (thing->class_id == TCls_Door)
-        {
-            sprintf(health, "%s/%d", health, door_stats[thing->model][0].health);
-        }
-        else if (thing->class_id == TCls_Object)
-        {
-            if (thing->model == 5)
-            {
-                sprintf(health, "%s/%d", health, game.dungeon_heart_health);
-            }
-        }
+        querytng = thing;
     }
-    create_message_box(&title, name, &owner, &health, &position, &amount);
+    if (!thing_is_invalid(querytng))
+    {
+        const char title[24];
+        const char* name = thing_model_name(querytng);
+        const char owner[24]; 
+        const char health[24];
+        const char position[24];
+        const char amount[24] = "\0";
+        sprintf(title, "Thing ID: %d", querytng->index);
+        sprintf(owner, "Owner: %d", querytng->owner);
+        sprintf(position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
+        if (querytng->class_id == TCls_Trap)
+        {
+            struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
+            sprintf(health, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+        }
+        else
+        {
+            if (querytng->class_id == TCls_Object)
+            {
+                if (object_is_gold(querytng))
+                {
+                    sprintf(amount, "Amount: %d", querytng->valuable.gold_stored);   
+                }
+            }  
+            sprintf(health, "Health: %d", querytng->health);
+            if (querytng->class_id == TCls_Door)
+            {
+                sprintf(health, "%s/%d", health, door_stats[querytng->model][0].health);
+            }
+            else if (querytng->class_id == TCls_Object)
+            {
+                if (querytng->model == 5)
+                {
+                    sprintf(health, "%s/%d", health, game.dungeon_heart_health);
+                }
+            }
+        }
+        create_message_box(&title, name, &owner, &health, &position, &amount);
+    }
 }
 /******************************************************************************/
 #ifdef __cplusplus
