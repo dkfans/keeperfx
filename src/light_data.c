@@ -36,9 +36,6 @@ DLLIMPORT void _DK_light_remove_light_from_list(struct Light *lgt, struct Struct
 DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
 DLLIMPORT void _DK_light_initialise_lighting_tables(void);
 DLLIMPORT void _DK_light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
-DLLIMPORT void _DK_light_set_light_position(long lgt_id, struct Coord3d *pos);
-DLLIMPORT long _DK_light_get_light_intensity(long idx);
-DLLIMPORT long _DK_light_set_light_intensity(long a1, long a2);
 DLLIMPORT void _DK_light_render_area(int startx, int starty, int endx, int endy);
 DLLIMPORT void _DK_light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
 DLLIMPORT void _DK_light_signal_update_in_area(long sx, long sy, long ex, long ey);
@@ -356,7 +353,42 @@ long light_is_light_allocated(long lgt_id)
 
 void light_set_light_position(long lgt_id, struct Coord3d *pos)
 {
-  _DK_light_set_light_position(lgt_id, pos);
+  // _DK_light_set_light_position(lgt_id, pos);
+  struct Light *lgt = &game.lish.lights[lgt_id];
+  if ( *(unsigned short *)&lgt->mappos.x.stl != *(unsigned short *)&pos->x.stl.pos
+    || *(unsigned short *)&pos->y.stl != *(unsigned short *)&lgt->mappos.y.stl
+    || *(unsigned short *)&pos->z.stl != *(unsigned short *)&lgt->mappos.z.stl )
+  {
+    if ( !(lgt->flags & LgtF_Dynamic) )
+    {
+      stat_light_needs_updating = 1;
+      unsigned char range = lgt->range;
+      long end_y = lgt->mappos.y.stl.num + range;
+      long end_x = lgt->mappos.x.stl.num + range;
+      if ( end_y > 255 )
+      {
+        end_y = 255;
+      }
+      if ( end_x > 255 )
+      {
+        end_x = 255;
+      }
+      long beg_y = lgt->mappos.y.stl.num - range;
+      if ( beg_y < 0 )
+      {
+        beg_y = 0;
+      }
+      long beg_x = lgt->mappos.x.stl.num - range;
+      if ( beg_x < 0 )
+      {
+        beg_x = 0;
+      }
+      light_signal_stat_light_update_in_area(beg_x, beg_y, end_x, end_y);
+    }
+    *(unsigned long *)&lgt->mappos.x.stl = *(unsigned long *)&pos->x.stl;
+    *(unsigned short *)&lgt->mappos.z.stl = *(unsigned short *)&pos->z.stl;
+    lgt->flags |= LgtF_Unkn08;
+  }
 }
 
 void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)

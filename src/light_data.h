@@ -131,6 +131,7 @@ long light_get_total_dynamic_lights(void);
 void light_export_system_state(struct LightSystemState *lightst);
 void light_import_system_state(const struct LightSystemState *lightst);
 TbBool lights_stats_debug_dump(void);
+void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
 
 /******************************************************************************/
 #ifdef __cplusplus
