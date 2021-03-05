@@ -79,7 +79,7 @@ Thing_Class_Func class_functions[] = {
 unsigned long thing_create_errors = 0;
 
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long stl_x, long stl_y);
+
 /******************************************************************************/
 /**
  * Adds thing at beginning of a StructureList.
@@ -3514,7 +3514,48 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  return _DK_get_nearest_object_at_position(stl_x, stl_y);
+  // return _DK_get_nearest_object_at_position(stl_x, stl_y);
+  long OldDistance = 0x7FFFFFFF;
+  struct Thing *thing;
+  long NewDistance;
+  signed int n;
+  signed int k = 0;
+  struct Thing *result = NULL;
+  MapSubtlCoord x, y;
+  struct Map *blk;
+  do
+  {
+    if ( stl_y + k >= 0 && stl_y + k < 256 )
+    {
+      n = 0;
+      y = stl_y + k;
+      do
+      {
+        if ( stl_x + n >= 0 && stl_x + n < 256 )
+        {
+          x = stl_x + n;
+          blk = get_map_block_at(x, y);
+          for ( thing = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(thing)); thing = thing_get(thing->next_on_mapblk) )
+          {
+            if (thing->class_id == TCls_Object)
+            {
+                NewDistance = get_2d_box_distance_xy(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                if ( NewDistance < OldDistance )
+                {
+                    OldDistance = NewDistance;
+                    result = thing;
+                }
+            }
+          }
+        }
+        n++;
+      }
+      while ( n < STL_PER_SLB );
+    }
+    k++;
+  }
+  while ( k < STL_PER_SLB );
+  return result;
 }
 
 void remove_dead_creatures_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
