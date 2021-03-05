@@ -32,7 +32,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_light_remove_light_from_list(struct Light *lgt, struct StructureList *list);
 DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
 DLLIMPORT void _DK_light_initialise_lighting_tables(void);
 DLLIMPORT void _DK_light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
@@ -393,7 +392,51 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos)
 
 void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 {
-  _DK_light_remove_light_from_list(lgt, list);
+  // _DK_light_remove_light_from_list(lgt, list);
+  TbBool Removed = false;
+  struct Light *lgt2;
+  struct Light *i;
+  if ( lgt->field_1 & 1 )
+  {
+    if ( lgt->index == list->index )
+    {
+      Removed = true;
+      unsigned long NewCount = list->count - 1;
+      list->index = lgt->field_26;
+      list->count = NewCount;
+      lgt->field_26 = 0;
+      lgt->field_1 &= 0xFEu;
+    }
+    else
+    {
+      lgt2 = &game.lish.lights[list->index];
+      for ( i = 0; lgt2 != game.lish.lights; lgt2 = &game.lish.lights[lgt2->field_26] )
+      {
+        if ( lgt2 == lgt )
+        {
+          Removed = true;
+          if ( i )
+          {
+            i->field_26 = lgt->field_26;
+            lgt->field_1 &= 0xFEu;
+            list->count--;
+            lgt->field_26 = 0;
+          }
+          else
+          {
+            ERRORLOG("No prev when removing light from list");
+          }
+        }
+        i = lgt2;
+      }
+    }
+    if ( !Removed )
+    {
+      ERRORLOG("Could not find light %d in list", lgt->index);
+    }
+    if ( list->count < 0 )
+      ERRORLOG("List has fewer than 0 structures");
+  }
 }
 
 void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
