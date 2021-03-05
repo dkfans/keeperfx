@@ -32,7 +32,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2);
 DLLIMPORT void _DK_light_initialise_lighting_tables(void);
 DLLIMPORT void _DK_light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
 DLLIMPORT void _DK_light_render_area(int startx, int starty, int endx, int endy);
@@ -441,7 +440,32 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 
 void light_signal_stat_light_update_in_area(long x1, long y1, long x2, long y2)
 {
-  _DK_light_signal_stat_light_update_in_area(x1, y1, x2, y2);
+  // _DK_light_signal_stat_light_update_in_area(x1, y1, x2, y2);
+  int i = 0;
+  struct Light *lgt = &game.lish.lights[1];
+  do
+  {
+    if ( lgt->flags & LgtF_Allocated )
+    {
+      if ( !(lgt->flags & LgtF_Dynamic) )
+      {
+        unsigned char range = lgt->range;
+        MapSubtlCoord x = lgt->mappos.x.stl.num;
+        MapSubtlCoord y = lgt->mappos.y.stl.num;
+        if ( range + x >= x1 && x - range <= x2 && range + y >= y1 && y - range <= y2 )
+        {
+          stat_light_needs_updating = 1;
+          i++;
+          lgt->flags |= LgtF_Unkn08;
+          lgt->flags &= 0x7F;
+        }
+      }
+    }
+    lgt++;
+  }
+  while ( lgt < (struct Light *)game.lish.shadow_cache );
+  if ( i )
+    light_stat_light_map_clear_area(x1, y1, x2, y2);
 }
 
 void light_signal_update_in_area(long sx, long sy, long ex, long ey)
