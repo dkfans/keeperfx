@@ -35,7 +35,6 @@ extern "C" {
 DLLIMPORT void _DK_light_initialise_lighting_tables(void);
 DLLIMPORT void _DK_light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
 DLLIMPORT void _DK_light_render_area(int startx, int starty, int endx, int endy);
-DLLIMPORT void _DK_light_stat_light_map_clear_area(long x1, long y1, long x2, long y2);
 
 /******************************************************************************/
 struct Light *light_allocate_light(void)
@@ -704,7 +703,52 @@ void light_initialise(void)
 
 void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
 {
-  _DK_light_stat_light_map_clear_area(x1, y1, x2, y2);
+  // _DK_light_stat_light_map_clear_area(x1, y1, x2, y2);
+  unsigned long j,n,x,k,y;
+  unsigned short *p;
+  unsigned short *light_map;
+  k = y1;
+  if ( y2 >= y1 )
+  {
+    y = y1 << 8;
+    unsigned long i = x1 + (y1 << 8);
+    light_map = &game.lish.stat_light_map[i];
+    do
+    {
+      j = x1;
+      if ( x2 >= x1 )
+      {
+        struct Map *Mapblk1 = get_map_block_at_pos(i);
+        p = light_map;
+        n = k - 1;
+        if ( k - 1 <= 0 )
+          n = 0;
+        struct Map *Mapblk2 = get_map_block_at_pos((n << 8) + x1);
+        do
+        {
+          x = j - 1;
+          if ( x <= 0 )
+            x = 0;
+          struct Map *Mapblk3 = get_map_block_at_pos(x + y);
+          struct Map *Mapblk4 = get_map_block_at_pos((n << 8) + x);
+          if ( Mapblk1->data & 0x7FF && Mapblk2->data & 0x7FF && Mapblk3->data & 0x7FF && Mapblk4->data & 0x7FF )
+            *p = game.lish.field_46149 << 8;
+          else
+            *p = 0;
+          p++;
+          Mapblk1 = (int *)((char *)Mapblk1 + 5);
+          Mapblk2 = (int *)((char *)Mapblk2 + 5);
+          j++;
+        }
+        while ( j <= x2 );
+      }
+      y += 256;
+      i += 320;
+      light_map += 256;
+      k++;
+    }
+    while ( k <= y2 );
+  }
 }
 
 void light_set_lights_on(char state)
