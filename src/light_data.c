@@ -33,7 +33,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_light_initialise_lighting_tables(void);
-DLLIMPORT void _DK_light_set_light_minimum_size_to_cache(long a1, long a2, long a3);
 DLLIMPORT void _DK_light_render_area(int startx, int starty, int endx, int endy);
 
 /******************************************************************************/
@@ -821,9 +820,38 @@ void update_light_render_area(void)
     light_render_area(startx, starty, endx, endy);
 }
 
-void light_set_light_minimum_size_to_cache(long a1, long a2, long a3)
+void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
 {
-  _DK_light_set_light_minimum_size_to_cache(a1, a2, a3);
+  // _DK_light_set_light_minimum_size_to_cache(a1, a2, a3);
+  struct Light *lgt;
+  if ( lgt_id )
+  {
+    lgt = &game.lish.lights[lgt_id];
+    if ( lgt->flags & LgtF_Allocated )
+    {
+      if ( lgt->flags & LgtF_Unkn02 )
+      {
+        lgt->flags &= 0xFD;
+        if ( lgt->flags & LgtF_Dynamic )
+        {
+          lgt->field_9[0] = a2;
+          *(unsigned short *)&lgt->field_1C[8] = a3;
+        }
+        else
+        {
+          ERRORLOG("Attempt to set_minimum light size to cache on non dynamic light");
+        }
+      }
+    }
+    else
+    {
+      ERRORLOG("Attempt to set minimum light size for unallocated light structure");
+    }
+  }
+  else
+  {
+    ERRORLOG("Attempt to set minimum light size for light 0");
+  }
 }
 
 /******************************************************************************/
