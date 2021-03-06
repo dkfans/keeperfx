@@ -945,7 +945,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     short influence_own_creatures = false;
     struct SlabMap *slb;
     long i;
-    struct Room* room;
+    struct Room* room = NULL;
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     switch (player->work_state)
@@ -974,7 +974,22 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_MkGoldPot:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            create_gold_pot_at(x, y, player->id_number);
+            thing = create_gold_pot_at(x, y, player->id_number);
+            if (!thing_is_invalid(thing))
+            {
+                if (thing_in_wall_at(thing, &thing->mappos))
+                {
+                    move_creature_to_nearest_valid_position(thing);
+                }
+                room = subtile_room_get(stl_x, stl_y);
+                if (room_exists(room))
+                {
+                    if (room->kind == RoK_TREASURE)
+                    {
+                        count_gold_hoardes_in_room(room);
+                    }
+                }
+            }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1062,10 +1077,28 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
+    case PSt_CreatrInfoAll:
     case PSt_CreatrQueryAll:
         influence_own_creatures = 1;
         thing = get_creature_near(x, y);
-        TbBool CanQuery = (player->work_state == PSt_CreatrQueryAll) ? (thing_is_creature(thing)) : (can_thing_be_queried(thing, plyr_idx));
+        TbBool CanQuery = false;
+        TbBool All = ( (player->work_state == PSt_CreatrQueryAll) || (player->work_state == PSt_CreatrInfoAll) );
+        if (thing_is_creature(thing))
+        {
+            CanQuery = (All) ? true : (can_thing_be_queried(thing, plyr_idx));
+        }
+        else
+        {
+            if (All)
+            {
+                thing = get_nearest_thing_at_position(stl_x, stl_y);
+                CanQuery = (!thing_is_invalid(thing));
+                if (!CanQuery)
+                {
+                    room = subtile_room_get(stl_x, stl_y);
+                }
+            }
+        }
         if (!CanQuery)
         {
             player->thing_under_hand = 0;
@@ -1078,21 +1111,32 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->thing_under_hand > 0)
           {
-            if (player->controlled_thing_idx != player->thing_under_hand)
+            if (thing->class_id == TCls_Creature)
             {
-              if (is_my_player(player))
-              {
-                turn_off_all_panel_menus();
-                initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
-                turn_on_menu(GMnu_CREATURE_QUERY1);
-              }
-              player->influenced_thing_idx = player->thing_under_hand;
-              set_player_instance(player, PI_QueryCrtr, 0);
+                if (player->controlled_thing_idx != player->thing_under_hand)
+                {
+                    if (is_my_player(player))
+                    {
+                        turn_off_all_panel_menus();
+                        initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
+                        turn_on_menu(GMnu_CREATURE_QUERY1);
+                    }
+                    player->influenced_thing_idx = player->thing_under_hand;
+                    set_player_instance(player, PI_QueryCrtr, 0);
+                }
+            }
+            else
+            {
+                query_thing(thing);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
+          else if ( (All) && (room_exists(room)) )
+          {
+             query_room(room);
+          }
         }
-        if (player->work_state == PSt_CreatrInfo)
+        if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
         {
           thing = thing_get(player->controlled_thing_idx);
           if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
@@ -1454,6 +1498,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_LevelCreatureUp:
+    case PSt_LevelCreatureDown:
         thing = get_creature_near(x, y);
         if (!thing_is_creature(thing))
         {
@@ -1467,7 +1512,23 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
              if (player->thing_under_hand > 0)
              {
-                creature_increase_level(thing);
+                switch (player->work_state)
+                {
+                    case PSt_LevelCreatureUp:
+                    {
+                        creature_increase_level(thing);
+                        break;
+                    }
+                    case PSt_LevelCreatureDown:
+                    {
+                        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                        if (!creature_control_invalid(cctrl))
+                        {
+                            set_creature_level(thing, cctrl->explevel-1);
+                        }
+                        break;
+                    }
+                }
              }
         unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
@@ -1480,7 +1541,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
               thing = get_player_soul_container(PlayerToKill->id_number);
               if (thing_is_dungeon_heart(thing))
               {
-                    thing->health = -1;
+                    thing->health = 0;
               }
           }
         break;
@@ -1688,6 +1749,68 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);
+        break;
+    case PSt_DestroyThing:
+        thing = get_nearest_thing_at_position(stl_x, stl_y);
+        if (thing_is_invalid(thing))
+        {
+            player->thing_under_hand = 0;
+        }
+        else
+        {
+            player->thing_under_hand = thing->index;
+        }
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (player->thing_under_hand > 0)
+            {
+                struct Room* room = get_room_thing_is_on(thing);
+                TbBool IsRoom = (!room_is_invalid(room));
+                switch(thing->class_id)
+                {
+                    case TCls_Door:
+                    {
+                        destroy_door(thing);
+                        break;                    
+                    }
+                    case TCls_Effect:
+                    {
+                        destroy_effect_thing(thing);
+                        break;
+                    }
+                    default:
+                    {
+                        if (thing_is_spellbook(thing))
+                        {
+                            if (!is_neutral_thing(thing)) 
+                            {
+                                remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
+                            }
+                        }
+                        else if (thing_is_workshop_crate(thing))
+                        {
+                            if (!is_neutral_thing(thing)) 
+                            {
+                                ThingClass tngclass = crate_thing_to_workshop_item_class(thing);
+                                ThingModel tngmodel = crate_thing_to_workshop_item_model(thing);
+                                if (IsRoom)
+                                {
+                                    remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap);
+                                }
+                                remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);                                
+                            }
+                        }
+                        destroy_object(thing);
+                        break;
+                    }
+                }
+                if (IsRoom)
+                {
+                    update_room_contents(room);
+                }
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);    
+        }
         break;
     default:
         ERRORLOG("Unrecognized player %d work state: %d", (int)plyr_idx, (int)player->work_state);
