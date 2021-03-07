@@ -528,7 +528,7 @@ void query_room(struct Room *room)
     sprintf(health, "Health: %d", room->health);
     sprintf(capacity, "Capacity: %d/%d", room->used_capacity, room->total_capacity);
     float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
-    sprintf(efficiency, "Efficiency: %d pc", (unsigned char)round(room_efficiency_percent));
+    sprintf(efficiency, "Efficiency: %d", (unsigned char)round(room_efficiency_percent));
     create_message_box(&title, name, &owner, &health, &capacity, &efficiency);    
 }
 
