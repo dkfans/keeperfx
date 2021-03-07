@@ -38,26 +38,26 @@ extern "C" {
 /******************************************************************************/
 TbBool remove_food_from_food_room_if_possible(struct Thing *thing)
 {
-  // return _DK_remove_food_from_food_room_if_possible(thing);
-  struct Room *room;
-  if ( thing->owner == game.neutral_player_num )
-  {
-    return false;
-  }
-  if ( *(short *)&thing->byte_13 != -1 )
-  {
-    return false;
-  }
-  room = get_room_thing_is_on(thing);
-  if ( room_is_invalid(room) || room->kind != RoK_GARDEN || room->owner != thing->owner )
-  {
-    return false;
-  }
-  if ( room->used_capacity > 0 )
-  {
-    room->used_capacity--;
-  }
-  *(short *)&thing->byte_13 = game.food_life_out_of_hatchery;
-  return true;
+    // return _DK_remove_food_from_food_room_if_possible(thing);
+    struct Room *room;
+    if ( thing->owner == game.neutral_player_num )
+    {
+        return false;
+    }
+    if ( *(short *)&thing->byte_13 != -1 )
+    {
+        return false;
+    }
+    room = get_room_thing_is_on(thing);
+    if ( room_is_invalid(room) || room->kind != RoK_GARDEN || room->owner != thing->owner )
+    {
+        return false;
+    }
+    if ( room->used_capacity > 0 )
+    {
+        room->used_capacity--;
+    }
+    *(short *)&thing->byte_13 = game.food_life_out_of_hatchery;
+    return true;
 }
 /******************************************************************************/
