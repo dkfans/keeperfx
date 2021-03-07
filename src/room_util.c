@@ -517,19 +517,18 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
 
 void query_room(struct Room *room)
 {
-    const char title[24];
+    const char title[26];
     const char* name = room_code_name(room->kind);
-    const char owner[24]; 
-    const char health[24];
-    const char capacity[24];
-    const char efficiency[24] = "\0";
+    const char owner[26]; 
+    const char health[26];
+    const char capacity[26];
+    const char efficiency[26] = "\0";
     sprintf(title, "Room ID: %d", room->index);
     sprintf(owner, "Owner: %d", room->owner);
     sprintf(health, "Health: %d", room->health);
+    sprintf(capacity, "Capacity: %d/%d", room->used_capacity, room->total_capacity);
     float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
-    sprintf(efficiency, "Efficiency: %d pc", (unsigned char)round(room_efficiency_percent));
-    float room_capacity_percent = ((float)room->used_capacity / (float)room->total_capacity) * 100;
-    sprintf(capacity, "Capacity: %d/%d (%d pc)", room->used_capacity, room->total_capacity, (unsigned char)round(room_capacity_percent));
+    sprintf(efficiency, "Efficiency: %d", (unsigned char)round(room_efficiency_percent));
     create_message_box(&title, name, &owner, &health, &capacity, &efficiency);    
 }
 
