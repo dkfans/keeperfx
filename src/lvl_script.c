@@ -3376,6 +3376,16 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
   command_add_value(Cmd_USE_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
+void command_set_heart_health(long plr_range_id, int health)
+{
+  command_add_value(Cmd_SET_HEART_HEALTH, plr_range_id, health, 0, 0);
+}
+
+void command_add_heart_health(long plr_range_id, int health, TbBool warning)
+{
+  command_add_value(Cmd_ADD_HEART_HEALTH, plr_range_id, health, warning, 0);
+}
+
 /** Adds a script command to in-game structures.
  *
  * @param cmd_desc
@@ -3679,6 +3689,12 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
+        break;
+    case Cmd_SET_HEART_HEALTH:
+        command_set_heart_health(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_ADD_HEART_HEALTH:
+        command_add_heart_health(scline->np[0], scline->np[1], scline->np[2]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -6367,6 +6383,36 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         message_add_fmt(val2, "%s", get_string(val3));
         break;        
   }
+  case Cmd_SET_HEART_HEALTH:
+  {
+    struct Thing* heartng = get_player_soul_container(plr_range_id);
+    if (thing_is_dungeon_heart(heartng))
+    {
+        heartng->health = val2;
+    }
+    break;
+  }
+  case Cmd_ADD_HEART_HEALTH:
+  {
+    struct Thing* heartng = get_player_soul_container(plr_range_id);
+    if (thing_is_dungeon_heart(heartng))
+    {
+        short health = heartng->health;
+        heartng->health += val2;
+        if (val3)
+        {
+            if (heartng->health < health)
+            {
+                event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
+                if (is_my_player_number(heartng->owner))
+                {
+                    output_message(SMsg_HeartUnderAttack, 400, true);
+                }
+            }
+        }
+    }
+    break;
+  }
   case Cmd_SET_GAME_RULE:
       switch (val2)
       {
@@ -6748,6 +6794,8 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
   {"USE_SPELL_ON_CREATURE",             "PCAAN   ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
+  {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, NULL, NULL},
+  {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
