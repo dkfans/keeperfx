@@ -44,7 +44,7 @@ TbBool remove_food_from_food_room_if_possible(struct Thing *thing)
     {
         return false;
     }
-    if ( *(short *)&thing->byte_13 != -1 )
+    if ( thing->food.word_13 != -1 )
     {
         return false;
     }
@@ -57,7 +57,7 @@ TbBool remove_food_from_food_room_if_possible(struct Thing *thing)
     {
         room->used_capacity--;
     }
-    *(short *)&thing->byte_13 = game.food_life_out_of_hatchery;
+    thing->food.word_13 = game.food_life_out_of_hatchery;
     return true;
 }
 /******************************************************************************/
