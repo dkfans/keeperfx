@@ -160,6 +160,7 @@ const struct NamedCommand variable_desc[] = {
     {"GOOD_CREATURES",              SVar_GOOD_CREATURES},
     {"EVIL_CREATURES",              SVar_EVIL_CREATURES},
     {"TOTAL_SCORE",                 SVar_TOTAL_SCORE},
+    {"EASTER_EGGS",                 SVar_EASTER_EGGS},
     {NULL,                           0},
 };
 
@@ -5588,6 +5589,12 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_TOTAL_SCORE:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_score;
+    case SVar_EASTER_EGGS:
+        if ( (is_my_player_number(plyr_idx)) || (plyr_idx == ALL_PLAYERS) )
+        {
+            return ((game.flags_font & FFlg_AlexCheat) != 0);
+        }
+        break;
     default:
         break;
     };
