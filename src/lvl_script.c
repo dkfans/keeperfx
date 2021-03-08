@@ -3435,6 +3435,14 @@ void command_add_heart_health(long plr_range_id, int health, TbBool warning)
   command_add_value(Cmd_ADD_HEART_HEALTH, plr_range_id, health, warning, 0);
 }
 
+void command_neutral_entrance_level(unsigned char val)
+{
+  if (val > 0)
+  {
+    NeutralEntranceLevel = (val - 1);
+  }
+}
+
 /** Adds a script command to in-game structures.
  *
  * @param cmd_desc
@@ -3744,6 +3752,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ADD_HEART_HEALTH:
         command_add_heart_health(scline->np[0], scline->np[1], scline->np[2]);
+        break;
+    case Cmd_NEUTRAL_ENTRANCE_LEVEL:
+        command_neutral_entrance_level(scline->np[0]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -6921,6 +6932,7 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPELL_ON_CREATURE",             "PCAAN   ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, NULL, NULL},
   {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
+  {"NEUTRAL_ENTRANCE_LEVEL",            "N       ", Cmd_NEUTRAL_ENTRANCE_LEVEL, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

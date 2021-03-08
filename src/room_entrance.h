@@ -33,6 +33,8 @@ struct Room;
 struct Thing;
 struct Dungeon;
 
+extern unsigned char NeutralEntranceLevel;
+
 #pragma pack()
 /******************************************************************************/
 void process_entrance_generation(void);
