@@ -100,7 +100,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       }
       *(unsigned short *)&pos->y.stl = y_thing;
       break;
-    case 3:
+    case SlbBloF_WalledX|SlbBloF_WalledY:
       x_thing = *(unsigned short *)&thing->mappos.x.stl;
       sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
       x_pos = *(unsigned short *)&pos->x.stl;
@@ -126,7 +126,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
     case SlbBloF_WalledZ:
       *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
       break;
-    case 5:
+    case SlbBloF_WalledZ|SlbBloF_WalledX:
       x_thing = *(unsigned short *)&thing->mappos.x.stl;
       sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
       x_pos = *(unsigned short *)&pos->x.stl;
@@ -140,7 +140,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       *(unsigned short *)&pos->x.stl = x_thing;
       *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
       break;
-    case 6:
+    case SlbBloF_WalledZ|SlbBloF_WalledY:
       y_thing = *(unsigned short *)&thing->mappos.y.stl;
       sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
       y_pos = *(unsigned short *)&pos->y.stl;
@@ -154,7 +154,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       *(unsigned short *)&pos->y.stl = y_thing;
       *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
       break;
-    case 7:
+    case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
       x_thing = *(unsigned short *)&thing->mappos.x.stl;
       sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
       x_pos = *(unsigned short *)&pos->x.stl;
