@@ -3381,9 +3381,9 @@ void command_set_heart_health(long plr_range_id, int health)
   command_add_value(Cmd_SET_HEART_HEALTH, plr_range_id, health, 0, 0);
 }
 
-void command_add_heart_health(long plr_range_id, int health)
+void command_add_heart_health(long plr_range_id, int health, TbBool warning)
 {
-  command_add_value(Cmd_ADD_HEART_HEALTH, plr_range_id, health, 0, 0);
+  command_add_value(Cmd_ADD_HEART_HEALTH, plr_range_id, health, warning, 0);
 }
 
 /** Adds a script command to in-game structures.
@@ -3694,7 +3694,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_heart_health(scline->np[0], scline->np[1]);
         break;
     case Cmd_ADD_HEART_HEALTH:
-        command_add_heart_health(scline->np[0], scline->np[1]);
+        command_add_heart_health(scline->np[0], scline->np[1], scline->np[2]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -6399,12 +6399,15 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     {
         short health = heartng->health;
         heartng->health += val2;
-        if (heartng->health < health)
+        if (val3)
         {
-            event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
-            if (is_my_player_number(heartng->owner))
+            if (heartng->health < health)
             {
-                output_message(SMsg_HeartUnderAttack, 400, true);
+                event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
+                if (is_my_player_number(heartng->owner))
+                {
+                    output_message(SMsg_HeartUnderAttack, 400, true);
+                }
             }
         }
     }
@@ -6792,7 +6795,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
   {"USE_SPELL_ON_CREATURE",             "PCAAN   ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, NULL, NULL},
-  {"ADD_HEART_HEALTH",                  "PN      ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
+  {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
