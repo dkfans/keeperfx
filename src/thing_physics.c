@@ -193,43 +193,43 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
   switch ( blocked_flags )
   {
     case SlbBloF_WalledX:
-      *(short*)&pos->x.stl = *(short*)&thing->mappos.x.stl;
+      pos->x.stl = thing->mappos.x.stl;
       *(short*)&thing->veloc_base.x.stl = -(short)(x * thing->field_22 / 128);
       i = 256 - thing->field_23;
       *(short*)&thing->veloc_base.y.stl = i * *(short*)&thing->veloc_base.y.stl / 256;
       *(short*)&thing->veloc_base.z.stl = i * *(short*)&thing->veloc_base.z.stl / 256;
       break;
     case SlbBloF_WalledY:
-      *(short*)&pos->y.stl = *(short*)&thing->mappos.y.stl;
+      pos->y.stl = thing->mappos.y.stl;
       *(short*)&thing->veloc_base.y.stl = -(short)(y * thing->field_22 / 128);
       i = 256 - thing->field_23;
       *(short*)&thing->veloc_base.x.stl = i * *(short*)&thing->veloc_base.x.stl / 256;
       *(short*)&thing->veloc_base.z.stl = i * *(short*)&thing->veloc_base.z.stl / 256;
       break;
     case 3: // SlbBloF_WalledX and SlbBloF_WalledY
-      *(short*)&pos->x.stl = *(short*)&thing->mappos.x.stl;
-      *(short*)&pos->y.stl = *(short*)&thing->mappos.y.stl;
+      pos->x.stl = thing->mappos.x.stl;
+      pos->y.stl = thing->mappos.y.stl;
       i = thing->field_22;
       *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
       *(short*)&thing->veloc_base.y.stl = -(short)(i * y / 128);
       break;
     case SlbBloF_WalledZ:
-      *(short*)&pos->z.stl = *(short*)&thing->mappos.z.stl;
+      pos->z.stl = thing->mappos.z.stl;
       *(short*)&thing->veloc_base.z.stl = -(short)(z * thing->field_22 / 128);
       i = 256 - thing->field_23;
       *(short*)&thing->veloc_base.x.stl = i * *(short*)&thing->veloc_base.x.stl / 256;
       *(short*)&thing->veloc_base.y.stl = i * *(short*)&thing->veloc_base.y.stl / 256;
       break;
     case 5: // SlbBloF_WalledZ and SlbBloF_WalledX
-      *(short*)&pos->z.stl = *(short*)&thing->mappos.z.stl;
-      *(short*)&pos->x.stl = *(short*)&thing->mappos.x.stl;
+      pos->z.stl = thing->mappos.z.stl;
+      pos->x.stl = thing->mappos.x.stl;
       i = thing->field_22;
       *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
       *(short*)&thing->veloc_base.z.stl = -(short)(i * z / 128);
       break;
     case 6: // SlbBloF_WalledZ and SlbBloF_WalledY
-      *(short*)&pos->y.stl = *(short*)&thing->mappos.y.stl;
-      *(short*)&pos->z.stl = *(short*)&thing->mappos.z.stl;
+      pos->y.stl = thing->mappos.y.stl;
+      pos->z.stl = thing->mappos.z.stl;
       i = thing->field_22;
       *(short*)&thing->veloc_base.y.stl = -(short)(i * y / 128);
       int n = i * y;
@@ -239,9 +239,9 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       *(short*)&thing->veloc_base.x.stl = k * (256 - j) / 256;
       break;
     case 7: // SlbBloF_WalledX and SlbBloF_WalledY and SlbBloF_WalledZ
-      *(short*)&pos->x.stl = *(short*)&thing->mappos.x.stl;
-      *(short*)&pos->y.stl = *(short*)&thing->mappos.y.stl;
-      *(short*)&pos->z.stl = *(short*)&thing->mappos.z.stl;
+      pos->x.stl = thing->mappos.x.stl;
+      pos->y.stl = thing->mappos.y.stl;
+      pos->z.stl = thing->mappos.z.stl;
       i = thing->field_22;
       *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
       *(short*)&thing->veloc_base.y.stl = -(short)(i * y / 128);
