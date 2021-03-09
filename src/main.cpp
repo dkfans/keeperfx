@@ -178,6 +178,8 @@ TbBool TimerGame = false;
 TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
 
+unsigned char boulder_direction = 1;
+
 TbPixel get_player_path_colour(unsigned short owner)
 {
   return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
@@ -632,6 +634,11 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         thing->health -= game.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
+      unsigned char direction = boulder_direction;
+      if (direction == 0)
+      {
+          direction = (rand() % 2) + 1;
+      }
       if ( blocked_flags & SlbBloF_WalledX )
       {
         angle = thing->move_angle_xy;
@@ -640,17 +647,31 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
           unsigned short y = *(unsigned short *)&thing->mappos.y.stl;
           *(unsigned short *)&pos2.x.stl = *(unsigned short *)&thing->mappos.x.stl;
           *(unsigned short *)&pos2.z.stl = 0;
-          *(unsigned short *)&pos2.y.stl = y - 3 * speed;
+          *(unsigned short *)&pos2.y.stl = (direction == 1) ? y - 3 * speed : y + 3 * speed;
           *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
-          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400;
+          if (direction == 1)
+          {
+            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400;
+          }
+          else if (direction == 2)
+          {
+            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;  
+          }
         }
         else
         {
           *(unsigned short *)&pos2.x.stl = *(unsigned short *)&thing->mappos.x.stl;
           *(unsigned short *)&pos2.z.stl = 0;
-          *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl + 3 * speed;
+          *(unsigned short *)&pos2.y.stl = (direction == 1) ? *(unsigned short *)&thing->mappos.y.stl + 3 * speed : *(unsigned short *)&thing->mappos.y.stl - 3 * speed; 
           *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
-          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;
+          if (direction == 1)
+          {
+            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;
+          }
+          else if (direction == 2)
+          {
+            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400; 
+          }
         }
       }
       else if ( blocked_flags & SlbBloF_WalledY )
@@ -660,18 +681,33 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         {
           *(unsigned short *)&pos2.z.stl = 0;
           *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl;
-          *(unsigned short *)&pos2.x.stl = *(unsigned short *)&thing->mappos.x.stl + 3 * speed;
+          *(unsigned short *)&pos2.x.stl = (direction == 1) ? *(unsigned short *)&thing->mappos.x.stl + 3 * speed : *(unsigned short *)&thing->mappos.x.stl - 3 * speed;
           *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
-          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536;
+          if (direction == 1)
+          {
+            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536;
+          }
+          else if (direction == 2)
+          {
+            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1536 : 512;  
+          }
+
         }
         else
         {
           unsigned short x = *(unsigned short *)&thing->mappos.x.stl;
           *(unsigned short *)&pos2.z.stl = 0;
           *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl;
-          *(unsigned short *)&pos2.x.stl = x - 3 * speed;
+          *(unsigned short *)&pos2.x.stl = (direction == 1) ? x - 3 * speed : x + 3 * speed;
           *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
-          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1536 : 512;
+          if (direction == 1)
+          {
+              new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1536 : 512;
+          }
+          else if (direction == 2)
+          {
+              new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536; 
+          }
         }
       }
       else
@@ -4508,6 +4544,7 @@ void wait_at_frontend(void)
 {
     struct PlayerInfo *player;
     SYNCDBG(0,"Falling into frontend menu.");
+    boulder_direction = gameadd.boulder_direction;
     // Moon phase calculation
     calculate_moon_phase(true,false);
     update_extra_levels_visibility();
