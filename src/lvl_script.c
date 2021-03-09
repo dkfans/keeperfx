@@ -3437,10 +3437,7 @@ void command_add_heart_health(long plr_range_id, int health, TbBool warning)
 
 void command_creature_entrance_level(unsigned char val)
 {
-  if (val > 0)
-  {
-    creature_entrance_level = (val - 1);
-  }
+  command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, 0, val, 0, 0);
 }
 
 /** Adds a script command to in-game structures.
@@ -6548,6 +6545,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         }
     }
     break;
+  }
+  case Cmd_CREATURE_ENTRANCE_LEVEL:
+  {
+    if (val2 > 0)
+    {
+        creature_entrance_level = (val2 - 1);
+    }
   }
   case Cmd_SET_GAME_RULE:
       switch (val2)
