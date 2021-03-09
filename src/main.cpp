@@ -649,13 +649,20 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
           *(unsigned short *)&pos2.z.stl = 0;
           *(unsigned short *)&pos2.y.stl = (direction == 1) ? y - 3 * speed : y + 3 * speed;
           *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
-          if (direction == 1)
+          if (angle == 512)
           {
-            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400;
+            if (direction == 1)
+            {
+                new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400;
+            }
+            else if (direction == 2)
+            {
+                new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;  
+            }
           }
-          else if (direction == 2)
+          else
           {
-            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;  
+            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400;  
           }
         }
         else
@@ -664,13 +671,20 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
           *(unsigned short *)&pos2.z.stl = 0;
           *(unsigned short *)&pos2.y.stl = (direction == 1) ? *(unsigned short *)&thing->mappos.y.stl + 3 * speed : *(unsigned short *)&thing->mappos.y.stl - 3 * speed; 
           *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
-          if (direction == 1)
+          if (angle == 1536)
           {
-            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;
+            if (direction == 1)
+            {
+                new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;
+            }
+            else if (direction == 2)
+            {
+                new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400; 
+            }
           }
-          else if (direction == 2)
+          else
           {
-            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400; 
+            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;  
           }
         }
       }
@@ -683,15 +697,21 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
           *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl;
           *(unsigned short *)&pos2.x.stl = (direction == 1) ? *(unsigned short *)&thing->mappos.x.stl + 3 * speed : *(unsigned short *)&thing->mappos.x.stl - 3 * speed;
           *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
-          if (direction == 1)
+          if (angle == 1024)
           {
-            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536;
+            if (direction == 1)
+            {
+                new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536;
+            }
+            else if (direction == 2)
+            {
+                new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1536 : 512;  
+            }
           }
-          else if (direction == 2)
+          else
           {
-            new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1536 : 512;  
+              new_angle = new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536;
           }
-
         }
         else
         {
@@ -700,13 +720,20 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
           *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl;
           *(unsigned short *)&pos2.x.stl = (direction == 1) ? x - 3 * speed : x + 3 * speed;
           *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
-          if (direction == 1)
+          if (angle == 0)
+          {
+            if (direction == 1)
+            {
+                new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1536 : 512;
+            }
+            else if (direction == 2)
+            {
+                new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536; 
+            }
+          }
+          else
           {
               new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1536 : 512;
-          }
-          else if (direction == 2)
-          {
-              new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536; 
           }
         }
       }
