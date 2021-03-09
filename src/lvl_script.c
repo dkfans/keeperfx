@@ -610,6 +610,10 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
 long get_players_range_from_str_f(const char *plrname, int *plr_start, int *plr_end, const char *func_name, long ln_num)
 {
     long plr_range_id = get_rid(player_desc, plrname);
+    if (plr_range_id == -1)
+    {
+        plr_range_id = get_rid(cmpgn_human_player_options, plrname);
+    }
     switch (get_players_range_f(plr_range_id, plr_start, plr_end, func_name, ln_num))
     {
     case -1:
@@ -634,8 +638,12 @@ TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func
     *plr_range_id = get_rid(player_desc, plrname);
     if (*plr_range_id == -1)
     {
-      ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
-      return false;
+      *plr_range_id = get_rid(cmpgn_human_player_options, plrname);
+      if (*plr_range_id == -1)
+      {
+        ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
+        return false;
+      }
     }
     return true;
 }
