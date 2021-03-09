@@ -145,7 +145,7 @@ struct GameAdd {
     long room_sale_percent;
     unsigned long pay_day_speed;
     TbBool place_traps_on_subtiles;
-
+    unsigned char boulder_direction;
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];

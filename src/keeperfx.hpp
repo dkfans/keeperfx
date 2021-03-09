@@ -310,6 +310,7 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
 long apply_wallhug_force_to_boulder(struct Thing *thing);
+long process_boulder_collision(struct Thing *thing, struct Coord3d *pos, int a3, int a4);
 void lightning_modify_palette(struct Thing *thing);
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 
@@ -374,6 +375,8 @@ struct GameTime {
     unsigned char Minutes;
     unsigned char Hours;
 };
+
+extern unsigned char boulder_direction;
 
 __attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps);
 
