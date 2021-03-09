@@ -305,6 +305,7 @@ const struct NamedCommand game_rule_desc[] = {
   {"PayDaySpeed",             17},
   {"PayDayProgress",          18},
   {"PlaceTrapsOnSubtiles",    19},
+  {"BoulderDirection",        20},
   {NULL,                      0},
 };
 
@@ -6529,6 +6530,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case 19: //PlaceTrapsOnSubtiles
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.place_traps_on_subtiles, val3);
           gameadd.place_traps_on_subtiles = (TbBool)val3;
+          break;
+    case 20: //BoulderDirection
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.boulder_direction, val3);
+          gameadd.boulder_direction = val3;
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

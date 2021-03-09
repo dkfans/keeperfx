@@ -376,8 +376,6 @@ struct GameTime {
     unsigned char Hours;
 };
 
-extern unsigned char boulder_direction;
-
 __attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps);
 
 #ifdef __cplusplus

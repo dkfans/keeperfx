@@ -178,8 +178,6 @@ TbBool TimerGame = false;
 TbBool TimerNoReset = false;
 TbBool TimerFreeze = false;
 
-unsigned char boulder_direction = 1;
-
 TbPixel get_player_path_colour(unsigned short owner)
 {
   return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
@@ -634,7 +632,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         thing->health -= game.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
-      unsigned char direction = boulder_direction;
+      unsigned char direction = gameadd.boulder_direction;
       if (direction == 0)
       {
           direction = (rand() % 2) + 1;
@@ -4571,7 +4569,6 @@ void wait_at_frontend(void)
 {
     struct PlayerInfo *player;
     SYNCDBG(0,"Falling into frontend menu.");
-    boulder_direction = gameadd.boulder_direction;
     // Moon phase calculation
     calculate_moon_phase(true,false);
     update_extra_levels_visibility();
