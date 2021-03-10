@@ -56,7 +56,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
         ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
         return INVALID_THING;
     }
-    struct DungeonAdd* dungeonadd = get_dungeonadd(creatng->owner);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(room->owner);
     if (!dungeonadd_invalid(dungeonadd))
     {
         if (dungeonadd->creature_entrance_level > 0)
