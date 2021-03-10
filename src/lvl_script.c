@@ -6552,6 +6552,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     {
         creature_entrance_level = (val2 - 1);
     }
+    break;
   }
   case Cmd_SET_GAME_RULE:
       switch (val2)
