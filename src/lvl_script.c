@@ -3377,6 +3377,11 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
   command_add_value(Cmd_USE_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
+void command_reverse_boulder_direction(void)
+{
+  command_add_value(Cmd_REVERSE_BOULDER_DIRECTION, 0, 0, 0, 0);
+}
+
 /** Adds a script command to in-game structures.
  *
  * @param cmd_desc
@@ -3680,6 +3685,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
+        break;
+    case Cmd_REVERSE_BOULDER_DIRECTION:
+        command_reverse_boulder_direction();
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -6368,6 +6376,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         message_add_fmt(val2, "%s", get_string(val3));
         break;        
   }
+  case Cmd_REVERSE_BOULDER_DIRECTION:
+  {
+    if (gameadd.boulder_direction != 0)
+    {
+        gameadd.boulder_direction ^= 3;
+    }
+    break;
+  }
   case Cmd_SET_GAME_RULE:
       switch (val2)
       {
@@ -6753,6 +6769,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
   {"USE_SPELL_ON_CREATURE",             "PCAAN   ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
+  {"REVERSE_BOULDER_DIRECTION",         "        ", Cmd_REVERSE_BOULDER_DIRECTION, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

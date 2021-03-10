@@ -146,6 +146,7 @@ enum TbScriptCommands {
     Cmd_DISPLAY_MESSAGE                   = 125,
     Cmd_QUICK_MESSAGE                     = 126,
     Cmd_USE_SPELL_ON_CREATURE             = 127,
+    Cmd_REVERSE_BOULDER_DIRECTION         = 128,
 };
 
 enum ScriptVariables {
