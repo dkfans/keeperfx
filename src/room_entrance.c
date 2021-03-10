@@ -38,7 +38,6 @@
 extern "C" {
 #endif
 
-unsigned char creature_entrance_level = 0;
 /******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus
@@ -57,9 +56,13 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
         ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
         return INVALID_THING;
     }
-    if (creature_entrance_level > 0)
+    struct DungeonAdd* dungeonadd = get_dungeonadd(creatng->owner);
+    if (!dungeonadd_invalid(dungeonadd))
     {
-        set_creature_level(creatng, creature_entrance_level);
+        if (dungeonadd->creature_entrance_level > 0)
+        {
+            set_creature_level(creatng, dungeonadd->creature_entrance_level);
+        }
     }
     mark_creature_joined_dungeon(creatng);
     if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
@@ -164,7 +167,7 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
     }
 }
 
-static long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerNumber plyr_idx)
+long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerNumber plyr_idx)
 {
     SYNCDBG(11, "Starting");
 
@@ -233,7 +236,7 @@ TbBool remove_creature_from_generate_pool(ThingModel crmodel)
     return true;
 }
 
-static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
+int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
 {
     //cumulative frequency
     long crmodel;

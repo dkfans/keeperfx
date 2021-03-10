@@ -304,6 +304,7 @@ struct DungeonAdd
     struct Coord3d        last_combat_location;
     int                   creature_awarded[CREATURE_TYPES_COUNT];
     struct RoomSpace      roomspace;
+    unsigned char creature_entrance_level;
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
