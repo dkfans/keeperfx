@@ -206,7 +206,7 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       *(short*)&thing->veloc_base.x.stl = i * *(short*)&thing->veloc_base.x.stl / 256;
       *(short*)&thing->veloc_base.z.stl = i * *(short*)&thing->veloc_base.z.stl / 256;
       break;
-    case SlbBloF_WalledX|SlbBloF_WalledY:
+    case 3: // SlbBloF_WalledX and SlbBloF_WalledY
       pos->x.stl = thing->mappos.x.stl;
       pos->y.stl = thing->mappos.y.stl;
       i = thing->field_22;
@@ -220,14 +220,14 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       *(short*)&thing->veloc_base.x.stl = i * *(short*)&thing->veloc_base.x.stl / 256;
       *(short*)&thing->veloc_base.y.stl = i * *(short*)&thing->veloc_base.y.stl / 256;
       break;
-    case SlbBloF_WalledZ|SlbBloF_WalledX:
+    case 5: // SlbBloF_WalledZ and SlbBloF_WalledX
       pos->z.stl = thing->mappos.z.stl;
       pos->x.stl = thing->mappos.x.stl;
       i = thing->field_22;
       *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
       *(short*)&thing->veloc_base.z.stl = -(short)(i * z / 128);
       break;
-    case SlbBloF_WalledZ|SlbBloF_WalledY:
+    case 6: // SlbBloF_WalledZ and SlbBloF_WalledY
       pos->y.stl = thing->mappos.y.stl;
       pos->z.stl = thing->mappos.z.stl;
       i = thing->field_22;
@@ -238,7 +238,7 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       *(short*)&thing->veloc_base.z.stl = -(short)(n / 128);
       *(short*)&thing->veloc_base.x.stl = k * (256 - j) / 256;
       break;
-    case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
+    case 7: // SlbBloF_WalledX and SlbBloF_WalledY and SlbBloF_WalledZ
       pos->x.stl = thing->mappos.x.stl;
       pos->y.stl = thing->mappos.y.stl;
       pos->z.stl = thing->mappos.z.stl;
@@ -795,9 +795,8 @@ TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos,
     if ((abs(dist_x) >= dist_collide) || (abs(dist_y) >= dist_collide)) {
         return false;
     }
-    dist_collide = (sectng->field_5C + firstng->field_5C) / 2;
-    MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->field_5C >> 1) + (firstng->field_5C >> 1);
-    // MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val;
+    dist_collide = (sectng->solid_size_yz + firstng->solid_size_yz) / 2;
+    MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->solid_size_yz >> 1) + (firstng->solid_size_yz >> 1);
     if (abs(dist_z) >= dist_collide) {
         return false;
     }
@@ -866,7 +865,6 @@ unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d
   }
   return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) - 1);
 }
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
