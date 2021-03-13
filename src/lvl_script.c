@@ -6550,10 +6550,25 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   {
     if (val2 > 0)
     {
-        struct DungeonAdd* dungeonadd = get_dungeonadd(plr_range_id);
-        if (!dungeonadd_invalid(dungeonadd))
+        struct DungeonAdd* dungeonadd;
+        if (plr_range_id == ALL_PLAYERS)
         {
-            dungeonadd->creature_entrance_level = (val2 - 1);
+            for (char i = PLAYER3; i >= PLAYER0; i--)
+            {
+                dungeonadd = get_dungeonadd(i);
+                if (!dungeonadd_invalid(dungeonadd))
+                {
+                    dungeonadd->creature_entrance_level = (val2 - 1);
+                }
+            }
+        }
+        else
+        {
+            dungeonadd = get_dungeonadd(plr_range_id);
+            if (!dungeonadd_invalid(dungeonadd))
+            {
+                dungeonadd->creature_entrance_level = (val2 - 1);
+            }
         }
     }
     break;
