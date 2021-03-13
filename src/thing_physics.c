@@ -206,7 +206,7 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       *(short*)&thing->veloc_base.x.stl = i * *(short*)&thing->veloc_base.x.stl / 256;
       *(short*)&thing->veloc_base.z.stl = i * *(short*)&thing->veloc_base.z.stl / 256;
       break;
-    case 3: // SlbBloF_WalledX and SlbBloF_WalledY
+    case SlbBloF_WalledX|SlbBloF_WalledY:
       pos->x.stl = thing->mappos.x.stl;
       pos->y.stl = thing->mappos.y.stl;
       i = thing->field_22;
@@ -220,14 +220,14 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       *(short*)&thing->veloc_base.x.stl = i * *(short*)&thing->veloc_base.x.stl / 256;
       *(short*)&thing->veloc_base.y.stl = i * *(short*)&thing->veloc_base.y.stl / 256;
       break;
-    case 5: // SlbBloF_WalledZ and SlbBloF_WalledX
+    case SlbBloF_WalledZ|SlbBloF_WalledX:
       pos->z.stl = thing->mappos.z.stl;
       pos->x.stl = thing->mappos.x.stl;
       i = thing->field_22;
       *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
       *(short*)&thing->veloc_base.z.stl = -(short)(i * z / 128);
       break;
-    case 6: // SlbBloF_WalledZ and SlbBloF_WalledY
+    case SlbBloF_WalledZ|SlbBloF_WalledY:
       pos->y.stl = thing->mappos.y.stl;
       pos->z.stl = thing->mappos.z.stl;
       i = thing->field_22;
@@ -238,7 +238,7 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       *(short*)&thing->veloc_base.z.stl = -(short)(n / 128);
       *(short*)&thing->veloc_base.x.stl = k * (256 - j) / 256;
       break;
-    case 7: // SlbBloF_WalledX and SlbBloF_WalledY and SlbBloF_WalledZ
+    case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
       pos->x.stl = thing->mappos.x.stl;
       pos->y.stl = thing->mappos.y.stl;
       pos->z.stl = thing->mappos.z.stl;
