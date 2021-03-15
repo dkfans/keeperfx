@@ -6956,7 +6956,7 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPELL_ON_CREATURE",             "PCAAN   ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, NULL, NULL},
   {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
-  {"CREATURE_ENTRANCE_LEVEL",           "PN       ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
+  {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
