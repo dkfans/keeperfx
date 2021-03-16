@@ -3437,14 +3437,7 @@ void command_add_heart_health(long plr_range_id, int health, TbBool warning)
 
 void command_creature_entrance_level(long plr_range_id, unsigned char val)
 {
-    if ( (val == 0) || (val > CREATURE_MAX_LEVEL) )
-    {
-        SCRPTERRLOG("Invalid creature level parameter; %ld not in range (%d,%d)",val,1,CREATURE_MAX_LEVEL);
-    }
-    else
-    {
-        command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
-    }
+  command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
 }
 
 /** Adds a script command to in-game structures.
