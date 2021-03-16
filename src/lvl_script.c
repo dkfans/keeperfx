@@ -6553,7 +6553,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         struct DungeonAdd* dungeonadd;
         if (plr_range_id == ALL_PLAYERS)
         {
-            for (char i = PLAYER3; i >= PLAYER0; i--)
+            for (i = PLAYER3; i >= PLAYER0; i--)
             {
                 dungeonadd = get_dungeonadd(i);
                 if (!dungeonadd_invalid(dungeonadd))
