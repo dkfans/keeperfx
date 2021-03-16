@@ -3509,6 +3509,11 @@ void command_add_heart_health(long plr_range_id, int health, TbBool warning)
   command_add_value(Cmd_ADD_HEART_HEALTH, plr_range_id, health, warning, 0);
 }
 
+void command_creature_entrance_level(long plr_range_id, unsigned char val)
+{
+  command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
+}
+
 /** Adds a script command to in-game structures.
  *
  * @param cmd_desc
@@ -3815,6 +3820,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ADD_HEART_HEALTH:
         command_add_heart_health(scline->np[0], scline->np[1], scline->np[2]);
+        break;
+    case Cmd_CREATURE_ENTRANCE_LEVEL:
+        command_creature_entrance_level(scline->np[0], scline->np[1]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -6557,6 +6565,33 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     }
     break;
   }
+  case Cmd_CREATURE_ENTRANCE_LEVEL:
+  {
+    if (val2 > 0)
+    {
+        struct DungeonAdd* dungeonadd;
+        if (plr_range_id == ALL_PLAYERS)
+        {
+            for (i = PLAYER3; i >= PLAYER0; i--)
+            {
+                dungeonadd = get_dungeonadd(i);
+                if (!dungeonadd_invalid(dungeonadd))
+                {
+                    dungeonadd->creature_entrance_level = (val2 - 1);
+                }
+            }
+        }
+        else
+        {
+            dungeonadd = get_dungeonadd(plr_range_id);
+            if (!dungeonadd_invalid(dungeonadd))
+            {
+                dungeonadd->creature_entrance_level = (val2 - 1);
+            }
+        }
+    }
+    break;
+  }
   case Cmd_SET_GAME_RULE:
       switch (val2)
       {
@@ -6940,6 +6975,7 @@ const struct CommandDesc command_desc[] = {
   {"USE_SPELL_ON_CREATURE",             "PCAAN   ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, NULL, NULL},
   {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
+  {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
