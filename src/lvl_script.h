@@ -149,6 +149,7 @@ enum TbScriptCommands {
     Cmd_SET_HEART_HEALTH                  = 128,
     Cmd_ADD_HEART_HEALTH                  = 129,
     Cmd_CREATURE_ENTRANCE_LEVEL           = 130,
+    Cmd_RANDOMISE_FLAG                    = 131,
 };
 
 enum ScriptVariables {

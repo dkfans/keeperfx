@@ -3514,6 +3514,17 @@ void command_creature_entrance_level(long plr_range_id, unsigned char val)
   command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
 }
 
+void command_randomise_flag(long plr_range_id, const char *flgname, long val)
+{
+    long flg_id = get_rid(flag_desc, flgname);
+    if (flg_id == -1)
+    {
+        SCRPTERRLOG("Unknown flag, '%s'", flgname);
+        return;
+  }
+  command_add_value(Cmd_RANDOMISE_FLAG, plr_range_id, flg_id, val, 0);
+}
+
 /** Adds a script command to in-game structures.
  *
  * @param cmd_desc
@@ -3823,6 +3834,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_CREATURE_ENTRANCE_LEVEL:
         command_creature_entrance_level(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_RANDOMISE_FLAG:
+        command_randomise_flag(scline->np[0], scline->tp[1], scline->np[2]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -6592,6 +6606,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     }
     break;
   }
+  case Cmd_RANDOMISE_FLAG:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          set_script_flag(i,val2,saturate_set_unsigned(rand() % (val3 + 1), 8));
+      }
+      break;
   case Cmd_SET_GAME_RULE:
       switch (val2)
       {
@@ -6976,6 +6996,8 @@ const struct CommandDesc command_desc[] = {
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, NULL, NULL},
   {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
+  {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
+  {"RANDOMIZE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
