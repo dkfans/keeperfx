@@ -420,7 +420,30 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return false;
             thing = get_player_soul_container(id);
             thing->health = 0;
-        } else if (strcasecmp(parstr, "comp.me") == 0)
+            
+        }
+        else if (strcasecmp(parstr, "player.flag") == 0)
+        {
+            PlayerNumber id = get_player_number_for_command(pr2str);
+            unsigned char flg_id = atoi(pr3str);
+            if (flg_id < SCRIPT_FLAGS_COUNT)
+            {
+                dungeon = get_dungeon(id);
+                if (!dungeon_invalid(dungeon))
+                {
+                    if (pr4str == NULL)
+                    {
+                        message_add_fmt(plyr_idx, "Player %d flag %d value: %d", id, flg_id, dungeon->script_flags[flg_id]);
+                    }
+                    else
+                    {
+                        dungeon->script_flags[flg_id] = atoi(pr4str);
+                    }
+                    return true;
+                }
+            }
+        }
+        else if (strcasecmp(parstr, "comp.me") == 0)
         {
             if (pr2str == NULL)
                 return false;
