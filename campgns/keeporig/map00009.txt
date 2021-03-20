@@ -92,9 +92,13 @@ DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)
 
 REM ****************************************************************************
 
-REM IF(PLAYER0,TOTAL_CREATURES >= 20)
+IF(PLAYER0,TOTAL_CREATURES >= 20)
 REM		PRINT("I SENSE AN EVIL PRESENCE. The Avatar")
-REM ENDIF
+	RANDOMISE_FLAG(PLAYER_GOOD,FLAG0,10)
+	IF(PLAYER_GOOD,FLAG0 == 1)
+		QUICK_MESSAGE(0, "I sense an evil presence." AVATAR)
+	ENDIF
+ENDIF
 
 REM "This realm is ruled by four arrogant Wizards who think they've got everything under control, because their feeble magical power..."
 DISPLAY_OBJECTIVE(81,PLAYER0)
