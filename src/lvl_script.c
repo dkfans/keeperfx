@@ -6610,7 +6610,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_RANDOMISE_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_variable(i, val4, val2, rand() % (val3 + 1));
+          set_variable(i, val4, val2, (rand() % val3) + 1);
       }
       break;
   case Cmd_SET_GAME_RULE:
