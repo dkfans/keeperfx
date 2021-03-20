@@ -3516,13 +3516,14 @@ void command_creature_entrance_level(long plr_range_id, unsigned char val)
 
 void command_randomise_flag(long plr_range_id, const char *flgname, long val)
 {
-    long flg_id = get_rid(flag_desc, flgname);
-    if (flg_id == -1)
+    long flg_id;
+    long flag_type;
+    if (!parse_set_varib(flgname, &flg_id, &flag_type))
     {
         SCRPTERRLOG("Unknown flag, '%s'", flgname);
         return;
-  }
-  command_add_value(Cmd_RANDOMISE_FLAG, plr_range_id, flg_id, val, 0);
+    }
+  command_add_value(Cmd_RANDOMISE_FLAG, plr_range_id, flg_id, val, flag_type);
 }
 
 /** Adds a script command to in-game structures.
@@ -6609,7 +6610,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_RANDOMISE_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_script_flag(i,val2,saturate_set_unsigned(rand() % (val3 + 1), 8));
+          set_variable(i, val4, val2, rand() % (val3 + 1));
       }
       break;
   case Cmd_SET_GAME_RULE:
