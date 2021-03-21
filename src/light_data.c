@@ -711,13 +711,13 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
   {
     y = y1 << 8;
     unsigned long i = x1 + (y1 << 8);
+    struct Map *Mapblk1 = get_map_block_at_pos(i);
     light_map = &game.lish.stat_light_map[i];
     do
     {
       j = x1;
       if ( x2 >= x1 )
       {
-        struct Map *Mapblk1 = get_map_block_at_pos(i);
         p = light_map;
         n = k - 1;
         if ( k - 1 <= 0 )
