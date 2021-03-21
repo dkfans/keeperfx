@@ -195,7 +195,7 @@ struct Thing {
      */
     short parent_idx;
     unsigned char class_id;
-    unsigned char field_20;
+    unsigned char fall_speed;
 unsigned char field_21;
 unsigned char field_22;
     unsigned char field_23;

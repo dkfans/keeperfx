@@ -2738,13 +2738,23 @@ TbBool update_thing(struct Thing *thing)
                 thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_24) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
-                thing->veloc_push_add.z.val -= thing->field_20;
+                thing->veloc_push_add.z.val -= thing->fall_speed;
                 thing->state_flags |= TF1_PushAdd;
             } else
             {
                 // For flying creatures, the Z velocity should also decrease over time
                 if (thing->veloc_base.z.val != 0)
+                {
                     thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->field_24) / 256;
+                }
+                else 
+                {
+                    if (thing_above_flight_altitude(thing))
+                    {
+                        thing->veloc_push_add.z.val -= thing->fall_speed;
+                        thing->state_flags |= TF1_PushAdd;
+                    }
+                }
             }
         } else
         {
