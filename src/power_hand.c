@@ -770,7 +770,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
             break;
         if (i > 0)
         {
-            thing->fall_speed += ACTION_RANDOM(thing->fall_speed) - thing->fall_speed / 2;
+            thing->fall_acceleration += ACTION_RANDOM(thing->fall_acceleration) - thing->fall_acceleration / 2;
             thing->valuable.gold_stored = 0;
         } else
         {
