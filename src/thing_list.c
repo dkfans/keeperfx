@@ -2738,7 +2738,7 @@ TbBool update_thing(struct Thing *thing)
                 thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_24) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
-                thing->veloc_push_add.z.val -= thing->fall_speed;
+                thing->veloc_push_add.z.val -= thing->fall_acceleration;
                 thing->state_flags |= TF1_PushAdd;
             } else
             {
@@ -2751,7 +2751,7 @@ TbBool update_thing(struct Thing *thing)
                 {
                     if (thing_above_flight_altitude(thing))
                     {
-                        thing->veloc_push_add.z.val -= thing->fall_speed;
+                        thing->veloc_push_add.z.val -= thing->fall_acceleration;
                         thing->state_flags |= TF1_PushAdd;
                     }
                 }
