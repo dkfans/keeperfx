@@ -58,6 +58,7 @@
 #include "creature_groups.h"
 #include "power_hand.h"
 #include "room_library.h"
+#include "room_list.h"
 #include "room_entrance.h"
 #include "room_util.h"
 #include "magic.h"
@@ -2387,6 +2388,11 @@ void command_if_controls(long plr_range_id, const char *varib_name, const char *
     {
       varib_id = get_id(creature_desc, varib_name);
       varib_type = SVar_CONTROLS_CREATURE;
+    }
+    if (varib_id == -1)
+    {
+      varib_id = get_id(room_desc, varib_name);
+      varib_type = SVar_CONTROLS_ROOM;
     }
     if (varib_id == -1)
     {
@@ -5600,6 +5606,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_CONTROLS_TOTAL_DIGGERS:// IF_CONTROLS(TOTAL_DIGGERS)
         dungeon = get_dungeon(plyr_idx);
         return dungeon->num_active_diggers - count_player_diggers_not_counting_to_total(plyr_idx);
+    case SVar_CONTROLS_ROOM:
+        return count_player_rooms_of_type(plyr_idx, validx);
     case SVar_ALL_DUNGEONS_DESTROYED:
     {
         struct PlayerInfo* player = get_player(plyr_idx);
