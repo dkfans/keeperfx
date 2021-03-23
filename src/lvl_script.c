@@ -3479,7 +3479,7 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
   }
-  long crtr_id = get_rid(creature_desc, crtr_name);
+  long crtr_id = parse_creature_name(crtr_name);
   if (crtr_id == -1) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
@@ -6993,7 +6993,7 @@ const struct CommandDesc command_desc[] = {
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
-  {"USE_SPELL_ON_CREATURE",             "PCAAN   ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
+  {"USE_SPELL_ON_CREATURE",             "PC!AAN  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, NULL, NULL},
   {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
