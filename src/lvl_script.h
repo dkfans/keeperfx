@@ -218,6 +218,8 @@ enum ScriptVariables {
   SVar_BOX_ACTIVATED                   = 66,
   SVar_SACRIFICED                      = 67,  // Per model
   SVar_REWARDED                        = 68,  // Per model
+  SVar_TOTAL_SCORE                     = 69,
+  SVar_EASTER_EGGS                     = 70,
  };
 
 enum MapLocationTypes {
