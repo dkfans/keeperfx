@@ -85,6 +85,7 @@ enum CreatureSelectCriteria {
     CSelCrit_NearEnemyHeart    = 10,
     CSelCrit_OnEnemyGround     = 11,
     CSelCrit_OnFriendlyGround  = 12,
+    CSelCrit_NearAP            = 13,
 };
 
 //TODO replace HitType with these
@@ -226,7 +227,7 @@ struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_
 struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
 struct Thing *get_creature_near_to_be_keeper_power_target(MapCoord pos_x, MapCoord pos_y, PowerKind pwmodel, PlayerNumber plyr_idx);
 struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y);
-struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
+struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, long crmodel);
 struct Thing *get_creature_in_range_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, MapSubtlDelta distance_stl, PlayerNumber plyr_idx);
 struct Thing *get_creature_in_range_of_model_owned_and_controlled_by(MapCoord pos_x, MapCoord pos_y, MapSubtlDelta distance_stl, long crmodel, PlayerNumber plyr_idx);
 struct Thing *get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx);
@@ -241,6 +242,7 @@ struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_door_for_position_for_trap_placement(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool slab_has_door_thing_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void remove_dead_creatures_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y);
 long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx);
 long switch_owned_objects_on_destoyed_slab_to_neutral(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber prev_owner);

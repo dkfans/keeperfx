@@ -3477,7 +3477,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->clipbox_size_yz = crstat->size_yz;
     crtng->solid_size_xy = crstat->thing_size_xy;
     crtng->solid_size_yz = crstat->thing_size_yz;
-    crtng->field_20 = 32;
+    crtng->fall_acceleration = 32;
     crtng->field_22 = 0;
     crtng->field_23 = 32;
     crtng->field_24 = 8;

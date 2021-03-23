@@ -643,7 +643,7 @@ TbBool get_level_lost_inputs(void)
         inp_done = get_gui_inputs(1);
         if ( !inp_done )
         {
-          if (player->work_state == PSt_CreatrInfo)
+          if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
           {
               set_player_instance(player, PI_UnqueryCrtr, 0);
           } else
