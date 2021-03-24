@@ -357,6 +357,9 @@ revlord \
 twinkprs \
 undedkpr
 
+MAPPACKS  = \
+classic
+
 LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 
 # load program version
