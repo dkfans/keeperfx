@@ -434,7 +434,6 @@ void init_player_music(struct PlayerInfo *player)
 {
     LevelNumber lvnum = get_loaded_level_number();
     game.audiotrack = 3 + ((lvnum - 1) % 4);
-    randomize_sound_font();
 }
 
 TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)
@@ -835,7 +834,7 @@ void process_player_states(void)
         struct PlayerInfo* player = get_player(plyr_idx);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            if (player->work_state == PSt_CreatrInfo)
+            if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
             {
                 struct Thing* thing = thing_get(player->controlled_thing_idx);
                 struct Camera* cam = player->acamera;

@@ -1,3 +1,7 @@
+REM	Level Name Frostsorrow Glacier 1.67.0
+REM	Author: Duke Ragereaver, Created on 08 Mar 2011
+REM	v2.0 updated to use pot file by dayokay Dec2020
+
 COMPUTER_PLAYER(PLAYER1,0)
 ALLY_PLAYERS(PLAYER0,PLAYER2)
 ALLY_PLAYERS(PLAYER1,PLAYER_GOOD)
@@ -112,10 +116,12 @@ CREATE_PARTY(BOSS)
     ADD_TO_PARTY(BOSS,ARCHER,8,1000,DEFEND_PARTY,0)
     ADD_TO_PARTY(BOSS,SAMURAI,9,1000,ATTACK_ENEMIES,0)
 
-QUICK_OBJECTIVE(0,"Noble one, the ruler of this realm, Lord Davaraux, has gone rogue at the expensive of the innocent citizens who are now overtaxed. Deal with this bandit king appriopately and do not let other matters distract you, he is your first and only priority.",PLAYER0)
+REM	QUICK_OBJECTIVE(0,"Noble one, the ruler of this realm, Lord Davaraux, has gone rogue at the expensive of the innocent citizens who are now overtaxed. Deal with this bandit king appriopately and do not let other matters distract you, he is your first and only priority.",PLAYER0)
+DISPLAY_OBJECTIVE(36,PLAYER0)
 
 IF(PLAYER0,GAME_TURN >= 1000)
-QUICK_OBJECTIVE(1,"Beware, we have detected the presence of a relentless Keeper bij the name of Eis who brings with him a massive demonic army who arrives within some days. Hold off Eis and deal with Lord Davaraux quickly, you cannot hold Eis out indefinately.",PLAYER0)
+REM	QUICK_OBJECTIVE(1,"Beware, we have detected the presence of a relentless Keeper bij the name of Eis who brings with him a massive demonic army who arrives within some days. Hold off Eis and deal with Lord Davaraux quickly, you cannot hold Eis out indefinately.",PLAYER0)
+	DISPLAY_OBJECTIVE(37,PLAYER0)
 ENDIF
 
 IF_ACTION_POINT(1,PLAYER0)
@@ -163,25 +169,29 @@ ENDIF
 
 IF(PLAYER0,KNIGHT == 0)
     LOSE_GAME
+	DISPLAY_OBJECTIVE(32,PLAYER0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN >= 270000)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HORNY,PLAYER1,8,10,0)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DRAGON,PLAYER1,10,10,0)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HELL_HOUND,PLAYER1,12,10,0)
-    QUICK_OBJECTIVE(3,"The forces of Eis have arrived, we are history!",PLAYER0)
+    REM	QUICK_OBJECTIVE(3,"The forces of Eis have arrived, we are history!",PLAYER0)
+	DISPLAY_OBJECTIVE(38,PLAYER0)
 ENDIF
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
     ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
     MAX_CREATURES(PLAYER0,17)
     TUTORIAL_FLASH_BUTTON(18,PLAYER0)
-    QUICK_OBJECTIVE(4,"We have found construction plans for bridges, use it to defeat Eis.",PLAYER0)
+    REM	QUICK_OBJECTIVE(4,"We have found construction plans for bridges, use it to defeat Eis.",PLAYER0)
+	DISPLAY_OBJECTIVE(39,PLAYER0)
 ENDIF
 
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
     IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+		DISPLAY_OBJECTIVE(35,PLAYER0)
         WIN_GAME
     ENDIF
 ENDIF

@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 
 #include "thing_data.h"
+#include "thing_doors.h"
 #include "thing_list.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
@@ -108,6 +109,9 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigne
     case TCls_CaveIn:
         // for cave in, model is really a level
         thing = create_cave_in(pos, tngmodel, owner);
+        break;
+    case TCls_Door:
+        thing = create_door(pos, tngmodel, find_door_angle(pos->x.stl.num, pos->y.stl.num, owner), owner, false);
         break;
     default:
         break;

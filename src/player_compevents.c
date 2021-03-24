@@ -99,6 +99,7 @@ Comp_Event_Func computer_event_func_list[] = {
   NULL,
 };
 
+//PowerKind pwkind; char gaction; char require_owned_ground; int repeat_num; int pwlevel; int amount_able;
 struct ComputerSpells computer_attack_spells[] = {
   {PwrK_DISEASE,   GA_UsePwrDisease,   1,  1, 2, 4},
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0,  1, 8, 2},
@@ -366,6 +367,14 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
             i = 0;
             continue;
         }
+
+        // Only cast lightning on imps, don't waste expensive chicken or disease spells
+        if ((thing_is_creature_special_digger(creatng)) && (caspl->pwkind != PwrK_LIGHTNING))
+        {
+            i++;
+            continue;
+        }
+
         if (can_cast_spell(dungeon->owner, caspl->pwkind, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
         {
             if (!thing_affected_by_spell(creatng, caspl->pwkind))

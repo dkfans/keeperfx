@@ -1035,6 +1035,10 @@ short setup_game(void)
   SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
       (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
+  if (cpu_info.BrandString)
+  {
+      SYNCMSG("%s", &cpu_info.brand[0]);
+  }  
   update_memory_constraits();
   // Enable features that require more resources
   update_features(mem_size);
@@ -4573,7 +4577,6 @@ void game_loop(void)
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();
-      StopMusic();
       StopMusicPlayer();
       turn_off_all_menus();
       delete_all_structures();
@@ -4694,10 +4697,6 @@ short process_command_line(unsigned short argc, char *argv[])
           narg++;
           default_loc_player = atoi(pr2str);
           force_player_num = true;
-      } else
-      if (strcasecmp(parstr, "usersfont") == 0)
-      {
-          set_flag_byte(&start_params.flags_font,FFlg_UsrSndFont,true);
       } else
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {

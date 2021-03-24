@@ -30,7 +30,7 @@ ifneq (,$(findstring Windows,$(OS)))
 else
   CROSS_EXEEXT =
   CROSS_COMPILE = i686-w64-mingw32-
-  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import,--no-dynamicbase,--no-nxcompat
+  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
 endif
 # Executable files extension on target environment
 EXEEXT = .exe
@@ -356,6 +356,9 @@ questfth \
 revlord \
 twinkprs \
 undedkpr
+
+MAPPACKS  = \
+classic
 
 LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 
