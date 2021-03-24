@@ -359,6 +359,7 @@ undedkpr
 
 MAPPACKS  = \
 classic \
+lostlvls \
 standard
 
 LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
