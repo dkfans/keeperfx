@@ -45,18 +45,22 @@ ENDIF
 
 IF(PLAYER0,CAMPAIGN_FLAG2 <= 0)
 	IF(PLAYER0,IMP == 0)
-		SET_FLAG(PLAYER0,FLAG2,1)
-		ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,PLAYER0,10,10,10000)
+		IF(PLAYER0,DUNGEON_DESTROYED == 0)
+			SET_FLAG(PLAYER0,FLAG2,1)
+			ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,PLAYER0,10,10,10000)
+		ENDIF
 	ENDIF
 ENDIF
 
 IF(PLAYER0,FLAG2 == 1)
 	IF(PLAYER0,IMP <= 0)
-		REM "You are indeed a twisted soul, master. You made the Imps extinct with such panache that not one but two Dark Mistresses have devoted themselves to helping you achieve your next goal. You may proceed to your next conquest."
-		DISPLAY_OBJECTIVE(143,PLAYER0)
-		ADD_CREATURE_TO_LEVEL(PLAYER0,DARK_MISTRESS,PLAYER0,2,4,10000)
-		REM Using a timer to make sure add creature command will be executed
-		SET_TIMER(PLAYER0,TIMER1)
+		IF(PLAYER0,DUNGEON_DESTROYED == 0)
+			REM "You are indeed a twisted soul, master. You made the Imps extinct with such panache that not one but two Dark Mistresses have devoted themselves to helping you achieve your next goal. You may proceed to your next conquest."
+			DISPLAY_OBJECTIVE(143,PLAYER0)
+			ADD_CREATURE_TO_LEVEL(PLAYER0,DARK_MISTRESS,PLAYER0,2,4,10000)
+			REM Using a timer to make sure add creature command will be executed
+			SET_TIMER(PLAYER0,TIMER1)
+		ENDIF
 	ENDIF
 ENDIF
 

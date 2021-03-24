@@ -31,6 +31,7 @@
 #include "map_events.h"
 #include "tasks_list.h"
 #include "thing_traps.h"
+#include "roomspace.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,6 +47,7 @@ extern "C" {
 #define MAX_SOE_RADIUS              13
 #define CREATURE_GUI_JOBS_COUNT     3
 #define CUSTOM_BOX_COUNT            256
+#define FX_LINES_COUNT              32
 
 #define INVALID_DUNGEON (&bad_dungeon)
 #define INVALID_DUNGEON_ADD (&bad_dungeonadd)
@@ -301,6 +303,8 @@ struct DungeonAdd
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;
     int                   creature_awarded[CREATURE_TYPES_COUNT];
+    struct RoomSpace      roomspace;
+    unsigned char         creature_entrance_level;
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

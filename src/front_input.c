@@ -506,6 +506,12 @@ short get_global_inputs(void)
   {
       if (player->victory_state != VicS_Undecided)
       {
+        if ( timer_enabled() )
+        {
+            update_time();
+            struct GameTime GameT = get_game_time(game.play_gameturn, game.num_fps);
+            SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.",game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+        }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);
         return true;
@@ -637,7 +643,7 @@ TbBool get_level_lost_inputs(void)
         inp_done = get_gui_inputs(1);
         if ( !inp_done )
         {
-          if (player->work_state == PSt_CreatrInfo)
+          if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
           {
               set_player_instance(player, PI_UnqueryCrtr, 0);
           } else
@@ -1239,12 +1245,22 @@ short get_creature_control_action_inputs(void)
         }
     }
         long val;
+        TextStringId StrID = 0;
         for (int i = 0; i <= 15; i++)
         {
             if (is_game_key_pressed(Gkey_ZoomRoom00 + i, &val, false))
             {
                 clear_key_pressed(val);
                 teleport_destination = i;
+                if (i == 15)
+                {
+                    StrID = 567;
+                }
+                else
+                {
+                    struct RoomConfigStats* roomst = get_room_kind_stats(zoom_key_room_order[teleport_destination]);
+                    StrID = roomst->name_stridx;
+                }
             }
         
         }
@@ -1255,10 +1271,23 @@ short get_creature_control_action_inputs(void)
         else if (is_key_pressed(KC_SLASH,KMod_DONTCARE))
         {
             teleport_destination = 17; // Call to Arms
+            struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
+            StrID = powerst->name_stridx;
         }
         else if (is_key_pressed(KC_COMMA,KMod_DONTCARE))
         {
             teleport_destination = 18;
+            StrID = 609;
+        }
+        struct Thing* creatng = thing_get(player->controlled_thing_idx);
+        if ( (StrID != 0) && (creature_instance_is_available(creatng, CrInst_TELEPORT)) )
+        {
+            char CrInst = -45;
+            if (game.active_messages_count > 0)
+            {
+                clear_messages_from_player(CrInst);
+            }
+            message_add(CrInst, get_string(StrID));
         }
     // In possession sets the screen blue when frozen, and to default when not.
     if (creature_affected_by_spell(thing, SplK_Freeze)) 

@@ -21,7 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "thing_shots.h"
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "thing_creature.h"
@@ -59,6 +59,12 @@ TbBool thing_touching_flight_altitude(const struct Thing *thing)
     int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
     return (thing->mappos.z.val >= floor_height + 16*NORMAL_FLYING_ALTITUDE/17)
         && (thing->mappos.z.val <= floor_height + 19*NORMAL_FLYING_ALTITUDE/17);
+}
+
+TbBool thing_above_flight_altitude(const struct Thing* thing)
+{
+    int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
+    return (thing->mappos.z.val > floor_height + 19 * NORMAL_FLYING_ALTITUDE / 17);
 }
 
 void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
@@ -345,7 +351,8 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
 TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
 {
     // Don't clip the Z coord - clipping would make impossible to hit base ground (ie. water drip over water)
-    return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, MapCoord_ClipX|MapCoord_ClipY);
+    unsigned short flags = (thing_is_exempt_from_z_axis_clipping(thing)) ? MapCoord_ClipX|MapCoord_ClipY : MapCoord_ClipX|MapCoord_ClipY|MapCoord_ClipZ;
+    return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, flags);
 }
 
 long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
@@ -631,7 +638,7 @@ TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const st
     struct CoordDelta3d dt;
     dt.x.val = dstpos->x.val - (MapCoordDelta)firstng->mappos.x.val;
     dt.y.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
-    dt.z.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
+    dt.z.val = dstpos->z.val - (MapCoordDelta)firstng->mappos.z.val;
     // Compute amount of interpoints for collision check
     int interpoints;
     {
@@ -651,6 +658,15 @@ TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const st
         }
     }
     return thing_on_thing_at(firstng, dstpos, sectng);
+}
+
+TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing)
+{
+    if (thing_is_shot(thing))
+    {
+        return (!shot_is_boulder(thing));
+    }
+    return false;
 }
 /******************************************************************************/
 #ifdef __cplusplus

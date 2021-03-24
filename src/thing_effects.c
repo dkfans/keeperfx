@@ -116,7 +116,7 @@ struct InitEffect effect_info[] = {
     { 5, 1,  64,  64, -64,  64,  4,  39, 75, 75,  AAffT_None, 1, { 768, 20, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
     {60, 3,   1,   1,   1,   1,  2,  54, 55, 58,  AAffT_None, 1, {0}, 1},
     {20, 4,   1,   1,   1,   1,  1,  47,  0,  0,  AAffT_None, 1, {0}, 1},
-    {50, 4,   1,   1,   1,   1,  1,   0,  0,  0,  AAffT_None, 0, {0}, 0},
+    {50, 4,   1,   1,   1,   1,  1,   0,  0,  0,  AAffT_None, 0, {0}, 0}, // Unknown Damage effect
     {10, 1, 128, 128,-128, 128, 10,  47,  1,  1,  AAffT_None, 1, {4096, 50, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1}, // [50]
     { 1, 1,   1,   1,   1,   1,  1, 112, 61, 61,  AAffT_None, 1, {0}, 1},
     { 5, 1, 128, 128,-128, 128,  5,  47,  1,  1,  AAffT_None, 1, {2048, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
@@ -362,7 +362,7 @@ struct EffectElementStats effect_element_stats[] = {
    {2, 5, 0, 8, 8, 819, 256, 256, 1, 256, 256, 1, 0,
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0,
     0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    // [60]
+    // [60]  part of lightning (white?)
    {2, 1, 0, 5, 5, 964, 96, 160, 1, 85, 85, 1, 1, 3, 0,
     0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0, 0, 0,
     256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -459,7 +459,7 @@ struct EffectElementStats effect_element_stats[] = {
    {2, 1, 0, -1, -1, 110, 225, 270, 1, 1024, 1024, 1, 0,
     2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    // [90]
+    // [90] // Lightning "dot" of blue player
    {2, 5, 0, -1, -1, 853, 172, 172, 1, 256, 256, 1, 1,
     3, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0,
     0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -554,7 +554,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         set_flag_byte(&thing->field_4F,TF4F_Unknown01,true);
     }
 
-    thing->field_20 = eestat->field_18;
+    thing->fall_acceleration = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
     thing->movement_flags |= TMvF_Unknown08;
@@ -670,7 +670,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
             pos.x.val = thing->mappos.x.val + shift_x;
             pos.y.val = thing->mappos.y.val + shift_y;
-            effeltng = create_thing(&pos, TCls_EffectElem, 0x11u, thing->owner, -1);
+            effeltng = create_thing(&pos, TCls_EffectElem, 17, thing->owner, -1);
         }
     }
 
@@ -681,7 +681,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
 
     if ((cctrl->spell_flags & CSAfF_Speed) != 0)
     {
-        effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
+        effeltng = create_effect_element(&thing->mappos, 18, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
             // TODO: looks like some "struct AnimSpeed"
@@ -826,7 +826,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * eestat->field_13) & TF4F_Unknown02;
     thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & (TF4F_Transpar_Flags);
-    thing->field_20 = eestat->field_18;
+    thing->fall_acceleration = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
     if (eestat->numfield_3 <= 0) {
@@ -1066,9 +1066,9 @@ void effect_generate_effect_elements(const struct Thing *thing)
         }
         break;
     }
-    case 4:
+    case 4: // Lightning or CaveIn
     {
-        if (thing->model != 48)
+        if (thing->model != 48) // CaveIn only
             break;
         long i = effnfo->start_health / 2;
         struct PlayerInfo* player;
@@ -1168,7 +1168,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             elemtng->state_flags |= TF1_PushAdd;
             if (egenstat->sound_sample_idx > 0)
             {
-                struct Thing* sectng = create_effect(&elemtng->mappos, TngEff_Unknown49, thing->owner);
+                struct Thing* sectng = create_effect(&elemtng->mappos, TngEff_DamageBlood, thing->owner);
                 TRACE_THING(sectng);
                 if (!thing_is_invalid(sectng)) {
                     thing_play_sample(sectng, egenstat->sound_sample_idx + ACTION_RANDOM(egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -1203,7 +1203,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->next_on_mapblk = 0;
     thing->owner = owner;
     thing->parent_idx = thing->index;
-    thing->field_20 = 0;
+    thing->fall_acceleration = 0;
     thing->field_23 = 0;
     thing->field_24 = 0;
     thing->field_4F |= TF4F_Unknown01;
@@ -1233,14 +1233,14 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
 
 struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx)
 {
-    struct Thing* efftng = create_effect(pos, TngEff_Unknown67, plyr_idx);
+    struct Thing* efftng = create_effect(pos, TngEff_SpecialBox, plyr_idx);
     TRACE_THING(efftng);
     return efftng;
 }
 
 TbBool destroy_effect_thing(struct Thing *efftng)
 {
-    if (efftng->model == 43)
+    if (efftng->model == TngEff_LavaTrap)
     {
         place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner, 0);
         do_slab_efficiency_alteration(subtile_slab_fast(efftng->mappos.x.stl.num), subtile_slab_fast(efftng->mappos.y.stl.num));
@@ -1808,7 +1808,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
 
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price)
 {
-    struct Thing* elemtng = create_effect_element(pos, TngEff_Unknown41, plyr_idx);
+    struct Thing* elemtng = create_effect_element(pos, TngEff_NumberHop, plyr_idx);
     TRACE_THING(elemtng);
     if (!thing_is_invalid(elemtng)) {
         elemtng->price.number = abs(price);

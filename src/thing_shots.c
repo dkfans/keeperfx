@@ -565,15 +565,9 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
         return 1;
     }
     else
-    if (object_is_growing_food(target))
+    if (object_is_mature_food(target) || object_is_growing_food(target))
     {
-        delete_thing_structure(target, 0);
-    } else
-    if (object_is_mature_food(target))
-    {
-        thing_play_sample(shotng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        remove_food_from_food_room_if_possible(target);
-        delete_thing_structure(target, 0);
+        destroy_food(target);
     } else
     {
         WARNLOG("Killing %s by %s is not supported",thing_model_name(target),thing_model_name(shotng));
@@ -711,10 +705,10 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case ShM_SwingSword:
         case ShM_SwingFist:
             if (creature_affected_by_spell(target, SplK_Freeze)) {
-                efftng = create_effect(&shotng->mappos, TngEff_Unknown22, shotng->owner);
+                efftng = create_effect(&shotng->mappos, TngEff_HitFrozenUnit, shotng->owner);
             } else
             if (creature_model_bleeds(target->model)) {
-                efftng = create_effect(&shotng->mappos, TngEff_Unknown06, shotng->owner);
+                efftng = create_effect(&shotng->mappos, TngEff_HitBleedingUnit, shotng->owner);
             }
             break;
         }
@@ -774,7 +768,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    //throw_strength = shotng->field_20; //this seems to be always 0, this is why it didn't work;
+    //throw_strength = shotng->fall_acceleration; //this seems to be always 0, this is why it didn't work;
     long throw_strength = shotst->old->push_on_hit;
     if (trgtng->health < 0)
         return 0;
@@ -855,7 +849,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     long i;
     long n;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    //amp = shotng->field_20;
+    //amp = shotng->fall_acceleration;
     long amp = shotst->old->push_on_hit;
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
@@ -1431,7 +1425,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->parent_idx = thing->index;
     thing->owner = owner;
     thing->field_22 = shotst->old->field_D;
-    thing->field_20 = shotst->old->field_F;
+    thing->fall_acceleration = shotst->old->field_F;
     thing->field_21 = shotst->old->field_10;
     thing->field_23 = shotst->old->field_11;
     thing->field_24 = shotst->old->field_12;

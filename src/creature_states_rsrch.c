@@ -308,14 +308,14 @@ short researching(struct Thing *thing)
     cctrl->byte_9A = 3;
     if (cctrl->explevel < 3)
     {
-        create_effect(&thing->mappos, TngEff_Unknown54, thing->owner);
+        create_effect(&thing->mappos, TngEff_RoomSparkeSmall, thing->owner);
     } else
     if (cctrl->explevel < 6)
     {
-        create_effect(&thing->mappos, TngEff_Unknown55, thing->owner);
+        create_effect(&thing->mappos, TngEff_RoomSparkeMedium, thing->owner);
     } else
     {
-        create_effect(&thing->mappos, TngEff_Unknown56, thing->owner);
+        create_effect(&thing->mappos, TngEff_RoomSparkeLarge, thing->owner);
     }
     return 1;
 }

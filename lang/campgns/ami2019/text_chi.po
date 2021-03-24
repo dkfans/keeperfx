@@ -159,7 +159,7 @@ msgstr "你的亡灵生物刚刚吸引了一个吸血鬼加入！"
 #. Lighthouse Underground (lv3) Opening Message
 #: guitext:22
 msgctxt "In-game message"
-msgid "The plans have failed. The Guradians of this land have banished you down here, not far away from an entrance leading to the lighthouse on the surface. With no gold, rooms or army and walled in, the heroes have retreated as you pose no danger. The only people still here are accompanied by water dwelling creatures who are wary of newcomers and will not hesitate to attack you."
+msgid "The plans have failed. The Guardians of this land have banished you down here, not far away from an entrance leading to the lighthouse on the surface. With no gold, rooms or army and walled in, the heroes have retreated as you pose no danger. The only people still here are accompanied by water dwelling creatures who are wary of newcomers and will not hesitate to attack you."
 msgstr "我们的计划失败了。这片土地的守卫把你放逐到这里，离通往灯塔的入口不远。这里没有黄金，没有房间，没有军队，没有城墙，由于你没有了威胁，英雄们已经离开了。唯一和你在一起的是一群水栖怪物，可它们对新来的人十分戒备，并且会毫不犹豫地来攻击你。"
 
 #. Lighthouse Underground (lv3) Second Message

@@ -52,6 +52,7 @@ struct ComponentVector;
 /******************************************************************************/
 TbBool thing_touching_floor(const struct Thing *thing);
 TbBool thing_touching_flight_altitude(const struct Thing *thing);
+TbBool thing_above_flight_altitude(const struct Thing* thing);
 
 TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos, const struct Thing *sectng);
 TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const struct Coord3d *dstpos, const struct Thing *sectng);
@@ -76,6 +77,7 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
 long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct Coord3d *pos);
 void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor);
+TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

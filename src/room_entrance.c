@@ -37,6 +37,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus
@@ -54,6 +55,14 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     if (thing_is_invalid(creatng)) {
         ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
         return INVALID_THING;
+    }
+    struct DungeonAdd* dungeonadd = get_dungeonadd(room->owner);
+    if (!dungeonadd_invalid(dungeonadd))
+    {
+        if (dungeonadd->creature_entrance_level > 0)
+        {
+            set_creature_level(creatng, dungeonadd->creature_entrance_level);
+        }
     }
     mark_creature_joined_dungeon(creatng);
     if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {

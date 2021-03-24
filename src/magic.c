@@ -1382,7 +1382,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
     if (!thing_is_invalid(shtng))
     {
-        efftng = create_effect(&shtng->mappos, TngEff_Unknown49, shtng->owner);
+        efftng = create_effect(&shtng->mappos, TngEff_DamageBlood, shtng->owner);
         if (!thing_is_invalid(efftng))
         {
             struct PowerConfigStats *powerst;

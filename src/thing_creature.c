@@ -1284,6 +1284,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     RoomKind rkind = 0;
     long i;
     TbBool allowed = true;
+    clear_messages_from_player(-45);
     if (cspell->duration == splconf->duration / 2)
     {
         struct Coord3d pos;
@@ -2149,7 +2150,7 @@ long move_creature(struct Thing *thing)
         {
             dist = -get_2d_distance(&pvpos, tngpos);
         }
-        cctrl->field_9 = dist;
+        cctrl->distance_to_destination = dist;
     }
     return 1;
 }
@@ -2344,7 +2345,7 @@ void thing_death_ice_explosion(struct Thing *thing)
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
         pos.z.val = thing->mappos.z.val+i;
-        create_effect(&pos, TngEff_Unknown24, thing->owner);
+        create_effect(&pos, TngEff_DeathIceExplosion, thing->owner);
     }
     struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
@@ -3476,7 +3477,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->clipbox_size_yz = crstat->size_yz;
     crtng->solid_size_xy = crstat->thing_size_xy;
     crtng->solid_size_yz = crstat->thing_size_yz;
-    crtng->field_20 = 32;
+    crtng->fall_acceleration = 32;
     crtng->field_22 = 0;
     crtng->field_23 = 32;
     crtng->field_24 = 8;

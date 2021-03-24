@@ -193,7 +193,7 @@ msgstr ""
 #: guitext:22
 msgctxt "In-game message"
 msgid ""
-"The plans have failed. The Guradians of this land have banished you down here, not far away from an entrance leading to the "
+"The plans have failed. The Guardians of this land have banished you down here, not far away from an entrance leading to the "
 "lighthouse on the surface. With no gold, rooms or army and walled in, the heroes have retreated as you pose no danger. The "
 "only people still here are accompanied by water dwelling creatures who are wary of newcomers and will not hesitate to attack you."
 msgstr ""

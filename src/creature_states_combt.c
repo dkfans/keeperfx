@@ -285,6 +285,11 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         SYNCDBG(8,"The %s index %d is scared due to low health (%ld/%ld)",thing_model_name(creatng),(int)creatng->index,(long)creatng->health,crmaxhealth);
         return true;
     }
+    // Units dropped will fight stronger units for a bit
+    if ((cctrl->wait_to_turn > (long)game.play_gameturn))
+    {
+        return false;
+    }
     // If the enemy is way stronger, a creature may be scared anyway
     fear = crstat->fear_stronger;
     long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enmstat->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;
@@ -1253,7 +1258,7 @@ CrAttackType check_for_possible_combat_within_distance(struct Thing *creatng, st
 short creature_combat_flee(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    GameTurnDelta turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->start_turn_28E;
+    GameTurnDelta turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->flee_start_turn;
     if (get_2d_box_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
     {
         SYNCDBG(8,"Starting distant flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
@@ -1266,7 +1271,7 @@ short creature_combat_flee(struct Thing *creatng)
                 cctrl->flee_pos.y.val = creatng->mappos.y.val;
                 cctrl->flee_pos.z.val = creatng->mappos.z.val;
             }
-            cctrl->start_turn_28E = game.play_gameturn;
+            cctrl->flee_start_turn = game.play_gameturn;
         } else
         if (turns_in_flee <= game.game_turns_in_flee)
         {
@@ -2614,7 +2619,7 @@ short creature_in_combat(struct Thing *creatng)
             ERRORLOG("Cannot get %s index %d into flee",thing_model_name(creatng),(int)creatng->index);
             return 0;
         }
-        cctrl->start_turn_28E = game.play_gameturn;
+        cctrl->flee_start_turn = game.play_gameturn;
         return 0;
     }
     CombatState combat_func;
@@ -2767,7 +2772,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
             return false;
         }
         setup_combat_flee_position(creatng);
-        cctrl->start_turn_28E = game.play_gameturn;
+        cctrl->flee_start_turn = game.play_gameturn;
         return true;
     }
 
@@ -2789,7 +2794,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     }
 
     // If not too scared for combat, then do the combat
-    if (!creature_too_scared_for_combat(creatng, enmtng))
+    if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->wait_to_turn > (long)game.play_gameturn) )
     {
         set_creature_in_combat(creatng, enmtng, attack_type);
         return true;
@@ -2808,7 +2813,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         return false;
     }
     setup_combat_flee_position(creatng);
-    cctrl->start_turn_28E = game.play_gameturn;
+    cctrl->flee_start_turn = game.play_gameturn;
     return true;
 }
 
