@@ -7,8 +7,8 @@
 #      Contains translation of the national strings in the game.
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
-#  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Oct 2012
+#  @author   KeeperFX Team / Dayokay / JieLeTian
+#  @date     Nov 2020 - Jan 2021
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:24+0100\n"
+"PO-Revision-Date: 2021-01-11 21:24+0100\n"
 "Last-Translator: JieLeTian <jieletian@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: zh_CN\n"
@@ -37,451 +37,667 @@ msgctxt "In-game message"
 msgid "Success! The land is yours. Press Space to proceed to the next realm."
 msgstr "成功了！你拥有了这片土地。按空格键进入下一个王国。"
 
-#. Syndika (lv206)
+#. Tymnath Herez (lv301)
 #: guitext:1
 msgctxt "In-game message"
-msgid "Here you are in enemy territory Keeper. The smugglers are organised and have numerous defense posts at their disposal. Be quick and tactical to ensure your victory!"
-msgstr "你现在身处敌人的地盘之中，守护者。这些走私犯是有组织有纪律的，他们建造了许多哨所用于他们自己的防守。你必须迅速而明智地行动起来才能取得胜利！"
+msgid "The mighty Keepers Prerun (Blue) and Swailihr (Green) are both eager to seize this realm and each will not hesitate to start the conflict. The Heroes have dug themselves in, naively hoping they can survive the imminent onslaught! It is a shame they hold strategic positions and possess vital knowledge and treasures. "
+msgstr "强大的守护者普瑞伦（蓝色）和斯瓦里赫尔（绿色）渴望占据这个王国，他们两个人都会毫不犹豫地参与这场争夺战。英雄们向你的地下城进发，他们天真地以为他们能在即将到来的战斗中存活下来。遗憾的是，他们掌握了战略要领，还拥有着一些重要的知识和财富。"
 
-#. Syndika (lv206)
+#. Tymnath Herez (lv301)
 #: guitext:2
 msgctxt "In-game message"
-msgid "A Baron whose lands have been pillaged has joined your lines. Your chances of victory over the syndicate's agents have improved significantly!"
-msgstr "一名被夺走了领地的男爵加入了你的战线。你战胜辛迪加特工们的机会大大提高了！"
+msgid "Excellent Keeper! One of your enemies has fallen. I trust your losses were not too severe, as it's now time to eliminate another? "
+msgstr "很好，守护者！你已经消灭了一个敌人。我相信你的损失还不算太惨重，还可以继续消灭另一个敌人吧？"
 
-#. Syndika (lv206)
+#. Tymnath Herez (lv301)
 #: guitext:3
 msgctxt "In-game message"
-msgid "Now that you have slaughtered the syndicate's troops, his director seems pretty angry. Atrociously played Keeper! Now you must decimate his army, a necessary task in order to take control over these lands."
-msgstr "现在你已经消灭了辛迪加的军队，辛迪加的首领似乎非常生气。不要手下留情，守护者！现在你必须消灭他派来的另一支军队，这是你为了控制住这片土地所必须完成的任务。"
+msgid "Those greedy Keepers, and the irritiating Heroes have been dealt with effectively Master. This land is now yours! "
+msgstr "那些贪婪的守护者们和那些烦人的英雄都已经被正确地处理掉了，主人。这片土地现在是你的了！"
 
-#. Syndika (lv206)
+#. Tymnath Herez (lv301)
 #: guitext:4
 msgctxt "In-game message"
-msgid "The syndicate has been eradicated! Congratulations Keeper on your victory against the Director. "
-msgstr "辛迪加集团已经被斩草除根了！恭喜你战胜了辛迪加的首领，守护者。"
+msgid "So your rivals Prerun and Swailihr have been defeated? Good work. But Heroes remain, so you must hunt them down and eliminate them! "
+msgstr "所以你将你的两个对手普瑞伦和斯瓦里赫尔都打败了？干得不错。但是英雄们还活着，所以你必须追捕他们并消灭他们！"
 
-#. Kzelbatu (lv207)
+#. Yami (lv405)
 #: guitext:5
 msgctxt "In-game message"
-msgid "Magic powers in this realm have reduced your abilities. The meager resources of this realm are fiercely guarded by smugglers whom you must overcome if you are to be victorious Keeper! Maybe separate them from their heads?"
-msgstr "这个王国的魔法能量削弱了你的能力。这里仅有的一点财宝也被走私犯们严密地看守着，如果你想取得胜利，你必须杀死这些走私犯，守护者！也许你会砍下他们的头颅的，对吧?"
+msgid "This realm is ruled by the Shogun, a legendary Samurai warrior with great swordfighting skills. I say it's time we put these so-called skills to the test? But be warned, the Shogun may decide to pre-emptively attack us if we become too powerful. "
+msgstr "这个国家由一位将军统治，他是一位具有高超剑术的传奇忍者。我想，是时候考验一下他这些所谓的高超技术了！不过，要注意的是，如果我们发展得太强大了，这位将军可能会决定先发制人，主动进攻我们。"
 
-#. Kzelbatu (lv207)
+#. Yami (lv405)
 #: guitext:6
 msgctxt "In-game message"
-msgid "The smugglers have sent a raiding party towards you. You know what must be done! "
-msgstr "走私犯们向你派出了一支突击队。你知道该做什么了吧！"
+msgid "The Shogun himself has arrived... string him up! "
+msgstr "这位将军亲自上阵了……把他吊起来吧！"
 
-#. Kzelbatu (lv207)
+#. Yami (lv405)
 #: guitext:7
 msgctxt "In-game message"
-msgid "The elite troupe has been resurrected. Destroy them again, and this time let it be once and for all! "
-msgstr "敌人的精锐部队复活了。再次消灭他们，让他们再也无法回来吧！"
+msgid "The Shogun has fallen, now eliminate any remaining opposition! "
+msgstr "将军已经倒下了，现在消灭所有剩余的敌人！"
 
-#. Kzelbatu (lv207)
+#. Yami (lv405)
 #: guitext:8
 msgctxt "In-game message"
-msgid "A second bandit king has been raised in the secret altar, with a formidable army. When he counts his troops after the forthcoming battles, teach him to understand the number zero!"
-msgstr "第二个强盗首领和他的一支强大的军队在神秘的祭坛中复活了。在即将到来的战斗中，让他的军队无人生还吧！"
+msgid "Yami, the land of the Shogun is now under your control! An impressive victory Master. I'm sure there will be more? "
+msgstr "曾经统治这片土地的将军，亚米，现在拜倒在你的麾下了！一次令人印象深刻的胜利，主人。我相信你还会再接再厉的，对吧？"
 
-#. Kzelbatu (lv207)
+#. Temple Deal (lv443)
 #: guitext:9
 msgctxt "In-game message"
-msgid "Heroic reinforcements have arrived on your land to take your belongings. Reward them for their impudence! "
-msgstr "英雄援军已经抵达了你的土地，要夺回你的财宝。给这些厚颜无耻的家伙一点颜色看看吧！"
+msgid "Welcome Keeper! This a land where the wealth has been taken by Heroes and a Keeper to the South-East. Tunnellers will shortly arrive to steal what little gold you have, so your first task is to eliminate them somehow. To work! "
+msgstr "欢迎，守护者！这片土地上的大部分黄金已经被英雄和敌方守护者夺走了。而这些挖掘者们甚至还要前来把你地下城仅剩的一点黄金也抢走，所以你的首要任务是不惜一切代价消灭他们。开始行动吧！"
 
-#. Kzelbatu (lv207)
+#. Temple Deal (lv443)
 #: guitext:10
 msgctxt "In-game message"
-msgid "Agents have infiltrated your dungeon to steal gold. Find a way to make their suffering special!"
-msgstr "特工们潜入了你的地下城去偷你的金子。让他们承受非人的痛苦吧！"
+msgid "You will claim no portals in this realm Master. You know what is required? "
+msgstr "你无法在这片土地中获得入口，主人。你知道你需要做什么了吧？"
 
-#. Kzelbatu (lv207)
+#. Temple Deal (lv443)
 #: guitext:11
 msgctxt "In-game message"
-msgid "Hell must have a pact with these smugglers?  Make preparations Keeper, as these Demons have come to obliterate you! "
-msgstr "这些走私犯已经和地狱的恶魔签订了契约吗？做好准备，守护者，因为这些恶魔要前来消灭你！"
+msgid "Do I hear the sound of bones coming from north? Go have a look, but one skeleton won't be able to fight off these tunnellers! "
+msgstr "我好像听到附近有骨骼活动的声音？好像是从北方发出来的声音…去看一看吧；但是，光靠一只骷髅还不足以击败挖掘者！"
 
-#. Kzelbatu (lv207)
+#. Temple Deal (lv443)
 #: guitext:12
 msgctxt "In-game message"
-msgid "The last of the bandit masters is preparing to return. You must raze his realm to the ground! "
-msgstr "最后一个强盗首领正准备回到这里。你必须把他的领土夷为平地！"
+msgid "The rival keeper is very wealthy. Do not expect him to run out of gold. Heroes are gathering to the North-East. You would be wise  to avoid them until you have sufficient forces. An early encounter may cause an untimely end to your quest! "
+msgstr "敌方守护者非常富有。别指望等着他的黄金耗尽。英雄们聚集在东北方。在你积累了足够的兵力之前，最好避免与他们交战。贸然地出兵只会导致你的任务过早地失败！"
 
-#. Kzelbatu (lv207)
+#. Temple Deal (lv443)
 #: guitext:13
 msgctxt "In-game message"
-msgid "The Lord has returned with a bunch of optimistic puppets. Let the reward for their impudence be a slow death!"
-msgstr "首领带着一群不知死活的傀儡仆从回来了。让他们为他们的无耻行为交出性命吧！"
+msgid "Skeletons will not bring victory against the Hero troops. You must obtain stronger minions somehow? "
+msgstr "光靠几个骷髅还不足以对抗英雄部队。想办法获得更强大的怪物吧？"
 
-#. Kzelbatu (lv207)
+#. Temple Deal (lv443)
 #: guitext:14
 msgctxt "In-game message"
-msgid "The bandits and smugglers will not dare to return now.You have won a great Victory Master! "
-msgstr "强盗们和走私犯们现在不敢再回来了。你赢得了一次伟大的胜利，守护者！"
+msgid "Your enemies have realised that their minions end up in your army of the Undead, and have changed their strategy accordingly. These are formidable adversaries My Lord! "
+msgstr "英雄们看到他们的战友们居然都被你变成了你的亡灵大军，他们决定改变战略。这真是一群难缠的敌人，主人！"
 
-#. Titan 2 (lv254)
+#. Temple Deal (lv443)
 #: guitext:15
 msgctxt "In-game message"
-msgid "Congratulations. You have conquered the enemy hordes. "
-msgstr "恭喜你。你已经消灭了所有的敌军。"
+msgid "Look! Your imprisoned Vampire has company! "
+msgstr "看！你被囚禁的吸血鬼有人陪伴了！"
 
-#. Titan 2 (lv254)
+#. Temple Deal (lv443)
 #: guitext:16
 msgctxt "In-game message"
-msgid "Only one Dungeon Keeper can reign victorious over this land. Do not suffer a humiliating defeat Keeper, the penalty for such failure is torture and death!"
-msgstr "只有一名地下城守护者能在这片土地上赢得胜利。不要成为屈辱的失败者，守护者，因为失败的惩罚就是酷刑和死亡！"
+msgid "If you listen carefully you can hear one of your Keeper neighbours trying to break into the Hero Dungeon? "
+msgstr "仔细听，你应该能听见隔壁地下城的守护者正试图进攻英雄地下城的动静吧？"
 
-#. Titan 2 (lv254)
+#. Temple Deal (lv443)
 #: guitext:17
 msgctxt "In-game message"
-msgid "When your troops are sufficient in number and have had some training, lead them north and crush any who oppose you."
-msgstr "当你有了一定数量的军队，而且经过了一定的训练，那么就向北前进，消灭一切敢于抵抗的势力。"
+msgid "The Hero dungeon heart has fallen! However, this will attract further Hero reprisals! Will you survive Keeper? "
+msgstr "英雄的地下城心脏被摧毁了！但是，更多的英雄会前来复仇！你能生存下来吗，守护者?"
 
-#. Vassago (lv302)
+#. Temple Deal (lv443)
 #: guitext:18
 msgctxt "In-game message"
-msgid "This realm sees you and the Heroes as unlikely allies against a trio of rival Keepers. Dispose of them all, and I do mean ALL!"
-msgstr "在这个王国，你必须面对三个敌对的守护者，英雄们甚至也勉为其难地与他们结盟了。必须把他们都消灭掉，我是说“都”消灭掉！"
+msgid "Here they come! Defeat the Lord of Land and his company and the land is yours forever."
+msgstr "他们来了！打败这片土地的国王和他的军队，这片土地就永远是你的了。"
 
-#. Vassago (lv302)
+#. Temple Deal (lv443)
 #: guitext:19
 msgctxt "In-game message"
-msgid "You have triggered an alarm Keeper. More Heroes are on their way! "
-msgstr "你触发了警报，守护者。英雄们已经上路了！"
+msgid "The Lord of the Land lies dead! You have conquered this realm, and added it to your growing Empire. Congratulations Master. "
+msgstr "国王已经倒地身亡了！你征服了这个王国，并把它列入了你不断扩张的帝国版图。恭喜你。"
 
-#. Vassago (lv302)
+#. Temple Deal (lv443)
 #: guitext:20
 msgctxt "In-game message"
-msgid "You have more attacks to endure Keeper. Can you survive these relentless attacks?"
-msgstr "你还需要面对更多的敌人进攻，守护者。你能在这些无情的进攻之中生存下来吗？"
+msgid "Gold is not the only resource scarce in this land. You're limited to build only one tile of bridge at a time."
+msgstr "黄金并不是这块土地上唯一稀缺的资源。由于材料稀缺，你一次只能建造一格桥梁。"
 
-#. Vassago (lv302)
+#. Temple Deal (lv443)
 #: guitext:21
 msgctxt "In-game message"
-msgid "Yet more Hero reinforcements are on their way! But I think this is their last desperate attack. Survive this and victory may be yours!"
-msgstr "不过，还有更多的英雄援军正在赶往这里！但我觉得这是他们最后一次绝望的进攻了。坚持下来，胜利将属于你！"
+msgid "Smart move. But are you wealthy enough to afford them? "
+msgstr "聪明的发现。但是你有足够的钱供养这些怪物吗？"
 
-#. Vassago (lv302)
+#. Thug of War (lv451)
 #: guitext:22
 msgctxt "In-game message"
-msgid "Your tenacity has won you a remarkable victory here Keeper. Legends will tell of your achievements here today!"
-msgstr "守护者，你的坚持不懈为你赢得了一场非凡的胜利。你今天的成就将成为被人称颂的传说！"
+msgid "The best defence is a good offence. Kill the Heroes and steal their magic or they will overrun you."
+msgstr "进攻是最好的防守。尽快杀死英雄并窃取他们的魔法，否则他们会打败你。"
 
-#. Vassago (lv302)
+#. Thug of War (lv451)
 #: guitext:23
 msgctxt "In-game message"
-msgid "The hounds have been released!"
-msgstr "地狱之犬被放出来了！"
+msgid "Heroes will attack. Raid their dungeon to gain power, or get crushed by the relentless heroes of this realm."
+msgstr "英雄们很快就会发起进攻。掠夺他们的地下城以获取力量，否则你会被他们无情的军队粉碎。"
 
-#. Midway (lv336)
+#. Thug of War (lv451)
 #: guitext:24
 msgctxt "In-game message"
-msgid "Souls of ancient keepers lurk to the south-west. They watch you intently with what is left of their magical powers!"
-msgstr "远古守护者的灵魂潜伏在西南方。他们正在用他们仅剩的魔法力量聚精会神地看着你！"
+msgid "The Heroes have learned that being captured by you is a fate worse than death. They will avoid your prison at all cost. Better destroy them and take their magic before they really get smart! "
+msgstr "英雄们已经明白了，被你俘虏是比战死还糟糕的事情。他们会不惜一切代价避免被你抓进监狱。最好在他们学聪明之前杀死他们，并抢走他们的魔法！"
 
-#. Midway (lv336)
+#. Thug of War (lv451)
 #: guitext:25
 msgctxt "In-game message"
-msgid "Welcome to the Avatar's castle! His domain lies to the North-East, while his followers lurk to the North-West."
-msgstr "欢迎来到圣者的城堡！他的领地位于东北方,而他的追随者则潜伏在西北方。"
+msgid "You have a Dragon now, more powerful than you have ever seen!"
+msgstr "你获得了一条龙，它比你以前见过的普通的龙还要更强大！"
 
-#. Midway (lv336)
+#. Thug of War (lv451)
 #: guitext:26
 msgctxt "In-game message"
-msgid "Beware, the Avatar is escaping even now...."
-msgstr "注意，圣者现在正准备逃跑……"
+msgid "The Heroes know where you are. They will come for you."
+msgstr "英雄们发现你在哪里了。他们会来找你的。"
 
-#. Midway (lv336)
+#. Thug of War (lv451)
 #: guitext:27
 msgctxt "In-game message"
-msgid "The door to the east bears a simple plaque which reads, Emergency Exit - Keep Clear at all Times - Offenders will be shot!"
-msgstr "通往东面的大门上有一块简易的告示牌，上面写着：紧急出口——请勿靠近——违犯者将被枪毙！"
+msgid "You must hurry! The Heroes are gathering a massive party that will kill you. Strike them down or die trying."
+msgstr "你必须快点行动！英雄们正在聚集一个庞大的军团，他们会杀了你。要么打倒他们，要么战死沙场。"
 
-#. Midway (lv336)
+#. Thug of War (lv451)
 #: guitext:28
 msgctxt "In-game message"
-msgid "The Battle of Midway is afoot. Beware Evil one, the enemy is strong and well defended. Turn their misled minions against each other, sit back and let the butchery begin."
-msgstr "狭路相逢的战争正在进行之中。当心，邪恶的主人，敌人十分强大，而且戒备森严。让他们被蛊惑的仆从们自相残杀，然后坐下来，观看大屠杀开始吧。"
+msgid "This will hurt. You should have destroyed the heart."
+msgstr "这很要命。你之前应该摧毁这个地下城心脏的。"
 
-#. Midway (lv336)
+#. Thug of War (lv451)
 #: guitext:29
 msgctxt "In-game message"
-msgid "A fine victory Keeper!"
-msgstr "一次光荣的胜利，守护者！"
+msgid "You have reached the heart of this fortress. The final battle is upon you. Kill all Heroes, destroy the heart and claim their magic."
+msgstr "你已经到达了敌人要塞的中心地带。最后的决战就在你的面前。杀死所有英雄，摧毁心脏并夺取他们的魔法。"
 
-#. Crazy Reaper (lv406)
+#. Thug of War (lv451)
 #: guitext:30
 msgctxt "In-game message"
-msgid "Noble one, a massive army serves a Keeper by the name of Urien in this realm. Many of your forces are engaged in the East against Urien. However, you must also support our ally Keeper Morgant in the North who is also suffering from Urien's advancing onslaught.  Quite a task Keeper! "
-msgstr "尊贵的主人，这个王国中有一支庞大的军队听从一个叫做乌里安的守护者差遣。你的许多军队正在东边进攻乌里安。然而，你也必须保护你在北方的盟友，守护者莫甘特，他也正遭受着乌里安的进攻。真是个棘手的任务，守护者！"
+msgid "I was just starting to like them. Victory!"
+msgstr "我甚至有点喜欢上他们了。你胜利了！"
 
-#. Crazy Reaper (lv406)
+#. Generic defeat message
 #: guitext:31
 msgctxt "In-game message"
-msgid "Morgant has fallen to Urien's armies because you have failed in your duties Keeper. Defeat and shame are your reward."
-msgstr "莫甘特已经落入乌里安的手中，因为你没能履行你的职责好好保护他。失败和耻辱将成为你的奖品。"
+msgid "You have failed in your duties Keeper. Defeat and shame are your reward."
+msgstr "你没能履行你的职责，守护者。失败和耻辱将是对你的回报。"
 
-#. Crazy Reaper (lv406)
+#. Wetlands (lv452)
 #: guitext:32
 msgctxt "In-game message"
-msgid "An army without a Knight can never succeed, so your defeat is now sealed. Shame is your reward."
-msgstr "没有骑士领导的军队是不可能胜利的，所以你的失败已经注定了。耻辱将成为你的奖品。"
+msgid "I'll keep it simple. Get a Horned Reaper and use it to destroy the lord of the land."
+msgstr "任务：获得一个冥界使者，然后用它杀死这片土地上的国王。"
 
-#. Crazy Reaper (lv406)
+#. Wetlands (lv452)
 #: guitext:33
 msgctxt "In-game message"
-msgid "Well done noble one. Urien has fallen and Morgant flourishes. A rare act of loyalty has delivered a fine victory!"
-msgstr "干得好，尊贵的主人。乌里安已经灭亡，而莫甘特繁荣富强。一位罕见的忠诚的盟友带来了一次光荣的胜利！"
+msgid "You'll need a bridge to get a Horned Reaper. But Wizards have a spell in play to stop you from building one."
+msgstr "你需要一座桥才能获得一个冥界使者。然而巫师施展了一个咒语，阻止了你建造桥梁。"
 
-#. Crazy Reaper (lv406)
+#. Wetlands (lv452)
 #: guitext:34
 msgctxt "In-game message"
-msgid "Urien must have great power to recruit skeletons to the hero cause?!"
-msgstr "乌里安有着如此强大的力量，竟然能从英雄阵营中招募骷髅？！"
+msgid "We can't build temples in this realm, but we can move the pieces we have. Summon Horny!"
+msgstr "我们不能在这个王国自由建造寺庙，但我们可以移动我们已有的每一格寺庙。想办法召唤冥界使者吧！"
 
-#. Frostsorrow Glacier (lv407)
+#. Wetlands (lv452)
 #: guitext:35
 msgctxt "In-game message"
-msgid "Davaraux and Eis have suffered the same fate, and your rule over this land is now certain. A famous victory Keeper! "
-msgstr "达瓦洛斯领主和艾斯都没能逃过失败的命运，现在你对这片土地的控制权是毋庸置疑的。一次伟大的胜利，守护者！"
+msgid "Great, you can now make bridges! Use them to get a Horned Reaper to join you."
+msgstr "太好了，你现在可以造桥了。利用桥梁帮助你获得一个冥界使者吧。"
 
-#. Frostsorrow Glacier (lv407)
+#. Wetlands (lv452)
 #: guitext:36
 msgctxt "In-game message"
-msgid "Welcome Noble one! The ruler of this realm, Lord Davaraux, has gone rogue at the expense of the innocent citizens who are now overtaxed. Deal with this bandit king appropriately! Do not let other matters distract you; he is your first and only priority."
-msgstr "欢迎你，尊贵的主人！这个王国的统治者，达瓦洛斯领主，是个蛮横无理的家伙，这里无辜的公民遭受剥削，他们现在不堪重负。妥善处理这个暴君吧！不要让其他事情分散你的注意力；他是你的首要目标，也是唯一的目标。"
+msgid "Well done. Bile demons may now join us. "
+msgstr "做得很好。巨魔现在会从入口加入我们的阵营了。"
 
-#. Frostsorrow Glacier (lv407)
+#. Wetlands (lv452)
 #: guitext:37
 msgctxt "In-game message"
-msgid "Beware, we have detected the presence of a relentless Keeper called Eis whose massive demonic army will arrive within some days. Deal with Lord Davaraux swiftly, as you cannot hold Eis out indefinitely. "
-msgstr "注意，我们还发现了一个冷酷无情的守护者，名叫艾斯，他的庞大的恶魔军团将在几天之后到来。尽快与达瓦洛斯领主交涉，因为你不能永远一直拖延住艾斯的到来。"
+msgid "Well done! Destroy the Heroes and their stronghold. Keep Horny alive or all is lost."
+msgstr "做得很好！摧毁英雄和他们的堡垒。冥界使者必须存活，否则就前功尽弃了。"
 
-#. Frostsorrow Glacier (lv407)
+#. Wetlands (lv452)
 #: guitext:38
 msgctxt "In-game message"
-msgid "The forces of Eis have arrived! Defeat must now be certain? "
-msgstr "艾斯的军团已经到来了！你已经注定要失败了吗？"
+msgid "You've lost Horny? No second chances."
+msgstr "你失去了冥界使者？已经没有第二次机会了。"
 
-#. Frostsorrow Glacier (lv407)
+#. Wetlands (lv452)
 #: guitext:39
 msgctxt "In-game message"
-msgid "We have found construction plans for bridges. These will be essential if you are to defeat Eis. "
-msgstr "我们找到了桥梁的设计图。如果你想打败艾斯，它将是必不可少的。"
+msgid "Heroes think you are vulnerable, and will try to attack you until the bitter end. "
+msgstr "英雄认为你现在很脆弱，会试图进攻你，直到痛苦的尽头。"
 
-#. Return to Skybird Trill (lv416) xxxx
+#. Wetlands (lv452)
 #: guitext:40
 msgctxt "In-game message"
-msgid "Apologies Master, but grave developments have necessitated your return to the land of one of your greatest conquests. Four magical Heroes plan to create a skillful new Keeper to serve them! They must be reminded of your authority in this land? However, they have acquired great power, so you must expect an even greater challenge than your last visit. I'm sure you relish the opportunity to punish these Heroes for their impudence? To work your Evilness! "
-msgstr "抱歉，主人，现在你必须重返这个你征服过的最伟大的王国，因为情况十分危急。这里有四名精通魔法的英雄正在计划施展魔法创造出一个强大的新守护者，来永远守护他们！是时候让他们回忆一下你在这片土地中的权威了吧？然而，他们现在已经拥有了强大的力量，所以你必须面临一个比你上次来到这里更大的挑战。我相信你一定会很享受这次惩罚这些无耻的英雄的机会吧？开始行动吧，邪恶的主人！"
+msgid "Your enemies have learned that getting captured by you is a fate worse than death. They will avoid your prison at all cost."
+msgstr "你的敌人已经明白被你俘虏是比战死更糟糕的事情。他们会不惜一切代价避免被你抓进监狱。"
 
-#. Return to Skybird Trill (lv416)
+#. Wetlands (lv452)
 #: guitext:41
 msgctxt "In-game message"
 msgid "Your powers in this realm have been limited by the Magical Heroes, which will make progress difficult. However, their arrogance prevents them working together effectively, which will give you an opportunity to slay them all! "
 msgstr "你在这个王国中的力量受到了这些英雄的限制，这将使你很难继续发展。然而，这些自以为是的家伙们并不愿意并肩作战，这给了你一个将他们所有人逐个杀死的机会！"
 
-#. Return to Skybird Trill (lv416)
+#. Wetlands (lv452)
 #: guitext:42
 msgctxt "In-game message"
-msgid "How much do you recall of this realm Keeper? A trip down memory lane might prove useful? "
-msgstr "你还能记起来这个王国中的多少事情，守护者？回忆一下往事也许会有用处？"
+msgid "Victory! This realm is yours Keeper."
+msgstr "你胜利了！这个王国属于你了。"
 
-#. Return to Skybird Trill (lv416)
+#. Desperation (lv453)
 #: guitext:43
 msgctxt "In-game message"
-msgid "Your Majesty, I have received word that the Witch of Summonings awaits you. It would be rude not to visit her, especially as she holds many assets that you need? Best to make the visit short and simple! "
-msgstr "主人，我收到了女巫召唤师的消息，她正在等着你。不去拜访她一下是不礼貌的，尤其她还有着许多你所需要的东西。最好尽快完成这次拜访！"
+msgid "Your chances in this realm are slim to none. Three Keepers here are stronger than you. A desperate struggle awaits you. Hurry!"
+msgstr "你在这个王国取胜的机会微乎其微。这里的三个守护者都比你更加强大。你必须面临一场绝境中的斗争。快点行动吧！"
 
-#. Return to Skybird Trill (lv416)
+#. Desperation (lv453)
 #: guitext:44
 msgctxt "In-game message"
-msgid "I hope this isn't her only defense against you? She is but a trifle to be dealt with on your journey to reclaim this realm! "
-msgstr "这就是她唯一的防御措施吗？看来在你夺回这个王国的旅途中，她只是一个小插曲！"
+msgid "The remaining Keepers have now formed an alliance. Kill all who stand against you!"
+msgstr "剩下的两个守护者现在结盟了。杀死所有反抗你的人！"
 
-#. Return to Skybird Trill (lv416)
+#. Desperation (lv453)
 #: guitext:45
 msgctxt "In-game message"
-msgid "I see you've found some Orcs? These will be fine additions to your army, and help crush those who are against you! "
-msgstr "你找到了一群兽人？它们将壮大你的军队力量，并帮助你碾碎那些与你作对的人！"
+msgid "Blue is desperate. Kill him!"
+msgstr "蓝色守护者陷入了绝境。杀死他吧！"
 
-#. Return to Skybird Trill (lv416)
+#. Desperation (lv453)
 #: guitext:46
 msgctxt "In-game message"
-msgid "The Witch of Summonings can call forth Bile Demons at will. Maybe she is stronger than we thought? "
-msgstr "女巫召唤师竟然可以如此随意地召唤出巨魔。也许她比我们想象的更强大？"
+msgid "Green is trembling in fear. Finish the job!"
+msgstr "绿色守护者害怕得发抖。了结他吧！"
 
-#. Return to Skybird Trill (lv416)
+#. Desperation (lv453)
 #: guitext:47
 msgctxt "In-game message"
-msgid "Behold the Witch of Summonings! Isn't she happy to see you? Why don't you repay the compliment. Good manners demand that you  introduce yourself properly? "
-msgstr "看，女巫召唤师就在这里！她难道不高兴见你吗？你为什么不报答一下她呢？你一定会以礼貌的方式向她做自我介绍的，对吧？"
+msgid "Yellow can't take much more. Strike now to end him! "
+msgstr "黄色守护者已经不堪一击了。现在就动手，消灭他吧！"
 
-#. Return to Skybird Trill (lv416)
+#. Desperation (lv453)
 #: guitext:48
 msgctxt "In-game message"
-msgid "The Witch of Summonings is defeated! Seize her collection of spells and head to the East, where the gold you need will be found. Of course, it's not going to be handed to you for nothing! "
-msgstr "女巫召唤师被击败了！抢走她收集的魔法，然后前往东边，那里有你需要的金矿。当然，敌人可不会拱手让给你！"
+msgid "Drawn to the scent of desperation, the Heroes come to cleanse the land of all evil! Make sure you are the last one standing."
+msgstr "被绝望的气息所吸引，英雄们前来净化这片土地上的一切邪恶势力。确保你是笑到最后的那个人。"
 
-#. Return to Skybird Trill (lv416)
+#. Desperation (lv453)
 #: guitext:49
 msgctxt "In-game message"
-msgid "These Heroes have faith in their quest to take what is yours. As you have no faith in anything, power must be your substitute! Use this reclaimed power to break down the doors to their dungeon and teach the real meaning of fear! The Monk of Might will be your first victim. Armed with his faith, he waits to face you nearby! "
-msgstr "这些英雄忠于他们的使命，他们要夺走属于你的东西。但你不忠于任何人，你必须以你的权力替代他们的使命！用你刚刚恢复的力量去打破他们地下城的大门，并让他们领教恐惧的真正含义！一名神圣的僧侣将作为你的第一个受害者。他受他的信仰指引，正在附近等待着你！"
+msgid "You are victorious! About time."
+msgstr "你胜利了！你赢得了与时间的赛跑。"
 
-#. Return to Skybird Trill (lv416)
+#. Dread Mountain (lv454)
 #: guitext:50
 msgctxt "In-game message"
-msgid "Correct me if I'm wrong, which I doubt, but wasn't there a third way in? "
-msgstr "也许我说错了，但我不相信，难道就没有其他方法进入这里吗？"
+msgid "In this realm, food is power. Claim hatcheries, feed your bile demons until they are big and strong. Hurry, Heroes are coming!"
+msgstr "在这个王国中，食物就是力量。占领孵化室，喂养你的巨魔，直到它们变得又大又壮。快点行动，英雄们就要来了！"
 
-#. Return to Skybird Trill (lv416)
+#. Dread Mountain (lv454)
 #: guitext:51
 msgctxt "In-game message"
-msgid "Where does the Monk of Cowardice hide?. Use your instinct to make the right choice "
-msgstr "这个懦弱的僧侣藏在哪里了？用你的直觉做出正确的判断吧。"
+msgid "This magic gizmo spawns ugly little creatures called imps that you may use as slaves. To conquer the realm I mean. Don't have sex with them."
+msgstr "这个神奇的召唤阵会召唤一种叫做“小鬼”的丑陋小怪物，你可以用它们做你的奴隶。我的意思是奴役它们来帮你征服这个王国。注意，不要和它们做爱。"
 
-#. Return to Skybird Trill (lv416)
+#. Dread Mountain (lv454)
 #: guitext:52
 msgctxt "In-game message"
-msgid "Looks like this worthless Dwarf has been hiding behind locked doors creating boulder traps? He was stupid enough not to use them all which you can use to your advantage! "
-msgstr "看来这个没用的矮人一直把自己锁在里面制造圆石陷阱？他真是愚蠢，没有把这些陷阱都装上，现在反倒可以为你所用！"
+msgid "Two butt holes are better than one! Research a prison to give your bile demons more slaves. Be careful though, they don't care for the undead."
+msgstr "两个混蛋总比一个好！研究一个监狱给你的巨魔更多的奴隶吧。不过要注意，它们不喜欢亡灵生物。"
 
-#. Return to Skybird Trill (lv416)
+#. Dread Mountain (lv454)
 #: guitext:53
 msgctxt "In-game message"
-msgid "Such holy actions by such a holy Monk? Now take his holiness and corrupt it with your dark ways. This should be fun, right my lord? "
-msgstr "这就是一名神圣的僧侣所做的神圣的事情？现在用你邪恶的手段玷污他的神圣吧。这一定很有趣，对吧，主人？"
+msgid "Time to grow strong. Capture Heroes and claim hatcheries. When you're strong enough, find a weak spot in the blue defenses."
+msgstr "是时候发展壮大了。俘虏英雄并占领孵化室。当你足够强大的时候，找出蓝色守护者防御工事的弱点。"
 
-#. Return to Skybird Trill (lv416)
+#. Dread Mountain (lv454)
 #: guitext:54
 msgctxt "In-game message"
-msgid "You have acquired more power! This torture room allows you to attract the Dark Mistress. Now that the Monk has been dealt with, you must proceed to where an old rival, the Lava Fairy eagerly awaits you! Lets stop by to visit, and tell her how her friends are doing? "
-msgstr "你获得了更多的力量！这个审讯室可以让你吸引黑暗女王加入。现在僧侣已经被干掉了，你现在必须去寻找下一个敌人，这名仙女正在急切地等待着你！我们去拜访她吧，顺便告诉她，她的朋友们现在都怎么样了?"
+msgid "Destroy blue and clear the path towards the Hero stronghold."
+msgstr "摧毁蓝色守护者并清理通往英雄要塞的道路。"
 
-#. Return to Skybird Trill (lv416)
+#. Dread Mountain (lv454)
 #: guitext:55
 msgctxt "In-game message"
-msgid "And now to engage the Lava Fairy! Look at her abilities, and then look at her pitifulness in beseeching the great spirits to aid in her 'holy' quest. How brave, noble, and stupid! "
-msgstr "现在你要和这名仙女交战了！看看她那点可怜的能耐，再看看她乞求伟大的神灵帮助她完成“神圣”的使命时的可悲神情。多么勇敢、高尚和愚蠢啊！"
+msgid "You have found a way beyond the mountains. Destroy blue and clear the path towards the hero stronghold."
+msgstr "你找到了一条越过这座山脉的路。摧毁蓝色守护者并清理通往英雄要塞的道路。"
 
-#. Return to Skybird Trill (lv416)
+#. Dread Mountain (lv454)
 #: guitext:56
 msgctxt "In-game message"
-msgid "The Lava-Fairy is eliminated and the Training Room now yours to build! Next the Wizard of Allknowing awaits you in the northwestern area of this land. His power is great, yet no match for yours? Pay him a visit and deliver agonies he has never known; wretched evil deeds by someone dark and powerful who will show absolutely no mercy. In the unlikely event he survives, he should never forget it! "
-msgstr "仙女已经被消灭了，你现在可以建造训练室了！接下来，无所不知的强大巫师在这片土地的西北地区等着你。他的力量很强大，但还不是你的对手，对吧？去拜访他，带给他从未经历过的痛苦吧；让他领教一名黑暗而强大的人使出的绝对不会心慈手软的邪恶手段。即使他侥幸活下来，他也一定不会忘记这件事的！"
+msgid "With blue out of the way it is time to destroy the hero heart and rule this realm!"
+msgstr "随着蓝色守护者的灭亡，是时候摧毁英雄的心脏并征服这个王国了！"
 
-#. Return to Skybird Trill (lv416)
+#. Dread Mountain (lv454)
 #: guitext:57
 msgctxt "In-game message"
-msgid "The Mighty Wizard of All-Knowing appears to be neither Mighty nor All-Knowing! Time to share your own knowledge Master? "
-msgstr "无所不知的强大巫师现在似乎既不“强大”也不“无所不知”了！是时候向他分享你所拥有的知识了吧，主人？"
+msgid "Get the barbecue ready, it is time to eat those who stood against you. Victory! "
+msgstr "现在可以把烤架拿出来，准备烧烤那些与你作对的人了。你胜利了！"
 
-#. Return to Skybird Trill (lv416)
+#. Dread Mountain (lv454)
 #: guitext:58
 msgctxt "In-game message"
-msgid "The four Magical Heroes are defeated! But you cannot relax yet Master. Their final act was to invoke their Keeper creation, who is even now preparing his attack!. If you are to restore your authority in this land you must defeat him. Restoration of the Skybird Trill throne awaits you!"
-msgstr "四名精通魔法的英雄都被打败了！但你还不能掉以轻心，主人。他们最后的底牌是唤醒他们创造出的守护者，并准备向你发起最后的进攻！如果你想在这片土地上恢复你的权力，你必须打败他。太阳鸟鸣的王座正等待着你再次驾临！"
+msgid "Not only will these barracks attract powerful allies to your dungeon, they will also help you lead the assault on your rival. "
+msgstr "兵营不仅会吸引强大的怪物来到你的地下城，它也将帮助你组织怪物发起进攻。"
 
-#. Return to Skybird Trill (lv416)
+#. Dread Mountain (lv454)
 #: guitext:59
 msgctxt "In-game message"
-msgid "Your total victory is now complete Master! This land is yours once more. Let no-one dare to challenge you here again! However, I suspect they probably will?"
-msgstr "你的任务终于彻底完成了，主人！这片土地又一次属于你了。现在再也没有人敢在这里挑战你的权威了吧！不过，我怀疑未来还是说不定？"
+msgid "Your ghost has been drawn into the void, and has returned with a tiny body. "
+msgstr "你的鬼魂被拉进了虚空，带着一个小小的身躯回来了。"
 
-#. Heroic Invasion (lv442)
+#. Dread Mountain (lv454)
 #: guitext:60
 msgctxt "In-game message"
-msgid "Beware Master, for many Keepers have tried to conquer this land but they have all failed. These Heroes are not to be underestimated, and your presence in this realm is already known! Prepare for a tough war. The local forces are numerous, and determined to eject you before you can establish an effective army. You must train your forces swiftly, as attacks must surely start soon! "
-msgstr "注意，主人，许多守护者都曾试图征服这片土地，但他们都失败了。这些英雄不可小觑，你在这个王国的位置已经被他们发现了！准备打一场硬仗吧。当地的敌人数量众多，他们打算在你建立起一支有战斗力的军队之前就想把你驱逐出去。你必须迅速训练你的部队，因为敌人的进攻一定很快就会开始！"
+msgid "Your Bile Demons killed a Skeleton. The undead won't be much help here? "
+msgstr "你的巨魔杀死了一只骷髅。看来亡灵生物在这里帮不上什么忙了。"
 
-#. Heroic Invasion (lv442)
+#. Dread Mountain (lv454)
 #: guitext:61
 msgctxt "In-game message"
-msgid "Beware Keeper. An attack is on its way! Are your forces ready for battle? "
-msgstr "注意，守护者。敌人已经要发起进攻了！你的部队准备好迎战了吗？"
+msgid "All hope is lost! Farts breathe life into your dungeon. Keep your Bile Demons happy and alive. "
+msgstr "一切希望都破灭了！巨魔放的屁会让你的地下城充满生机。你必须保证你的巨魔快乐地存活着。"
 
-#. Heroic Invasion (lv442)
+#. Dread Mountain (lv454)
 #: guitext:62
 msgctxt "In-game message"
-msgid "Yet more Heroes? These people are determined to defeat you. You must stay focussed Keeper!"
-msgstr "更多的英雄要来了？这些人发誓要打败你。你必须保持专注，守护者！"
+msgid "Blue is well fortified. Claim all hatcheries to grow in power, then find a way through the mountains to kill him and the heroes. "
+msgstr "蓝色守护者的城池固若金汤。占领所有的孵化室以获得力量，然后找到一个办法穿过这座山脉杀死他和英雄们。"
 
-#. Heroic Invasion (lv442)
+#. Dread Mountain (lv454)
 #: guitext:63
 msgctxt "In-game message"
-msgid "Spies inform us that there are some abandoned magic spells to the South-West. These would be useful, but can you spare the time to find them? Oh, hang on, another raiding party is on its way! "
-msgstr "探子告诉我们，西南部有几本被丢弃的魔法书。它们会对你很有用处，但你能抽出时间去找吗？哦，等等，另一支敌人的突击部队马上就要来了！"
+msgid "Your Dark Mistress has rejoined blue! They don't seem to mind being tortured?"
+msgstr "你招降的黑暗女王又重新回到蓝色的阵营了！看来她们似乎并不介意被拷打？"
 
-#. Heroic Invasion (lv442)
+#. Frozen Legion (lv455)
 #: guitext:64
 msgctxt "In-game message"
-msgid "Another hero raiding party?! Where are they coming from? These people are relentless!"
-msgstr "又一支英雄的突击部队？！他们从哪里来的？这些人真是毫不留情！"
+msgid "The Heroes have gathered the biggest army you've ever seen. Your creatures won't be able to put up a fight. Traps will be the key to victory here. "
+msgstr "英雄们集结了你所见过的最强大的一支军队，你的怪物将难以抵挡。陷阱将是取得胜利的关键。"
 
-#. Heroic Invasion (lv442)
+#. Frozen Legion (lv455)
 #: guitext:65
 msgctxt "In-game message"
-msgid "Apparently a Knight has gathered an army to finish you off, and is on his way. You must force your exhausted minions back into action!"
-msgstr "显而易见，一名骑士已经召集了一支军队来干掉你，并且他们已经在路上了。你必须迫使你疲惫的仆从们重新行动起来！"
+msgid "The level will start when you claim your first creature. "
+msgstr "当你获得你的第一只怪物时，游戏将开始。"
 
-#. Heroic Invasion (lv442)
+#. Frozen Legion (lv455)
 #: guitext:66
 msgctxt "In-game message"
-msgid "Now a Knight has gathered a tunnelling party to drive you from this realm. Have you found the time to research any useful spells yet Keeper? "
-msgstr "现在一名骑士集结了一支由挖掘者带领的队伍，要把你赶出这个王国。你抽出时间研究出了有用的魔法了吗，守护者?"
+msgid "You should have started by claiming the creature. Welcome to hard mode! "
+msgstr "你应该一开始先去获取怪物，而不是去挖金子。欢迎进入困难模式！"
 
-#. Heroic Invasion (lv442)
+#. Frozen Legion (lv455)
 #: guitext:67
 msgctxt "In-game message"
-msgid "An impressive victory Keeper! I'm sure you will enjoy plundering this land in your own time, but your remaining minions must need a rest?!"
-msgstr "一次令人印象深刻的胜利，守护者！我猜你打算在闲暇的时间里继续享受掠夺这片土地的乐趣，但你的爪牙们却想要休息一下？！"
+msgid "Corpses are starting to build up. You need to find a graveyard! "
+msgstr "尸体开始堆积如山了。寻找一座陵墓吧！"
 
-#. Skybird's Other Side (lv920)
+#. Frozen Legion (lv455)
 #: guitext:68
 msgctxt "In-game message"
-msgid "You're in Skybird Trill again! What dark forces compel you to return to this realm? It seems the gods seek proof that you can achieve victory no matter which side of the realm your quest begins? Prove that your victory versus the Avatar is unavoidable, no matter where your dungeon must be built!"
-msgstr "你又一次来到太阳鸟鸣了！是什么黑暗力量迫使你又一次回到这个王国了？似乎黑暗之神希望你能证明自己，无论你的地下城位于这个王国的哪一边，你都可以取得胜利吧？向他证明，无论你的地下城建在哪一边，都无法阻止你成功地打倒圣者！"
+msgid "The Heroes will keep getting stronger. You must do something or perish! "
+msgstr "英雄们会变得越来越强大，如果不想坐以待毙的话，你必须做出行动！"
 
-#. Skybird's Other Side (lv920)
+#. Frozen Legion (lv455)
 #: guitext:69
 msgctxt "In-game message"
-msgid "You have destroyed the Avatar's castle but your rival has already taken the Avatar prisoner. Be that as it may, only the Keeper with the blackest heart can destroy this legendary hero, so ransack your rival's dungeon and take the prize. Hmm, getting a sense of deja-vu Master?"
-msgstr "你已经摧毁了圣者的城堡，而你的竞争者则囚禁了圣者。不过，只有一个最黑暗邪恶的守护者才能消灭这位传奇英雄，所以洗劫你敌人的地下城，并获得你的奖品。嗯…似曾相识的场面，主人？"
+msgid "You have the upper hand. Make a push to destroy their heart and break the attack! "
+msgstr "你在战斗中占了上风。一鼓作气地摧毁他们的心脏，阻止他们的进攻！"
 
-#. Skybird's Other Side (lv920)
+#. Frozen Legion (lv455)
 #: guitext:70
 msgctxt "In-game message"
-msgid "You have once more proved yourself to be the ruler of Skybird Trill! The latest Avatar lies amongst your defeated foes; you can put him with his predecessors! Your authority in this realm is unchallenged. For now, anyway........ "
-msgstr "你再一次证明了自己才是太阳鸟鸣的统治者！新一任的圣者倒在了被你击败的敌人之中；你可以把他和他的先辈们葬在一起了！你在这个王国的权威是毋庸置疑的。不管怎么说，至少现在如此……"
+msgid "End it now! Kill the Lord and destroy his heart to conquer this realm. "
+msgstr "是时候结束了！杀死国王，摧毁他的心脏，并征服这个王国。"
 
-#. Skybird's Other Side (lv920)
+#. Frozen Legion (lv455)
 #: guitext:71
 msgctxt "In-game message"
-msgid "Prepare yourself for a plague of angry dwarves! You must deal with these irritating minions robustly Keeper. They are the advance Heroes for a forthcoming attack it seems? "
-msgstr "准备好迎接一群愤怒的矮人吧！你必须残忍地消灭这些烦人的仆从。他们似乎就是即将到来的英雄中的先锋队？"
+msgid "That was easy? Victory! "
+msgstr "易如反掌。胜利了！"
 
-#. Skybird's Other Side (lv920)
+#. Frozen Legion (lv455)
 #: guitext:72
 msgctxt "In-game message"
-msgid "You have defeated the Avatar! However, you are familiar with this realm, and will know it's never safe to assume victory? "
-msgstr "你已经击败了圣者！然而，你已经对这个王国很熟悉了，应该知道现在还没有胜利吧？"
+msgid "You have a fighting chance. Don't let the Heroes whittle you down. "
+msgstr "你获得了进攻的机会。不要让英雄把你打垮。"
 
-#. Skybird's Other Side (lv920)
+#. Frozen Legion (lv455)
 #: guitext:73
 msgctxt "In-game message"
-msgid "And so the Avatar has returned with a formidable army! Prepare for the final battle Keeper. The fate of this realm must be decided very soon. "
-msgstr "圣者又一次回来了，还带领着一支强大的军队！为最后的战斗做好准备，守护者。这个王国的命运很快就会决定了。"
+msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, keep enough imps alive and you'll have an undead army to kill the heroes with. "
+msgstr "你的魔法发生器会牺牲你的吸血鬼，并为你提供足够数量的小鬼。然而，只有保持足够的小鬼存活，你才会拥有一支亡灵军团来消灭英雄。"
 
-#: guitext:74 guitext:75 guitext:76 guitext:77 guitext:78 guitext:79
-#: guitext:80 guitext:81 guitext:82 guitext:83 guitext:84 guitext:85
-#: guitext:86 guitext:87 guitext:88 guitext:89 guitext:90 guitext:91
-#: guitext:92 guitext:93 guitext:94 guitext:95 guitext:96 guitext:97
-#: guitext:98 guitext:99 guitext:100
-#: guitext:101 guitext:102 guitext:103 guitext:104 guitext:105 guitext:106
-#: guitext:107 guitext:108 guitext:109 guitext:110 guitext:111 guitext:112
+#. Shores of Battle (lv456)
+#: guitext:74
+msgctxt "In-game message"
+msgid "An ancient truce, the land divided. Kill them all, let none survive. And the Heroes? We'll cross that bridge when we come to it! "
+msgstr "由于古代战争，土地四分五裂。把他们都杀光，不留一个活口。那英雄怎么对付？船到桥头自然直！"
+
+#. Shores of Battle (lv456)
+#: guitext:75
+msgctxt "In-game message"
+msgid "As the wise man looks for a bridge the fool crosses the river. "
+msgstr "智者会去寻找桥梁，愚者才会赤脚过河。"
+
+#. Shores of Battle (lv456)
+#: guitext:76
+msgctxt "In-game message"
+msgid "Think of these heroes as dessert. Finish your main course first: Blue, Yellow and Green. After that, turn the Lord of the Land into whipped cream. "
+msgstr "把这些英雄想象成甜点。先吃完你的主菜：蓝色的、黄色的、绿色的。然后，把这片土地的国王变成鲜奶油吧。"
+
+#. Shores of Battle (lv456)
+#: guitext:77
+msgctxt "In-game message"
+msgid "With your rivals destroyed, plunder their dungeons and breach the centre. "
+msgstr "你的敌人们被消灭了，掠夺他们的地下城并攻破中心地带。"
+
+#. Shores of Battle (lv456)
+#: guitext:78
+msgctxt "In-game message"
+msgid "A bridge of blood and havoc stretches from the homes of heroes to the unforgiving nightmare emerging anew. Leave none alive. "
+msgstr "鲜血与浩劫的桥梁从英雄的家园延伸到无情的噩梦再次出现。不要留下活口。"
+
+#. Shores of Battle (lv456)
+#: guitext:79
+msgctxt "In-game message"
+msgid "The Heroes know conflict is imminent. Destroy them now before they take the offensive with a larger force. "
+msgstr "英雄们知道战争已经迫在眉睫，在他们集结更强大的力量发动进攻之前消灭他们。"
+
+#. Shores of Battle (lv456)
+#: guitext:80
+msgctxt "In-game message"
+msgid "It's now or never? Kill or be killed! "
+msgstr "时不再来。杀死敌人或者被敌人杀死！"
+
+#. Shores of Battle (lv456)
+#: guitext:81
+msgctxt "In-game message"
+msgid "Here they come! "
+msgstr "他们来了！"
+
+#. Shores of Battle (lv456)
+#: guitext:82
+msgctxt "In-game message"
+msgid "I give your performance 2 out of 5 spleens. But I guess it's the result that counts. Victory!"
+msgstr "我为你的表现打两分。但我想结果才是最重要的。你胜利了！"
+
+#. My Pet Dungeon (lv457)
+#: guitext:83
+msgctxt "In-game message"
+msgid "Welcome to SimDungeon. You can attract 25 evil creatures per portal. Heroes can be summoned at the spawner."
+msgstr "欢迎来到西姆的地下城。这里的每个入口可以吸引最多25个邪恶怪物加入。你可以把怪物放在三个召唤阵中来触发英雄进攻。"
+
+#. My Pet Dungeon (lv457)
+#: guitext:84
+msgctxt "In-game message"
+msgid "Find a way to build a bridge. It will help you to expand in this realm. "
+msgstr "想办法建一座桥。它将帮助你在这个王国中扩张地盘。"
+
+#. My Pet Dungeon (lv457)
+#: guitext:85
+msgctxt "In-game message"
+msgid "You're well on your way to an impressive dungeon? Get to one hundred units and we'll talk. "
+msgstr "看来你的地下城变得越来越具有吸引力了？当你获得100个怪物时，我们再来谈谈。"
+
+#. My Pet Dungeon (lv457)
+#: guitext:86
+msgctxt "In-game message"
+msgid "There is a way to breach the white wall and take over the north-west corner of the map. Useful but optional. "
+msgstr "有一种办法可以打破白色的墙壁，并占领地图的西北角。这很有帮助，但不是必须要做的。"
+
+#. My Pet Dungeon (lv457)
+#: guitext:87
+msgctxt "In-game message"
+msgid "You have a most impressive army. When you're done sell your prison. It will trigger an endless invasion. "
+msgstr "你建立了一支最令人印象深刻的军队。当你准备完成的时候，卖掉你的监狱。这将触发源源不断的敌人进攻。"
+
+#. My Pet Dungeon (lv457)
+#: guitext:88
+msgctxt "In-game message"
+msgid "Let's see how good your dungeon really is. How long can you survive? "
+msgstr "让我们看看你的地下城到底有多厉害吧。你能坚持几波攻击？"
+
+#. My Pet Dungeon (lv457)
+#: guitext:89
+msgctxt "In-game message"
+msgid "You've done the impossible. Victory! "
+msgstr "你完成了不可能完成的任务。你胜利了！"
+
+#. Ghost in the Machine (lv458)
+#: guitext:90
+msgctxt "In-game message"
+msgid "You have an old version of KeeperFX. You need to update to play this map. Visit www.keeperklan.com "
+msgstr "你的FX版游戏是旧版的。请更新至最新版本再来游玩本关卡。请访问www.keeperklan.com"
+
+#. Ghost in the Machine (lv458)
+#: guitext:91
+msgctxt "In-game message"
+msgid "The yellow Wizards are using powerful magic to hold you at bay. You can't reach them but the dark gods will help. Sacrifice all imps in battle or at the temple and they will send your ghosts to fight them. "
+msgstr "黄色的巫师施展了一种强大的魔法牵制住了你。你无法接触到他们，但黑暗之神会助你一臂之力。如果你在战斗中损失所有的小鬼或利用寺庙献祭所有的小鬼，黑暗之神就会把你的鬼魂传送过去和敌人的巫师战斗。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:92
+msgctxt "In-game message"
+msgid "You have angered the gods and lost all hope of victory. "
+msgstr "你把神惹怒了，已经失去了胜利的希望。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:93
+msgctxt "In-game message"
+msgid "Barbarians have started to attack. They will only increase in number. Kill them and you can use their ghosts in this ream. "
+msgstr "野蛮人开始进攻了。他们的数量会不断增加。杀死他们，你就可以将他们的灵魂为你所用。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:94
+msgctxt "In-game message"
+msgid "The Barbarians you've killed have returned as ghosts and joined your army. I suggest you kill all the Barbarians you can find? "
+msgstr "你杀死的每一个野蛮人都已经变成了鬼魂，加入了你的军队。我建议你继续杀死所有你能遇到的野蛮人。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:95
+msgctxt "In-game message"
+msgid "The Wizards will keep sending Barbarians in ever greater numbers, but it is all a distraction. They will use this time to grow beyond your might. Keep their power in check by regularly attacking them. "
+msgstr "巫师们会不断地派出越来越多的野蛮人，但这只是在分散你的注意力。他们会利用这段时间成长得更为强大。你必须通过经常对他们发动攻击来控制住他们的力量。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:96
+msgctxt "In-game message"
+msgid "With each Monk killed, the Ghosts gain in strength! Keep killing Monks as well as Barbarians. "
+msgstr "你每杀死一名僧侣，你召唤出的鬼魂的力量就会变得更强大！继续杀死僧侣和野蛮人吧。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:97
+msgctxt "In-game message"
+msgid "There are no more Monks so your Ghosts are as strong as they can get. They should be able to do some serious damage to the yellow Wizards? Dispose of your imps to initiate the attack. "
+msgstr "僧侣已经被杀光了，所以你召唤出的鬼魂已经是最强大的了。这样它们一定可以对黄色的巫师造成严重的打击了吧？扔掉你的所有小鬼，发起进攻吧。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:98
+msgctxt "In-game message"
+msgid "Your Ghosts are being transported to the yellow Hero stronghold! Destroy their heart and this realm is yours. "
+msgstr "你的鬼魂将被传送到黄色守护者的基地中！摧毁他的地下城心脏，这个王国就是你的了。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:99
+msgctxt "In-game message"
+msgid "These Ghosts are at maximum power. Surely the wizards don't stand a chance now? "
+msgstr "这些鬼魂已经是最强大的了。这下敌人的巫师肯定没有生还的机会了吧？"
+
+#. Ghost in the Machine (lv458)
+#: guitext:100
+msgctxt "In-game message"
+msgid "Your Ghosts have failed and paid the price for it! Luckily there's always more death? When you have regained enough Ghosts, eliminate your imps to try again. "
+msgstr "你的鬼魂战败了，并为此付出了代价。幸运的是，你还能杀死更多的敌人来获得更多的鬼魂。当你获得足够多的鬼魂了，扔掉你的所有小鬼，再试一次吧。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:101
+msgctxt "In-game message"
+msgid "This is taking too long. Let's see what happens. "
+msgstr "你花的时间太长了。是时候发起进攻了，让我们看看会发生什么吧。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:102
+msgctxt "In-game message"
+msgid "Your message could be posted here. Victory"
+msgstr "你可以在这里写下到此一游了。你胜利了！"
+
+#. Grail Run (lv444)
+#: guitext:103
+msgctxt "In-game message"
+msgid "As you have claimed your first room, Heroes have started gathering their troops and will be here soon. The more Heroes are wiped out, the stronger the groups they will form. "
+msgstr "当你得到你的第一个房间时，英雄们就会开始集结他们的军队，很快就会来到这里。英雄被消灭的越多，他们组建的军团就越强大。"
+
+#. Grail Run (lv444)
+#: guitext:104
+msgctxt "In-game message"
+msgid "First party has arrived! They seem to go lightly on on you. For now..."
+msgstr "第一个英雄军团来进攻了！他们似乎对你不能造成多大影响。至少现在是这样……"
+
+#. Grail Run (lv444)
+#: guitext:105
+msgctxt "In-game message"
+msgid "Having seen their previous efforts fail, the Heroes have formed a new group. "
+msgstr "看到他们之前的努力都白费了，英雄们又组成了一个新的军团。"
+
+#. Grail Run (lv444)
+#: guitext:106
+msgctxt "In-game message"
+msgid "Heroes have returned, this time with modified creatures to aid them! Careful, as these are definitely tougher than any common dungeon creatures! "
+msgstr "英雄们又来了，这次他们还带来了一些变异的怪物来帮助他们！小心，因为这些变异怪物绝对比普通的地下城怪物更强大！"
+
+#. Grail Run (lv444)
+#: guitext:107
+msgctxt "In-game message"
+msgid "Heroes have formed yet another army. If this attempt fails, the Avatar will come and take care of you! "
+msgstr "英雄们又组成了一个新的军团。如果这次进攻再次失败的话，圣者就要亲自前来处理你了！"
+
+#. Grail Run (lv444)
+#: guitext:108
+msgctxt "In-game message"
+msgid "It's time to prove yourself, Keeper. Clear the last wave and the land is yours! "
+msgstr "是时候证明你自己了，守护者。清除最后一波敌人，这片土地就是你的了！"
+
+#. Grail Run (lv444)
+#: guitext:109
+msgctxt "In-game message"
+msgid "This has been a humiliating defeat for the Heroes. Congratulations! "
+msgstr "英雄们十分耻辱地战败了。恭喜你！"
+
+#. Grail Run (lv444)
+#: guitext:110
+msgctxt "In-game message"
+msgid "You are in possession of a very unusual hero gate located to the east of your dungeon heart. It attracts units from other realms based on your claimed  dungeon rooms. Claim rooms to attract more and stronger units. Barracks=Barbarians, Workshop=Dwarves, Library=Warlocks, Temple=Monks, Training Rooms=Archers. New units arrive in groups but only if you have fewer than 22 minions. Withstand the hero waves, defeat the Avatar and his guards and this land is yours! "
+msgstr "你拥有一个非同寻常的传送门，位于你的地下城心脏的东面。它将来自其他王国的怪物召唤到你的地下城中。占领更多的房间来吸引更多更强大的怪物来帮助你。兵营吸引野蛮人，工厂吸引矮人，图书馆吸引魔术师，寺庙吸引僧侣，训练室吸引弓箭手。你一次可以获得一组新的怪物，并且只有当你拥有少于22个怪物时才会有效。顶住英雄的一波又一波进攻，打败圣者和他的军队，这片土地就是你的了！"
+
+#: guitext:111 guitext:112
 #: guitext:113 guitext:114 guitext:115 guitext:116 guitext:117 guitext:118
 #: guitext:119 guitext:120 guitext:121 guitext:122 guitext:123 guitext:124
 #: guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130
@@ -497,126 +713,74 @@ msgstr "圣者又一次回来了，还带领着一支强大的军队！为最后
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
 #: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
-#: guitext:198
-
-#: guitext:199
-msgctxt "Level name"
-msgid "Desperation"
-msgstr "绝境"
-
-#: guitext:200
-msgctxt "Level name"
-msgid "My Pet Dungeon"
-msgstr "我的宠物地城"
+#: guitext:198 guitext:199 guitext:200
 
 #: guitext:201
-msgctxt "Level name"
-msgid "Syndika"
-msgstr "辛迪加"
-
-#: guitext:202
-msgctxt "Level name"
-msgid "Kzelbatu"
-msgstr "科泽尔巴图"
-
-#: guitext:203
-msgctxt "Level name"
-msgid "Titan 2"
-msgstr "泰坦2"
-
-#: guitext:204
-msgctxt "Level name"
-msgid "Vassago"
-msgstr "瓦萨戈"
-
-#: guitext:205
-msgctxt "Level name"
-msgid "Midway"
-msgstr "狭路相逢"
-
-#: guitext:206
-msgctxt "Level name"
-msgid "Crazy Reaper"
-msgstr "疯狂的死神"
-
-#: guitext:207
-msgctxt "Level name"
-msgid "Frostsorrow Glacier"
-msgstr "悲凉冰川"
-
-#: guitext:208
-msgctxt "Level name"
-msgid "Return to Skybird Trill"
-msgstr "重返太阳鸟鸣"
-
-#: guitext:209
-msgctxt "Level name"
-msgid "Heroic invasion"
-msgstr "英雄的入侵"
-
-#: guitext:210
-msgctxt "Level name"
-msgid "Skybird's Other Side"
-msgstr "太阳鸟鸣反向对战"
-
-#: guitext:222 guitext:223 guitext:224 guitext:225
-msgctxt "Level name"
-msgid "Unused"
-
-#: guitext:211
-msgctxt "Level name"
-msgid "Juliana"
-msgstr "朱丽安娜"
-
-#: guitext:212
-msgctxt "Level name"
-msgid "Grail Run"
-msgstr "妄想之旅"
-
-#: guitext:213
-msgctxt "Level name"
-msgid "The Death Clock"
-msgstr "死亡时钟"
-
-#: guitext:214
-msgctxt "Level name"
-msgid "Thug of War"
-msgstr "战争暴徒"
-
-#: guitext:215
-msgctxt "Level name"
-msgid "The Frozen Legion"
-msgstr "冰封军团"
-
-#: guitext:216
-msgctxt "Level name"
-msgid "Temple Deal"
-msgstr "寺庙争夺战"
-
-#: guitext:217
-msgctxt "Level name"
-msgid "Ghost on the Machine"
-msgstr "鬼推磨"
-
-#: guitext:218
-msgctxt "Level name"
-msgid "Shores of Battle"
-msgstr "海岸战争"
-
-#: guitext:219
-msgctxt "Level name"
-msgid "Yami"
-msgstr "亚米"
-
-#: guitext:220
 msgctxt "Level name"
 msgid "Tymnath Herez"
 msgstr "提姆纳斯·赫瑞兹"
 
-#: guitext:221
+#: guitext:202
 msgctxt "Level name"
-msgid "Xeqnar"
-msgstr "泽格纳"
+msgid "Yami"
+msgstr "亚米"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Temple Deal"
+msgstr "寺庙争夺战"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Grail Run"
+msgstr "妄想之旅"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Thug of War"
+msgstr "战争暴徒"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Wetlands"
+msgstr "湿地"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Desperation"
+msgstr "绝境"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Dread Mountain"
+msgstr "恐惧之山"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Frozen Legion"
+msgstr "冰封军团"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Shores of Battle"
+msgstr "海岸战争"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "My Pet Dungeon"
+msgstr "我的宠物地城"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Ghost in the Machine"
+msgstr "鬼推磨"
+
+#: guitext:213 guitext:214 guitext:215 guitext:216
+#: guitext:217 guitext:218 guitext:219 guitext:220 guitext:221 guitext:222
+
+#: guitext:223 guitext:224 guitext:225
+msgctxt "Level name"
+msgid "Unused"
 
 #: guitext:226
 msgctxt "Creature spell"
@@ -2044,3 +2208,142 @@ msgid ""
 "for a final, decisive battle. LMB select. [18.15]"
 msgstr ""
 "末日审判: 将地下所有的怪物传送至地下城的心脏，进行大决战。左键选择。[18.15]"
+
+#: guitext:664 guitext:665 guitext:666 guitext:667 guitext:668 guitext:669
+#: guitext:670
+#: guitext:671 guitext:672 guitext:673 guitext:674 guitext:675 guitext:676
+#: guitext:677 guitext:678 guitext:679 guitext:680 guitext:681 guitext:682
+#: guitext:683 guitext:684 guitext:685 guitext:686 guitext:687 guitext:688
+#: guitext:689 guitext:690 guitext:691 guitext:692 guitext:693 guitext:694
+#: guitext:695 guitext:696 guitext:697 guitext:698 guitext:699 guitext:700
+#: guitext:701 guitext:702 guitext:703 guitext:704 guitext:705 guitext:706
+#: guitext:707 guitext:708 guitext:709 guitext:710 guitext:711 guitext:712
+#: guitext:713 guitext:714 guitext:715 guitext:716 guitext:717 guitext:718
+#: guitext:719 guitext:720 guitext:721 guitext:722 guitext:723 guitext:724
+#: guitext:725 guitext:726 guitext:727 guitext:728 guitext:729 guitext:730
+#: guitext:731 guitext:732 guitext:733 guitext:734 guitext:735 guitext:736
+#: guitext:737 guitext:738 guitext:739 guitext:740 guitext:741 guitext:742
+#: guitext:743 guitext:744 guitext:745 guitext:746 guitext:747 guitext:748
+#: guitext:749 guitext:750 guitext:751 guitext:752 guitext:753 guitext:754
+#: guitext:755 guitext:756 guitext:757 guitext:758 guitext:759 guitext:760
+#: guitext:761 guitext:762 guitext:763 guitext:764 guitext:765 guitext:766
+#: guitext:767 guitext:768 guitext:769 guitext:770 guitext:771 guitext:772
+#: guitext:773 guitext:774 guitext:775 guitext:776 guitext:777 guitext:778
+#: guitext:779 guitext:780 guitext:781 guitext:782 guitext:783 guitext:784
+#: guitext:785 guitext:786 guitext:787 guitext:788 guitext:789 guitext:790
+#: guitext:791 guitext:792 guitext:793 guitext:794 guitext:795 guitext:796
+#: guitext:797 guitext:798 guitext:799 guitext:800
+#: guitext:801 guitext:802 guitext:803 guitext:804 guitext:805 guitext:806
+#: guitext:807 guitext:808 guitext:809 guitext:810 guitext:811 guitext:812
+#: guitext:813 guitext:814 guitext:815 guitext:816 guitext:817 guitext:818
+#: guitext:819 guitext:820 guitext:821 guitext:822 guitext:823 guitext:824
+#: guitext:825 guitext:826 guitext:827 guitext:828 guitext:829 guitext:830
+#: guitext:831 guitext:832 guitext:833 guitext:834 guitext:835 guitext:836
+#: guitext:837 guitext:838 guitext:839 guitext:840 guitext:841 guitext:842
+#: guitext:843 guitext:844 guitext:845 guitext:846 guitext:847 guitext:848
+#: guitext:849 guitext:850 guitext:851 guitext:852 guitext:853 guitext:854
+#: guitext:855 guitext:856 guitext:857 guitext:858 guitext:859 guitext:860
+#: guitext:861 guitext:862 guitext:863 guitext:864 guitext:865 guitext:866
+#: guitext:867 guitext:868 guitext:869 guitext:870 guitext:871 guitext:872
+#: guitext:873 guitext:874 guitext:875 guitext:876 guitext:877 guitext:878
+#: guitext:879 guitext:880 guitext:881 guitext:882 guitext:883 guitext:884
+#: guitext:885 guitext:886 guitext:887 guitext:888 guitext:889 guitext:890
+#: guitext:891 guitext:892 guitext:893 guitext:894 guitext:895 guitext:896
+#: guitext:897 guitext:898 guitext:899 guitext:900
+#: guitext:901 guitext:902 guitext:903 guitext:904 guitext:905 guitext:906
+#: guitext:907 guitext:908 guitext:909 guitext:910 guitext:911 guitext:912
+#: guitext:913 guitext:914 guitext:915 guitext:916 guitext:917 guitext:918
+#: guitext:919 guitext:920 guitext:921 guitext:922 guitext:923 guitext:924
+#: guitext:925 guitext:926 guitext:927 guitext:928 guitext:929 guitext:930
+#: guitext:931 guitext:932 guitext:933 guitext:934 guitext:935 guitext:936
+#: guitext:937 guitext:938 guitext:939 guitext:940 guitext:941 guitext:942
+#: guitext:943 guitext:944 guitext:945 guitext:946 guitext:947 guitext:948
+#: guitext:949 guitext:950 guitext:951 guitext:952 guitext:953 guitext:954
+#: guitext:955 guitext:956 guitext:957 guitext:958 guitext:959 guitext:960
+#: guitext:961 guitext:962 guitext:963 guitext:964 guitext:965 guitext:966
+#: guitext:967 guitext:968 guitext:969 guitext:970 guitext:971 guitext:972
+#: guitext:973 guitext:974 guitext:975 guitext:976 guitext:977 guitext:978
+#: guitext:979 guitext:980
+
+#: guitext:981
+msgctxt "Trap names"
+msgid "Special Trap"
+msgstr "特殊陷井"
+
+#: guitext:982
+msgctxt "Trap names"
+msgid "Freeze Trap"
+msgstr "冰冻陷井"
+
+#: guitext:983
+msgctxt "Trap names"
+msgid "Fear Trap"
+msgstr "恐惧陷井"
+
+#: guitext:984
+msgctxt "Trap names"
+msgid "Sentry Trap"
+msgstr "岗哨陷井"
+
+#: guitext:985
+msgctxt "Trap names"
+msgid "Mimic Trap"
+msgstr "模拟陷井"
+
+#: guitext:986
+msgctxt "Trap names"
+msgid "Spawn Trap"
+msgstr "召唤陷井"
+
+#: guitext:987
+msgctxt "Trap names"
+msgid "Wind Trap"
+msgstr "风暴陷井"
+
+#: guitext:988
+msgctxt "Trap names"
+msgid "Spitfire Trap"
+msgstr "喷火陷井"
+
+#: guitext:989
+msgctxt "Trap names"
+msgid "Chicken Trap"
+msgstr "小鸡陷井"
+
+#: guitext:990
+msgctxt "Trap names"
+msgid "Disease Trap"
+msgstr "疾病陷井"
+
+#: guitext:991
+msgctxt "Trap names"
+msgid "Power Trap"
+msgstr "能量陷井"
+
+#: guitext:992
+msgctxt "Trap names"
+msgid "Switch"
+msgstr "开关"
+
+#: guitext:993
+msgctxt "Trap names"
+msgid "Hidden Switch"
+msgstr "隐藏开关"
+
+#: guitext:994
+msgctxt "Door name"
+msgid "Special Door"
+msgstr "特殊门"
+
+#: guitext:995
+msgctxt "Door name"
+msgid "Hidden Door"
+msgstr "隐藏门"
+
+#: guitext:996 guitext:997 guitext:998 guitext:999 guitext:1000 guitext:1001
+#: guitext:1002 guitext:1003 guitext:1004
+
+#: guitext:1005
+msgctxt "Dungeon special decription"
+msgid "Mysterious Box: There's no telling what this will do."
+msgstr "神秘物品：没有说明它是干什么用的。"
