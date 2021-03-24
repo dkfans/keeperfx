@@ -729,44 +729,9 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     {
         instf_pretty_path(creatng, NULL);
     }
-    if (first_person_dig_claim_mode)
+    else if (first_person_dig_claim_mode)
     {
-        MapSlabCoord reinforce_slb_x;
-        MapSlabCoord reinforce_slb_y;
-        if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
-        {
-            reinforce_slb_y = slb_y - 1;
-            reinforce_slb_x = slb_x;
-        }
-        else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
-        {
-            reinforce_slb_y = slb_y + 1;
-            reinforce_slb_x = slb_x; 
-        }
-        else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
-        {
-            reinforce_slb_y = slb_y;
-            reinforce_slb_x = slb_x - 1;
-        }
-        else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
-        {
-            reinforce_slb_y = slb_y;
-            reinforce_slb_x = slb_x + 1; 
-        }
-        if ( check_place_to_reinforce(creatng, reinforce_slb_x, reinforce_slb_y) )
-        {
-            slb = get_slabmap_block(reinforce_slb_x, reinforce_slb_y);
-            if ((slb->kind >= SlbT_EARTH) && (slb->kind <= SlbT_TORCHDIRT))
-            {
-                if (slab_by_players_land(creatng->owner, reinforce_slb_x, reinforce_slb_y))
-                {
-                    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-                    cctrl->digger.working_stl = get_subtile_number_at_slab_center(reinforce_slb_x, reinforce_slb_y);
-                    set_creature_instance(creatng, CrInst_REINFORCE, 0, 0, 0); 
-                } 
-            }
-        }
-        else if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
+        if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
         {
             slb = get_slabmap_block(slb_x, slb_y);
             struct SlabAttr* slbattr = get_slab_attrs(slb);
@@ -784,6 +749,44 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                     {
                         output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
                     }
+                }
+            }
+        }
+        else
+        {
+            MapSlabCoord reinforce_slb_x;
+            MapSlabCoord reinforce_slb_y;
+            if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
+            {
+                reinforce_slb_y = slb_y - 1;
+                reinforce_slb_x = slb_x;
+            }
+            else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
+            {
+                reinforce_slb_y = slb_y + 1;
+                reinforce_slb_x = slb_x; 
+            }
+            else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
+            {
+                reinforce_slb_y = slb_y;
+                reinforce_slb_x = slb_x - 1;
+            }
+            else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
+            {
+                reinforce_slb_y = slb_y;
+                reinforce_slb_x = slb_x + 1; 
+            }
+            if ( check_place_to_reinforce(creatng, reinforce_slb_x, reinforce_slb_y) )
+            {
+                slb = get_slabmap_block(reinforce_slb_x, reinforce_slb_y);
+                if ((slb->kind >= SlbT_EARTH) && (slb->kind <= SlbT_TORCHDIRT))
+                {
+                    if (slab_by_players_land(creatng->owner, reinforce_slb_x, reinforce_slb_y))
+                    {
+                        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                        cctrl->digger.working_stl = get_subtile_number_at_slab_center(reinforce_slb_x, reinforce_slb_y);
+                        set_creature_instance(creatng, CrInst_REINFORCE, 0, 0, 0); 
+                    } 
                 }
             }
         }
