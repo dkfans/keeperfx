@@ -475,15 +475,8 @@ msgctxt "In-game message"
 msgid "And so the Avatar has returned with a formidable army! Prepare for the final battle Keeper. The fate of this realm must be decided very soon. "
 msgstr "圣者又一次回来了，还带领着一支强大的军队！为最后的战斗做好准备，守护者。这个王国的命运很快就会决定了。"
 
-#. 
-#: guitext:74
-msgctxt "In-game message"
-msgid ""
-""
-msgstr ""
-
-#: guitext:75 guitext:76 guitext:77 guitext:78 guitext:79 guitext:80
-#: guitext:81 guitext:82 guitext:83 guitext:84 guitext:85
+#: guitext:74 guitext:75 guitext:76 guitext:77 guitext:78 guitext:79
+#: guitext:80 guitext:81 guitext:82 guitext:83 guitext:84 guitext:85
 #: guitext:86 guitext:87 guitext:88 guitext:89 guitext:90 guitext:91
 #: guitext:92 guitext:93 guitext:94 guitext:95 guitext:96 guitext:97
 #: guitext:98 guitext:99 guitext:100
@@ -566,7 +559,7 @@ msgctxt "Level name"
 msgid "Skybird's Other Side"
 msgstr "太阳鸟鸣反向对战"
 
-#: guitext:223 guitext:224 guitext:225
+#: guitext:222 guitext:223 guitext:224 guitext:225
 msgctxt "Level name"
 msgid "Unused"
 

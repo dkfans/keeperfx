@@ -77,7 +77,9 @@ pkg/campgns/undedkpr/text_pol.dat
 
 MPTEXTDATS = \
 pkg/levels/classic/text_eng.dat \
-pkg/levels/classic/text_chi.dat
+pkg/levels/classic/text_chi.dat \
+pkg/levels/standard/text_eng.dat \
+pkg/levels/standard/text_chi.dat
 
 pkg-languages: lang-before $(NGTEXTDATS) $(NCTEXTDATS) $(MPTEXTDATS) pkg-before
 
