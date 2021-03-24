@@ -1289,6 +1289,26 @@ short get_creature_control_action_inputs(void)
             }
             message_add(CrInst, get_string(StrID));
         }
+        if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
+        {
+            char CrInst = -70;
+            if (creature_instance_is_available(creatng, CrInst_FIRST_PERSON_DIG))
+            {
+                if (game.active_messages_count > 0)
+                {
+                    clear_messages_from_player(CrInst);
+                }
+            }
+            first_person_dig_claim_mode ^= 1;
+            if (first_person_dig_claim_mode)
+            {
+                message_add_fmt(CrInst, "Claim mode");
+            }
+            else
+            {
+                message_add_fmt(CrInst, "Normal mode");
+            }
+        }
     // In possession sets the screen blue when frozen, and to default when not.
     if (creature_affected_by_spell(thing, SplK_Freeze)) 
     {
