@@ -22,7 +22,7 @@ space = $(empty) $(empty)
 CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
 MAPPACK_CFGS = $(patsubst %,pkg/levels/%.cfg,$(MAPPACKS))
 
-.PHONY: pkg-before pkg-copydat pkg-campaigns pkg-languages
+.PHONY: pkg-before pkg-copydat pkg-campaigns pkg-mappacks pkg-languages
 
 package: pkg/keeperfx-$(subst $(space),_,$(subst .,_,$(VER_STRING)))-$(PACKAGE_SUFFIX)-patch.7z
 
@@ -38,7 +38,7 @@ clean-package:
 
 deep-clean-package:
 
-pkg/%.7z: pkg-before pkg-copybin pkg-copydat pkg-campaigns pkg-languages
+pkg/%.7z: pkg-before pkg-copybin pkg-copydat pkg-campaigns pkg-mappacks pkg-languages
 	$(ECHO) 'Creating package: $@'
 	cd $(@D); \
 	7z a "$(@F)" "*" -x!*/.svn -x!.svn -x!.git -x!*.7z
@@ -67,24 +67,6 @@ pkg-campaigns: pkg-before $(CAMPAIGN_CFGS)
 
 pkg-mappacks: pkg-before $(MAPPACK_CFGS)
 
-# special block for Original Campaign - it is copied elswhere
-pkg/campgns/keeporig.cfg: campgns/keeporig.cfg
-	@$(MKDIR) $(@D)
-#	 Copy folder with campaign name (w/o extension), if it exists
-	$(if $(wildcard $(<:%.cfg=%)),$(MKDIR) pkg/levels)
-	$(if $(wildcard $(<:%.cfg=%)),-$(CP) $(<:%.cfg=%)/map*.* pkg/levels/)
-#	 Copy folder with campaign name and _cfgs ending, if it exists
-	$(if $(wildcard $(<:%.cfg=%_cfgs)),$(MKDIR) $(@:%.cfg=%_cfgs))
-	$(if $(wildcard $(<:%.cfg=%_cfgs)),-$(CP) $(<:%.cfg=%_cfgs)/*.cfg $(@:%.cfg=%_cfgs)/)
-#	 Copy folder with campaign name and _crtr ending, if it exists
-	$(if $(wildcard $(<:%.cfg=%_crtr)),$(MKDIR) $(@:%.cfg=%_crtr))
-	$(if $(wildcard $(<:%.cfg=%_crtr)),-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/)
-#	 Copy folder with campaign name and _lnd ending, if it exists
-	$(if $(wildcard $(<:%.cfg=%_lnd)),$(MKDIR) pkg/ldata)
-	$(if $(wildcard $(<:%.cfg=%_lnd)),-$(CP) $(<:%.cfg=%_lnd)/*.txt pkg/ldata/)
-#	 Copy the actual campaign file
-	$(CP) $< $@
-
 pkg/campgns/%.cfg: campgns/%.cfg
 	@$(MKDIR) $(@D)
 #	 Copy folder with campaign name (w/o extension), if it exists
@@ -100,17 +82,17 @@ pkg/campgns/%.cfg: campgns/%.cfg
 	$(CP) $< $@
 
 pkg/levels/%.cfg: levels/%.cfg
-    @$(MKDIR) $(@D)
+	@$(MKDIR) $(@D)
 #	 Copy folder with map pack name (w/o extension), if it exists
 	 $(if $(wildcard $(<:%.cfg=%)),$(MKDIR) $(@:%.cfg=%))
 	 $(if $(wildcard $(<:%.cfg=%)),-$(CP) $(<:%.cfg=%)/map*.* $(@:%.cfg=%)/)
-#	 Copy folder with campaign name and _crtr ending, if it exists
+#	 Copy folder with map pack name and _crtr ending, if it exists
 	 $(if $(wildcard $(<:%.cfg=%_crtr)),$(MKDIR) $(@:%.cfg=%_crtr))
 	 $(if $(wildcard $(<:%.cfg=%_crtr)),-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/)
 #	 Copy folder with map pack and _lnd ending, if it exists
 	 $(if $(wildcard $(<:%.cfg=%_lnd)),$(MKDIR) $(@:%.cfg=%_lnd))
 	 $(if $(wildcard $(<:%.cfg=%_lnd)),-$(CP) $(<:%.cfg=%_lnd)/*.txt $(@:%.cfg=%_lnd)/)
-#	 Copy the actual campaign file
+#	 Copy the actual map pack file
 	 $(CP) $< $@
 
 #******************************************************************************

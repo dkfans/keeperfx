@@ -73,11 +73,11 @@ pkg/campgns/twinkprs/text_pol.dat \
 pkg/campgns/twinkprs/text_chi.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
-pkg/campgns/undedkpr/text_pol.dat \
+pkg/campgns/undedkpr/text_pol.dat
 
 MPTEXTDATS = \
 pkg/levels/classic/text_eng.dat \
-pkg/levels/classic/text_chi.dat \
+pkg/levels/classic/text_chi.dat
 
 pkg-languages: lang-before $(NGTEXTDATS) $(NCTEXTDATS) $(MPTEXTDATS) pkg-before
 
@@ -130,29 +130,55 @@ pkg/fxdata/gtext_%.dat: lang/gtext_%.pot tools/po2ngdat/res/char_encoding_tbl_eu
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
+# Creation of engine language files for campaigns
+define define_campaign_language_rule
+
+pkg/campgns/$(1)/text_ch%.dat: lang/campgns/$(1)/text_ch%.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
+pkg/campgns/$(1)/%.dat: lang/campgns/$(1)/%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
+pkg/campgns/$(1)/%.dat: lang/campgns/$(1)/%.pot tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
+endef
+
 # Creation of engine language files for map packs
 define define_mappack_language_rule
 
 pkg/levels/$(1)/text_ch%.dat: lang/levels/$(1)/text_ch%.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $$(POTONGDAT)
-    -$$(ECHO) 'Building language file: $$@'
-    @$$(MKDIR) $$(@D)
-    $$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
-    -$$(ECHO) 'Finished building: $$@'
-    -$$(ECHO) ' '
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
 
 pkg/levels/$(1)/%.dat: lang/levels/$(1)/%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
-    -$$(ECHO) 'Building language file: $$@'
-    @$$(MKDIR) $$(@D)
-    $$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
-    -$$(ECHO) 'Finished building: $$@'
-    -$$(ECHO) ' '
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
 
 pkg/levels/$(1)/%.dat: lang/levels/$(1)/%.pot tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
-    -$$(ECHO) 'Building language file: $$@'
-    @$$(MKDIR) $$(@D)
-    $$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
-    -$$(ECHO) 'Finished building: $$@'
-    -$$(ECHO) ' '
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
 
 endef
 
