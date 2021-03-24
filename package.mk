@@ -20,6 +20,7 @@ empty =
 space = $(empty) $(empty)
 
 CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
+MAPPACK_CFGS = $(patsubst %,pkg/levels/%.cfg,$(MAPPACKS))
 
 .PHONY: pkg-before pkg-copydat pkg-campaigns pkg-languages
 
@@ -49,6 +50,7 @@ pkg-before:
 	$(MKDIR) pkg/creatrs
 	$(MKDIR) pkg/data
 	$(MKDIR) pkg/ldata
+	$(MKDIR) pkg/levels
 	$(MKDIR) pkg/fxdata
 	$(MKDIR) pkg/campgns
 
@@ -62,6 +64,8 @@ pkg-copydat: pkg-before
 	$(CP) config/fxdata/*.cfg pkg/fxdata/
 
 pkg-campaigns: pkg-before $(CAMPAIGN_CFGS)
+
+pkg-mappacks: pkg-before $(MAPPACK_CFGS)
 
 # special block for Original Campaign - it is copied elswhere
 pkg/campgns/keeporig.cfg: campgns/keeporig.cfg
@@ -94,5 +98,19 @@ pkg/campgns/%.cfg: campgns/%.cfg
 	$(if $(wildcard $(<:%.cfg=%_lnd)),-$(CP) $(<:%.cfg=%_lnd)/*.txt $(@:%.cfg=%_lnd)/)
 #	 Copy the actual campaign file
 	$(CP) $< $@
+
+pkg/levels/%.cfg: levels/%.cfg
+    @$(MKDIR) $(@D)
+#	 Copy folder with map pack name (w/o extension), if it exists
+	 $(if $(wildcard $(<:%.cfg=%)),$(MKDIR) $(@:%.cfg=%))
+	 $(if $(wildcard $(<:%.cfg=%)),-$(CP) $(<:%.cfg=%)/map*.* $(@:%.cfg=%)/)
+#	 Copy folder with campaign name and _crtr ending, if it exists
+	 $(if $(wildcard $(<:%.cfg=%_crtr)),$(MKDIR) $(@:%.cfg=%_crtr))
+	 $(if $(wildcard $(<:%.cfg=%_crtr)),-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/)
+#	 Copy folder with map pack and _lnd ending, if it exists
+	 $(if $(wildcard $(<:%.cfg=%_lnd)),$(MKDIR) $(@:%.cfg=%_lnd))
+	 $(if $(wildcard $(<:%.cfg=%_lnd)),-$(CP) $(<:%.cfg=%_lnd)/*.txt $(@:%.cfg=%_lnd)/)
+#	 Copy the actual campaign file
+	 $(CP) $< $@
 
 #******************************************************************************
