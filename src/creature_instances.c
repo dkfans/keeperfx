@@ -735,7 +735,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         {
             slb = get_slabmap_block(slb_x, slb_y);
             struct SlabAttr* slbattr = get_slab_attrs(slb);
-            set_creature_instance(creatng, CrInst_DESTROY_AREA, 0, 0, 0);
+            instf_destroy(creatng, NULL);
             if (slbattr->category == SlbAtCtg_RoomInterior)
             {
                 struct Room* room = room_get(slb->room_index);
@@ -785,7 +785,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                     {
                         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                         cctrl->digger.working_stl = get_subtile_number_at_slab_center(reinforce_slb_x, reinforce_slb_y);
-                        set_creature_instance(creatng, CrInst_REINFORCE, 0, 0, 0); 
+                        instf_reinforce(creatng, NULL);                        
                     } 
                 }
             }
