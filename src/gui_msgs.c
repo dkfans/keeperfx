@@ -51,12 +51,13 @@ void message_draw(void)
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
         LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
         unsigned long spr_idx;
-        TbBool IsCreature, IsCreatureSpell;
+        TbBool IsCreature, IsCreatureSpell, IsRoom;
         TbBool NotPlayer = ((char)gameadd.messages[i].plyr_idx < 0);
         if (NotPlayer)
         {
             IsCreature = ( ((char)gameadd.messages[i].plyr_idx >= -31) && ((char)gameadd.messages[i].plyr_idx <= -1) );
-            IsCreatureSpell = ((char)gameadd.messages[i].plyr_idx < -31);
+            IsCreatureSpell = ((char)gameadd.messages[i].plyr_idx >= -78) && ((char)gameadd.messages[i].plyr_idx <= -32);
+            IsRoom = ((char)gameadd.messages[i].plyr_idx <= -79);
             if (IsCreature)
             {
                 spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
@@ -66,6 +67,13 @@ void message_draw(void)
             else if (IsCreatureSpell)
             {
                 spr_idx = instance_button_init[~(char)(((char)gameadd.messages[i].plyr_idx) + 31) + 1].symbol_spridx;
+                x -= (10 * units_per_pixel / 16);
+                y -= (10 * units_per_pixel / 16);
+            }
+            else if (IsRoom)
+            {
+                struct RoomData* rdata = room_data_get_for_kind(~(char)(((char)gameadd.messages[i].plyr_idx) + 78) + 1);
+                spr_idx = rdata->medsym_sprite_idx;
                 x -= (10 * units_per_pixel / 16);
                 y -= (10 * units_per_pixel / 16);
             }
@@ -85,7 +93,7 @@ void message_draw(void)
             {
                 y += (20 * units_per_pixel / 16);
             }
-            else if (IsCreatureSpell)
+            else if ( (IsCreatureSpell) || (IsRoom) )
             {
                 y += (10 * units_per_pixel / 16);
             }
