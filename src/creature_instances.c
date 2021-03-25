@@ -741,13 +741,16 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                 struct Room* room = room_get(slb->room_index);
                 if (!room_is_invalid(room))
                 {
-                    MapCoord coord_x = subtile_coord_center(room->central_stl_x);
-                    MapCoord coord_y = subtile_coord_center(room->central_stl_y);
-                    event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
-                        EvKind_RoomUnderAttack, room->owner, 0);
-                    if (is_my_player_number(room->owner))
+                    if (room->owner != my_player_number)
                     {
-                        output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                        MapCoord coord_x = subtile_coord_center(room->central_stl_x);
+                        MapCoord coord_y = subtile_coord_center(room->central_stl_y);
+                        event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
+                            EvKind_RoomUnderAttack, room->owner, 0);
+                        if (is_my_player_number(room->owner))
+                        {
+                            output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                        }
                     }
                 }
             }
