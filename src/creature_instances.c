@@ -725,10 +725,6 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
     struct SlabMap* slb;
-    if (game.active_messages_count > 0)
-    {
-        clear_messages_from_player(-70);
-    }
     if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
     {
         instf_pretty_path(creatng, NULL);
