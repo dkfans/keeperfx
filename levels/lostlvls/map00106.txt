@@ -1,0 +1,199 @@
+rem vince's generic script base
+
+rem map number 00106  (possible level 1)
+
+level_version(1)
+
+
+
+
+rem random generation stuff
+
+
+rem frequency of creature generation
+set_generate_speed(500)
+
+rem highest creature level allowed
+rem neutral_entrance_level(1)
+
+
+rem creatures from entrances limit
+max_creatures(player0,10)
+
+
+
+
+
+
+rem available stuff for human player
+
+start_money(player0,1000)
+
+
+
+rem creatures available for human player
+
+creature_available(player0,imp,1,0)
+creature_available(player0,bug,1,0)
+
+
+rem rooms available for human player
+
+room_available(player0,dungeon_heart,1,1)
+room_available(player0,treasure,1,1)
+
+
+if(player0,treasure>=1)
+room_available(player0,lair,1,1)
+room_available(player0,garden,1,1)
+endif
+
+
+rem spells available for human player
+
+magic_available(player0,power_hand,1,1)
+magic_available(player0,power_imp,1,1)
+magic_available(player0,power_obey,1,1)
+magic_available(player0,power_slap,1,1)
+
+add_creature_to_pool(bug, 10)
+
+
+
+rem traps available for human player
+
+rem			trap_available(player0,boulder,1,1)
+rem			trap_available(player0,poison_gas,1,1)
+
+
+****************************************************************
+
+
+
+
+rem hero groups
+
+create_party(group1)
+add_to_party(group1,thief,1,100,attack_dungeon_heart,0)
+
+create_party(group2)
+add_to_party(group2,thief,1,100,attack_dungeon_heart,0)
+add_to_party(group2,thief,1,100,attack_dungeon_heart,0)
+
+create_party(group3)
+add_to_party(group3,knight,1,500,attack_dungeon_heart,0)
+
+
+
+
+***************************************************************
+
+
+rem level specific gameplay stuff
+
+rem create_text(1,"build a treasure room and fill it with 2000 gold.")
+rem display_objective(1)
+quick_objective(1, "Build a Treasure Room and fill it with 2000 gold.", all_players)
+
+
+if(player0,money>=2000)
+rem create_text(2,"well done. now build a lair and hatchery and attract 5 creatures into your dungeon.")
+rem display_objective(2)
+quick_objective(2, "Well done. Now build a Lair and Hatchery and attract five creatures into your dungeon.", all_players)
+rem max_creatures(player0,6)
+change_slab_type(42,25,​dirt)
+endif
+
+
+
+if(player0,total_creatures>=5)
+rem set_timer(player0,timer6)
+rem if(player0,timer6>=200)
+rem create_text(3,"excellent.  now continue to mine the area for gold, but beware, your success will have attracted the unwanted attentions of local heros. defend youre dungeon from these do-gooders."
+rem display_objective(3)
+quick_objective(3, "Excellent. Now continue to mine the area for gold, but beware, your success will have attracted the unwanted attentions of local heroes. Defend your dungeon from these do-gooders.", all_players)
+add_tunneller_to_level(player_good,1,dungeon_heart,0,1,250)
+rem set_timer(player0,timer1)
+set_flag(player_good,flag0,1)
+rem endif
+endif
+
+rem if(player0,timer1>=50)
+if (player_good,flag0==1)
+rem			if_action_point(5,player0)
+rem add_tunneller_to_level(player_good,1,dungeon_heart,0,1,250)
+
+
+rem set_timer(player0,timer3) 
+if(player_good,total_creatures==0)
+set_flag(player_good,flag0,2)
+endif
+endif
+rem if(player0,timer3>=50)
+rem			if_action_point(6,player0)
+if(player_good,flag0==2)
+add_tunneller_to_level(player_good,2,dungeon_heart,0,1,250)
+add_party_to_level(player_good,group1,2,1)
+
+rem			if(player_good,total_creatures==0)
+rem			set_timer(player0,timer4)
+rem			if(player0,timer4>=50)
+rem			if_action_point(7,player0)
+rem			add_tunneller_to_level(player_good,3,dungeon_heart,0,1,250)
+rem			add_party_to_level(player_good,group2,3,1)
+
+if(player_good,total_creatures==0)
+rem set_timer(player0,timer0)
+rem if(player0,timer0>=200)
+rem create_text(4,"your continued success has attracted the attentions of the local lord. he must be defeated so you can claim this realm as your own."
+rem display_objective(4)
+quick_objective(4, "Your continued success has attracted the attentions of the local lord. He must be defeated so you can claim this realm as your own.", all_players)
+set_flag(player_good,flag0,3)
+endif
+endif
+rem if(player_good,total_creatures==0)
+rem			set_timer(player0,timer5)
+rem			if(player0,timer5>=70)
+if(player_good,flag0==3)
+add_party_to_level(player_good,group3,2,1)
+
+if(player_good,knight==0)
+rem set_timer(player0,timer7)
+rem if(player0,timer7>=100)
+rem create_text(5,"great work. by defeating the lord you have claimed this realm as your own.")
+rem display_objective(5)
+quick_objective(5, "Great work. By defeating the lord, you have claimed this realm as your own.", all_players)
+rem set_timer(player0,timer2)
+
+rem if(player0,timer2>=50)
+win_game
+
+rem			endif
+rem			endif
+rem endif
+rem endif
+rem endif
+rem endif
+rem endif
+rem endif
+rem endif
+endif
+endif
+
+
+rem if(player0,dungeon_heart==0)
+if(player0,heart_health==0)
+rem create_text(6,"you have been defeated.better luck next time")
+rem display_objective(6)
+quick_objective(6, "You have been defeated. Better luck next time.", player0)
+rem lose_game
+
+endif
+
+
+
+
+ 
+
+
+
