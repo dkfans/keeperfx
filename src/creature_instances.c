@@ -741,7 +741,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                 struct Room* room = room_get(slb->room_index);
                 if (!room_is_invalid(room))
                 {
-                    if (room->owner != my_player_number)
+                    if (room->owner != creatng->owner)
                     {
                         MapCoord coord_x = subtile_coord_center(room->central_stl_x);
                         MapCoord coord_y = subtile_coord_center(room->central_stl_y);
