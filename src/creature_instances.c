@@ -741,6 +741,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                 struct Room* room = room_get(slb->room_index);
                 if (!room_is_invalid(room))
                 {
+                    char id = ((~room->kind) + 1) - 78;
                     if (room->owner != creatng->owner)
                     {
                         MapCoord coord_x = subtile_coord_center(room->central_stl_x);
@@ -751,12 +752,18 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         {
                             output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
                         }
-                        char id = ((~room->kind) + 1) - 78; 
                         if (game.active_messages_count > 0)
                         {
                             clear_messages_from_player(id);
                         }
                         message_add_fmt(id, "Health: %d", room->health);
+                    }
+                    else
+                    {
+                        if (game.active_messages_count > 0)
+                        {
+                            clear_messages_from_player(id);
+                        }
                     }
                 }
             }
