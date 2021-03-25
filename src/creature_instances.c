@@ -785,7 +785,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                     {
                         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                         cctrl->digger.working_stl = get_subtile_number_at_slab_center(reinforce_slb_x, reinforce_slb_y);
-                        instf_reinforce(creatng, NULL);                        
+                        instf_reinforce(creatng, NULL);
                     } 
                 }
             }
