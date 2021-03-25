@@ -1782,6 +1782,24 @@ msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
 msgstr "任务失败 - 按ESCAPE键重新开始"
 
+#: guitext:336 guitext:337 guitext:338 guitext:339 guitext:340 guitext:341
+#: guitext:342 guitext:344 guitext:345 guitext:346 guitext:347 guitext:348
+#: guitext:349 guitext:350 guitext:351 guitext:352 guitext:353 guitext:354
+#: guitext:355 guitext:356 guitext:357 guitext:358 guitext:359 guitext:360
+#: guitext:361 guitext:362 guitext:363 guitext:364 guitext:365 guitext:366
+#: guitext:367 guitext:368 guitext:369 guitext:370 guitext:371 guitext:372
+#: guitext:373 guitext:374 guitext:375 guitext:376 guitext:377 guitext:378
+#: guitext:379 guitext:380 guitext:381 guitext:382 guitext:383 guitext:384
+#: guitext:385 guitext:386 guitext:387 guitext:388 guitext:389 guitext:390
+#: guitext:391 guitext:392 guitext:393 guitext:394 guitext:395 guitext:396
+#: guitext:397 guitext:398 guitext:399 guitext:400 guitext:401 guitext:402
+#: guitext:403 guitext:404 guitext:405 guitext:406 guitext:407 guitext:408
+#: guitext:409 guitext:410 guitext:411 guitext:412 guitext:413 guitext:414
+#: guitext:415 guitext:416 guitext:417 guitext:418 guitext:419
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
 #: guitext:420
 msgctxt "Dungeon special decription"
 msgid "Reveal Map: Reveals the entire underground realm to you."
@@ -1881,10 +1899,8 @@ msgid "Avatar"
 msgstr "圣者"
 
 #: guitext:548 guitext:549 guitext:550 guitext:551
-       
 msgctxt "Unused"
 msgid "Moo7"
-                                                                  
 msgstr ""
 
 #: guitext:552
@@ -2397,6 +2413,140 @@ msgstr "定时炸弹"
 msgctxt "Keeper spell description"
 msgid "Armageddon: Transports all the creatures in the land to your Dungeon Heart for a final, decisive battle. LMB select. [18.15]"
 msgstr "末日审判: 将地下所有的怪物传送至地下城的心脏，进行大决战。左键选择。[18.15]"
+
+#: guitext:664 guitext:665 guitext:666 guitext:667 guitext:668 guitext:669
+#: guitext:670
+#: guitext:671 guitext:672 guitext:673 guitext:674 guitext:675 guitext:676
+#: guitext:677 guitext:678 guitext:679 guitext:680 guitext:681 guitext:682
+#: guitext:683 guitext:684 guitext:685 guitext:686 guitext:687 guitext:688
+#: guitext:689 guitext:690 guitext:691 guitext:692 guitext:693 guitext:694
+#: guitext:695 guitext:696 guitext:697 guitext:698 guitext:699 guitext:700
+#: guitext:701 guitext:702 guitext:703 guitext:704 guitext:705 guitext:706
+#: guitext:707 guitext:708 guitext:709 guitext:710 guitext:711 guitext:712
+#: guitext:713 guitext:714 guitext:715 guitext:716 guitext:717 guitext:718
+#: guitext:719 guitext:720 guitext:721 guitext:722 guitext:723 guitext:724
+#: guitext:725 guitext:726 guitext:727 guitext:728 guitext:729 guitext:730
+#: guitext:731 guitext:732 guitext:733 guitext:734 guitext:735 guitext:736
+#: guitext:737 guitext:738 guitext:739 guitext:740 guitext:741 guitext:742
+#: guitext:743 guitext:744 guitext:745 guitext:746 guitext:747 guitext:748
+#: guitext:749 guitext:750 guitext:751 guitext:752 guitext:753 guitext:754
+#: guitext:755 guitext:756 guitext:757 guitext:758 guitext:759 guitext:760
+#: guitext:761 guitext:762 guitext:763 guitext:764 guitext:765 guitext:766
+#: guitext:767 guitext:768 guitext:769 guitext:770 guitext:771 guitext:772
+#: guitext:773 guitext:774 guitext:775 guitext:776 guitext:777 guitext:778
+#: guitext:779 guitext:780 guitext:781 guitext:782 guitext:783 guitext:784
+#: guitext:785 guitext:786 guitext:787 guitext:788 guitext:789 guitext:790
+#: guitext:791 guitext:792 guitext:793 guitext:794 guitext:795 guitext:796
+#: guitext:797 guitext:798 guitext:799 guitext:800
+#: guitext:801 guitext:802 guitext:803 guitext:804 guitext:805 guitext:806
+#: guitext:807 guitext:808 guitext:809 guitext:810 guitext:811 guitext:812
+#: guitext:813 guitext:814 guitext:815 guitext:816 guitext:817 guitext:818
+#: guitext:819 guitext:820 guitext:821 guitext:822 guitext:823 guitext:824
+#: guitext:825 guitext:826 guitext:827 guitext:828 guitext:829 guitext:830
+#: guitext:831 guitext:832 guitext:833 guitext:834 guitext:835 guitext:836
+#: guitext:837 guitext:838 guitext:839 guitext:840 guitext:841 guitext:842
+#: guitext:843 guitext:844 guitext:845 guitext:846 guitext:847 guitext:848
+#: guitext:849 guitext:850 guitext:851 guitext:852 guitext:853 guitext:854
+#: guitext:855 guitext:856 guitext:857 guitext:858 guitext:859 guitext:860
+#: guitext:861 guitext:862 guitext:863 guitext:864 guitext:865 guitext:866
+#: guitext:867 guitext:868 guitext:869 guitext:870 guitext:871 guitext:872
+#: guitext:873 guitext:874 guitext:875 guitext:876 guitext:877 guitext:878
+#: guitext:879 guitext:880 guitext:881 guitext:882 guitext:883 guitext:884
+#: guitext:885 guitext:886 guitext:887 guitext:888 guitext:889 guitext:890
+#: guitext:891 guitext:892 guitext:893 guitext:894 guitext:895 guitext:896
+#: guitext:897 guitext:898 guitext:899 guitext:900
+#: guitext:901 guitext:902 guitext:903 guitext:904 guitext:905 guitext:906
+#: guitext:907 guitext:908 guitext:909 guitext:910 guitext:911 guitext:912
+#: guitext:913 guitext:914 guitext:915 guitext:916 guitext:917 guitext:918
+#: guitext:919 guitext:920 guitext:921 guitext:922 guitext:923 guitext:924
+#: guitext:925 guitext:926 guitext:927 guitext:928 guitext:929 guitext:930
+#: guitext:931 guitext:932 guitext:933 guitext:934 guitext:935 guitext:936
+#: guitext:937 guitext:938 guitext:939 guitext:940 guitext:941 guitext:942
+#: guitext:943 guitext:944 guitext:945 guitext:946 guitext:947 guitext:948
+#: guitext:949 guitext:950 guitext:951 guitext:952 guitext:953 guitext:954
+#: guitext:955 guitext:956 guitext:957 guitext:958 guitext:959 guitext:960
+#: guitext:961 guitext:962 guitext:963 guitext:964 guitext:965 guitext:966
+#: guitext:967 guitext:968 guitext:969 guitext:970 guitext:971 guitext:972
+#: guitext:973 guitext:974 guitext:975 guitext:976 guitext:977 guitext:978
+#: guitext:979 guitext:980
+
+#: guitext:981
+msgctxt "Trap names"
+msgid "Special Trap"
+msgstr "特殊陷井"
+
+#: guitext:982
+msgctxt "Trap names"
+msgid "Freeze Trap"
+msgstr "冰冻陷井"
+
+#: guitext:983
+msgctxt "Trap names"
+msgid "Fear Trap"
+msgstr "恐惧陷井"
+
+#: guitext:984
+msgctxt "Trap names"
+msgid "Sentry Trap"
+msgstr "岗哨陷井"
+
+#: guitext:985
+msgctxt "Trap names"
+msgid "Mimic Trap"
+msgstr "模拟陷井"
+
+#: guitext:986
+msgctxt "Trap names"
+msgid "Spawn Trap"
+msgstr "召唤陷井"
+
+#: guitext:987
+msgctxt "Trap names"
+msgid "Wind Trap"
+msgstr "风暴陷井"
+
+#: guitext:988
+msgctxt "Trap names"
+msgid "Spitfire Trap"
+msgstr "喷火陷井"
+
+#: guitext:989
+msgctxt "Trap names"
+msgid "Chicken Trap"
+msgstr "小鸡陷井"
+
+#: guitext:990
+msgctxt "Trap names"
+msgid "Disease Trap"
+msgstr "疾病陷井"
+
+#: guitext:991
+msgctxt "Trap names"
+msgid "Power Trap"
+msgstr "能量陷井"
+
+#: guitext:992
+msgctxt "Trap names"
+msgid "Switch"
+msgstr "开关"
+
+#: guitext:993
+msgctxt "Trap names"
+msgid "Hidden Switch"
+msgstr "隐藏开关"
+
+#: guitext:994
+msgctxt "Door name"
+msgid "Special Door"
+msgstr "特殊门"
+
+#: guitext:995
+msgctxt "Door name"
+msgid "Hidden Door"
+msgstr "隐藏门"
+
+#: guitext:996 guitext:997 guitext:998 guitext:999 guitext:1000 guitext:1001
+#: guitext:1002 guitext:1003 guitext:1004
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
