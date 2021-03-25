@@ -1289,7 +1289,7 @@ short get_creature_control_action_inputs(void)
             }
             message_add(CrInst, get_string(StrID));
         }
-        if (is_key_pressed(KC_SEMICOLON,KMod_NONE))
+        if (is_game_key_pressed(Gkey_CrtrContrlMod, &val, false))
         {
             char CrInst = -70;
             if (creature_instance_is_available(creatng, CrInst_FIRST_PERSON_DIG))
@@ -1308,7 +1308,6 @@ short get_creature_control_action_inputs(void)
             {
                 message_add_fmt(CrInst, "Normal mode");
             }
-            clear_key_pressed(KC_SEMICOLON);
         }
     // In possession sets the screen blue when frozen, and to default when not.
     if (creature_affected_by_spell(thing, SplK_Freeze)) 
