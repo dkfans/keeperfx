@@ -36,6 +36,7 @@
 #include "room_workshop.h"
 #include "power_hand.h"
 #include "game_legacy.h"
+#include "player_states.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -371,7 +372,11 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
             if (evidx == 0) {
                 if (is_my_player_number(dungeon->owner))
                 {
-                    play_non_3d_sample(947);
+                    struct PlayerInfo* player = get_player(dungeon->owner);
+                    if ( (game.play_gameturn > 10) && (player->view_type == PVT_DungeonTop) && ((game.operation_flags & GOF_ShowGui)) )
+                    {
+                        play_non_3d_sample(947);
+                    }
                 }
                 SYNCDBG(1,"New button at position %d",(int)i);
                 dungeon->event_button_index[i] = event->index;
