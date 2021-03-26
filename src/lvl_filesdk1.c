@@ -128,7 +128,25 @@ long level_lif_entry_parse(char *fname, char *buf)
   // Skip spaces and control chars
   while (buf[i] != '\0')
   {
-    if (!isspace(buf[i]) && (buf[i] != ',') && (buf[i] != ';') && (buf[i] != ':'))
+    // Check for commented-out lines
+    if (buf[i] == ';')
+    {
+      // Loop through the entire commented-out line
+      while (buf[i] != '\0')
+      {
+        if ((buf[i] == '\n') || (buf[i] == '\r'))
+        {
+          break;
+        }
+        i++;
+        if (i >= 10000) // arbritarily big number to prevent an infinte loop if last line is a comment that doesn't have a new line at the end
+        {
+          WARNMSG("commented-out line from \"%s\" is too long at %d characters", fname,i);
+          return 0;
+        }
+      }
+    }
+    if (!isspace(buf[i]) && (buf[i] != ',') && (buf[i] != ';') && (buf[i] != ':') && (buf[i] != '\n') && (buf[i] != '\r'))
       break;
     i++;
   }
