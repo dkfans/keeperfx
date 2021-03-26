@@ -204,7 +204,7 @@ long level_lif_entry_parse(char *fname, char *buf)
   // Store level name
   if (add_freeplay_level_to_campaign(&campaign,lvnum) < 0)
   {
-    WARNMSG("Can't add freeplay level from \"%s\" to campaign", fname);
+    WARNMSG("Can't add freeplay level from \"%s\" to campaign \"%s\"", fname, campaign.name);
     return 0;
   }
   if (!set_level_info_text_name(lvnum,cbuf,LvOp_IsFree))
