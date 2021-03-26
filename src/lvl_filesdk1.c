@@ -150,6 +150,9 @@ long level_lif_entry_parse(char *fname, char *buf)
       break;
     i++;
   }
+  // when the last line of a .lif is a comment, we check here if the end of the file has been reached (and we should exit the function)
+  if (buf[i] == '\0')
+    return 0;
   // Get level number
   char* cbuf;
   long lvnum = strtol(&buf[i], &cbuf, 0);
