@@ -1356,6 +1356,22 @@ struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo)
   return &campaign.lvinfos[i];
 }
 
+short set_level_info_string_index(LevelNumber lvnum, char *stridx, unsigned long lvoptions)
+{
+    if (campaign.lvinfos == NULL)
+        init_level_info_entries(&campaign, 0);
+    struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
+    if (lvinfo == NULL)
+        return false;
+    int k = atoi(stridx);
+    if (k > 0)
+    {
+        lvinfo->name_stridx = k;
+        return true;
+    }
+  return false;
+}
+
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions)
 {
     if (campaign.lvinfos == NULL)
@@ -1363,17 +1379,6 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;
-    // Check if 'NAME_ID' is in use
-    //if (name[0] == "#")
-    //{
-        name++;
-        int k = atoi(name);
-        if (k > 0)
-        {
-            lvinfo->name_stridx = k;
-        }
-        name--;
-    //}
     strncpy(lvinfo->name, name, LINEMSG_SIZE - 1);
     lvinfo->name[LINEMSG_SIZE - 1] = '\0';
     if ((lvoptions & LvOp_IsFree) != 0)

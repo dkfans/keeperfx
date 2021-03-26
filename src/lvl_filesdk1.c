@@ -166,6 +166,16 @@ long level_lif_entry_parse(char *fname, char *buf)
       break;
     cbuf++;
   }
+  // IF the next field starts with a "#" then treat it as a string ID for the level's name
+    if (cbuf[0] == '#')
+    {
+      cbuf++;
+      if (!set_level_info_string_index(lvnum,cbuf,LvOp_IsFree))
+      {
+        WARNMSG("Can't set string index of level %d from file \"%s\"", lvnum, fname);
+      }
+      cbuf--;
+    }
   // Find length of level name; make it null-terminated
   i = 0;
   while (cbuf[i] != '\0')
