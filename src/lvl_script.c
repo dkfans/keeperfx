@@ -134,6 +134,8 @@ const struct NamedCommand variable_desc[] = {
     {"SKELETONS_RAISED",            SVar_SKELETONS_RAISED},
     {"VAMPIRES_RAISED",             SVar_VAMPIRES_RAISED},
     {"CREATURES_CONVERTED",         SVar_CREATURES_CONVERTED},
+    {"EVIL_CREATURES_CONVERTED",    SVar_EVIL_CREATURES_CONVERTED},
+    {"GOOD_CREATURES_CONVERTED",    SVar_GOOD_CREATURES_CONVERTED},
     {"TIMES_ANNOYED_CREATURE",      SVar_TIMES_ANNOYED_CREATURE},
     {"TIMES_TORTURED_CREATURE",     SVar_TIMES_TORTURED_CREATURE},
     {"TOTAL_DOORS_MANUFACTURED",    SVar_TOTAL_DOORS_MANUFACTURED},
@@ -5632,6 +5634,12 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_REWARDED:
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->creature_awarded[validx];
+    case SVar_EVIL_CREATURES_CONVERTED:
+        dungeonadd = get_dungeon(plyr_idx);
+        return dungeonadd->evil_creatures_converted;
+    case SVar_GOOD_CREATURES_CONVERTED:
+        dungeonadd = get_dungeon(plyr_idx);
+        return dungeonadd->good_creatures_converted;
     default:
         break;
     };
