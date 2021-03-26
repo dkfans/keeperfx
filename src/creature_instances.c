@@ -731,9 +731,9 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     }
     else if (first_person_dig_claim_mode)
     {
+        slb = get_slabmap_block(slb_x, slb_y);
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
         {
-            slb = get_slabmap_block(slb_x, slb_y);
             struct SlabAttr* slbattr = get_slab_attrs(slb);
             instf_destroy(creatng, NULL);
             if (slbattr->category == SlbAtCtg_RoomInterior)
@@ -770,41 +770,44 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         }
         else
         {
-            MapSubtlCoord reinforce_stl_x;
-            MapSubtlCoord reinforce_stl_y;
-            if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
+            if (slabmap_owner(slb) == creatng->owner)
             {
-                reinforce_stl_y = creatng->mappos.y.stl.num - 1;
-                reinforce_stl_x = creatng->mappos.x.stl.num;
-            }
-            else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
-            {
-                reinforce_stl_y = creatng->mappos.y.stl.num + 1;
-                reinforce_stl_x = creatng->mappos.x.stl.num; 
-            }
-            else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
-            {
-                reinforce_stl_y = creatng->mappos.y.stl.num;
-                reinforce_stl_x = creatng->mappos.x.stl.num - 1;
-            }
-            else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
-            {
-                reinforce_stl_y = creatng->mappos.y.stl.num;
-                reinforce_stl_x = creatng->mappos.x.stl.num + 1; 
-            }
-            MapSlabCoord reinforce_slb_x = subtile_slab_fast(reinforce_stl_x);
-            MapSlabCoord reinforce_slb_y = subtile_slab_fast(reinforce_stl_y);
-            if ( check_place_to_reinforce(creatng, reinforce_slb_x, reinforce_slb_y) )
-            {
-                slb = get_slabmap_block(reinforce_slb_x, reinforce_slb_y);
-                if ((slb->kind >= SlbT_EARTH) && (slb->kind <= SlbT_TORCHDIRT))
+                MapSubtlCoord reinforce_stl_x;
+                MapSubtlCoord reinforce_stl_y;
+                if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
                 {
-                    if (slab_by_players_land(creatng->owner, reinforce_slb_x, reinforce_slb_y))
+                    reinforce_stl_y = creatng->mappos.y.stl.num - 1;
+                    reinforce_stl_x = creatng->mappos.x.stl.num;
+                }
+                else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
+                {
+                    reinforce_stl_y = creatng->mappos.y.stl.num + 1;
+                    reinforce_stl_x = creatng->mappos.x.stl.num; 
+                }
+                else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
+                {
+                    reinforce_stl_y = creatng->mappos.y.stl.num;
+                    reinforce_stl_x = creatng->mappos.x.stl.num - 1;
+                }
+                else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
+                {
+                    reinforce_stl_y = creatng->mappos.y.stl.num;
+                    reinforce_stl_x = creatng->mappos.x.stl.num + 1; 
+                }
+                MapSlabCoord reinforce_slb_x = subtile_slab_fast(reinforce_stl_x);
+                MapSlabCoord reinforce_slb_y = subtile_slab_fast(reinforce_stl_y);
+                if ( check_place_to_reinforce(creatng, reinforce_slb_x, reinforce_slb_y) )
+                {
+                    slb = get_slabmap_block(reinforce_slb_x, reinforce_slb_y);
+                    if ((slb->kind >= SlbT_EARTH) && (slb->kind <= SlbT_TORCHDIRT))
                     {
-                        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-                        cctrl->digger.working_stl = get_subtile_number(reinforce_stl_x, reinforce_stl_y);
-                        instf_reinforce(creatng, NULL);
-                    } 
+                        if (slab_by_players_land(creatng->owner, reinforce_slb_x, reinforce_slb_y))
+                        {
+                            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                            cctrl->digger.working_stl = get_subtile_number(reinforce_stl_x, reinforce_stl_y);
+                            instf_reinforce(creatng, NULL);
+                        } 
+                    }
                 }
             }
         }
