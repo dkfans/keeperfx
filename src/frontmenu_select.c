@@ -115,7 +115,14 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
     i = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-    LbTextDrawResized(0, 0, tx_units_per_px, lvinfo->name);
+    if (lvinfo->name_stridx > 0)
+    {
+        LbTextDrawResized(0, 0, tx_units_per_px, get_string(lvinfo->name_stridx));
+    }
+    else
+    {
+        LbTextDrawResized(0, 0, tx_units_per_px, lvinfo->name);
+    }
 }
 
 void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn)
