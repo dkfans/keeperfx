@@ -1363,6 +1363,17 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;
+    // Check if 'NAME_ID' is in use
+    //if (name[0] == "#")
+    //{
+        name++;
+        int k = atoi(name);
+        if (k > 0)
+        {
+            lvinfo->name_stridx = k;
+        }
+        name--;
+    //}
     strncpy(lvinfo->name, name, LINEMSG_SIZE - 1);
     lvinfo->name[LINEMSG_SIZE - 1] = '\0';
     if ((lvoptions & LvOp_IsFree) != 0)
