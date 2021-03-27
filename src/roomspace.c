@@ -174,6 +174,10 @@ struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, PlayerNumb
     {
         roomspace.is_roomspace_a_box = false;
     }
+    if ((roomspace.slab_count == 0) || (roomspace.slab_count > MAX_USER_ROOMSPACE_WIDTH * MAX_USER_ROOMSPACE_WIDTH))
+    {
+        roomspace = create_box_roomspace(roomspace, 1, 1, roomspace.centreX, roomspace.centreY);
+    }
     return roomspace;
 }
 
@@ -377,6 +381,7 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
             width = height = 1;
             best_roomspace.slab_count = 1;
         }
+        best_roomspace.is_roomspace_a_box = true;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles returned from check_slabs_in_roomspace
     }
     render_roomspace = best_roomspace; // make sure we can render the correct boundbox to the user

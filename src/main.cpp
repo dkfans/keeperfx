@@ -3867,9 +3867,16 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     player = get_player(plyr_idx);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     TbBool allowed = false;
+    long line_color = 0;
     if(can_build_roomspace(plyr_idx, player->chosen_room_kind, render_roomspace) > 0)
     {
         allowed = true;
+        // set colour of boundbox...
+        line_color = allowed;
+        if (render_roomspace.width * render_roomspace.height > render_roomspace.slab_count)
+        {
+            line_color = 3;
+        }
     }
     else
     {
@@ -3880,7 +3887,7 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
     {
         map_volume_box.visible = 1;
-        map_volume_box.color = allowed;
+        map_volume_box.color = line_color;
         map_volume_box.beg_x = subtile_coord((render_roomspace.left * 3), 0);
         map_volume_box.beg_y = subtile_coord((render_roomspace.top * 3), 0);
         map_volume_box.end_x = subtile_coord((3*a4) + (render_roomspace.right * 3), 0);
