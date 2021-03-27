@@ -416,7 +416,7 @@ struct RoomSpace get_biggest_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     int subRoomCheckCount = 6; // the number of sub-rooms to combine in to a final meta-room
     int bestRoomsCount = 0;
     // Set default "room" - i.e. 1x1 slabs, centred on the cursor
-    struct RoomSpace best_room = { {{false}}, 1, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, rkind_cost, 0, plyr_idx, rkind, false };
+    struct RoomSpace best_room = { {{false}}, 1, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, rkind_cost, 0, plyr_idx, rkind, false, 0, 0, false };
     //int leniency = (((mode & 16) == 16)) ? tolerance : 0; // mode=16 :- (setting to 1 would allow e.g. 1 dirt block in the room)
     int leniency = 0;
     struct RoomSpace best_corridor = best_room;
