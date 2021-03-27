@@ -2126,7 +2126,7 @@ void create_map_volume_box(long x, long y, long z)
     create_line_const_xz(box_xe, box_ze, box_ys, box_ye);
 }
 
-void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z)
+void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z, long linemode)
 {
     long box_xs;
     long box_xe;
@@ -2135,11 +2135,28 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     long box_zs;
     long box_ze;
     long i;
+    long box_color = map_volume_box.color;
+    struct MapVolumeBox valid_slabs;
 
-    box_xs = map_volume_box.beg_x - x;
-    box_ys = y - map_volume_box.beg_y;
-    box_ye = y - map_volume_box.end_y;
-    box_xe = map_volume_box.end_x - x;
+    if (linemode == 0)
+    {
+        valid_slabs = map_volume_box;
+    }
+    else if (linemode == 1)
+    {
+        map_volume_box.color = SLC_RED; // colour to show the slabs that are not valid places for current roomslab
+        valid_slabs = map_volume_box;
+        // get the 'accurate' roomspace shape instead of the outer box
+        valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
+        valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
+        valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
+        valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
+    }
+
+    box_xs = valid_slabs.beg_x - x;
+    box_ys = y - valid_slabs.beg_y;
+    box_ye = y - valid_slabs.end_y;
+    box_xe = valid_slabs.end_x - x;
 
     if ( temp_cluedo_mode )
     {
@@ -2158,26 +2175,26 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
 
     if ( box_xe < box_xs )
     {
-        i = map_volume_box.beg_x;
-        box_xs = map_volume_box.end_x - x;
-        box_xe = map_volume_box.beg_x - x;
-        map_volume_box.beg_x = map_volume_box.end_x;
-        map_volume_box.end_x = i;
+        i = valid_slabs.beg_x;
+        box_xs = valid_slabs.end_x - x;
+        box_xe = valid_slabs.beg_x - x;
+        valid_slabs.beg_x = valid_slabs.end_x;
+        valid_slabs.end_x = i;
     }
 
     if ( box_ye > box_ys )
     {
-        i = map_volume_box.beg_y;
-        box_ys = y - map_volume_box.end_y;
-        box_ye = y - map_volume_box.beg_y;
-        map_volume_box.beg_y = map_volume_box.end_y;
-        map_volume_box.end_y = i;
+        i = valid_slabs.beg_y;
+        box_ys = y - valid_slabs.end_y;
+        box_ye = y - valid_slabs.beg_y;
+        valid_slabs.beg_y = valid_slabs.end_y;
+        valid_slabs.end_y = i;
     }
-
     for (int roomspace_y = 0; roomspace_y < roomspace.height; roomspace_y++)
     {
         for (int roomspace_x = 0; roomspace_x < roomspace.width; roomspace_x++)
         {
+            if (linemode == 0) map_volume_box.color = SLC_GREEN;
             TbBool is_in_roomspace = roomspace.slab_grid[roomspace_x][roomspace_y];
             int slab_xstart = box_xs + (roomspace_x * 3 * COORD_PER_STL);
             int slab_ystart = box_ys - (roomspace_y * 3 * COORD_PER_STL);
@@ -2238,6 +2255,7 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
             }
             else if (!is_in_roomspace) //this handles "inside corners"
             {
+                if (linemode == 0) map_volume_box.color = SLC_RED;
                 TbBool room_left = (roomspace_x == 0) ? false : roomspace.slab_grid[roomspace_x-1][roomspace_y];
                 TbBool room_right = (roomspace_x == roomspace.width) ? false : roomspace.slab_grid[roomspace_x+1][roomspace_y];
                 TbBool room_above = (roomspace_y == 0) ? false : roomspace.slab_grid[roomspace_x][roomspace_y-1];
@@ -2269,6 +2287,7 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
             }
         }
     }
+    map_volume_box.color = box_color;
 }
 
 static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
@@ -4859,11 +4878,19 @@ void draw_view(struct Camera *cam, unsigned char a2)
         poly_pool_end_reserve(0);
         if (render_roomspace.render_roomspace_as_box)
         {
-            create_map_volume_box(x, y, z);
+            if (render_roomspace.is_roomspace_a_box)
+            {
+                create_map_volume_box(x, y, z);
+            }
+            else
+            {
+                create_map_volume_box(x, y, z);
+                create_fancy_map_volume_box(render_roomspace, x, y, z, 1);
+            }
         }
         else
         {
-            create_fancy_map_volume_box(render_roomspace, x, y, z);
+            create_fancy_map_volume_box(render_roomspace, x, y, z, 0);
         }
     }
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom

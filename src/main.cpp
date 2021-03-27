@@ -3879,7 +3879,7 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
             // allow extra line colours for square boxes, not 'accurate shapes'
             if (render_roomspace.width * render_roomspace.height > render_roomspace.slab_count)
             {
-                line_color = 3;
+                line_color = SLC_YELLOW;
             }
         }
     }

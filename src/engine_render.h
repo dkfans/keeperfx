@@ -533,7 +533,7 @@ void find_gamut(void);
 void fiddle_gamut(long a1, long a2);
 int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void create_map_volume_box(long a1, long a2, long a3);
-void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z);
+void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z, long linemode);
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile);
 void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width);
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom);
