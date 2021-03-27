@@ -150,6 +150,7 @@ enum TbScriptCommands {
     Cmd_ADD_HEART_HEALTH                  = 129,
     Cmd_CREATURE_ENTRANCE_LEVEL           = 130,
     Cmd_RANDOMISE_FLAG                    = 131,
+    Cmd_SET_FLAG_COMPUTED                 = 132,
 };
 
 enum ScriptVariables {
@@ -245,6 +246,7 @@ enum ScriptOperator {
     SOpr_SET = 1,
     SOpr_INCREASE,
     SOpr_DECREASE,
+    SOpr_MULTIPLY,
 };
 
 enum {
