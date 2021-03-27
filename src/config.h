@@ -251,6 +251,7 @@ struct LevelInformation *get_last_level_info(void);
 struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo);
 struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo);
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions);
+short set_level_info_string_index(LevelNumber lvnum, char *stridx, unsigned long lvoptions);
 short get_level_fgroup(LevelNumber lvnum);
 const char *get_current_language_str(void);
 const char *get_language_lwrstr(int lang_id);
