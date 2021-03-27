@@ -4857,7 +4857,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     if (map_volume_box.visible)
     {
         poly_pool_end_reserve(0);
-        if (render_roomspace.is_roomspace_a_box)
+        if (render_roomspace.render_roomspace_as_box)
         {
             create_map_volume_box(x, y, z);
         }
@@ -6914,7 +6914,7 @@ void draw_frontview_engine(struct Camera *cam)
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
     if (map_volume_box.visible)
     {
-        if (render_roomspace.is_roomspace_a_box)
+        if (render_roomspace.render_roomspace_as_box)
         {            
             create_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), render_roomspace.is_roomspace_a_single_subtile);
         }

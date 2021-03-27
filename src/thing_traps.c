@@ -997,6 +997,7 @@ TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         if (!game_is_busy_doing_gui() && (game.small_map_state != 2))
         {
             render_roomspace.is_roomspace_a_box = true;
+            render_roomspace.render_roomspace_as_box = true;
             if ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles))
             {
                 // Move to first subtile on a slab

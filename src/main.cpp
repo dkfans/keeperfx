@@ -3849,6 +3849,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         map_volume_box.floor_height_z = floor_height_z;
         map_volume_box.color = allowed;
         render_roomspace.is_roomspace_a_box = true;
+        render_roomspace.render_roomspace_as_box = true;
         render_roomspace.is_roomspace_a_single_subtile = false;
     }
     return allowed;
@@ -3873,9 +3874,13 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         allowed = true;
         // set colour of boundbox...
         line_color = allowed;
-        if (render_roomspace.width * render_roomspace.height > render_roomspace.slab_count)
+        if (render_roomspace.render_roomspace_as_box)
         {
-            line_color = 3;
+            // allow extra line colours for square boxes, not 'accurate shapes'
+            if (render_roomspace.width * render_roomspace.height > render_roomspace.slab_count)
+            {
+                line_color = 3;
+            }
         }
     }
     else
@@ -3888,10 +3893,22 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     {
         map_volume_box.visible = 1;
         map_volume_box.color = line_color;
-        map_volume_box.beg_x = subtile_coord((render_roomspace.left * 3), 0);
-        map_volume_box.beg_y = subtile_coord((render_roomspace.top * 3), 0);
-        map_volume_box.end_x = subtile_coord((3*a4) + (render_roomspace.right * 3), 0);
-        map_volume_box.end_y = subtile_coord(((3*a4) + render_roomspace.bottom * 3), 0);
+        if (render_roomspace.render_roomspace_as_box)
+        {
+            // Draw "square" boundbox
+            map_volume_box.beg_x = subtile_coord(((slb_x - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * 3), 0);
+            map_volume_box.beg_y = subtile_coord(((slb_y - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * 3), 0);
+            map_volume_box.end_x = subtile_coord((3*a4) + ((slb_x + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) * 3), 0);
+            map_volume_box.end_y = subtile_coord(((3*a4) + (slb_y + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) * 3), 0);
+        }
+        else
+        {
+            // Draw "accurate" boundbox
+            map_volume_box.beg_x = subtile_coord((render_roomspace.left * 3), 0);
+            map_volume_box.beg_y = subtile_coord((render_roomspace.top * 3), 0);
+            map_volume_box.end_x = subtile_coord((3*a4) + (render_roomspace.right * 3), 0);
+            map_volume_box.end_y = subtile_coord(((3*a4) + render_roomspace.bottom * 3), 0);
+        }
         map_volume_box.floor_height_z = floor_height_z;
     }
     return allowed;
