@@ -2000,10 +2000,10 @@ void create_room_flag(struct Room *room)
         pos.z.val = subtile_coord(2, 0);
         pos.x.val = subtile_coord(stl_x,0);
         pos.y.val = subtile_coord(stl_y,0);
-        struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, 25, stl_x, stl_y);
+        struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, OBJECT_TYPE_ROOM_FLAG, stl_x, stl_y);
         if (thing_is_invalid(thing))
         {
-            thing = create_object(&pos, 25, room->owner, -1);
+            thing = create_object(&pos, OBJECT_TYPE_ROOM_FLAG, room->owner, -1);
         }
         if (thing_is_invalid(thing))
         {
@@ -2020,7 +2020,7 @@ void delete_room_flag(struct Room *room)
     MapSubtlCoord stl_y = slab_subtile_center(slb_num_decode_y(room->slabs_list));
     if (room_can_have_ensign(room->kind))
     {
-        struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, 25, stl_x, stl_y);
+        struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, OBJECT_TYPE_ROOM_FLAG, stl_x, stl_y);
         if (!thing_is_invalid(thing)) {
             delete_thing_structure(thing, 0);
         }
@@ -2362,9 +2362,9 @@ void init_room_sparks(struct Room *room)
         struct SlabMap* sibslb = get_slabmap_block(slb_x, slb_y - 1);
         if (sibslb->room_index != slb->room_index)
         {
-            room->field_43 = 1;
-            room->flame_stl = 0;
-            room->field_41 = i;
+            room->field_dir = 1;
+            room->flame_step = 0;
+            room->flame_stl_idx = i;
             break;
         }
         // Per room tile code ends
@@ -3864,6 +3864,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     struct RoomData* rdata = room_data_get_for_room(room);
     long i = get_slab_number(slb_x, slb_y);
     delete_room_slabbed_objects(i);
+    // TODO: move to flags
     if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE))
     {
         place_animating_slab_type_on_map(rdata->assigned_slab, 0, stl_x, stl_y, owner);

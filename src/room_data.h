@@ -125,9 +125,9 @@ struct Room {
     unsigned short slabs_count;
     unsigned short creatures_list;
     unsigned short efficiency;
-    unsigned short field_41;
-    unsigned char field_43;
-    unsigned char flame_stl;
+    unsigned short flame_stl_idx;
+    unsigned char field_dir;
+    unsigned char flame_step;
 };
 
 struct RoomData {

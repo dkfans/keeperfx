@@ -59,14 +59,14 @@ struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coor
 void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos)
 {
     long k;
-    long i = room->field_43;
+    long i = room->field_dir;
     MapSubtlCoord x = pos->x.stl.num + (MapSubtlCoord)small_around[i].delta_x;
     MapSubtlCoord y = pos->y.stl.num + (MapSubtlCoord)small_around[i].delta_y;
     struct Room* curoom = subtile_room_get(x, y);
     if (curoom->index != room->index)
     {
         k = (i + 1) % 4;
-        room->field_43 = k;
+        room->field_dir = k;
         return;
     }
     k = (i + 3) % 4;
@@ -75,19 +75,19 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
     curoom = subtile_room_get(x,y);
     if (curoom->index != room->index)
     {
-        room->field_41 += slab_around[i];
+        room->flame_stl_idx += slab_around[i];
         return;
     }
-    room->field_41 += slab_around[i] + slab_around[k];
-    room->field_43 = k;
+    room->flame_stl_idx += slab_around[i] + slab_around[k];
+    room->field_dir = k;
 }
 
 void process_room_surrounding_flames(struct Room *room)
 {
     SYNCDBG(19,"Starting");
-    MapSlabCoord x = slb_num_decode_x(room->field_41);
-    MapSlabCoord y = slb_num_decode_y(room->field_41);
-    long i = 3 * room->field_43 + room->flame_stl;
+    MapSlabCoord x = slb_num_decode_x(room->flame_stl_idx);
+    MapSlabCoord y = slb_num_decode_y(room->flame_stl_idx);
+    long i = 3 * room->field_dir + room->flame_step;
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(slab_subtile_center(x)) + room_spark_offset[i].delta_x;
     pos.y.val = subtile_coord_center(slab_subtile_center(y)) + room_spark_offset[i].delta_y;
@@ -102,11 +102,11 @@ void process_room_surrounding_flames(struct Room *room)
       create_room_surrounding_flame(room,&pos,room->owner,room->owner);
     }
     // Update coords for next element
-    if (room->flame_stl == 2)
+    if (room->flame_step == 2)
     {
       room_update_surrounding_flames(room,&pos);
     }
-    room->flame_stl = (room->flame_stl + 1) % 3;
+    room->flame_step = (room->flame_step + 1) % 3;
 }
 
 void recompute_rooms_count_in_dungeons(void)

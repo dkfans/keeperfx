@@ -638,6 +638,7 @@ TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
         return false;
+    // TODO: move to some room flags
     if ((slb->kind == SlbT_ENTRANCE) || (slb->kind == SlbT_DUNGHEART))
         return false;
     return true;
