@@ -448,14 +448,14 @@ msgstr ""
 #: guitext:60
 msgctxt "In-game message"
 msgid ""
-"Beware Master, for many Keepers have tried to conquer this land but they have all failed. These Heroes are not to be underestimated, and your presence in this realm is already known! Prepare for a tough war. The local forces are numerous, and determined to eject you before you can establish an effective army. You must train your forces swiftly, as attacks must surely start soon! "
+"Beware Master, for many Keepers have tried to conquer this land but they have all failed. These Heroes are not to be underestimated, and your presence in this realm is already known! Prepare for a tough war. The local forces are numerous, and determined to eject you before you can establish an effective army. You must train your forces swiftly, as attacks must surely start soon!"
 msgstr ""
 
 #. Heroic Invasion (lv442)
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
-"Beware Keeper. An attack is on its way! Are your forces ready for battle? "
+"Beware Keeper. An attack is on its way! Are your forces ready for battle?"
 msgstr ""
 
 #. Heroic Invasion (lv442)

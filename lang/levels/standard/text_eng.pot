@@ -780,6 +780,10 @@ msgid "Ghost in the Machine"
 msgstr ""
 
 #: guitext:213
+msgctxt "Level name"
+msgid "The Death Clock"
+msgstr ""
+
 #: guitext:214 guitext:215 guitext:216 guitext:217 guitext:218 guitext:219
 #: guitext:220 guitext:221 guitext:222 guitext:223 guitext:224 guitext:225
 msgctxt "Level name"
