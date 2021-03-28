@@ -4883,7 +4883,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
             else
             {
                 create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_GREEN, 1);
-                create_map_volume_box(x, y, z, SLC_GREY);
+                create_map_volume_box(x, y, z, SLC_BROWN);
             }
         }
         else
@@ -6949,7 +6949,7 @@ void draw_frontview_engine(struct Camera *cam)
             else
             {
                 create_fancy_frontview_map_volume_box(render_roomspace, cam, ((zoom >> 8) & 0xFF), SLC_GREEN);
-                create_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), render_roomspace.is_roomspace_a_single_subtile, SLC_GREY);
+                create_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), render_roomspace.is_roomspace_a_single_subtile, SLC_BROWN);
             }
         }
         else
