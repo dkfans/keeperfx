@@ -3882,22 +3882,11 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     {
         map_volume_box.visible = 1;
         map_volume_box.color = allowed;
-        if (render_roomspace.render_roomspace_as_box)
-        {
-            // Draw "square" boundbox
-            map_volume_box.beg_x = subtile_coord(((render_roomspace.centreX - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * 3), 0);
-            map_volume_box.beg_y = subtile_coord(((render_roomspace.centreY - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * 3), 0);
-            map_volume_box.end_x = subtile_coord((3*a4) + ((render_roomspace.centreX + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) * 3), 0);
-            map_volume_box.end_y = subtile_coord(((3*a4) + (render_roomspace.centreY + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) * 3), 0);
-        }
-        else
-        {
-            // Draw "accurate" boundbox
-            map_volume_box.beg_x = subtile_coord((render_roomspace.left * 3), 0);
-            map_volume_box.beg_y = subtile_coord((render_roomspace.top * 3), 0);
-            map_volume_box.end_x = subtile_coord((3*a4) + (render_roomspace.right * 3), 0);
-            map_volume_box.end_y = subtile_coord(((3*a4) + render_roomspace.bottom * 3), 0);
-        }
+        // Draw "outer"/"square" boundbox ("accurate" boundbox is stored in the roomspace)
+        map_volume_box.beg_x = subtile_coord(((render_roomspace.centreX - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * 3), 0);
+        map_volume_box.beg_y = subtile_coord(((render_roomspace.centreY - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * 3), 0);
+        map_volume_box.end_x = subtile_coord((3*a4) + ((render_roomspace.centreX + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) * 3), 0);
+        map_volume_box.end_y = subtile_coord(((3*a4) + (render_roomspace.centreY + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) * 3), 0);
         map_volume_box.floor_height_z = floor_height_z;
     }
     return allowed;

@@ -2130,7 +2130,7 @@ void create_map_volume_box(long x, long y, long z, long line_color)
     map_volume_box.color = box_color;
 }
 
-void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z, long line_color, long linemode)
+void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z, long line_color)
 {
     long box_xs;
     long box_xe;
@@ -2142,15 +2142,11 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     long box_color = map_volume_box.color;
     map_volume_box.color = line_color;
     struct MapVolumeBox valid_slabs = map_volume_box;
-
-    if (linemode == 1)
-    {
-        // get the 'accurate' roomspace shape instead of the outer box
-        valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
-        valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
-        valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
-        valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
-    }
+    // get the 'accurate' roomspace shape instead of the outer box
+    valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
+    valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
+    valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
+    valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
 
     box_xs = valid_slabs.beg_x - x;
     box_ys = y - valid_slabs.beg_y;
@@ -4882,13 +4878,13 @@ void draw_view(struct Camera *cam, unsigned char a2)
             }
             else
             {
-                create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_GREEN, 1);
+                create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_GREEN);
                 create_map_volume_box(x, y, z, SLC_BROWN);
             }
         }
         else
         {
-            create_fancy_map_volume_box(render_roomspace, x, y, z, map_volume_box.color, 0);
+            create_fancy_map_volume_box(render_roomspace, x, y, z, map_volume_box.color);
         }
     }
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
@@ -6493,6 +6489,11 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     long coord_z;
     long box_width, box_height;
     struct MapVolumeBox valid_slabs = map_volume_box;
+    // get the 'accurate' roomspace shape instead of the outer box
+    valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
+    valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
+    valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
+    valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
     pos.y.val = valid_slabs.end_y;
     pos.x.val = valid_slabs.end_x;
     pos.z.val = subtile_coord(5,0);
