@@ -3868,20 +3868,9 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     player = get_player(plyr_idx);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     TbBool allowed = false;
-    long line_color = 0;
     if(can_build_roomspace(plyr_idx, player->chosen_room_kind, render_roomspace) > 0)
     {
         allowed = true;
-        // set colour of boundbox...
-        line_color = allowed;
-        if (render_roomspace.render_roomspace_as_box)
-        {
-            // allow extra line colours for square boxes, not 'accurate shapes'
-            if (render_roomspace.width * render_roomspace.height > render_roomspace.slab_count)
-            {
-                line_color = SLC_YELLOW;
-            }
-        }
     }
     else
     {
@@ -3892,14 +3881,14 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
     {
         map_volume_box.visible = 1;
-        map_volume_box.color = line_color;
+        map_volume_box.color = allowed;
         if (render_roomspace.render_roomspace_as_box)
         {
             // Draw "square" boundbox
-            map_volume_box.beg_x = subtile_coord(((slb_x - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * 3), 0);
-            map_volume_box.beg_y = subtile_coord(((slb_y - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * 3), 0);
-            map_volume_box.end_x = subtile_coord((3*a4) + ((slb_x + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) * 3), 0);
-            map_volume_box.end_y = subtile_coord(((3*a4) + (slb_y + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) * 3), 0);
+            map_volume_box.beg_x = subtile_coord(((render_roomspace.centreX - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * 3), 0);
+            map_volume_box.beg_y = subtile_coord(((render_roomspace.centreY - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * 3), 0);
+            map_volume_box.end_x = subtile_coord((3*a4) + ((render_roomspace.centreX + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) * 3), 0);
+            map_volume_box.end_y = subtile_coord(((3*a4) + (render_roomspace.centreY + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) * 3), 0);
         }
         else
         {

@@ -2061,7 +2061,7 @@ static void create_line_const_yz(long pos_y, long pos_z, long start_x, long end_
     }
 }
 
-void create_map_volume_box(long x, long y, long z)
+void create_map_volume_box(long x, long y, long z, long line_color)
 {
     long box_xs;
     long box_xe;
@@ -2070,6 +2070,8 @@ void create_map_volume_box(long x, long y, long z)
     long box_zs;
     long box_ze;
     long i;
+    long box_color = map_volume_box.color;
+    map_volume_box.color = line_color;
 
     box_xs = map_volume_box.beg_x - x;
     box_ys = y - map_volume_box.beg_y;
@@ -2124,9 +2126,11 @@ void create_map_volume_box(long x, long y, long z)
     create_line_const_yz(box_ys, box_ze, box_xs, box_xe);
     create_line_const_xz(box_xs, box_ze, box_ys, box_ye);
     create_line_const_xz(box_xe, box_ze, box_ys, box_ye);
+
+    map_volume_box.color = box_color;
 }
 
-void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z, long linemode)
+void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z, long line_color, long linemode)
 {
     long box_xs;
     long box_xe;
@@ -2136,16 +2140,11 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     long box_ze;
     long i;
     long box_color = map_volume_box.color;
-    struct MapVolumeBox valid_slabs;
+    map_volume_box.color = line_color;
+    struct MapVolumeBox valid_slabs = map_volume_box;
 
-    if (linemode == 0)
+    if (linemode == 1)
     {
-        valid_slabs = map_volume_box;
-    }
-    else if (linemode == 1)
-    {
-        map_volume_box.color = SLC_RED; // colour to show the slabs that are not valid places for current roomslab
-        valid_slabs = map_volume_box;
         // get the 'accurate' roomspace shape instead of the outer box
         valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
         valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
@@ -2194,7 +2193,6 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     {
         for (int roomspace_x = 0; roomspace_x < roomspace.width; roomspace_x++)
         {
-            if (linemode == 0) map_volume_box.color = SLC_GREEN;
             TbBool is_in_roomspace = roomspace.slab_grid[roomspace_x][roomspace_y];
             int slab_xstart = box_xs + (roomspace_x * 3 * COORD_PER_STL);
             int slab_ystart = box_ys - (roomspace_y * 3 * COORD_PER_STL);
@@ -2255,7 +2253,6 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
             }
             else if (!is_in_roomspace) //this handles "inside corners"
             {
-                if (linemode == 0) map_volume_box.color = SLC_RED;
                 TbBool room_left = (roomspace_x == 0) ? false : roomspace.slab_grid[roomspace_x-1][roomspace_y];
                 TbBool room_right = (roomspace_x == roomspace.width) ? false : roomspace.slab_grid[roomspace_x+1][roomspace_y];
                 TbBool room_above = (roomspace_y == 0) ? false : roomspace.slab_grid[roomspace_x][roomspace_y-1];
@@ -2287,6 +2284,7 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
             }
         }
     }
+
     map_volume_box.color = box_color;
 }
 
@@ -4880,17 +4878,17 @@ void draw_view(struct Camera *cam, unsigned char a2)
         {
             if (render_roomspace.is_roomspace_a_box)
             {
-                create_map_volume_box(x, y, z);
+                create_map_volume_box(x, y, z, map_volume_box.color);
             }
             else
             {
-                create_map_volume_box(x, y, z);
-                create_fancy_map_volume_box(render_roomspace, x, y, z, 1);
+                create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_GREEN, 1);
+                create_map_volume_box(x, y, z, SLC_GREY);
             }
         }
         else
         {
-            create_fancy_map_volume_box(render_roomspace, x, y, z, 0);
+            create_fancy_map_volume_box(render_roomspace, x, y, z, map_volume_box.color, 0);
         }
     }
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
@@ -6430,7 +6428,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     }
 }
 
-void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile)
+void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
 {
     unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
     // _depth_ is "how far in to the screen" the box goes - it will be the width/height of a slab
@@ -6474,17 +6472,17 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     }
     coord_z -= (stl_width >> 1);
     // Draw 4 horizonal line elements
-    create_line_element(coord_x,             coord_y,                      coord_x + box_width, coord_y,                      coord_z,                          map_volume_box.color);
-    create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height,             map_volume_box.color);
-    create_line_element(coord_x,             coord_y + depth,              coord_x + box_width, coord_y + depth,              coord_z,                          map_volume_box.color);
-    create_line_element(coord_x,             coord_y + box_height + depth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height,             map_volume_box.color);
+    create_line_element(coord_x,             coord_y,                      coord_x + box_width, coord_y,                      coord_z,                          line_color);
+    create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
+    create_line_element(coord_x,             coord_y + depth,              coord_x + box_width, coord_y + depth,              coord_z,                          line_color);
+    create_line_element(coord_x,             coord_y + box_height + depth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height,             line_color);
     // Now the lines at left and right
-    create_line_element(coord_x,             coord_y,                      coord_x,             coord_y + box_height,         coord_z - box_height,             map_volume_box.color);
-    create_line_element(coord_x + box_width, coord_y,                      coord_x + box_width, coord_y + box_height,         coord_z - box_height,             map_volume_box.color);
-    create_line_element(coord_x,             coord_y + breadth,            coord_x,             coord_y + box_height + depth, coord_z - box_height + stl_width, map_volume_box.color);
-    create_line_element(coord_x + box_width, coord_y + breadth,            coord_x + box_width, coord_y + box_height + depth, coord_z - box_height + stl_width, map_volume_box.color);
+    create_line_element(coord_x,             coord_y,                      coord_x,             coord_y + box_height,         coord_z - box_height,             line_color);
+    create_line_element(coord_x + box_width, coord_y,                      coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
+    create_line_element(coord_x,             coord_y + breadth,            coord_x,             coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
+    create_line_element(coord_x + box_width, coord_y + breadth,            coord_x + box_width, coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
 }
-void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width)
+void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width, long line_color)
 {
     unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
     int floor_height_z = (map_volume_box.floor_height_z == 0) ? 1 : map_volume_box.floor_height_z; // ignore "liquid height", and force it to "floor height". All fancy rooms are on the ground, and this ensures the boundboxes are drawn correctly. A different solution will be required if this function is used to draw fancy rooms over "liquid".
@@ -6494,14 +6492,15 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     long coord_y;
     long coord_z;
     long box_width, box_height;
-    pos.y.val = map_volume_box.end_y;
-    pos.x.val = map_volume_box.end_x;
+    struct MapVolumeBox valid_slabs = map_volume_box;
+    pos.y.val = valid_slabs.end_y;
+    pos.x.val = valid_slabs.end_x;
     pos.z.val = subtile_coord(5,0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
-    pos.y.val = map_volume_box.beg_y;
-    pos.x.val = map_volume_box.beg_x;
+    pos.y.val = valid_slabs.beg_y;
+    pos.x.val = valid_slabs.beg_x;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width -= coord_x;
     box_height -= coord_y;
@@ -6573,29 +6572,29 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
                 TbBool air_below = (roomspace_y == room_slab_height - 1) ? true : (rotated_roomspace[roomspace_x][roomspace_y+1] == false);
                 if (air_left)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             line_color);
                     if (air_below)
                     {
-                        create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, map_volume_box.color);
+                        create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
                     }
                 }
                 if (air_right)
                 {
-                    create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
                     if (air_below)
                     {
-                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, map_volume_box.color);
+                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
                     }
                 }
                 if (air_above)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             map_volume_box.color);
-                    create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             line_color);
+                    create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             line_color);
                 }
                 if (air_below)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             map_volume_box.color);
-                    create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                    create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
                 }
             }
             else if (!is_in_roomspace) //this handles "inside corners"
@@ -6607,14 +6606,14 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
                 {
                     if (room_below)
                     {
-                        create_line_element(coord_x + x_start,  coord_y + y_end,          coord_x + x_start, coord_y + y_end + depth,   bckt_idx,             map_volume_box.color);
+                        create_line_element(coord_x + x_start,  coord_y + y_end,          coord_x + x_start, coord_y + y_end + depth,   bckt_idx,             line_color);
                     }
                 }
                 if (room_right)
                 {
                     if (room_below)
                     {
-                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             map_volume_box.color);
+                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
                     }
                 }
             }
@@ -6942,12 +6941,20 @@ void draw_frontview_engine(struct Camera *cam)
     if (map_volume_box.visible)
     {
         if (render_roomspace.render_roomspace_as_box)
-        {            
-            create_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), render_roomspace.is_roomspace_a_single_subtile);
+        {
+            if (render_roomspace.is_roomspace_a_box)
+            {
+                 create_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), render_roomspace.is_roomspace_a_single_subtile, map_volume_box.color);
+            }
+            else
+            {
+                create_fancy_frontview_map_volume_box(render_roomspace, cam, ((zoom >> 8) & 0xFF), SLC_GREEN);
+                create_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), render_roomspace.is_roomspace_a_single_subtile, SLC_GREY);
+            }
         }
         else
         {
-            create_fancy_frontview_map_volume_box(render_roomspace, cam, ((zoom >> 8) & 0xFF));
+            create_fancy_frontview_map_volume_box(render_roomspace, cam, ((zoom >> 8) & 0xFF), map_volume_box.color);
         }
     }
     map_volume_box.visible = 0;
