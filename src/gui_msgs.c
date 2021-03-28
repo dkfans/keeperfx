@@ -182,6 +182,26 @@ void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
     va_end(val);
 }
 
+void message_add_timeout(PlayerNumber plyr_idx, unsigned long timeout, const char *fmt_str, ...)
+{
+    va_list val;
+    va_start(val, fmt_str);
+    static char full_msg_text[2048];
+    vsprintf(full_msg_text, fmt_str, val);
+    SYNCDBG(2,"Player %d: %s",(int)plyr_idx,full_msg_text);
+    for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
+    {
+        memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessage));
+    }
+    strncpy(gameadd.messages[0].text, full_msg_text, sizeof(gameadd.messages[0].text) - 1);
+    gameadd.messages[0].plyr_idx = plyr_idx;
+    gameadd.messages[0].creation_turn = game.play_gameturn + timeout;
+    if (game.active_messages_count < GUI_MESSAGES_COUNT) {
+        game.active_messages_count++;
+    }
+    va_end(val);
+}
+
 void show_game_time_taken(unsigned long fps, unsigned long turns)
 {
     struct GameTime gt = get_game_time(turns, fps);
