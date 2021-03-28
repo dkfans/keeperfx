@@ -1,7 +1,7 @@
 REM ****************************************************************************
 REM  Free Play levels - KeeperFX
 REM ****************************************************************************
-REM  Script for Level 7117 - The Death Clock
+REM  Script for Level 450 - The Death Clock
 REM  Author:  Loobinex
 REM  Date:    2015-08-29
 REM  Copying and copyrights:
@@ -30,8 +30,6 @@ REM						1: Treasure room stolen, party spawned. Player must kill party.
 REM						2: Party killed, Timer 3 started. When Timer 3 reaches 2500, Spawn party and return to 1.
 REM						3: Spawning stopped.
 REM PLAYER0,FLAG3	-	1: Hero fortress found
-REM PLAYER0,FLAG4	-	1: Wizards kept alive at endgame
-REM PLAYER0,FLAG5	-	1: Samurai kept alive at endgame
 
 REM Timers used:
 REM   PLAYER_GOOD,TIMER1 	- From claiming dungeon until final hero attack.
@@ -220,31 +218,32 @@ REM ****************************************************************************
 REM Level starts here
 REM ****************************************************************************
 
-QUICK_OBJECTIVE(1,"Your dungeon lies in ruins and you are powerless. Fortunately the Dungeon Heart is still intact. Reclaim it to get back your strength.",PLAYER0)
+REM "Your dungeon lies in ruins and you are powerless. Fortunately the Dungeon Heart is still intact. Reclaim it to get back your strength."
+DISPLAY_OBJECTIVE(111,PLAYER0)
 
 IF(PLAYER0,FLAG1 == 0)
 	IF(PLAYER0,RESEARCH >= 12)
 		ADD_CREATURE_TO_LEVEL(PLAYER0,SORCEROR,1,1,4,250)
 		SET_FLAG(PLAYER0,FLAG1,1)
-		MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
-		TUTORIAL_FLASH_BUTTON(36,100)
 	ENDIF
 	IF(PLAYER0,SCAVENGER >= 12)
 		ADD_CREATURE_TO_LEVEL(PLAYER0,VAMPIRE,1,1,4,250)
 		SET_FLAG(PLAYER0,FLAG1,1)
-		MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
-		TUTORIAL_FLASH_BUTTON(36,100)
 	ENDIF
 ENDIF
 
 
 IF(PLAYER0,FLAG1 == 1)
+	MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+	TUTORIAL_FLASH_BUTTON(36,100)
+
 	REM: "So be it."
 	PLAY_MESSAGE(PLAYER0,SPEECH,80)
 	
 	REM: You have no chance in hell without your creature.
 	IF(PLAYER0,TOTAL_CREATURES <= 0)
-		QUICK_OBJECTIVE(49,"You lost your only creature. You needed it to get claim the tiles around your heart. Hopeless.",PLAYER0)
+		REM "You lost your only creature. You needed it to get claim the tiles around your heart. Hopeless."
+		DISPLAY_OBJECTIVE(122,PLAYER0)
 		LOSE_GAME
 	ENDIF
 ENDIF
@@ -252,7 +251,8 @@ ENDIF
 REM: Start the timer as soon as the player has claimed the area around his dungeon.
 IF(PLAYER0,TOTAL_AREA >= 100)
 	MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
-	QUICK_OBJECTIVE(2,"Good, you have your dungeon back, your power is returning. The heroes know, they will return to kill us all. Make the most of your final moments.",-1)
+	REM "Good, you have your dungeon back, your power is returning. The heroes know, they will return to kill us all. Make the most of your final moments."
+	DISPLAY_OBJECTIVE(112,-1)
 	PLAY_MESSAGE(PLAYER0,SOUND,116)
 	BONUS_LEVEL_TIME(90000)
 	SET_TIMER(PLAYER_GOOD,TIMER1)
@@ -261,7 +261,8 @@ IF(PLAYER0,TOTAL_AREA >= 100)
 ENDIF
 
 IF(PLAYER_GOOD,TIMER1 >= 5000)
-	QUICK_OBJECTIVE(3,"If you want the heroes to remember your final battle, quickly take whatever you can from their remaining forces here and the keeper they left for dead.",ALL_PLAYERS)
+	REM "If you want the heroes to remember your final battle, quickly take whatever you can from their remaining forces here and the keeper they left for dead."
+	DISPLAY_OBJECTIVE(113,ALL_PLAYERS)
 ENDIF
 
 REM: To limit creatures on map, only spawn tentacles when the player is near.
@@ -271,7 +272,8 @@ ENDIF
 
 REM: If close to the yellow dungeon, spawn the creatures there, and warn the player about having to fight heroes if he enters.
 IF_ACTION_POINT(5,PLAYER0)
-	QUICK_OBJECTIVE(4,"Heroes waltzed over your former rival, I'm sure they will muster a counter attack if you claim this dungeon and its riches as your own.",5)
+	REM "Heroes waltzed over your former rival, I'm sure they will muster a counter attack if you claim this dungeon and its riches as your own."
+	DISPLAY_OBJECTIVE(114,5)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,6,3,5,500)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,WIZARD,6,2,6,600)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DWARFA,7,4,4,400)
@@ -292,12 +294,14 @@ IF(PLAYER_GOOD,TIMER2 >= 5000)
 	PLAY_MESSAGE(PLAYER0,SPEECH,125)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Candy,-4,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Candy,-5,1)
-	QUICK_INFORMATION(5,"Heroes! Send in the hounds! Then have them lick your wounds, because I'm sure there are more to come.",5)
+	REM "Heroes! Send in the hounds! Then have them lick your wounds, because I'm sure there are more to come."
+	DISPLAY_INFORMATION(115,5)
 ENDIF
 IF(PLAYER_GOOD,TIMER2 >= 10000)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Cake,-4,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Cake,-5,1)
-	QUICK_INFORMATION(6,"A sizeable graveyard would be useful right about now,...",5)
+	REM "A sizeable graveyard would be useful right about now,..."
+	DISPLAY_INFORMATION(116,5)
 ENDIF
 
 REM When hero party has lost big treasure room, continuously spawn fairy party
@@ -324,7 +328,7 @@ IF(PLAYER0,FLAG2 == 2)
 		NEXT_COMMAND_REUSABLE
 		SET_FLAG(PLAYER0,FLAG2,1)
 	ENDIF
-ENDIF		
+ENDIF
 
 
 REM: When player finds the hero fortress, spawn the heroes. When fighting the second party, reinforcements arrive from central hero gate.
@@ -336,20 +340,23 @@ ENDIF
 IF_ACTION_POINT(9,PLAYER0)
 	IF_ACTION_POINT(10,PLAYER0)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Surprise,-7,1)
-		QUICK_OBJECTIVE(7,"Kill all the heroes you can find. They will do the same thing to you soon enough.",-7)
+		REM "Kill all the heroes you can find. They will do the same thing to you soon enough."
+		DISPLAY_OBJECTIVE(117,-7)
 	ENDIF
 ENDIF
 REM: If not found yet, let the player know about the hero fortress.
 IF(PLAYER_GOOD,TIMER2 >= 14000)
 	IF(PLAYER0,FLAG3 == 0)
-		QUICK_OBJECTIVE(8,"In the east the heroes have a fortress. Why don't you go find out what it contains?",-7)
+		REM "In the east the heroes have a fortress. Why don't you go find out what it contains?"
+		DISPLAY_OBJECTIVE(118,-7)
 	ENDIF
 ENDIF
 
 REM Endgame Starting!
 REM ****************************
 IF(PLAYER_GOOD,TIMER1 >= 88800)
-	QUICK_INFORMATION(9,"Mole-man save us, they are almost here! Place more traps now or hope your little army is stronger than it looks.",PLAYER0)
+	REM "Mole-man save us, they are almost here! Place more traps now or hope your little army is stronger than it looks."
+	DISPLAY_INFORMATION(119,PLAYER0)
 ENDIF
 
 REM: Spawn 50 dwarves. O, wait, two of them are giants. Also spawn final party of fairies just to be a dick.
@@ -359,15 +366,15 @@ IF(PLAYER_GOOD,TIMER1 >= 90000)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Snacks,-2,8)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,GIANT,-1,1,10,0)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,GIANT,-2,1,10,0)
-		
+
 	REM: Kill left over good wizards/samurai, to not mess up the counts of next wave. Add them to final party to punish player.
 	IF_CONTROLS(PLAYER_GOOD,WIZARD >= 1)
 		KILL_CREATURE(PLAYER_GOOD,WIZARD,MOST_EXPERIENCED,10)
-		REM SET_FLAG(PLAYER0,FLAG4,1)
+		ADD_TO_PARTY(Fireworks,WIZARD,6,100,ATTACK_DUNGEON_HEART,0)
 	ENDIF
 	IF_CONTROLS(PLAYER_GOOD,SAMURAI >= 1)
 		KILL_CREATURE(PLAYER_GOOD,SAMURAI,MOST_EXPERIENCED,10)
-		REM SET_FLAG(PLAYER0,FLAG5,1)
+		ADD_TO_PARTY(Fireworks,SAMURAI,8,100,ATTACK_DUNGEON_HEART,0)
 	ENDIF
 	
 	SET_FLAG(PLAYER0,FLAG1,3)
@@ -388,23 +395,18 @@ IF(PLAYER0,FLAG1 == 4)
 	IF_CONTROLS(PLAYER_GOOD,WIZARD <= 4)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Hangover,DRAWFROM(-2,-1),1)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Cleanup,DRAWFROM(-2,-1),1)
-		REM IF(PLAYER0,FLAG4 == 1)
-		REM 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,WIZARD,-2,1,6,100)
-		REM ENDIF
-		REM IF(PLAYER0,FLAG5 == 1)
-		REM 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,SAMURAI,-2,1,8,100)
-		REM ENDIF
 		SET_FLAG(PLAYER0,FLAG1,5)
 	ENDIF
 ENDIF
 
 REM: If Knights and Samurai are dead, you've won in a few seconds. Kill any possible left over heroes just in case.
 IF(PLAYER0,FLAG1 == 5)
-	REM IF_CONTROLS(PLAYER_GOOD,KNIGHT >= 1)
-	REM 	IF_CONTROLS(PLAYER0,TOTAL_CREATURES <= 2)
-	REM 		QUICK_OBJECTIVE(10,"I have a bad feeling about this. You know you are supposed to kill the little white men right?",PLAYER0)
-	REM 	ENDIF
-	REM ENDIF
+	IF_CONTROLS(PLAYER_GOOD,KNIGHT >= 1)
+		IF_CONTROLS(PLAYER0,TOTAL_CREATURES <= 2)
+			REM "I have a bad feeling about this. You know you are supposed to kill the little white men right?"
+			DISPLAY_OBJECTIVE(120,PLAYER0)
+		ENDIF
+	ENDIF
 	IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
 		IF_CONTROLS(PLAYER_GOOD,SAMURAI <= 0)
 			KILL_CREATURE(PLAYER_GOOD,WIZARD,MOST_EXPERIENCED,10)
@@ -412,9 +414,10 @@ IF(PLAYER0,FLAG1 == 5)
 			KILL_CREATURE(PLAYER_GOOD,GIANT,MOST_EXPERIENCED,10)
 			KILL_CREATURE(PLAYER_GOOD,DWARFA,MOST_EXPERIENCED,50)
 			SET_TIMER(PLAYER0,TIMER4)
-			QUICK_OBJECTIVE(11,"Yes, we have some creatures left! I never doubted you for a second. Congratulations!",PLAYER0)
-			REM: "The battle is over."
-			REM PLAY_MESSAGE(PLAYER0,SPEECH,21)
+			REM "Yes, we have some creatures left! I never doubted you for a second. Congratulations!"
+			DISPLAY_OBJECTIVE(121,PLAYER0)
+			REM "The battle is over."
+			PLAY_MESSAGE(PLAYER0,SPEECH,21)
 		ENDIF
 	ENDIF
 ENDIF

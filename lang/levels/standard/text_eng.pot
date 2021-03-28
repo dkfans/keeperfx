@@ -624,25 +624,25 @@ msgstr ""
 #. Ghost in the Machine (lv458)
 #: guitext:98
 msgctxt "In-game message"
-msgid "Your Ghosts are being transported to the yellow Hero stronghold! Destroy their heart and this realm is yours. "
+msgid "Your Ghosts are being transported to the yellow Hero stronghold! Destroy their heart and this realm is yours."
 msgstr ""
 
 #. Ghost in the Machine (lv458)
 #: guitext:99
 msgctxt "In-game message"
-msgid "These Ghosts are at maximum power. Surely the wizards don't stand a chance now? "
+msgid "These Ghosts are at maximum power. Surely the wizards don't stand a chance now?"
 msgstr ""
 
 #. Ghost in the Machine (lv458)
 #: guitext:100
 msgctxt "In-game message"
-msgid "Your Ghosts have failed and paid the price for it! Luckily there's always more death? When you have regained enough Ghosts, eliminate your imps to try again. "
+msgid "Your Ghosts have failed and paid the price for it! Luckily there's always more death? When you have regained enough Ghosts, eliminate your imps to try again."
 msgstr ""
 
 #. Ghost in the Machine (lv458)
 #: guitext:101
 msgctxt "In-game message"
-msgid "This is taking too long. Let's see what happens. "
+msgid "This is taking too long. Let's see what happens."
 msgstr ""
 
 #. Ghost in the Machine (lv458)
@@ -654,7 +654,7 @@ msgstr ""
 #. Grail Run (lv444)
 #: guitext:103
 msgctxt "In-game message"
-msgid "As you have claimed your first room, Heroes have started gathering their troops and will be here soon. The more heroes are wiped out, the stronger the groups they will form. "
+msgid "As you have claimed your first room, Heroes have started gathering their troops and will be here soon. The more heroes are wiped out, the stronger the groups they will form."
 msgstr ""
 
 #. Grail Run (lv444)
@@ -666,42 +666,112 @@ msgstr ""
 #. Grail Run (lv444)
 #: guitext:105
 msgctxt "In-game message"
-msgid "Having seen their previous efforts fail, the Heroes have formed a new group. "
+msgid "Having seen their previous efforts fail, the Heroes have formed a new group."
 msgstr ""
 
 #. Grail Run (lv444)
 #: guitext:106
 msgctxt "In-game message"
-msgid "Heroes have returned, this time with modified creatures to aid them! Careful, as these are definitely tougher than any common dungeon creatures! "
+msgid "Heroes have returned, this time with modified creatures to aid them! Careful, as these are definitely tougher than any common dungeon creatures!"
 msgstr ""
 
 #. Grail Run (lv444)
 #: guitext:107
 msgctxt "In-game message"
-msgid "Heroes have formed yet another army. If this attempt fails, the Avatar will come and take care of you! "
+msgid "Heroes have formed yet another army. If this attempt fails, the Avatar will come and take care of you!"
 msgstr ""
 
 #. Grail Run (lv444)
 #: guitext:108
 msgctxt "In-game message"
-msgid "It's time to prove yourself, Keeper. Clear the last wave and the land is yours! "
+msgid "It's time to prove yourself, Keeper. Clear the last wave and the land is yours!"
 msgstr ""
 
 #. Grail Run (lv444)
 #: guitext:109
 msgctxt "In-game message"
-msgid "This has been a humiliating defeat for the Heroes. Congratulations! "
+msgid "This has been a humiliating defeat for the Heroes. Congratulations!"
 msgstr ""
 
 #. Grail Run (lv444)
 #: guitext:110
 msgctxt "In-game message"
-msgid "You are in possession of a very unusual hero gate located to the east of your dungeon heart. It attracts units from other realms based on your claimed  dungeon rooms. Claim rooms to attract more and stronger units. Barracks=Barbarians, Workshop=Dwarves, Library=Warlocks, Temple=Monks, Training Rooms=Archers. New units arrive in groups but only if you have fewer than 22 minions. Withstand the hero waves, defeat the Avatar and his guards and this land is yours! "
+msgid "You are in possession of a very unusual hero gate located to the east of your dungeon heart. It attracts units from other realms based on your claimed  dungeon rooms. Claim rooms to attract more and stronger units. Barracks=Barbarians, Workshop=Dwarves, Library=Warlocks, Temple=Monks, Training Rooms=Archers. New units arrive in groups but only if you have fewer than 22 minions. Withstand the hero waves, defeat the Avatar and his guards and this land is yours!"
 msgstr ""
 
-#: guitext:111 guitext:112 guitext:113
-#: guitext:114 guitext:115 guitext:116 guitext:117 guitext:118 guitext:119
-#: guitext:120 guitext:121 guitext:122 guitext:123 guitext:124 guitext:125
+#. The Death Clock (lv450)
+#: guitext:111
+msgctxt "In-game message"
+msgid "Your dungeon lies in ruins and you are powerless. Fortunately the Dungeon Heart is still intact. Reclaim it to get back your strength."
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:112
+msgctxt "In-game message"
+msgid "Good, you have your dungeon back, your power is returning. The heroes know, they will return to kill us all. Make the most of your final moments."
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:113
+msgctxt "In-game message"
+msgid "If you want the heroes to remember your final battle, quickly take whatever you can from their remaining forces here and the keeper they left for dead."
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:114
+msgctxt "In-game message"
+msgid "Heroes waltzed over your former rival, I'm sure they will muster a counter attack if you claim this dungeon and its riches as your own."
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:115
+msgctxt "In-game message"
+msgid "Heroes! Send in the hounds! Then have them lick your wounds, because I'm sure there are more to come."
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:116
+msgctxt "In-game message"
+msgid "A sizeable graveyard would be useful right about now,..."
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:117
+msgctxt "In-game message"
+msgid "Kill all the heroes you can find. They will do the same thing to you soon enough."
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:118
+msgctxt "In-game message"
+msgid "In the east the heroes have a fortress. Why don't you go find out what it contains?"
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:119
+msgctxt "In-game message"
+msgid "Mole-man save us, they are almost here! Place more traps now or hope your little army is stronger than it looks."
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:120
+msgctxt "In-game message"
+msgid "I have a bad feeling about this. You know you are supposed to kill the little white men right?"
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:121
+msgctxt "In-game message"
+msgid "Yes, we have some creatures left! I never doubted you for a second. Congratulations!"
+msgstr ""
+
+#. The Death Clock (lv450)
+#: guitext:122
+msgctxt "In-game message"
+msgid "You lost your only creature. You needed it to get claim the tiles around your heart. Hopeless."
+msgstr ""
+
+#: guitext:123 guitext:124 guitext:125
 #: guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 guitext:131
 #: guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137
 #: guitext:138 guitext:139 guitext:140 guitext:141 guitext:142 guitext:143
