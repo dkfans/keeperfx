@@ -701,73 +701,73 @@ msgstr "你拥有一个非同寻常的传送门，位于你的地下城心脏的
 #: guitext:111
 msgctxt "In-game message"
 msgid "Your dungeon lies in ruins and you are powerless. Fortunately the Dungeon Heart is still intact. Reclaim it to get back your strength."
-msgstr ""
+msgstr "你的地下城已经沦为一片废墟，你的力量也被夺走了。幸运的是，你的地下城心脏还完好无损。重建你的地下城来找回你的力量。"
 
 #. The Death Clock (lv450)
 #: guitext:112
 msgctxt "In-game message"
 msgid "Good, you have your dungeon back, your power is returning. The heroes know, they will return to kill us all. Make the most of your final moments."
-msgstr ""
+msgstr "很好，你重建了你的地下城，你的力量正在逐渐恢复。但是英雄们得知了你的存在，他们正赶往这里来除掉你。在这生命中的最后时刻尽你所能吧。"
 
 #. The Death Clock (lv450)
 #: guitext:113
 msgctxt "In-game message"
 msgid "If you want the heroes to remember your final battle, quickly take whatever you can from their remaining forces here and the keeper they left for dead."
-msgstr ""
+msgstr "如果你想彻底战胜这些英雄，你必须尽快从附近的英雄势力手中和一名已被英雄消灭的守护者处夺取资源。"
 
 #. The Death Clock (lv450)
 #: guitext:114
 msgctxt "In-game message"
 msgid "Heroes waltzed over your former rival, I'm sure they will muster a counter attack if you claim this dungeon and its riches as your own."
-msgstr ""
+msgstr "英雄们已经将这里的前任守护者踩在了脚底下，我确信如果你打算占领这座地下城并把其中的财宝据为己有，他们一定会发起反击。"
 
 #. The Death Clock (lv450)
 #: guitext:115
 msgctxt "In-game message"
 msgid "Heroes! Send in the hounds! Then have them lick your wounds, because I'm sure there are more to come."
-msgstr ""
+msgstr "英雄来袭！关门放地狱之犬！战斗结束后让它们帮你舔舐伤口吧，因为我确信还会有更多英雄前来。"
 
 #. The Death Clock (lv450)
 #: guitext:116
 msgctxt "In-game message"
 msgid "A sizeable graveyard would be useful right about now,..."
-msgstr ""
+msgstr "你现在一定很需要一座足够大的陵墓吧……"
 
 #. The Death Clock (lv450)
 #: guitext:117
 msgctxt "In-game message"
 msgid "Kill all the heroes you can find. They will do the same thing to you soon enough."
-msgstr ""
+msgstr "杀掉你遇见的每一个英雄，不留活口。他们很快会再次对你发起进攻。"
 
 #. The Death Clock (lv450)
 #: guitext:118
 msgctxt "In-game message"
 msgid "In the east the heroes have a fortress. Why don't you go find out what it contains?"
-msgstr ""
+msgstr "英雄们在东边有一座要塞。为什么不去看一看里面有些什么呢？"
 
 #. The Death Clock (lv450)
 #: guitext:119
 msgctxt "In-game message"
 msgid "Mole-man save us, they are almost here! Place more traps now or hope your little army is stronger than it looks."
-msgstr ""
+msgstr "我们的小鬼救了我们一命，敌人差一点就要进来了！尽快部署更多的陷阱，你该不会指望着你现在脆弱的军队能挡住敌人吧。"
 
 #. The Death Clock (lv450)
 #: guitext:120
 msgctxt "In-game message"
 msgid "I have a bad feeling about this. You know you are supposed to kill the little white men right?"
-msgstr ""
+msgstr "我有种不好的预感。你应该知道你必须把这些白色的弱小人类都杀掉，对吧？"
 
 #. The Death Clock (lv450)
 #: guitext:121
 msgctxt "In-game message"
 msgid "Yes, we have some creatures left! I never doubted you for a second. Congratulations!"
-msgstr ""
+msgstr "很好，我们的怪物们存活了下来！我从来没有怀疑过你的能力。恭喜！"
 
 #. The Death Clock (lv450)
 #: guitext:122
 msgctxt "In-game message"
 msgid "You lost your only creature. You needed it to get claim the tiles around your heart. Hopeless."
-msgstr ""
+msgstr "你失去了你唯一的怪物。你需要它才能夺回你地下城心脏周围的领土。现在已经没有希望了。"
 
 #: guitext:123 guitext:124 guitext:125
 #: guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 guitext:131
@@ -845,7 +845,7 @@ msgstr "我的宠物地城"
 #: guitext:212
 msgctxt "Level name"
 msgid "Ghost in the Machine"
-msgstr "鬼推磨"
+msgstr "鬼魂制造机"
 
 #: guitext:213
 msgctxt "Level name"
