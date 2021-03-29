@@ -2284,6 +2284,28 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     map_volume_box.color = box_color;
 }
 
+void process_isometric_map_volume_box(long x, long y, long z)
+{
+    if (render_roomspace.render_roomspace_as_box)
+    {
+        if (render_roomspace.is_roomspace_a_box)
+        {
+            // This is a basic square box
+            create_map_volume_box(x, y, z, map_volume_box.color);
+        }
+        else
+        {
+            // This is a "2-line" square box
+            create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_GREEN);
+            create_map_volume_box(x, y, z, SLC_BROWN);
+        }
+    }
+    else
+    {
+        // This is a "fancy" box
+        create_fancy_map_volume_box(render_roomspace, x, y, z, map_volume_box.color);
+    }
+}
 static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
 {
     _DK_do_a_trig_gourad_tr(ep1, ep2, ep3, a4, a5);
@@ -4870,25 +4892,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     if (map_volume_box.visible)
     {
         poly_pool_end_reserve(0);
-        if (render_roomspace.render_roomspace_as_box)
-        {
-            if (render_roomspace.is_roomspace_a_box)
-            {
-                // This is a basic square box
-                create_map_volume_box(x, y, z, map_volume_box.color);
-            }
-            else
-            {
-                // This is a "2-line" square box
-                create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_GREEN);
-                create_map_volume_box(x, y, z, SLC_BROWN);
-            }
-        }
-        else
-        {
-            // This is a "fancy" box
-            create_fancy_map_volume_box(render_roomspace, x, y, z, map_volume_box.color);
-        }
+        process_isometric_map_volume_box(x, y, z);
     }
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
@@ -6625,6 +6629,28 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     }
 }
 
+void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width)
+{
+    if (render_roomspace.render_roomspace_as_box)
+    {
+        if (render_roomspace.is_roomspace_a_box)
+        {
+            // This is a basic square box
+             create_frontview_map_volume_box(cam, stl_width, render_roomspace.is_roomspace_a_single_subtile, map_volume_box.color);
+        }
+        else
+        {
+            // This is a "2-line" square box
+            create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, SLC_GREEN);
+            create_frontview_map_volume_box(cam, stl_width, render_roomspace.is_roomspace_a_single_subtile, SLC_BROWN);
+        }
+    }
+    else
+    {
+        // This is a "fancy" box
+        create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, map_volume_box.color);
+    }
+}
 static void do_map_who_for_thing(struct Thing *thing)
 {
     int bckt_idx;
@@ -6944,25 +6970,7 @@ void draw_frontview_engine(struct Camera *cam)
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
     if (map_volume_box.visible)
     {
-        if (render_roomspace.render_roomspace_as_box)
-        {
-            if (render_roomspace.is_roomspace_a_box)
-            {
-                // This is a basic square box
-                 create_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), render_roomspace.is_roomspace_a_single_subtile, map_volume_box.color);
-            }
-            else
-            {
-                // This is a "2-line" square box
-                create_fancy_frontview_map_volume_box(render_roomspace, cam, ((zoom >> 8) & 0xFF), SLC_GREEN);
-                create_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), render_roomspace.is_roomspace_a_single_subtile, SLC_BROWN);
-            }
-        }
-        else
-        {
-            // This is a "fancy" box
-            create_fancy_frontview_map_volume_box(render_roomspace, cam, ((zoom >> 8) & 0xFF), map_volume_box.color);
-        }
+        process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF));
     }
     map_volume_box.visible = 0;
 
