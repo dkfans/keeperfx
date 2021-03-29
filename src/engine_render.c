@@ -6485,8 +6485,13 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     create_line_element(coord_x,             coord_y + breadth,            coord_x,             coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
     create_line_element(coord_x + box_width, coord_y + breadth,            coord_x + box_width, coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
 }
-void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width, long line_color)
+void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width, long color, TbBool show_outer_box)
 {
+    long line_color = color;
+    if (show_outer_box)
+    {
+        line_color = map_volume_box.color; //  set the "inner" box color to the default colour (usually red/green)
+    }
     unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
     int floor_height_z = (map_volume_box.floor_height_z == 0) ? 1 : map_volume_box.floor_height_z; // ignore "liquid height", and force it to "floor height". All fancy rooms are on the ground, and this ensures the boundboxes are drawn correctly. A different solution will be required if this function is used to draw fancy rooms over "liquid".
     long depth = ((5 - floor_height_z) * ((long)stl_width << 7) / 256);
@@ -6624,6 +6629,42 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
                         create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
                     }
                 }
+                if (show_outer_box) // this handles the "outer line" (only when it is not in the roomspace)
+                {
+                    //draw 2nd line, i.e. the outer line - the one around the edge of the 5x5 cursor, not the valid slabs within the cursor
+                    line_color = color; // switch to the "secondary colour" (the one passed as a variable if show_outer_box is true)
+                    TbBool left_edge   = (roomspace_x == 0)                    ? true : false;
+                    TbBool right_edge  = (roomspace_x == room_slab_width - 1)  ? true : false;
+                    TbBool top_edge    = (roomspace_y == 0)                    ? true : false;
+                    TbBool bottom_edge = (roomspace_y == room_slab_height - 1) ? true : false;
+                    if (left_edge)
+                    {
+                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             line_color);
+                        if (bottom_edge)
+                        {
+                            create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
+                        }
+                    }
+                    if (right_edge)
+                    {
+                        create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                        if (bottom_edge)
+                        {
+                            create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
+                        }
+                    }
+                    if (top_edge)
+                    {
+                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             line_color);
+                        create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             line_color);
+                    }
+                    if (bottom_edge)
+                    {
+                        create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                        create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
+                    }
+                    line_color = map_volume_box.color; // switch back to default color (red/green) for the inner line
+                }
             }
         }
     }
@@ -6641,14 +6682,14 @@ void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_widt
         else
         {
             // This is a "2-line" square box
-            create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, SLC_GREEN);
-            create_frontview_map_volume_box(cam, stl_width, render_roomspace.is_roomspace_a_single_subtile, SLC_BROWN);
+            // i.e. an "accurate" box with an outer square box
+            create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, SLC_BROWN, true);
         }
     }
     else
     {
-        // This is a "fancy" box
-        create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, map_volume_box.color);
+        // This is an "accurate"/"automagic" box
+        create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, map_volume_box.color, false);
     }
 }
 static void do_map_who_for_thing(struct Thing *thing)
