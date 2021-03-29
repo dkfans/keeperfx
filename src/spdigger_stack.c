@@ -2785,18 +2785,45 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
         // Do not delete the task - another digger might be able to reach it
         return 0;
     }
+    EventIndex evidx;
     i = crate_thing_to_workshop_item_class(sectng);
     if (i == TCls_Trap)
     {
-      event_create_event_or_update_nearby_existing_event(
+      evidx = event_create_event_or_update_nearby_existing_event(
           subtile_coord_center(stl_x), subtile_coord_center(stl_y),
           EvKind_TrapCrateFound, thing->owner, sectng->index);
+        if (evidx > 0)
+        {
+            long speech_idx;
+            if ( (is_my_player_number(sectng->owner)) && (!is_my_player_number(thing->owner)) )
+            {
+                speech_idx = SMsg_TrapStolen;
+            } 
+            else if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
+            {
+                speech_idx = (sectng->owner == game.neutral_player_num) ? SMsg_DiscoveredTrap : SMsg_TrapTaken;
+            }
+            output_message(speech_idx, 0, true);
+        }
     } else
     if (i == TCls_Door)
     {
-      event_create_event_or_update_nearby_existing_event(
+      evidx = event_create_event_or_update_nearby_existing_event(
           subtile_coord_center(stl_x), subtile_coord_center(stl_y),
           EvKind_DoorCrateFound, thing->owner, sectng->index);
+        if (evidx > 0)
+        {
+            long speech_idx;
+            if ( (is_my_player_number(sectng->owner)) && (!is_my_player_number(thing->owner)) )
+            {
+                speech_idx = SMsg_DoorStolen;
+            } 
+            else if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
+            {
+                speech_idx = (sectng->owner == game.neutral_player_num) ? SMsg_DiscoveredDoor : SMsg_DoorTaken;
+            }
+            output_message(speech_idx, 0, true);
+        }
     } else
     {
         WARNLOG("Strange pickup (class %d) - no event",(int)i);
