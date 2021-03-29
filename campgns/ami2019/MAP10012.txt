@@ -75,6 +75,7 @@ ADD_TO_PARTY(FIN,KNIGHT,10,0,ATTACK_DUNGEON_HEART,0)
 ADD_TO_PARTY(FIN,KNIGHT,10,0,ATTACK_DUNGEON_HEART,0)
 ADD_TO_PARTY(FIN,ARCHER,10,0,ATTACK_DUNGEON_HEART,0)
 ADD_TO_PARTY(FIN,ARCHER,10,0,ATTACK_DUNGEON_HEART,0)
+ADD_TO_PARTY(FIN,FAIRY,10,0,ATTACK_DUNGEON_HEART,0)
 
 CREATE_PARTY(FIN2)
 ADD_TO_PARTY(FIN2,AVATAR,10,0,ATTACK_DUNGEON_HEART,0)
@@ -82,13 +83,14 @@ ADD_TO_PARTY(FIN2,KNIGHT,10,0,ATTACK_DUNGEON_HEART,0)
 ADD_TO_PARTY(FIN2,KNIGHT,10,0,ATTACK_DUNGEON_HEART,0)
 ADD_TO_PARTY(FIN2,MONK,10,0,ATTACK_DUNGEON_HEART,0)
 ADD_TO_PARTY(FIN2,WIZARD,10,0,ATTACK_DUNGEON_HEART,0)
+ADD_TO_PARTY(FIN2,WIZARD,10,0,ATTACK_DUNGEON_HEART,0)
 
 REM
 REM
 REM
 
 REM	QUICK_OBJECTIVE(1,"The plan for a first strike went bust. The people of this land have already launched an attack upon your dungeon and they are breaking out from every direction. It's up to you to take control. Withstand the smite and defeat the lord of the land.",ALL_PLAYERS)
-DISPLAY_OBJECTIVE(135,PLAYER0)
+DISPLAY_OBJECTIVE(135,ALL_PLAYERS)
 REM	QUICK_INFORMATION(2,"There are 4 creature dwelling bases in this land: orc, samurai, warlock and bile demon forts. Choose the one to raid, get one of their troops to join you and they'll be joining your army from the portal at a maximum 6 of each (of level of the unit type you obtain as first). Be careful, however: they will be only willing to join you as long as you have at least one of a kind in your dungeon! They die off = it's over for them in this land.",ALL_PLAYERS)
 DISPLAY_INFORMATION(136,ALL_PLAYERS)
 
@@ -226,8 +228,8 @@ IF(PLAYER0,TIMER1>190)
 			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FIN2,DRAWFROM(-1,-2),1)
 			REM ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(FIN,FIN2),DRAWFROM(-1,-2),1)
 			SET_FLAG(PLAYER0,FLAG2,1)
+			REM	"The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours."
 			DISPLAY_OBJECTIVE(139,ALL_PLAYERS)
-		REM	QUICK_OBJECTIVE(11,"The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours.",ALL_PLAYERS)
 		ENDIF
 	ENDIF
 	IF(PLAYER0,FLAG0>=25)
