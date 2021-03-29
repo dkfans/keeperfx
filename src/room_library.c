@@ -103,11 +103,18 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
             picktng->mappos.x.val, picktng->mappos.y.val,
             EvKind_SpellPickedUp, creatng->owner, picktng->index);
         // Only play speech message if new event was created
-        if ((evidx > 0) && is_my_player_number(picktng->owner) && !is_my_player_number(creatng->owner)) {
-            output_message(SMsg_SpellbookStolen, 0, true);
-        } else
-        if ((evidx > 0) && is_my_player_number(creatng->owner) && !is_my_player_number(picktng->owner)) {
-            output_message(SMsg_SpellbookTaken, 0, true);
+        if (evidx > 0)
+        {
+            long speech_idx;
+            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
+            {
+                speech_idx = SMsg_SpellbookStolen;
+            } 
+            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
+            {
+                speech_idx = (picktng->owner == game.neutral_player_num) ? SMsg_DiscoveredSpell : SMsg_SpellbookTaken;
+            }
+            output_message(speech_idx, 0, true);
         }
     } else
     if (thing_is_special_box(picktng))
