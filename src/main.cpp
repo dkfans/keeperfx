@@ -3102,12 +3102,16 @@ struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long ply
 void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4)
 {
   SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
+  render_roomspace.is_roomspace_a_box = true;
+  render_roomspace.render_roomspace_as_box = true;
   _DK_tag_cursor_blocks_dig(plyr_idx, stl_x, stl_y, a4);
 }
 
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5)
 {
   SYNCDBG(7,"Starting");
+  render_roomspace.is_roomspace_a_box = true;
+  render_roomspace.render_roomspace_as_box = true;
   _DK_tag_cursor_blocks_thing_in_hand(a1, a2, a3, a4, a5);
 }
 
