@@ -105,16 +105,21 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
         // Only play speech message if new event was created
         if (evidx > 0)
         {
-            long speech_idx;
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
             {
-                speech_idx = SMsg_SpellbookStolen;
+                output_message(SMsg_SpellbookStolen, 0, true);
             } 
             else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
             {
-                speech_idx = (picktng->owner == game.neutral_player_num) ? SMsg_DiscoveredSpell : SMsg_SpellbookTaken;
+                if (picktng->owner == game.neutral_player_num)
+                {
+                   output_message(SMsg_DiscoveredSpell, 0, true); 
+                }
+                else
+                {
+                   output_message(SMsg_SpellbookTaken, 0, true); 
+                }
             }
-            output_message(speech_idx, 0, true);
         }
     } else
     if (thing_is_special_box(picktng))

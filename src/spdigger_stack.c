@@ -2794,16 +2794,21 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
           EvKind_TrapCrateFound, thing->owner, sectng->index);
         if (evidx > 0)
         {
-            long speech_idx;
             if ( (is_my_player_number(sectng->owner)) && (!is_my_player_number(thing->owner)) )
             {
-                speech_idx = SMsg_TrapStolen;
+                output_message(SMsg_TrapStolen, 0, true);
             } 
             else if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
             {
-                speech_idx = (sectng->owner == game.neutral_player_num) ? SMsg_DiscoveredTrap : SMsg_TrapTaken;
+                if (sectng->owner == game.neutral_player_num)
+                {
+                    output_message(SMsg_DiscoveredTrap, 0, true);
+                }
+                else
+                {
+                    output_message(SMsg_TrapTaken, 0, true); 
+                }
             }
-            output_message(speech_idx, 0, true);
         }
     } else
     if (i == TCls_Door)
@@ -2813,16 +2818,21 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
           EvKind_DoorCrateFound, thing->owner, sectng->index);
         if (evidx > 0)
         {
-            long speech_idx;
             if ( (is_my_player_number(sectng->owner)) && (!is_my_player_number(thing->owner)) )
             {
-                speech_idx = SMsg_DoorStolen;
+                output_message(SMsg_DoorStolen, 0, true);
             } 
             else if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
             {
-                speech_idx = (sectng->owner == game.neutral_player_num) ? SMsg_DiscoveredDoor : SMsg_DoorTaken;
+                if (sectng->owner == game.neutral_player_num)
+                {
+                    output_message(SMsg_DiscoveredDoor, 0, true);
+                }
+                else
+                {
+                    output_message(SMsg_DoorTaken, 0, true); 
+                }
             }
-            output_message(speech_idx, 0, true);
         }
     } else
     {
