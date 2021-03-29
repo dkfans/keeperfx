@@ -2130,8 +2130,13 @@ void create_map_volume_box(long x, long y, long z, long line_color)
     map_volume_box.color = box_color;
 }
 
-void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z, long line_color)
+void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z, long color, TbBool show_outer_box)
 {
+    long line_color = color;
+    if (show_outer_box)
+    {
+        line_color = map_volume_box.color; //  set the "inner" box color to the default colour (usually red/green)
+    }
     long box_xs;
     long box_xe;
     long box_ys;
@@ -2277,6 +2282,52 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
                         create_line_const_xy(slab_xend, slab_yend, box_zs, box_ze);
                     }
                 }
+                if (show_outer_box) // this handles the "outer line" (only when it is not in the roomspace)
+                {
+                    //draw 2nd line, i.e. the outer line - the one around the edge of the 5x5 cursor, not the valid slabs within the cursor
+                    map_volume_box.color = color; // switch to the "secondary colour" (the one passed as a variable if show_outer_box is true)
+                    TbBool left_edge   = (roomspace_x == 0)                    ? true : false;
+                    TbBool right_edge  = (roomspace_x == roomspace.width - 1)  ? true : false;
+                    TbBool top_edge    = (roomspace_y == 0)                    ? true : false;
+                    TbBool bottom_edge = (roomspace_y == roomspace.height - 1) ? true : false;
+                    if (left_edge)
+                    {
+                        create_line_const_xz(slab_xstart, box_zs, slab_yend, slab_ystart);
+                        create_line_const_xz(slab_xstart, box_ze, slab_yend, slab_ystart);
+                        if (top_edge)
+                        {
+                            create_line_const_xy(slab_xstart, slab_ystart, box_zs, box_ze);
+                        }
+                        if (bottom_edge)
+                        {
+                            create_line_const_xy(slab_xstart, slab_yend, box_zs, box_ze);
+                        }
+                    }
+                    if (right_edge)
+                    {
+                        create_line_const_xz(slab_xend, box_zs, slab_yend, slab_ystart);
+                        create_line_const_xz(slab_xend, box_ze, slab_yend, slab_ystart);
+                        if (top_edge)
+                        {
+                            create_line_const_xy(slab_xend, slab_ystart, box_zs, box_ze);
+                        }
+                        if (bottom_edge)
+                        {
+                            create_line_const_xy(slab_xend, slab_yend, box_zs, box_ze);
+                        }
+                    }
+                    if (top_edge)
+                    {
+                        create_line_const_yz(slab_ystart, box_zs, slab_xstart, slab_xend);
+                        create_line_const_yz(slab_ystart, box_ze, slab_xstart, slab_xend);
+                    }
+                    if (bottom_edge)
+                    {
+                        create_line_const_yz(slab_yend, box_zs, slab_xstart, slab_xend);
+                        create_line_const_yz(slab_yend, box_ze, slab_xstart, slab_xend);
+                    }
+                    map_volume_box.color = line_color; // switch back to default color (red/green) for the inner line
+                }
             }
         }
     }
@@ -2296,14 +2347,14 @@ void process_isometric_map_volume_box(long x, long y, long z)
         else
         {
             // This is a "2-line" square box
-            create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_GREEN);
-            create_map_volume_box(x, y, z, SLC_BROWN);
+            // i.e. an "accurate" box with an outer square box
+            create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_BROWN, true);
         }
     }
     else
     {
-        // This is a "fancy" box
-        create_fancy_map_volume_box(render_roomspace, x, y, z, map_volume_box.color);
+        // This is an "accurate"/"automagic" box
+        create_fancy_map_volume_box(render_roomspace, x, y, z, map_volume_box.color, false);
     }
 }
 static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
