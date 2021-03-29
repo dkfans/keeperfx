@@ -92,14 +92,14 @@ CREATURE_AVAILABLE(PLAYER1,DRAGON,1,0)
 IF_CONTROLS(PLAYER0,HORNY>0)
 IF(PLAYER_GOOD,AVATAR==0)
 REM	QUICK_OBJECTIVE(5,"The symbol of your power is rightfully reclaimed making you victorious! Onto the next realm!",ALL_PLAYERS)
-	DISPLAY_OBJECTIVE(55,PLAYER0)
+	DISPLAY_OBJECTIVE(55,ALL_PLAYERS)
 	WIN_GAME
 ENDIF
 ENDIF
 
 IF(PLAYER0,HORNY==0)
 REM	QUICK_OBJECTIVE(6,"The symbol of your power is gone, no chance to keep the riches now.",ALL_PLAYERS)
-	DISPLAY_OBJECTIVE(54,PLAYER0)
+	DISPLAY_OBJECTIVE(54,ALL_PLAYERS)
 	LOSE_GAME
 ENDIF
 
@@ -129,7 +129,7 @@ ENDIF
 
 
 REM	QUICK_OBJECTIVE(1,"You've found a rich vein below one of the towers. The word spread quickly and people lurk western tombs hoping to find anything worth snatching. Some of them were greedy enough to join you as it is clear you are the richest around here. That's why you can expect a visit from the two keepers who combined their powers defeat you. Free your trapped reaper to return to your former glory. No one will dare to attack you when you have one of them!",ALL_PLAYERS)
-	DISPLAY_OBJECTIVE(48,PLAYER0)
+	DISPLAY_OBJECTIVE(48,ALL_PLAYERS)
 
 IF(PLAYER0,GAME_TURN>360)
 REM	QUICK_INFORMATION(2,"You'll need a bridge to get to the walled-in reaper. Your imprisoned wizard has the plans, getting to him won't be easy though. Due to massive treasure beneath your territory you'll never run out of gold in this land. Use it in combination with call to arms spell to reclaim the tombs and to free the wizard.",2)
