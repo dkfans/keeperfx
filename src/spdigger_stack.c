@@ -2794,19 +2794,12 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
           EvKind_TrapCrateFound, thing->owner, sectng->index);
         if (evidx > 0)
         {
-            if ( (is_my_player_number(sectng->owner)) && (!is_my_player_number(thing->owner)) )
-            {
-                output_message(SMsg_TrapStolen, 0, true);
-            } 
-            else if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
+
+            if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
             {
                 if (sectng->owner == game.neutral_player_num)
                 {
                     output_message(SMsg_DiscoveredTrap, 0, true);
-                }
-                else
-                {
-                    output_message(SMsg_TrapTaken, 0, true); 
                 }
             }
         }
@@ -2818,19 +2811,11 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
           EvKind_DoorCrateFound, thing->owner, sectng->index);
         if (evidx > 0)
         {
-            if ( (is_my_player_number(sectng->owner)) && (!is_my_player_number(thing->owner)) )
-            {
-                output_message(SMsg_DoorStolen, 0, true);
-            } 
-            else if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
+            if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
             {
                 if (sectng->owner == game.neutral_player_num)
                 {
                     output_message(SMsg_DiscoveredDoor, 0, true);
-                }
-                else
-                {
-                    output_message(SMsg_DoorTaken, 0, true); 
                 }
             }
         }
