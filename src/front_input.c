@@ -77,6 +77,9 @@ unsigned short const zoom_key_room_order[] =
 
 KEEPERSPEECH_EVENT last_speech_event;
 
+// define the current GUI layer as the default
+struct GuiLayer gui_layer = {GuiLayer_Default};
+
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);
@@ -87,6 +90,35 @@ short get_bookmark_inputs(void);
 }
 #endif
 /******************************************************************************/
+long get_current_gui_layer()
+{
+    return gui_layer.current_gui_layer;
+}
+
+TbBool set_current_gui_layer(long layer_id)
+{
+    gui_layer.current_gui_layer = layer_id;
+    return true;
+}
+
+void update_gui_layer()
+{
+    // Determine the current/correct GUI Layer to use at this moment
+
+    struct PlayerInfo* player = get_my_player();
+    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom))  &&
+         (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
+    {
+        // Is the user in "one-click" mode (i.e. they are in the build/sell player state, and are pressing the square/automagic button)
+        set_current_gui_layer(GuiLayer_OneClick);
+    }
+    else
+    {
+        // For now this is equivilent to "old input behaviour"
+        set_current_gui_layer(GuiLayer_Default);
+    }
+}
+
 short game_is_busy_doing_gui_string_input(void)
 {
   return (input_button != NULL);
@@ -2188,6 +2220,7 @@ void input(void)
 
     update_mouse();
     update_key_modifiers();
+    update_gui_layer();
 
     if (KeeperSpeechPopEvent(&last_speech_event)) {
       last_speech_event.type = KS_UNUSED;
