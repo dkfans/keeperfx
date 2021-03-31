@@ -140,6 +140,21 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
   {
     *val = settings.kbkeys[key_id].code;
   }
+  if (get_current_gui_layer() == GuiLayer_OneClick)
+  {
+    if ( (key_id == Gkey_RotateMod) && (
+         (settings.kbkeys[Gkey_RotateMod].code == settings.kbkeys[Gkey_BestRoomSpace].code) ||
+         (settings.kbkeys[Gkey_RotateMod].code == settings.kbkeys[Gkey_SquareRoomSpace].code) ) )
+    {
+      return 0;
+    }
+    if ( (key_id == Gkey_SpeedMod) && (
+         (settings.kbkeys[Gkey_SpeedMod].code == settings.kbkeys[Gkey_BestRoomSpace].code) ||
+         (settings.kbkeys[Gkey_SpeedMod].code == settings.kbkeys[Gkey_SquareRoomSpace].code) ) )
+    {
+      return 0;
+    }
+  }
   if ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_CrtrContrlMod) || (key_id == Gkey_CrtrQueryMod))
   {
       i = settings.kbkeys[key_id].code;
