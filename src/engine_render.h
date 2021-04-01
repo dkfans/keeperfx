@@ -354,7 +354,6 @@ struct MapVolumeBox { // sizeof = 24
 
 /******************************************************************************/
 // Stripey Line Color Arrays
-#define STRIPEY_LINE_COLOR_COUNT 9
 
 enum stripey_line_colors {
     SLC_RED = 0, // INVALID SELECTION
@@ -366,6 +365,7 @@ enum stripey_line_colors {
     SLC_BLUE,
     SLC_ORANGE,
     SLC_WHITE,
+    STRIPEY_LINE_COLOR_COUNT // Must always be the last entry (add new colours above this line)
 };
 
 struct stripey_line {
