@@ -3527,7 +3527,7 @@ void command_randomise_flag(long plr_range_id, const char *flgname, long val)
   command_add_value(Cmd_RANDOMISE_FLAG, plr_range_id, flg_id, val, flag_type);
 }
 
-void command_set_flag_computed(long plr_range_id, const char *flgname, const char *operator_name, long src_plr_range_id, const char *src_flgname, long alt)
+void command_compute_flag(long plr_range_id, const char *flgname, const char *operator_name, long src_plr_range_id, const char *src_flgname, long alt)
 {
     long flg_id;
     long flag_type;
@@ -3597,7 +3597,7 @@ void command_set_flag_computed(long plr_range_id, const char *flgname, const cha
     // 3rd byte: flag type
     // 4th byte: src flag type
     long srcplr_op_flagtype_srcflagtype = (src_plr_range_id << 24) | (op_id << 16) | (flag_type << 8) | src_flag_type;
-    command_add_value(Cmd_SET_FLAG_COMPUTED, plr_range_id, srcplr_op_flagtype_srcflagtype, flg_id, src_flg_id);
+    command_add_value(Cmd_COMPUTE_FLAG, plr_range_id, srcplr_op_flagtype_srcflagtype, flg_id, src_flg_id);
 }
 
 /** Adds a script command to in-game structures.
@@ -3913,8 +3913,8 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_RANDOMISE_FLAG:
         command_randomise_flag(scline->np[0], scline->tp[1], scline->np[2]);
         break;
-    case Cmd_SET_FLAG_COMPUTED:
-        command_set_flag_computed(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5]);
+    case Cmd_COMPUTE_FLAG:
+        command_compute_flag(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -6691,7 +6691,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           set_variable(i, val4, val2, (rand() % val3) + 1);
       }
       break;
-  case Cmd_SET_FLAG_COMPUTED:
+  case Cmd_COMPUTE_FLAG:
       {
         long src_plr_range = (val2 >> 24) & 255;
         long operation = (val2 >> 16) & 255;
@@ -7106,7 +7106,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
-  {"SET_FLAG_COMPUTED",                 "PAAPAN  ", Cmd_SET_FLAG_COMPUTED, NULL, NULL},
+  {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
