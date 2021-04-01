@@ -1618,7 +1618,7 @@ void get_isometric_view_nonaction_inputs(void)
     if (speed_pressed != 0)
       pckt->field_10 |= PCAdV_SpeedupPressed;
     TbBool no_mods = false;
-    if ((rotate_pressed != 0) || (speed_pressed != 0))
+    if ((rotate_pressed != 0) || (speed_pressed != 0) || (get_current_gui_layer() == GuiLayer_OneClick))
       no_mods = true;
 
     get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,speed_pressed);
@@ -1694,7 +1694,7 @@ void get_front_view_nonaction_inputs(void)
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
     TbBool no_mods = false;
-    if ((rotate_pressed != 0) || (speed_pressed != 0))
+    if ((rotate_pressed != 0) || (speed_pressed != 0) || (get_current_gui_layer() == GuiLayer_OneClick))
       no_mods = true;
 
     if ((player->allocflags & PlaF_Unknown10) != 0)
