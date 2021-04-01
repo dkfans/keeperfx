@@ -17,12 +17,16 @@
 /******************************************************************************/
 
 #include "script_zones.h"
+
+#include "config_creature.h"
+#include "creature_states.h"
 #include "frontmenu_ingame_map.h"
 #include "game_merge.h"
 #include "slab_data.h"
 #include "map_data.h"
 #include "map_columns.h"
 #include "room_data.h"
+#include "room_jobs.h"
 #include "room_util.h"
 #include "thing_objects.h"
 
@@ -83,6 +87,12 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
             {
                 tng = thing_get(idx);
                 idx = tng->next_on_mapblk;
+                // Remove all creatures from rooms. We will add them back later
+                struct CreatureControl *cctrl = creature_control_get_from_thing(tng);
+                if (!creature_control_invalid(cctrl))
+                {
+                    remove_creature_from_work_room(tng);
+                }
                 // We should adjust mappos for deleted things because deleting would query location
                 tng->mappos.x.stl.num -= slab_subtile(first->min_x, 0);
                 tng->mappos.x.stl.num += slab_subtile(second->min_x, 0);
@@ -112,6 +122,12 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
             {
                 tng = thing_get(idx);
                 idx = tng->next_on_mapblk;
+                // Remove all creatures from rooms. We will add them back later
+                struct CreatureControl *cctrl = creature_control_get_from_thing(tng);
+                if (!creature_control_invalid(cctrl))
+                {
+                    remove_creature_from_work_room(tng);
+                }
                 tng->mappos.x.stl.num -= slab_subtile(second->min_x, 0);
                 tng->mappos.x.stl.num += slab_subtile(first->min_x, 0);
                 tng->mappos.y.stl.num -= slab_subtile(second->min_y, 0);
@@ -148,7 +164,7 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
                 remove_slab_from_room_tiles_list(room, first->min_x + dx, first->min_y + dy);
                 if (room->slabs_count < 1)
                 {
-                    // TODO: we have to move them silently
+                    // we have to move them silently
                     // reset_creatures_rooms(room);
                     free_room_structure(room);
                 }
@@ -191,6 +207,50 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
                 struct Room *room = create_room(slabmap_owner(dslb), rkind, slab_subtile_center(first->min_x + dx),
                             slab_subtile_center(first->min_y + dy));
                 do_room_integration(room);
+            }
+        }
+    }
+    for (int dy = 0; dy < first->hheight * STL_PER_SLB; dy++)
+    {
+        for (int dx = 0; dx < first->hwidth * STL_PER_SLB; dx++)
+        {
+            struct Map *sblk = get_map_block_at(slab_subtile(second->min_x, 0) + dx, slab_subtile(second->min_y, 0) + dy);
+            struct Map *dblk = get_map_block_at(slab_subtile(first->min_x, 0) + dx, slab_subtile(first->min_y, 0) + dy);
+            struct SlabMap* sslb = get_slabmap_for_subtile(slab_subtile(second->min_x, 0) + dx, slab_subtile(second->min_y, 0) + dy);
+            struct SlabMap* dslb = get_slabmap_for_subtile(slab_subtile(first->min_x, 0) + dx, slab_subtile(first->min_y, 0) + dy);
+            if (sslb->room_index != 0)
+            {
+                struct Room *room = room_get(sslb->room_index);
+                for (int idx = get_mapwho_thing_index(sblk);
+                     idx != 0;
+                    )
+                {
+                    struct Thing *tng = thing_get(idx);
+                    idx = tng->next_on_mapblk;
+                    struct CreatureControl *cctrl = creature_control_get_from_thing(tng);
+                    if (!creature_control_invalid(cctrl))
+                    {
+                        CreatureJob jobpref = get_job_for_creature_state(get_creature_state_besides_interruptions(tng));
+                        add_creature_to_work_room(tng, room, jobpref);
+                    }
+                }
+            }
+            if (dslb->room_index != 0)
+            {
+                struct Room *room = room_get(dslb->room_index);
+                for (int idx = get_mapwho_thing_index(dblk);
+                     idx != 0;
+                    )
+                {
+                    struct Thing *tng = thing_get(idx);
+                    idx = tng->next_on_mapblk;
+                    struct CreatureControl *cctrl = creature_control_get_from_thing(tng);
+                    if (!creature_control_invalid(cctrl))
+                    {
+                        CreatureJob jobpref = get_job_for_creature_state(get_creature_state_besides_interruptions(tng));
+                        add_creature_to_work_room(tng, room, jobpref);
+                    }
+                }
             }
         }
     }
