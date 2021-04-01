@@ -3330,6 +3330,10 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
             {
                 anger_reduce_creature_anger(thing, -anger, AngR_Other);
             }
+            else if (operation == SOpr_MULTIPLY)
+            {
+                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
+            }
 
         }
         // Thing list loop body ends
