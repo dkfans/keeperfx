@@ -84,6 +84,7 @@ enum TbButtonFrontendFlags {
 enum GuiLayers {
     GuiLayer_Default  = 0,
     GuiLayer_OneClick,
+    GuiLayer_OneClickBridgeBuild,
 };
 
 struct GuiLayer {
@@ -109,6 +110,7 @@ short get_gui_inputs(short gameplay_on);
 extern unsigned short const zoom_key_room_order[];
 TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn);
 long get_current_gui_layer();
+TbBool check_current_gui_layer(long layer_id);
 
 /******************************************************************************/
 #ifdef __cplusplus

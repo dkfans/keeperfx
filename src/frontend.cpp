@@ -793,7 +793,7 @@ void maintain_scroll_up(struct GuiButton *gbtn)
     //_DK_maintain_scroll_up(gbtn);
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (scrollwnd->start_y < 0)) & LbBtnF_Enabled;
-    if (get_current_gui_layer() != GuiLayer_OneClick)
+    if (!check_current_gui_layer(GuiLayer_OneClick))
     {
         if (wheel_scrolled_up & lbKeyOn[KC_LCONTROL])
         {
@@ -809,7 +809,7 @@ void maintain_scroll_down(struct GuiButton *gbtn)
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled
         * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnF_Enabled;
-    if (get_current_gui_layer() != GuiLayer_OneClick)
+    if (!check_current_gui_layer(GuiLayer_OneClick))
     {
         if (wheel_scrolled_down & lbKeyOn[KC_LCONTROL])
         {

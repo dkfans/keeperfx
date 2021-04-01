@@ -101,16 +101,57 @@ TbBool set_current_gui_layer(long layer_id)
     return true;
 }
 
+TbBool check_current_gui_layer(long layer_id)
+{
+    // Check the current gui layer against the one passed as a parameter
+    // Also checks if the passed layer_id is the parent of the current gui layer
+    
+    // This is just a basic example, GuiLayer objects should be created with parent properties etc etc
+    
+    if (gui_layer.current_gui_layer == layer_id)
+    {
+        return true;
+    }
+    else
+    {
+        // check children
+        switch (layer_id)
+        {
+            case GuiLayer_OneClick:
+                switch (gui_layer.current_gui_layer)
+                {
+                    case GuiLayer_OneClickBridgeBuild:
+                        return true;
+                        break;
+                    default:
+                        return false;
+                }
+                break;
+            default:
+                return false;
+        }
+    }
+}
+
 void update_gui_layer()
 {
     // Determine the current/correct GUI Layer to use at this moment
 
     struct PlayerInfo* player = get_my_player();
+    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
     if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
     {
-        // Is the user in "one-click" mode (i.e. they are in the build/sell player state, and are pressing the square/automagic button)
-        set_current_gui_layer(GuiLayer_OneClick);
+        if (dungeonadd->painter_build_mode)
+        {
+            // Is the user in "one-click bridge building" mode
+            set_current_gui_layer(GuiLayer_OneClickBridgeBuild);
+        }
+        else
+        {
+            // Is the user in "one-click" mode (i.e. they are in the build/sell player state, and are pressing the square/automagic button)
+            set_current_gui_layer(GuiLayer_OneClick);
+        }
     }
     else
     {
@@ -140,7 +181,7 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
   {
     *val = settings.kbkeys[key_id].code;
   }
-  if (get_current_gui_layer() == GuiLayer_OneClick)
+  if (get_current_gui_layer() == GuiLayer_OneClickBridgeBuild)
   {
     if ( (key_id == Gkey_RotateMod) && (
          (settings.kbkeys[Gkey_RotateMod].code == settings.kbkeys[Gkey_BestRoomSpace].code) ||
@@ -1618,7 +1659,7 @@ void get_isometric_view_nonaction_inputs(void)
     if (speed_pressed != 0)
       pckt->field_10 |= PCAdV_SpeedupPressed;
     TbBool no_mods = false;
-    if ((rotate_pressed != 0) || (speed_pressed != 0) || (get_current_gui_layer() == GuiLayer_OneClick))
+    if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
       no_mods = true;
 
     get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,speed_pressed);
@@ -1694,7 +1735,7 @@ void get_front_view_nonaction_inputs(void)
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
     TbBool no_mods = false;
-    if ((rotate_pressed != 0) || (speed_pressed != 0) || (get_current_gui_layer() == GuiLayer_OneClick))
+    if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
       no_mods = true;
 
     if ((player->allocflags & PlaF_Unknown10) != 0)
