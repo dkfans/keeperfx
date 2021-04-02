@@ -1229,22 +1229,22 @@ static void define_zone_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unexpcepdted parameter:%s", scline->tp[0]);
         return;
     }
-    switch (get_map_location_type(scline->np[1]))
+    if ((scline->np[1] <= 0) || (scline->np[1] >= 85)) //TODO constant
     {
-        case MLoc_ACTIONPOINT:
-        case MLoc_PLAYERSHEART:
-        case MLoc_HEROGATE:
-            break;
-        default:
-            SCRPTERRLOG("Unknown or unsupported action point '%d'", scline->tp[1]);
-            return;
+        SCRPTERRLOG("Invalid x:'%s'", scline->tp[1]);
+        return;
     }
-    if (scline->np[2] < 0)
+    if ((scline->np[2] <= 0) || (scline->np[2] >= 85))
+    {
+        SCRPTERRLOG("Invalid y:'%s'", scline->tp[2]);
+        return;
+    }
+    if (scline->np[3] < 0)
     {
         SCRPTERRLOG("Unexpcepdted width:%s", scline->tp[2]);
         return;
     }
-    if (scline->np[3] < 0)
+    if (scline->np[4] < 0)
     {
         SCRPTERRLOG("Unexpcepdted height:%s", scline->tp[3]);
         return;
@@ -1252,9 +1252,10 @@ static void define_zone_check(const struct ScriptLine *scline)
 
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->arg0 = scline->np[0]; // Num
-    value->arg1 = scline->np[1]; // loc
-    value->bytes[8] = (char)scline->np[2];
-    value->bytes[9] = (char)scline->np[3];
+    value->bytes[4] = scline->np[1]; // x
+    value->bytes[5] = scline->np[2]; // y
+    value->bytes[8] = (char)scline->np[3];
+    value->bytes[9] = (char)scline->np[4];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -1262,10 +1263,8 @@ static void define_zone_process(struct ScriptContext *context)
 {
     struct ScriptZoneRecord *start_zone = find_script_zone(context->value->arg0);
     struct ScriptZoneRecord *new_zone, *prev_zone;
-    struct Coord3d pos;
     int hwidth = (int)context->value->bytes[8];
     int hheight = (int)context->value->bytes[9];
-    find_location_pos(context->value->arg1, context->player_idx, &pos, __func__);
     if (start_zone == INVALID_SCRIPT_ZONE)
     {
         start_zone = new_zone = add_script_zone();
@@ -1291,8 +1290,8 @@ static void define_zone_process(struct ScriptContext *context)
         start_zone->prev_idx = script_zone_id(new_zone);
     }
 
-    new_zone->min_x = subtile_slab_fast(pos.x.stl.num);
-    new_zone->min_y = subtile_slab_fast(pos.y.stl.num);
+    new_zone->min_x = context->value->bytes[4];
+    new_zone->min_y = context->value->bytes[5];
     new_zone->hheight = hheight;
     new_zone->hwidth = hwidth;
 }
@@ -7065,7 +7064,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
-  {"DEFINE_ZONE",                       "NLNN    ", Cmd_DEFINE_ZONE, &define_zone_check, &define_zone_process},
+  {"DEFINE_ZONE",                       "NNNNN   ", Cmd_DEFINE_ZONE, &define_zone_check, &define_zone_process},
   {"SWAP_ZONE",                         "NA      ", Cmd_SWAP_ZONE, &swap_zone_check, &swap_zone_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };

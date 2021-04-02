@@ -264,7 +264,7 @@ void swap_script_zone(int zone_id, enum ScriptZoneSwapDirection dir)
 {
     struct ScriptZoneRecord *first = find_script_zone(zone_id);
     struct ScriptZoneRecord *next;
-    if (dir == SZS_Forward)
+    if (dir == SZS_Backward)
     {
         next = get_script_zone(first->next_idx);
         for (struct ScriptZoneRecord *cur = first; next != first;)
@@ -273,7 +273,7 @@ void swap_script_zone(int zone_id, enum ScriptZoneSwapDirection dir)
             cur = next;
             next = get_script_zone(cur->next_idx);
         }
-    } else if (dir == SZS_Backward)
+    } else if (dir == SZS_Forward)
     {
         next = get_script_zone(first->prev_idx);
         for (struct ScriptZoneRecord *cur = first; next != first;)
