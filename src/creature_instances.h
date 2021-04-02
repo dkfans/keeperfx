@@ -135,6 +135,8 @@ int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
 
 void delay_teleport(struct Thing *creatng);
+
+extern TbBool first_person_dig_claim_mode;
 /******************************************************************************/
 #ifdef __cplusplus
 }

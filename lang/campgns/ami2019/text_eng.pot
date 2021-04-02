@@ -501,7 +501,7 @@ msgstr ""
 #: guitext:66
 msgctxt "In-game message"
 msgid ""
-"You have a Vampire!. However, be aware that a group of monks on the surface have blessed the Ziggurat which has drained the strength from "
+"You have a Vampire! However, be aware that a group of monks on the surface have blessed the Ziggurat which has drained the strength from "
 "these creatures. You must fight your way to their graveyards to counter the blessing and regain their strength."
 msgstr ""
 
@@ -605,7 +605,7 @@ msgstr ""
 #: guitext:80
 msgctxt "In-game message"
 msgid ""
-"You have done well so far Keeper, but the Lord of the Land with a larger army is on his way!"
+"You have done well so far Keeper, but the Lord of the Land and his crew is on his way!"
 msgstr ""
 
 #. Relic Tunnels (lv7) Timer message

@@ -159,6 +159,8 @@ struct InstanceInfo instance_info[] = {
     {0,  8,  4,  4,  2,   1,   1,  6,  0,  0,  3, NULL,                              {0,0}},
 };
 
+TbBool first_person_dig_claim_mode = false;
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -722,10 +724,96 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     TRACE_THING(creatng);
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
+    struct SlabMap* slb;
     if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
     {
         instf_pretty_path(creatng, NULL);
-    } else
+        return 1;
+    }
+    MapSubtlCoord ahead_stl_x;
+    MapSubtlCoord ahead_stl_y;
+    if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
+    {
+        ahead_stl_y = creatng->mappos.y.stl.num - 1;
+        ahead_stl_x = creatng->mappos.x.stl.num;
+    }
+    else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
+    {
+        ahead_stl_y = creatng->mappos.y.stl.num + 1;
+        ahead_stl_x = creatng->mappos.x.stl.num; 
+    }
+    else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
+    {
+        ahead_stl_y = creatng->mappos.y.stl.num;
+        ahead_stl_x = creatng->mappos.x.stl.num - 1;
+    }
+    else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
+    {
+        ahead_stl_y = creatng->mappos.y.stl.num;
+        ahead_stl_x = creatng->mappos.x.stl.num + 1; 
+    }
+    if ( (first_person_dig_claim_mode) || (!subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y)) )
+    {
+        slb = get_slabmap_block(slb_x, slb_y);
+        if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
+        {
+            struct SlabAttr* slbattr = get_slab_attrs(slb);
+            instf_destroy(creatng, NULL);
+            if (slbattr->block_flags & SlbAtFlg_IsRoom)
+            {
+                struct Room* room = room_get(slb->room_index);
+                if (!room_is_invalid(room))
+                {
+                    char id = ((~room->kind) + 1) - 78;
+                    if (room->owner != creatng->owner)
+                    {
+                        MapCoord coord_x = subtile_coord_center(room->central_stl_x);
+                        MapCoord coord_y = subtile_coord_center(room->central_stl_y);
+                        event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
+                            EvKind_RoomUnderAttack, room->owner, 0);
+                        if (is_my_player_number(room->owner))
+                        {
+                            output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                        }
+                        if (game.active_messages_count > 0)
+                        {
+                            clear_messages_from_player(id);
+                        }
+                        message_add_timeout(id, 50, "%d/%d", room->health, compute_room_max_health(room->slabs_count, room->efficiency));
+                    }
+                    else
+                    {
+                        if (game.active_messages_count > 0)
+                        {
+                            clear_messages_from_player(id);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (slabmap_owner(slb) == creatng->owner)
+            {
+                MapSlabCoord reinforce_slb_x = subtile_slab_fast(ahead_stl_x);
+                MapSlabCoord reinforce_slb_y = subtile_slab_fast(ahead_stl_y);
+                if ( check_place_to_reinforce(creatng, reinforce_slb_x, reinforce_slb_y) )
+                {
+                    slb = get_slabmap_block(reinforce_slb_x, reinforce_slb_y);
+                    if ((slb->kind >= SlbT_EARTH) && (slb->kind <= SlbT_TORCHDIRT))
+                    {
+                        if (slab_by_players_land(creatng->owner, reinforce_slb_x, reinforce_slb_y))
+                        {
+                            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                            cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
+                            instf_reinforce(creatng, NULL);
+                        } 
+                    }
+                }
+            }
+        }
+    }
+    else
     {
         //TODO CONFIG shot model dependency
         long locparam = 23;

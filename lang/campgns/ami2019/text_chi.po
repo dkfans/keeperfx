@@ -425,7 +425,7 @@ msgstr "所有的陵墓都被占领了，你的吸血鬼完全恢复了力量。
 #. Ziggurat Blitz Massacre (lv6) on gaining a Vampire
 #: guitext:66
 msgctxt "In-game message"
-msgid "You have a Vampire!. However, be aware that a group of monks on the surface have blessed the Ziggurat which has drained the strength from these creatures. You must fight your way to their graveyards to counter the blessing and regain their strength."
+msgid "You have a Vampire! However, be aware that a group of monks on the surface have blessed the Ziggurat which has drained the strength from these creatures. You must fight your way to their graveyards to counter the blessing and regain their strength."
 msgstr "你得到了一个吸血鬼！不过要注意，这里的一群僧侣向这座塔庙祈求了祝福，使其削弱了你的吸血鬼的力量。占领尽可能多的陵墓来解除这一祝福，使它们恢复原来的力量！"
 
 #. Ziggurat Blitz Massacre (lv6) on gaining a Vampire
@@ -509,7 +509,7 @@ msgstr "我相信你也注意到了，一大群愤怒的暴徒已经到来！"
 #. Relic Tunnels (lv7) Timer message
 #: guitext:80
 msgctxt "In-game message"
-msgid "You have done well so far Keeper, but the Lord of the Land with a larger army is on his way!"
+msgid "You have done well so far Keeper, but the Lord of the Land and his crew is on his way!"
 msgstr "到目前为止，你做的都非常好，守护者，但是国王正在率领大军赶往这里！"
 
 #. Relic Tunnels (lv7) Timer message

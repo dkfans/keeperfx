@@ -175,67 +175,67 @@ msgctxt "In-game message"
 msgid "The hounds have been released!"
 msgstr "地狱之犬被放出来了！"
 
-#. Midway (lv336)
+#. Battle of Midway (lv336)
 #: guitext:24
 msgctxt "In-game message"
 msgid "Souls of ancient keepers lurk to the south-west. They watch you intently with what is left of their magical powers!"
 msgstr "远古守护者的灵魂潜伏在西南方。他们正在用他们仅剩的魔法力量聚精会神地看着你！"
 
-#. Midway (lv336)
+#. Battle of Midway (lv336)
 #: guitext:25
 msgctxt "In-game message"
 msgid "Welcome to the Avatar's castle! His domain lies to the North-East, while his followers lurk to the North-West."
 msgstr "欢迎来到圣者的城堡！他的领地位于东北方,而他的追随者则潜伏在西北方。"
 
-#. Midway (lv336)
+#. Battle of Midway (lv336)
 #: guitext:26
 msgctxt "In-game message"
 msgid "Beware, the Avatar is escaping even now...."
 msgstr "注意，圣者现在正准备逃跑……"
 
-#. Midway (lv336)
+#. Battle of Midway (lv336)
 #: guitext:27
 msgctxt "In-game message"
 msgid "The door to the east bears a simple plaque which reads, Emergency Exit - Keep Clear at all Times - Offenders will be shot!"
 msgstr "通往东面的大门上有一块简易的告示牌，上面写着：紧急出口——请勿靠近——违犯者将被枪毙！"
 
-#. Midway (lv336)
+#. Battle of Midway (lv336)
 #: guitext:28
 msgctxt "In-game message"
 msgid "The Battle of Midway is afoot. Beware Evil one, the enemy is strong and well defended. Turn their misled minions against each other, sit back and let the butchery begin."
 msgstr "狭路相逢的战争正在进行之中。当心，邪恶的主人，敌人十分强大，而且戒备森严。让他们被蛊惑的仆从们自相残杀，然后坐下来，观看大屠杀开始吧。"
 
-#. Midway (lv336)
+#. Battle of Midway (lv336)
 #: guitext:29
 msgctxt "In-game message"
 msgid "A fine victory Keeper!"
 msgstr "一次光荣的胜利，守护者！"
 
-#. Crazy Reaper (lv406)
+#. Reaver Verruckt (lv406)
 #: guitext:30
 msgctxt "In-game message"
 msgid "Noble one, a massive army serves a Keeper by the name of Urien in this realm. Many of your forces are engaged in the East against Urien. However, you must also support our ally Keeper Morgant in the North who is also suffering from Urien's advancing onslaught.  Quite a task Keeper! "
 msgstr "尊贵的主人，这个王国中有一支庞大的军队听从一个叫做乌里安的守护者差遣。你的许多军队正在东边进攻乌里安。然而，你也必须保护你在北方的盟友，守护者莫甘特，他也正遭受着乌里安的进攻。真是个棘手的任务，守护者！"
 
-#. Crazy Reaper (lv406)
+#. Reaver Verruckt (lv406)
 #: guitext:31
 msgctxt "In-game message"
 msgid "Morgant has fallen to Urien's armies because you have failed in your duties Keeper. Defeat and shame are your reward."
 msgstr "莫甘特已经落入乌里安的手中，因为你没能履行你的职责好好保护他。失败和耻辱将成为你的奖品。"
 
-#. Crazy Reaper (lv406)
+#. Reaver Verruckt (lv406)
 #: guitext:32
 msgctxt "In-game message"
 msgid "An army without a Knight can never succeed, so your defeat is now sealed. Shame is your reward."
 msgstr "没有骑士领导的军队是不可能胜利的，所以你的失败已经注定了。耻辱将成为你的奖品。"
 
-#. Crazy Reaper (lv406)
+#. Reaver Verruckt (lv406)
 #: guitext:33
 msgctxt "In-game message"
 msgid "Well done noble one. Urien has fallen and Morgant flourishes. A rare act of loyalty has delivered a fine victory!"
 msgstr "干得好，尊贵的主人。乌里安已经灭亡，而莫甘特繁荣富强。一位罕见的忠诚的盟友带来了一次光荣的胜利！"
 
-#. Crazy Reaper (lv406)
+#. Reaver Verruckt (lv406)
 #: guitext:34
 msgctxt "In-game message"
 msgid "Urien must have great power to recruit skeletons to the hero cause?!"
@@ -521,12 +521,12 @@ msgstr "瓦萨戈"
 
 #: guitext:205
 msgctxt "Level name"
-msgid "Midway"
+msgid "Battle of Midway"
 msgstr "狭路相逢"
 
 #: guitext:206
 msgctxt "Level name"
-msgid "Crazy Reaper"
+msgid "Reaver Verruckt"
 msgstr "疯狂的死神"
 
 #: guitext:207
