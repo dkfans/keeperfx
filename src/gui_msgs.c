@@ -51,12 +51,13 @@ void message_draw(void)
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
         LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
         unsigned long spr_idx;
-        TbBool IsCreature, IsCreatureSpell;
+        TbBool IsCreature, IsCreatureSpell, IsRoom;
         TbBool NotPlayer = ((char)gameadd.messages[i].plyr_idx < 0);
         if (NotPlayer)
         {
             IsCreature = ( ((char)gameadd.messages[i].plyr_idx >= -31) && ((char)gameadd.messages[i].plyr_idx <= -1) );
-            IsCreatureSpell = ((char)gameadd.messages[i].plyr_idx < -31);
+            IsCreatureSpell = ((char)gameadd.messages[i].plyr_idx >= -78) && ((char)gameadd.messages[i].plyr_idx <= -32);
+            IsRoom = ((char)gameadd.messages[i].plyr_idx <= -79);
             if (IsCreature)
             {
                 spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
@@ -66,6 +67,13 @@ void message_draw(void)
             else if (IsCreatureSpell)
             {
                 spr_idx = instance_button_init[~(char)(((char)gameadd.messages[i].plyr_idx) + 31) + 1].symbol_spridx;
+                x -= (10 * units_per_pixel / 16);
+                y -= (10 * units_per_pixel / 16);
+            }
+            else if (IsRoom)
+            {
+                struct RoomData* rdata = room_data_get_for_kind(~(char)(((char)gameadd.messages[i].plyr_idx) + 78) + 1);
+                spr_idx = rdata->medsym_sprite_idx;
                 x -= (10 * units_per_pixel / 16);
                 y -= (10 * units_per_pixel / 16);
             }
@@ -85,7 +93,7 @@ void message_draw(void)
             {
                 y += (20 * units_per_pixel / 16);
             }
-            else if (IsCreatureSpell)
+            else if ( (IsCreatureSpell) || (IsRoom) )
             {
                 y += (10 * units_per_pixel / 16);
             }
@@ -171,6 +179,26 @@ void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
     va_list val;
     va_start(val, fmt_str);
     message_add_va(plyr_idx, fmt_str, val);
+    va_end(val);
+}
+
+void message_add_timeout(PlayerNumber plyr_idx, unsigned long timeout, const char *fmt_str, ...)
+{
+    va_list val;
+    va_start(val, fmt_str);
+    static char full_msg_text[2048];
+    vsprintf(full_msg_text, fmt_str, val);
+    SYNCDBG(2,"Player %d: %s",(int)plyr_idx,full_msg_text);
+    for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
+    {
+        memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessage));
+    }
+    strncpy(gameadd.messages[0].text, full_msg_text, sizeof(gameadd.messages[0].text) - 1);
+    gameadd.messages[0].plyr_idx = plyr_idx;
+    gameadd.messages[0].creation_turn = game.play_gameturn + timeout;
+    if (game.active_messages_count < GUI_MESSAGES_COUNT) {
+        game.active_messages_count++;
+    }
     va_end(val);
 }
 
