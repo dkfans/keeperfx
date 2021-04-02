@@ -575,7 +575,7 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
   pannel_map_update(start_x,start_y,end_x,end_y);
 }
 
-void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
+void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all)
 {
     unsigned long nflag = (1 << plyr_idx);
     nflag <<= 28;
@@ -592,6 +592,19 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
         for (MapSubtlCoord x = start_x; x < end_x; x++)
         {
             struct Map* mapblk = get_map_block_at(x, y);
+            if (!all)
+            {
+                struct SlabMap *slb = get_slabmap_for_subtile(x,y);
+                switch (slb->kind) // TODO: flags?
+                {
+                    case SlbT_ROCK:
+                    case SlbT_GEMS:
+                    case SlbT_GOLD:
+                        continue;
+                    default:
+                        break;
+                }
+            }
             mapblk->data &= nflag;
         }
     }
