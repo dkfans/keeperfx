@@ -728,8 +728,31 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
     {
         instf_pretty_path(creatng, NULL);
+        return 1;
     }
-    else if (first_person_dig_claim_mode)
+    MapSubtlCoord ahead_stl_x;
+    MapSubtlCoord ahead_stl_y;
+    if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
+    {
+        ahead_stl_y = creatng->mappos.y.stl.num - 1;
+        ahead_stl_x = creatng->mappos.x.stl.num;
+    }
+    else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
+    {
+        ahead_stl_y = creatng->mappos.y.stl.num + 1;
+        ahead_stl_x = creatng->mappos.x.stl.num; 
+    }
+    else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
+    {
+        ahead_stl_y = creatng->mappos.y.stl.num;
+        ahead_stl_x = creatng->mappos.x.stl.num - 1;
+    }
+    else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
+    {
+        ahead_stl_y = creatng->mappos.y.stl.num;
+        ahead_stl_x = creatng->mappos.x.stl.num + 1; 
+    }
+    if ( (first_person_dig_claim_mode) || (!subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y)) )
     {
         slb = get_slabmap_block(slb_x, slb_y);
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
@@ -772,30 +795,8 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         {
             if (slabmap_owner(slb) == creatng->owner)
             {
-                MapSubtlCoord reinforce_stl_x;
-                MapSubtlCoord reinforce_stl_y;
-                if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
-                {
-                    reinforce_stl_y = creatng->mappos.y.stl.num - 1;
-                    reinforce_stl_x = creatng->mappos.x.stl.num;
-                }
-                else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
-                {
-                    reinforce_stl_y = creatng->mappos.y.stl.num + 1;
-                    reinforce_stl_x = creatng->mappos.x.stl.num; 
-                }
-                else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
-                {
-                    reinforce_stl_y = creatng->mappos.y.stl.num;
-                    reinforce_stl_x = creatng->mappos.x.stl.num - 1;
-                }
-                else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
-                {
-                    reinforce_stl_y = creatng->mappos.y.stl.num;
-                    reinforce_stl_x = creatng->mappos.x.stl.num + 1; 
-                }
-                MapSlabCoord reinforce_slb_x = subtile_slab_fast(reinforce_stl_x);
-                MapSlabCoord reinforce_slb_y = subtile_slab_fast(reinforce_stl_y);
+                MapSlabCoord reinforce_slb_x = subtile_slab_fast(ahead_stl_x);
+                MapSlabCoord reinforce_slb_y = subtile_slab_fast(ahead_stl_y);
                 if ( check_place_to_reinforce(creatng, reinforce_slb_x, reinforce_slb_y) )
                 {
                     slb = get_slabmap_block(reinforce_slb_x, reinforce_slb_y);
@@ -804,7 +805,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         if (slab_by_players_land(creatng->owner, reinforce_slb_x, reinforce_slb_y))
                         {
                             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-                            cctrl->digger.working_stl = get_subtile_number(reinforce_stl_x, reinforce_stl_y);
+                            cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
                             instf_reinforce(creatng, NULL);
                         } 
                     }
