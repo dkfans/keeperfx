@@ -196,6 +196,10 @@ TbBool process_sound_samples(void);
 
 extern int atmos_sound_volume;
 
+struct SoundEmitter* S3DGetSoundEmitter(SoundEmitterID eidx);
+SoundEmitterID get_emitter_id(struct SoundEmitter *emit);
+void kick_out_sample(short smpl_id);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

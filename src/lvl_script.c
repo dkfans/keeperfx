@@ -347,6 +347,7 @@ const struct NamedCommand script_operator_desc[] = {
   {"SET",         1},
   {"INCREASE",    2},
   {"DECREASE",    3},
+  {"MULTIPLY",    4},
   {NULL,          0},
 };
 
@@ -3345,6 +3346,10 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
             {
                 anger_reduce_creature_anger(thing, -anger, AngR_Other);
             }
+            else if (operation == SOpr_MULTIPLY)
+            {
+                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
+            }
 
         }
         // Thing list loop body ends
@@ -3540,6 +3545,79 @@ void command_randomise_flag(long plr_range_id, const char *flgname, long val)
         return;
     }
   command_add_value(Cmd_RANDOMISE_FLAG, plr_range_id, flg_id, val, flag_type);
+}
+
+void command_compute_flag(long plr_range_id, const char *flgname, const char *operator_name, long src_plr_range_id, const char *src_flgname, long alt)
+{
+    long flg_id;
+    long flag_type;
+    if (!parse_set_varib(flgname, &flg_id, &flag_type))
+    {
+        SCRPTERRLOG("Unknown target flag, '%s'", flgname);
+        return;
+    }
+
+    long src_flg_id;
+    long src_flag_type;
+    // try to identify source flag as a power, if it agrees, change flag type to SVar_AVAILABLE_MAGIC, keep power id
+    // with rooms, traps, doors, etc. parse_get_varib assumes we want the count flag of them. Change it later in 'alt' switch if 'available' flag is needed
+    src_flg_id = get_id(power_desc, src_flgname);
+    if (src_flg_id == -1)
+    {
+        if (!parse_get_varib(src_flgname, &src_flg_id, &src_flag_type))
+        {
+            SCRPTERRLOG("Unknown source flag, '%s'", src_flgname);
+            return;
+        }
+    } else
+    {
+        src_flag_type = SVar_AVAILABLE_MAGIC;
+    }
+
+    long op_id = get_rid(script_operator_desc, operator_name);
+    if (op_id == -1)
+    {
+        SCRPTERRLOG("Invalid operation for modifying flag's value: '%s'", operator_name);
+        return;
+    }
+
+    if (alt != 0)
+    {
+        switch (src_flag_type)
+        {
+            case SVar_CREATURE_NUM:
+                src_flag_type = SVar_CONTROLS_CREATURE;
+                break;
+            case SVar_TOTAL_CREATURES:
+                src_flag_type = SVar_CONTROLS_TOTAL_CREATURES;
+                break;
+            case SVar_TOTAL_DIGGERS:
+                src_flag_type = SVar_CONTROLS_TOTAL_DIGGERS;
+                break;
+            case SVar_GOOD_CREATURES:
+                src_flag_type = SVar_CONTROLS_GOOD_CREATURES;
+                break;
+            case SVar_EVIL_CREATURES:
+                src_flag_type = SVar_CONTROLS_EVIL_CREATURES;
+                break;
+            case SVar_DOOR_NUM:
+                src_flag_type = SVar_AVAILABLE_DOOR;
+                break;
+            case SVar_TRAP_NUM:
+                src_flag_type = SVar_AVAILABLE_TRAP;
+                break;
+            case SVar_ROOM_SLABS:
+                src_flag_type = SVar_AVAILABLE_ROOM;
+                break;
+        }
+    }
+    // encode 4 byte params into 4xbyte integer (from high-order bit to low-order):
+    // 1st byte: src player range idx
+    // 2nd byte: operation id
+    // 3rd byte: flag type
+    // 4th byte: src flag type
+    long srcplr_op_flagtype_srcflagtype = (src_plr_range_id << 24) | (op_id << 16) | (flag_type << 8) | src_flag_type;
+    command_add_value(Cmd_COMPUTE_FLAG, plr_range_id, srcplr_op_flagtype_srcflagtype, flg_id, src_flg_id);
 }
 
 /** Adds a script command to in-game structures.
@@ -3854,6 +3932,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_RANDOMISE_FLAG:
         command_randomise_flag(scline->np[0], scline->tp[1], scline->np[2]);
+        break;
+    case Cmd_COMPUTE_FLAG:
+        command_compute_flag(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->tp[4], scline->np[5]);
         break;
     default:
         SCRPTERRLOG("Unhandled SCRIPT command '%s'", scline->tcmnd);
@@ -5367,8 +5448,9 @@ TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free
 }
 
 /**
- * Reveals every tile for player.
+ * Increases creatures' levels for player.
  * @param plyr_idx target player
+ * @param count how many times should the level be increased
  */
 void script_use_special_increase_level(PlayerNumber plyr_idx, int count)
 {
@@ -6635,6 +6717,36 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           set_variable(i, val4, val2, (rand() % val3) + 1);
       }
       break;
+  case Cmd_COMPUTE_FLAG:
+      {
+        long src_plr_range = (val2 >> 24) & 255;
+        long operation = (val2 >> 16) & 255;
+        unsigned char flag_type = (val2 >> 8) & 255;
+        unsigned char src_flag_type = val2 & 255;
+        int src_plr_start, src_plr_end;
+        if (get_players_range(src_plr_range, &src_plr_start, &src_plr_end) < 0)
+        {
+            WARNLOG("Invalid player range %d in VALUE command %d.",(int)src_plr_range,(int)var_index);
+            return;
+        }
+        long sum = 0;
+        for (i=src_plr_start; i < src_plr_end; i++)
+        {
+            sum += get_condition_value(i, src_flag_type, val4);
+        }
+        for (i=plr_start; i < plr_end; i++)
+        {
+            long current_flag_val = get_condition_value(i, flag_type, val3);
+            long computed = sum;
+            if (operation == SOpr_INCREASE) computed = current_flag_val + sum;
+            if (operation == SOpr_DECREASE) computed = current_flag_val - sum;
+            if (operation == SOpr_MULTIPLY) computed = current_flag_val * sum;
+            computed = min(255, max(0, computed));
+            SCRIPTDBG(7,"Changing player%d's %d flag from %d to %d based on flag of type %d.", i, val3, current_flag_val, computed, src_flag_type);
+            set_variable(i, flag_type, val3, computed);
+        }
+      }
+      break;
   case Cmd_SET_GAME_RULE:
       switch (val2)
       {
@@ -7021,6 +7133,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
+  {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

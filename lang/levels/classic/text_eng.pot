@@ -235,35 +235,35 @@ msgid ""
 "A fine victory Keeper!"
 msgstr ""
 
-#. Crazy Reaper (lv406)
+#. Reaver Verruckt (lv406)
 #: guitext:30
 msgctxt "In-game message"
 msgid ""
 "Noble one, a massive army serves a Keeper by the name of Urien in this realm. Many of your forces are engaged in the East against Urien. However, you must also support our ally Keeper Morgant in the North who is also suffering from Urien's advancing onslaught. Quite a task Keeper! "
 msgstr ""
 
-#. Crazy Reaper (lv406)
+#. Reaver Verruckt (lv406)
 #: guitext:31
 msgctxt "In-game message"
 msgid "Morgant has fallen to Urien's armies because you have failed in your duties Keeper. Defeat and shame are your reward."
 ""
 msgstr ""
 
-#. Crazy Reaper (lv406)
+#. Reaver Verruckt (lv406)
 #: guitext:32
 msgctxt "In-game message"
 msgid ""
 "An army without a Knight can never succeed, so your defeat is now sealed. Shame is your reward."
 msgstr ""
 
-#. Crazy Reaper (lv406)
+#. Reaver Verruckt (lv406)
 #: guitext:33
 msgctxt "In-game message"
 msgid ""
 "Well done noble one. Urien has fallen and Morgant flourishes. A rare act of loyalty has delivered a fine victory!"
 msgstr ""
 
-#. Crazy Reaper (lv406)
+#. Reaver Verruckt (lv406)
 #: guitext:34
 msgctxt "In-game message"
 msgid ""
@@ -448,14 +448,14 @@ msgstr ""
 #: guitext:60
 msgctxt "In-game message"
 msgid ""
-"Beware Master, for many Keepers have tried to conquer this land but they have all failed. These Heroes are not to be underestimated, and your presence in this realm is already known! Prepare for a tough war. The local forces are numerous, and determined to eject you before you can establish an effective army. You must train your forces swiftly, as attacks must surely start soon! "
+"Beware Master, for many Keepers have tried to conquer this land but they have all failed. These Heroes are not to be underestimated, and your presence in this realm is already known! Prepare for a tough war. The local forces are numerous, and determined to eject you before you can establish an effective army. You must train your forces swiftly, as attacks must surely start soon!"
 msgstr ""
 
 #. Heroic Invasion (lv442)
 #: guitext:61
 msgctxt "In-game message"
 msgid ""
-"Beware Keeper. An attack is on its way! Are your forces ready for battle? "
+"Beware Keeper. An attack is on its way! Are your forces ready for battle?"
 msgstr ""
 
 #. Heroic Invasion (lv442)
@@ -469,7 +469,7 @@ msgstr ""
 #: guitext:63
 msgctxt "In-game message"
 msgid ""
-"Spies inform us that there are some abandoned magic spells to the South-West. These would be useful, but can you spare the time to find them? Oh, hang on, another raiding party is on its way! "
+"Spies inform us that there are some abandoned magic spells to the South-West. These would be useful, but can you spare the time to find them? Oh, hang on, another raiding party is on its way!"
 msgstr ""
 
 #. Heroic Invasion (lv442)
@@ -590,12 +590,12 @@ msgstr ""
 
 #: guitext:205
 msgctxt "Level name"
-msgid "Midway"
+msgid "Battle of Midway"
 msgstr ""
 
 #: guitext:206
 msgctxt "Level name"
-msgid "Crazy Reaper"
+msgid "Reaver Verruckt"
 msgstr ""
 
 #: guitext:207
