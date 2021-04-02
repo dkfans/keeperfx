@@ -6985,6 +6985,46 @@ char get_player_number_from_value(const char* txt)
     {
         id = 127;
     }
+    else if (strcasecmp(txt, "Kills") == 0)
+    {
+        id = -114;
+    }
+    else if (strcasecmp(txt, "Strength") == 0)
+    {
+        id = -115;
+    }
+    else if (strcasecmp(txt, "Gold") == 0)
+    {
+        id = -116;
+    }
+    else if (strcasecmp(txt, "Wage") == 0)
+    {
+        id = -117;
+    }
+    else if (strcasecmp(txt, "Armour") == 0)
+    {
+        id = -118;
+    }
+    else if (strcasecmp(txt, "Time") == 0)
+    {
+        id = -119;
+    }
+    else if (strcasecmp(txt, "Dexterity") == 0)
+    {
+        id = -120;
+    }
+    else if (strcasecmp(txt, "Defence") == 0)
+    {
+        id = -121;
+    }
+    else if (strcasecmp(txt, "Luck") == 0)
+    {
+        id = -122;
+    }
+    else if (strcasecmp(txt, "Blood") == 0)
+    {
+        id = -123;
+    }
     else
     {
         id = get_rid(player_desc, txt);
@@ -6995,13 +7035,37 @@ char get_player_number_from_value(const char* txt)
         if (id == -1)
         {
             id = get_rid(creature_desc, txt);
-            if (id == -1)
+            if (id != -1)
             {
-                id = atoi(txt);
+                id = (~id) + 1;
             }
             else
             {
-                id = (~id) + 1;
+                id = get_rid(spell_desc, txt);
+                if (id != -1)
+                {
+                    id = -35 - id;
+                }
+                else
+                {
+                    id = get_rid(room_desc, txt);
+                    if (id != -1)
+                    {
+                        id = -78 - id;
+                    }
+                    else
+                    {
+                        id = get_rid(power_desc, txt);
+                        if (id != -1)
+                        {
+                            id = -94 - id;
+                        }
+                        else
+                        {
+                            id = atoi(txt);
+                        }
+                    }
+                }
             }   
         }        
     }
