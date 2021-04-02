@@ -759,7 +759,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
             instf_destroy(creatng, NULL);
-            if (slbattr->category == SlbAtCtg_RoomInterior)
+            if (slbattr->block_flags & SlbAtFlg_IsRoom)
             {
                 struct Room* room = room_get(slb->room_index);
                 if (!room_is_invalid(room))
