@@ -77,39 +77,39 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
   switch ( blocked_flags )
   {
     case SlbBloF_WalledX:
-      x_thing = *(unsigned short *)&thing->mappos.x.stl;
+      x_thing = thing->mappos.x.val;
       sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
-      x_pos = *(unsigned short *)&pos->x.stl;
+      x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
         if ( x_pos > x_thing )
         {
-          *(unsigned short *)&pos->x.stl = ((x_pos + sizexy) & 0xFF00) - sizexy - 1;
+          pos->x.val = ((x_pos + sizexy) & 0xFF00) - sizexy - 1;
           return;
         }
         x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
       }
-      *(unsigned short *)&pos->x.stl = x_thing;
+      pos->x.val = x_thing;
       break;
     case SlbBloF_WalledY:
-      y_thing = *(unsigned short *)&thing->mappos.y.stl;
+      y_thing = thing->mappos.y.val;
       sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
-      y_pos = *(unsigned short *)&pos->y.stl;
+      y_pos = pos->y.val;
       if ( y_thing != y_pos )
       {
         if ( y_thing < y_pos )
         {
-          *(unsigned short *)&pos->y.stl = ((y_pos + sizexy) & 0xFF00) - sizexy - 1;
+          pos->y.val = ((y_pos + sizexy) & 0xFF00) - sizexy - 1;
           return;
         }
         y_thing = ((y_pos - sizexy & 0xFF00) + sizexy + 256);
       }
-      *(unsigned short *)&pos->y.stl = y_thing;
+      pos->y.val = y_thing;
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY:
-      x_thing = *(unsigned short *)&thing->mappos.x.stl;
+      x_thing = thing->mappos.x.val;
       sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
-      x_pos = *(unsigned short *)&pos->x.stl;
+      x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
@@ -117,8 +117,8 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
         else
           x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
       }
-      y_thing = *(unsigned short *)&thing->mappos.y.stl;
-      y_pos = *(unsigned short *)&pos->y.stl;
+      y_thing = thing->mappos.y.val;
+      y_pos = pos->y.val;
       if ( y_pos != y_thing )
       {
         if ( y_pos <= y_thing )
@@ -126,16 +126,16 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
         else
           y_thing = (((sizexy + y_pos) & 0xFF00) - sizexy - 1);
       }
-      *(unsigned short *)&pos->x.stl = x_thing;
-      *(unsigned short *)&pos->y.stl = y_thing;
+      pos->x.val = x_thing;
+      pos->y.val = y_thing;
       break;
     case SlbBloF_WalledZ:
-      *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
+      pos->z.val = get_slide_z_coord(thing, pos);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledX:
-      x_thing = *(unsigned short *)&thing->mappos.x.stl;
+      x_thing = thing->mappos.x.val;
       sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
-      x_pos = *(unsigned short *)&pos->x.stl;
+      x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
@@ -143,13 +143,13 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
         else
           x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
       }
-      *(unsigned short *)&pos->x.stl = x_thing;
-      *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
+      pos->x.val = x_thing;
+      pos->z.val = get_slide_z_coord(thing, pos);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
-      y_thing = *(unsigned short *)&thing->mappos.y.stl;
+      y_thing = thing->mappos.y.val;
       sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
-      y_pos = *(unsigned short *)&pos->y.stl;
+      y_pos = pos->y.val;
       if ( y_thing != y_pos )
       {
         if ( y_thing >= y_pos )
@@ -157,13 +157,13 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
         else
           y_thing = (((y_pos + sizexy) & 0xFF00) - sizexy - 1);
       }
-      *(unsigned short *)&pos->y.stl = y_thing;
-      *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
+      pos->y.val = y_thing;
+      pos->z.val = get_slide_z_coord(thing, pos);
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
-      x_thing = *(unsigned short *)&thing->mappos.x.stl;
+      x_thing = thing->mappos.x.val;
       sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
-      x_pos = *(unsigned short *)&pos->x.stl;
+      x_pos = pos->x.val;
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
@@ -171,8 +171,8 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
         else
           x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
       }
-      y_pos = *(unsigned short *)&pos->y.stl;
-      y_thing = *(unsigned short *)&thing->mappos.y.stl;
+      y_pos = pos->y.val;
+      y_thing = thing->mappos.y.val;
       if ( y_pos != y_thing )
       {
         if ( y_pos <= y_thing )
@@ -180,9 +180,9 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
         else
           y_thing = (((sizexy + y_pos) & 0xFF00) - sizexy - 1);
       }
-      *(unsigned short *)&pos->x.stl = x_thing;
-      *(unsigned short *)&pos->y.stl = y_thing;
-      *(unsigned short *)&pos->z.stl = get_slide_z_coord(thing, pos);
+      pos->x.val = x_thing;
+      pos->y.val = y_thing;
+      pos->z.val = get_slide_z_coord(thing, pos);
       break;
     default:
       return;
