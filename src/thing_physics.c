@@ -192,66 +192,66 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
 void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
    // _DK_bounce_thing_off_wall_at(thing, pos, a3); return;
-  short x = *(short*)&thing->veloc_base.x.stl;
-  short y = *(short*)&thing->veloc_base.y.stl;
-  short z = *(short*)&thing->veloc_base.z.stl;
+  short x = (short)thing->veloc_base.x.val;
+  short y = (short)thing->veloc_base.y.val;
+  short z = (short)thing->veloc_base.z.val;
   int i;
   switch ( blocked_flags )
   {
     case SlbBloF_WalledX:
-      pos->x.stl = thing->mappos.x.stl;
-      *(short*)&thing->veloc_base.x.stl = -(short)(x * thing->field_22 / 128);
+      pos->x.val = thing->mappos.x.val;
+      thing->veloc_base.x.val = -(short)(x * thing->field_22 / 128);
       i = 256 - thing->field_23;
-      *(short*)&thing->veloc_base.y.stl = i * *(short*)&thing->veloc_base.y.stl / 256;
-      *(short*)&thing->veloc_base.z.stl = i * *(short*)&thing->veloc_base.z.stl / 256;
+      thing->veloc_base.y.val = i * (short)thing->veloc_base.y.val / 256;
+      thing->veloc_base.z.val = i * (short)thing->veloc_base.z.val / 256;
       break;
     case SlbBloF_WalledY:
-      pos->y.stl = thing->mappos.y.stl;
-      *(short*)&thing->veloc_base.y.stl = -(short)(y * thing->field_22 / 128);
+      pos->y.val = thing->mappos.y.val;
+      thing->veloc_base.y.val = -(short)(y * thing->field_22 / 128);
       i = 256 - thing->field_23;
-      *(short*)&thing->veloc_base.x.stl = i * *(short*)&thing->veloc_base.x.stl / 256;
-      *(short*)&thing->veloc_base.z.stl = i * *(short*)&thing->veloc_base.z.stl / 256;
+      thing->veloc_base.x.val = i * (short)thing->veloc_base.x.val / 256;
+      thing->veloc_base.z.val = i * (short)thing->veloc_base.z.val / 256;
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY:
-      pos->x.stl = thing->mappos.x.stl;
-      pos->y.stl = thing->mappos.y.stl;
+      pos->x.val = thing->mappos.x.val;
+      pos->y.val = thing->mappos.y.val;
       i = thing->field_22;
-      *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
-      *(short*)&thing->veloc_base.y.stl = -(short)(i * y / 128);
+      thing->veloc_base.x.val = -(short)(i * x / 128);
+      thing->veloc_base.y.val = -(short)(i * y / 128);
       break;
     case SlbBloF_WalledZ:
-      pos->z.stl = thing->mappos.z.stl;
-      *(short*)&thing->veloc_base.z.stl = -(short)(z * thing->field_22 / 128);
+      pos->z.val = thing->mappos.z.val;
+      thing->veloc_base.z.val = -(short)(z * thing->field_22 / 128);
       i = 256 - thing->field_23;
-      *(short*)&thing->veloc_base.x.stl = i * *(short*)&thing->veloc_base.x.stl / 256;
-      *(short*)&thing->veloc_base.y.stl = i * *(short*)&thing->veloc_base.y.stl / 256;
+      thing->veloc_base.x.val = i * (short)thing->veloc_base.x.val / 256;
+      thing->veloc_base.y.val = i * (short)thing->veloc_base.y.val / 256;
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledX:
-      pos->z.stl = thing->mappos.z.stl;
-      pos->x.stl = thing->mappos.x.stl;
+      pos->z.val = thing->mappos.z.val;
+      pos->x.val = thing->mappos.x.val;
       i = thing->field_22;
-      *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
-      *(short*)&thing->veloc_base.z.stl = -(short)(i * z / 128);
+      thing->veloc_base.x.val = -(short)(i * x / 128);
+      thing->veloc_base.z.val = -(short)(i * z / 128);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
-      pos->y.stl = thing->mappos.y.stl;
-      pos->z.stl = thing->mappos.z.stl;
+      pos->y.val = thing->mappos.y.val;
+      pos->z.val = thing->mappos.z.val;
       i = thing->field_22;
-      *(short*)&thing->veloc_base.y.stl = -(short)(i * y / 128);
+      thing->veloc_base.y.val = -(short)(i * y / 128);
       int n = i * y;
       int j = thing->field_23;
-      int k = *(short*)&thing->veloc_base.x.stl;
-      *(short*)&thing->veloc_base.z.stl = -(short)(n / 128);
-      *(short*)&thing->veloc_base.x.stl = k * (256 - j) / 256;
+      int k = (short)thing->veloc_base.x.val;
+      thing->veloc_base.z.val = -(short)(n / 128);
+      thing->veloc_base.x.val = k * (256 - j) / 256;
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
-      pos->x.stl = thing->mappos.x.stl;
-      pos->y.stl = thing->mappos.y.stl;
-      pos->z.stl = thing->mappos.z.stl;
+      pos->x.val = thing->mappos.x.val;
+      pos->y.val = thing->mappos.y.val;
+      pos->z.val = thing->mappos.z.val;
       i = thing->field_22;
-      *(short*)&thing->veloc_base.x.stl = -(short)(i * x / 128);
-      *(short*)&thing->veloc_base.y.stl = -(short)(i * y / 128);
-      *(short*)&thing->veloc_base.z.stl = -(short)(i * z / 128);
+      thing->veloc_base.x.val = -(short)(i * x / 128);
+      thing->veloc_base.y.val = -(short)(i * y / 128);
+      thing->veloc_base.z.val = -(short)(i * z / 128);
       break;
     default:
       return;
