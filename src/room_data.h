@@ -185,7 +185,7 @@ struct RoomStats *room_stats_get_for_kind(RoomKind rkind);
 struct RoomStats *room_stats_get_for_room(const struct Room *room);
 
 long get_room_look_through(RoomKind rkind);
-long compute_room_max_health(long slabs_count,unsigned short efficiency);
+unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency);
 void set_room_efficiency(struct Room *room);
 void set_room_capacity(struct Room *room, TbBool skip_integration);
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
