@@ -674,4 +674,48 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     get_next_manufacture(dungeon);
     return true;
 }
+
+EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng)
+{
+    EventIndex evidx;
+    ThingClass tngclass = crate_thing_to_workshop_item_class(picktng);
+    if (tngclass == TCls_Trap)
+    {
+        evidx = event_create_event_or_update_nearby_existing_event(
+            picktng->mappos.x.val, picktng->mappos.y.val,
+            EvKind_TrapCrateFound, creatng->owner, picktng->index);
+            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
+            {
+                output_message(SMsg_TrapStolen, 0, true);
+            } 
+            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
+            {
+                if (picktng->owner != game.neutral_player_num)
+                {
+                    output_message(SMsg_TrapTaken, 0, true);
+                }
+            }
+    } else if (tngclass == TCls_Door)
+    {
+       evidx = event_create_event_or_update_nearby_existing_event(
+            picktng->mappos.x.val, picktng->mappos.y.val,
+            EvKind_DoorCrateFound, creatng->owner, picktng->index);
+            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
+            {
+                output_message(SMsg_DoorStolen, 0, true);
+            } 
+            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
+            {
+                if (picktng->owner != game.neutral_player_num)
+                {
+                    output_message(SMsg_DoorTaken, 0, true);
+                }
+            }
+    } else
+    {
+        WARNLOG("Strange pickup (model %d) - no event",(int)picktng->model);
+        evidx = 0;
+    }
+    return evidx;
+}
 /******************************************************************************/

@@ -354,17 +354,18 @@ struct MapVolumeBox { // sizeof = 24
 
 /******************************************************************************/
 // Stripey Line Color Arrays
-#define STRIPEY_LINE_COLOR_COUNT 8
 
 enum stripey_line_colors {
     SLC_RED = 0, // INVALID SELECTION
     SLC_GREEN = 1, // VALID SELECTION
     SLC_YELLOW,
+    SLC_BROWN,
     SLC_GREY,
     SLC_PURPLE,
     SLC_BLUE,
     SLC_ORANGE,
     SLC_WHITE,
+    STRIPEY_LINE_COLOR_COUNT // Must always be the last entry (add new colours above this line)
 };
 
 struct stripey_line {
@@ -532,10 +533,8 @@ void do_a_plane_of_engine_columns_isometric(long a1, long a2, long a3, long a4);
 void find_gamut(void);
 void fiddle_gamut(long a1, long a2);
 int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
-void create_map_volume_box(long a1, long a2, long a3);
-void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z);
-void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile);
-void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width);
+void process_isometric_map_volume_box(long x, long y, long z);
+void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width);
 void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom);
 void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3);
 void fill_in_points_perspective(long a1, long a2, struct MinMax *mm);

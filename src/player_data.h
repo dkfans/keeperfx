@@ -92,7 +92,7 @@ enum PlayerVictoryState {
     VicS_State3,
 };
 
-enum PlayerField454Val {
+enum PlayerField454Val { // These could be Cursor states...?
     P454_Unkn0 = 0,
     P454_Unkn1,
     P454_Unkn2,
@@ -193,13 +193,13 @@ short field_460;
 char field_462;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
-    unsigned char field_4A4;
+    unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
     char chosen_trap_kind;
     char chosen_door_kind;
     char field_4A7[4];
-    short field_4AB;
-    short field_4AD;
-    unsigned char field_4AF;
+    short cursor_stl_x; // current x coord of subtile under the mouse cursor
+    short cursor_stl_y; // current y coord of subtile under the mouse cursor
+    unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
     unsigned long instance_remain_rurns;

@@ -1377,6 +1377,7 @@ short get_creature_control_action_inputs(void)
             }
             message_add(CrInst, get_string(StrID));
         }
+        first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
     // In possession sets the screen blue when frozen, and to default when not.
     if (creature_affected_by_spell(thing, SplK_Freeze)) 
     {
