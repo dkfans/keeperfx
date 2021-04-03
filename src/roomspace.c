@@ -183,6 +183,158 @@ struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, PlayerNumb
     return roomspace;
 }
 
+struct RoomSpace check_roomspace_for_sellable_slabs(struct RoomSpace roomspace, PlayerNumber plyr_idx)
+{
+    roomspace.slab_count = 0;
+    roomspace.invalid_slabs_count = 0;
+    roomspace.render_roomspace_as_box = true;
+    roomspace.is_roomspace_a_box = true;
+    for (int y = 0; y < roomspace.height; y++)
+    {
+        int current_y = roomspace.top + y;
+        for (int x = 0; x < roomspace.width; x++)
+        {
+            int current_x = roomspace.left + x;
+            if ((subtile_is_sellable_room(plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))))
+            {
+                roomspace.slab_grid[x][y] = true;
+                roomspace.slab_count++;
+            }
+            else
+            {
+                roomspace.slab_grid[x][y] = false;
+                roomspace.invalid_slabs_count++;
+            }
+        }
+    }
+    roomspace.total_roomspace_cost = 0;
+    if (roomspace.slab_count != (roomspace.width * roomspace.height))
+    {
+        if (roomspace.slab_count != 0) // this ensures we show an empty "red" bounding box
+        {
+            roomspace.is_roomspace_a_box = false;
+        }
+    }
+    return roomspace;
+}
+
+void create_roomspace_from_current_room(struct RoomSpace *roomspace, int search_width, int room_index)
+{
+    // get an array to write to
+    struct RoomSpace current_roomspace = *roomspace;
+    current_roomspace.slab_count = 0;
+    current_roomspace.is_roomspace_a_box = true;
+    current_roomspace.render_roomspace_as_box = true;
+    //current slab
+    int centre_x = current_roomspace.centreX; // current position; x
+    int centre_y = current_roomspace.centreY; // current position; y
+    // Get current room
+    struct Room* current_room = slab_room_get(centre_x, centre_y);
+    //store extents for room in x and y
+    int left_extent = centre_x;
+    int top_extent = centre_y;
+    int right_extent = centre_x;
+    int bottom_extent = centre_y;
+    // Loop through list of slabs in the room to find extents
+    unsigned long k = 0;
+    long i = current_room->slabs_list;
+    while (i != 0)
+    {
+        long slb_x = slb_num_decode_x(i);
+        long slb_y = slb_num_decode_y(i);
+        // Per room tile code
+        if (slb_x < left_extent)
+        {
+            left_extent = slb_x;
+        }
+        if (slb_y < top_extent)
+        {
+            top_extent = slb_y;
+        }
+        if (slb_x > right_extent)
+        {
+            right_extent = slb_x;
+        }
+        if (slb_y > bottom_extent)
+        {
+            bottom_extent = slb_y;
+        }
+        // Per room tile code ends
+        i = get_next_slab_number_in_room(i);
+        k++;
+        if (k > current_room->slabs_count)
+        {
+            // have gone through every slab in room, so exit loop
+            break;
+        }
+    }
+    // Set width and height of roomspace (making sure it is between 1 and MAX_ROOMSPACE_WIDTH)
+    int current_width  = min(MAX_ROOMSPACE_WIDTH - 1, max(1, right_extent - left_extent + 1));
+    int current_height = min(MAX_ROOMSPACE_WIDTH - 1, max(1, bottom_extent - top_extent + 1));
+
+    // Loop through all of the slabs within the extents, and then test those slabs to see if they are part of the room.
+    for (int y = 0; y <= current_height; y++)
+    {
+        for (int x = 0; x <= current_width; x++)
+        {
+            struct SlabMap* slb = get_slabmap_block(left_extent + x, top_extent + y);
+            if (slb->room_index == room_index)
+            {
+                current_roomspace.slab_grid[x][y] = true;
+                current_roomspace.slab_count++;
+            }
+            else
+            {
+                current_roomspace.slab_grid[x][y] = false;
+                current_roomspace.invalid_slabs_count++;
+            }
+        }
+    }
+    // Set extents of new roomspace
+    current_roomspace.width = current_width;
+    current_roomspace.height = current_height;
+    centre_x = left_extent + ((current_width - 1 - (current_width % 2 == 0)) / 2);
+    centre_y = top_extent + ((current_height - 1 - (current_height % 2 == 0)) / 2);
+    current_roomspace.left = centre_x - calc_distance_from_roomspace_centre(current_width,0);
+    current_roomspace.right = centre_x + calc_distance_from_roomspace_centre(current_width,(current_width % 2 == 0));
+    current_roomspace.top = centre_y - calc_distance_from_roomspace_centre(current_height,0);
+    current_roomspace.bottom = centre_y + calc_distance_from_roomspace_centre(current_height,(current_height % 2 == 0));
+    current_roomspace.centreX = current_roomspace.left + ((current_roomspace.width - 1 - (current_roomspace.width % 2 == 0)) / 2);
+    current_roomspace.centreY = current_roomspace.top + ((current_roomspace.height - 1 - (current_roomspace.height % 2 == 0)) / 2);
+    if (current_roomspace.width * current_roomspace.height > current_roomspace.slab_count)
+    {
+        current_roomspace.is_roomspace_a_box = false;
+        current_roomspace.render_roomspace_as_box = false;
+    }
+    *roomspace = current_roomspace;
+}
+
+struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx, MapSlabCoord cursor_x, MapSlabCoord cursor_y)
+{
+    struct SlabMap *slb = get_slabmap_block(cursor_x, cursor_y);
+    // Set default "room" - i.e. 1x1 slabs, centred on the cursor
+    struct RoomSpace default_room = { {{false}}, 0, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, 0, 0, current_plyr_idx, RoK_SELL, false, 0, 0, false, true };
+    
+    if (slabmap_owner(slb) == current_plyr_idx)
+    {
+        if (subtile_is_sellable_room(current_plyr_idx,slab_subtile(cursor_x,0), slab_subtile(cursor_y,0)))
+        {
+            // return a RoomSpace of the "current room"
+            struct RoomSpace current_room = default_room;
+            int room_index = slb->room_index;
+            create_roomspace_from_current_room(&current_room, MAX_USER_ROOMSPACE_WIDTH, room_index);
+            
+            if (current_room.slab_count > 0)
+            {
+                return current_room;
+            }
+        }
+    }
+    default_room = create_box_roomspace(default_room, 1, 1, cursor_x, cursor_y);
+    default_room.slab_count = 0;
+    return default_room; // return empty 1x1 roomspace
+}
+
 int can_build_roomspace(PlayerNumber plyr_idx, RoomKind rkind, struct RoomSpace roomspace)
 {
     int canbuild = 0;
@@ -253,36 +405,53 @@ void reset_dungeon_build_room_ui_variables()
     user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
 }
 
-void get_dungeon_sell_user_roomspace(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     long keycode = 0;
+    struct PlayerInfo* player = get_player(plyr_idx);
     int width = 1, height = 1;
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    struct RoomSpace current_roomspace;
+    if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
     {
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+        current_roomspace = get_current_room_as_roomspace(player->id_number, slb_x, slb_y);
+        if (!current_roomspace.is_roomspace_a_box)
         {
-            if (user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
-            {
-                user_defined_roomspace_width++;
-            }
+            current_roomspace.render_roomspace_as_box = false;
         }
-        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-        {
-            if (user_defined_roomspace_width != MIN_USER_ROOMSPACE_WIDTH)
-            {
-                user_defined_roomspace_width--;
-            }
-        }
-        width = height = user_defined_roomspace_width;
     }
-    else
+    else 
     {
-        reset_dungeon_build_room_ui_variables();
-        width = height = numpad_to_value(false);
+        if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+        {
+            if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+            {
+                if (user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
+                {
+                    user_defined_roomspace_width++;
+                }
+            }
+            if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+            {
+                if (user_defined_roomspace_width != MIN_USER_ROOMSPACE_WIDTH)
+                {
+                    user_defined_roomspace_width--;
+                }
+            }
+            width = height = user_defined_roomspace_width;
+        }
+        else
+        {
+            reset_dungeon_build_room_ui_variables();
+            width = height = numpad_to_value(false);
+            
+        }
+        current_roomspace = create_box_roomspace(render_roomspace, width, height, slb_x, slb_y);
+        current_roomspace = check_roomspace_for_sellable_slabs(current_roomspace, plyr_idx);
     }
-    render_roomspace = create_box_roomspace(render_roomspace, width, height, slb_x, slb_y);
+    player->boxsize = current_roomspace.slab_count;
+    render_roomspace = current_roomspace;
 }
 
 void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check)

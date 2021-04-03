@@ -416,7 +416,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     {
         if (!game_is_busy_doing_gui())
         {
-            get_dungeon_sell_user_roomspace(stl_x, stl_y);
+            get_dungeon_sell_user_roomspace(player->id_number, stl_x, stl_y);
             tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->full_slab_cursor);
         }
     }
@@ -432,7 +432,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     if (player->full_slab_cursor)
     {
         //Slab Mode
-        if (render_roomspace.slab_count > 1)
+        if (render_roomspace.slab_count > 0)
         {
             keeper_sell_roomspace(&render_roomspace);
         }

@@ -107,8 +107,12 @@ int can_build_roomspace_of_dimensions_loose(PlayerNumber plyr_idx,
 
 int can_build_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     struct RoomSpace roomspace);
+    
+struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx, 
+                                               MapSlabCoord cursor_x, 
+                                               MapSlabCoord cursor_y);
 
-void get_dungeon_sell_user_roomspace(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check);
