@@ -66,7 +66,7 @@ TbBool thing_above_flight_altitude(const struct Thing* thing)
     return (thing->mappos.z.val > floor_height + 19 * NORMAL_FLYING_ALTITUDE / 17);
 }
 
-void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
+void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
    // _DK_slide_thing_against_wall_at(thing, pos, a3); return;
   unsigned short x_thing;
