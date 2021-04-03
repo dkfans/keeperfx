@@ -2136,6 +2136,9 @@ static void display_objective_process(struct ScriptContext *context)
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
     TbBool all = strcmp(scline->tp[5], "ALL") == 0;
+    if (!all)
+        all = strcmp(scline->tp[5], "1") == 0;
+
     command_add_value(Cmd_CONCEAL_MAP_RECT, scline->np[0], scline->np[1], scline->np[2],
                       (scline->np[4]<<16) | scline->np[3] | (all?1<<24:0));
 }
