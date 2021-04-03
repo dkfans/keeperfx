@@ -120,6 +120,7 @@
     <ClCompile Include="src\engine_lenses.c" />
     <ClCompile Include="src\engine_redraw.c" />
     <ClCompile Include="src\engine_render.c" />
+    <ClCompile Include="src\engine_render_data.cpp" />
     <ClCompile Include="src\engine_textures.c" />
     <ClCompile Include="src\frontend.cpp" />
     <ClCompile Include="src\frontmenu_ingame_evnt.c" />

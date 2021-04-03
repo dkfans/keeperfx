@@ -31,7 +31,7 @@ extern "C" {
 /******************************************************************************/
 int user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
 int roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-struct RoomSpace render_roomspace = { {{false}}, 1, true, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, false };
+struct RoomSpace render_roomspace = { {{false}}, 1, true, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, false, true };
 /******************************************************************************/
 TbBool can_afford_roomspace(PlayerNumber plyr_idx, RoomKind rkind, int slab_count)
 {
@@ -91,6 +91,7 @@ struct RoomSpace create_box_roomspace(struct RoomSpace roomspace, int width, int
     roomspace.centreY = centre_y;
     roomspace.is_roomspace_a_single_subtile = false;
     roomspace.is_roomspace_a_box = true;
+    roomspace.render_roomspace_as_box = true;
     return roomspace;
 }
 
@@ -173,6 +174,11 @@ struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, PlayerNumb
     if (roomspace.slab_count != (roomspace.width * roomspace.height))
     {
         roomspace.is_roomspace_a_box = false;
+        roomspace.render_roomspace_as_box = false;
+    }
+    if ((roomspace.slab_count == 0) || (roomspace.slab_count > MAX_USER_ROOMSPACE_WIDTH * MAX_USER_ROOMSPACE_WIDTH))
+    {
+        roomspace = create_box_roomspace(roomspace, 1, 1, roomspace.centreX, roomspace.centreY);
     }
     return roomspace;
 }
@@ -346,6 +352,7 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
 
     struct RoomSpace best_roomspace;
     best_roomspace.is_roomspace_a_box = true;
+    best_roomspace.render_roomspace_as_box = true;
     struct RoomStats* rstat = room_stats_get_for_kind(rkind);
     best_roomspace.plyr_idx = plyr_idx;
     best_roomspace.rkind = rkind;
@@ -367,17 +374,12 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
     {
         struct RoomSpace temp_best_room = create_box_roomspace(best_roomspace, width, height, slb_x, slb_y);
         temp_best_room = check_slabs_in_roomspace(temp_best_room, plyr_idx, rkind, rstat->cost);
-        if (temp_best_room.slab_count > 0)
-        {
-            best_roomspace = temp_best_room;
-        }
-        else
-        {
-            // if the room is empty, then return a single slab cursor/boundbox like normal
-            width = height = 1;
-            best_roomspace.slab_count = 1;
-        }
+        best_roomspace = temp_best_room;
         player->boxsize = best_roomspace.slab_count; // correct number of tiles returned from check_slabs_in_roomspace
+            // Make sure the "outer box" bounding is drawn with square room mode
+            best_roomspace.width = width;
+            best_roomspace.height = height;
+            best_roomspace.render_roomspace_as_box = true;
     }
     render_roomspace = best_roomspace; // make sure we can render the correct boundbox to the user
 }
