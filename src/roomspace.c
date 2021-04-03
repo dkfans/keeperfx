@@ -292,11 +292,14 @@ void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind, Map
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     int width = 1, height = 1; // 1x1 slabs
+    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
+    dungeonadd->painter_build_mode = 0;
     if (rkind == RoK_BRIDGE)
     {
         reset_dungeon_build_room_ui_variables();
         if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
         {
+            dungeonadd->painter_build_mode = 1; // Enable GuiLayer_OneClickBridgeBuild layer
             (*mode) = drag_placement_mode;
         }
     }
