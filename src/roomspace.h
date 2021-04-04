@@ -79,6 +79,7 @@ struct RoomSpace {
 
 	  MapSlabCoord buildx, buildy;
 	  TbBool is_active;
+    TbBool render_roomspace_as_box;
 };
 /******************************************************************************/
 extern int user_defined_roomspace_width;
