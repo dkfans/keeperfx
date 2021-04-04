@@ -172,6 +172,10 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
                     // reset_creatures_rooms(room);
                     free_room_structure(room);
                 }
+                else
+                {
+                    do_room_integration(room);
+                }
             }
             if (dslb->room_index != 0)
             {
@@ -181,6 +185,10 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
                 {
                     // reset_creatures_rooms(room);
                     free_room_structure(room);
+                }
+                else
+                {
+                    do_room_integration(room);
                 }
             }
             // Moving tiles and ownership
