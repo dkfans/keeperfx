@@ -4997,6 +4997,15 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
     }
 }
 
+LONG __stdcall Vex_handler(
+    _EXCEPTION_POINTERS *ExceptionInfo
+)
+{
+    ERRORLOG("=== Crash ===");
+    LbCloseLog();
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
   char *text;
@@ -5051,6 +5060,7 @@ int main(int argc, char *argv[])
       return 1;
   }
 #endif
+  AddVectoredExceptionHandler(1, &Vex_handler);
 
   try {
   LbBullfrogMain(bf_argc, bf_argv);
