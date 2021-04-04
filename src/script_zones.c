@@ -21,6 +21,7 @@
 #include "bflib_math.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "engine_textures.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
 #include "game_merge.h"
@@ -83,7 +84,7 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
             *dblk = *sblk;
             *sblk = old_blk;
 
-
+            // Swap navmap data
             unsigned char old_nav = game.navigation_map[navmap_tile_number(slab_subtile(first->min_x, 0) + dx, slab_subtile(first->min_y, 0) + dy)];
             unsigned char new_nav = game.navigation_map[navmap_tile_number(slab_subtile(second->min_x, 0) + dx, slab_subtile(second->min_y, 0) + dy)];
             game.navigation_map[navmap_tile_number(slab_subtile(second->min_x, 0) + dx, slab_subtile(second->min_y, 0) + dy)] = old_nav;
@@ -167,6 +168,12 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
             struct SlabMap *sslb = get_slabmap_block(first->min_x + dx, first->min_y + dy);
             struct SlabMap *dslb = get_slabmap_block(second->min_x + dx, second->min_y + dy);
 
+            // Swap tileset data
+            unsigned char old_slab_ext = slab_ext_data[slab_ext_index(first->min_x + dx, first->min_y + dy)];
+            unsigned char new_slab_ext = slab_ext_data[slab_ext_index(second->min_x + dx, second->min_y + dy)];
+            slab_ext_data[slab_ext_index(second->min_x + dx, second->min_y + dy)] = old_slab_ext;
+            slab_ext_data[slab_ext_index(first->min_x + dx, first->min_y + dy)] = new_slab_ext;
+
             // Remove tiles from rooms
             if (sslb->room_index != 0)
             {
@@ -236,6 +243,7 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
             struct Map *dblk = get_map_block_at(slab_subtile(first->min_x, 0) + dx, slab_subtile(first->min_y, 0) + dy);
             struct SlabMap* sslb = get_slabmap_for_subtile(slab_subtile(second->min_x, 0) + dx, slab_subtile(second->min_y, 0) + dy);
             struct SlabMap* dslb = get_slabmap_for_subtile(slab_subtile(first->min_x, 0) + dx, slab_subtile(first->min_y, 0) + dy);
+            // Move things into new rooms
             if (sslb->room_index != 0)
             {
                 struct Room *room = room_get(sslb->room_index);
@@ -272,7 +280,7 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
             }
         }
     }
-    // TODO: Move things into new rooms
+
     pannel_map_update(first->min_x * STL_PER_SLB, first->min_y * STL_PER_SLB,first->hwidth * STL_PER_SLB, first->hheight * STL_PER_SLB);
     pannel_map_update(second->min_x * STL_PER_SLB, second->min_y * STL_PER_SLB,first->hwidth * STL_PER_SLB, first->hheight * STL_PER_SLB);
 }

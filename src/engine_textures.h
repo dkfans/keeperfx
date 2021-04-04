@@ -44,6 +44,12 @@ extern unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT *
 extern unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];
 extern unsigned char slab_ext_data[85 * 85];
 extern long block_dimension;
+
+inline int slab_ext_index(int x, int y)
+{
+    return y * 85 + x;
+}
+
 /******************************************************************************/
 void setup_texture_block_mem(void);
 short init_animating_texture_maps(void);
