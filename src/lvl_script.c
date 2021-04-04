@@ -1240,21 +1240,21 @@ static void define_zone_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Invalid y:'%s'", scline->tp[2]);
         return;
     }
-    if (scline->np[3] < 0)
+    if (scline->np[3] < 1)
     {
-        SCRPTERRLOG("Unexpcepdted width:%s", scline->tp[2]);
+        SCRPTERRLOG("Unexpected width:%s", scline->tp[2]);
         return;
     }
-    if (scline->np[4] < 0)
+    if (scline->np[4] < 1)
     {
-        SCRPTERRLOG("Unexpcepdted height:%s", scline->tp[3]);
+        SCRPTERRLOG("Unexpected height:%s", scline->tp[3]);
         return;
     }
 
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->arg0 = scline->np[0]; // Num
-    value->bytes[4] = scline->np[1]; // x
-    value->bytes[5] = scline->np[2]; // y
+    value->bytes[4] = scline->np[1] - (scline->np[3] / 2); // x
+    value->bytes[5] = scline->np[2] - (scline->np[4] / 2); // y
     value->bytes[8] = (char)scline->np[3];
     value->bytes[9] = (char)scline->np[4];
     PROCESS_SCRIPT_VALUE(scline->command);
