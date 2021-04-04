@@ -31,6 +31,7 @@
 #include "game_legacy.h"
 #include "vidfade.h"
 #include "keeperfx.hpp"
+#include "engine_render.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -154,10 +155,17 @@ struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing
 
 unsigned char keepersprite_frames(unsigned short n)
 {
-  if (n >= CREATURE_FRAMELIST_LENGTH)
+  if ((n >= CREATURE_FRAMELIST_LENGTH && n < KEEPERSPRITE_ADD_OFFSET)
+        || (n > KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+        )
   {
       ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
+  }
+  else if (n >= KEEPERSPRITE_ADD_NUM)
+  {
+      printf("yo");
+      return creature_table[_DK_creature_list[0]].FramesCount;;
   }
   unsigned long i = _DK_creature_list[n];
   return creature_table[i].FramesCount;
@@ -165,13 +173,20 @@ unsigned char keepersprite_frames(unsigned short n)
 
 unsigned char keepersprite_rotable(unsigned short n)
 {
-  if (n >= CREATURE_FRAMELIST_LENGTH)
-  {
+    if ((n >= CREATURE_FRAMELIST_LENGTH && n < KEEPERSPRITE_ADD_OFFSET)
+        || (n > KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+        )
+    {
       ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
-  }
-  unsigned long i = _DK_creature_list[n];
-  return creature_table[i].Rotable;
+    }
+    else if (n >= KEEPERSPRITE_ADD_NUM)
+    {
+        WARNLOG("yo");
+        return 0;
+    }
+    unsigned long i = _DK_creature_list[n];
+    return creature_table[i].Rotable;
 }
 
 unsigned char previous_keeper_frame(unsigned short n, unsigned char c)

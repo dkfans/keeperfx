@@ -208,6 +208,8 @@ Thing_Class_Func object_update_functions[] = {
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
 };
 
 /**
@@ -352,7 +354,8 @@ struct Objects objects_data[] = {
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //134 SPELLBOOK
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //135
-  {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0},
+  {0, 0, 0, 0, 0,   0x4000, 0x0100,    0,    0,   300, 0, 0, 0, 0,  0, ObOC_Unknown1, 0}, //136
+  {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0}, //137
 };
 
 ThingModel object_to_special[] = {
@@ -427,7 +430,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->field_22 = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
-    set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->field_8);
+    set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->movement_flag);
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
 
@@ -565,8 +568,11 @@ void change_object_owner(struct Thing *objtng, PlayerNumber nowner)
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
     unsigned int tmodel = thing->model;
-    if (tmodel >= OBJECT_TYPES_COUNT)
-      return &objects_data[0];
+    if (tmodel >= (sizeof(objects_data)/sizeof(objects_data[0])))
+    {
+        WARNLOG("Object model is too big:%d", tmodel);
+        return &objects_data[0];
+    }
     return &objects_data[tmodel];
 }
 
