@@ -1103,7 +1103,7 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     value->sac.action = get_rid(rules_sacrifices_commands, scline->tp[0]);
     if (value->sac.action == -1)
     {
-        SCRPTERRLOG("Unexpcepdted action:%s", scline->tp[0]);
+        SCRPTERRLOG("Unexpected action:%s", scline->tp[0]);
         return;
     }
     long param;
@@ -1132,7 +1132,7 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     {
         param = 0;
         value->sac.action = SacA_None;
-        SCRPTERRLOG("Unexpcepdted parameter:%s", scline->tp[1]);
+        SCRPTERRLOG("Unexpected parameter:%s", scline->tp[1]);
     }
     value->sac.param = param;
 
@@ -1227,7 +1227,7 @@ static void define_zone_check(const struct ScriptLine *scline)
 {
     if (scline->np[0] < 1)
     {
-        SCRPTERRLOG("Unexpcepdted parameter:%s", scline->tp[0]);
+        SCRPTERRLOG("Unexpected parameter:%s", scline->tp[0]);
         return;
     }
     if ((scline->np[1] <= 0) || (scline->np[1] >= 85)) //TODO constant
