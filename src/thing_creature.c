@@ -5223,7 +5223,10 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
 				{
 				change_creature_owner(thing, creatng->owner);
                 mark_creature_joined_dungeon(thing);
-                output_message(SMsg_CreaturesJoinedYou, MESSAGE_DELAY_CRTR_JOINED, true);
+                if (is_my_player_number(thing->owner))
+                {
+                    output_message(SMsg_CreaturesJoinedYou, MESSAGE_DELAY_CRTR_JOINED , true);
+                }
                 n++;
 				}
             }
