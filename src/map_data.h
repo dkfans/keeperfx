@@ -125,6 +125,7 @@ TbBool lava_at_position(const struct Coord3d *pos);
 TbBool subtile_is_room(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_player_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_is_sellable_door_or_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 #define can_dig_here(stl_x, stl_y, plyr_idx) subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y)
 TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);

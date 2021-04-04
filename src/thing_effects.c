@@ -736,7 +736,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
 void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct Coord3d *next_pos)
 {
     struct EffectElementStats* eestat = get_effect_element_model_stats(thing->model);
-    unsigned long blocked_flags = get_thing_blocked_flags_at(thing, next_pos);
+    long blocked_flags = get_thing_blocked_flags_at(thing, next_pos);
     slide_thing_against_wall_at(thing, next_pos, blocked_flags);
     if ( ((blocked_flags & SlbBloF_WalledZ) != 0) && eestat->field_15 && eestat->field_22 )
     {
