@@ -18,9 +18,11 @@
 
 #include "script_zones.h"
 
+#include "bflib_math.h"
 #include "config_creature.h"
 #include "creature_states.h"
 #include "frontmenu_ingame_map.h"
+#include "game_legacy.h"
 #include "game_merge.h"
 #include "slab_data.h"
 #include "map_data.h"
@@ -68,6 +70,8 @@ struct ScriptZoneRecord *find_script_zone(int zone_id)
 
 static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *second)
 {
+    if (first == second)
+        return;
     for (int dy = 0; dy < first->hheight * STL_PER_SLB; dy++)
     {
         for (int dx = 0; dx < first->hwidth * STL_PER_SLB; dx++)
@@ -284,6 +288,23 @@ void swap_script_zone(int zone_id, enum ScriptZoneSwapDirection dir)
         }
     } else if (dir == SZS_Shuffle)
     {
-        // TODO:
+        int cnt = 1;
+        next = get_script_zone(first->next_idx);
+        for (;next != first;)
+        {
+            cnt++;
+            next = get_script_zone(next->next_idx);
+        }
+        for (; cnt > 1; cnt--)
+        {
+            int i = ACTION_RANDOM(cnt);
+            struct ScriptZoneRecord *next = get_script_zone(first->next_idx);
+            for (; i > 0; i--)
+            {
+                next = get_script_zone(next->next_idx);
+            }
+            swap_zones(first, next);
+            first = get_script_zone(first->next_idx);
+        }
     }
 }
