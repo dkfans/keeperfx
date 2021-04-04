@@ -575,6 +575,41 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
   pannel_map_update(start_x,start_y,end_x,end_y);
 }
 
+void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all)
+{
+    unsigned long nflag = (1 << plyr_idx);
+    nflag <<= 28;
+    nflag = ~nflag;
+
+    start_x = stl_slab_starting_subtile(start_x);
+    start_y = stl_slab_starting_subtile(start_y);
+    end_x = stl_slab_ending_subtile(end_x)+1;
+    end_y = stl_slab_ending_subtile(end_y)+1;
+    clear_dig_for_map_rect(plyr_idx,subtile_slab_fast(start_x),subtile_slab_fast(end_x),
+                           subtile_slab_fast(start_y),subtile_slab_fast(end_y));
+    for (MapSubtlCoord y = start_y; y < end_y; y++)
+    {
+        for (MapSubtlCoord x = start_x; x < end_x; x++)
+        {
+            struct Map* mapblk = get_map_block_at(x, y);
+            if (!all)
+            {
+                struct SlabMap *slb = get_slabmap_for_subtile(x,y);
+                switch (slb->kind) // TODO: flags?
+                {
+                    case SlbT_ROCK:
+                    case SlbT_GEMS:
+                    case SlbT_GOLD:
+                        continue;
+                    default:
+                        break;
+                }
+            }
+            mapblk->data &= nflag;
+        }
+    }
+    pannel_map_update(start_x,start_y,end_x,end_y);
+}
 /**
  * Returns if given map position is unsafe (contains a terrain which may lead to creature death).
  * Unsafe terrain is currently lava and sacrificial ground.

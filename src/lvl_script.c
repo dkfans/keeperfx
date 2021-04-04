@@ -1830,7 +1830,7 @@ void command_bonus_level_time(long game_turns)
     command_add_value(Cmd_BONUS_LEVEL_TIME, ALL_PLAYERS, game_turns, 0, 0);
 }
 
-void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
+static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
 {
   SYNCDBG(0,"Revealing around (%d,%d)",x,y);
   reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
@@ -2131,6 +2131,25 @@ static void display_objective_process(struct ScriptContext *context)
               stl_num_decode_x(context->value->arg2),
               stl_num_decode_y(context->value->arg2));
       }
+}
+
+static void conceal_map_rect_check(const struct ScriptLine *scline)
+{
+    TbBool all = strcmp(scline->tp[5], "ALL") == 0;
+    if (!all)
+        all = strcmp(scline->tp[5], "1") == 0;
+
+    command_add_value(Cmd_CONCEAL_MAP_RECT, scline->np[0], scline->np[1], scline->np[2],
+                      (scline->np[4]<<16) | scline->np[3] | (all?1<<24:0));
+}
+
+static void conceal_map_rect_process(struct ScriptContext *context)
+{
+    long w = context->value->bytes[8];
+    long h = context->value->bytes[10];
+
+    conceal_map_area(context->value->plyr_range, context->value->arg0 - (w>>1), context->value->arg0 + (w>>1) + (w&1),
+                     context->value->arg1 - (h>>1), context->value->arg1 + (h>>1) + (h&1), context->value->bytes[11]);
 }
 
 void command_add_tunneller_to_level(long plr_range_id, const char *locname, const char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold)
@@ -7079,6 +7098,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER, NULL, NULL},
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
+  {"CONCEAL_MAP_RECT",                  "PNNNNa  ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
   {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION, NULL, NULL},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
