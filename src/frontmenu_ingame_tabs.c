@@ -449,8 +449,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
     struct RoomStats* rstat = room_stats_get_for_kind(rkind);
-    //game.chosen_room_kind
-    if (player->boxsize > 1)
+    if ((player->work_state == PSt_BuildRoom) && (player->boxsize > 1))
     {
         sprintf(gui_textbuf, "%ld", (long)rstat->cost * player->boxsize);
     }
