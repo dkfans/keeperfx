@@ -3518,18 +3518,16 @@ struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord 
   long OldDistance = 0x7FFFFFFF;
   struct Thing *thing;
   long NewDistance;
-  signed int n;
-  signed int k = 0;
   struct Thing *result = NULL;
-  MapSubtlCoord x, y;
+  MapSubtlCoord x, y, n, k;
   struct Map *blk;
-  do
+  for (k = 0; k < STL_PER_SLB; k++)
   {
     if ( stl_y + k >= 0 && stl_y + k < 256 )
     {
       n = 0;
       y = stl_y + k;
-      do
+      for (n = 0; n < STL_PER_SLB; n++)
       {
         if ( stl_x + n >= 0 && stl_x + n < 256 )
         {
@@ -3548,7 +3546,11 @@ struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord 
             }
           }
         }
-        n++;
+      }
+    }
+  }
+  return result;
+}
       }
       while ( n < STL_PER_SLB );
     }
