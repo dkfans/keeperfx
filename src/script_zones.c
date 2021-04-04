@@ -83,6 +83,12 @@ static void swap_zones(struct ScriptZoneRecord *first, struct ScriptZoneRecord *
             *dblk = *sblk;
             *sblk = old_blk;
 
+
+            unsigned char old_nav = game.navigation_map[navmap_tile_number(slab_subtile(first->min_x, 0) + dx, slab_subtile(first->min_y, 0) + dy)];
+            unsigned char new_nav = game.navigation_map[navmap_tile_number(slab_subtile(second->min_x, 0) + dx, slab_subtile(second->min_y, 0) + dy)];
+            game.navigation_map[navmap_tile_number(slab_subtile(second->min_x, 0) + dx, slab_subtile(second->min_y, 0) + dy)] = old_nav;
+            game.navigation_map[navmap_tile_number(slab_subtile(first->min_x, 0) + dx, slab_subtile(first->min_y, 0) + dy)] = new_nav;
+
             struct Thing *tng;
             // moving things on dblk
             for (int idx = get_mapwho_thing_index(dblk);
