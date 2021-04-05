@@ -2098,7 +2098,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_jobs_commands,cmd_num)
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_sounds_commands,cmd_num)
     while (pos<len)
     {
         // Finding command number in this line
