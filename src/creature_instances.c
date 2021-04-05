@@ -752,7 +752,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         ahead_stl_y = creatng->mappos.y.stl.num;
         ahead_stl_x = creatng->mappos.x.stl.num + 1; 
     }
-    if ( (first_person_dig_claim_mode) || (!subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y)) )
+    if ( (first_person_dig_claim_mode) || (!subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y, false)) )
     {
         slb = get_slabmap_block(slb_x, slb_y);
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )

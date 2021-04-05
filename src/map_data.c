@@ -711,24 +711,41 @@ TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  * @param plyr_idx The player to be checked.
  * @param stl_x Map subtile X coordinate.
  * @param stl_y Map subtile Y coordinate.
+ * @param inc_enemy_walls Should other player's walls be treated as undiggable?
  * @return True if the player can dig the subtile, false otherwise.
  */
-TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool inc_enemy_walls)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb))
+    {
         return false;
+    }
     if (!subtile_revealed(stl_x, stl_y, plyr_idx))
+    {
         return true;
+    }
     //TODO DOOR Why magic door id different? This doesn't seem to be intended.
     if (slab_kind_is_nonmagic_door(slb->kind))
     {
         if (slabmap_owner(slb) == plyr_idx)
-          return false;
+        {
+            return false;
+        }
     }
     struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
-      return true;
+    if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+    {
+        if (!inc_enemy_walls)
+        {
+            return true;
+        }
+        if (!(((slbattr->is_diggable) == 0) || 
+        ((slabmap_owner(slb) != plyr_idx) && ((slbattr->block_flags & SlbAtFlg_Filled) != 0))))
+        {
+            return true;
+        }
+    }
     return false;
 }
 /******************************************************************************/
