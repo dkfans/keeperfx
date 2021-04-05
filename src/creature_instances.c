@@ -856,8 +856,20 @@ long instf_reinforce(struct Thing *creatng, long *param)
     if (cctrl->digger.byte_93 <= 25)
     {
         cctrl->digger.byte_93++;
-        if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0)) {
-            thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, 32);
+        if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
+        {
+            struct PlayerInfo* player;
+            //_DK_reset_gui_based_on_player_mode();
+            player = get_my_player();
+            if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+            {
+                thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            }
+            else
+            {
+                thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, 32);
+            }
+            
         }
         return 0;
     }
