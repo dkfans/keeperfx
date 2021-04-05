@@ -3106,13 +3106,8 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
     TbBool allowed = false;
-    if ( (!subtile_revealed(stl_x, stl_y, plyr_idx)) || 
-         ( ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) && 
-           ( !(((slbattr->is_diggable) == 0) || 
-             ((slabmap_owner(slb) != plyr_idx) && ((slbattr->block_flags & SlbAtFlg_Filled) != 0))) ) ) )
+    if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, true))
     {
         allowed = true;
     }
