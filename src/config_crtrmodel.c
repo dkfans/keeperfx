@@ -2114,6 +2114,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             {
               if (k > 0)
               {
+                k = atoi(word_buf);
                 creature_sounds[crtr_model].hurt.index = k;
                 n++;
               } else
@@ -2128,6 +2129,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             {
               if (k > 0)
               {
+                k = atoi(word_buf);
                 creature_sounds[crtr_model].hit.index = k;
                 n++;
               } else
@@ -2142,6 +2144,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             {
               if (k > 0)
               {
+                k = atoi(word_buf);
                 creature_sounds[crtr_model].happy.index = k;
                 n++;
               } else
@@ -2156,6 +2159,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             {
               if (k > 0)
               {
+                k = atoi(word_buf);
                 creature_sounds[crtr_model].sad.index = k;
                 n++;
               } else
