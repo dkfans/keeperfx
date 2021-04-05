@@ -1,0 +1,415 @@
+REM ********************************************
+REM
+REM             Script for Level 200
+REM
+REM ********************************************
+
+
+
+
+REM **********     SETUP COMMANDS     **********
+
+
+REM ***** Set the Generation Speed of the  *****
+REM ***** Entrances                        *****
+
+SET_GENERATE_SPEED(500)
+
+
+REM ***** Set the computer players going   *****
+
+REM		Player		Player Type
+
+COMPUTER_PLAYER(PLAYER1,	0)
+
+
+REM ***** Set the maximum number of        *****
+REM ***** creatures each player can have   *****
+
+REM		Player		Number of creatures
+
+MAX_CREATURES(	PLAYER0,	30)
+MAX_CREATURES(	PLAYER1,	30)
+
+
+REM ***** Set the amount of gold each      *****
+REM ***** player starts with               *****
+
+REM		Player		Amount of gold
+
+START_MONEY(	PLAYER0,	10000)
+START_MONEY(	PLAYER1,	10000)
+
+
+
+
+REM **********       SET MAGIC        **********
+REM **********     AND CREATURES      **********
+
+REM ***** Setup the creature pool          *****
+
+REM			Creature Name	Number of creatures
+
+ADD_CREATURE_TO_POOL(	BUG,		10)
+ADD_CREATURE_TO_POOL(	FLY,		10)
+ADD_CREATURE_TO_POOL(	SPIDER,		5)
+ADD_CREATURE_TO_POOL(	SORCEROR,	30)
+ADD_CREATURE_TO_POOL(	DEMONSPAWN,	20)
+ADD_CREATURE_TO_POOL(	DRAGON,		20)
+ADD_CREATURE_TO_POOL(	TROLL,		10)
+ADD_CREATURE_TO_POOL(	ORC,		10)
+ADD_CREATURE_TO_POOL(	HELL_HOUND,	10)
+ADD_CREATURE_TO_POOL(	DARK_MISTRESS,	10)
+ADD_CREATURE_TO_POOL(	BILE_DEMON,	20)
+
+
+REM ***** Enable each player to recieve    *****
+REM ***** creatures from pool              *****
+
+REM			Player		Creatures	Can be available	Is now available
+
+CREATURE_AVAILABLE(	ALL_PLAYERS,	BUG,		1,			1)
+CREATURE_AVAILABLE(	ALL_PLAYERS,	FLY,		1,			1)
+CREATURE_AVAILABLE(	ALL_PLAYERS,	SPIDER,		1,			1)
+CREATURE_AVAILABLE(	ALL_PLAYERS,	SORCEROR,	1,			1)
+CREATURE_AVAILABLE(	ALL_PLAYERS,	DEMONSPAWN,	1,			1)
+CREATURE_AVAILABLE(	ALL_PLAYERS,	DRAGON,		1,			1)
+CREATURE_AVAILABLE(	ALL_PLAYERS,	TROLL,		1,			1)
+CREATURE_AVAILABLE(	ALL_PLAYERS,	ORC,		1,			1)
+CREATURE_AVAILABLE(	ALL_PLAYERS,	HELL_HOUND,	1,			1)
+CREATURE_AVAILABLE(	ALL_PLAYERS,	DARK_MISTRESS,	1,			1)
+CREATURE_AVAILABLE(	ALL_PLAYERS,	BILE_DEMON,	1,			1)
+
+
+REM ***** Set the rooms available to each  *****
+REM ***** player                           *****
+
+REM			Player		Room type	Can be available	Is available
+
+ROOM_AVAILABLE(		ALL_PLAYERS,	TREASURE,	1,			1)
+ROOM_AVAILABLE(		ALL_PLAYERS,	LAIR,		1,			1)
+ROOM_AVAILABLE(		ALL_PLAYERS,	GARDEN,		1,			1)
+ROOM_AVAILABLE(		ALL_PLAYERS,	TRAINING,	1,			1)
+ROOM_AVAILABLE(		ALL_PLAYERS,	RESEARCH,	1,			1)
+
+ROOM_AVAILABLE(		ALL_PLAYERS,	GUARD_POST,	1,			0)
+ROOM_AVAILABLE(		ALL_PLAYERS,	WORKSHOP,	1,			0)
+ROOM_AVAILABLE(		ALL_PLAYERS,	BARRACKS,	1,			0)
+ROOM_AVAILABLE(		ALL_PLAYERS,	PRISON,		1,			0)
+ROOM_AVAILABLE(		ALL_PLAYERS,	TORTURE,	1,			0)
+ROOM_AVAILABLE(		ALL_PLAYERS,	TEMPLE,		1,			0)
+
+
+REM ***** Set the doors available to each  *****
+REM ***** player                           *****
+
+REM			Player		Door type		Can be available	Is available
+
+DOOR_AVAILABLE(		ALL_PLAYERS,	WOOD,			0,			1)
+DOOR_AVAILABLE(		ALL_PLAYERS,	BRACED,			0,			1)
+DOOR_AVAILABLE(		ALL_PLAYERS,	STEEL,			0,			1)
+DOOR_AVAILABLE(		ALL_PLAYERS,	MAGIC,			0,			1)
+
+
+REM ***** Set the traps available to each  *****
+REM ***** player                           *****
+
+REM			Player		Trap type		Can be available	Is available
+
+TRAP_AVAILABLE(		ALL_PLAYERS,	BOULDER,		0,			1)
+TRAP_AVAILABLE(		ALL_PLAYERS,	ALARM,			0,			1)
+TRAP_AVAILABLE(		ALL_PLAYERS,	POISON_GAS,		0,			1)
+TRAP_AVAILABLE(		ALL_PLAYERS,	LIGHTNING,		0,			1)
+TRAP_AVAILABLE(		ALL_PLAYERS,	WORD_OF_POWER,		0,			1)
+TRAP_AVAILABLE(		ALL_PLAYERS,	LAVA,			0,			1)
+
+
+REM ***** Set the spells available to each *****
+REM ***** player                           *****
+
+REM			Player		Spell type		Can be available	Is available
+
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_IMP,		1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_OBEY,		1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_SIGHT,		1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_CALL_TO_ARMS,	1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_CAVE_IN,		1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_HEAL_CREATURE,	1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_HOLD_AUDIENCE,	1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_LIGHTNING,	1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_SPEED,		1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_PROTECT,		1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_CONCEAL,		1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_DISEASE,		1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_CHICKEN,		1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_DESTROY_WALLS,	1,			1)
+MAGIC_AVAILABLE(	ALL_PLAYERS,	POWER_ARMAGEDDON,	1,			1)
+
+
+
+
+REM **********  ADJUST ANY CREATURE   **********
+REM ********** OR RESEARCH STATISTICS **********
+
+REM ***** I don't want to change any       *****
+REM ***** creature statistics but I do     *****
+REM ***** want to change the research      *****
+REM ***** value of Destroy Walls because   *****
+REM ***** I want the players to research   *****
+REM ***** it quicker (the default research *****
+REM ***** value for Destroy Walls is       *****
+REM ***** 750000)                          *****
+
+REM		Player		Research Type	Room or Spell		Research Value
+
+REM RESEARCH(	ALL_PLAYERS,	MAGIC,		POWER_DESTROY_WALLS,	500000)
+
+
+
+
+REM ********** SETUP FLAGS AND TIMERS **********
+
+REM ***** I am going to set up one flag    *****
+REM ***** and one timer. My plan is to     *****
+REM ***** start TIMER0 as soon as the      *****
+REM ***** level begins. When it reaches    *****
+REM ***** 20000, it will look to see       *****
+REM ***** whether FLAG0 is equal to one    *****
+REM ***** (by default it is 0 but it is    *****
+REM ***** set to one if PLAYER0 triggers   *****
+REM ***** Action Point 4 at the top right  *****
+REM ***** of the map). When these          *****
+REM ***** conditions are met, a group of   *****
+REM ***** heroes will appear at            *****
+REM ***** Hero Door 1 (middle left of the  *****
+REM ***** map) and tunnel towards the      *****
+REM ***** PLAYER0's dungeon                *****
+
+
+REM ***** Set up FLAG0 and set it to 0     *****
+
+REM		Player		Flag Name	Flag's number
+
+SET_FLAG(	PLAYER0,	FLAG0,		0)
+
+
+REM ***** Set up TIMER0                    *****
+
+REM		Player		Timer Name
+
+SET_TIMER(	PLAYER0,	TIMER0)
+
+
+
+REM **********     CREATE AND ADD     **********
+REM **********  CREATURES TO PARTIES  **********
+
+REM ***** I have four parties of heroes to *****
+REM ***** create. The first (PARTY1) will  *****
+REM ***** appear at Hero Door 1 when       *****
+REM ***** TIMER0 reaches 20000 (assuming   *****
+REM ***** FLAG0 has already been set to    *****
+REM ***** 1). The second (PARTY2) will     *****
+REM ***** appear at Action Point 1 when    *****
+REM ***** any creature of PLayer 0's       *****
+REM ***** triggers ActionPoint 2. The last *****
+REM ***** two parties (PARTY3 and PARTY4)  *****
+REM ***** will appear Action Points 1 and  *****
+REM ***** 2 respectively when the Hero     *****
+REM ***** Dungeon Heart has been destroyed *****
+
+
+REM ***** Create any parties               *****
+
+REM		Party Name
+
+CREATE_PARTY(	PARTY1)
+CREATE_PARTY(	PARTY2)
+CREATE_PARTY(	PARTY3)
+CREATE_PARTY(	PARTY4)
+
+
+REM ***** Add creatures to those parties   *****
+
+REM		Party Name	Creature Name	Experience 	Amount of Gold	Objective		Countdown
+
+ADD_TO_PARTY(	PARTY1,		ARCHER,		3,		200,		ATTACK_DUNGEON_HEART,	0)
+ADD_TO_PARTY(	PARTY1,		ARCHER,		3,		200,		ATTACK_DUNGEON_HEART,	0)
+ADD_TO_PARTY(	PARTY1,		DWARFA,		3,		400,		ATTACK_DUNGEON_HEART,	0)
+ADD_TO_PARTY(	PARTY1,		DWARFA,		3,		400,		ATTACK_DUNGEON_HEART,	0)
+ADD_TO_PARTY(	PARTY1,		WITCH,		4,		700,		ATTACK_DUNGEON_HEART,	0)
+
+
+ADD_TO_PARTY(	PARTY2,		ARCHER,		5,		400,		ATTACK_ENEMIES,		0)
+ADD_TO_PARTY(	PARTY2,		ARCHER,		5,		400,		ATTACK_ENEMIES,		0)
+ADD_TO_PARTY(	PARTY2,		BARBARIAN,	6,		200,		ATTACK_ENEMIES,		0)
+ADD_TO_PARTY(	PARTY2,		MONK,		5,		600,		ATTACK_ENEMIES,		0)
+ADD_TO_PARTY(	PARTY2,		MONK,		5,		600,		ATTACK_ENEMIES,		0)
+ADD_TO_PARTY(	PARTY2,		SAMURAI,	6,		500,		ATTACK_ENEMIES,		0)
+ADD_TO_PARTY(	PARTY2,		SAMURAI,	6,		500,		ATTACK_ENEMIES,		0)
+
+
+ADD_TO_PARTY(	PARTY3,		ARCHER,		7,		600,		ATTACK_ENEMIES,		0)
+ADD_TO_PARTY(	PARTY3,		ARCHER,		7,		600,		ATTACK_ENEMIES,		0)
+ADD_TO_PARTY(	PARTY3,		GIANT,		6,		200,		DEFEND_PARTY,		0)
+ADD_TO_PARTY(	PARTY3,		GIANT,		6,		200,		DEFEND_PARTY,		0)
+ADD_TO_PARTY(	PARTY3,		WIZARD,		5,		600,		ATTACK_ENEMIES,		0)
+ADD_TO_PARTY(	PARTY3,		WIZARD,		6,		500,		ATTACK_ENEMIES,		0)
+ADD_TO_PARTY(	PARTY3,		WIZARD,		6,		500,		ATTACK_ENEMIES,		0)
+
+
+
+
+
+REM **********      MAIN SCRIPT       **********
+
+
+REM **********      IF COMMANDS       **********
+
+
+REM ***** The IF commands which will       *****
+REM ***** spring the parties on the player *****
+
+
+REM ***** First, detect whether a creature *****
+REM ***** has crossed the boundary of the  *****
+REM ***** fourth Action Point              *****
+
+REM			Action Point	Which player you want to detect
+
+IF_ACTION_POINT(	4,		PLAYER0)
+
+REM ***** If the Action Point has been     *****
+REM ***** triggered then set FLAG0 to 1    *****
+
+	SET_FLAG(PLAYER0,FLAG0,1)
+
+ENDIF
+
+
+REM ***** Next, detect when TIMER0 reaches *****
+REM ***** 20000 and, if FLAG0 is 1 then    *****
+REM ***** add PARTY1 to the map            *****
+
+REM	Player whose variable you want to look at	The variable name	Comparison	Value
+
+IF(	PLAYER0,					TIMER0			>=		20000)
+
+REM		Player		Variable	Comparison	Value
+
+	IF(	PLAYER0,	FLAG0		==		1)
+
+REM						The player the Tunneller is assigned to		Party Name	Action Point or Hero Door	Head for	Player to head for	Experience	Gold
+
+		ADD_TUNNELLER_PARTY_TO_LEVEL(	PLAYER_GOOD,					PARTY1,		-1,				DUNGEON_HEART,	PLAYER0,		3,		400)
+
+	ENDIF
+
+ENDIF
+
+
+REM ***** The second section will detect   *****
+REM ***** whether PLAYER0's creatures have *****
+REM ***** triggered Action Point 2. If     *****
+REM ***** they have then PARTY2 will be    *****
+REM ***** added to the map at Action Point *****
+REM ***** 1                                *****
+
+REM			Action Point	Which player you want to detect	
+
+IF_ACTION_POINT(	2,		PLAYER0)
+
+REM				The player the party is assigned to	Party Name	Action Point or Hero Door	Number of copies of party
+
+	ADD_PARTY_TO_LEVEL(	PLAYER_GOOD,				PARTY2,		1,				1)
+
+ENDIF
+
+
+REM ***** The third section will detect    *****
+REM ***** whether PLAYER0's creatures have *****
+REM ***** destroyed the Hero dungeon. If   *****
+REM ***** they have then PARTY3 and PARTY4 *****
+REM ***** will be added to the map at      *****
+REM ***** Action Points 1 and 2            *****
+
+REM	Player		Variable		Comparison	Value
+
+IF(	PLAYER_GOOD,	DUNGEON_DESTROYED	==		1)
+
+REM				The player the party is assigned to	Party Name	Action Point or Hero Door	Number of copies of party
+
+	ADD_PARTY_TO_LEVEL(	PLAYER_GOOD,				PARTY3,		1,				1)
+	ADD_PARTY_TO_LEVEL(	PLAYER_GOOD,				PARTY4,		2,				1)
+
+ENDIF
+
+
+
+
+REM **********     OBJECTIVES AND     **********
+REM **********      INFORMATION       **********
+
+
+REM ***** I don't want to include any      *****
+REM ***** objectives and information as    *****
+REM ***** you can only view them on levels *****
+REM ***** specifically designed for The    *****
+REM ***** Deeper Dungeons. Since this      *****
+REM ***** level is an example level, it    *****
+REM ***** would be unfair to those who     *****
+REM ***** have not bought The Deeper       *****
+REM ***** Dungeons to include them.        *****
+REM ***** Instead, I have written them as  *****
+REM ***** REM statements. If you have The  *****
+REM ***** Deeper Dungeons and you want to  *****
+REM ***** see the level running with the   *****
+REM ***** objectives, just remove the REM  *****
+REM ***** statements from the start of the *****
+REM ***** lines                            *****
+
+
+REM ***** Starting objective               *****
+
+REM				Objective Number	Objective Text (must be within quotes)																					Player
+
+QUICK_OBJECTIVE(	0,			"In the caves of Savactor, an rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and them proceed to conquer the rival Keeper to gain dominance over this land.",	PLAYER0)
+
+
+REM ***** Objective if the Hero Dungeon is *****
+REM ***** destroyed                        *****
+
+REM				Objective Number	Objective Text (must be within quotes)											Player
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
+
+QUICK_OBJECTIVE(	1,			"The corpses of the good lie strewn around you. Now go, and conquer your rival on this land. Dominion awaits ...",	PLAYER0)
+
+ENDIF
+
+
+
+
+REM **********      WIN AND LOSE      **********
+
+
+REM ***** These are criteria you have to   *****
+REM ***** set to enable the player to win  *****
+REM ***** the level. I will not include a  *****
+REM ***** lose game command as the player  *****
+REM ***** will automatically lose when     *****
+REM ***** their Dungeon Heart is destroyed *****
+
+REM	Player		Variable		Comparison	Value
+
+IF(	PLAYER1,	DUNGEON_DESTROYED	==		1)
+
+	WIN_GAME
+
+ENDIF
+
+
+
+
+
+
