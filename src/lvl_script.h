@@ -151,8 +151,9 @@ enum TbScriptCommands {
     Cmd_CREATURE_ENTRANCE_LEVEL           = 130,
     Cmd_RANDOMISE_FLAG                    = 131,
     Cmd_COMPUTE_FLAG                      = 132,
-    Cmd_DEFINE_ZONE                       = 133,
-    Cmd_SWAP_ZONE                         = 134,
+    Cmd_CONCEAL_MAP_RECT                  = 133,
+    Cmd_DEFINE_ZONE                       = 134,
+    Cmd_SWAP_ZONE                         = 135,
 };
 
 enum ScriptVariables {

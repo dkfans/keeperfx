@@ -2337,25 +2337,37 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
 
 void process_isometric_map_volume_box(long x, long y, long z)
 {
+    int default_color = map_volume_box.color;
+    int line_color = default_color;
+    struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
+    struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
+    // Check if a roomspace is currently being built
+    // and if so feed this back to the user
+    if ((dungeonadd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    {
+        line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
+    }
     if (render_roomspace.render_roomspace_as_box)
     {
         if (render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
-            create_map_volume_box(x, y, z, map_volume_box.color);
+            create_map_volume_box(x, y, z, line_color);
         }
         else
         {
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
+            map_volume_box.color = line_color;
             create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_map_volume_box(render_roomspace, x, y, z, map_volume_box.color, false);
+        create_fancy_map_volume_box(render_roomspace, x, y, z, line_color, false);
     }
+    map_volume_box.color = default_color;
 }
 static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
 {
@@ -6723,25 +6735,37 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
 
 void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width)
 {
+    int default_color = map_volume_box.color;
+    int line_color = default_color;
+    struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
+    struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
+    // Check if a roomspace is currently being built
+    // and if so feed this back to the user
+    if ((dungeonadd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    {
+        line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
+    }
     if (render_roomspace.render_roomspace_as_box)
     {
         if (render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
-             create_frontview_map_volume_box(cam, stl_width, render_roomspace.is_roomspace_a_single_subtile, map_volume_box.color);
+             create_frontview_map_volume_box(cam, stl_width, render_roomspace.is_roomspace_a_single_subtile, line_color);
         }
         else
         {
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
+            map_volume_box.color = line_color;
             create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, map_volume_box.color, false);
+        create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, line_color, false);
     }
+    map_volume_box.color = default_color;
 }
 static void do_map_who_for_thing(struct Thing *thing)
 {
