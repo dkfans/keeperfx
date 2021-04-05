@@ -2112,7 +2112,6 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
         case CrSnd_Hurt:
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
                 creature_sounds[crtr_model].hurt.index = k;
@@ -2127,7 +2126,6 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
         case CrSnd_Hit:
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
                 creature_sounds[crtr_model].hit.index = k;
@@ -2142,7 +2140,6 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
         case CrSnd_Happy:
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
                 creature_sounds[crtr_model].happy.index = k;
@@ -2157,7 +2154,6 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
         case CrSnd_Sad:
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
                 creature_sounds[crtr_model].sad.index = k;
