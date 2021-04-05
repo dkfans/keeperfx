@@ -1765,7 +1765,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
             if (player->thing_under_hand > 0)
             {
-                struct Room* room = get_room_thing_is_on(thing);
+                room = get_room_thing_is_on(thing);
                 TbBool IsRoom = (!room_is_invalid(room));
                 switch(thing->class_id)
                 {
