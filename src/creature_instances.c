@@ -603,7 +603,6 @@ long instf_destroy(struct Thing *creatng, long *param)
         if (room->health > 1)
         {
             room->health--;
-
             if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
             {
                 thing_play_sample(creatng, 5 + UNSYNC_RANDOM(2), 200, 0, 3, 0, 2, FULL_LOUDNESS);
