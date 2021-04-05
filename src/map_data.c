@@ -711,10 +711,10 @@ TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
  * @param plyr_idx The player to be checked.
  * @param stl_x Map subtile X coordinate.
  * @param stl_y Map subtile Y coordinate.
- * @param enemy_wall_undiggable Should other player's walls be treated as undiggable?
+ * @param enemy_wall_diggable * If enemy walls can be selected for digging
  * @return True if the player can dig the subtile, false otherwise.
  */
-TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool enemy_wall_undiggable)
+TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool enemy_wall_diggable)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb))
@@ -736,7 +736,7 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     struct SlabAttr* slbattr = get_slab_attrs(slb);
     if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
     {
-        if (!enemy_wall_undiggable)
+        if (enemy_wall_diggable)
         {
             return true;
         }

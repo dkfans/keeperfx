@@ -3107,7 +3107,7 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     TbBool allowed = false;
-    if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, true))
+    if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false))
     {
         allowed = true;
     }

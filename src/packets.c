@@ -529,7 +529,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
       }
       long i = thing_is_creature_special_digger(thing);
       if (can_drop_thing_here(stl_x, stl_y, player->id_number, i)
-        || !can_dig_here(stl_x, stl_y, player->id_number, false))
+        || !can_dig_here(stl_x, stl_y, player->id_number, true))
       {
         tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->full_slab_cursor);
       } else
@@ -798,7 +798,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               } else
               if (dungeon->task_count < 300)
               {
-                if (can_dig_here(stl_x, stl_y, player->id_number, false))
+                if (can_dig_here(stl_x, stl_y, player->id_number, true))
                   tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
               if (is_my_player(player))
