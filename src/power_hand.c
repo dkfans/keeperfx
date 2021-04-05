@@ -564,7 +564,7 @@ void draw_power_hand(void)
     if (player->work_state != PSt_HoldInHand)
     {
       if ( (player->work_state != PSt_CtrlDungeon)
-        || ((player->field_455 != P454_Unkn3) && ((player->work_state != PSt_CtrlDungeon) || (player->field_455 != P454_Unkn0) || (player->field_454 != P454_Unkn3))) )
+        || ((player->secondary_cursor_state != CSt_PowerHand) && ((player->work_state != PSt_CtrlDungeon) || (player->secondary_cursor_state != CSt_DefaultArrow) || (player->primary_cursor_state != CSt_PowerHand))) )
       {
         if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop))
         {
@@ -575,7 +575,7 @@ void draw_power_hand(void)
           } else
           if (player->work_state == PSt_CtrlDungeon)
           {
-            if ((player->field_455 == P454_Unkn2) || (player->field_454 == P454_Unkn2))
+            if ((player->secondary_cursor_state == CSt_Key) || (player->primary_cursor_state == CSt_Key))
             {
               draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
             }

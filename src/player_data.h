@@ -92,17 +92,17 @@ enum PlayerVictoryState {
     VicS_State3,
 };
 
-enum PlayerField454Val { // These could be Cursor states...?
-    P454_Unkn0 = 0,
-    P454_Unkn1,
-    P454_Unkn2,
-    P454_Unkn3,
+enum PlayerCursorStates {
+    CSt_DefaultArrow = 0, // Default - Arrow Cursor
+    CSt_PickAxe, // Dig - Pickake cursor
+    CSt_Key, // Lock/Unlock Door - Key cursor
+    CSt_PowerHand, // Power Hand?
 };
 
 enum PlayerField3Flags {
     Pf3F_None   = 0x00,
     Pf3F_Unkn01 = 0x01,
-    Pf3F_Unkn02 = 0x02,
+    Pf3F_Unkn02 = 0x02, // I think this means that the currently chosen subtile is a "high slab" or "liquid" etc somewhere a unit can never be placed (i.e. floor height != 1)
     Pf3F_Unkn04 = 0x04,
     Pf3F_Unkn08 = 0x08,
     Pf3F_Unkn10 = 0x10,
@@ -184,8 +184,8 @@ char field_E8[2];
     unsigned short minimap_zoom;
     unsigned char view_type;
     unsigned char work_state;
-    unsigned char field_454;
-    unsigned char field_455;
+    unsigned char primary_cursor_state;
+    unsigned char secondary_cursor_state;
     unsigned char continue_work_state;
 char field_457[8];
 char field_45F;

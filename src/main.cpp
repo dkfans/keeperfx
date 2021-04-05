@@ -1227,7 +1227,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
     i = player->work_state;
     if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) )
         return true;
-    if ( (i == PSt_CtrlDungeon) && (player->field_454 != P454_Unkn0) && (player->thing_under_hand == 0) )
+    if ( (i == PSt_CtrlDungeon) && (player->primary_cursor_state != CSt_DefaultArrow) && (player->thing_under_hand == 0) )
         return true;
     return false;
 }
