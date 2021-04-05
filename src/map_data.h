@@ -127,8 +127,8 @@ TbBool subtile_is_player_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_sellable_door_or_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-#define can_dig_here(stl_x, stl_y, plyr_idx, inc_enemy_walls) subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, inc_enemy_walls)
-TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool inc_enemy_walls);
+#define can_dig_here(stl_x, stl_y, plyr_idx, enemy_wall_undiggable) subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, enemy_wall_undiggable)
+TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool enemy_wall_undiggable);
 
 void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void clear_slab_dig(long a1, long a2, char a3);
