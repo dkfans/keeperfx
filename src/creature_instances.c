@@ -630,7 +630,7 @@ long instf_destroy(struct Thing *creatng, long *param)
         slb->health--;
         if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
         {
-            thing_play_sample(creatng, 66 + UNSYNC_RANDOM(2), 120 + UNSYNC_RANDOM(30), 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(creatng, 66 + UNSYNC_RANDOM(2), 140 + UNSYNC_RANDOM(15), 0, 3, 0, 2, FULL_LOUDNESS);
         }
         return 0;
     }
@@ -640,7 +640,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     }
     if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
     {
-        thing_play_sample(creatng, 66 + UNSYNC_RANDOM(2), 120 + UNSYNC_RANDOM(30), 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(creatng, 66 + UNSYNC_RANDOM(2), 140 + UNSYNC_RANDOM(15), 0, 3, 0, 2, FULL_LOUDNESS);
     }
     decrease_dungeon_area(prev_owner, 1);
     neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner);
