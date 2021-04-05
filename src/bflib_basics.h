@@ -146,6 +146,8 @@ int LbLogClose(struct TbLog *log);
 int LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
 int LbLogSetPrefix(struct TbLog *log, const char *prefix);
 int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...);
+
+void LbCloseLog();
 /******************************************************************************/
 typedef void (__stdcall *TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/

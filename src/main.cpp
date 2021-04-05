@@ -5027,11 +5027,21 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
     }
 }
 
+LONG __stdcall Vex_handler(
+    _EXCEPTION_POINTERS *ExceptionInfo
+)
+{
+    LbJustLog("=== Crash ===");
+    LbCloseLog();
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
   char *text;
   _DK_hInstance = GetModuleHandle(NULL);
 
+  AddVectoredExceptionHandler(0, &Vex_handler);
   get_cmdln_args(bf_argc, bf_argv);
 
 //TODO DLL_CLEANUP delete when won't be needed anymore
