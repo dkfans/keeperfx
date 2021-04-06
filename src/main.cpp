@@ -3028,7 +3028,7 @@ void update(void)
         if (player->field_3 & Pf3F_Unkn08)
         {
             PaletteSetPlayerPalette(player, engine_palette);
-            set_flag_byte(&player->field_3,0x08,false);
+            set_flag_byte(&player->field_3,Pf3F_Unkn08,false);
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
