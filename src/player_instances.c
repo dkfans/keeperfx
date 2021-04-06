@@ -790,7 +790,7 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
         copy_settings_to_dk_settings();
         toggle_status_menu(player->field_1 & 1);
     }
-    player->allocflags &= ~0x80;
+    player->allocflags &= ~PlaF_Unknown80;
     return 0;
 }
 
@@ -799,8 +799,8 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
     //return _DK_pinstfs_zoom_to_position(player, n);
     player->controlled_thing_idx = 0;
     player->controlled_thing_creatrn = 0;
-    player->allocflags |= 0x80;
-    player->allocflags |= 0x10;
+    player->allocflags |= PlaF_Unknown80;
+    player->allocflags |= PlaF_Unknown10;
     struct Camera* cam = player->acamera;
     int dt_x = (player->zoom_to_pos_x - (int)cam->mappos.x.val) / 8;
     int dt_y = (player->zoom_to_pos_y - (int)cam->mappos.y.val) / 8;

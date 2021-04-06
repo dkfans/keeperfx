@@ -46,10 +46,10 @@ enum PlayerInitFlags {
     PlaF_Unknown2           = 0x02,
     PlaF_NewMPMessage       = 0x04,
     PlaF_Unknown8           = 0x08,
-    PlaF_Unknown10          = 0x10,
+    PlaF_Unknown10          = 0x10, // often used with PlaF_Unknown80 - maybe to do with enabling mouse/keyboard input?
     PlaF_TaggedForDigging   = 0x20, // seems to be enabled when there are active tasks for the current slab
     PlaF_CompCtrl           = 0x40,
-    PlaF_Unknown80          = 0x80,
+    PlaF_Unknown80          = 0x80, // often used with PlaF_Unknown10 - maybe to do with enabling mouse/keyboard input?
 };
 
 enum PlayerField6Flags {
@@ -101,10 +101,13 @@ enum PlayerCursorStates {
 
 enum PlayerField3Flags {
     Pf3F_None   = 0x00,
-    Pf3F_nothing_to_touch_under_cursor = 0x01, // flags seems to be on when there is nothing to slap/interact with under cursor
+    Pf3F_nothing_under_power_hand = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
     Pf3F_chosen_subtile_is_high = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
     Pf3F_Unkn04 = 0x04, // something to do with palette swapping/toggling
-    Pf3F_Unkn08 = 0x08, // something to do with palette swapping/toggling
+    Pf3F_Unkn08 = 0x08, // something to do with palette swapping/toggling 
+    //[turned on with lightning_palette]
+    //[turned off within lightning functions when engine_palette is applied]
+    //[if the game is paused -  if Pf3F_Unkn08 is "ON" then engine_palette is applied and Pf3F_Unkn08 is turned "OFF"]
     Pf3F_Unkn10 = 0x10, // maybe if this is set it means "don't save a continue save" - i.e. has finished campaign, or has finished multi/free play level ...
     // The below are unused in KFX
     Pf3F_Unkn20 = 0x20,
@@ -144,7 +147,7 @@ struct PlayerInfo {
     unsigned char allocflags;
     unsigned char field_1;
     unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
-    unsigned char field_3;
+    unsigned char field_3; // Additional Cursor/Current Subtile Information?
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     unsigned char flgfield_6;

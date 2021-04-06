@@ -742,7 +742,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 player->allocflags |= PlaF_TaggedForDigging;
             else
                 player->allocflags &= ~PlaF_TaggedForDigging;
-            player->field_3 |= Pf3F_nothing_to_touch_under_cursor;
+            player->field_3 |= Pf3F_nothing_under_power_hand;
           }
           break;
         }
@@ -790,7 +790,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 output_message(SMsg_WorkerJobsLimit, 500, true);
               }
             } else
-            if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->field_3 & Pf3F_nothing_to_touch_under_cursor) != 0))
+            if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->field_3 & Pf3F_nothing_under_power_hand) != 0))
             {
               if ((player->allocflags & PlaF_TaggedForDigging) != 0)
               {
@@ -886,7 +886,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         player->cursor_button_down = 0;
         unset_packet_control(pckt, PCtr_LBtnRelease);
         player->secondary_cursor_state = CSt_DefaultArrow;
-        player->field_3 &= ~Pf3F_nothing_to_touch_under_cursor;
+        player->field_3 &= ~Pf3F_nothing_under_power_hand;
       }
     }
 
