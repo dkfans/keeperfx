@@ -29,6 +29,7 @@
 #include "bflib_network.h"
 
 #include "version.h"
+#include "custom_sprites.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_input.h"
@@ -4106,6 +4107,7 @@ void init_level(void)
 
     // Load configs which may have per-campaign part, and can even be modified within a level
     load_computer_player_config(CnfLd_Standard);
+    clear_custom_sprites();
     load_stats_files();
     check_and_auto_fix_stats();
 

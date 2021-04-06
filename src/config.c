@@ -377,6 +377,38 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
   return i;
 }
 
+int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen)
+{
+    int i;
+    if ((*pos) >= buflen) return 0;
+    // Skipping spaces after previous parameter
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
+    {
+        (*pos)++;
+        if ((*pos) >= buflen) return 0;
+    }
+    // first quote
+    if (buf[*pos] != '"')
+        return 0;
+    (*pos)++;
+    // TODO: escape quotes (\", \\)
+    for (i=0; i+1 < dstlen; i++)
+    {
+        if (buf[*pos] == '"')
+        {
+            (*pos)++;
+            break;
+        }
+        dst[i]=buf[*pos];
+        (*pos)++;
+        if ((*pos) >= buflen) {
+            return 0; // End before quote
+        }
+    }
+    dst[i]='\0';
+    return i;
+}
+
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen)
 {
     int i;

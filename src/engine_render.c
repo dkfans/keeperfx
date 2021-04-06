@@ -143,7 +143,6 @@ static unsigned long render_problems;
 static long render_prob_kind;
 static long sp_x, sp_y, sp_dx, sp_dy;
 
-TbSpriteData *keepersprite_add[KEEPERSPRITE_ADD_NUM] = {0};
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -5566,6 +5565,8 @@ static long load_keepersprite_if_needed(unsigned short kspr_idx)
 static long heap_manage_keepersprite(unsigned short kspr_idx)
 {
     long result;
+    if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET)
+        return 1;
     lock_keepersprite(kspr_idx);
     result = load_keepersprite_if_needed(kspr_idx);
     unlock_keepersprite(kspr_idx);
@@ -5593,7 +5594,7 @@ static void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
     if (kspr_idx < KEEPERSPRITE_ADD_OFFSET)
         kspr_item = keepsprite[kspr_idx];
     else
-        kspr_item = keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
+        kspr_item = &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
 
     sprite.SWidth = cut_w;
     sprite.SHeight = cut_h;
@@ -6094,7 +6095,10 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         thing_being_displayed = NULL;
     }
 
-    if (thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH)
+    if (
+        ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
+        || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+    )
     {
         ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
     } else

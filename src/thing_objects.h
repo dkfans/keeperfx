@@ -86,12 +86,15 @@ struct CallToArmsGraphics {
 };
 
 /******************************************************************************/
+/*
+TODO:Test and remove this
 DLLIMPORT struct Objects _DK_objects[OBJECT_TYPES_COUNT]; // in KeeperFX, named objects_data[]
 DLLIMPORT unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 DLLIMPORT extern unsigned char _DK_magic_to_object[24];
+*/
 
 #pragma pack()
 /******************************************************************************/
@@ -162,6 +165,8 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel);
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
+
+void define_custom_object(int obj_id, short sprite_max_size, short anim_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

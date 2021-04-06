@@ -91,13 +91,14 @@ struct KeeperSprite { // sizeof = 16
   unsigned char FrameOffsW;
   unsigned char FrameOffsH;
 #endif
-  short field_C;
-  short field_E;
+  short field_C; // Offset x
+  short field_E; // Offset y
 };
 
 /******************************************************************************/
 //extern unsigned short creature_graphics[][22];
 //extern struct KeeperSprite *creature_table;
+extern struct KeeperSprite creature_table_add[];
 /******************************************************************************/
 DLLIMPORT struct KeeperSprite *_DK_creature_table;
 #define creature_table _DK_creature_table
@@ -111,7 +112,6 @@ unsigned long keepersprite_index(unsigned short n);
 struct KeeperSprite * keepersprite_array(unsigned short n);
 unsigned char keepersprite_frames(unsigned short n);
 unsigned char keepersprite_rotable(unsigned short n);
-unsigned char previous_keeper_frame(unsigned short n, unsigned char c);
 void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
 long get_lifespan_of_animation(long ani, long frameskip);
 unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);

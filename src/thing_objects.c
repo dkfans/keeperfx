@@ -72,7 +72,7 @@ Thing_State_Func object_state_functions[] = {
     NULL,
 };
 
-Thing_Class_Func object_update_functions[] = {
+Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
     NULL,
     NULL,
     NULL,
@@ -217,7 +217,7 @@ Thing_Class_Func object_update_functions[] = {
  *
  * Originally was named objects[].
  */
-struct Objects objects_data[] = {
+struct Objects objects_data[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1}, //1 BARREL
   {0, 0, 1, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1}, //2 TORCH
@@ -354,11 +354,11 @@ struct Objects objects_data[] = {
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //134 SPELLBOOK
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //135
-  {0, 0, 0, 0, 0,   0x4000, 0x0100,    0,    0,   300, 0, 0, 0, 0,  0, ObOC_Unknown1, 0}, //136
+  {0, 0, 0, 0, 0,0x4000,0,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //136 TEST_THING
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0}, //137
 };
 
-ThingModel object_to_special[] = {
+ThingModel object_to_special[OBJECT_TYPES_MAX] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -392,6 +392,21 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
 DLLIMPORT long _DK_object_update_armour2(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_power_sight(struct Thing *objtng);
 DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *gldtng);
+/******************************************************************************/
+void define_custom_object(int obj_id, short sprite_max_size, short anim_idx)
+{
+    struct Objects *dst;
+    if (obj_id < OBJECT_TYPES_COUNT)
+    {
+        WARNLOG("Default object redefined obj_id:%d", obj_id);
+    }
+    struct Objects *obj_dst = &objects_data[obj_id];
+    memset(obj_dst, 0, sizeof(struct Objects));
+    obj_dst->draw_class = 2; // Default
+    obj_dst->sprite_anim_idx = anim_idx;
+    obj_dst->sprite_size_max = sprite_max_size;
+    object_update_functions[obj_id] = NULL;
+}
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {

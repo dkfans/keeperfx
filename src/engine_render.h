@@ -35,7 +35,7 @@ extern "C" {
 #define KEEPSPRITE_LENGTH 9149
 
 #define KEEPERSPRITE_ADD_OFFSET 16384
-#define KEEPERSPRITE_ADD_NUM 2048
+#define KEEPERSPRITE_ADD_NUM 256
 
 enum QKinds {
     QK_PolyTriangle = 0,
@@ -525,7 +525,7 @@ DLLIMPORT TbFileHandle _DK_file_handle;
 DLLIMPORT long _DK_cam_map_angle;
 #define cam_map_angle _DK_cam_map_angle
 
-extern TbSpriteData *keepersprite_add[KEEPERSPRITE_ADD_NUM];
+extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];
 #pragma pack()
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
