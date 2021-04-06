@@ -103,8 +103,11 @@ enum PlayerField3Flags {
     Pf3F_None   = 0x00,
     Pf3F_nothing_under_power_hand = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
     Pf3F_chosen_subtile_is_high = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
-    Pf3F_Unkn04 = 0x04, // something to do with palette swapping/toggling
-    Pf3F_Unkn08 = 0x08, // something to do with palette swapping/toggling 
+    Pf3F_alternate_palette_is_active = 0x04, // something to do with palette swapping/toggling
+    // [used in PaletteSetPlayerPalette...]
+    // [used during creature fade - if Pf3F_Unkn04 is OFF set red palette, otherwise set engine palette]
+    // [used to toggle on the blue_pal/engine_pal of a creature if it is affected by freeze spell]
+    Pf3F_lightning_palette_is_active = 0x08, // something to do with palette swapping/toggling
     //[turned on with lightning_palette]
     //[turned off within lightning functions when engine_palette is applied]
     //[if the game is paused -  if Pf3F_Unkn08 is "ON" then engine_palette is applied and Pf3F_Unkn08 is turned "OFF"]
@@ -151,7 +154,7 @@ struct PlayerInfo {
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     unsigned char flgfield_6;
-    unsigned char *field_7;
+    unsigned char *palette_B; // ?
     /** Index of packet slot associated with this player. */
     unsigned char packet_num;
     long field_C;
@@ -214,7 +217,7 @@ char field_462;
     long field_4BD;
     long field_4C1;
     long field_4C5;
-    unsigned char *palette;
+    unsigned char *palette_A;
     long field_4CD;
     char field_4D1;
     /** Overcharge level while casting keeper powers. */

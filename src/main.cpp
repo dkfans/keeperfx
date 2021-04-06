@@ -1540,7 +1540,7 @@ void reinit_level_after_load(void)
     SYNCDBG(6,"Starting");
     // Reinit structures from within the game
     player = get_my_player();
-    player->field_7 = 0;
+    player->palette_B = 0;
     init_lookups();
     init_navigation();
     reinit_packets_after_load();
@@ -1868,16 +1868,16 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
     //Todo: Figure out statement below. Used to be blue_palette like 'pinstfe_control_creature_fade'.
     if (pal == red_palette)
     {
-      if ((player->field_3 & Pf3F_Unkn04) == 0)
+      if ((player->field_3 & Pf3F_alternate_palette_is_active) == 0)
         return;
-      player->field_3 |= Pf3F_Unkn04;
+      player->field_3 |= Pf3F_alternate_palette_is_active;
     } else
     {
-      player->field_3 &= ~Pf3F_Unkn04;
+      player->field_3 &= ~Pf3F_alternate_palette_is_active;
     }
-    if ( (player->field_7 == 0) || ((pal != player->palette) && (pal == player->field_7)) )
+    if ( (player->palette_B == 0) || ((pal != player->palette_A) && (pal == player->palette_B)) )
     {
-        player->palette = pal;
+        player->palette_A = pal;
         player->field_4C1 = 0;
         player->field_4C5 = 0;
         if (is_my_player(player))
@@ -3025,10 +3025,10 @@ void update(void)
     if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
-        if (player->field_3 & Pf3F_Unkn08)
+        if (player->field_3 & Pf3F_lightning_palette_is_active)
         {
             PaletteSetPlayerPalette(player, engine_palette);
-            set_flag_byte(&player->field_3,Pf3F_Unkn08,false);
+            set_flag_byte(&player->field_3,Pf3F_lightning_palette_is_active,false);
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();

@@ -715,7 +715,7 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
 {
   if (is_my_player(player))
   {
-    if ((player->field_3 & Pf3F_Unkn04) == 0)
+    if ((player->field_3 & Pf3F_alternate_palette_is_active) == 0)
       PaletteSetPlayerPalette(player, red_palette);
     else
       PaletteSetPlayerPalette(player, engine_palette);

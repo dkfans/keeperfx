@@ -2012,10 +2012,10 @@ void process_pause_packet(long curr_pause, long new_pause)
       }
       if ((game.operation_flags & GOF_Paused) != 0)
       {
-          if ((player->field_3 & Pf3F_Unkn08) != 0)
+          if ((player->field_3 & Pf3F_lightning_palette_is_active) != 0)
           {
               PaletteSetPlayerPalette(player, engine_palette);
-              player->field_3 &= ~Pf3F_Unkn08;
+              player->field_3 &= ~Pf3F_lightning_palette_is_active;
           }
       }
   }
