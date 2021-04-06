@@ -505,7 +505,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
 
-    player->field_3 &= ~Pf3F_chosen_subtile_is_not_floor;
+    player->field_3 &= ~Pf3F_chosen_subtile_is_high;
     if ((player->secondary_cursor_state != CSt_DefaultArrow) && (player->secondary_cursor_state != CSt_PowerHand))
     {
       if (player->instance_num != PI_Grab) {
@@ -534,7 +534,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->full_slab_cursor);
       } else
       {
-        player->field_3 |= Pf3F_chosen_subtile_is_not_floor;
+        player->field_3 |= Pf3F_chosen_subtile_is_high;
         tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
       }
     }

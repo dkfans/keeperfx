@@ -556,7 +556,7 @@ void draw_power_hand(void)
         return;
     }
     SYNCDBG(7,"Drawing hand %s index %d", thing_model_name(thing), (int)thing->index);
-    if ((player->field_3 & Pf3F_chosen_subtile_is_not_floor) != 0)
+    if ((player->field_3 & Pf3F_chosen_subtile_is_high) != 0)
     {
         draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
         return;
