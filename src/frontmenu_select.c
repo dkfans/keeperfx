@@ -475,7 +475,7 @@ void frontend_campaign_list_load(void)
 }
 void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn)
 {
-    short str_idx = 111; //Return to Free-Play
+    long str_idx = 111; //Return to Free-Play
     unsigned short mnu_idx = 34; //map pack selection screen
     if (mappacks_list.items_num == 1)
     {

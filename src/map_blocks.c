@@ -1119,7 +1119,6 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
     } else
     if (place_slbattr->category == SlbAtCtg_RoomInterior)
     {
-        int i;
         for (i=1; i < 8; i+=2)
         {
             MapSlabCoord sslb_x;

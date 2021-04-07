@@ -178,8 +178,8 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
     if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
     {
-        struct Room* room = room_get(cctrl->lair_room_id);
-        creature_remove_lair_totem_from_room(creatng, room);
+        struct Room* origroom = room_get(cctrl->lair_room_id);
+        creature_remove_lair_totem_from_room(creatng, origroom);
     }
     cctrl->lair_room_id = room->index;
     // Create the lair thing

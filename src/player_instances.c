@@ -944,7 +944,6 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     if (thing->class_id == TCls_Creature)
     {
         set_start_state(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         if ((cctrl->flgfield_2 & TF2_Spectator) != 0) {
           delete_thing_structure(thing, 0);
