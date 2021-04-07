@@ -123,7 +123,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     //thing = get_trap_for_slab_position(subtile_slab_fast(pos->x.stl.num),subtile_slab_fast(pos->y.stl.num));
     if (thing_is_invalid(thing)) return false;
     struct PlayerInfo* player = get_my_player();
-    if ((thing->byte_18 == 0) && (player->id_number != thing->owner))
+    if ((thing->trap_door_active_state == 0) && (player->id_number != thing->owner))
         return false;
     update_gui_tooltip_target(thing);
     if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
