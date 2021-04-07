@@ -744,26 +744,22 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         instf_pretty_path(creatng, NULL);
         return 1;
     }
-    MapSubtlCoord ahead_stl_x;
-    MapSubtlCoord ahead_stl_y;
+    MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
+    MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
     if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
     {
         ahead_stl_y = creatng->mappos.y.stl.num - 1;
-        ahead_stl_x = creatng->mappos.x.stl.num;
     }
     else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
     {
         ahead_stl_y = creatng->mappos.y.stl.num + 1;
-        ahead_stl_x = creatng->mappos.x.stl.num; 
     }
     else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
     {
-        ahead_stl_y = creatng->mappos.y.stl.num;
         ahead_stl_x = creatng->mappos.x.stl.num - 1;
     }
     else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
     {
-        ahead_stl_y = creatng->mappos.y.stl.num;
         ahead_stl_x = creatng->mappos.x.stl.num + 1; 
     }
     if ( (first_person_dig_claim_mode) || (!subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y, true)) )

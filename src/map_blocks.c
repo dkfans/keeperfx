@@ -1177,24 +1177,24 @@ void place_single_slab_modify_column_near_liquid(SlabKind slbkind, MapSlabCoord 
         sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i-1)&7].delta_y;
         struct SlabMap *slb;
         slb = get_slabmap_block(sslb_x,sslb_y);
-        struct SlabAttr *slbattr;
-        slbattr = get_slab_attrs(slb);
-        if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_RoomInterior) ||
-            (slbattr->category == SlbAtCtg_Obstacle) || (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
+        struct SlabAttr *slbattra;
+        slbattra = get_slab_attrs(slb);
+        if ((slbattra->category == SlbAtCtg_FortifiedGround) || (slbattra->category == SlbAtCtg_RoomInterior) ||
+            (slbattra->category == SlbAtCtg_Obstacle) || (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
         {
             sslb_x = slb_x + (MapSlabCoord)my_around_eight[(i-2)&7].delta_x;
             sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i-2)&7].delta_y;
             slb = get_slabmap_block(sslb_x,sslb_y);
-            struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(slb);
-            if (slbattr->category == SlbAtCtg_FortifiedWall)
+            struct SlabAttr *slbattrb;
+            slbattrb = get_slab_attrs(slb);
+            if (slbattrb->category == SlbAtCtg_FortifiedWall)
             {
                 sslb_x = slb_x + (MapSlabCoord)my_around_eight[(i)&7].delta_x;
                 sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i)&7].delta_y;
                 slb = get_slabmap_block(sslb_x,sslb_y);
-                struct SlabAttr *slbattr;
-                slbattr = get_slab_attrs(slb);
-                if (slbattr->category == SlbAtCtg_FortifiedWall)
+                struct SlabAttr *slbattrc;
+                slbattrc = get_slab_attrs(slb);
+                if (slbattrc->category == SlbAtCtg_FortifiedWall)
                 {
                   neigh = 4 + slab_element_around_eight[(i-1)&7];
                   slab_type_list[neigh] = SlbT_WALLWTWINS;
