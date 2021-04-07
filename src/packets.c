@@ -696,7 +696,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     MapSubtlCoord cy = stl_slab_starting_subtile(stl_y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
       player->secondary_cursor_state = CSt_DefaultArrow;
-    player->primary_cursor_state = (unsigned short)(pckt->field_10 & PCAdV_ContextMask) >> 1; // get current cursor state
+    player->primary_cursor_state = (unsigned short)(pckt->additional_packet_values & PCAdV_ContextMask) >> 1; // get current cursor state from pckt->additional_packet_values
 
     process_dungeon_power_hand_state(plyr_idx);
 
@@ -2040,7 +2040,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         inter_val = 256;
         break;
     }
-    if (pckt->field_10 & PCAdV_SpeedupPressed)
+    if (pckt->additional_packet_values & PCAdV_SpeedupPressed)
       inter_val *= 3;
 
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
@@ -2631,8 +2631,8 @@ void process_players_packet(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6, "Processing player %d packet of type %d.", plyr_idx, (int)pckt->action);
-    player->input_crtr_control = ((pckt->field_10 & PCAdV_CrtrContrlPressed) != 0);
-    player->input_crtr_query = ((pckt->field_10 & PCAdV_CrtrQueryPressed) != 0);
+    player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
+    player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
     if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
     {
         process_players_message_character(player);
