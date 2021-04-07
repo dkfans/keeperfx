@@ -5077,11 +5077,11 @@ TngUpdateRet update_creature(struct Thing *thing)
         struct PlayerInfo* player = get_player(thing->owner);
         if (creature_affected_by_spell(thing, SplK_Freeze))
         {
-            if ((player->field_3 & Pf3F_alternate_palette_is_active) == 0)
+            if ((player->additional_flags & PlaAF_AlternatePaletteIsActive) == 0)
               PaletteSetPlayerPalette(player, blue_palette);
         } else
         {
-            if ((player->field_3 & Pf3F_alternate_palette_is_active) != 0)
+            if ((player->additional_flags & PlaAF_AlternatePaletteIsActive) != 0)
               PaletteSetPlayerPalette(player, engine_palette);
         }
     } else

@@ -1775,13 +1775,13 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     // Save some of the data from clearing
     victory_state = player->victory_state;
     memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
-    flg_mem = ((player->field_3 & Pf3F_UnlockedLordTorture) != 0);
+    flg_mem = ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0);
     // clear all data
     clear_game_for_save();
     // Restore saved data
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-    set_flag_byte(&player->field_3,Pf3F_UnlockedLordTorture,flg_mem);
+    set_flag_byte(&player->additional_flags,PlaAF_UnlockedLordTorture,flg_mem);
     // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
     if (((game.system_flags & GSF_NetworkActive) != 0)
      || ((game.operation_flags & GOF_SingleLevel) != 0)
@@ -3604,9 +3604,9 @@ FrontendMenuState get_startup_menu_state(void)
     if ((game.system_flags & GSF_NetworkActive) != 0)
     { // If played real network game, then resulting screen isn't changed based on victory
         SYNCLOG("Network game summary state selected");
-        if ((player->field_3 & Pf3F_UnlockedLordTorture) != 0)
+        if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)
         { // Player has tortured LOTL - go FeSt_TORTURE before any others
-          player->field_3 &= ~Pf3F_UnlockedLordTorture;
+          player->additional_flags &= ~PlaAF_UnlockedLordTorture;
           return FeSt_DRAG;
         } else
         if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
@@ -3641,9 +3641,9 @@ FrontendMenuState get_startup_menu_state(void)
             {
                 return FeSt_OUTRO;
             } else
-            if ((player->field_3 & Pf3F_UnlockedLordTorture) != 0)
+            if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)
             {
-                player->field_3 &= ~Pf3F_UnlockedLordTorture;
+                player->additional_flags &= ~PlaAF_UnlockedLordTorture;
                 return FeSt_DRAG;
             } else
             {

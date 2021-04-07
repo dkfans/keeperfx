@@ -1307,7 +1307,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                   if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
                   {
                       PaletteSetPlayerPalette(player, lightning_palette);
-                      myplyr->field_3 |= Pf3F_lightning_palette_is_active;
+                      myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
                   }
               }
             }

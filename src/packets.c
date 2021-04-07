@@ -505,7 +505,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
 
-    player->field_3 &= ~Pf3F_chosen_subtile_is_high;
+    player->additional_flags &= ~PlaAF_ChosenSubTileIsHigh;
     if ((player->secondary_cursor_state != CSt_DefaultArrow) && (player->secondary_cursor_state != CSt_PowerHand))
     {
       if (player->instance_num != PI_Grab) {
@@ -534,7 +534,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->full_slab_cursor);
       } else
       {
-        player->field_3 |= Pf3F_chosen_subtile_is_high;
+        player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
         tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
       }
     }
@@ -742,7 +742,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 player->allocflags |= PlaF_ChosenSlabHasActiveTask;
             else
                 player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;
-            player->field_3 |= Pf3F_nothing_under_power_hand;
+            player->additional_flags |= PlaAF_NoThingUnderPowerHand;
           }
           break;
         }
@@ -790,7 +790,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 output_message(SMsg_WorkerJobsLimit, 500, true);
               }
             } else
-            if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->field_3 & Pf3F_nothing_under_power_hand) != 0))
+            if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))
             {
               if ((player->allocflags & PlaF_ChosenSlabHasActiveTask) != 0)
               {
@@ -886,7 +886,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         player->cursor_button_down = 0;
         unset_packet_control(pckt, PCtr_LBtnRelease);
         player->secondary_cursor_state = CSt_DefaultArrow;
-        player->field_3 &= ~Pf3F_nothing_under_power_hand;
+        player->additional_flags &= ~PlaAF_NoThingUnderPowerHand;
       }
     }
 
@@ -2012,10 +2012,10 @@ void process_pause_packet(long curr_pause, long new_pause)
       }
       if ((game.operation_flags & GOF_Paused) != 0)
       {
-          if ((player->field_3 & Pf3F_lightning_palette_is_active) != 0)
+          if ((player->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
           {
               PaletteSetPlayerPalette(player, engine_palette);
-              player->field_3 &= ~Pf3F_lightning_palette_is_active;
+              player->additional_flags &= ~PlaAF_LightningPaletteIsActive;
           }
       }
   }
@@ -2185,7 +2185,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         if ((!winning_quit) || (plyr_count <= 1))
           LbNetwork_Stop();
         else
-          myplyr->field_3 |= Pf3F_UnlockedLordTorture;
+          myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
       } else
       {
         if (!winning_quit)
@@ -2209,7 +2209,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         if (plyr_count <= 1)
           LbNetwork_Stop();
         else
-          myplyr->field_3 |= Pf3F_UnlockedLordTorture;
+          myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
       }
       quit_game = 1;
       if (complete_quit)

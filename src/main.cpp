@@ -1868,12 +1868,12 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
     //Todo: Figure out statement below. Used to be blue_palette like 'pinstfe_control_creature_fade'.
     if (pal == red_palette)
     {
-      if ((player->field_3 & Pf3F_alternate_palette_is_active) == 0)
+      if ((player->additional_flags & PlaAF_AlternatePaletteIsActive) == 0)
         return;
-      player->field_3 |= Pf3F_alternate_palette_is_active;
+      player->additional_flags |= PlaAF_AlternatePaletteIsActive;
     } else
     {
-      player->field_3 &= ~Pf3F_alternate_palette_is_active;
+      player->additional_flags &= ~PlaAF_AlternatePaletteIsActive;
     }
     if ( (player->palette_B == 0) || ((pal != player->palette_A) && (pal == player->palette_B)) )
     {
@@ -3025,10 +3025,10 @@ void update(void)
     if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
-        if (player->field_3 & Pf3F_lightning_palette_is_active)
+        if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
-            set_flag_byte(&player->field_3,Pf3F_lightning_palette_is_active,false);
+            set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();

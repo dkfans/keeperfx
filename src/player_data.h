@@ -42,14 +42,14 @@ extern "C" {
 #define WANDER_POINTS_COUNT    200
 
 enum PlayerInitFlags {
-    PlaF_Allocated          = 0x01,
-    PlaF_Unknown2           = 0x02,
-    PlaF_NewMPMessage       = 0x04,
-    PlaF_Unknown8           = 0x08,
-    PlaF_Unknown10          = 0x10, // often used with PlaF_Unknown80 - maybe to do with enabling mouse/keyboard input?
+    PlaF_Allocated               = 0x01,
+    PlaF_Unknown2                = 0x02,
+    PlaF_NewMPMessage            = 0x04,
+    PlaF_Unknown8                = 0x08,
+    PlaF_Unknown10               = 0x10, // often used with PlaF_Unknown80 - maybe to do with enabling mouse/keyboard input?
     PlaF_ChosenSlabHasActiveTask = 0x20, // Enabled when there are active tasks for the current slab. Used to determine if a high slab is tagged for digging (or not).
-    PlaF_CompCtrl           = 0x40,
-    PlaF_Unknown80          = 0x80, // often used with PlaF_Unknown10 - maybe to do with enabling mouse/keyboard input?
+    PlaF_CompCtrl                = 0x40,
+    PlaF_Unknown80               = 0x80, // often used with PlaF_Unknown10 - maybe to do with enabling mouse/keyboard input?
 };
 
 enum PlayerField6Flags {
@@ -93,29 +93,29 @@ enum PlayerVictoryState {
 };
 
 enum PlayerCursorStates {
-    CSt_DefaultArrow = 0, // Default - Arrow Cursor
-    CSt_PickAxe = 1, // Dig - Pickake cursor
-    CSt_DoorKey = 2, // Lock/Unlock Door - Key cursor
-    CSt_PowerHand = 3, // Power Hand cursor
+    CSt_DefaultArrow  = 0, // Default - Arrow Cursor
+    CSt_PickAxe       = 1, // Dig - Pickake cursor
+    CSt_DoorKey       = 2, // Lock/Unlock Door - Key cursor
+    CSt_PowerHand     = 3, // Power Hand cursor
 };
 
-enum PlayerField3Flags {
-    Pf3F_None   = 0x00,
-    Pf3F_nothing_under_power_hand = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
-    Pf3F_chosen_subtile_is_high = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
-    Pf3F_alternate_palette_is_active = 0x04, // something to do with palette swapping/toggling
+enum PlayerAdditionalFlags {
+    PlaAF_None                      = 0x00,
+    PlaAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
+    PlaAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
+    PlaAF_AlternatePaletteIsActive  = 0x04, // something to do with palette swapping/toggling, see below:
     // [used in PaletteSetPlayerPalette...]
-    // [used during creature fade - if Pf3F_Unkn04 is OFF set red palette, otherwise set engine palette]
+    // [used during creature fade - if PlaAF_AlternatePaletteIsActive is OFF set red palette, otherwise set engine palette]
     // [used to toggle on the blue_pal/engine_pal of a creature if it is affected by freeze spell]
-    Pf3F_lightning_palette_is_active = 0x08, // something to do with palette swapping/toggling
+    PlaAF_LightningPaletteIsActive  = 0x08, // something to do with palette swapping/toggling, see below:
     //[turned on with lightning_palette]
     //[turned off within lightning functions when engine_palette is applied]
-    //[if the game is paused -  if Pf3F_Unkn08 is "ON" then engine_palette is applied and Pf3F_Unkn08 is turned "OFF"]
-    Pf3F_UnlockedLordTorture = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
+    //[if the game is paused -  if PlaAF_LightningPaletteIsActive is "ON" then engine_palette is applied and PlaAF_LightningPaletteIsActive is turned "OFF"]
+    PlaAF_UnlockedLordTorture       = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
     // The below are unused in KFX
-    Pf3F_Unkn20 = 0x20,
-    Pf3F_Unkn40 = 0x40,
-    Pf3F_Unkn80 = 0x80,
+    PlaAF_Unkn20                    = 0x20,
+    PlaAF_Unkn40                    = 0x40,
+    PlaAF_Unkn80                    = 0x80,
 };
 
 /******************************************************************************/
@@ -150,7 +150,7 @@ struct PlayerInfo {
     unsigned char allocflags;
     unsigned char field_1;
     unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
-    unsigned char field_3; // Additional Cursor/Current Subtile Information?
+    unsigned char additional_flags; // Uses PlayerAdditionalFlags
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     unsigned char flgfield_6;

@@ -410,8 +410,8 @@ TbBool load_game(long slot_num)
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();
-    set_flag_byte(&player->field_3,Pf3F_lightning_palette_is_active,false);
-    set_flag_byte(&player->field_3,Pf3F_alternate_palette_is_active,false);
+    set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
+    set_flag_byte(&player->additional_flags,PlaAF_AlternatePaletteIsActive,false);
     player->field_4C1 = 0;
     player->field_4C5 = 0;
     player->palette_B = 0;
