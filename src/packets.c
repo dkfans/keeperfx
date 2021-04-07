@@ -718,9 +718,9 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         case CSt_PickAxe:
           i = get_subtile_number(stl_slab_center_subtile(player->cursor_stl_x),stl_slab_center_subtile(player->cursor_stl_y));
           if (find_from_task_list(plyr_idx,i) != -1)
-              player->allocflags |= PlaF_TaggedForDigging;
+              player->allocflags |= PlaF_ChosenSlabHasActiveTask;
           else
-              player->allocflags &= ~PlaF_TaggedForDigging;
+              player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;
           break;
         case CSt_DoorKey:
           thing = get_door_for_position(player->cursor_stl_x, player->cursor_stl_y);
@@ -739,9 +739,9 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           {
             i = get_subtile_number(stl_slab_center_subtile(player->cursor_stl_x),stl_slab_center_subtile(player->cursor_stl_y));
             if (find_from_task_list(plyr_idx,i) != -1)
-                player->allocflags |= PlaF_TaggedForDigging;
+                player->allocflags |= PlaF_ChosenSlabHasActiveTask;
             else
-                player->allocflags &= ~PlaF_TaggedForDigging;
+                player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;
             player->field_3 |= Pf3F_nothing_under_power_hand;
           }
           break;
@@ -766,9 +766,9 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           {
             i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
             if (find_from_task_list(plyr_idx,i) != -1)
-                player->allocflags |= PlaF_TaggedForDigging;
+                player->allocflags |= PlaF_ChosenSlabHasActiveTask;
             else
-                player->allocflags &= ~PlaF_TaggedForDigging;
+                player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;
           }
         }
         if (player->cursor_button_down != 0)
@@ -777,7 +777,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           {
             if (player->secondary_cursor_state == CSt_PickAxe)
             {
-              if ((player->allocflags & PlaF_TaggedForDigging) != 0)
+              if ((player->allocflags & PlaF_ChosenSlabHasActiveTask) != 0)
               {
                 untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
@@ -792,7 +792,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             } else
             if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->field_3 & Pf3F_nothing_under_power_hand) != 0))
             {
-              if ((player->allocflags & PlaF_TaggedForDigging) != 0)
+              if ((player->allocflags & PlaF_ChosenSlabHasActiveTask) != 0)
               {
                 untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
@@ -862,7 +862,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
           if (player->primary_cursor_state == CSt_PickAxe)
           {
-            if ((player->allocflags & PlaF_TaggedForDigging) != 0)
+            if ((player->allocflags & PlaF_ChosenSlabHasActiveTask) != 0)
             {
               untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
             } else
