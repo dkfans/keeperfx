@@ -435,6 +435,28 @@ int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,lo
     return i;
 }
 
+int get_conf_list_int(const char *buf, const char **state, int *dst)
+{
+    int len = -1;
+    if (*state == NULL)
+    {
+        if (1 != sscanf(buf, " %d%n", dst, &len))
+        {
+            return 0;
+        }
+        *state = buf + len;
+        return 1;
+    }
+    else
+    {
+        if (1 != sscanf(*state, " , %d%n", dst, &len))
+        {
+            return 0;
+        }
+        *state = *state + len;
+        return 1;
+    }
+}
 /**
  * Returns parameter num from given NamedCommand array, or 0 if not found.
  */

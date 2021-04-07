@@ -56,7 +56,7 @@ struct TgaSpec
     char pixDepth;
     char desc;
 };
-static unsigned char *read_tga(const char *path, struct TbSprite* sprite, int x, int y, int w, int h)
+static unsigned char *read_tga(const char *path, struct TbSprite* sprite)
 {
     unsigned char *dst_buf;
     FILE *F = fopen(path, "rb");
@@ -116,11 +116,14 @@ static void compress_raw(struct TbSprite *sprite, unsigned char *src_buf, int x,
     unsigned char *buf = sprite->Data;
     TbBool is_transp;
     int len;
-    for (int j = 0; j < sprite->SHeight; j++)
+    int tail = sprite->SWidth - w;
+    src_buf += y * sprite->SWidth;
+    for (int j = 0; j < h; j++)
     {
         is_transp = false;
         len = 0;
-        for (int i = 0; i < sprite->SWidth; i++, src_buf++)
+        src_buf += x;
+        for (int i = 0; i < w; i++, src_buf++)
         {
             if (is_transp)
             {
@@ -164,42 +167,48 @@ static void compress_raw(struct TbSprite *sprite, unsigned char *src_buf, int x,
         }
         *buf = 0;
         buf++;
+        src_buf += tail;
     }
 }
 
 short add_custom_sprite(const char *path, int x, int y, int w, int h)
 {
-    short ret = 0;
+    short ret;
     struct TbSprite sprite;
-    unsigned char *buf = read_tga(path, &sprite, x, y, w, h);
+    unsigned char *buf = read_tga(path, &sprite);
     if (!buf)
         return 0;
-    if (sprite.SHeight >= 255 || sprite.SWidth >= 255)
+
+    ret = next_free_sprite;
+    next_free_sprite++;
+    // This should be enough except rare cases like transparent checkerboard
+    int dst_w = min(sprite.SWidth, w);
+    int dst_h = min(sprite.SHeight, h);
+
+    if (dst_w >= 255 || dst_h >= 255)
     {
         ERRORLOG("Sprites more than 255x255 are not supported");
         return 0;
     }
 
-    ret = next_free_sprite;
-    // This should be enough except rare cases like transparent checkerboard
-    size_t sz = (sprite.SWidth + 2) * (sprite.SHeight + 3);
+    size_t sz = (dst_w + 2) * (dst_h + 3);
     keepersprite_add[ret] = malloc(sz);
     sprite.Data = keepersprite_add[ret];
-    compress_raw(&sprite, buf, x, y, w, h);
+    compress_raw(&sprite, buf, x, y, dst_w, dst_h);
     struct KeeperSprite *ksprite = &creature_table_add[ret];
 
     ksprite->DataOffset = 0;
     // That is this actually?
-    ksprite->SWidth = sprite.SWidth;
-    ksprite->SHeight = sprite.SHeight;
-    ksprite->FrameWidth = sprite.SWidth;
-    ksprite->FrameHeight = sprite.SWidth;
+    ksprite->SWidth = dst_w;
+    ksprite->SHeight = dst_h;
+    ksprite->FrameWidth = dst_w;
+    ksprite->FrameHeight = dst_h;
     ksprite->Rotable = 0; // 2 need more sprite in next slot - not implemented yet
     ksprite->FramesCount = 0;
     ksprite->FrameOffsW = 0;
     ksprite->FrameOffsH = 0;
-    ksprite->field_C = -sprite.SWidth/2; // Offset x
-    ksprite->field_E = 1-sprite.SHeight; // Offset y
+    ksprite->field_C = -dst_w/2; // Offset x
+    ksprite->field_E = 1-dst_h; // Offset y
 
     return ret + KEEPERSPRITE_ADD_OFFSET;
 }

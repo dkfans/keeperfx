@@ -48,6 +48,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"PROPERTIES",      4},
   {"IMAGE",           5},
   {"OBJECTSIZE",      6},
+  {"REGION",          7},
   {NULL,              0},
   };
 
@@ -221,8 +222,11 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
     arr_size = object_conf.object_types_count;
     for (i=0; i < arr_size; i++)
     {
-        short anim_idx = 0;
         short sprite_max_size = 0;
+        int sprite_x = 0, sprite_y = 0, sprite_w = 0, sprite_h = 0;
+        char anim_path[COMMAND_WORD_LEN];
+        anim_path[0] = 0;
+
         char block_buf[COMMAND_WORD_LEN];
         sprintf(block_buf, "object%d", i);
         long pos = 0;
@@ -324,14 +328,36 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                                COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                     break;
                 }
-                {
-                    anim_idx = add_custom_sprite(prepare_file_path(FGrp_FxData, word_buf), 0, 0, 0, 0);
-                }
+                strcpy(anim_path, word_buf);
                 break;
-            case 6:
+            case 6: // ObjectSize
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     sprite_max_size = atoi(word_buf);
+                }
+                break;
+            case 7: // Region
+                if (get_conf_parameter_quoted(buf, &pos, len, word_buf, sizeof(word_buf)) == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                               COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                }
+                const char *state = NULL;
+                if (!get_conf_list_int(word_buf, &state, &sprite_x))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_y))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_w))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_h))
+                {
+                    break;
                 }
                 break;
             case 0: // comment
@@ -346,7 +372,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             skip_conf_to_next_line(buf,&pos,len);
         }
 #undef COMMAND_TEXT
-        if (anim_idx > 0)
+        if (anim_path[0] != 0)
         {
             if (sprite_max_size <= 0)
             {
@@ -355,6 +381,16 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             }
             else
             {
+                short anim_idx = add_custom_sprite(prepare_file_path(FGrp_FxData, anim_path),
+                                                   sprite_x, sprite_y,
+                                                   sprite_w > 0? sprite_w : 255, sprite_h > 0? sprite_h : 255);
+                if (anim_idx == 0)
+                {
+                    CONFWRNLOG("Unable to load anim [%s] block of %s file.",
+                               block_buf, config_textname);
+
+                    continue;
+                }
                 define_custom_object(i, sprite_max_size, anim_idx);
             }
         }
