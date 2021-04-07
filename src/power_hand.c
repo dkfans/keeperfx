@@ -575,7 +575,7 @@ void draw_power_hand(void)
           } else
           if (player->work_state == PSt_CtrlDungeon)
           {
-            if ((player->secondary_cursor_state == CSt_Key) || (player->primary_cursor_state == CSt_Key))
+            if ((player->secondary_cursor_state == CSt_DoorKey) || (player->primary_cursor_state == CSt_DoorKey))
             {
               draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
             }

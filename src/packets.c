@@ -722,7 +722,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           else
               player->allocflags &= ~PlaF_TaggedForDigging;
           break;
-        case CSt_Key:
+        case CSt_DoorKey:
           thing = get_door_for_position(player->cursor_stl_x, player->cursor_stl_y);
           if (thing_is_invalid(thing))
           {
