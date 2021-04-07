@@ -329,7 +329,7 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
   player->allocflags |= PlaF_Unknown80;
   if (is_my_player(player))
   {
-    player->field_4C5 = 1;
+    player->palette_fade_step_possession = 1;
     turn_off_all_window_menus();
     turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(GMnu_CREATURE_QUERY2);
@@ -488,7 +488,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
   if (is_my_player(player))
   {
       PaletteSetPlayerPalette(player, engine_palette);
-      player->field_4C5 = 11;
+      player->palette_fade_step_possession = 11;
       turn_off_all_window_menus();
       turn_off_query_menus();
       turn_on_main_panel_menu();
@@ -528,7 +528,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
   if (is_my_player(player))
   {
     PaletteSetPlayerPalette(player, engine_palette);
-    player->field_4C5 = 11;
+    player->palette_fade_step_possession = 11;
     turn_off_all_window_menus();
     turn_off_query_menus();
     turn_on_main_panel_menu();

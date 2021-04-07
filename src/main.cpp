@@ -1878,8 +1878,8 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
     if ( (player->palette_B == 0) || ((pal != player->palette_A) && (pal == player->palette_B)) )
     {
         player->palette_A = pal;
-        player->field_4C1 = 0;
-        player->field_4C5 = 0;
+        player->palette_fade_step_pain = 0;
+        player->palette_fade_step_possession = 0;
         if (is_my_player(player))
         {
             LbScreenWaitVbi();

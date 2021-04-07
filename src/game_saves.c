@@ -412,8 +412,8 @@ TbBool load_game(long slot_num)
     struct PlayerInfo* player = get_my_player();
     set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
     set_flag_byte(&player->additional_flags,PlaAF_AlternatePaletteIsActive,false);
-    player->field_4C1 = 0;
-    player->field_4C5 = 0;
+    player->palette_fade_step_pain = 0;
+    player->palette_fade_step_possession = 0;
     player->palette_B = 0;
     PaletteSetPlayerPalette(player, engine_palette);
     reinitialise_eye_lens(game.numfield_1B);
