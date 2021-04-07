@@ -781,7 +781,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               {
                 untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
-              if (dungeon->task_count < 300)
+              if (dungeon->task_count < MAPTASKS_COUNT)
               {
                 tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
@@ -796,7 +796,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               {
                 untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
               } else
-              if (dungeon->task_count < 300)
+              if (dungeon->task_count < MAPTASKS_COUNT)
               {
                 if (can_dig_here(stl_x, stl_y, player->id_number, true))
                   tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
@@ -866,7 +866,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
               untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
             } else
-            if (300-dungeon->task_count >= 9)
+            if (dungeon->task_count <= (MAPTASKS_COUNT - 9))
             {
               tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
             } else
