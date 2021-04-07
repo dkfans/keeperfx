@@ -783,7 +783,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         case CSt_PickAxe:
             set_pointer_graphic(MousePG_Pickaxe);
             break;
-        case CSt_Key:
+        case CSt_DoorKey:
             set_pointer_graphic(MousePG_LockMark);
             break;
         case CSt_PowerHand:

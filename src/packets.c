@@ -696,7 +696,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     MapSubtlCoord cy = stl_slab_starting_subtile(stl_y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
       player->secondary_cursor_state = CSt_DefaultArrow;
-    player->primary_cursor_state = (unsigned short)(pckt->field_10 & PCAdV_ContextMask) >> 1;
+    player->primary_cursor_state = (unsigned short)(pckt->field_10 & PCAdV_ContextMask) >> 1; // get current cursor state
 
     process_dungeon_power_hand_state(plyr_idx);
 

@@ -1828,31 +1828,31 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   struct SlabAttr* slbattr = get_slab_attrs(slb);
   if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number))
   {
-    *context = 2;
+    *context = CSt_DoorKey;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
   if (!power_hand_is_empty(player))
   {
-    *context = 3;
+    *context = CSt_PowerHand;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
   if (!subtile_revealed(x,y,player->id_number))
   {
-    *context = 1;
+    *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
   if ((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y))
   {
-    *context = 0;
+    *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
   if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
   {
-    *context = 1;
+    *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
@@ -1861,9 +1861,9 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val);
     if (!thing_is_invalid(thing))
-      *context = 3;
+      *context = CSt_PowerHand;
     else
-      *context = 0;
+      *context = CSt_DefaultArrow;
   }
   if (pos->x.val >= (map_subtiles_x << 8))
     pos->x.val = (map_subtiles_x << 8)-1;
@@ -1890,14 +1890,14 @@ void get_dungeon_control_nonaction_inputs(void)
       {
           set_players_packet_position(player, pos.x.val, pos.y.val);
           set_packet_control(pckt, PCtr_MapCoordsValid);
-          pckt->field_10 ^= (pckt->field_10 ^ (context << 1)) & PCAdV_ContextMask;
+          pckt->field_10 ^= (pckt->field_10 ^ (context << 1)) & PCAdV_ContextMask; // add the current cursor state (from context variable) to pckt->field_10
     }
   } else
   if (screen_to_map(player->acamera, my_mouse_x, my_mouse_y, &pos))
   {
       set_players_packet_position(player,pos.x.val,pos.y.val);
       set_packet_control(pckt, PCtr_MapCoordsValid);
-      pckt->field_10 &= ~PCAdV_ContextMask;
+      pckt->field_10 &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
   }
   if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
   {

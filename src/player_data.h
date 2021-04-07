@@ -94,9 +94,9 @@ enum PlayerVictoryState {
 
 enum PlayerCursorStates {
     CSt_DefaultArrow = 0, // Default - Arrow Cursor
-    CSt_PickAxe, // Dig - Pickake cursor
-    CSt_DoorKey, // Lock/Unlock Door - Key cursor
-    CSt_PowerHand, // Power Hand?
+    CSt_PickAxe = 1, // Dig - Pickake cursor
+    CSt_DoorKey = 2, // Lock/Unlock Door - Key cursor
+    CSt_PowerHand = 3, // Power Hand cursor
 };
 
 enum PlayerField3Flags {
