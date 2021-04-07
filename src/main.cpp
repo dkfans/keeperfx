@@ -1227,7 +1227,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
     i = player->work_state;
     if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) )
         return true;
-    if ( (i == PSt_CtrlDungeon) && (player->field_454 != P454_Unkn0) && (player->thing_under_hand == 0) )
+    if ( (i == PSt_CtrlDungeon) && (player->primary_cursor_state != CSt_DefaultArrow) && (player->thing_under_hand == 0) )
         return true;
     return false;
 }
@@ -1540,7 +1540,7 @@ void reinit_level_after_load(void)
     SYNCDBG(6,"Starting");
     // Reinit structures from within the game
     player = get_my_player();
-    player->field_7 = 0;
+    player->lens_palette = 0;
     init_lookups();
     init_navigation();
     reinit_packets_after_load();
@@ -1865,21 +1865,20 @@ void change_engine_window_relative_size(long w_delta, long h_delta)
 
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
 {
-    //Todo: Figure out statement below. Used to be blue_palette like 'pinstfe_control_creature_fade'.
-    if (pal == red_palette)
+    if (pal == blue_palette) // if the requested palette is the Freeze palette
     {
-      if ((player->field_3 & Pf3F_Unkn04) == 0)
-        return;
-      player->field_3 |= Pf3F_Unkn04;
+      if ((player->additional_flags & PlaAF_FreezePaletteIsActive) != 0)
+        return; // Freeze palette is already on
+      player->additional_flags |= PlaAF_FreezePaletteIsActive; // flag Freeze palette is active
     } else
     {
-      player->field_3 &= ~Pf3F_Unkn04;
+      player->additional_flags &= ~PlaAF_FreezePaletteIsActive; // flag Freeze palette is not active
     }
-    if ( (player->field_7 == 0) || ((pal != player->palette) && (pal == player->field_7)) )
+    if ( (player->lens_palette == 0) || ((pal != player->main_palette) && (pal == player->lens_palette)) )
     {
-        player->palette = pal;
-        player->field_4C1 = 0;
-        player->field_4C5 = 0;
+        player->main_palette = pal;
+        player->palette_fade_step_pain = 0;
+        player->palette_fade_step_possession = 0;
         if (is_my_player(player))
         {
             LbScreenWaitVbi();
@@ -3025,10 +3024,10 @@ void update(void)
     if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
-        if (player->field_3 & Pf3F_Unkn08)
+        if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
-            set_flag_byte(&player->field_3,0x08,false);
+            set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();

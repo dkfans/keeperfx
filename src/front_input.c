@@ -62,7 +62,6 @@
 #include "KeeperSpeech.h"
 
 #include <math.h>
-#include "front_simple.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1378,14 +1377,6 @@ short get_creature_control_action_inputs(void)
             message_add(CrInst, get_string(StrID));
         }
         first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
-    // In possession sets the screen blue when frozen, and to default when not.
-    if (creature_affected_by_spell(thing, SplK_Freeze)) 
-    {
-        PaletteSetPlayerPalette(player, blue_palette);
-    } else
-    {
-        PaletteSetPlayerPalette(player, engine_palette); 
-    }
     if (numkey != -1)
     {
         int num_avail = 0;
@@ -1616,7 +1607,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_SpeedupPressed;
+            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
         }
         set_packet_control(pckt, PCtr_MoveLeft);
     }
@@ -1625,7 +1616,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_SpeedupPressed;
+            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
         }
         set_packet_control(pckt, PCtr_MoveRight);
     }
@@ -1634,7 +1625,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_SpeedupPressed;
+            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
         }
         set_packet_control(pckt, PCtr_MoveUp);
     }
@@ -1643,7 +1634,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            pckt->field_10 |= PCAdV_SpeedupPressed;
+            pckt->additional_packet_values |= PCAdV_SpeedupPressed;
         }
         set_packet_control(pckt, PCtr_MoveDown);
     }
@@ -1655,10 +1646,10 @@ void get_isometric_view_nonaction_inputs(void)
     struct Packet* pckt = get_packet(my_player_number);
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
-    if ((player->allocflags & PlaF_Unknown10) != 0)
+    if ((player->allocflags & PlaF_KeyboardInputDisabled) != 0)
       return;
     if (speed_pressed != 0)
-      pckt->field_10 |= PCAdV_SpeedupPressed;
+      pckt->additional_packet_values |= PCAdV_SpeedupPressed;
     TbBool no_mods = false;
     if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
       no_mods = true;
@@ -1705,10 +1696,10 @@ void get_overhead_view_nonaction_inputs(void)
     long mx = my_mouse_x;
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
-    if ((player->allocflags & PlaF_Unknown10) == 0)
+    if ((player->allocflags & PlaF_KeyboardInputDisabled) == 0)
     {
         if (speed_pressed)
-          pckt->field_10 |= PCAdV_SpeedupPressed;
+          pckt->additional_packet_values |= PCAdV_SpeedupPressed;
         if (rotate_pressed)
         {
           if ( is_game_key_pressed(Gkey_MoveUp, NULL, speed_pressed!=0) )
@@ -1739,10 +1730,10 @@ void get_front_view_nonaction_inputs(void)
     if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
       no_mods = true;
 
-    if ((player->allocflags & PlaF_Unknown10) != 0)
+    if ((player->allocflags & PlaF_KeyboardInputDisabled) != 0)
       return;
     if (speed_pressed != 0)
-      pckt->field_10 |= PCAdV_SpeedupPressed;
+      pckt->additional_packet_values |= PCAdV_SpeedupPressed;
 
     get_isometric_or_front_view_mouse_inputs(pckt,rotate_pressed,speed_pressed);
 
@@ -1828,31 +1819,31 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   struct SlabAttr* slbattr = get_slab_attrs(slb);
   if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number))
   {
-    *context = 2;
+    *context = CSt_DoorKey;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
   if (!power_hand_is_empty(player))
   {
-    *context = 3;
+    *context = CSt_PowerHand;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
   if (!subtile_revealed(x,y,player->id_number))
   {
-    *context = 1;
+    *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
   if ((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y))
   {
-    *context = 0;
+    *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
   if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
   {
-    *context = 1;
+    *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
@@ -1861,9 +1852,9 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val);
     if (!thing_is_invalid(thing))
-      *context = 3;
+      *context = CSt_PowerHand;
     else
-      *context = 0;
+      *context = CSt_DefaultArrow;
   }
   if (pos->x.val >= (map_subtiles_x << 8))
     pos->x.val = (map_subtiles_x << 8)-1;
@@ -1890,14 +1881,14 @@ void get_dungeon_control_nonaction_inputs(void)
       {
           set_players_packet_position(player, pos.x.val, pos.y.val);
           set_packet_control(pckt, PCtr_MapCoordsValid);
-          pckt->field_10 ^= (pckt->field_10 ^ (context << 1)) & PCAdV_ContextMask;
+          pckt->additional_packet_values ^= (pckt->additional_packet_values ^ (context << 1)) & PCAdV_ContextMask; // add the current cursor state (from context variable) to pckt->additional_packet_values
     }
   } else
   if (screen_to_map(player->acamera, my_mouse_x, my_mouse_y, &pos))
   {
       set_players_packet_position(player,pos.x.val,pos.y.val);
       set_packet_control(pckt, PCtr_MapCoordsValid);
-      pckt->field_10 &= ~PCAdV_ContextMask;
+      pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
   }
   if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
   {
@@ -2164,7 +2155,7 @@ short get_inputs(void)
         return get_packet_load_game_inputs();
     }
     struct PlayerInfo* player = get_my_player();
-    if ((player->allocflags & PlaF_Unknown80) != 0)
+    if ((player->allocflags & PlaF_MouseInputDisabled) != 0)
     {
         SYNCDBG(5,"Starting for creature fade");
         set_players_packet_position(player,127,127);
@@ -2289,13 +2280,13 @@ void input(void)
     }
     struct Packet* pckt = get_packet(my_player_number);
     if (is_game_key_pressed(Gkey_CrtrContrlMod, NULL, false) != 0)
-      pckt->field_10 |= PCAdV_CrtrContrlPressed;
+      pckt->additional_packet_values |= PCAdV_CrtrContrlPressed;
     else
-      pckt->field_10 &= ~PCAdV_CrtrContrlPressed;
+      pckt->additional_packet_values &= ~PCAdV_CrtrContrlPressed;
     if (is_game_key_pressed(Gkey_CrtrQueryMod, NULL, false) != 0)
-      pckt->field_10 |= PCAdV_CrtrQueryPressed;
+      pckt->additional_packet_values |= PCAdV_CrtrQueryPressed;
     else
-      pckt->field_10 &= ~PCAdV_CrtrQueryPressed;
+      pckt->additional_packet_values &= ~PCAdV_CrtrQueryPressed;
 
     get_inputs();
 
