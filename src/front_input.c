@@ -1646,7 +1646,7 @@ void get_isometric_view_nonaction_inputs(void)
     struct Packet* pckt = get_packet(my_player_number);
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
-    if ((player->allocflags & PlaF_Unknown10) != 0)
+    if ((player->allocflags & PlaF_KeyboardInputDisabled) != 0)
       return;
     if (speed_pressed != 0)
       pckt->additional_packet_values |= PCAdV_SpeedupPressed;
@@ -1696,7 +1696,7 @@ void get_overhead_view_nonaction_inputs(void)
     long mx = my_mouse_x;
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
-    if ((player->allocflags & PlaF_Unknown10) == 0)
+    if ((player->allocflags & PlaF_KeyboardInputDisabled) == 0)
     {
         if (speed_pressed)
           pckt->additional_packet_values |= PCAdV_SpeedupPressed;
@@ -1730,7 +1730,7 @@ void get_front_view_nonaction_inputs(void)
     if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
       no_mods = true;
 
-    if ((player->allocflags & PlaF_Unknown10) != 0)
+    if ((player->allocflags & PlaF_KeyboardInputDisabled) != 0)
       return;
     if (speed_pressed != 0)
       pckt->additional_packet_values |= PCAdV_SpeedupPressed;
@@ -2155,7 +2155,7 @@ short get_inputs(void)
         return get_packet_load_game_inputs();
     }
     struct PlayerInfo* player = get_my_player();
-    if ((player->allocflags & PlaF_Unknown80) != 0)
+    if ((player->allocflags & PlaF_MouseInputDisabled) != 0)
     {
         SYNCDBG(5,"Starting for creature fade");
         set_players_packet_position(player,127,127);
