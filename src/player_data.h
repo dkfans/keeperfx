@@ -111,7 +111,7 @@ enum PlayerField3Flags {
     //[turned on with lightning_palette]
     //[turned off within lightning functions when engine_palette is applied]
     //[if the game is paused -  if Pf3F_Unkn08 is "ON" then engine_palette is applied and Pf3F_Unkn08 is turned "OFF"]
-    Pf3F_Unkn10 = 0x10, // maybe if this is set it means "don't save a continue save" - i.e. has finished campaign, or has finished multi/free play level ...
+    Pf3F_UnlockedLordTorture = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
     // The below are unused in KFX
     Pf3F_Unkn20 = 0x20,
     Pf3F_Unkn40 = 0x40,

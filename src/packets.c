@@ -2185,7 +2185,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         if ((!winning_quit) || (plyr_count <= 1))
           LbNetwork_Stop();
         else
-          myplyr->field_3 |= Pf3F_Unkn10;
+          myplyr->field_3 |= Pf3F_UnlockedLordTorture;
       } else
       {
         if (!winning_quit)
@@ -2209,7 +2209,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         if (plyr_count <= 1)
           LbNetwork_Stop();
         else
-          myplyr->field_3 |= Pf3F_Unkn10;
+          myplyr->field_3 |= Pf3F_UnlockedLordTorture;
       }
       quit_game = 1;
       if (complete_quit)
