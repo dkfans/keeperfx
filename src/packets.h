@@ -179,7 +179,7 @@ enum TbPacketControl {
 enum TbPacketAddValues {
     PCAdV_None              = 0x00, //!< Dummy flag
     PCAdV_SpeedupPressed    = 0x01, //!< The keyboard modified used for speeding up camera movement is pressed.
-    PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-byte integer; stores context of map coordinates.
+    PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-byte integer; stores context of map coordinates. The context is used to set the Cursor State.
     PCAdV_CrtrContrlPressed = 0x20, //!< The keyboard modified used for creature control is pressed.
     PCAdV_CrtrQueryPressed  = 0x40, //!< The keyboard modified used for querying creatures is pressed.
     PCAdV_Unknown80         = 0x80, //!< Seem unused
@@ -209,7 +209,7 @@ struct Packet { // sizeof = 0x11 (17)
     short pos_x; //! Mouse Cursor Position X
     short pos_y; //! Mouse Cursor Position Y
     unsigned short control_flags;
-    unsigned char field_10;
+    unsigned char additional_packet_values; // uses the flags and values from TbPacketAddValues
 };
 
 struct PacketSaveHead { // sizeof=0xF (15)

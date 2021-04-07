@@ -128,7 +128,7 @@ TbBool add_key_on_door(struct Thing *thing)
 
 void unlock_door(struct Thing *thing)
 {
-    thing->byte_18 = 0;
+    thing->trap_door_active_state = 0;
     game.field_14EA4B = 1;
     update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
       thing->mappos.x.stl.num+1, thing->mappos.y.stl.num+1);

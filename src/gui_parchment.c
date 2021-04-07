@@ -255,7 +255,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = player_highlight_colours[owner];
           } else
-          if (thing->byte_18)
+          if (thing->trap_door_active_state)
           {
             pixval = 79;
           } else
@@ -503,7 +503,7 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
         {
             if (thing->owner == plyr_idx)
             {
-                if ( (thing->byte_18) || (thing->owner == plyr_idx) )
+                if ( (thing->trap_door_active_state) || (thing->owner == plyr_idx) )
                 {
                     long pos_x = map_area->left + (block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
                     long pos_y = map_area->top + (block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
@@ -671,7 +671,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             }
             case TCls_Trap:
             {
-                if ((!thing->byte_18) && (player->id_number != thing->owner))
+                if ((!thing->trap_door_active_state) && (player->id_number != thing->owner))
                     break;
                 struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(thing->class_id, thing->model));
                 spridx = manufctr->medsym_sprite_idx;
