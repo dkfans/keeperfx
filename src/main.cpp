@@ -1865,15 +1865,14 @@ void change_engine_window_relative_size(long w_delta, long h_delta)
 
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
 {
-    //Todo: Figure out statement below. Used to be blue_palette like 'pinstfe_control_creature_fade'.
-    if (pal == red_palette)
+    if (pal == blue_palette) // if the requested palette is the Freeze palette
     {
-      if ((player->additional_flags & PlaAF_AlternatePaletteIsActive) == 0)
-        return;
-      player->additional_flags |= PlaAF_AlternatePaletteIsActive;
+      if ((player->additional_flags & PlaAF_AlternatePaletteIsActive) != 0)
+        return; // Freeze palette is already on
+      player->additional_flags |= PlaAF_AlternatePaletteIsActive; // flag Freeze palette is active
     } else
     {
-      player->additional_flags &= ~PlaAF_AlternatePaletteIsActive;
+      player->additional_flags &= ~PlaAF_AlternatePaletteIsActive; // flag Freeze palette is not active
     }
     if ( (player->palette_B == 0) || ((pal != player->palette_A) && (pal == player->palette_B)) )
     {

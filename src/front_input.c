@@ -62,7 +62,6 @@
 #include "KeeperSpeech.h"
 
 #include <math.h>
-#include "front_simple.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1378,14 +1377,6 @@ short get_creature_control_action_inputs(void)
             message_add(CrInst, get_string(StrID));
         }
         first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
-    // In possession sets the screen blue when frozen, and to default when not.
-    if (creature_affected_by_spell(thing, SplK_Freeze)) 
-    {
-        PaletteSetPlayerPalette(player, blue_palette);
-    } else
-    {
-        PaletteSetPlayerPalette(player, engine_palette); 
-    }
     if (numkey != -1)
     {
         int num_avail = 0;
