@@ -183,7 +183,7 @@ struct Thing {
         unsigned char byte_15;
         unsigned char byte_16;
         unsigned char byte_17;
-        unsigned char byte_18;
+        unsigned char byte_18; // For Doors: if byte_18 = 1 then door is locked/ For Traps: seems to be, if byte_18 = 1 then trap is still active
         unsigned char byte_19;
       };
     };
