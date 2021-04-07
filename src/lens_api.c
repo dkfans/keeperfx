@@ -149,7 +149,7 @@ TbBool clear_lens_palette(void)
     if ((lenscfg->flags & LCF_HasPalette) != 0)
     {
         // If there is a palette entry, then clear it
-        player->palette_B = NULL;
+        player->lens_palette = NULL;
         SYNCDBG(9,"Clear done");
         return true;
     }
@@ -160,8 +160,8 @@ TbBool clear_lens_palette(void)
 void set_lens_palette(unsigned char *palette)
 {
     struct PlayerInfo* player = get_my_player();
-    player->palette_A = palette;
-    player->palette_B = palette;
+    player->main_palette = palette;
+    player->lens_palette = palette;
 }
 
 void reset_eye_lenses(void)

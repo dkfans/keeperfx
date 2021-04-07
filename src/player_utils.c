@@ -541,7 +541,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
-    player->palette_A = engine_palette;
+    player->main_palette = engine_palette;
     if (is_my_player(player))
     {
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);

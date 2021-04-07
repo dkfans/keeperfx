@@ -103,14 +103,8 @@ enum PlayerAdditionalFlags {
     PlaAF_None                      = 0x00,
     PlaAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
     PlaAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
-    PlaAF_AlternatePaletteIsActive  = 0x04, // something to do with palette swapping/toggling, see below:
-    // [used in PaletteSetPlayerPalette...]
-    // [used during creature fade - if PlaAF_AlternatePaletteIsActive is OFF set red palette, otherwise set engine palette]
-    // [used to toggle on the blue_pal/engine_pal of a creature if it is affected by freeze spell]
-    PlaAF_LightningPaletteIsActive  = 0x08, // something to do with palette swapping/toggling, see below:
-    //[turned on with lightning_palette]
-    //[turned off within lightning functions when engine_palette is applied]
-    //[if the game is paused -  if PlaAF_LightningPaletteIsActive is "ON" then engine_palette is applied and PlaAF_LightningPaletteIsActive is turned "OFF"]
+    PlaAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell
+    PlaAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell
     PlaAF_UnlockedLordTorture       = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
     // The below are unused in KFX
     PlaAF_Unkn20                    = 0x20,
@@ -154,7 +148,7 @@ struct PlayerInfo {
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     unsigned char flgfield_6;
-    unsigned char *palette_B; // ?
+    unsigned char *lens_palette;
     /** Index of packet slot associated with this player. */
     unsigned char packet_num;
     long field_C;
@@ -217,7 +211,7 @@ char field_462;
     long field_4BD;
     long palette_fade_step_pain;
     long palette_fade_step_possession;
-    unsigned char *palette_A;
+    unsigned char *main_palette;
     long field_4CD;
     char field_4D1;
     /** Overcharge level while casting keeper powers. */

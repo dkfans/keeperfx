@@ -380,7 +380,7 @@ TbBool load_game(long slot_num)
         LbFileClose(fh);
         WARNMSG("Saved game file \"%s\" has incompatible version; restarting level.",fname);
         player = get_my_player();
-        player->palette_B = 0;
+        player->lens_palette = 0;
         my_player_number = default_loc_player;
         player = get_my_player();
         game.flagfield_14EA4A = 2;
@@ -411,10 +411,10 @@ TbBool load_game(long slot_num)
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();
     set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
-    set_flag_byte(&player->additional_flags,PlaAF_AlternatePaletteIsActive,false);
+    set_flag_byte(&player->additional_flags,PlaAF_FreezePaletteIsActive,false);
     player->palette_fade_step_pain = 0;
     player->palette_fade_step_possession = 0;
-    player->palette_B = 0;
+    player->lens_palette = 0;
     PaletteSetPlayerPalette(player, engine_palette);
     reinitialise_eye_lens(game.numfield_1B);
     // Update the lights system state

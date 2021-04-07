@@ -1540,7 +1540,7 @@ void reinit_level_after_load(void)
     SYNCDBG(6,"Starting");
     // Reinit structures from within the game
     player = get_my_player();
-    player->palette_B = 0;
+    player->lens_palette = 0;
     init_lookups();
     init_navigation();
     reinit_packets_after_load();
@@ -1867,16 +1867,16 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
 {
     if (pal == blue_palette) // if the requested palette is the Freeze palette
     {
-      if ((player->additional_flags & PlaAF_AlternatePaletteIsActive) != 0)
+      if ((player->additional_flags & PlaAF_FreezePaletteIsActive) != 0)
         return; // Freeze palette is already on
-      player->additional_flags |= PlaAF_AlternatePaletteIsActive; // flag Freeze palette is active
+      player->additional_flags |= PlaAF_FreezePaletteIsActive; // flag Freeze palette is active
     } else
     {
-      player->additional_flags &= ~PlaAF_AlternatePaletteIsActive; // flag Freeze palette is not active
+      player->additional_flags &= ~PlaAF_FreezePaletteIsActive; // flag Freeze palette is not active
     }
-    if ( (player->palette_B == 0) || ((pal != player->palette_A) && (pal == player->palette_B)) )
+    if ( (player->lens_palette == 0) || ((pal != player->main_palette) && (pal == player->lens_palette)) )
     {
-        player->palette_A = pal;
+        player->main_palette = pal;
         player->palette_fade_step_pain = 0;
         player->palette_fade_step_possession = 0;
         if (is_my_player(player))

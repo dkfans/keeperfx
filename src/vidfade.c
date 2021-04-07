@@ -281,7 +281,7 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   // Create the new palette
   for (i=0; i < PALETTE_COLORS; i++)
   {
-      unsigned char* src = &player->palette_A[3 * i];
+      unsigned char* src = &player->main_palette[3 * i];
       unsigned char* dst = &palette[3 * i];
       unsigned long pix = ((step * (((long)src[0]) - 63)) / 120) + 63;
       if (pix > 63)
