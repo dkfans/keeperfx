@@ -300,7 +300,7 @@ void query_thing(struct Thing *thing)
             {
                 if (object_is_gold(querytng))
                 {
-                    sprintf(amount, "Amount: %d", querytng->valuable.gold_stored);   
+                    sprintf(amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
             }  
             sprintf(health, "Health: %d", querytng->health);
@@ -312,7 +312,7 @@ void query_thing(struct Thing *thing)
             {
                 if (querytng->model == 5)
                 {
-                    sprintf(health, "%s/%d", health, game.dungeon_heart_health);
+                    sprintf(health, "%s/%ld", health, game.dungeon_heart_health);
                 }
             }
         }
