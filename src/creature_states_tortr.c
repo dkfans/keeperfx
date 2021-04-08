@@ -305,7 +305,7 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
     change_creature_owner(creatng, new_owner);
     anger_set_creature_anger_all_types(creatng, 0);
     struct Dungeon* dungeon = get_dungeon(new_owner);
-    struct DungeonAdd* dungeonadd = get_dungeon(new_owner);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(new_owner);
     if (!dungeon_invalid(dungeon)) 
     {
         dungeon->lvstats.creatures_converted++;

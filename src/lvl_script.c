@@ -5736,10 +5736,10 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->creature_awarded[validx];
     case SVar_EVIL_CREATURES_CONVERTED:
-        dungeonadd = get_dungeon(plyr_idx);
+        dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->evil_creatures_converted;
     case SVar_GOOD_CREATURES_CONVERTED:
-        dungeonadd = get_dungeon(plyr_idx);
+        dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->good_creatures_converted;
     default:
         break;
