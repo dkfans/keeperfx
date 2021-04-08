@@ -306,7 +306,7 @@ void query_thing(struct Thing *thing)
             sprintf(health, "Health: %d", querytng->health);
             if (querytng->class_id == TCls_Door)
             {
-                sprintf(health, "%s/%d", health, door_stats[querytng->model][0].health);
+                sprintf(health, "%s/%ld", health, door_stats[querytng->model][0].health);
             }
             else if (querytng->class_id == TCls_Object)
             {
