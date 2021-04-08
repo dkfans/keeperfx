@@ -483,7 +483,7 @@ void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn)
         mnu_idx = 1; //main menu
     }
     gbtn->btype_value = mnu_idx;
-    gbtn->content = str_idx;
+    gbtn->content = (unsigned long *)str_idx;
     const char *text;
     text = frontend_button_caption_text(gbtn);
     frontend_draw_button(gbtn, 1, text, Lb_TEXT_HALIGN_CENTER);
