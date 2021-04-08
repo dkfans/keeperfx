@@ -24,6 +24,8 @@
 #include "kjm_input.h"
 #include "front_input.h"
 #include "player_utils.h"
+#include "map_blocks.h"
+#include "gui_soundmsgs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +33,7 @@ extern "C" {
 /******************************************************************************/
 int user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
 int roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-struct RoomSpace render_roomspace = { {{false}}, 1, true, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, false, true };
+struct RoomSpace render_roomspace = { {{false}}, 1, true, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, false, true, false, false };
 /******************************************************************************/
 TbBool can_afford_roomspace(PlayerNumber plyr_idx, RoomKind rkind, int slab_count)
 {
@@ -92,6 +94,8 @@ struct RoomSpace create_box_roomspace(struct RoomSpace roomspace, int width, int
     roomspace.is_roomspace_a_single_subtile = false;
     roomspace.is_roomspace_a_box = true;
     roomspace.render_roomspace_as_box = true;
+    roomspace.tag_for_dig = false;
+    roomspace.highlight_mode = false;
     return roomspace;
 }
 
@@ -179,6 +183,43 @@ struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, PlayerNumb
     if ((roomspace.slab_count == 0) || (roomspace.slab_count > MAX_USER_ROOMSPACE_WIDTH * MAX_USER_ROOMSPACE_WIDTH))
     {
         roomspace = create_box_roomspace(roomspace, 1, 1, roomspace.centreX, roomspace.centreY);
+    }
+    return roomspace;
+}
+
+struct RoomSpace check_roomspace_for_diggable_slabs(struct RoomSpace roomspace, PlayerNumber plyr_idx)
+{
+    roomspace.slab_count = 0;
+    roomspace.invalid_slabs_count = 0;
+    roomspace.render_roomspace_as_box = true;
+    roomspace.is_roomspace_a_box = true;
+    for (int y = 0; y < roomspace.height; y++)
+    {
+        int current_y = roomspace.top + y;
+        for (int x = 0; x < roomspace.width; x++)
+        {
+            int current_x = roomspace.left + x;
+            struct SlabMap* slb = get_slabmap_for_subtile(slab_subtile(current_x, 0), slab_subtile(current_y, 0));
+            struct SlabAttr* slbattr = get_slab_attrs(slb);
+            if (subtile_is_diggable_for_player(plyr_idx, slab_subtile(current_x, 0), slab_subtile(current_y, 0), false))
+            {
+                roomspace.slab_grid[x][y] = true;
+                roomspace.slab_count++;
+            }
+            else
+            {
+                roomspace.slab_grid[x][y] = false;
+                roomspace.invalid_slabs_count++;
+            }
+        }
+    }
+    roomspace.total_roomspace_cost = 0;
+    if (roomspace.slab_count != (roomspace.width * roomspace.height))
+    {
+        if (roomspace.slab_count != 0) // this ensures we show an empty "red" bounding box
+        {
+            roomspace.is_roomspace_a_box = false;
+        }
     }
     return roomspace;
 }
@@ -313,7 +354,7 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx, Ma
 {
     struct SlabMap *slb = get_slabmap_block(cursor_x, cursor_y);
     // Set default "room" - i.e. 1x1 slabs, centred on the cursor
-    struct RoomSpace default_room = { {{false}}, 0, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, 0, 0, current_plyr_idx, RoK_SELL, false, 0, 0, false, true };
+    struct RoomSpace default_room = { {{false}}, 0, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, 0, 0, current_plyr_idx, RoK_SELL, false, 0, 0, false, true, false, false };
     
     if (slabmap_owner(slb) == current_plyr_idx)
     {
@@ -403,6 +444,52 @@ void reset_dungeon_build_room_ui_variables()
 {
     roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
     user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+}
+
+void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    long keycode = 0;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    int width = 1, height = 1;
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    struct RoomSpace current_roomspace;
+    TbBool highlight_mode = false;
+    if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
+    {
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+        {
+            if (user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
+            {
+                user_defined_roomspace_width++;
+            }
+        }
+        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+        {
+            if (user_defined_roomspace_width != MIN_USER_ROOMSPACE_WIDTH)
+            {
+                user_defined_roomspace_width--;
+            }
+        }
+        width = height = user_defined_roomspace_width;
+        highlight_mode = true;
+    }
+    else
+    {
+        reset_dungeon_build_room_ui_variables();
+        width = height = numpad_to_value(false);
+        
+    }
+    current_roomspace = create_box_roomspace(render_roomspace, width, height, slb_x, slb_y);
+    current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
+    current_roomspace.highlight_mode = highlight_mode;
+
+    player->boxsize = current_roomspace.slab_count;
+    if (current_roomspace.slab_count > 0)
+    {
+        current_roomspace.tag_for_dig = true;
+    }
+    render_roomspace = current_roomspace;
 }
 
 void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -575,6 +662,7 @@ static void sell_at_point(struct RoomSpace *roomspace)
         }
     }
 }
+
 static void find_next_point(struct RoomSpace *roomspace)
 {
     // these store the coordinates of roomspace.slab_grid[][], rather than the in-game map coordinates
@@ -598,12 +686,51 @@ static void find_next_point(struct RoomSpace *roomspace)
     }
 }
 
+void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int mode)
+{
+    if (!roomspace->tag_for_dig)
+    {
+        return;
+    }
+    if (!can_dig_here(stl_slab_center_subtile(roomspace->centreX * STL_PER_SLB), stl_slab_center_subtile(roomspace->centreY * STL_PER_SLB), plyr_idx, true))
+    {
+        return;
+    }
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    TbBool tag_for_digging = ((player->allocflags & PlaF_ChosenSlabHasActiveTask) == 0);
+    int task_allowance = ((mode == 1) ? (MAPTASKS_COUNT - 9) : (MAPTASKS_COUNT));
+    for (int y = 0; y < roomspace->height; y++)
+    {
+        int current_y = roomspace->top + y;
+        for (int x = 0; x < roomspace->width; x++)
+        {
+            int current_x = roomspace->left + x;
+            MapSubtlCoord stl_cx = stl_slab_center_subtile(current_x * STL_PER_SLB);
+            MapSubtlCoord stl_cy = stl_slab_center_subtile(current_y * STL_PER_SLB);
+            if (!tag_for_digging) // if the chosen slab is tagged for digging...
+            {
+                untag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // untag the slab for digging
+            }
+            else if (dungeon->task_count < task_allowance)
+            {
+                tag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
+            }
+            else if (is_my_player(player))
+            {
+                output_message(SMsg_WorkerJobsLimit, 500, true); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
+                return;
+            }
+        }
+    }
+}
+
 void keeper_sell_roomspace(struct RoomSpace *roomspace)
 {
     struct DungeonAdd *dungeonadd = get_dungeonadd(roomspace->plyr_idx);
     if (dungeonadd->roomspace.is_active)
     {
-        ERRORLOG("Building roomspace while it is still in progress plyr:%d", roomspace->plyr_idx);
+        ERRORLOG("Selling roomspace while it is still in progress plyr:%d", roomspace->plyr_idx);
         return;
     }
     roomspace->rkind = RoK_SELL;

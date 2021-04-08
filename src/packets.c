@@ -531,10 +531,12 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
       if (can_drop_thing_here(stl_x, stl_y, player->id_number, i)
         || !can_dig_here(stl_x, stl_y, player->id_number, true))
       {
+        render_roomspace = create_box_roomspace(render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
         tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->full_slab_cursor);
       } else
       {
         player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
+        get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
         tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
       }
     }
@@ -705,7 +707,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
       if (is_my_player(player) && !game_is_busy_doing_gui())
       {
         if (player->primary_cursor_state == CSt_PickAxe)
+        {
+          get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
           tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+        }
       }
       if ((pckt->control_flags & PCtr_LBtnClick) != 0)
       {
@@ -777,34 +782,11 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           {
             if (player->secondary_cursor_state == CSt_PickAxe)
             {
-              if ((player->allocflags & PlaF_ChosenSlabHasActiveTask) != 0)
-              {
-                untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (dungeon->task_count < MAPTASKS_COUNT)
-              {
-                tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (is_my_player(player))
-              {
-                output_message(SMsg_WorkerJobsLimit, 500, true);
-              }
+              keeper_highlight_roomspace(plyr_idx, &render_roomspace, 3);
             } else
             if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))
             {
-              if ((player->allocflags & PlaF_ChosenSlabHasActiveTask) != 0)
-              {
-                untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (dungeon->task_count < MAPTASKS_COUNT)
-              {
-                if (can_dig_here(stl_x, stl_y, player->id_number, true))
-                  tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (is_my_player(player))
-              {
-                output_message(SMsg_WorkerJobsLimit, 500, true);
-              }
+              keeper_highlight_roomspace(plyr_idx, &render_roomspace, 2);
             }
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -862,18 +844,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
           if (player->primary_cursor_state == CSt_PickAxe)
           {
-            if ((player->allocflags & PlaF_ChosenSlabHasActiveTask) != 0)
-            {
-              untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-            } else
-            if (dungeon->task_count <= (MAPTASKS_COUNT - 9))
-            {
-              tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-            } else
-            if (is_my_player(player))
-            {
-              output_message(SMsg_WorkerJobsLimit, 500, true);
-            }
+            keeper_highlight_roomspace(plyr_idx, &render_roomspace, 1);
           } else
           if (player->primary_cursor_state == CSt_PowerHand)
           {

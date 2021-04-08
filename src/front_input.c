@@ -138,7 +138,7 @@ void update_gui_layer()
 
     struct PlayerInfo* player = get_my_player();
     struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
-    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom))  &&
+    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
     {
         if (dungeonadd->painter_build_mode)
