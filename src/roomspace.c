@@ -199,8 +199,6 @@ struct RoomSpace check_roomspace_for_diggable_slabs(struct RoomSpace roomspace, 
         for (int x = 0; x < roomspace.width; x++)
         {
             int current_x = roomspace.left + x;
-            struct SlabMap* slb = get_slabmap_for_subtile(slab_subtile(current_x, 0), slab_subtile(current_y, 0));
-            struct SlabAttr* slbattr = get_slab_attrs(slb);
             if (subtile_is_diggable_for_player(plyr_idx, slab_subtile(current_x, 0), slab_subtile(current_y, 0), false))
             {
                 roomspace.slab_grid[x][y] = true;
