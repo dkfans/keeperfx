@@ -46,9 +46,11 @@ const struct NamedCommand objects_object_commands[] = {
   {"GENRE",           2},
   {"RELATEDCREATURE", 3},
   {"PROPERTIES",      4},
-  {"IMAGE",           5},
-  {"OBJECTSIZE",      6},
+  {"OBJECTSIZE",      5},
+  {"IMAGE",           6},
   {"REGION",          7},
+  {"IMAGE3D",         8},
+  {"REGION3D",        9},
   {NULL,              0},
   };
 
@@ -224,8 +226,11 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
     {
         short sprite_max_size = 0;
         int sprite_x = 0, sprite_y = 0, sprite_w = 0, sprite_h = 0;
+        int sprite_x_3d = 0, sprite_y_3d = 0, sprite_w_3d = 0, sprite_h_3d = 0;
         char anim_path[COMMAND_WORD_LEN];
+        char anim_path_3d[COMMAND_WORD_LEN];
         anim_path[0] = 0;
+        anim_path_3d[0] = 0;
 
         char block_buf[COMMAND_WORD_LEN];
         sprintf(block_buf, "object%d", i);
@@ -256,6 +261,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             }
             int n = 0;
             char word_buf[COMMAND_WORD_LEN];
+            const char *state = NULL;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -321,20 +327,20 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                   }
                 }
                 break;
-            case 5: // Image
-                if (!get_conf_parameter_quoted(buf,&pos,len,word_buf,sizeof(word_buf)))
-                {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                               COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
-                    break;
-                }
-                strcpy(anim_path, word_buf);
-                break;
-            case 6: // ObjectSize
+            case 5: // ObjectSize
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     sprite_max_size = atoi(word_buf);
                 }
+                break;
+            case 6: // Image
+                if (!get_conf_parameter_quoted(buf,&pos,len,word_buf,sizeof(word_buf)))
+                {
+                    CONFWRNLOG("Incorrect path of \"%s\" in [%s] block of %s file.",
+                               word_buf,block_buf,config_textname);
+                    break;
+                }
+                strcpy(anim_path, word_buf);
                 break;
             case 7: // Region
                 if (get_conf_parameter_quoted(buf, &pos, len, word_buf, sizeof(word_buf)) == 0)
@@ -342,7 +348,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                                COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                 }
-                const char *state = NULL;
+                state = NULL;
                 if (!get_conf_list_int(word_buf, &state, &sprite_x))
                 {
                     break;
@@ -356,6 +362,39 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     break;
                 }
                 if (!get_conf_list_int(word_buf, &state, &sprite_h))
+                {
+                    break;
+                }
+                break;
+            case 8: // Image3D
+                if (!get_conf_parameter_quoted(buf,&pos,len,word_buf,sizeof(word_buf)))
+                {
+                    CONFWRNLOG("Incorrect path \"%s\" in [%s] block of %s file.",
+                               word_buf,block_buf,config_textname);
+                    break;
+                }
+                strcpy(anim_path_3d, word_buf);
+                break;
+            case 9: // Region3D
+                if (get_conf_parameter_quoted(buf, &pos, len, word_buf, sizeof(word_buf)) == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                               COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                }
+                state = NULL;
+                if (!get_conf_list_int(word_buf, &state, &sprite_x_3d))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_y_3d))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_w_3d))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_h_3d))
                 {
                     break;
                 }
@@ -384,6 +423,11 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 short anim_idx = add_custom_sprite(prepare_file_path(FGrp_FxData, anim_path),
                                                    sprite_x, sprite_y,
                                                    sprite_w > 0? sprite_w : 255, sprite_h > 0? sprite_h : 255);
+                short anim_idx_3d = anim_path_3d[0] == 0? 0 :
+                                add_custom_sprite(prepare_file_path(FGrp_FxData, anim_path_3d),
+                                                   sprite_x_3d, sprite_y_3d,
+                                                   sprite_w_3d > 0? sprite_w_3d : 255,
+                                                   sprite_h_3d > 0? sprite_h_3d : 255);
                 if (anim_idx == 0)
                 {
                     CONFWRNLOG("Unable to load anim [%s] block of %s file.",
@@ -391,7 +435,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
 
                     continue;
                 }
-                define_custom_object(i, sprite_max_size, anim_idx);
+                define_custom_object(i, sprite_max_size, anim_idx, anim_idx_3d);
             }
         }
     }

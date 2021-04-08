@@ -393,18 +393,32 @@ DLLIMPORT long _DK_object_update_armour2(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_power_sight(struct Thing *objtng);
 DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *gldtng);
 /******************************************************************************/
-void define_custom_object(int obj_id, short sprite_max_size, short anim_idx)
+void define_custom_object(int obj_id, short sprite_max_size, short anim_idx, short anim_idx_3d)
 {
     struct Objects *dst;
     if (obj_id < OBJECT_TYPES_COUNT)
     {
         WARNLOG("Default object redefined obj_id:%d", obj_id);
     }
+    if (anim_idx_3d == 0)
+        anim_idx_3d = anim_idx;
+
     struct Objects *obj_dst = &objects_data[obj_id];
     memset(obj_dst, 0, sizeof(struct Objects));
     obj_dst->draw_class = 2; // Default
     obj_dst->sprite_anim_idx = anim_idx;
     obj_dst->sprite_size_max = sprite_max_size;
+
+    if (anim_idx_3d >= KEEPERSPRITE_ADD_OFFSET)
+    {
+        td_iso_add[anim_idx_3d - KEEPERSPRITE_ADD_OFFSET] = anim_idx;
+        iso_td_add[anim_idx_3d - KEEPERSPRITE_ADD_OFFSET] = anim_idx_3d;
+    }
+    if (anim_idx >= KEEPERSPRITE_ADD_OFFSET)
+    {
+        iso_td_add[anim_idx - KEEPERSPRITE_ADD_OFFSET] = anim_idx_3d;
+        td_iso_add[anim_idx - KEEPERSPRITE_ADD_OFFSET] = anim_idx;
+    }
     object_update_functions[obj_id] = NULL;
 }
 /******************************************************************************/

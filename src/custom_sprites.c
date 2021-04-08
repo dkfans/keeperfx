@@ -25,6 +25,9 @@
 
 static int next_free_sprite = 0;
 
+short iso_td_add[KEEPERSPRITE_ADD_NUM];
+short td_iso_add[KEEPERSPRITE_ADD_NUM];
+
 TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM] = {
     0
 };
@@ -118,11 +121,11 @@ static void compress_raw(struct TbSprite *sprite, unsigned char *src_buf, int x,
     int len;
     int tail = sprite->SWidth - w;
     src_buf += y * sprite->SWidth;
+    src_buf += x;
     for (int j = 0; j < h; j++)
     {
         is_transp = false;
         len = 0;
-        src_buf += x;
         for (int i = 0; i < w; i++, src_buf++)
         {
             if (is_transp)

@@ -166,7 +166,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
 
-void define_custom_object(int obj_id, short sprite_max_size, short anim_idx);
+void define_custom_object(int obj_id, short sprite_max_size, short anim_idx, short anim_idx_3d);
 /******************************************************************************/
 #ifdef __cplusplus
 }
