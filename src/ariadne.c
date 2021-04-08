@@ -3253,7 +3253,9 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         break;
     }
     if (result != AridRet_OK)
-        WARNDBG(3,"Update state %d returned %d",(int)arid->update_state,(int)result);
+    {
+        WARNDBG(3, "Update state %d returned %d", (int)arid->update_state, (int)result);
+    }
     return result;
 }
 
