@@ -455,8 +455,15 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     MapSlabCoord slb_y = subtile_slab(stl_y);
     struct RoomSpace current_roomspace;
     TbBool highlight_mode = false;
+    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    dungeonadd->painter_build_mode = 0;
     if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
+        if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld) // Enable "paint mode" if Ctrl or Shift are held
+        {
+            dungeonadd->painter_build_mode = 1; // Enable GuiLayer_OneClickBridgeBuild layer
+        }
         if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
             if (user_defined_roomspace_width != MAX_USER_ROOMSPACE_WIDTH)
