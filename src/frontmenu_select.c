@@ -475,7 +475,7 @@ void frontend_campaign_list_load(void)
 }
 void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn)
 {
-    short str_idx = 111; //Return to Free-Play
+    long str_idx = 111; //Return to Free-Play
     unsigned short mnu_idx = 34; //map pack selection screen
     if (mappacks_list.items_num == 1)
     {
@@ -483,7 +483,7 @@ void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn)
         mnu_idx = 1; //main menu
     }
     gbtn->btype_value = mnu_idx;
-    gbtn->content = str_idx;
+    gbtn->content = (unsigned long *)str_idx;
     const char *text;
     text = frontend_button_caption_text(gbtn);
     frontend_draw_button(gbtn, 1, text, Lb_TEXT_HALIGN_CENTER);
