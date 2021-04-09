@@ -926,7 +926,7 @@ TbBool frontnetmap_load(void)
         break;
     default:
         ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
-        // No break
+        // Fall Through
     case LndMk_ENSIGNS:
         strcpy(netmap_flag_load_files[0].FName, "ldata/netflag_ens.dat");
         strcpy(netmap_flag_load_files[1].FName, "ldata/netflag_ens.tab");
