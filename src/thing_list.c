@@ -3741,6 +3741,28 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
     }
     WARNLOG("No change performed");
 }
+
+struct Thing *get_creature_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Thing *thing = NULL;
+    struct Map *blk;
+    if (!subtile_coords_invalid(stl_x, stl_y))
+    {
+        blk = get_map_block_at(stl_x, stl_y);
+        for ( thing = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(thing)); thing = thing_get(thing->next_on_mapblk) )
+        {
+            if (thing->class_id == TCls_Creature)
+            {
+                return thing;
+            }
+            else
+            {
+                continue;
+            }
+        }
+    }
+  return INVALID_THING;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -246,6 +246,7 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
 void remove_dead_creatures_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y);
 long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx);
 long switch_owned_objects_on_destoyed_slab_to_neutral(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber prev_owner);
+struct Thing *get_creature_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 // Filters to select thing anywhere on map but only of one given class
 struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
