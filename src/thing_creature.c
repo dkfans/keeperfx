@@ -2774,91 +2774,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             {
                 if (firing->model == 20)
                 {
-                    struct Thing* whiptng = NULL;
-                    short stl_x = firing->mappos.x.stl.num;
-                    short stl_y = firing->mappos.y.stl.num;
-                    unsigned char i = 0;
-                    TbBool slappable = false;
-                    do
+                    struct Thing* whiptng = find_creature_to_whip(firing);
+                    if (!thing_is_invalid(whiptng))
                     {
-                        // North
-                        if ( (firing->move_angle_xy < 128) || (firing->move_angle_xy > 1920) )
-                        {
-                            stl_y--;
-                        }
-                        // Northeast
-                        else if ( (firing->move_angle_xy >= 128) && (firing->move_angle_xy <= 384) )
-                        {
-                            stl_x++;
-                            stl_y--;
-                        }
-                        // East
-                        else if ( (firing->move_angle_xy > 384) && (firing->move_angle_xy < 640) )
-                        {
-                            stl_x++;
-                        }
-                        // Southeast
-                        else if ( (firing->move_angle_xy >= 641) && (firing->move_angle_xy <= 896) )
-                        {
-                            stl_x++;
-                            stl_y++;
-                        }
-                        // South
-                        else if ( (firing->move_angle_xy >= 897) && (firing->move_angle_xy < 1152) )
-                        {
-                            stl_y++;
-                        }
-                        // Southwest
-                        else if ( (firing->move_angle_xy >= 1152) && (firing->move_angle_xy < 1408) )
-                        {
-                            stl_x--;
-                            stl_y++;
-                        }
-                        // West
-                        else if ( (firing->move_angle_xy >= 1408) && (firing->move_angle_xy < 1664) )
-                        {
-                            stl_x--;
-                        }
-                        // Northwest
-                        else if ( (firing->move_angle_xy >= 1664) && (firing->move_angle_xy <= 1920) )
-                        {
-                            stl_x--;
-                            stl_y--;
-                        }
-                        if (stl_x < 0)
-                        {
-                            stl_x = 0;
-                        }
-                        if (stl_y < 0)
-                        {
-                            stl_y = 0;
-                        }
-                        if (stl_x > 255)
-                        {
-                            stl_x = 255;
-                        }
-                        if (stl_y > 255)
-                        {
-                            stl_y = 255;
-                        }
-                        whiptng = get_creature_at_subtile(stl_x, stl_y);
-                        slappable = creature_is_slappable(whiptng, firing->owner);
-                        i++;
-                    }
-                    while ((i <= 6) && (!slappable));
-                    if ((!thing_is_invalid(firing)) && (slappable) )
-                    {
-                        if (whiptng != firing)
-                        {
-                            if (jonty_creature_can_see_thing_including_lava_check(firing, whiptng))
-                            {
-                                thing_play_sample(firing, 87, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-                                struct PlayerInfo* whip_plyr = get_player(firing->owner);
-                                slap_creature(whip_plyr, whiptng);
-                                play_creature_sound(whiptng, CrSnd_Slap, 3, 0);
-                            }
-                        }
-                    }
+                        whip_creature(firing, whiptng);
+                    }                    
                 }
             }
             return;
@@ -5433,6 +5353,93 @@ void illuminate_creature(struct Thing *creatng)
     light_set_light_intensity(creatng->light_id, (light_get_light_intensity(creatng->light_id) + 20));
     struct Light* lgt = &game.lish.lights[creatng->light_id];
     lgt->radius <<= 1;    
+}
+
+struct Thing *find_creature_to_whip(const struct Thing *creatng)
+{
+    struct Thing* whiptng = NULL;
+    short stl_x = creatng->mappos.x.stl.num;
+    short stl_y = creatng->mappos.y.stl.num;
+    unsigned char i = 0;
+    do
+    {
+        // North
+        if ( (creatng->move_angle_xy < 128) || (creatng->move_angle_xy > 1920) )
+        {
+            stl_y--;
+        }
+        // Northeast
+        else if ( (creatng->move_angle_xy >= 128) && (creatng->move_angle_xy <= 384) )
+        {
+            stl_x++;
+            stl_y--;
+        }
+        // East
+        else if ( (creatng->move_angle_xy > 384) && (creatng->move_angle_xy < 640) )
+        {
+            stl_x++;
+        }
+        // Southeast
+        else if ( (creatng->move_angle_xy >= 641) && (creatng->move_angle_xy <= 896) )
+        {
+            stl_x++;
+            stl_y++;
+        }
+        // South
+        else if ( (creatng->move_angle_xy >= 897) && (creatng->move_angle_xy < 1152) )
+        {
+            stl_y++;
+        }
+        // Southwest
+        else if ( (creatng->move_angle_xy >= 1152) && (creatng->move_angle_xy < 1408) )
+        {
+            stl_x--;
+            stl_y++;
+        }
+        // West
+        else if ( (creatng->move_angle_xy >= 1408) && (creatng->move_angle_xy < 1664) )
+        {
+            stl_x--;
+        }
+        // Northwest
+        else if ( (creatng->move_angle_xy >= 1664) && (creatng->move_angle_xy <= 1920) )
+        {
+            stl_x--;
+            stl_y--;
+        }
+        if (stl_x < 0)
+        {
+            stl_x = 0;
+        }
+        if (stl_y < 0)
+        {
+            stl_y = 0;
+        }
+        if (stl_x > 255)
+        {
+            stl_x = 255;
+        }
+        if (stl_y > 255)
+        {
+           stl_y = 255;
+        }
+        whiptng = get_creature_at_subtile(stl_x, stl_y);
+        if ( (jonty_creature_can_see_thing_including_lava_check(creatng, whiptng)) && (creature_is_slappable(whiptng, creatng->owner)) )
+        {
+            return whiptng;
+        }
+        i++;
+    }
+    while ((i <= 6));
+    return INVALID_THING;
+}
+
+void whip_creature(struct Thing *creatng, struct Thing *whiptng)
+{
+    thing_play_sample(creatng, 87, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct PlayerInfo* whip_plyr = get_player(creatng->owner);
+    slap_creature(whip_plyr, whiptng);
+    play_creature_sound(whiptng, CrSnd_Slap, 3, 0);
 }
 
 /******************************************************************************/
