@@ -2854,13 +2854,10 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
                             {
                                 if (jonty_creature_can_see_thing_including_lava_check(firing, whiptng))
                                 {
-                                    if (!creature_affected_by_slap(whiptng))
-                                    {
-                                        thing_play_sample(firing, 87, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-                                        struct PlayerInfo* whip_plyr = get_player(firing->owner);
-                                        slap_creature(whip_plyr, whiptng);
-                                        play_creature_sound(whiptng, CrSnd_Slap, 3, 0);
-                                    }
+                                    thing_play_sample(firing, 87, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                                    struct PlayerInfo* whip_plyr = get_player(firing->owner);
+                                    slap_creature(whip_plyr, whiptng);
+                                    play_creature_sound(whiptng, CrSnd_Slap, 3, 0);
                                 }
                             }
                         }
