@@ -286,13 +286,14 @@ void query_thing(struct Thing *thing)
         const char health[24];
         const char position[24];
         const char amount[24] = "\0";
+        char output[36];
         sprintf((char*)title, "Thing ID: %d", querytng->index);
         sprintf((char*)owner, "Owner: %d", querytng->owner);
         sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
             struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
-            sprintf((char*)health, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf(output, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
         }
         else
         {
@@ -306,13 +307,13 @@ void query_thing(struct Thing *thing)
             sprintf((char*)health, "Health: %d", querytng->health);
             if (querytng->class_id == TCls_Door)
             {
-                sprintf((char*)health, "%s/%ld", health, door_stats[querytng->model][0].health);
+                sprintf(output, "%s/%ld", health, door_stats[querytng->model][0].health);
             }
             else if (querytng->class_id == TCls_Object)
             {
                 if (querytng->model == 5)
                 {
-                    sprintf((char*)health, "%s/%ld", health, game.dungeon_heart_health);
+                    sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
                 }
             }
         }
