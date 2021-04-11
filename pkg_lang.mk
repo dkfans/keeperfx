@@ -60,6 +60,7 @@ pkg/campgns/grkreign/text_eng.dat \
 pkg/campgns/grkreign/text_pol.dat \
 pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/lqizgood/text_chi.dat \
+pkg/campgns/lqizgood/text_fre.dat \
 pkg/campgns/lqizgood/text_pol.dat \
 pkg/campgns/ncastles/text_eng.dat \
 pkg/campgns/ncastles/text_pol.dat \
