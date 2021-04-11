@@ -102,7 +102,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
           pos->y.val = ((y_pos + sizexy) & 0xFF00) - sizexy - 1;
           return;
         }
-        y_thing = ((y_pos - sizexy & 0xFF00) + sizexy + 256);
+        y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
       }
       pos->y.val = y_thing;
       break;
@@ -113,7 +113,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( x_pos != x_thing )
       {
         if ( x_pos <= x_thing )
-          x_thing = ((x_pos - sizexy & 0xFF00) + sizexy + 256);
+          x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
         else
           x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
       }
@@ -122,7 +122,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( y_pos != y_thing )
       {
         if ( y_pos <= y_thing )
-          y_thing = ((y_pos - sizexy & 0xFF00) + sizexy + 256);
+          y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
         else
           y_thing = (((sizexy + y_pos) & 0xFF00) - sizexy - 1);
       }
@@ -153,7 +153,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       if ( y_thing != y_pos )
       {
         if ( y_thing >= y_pos )
-          y_thing = ((y_pos - sizexy & 0xFF00) + sizexy + 256);
+          y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
         else
           y_thing = (((y_pos + sizexy) & 0xFF00) - sizexy - 1);
       }

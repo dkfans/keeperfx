@@ -50,8 +50,12 @@ void message_draw(void)
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
         LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
-        unsigned long spr_idx;
-        TbBool IsCreature, IsCreatureSpell, IsRoom, IsKeeperSpell, IsQuery;
+        unsigned long spr_idx = 0;
+        TbBool IsCreature = false; 
+        TbBool IsCreatureSpell = false; 
+        TbBool IsRoom = false;
+        TbBool IsKeeperSpell = false;
+        TbBool IsQuery = false;
         TbBool NotPlayer = ((char)gameadd.messages[i].plyr_idx < 0);
         if (NotPlayer)
         {
