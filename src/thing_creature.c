@@ -2766,24 +2766,6 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
 
 void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
 {
-    if (is_thing_directly_controlled(firing))
-    {
-        if (first_person_dig_claim_mode)
-        {
-            if ( (shot_model == ShM_SwingFist) || (shot_model == ShM_SwingSword) )
-            {
-                if (firing->model == 20)
-                {
-                    struct Thing* whiptng = find_creature_to_whip(firing);
-                    if (!thing_is_invalid(whiptng))
-                    {
-                        whip_creature(firing, whiptng);
-                    }                    
-                }
-            }
-            return;
-        }
-    }
     struct Coord3d pos2;
     struct Thing *tmptng;
     short angle_xy;
@@ -5353,85 +5335,6 @@ void illuminate_creature(struct Thing *creatng)
     light_set_light_intensity(creatng->light_id, (light_get_light_intensity(creatng->light_id) + 20));
     struct Light* lgt = &game.lish.lights[creatng->light_id];
     lgt->radius <<= 1;    
-}
-
-struct Thing *find_creature_to_whip(const struct Thing *creatng)
-{
-    struct Thing* whiptng = NULL;
-    short stl_x = creatng->mappos.x.stl.num;
-    short stl_y = creatng->mappos.y.stl.num;
-    unsigned char i = 0;
-    do
-    {
-        // North
-        if ( (creatng->move_angle_xy < 128) || (creatng->move_angle_xy > 1920) )
-        {
-            stl_y--;
-        }
-        // Northeast
-        else if ( (creatng->move_angle_xy >= 128) && (creatng->move_angle_xy <= 384) )
-        {
-            stl_x++;
-            stl_y--;
-        }
-        // East
-        else if ( (creatng->move_angle_xy > 384) && (creatng->move_angle_xy < 640) )
-        {
-            stl_x++;
-        }
-        // Southeast
-        else if ( (creatng->move_angle_xy >= 641) && (creatng->move_angle_xy <= 896) )
-        {
-            stl_x++;
-            stl_y++;
-        }
-        // South
-        else if ( (creatng->move_angle_xy >= 897) && (creatng->move_angle_xy < 1152) )
-        {
-            stl_y++;
-        }
-        // Southwest
-        else if ( (creatng->move_angle_xy >= 1152) && (creatng->move_angle_xy < 1408) )
-        {
-            stl_x--;
-            stl_y++;
-        }
-        // West
-        else if ( (creatng->move_angle_xy >= 1408) && (creatng->move_angle_xy < 1664) )
-        {
-            stl_x--;
-        }
-        // Northwest
-        else if ( (creatng->move_angle_xy >= 1664) && (creatng->move_angle_xy <= 1920) )
-        {
-            stl_x--;
-            stl_y--;
-        }
-        if (stl_x < 0)
-        {
-            stl_x = 0;
-        }
-        if (stl_y < 0)
-        {
-            stl_y = 0;
-        }
-        if (stl_x > 255)
-        {
-            stl_x = 255;
-        }
-        if (stl_y > 255)
-        {
-           stl_y = 255;
-        }
-        whiptng = get_creature_at_subtile(stl_x, stl_y);
-        if ( (jonty_creature_can_see_thing_including_lava_check(creatng, whiptng)) && (creature_is_slappable(whiptng, creatng->owner)) )
-        {
-            return whiptng;
-        }
-        i++;
-    }
-    while ((i <= 6));
-    return INVALID_THING;
 }
 
 void whip_creature(struct Thing *creatng, struct Thing *whiptng)

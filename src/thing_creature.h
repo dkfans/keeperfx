@@ -183,7 +183,6 @@ void illuminate_creature(struct Thing *creatng);
 long get_spell_slot(const struct Thing *thing, SpellKind spkind);
 TbBool free_spell_slot(struct Thing *thing, long slot_idx);
 
-struct Thing *find_creature_to_whip(const struct Thing *creatng);
 void whip_creature(struct Thing *creatng, struct Thing *whiptng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);

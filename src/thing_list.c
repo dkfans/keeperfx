@@ -38,14 +38,19 @@
 #include "power_hand.h"
 #include "magic.h"
 #include "map_utils.h"
+#include "ariadne_wallhug.h"
+#include "config_objects.h"
 #include "config_creature.h"
 #include "config_magic.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "player_instances.h"
 #include "engine_camera.h"
+#include "gui_topmsg.h"
 #include "game_legacy.h"
+#include "engine_redraw.h"
 #include "keeperfx.hpp"
+#include "thing_navigate.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -3740,28 +3745,6 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
         i_first = thing->next_on_mapblk;
     }
     WARNLOG("No change performed");
-}
-
-struct Thing *get_creature_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    struct Thing *thing = NULL;
-    struct Map *blk;
-    if (!subtile_coords_invalid(stl_x, stl_y))
-    {
-        blk = get_map_block_at(stl_x, stl_y);
-        for ( thing = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(thing)); thing = thing_get(thing->next_on_mapblk) )
-        {
-            if (thing->class_id == TCls_Creature)
-            {
-                return thing;
-            }
-            else
-            {
-                continue;
-            }
-        }
-    }
-  return INVALID_THING;
 }
 /******************************************************************************/
 #ifdef __cplusplus
