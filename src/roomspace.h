@@ -82,6 +82,7 @@ struct RoomSpace {
     TbBool render_roomspace_as_box;
     TbBool tag_for_dig;
     TbBool highlight_mode;
+    TbBool untag_mode;
 };
 /******************************************************************************/
 extern int user_defined_roomspace_width;

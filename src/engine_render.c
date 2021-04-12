@@ -2337,8 +2337,8 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
 
 void process_isometric_map_volume_box(long x, long y, long z)
 {
-    int default_color = map_volume_box.color;
-    int line_color = default_color;
+    unsigned char default_color = map_volume_box.color;
+    unsigned char line_color = default_color;
     struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
     struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
     // Check if a roomspace is currently being built
@@ -6735,8 +6735,8 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
 
 void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width)
 {
-    int default_color = map_volume_box.color;
-    int line_color = default_color;
+    unsigned char default_color = map_volume_box.color;
+    unsigned char line_color = default_color;
     struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
     struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
     // Check if a roomspace is currently being built

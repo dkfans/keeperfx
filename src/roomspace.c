@@ -33,7 +33,7 @@ extern "C" {
 /******************************************************************************/
 int user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
 int roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-struct RoomSpace render_roomspace = { {{false}}, 1, true, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, false, true, false, false };
+struct RoomSpace render_roomspace = { {{false}}, 1, true, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, false, true, false, false, false };
 /******************************************************************************/
 TbBool can_afford_roomspace(PlayerNumber plyr_idx, RoomKind rkind, int slab_count)
 {
@@ -96,6 +96,7 @@ struct RoomSpace create_box_roomspace(struct RoomSpace roomspace, int width, int
     roomspace.render_roomspace_as_box = true;
     roomspace.tag_for_dig = false;
     roomspace.highlight_mode = false;
+    roomspace.untag_mode = false;
     return roomspace;
 }
 
@@ -352,7 +353,7 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx, Ma
 {
     struct SlabMap *slb = get_slabmap_block(cursor_x, cursor_y);
     // Set default "room" - i.e. 1x1 slabs, centred on the cursor
-    struct RoomSpace default_room = { {{false}}, 0, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, 0, 0, current_plyr_idx, RoK_SELL, false, 0, 0, false, true, false, false };
+    struct RoomSpace default_room = { {{false}}, 0, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, 0, 0, current_plyr_idx, RoK_SELL, false, 0, 0, false, true, false, false, false };
     
     if (slabmap_owner(slb) == current_plyr_idx)
     {
@@ -453,9 +454,23 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     MapSlabCoord slb_y = subtile_slab(stl_y);
     struct RoomSpace current_roomspace;
     TbBool highlight_mode = false;
+    TbBool untag_mode = false;
     struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     dungeonadd->painter_build_mode = 0;
+
+    if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld) // "paint mode" enabled
+    {
+        untag_mode = render_roomspace.untag_mode;
+    }
+    else // user is hovering the mouse cursor
+    {
+        if (find_from_task_list(plyr_idx, get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y))) != -1)
+        {
+            untag_mode = true;
+        }
+    }
+
     if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
         if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld) // Enable "paint mode" if Ctrl or Shift are held
@@ -488,7 +503,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     current_roomspace = create_box_roomspace(render_roomspace, width, height, slb_x, slb_y);
     current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
     current_roomspace.highlight_mode = highlight_mode;
-
+    current_roomspace.untag_mode = untag_mode;
     player->boxsize = current_roomspace.slab_count;
     if (current_roomspace.slab_count > 0)
     {
