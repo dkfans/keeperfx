@@ -473,7 +473,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
 
     if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
-        if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld) // Enable "paint mode" if Ctrl or Shift are held
+        if ((pckt->control_flags & PCtr_HeldAnyButton) != 0) // Enable "paint mode" if Ctrl or Shift are held
         {
             dungeonadd->painter_build_mode = 1; // Enable GuiLayer_OneClickBridgeBuild layer
         }
