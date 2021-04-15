@@ -83,6 +83,7 @@ struct RoomSpace {
     TbBool tag_for_dig;
     TbBool highlight_mode;
     TbBool untag_mode;
+    TbBool one_click_mode_exclusive;
 };
 /******************************************************************************/
 extern int user_defined_roomspace_width;

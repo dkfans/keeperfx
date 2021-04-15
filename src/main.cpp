@@ -3102,6 +3102,7 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 {
     SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
     //_DK_tag_cursor_blocks_dig(plyr_idx, stl_x, stl_y, full_slab);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
@@ -3111,6 +3112,10 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         allowed = true;
     }
     else if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) // else if not using roomspace, is current slab diggable
+    {
+        allowed = true;
+    }
+    else if (dungeonadd->one_click_lock_cursor == 1)
     {
         allowed = true;
     }

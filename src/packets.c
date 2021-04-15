@@ -499,6 +499,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
 TbBool process_dungeon_power_hand_state(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     MapCoord x = ((unsigned short)pckt->pos_x);
     MapCoord y = ((unsigned short)pckt->pos_y);
@@ -528,8 +529,9 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         create_power_hand(player->id_number);
       }
       long i = thing_is_creature_special_digger(thing);
-      if (can_drop_thing_here(stl_x, stl_y, player->id_number, i)
+      if ((can_drop_thing_here(stl_x, stl_y, player->id_number, i)
         || !can_dig_here(stl_x, stl_y, player->id_number, true))
+        && (dungeonadd->one_click_lock_cursor == 0))
       {
         render_roomspace = create_box_roomspace(render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
         tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->full_slab_cursor);
@@ -689,6 +691,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     long i;
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     MapCoord x = ((unsigned short)pckt->pos_x);
     MapCoord y = ((unsigned short)pckt->pos_y);
@@ -859,6 +862,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             player->cursor_button_down = 0;
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);
+        dungeonadd->one_click_lock_cursor = 0;
         player->secondary_cursor_state = CSt_DefaultArrow;
         player->additional_flags &= ~PlaAF_NoThingUnderPowerHand;
       }
