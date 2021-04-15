@@ -684,6 +684,23 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
     return true;
 }
 
+void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    // The commented out section is the old way, this check is now performed as part of keeper_highlight_roomspace() in roomspace.cabs
+    // which sets render_roomspace.untag_mode
+    /*i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
+    if (find_from_task_list(plyr_idx,i) != -1)
+        player->allocflags |= PlaF_ChosenSlabHasActiveTask;
+    else
+        player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;*/
+
+    if (render_roomspace.untag_mode)
+        player->allocflags |= PlaF_ChosenSlabHasActiveTask;
+    else
+        player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;
+}
+
 TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 {
     struct Thing *thing;
@@ -724,11 +741,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         switch (player->primary_cursor_state)
         {
         case CSt_PickAxe:
-          i = get_subtile_number(stl_slab_center_subtile(player->cursor_stl_x),stl_slab_center_subtile(player->cursor_stl_y));
-          if (find_from_task_list(plyr_idx,i) != -1)
-              player->allocflags |= PlaF_ChosenSlabHasActiveTask;
-          else
-              player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;
+          set_tag_untag_mode(plyr_idx, stl_x, stl_y);
           break;
         case CSt_DoorKey:
           thing = get_door_for_position(player->cursor_stl_x, player->cursor_stl_y);
@@ -745,11 +758,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         case CSt_PowerHand:
           if (player->thing_under_hand == 0)
           {
-            i = get_subtile_number(stl_slab_center_subtile(player->cursor_stl_x),stl_slab_center_subtile(player->cursor_stl_y));
-            if (find_from_task_list(plyr_idx,i) != -1)
-                player->allocflags |= PlaF_ChosenSlabHasActiveTask;
-            else
-                player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;
+            set_tag_untag_mode(plyr_idx, stl_x, stl_y);
             player->additional_flags |= PlaAF_NoThingUnderPowerHand;
           }
           break;
@@ -772,11 +781,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           player->secondary_cursor_state = player->primary_cursor_state;
           if (player->primary_cursor_state == CSt_PickAxe)
           {
-            i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
-            if (find_from_task_list(plyr_idx,i) != -1)
-                player->allocflags |= PlaF_ChosenSlabHasActiveTask;
-            else
-                player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;
+            set_tag_untag_mode(plyr_idx, stl_x, stl_y);
           }
         }
         if (player->cursor_button_down != 0)
