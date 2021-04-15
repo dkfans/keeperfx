@@ -123,7 +123,7 @@ void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
 void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check);
 
-void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int mode);
+void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction);
 void keeper_sell_roomspace(struct RoomSpace *roomspace);
 void keeper_build_roomspace(struct RoomSpace *roomspace);
 

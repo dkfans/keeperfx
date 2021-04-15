@@ -727,7 +727,7 @@ static void find_next_point(struct RoomSpace *roomspace)
     }
 }
 
-void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int mode)
+void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction)
 {
     if (!roomspace->tag_for_dig)
     {
@@ -740,7 +740,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     TbBool tag_for_digging = ((player->allocflags & PlaF_ChosenSlabHasActiveTask) == 0);
-    int task_allowance = ((mode == 1) ? (MAPTASKS_COUNT - 9) : (MAPTASKS_COUNT));
+    int task_allowance = MAPTASKS_COUNT - task_allowance_reduction;
     for (int y = 0; y < roomspace->height; y++)
     {
         int current_y = roomspace->top + y;

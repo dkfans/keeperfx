@@ -790,11 +790,11 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           {
             if (player->secondary_cursor_state == CSt_PickAxe)
             {
-              keeper_highlight_roomspace(plyr_idx, &render_roomspace, 3);
+              keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
             } else
             if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))
             {
-              keeper_highlight_roomspace(plyr_idx, &render_roomspace, 2);
+              keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
             }
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -852,7 +852,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
           if (player->primary_cursor_state == CSt_PickAxe)
           {
-            keeper_highlight_roomspace(plyr_idx, &render_roomspace, 1);
+            keeper_highlight_roomspace(plyr_idx, &render_roomspace, 9);
           } else
           if (player->primary_cursor_state == CSt_PowerHand)
           {
