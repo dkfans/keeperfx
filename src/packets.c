@@ -879,7 +879,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
     {
-      if (dungeonadd->ignore_next_PCtr_RBtnRelease && dungeonadd->one_click_lock_cursor == 0)
+      if (dungeonadd->ignore_next_PCtr_RBtnRelease && (dungeonadd->one_click_lock_cursor == 0))
       {
           dungeonadd->ignore_next_PCtr_RBtnRelease = false;
           if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
@@ -922,6 +922,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     struct Thing *thing;
     PowerKind pwkind;
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     player->full_slab_cursor = 1;
@@ -1838,7 +1839,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     }
     if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (influence_own_creatures))
     {
-      if ((player->secondary_cursor_state == CSt_DefaultArrow) || (player->secondary_cursor_state == CSt_PowerHand))
+      if (((player->secondary_cursor_state == CSt_DefaultArrow) || (player->secondary_cursor_state == CSt_PowerHand)) && (dungeonadd->one_click_lock_cursor == 0))
         stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
     }
     return ret;
