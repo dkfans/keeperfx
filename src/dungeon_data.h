@@ -307,7 +307,7 @@ struct DungeonAdd
     unsigned char         creature_entrance_level;
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;
-    TbBool                painter_build_mode; // this is not ideal, but I do not know how else to track what I need
+    TbBool                one_click_lock_cursor;
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
