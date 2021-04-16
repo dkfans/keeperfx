@@ -590,7 +590,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     {
         current_roomspace.tag_for_dig = true;
     }
-    if (dungeonadd->one_click_lock_cursor == 1)
+    if (dungeonadd->one_click_lock_cursor == 1  && ((pckt->control_flags & PCtr_LBtnHeld) != 0))
     {
         current_roomspace.is_roomspace_a_box = true; // force full box cursor in "paint mode" - this stops the accurate boundbox appearing for a frame, before the slabs are tagged/untagged (which appears as flickering to the user)
     }
