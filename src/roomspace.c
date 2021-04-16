@@ -574,7 +574,8 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     current_roomspace.untag_mode = untag_mode;
     current_roomspace.one_click_mode_exclusive = one_click_mode_exclusive;
     current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
-    if (((dungeonadd->one_click_lock_cursor == 0) || current_roomspace.drag_mode) && !untag_mode && current_roomspace.slab_count == 0 && ((current_roomspace.width > 1) || (current_roomspace.height > 1)))
+    if (((dungeonadd->one_click_lock_cursor == 0) || (current_roomspace.drag_mode && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && ((pckt->control_flags & PCtr_LBtnHeld) == 0))) 
+        && !untag_mode && current_roomspace.slab_count == 0 && ((current_roomspace.width > 1) || (current_roomspace.height > 1)))
     {
         // if highlight roomspace is empty (and we aren't in paint mode, and we were trying to tag slabs)
         // then check for slabs to untag instead, and if some are found, give that option to the player
