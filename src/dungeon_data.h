@@ -308,6 +308,7 @@ struct DungeonAdd
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;
     TbBool                one_click_lock_cursor;
+    TbBool                ignore_next_PCtr_RBtnRelease;
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
