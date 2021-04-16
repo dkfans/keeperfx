@@ -517,7 +517,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld) // highlight "paint mode" enabled
     {
         dungeonadd->one_click_lock_cursor = 1;
-        untag_mode = render_roomspace.untag_mode;
+        untag_mode = render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)
     }
     else // user is hovering the mouse cursor
     {
@@ -531,6 +531,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
         if ((pckt->control_flags & PCtr_HeldAnyButton) != 0) 
         {
             dungeonadd->one_click_lock_cursor = 1; // Allow click and drag over low slabs (if clicked on high slab)
+            untag_mode = render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)
             one_click_mode_exclusive = true; // Block camera zoom/rotate if Ctrl is held with LMB/RMB
             drag_start_x = render_roomspace.drag_start_x; // if we are dragging, get the starting coords from the slab the player clicked on
             drag_start_y = render_roomspace.drag_start_y;
@@ -573,7 +574,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     current_roomspace.untag_mode = untag_mode;
     current_roomspace.one_click_mode_exclusive = one_click_mode_exclusive;
     current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
-    if (dungeonadd->one_click_lock_cursor == 0 && !untag_mode && current_roomspace.slab_count == 0 && ((current_roomspace.width > 1) || (current_roomspace.height > 1)))
+    if (((dungeonadd->one_click_lock_cursor == 0) || current_roomspace.drag_mode) && !untag_mode && current_roomspace.slab_count == 0 && ((current_roomspace.width > 1) || (current_roomspace.height > 1)))
     {
         // if highlight roomspace is empty (and we aren't in paint mode, and we were trying to tag slabs)
         // then check for slabs to untag instead, and if some are found, give that option to the player
