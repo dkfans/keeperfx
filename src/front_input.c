@@ -1836,7 +1836,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if ((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y))
+  if (((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y)) && dungeonadd->one_click_lock_cursor == 0)
   {
     *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
