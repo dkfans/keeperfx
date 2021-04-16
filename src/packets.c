@@ -515,7 +515,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
       return false;
     }
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
-    if (!thing_is_invalid(thing))
+    if (!thing_is_invalid(thing) && (dungeonadd->one_click_lock_cursor == 0))
     {
       SYNCDBG(19,"Thing %d under hand at (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
       if (player->hand_thing_idx == 0)
@@ -881,7 +881,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
       if (player->cursor_button_down != 0)
       {
-        if (!power_hand_is_empty(player))
+        if (!power_hand_is_empty(player) && (dungeonadd->one_click_lock_cursor == 0))
         {
           if (dump_first_held_thing_on_map(player->id_number, stl_x, stl_y, 1)) {
               if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
@@ -892,7 +892,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           }
         } else
         {
-          if (player->primary_cursor_state == CSt_PowerHand) {
+          if (player->primary_cursor_state == CSt_PowerHand && (dungeonadd->one_click_lock_cursor == 0)) {
               thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
               magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
           }
