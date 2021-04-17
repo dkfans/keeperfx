@@ -914,6 +914,11 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         }
       }
     }
+    if (player->cursor_button_down == 0)
+    {
+      //if (untag_or_tag_completed_or_cancelled)
+      dungeonadd->swap_to_untag_mode = 0; // no
+    }
     return true;
 }
 

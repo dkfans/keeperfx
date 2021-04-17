@@ -526,6 +526,14 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             untag_mode = true;
         }
     }
+    if (dungeonadd->swap_to_untag_mode == 0) // if swap_to_untag_mode ==  no / enabled
+    {
+        //if (untag_or_tag_started_on_undiggable_highslab)
+        if ((subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, true)) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)))
+        {
+            dungeonadd->swap_to_untag_mode = 1; // maybe
+        }
+    }
     if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Use "modern" click and drag method
     {
         if ((pckt->control_flags & PCtr_HeldAnyButton) != 0)
@@ -578,17 +586,26 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     current_roomspace.untag_mode = untag_mode;
     current_roomspace.one_click_mode_exclusive = one_click_mode_exclusive;
     current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
-    if (((dungeonadd->one_click_lock_cursor == 0) || (current_roomspace.drag_mode && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && ((pckt->control_flags & PCtr_LBtnHeld) == 0))) 
-        && !untag_mode && current_roomspace.slab_count == 0 && ((current_roomspace.width > 1) || (current_roomspace.height > 1)))
+    if (dungeonadd->swap_to_untag_mode == 1) // if swap_to_untag_mode == maybe
     {
-        // if highlight roomspace is empty (and we aren't in paint mode, and we were trying to tag slabs)
-        // then check for slabs to untag instead, and if some are found, give that option to the player
-        struct RoomSpace untag_roomspace = current_roomspace;
-        untag_roomspace.untag_mode = true;
-        untag_roomspace = check_roomspace_for_diggable_slabs(untag_roomspace, plyr_idx);
-        if (untag_roomspace.slab_count > 0)
+        // highlight roomspace was started on undiggable highslab, and we are therefore in "tag mode"...
+        if (current_roomspace.slab_count == 0)
         {
-            current_roomspace = untag_roomspace;
+            // if highlight roomspace is empty
+            // then check for slabs for untagging instead, and if some are found, change to untag mode
+            struct RoomSpace untag_roomspace = current_roomspace;
+            untag_roomspace.untag_mode = true;
+            untag_roomspace = check_roomspace_for_diggable_slabs(untag_roomspace, plyr_idx);
+            if (untag_roomspace.slab_count > 0)
+            {
+                current_roomspace = untag_roomspace;
+                dungeonadd->swap_to_untag_mode = 2;
+            }
+        }
+        else if (current_roomspace.slab_count > 0)
+        {
+            // player has started a "room" in tag mode, so...
+            dungeonadd->swap_to_untag_mode = -1; // disable
         }
     }
     player->boxsize = current_roomspace.slab_count;
@@ -601,6 +618,12 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
         current_roomspace.is_roomspace_a_box = true; // force full box cursor in "paint mode" - this stops the accurate boundbox appearing for a frame, before the slabs are tagged/untagged (which appears as flickering to the user)
     }
     render_roomspace = current_roomspace;
+    if (dungeonadd->swap_to_untag_mode == 2) // if swap_to_untag_mode == yes
+    {
+        // change to untag mode, as requested, and disable swap_to_untag_mode
+        set_tag_untag_mode(plyr_idx, stl_x, stl_y);
+        dungeonadd->swap_to_untag_mode = -1; // disable
+    }
 }
 
 void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
