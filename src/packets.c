@@ -870,7 +870,15 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         dungeonadd->one_click_lock_cursor = 0;
         if (render_roomspace.drag_mode)
         {
-            render_roomspace.drag_mode = false;
+            if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
+            {
+                render_roomspace.drag_mode = false;
+            }
+            else
+            {
+                render_roomspace.untag_mode = !render_roomspace.untag_mode;
+                set_tag_untag_mode(plyr_idx, stl_x, stl_y);
+            }
         }
         player->secondary_cursor_state = CSt_DefaultArrow;
         player->additional_flags &= ~PlaAF_NoThingUnderPowerHand;
