@@ -26,7 +26,7 @@ ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
   # linker flags
   # useful for development only: -Wl,-Map,"$(@:%.exe=%.map)"
-  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
+  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
 else
   CROSS_EXEEXT =
   CROSS_COMPILE = i686-w64-mingw32-
