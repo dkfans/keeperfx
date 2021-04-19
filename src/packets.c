@@ -689,7 +689,8 @@ void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     struct PlayerInfo* player = get_player(plyr_idx);
     // The commented out section is the old way, this check is now performed as part of keeper_highlight_roomspace() in roomspace.cabs
     // which sets render_roomspace.untag_mode
-    /*i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
+    /*long i;
+    i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
     if (find_from_task_list(plyr_idx,i) != -1)
         player->allocflags |= PlaF_ChosenSlabHasActiveTask;
     else
@@ -704,8 +705,6 @@ void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
 TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 {
     struct Thing *thing;
-
-    long i;
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
@@ -714,8 +713,6 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    MapSubtlCoord cx = stl_slab_starting_subtile(stl_x);
-    MapSubtlCoord cy = stl_slab_starting_subtile(stl_y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
       player->secondary_cursor_state = CSt_DefaultArrow;
     player->primary_cursor_state = (unsigned short)(pckt->additional_packet_values & PCAdV_ContextMask) >> 1; // get current cursor state from pckt->additional_packet_values
