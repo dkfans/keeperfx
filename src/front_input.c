@@ -137,7 +137,6 @@ void update_gui_layer()
     // Determine the current/correct GUI Layer to use at this moment
 
     struct PlayerInfo* player = get_my_player();
-    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
     if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
     {
