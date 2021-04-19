@@ -786,15 +786,18 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         }
         if (player->cursor_button_down != 0)
         {
-          if (player->primary_cursor_state == player->secondary_cursor_state)
+          if (!render_roomspace.drag_mode) // allow drag and click to not place on LMB hold
           {
-            if (player->secondary_cursor_state == CSt_PickAxe)
+            if (player->primary_cursor_state == player->secondary_cursor_state)
             {
-              keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
-            } else
-            if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))
-            {
-              keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
+              if (player->secondary_cursor_state == CSt_PickAxe)
+              {
+                keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
+              } else
+              if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))
+              {
+                keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
+              }
             }
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -809,6 +812,15 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
       if (player->secondary_cursor_state == CSt_DefaultArrow)
         player->secondary_cursor_state = player->primary_cursor_state;
+      if (dungeonadd->ignore_next_PCtr_LBtnRelease)
+      {
+          dungeonadd->ignore_next_PCtr_LBtnRelease = false;
+          if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
+          {
+              player->cursor_button_down = 0;
+          }
+          unset_packet_control(pckt, PCtr_LBtnRelease);
+      } else
       if (player->cursor_button_down != 0)
       {
         thing = thing_get(player->thing_under_hand);
@@ -850,7 +862,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         } else
         if (player->secondary_cursor_state == player->primary_cursor_state)
         {
-          if (player->primary_cursor_state == CSt_PickAxe)
+          if ((player->primary_cursor_state == CSt_PickAxe) || ((player->primary_cursor_state == CSt_PowerHand) && render_roomspace.drag_mode))
           {
             keeper_highlight_roomspace(plyr_idx, &render_roomspace, 9);
           } else

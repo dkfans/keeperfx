@@ -309,6 +309,7 @@ struct DungeonAdd
     unsigned long         good_creatures_converted;
     TbBool                one_click_lock_cursor;
     TbBool                ignore_next_PCtr_RBtnRelease;
+    TbBool                ignore_next_PCtr_LBtnRelease;
     long                  swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
 };
 /******************************************************************************/

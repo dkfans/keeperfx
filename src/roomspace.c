@@ -503,11 +503,31 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
 
     if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
     {
+        // exit out of click and drag mode
         if (render_roomspace.drag_mode)
         {
             dungeonadd->one_click_lock_cursor = 0;
+            if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
+            {
+                dungeonadd->ignore_next_PCtr_LBtnRelease = true;
+            }
         }
         render_roomspace.drag_mode = false;
+    }
+    if (dungeonadd->ignore_next_PCtr_LBtnRelease)
+    {
+        // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
+        render_roomspace.drag_mode = false;
+        dungeonadd->one_click_lock_cursor = 0;
+        reset_dungeon_build_room_ui_variables();
+        current_roomspace = create_box_roomspace(render_roomspace, width, height, slb_x, slb_y);
+        current_roomspace.highlight_mode = false;
+        current_roomspace.untag_mode = false;
+        current_roomspace.one_click_mode_exclusive = false;
+        current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
+        player->boxsize = current_roomspace.slab_count;
+        render_roomspace = current_roomspace;
+        return;
     }
     if (!render_roomspace.drag_mode) // reset drag start slab
     {
@@ -536,7 +556,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     }
     if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Use "modern" click and drag method
     {
-        if ((pckt->control_flags & PCtr_HeldAnyButton) != 0)
+        if (((pckt->control_flags & PCtr_LBtnHeld) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
             dungeonadd->one_click_lock_cursor = 1; // Allow click and drag over low slabs (if clicked on high slab)
             untag_mode = render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)
@@ -544,12 +564,19 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             drag_start_x = render_roomspace.drag_start_x; // if we are dragging, get the starting coords from the slab the player clicked on
             drag_start_y = render_roomspace.drag_start_y;
         }
-        highlight_mode = true;
-        current_roomspace = create_box_roomspace_from_drag(render_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
         if (((pckt->control_flags & PCtr_RBtnHeld) != 0) && ((pckt->control_flags & PCtr_LBtnClick) != 0))
         {
             dungeonadd->ignore_next_PCtr_RBtnRelease = true;
         }
+        if (((pckt->control_flags & PCtr_LBtnHeld) != 0) && ((pckt->control_flags & PCtr_RBtnClick) != 0))
+        {
+            dungeonadd->ignore_next_PCtr_LBtnRelease = true;
+            dungeonadd->ignore_next_PCtr_RBtnRelease = true;
+            drag_start_x = slb_x;
+            drag_start_y = slb_y;
+        }
+        highlight_mode = true;
+        current_roomspace = create_box_roomspace_from_drag(render_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
     }
     else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
@@ -613,7 +640,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     {
         current_roomspace.tag_for_dig = true;
     }
-    if (dungeonadd->one_click_lock_cursor == 1  && ((pckt->control_flags & PCtr_LBtnHeld) != 0))
+    if (dungeonadd->one_click_lock_cursor == 1  && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && !current_roomspace.drag_mode)
     {
         current_roomspace.is_roomspace_a_box = true; // force full box cursor in "paint mode" - this stops the accurate boundbox appearing for a frame, before the slabs are tagged/untagged (which appears as flickering to the user)
     }
