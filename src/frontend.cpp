@@ -644,12 +644,15 @@ void create_message_box(const char *title, const char *line1, const char *line2,
 
 short game_is_busy_doing_gui(void)
 {
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
+    if (dungeonadd->one_click_lock_cursor)
+      return false;
     if (!busy_doing_gui)
       return false;
     if (battle_creature_over <= 0)
       return true;
-    struct PlayerInfo *player;
-    player = get_my_player();
     PowerKind pwkind;
     pwkind = 0;
     if (player->work_state < PLAYER_STATES_COUNT)
