@@ -556,7 +556,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     }
     if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Use "modern" click and drag method
     {
-        if (((pckt->control_flags & PCtr_LBtnHeld) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
+        if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
             dungeonadd->one_click_lock_cursor = 1; // Allow click and drag over low slabs (if clicked on high slab)
             untag_mode = render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)

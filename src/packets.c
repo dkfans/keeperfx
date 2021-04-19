@@ -874,9 +874,9 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
         {
             player->cursor_button_down = 0;
+            dungeonadd->one_click_lock_cursor = 0;
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);
-        dungeonadd->one_click_lock_cursor = 0;
         if (render_roomspace.drag_mode)
         {
             if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
