@@ -3102,8 +3102,9 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 {
     SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
     //_DK_tag_cursor_blocks_dig(plyr_idx, stl_x, stl_y, full_slab);
+    struct PlayerInfo* player = get_player(plyr_idx);
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    struct Packet* pckt = get_packet_direct(plyr_idx);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
