@@ -137,7 +137,6 @@ void update_gui_layer()
     // Determine the current/correct GUI Layer to use at this moment
 
     struct PlayerInfo* player = get_my_player();
-    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
     if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
     {
@@ -191,6 +190,12 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
     if ( (key_id == Gkey_SpeedMod) && (
          (settings.kbkeys[Gkey_SpeedMod].code == settings.kbkeys[Gkey_BestRoomSpace].code) ||
          (settings.kbkeys[Gkey_SpeedMod].code == settings.kbkeys[Gkey_SquareRoomSpace].code) ) )
+    {
+      return 0;
+    }
+    if ( (key_id == Gkey_CrtrContrlMod) && (
+         (settings.kbkeys[Gkey_CrtrContrlMod].code == settings.kbkeys[Gkey_BestRoomSpace].code) ||
+         (settings.kbkeys[Gkey_CrtrContrlMod].code == settings.kbkeys[Gkey_SquareRoomSpace].code) ) )
     {
       return 0;
     }
@@ -1818,7 +1823,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   unsigned int slb_y = subtile_slab_fast(y);
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabAttr* slbattr = get_slab_attrs(slb);
-  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number))
+  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (dungeonadd->one_click_lock_cursor == 0))
   {
     *context = CSt_DoorKey;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -1836,13 +1841,13 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if ((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y))
+  if (((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y)) && (dungeonadd->one_click_lock_cursor == 0))
   {
     *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
-  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || dungeonadd->one_click_lock_cursor == 1)
+  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (dungeonadd->one_click_lock_cursor == 1))
   {
     *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;

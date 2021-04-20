@@ -515,7 +515,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
       return false;
     }
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
-    if (!thing_is_invalid(thing))
+    if (!thing_is_invalid(thing) && (dungeonadd->one_click_lock_cursor == 0))
     {
       SYNCDBG(19,"Thing %d under hand at (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
       if (player->hand_thing_idx == 0)
@@ -689,7 +689,8 @@ void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
     struct PlayerInfo* player = get_player(plyr_idx);
     // The commented out section is the old way, this check is now performed as part of keeper_highlight_roomspace() in roomspace.cabs
     // which sets render_roomspace.untag_mode
-    /*i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
+    /*long i;
+    i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
     if (find_from_task_list(plyr_idx,i) != -1)
         player->allocflags |= PlaF_ChosenSlabHasActiveTask;
     else
@@ -704,8 +705,6 @@ void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
 TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 {
     struct Thing *thing;
-
-    long i;
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
@@ -714,8 +713,6 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    MapSubtlCoord cx = stl_slab_starting_subtile(stl_x);
-    MapSubtlCoord cy = stl_slab_starting_subtile(stl_y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
       player->secondary_cursor_state = CSt_DefaultArrow;
     player->primary_cursor_state = (unsigned short)(pckt->additional_packet_values & PCAdV_ContextMask) >> 1; // get current cursor state from pckt->additional_packet_values
@@ -786,15 +783,18 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         }
         if (player->cursor_button_down != 0)
         {
-          if (player->primary_cursor_state == player->secondary_cursor_state)
+          if (!render_roomspace.drag_mode) // allow drag and click to not place on LMB hold
           {
-            if (player->secondary_cursor_state == CSt_PickAxe)
+            if (player->primary_cursor_state == player->secondary_cursor_state)
             {
-              keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
-            } else
-            if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))
-            {
-              keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
+              if (player->secondary_cursor_state == CSt_PickAxe)
+              {
+                keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
+              } else
+              if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))
+              {
+                keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
+              }
             }
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -809,6 +809,15 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
       if (player->secondary_cursor_state == CSt_DefaultArrow)
         player->secondary_cursor_state = player->primary_cursor_state;
+      if (dungeonadd->ignore_next_PCtr_LBtnRelease)
+      {
+          dungeonadd->ignore_next_PCtr_LBtnRelease = false;
+          if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
+          {
+              player->cursor_button_down = 0;
+          }
+          unset_packet_control(pckt, PCtr_LBtnRelease);
+      } else
       if (player->cursor_button_down != 0)
       {
         thing = thing_get(player->thing_under_hand);
@@ -850,7 +859,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         } else
         if (player->secondary_cursor_state == player->primary_cursor_state)
         {
-          if (player->primary_cursor_state == CSt_PickAxe)
+          if ((player->primary_cursor_state == CSt_PickAxe) || ((player->primary_cursor_state == CSt_PowerHand) && render_roomspace.drag_mode))
           {
             keeper_highlight_roomspace(plyr_idx, &render_roomspace, 9);
           } else
@@ -865,9 +874,21 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
         {
             player->cursor_button_down = 0;
+            dungeonadd->one_click_lock_cursor = 0;
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);
-        dungeonadd->one_click_lock_cursor = 0;
+        if (render_roomspace.drag_mode)
+        {
+            if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
+            {
+                render_roomspace.drag_mode = false;
+            }
+            else
+            {
+                render_roomspace.untag_mode = !render_roomspace.untag_mode;
+                set_tag_untag_mode(plyr_idx, stl_x, stl_y);
+            }
+        }
         player->secondary_cursor_state = CSt_DefaultArrow;
         player->additional_flags &= ~PlaAF_NoThingUnderPowerHand;
       }
@@ -875,9 +896,18 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
     {
+      if (dungeonadd->ignore_next_PCtr_RBtnRelease && (dungeonadd->one_click_lock_cursor == 0))
+      {
+          dungeonadd->ignore_next_PCtr_RBtnRelease = false;
+          if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
+          {
+              player->cursor_button_down = 0;
+          }
+          unset_packet_control(pckt, PCtr_RBtnRelease);
+      } else
       if (player->cursor_button_down != 0)
       {
-        if (!power_hand_is_empty(player))
+        if (!power_hand_is_empty(player) && (dungeonadd->one_click_lock_cursor == 0))
         {
           if (dump_first_held_thing_on_map(player->id_number, stl_x, stl_y, 1)) {
               if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
@@ -888,17 +918,23 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           }
         } else
         {
-          if (player->primary_cursor_state == CSt_PowerHand) {
+          if (player->primary_cursor_state == CSt_PowerHand && (dungeonadd->one_click_lock_cursor == 0)) {
               thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
               magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
           }
           if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
           {
               player->cursor_button_down = 0;
+              dungeonadd->one_click_lock_cursor = 0;
           }
           unset_packet_control(pckt, PCtr_RBtnRelease);
         }
       }
+    }
+    if (player->cursor_button_down == 0 || dungeonadd->one_click_lock_cursor == 0)
+    {
+      //if (untag_or_tag_completed_or_cancelled)
+      dungeonadd->swap_to_untag_mode = 0; // no
     }
     return true;
 }
@@ -908,6 +944,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     struct Thing *thing;
     PowerKind pwkind;
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     player->full_slab_cursor = 1;
@@ -1824,7 +1861,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     }
     if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (influence_own_creatures))
     {
-      if ((player->secondary_cursor_state == CSt_DefaultArrow) || (player->secondary_cursor_state == CSt_PowerHand))
+      if (((player->secondary_cursor_state == CSt_DefaultArrow) || (player->secondary_cursor_state == CSt_PowerHand)) && (dungeonadd->one_click_lock_cursor == 0))
         stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
     }
     return ret;

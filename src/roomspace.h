@@ -84,6 +84,11 @@ struct RoomSpace {
     TbBool highlight_mode;
     TbBool untag_mode;
     TbBool one_click_mode_exclusive;
+    MapSlabCoord drag_start_x;
+    MapSlabCoord drag_start_y;
+    MapSlabCoord drag_end_x;
+    MapSlabCoord drag_end_y;
+    TbBool drag_mode;
 };
 /******************************************************************************/
 extern int user_defined_roomspace_width;
