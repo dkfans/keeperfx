@@ -935,6 +935,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
       //if (untag_or_tag_completed_or_cancelled)
       dungeonadd->swap_to_untag_mode = 0; // no
+      if ((player->cursor_button_down == 0) && ((pckt->control_flags & PCtr_LBtnHeld) == 0))
+      {
+        dungeonadd->one_click_lock_cursor = false;
+      }
     }
     return true;
 }
