@@ -515,7 +515,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
       return false;
     }
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
-    if (!thing_is_invalid(thing) && (dungeonadd->one_click_lock_cursor == 0))
+    if (!thing_is_invalid(thing) && (!dungeonadd->one_click_lock_cursor))
     {
       SYNCDBG(19,"Thing %d under hand at (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
       if (player->hand_thing_idx == 0)
@@ -531,7 +531,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
       long i = thing_is_creature_special_digger(thing);
       if ((can_drop_thing_here(stl_x, stl_y, player->id_number, i)
         || !can_dig_here(stl_x, stl_y, player->id_number, true))
-        && (dungeonadd->one_click_lock_cursor == 0))
+        && (!dungeonadd->one_click_lock_cursor))
       {
         render_roomspace = create_box_roomspace(render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
         tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->full_slab_cursor);
@@ -874,7 +874,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
         {
             player->cursor_button_down = 0;
-            dungeonadd->one_click_lock_cursor = 0;
+            dungeonadd->one_click_lock_cursor = false;
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);
         if (render_roomspace.drag_mode)
@@ -896,7 +896,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
     {
-      if (dungeonadd->ignore_next_PCtr_RBtnRelease && (dungeonadd->one_click_lock_cursor == 0))
+      if (dungeonadd->ignore_next_PCtr_RBtnRelease && (!dungeonadd->one_click_lock_cursor))
       {
           dungeonadd->ignore_next_PCtr_RBtnRelease = false;
           if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
@@ -907,7 +907,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
       } else
       if (player->cursor_button_down != 0)
       {
-        if (!power_hand_is_empty(player) && (dungeonadd->one_click_lock_cursor == 0))
+        if (!power_hand_is_empty(player) && (!dungeonadd->one_click_lock_cursor))
         {
           if (dump_first_held_thing_on_map(player->id_number, stl_x, stl_y, 1)) {
               if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
@@ -918,20 +918,20 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           }
         } else
         {
-          if (player->primary_cursor_state == CSt_PowerHand && (dungeonadd->one_click_lock_cursor == 0)) {
+          if (player->primary_cursor_state == CSt_PowerHand && (!dungeonadd->one_click_lock_cursor)) {
               thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
               magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
           }
           if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
           {
               player->cursor_button_down = 0;
-              dungeonadd->one_click_lock_cursor = 0;
+              dungeonadd->one_click_lock_cursor = false;
           }
           unset_packet_control(pckt, PCtr_RBtnRelease);
         }
       }
     }
-    if (player->cursor_button_down == 0 || dungeonadd->one_click_lock_cursor == 0)
+    if ((player->cursor_button_down == 0) || (!dungeonadd->one_click_lock_cursor))
     {
       //if (untag_or_tag_completed_or_cancelled)
       dungeonadd->swap_to_untag_mode = 0; // no
@@ -1861,7 +1861,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     }
     if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (influence_own_creatures))
     {
-      if (((player->secondary_cursor_state == CSt_DefaultArrow) || (player->secondary_cursor_state == CSt_PowerHand)) && (dungeonadd->one_click_lock_cursor == 0))
+      if (((player->secondary_cursor_state == CSt_DefaultArrow) || (player->secondary_cursor_state == CSt_PowerHand)) && (!dungeonadd->one_click_lock_cursor))
         stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
     }
     return ret;

@@ -3117,7 +3117,7 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     {
         allowed = true;
     }
-    else if (dungeonadd->one_click_lock_cursor == 1)
+    else if (dungeonadd->one_click_lock_cursor)
     {
         allowed = true;
     }

@@ -506,7 +506,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
         // exit out of click and drag mode
         if (render_roomspace.drag_mode)
         {
-            dungeonadd->one_click_lock_cursor = 0;
+            dungeonadd->one_click_lock_cursor = false;
             if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
             {
                 dungeonadd->ignore_next_PCtr_LBtnRelease = true;
@@ -518,7 +518,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     {
         // because player cancelled a tag/untag with RMB, we need to default back to vanilla 1x1 box
         render_roomspace.drag_mode = false;
-        dungeonadd->one_click_lock_cursor = 0;
+        dungeonadd->one_click_lock_cursor = false;
         reset_dungeon_build_room_ui_variables();
         current_roomspace = create_box_roomspace(render_roomspace, width, height, slb_x, slb_y);
         current_roomspace.highlight_mode = false;
@@ -536,7 +536,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     }
     if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld) // highlight "paint mode" enabled
     {
-        dungeonadd->one_click_lock_cursor = 1;
+        dungeonadd->one_click_lock_cursor = true;
         untag_mode = render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)
     }
     else // user is hovering the mouse cursor
@@ -558,7 +558,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     {
         if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
-            dungeonadd->one_click_lock_cursor = 1; // Allow click and drag over low slabs (if clicked on high slab)
+            dungeonadd->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
             untag_mode = render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)
             one_click_mode_exclusive = true; // Block camera zoom/rotate if Ctrl is held with LMB/RMB
             drag_start_x = render_roomspace.drag_start_x; // if we are dragging, get the starting coords from the slab the player clicked on
@@ -640,7 +640,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     {
         current_roomspace.tag_for_dig = true;
     }
-    if (dungeonadd->one_click_lock_cursor == 1  && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && !current_roomspace.drag_mode)
+    if ((dungeonadd->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!current_roomspace.drag_mode))
     {
         current_roomspace.is_roomspace_a_box = true; // force full box cursor in "paint mode" - this stops the accurate boundbox appearing for a frame, before the slabs are tagged/untagged (which appears as flickering to the user)
     }
