@@ -546,10 +546,16 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             untag_mode = true;
         }
     }
+    if ((dungeonadd->swap_to_untag_mode == -1) && ((pckt->control_flags & PCtr_RBtnHeld) == PCtr_RBtnHeld) && (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0))
+    {
+        // Allow RMB + CTRL to work as expected over lowslabs (for tagging and untagging)
+        // we reset swap_to_untag_mode whenever LMB is not pressed (i.e. we are still in preview mode)
+        dungeonadd->swap_to_untag_mode = 0;
+    }
     if (dungeonadd->swap_to_untag_mode == 0) // if swap_to_untag_mode ==  no / enabled
     {
-        //if (untag_or_tag_started_on_undiggable_highslab)
-        if ((subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, true)) && (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)))
+        //if (untag_or_tag_started_on_undiggable_highslab OR lowslab)
+        if (!subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false))
         {
             dungeonadd->swap_to_untag_mode = 1; // maybe
         }
@@ -582,6 +588,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     {
         if ((pckt->control_flags & PCtr_HeldAnyButton) != 0) // Block camera zoom/rotate if Ctrl is held with LMB/RMB
         {
+            dungeonadd->one_click_lock_cursor = true;
             one_click_mode_exclusive = true;
         }
         if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
