@@ -716,6 +716,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
       player->secondary_cursor_state = CSt_DefaultArrow;
     player->primary_cursor_state = (unsigned short)(pckt->additional_packet_values & PCAdV_ContextMask) >> 1; // get current cursor state from pckt->additional_packet_values
+    render_roomspace.highlight_mode = false; // reset one-click highlight mode
 
     process_dungeon_power_hand_state(plyr_idx);
 
