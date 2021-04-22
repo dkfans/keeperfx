@@ -30,6 +30,7 @@ extern "C" {
 /******************************************************************************/
 #define OBJECT_TYPES_COUNT  136
 
+#define OBJECT_TYPE_ROOM_FLAG    25
 #define OBJECT_TYPE_SPECBOX_CUSTOM    133
 
 enum ObjectStates {

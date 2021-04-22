@@ -84,7 +84,7 @@ struct SlabMap {
       short next_in_room;
       unsigned char room_index;
       unsigned char health;
-      unsigned char field_5;
+      unsigned char field_5; // [7-5 unused?][4-3 wlb][2-0 ownership]
 };
 
 struct SlabSet { // sizeof = 18
