@@ -72,7 +72,8 @@ void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
   va_end(val);
   if (bxtype != 0) {
       tool_tip_box.pos_x = GetMouseX();
-      tool_tip_box.pos_y = GetMouseY()+86;
+      long y_offset = ((43 * (units_per_pixel << 4)) >> 7); // equivalent to (86 * (units_per_pixel/16)) but accounts for rounding, 86 was the previous value of y_offset
+      tool_tip_box.pos_y = GetMouseY() + y_offset;
   }
   tool_tip_box.field_809 = bxtype;
 }
@@ -102,7 +103,8 @@ static inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
     {
         tool_tip_box.gbutton = gbtn;
         tool_tip_box.pos_x = GetMouseX();
-        tool_tip_box.pos_y = GetMouseY()+86;
+        long y_offset = ((43 * (units_per_pixel << 4)) >> 7); // equivalent to (86 * (units_per_pixel/16)) but accounts for rounding, 86 was the previous value of y_offset
+        tool_tip_box.pos_y = GetMouseY() + y_offset;
         tool_tip_box.field_809 = 0;
         return true;
     }
