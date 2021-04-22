@@ -72,7 +72,8 @@ void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
   va_end(val);
   if (bxtype != 0) {
       tool_tip_box.pos_x = GetMouseX();
-      long y_offset = ((43 * (units_per_pixel << 4)) >> 7); // equivalent to (86 * (units_per_pixel/16)) but accounts for rounding, 86 was the previous value of y_offset
+      long y_offset_times_two = (43 * units_per_pixel) >> 2;
+      long y_offset = (y_offset_times_two + (y_offset_times_two & 1)) >> 1; // equivalent to (86 * (units_per_pixel/16)) but accounts for rounding, 86 was the previous hard value of y_offset (meant for 640x400)
       tool_tip_box.pos_y = GetMouseY() + y_offset;
   }
   tool_tip_box.field_809 = bxtype;
@@ -103,7 +104,8 @@ static inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
     {
         tool_tip_box.gbutton = gbtn;
         tool_tip_box.pos_x = GetMouseX();
-        long y_offset = ((43 * (units_per_pixel << 4)) >> 7); // equivalent to (86 * (units_per_pixel/16)) but accounts for rounding, 86 was the previous value of y_offset
+        long y_offset_times_two = (43 * units_per_pixel) >> 2;
+        long y_offset = (y_offset_times_two + (y_offset_times_two & 1)) >> 1; // equivalent to (86 * (units_per_pixel/16)) but accounts for rounding, 86 was the previous hard value of y_offset (meant for 640x400)
         tool_tip_box.pos_y = GetMouseY() + y_offset;
         tool_tip_box.field_809 = 0;
         return true;
