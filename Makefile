@@ -27,10 +27,8 @@ ifneq (,$(findstring Windows,$(OS)))
   # linker flags
   # useful for development only: -Wl,-Map,"$(@:%.exe=%.map)"
   LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
-  # "-Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive" added to LINKFLAGS to statically link lwinpthread
-  # "--whole-archive" and "--no-whole-archive" are used to ensure lwinpthread is linked statically, but does not attempt to make all libraries static (like "-static" would)
-  # This removes a dependency on  libwinpthread-1.dll when keeperfx is built with MSYS2
-  # See: https://github.com/dkfans/keeperfx/pull/1018
+  # The following flags are only here to prevent a dependency on libwinpthread-1.dll when keeperfx is built with MSYS2:
+  # "-Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
 else
   CROSS_EXEEXT =
   CROSS_COMPILE = i686-w64-mingw32-
