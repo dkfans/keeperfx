@@ -49,8 +49,8 @@ const struct NamedCommand objects_object_commands[] = {
   {"OBJECTSIZE",      5},
   {"IMAGE",           6},
   {"REGION",          7},
-  {"IMAGE3D",         8},
-  {"REGION3D",        9},
+  {"IMAGEFP",         8},
+  {"REGIONFP",        9},
   {NULL,              0},
   };
 
