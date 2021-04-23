@@ -110,7 +110,7 @@ long S3DSetNumberOfSounds(long nMaxSounds)
     return true;
 }
 
-static struct SoundEmitter *S3DGetSoundEmitter(SoundEmitterID eidx)
+struct SoundEmitter* S3DGetSoundEmitter(SoundEmitterID eidx)
 {
     if ((eidx < 0) || (eidx >= SOUND_EMITTERS_MAX))
     {

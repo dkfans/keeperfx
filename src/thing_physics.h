@@ -52,14 +52,15 @@ struct ComponentVector;
 /******************************************************************************/
 TbBool thing_touching_floor(const struct Thing *thing);
 TbBool thing_touching_flight_altitude(const struct Thing *thing);
+TbBool thing_above_flight_altitude(const struct Thing* thing);
 
 TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos, const struct Thing *sectng);
 TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const struct Coord3d *dstpos, const struct Thing *sectng);
 TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2);
 TbBool cross_y_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2);
 
-void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
-void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
+void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags);
+void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags);
 TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing);
 void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long a3);
 void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVector *veloc);
@@ -77,6 +78,7 @@ long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct C
 void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor);
 TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing);
+unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }

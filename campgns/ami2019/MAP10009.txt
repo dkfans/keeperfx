@@ -423,4 +423,8 @@ IF(PLAYER0,TIMER0>15000)
 	SET_FLAG(PLAYER0,FLAG2,0)
 ENDIF
 
+rem any fly player gets joins the enemy
+NEXT_COMMAND_REUSABLE
+CHANGE_CREATURE_OWNER(​PLAYER0,FLY,LEAST_EXPERIENCED,PLAYER_GOOD)
+
 rem ################################################################################################

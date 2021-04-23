@@ -81,9 +81,9 @@ void cpu_detect(struct CPU_INFO *cpu)
     cpu->BrandString = (where[0] >= CPUID_INTELBRANDSTRING);
     if (cpu->BrandString)
     {
-        cpuid_string(CPUID_INTELBRANDSTRING, &cpu->brand[0]);
-        cpuid_string(CPUID_INTELBRANDSTRINGMORE, &cpu->brand[16]);
-        cpuid_string(CPUID_INTELBRANDSTRINGEND, &cpu->brand[32]);       
+        cpuid_string(CPUID_INTELBRANDSTRING, (unsigned long*)&cpu->brand[0]);
+        cpuid_string(CPUID_INTELBRANDSTRINGMORE, (unsigned long*)&cpu->brand[16]);
+        cpuid_string(CPUID_INTELBRANDSTRINGEND, (unsigned long*)&cpu->brand[32]);       
     }
   }
 }

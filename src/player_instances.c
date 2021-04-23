@@ -326,10 +326,10 @@ long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
 
 long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
 {
-  player->allocflags |= PlaF_Unknown80;
+  player->allocflags |= PlaF_MouseInputDisabled;
   if (is_my_player(player))
   {
-    player->field_4C5 = 1;
+    player->palette_fade_step_possession = 1;
     turn_off_all_window_menus();
     turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(GMnu_CREATURE_QUERY2);
@@ -337,7 +337,7 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
     game.flags_font |= FFlg_unk04;
   }
   struct Camera* cam = player->acamera;
-  player->allocflags |= PlaF_Unknown10;
+  player->allocflags |= PlaF_KeyboardInputDisabled;
   player->dungeon_camera_zoom = get_camera_zoom(cam);
   // Play possession sound
   if (is_my_player(player))
@@ -371,8 +371,8 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         if (is_my_player(player))
             PaletteSetPlayerPalette(player, engine_palette);
         player->influenced_thing_idx = 0;
-        player->allocflags &= ~PlaF_Unknown10;
-        player->allocflags &= ~PlaF_Unknown80;
+        player->allocflags &= ~PlaF_KeyboardInputDisabled;
+        player->allocflags &= ~PlaF_MouseInputDisabled;
         set_player_instance(player, PI_Unset, true);
         return 0;
     }
@@ -445,8 +445,8 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         if (is_my_player(player)) {
             PaletteSetPlayerPalette(player, engine_palette);
         }
-        player->allocflags &= ~PlaF_Unknown10;
-        player->allocflags &= ~PlaF_Unknown80;
+        player->allocflags &= ~PlaF_KeyboardInputDisabled;
+        player->allocflags &= ~PlaF_MouseInputDisabled;
         return 0;
     }
     set_player_instance(player, PI_CrCtrlFade, false);
@@ -482,13 +482,13 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
     set_player_instance(player, PI_Unset, true);
     return 0;
   }
-  player->allocflags |= PlaF_Unknown80;
+  player->allocflags |= PlaF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
   reset_creature_eye_lens(thing);
   if (is_my_player(player))
   {
       PaletteSetPlayerPalette(player, engine_palette);
-      player->field_4C5 = 11;
+      player->palette_fade_step_possession = 11;
       turn_off_all_window_menus();
       turn_off_query_menus();
       turn_on_main_panel_menu();
@@ -496,7 +496,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
   }
   thing = thing_get(player->influenced_thing_idx);
   leave_creature_as_controller(player, thing);
-  player->allocflags |= PlaF_Unknown10;
+  player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   light_turn_light_on(player->field_460);
   play_non_3d_sample(177);
@@ -522,20 +522,20 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
       set_player_instance(player, PI_Unset, true);
       return 0;
   }
-  player->allocflags |= PlaF_Unknown80;
+  player->allocflags |= PlaF_MouseInputDisabled;
   struct Thing* thing = thing_get(player->influenced_thing_idx);
   reset_creature_eye_lens(thing);
   if (is_my_player(player))
   {
     PaletteSetPlayerPalette(player, engine_palette);
-    player->field_4C5 = 11;
+    player->palette_fade_step_possession = 11;
     turn_off_all_window_menus();
     turn_off_query_menus();
     turn_on_main_panel_menu();
     set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   leave_creature_as_passenger(player, thing);
-  player->allocflags |= PlaF_Unknown10;
+  player->allocflags |= PlaF_KeyboardInputDisabled;
   player->influenced_thing_idx = 0;
   light_turn_light_on(player->field_460);
   play_non_3d_sample(177);
@@ -547,8 +547,8 @@ long pinstfe_leave_creature(struct PlayerInfo *player, long *n)
   set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, engine_palette);
-  player->allocflags &= ~PlaF_Unknown10;
-  player->allocflags &= ~PlaF_Unknown80;
+  player->allocflags &= ~PlaF_KeyboardInputDisabled;
+  player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
 
@@ -557,7 +557,8 @@ long pinstfs_query_creature(struct PlayerInfo *player, long *n)
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
     set_selected_creature(player, thing);
-    set_player_state(player, PSt_CreatrInfo, 0);
+    unsigned char state = ( (player->work_state == PSt_CreatrQueryAll) || (player->work_state == PSt_CreatrInfoAll) ) ? PSt_CreatrInfoAll : PSt_CreatrInfo;
+    set_player_state(player, state, 0);
     return 0;
 }
 
@@ -584,8 +585,8 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         cctrl->flgfield_1 |= CCFlg_NoCompControl;
-        player->allocflags |= PlaF_Unknown10;
-        player->allocflags |= PlaF_Unknown80;
+        player->allocflags |= PlaF_KeyboardInputDisabled;
+        player->allocflags |= PlaF_MouseInputDisabled;
         game.numfield_D |= GNFldD_Unkn08;
     }
     return 0;
@@ -696,8 +697,8 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->orient_a = LbFPMath_PI/4;
   }
   light_turn_light_on(player->field_460);
-  player->allocflags &= ~PlaF_Unknown10;
-  player->allocflags &= ~PlaF_Unknown80;
+  player->allocflags &= ~PlaF_KeyboardInputDisabled;
+  player->allocflags &= ~PlaF_MouseInputDisabled;
   game.numfield_D &= ~GNFldD_Unkn08;
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, engine_palette);
@@ -706,7 +707,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
 
 long pinstfm_control_creature_fade(struct PlayerInfo *player, long *n)
 {
-  player->allocflags |= PlaF_Unknown80;
+  player->allocflags |= PlaF_MouseInputDisabled;
   return 0;
 }
 
@@ -714,14 +715,14 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
 {
   if (is_my_player(player))
   {
-    if ((player->field_3 & Pf3F_Unkn04) == 0)
-      PaletteSetPlayerPalette(player, red_palette);
+    if ((player->additional_flags & PlaAF_FreezePaletteIsActive) != 0)
+      PaletteSetPlayerPalette(player, blue_palette);
     else
       PaletteSetPlayerPalette(player, engine_palette);
   }
-  player->allocflags &= ~PlaF_Unknown10;
+  player->allocflags &= ~PlaF_KeyboardInputDisabled;
   light_turn_light_off(player->field_460);
-  player->allocflags &= ~PlaF_Unknown80;
+  player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
 
@@ -729,7 +730,7 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
 {
     struct Camera* cam = player->acamera;
     player->field_4BD = 0;
-    player->allocflags |= PlaF_Unknown80;
+    player->allocflags |= PlaF_MouseInputDisabled;
     player->view_mode_restore = cam->view_mode;
     if (is_my_player(player))
     {
@@ -754,13 +755,13 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
   if (is_my_player(player))
     settings.tooltips_on = ((player->field_1 & 0x02) != 0);
   copy_settings_to_dk_settings();
-  player->allocflags &= ~PlaF_Unknown80;
+  player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
 
 long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
 {
-  player->allocflags |= PlaF_Unknown80;
+  player->allocflags |= PlaF_MouseInputDisabled;
   if (is_my_player(player))
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
@@ -789,7 +790,7 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
         copy_settings_to_dk_settings();
         toggle_status_menu(player->field_1 & 1);
     }
-    player->allocflags &= ~0x80;
+    player->allocflags &= ~PlaF_MouseInputDisabled;
     return 0;
 }
 
@@ -798,8 +799,8 @@ long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
     //return _DK_pinstfs_zoom_to_position(player, n);
     player->controlled_thing_idx = 0;
     player->controlled_thing_creatrn = 0;
-    player->allocflags |= 0x80;
-    player->allocflags |= 0x10;
+    player->allocflags |= PlaF_MouseInputDisabled;
+    player->allocflags |= PlaF_KeyboardInputDisabled;
     struct Camera* cam = player->acamera;
     int dt_x = (player->zoom_to_pos_x - (int)cam->mappos.x.val) / 8;
     int dt_y = (player->zoom_to_pos_y - (int)cam->mappos.y.val) / 8;
@@ -848,8 +849,8 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
 
 long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-    player->allocflags &= ~PlaF_Unknown80;
-    player->allocflags &= ~PlaF_Unknown10;
+    player->allocflags &= ~PlaF_MouseInputDisabled;
+    player->allocflags &= ~PlaF_KeyboardInputDisabled;
     return 0;
 }
 
@@ -943,7 +944,6 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     if (thing->class_id == TCls_Creature)
     {
         set_start_state(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         if ((cctrl->flgfield_2 & TF2_Spectator) != 0) {
           delete_thing_structure(thing, 0);
@@ -1056,7 +1056,7 @@ TbBool is_thing_query_controlled(const struct Thing *thing)
     if (is_neutral_thing(thing))
         return false;
     struct PlayerInfo* player = get_player(thing->owner);
-    if (player->work_state != PSt_CreatrInfo)
+    if ( (player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CreatrInfoAll) )
         return false;
     switch (player->instance_num)
     {
@@ -1219,7 +1219,6 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     traptng->mappos.z.val = get_thing_height_at(traptng, &traptng->mappos);
     traptng->trap.revealed = 0;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
 
     remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, tngmodel);
     if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel)) {

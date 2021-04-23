@@ -3477,7 +3477,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->clipbox_size_yz = crstat->size_yz;
     crtng->solid_size_xy = crstat->thing_size_xy;
     crtng->solid_size_yz = crstat->thing_size_yz;
-    crtng->field_20 = 32;
+    crtng->fall_acceleration = 32;
     crtng->field_22 = 0;
     crtng->field_23 = 32;
     crtng->field_24 = 8;
@@ -5077,11 +5077,11 @@ TngUpdateRet update_creature(struct Thing *thing)
         struct PlayerInfo* player = get_player(thing->owner);
         if (creature_affected_by_spell(thing, SplK_Freeze))
         {
-            if ((player->field_3 & Pf3F_Unkn04) == 0)
+            if ((player->additional_flags & PlaAF_FreezePaletteIsActive) == 0)
               PaletteSetPlayerPalette(player, blue_palette);
         } else
         {
-            if ((player->field_3 & Pf3F_Unkn04) != 0)
+            if ((player->additional_flags & PlaAF_FreezePaletteIsActive) != 0)
               PaletteSetPlayerPalette(player, engine_palette);
         }
     } else
@@ -5221,9 +5221,13 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
             {
 				if (!creature_is_kept_in_custody(creatng))
 				{
-				change_creature_owner(thing, creatng->owner);
-                mark_creature_joined_dungeon(thing);
-                n++;
+				    change_creature_owner(thing, creatng->owner);
+                    mark_creature_joined_dungeon(thing);
+                    if (is_my_player_number(thing->owner))
+                    {
+                        output_message(SMsg_CreaturesJoinedYou, MESSAGE_DELAY_CRTR_JOINED , true);
+                    }
+                    n++;
 				}
             }
         }

@@ -128,7 +128,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
     if (lord_of_the_land_in_prison_or_tortured())
     {
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
-        player->field_3 |= Pf3F_Unkn10;
+        player->additional_flags |= PlaAF_UnlockedLordTorture;
     }
     output_message(SMsg_LevelWon, 0, true);
   }
@@ -541,7 +541,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
-    player->palette = engine_palette;
+    player->main_palette = engine_palette;
     if (is_my_player(player))
     {
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
@@ -834,7 +834,7 @@ void process_player_states(void)
         struct PlayerInfo* player = get_player(plyr_idx);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            if (player->work_state == PSt_CreatrInfo)
+            if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
             {
                 struct Thing* thing = thing_get(player->controlled_thing_idx);
                 struct Camera* cam = player->acamera;

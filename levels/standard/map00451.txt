@@ -1,9 +1,10 @@
 REM ****************************************************************************
 REM  Free Play levels - KeeperFX
 REM ****************************************************************************
-REM  Script for Level 2015 - Thug of War
+REM  Script for Level 451 - Thug of War
 REM  Author:  Loobinex
 REM  Date:    2017-01-04
+REM		updated for pot message texts by dayokay Jan-2021
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
@@ -115,7 +116,8 @@ IF(PLAYER0,RESEARCH >= 1)
 	MAGIC_AVAILABLE(PLAYER0,POWER_PROTECT,1,0)
 	MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,0)
 	MAGIC_AVAILABLE(PLAYER0,POWER_CONCEAL,1,0)
-	QUICK_OBJECTIVE(2,"Heroes will attack. Raid their dungeon to gain power, or get crushed by the relentless heroes of this realm.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(2,"Heroes will attack. Raid their dungeon to gain power, or get crushed by the relentless heroes of this realm.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(23,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,BARRACKS >= 1)
@@ -205,7 +207,8 @@ REM ****************************************************************************
 REM Level starts here
 REM ****************************************************************************
 
-QUICK_OBJECTIVE(1,"The best defence is a good offence. Kill the Heroes and steal their magic or they will overrun you.",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(1,"The best defence is a good offence. Kill the Heroes and steal their magic or they will overrun you.",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(22,ALL_PLAYERS)
 
 REM: Portal limit increases when you get more rooms. When you have 3 Portals heroes are ignored and you can get 24 creatures. If you lose units the new limit will be between 22-26 units.
 IF(PLAYER0,RESEARCH >= 1)
@@ -231,13 +234,15 @@ IF(PLAYER0,SKELETON >= DRAWFROM(3,7))
 	SET_FLAG(PLAYER_GOOD,FLAG1,1)
 ENDIF
 IF(PLAYER_GOOD,FLAG1 == 1)
-	QUICK_INFORMATION(3,"The heroes have learned being captured by you is a fate worse than death. They will avoid your prison at all cost. Better destroy them and take their magic before they really get smart",ALL_PLAYERS)
+	REM	QUICK_INFORMATION(3,"The heroes have learned being captured by you is a fate worse than death. They will avoid your prison at all cost. Better destroy them and take their magic before they really get smart",ALL_PLAYERS)
+	DISPLAY_INFORMATION(24,ALL_PLAYERS)
 	NEXT_COMMAND_REUSABLE
 	SET_CREATURE_TENDENCIES(PLAYER0,IMPRISON,0)
 ENDIF
 
 IF(PLAYER0,DRAGON >= 1)
-	QUICK_INFORMATION(10,"You have a dragon now, more powerful than you have ever seen!",ALL_PLAYERS)
+	REM	QUICK_INFORMATION(10,"You have a dragon now, more powerful than you have ever seen!",ALL_PLAYERS)
+	DISPLAY_INFORMATION(25,ALL_PLAYERS)
 	PLAY_MESSAGE(PLAYER0,SOUND,386)
 ENDIF
 
@@ -255,7 +260,8 @@ IF(PLAYER0,GAME_TURN >= DRAWFROM(18000,20000))
 	SET_FLAG(PLAYER_GOOD,FLAG0,1)
 ENDIF
 IF(PLAYER_GOOD,FLAG0 == 1)
-	QUICK_INFORMATION(7,"The heroes know where you are. They will come for you.",ALL_PLAYERS)
+	REM	QUICK_INFORMATION(7,"The heroes know where you are. They will come for you.",ALL_PLAYERS)
+	DISPLAY_INFORMATION(26,ALL_PLAYERS)
 	SET_TIMER(PLAYER_GOOD,TIMER1)
 ENDIF
 
@@ -329,14 +335,16 @@ REM: If the player turtles too much, we'll crush him.
 IF(PLAYER_GOOD,TIMER1 >= 72000)
 	REM: Not if player already reached enemy heart.
 	IF(PLAYER0,FLAG2 == 0)
-		QUICK_OBJECTIVE(5,"You must hurry, the Heroes are gathering a massive party that will kill you. Strike them down or die trying.",PLAYER_GOOD)
+		REM	QUICK_OBJECTIVE(5,"You must hurry, the Heroes are gathering a massive party that will kill you. Strike them down or die trying.",PLAYER_GOOD)
+		DISPLAY_OBJECTIVE(27,PLAYER_GOOD)
 		SET_TIMER(PLAYER_GOOD,TIMER7)
 		BONUS_LEVEL_TIME(36000)
 	ENDIF
 ENDIF
 IF(PLAYER0,FLAG2 == 0)
 	IF(PLAYER_GOOD,TIMER7 >= 36000)
-		QUICK_OBJECTIVE(6,"This will hurt. You should have destroyed the heart.",PLAYER_GOOD)
+		REM	QUICK_OBJECTIVE(6,"This will hurt. You should have destroyed the heart.",PLAYER_GOOD)
+		DISPLAY_OBJECTIVE(28,PLAYER_GOOD)
 		ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,bleed,-8,DUNGEON_HEART,0,10,1000)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,burn,-9,5)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,fierce,-8,5)
@@ -357,7 +365,8 @@ ENDIF
 
 REM: Player reached good DUNGEON_HEART
 IF_ACTION_POINT(4,PLAYER0)
-	QUICK_OBJECTIVE(4,"You have reached the heart of this fortress. The final battle is upon you. Kill all heroes, destroy the heart and claim their magic.",PLAYER_GOOD)
+	REM	QUICK_OBJECTIVE(4,"You have reached the heart of this fortress. The final battle is upon you. Kill all heroes, destroy the heart and claim their magic.",PLAYER_GOOD)
+	DISPLAY_OBJECTIVE(29,PLAYER_GOOD)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,bleed,-8,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,burn,-8,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,burn,-9,1)
@@ -409,7 +418,8 @@ REM ****************************************************************************
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
 	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 		IF(PLAYER_GOOD,RESEARCH <= 0)
-			QUICK_OBJECTIVE(9,"I was just starting to like them. Victory.",PLAYER0)
+			REM	QUICK_OBJECTIVE(9,"I was just starting to like them. Victory.",PLAYER0)
+			DISPLAY_OBJECTIVE(30,PLAYER0)
 			WIN_GAME
 		ENDIF
 	ENDIF

@@ -4,6 +4,7 @@ REM ****************************************************************************
 REM  Script for Level 456 - Shores of Battle
 REM  Author:  Loobinex
 REM  Date:    2017-09-13
+REM		modified to use a pot file for messages by dayokay Jan2021
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
@@ -11,7 +12,7 @@ REM    the Free Software Foundation; either version 2 of the License, or
 REM    (at your option) any later version.
 REM ****************************************************************************
 
-REM Brief: Player needs to use the rival keepers to get powerfull, but he can't reach them. Claim the Destroy Walls spell from them to get access to the heroes and trigger final battles.
+REM Brief: Player needs to use the rival keepers to get powerful, but he can't reach them. Claim the Destroy Walls spell from them to get access to the heroes and trigger final battles.
 
 LEVEL_VERSION(1)
 SET_GENERATE_SPEED(850)
@@ -121,6 +122,7 @@ ROOM_AVAILABLE(PLAYER0,GUARD_POST,1,0)
 ROOM_AVAILABLE(PLAYER0,TORTURE,1,0)
 ROOM_AVAILABLE(PLAYER0,TEMPLE,1,0)
 ROOM_AVAILABLE(PLAYER0,PRISON,1,0)
+ROOM_AVAILABLE(PLAYER0,GRAVEYARD,4,0)
 
 ROOM_AVAILABLE(PLAYER1,LAIR,1,1)
 
@@ -191,7 +193,6 @@ REM Additional availability
 REM ****************************************************************************
 
 IF(PLAYER0,GRAVEYARD >= 1)
-	ROOM_AVAILABLE(PLAYER0,GRAVEYARD,1,0)
 	TUTORIAL_FLASH_BUTTON(15,100)
 ENDIF
 
@@ -272,7 +273,8 @@ REM ****************************************************************************
 REM Level starts here
 REM ****************************************************************************
 
-QUICK_OBJECTIVE(1,"An ancient truce, the land divided. Kill them all, let none survive. And the heroes? We'll cross that bridge when we come to it.",ALL_PLAYERS)
+REM	"An ancient truce, the land divided. Kill them all, let none survive. And the heroes? We'll cross that bridge when we come to it."
+DISPLAY_OBJECTIVE(74,ALL_PLAYERS)
 
 REM Player gets a pair of hounds.
 IF(PLAYER0,TOTAL_CREATURES >= 15)
@@ -287,7 +289,8 @@ ENDIF
 
 REM Timer starts to run when player has maxed his portal limit. Spawns a tunneler party to dig path from Heroes to Player dungeon.
 IF(PLAYER0,TOTAL_CREATURES >= 25)
-	QUICK_INFORMATION(11,"As the wise man looks for a bridge the fool crosses the river.",ALL_PLAYERS)
+	REM	"As the wise man looks for a bridge the fool crosses the river."
+	DISPLAY_INFORMATION(75,ALL_PLAYERS)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,scouts,10,DUNGEON,0,6,600)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,PrisonFood,3,1)
 	SET_TIMER(PLAYER0,TIMER0)
@@ -337,7 +340,8 @@ ENDIF
 REM If player tries to take on heroes before keepers, let him know it is futile.
 IF(PLAYER0,FLAG1 <= 0)
 	IF_ACTION_POINT(10,PLAYER0)
-		QUICK_OBJECTIVE(7,"Think of these heroes as dessert. Finish your main course first: Blue, Yellow and Green. After that, turn the Lord of the Land into whipped cream.",10)
+		REM	"Think of these heroes as dessert. Finish your main course first: Blue, Yellow and Green. After that, turn the Lord of the Land into whipped cream."
+		DISPLAY_OBJECTIVE(76,10)
 	ENDIF
 ENDIF	
 
@@ -345,7 +349,8 @@ REM If the rival keepers are destroyed the player gets the bridge to claim Destr
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	IF(PLAYER2,DUNGEON_DESTROYED == 1)
 		IF(PLAYER3,DUNGEON_DESTROYED == 1)
-			QUICK_OBJECTIVE(2,"With your rivals destroyed, plunder their dungeons and breach the center.",PLAYER_GOOD)
+			REM	"With your rivals destroyed, plunder their dungeons and breach the center."
+			DISPLAY_OBJECTIVE(77,PLAYER_GOOD)
 			ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
 			TUTORIAL_FLASH_BUTTON(18,100)
 			SET_TIMER(PLAYER_GOOD,TIMER4)
@@ -359,7 +364,8 @@ IF_ACTION_POINT(5,PLAYER0)
 	SET_FLAG(PLAYER0,FLAG1,2)
 ENDIF
 IF(PLAYER0,FLAG1 >= 2)
-	QUICK_OBJECTIVE(3,"A bridge of blood and havoc stretches from the homes of heroes to the unforgiving nightmare emerging anew. Leave none alive.",PLAYER_GOOD)
+	REM	"A bridge of blood and havoc stretches from the homes of heroes to the unforgiving nightmare emerging anew. Leave none alive."
+	DISPLAY_OBJECTIVE(78,PLAYER_GOOD)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,dday,-1,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,dday,-2,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,dday,-3,1)
@@ -386,14 +392,17 @@ ENDIF
 REM If player takes too long to take on the heroes, persuade him.
 IF(PLAYER0,FLAG1 <= 1)
 	IF(PLAYER_GOOD,TIMER4 >= 8000)
-		QUICK_OBJECTIVE(4,"The heroes know conflict is imminent, destroy them now before they manage to take the offensive with a larger force.",PLAYER_GOOD)
+		REM	QUICK_OBJECTIVE(4,"The heroes know conflict is imminent, destroy them now before they manage to take the offensive with a larger force.",PLAYER_GOOD)
+		DISPLAY_OBJECTIVE(79,PLAYER_GOOD)
 	ENDIF
 	IF(PLAYER_GOOD,TIMER4 >= 10000)
-		QUICK_OBJECTIVE(5,"It's now or never. Kill or be killed.",PLAYER_GOOD)
+		REM	QUICK_OBJECTIVE(5,"It's now or never. Kill or be killed.",PLAYER_GOOD)
+		DISPLAY_OBJECTIVE(80,PLAYER_GOOD)
 		MAGIC_AVAILABLE(PLAYER0,POWER_DESTROY_WALLS,1,1)
 	ENDIF
 	IF(PLAYER_GOOD,TIMER4 >= 12000)
-		QUICK_OBJECTIVE(6,"Here they come!",PLAYER_GOOD)
+		REM	QUICK_OBJECTIVE(6,"Here they come!",PLAYER_GOOD)
+		DISPLAY_OBJECTIVE(81,PLAYER_GOOD)
 	ENDIF
 	IF(PLAYER_GOOD,TIMER4 >= 12200)
 		SET_FLAG(PLAYER0,FLAG1,3)
@@ -416,7 +425,8 @@ IF(PLAYER0,ALL_DUNGEONS_DESTROYED >= 1)
 	KILL_CREATURE(PLAYER_GOOD,TENTACLE,MOST_EXPERIENCED,10)
 	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 		IF(PLAYER0,FLAG2 >= 1)
-			QUICK_OBJECTIVE(9,"I give your performance 2 out of 5 spleens. But I guess it's the result that counts. Victory!",ALL_PLAYERS)
+			REM	QUICK_OBJECTIVE(9,"I give your performance 2 out of 5 spleens. But I guess it's the result that counts. Victory!",ALL_PLAYERS)
+			DISPLAY_OBJECTIVE(82,ALL_PLAYERS)
 			WIN_GAME
 		ENDIF
 	ENDIF

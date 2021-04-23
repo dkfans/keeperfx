@@ -38,17 +38,13 @@
 #include "power_hand.h"
 #include "magic.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
-#include "config_objects.h"
 #include "config_creature.h"
 #include "config_magic.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "player_instances.h"
 #include "engine_camera.h"
-#include "gui_topmsg.h"
 #include "game_legacy.h"
-#include "engine_redraw.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -419,8 +415,11 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
                     refpos.x.val = param->num1;
                     refpos.y.val = param->num2;
                     refpos.z.val = 0;
+                    MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                    if (dist > param->num3) // Too far away
+                        return -1;
                     // This function should return max value when the distance is minimal, so:
-                    return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
+                    return LONG_MAX-dist;
                 }
             }
         }
@@ -509,6 +508,11 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFi
 {
     if (thing->class_id == param->class_id)
     {
+        if (param->model_id != -2 && (thing->model == param->model_id))
+        {
+            // Skip wrong models
+            return -1;
+        }
         switch(param->class_id)
         {
         case TCls_Creature:
@@ -1463,7 +1467,7 @@ struct Thing *get_nearest_thing_of_class_and_model_owned_by(MapCoord pos_x, MapC
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
-    param.num3 = 0;
+    param.num3 = LONG_MAX;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -1659,7 +1663,7 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             struct Thing* thing = creature_of_model_in_prison_or_tortured(crtr_model);
-            if (thing > 0)
+            if (!thing_is_invalid(thing))
             {
                 if (player_keeping_creature_in_custody(thing) == my_player_number)
                 {
@@ -1924,7 +1928,7 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((crmodel <= 0) || (thing->model == crmodel))
+        if ((crmodel == 0) || (thing->model == crmodel))
         {
             count++;
         }
@@ -1993,10 +1997,10 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
       struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
       i = cctrl->players_next_creature_idx;
       // Per creature code
-      if ((crtr_idx <= 0) || (thing->model == crmodel && crtr_idx <= 1))
-          return thing;
       if ((crmodel <= 0) || (thing->model == crmodel))
           crtr_idx--;
+      if (crtr_idx == -1)
+          return thing;
       // Per creature code ends
       k++;
       if (k > THINGS_COUNT)
@@ -2125,7 +2129,7 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
     {
         return INVALID_THING;
     }
-    long crtr_idx = ACTION_RANDOM(total_count) + 1;
+    long crtr_idx = ACTION_RANDOM(total_count);
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model(dungeon->digger_list_start, crmodel, crtr_idx);
@@ -2734,13 +2738,23 @@ TbBool update_thing(struct Thing *thing)
                 thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_24) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
-                thing->veloc_push_add.z.val -= thing->field_20;
+                thing->veloc_push_add.z.val -= thing->fall_acceleration;
                 thing->state_flags |= TF1_PushAdd;
             } else
             {
                 // For flying creatures, the Z velocity should also decrease over time
                 if (thing->veloc_base.z.val != 0)
+                {
                     thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->field_24) / 256;
+                }
+                else 
+                {
+                    if (thing_above_flight_altitude(thing))
+                    {
+                        thing->veloc_push_add.z.val -= thing->fall_acceleration;
+                        thing->state_flags |= TF1_PushAdd;
+                    }
+                }
             }
         } else
         {
@@ -3298,9 +3312,10 @@ struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, 
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
  * @param plyr_idx Player whose creature from revealed position will be returned.
+ * @param crmodel Creature model or 0 for any
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
+struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, long crmodel)
 {
     SYNCDBG(19,"Starting");
     //return get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
@@ -3308,6 +3323,7 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, Pla
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
     param.plyr_idx = plyr_idx;
+    param.model_id = crmodel;
     param.num1 = pos_x;
     param.num2 = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
@@ -3551,6 +3567,48 @@ struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord 
   }
   return result;
 }
+      }
+      while ( n < STL_PER_SLB );
+    }
+    k++;
+  }
+  while ( k < STL_PER_SLB );
+  return result;
+}
+
+struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+  long OldDistance = 0x7FFFFFFF;
+  struct Thing *thing;
+  unsigned char n,k = 0;
+  struct Thing *result = NULL;
+  MapSubtlCoord x,y; 
+  do
+  {
+    n = 0;
+    y = stl_y + k;  
+    if ( (y >= 0) && (y < 256) )
+    {
+      do
+      {
+        x = stl_x + n;  
+        if ( (x >= 0) && (x < 256) )
+        {
+          struct Map *blk = get_map_block_at(x, y);
+          thing = thing_get(get_mapwho_thing_index(blk));
+          while (!thing_is_invalid(thing)) 
+          {
+            TRACE_THING(thing);
+            long NewDistance = get_2d_box_distance_xy(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            if ( NewDistance < OldDistance )
+            {
+                OldDistance = NewDistance;
+                result = thing;
+            }
+            thing = thing_get(thing->next_on_mapblk);
+          }
+        }
+      n++;
       }
       while ( n < STL_PER_SLB );
     }

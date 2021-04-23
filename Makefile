@@ -26,7 +26,9 @@ ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
   # linker flags
   # useful for development only: -Wl,-Map,"$(@:%.exe=%.map)"
-  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
+  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
+  # The following flags are only here to prevent a dependency on libwinpthread-1.dll when keeperfx is built with MSYS2:
+  # "-Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
 else
   CROSS_EXEEXT =
   CROSS_COMPILE = i686-w64-mingw32-
@@ -356,6 +358,11 @@ questfth \
 revlord \
 twinkprs \
 undedkpr
+
+MAPPACKS  = \
+classic \
+lostlvls \
+standard
 
 LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 

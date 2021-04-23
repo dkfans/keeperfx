@@ -556,7 +556,7 @@ void draw_power_hand(void)
         return;
     }
     SYNCDBG(7,"Drawing hand %s index %d", thing_model_name(thing), (int)thing->index);
-    if ((player->field_3 & Pf3F_Unkn02) != 0)
+    if ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0)
     {
         draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
         return;
@@ -564,7 +564,7 @@ void draw_power_hand(void)
     if (player->work_state != PSt_HoldInHand)
     {
       if ( (player->work_state != PSt_CtrlDungeon)
-        || ((player->field_455 != P454_Unkn3) && ((player->work_state != PSt_CtrlDungeon) || (player->field_455 != P454_Unkn0) || (player->field_454 != P454_Unkn3))) )
+        || ((player->secondary_cursor_state != CSt_PowerHand) && ((player->work_state != PSt_CtrlDungeon) || (player->secondary_cursor_state != CSt_DefaultArrow) || (player->primary_cursor_state != CSt_PowerHand))) )
       {
         if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop))
         {
@@ -575,7 +575,7 @@ void draw_power_hand(void)
           } else
           if (player->work_state == PSt_CtrlDungeon)
           {
-            if ((player->field_455 == P454_Unkn2) || (player->field_454 == P454_Unkn2))
+            if ((player->secondary_cursor_state == CSt_DoorKey) || (player->primary_cursor_state == CSt_DoorKey))
             {
               draw_mini_things_in_hand(GetMouseX()+18*units_per_pixel/16, GetMouseY());
             }
@@ -770,7 +770,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
             break;
         if (i > 0)
         {
-            thing->field_20 += ACTION_RANDOM(thing->field_20) - thing->field_20 / 2;
+            thing->fall_acceleration += ACTION_RANDOM(thing->fall_acceleration) - thing->fall_acceleration / 2;
             thing->valuable.gold_stored = 0;
         } else
         {
