@@ -317,6 +317,8 @@ TbResult LbScreenSetGraphicsWindow(TbScreenCoord x, TbScreenCoord y,
 
 TbResult LbSetTitle(const char *title);
 TbResult LbSetIcon(unsigned short nicon);
+
+long scale_value_for_resolution(long base_value);
 /******************************************************************************/
 #ifdef __cplusplus
 }

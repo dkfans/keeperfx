@@ -968,6 +968,26 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
     }
     return *o;
 }
+
+/**
+ * Takes a fixed value designed for 640x400 resolution and scales it to the game's current resolution
+ * Returns a new fixed integer value, calculated from base_value relative to ("current units_per_pixel" / "reference units_per_pixel")
+ *
+ * "reference units_per_pixel" is = 16, as this is the value of units_per_pixel at 640x400 or 640x480 mode
+ *
+ * If 640x400 mode   (units_per_pixel = 16) then this function returns (base_value * 1)
+ * If 320x200 mode   (units_per_pixel =  8) then this function returns (base_value * 0.5)
+ * If 1920x1080 mode (units_per_pixel = 48) then this function returns (base_value * 3)
+ *
+ * (!base_value should always be divisible by 2, for compatibility with 320x200 resolution!)
+ *
+ * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current resolution
+ */
+long scale_value_for_resolution(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel /16)
+    return ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
