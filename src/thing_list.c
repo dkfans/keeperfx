@@ -3567,14 +3567,6 @@ struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord 
   }
   return result;
 }
-      }
-      while ( n < STL_PER_SLB );
-    }
-    k++;
-  }
-  while ( k < STL_PER_SLB );
-  return result;
-}
 
 struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
