@@ -3531,7 +3531,7 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   // return _DK_get_nearest_object_at_position(stl_x, stl_y);
-  long OldDistance = 0x7FFFFFFF;
+  long OldDistance = LONG_MAX;
   struct Thing *thing;
   long NewDistance;
   struct Thing *result = NULL;
@@ -3578,7 +3578,7 @@ struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord 
 
 struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  long OldDistance = 0x7FFFFFFF;
+  long OldDistance = LONG_MAX;
   struct Thing *thing;
   unsigned char n,k = 0;
   struct Thing *result = NULL;
