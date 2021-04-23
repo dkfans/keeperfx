@@ -821,10 +821,10 @@ void draw_zoom_box(void)
         bs_units_per_px = (74 * units_per_pixel) / spr->SWidth;
     }
     LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    int beg_x = scrtop_x - scale_value_for_resolution(24);
-    int beg_y = scrtop_y - scale_value_for_resolution(20);
-    int end_x = scrtop_x - scale_value_for_resolution(50) + draw_tiles_x * subtile_size;
-    int end_y = scrtop_y - scale_value_for_resolution(54) + draw_tiles_y * subtile_size;
+    int beg_x = scrtop_x - scale_value_for_resolution(20);
+    int beg_y = scrtop_y - scale_value_for_resolution(24);
+    int end_x = scrtop_x - scale_value_for_resolution(46) + draw_tiles_x * subtile_size;
+    int end_y = scrtop_y - scale_value_for_resolution(58) + draw_tiles_y * subtile_size;
     LbSpriteDrawResized(beg_x, beg_y, bs_units_per_px, &button_sprite[194]);
     LbSpriteDrawResized(end_x, beg_y, bs_units_per_px, &button_sprite[195]);
     LbSpriteDrawResized(beg_x, end_y, bs_units_per_px, &button_sprite[196]);
