@@ -968,6 +968,18 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
     }
     return *o;
 }
+
+/**
+ * Scale a given value according to the game resolution (units_per_pixel).
+ * default is based on 640x400 (units_per_pixel = 16)
+ * so if units_per_pixel = 16 the this function returns (base_value * 1)
+ *
+ * @param base_value The value (or size) for the game running at 640x400.
+ */
+long scale_value_for_resolution(long base_value)
+{
+    return ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
