@@ -3531,42 +3531,8 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   // return _DK_get_nearest_object_at_position(stl_x, stl_y);
-  long OldDistance = LONG_MAX;
-  struct Thing *thing;
-  long NewDistance;
-  struct Thing *result = NULL;
-  MapSubtlCoord n, k;
-  struct Map *mapblk, *blk;
-  mapblk = get_map_block_at(stl_x, stl_y);
-  for (k = 0; k < STL_PER_SLB; k++)
-  {
-    if ( stl_y + k >= 0 && stl_y + k < 256 )
-    {
-      n = 0;
-      blk = mapblk;
-      for (n = 0; n < STL_PER_SLB; n++)
-      {
-        if ( stl_x + n >= 0 && stl_x + n < 256 )
-        {
-          for ( thing = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(thing)); thing = thing_get(thing->next_on_mapblk) )
-          {
-            if (thing->class_id == TCls_Object)
-            {
-                NewDistance = get_2d_box_distance_xy(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-                if ( NewDistance < OldDistance )
-                {
-                    OldDistance = NewDistance;
-                    result = thing;
-                }
-            }
-            blk += 5;
-          }
-        }
-      }
-    }
-    mapblk += 320;
-  }
-  return result;
+  return get_object_around_owned_by_and_matching_bool_filter(
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object);
 }
 
 struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
