@@ -3536,19 +3536,20 @@ struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord 
   long NewDistance;
   struct Thing *result = NULL;
   MapSubtlCoord x, y, n, k;
-  struct Map *blk;
+  struct Map *mapblk, *blk;
+  mapblk = get_map_block_at(stl_x, stl_y);
   for (k = 0; k < STL_PER_SLB; k++)
   {
     if ( stl_y + k >= 0 && stl_y + k < 256 )
     {
       n = 0;
       y = stl_y + k;
+      blk = mapblk;
       for (n = 0; n < STL_PER_SLB; n++)
       {
         if ( stl_x + n >= 0 && stl_x + n < 256 )
         {
           x = stl_x + n;
-          blk = get_map_block_at(x, y);
           for ( thing = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(thing)); thing = thing_get(thing->next_on_mapblk) )
           {
             if (thing->class_id == TCls_Object)
@@ -3560,6 +3561,7 @@ struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord 
                     result = thing;
                 }
             }
+            blk = get_map_block_at(x, y);
           }
         }
       }
