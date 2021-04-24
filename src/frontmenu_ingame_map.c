@@ -1142,8 +1142,8 @@ void auto_gen_tables(long units_per_px)
 
 void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 {
-    PannelMapX = x * units_per_px / 16;
-    PannelMapY = y * units_per_px / 16;
+    PannelMapX = scale_value_for_resolution_with_upp(x,units_per_px);
+    PannelMapY = scale_value_for_resolution_with_upp(y,units_per_px);
     auto_gen_tables(units_per_px);
     update_pannel_colours();
     struct PlayerInfo *player;

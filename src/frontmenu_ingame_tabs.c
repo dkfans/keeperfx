@@ -2129,7 +2129,7 @@ void draw_whole_status_panel(void)
     // Draws gold amount; note that button_sprite[] is used instead of full font
     draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, bs_units_per_px, dungeon->total_money_owned);
     if (16/mm_units_per_px < 3)
-        mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
+        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2,mm_units_per_px);
     else
         mmzoom = player->minimap_zoom;
     pannel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, mm_units_per_px, mmzoom);
