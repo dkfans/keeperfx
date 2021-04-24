@@ -75,7 +75,7 @@ Thing_Class_Func class_functions[] = {
 unsigned long thing_create_errors = 0;
 
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long stl_x, long stl_y);
+
 /******************************************************************************/
 /**
  * Adds thing at beginning of a StructureList.
@@ -3530,12 +3530,14 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  return _DK_get_nearest_object_at_position(stl_x, stl_y);
+  // return _DK_get_nearest_object_at_position(stl_x, stl_y);
+  return get_object_around_owned_by_and_matching_bool_filter(
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object);
 }
 
 struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  long OldDistance = 0x7FFFFFFF;
+  long OldDistance = LONG_MAX;
   struct Thing *thing;
   unsigned char n,k = 0;
   struct Thing *result = NULL;
