@@ -971,7 +971,7 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
 
 /**
  * Takes a fixed value designed for 640x400 resolution and scales it to the game's current resolution
- * Returns a new fixed integer value, calculated from base_value relative to ("current units_per_pixel" / "reference units_per_pixel")
+ * Returns a new integer value, calculated from base_value relative to ("current units_per_pixel" / "reference units_per_pixel")
  *
  * "reference units_per_pixel" is = 16, as this is the value of units_per_pixel at 640x400 or 640x480 mode
  *
@@ -987,6 +987,44 @@ long scale_value_for_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel /16)
     return ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
+}
+
+/**
+ * Duplicates scale_value_for_resolution() except that this function:
+ * is passed a units_per_px parameter, rather than using the global units_per_pixel
+ *
+ * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current resolution
+ * @param units_per_px The current units_per_px value for the current resolution
+ */
+long scale_value_for_resolution_with_upp(long base_value, long units_per_px)
+{
+    long value = ((((units_per_px * base_value) >> 3) + (((units_per_px * base_value) >> 3) & 1)) >> 1);
+    // return value is equivalent to: round(base_value * units_per_px /16)
+    return max(1,value);
+}
+
+/**
+ * Duplicates scale_value_for_resolution() except that this function:
+ * uses units_per_pixel_width rather than using units_per_pixel
+ *
+ * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current horizontal resolution
+ */
+long scale_value_by_horizontal_resolution(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_width /16)
+    return ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
+}
+
+/**
+ * Duplicates scale_value_for_resolution() except that this function:
+ * uses units_per_pixel_height rather than using units_per_pixel
+ *
+ * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current vertical resolution
+ */
+long scale_value_by_vertical_resolution(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_height /16)
+    return ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
 }
 /******************************************************************************/
 #ifdef __cplusplus

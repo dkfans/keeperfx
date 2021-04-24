@@ -64,6 +64,8 @@ TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 
 //struct IPOINT_2D units_per_pixel;
 unsigned short units_per_pixel_min;
+unsigned short units_per_pixel_width;
+unsigned short units_per_pixel_height;
 long base_mouse_sensitivity = 256;
 
 short force_video_mode_reset = true;
@@ -727,6 +729,9 @@ TbBool update_screen_mode_data(long width, long height)
   pixels_per_block = 16 * psize;
   units_per_pixel = (width>height?width:height)/40;// originally was 16 for hires, 8 for lores
   units_per_pixel_min = (width>height?height:width)/40;// originally 10 for hires
+  units_per_pixel_width = width/40; // 8 for low res, 16 is "kfx default"
+  units_per_pixel_height = height/25; // 8 for low res, 16 is "kfx default"
+  
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);
   else
