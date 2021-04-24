@@ -3561,7 +3561,7 @@ struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord 
                     result = thing;
                 }
             }
-            blk = get_map_block_at(x, y);
+            blk += 5;
           }
         }
       }
