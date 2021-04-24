@@ -2084,14 +2084,14 @@ void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_p
         ndigits++;
     }
     struct TbSprite* spr = &button_sprite[71];
-    val_width = (spr->SWidth * units_per_px / 16) * ndigits;
+    val_width = scale_value_for_resolution_with_upp(spr->SWidth, units_per_px) * ndigits;
     if (ndigits > 0)
     {
         long pos_x = scr_x + val_width / 2;
         for (i = value; i > 0; i /= 10)
         {
             // Make space for the character first, as we're drawing right char towards left
-            pos_x -= spr->SWidth * units_per_px / 16;
+            pos_x -= scale_value_for_resolution_with_upp(spr->SWidth, units_per_px);
             spr = &button_sprite[i % 10 + 71];
             LbSpriteDrawResized(pos_x, scr_y, units_per_px, spr);
         }
