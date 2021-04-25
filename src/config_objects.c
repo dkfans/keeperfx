@@ -46,6 +46,13 @@ const struct NamedCommand objects_object_commands[] = {
   {"GENRE",           2},
   {"RELATEDCREATURE", 3},
   {"PROPERTIES",      4},
+  {"ANIMATIONID",     5},
+  {"ANIMATIONSPEED",  6},
+  {"SIZE_XY",         7},
+  {"SIZE_YZ",         8},
+  {"MAXIMUMSIZE",     9},
+  {"DESTROYONLIQUID",10},
+  {"DESTROYONLAVA"  ,11},
   {NULL,              0},
   };
 
@@ -312,6 +319,97 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                       break;
                   }
                 }
+                break;
+            case 5: // ANIMATIONID
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = get_id(objects_genres_desc, word_buf);
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    break;
+                }
+                objdat->sprite_anim_idx = n;
+                break;
+            case 6: // ANIMATIONSPEED
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = get_id(objects_genres_desc, word_buf);
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    break;
+                }
+                objdat->anim_speed = n;
+                break;
+            case 7: // SIZE_XY
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = get_id(objects_genres_desc, word_buf);
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    break;
+                }
+                objdat->size_xy = n;
+                break;
+            case 8: // SIZE_YZ
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = get_id(objects_genres_desc, word_buf);
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    break;
+                }
+                objdat->size_yz = n;
+                break;
+            case 9: // MAXIMUMSIZE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = get_id(objects_genres_desc, word_buf);
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    break;
+                }
+                objdat->sprite_size_max = n;
+                break;
+            case 10: // DESTROYONLIQUID
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = get_id(objects_genres_desc, word_buf);
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    break;
+                }
+                objdat->destroy_on_liquid = n;
+                break;
+            case 11: // DESTROYONLAVA
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = get_id(objects_genres_desc, word_buf);
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    break;
+                }
+                objdat->destroy_on_lava = n;
                 break;
             case 0: // comment
                 break;
