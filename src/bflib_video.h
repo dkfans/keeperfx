@@ -224,6 +224,8 @@ typedef struct DisplayStructEx TbDisplayStructEx;
 struct SSurface;
 typedef struct SSurface TSurface;
 
+extern unsigned short units_per_pixel_width;
+extern unsigned short units_per_pixel_height;
 /******************************************************************************/
 
 DLLIMPORT extern TbDisplayStruct _DK_lbDisplay;
@@ -319,6 +321,9 @@ TbResult LbSetTitle(const char *title);
 TbResult LbSetIcon(unsigned short nicon);
 
 long scale_value_for_resolution(long base_value);
+long scale_value_for_resolution_with_upp(long base_value, long units_per_px);
+long scale_value_by_horizontal_resolution(long base_value);
+long scale_value_by_vertical_resolution(long base_value);
 /******************************************************************************/
 #ifdef __cplusplus
 }
