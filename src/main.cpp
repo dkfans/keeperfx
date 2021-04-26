@@ -1043,6 +1043,8 @@ short setup_game(void)
   // Enable features that require more resources
   update_features(mem_size);
 
+  features_enabled |= Ft_Wibble; // enable wibble by default
+
   // Configuration file
   if ( !load_configuration() )
   {
