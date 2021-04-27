@@ -1040,7 +1040,7 @@ long scale_ui_value(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_ui /16)
     long value = ((((units_per_pixel_ui * base_value) >> 3) + (((units_per_pixel_ui * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return value; // can return zero
 }
 
 /**
