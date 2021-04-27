@@ -986,7 +986,8 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
 long scale_value_for_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel /16)
-    return ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
+    long value = ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
 }
 
 /**
@@ -1012,7 +1013,8 @@ long scale_value_for_resolution_with_upp(long base_value, long units_per_px)
 long scale_value_by_horizontal_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_width /16)
-    return ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
+    long value = ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
 }
 
 /**
@@ -1024,7 +1026,8 @@ long scale_value_by_horizontal_resolution(long base_value)
 long scale_value_by_vertical_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_height /16)
-    return ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
+    long value = ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
 }
 
 /**
@@ -1036,7 +1039,8 @@ long scale_value_by_vertical_resolution(long base_value)
 long scale_ui_value(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_ui /16)
-    return ((((units_per_pixel_ui * base_value) >> 3) + (((units_per_pixel_ui * base_value) >> 3) & 1)) >> 1);
+    long value = ((((units_per_pixel_ui * base_value) >> 3) + (((units_per_pixel_ui * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
 }
 
 /**
@@ -1048,7 +1052,8 @@ long scale_ui_value(long base_value)
 long scale_fixed_DK_value(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_best /16)
-    return ((((units_per_pixel_best * base_value) >> 3) + (((units_per_pixel_best * base_value) >> 3) & 1)) >> 1);
+    long value = ((((units_per_pixel_best * base_value) >> 3) + (((units_per_pixel_best * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
 }
 
 /**
@@ -1103,7 +1108,8 @@ long get_upp_from_type(long upp_type)
 long calculate_relative_upp(long base_length, long upp_type, long reference_length)
 {
     long reference_upp = get_upp_from_type(upp_type);
-    return ((((base_length * reference_upp) << 2) / reference_length) >> 2); // bitshifts to round up
+    long value = ((((base_length * reference_upp) << 2) / reference_length) >> 2); // bitshifts to round up
+    return max(1,value);
 }
 
 /**
@@ -1114,7 +1120,8 @@ long calculate_relative_upp(long base_length, long upp_type, long reference_leng
  */
 long resize_ui(long units_per_px, long ui_scale)
 {
-    return (units_per_px * ui_scale / DEFAULT_UI_SCALE);
+    long value = (units_per_px * ui_scale / DEFAULT_UI_SCALE);
+    return max(1,value);
 }
 /******************************************************************************/
 #ifdef __cplusplus
