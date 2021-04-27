@@ -272,15 +272,6 @@ extern volatile TbBool lbInteruptMouse;
 extern volatile TbDisplayStructEx lbDisplayEx;
 extern unsigned char lbPalette[PALETTE_SIZE];
 
-enum UnitsPerPixelTypes{
-    upp_MAX,
-    upp_MIN,
-    upp_WIDTH,
-    upp_HEIGHT,
-    upp_BEST,
-    upp_UI,
-};
-
 #define DEFAULT_UI_SCALE                128
 
 enum UIScaleSettings {
@@ -347,7 +338,7 @@ long scale_value_by_vertical_resolution(long base_value);
 long scale_ui_value(long base_value);
 long scale_fixed_DK_value(long base_value);
 TbBool is_ar_wider_than_original(long width, long height);
-long calculate_relative_upp(long base_length, long upp_type, long reference_length);
+long calculate_relative_upp(long base_length, long reference_upp, long reference_length);
 long resize_ui(long units_per_px, long ui_scale);
 /******************************************************************************/
 #ifdef __cplusplus

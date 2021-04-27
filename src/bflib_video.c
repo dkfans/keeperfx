@@ -1069,45 +1069,16 @@ TbBool is_ar_wider_than_original(long width, long height)
     return (current_aspect_ratio > original_aspect_ratio);
 }
 
-long get_upp_from_type(long upp_type)
-{
-    long return_upp;
-    switch(upp_type)
-    {
-        case upp_WIDTH:
-            return_upp = units_per_pixel_width;
-            break;
-        case upp_HEIGHT:
-            return_upp = units_per_pixel_height;
-            break;
-        case upp_BEST:
-            return_upp = units_per_pixel_best;
-            break;
-        case upp_UI:
-            return_upp = units_per_pixel_ui;
-            break;
-        /*case upp_MIN:
-            return_upp = units_per_pixel_min;
-            break;*/
-        case upp_MAX:
-        default:
-            return_upp = units_per_pixel;
-            break;
-    }
-    return return_upp;
-}
-
 /**
  * Calculate a units_per_px value relative to a given 640x400 base length,
 *  a current reference length, and a current reference units_per_pixel
  *
  * @param base_length a given length/size for DK 640x400 mode
- * @param upp_type a reference units_per_pixel type, that is relative to the current window resolution
+ * @param reference_upp a reference units_per_pixel value, that is relative to the current window resolution
  * @param reference_length a reference length/size to put in a ratio relative to the give base_length
  */
-long calculate_relative_upp(long base_length, long upp_type, long reference_length)
+long calculate_relative_upp(long base_length, long reference_upp, long reference_length)
 {
-    long reference_upp = get_upp_from_type(upp_type);
     long value = ((((base_length * reference_upp) << 2) / reference_length) >> 2); // bitshifts to round up
     return max(1,value);
 }
