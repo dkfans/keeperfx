@@ -1040,6 +1040,18 @@ long scale_ui_value(long base_value)
 }
 
 /**
+ * Takes a fixed value tuned for original DK at 640x400 and scales it for the game's current resolution.
+ * Uses units_per_pixel_best (which is 16 at 640x400)
+ *
+ * @param base_value The fixed value tuned for original DK 640x400 mode
+ */
+long scale_fixed_DK_value(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_best /16)
+    return ((((units_per_pixel_best * base_value) >> 3) + (((units_per_pixel_best * base_value) >> 3) & 1)) >> 1);
+}
+
+/**
  * Determine whether the current window aspect ratio is wider than the original (16/10)
  *
  * @param width current window width
@@ -1050,6 +1062,59 @@ TbBool is_ar_wider_than_original(long width, long height)
     long original_aspect_ratio = (320 << 8) / 200;
     long current_aspect_ratio = (width << 8) / height;
     return (current_aspect_ratio > original_aspect_ratio);
+}
+
+long get_upp_from_type(long upp_type)
+{
+    long return_upp;
+    switch(upp_type)
+    {
+        case upp_WIDTH:
+            return_upp = units_per_pixel_width;
+            break;
+        case upp_HEIGHT:
+            return_upp = units_per_pixel_height;
+            break;
+        case upp_BEST:
+            return_upp = units_per_pixel_best;
+            break;
+        case upp_UI:
+            return_upp = units_per_pixel_ui;
+            break;
+        /*case upp_MIN:
+            return_upp = units_per_pixel_min;
+            break;*/
+        case upp_MAX:
+        default:
+            return_upp = units_per_pixel;
+            break;
+    }
+    return return_upp;
+}
+
+/**
+ * Calculate a units_per_px value relative to a given 640x400 base length,
+*  a current reference length, and a current reference units_per_pixel
+ *
+ * @param base_length a given length/size for DK 640x400 mode
+ * @param upp_type a reference units_per_pixel type, that is relative to the current window resolution
+ * @param reference_length a reference length/size to put in a ratio relative to the give base_length
+ */
+long calculate_relative_upp(long base_length, long upp_type, long reference_length)
+{
+    long reference_upp = get_upp_from_type(upp_type);
+    return ((((base_length * reference_upp) << 2) / reference_length) >> 2); // bitshifts to round up
+}
+
+/**
+ * Scale UI relative to the base DEFAULT_UI_SCALE
+ *
+ * @param units_per_px the current units_per_pixel value
+ * @param ui_scale the relative scale to multiply units_per_px by
+ */
+long resize_ui(long units_per_px, long ui_scale)
+{
+    return (units_per_px * ui_scale / DEFAULT_UI_SCALE);
 }
 /******************************************************************************/
 #ifdef __cplusplus

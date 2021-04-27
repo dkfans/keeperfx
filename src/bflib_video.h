@@ -224,9 +224,6 @@ typedef struct DisplayStructEx TbDisplayStructEx;
 struct SSurface;
 typedef struct SSurface TSurface;
 
-extern unsigned short units_per_pixel_width;
-extern unsigned short units_per_pixel_height;
-extern unsigned short units_per_pixel_ui;
 /******************************************************************************/
 
 DLLIMPORT extern TbDisplayStruct _DK_lbDisplay;
@@ -274,6 +271,28 @@ extern volatile TbBool lbUseSdk;
 extern volatile TbBool lbInteruptMouse;
 extern volatile TbDisplayStructEx lbDisplayEx;
 extern unsigned char lbPalette[PALETTE_SIZE];
+
+enum UnitsPerPixelTypes{
+    upp_MAX,
+    upp_MIN,
+    upp_WIDTH,
+    upp_HEIGHT,
+    upp_BEST,
+    upp_UI,
+};
+
+#define DEFAULT_UI_SCALE                128
+
+enum UIScaleSettings {
+    UI_NORMAL_SIZE = DEFAULT_UI_SCALE,
+    UI_HALF_SIZE   = DEFAULT_UI_SCALE / 2,
+    UI_DOUBLE_SIZE = DEFAULT_UI_SCALE * 2,
+};
+
+extern unsigned short units_per_pixel_width;
+extern unsigned short units_per_pixel_height;
+extern unsigned short units_per_pixel_best;
+extern unsigned short units_per_pixel_ui;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
@@ -326,7 +345,10 @@ long scale_value_for_resolution_with_upp(long base_value, long units_per_px);
 long scale_value_by_horizontal_resolution(long base_value);
 long scale_value_by_vertical_resolution(long base_value);
 long scale_ui_value(long base_value);
+long scale_fixed_DK_value(long base_value);
 TbBool is_ar_wider_than_original(long width, long height);
+long calculate_relative_upp(long base_length, long upp_type, long reference_length);
+long resize_ui(long units_per_px, long ui_scale);
 /******************************************************************************/
 #ifdef __cplusplus
 }

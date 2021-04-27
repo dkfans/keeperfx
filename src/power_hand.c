@@ -515,7 +515,7 @@ void draw_power_hand(void)
     {
         struct TbSprite *spr;
         spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
-        ps_units_per_px = (46 * units_per_pixel_ui) / spr->SHeight;
+        ps_units_per_px = calculate_relative_upp(46, upp_UI, spr->SHeight);
     }
     // Now draw
     if (((game.operation_flags & GOF_ShowGui) != 0) && (game.small_map_state != 2)
@@ -1079,13 +1079,13 @@ void draw_mini_things_in_hand(long x, long y)
     {
         struct TbSprite *spr;
         spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
-        ps_units_per_px = (46 * units_per_pixel_ui) / spr->SHeight;
+        ps_units_per_px = calculate_relative_upp(46, upp_UI, spr->SHeight);
     }
     int bs_units_per_px;
     {
         struct TbSprite *spr;
         spr = &button_sprite[184]; // Use creature flower level number as reference
-        bs_units_per_px = (17 * units_per_pixel_ui) / spr->SHeight;
+        bs_units_per_px = calculate_relative_upp(17, upp_UI, spr->SHeight);
     }
     unsigned long spr_idx;
     spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);

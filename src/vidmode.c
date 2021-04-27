@@ -66,6 +66,7 @@ TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 unsigned short units_per_pixel_min;
 unsigned short units_per_pixel_width;
 unsigned short units_per_pixel_height;
+unsigned short units_per_pixel_best;
 unsigned short units_per_pixel_ui;
 long base_mouse_sensitivity = 256;
 
@@ -732,7 +733,9 @@ TbBool update_screen_mode_data(long width, long height)
   units_per_pixel_min = (width>height?height:width)/40;// originally 10 for hires
   units_per_pixel_width = width/40; // 8 for low res, 16 is "kfx default"
   units_per_pixel_height = height/25; // 8 for low res, 16 is "kfx default"
-  units_per_pixel_ui = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width);
+  units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // 8 for low res, 16 is "kfx default"
+  long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
+  units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
   
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);
