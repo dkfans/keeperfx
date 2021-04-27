@@ -226,6 +226,7 @@ typedef struct SSurface TSurface;
 
 extern unsigned short units_per_pixel_width;
 extern unsigned short units_per_pixel_height;
+extern unsigned short units_per_pixel_ui;
 /******************************************************************************/
 
 DLLIMPORT extern TbDisplayStruct _DK_lbDisplay;
@@ -324,6 +325,8 @@ long scale_value_for_resolution(long base_value);
 long scale_value_for_resolution_with_upp(long base_value, long units_per_px);
 long scale_value_by_horizontal_resolution(long base_value);
 long scale_value_by_vertical_resolution(long base_value);
+long scale_ui_value(long base_value);
+TbBool is_ar_wider_than_original(long width, long height);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -1026,6 +1026,31 @@ long scale_value_by_vertical_resolution(long base_value)
     // return value is equivalent to: round(base_value * units_per_pixel_height /16)
     return ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
 }
+
+/**
+ * Takes a fixed value tuned for original DK at 640x400 and scales it for the game's current resolution and UI scale.
+ * Uses units_per_pixel_ui (which is 16 at 640x400)
+ *
+ * @param base_value The fixed value tuned for original DK 640x400 mode
+ */
+long scale_ui_value(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_ui /16)
+    return ((((units_per_pixel_ui * base_value) >> 3) + (((units_per_pixel_ui * base_value) >> 3) & 1)) >> 1);
+}
+
+/**
+ * Determine whether the current window aspect ratio is wider than the original (16/10)
+ *
+ * @param width current window width
+ * @param height current window height
+ */
+TbBool is_ar_wider_than_original(long width, long height)
+{
+    long original_aspect_ratio = (320 << 8) / 200;
+    long current_aspect_ratio = (width << 8) / height;
+    return (current_aspect_ratio > original_aspect_ratio);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
