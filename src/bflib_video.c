@@ -1044,6 +1044,26 @@ long scale_ui_value(long base_value)
 }
 
 /**
+ * Sames as scale_ui_value, but if "lofi" detected, then scale is doubled
+ *
+ * @param base_value The fixed value tuned for original DK 640x400 mode
+ */
+long scale_ui_value_lofi(long base_value)
+{
+    TbBool lofi_mode = ((LbGraphicsScreenHeight() < 400) ? true : false);
+    long value;
+    if (lofi_mode)
+    {
+        value = scale_ui_value(base_value * 2);
+    }
+    else
+    {
+        value = scale_ui_value(base_value);
+    }
+    return value; // can return zero
+}
+
+/**
  * Takes a fixed value tuned for original DK at 640x400 and scales it for the game's current resolution.
  * Uses units_per_pixel_best (which is 16 at 640x400)
  *

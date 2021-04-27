@@ -272,7 +272,7 @@ extern volatile TbBool lbInteruptMouse;
 extern volatile TbDisplayStructEx lbDisplayEx;
 extern unsigned char lbPalette[PALETTE_SIZE];
 
-#define DEFAULT_UI_SCALE                128
+#define DEFAULT_UI_SCALE                128 // is equivilent to size 1 or 100%
 
 enum UIScaleSettings {
     UI_NORMAL_SIZE = DEFAULT_UI_SCALE,
@@ -335,6 +335,7 @@ long scale_value_for_resolution(long base_value);
 long scale_value_for_resolution_with_upp(long base_value, long units_per_px);
 long scale_value_by_horizontal_resolution(long base_value);
 long scale_value_by_vertical_resolution(long base_value);
+long scale_ui_value_lofi(long base_value);
 long scale_ui_value(long base_value);
 long scale_fixed_DK_value(long base_value);
 TbBool is_ar_wider_than_original(long width, long height);
