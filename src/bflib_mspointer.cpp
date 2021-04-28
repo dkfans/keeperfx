@@ -196,8 +196,8 @@ void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct TbPoint *npos, 
     LbSemaLock semlock(&sema_rel,0);
     semlock.Lock(true);
     sprite = spr;
-    dstwidth = scale_ui_value_lofi(sprite->SWidth);
-    dstheight = scale_ui_value_lofi(sprite->SHeight);
+    dstwidth = scale_ui_value_lofi(sprite->SWidth) + 1;
+    dstheight = scale_ui_value_lofi(sprite->SHeight) + 1;
     LbScreenSurfaceCreate(&surf1, dstwidth, dstheight);
     LbScreenSurfaceCreate(&surf2, dstwidth, dstheight);
     surfbuf = LbScreenSurfaceLock(&surf1);
