@@ -456,11 +456,11 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
           y = MyScreenHeight - scale_ui_value(ttheight);
         if (tttext[0] != '\0')
         {
-            LbTextSetWindow(x, y, scale_ui_value(viswidth), scale_ui_value(ttheight));
-            draw_slab64k(x, y, units_per_pixel_ui, scale_ui_value(viswidth), scale_ui_value(ttheight));
+            LbTextSetWindow(x, y, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
+            draw_slab64k(x, y, units_per_pixel_ui, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
             lbDisplay.DrawFlags = 0;
             int tx_units_per_px = calculate_relative_upp(22, units_per_pixel_ui, LbTextLineHeight());
-            LbTextDrawResized(scale_ui_value(tooltip_scroll_offset), -scale_ui_value(2), tx_units_per_px, tttext);
+            LbTextDrawResized(scale_ui_value_lofi(tooltip_scroll_offset), -scale_ui_value_lofi(2), tx_units_per_px, tttext);
         }
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
