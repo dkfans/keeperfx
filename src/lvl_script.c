@@ -2574,7 +2574,7 @@ void refresh_trap_anim(long trap_id)
 }
 
 
-void command_set_trap_configuration(const char* trapname, const char* variable, long value)
+void command_set_trap_configuration(const char* trapname, const char* variable, long val1, long val2)
 {
     long trap_id = get_rid(trap_desc, trapname);
     if (trap_id == -1)
@@ -2582,14 +2582,17 @@ void command_set_trap_configuration(const char* trapname, const char* variable, 
         SCRPTERRLOG("Unknown trap, '%s'", trapname);
     }
 
-
     long trapvar = get_id(trap_config_desc, variable);
     if (trapvar == -1)
     {
         SCRPTERRLOG("Unknown trap variable");
         return;
     }
-    command_add_value(Cmd_SET_TRAP_CONFIGURATION, 0, trap_id, trapvar, value );
+
+    //val2 is an optional variable, used when there's 2 numbers on one command.
+    long mergedval = val1 + (val2 << 16);
+
+    command_add_value(Cmd_SET_TRAP_CONFIGURATION, 0, trap_id, trapvar, mergedval);
  }
 
                                               //Name,  ManufactureLevel, ManufactureRequired,SellingValue,Health
@@ -3859,7 +3862,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_game_rule(scline->tp[0], scline->np[1]);
         break;
     case Cmd_SET_TRAP_CONFIGURATION:
-        command_set_trap_configuration(scline->tp[0], scline->tp[1], scline->np[2]);
+        command_set_trap_configuration(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
     case Cmd_SET_DOOR_CONFIGURATION:
         command_set_door_configuration(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4]);
@@ -5991,6 +5994,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct SlabMap *slb;
+  struct TrapConfigStats* trapst;
+  struct ManfctrConfig* mconf;
   int plr_start;
   int plr_end;
   long i;
@@ -6867,11 +6872,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       }
       break;
-  case Cmd_SET_TRAP_CONFIGURATION:
-      
-      JUSTMSG("TESTLOG val4 %d, val2 %d, val3 %d", val4, val2, val3); 
-      struct TrapConfigStats* trapst;
-      struct ManfctrConfig* mconf;
+  case Cmd_SET_TRAP_CONFIGURATION:  
       trapst = &trapdoor_conf.trap_cfgstats[val2];
       mconf = &gameadd.traps_config[val2];
       switch (val3)
@@ -6883,8 +6884,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           trapst->tooltip_stridx = val4;
           break;
       case 3: // SymbolSprites
-          trapst->bigsym_sprite_idx = val4;
-          trapst->medsym_sprite_idx = val4; //todo I hate my life
+          trapst->bigsym_sprite_idx = val4 << 16 >> 16;
+          trapst->medsym_sprite_idx = val4 >> 16;
+          create_manufacture_array_from_trapdoor_data();
+          update_trap_tab_to_config();
           break;
       case 4: // PointerSprites
           trapst->pointer_sprite_idx = val4;
@@ -7215,7 +7218,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
-  {"SET_TRAP_CONFIGURATION",            "AAN     ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
+  {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
   {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
