@@ -6886,7 +6886,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 3: // SymbolSprites
           trapst->bigsym_sprite_idx = val4 << 16 >> 16;
           trapst->medsym_sprite_idx = val4 >> 16;
-          create_manufacture_array_from_trapdoor_data();
+          struct ManufactureData* manufctr = get_manufacture_data(val2);
+          manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
+          manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
           update_trap_tab_to_config();
           break;
       case 4: // PointerSprites
