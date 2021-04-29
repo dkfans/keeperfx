@@ -5996,6 +5996,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct SlabMap *slb;
   struct TrapConfigStats* trapst;
   struct ManfctrConfig* mconf;
+  struct ManufactureData* manufctr;
   int plr_start;
   int plr_end;
   long i;
@@ -6875,6 +6876,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_SET_TRAP_CONFIGURATION:  
       trapst = &trapdoor_conf.trap_cfgstats[val2];
       mconf = &gameadd.traps_config[val2];
+      manufctr = get_manufacture_data(val2);
       switch (val3)
       {
       case 1: // NameTextID
@@ -6886,7 +6888,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 3: // SymbolSprites
           trapst->bigsym_sprite_idx = val4 << 16 >> 16;
           trapst->medsym_sprite_idx = val4 >> 16;
-          struct ManufactureData* manufctr = get_manufacture_data(val2);
           manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
           manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
           update_trap_tab_to_config();
@@ -6896,6 +6897,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       case 5: // PanelTabIndex
           trapst->panel_tab_idx = val4;
+          manufctr->panel_tab_idx = val4;
+          //create_manufacture_array_from_trapdoor_data();
+          update_trap_tab_to_config();
           break;
       case 6: // Crate
           object_conf.object_to_door_or_trap[val4] = val2;
