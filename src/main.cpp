@@ -583,21 +583,21 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   struct Coord3d pos;
   struct ShotStats *shotst = &shot_stats[thing->model];
   unsigned short speed = (unsigned short)shotst->speed;
-  *(unsigned short *)&pos.x.stl = *(unsigned short *)&thing->mappos.x.stl
+  pos.x.val = thing->mappos.x.val
                            + ((speed * *(int *)((char *)lbSinTable + i)) >> 16);
   int n = speed * *(int *)((char *)lbCosTable + i);
-  *(unsigned short *)&pos.y.stl = *(unsigned short *)&thing->mappos.y.stl + (-(n >> 8) >> 8);
-  *(unsigned short *)&pos.z.stl = *(unsigned short *)&thing->mappos.z.stl;
+  pos.y.val = thing->mappos.y.val + (-(n >> 8) >> 8);
+  pos.z.val = thing->mappos.z.val;
   unsigned long seed = 9377 * game.action_rand_seed + 9439;
   game.action_rand_seed = LB_RANDOM(4294967296, &seed);
-  if ( !(game.action_rand_seed & 7) && (!*(unsigned short *)&thing->velocity.z.stl ) )
+  if ( !(game.action_rand_seed & 7) && (!thing->velocity.z.val ) )
   {
     if ( thing_touching_floor(thing) )
     {
       long top_cube = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num, NULL);
       if ( ((top_cube & 0xFFFFFFFE) != 40) && (top_cube != 39) )
       {
-        *(unsigned short *)&thing->veloc_push_add.z.stl += 48;
+        thing->veloc_push_add.z.val += 48;
         thing->state_flags |= TF1_PushAdd;
       }
     }
@@ -637,19 +637,19 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         angle = thing->move_angle_xy;
         if ( (angle) && ( (angle <= 0x200u) || (angle > 0x600u) ) )
         {
-          unsigned short y = *(unsigned short *)&thing->mappos.y.stl;
-          *(unsigned short *)&pos2.x.stl = *(unsigned short *)&thing->mappos.x.stl;
-          *(unsigned short *)&pos2.z.stl = 0;
-          *(unsigned short *)&pos2.y.stl = y - 3 * speed;
-          *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
+          unsigned short y = thing->mappos.y.val;
+          pos2.x.val = thing->mappos.x.val;
+          pos2.z.val = 0;
+          pos2.y.val = y - 3 * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
           new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400;
         }
         else
         {
-          *(unsigned short *)&pos2.x.stl = *(unsigned short *)&thing->mappos.x.stl;
-          *(unsigned short *)&pos2.z.stl = 0;
-          *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl + 3 * speed;
-          *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
+          pos2.x.val = thing->mappos.x.val;
+          pos2.z.val = 0;
+          pos2.y.val = thing->mappos.y.val + 3 * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
           new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;
         }
       }
@@ -658,19 +658,19 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         angle = thing->move_angle_xy;
         if ( (angle) && (angle <= 0x400u) ) 
         {
-          *(unsigned short *)&pos2.z.stl = 0;
-          *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl;
-          *(unsigned short *)&pos2.x.stl = *(unsigned short *)&thing->mappos.x.stl + 3 * speed;
-          *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
+          pos2.z.val = 0;
+          pos2.y.val = thing->mappos.y.val;
+          pos2.x.val = thing->mappos.x.val + 3 * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
           new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536;
         }
         else
         {
-          unsigned short x = *(unsigned short *)&thing->mappos.x.stl;
-          *(unsigned short *)&pos2.z.stl = 0;
-          *(unsigned short *)&pos2.y.stl = *(unsigned short *)&thing->mappos.y.stl;
-          *(unsigned short *)&pos2.x.stl = x - 3 * speed;
-          *(unsigned short *)&pos2.z.stl = get_thing_height_at(thing, &pos2);
+          unsigned short x = thing->mappos.x.val;
+          pos2.z.val = 0;
+          pos2.y.val = thing->mappos.y.val;
+          pos2.x.val = x - 3 * speed;
+          pos2.z.val = get_thing_height_at(thing, &pos2);
           new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1536 : 512;
         }
       }
@@ -683,9 +683,9 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     }
   }
   angle = thing->move_angle_xy;
-  *(unsigned short *)&thing->velocity.x.stl = shotst->speed
+  thing->velocity.x.val = shotst->speed
                                        * lbSinTable[angle] >> 16;
-  *(unsigned short *)&thing->velocity.y.stl = -(shotst->speed * lbCosTable[angle] >> 8) >> 8;
+  thing->velocity.y.val = -(shotst->speed * lbCosTable[angle] >> 8) >> 8;
   return 0;
 }
 
@@ -741,7 +741,7 @@ long process_boulder_collision(struct Thing *thing, struct Coord3d *pos, int a3,
   {
     create_dirt_rubble_for_dug_block(stl_x + around[k].delta_x, stl_y + around[k].delta_y, 4, room->owner);
   }
-  if ( thing->trap.num_shots != 20 )
+  if ( thing->model != ShM_SolidBoulder )
   {
     thing->health -= game.boulder_reduce_health_room;
   }
