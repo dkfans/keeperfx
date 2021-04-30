@@ -290,19 +290,52 @@ long get_camera_zoom(struct Camera *cam)
     }
 }
 
-/** When the menu is hidden in Isometric view, show less of the map (at max zoom out)
-    because the increased view exceeds the render array, and we want to hide the graphical glitches it causes)
-    otherwise this function just sets zoom_min = CAMERA_ZOOM_MIN
+/** Adjusts the minimum zoom amount if the wider or narrower aspect ratio of the window will cause glitched slabs to appear (i.e. render limit exceeded)
+ *  NOTE: This function can be removed, and calls to it can be replaced with CAMERA_ZOOM_MIN when the render limit is removed.
  *
- * @param cam The current player's camera.\
- * @param showgui Whether the side-menu is visible or not (you should pass "game.operation_flags & GOF_ShowGui".\
+ * @param cam The current player's camera
+ * @param width The game engine width (accounting for the sidebar menu)
+ * @param height The game engine height
+ * @param status_panel_width - the width of the side menu (this should be 0 if the menu is hidden)
  */
-unsigned long adjust_min_camera_zoom(struct Camera *cam, int showgui)
+unsigned long adjust_min_camera_zoom(long width, long height, long status_panel_width)
 {
-  unsigned long zoom_min = CAMERA_ZOOM_MIN;
-  if (showgui == 0 && cam->view_mode == PVM_IsometricView)
-    zoom_min += 300; // a higher value is a nearer zoom
-  return zoom_min;
+    //return zoom_min; // uncomment this line to quickly disable the zoom limiting.
+    unsigned long zoom_min = CAMERA_ZOOM_MIN; // a higher value is a nearer zoom
+    long aspect_ratio = 100 * width / height; // (*100 to help with rounding)
+    long max_aspect_ratio = 145; // (14.5/10 = 1.45 *100 to help with rounding)
+    long full_width = width + status_panel_width; // we want to compare full screen ar
+    long flipped_aspect_ratio = 200 * height / full_width; // (*200 to help with rounding)
+    long reference_flipped_aspect_ratio = 125; // (10/16 = 0.625 * 200 to help with rounding)
+    if (flipped_aspect_ratio > reference_flipped_aspect_ratio) // game window is narrower than 16:10
+    {
+        // values from testing at 4:3 with menu hidden with 0.4.7 and at 600x800 in kfx
+        aspect_ratio = (100 * full_width / height); // (*100 to help with rounding)
+        long reference_aspect_ratio = 75; // (600/800 = 0.75 *100 to help with rounding)
+        long reference_zoom_difference_without_menu = aspect_ratio * 2700 / reference_aspect_ratio; // 2575 measured needed zoom difference from 640x400 to 600x800 (with menu hidden)
+        long reference_zoom_difference_with_menu = 2050; // 1900 measured needed zoom difference from 640x400 to 600x800 (with menu shown)
+        long reference_ar_difference = 141; // 0.708 measured ar difference from 640x400 to 640x480 (*200 to help with rounding)
+        long relative_height = flipped_aspect_ratio;
+        long comparison_height = reference_flipped_aspect_ratio;
+        if (status_panel_width == 0)
+        {
+            zoom_min +=(relative_height-comparison_height)*reference_zoom_difference_without_menu/reference_ar_difference;
+        }
+        else
+        {
+            zoom_min +=(relative_height-comparison_height)*reference_zoom_difference_with_menu/reference_ar_difference;
+        }
+    }
+    else if (aspect_ratio > max_aspect_ratio) // (engine window has AR greater than 14.5/10 [approx cut off])
+    {
+        // from testing at 21:9 with menu hidden
+        long reference_zoom_difference = 1500; // 1605 measured needed zoom difference from 16:10 to 21:9
+        long reference_ar_difference = 88; // 0.125 measured ar difference from 16:10 to 21:9 (*100 to help with rounding)
+        long relative_width = aspect_ratio;
+        long comparison_width = max_aspect_ratio;
+        zoom_min +=(relative_width-comparison_width)*reference_zoom_difference/reference_ar_difference;
+    }
+    return zoom_min;
 }
 
 /** Scales camera zoom for current screen resolution.
