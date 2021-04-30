@@ -1014,7 +1014,7 @@ long scale_value_by_horizontal_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_width /16)
     long value = ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return value;
 }
 
 /**
@@ -1027,7 +1027,7 @@ long scale_value_by_vertical_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_height /16)
     long value = ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return value;
 }
 
 /**
@@ -1073,7 +1073,7 @@ long scale_fixed_DK_value(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_best /16)
     long value = ((((units_per_pixel_best * base_value) >> 3) + (((units_per_pixel_best * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return value;
 }
 
 /**
