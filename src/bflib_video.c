@@ -26,6 +26,7 @@
 #include "bflib_inputctrl.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <math.h>
 
 #define SCREEN_MODES_COUNT 40
 
@@ -1135,6 +1136,18 @@ long scale_fixed_DK_value_by_ar(long base_value, TbBool scale_up, TbBool vert_pl
     return value;
 }
 
+long convert_vertical_FOV_to_horizontal(long vert_fov)
+{
+    double horizontal_fov = (2.0 * atan(tan((vert_fov * M_PI /180.0) / 2.0) * 16.0 / 10.0 )) * 180.0 / M_PI;
+    long value = lround(horizontal_fov);
+    return value;
+}
+
+long FOV_based_on_aspect_ratio(void)
+{
+    long value = scale_fixed_DK_value_by_ar(convert_vertical_FOV_to_horizontal(first_person_vertical_fov), false, false);
+    return value;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

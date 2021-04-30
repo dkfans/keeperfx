@@ -410,7 +410,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 256;
     cam->orient_b = 0;
     cam->orient_c = 0;
-    cam->field_13 = 188;
+    cam->horizontal_fov = first_person_horizontal_fov;
     cam->orient_a = LbFPMath_PI/2;
     cam->view_mode = PVM_CreatureView;
 
@@ -419,7 +419,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.y.val = heartng->mappos.y.val;
     cam->mappos.z.val = 0;
     cam->orient_c = 0;
-    cam->field_13 = 188;
+    cam->horizontal_fov = 94;
     cam->orient_b = -266;
     cam->orient_a = LbFPMath_PI/4;
     cam->view_mode = PVM_IsometricView;
@@ -429,14 +429,14 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.x.val = 0;
     cam->mappos.y.val = 0;
     cam->mappos.z.val = 32;
-    cam->field_13 = 188;
+    cam->horizontal_fov = 94;
     cam->view_mode = PVM_ParchmentView;
 
     cam = &player->cameras[CamIV_FrontView];
     cam->mappos.x.val = heartng->mappos.x.val;
     cam->mappos.y.val = heartng->mappos.y.val;
     cam->mappos.z.val = 32;
-    cam->field_13 = 188;
+    cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
     cam->zoom = 65536;
 }

@@ -64,7 +64,7 @@ struct Camera {
     int orient_a;
     int orient_b;
     int orient_c;
-    int field_13;
+    int horizontal_fov; // Horizontal Field of View in degrees
     int zoom;
     int field_1B;
     unsigned char field_1F;
