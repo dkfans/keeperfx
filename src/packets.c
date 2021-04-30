@@ -2115,10 +2115,20 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsometricView:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            if (is_my_player(player))
+            {
+                settings.isometric_view_zoom_level = cam->zoom;
+                save_settings();
+            }
             break;
         default:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             break;
+        }
+        if (is_my_player(player))
+        {
+            settings.frontview_zoom_level = cam->zoom;
+            save_settings();
         }
     }
     if (pckt->control_flags & PCtr_ViewZoomOut)
@@ -2128,9 +2138,19 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsometricView:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            if (is_my_player(player))
+            {
+                settings.isometric_view_zoom_level = cam->zoom;
+                save_settings();
+            }
             break;
         default:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
+            if (is_my_player(player))
+            {
+                settings.frontview_zoom_level = cam->zoom;
+                save_settings();
+            }
             break;
         }
     }
