@@ -2366,12 +2366,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       process_pause_packet((game.operation_flags & GOF_Paused) == 0, pckt->actn_par1);
       return 1;
   case PckA_SetCluedo:
+      player->video_cluedo_mode = pckt->actn_par1;
       if (is_my_player(player))
       {
-          settings.video_cluedo_mode = pckt->actn_par1;
-          save_settings();
+        settings.video_cluedo_mode = player->video_cluedo_mode;
+        save_settings();
       }
-      player->video_cluedo_mode = pckt->actn_par1;
       return 0;
   case PckA_Unknown025:
       if (is_my_player(player))
