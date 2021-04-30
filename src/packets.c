@@ -2392,6 +2392,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_SetMinimapConf:
       player->minimap_zoom = pckt->actn_par1;
+      if (is_my_player(player))
+      {
+        settings.minimap_zoom = player->minimap_zoom;
+        save_settings();
+      }
       return 0;
   case PckA_SetMapRotation:
       player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;

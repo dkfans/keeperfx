@@ -70,6 +70,7 @@ struct GameSettings { // KFX settings
     unsigned char tooltips_on;
     unsigned char first_person_move_invert;
     unsigned char first_person_move_sensitivity;
+    unsigned int minimap_zoom;
     };
 #pragma pack()
 /******************************************************************************/
