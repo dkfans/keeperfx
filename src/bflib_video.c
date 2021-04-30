@@ -1114,6 +1114,27 @@ long resize_ui(long units_per_px, long ui_scale)
     long value = (units_per_px * ui_scale / DEFAULT_UI_SCALE);
     return max(1,value);
 }
+
+void calculate_aspect_ratio_factor(long width, long height)
+{
+    aspect_ratio_factor_HOR_PLUS = aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS = 100 * width / height;
+    if (!is_ar_wider_than_original(width, height))
+    {
+        aspect_ratio_factor_HOR_PLUS = 160;
+        aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS = 256 * height / width;
+    }
+}
+
+long scale_fixed_DK_value_by_ar(long base_value, TbBool scale_up, TbBool vert_plus)
+{
+    long aspect_ratio_factor = vert_plus ? aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS : aspect_ratio_factor_HOR_PLUS;
+    long multiplier = scale_up ? aspect_ratio_factor : DEFAULT_ASPECT_RATIO_FACTOR;
+    long divisor = scale_up ? DEFAULT_ASPECT_RATIO_FACTOR : aspect_ratio_factor;
+
+    long value = multiplier * base_value / divisor;
+    return value;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
