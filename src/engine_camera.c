@@ -305,7 +305,7 @@ unsigned long adjust_min_camera_zoom(struct Camera *cam, long width, long height
     {
         return zoom_min; // only apply limit to iso mode
     }
-    return zoom_min; // uncomment this line to quickly disable the zoom limiting.
+    //return zoom_min; // uncomment this line to quickly disable the zoom limiting.
     long aspect_ratio = 100 * width / height; // (*100 to help with rounding)
     long max_aspect_ratio = 145; // (14.5/10 = 1.45 *100 to help with rounding)
     long full_width = width + status_panel_width; // we want to compare full screen ar
