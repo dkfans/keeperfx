@@ -118,6 +118,7 @@ const struct NamedCommand conf_commands[] = {
   {"RESIZE_MOVIES",       14},
   {"MUSIC_TRACKS",        15},
   {"WIBBLE",              16},
+  {"PAUSE_GAME_ON_LOSE_FOCUS", 17},
   {NULL,                   0},
   };
 
@@ -215,6 +216,14 @@ TbBool resize_movies_enabled(void)
 TbBool wibble_enabled(void)
 {
   return ((features_enabled & Ft_Wibble) != 0);
+}
+
+/**
+ * Returns if we should pause the game, if the game window loses focus.
+ */
+TbBool pause_on_lose_focus_enabled(void)
+{
+  return ((features_enabled & Ft_PauseOnLoseFocus) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -808,6 +817,19 @@ short load_configuration(void)
               features_enabled |= Ft_Wibble;
           else
               features_enabled &= ~Ft_Wibble;
+          break;
+      case 17: // PAUSE_GAME_ON_LOSE_FOCUS
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_PauseOnLoseFocus;
+          else
+              features_enabled &= ~Ft_PauseOnLoseFocus;
           break;
       case 0: // comment
           break;
