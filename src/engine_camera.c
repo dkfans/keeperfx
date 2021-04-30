@@ -312,9 +312,7 @@ unsigned long adjust_min_camera_zoom(struct Camera *cam, int showgui)
  */
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 {
-    unsigned long size_narr = ((pixel_size * units_per_pixel_min) << 7) / 10;
-    unsigned long size_wide = (pixel_size * units_per_pixel) << 3;
-    return  ((zoom_lvl*size_wide) >> 8) + ((zoom_lvl*size_narr) >> 8);
+    return scale_fixed_DK_value(zoom_lvl);
 }
 
 void view_set_camera_y_inertia(struct Camera *cam, long delta, long ilimit)
