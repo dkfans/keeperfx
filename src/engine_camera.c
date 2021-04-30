@@ -298,10 +298,14 @@ long get_camera_zoom(struct Camera *cam)
  * @param height The game engine height
  * @param status_panel_width - the width of the side menu (this should be 0 if the menu is hidden)
  */
-unsigned long adjust_min_camera_zoom(long width, long height, long status_panel_width)
+unsigned long adjust_min_camera_zoom(struct Camera *cam, long width, long height, long status_panel_width)
 {
     unsigned long zoom_min = CAMERA_ZOOM_MIN; // a higher value is a nearer zoom
-    //return zoom_min; // uncomment this line to quickly disable the zoom limiting.
+    if (cam->view_mode != PVM_IsometricView)
+    {
+        return zoom_min; // only apply limit to iso mode
+    }
+    return zoom_min; // uncomment this line to quickly disable the zoom limiting.
     long aspect_ratio = 100 * width / height; // (*100 to help with rounding)
     long max_aspect_ratio = 145; // (14.5/10 = 1.45 *100 to help with rounding)
     long full_width = width + status_panel_width; // we want to compare full screen ar

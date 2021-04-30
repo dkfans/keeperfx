@@ -2106,7 +2106,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             break;
         }
     }
-    unsigned long zoom_min = adjust_min_camera_zoom(player->engine_window_width, player->engine_window_height, ((game.operation_flags & GOF_ShowGui) != 0) ? status_panel_width : 0);
+    unsigned long zoom_min = adjust_min_camera_zoom(cam, player->engine_window_width, player->engine_window_height, ((game.operation_flags & GOF_ShowGui) != 0) ? status_panel_width : 0);
     unsigned long zoom_max = CAMERA_ZOOM_MAX;
     show_onscreen_msg(game.num_fps, "%d,%d, zoom: %d,%d", player->engine_window_width, player->engine_window_height, zoom_min, cam->zoom);
     if (pckt->control_flags & PCtr_ViewZoomIn)
