@@ -2115,10 +2115,20 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsometricView:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            if (is_my_player(player))
+            {
+                settings.isometric_view_zoom_level = cam->zoom;
+                save_settings();
+            }
             break;
         default:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             break;
+        }
+        if (is_my_player(player))
+        {
+            settings.frontview_zoom_level = cam->zoom;
+            save_settings();
         }
     }
     if (pckt->control_flags & PCtr_ViewZoomOut)
@@ -2128,9 +2138,19 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsometricView:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            if (is_my_player(player))
+            {
+                settings.isometric_view_zoom_level = cam->zoom;
+                save_settings();
+            }
             break;
         default:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
+            if (is_my_player(player))
+            {
+                settings.frontview_zoom_level = cam->zoom;
+                save_settings();
+            }
             break;
         }
     }
@@ -2366,12 +2386,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       process_pause_packet((game.operation_flags & GOF_Paused) == 0, pckt->actn_par1);
       return 1;
   case PckA_SetCluedo:
+      player->video_cluedo_mode = pckt->actn_par1;
       if (is_my_player(player))
       {
-          settings.video_cluedo_mode = pckt->actn_par1;
-          save_settings();
+        settings.video_cluedo_mode = player->video_cluedo_mode;
+        save_settings();
       }
-      player->video_cluedo_mode = pckt->actn_par1;
       return 0;
   case PckA_Unknown025:
       if (is_my_player(player))
@@ -2392,6 +2412,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_SetMinimapConf:
       player->minimap_zoom = pckt->actn_par1;
+      if (is_my_player(player))
+      {
+        settings.minimap_zoom = player->minimap_zoom;
+        save_settings();
+      }
       return 0;
   case PckA_SetMapRotation:
       player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
