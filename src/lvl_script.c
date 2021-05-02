@@ -2589,7 +2589,17 @@ void command_set_trap_configuration(const char* trapname, const char* variable, 
         return;
     }
 
-    //val2 is an optional variable, used when there's 2 numbers on one command.
+    //val2 is an optional variable, used when there's 2 numbers on one command. Pass them along as one merged val.
+    if ((val1 > 0xFFFF) || (val1 < 0))
+    {
+        SCRPTERRLOG("Value out of range: %d", val1);
+        return;
+    }
+    if ((val2 > 0xFFFF) || (val2 < 0))
+    {
+        SCRPTERRLOG("Value out of range: %d", val2);
+        return;
+    }
     long mergedval = val1 + (val2 << 16);
 
     command_add_value(Cmd_SET_TRAP_CONFIGURATION, 0, trap_id, trapvar, mergedval);
@@ -6898,7 +6908,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 5: // PanelTabIndex
           trapst->panel_tab_idx = val4;
           manufctr->panel_tab_idx = val4;
-          //create_manufacture_array_from_trapdoor_data();
           update_trap_tab_to_config();
           break;
       case 6: // Crate
