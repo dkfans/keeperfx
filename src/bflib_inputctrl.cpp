@@ -330,10 +330,11 @@ static void process_event(const SDL_Event *ev)
             isMouseActivated = true;
             if (lbMouseGrab)
             {
-                int curent_mouse_x, curent_mouse_y;
-                SDL_GetMouseState(&curent_mouse_x, &curent_mouse_y);
+                // if in normal input mode, make sure the game cursor position matches the Host OS cursor position
+                int current_mouse_x, current_mouse_y;
+                SDL_GetMouseState(&current_mouse_x, &current_mouse_y);
                 SDL_SetRelativeMouseMode(SDL_TRUE);
-                LbMouseSetPosition(curent_mouse_x, curent_mouse_y);
+                LbMouseSetPosition(current_mouse_x, current_mouse_y);
             }
             else
             {
