@@ -1044,7 +1044,7 @@ short setup_game(void)
   update_features(mem_size);
 
   features_enabled |= Ft_Wibble; // enable wibble by default
-  features_enabled |= Ft_PauseOnLoseFocus; // pause the game, if the game window loses focus by default
+  features_enabled |= Ft_FreezeOnLoseFocus; // freeze the game, if the game window loses focus by default
 
   // Configuration file
   if ( !load_configuration() )
@@ -3670,7 +3670,7 @@ TbBool keeper_wait_for_screen_focus(void)
           return true;
         if ((game.system_flags & GSF_NetworkActive) != 0)
           return true;
-        if (!pause_on_lose_focus_enabled())
+        if (!freeze_game_on_lose_focus_enabled())
           return true;
         LbSleepFor(50);
     } while ((!exit_keeper) && (!quit_game));

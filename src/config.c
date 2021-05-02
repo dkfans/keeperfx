@@ -118,7 +118,7 @@ const struct NamedCommand conf_commands[] = {
   {"RESIZE_MOVIES",       14},
   {"MUSIC_TRACKS",        15},
   {"WIBBLE",              16},
-  {"PAUSE_GAME_ON_LOSE_FOCUS", 17},
+  {"FREEZE_GAME_WHEN_FOCUS_LOST", 17},
   {NULL,                   0},
   };
 
@@ -219,11 +219,11 @@ TbBool wibble_enabled(void)
 }
 
 /**
- * Returns if we should pause the game, if the game window loses focus.
+ * Returns if we should freeze the game, if the game window loses focus.
  */
-TbBool pause_on_lose_focus_enabled(void)
+TbBool freeze_game_on_lose_focus_enabled(void)
 {
-  return ((features_enabled & Ft_PauseOnLoseFocus) != 0);
+  return ((features_enabled & Ft_FreezeOnLoseFocus) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -818,7 +818,7 @@ short load_configuration(void)
           else
               features_enabled &= ~Ft_Wibble;
           break;
-      case 17: // PAUSE_GAME_ON_LOSE_FOCUS
+      case 17: // FREEZE_GAME_WHEN_FOCUS_LOST
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -827,9 +827,9 @@ short load_configuration(void)
             break;
           }
           if (i == 1)
-              features_enabled |= Ft_PauseOnLoseFocus;
+              features_enabled |= Ft_FreezeOnLoseFocus;
           else
-              features_enabled &= ~Ft_PauseOnLoseFocus;
+              features_enabled &= ~Ft_FreezeOnLoseFocus;
           break;
       case 0: // comment
           break;
