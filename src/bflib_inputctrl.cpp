@@ -328,11 +328,31 @@ static void process_event(const SDL_Event *ev)
             lbAppActive = true;
             isMouseActive = true;
             isMouseActivated = true;
+            if (lbMouseGrab)
+            {
+                int curent_mouse_x, curent_mouse_y;
+                SDL_GetMouseState(&curent_mouse_x, &curent_mouse_y);
+                SDL_SetRelativeMouseMode(SDL_TRUE);
+                LbMouseSetPosition(curent_mouse_x, curent_mouse_y);
+            }
+            else
+            {
+                SDL_ShowCursor(SDL_DISABLE);
+            }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
         {
             lbAppActive = false;
             isMouseActive = false;
+            isMouseActivated = false;
+            if (lbMouseGrab)
+            {
+                SDL_SetRelativeMouseMode(SDL_FALSE);
+            }
+            else
+            {
+                SDL_ShowCursor(SDL_ENABLE);
+            }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
         {
