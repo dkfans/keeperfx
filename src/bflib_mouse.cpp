@@ -82,7 +82,7 @@ TbResult LbMouseSetup(struct TbSprite *pointerSprite)
   lbMouseInstalled = true;
   LbMouseSetWindow(0,0,LbGraphicsScreenWidth(),LbGraphicsScreenHeight());
   ret = Lb_SUCCESS;
-  if (LbMouseSetPosition(x,y) != Lb_SUCCESS)
+  if (LbMouseSetPosition(x,y) != Lb_SUCCESS) // seems to put cursor at 0,0 so we don't want to init the HostOS cursor there in altinput mode
     ret = Lb_FAIL;
   if (LbMouseChangeSprite(pointerSprite) != Lb_SUCCESS)
     ret = Lb_FAIL;
@@ -105,6 +105,25 @@ TbResult LbMouseSetPosition(long x, long y)
   if (!lbMouseInstalled)
     return Lb_FAIL;
   if (!pointerHandler.SetMousePosition(x, y))
+    return Lb_FAIL;
+  return Lb_SUCCESS;
+}
+TbResult LbMouseSetPositionInitial(long x, long y)
+{
+  if (!lbMouseInstalled)
+    return Lb_FAIL;
+  if (!lbMouseGrab)
+  {
+    // in altinput mode
+    // first move the game cursor to the position of the HostOS cursor, and then move the HostOS cursor to the given x and y location.
+    // this keeps Host OS cursor and game cursor in sync (same position)
+    int current_mouse_x, current_mouse_y;
+    SDL_GetMouseState(&current_mouse_x, &current_mouse_y);
+    if (!pointerHandler.SetMousePosition(current_mouse_x, current_mouse_y))
+      return Lb_FAIL;
+    SDL_WarpMouseInWindow(SDL_GetKeyboardFocus(), x, y);
+  }
+  else if (!pointerHandler.SetMousePosition(x, y))
     return Lb_FAIL;
   return Lb_SUCCESS;
 }

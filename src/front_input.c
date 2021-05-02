@@ -423,7 +423,7 @@ long get_small_map_inputs(long x, long y, long zoom)
   }
   if (grabbed_small_map)
   {
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
+    LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
   }
   old_mx = curr_mx;
   old_my = curr_my;
@@ -1989,7 +1989,7 @@ void get_creature_control_nonaction_inputs(void)
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
   while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size);
+    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // in 1st person mode, don't init HostOS cursor in altinput
   // Set pos_x and pos_y
   if (settings.first_person_move_invert)
     pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;

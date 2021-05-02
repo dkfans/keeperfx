@@ -121,6 +121,7 @@ TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x,
 TbResult LbMouseSetup(struct TbSprite *mouseSprite);
 TbResult LbMouseSetPointerHotspot(long hot_x, long hot_y);
 TbResult LbMouseSetPosition(long x, long y);
+TbResult LbMouseSetPositionInitial(long x, long y);
 TbResult LbMouseChangeSprite(struct TbSprite *mouseSprite);
 TbResult LbMouseSuspend(void);
 void GetPointerHotspot(long *hot_x, long *hot_y);

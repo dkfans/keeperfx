@@ -827,7 +827,7 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
       if (grabbed_small_map)
       {
         game.small_map_state = 2;
-        LbMouseSetPosition(begin_x + MapDiagonalLength/2, begin_y + MapDiagonalLength/2);
+        LbMouseSetPositionInitial(begin_x + MapDiagonalLength/2, begin_y + MapDiagonalLength/2);
       } else
       {
         do_map_rotate_stuff(curr_x - begin_x - MapDiagonalLength/2, curr_y - begin_y - MapDiagonalLength/2, &curr_x, &curr_y, zoom);
