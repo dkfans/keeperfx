@@ -2574,7 +2574,7 @@ void refresh_trap_anim(long trap_id)
 }
 
 
-void command_set_trap_configuration(const char* trapname, const char* variable, long val1, long val2)
+void command_set_trap_configuration(const char* trapname, const char* property, long value, long optvalue)
 {
     long trap_id = get_rid(trap_desc, trapname);
     if (trap_id == -1)
@@ -2582,7 +2582,7 @@ void command_set_trap_configuration(const char* trapname, const char* variable, 
         SCRPTERRLOG("Unknown trap, '%s'", trapname);
     }
 
-    long trapvar = get_id(trap_config_desc, variable);
+    long trapvar = get_id(trap_config_desc, property);
     if (trapvar == -1)
     {
         SCRPTERRLOG("Unknown trap variable");
@@ -2590,17 +2590,17 @@ void command_set_trap_configuration(const char* trapname, const char* variable, 
     }
 
     //val2 is an optional variable, used when there's 2 numbers on one command. Pass them along as one merged val.
-    if ((val1 > 0xFFFF) || (val1 < 0))
+    if ((value > 0xFFFF) || (value < 0))
     {
-        SCRPTERRLOG("Value out of range: %d", val1);
+        SCRPTERRLOG("Value out of range: %d", value);
         return;
     }
-    if ((val2 > 0xFFFF) || (val2 < 0))
+    if ((optvalue > 0xFFFF) || (optvalue < 0))
     {
-        SCRPTERRLOG("Value out of range: %d", val2);
+        SCRPTERRLOG("Value out of range: %d", optvalue);
         return;
     }
-    long mergedval = val1 + (val2 << 16);
+    long mergedval = value + (optvalue << 16);
 
     command_add_value(Cmd_SET_TRAP_CONFIGURATION, 0, trap_id, trapvar, mergedval);
  }
