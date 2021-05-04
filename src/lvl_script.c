@@ -6988,9 +6988,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_SET_DOOR_CONFIGURATION:
-      doorst = &trapdoor_conf.door_cfgstats[val2];
+      doorst = get_door_model_stats(val2);
       mconf = &gameadd.doors_config[val2];
-      manufctr = get_manufacture_data(val2);
+      manufctr = get_manufacture_data(trapdoor_conf.trap_types_count - 1 + val2);
       switch (val3)
       {
       case 1: // ManufactureLevel
