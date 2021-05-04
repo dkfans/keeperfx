@@ -2601,7 +2601,7 @@ void command_set_trap_configuration(const char* trapname, const char* property, 
         return;
     }
     long mergedval = value + (optvalue << 16);
-
+    SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, property, mergedval);
     command_add_value(Cmd_SET_TRAP_CONFIGURATION, 0, trap_id, trapvar, mergedval);
  }
 
