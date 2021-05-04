@@ -7000,7 +7000,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           mconf->manufct_required = val4;
           break;
       case 3: // Health
-          //todo
+          if (val2 < DOOR_TYPES_COUNT)
+          {
+              door_stats[val2][0].health = val4;
+              door_stats[val2][1].health = val4;
+          }
           break;
       case 4: //SellingValue
           mconf->selling_value = val4;
