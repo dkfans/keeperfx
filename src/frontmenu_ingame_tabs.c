@@ -2190,7 +2190,7 @@ void update_trap_tab_to_config(void)
         ibtn->draw_call = gui_area_new_null_button;
         ibtn->maintain_call = NULL;
     }
-    for (i=0; i < trapdoor_conf.manufacture_types_count; i++)
+    for (i=0; i < gameadd.trapdoor_conf.manufacture_types_count; i++)
     {
         struct ManufactureData* manufctr = get_manufacture_data(i);
         if (manufctr->panel_tab_idx < 1)

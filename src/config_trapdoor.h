@@ -94,13 +94,12 @@ struct TrapDoorConfig {
 };
 /******************************************************************************/
 extern const char keeper_trapdoor_file[];
-extern struct TrapDoorConfig trapdoor_conf;
 extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 /******************************************************************************/
 TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
 
-struct TrapConfigStats *get_trap_model_stats(int tngmodel);
+/******************************************************************************/
 struct DoorConfigStats *get_door_model_stats(int tngmodel);
 struct ManufactureData *get_manufacture_data(int manufctr_idx);
 int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmodel);

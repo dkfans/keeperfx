@@ -930,7 +930,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
     struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
-    for (ThingModel doorkind = trapdoor_conf.door_types_count; doorkind > 1; doorkind--)
+    for (ThingModel doorkind = gameadd.trapdoor_conf.door_types_count; doorkind > 1; doorkind--)
     {
         if (dungeonadd->mnfct_info.door_amount_stored[doorkind] <= 0) {
             continue;

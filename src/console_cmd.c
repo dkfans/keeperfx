@@ -435,7 +435,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         } else if (strcasecmp(parstr, "give.trap") == 0)
         {
             int id = atoi(pr2str);
-            if (id <= 0 || id > trapdoor_conf.trap_types_count)
+            if (id <= 0 || id > gameadd.trapdoor_conf.trap_types_count)
                 return false;
             command_add_value(Cmd_TRAP_AVAILABLE, plyr_idx, id, 1, 1);
             update_trap_tab_to_config();
@@ -444,7 +444,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         } else if (strcasecmp(parstr, "give.door") == 0)
         {
             int id = atoi(pr2str);
-            if (id <= 0 || id > trapdoor_conf.door_types_count)
+            if (id <= 0 || id > gameadd.trapdoor_conf.door_types_count)
                 return false;
 
             struct ScriptValue tmp_value = {0};
