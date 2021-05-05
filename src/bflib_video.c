@@ -986,7 +986,8 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
 long scale_value_for_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel /16)
-    return ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
+    long value = ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
 }
 
 /**
@@ -1012,7 +1013,8 @@ long scale_value_for_resolution_with_upp(long base_value, long units_per_px)
 long scale_value_by_horizontal_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_width /16)
-    return ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
+    long value = ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
 }
 
 /**
@@ -1024,7 +1026,93 @@ long scale_value_by_horizontal_resolution(long base_value)
 long scale_value_by_vertical_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel_height /16)
-    return ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
+    long value = ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
+}
+
+/**
+ * Takes a fixed value tuned for original DK at 640x400 and scales it for the game's current resolution and UI scale.
+ * Uses units_per_pixel_ui (which is 16 at 640x400)
+ *
+ * @param base_value The fixed value tuned for original DK 640x400 mode
+ */
+long scale_ui_value(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_ui /16)
+    long value = ((((units_per_pixel_ui * base_value) >> 3) + (((units_per_pixel_ui * base_value) >> 3) & 1)) >> 1);
+    return value; // can return zero
+}
+
+/**
+ * Sames as scale_ui_value, but if "lofi" detected, then scale is doubled
+ *
+ * @param base_value The fixed value tuned for original DK 640x400 mode
+ */
+long scale_ui_value_lofi(long base_value)
+{
+    TbBool lofi_mode = ((LbGraphicsScreenHeight() < 400) ? true : false);
+    long value;
+    if (lofi_mode)
+    {
+        value = scale_ui_value(base_value * 2);
+    }
+    else
+    {
+        value = scale_ui_value(base_value);
+    }
+    return value; // can return zero
+}
+
+/**
+ * Takes a fixed value tuned for original DK at 640x400 and scales it for the game's current resolution.
+ * Uses units_per_pixel_best (which is 16 at 640x400)
+ *
+ * @param base_value The fixed value tuned for original DK 640x400 mode
+ */
+long scale_fixed_DK_value(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_best /16)
+    long value = ((((units_per_pixel_best * base_value) >> 3) + (((units_per_pixel_best * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
+}
+
+/**
+ * Determine whether the current window aspect ratio is wider than the original (16/10)
+ *
+ * @param width current window width
+ * @param height current window height
+ */
+TbBool is_ar_wider_than_original(long width, long height)
+{
+    long original_aspect_ratio = (320 << 8) / 200;
+    long current_aspect_ratio = (width << 8) / height;
+    return (current_aspect_ratio > original_aspect_ratio);
+}
+
+/**
+ * Calculate a units_per_px value relative to a given 640x400 base length,
+*  a current reference length, and a current reference units_per_pixel
+ *
+ * @param base_length a given length/size for DK 640x400 mode
+ * @param reference_upp a reference units_per_pixel value, that is relative to the current window resolution
+ * @param reference_length a reference length/size to put in a ratio relative to the give base_length
+ */
+long calculate_relative_upp(long base_length, long reference_upp, long reference_length)
+{
+    long value = ((((base_length * reference_upp) << 2) / reference_length) >> 2); // bitshifts to round up
+    return max(1,value);
+}
+
+/**
+ * Scale UI relative to the base DEFAULT_UI_SCALE
+ *
+ * @param units_per_px the current units_per_pixel value
+ * @param ui_scale the relative scale to multiply units_per_px by
+ */
+long resize_ui(long units_per_px, long ui_scale)
+{
+    long value = (units_per_px * ui_scale / DEFAULT_UI_SCALE);
+    return max(1,value);
 }
 /******************************************************************************/
 #ifdef __cplusplus

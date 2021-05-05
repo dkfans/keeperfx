@@ -535,7 +535,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     SYNCDBG(5,"Starting");
     player->minimap_pos_x = 11;
     player->minimap_pos_y = 11;
-    player->minimap_zoom = 256;
+    player->minimap_zoom = settings.minimap_zoom;
     player->field_4D1 = player->id_number;
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     player->continue_work_state = PSt_CtrlDungeon;

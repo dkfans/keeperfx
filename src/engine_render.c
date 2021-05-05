@@ -4929,7 +4929,10 @@ void draw_view(struct Camera *cam, unsigned char a2)
     x = cam->mappos.x.val;
     y = cam->mappos.y.val;
     z = cam->mappos.z.val;
-    frame_wibble_generate();
+    if (wibble_enabled())
+    {
+        frame_wibble_generate();
+    }
     view_alt = z;
     if (lens_mode != 0)
     {

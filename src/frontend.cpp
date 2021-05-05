@@ -2484,6 +2484,11 @@ void set_gui_visible(TbBool visible)
   if (player->acamera && player->acamera->view_mode == PVM_IsometricView)
   {
       update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, adjust_min_camera_zoom(player->acamera, game.operation_flags & GOF_ShowGui));
+      if (is_my_player(player))
+      {
+        settings.isometric_view_zoom_level = player->acamera->zoom;
+        save_settings();
+      }
   }
 }
 

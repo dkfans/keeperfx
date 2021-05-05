@@ -117,6 +117,7 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOS_SAMPLES",       13},
   {"RESIZE_MOVIES",       14},
   {"MUSIC_TRACKS",        15},
+  {"WIBBLE",              16},
   {NULL,                   0},
   };
 
@@ -206,6 +207,14 @@ TbBool atmos_sounds_enabled(void)
 TbBool resize_movies_enabled(void)
 {
   return ((features_enabled & Ft_Resizemovies) != 0);
+}
+
+/**
+ * Returns if the wibble effect is on.
+ */
+TbBool wibble_enabled(void)
+{
+  return ((features_enabled & Ft_Wibble) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -786,6 +795,19 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
           }
+          break;
+      case 16: // WIBBLE
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_Wibble;
+          else
+              features_enabled &= ~Ft_Wibble;
           break;
       case 0: // comment
           break;

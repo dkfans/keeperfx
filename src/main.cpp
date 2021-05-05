@@ -1043,6 +1043,8 @@ short setup_game(void)
   // Enable features that require more resources
   update_features(mem_size);
 
+  features_enabled |= Ft_Wibble; // enable wibble by default
+
   // Configuration file
   if ( !load_configuration() )
   {
@@ -1399,8 +1401,6 @@ void reset_gui_based_on_player_mode(void)
             turn_on_menu(GMnu_ROOM);
         }
     }
-    settings.video_cluedo_mode = player->video_cluedo_mode;
-    copy_settings_to_dk_settings();
     set_gui_visible(true);
 }
 
