@@ -188,13 +188,6 @@ void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 /******************************************************************************/
 
-inline struct TrapConfigStats* get_trap_model_stats(int tngmodel)
-{
-    if (tngmodel >= gameadd.trapdoor_conf.trap_types_count)
-        return &gameadd.trapdoor_conf.trap_cfgstats[0];
-    return &gameadd.trapdoor_conf.trap_cfgstats[tngmodel];
-}
-
 #ifdef __cplusplus
 }
 #endif

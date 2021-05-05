@@ -88,12 +88,12 @@ const struct NamedCommand trapdoor_trap_commands[] = {
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 /******************************************************************************/
-/*struct TrapConfigStats *get_trap_model_stats(int tngmodel)
+struct TrapConfigStats *get_trap_model_stats(int tngmodel)
 {
     if (tngmodel >= gameadd.trapdoor_conf.trap_types_count)
         return &gameadd.trapdoor_conf.trap_cfgstats[0];
     return &gameadd.trapdoor_conf.trap_cfgstats[tngmodel];
-}*/
+}
 
 struct DoorConfigStats *get_door_model_stats(int tngmodel)
 {
