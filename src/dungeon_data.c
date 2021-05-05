@@ -307,11 +307,15 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
         return false;
     }
     if (buildable)
+    {
         dungeonadd->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Manufacturable;
+    }
     dungeonadd->mnfct_info.trap_amount_offmap[tngmodel] += amount;
     dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] += amount;
     if (amount > 0)
-      dungeonadd->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Built;
+    {
+        dungeonadd->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Built;
+    }
     return true;
 }
 
