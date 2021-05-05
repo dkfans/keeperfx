@@ -128,7 +128,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
     if (lord_of_the_land_in_prison_or_tortured())
     {
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
-        player->field_3 |= Pf3F_Unkn10;
+        player->additional_flags |= PlaAF_UnlockedLordTorture;
     }
     output_message(SMsg_LevelWon, 0, true);
   }
@@ -535,13 +535,13 @@ void init_player(struct PlayerInfo *player, short no_explore)
     SYNCDBG(5,"Starting");
     player->minimap_pos_x = 11;
     player->minimap_pos_y = 11;
-    player->minimap_zoom = 256;
+    player->minimap_zoom = settings.minimap_zoom;
     player->field_4D1 = player->id_number;
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
-    player->palette = engine_palette;
+    player->main_palette = engine_palette;
     if (is_my_player(player))
     {
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);

@@ -1945,7 +1945,7 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     tree_By8 = ty;
     // Select a route
     NAVIDBG(19,"Selecting route");
-    if (par_fwd < par_fwd) // //TODO PATHFINDING maybe condition should be (par_fwd < par_bak) ?
+    if (par_fwd < par_bak)
     {
         for (i=0; i <= sizeof(tree_route)/sizeof(tree_route[0]); i++)
         {
@@ -3253,7 +3253,9 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         break;
     }
     if (result != AridRet_OK)
-        WARNDBG(3,"Update state %d returned %d",(int)arid->update_state,(int)result);
+    {
+        WARNDBG(3, "Update state %d returned %d", (int)arid->update_state, (int)result);
+    }
     return result;
 }
 

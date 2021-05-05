@@ -644,12 +644,15 @@ void create_message_box(const char *title, const char *line1, const char *line2,
 
 short game_is_busy_doing_gui(void)
 {
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
+    if (dungeonadd->one_click_lock_cursor)
+      return false;
     if (!busy_doing_gui)
       return false;
     if (battle_creature_over <= 0)
       return true;
-    struct PlayerInfo *player;
-    player = get_my_player();
     PowerKind pwkind;
     pwkind = 0;
     if (player->work_state < PLAYER_STATES_COUNT)
@@ -1775,13 +1778,13 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     // Save some of the data from clearing
     victory_state = player->victory_state;
     memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
-    flg_mem = ((player->field_3 & Pf3F_Unkn10) != 0);
+    flg_mem = ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0);
     // clear all data
     clear_game_for_save();
     // Restore saved data
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-    set_flag_byte(&player->field_3,Pf3F_Unkn10,flg_mem);
+    set_flag_byte(&player->additional_flags,PlaAF_UnlockedLordTorture,flg_mem);
     // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
     if (((game.system_flags & GSF_NetworkActive) != 0)
      || ((game.operation_flags & GOF_SingleLevel) != 0)
@@ -2481,6 +2484,11 @@ void set_gui_visible(TbBool visible)
   if (player->acamera && player->acamera->view_mode == PVM_IsometricView)
   {
       update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, adjust_min_camera_zoom(player->acamera, game.operation_flags & GOF_ShowGui));
+      if (is_my_player(player))
+      {
+        settings.isometric_view_zoom_level = player->acamera->zoom;
+        save_settings();
+      }
   }
 }
 
@@ -3604,9 +3612,9 @@ FrontendMenuState get_startup_menu_state(void)
     if ((game.system_flags & GSF_NetworkActive) != 0)
     { // If played real network game, then resulting screen isn't changed based on victory
         SYNCLOG("Network game summary state selected");
-        if ((player->field_3 & Pf3F_Unkn10) != 0)
+        if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)
         { // Player has tortured LOTL - go FeSt_TORTURE before any others
-          player->field_3 &= ~Pf3F_Unkn10;
+          player->additional_flags &= ~PlaAF_UnlockedLordTorture;
           return FeSt_DRAG;
         } else
         if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
@@ -3641,9 +3649,9 @@ FrontendMenuState get_startup_menu_state(void)
             {
                 return FeSt_OUTRO;
             } else
-            if ((player->field_3 & Pf3F_Unkn10) != 0)
+            if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)
             {
-                player->field_3 &= ~Pf3F_Unkn10;
+                player->additional_flags &= ~PlaAF_UnlockedLordTorture;
                 return FeSt_DRAG;
             } else
             {

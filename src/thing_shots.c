@@ -876,7 +876,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         if (!thing_is_invalid(killertng))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(killertng);
-            struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
@@ -1307,7 +1306,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                   if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
                   {
                       PaletteSetPlayerPalette(player, lightning_palette);
-                      myplyr->field_3 |= Pf3F_Unkn08;
+                      myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
                   }
               }
             }

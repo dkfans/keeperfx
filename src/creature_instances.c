@@ -595,12 +595,18 @@ long instf_destroy(struct Thing *creatng, long *param)
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
     struct Room* room = room_get(slb->room_index);
     long prev_owner = slabmap_owner(slb);
+    struct PlayerInfo* player;
+    player = get_my_player();
 
     if ( !room_is_invalid(room) && (prev_owner != creatng->owner) )
     {
         if (room->health > 1)
         {
             room->health--;
+            if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+            {
+                thing_play_sample(creatng, 5 + UNSYNC_RANDOM(2), 200, 0, 3, 0, 2, FULL_LOUDNESS);
+            }
             return 0;
         }
         clear_dig_on_room_slabs(room, creatng->owner);
@@ -621,11 +627,19 @@ long instf_destroy(struct Thing *creatng, long *param)
     if (slb->health > 1)
     {
         slb->health--;
+        if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+        {
+            thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 120, 0, 3, 0, 2, FULL_LOUDNESS);
+        }
         return 0;
     }
     if (prev_owner != game.neutral_player_num) {
         struct Dungeon* prev_dungeon = get_dungeon(prev_owner);
         prev_dungeon->lvstats.territory_lost++;
+    }
+    if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+    {
+        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 120, 0, 3, 0, 2, FULL_LOUDNESS);
     }
     decrease_dungeon_area(prev_owner, 1);
     neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner);
@@ -730,29 +744,25 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         instf_pretty_path(creatng, NULL);
         return 1;
     }
-    MapSubtlCoord ahead_stl_x;
-    MapSubtlCoord ahead_stl_y;
+    MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
+    MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
     if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
     {
-        ahead_stl_y = creatng->mappos.y.stl.num - 1;
-        ahead_stl_x = creatng->mappos.x.stl.num;
+        ahead_stl_y--;
     }
     else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
     {
-        ahead_stl_y = creatng->mappos.y.stl.num + 1;
-        ahead_stl_x = creatng->mappos.x.stl.num; 
+        ahead_stl_y++;
     }
     else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
     {
-        ahead_stl_y = creatng->mappos.y.stl.num;
-        ahead_stl_x = creatng->mappos.x.stl.num - 1;
+        ahead_stl_x--;
     }
     else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
     {
-        ahead_stl_y = creatng->mappos.y.stl.num;
-        ahead_stl_x = creatng->mappos.x.stl.num + 1; 
+        ahead_stl_x++; 
     }
-    if ( (first_person_dig_claim_mode) || (!subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y)) )
+    if ( (first_person_dig_claim_mode) || (!subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y, true)) )
     {
         slb = get_slabmap_block(slb_x, slb_y);
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
@@ -859,7 +869,6 @@ long instf_reinforce(struct Thing *creatng, long *param)
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
         {
             struct PlayerInfo* player;
-            //_DK_reset_gui_based_on_player_mode();
             player = get_my_player();
             if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
             {

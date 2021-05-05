@@ -312,6 +312,31 @@ const struct NamedCommand game_rule_desc[] = {
   {NULL,                      0},
 };
 
+const struct NamedCommand trap_config_desc[] = {
+  {"NameTextID",           1},
+  {"TooltipTextID",        2},
+  {"SymbolSprites",        3},
+  {"PointerSprites",       4},
+  {"PanelTabIndex",        5},
+  {"Crate",                6},
+  {"ManufactureLevel",     7},
+  {"ManufactureRequired",  8},
+  {"Shots",                9},
+  {"TimeBetweenShots",    10},
+  {"SellingValue",        11},
+  {"Model",               12},
+  {"ModelSize",           13},
+  {"AnimationSpeed",      14},
+  {"TriggerType",         15},
+  {"ActivationType",      16},
+  {"EffectType",          17},
+  {"Hidden",              18},
+  {"TriggerAlarm",        19},
+  {"Slappable",           20},
+  {"Unanimated",          21},
+  {NULL,                   0},
+};
+
 /**
  * Text names of groups of GUI Buttons.
  */
@@ -2549,102 +2574,37 @@ void refresh_trap_anim(long trap_id)
 }
 
 
-                                                 // Name, Shots, TimeBetweenShots, Model, TriggerType, ActivationType, EffectType, Hidden
-void command_set_trap_configuration(const char* trapname, long val1, long val2, long val3, long val4, long val5, long val6, long val7)
+void command_set_trap_configuration(const char* trapname, const char* property, long value, long optvalue)
 {
-    if (script_current_condition != -1)
-    {
-        SCRPTWRNLOG("Trap configured inside conditional block; condition ignored");
-    }
     long trap_id = get_rid(trap_desc, trapname);
     if (trap_id == -1)
     {
         SCRPTERRLOG("Unknown trap, '%s'", trapname);
     }
-    int validval1 = 1;
-    if (val1 <= 0)
-    {
-        validval1 = 0;
-        SCRPTERRLOG("Shots '%d' out of range", val1);
-    }
-    int validval2 = 1;
-    if (val2 < 0)
-    {
-        validval2 = 0;
-        SCRPTERRLOG("Model '%d' out of range", val2);
-    }
-    int validval3 = 1;
-    if (val3 <= 0)
-    {
-        validval3 = 0;
-        SCRPTERRLOG("Model '%d' out of range", val3);
-    }
-    int validval4 = 0;
-    switch (val4) {
-    case TrpTrg_LineOfSight90:
-    case TrpTrg_Pressure:
-    case TrpTrg_LineOfSight:
-    case TrpTrg_None:
-        validval4 = 1;
-        break;
-    default:
-        SCRPTERRLOG("No TriggerType '%d' found", val4);
-    }
-    int validval5 = 0;
-    switch (val5) {
-    case TrpAcT_HeadforTarget90:
-    case TrpAcT_EffectonTrap:
-    case TrpAcT_ShotonTrap:
-    case TrpAcT_SlabChange:
-    case TrpAcT_CreatureShot:
-    case TrpAcT_CreatureSpawn:
-    case TrpAcT_Power:
-        validval5 = 1;
-        break;
-    default:
-        SCRPTERRLOG("No ActivationType '%d' found", val5);
-    }
-    int validval6 = 1;
-    if ((val6 <= 0) ||
-        ((val6 > magic_conf.shot_types_count) && (val5 == (TrpAcT_HeadforTarget90 || TrpAcT_ShotonTrap || TrpAcT_CreatureShot))) ||
-        ((val6 > slab_conf.slab_types_count ) && (val5 == TrpAcT_SlabChange)) ||
-        ((val6 > effects_conf.effect_types_count) && (val5 == TrpAcT_EffectonTrap)) ||
-        ((val6 >= CREATURE_TYPES_COUNT) && (val5 == TrpAcT_CreatureSpawn)) ||
-        ((val6 >= magic_conf.power_types_count) && (val5 == TrpAcT_Power))
-        )
-    {
-        validval6 = 0;
-        SCRPTERRLOG("EffectType '%d' out of range", val6);
-    }
-    int validval7 = 1;
-    if ((val7 < 0) || (val7 > 1))
-    {
-        validval7 = 0;
-        SCRPTERRLOG("TriggerAlarm '%d' out of range", val7);
-    }
 
-    if (validval1 && validval2 && validval3 && validval4 && validval5 && validval6 && validval7)
+    long trapvar = get_id(trap_config_desc, property);
+    if (trapvar == -1)
     {
-        struct TrapConfigStats* trapst;
-        struct ManfctrConfig* mconf;
-        trapst = &trapdoor_conf.trap_cfgstats[trap_id];
-        mconf = &gameadd.traps_config[trap_id];
-        SCRIPTDBG(7, "Changing trap %d configuration from (%d,%d,%d,%d,%d,%d,%d)", trap_id, mconf->shots, mconf->shots_delay, gameadd.trap_stats[trap_id].sprite_anim_idx, gameadd.trap_stats[trap_id].trigger_type, gameadd.trap_stats[trap_id].activation_type, gameadd.trap_stats[trap_id].created_itm_model,trapst->hidden);
-        SCRIPTDBG(7, "Changing trap %d configuration to (%d,%d,%d,%d,%d,%d,%d)", trap_id, val1, val2, val3, val4, val5, val6, val7);
-        mconf->shots = val1;
-        mconf->shots_delay = val2;
-        gameadd.trap_stats[trap_id].sprite_anim_idx = val3;
-        gameadd.trap_stats[trap_id].trigger_type = val4;
-        gameadd.trap_stats[trap_id].activation_type = val5;
-        gameadd.trap_stats[trap_id].created_itm_model = val6;
-        trapst->hidden = val7;
-        //trapst->notify = val8; cannot fit 9 variables
-        refresh_trap_anim(trap_id);
-    } else
-    {
+        SCRPTERRLOG("Unknown trap variable");
         return;
     }
-}
+
+    //val2 is an optional variable, used when there's 2 numbers on one command. Pass them along as one merged val.
+    if ((value > 0xFFFF) || (value < 0))
+    {
+        SCRPTERRLOG("Value out of range: %d", value);
+        return;
+    }
+    if ((optvalue > 0xFFFF) || (optvalue < 0))
+    {
+        SCRPTERRLOG("Value out of range: %d", optvalue);
+        return;
+    }
+    long mergedval = value + (optvalue << 16);
+    SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, property, mergedval);
+    command_add_value(Cmd_SET_TRAP_CONFIGURATION, 0, trap_id, trapvar, mergedval);
+ }
+
                                               //Name,  ManufactureLevel, ManufactureRequired,SellingValue,Health
 void command_set_door_configuration(const char* doorname, long val1, long val2, long val3, long val4)
 {
@@ -3912,7 +3872,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_game_rule(scline->tp[0], scline->np[1]);
         break;
     case Cmd_SET_TRAP_CONFIGURATION:
-        command_set_trap_configuration(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6], scline->np[7]);
+        command_set_trap_configuration(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
     case Cmd_SET_DOOR_CONFIGURATION:
         command_set_door_configuration(scline->tp[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4]);
@@ -5736,10 +5696,10 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->creature_awarded[validx];
     case SVar_EVIL_CREATURES_CONVERTED:
-        dungeonadd = get_dungeon(plyr_idx);
+        dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->evil_creatures_converted;
     case SVar_GOOD_CREATURES_CONVERTED:
-        dungeonadd = get_dungeon(plyr_idx);
+        dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->good_creatures_converted;
     default:
         break;
@@ -6044,6 +6004,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct SlabMap *slb;
+  struct TrapConfigStats* trapst;
+  struct ManfctrConfig* mconf;
+  struct ManufactureData* manufctr;
   int plr_start;
   int plr_end;
   long i;
@@ -6920,6 +6883,92 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       }
       break;
+  case Cmd_SET_TRAP_CONFIGURATION:  
+      trapst = &trapdoor_conf.trap_cfgstats[val2];
+      mconf = &gameadd.traps_config[val2];
+      manufctr = get_manufacture_data(val2);
+      switch (val3)
+      {
+      case 1: // NameTextID
+          trapst->name_stridx = val4;
+          break;
+      case 2: // TooltipTextID
+          trapst->tooltip_stridx = val4;
+          break;
+      case 3: // SymbolSprites
+          trapst->bigsym_sprite_idx = val4 << 16 >> 16;
+          trapst->medsym_sprite_idx = val4 >> 16;
+          manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
+          manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
+          update_trap_tab_to_config();
+          break;
+      case 4: // PointerSprites
+          trapst->pointer_sprite_idx = val4;
+          break;
+      case 5: // PanelTabIndex
+          trapst->panel_tab_idx = val4;
+          manufctr->panel_tab_idx = val4;
+          update_trap_tab_to_config();
+          break;
+      case 6: // Crate
+          object_conf.object_to_door_or_trap[val4] = val2;
+          object_conf.workshop_object_class[val4] = TCls_Trap;
+          trapdoor_conf.trap_to_object[val2] = val4;
+          break;
+      case 7: // ManufactureLevel
+          mconf->manufct_level = val4;
+          break;
+      case 8: // ManufactureRequired
+          mconf->manufct_required = val4;
+          break;
+      case 9: // Shots
+          mconf->shots = val4;
+          break;
+      case 10: // TimeBetweenShots
+          mconf->shots_delay = val4;
+          break;
+      case 11: // SellingValue
+          mconf->selling_value = val4;
+          break;
+      case 12: // Model
+          gameadd.trap_stats[val2].sprite_anim_idx = val4;
+          refresh_trap_anim(val2);
+          break;
+      case 13: // ModelSize
+          gameadd.trap_stats[val2].sprite_size_max = val4;
+          refresh_trap_anim(val2);
+          break;
+      case 14: // AnimationSpeed
+          gameadd.trap_stats[val2].anim_speed = val4;
+          refresh_trap_anim(val2);
+          break;
+      case 15: // TriggerType
+          gameadd.trap_stats[val2].trigger_type = val4;
+          break;
+      case 16: // ActivationType
+          gameadd.trap_stats[val2].activation_type = val4;
+          break;
+      case 17: // EffectType
+          gameadd.trap_stats[val2].created_itm_model = val4;
+          break;
+      case 18: // Hidden
+          trapst->hidden = val4;
+          break;
+      case 19: // TriggerAlarm
+          trapst->notify = val4;
+          break;
+      case 20: // Slappable
+          trapst->slappable = val4;
+          break;
+      case 21: // Unanimated
+          gameadd.trap_stats[val2].unanimated = val4;
+          refresh_trap_anim(val2);
+          break;
+      default:
+          WARNMSG("Unsupported Trap configuration, variable %d.", val3);
+          break;
+      }
+      break;     
   default:
       WARNMSG("Unsupported Game VALUE, command %d.",var_index);
       break;
@@ -7004,6 +7053,46 @@ char get_player_number_from_value(const char* txt)
     {
         id = 127;
     }
+    else if (strcasecmp(txt, "Kills") == 0)
+    {
+        id = -114;
+    }
+    else if (strcasecmp(txt, "Strength") == 0)
+    {
+        id = -115;
+    }
+    else if (strcasecmp(txt, "Gold") == 0)
+    {
+        id = -116;
+    }
+    else if (strcasecmp(txt, "Wage") == 0)
+    {
+        id = -117;
+    }
+    else if (strcasecmp(txt, "Armour") == 0)
+    {
+        id = -118;
+    }
+    else if (strcasecmp(txt, "Time") == 0)
+    {
+        id = -119;
+    }
+    else if (strcasecmp(txt, "Dexterity") == 0)
+    {
+        id = -120;
+    }
+    else if (strcasecmp(txt, "Defence") == 0)
+    {
+        id = -121;
+    }
+    else if (strcasecmp(txt, "Luck") == 0)
+    {
+        id = -122;
+    }
+    else if (strcasecmp(txt, "Blood") == 0)
+    {
+        id = -123;
+    }
     else
     {
         id = get_rid(player_desc, txt);
@@ -7014,13 +7103,37 @@ char get_player_number_from_value(const char* txt)
         if (id == -1)
         {
             id = get_rid(creature_desc, txt);
-            if (id == -1)
+            if (id != -1)
             {
-                id = atoi(txt);
+                id = (~id) + 1;
             }
             else
             {
-                id = (~id) + 1;
+                id = get_rid(spell_desc, txt);
+                if (id != -1)
+                {
+                    id = -35 - id;
+                }
+                else
+                {
+                    id = get_rid(room_desc, txt);
+                    if (id != -1)
+                    {
+                        id = -78 - id;
+                    }
+                    else
+                    {
+                        id = get_rid(power_desc, txt);
+                        if (id != -1)
+                        {
+                            id = -94 - id;
+                        }
+                        else
+                        {
+                            id = atoi(txt);
+                        }
+                    }
+                }
             }   
         }        
     }
@@ -7120,7 +7233,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
-  {"SET_TRAP_CONFIGURATION",            "ANNNNNNN", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
+  {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
   {"SET_DOOR_CONFIGURATION",            "ANNNN   ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},

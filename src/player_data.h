@@ -42,14 +42,14 @@ extern "C" {
 #define WANDER_POINTS_COUNT    200
 
 enum PlayerInitFlags {
-    PlaF_Allocated          = 0x01,
-    PlaF_Unknown2           = 0x02,
-    PlaF_NewMPMessage       = 0x04,
-    PlaF_Unknown8           = 0x08,
-    PlaF_Unknown10          = 0x10,
-    PlaF_Unknown20          = 0x20,
-    PlaF_CompCtrl           = 0x40,
-    PlaF_Unknown80          = 0x80,
+    PlaF_Allocated               = 0x01,
+    PlaF_Unknown2                = 0x02,
+    PlaF_NewMPMessage            = 0x04,
+    PlaF_Unknown8                = 0x08,
+    PlaF_KeyboardInputDisabled   = 0x10,
+    PlaF_ChosenSlabHasActiveTask = 0x20, // Enabled when there are active tasks for the current slab. Used to determine if a high slab is tagged for digging (or not).
+    PlaF_CompCtrl                = 0x40,
+    PlaF_MouseInputDisabled      = 0x80,
 };
 
 enum PlayerField6Flags {
@@ -92,23 +92,24 @@ enum PlayerVictoryState {
     VicS_State3,
 };
 
-enum PlayerField454Val { // These could be Cursor states...?
-    P454_Unkn0 = 0,
-    P454_Unkn1,
-    P454_Unkn2,
-    P454_Unkn3,
+enum PlayerCursorStates {
+    CSt_DefaultArrow  = 0, // Default - Arrow Cursor
+    CSt_PickAxe       = 1, // Dig - Pickake cursor
+    CSt_DoorKey       = 2, // Lock/Unlock Door - Key cursor
+    CSt_PowerHand     = 3, // Power Hand cursor
 };
 
-enum PlayerField3Flags {
-    Pf3F_None   = 0x00,
-    Pf3F_Unkn01 = 0x01,
-    Pf3F_Unkn02 = 0x02,
-    Pf3F_Unkn04 = 0x04,
-    Pf3F_Unkn08 = 0x08,
-    Pf3F_Unkn10 = 0x10,
-    Pf3F_Unkn20 = 0x20,
-    Pf3F_Unkn40 = 0x40,
-    Pf3F_Unkn80 = 0x80,
+enum PlayerAdditionalFlags {
+    PlaAF_None                      = 0x00,
+    PlaAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
+    PlaAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
+    PlaAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell
+    PlaAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell
+    PlaAF_UnlockedLordTorture       = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
+    // The below are unused in KFX
+    PlaAF_Unkn20                    = 0x20,
+    PlaAF_Unkn40                    = 0x40,
+    PlaAF_Unkn80                    = 0x80,
 };
 
 /******************************************************************************/
@@ -143,11 +144,11 @@ struct PlayerInfo {
     unsigned char allocflags;
     unsigned char field_1;
     unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
-    unsigned char field_3;
+    unsigned char additional_flags; // Uses PlayerAdditionalFlags
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
     unsigned char flgfield_6;
-    unsigned char *field_7;
+    unsigned char *lens_palette;
     /** Index of packet slot associated with this player. */
     unsigned char packet_num;
     long field_C;
@@ -184,8 +185,8 @@ char field_E8[2];
     unsigned short minimap_zoom;
     unsigned char view_type;
     unsigned char work_state;
-    unsigned char field_454;
-    unsigned char field_455;
+    unsigned char primary_cursor_state;
+    unsigned char secondary_cursor_state;
     unsigned char continue_work_state;
 char field_457[8];
 char field_45F;
@@ -208,9 +209,9 @@ char field_462;
     long dungeon_camera_zoom;
     char field_4BA[3];
     long field_4BD;
-    long field_4C1;
-    long field_4C5;
-    unsigned char *palette;
+    long palette_fade_step_pain;
+    long palette_fade_step_possession;
+    unsigned char *main_palette;
     long field_4CD;
     char field_4D1;
     /** Overcharge level while casting keeper powers. */

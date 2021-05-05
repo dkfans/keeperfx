@@ -73,6 +73,7 @@ enum TbFeature {
     Ft_Censorship   =  0x0020,
     Ft_Atmossounds  =  0x0040,
     Ft_Resizemovies =  0x0080,
+    Ft_Wibble       =  0x0100,
 };
 
 enum TbExtraLevels {
@@ -205,6 +206,7 @@ TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
 TbBool resize_movies_enabled(void);
+TbBool wibble_enabled(void);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);

@@ -2415,7 +2415,6 @@ long check_out_imp_last_did(struct Thing *creatng)
       }
       if (is_my_player_number(creatng->owner))
       {
-          struct Room *room;
           room = find_room_with_spare_capacity(creatng->owner, RoK_TRAINING, 1);
           if (room_is_invalid(room)) {
               output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_TRAINING, OMsg_RoomTooSmall);
