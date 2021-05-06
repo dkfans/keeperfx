@@ -167,10 +167,10 @@ void input_eastegg(void)
 void draw_eastegg(void)
 {
   char *text;
-  static long px[2] = {0, 0};
-  static long py[2] = {0, 0};
-  static long vx[2] = {0, 0};
-  static long vy[2] = {0, 0};
+  static long px[2] = {5, 5};
+  static long py[2] = {5, 5};
+  static long vx[2] = {5, 5};
+  static long vy[2] = {5, 5};
   long i;
   long k;
   SYNCDBG(5,"Starting");
@@ -269,7 +269,9 @@ void draw_eastegg(void)
       py[i] = MyScreenHeight-k-1;
     }
     if (LbScreenIsLocked())
-      LbTextDraw(px[i]/pixel_size, py[i]/pixel_size, text);
+    {
+        LbTextDraw(px[i]/pixel_size, py[i]/pixel_size, text);
+    }
     play_non_3d_sample_no_overlap(90);
   }
 }
