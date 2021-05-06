@@ -118,7 +118,9 @@ const struct NamedCommand conf_commands[] = {
   {"RESIZE_MOVIES",       14},
   {"MUSIC_TRACKS",        15},
   {"WIBBLE",              16},
-  {"FREEZE_GAME_WHEN_FOCUS_LOST", 17},
+  {"FREEZE_GAME_ON_FOCUS_LOST"     , 17},
+  {"UNLOCK_CURSOR_WHEN_GAME_PAUSED", 18},
+  {"LOCK_CURSOR_IN_POSSESSION"     , 19},
   {NULL,                   0},
   };
 
@@ -221,9 +223,25 @@ TbBool wibble_enabled(void)
 /**
  * Returns if we should freeze the game, if the game window loses focus.
  */
-TbBool freeze_game_on_lose_focus_enabled(void)
+TbBool freeze_game_on_focus_lost(void)
 {
   return ((features_enabled & Ft_FreezeOnLoseFocus) != 0);
+}
+
+/**
+ * Returns if we should unlock the mouse cursor from the window, if the user pauses the game.
+ */
+TbBool unlock_cursor_when_game_paused(void)
+{
+  return ((features_enabled & Ft_UnlockCursorOnPause) != 0);
+}
+
+/**
+ * Returns if we should lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked).
+ */
+TbBool lock_cursor_in_possession(void)
+{
+  return ((features_enabled & Ft_LockCursorInPossession) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -818,7 +836,7 @@ short load_configuration(void)
           else
               features_enabled &= ~Ft_Wibble;
           break;
-      case 17: // FREEZE_GAME_WHEN_FOCUS_LOST
+      case 17: // FREEZE_GAME_ON_FOCUS_LOST
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -830,6 +848,32 @@ short load_configuration(void)
               features_enabled |= Ft_FreezeOnLoseFocus;
           else
               features_enabled &= ~Ft_FreezeOnLoseFocus;
+          break;
+      case 18: // UNLOCK_CURSOR_WHEN_GAME_PAUSED
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_UnlockCursorOnPause;
+          else
+              features_enabled &= ~Ft_UnlockCursorOnPause;
+          break;
+      case 19: // LOCK_CURSOR_IN_POSSESSION
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_LockCursorInPossession;
+          else
+              features_enabled &= ~Ft_LockCursorInPossession;
           break;
       case 0: // comment
           break;

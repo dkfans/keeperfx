@@ -74,7 +74,9 @@ enum TbFeature {
     Ft_Atmossounds  =  0x0040,
     Ft_Resizemovies =  0x0080,
     Ft_Wibble       =  0x0100,
-    Ft_FreezeOnLoseFocus = 0x0200,
+    Ft_FreezeOnLoseFocus      = 0x0200,
+    Ft_UnlockCursorOnPause    = 0x0400,
+    Ft_LockCursorInPossession = 0x0800,
 };
 
 enum TbExtraLevels {
@@ -208,7 +210,9 @@ TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
 TbBool resize_movies_enabled(void);
 TbBool wibble_enabled(void);
-TbBool freeze_game_on_lose_focus_enabled(void);
+TbBool freeze_game_on_focus_lost(void);
+TbBool unlock_cursor_when_game_paused(void);
+TbBool lock_cursor_in_possession(void);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);

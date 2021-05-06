@@ -31,6 +31,7 @@
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_mshandler.hpp"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -316,6 +317,38 @@ TbResult LbMouseChangeMoveRatio(long ratio_x, long ratio_y)
     return Lb_SUCCESS;
 }
 
+void grab_mouse_check(TbBool paused, TbBool possession_mode)
+{
+    TbBool grab_cursor = false, show_host_cursor = false;
+    if (lbMouseGrab) // normal input mode, grab cursor normally
+    {
+        grab_cursor = true;
+        show_host_cursor = false;
+        if (unlock_cursor_when_game_paused() && paused)
+        {
+            grab_cursor = false;
+            if (possession_mode)
+            {
+                show_host_cursor = true;
+            }
+        }
+    }
+    else // alt input mode, grab cursor normally
+    {
+        grab_cursor = false;
+        show_host_cursor = false;
+        if (possession_mode && lock_cursor_in_possession() && unlock_cursor_when_game_paused() && paused)
+        {
+            show_host_cursor = true;
+        }
+        else if (possession_mode && lock_cursor_in_possession())
+        {
+            grab_cursor = true;
+        }
+    }
+    SDL_SetRelativeMouseMode((grab_cursor ? SDL_TRUE : SDL_FALSE));
+    SDL_ShowCursor((show_host_cursor ? SDL_ENABLE : SDL_DISABLE));
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

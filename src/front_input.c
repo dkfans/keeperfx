@@ -584,6 +584,7 @@ short get_global_inputs(void)
         return true;
       }
   }
+  grab_mouse_check(((game.operation_flags & GOF_Paused) != 0), (player->view_mode == PVM_CreatureView));
   if ((game.operation_flags & GOF_Paused) != 0)
       return true;
   if (get_speed_control_inputs())
@@ -1988,8 +1989,9 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
-  while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // in 1st person mode, don't init HostOS cursor in altinput
+  if (lbMouseGrab || lock_cursor_in_possession()) // only do this if we are grabbing the mouse cursor
+    while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
+      LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size);
   // Set pos_x and pos_y
   if (settings.first_person_move_invert)
     pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
