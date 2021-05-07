@@ -507,7 +507,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if ( LbMouseIsInstalled() )
     {
         LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-        LbMouseSetPositionInitial(lbDisplay.PhysicalScreenWidth / 2, lbDisplay.PhysicalScreenHeight / 2);
+        LbMouseSetPosition(lbDisplay.PhysicalScreenWidth / 2, lbDisplay.PhysicalScreenHeight / 2);
         if (msspr != NULL)
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }

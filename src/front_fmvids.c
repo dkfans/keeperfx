@@ -113,7 +113,7 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
   lbDisplay.RightButton = 0;
   lbDisplay.MiddleButton = 0;
   if (nstate > -2)
-    LbMouseSetPositionInitial(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
   return result;
 }
 

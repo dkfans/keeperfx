@@ -83,7 +83,7 @@ TbResult LbMouseSetup(struct TbSprite *pointerSprite)
   lbMouseInstalled = true;
   LbMouseSetWindow(0,0,LbGraphicsScreenWidth(),LbGraphicsScreenHeight());
   ret = Lb_SUCCESS;
-  if (LbMouseSetPosition(x,y) != Lb_SUCCESS) // seems to put cursor at 0,0 so we don't want to init the HostOS cursor there in altinput mode
+  if (LbMouseSetPositionInitial(x,y) != Lb_SUCCESS) // seems to put cursor at 0,0 so we don't want to init the HostOS cursor there in altinput mode
     ret = Lb_FAIL;
   if (LbMouseChangeSprite(pointerSprite) != Lb_SUCCESS)
     ret = Lb_FAIL;
@@ -101,7 +101,7 @@ TbResult LbMouseSetPointerHotspot(long hot_x, long hot_y)
   return Lb_SUCCESS;
 }
 
-TbResult LbMouseSetPosition(long x, long y)
+TbResult LbMouseSetPositionInitial(long x, long y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -109,7 +109,7 @@ TbResult LbMouseSetPosition(long x, long y)
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
-TbResult LbMouseSetPositionInitial(long x, long y)
+TbResult LbMouseSetPosition(long x, long y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
@@ -135,7 +135,7 @@ void LbMoveHostCursorToGameCursor(void)
     SDL_GetMouseState(&host_cursor_x, &host_cursor_y);
     if ((host_cursor_x != game_cursor_x) && (host_cursor_y != game_cursor_y))
     {
-        LbMouseSetPositionInitial(game_cursor_x, game_cursor_y);
+        LbMouseSetPosition(game_cursor_x, game_cursor_y);
     }
 }
 

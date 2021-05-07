@@ -424,7 +424,7 @@ long get_small_map_inputs(long x, long y, long zoom)
   }
   if (grabbed_small_map)
   {
-    LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
+    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
   }
   old_mx = curr_mx;
   old_my = curr_my;

@@ -416,7 +416,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
         set_sprite_view_3d();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(0);
-        LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
+        LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
         break;
     case PVM_IsometricView:
         player->acamera = &player->cameras[CamIV_Isometric];

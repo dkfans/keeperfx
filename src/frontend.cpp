@@ -2563,7 +2563,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
             ERRORLOG("Unable to load FRONTEND PALETTE");
         wait_for_cd_to_be_available();
-        LbMouseSetPositionInitial(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
+        LbMouseSetPosition(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
         update_mouse();
         break;
     case FeSt_MAIN_MENU: // main menu state

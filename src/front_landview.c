@@ -949,7 +949,7 @@ TbBool frontnetmap_load(void)
     fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
-    LbMouseSetPositionInitial(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     LbTextSetFont(map_font);
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     map_sound_fade = 256;
@@ -1105,7 +1105,7 @@ TbBool frontmap_load(void)
     map_info.velocity_x = 0;
     map_info.velocity_y = 0;
     set_pointer_graphic_spland(0);
-    LbMouseSetPositionInitial(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
         play_sample_using_heap(0, campaign.ambient_good, 0, 0x40, 100, -1, 2, 0);
@@ -1481,7 +1481,7 @@ void frontnetmap_input(void)
         {
             lvinfo = get_level_info(fe_net_level_selected);
             if (lvinfo != NULL) {
-              LbMouseSetPositionInitial((lvinfo->ensign_x - map_info.screen_shift_x)*units_per_pixel/16,
+              LbMouseSetPosition((lvinfo->ensign_x - map_info.screen_shift_x)*units_per_pixel/16,
                   (lvinfo->ensign_y - map_info.screen_shift_y)*units_per_pixel/16);
             }
             fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
@@ -1581,7 +1581,7 @@ TbBool frontmap_exchange_screen_packet(void)
       nspck->param2 = net_map_limp_time;
       if (net_map_limp_time == 1)
       {
-          LbMouseSetPositionInitial(
+          LbMouseSetPosition(
             limp_hand_x + hand_limp_xoffset[0] - map_info.screen_shift_x,
             limp_hand_y + hand_limp_yoffset[0] - map_info.screen_shift_y);
       }

@@ -700,7 +700,7 @@ TbBool setup_screen_mode(unsigned short nmode)
     if (parchment_loaded)
       reload_parchment_file(mdinfo->Width >= 640);
     reinitialise_eye_lens(lens_mem);
-    LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
+    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
     lbDisplay.DrawFlags = flg_mem;
     if (!setup_heap_memory())
     {
