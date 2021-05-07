@@ -331,6 +331,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     char * pr5str = (pr4str != NULL) ? cmd_strtok(pr4str + 1) : NULL;
     struct PlayerInfo* player;
     struct Thing* thing;
+    struct Dungeon* dungeon;
     struct Room* room;
     struct Packet* pckt;
     struct SlabMap *slb;
