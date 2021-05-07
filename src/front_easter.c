@@ -167,10 +167,10 @@ void input_eastegg(void)
 void draw_eastegg(void)
 {
   char *text;
-  static long px[2] = {5, 5};
-  static long py[2] = {5, 5};
-  static long vx[2] = {5, 5};
-  static long vy[2] = {5, 5};
+  static long px[2] = {0, 0};
+  static long py[2] = {0, 0};
+  static long vx[2] = {4, 4};
+  static long vy[2] = {6, 6};
   long i;
   long k;
   SYNCDBG(5,"Starting");
