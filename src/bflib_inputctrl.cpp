@@ -26,6 +26,7 @@
 #include "bflib_video.h"
 #include "bflib_planar.h"
 #include "bflib_mshandler.hpp"
+#include "config.h"
 #include <SDL2/SDL.h>
 
 using namespace std;
@@ -39,6 +40,7 @@ extern volatile TbBool lbHasSecondSurface;
 extern SDL_Color lbPaletteColors[PALETTE_COLORS];
 
 volatile TbBool lbAppActive;
+volatile TbBool lbMouseGrabbed = true;
 volatile int lbUserQuit = 0;
 
 static int prevMouseX = 0, prevMouseY = 0;
@@ -280,12 +282,12 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEMOTION:
-        if (!isMouseActive)
+        if (!isMouseActive || !lbAppActive)
         {
           SDL_GetMouseState(&prevMouseX, &prevMouseY);
           return;
         }
-        if (lbMouseGrab && lbDisplay.MouseMoveRatio > 0)
+        if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
         {
             mouseDelta.x = ev->motion.xrel * lbDisplay.MouseMoveRatio / 256;
             mouseDelta.y = ev->motion.yrel * lbDisplay.MouseMoveRatio / 256;
@@ -328,16 +330,17 @@ static void process_event(const SDL_Event *ev)
             lbAppActive = true;
             isMouseActive = true;
             isMouseActivated = true;
-            if (lbMouseGrab)
+            // make sure the game cursor position matches the Host OS cursor position
+            int current_mouse_x, current_mouse_y;
+            SDL_GetMouseState(&current_mouse_x, &current_mouse_y);
+            if (lbMouseGrabbed)
             {
-                // if in normal input mode, make sure the game cursor position matches the Host OS cursor position
-                int current_mouse_x, current_mouse_y;
-                SDL_GetMouseState(&current_mouse_x, &current_mouse_y);
                 SDL_SetRelativeMouseMode(SDL_TRUE);
                 LbMouseSetPosition(current_mouse_x, current_mouse_y);
             }
             else
             {
+                LbMouseSetPosition(current_mouse_x, current_mouse_y);
                 SDL_ShowCursor(SDL_DISABLE);
             }
         }
@@ -346,14 +349,8 @@ static void process_event(const SDL_Event *ev)
             lbAppActive = false;
             isMouseActive = false;
             isMouseActivated = false;
-            if (lbMouseGrab)
-            {
-                SDL_SetRelativeMouseMode(SDL_FALSE);
-            }
-            else
-            {
-                SDL_ShowCursor(SDL_ENABLE);
-            }
+            SDL_ShowCursor(SDL_ENABLE);
+            SDL_SetRelativeMouseMode(SDL_FALSE);
         }
         else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
         {
@@ -405,6 +402,45 @@ TbBool LbIsActive(void)
 TbBool LbIsMouseActive(void)
 {
     return isMouseActive;
+}
+
+void LbGrabMouseCheck(TbBool paused, TbBool possession_mode)
+{
+    TbBool grab_cursor = false, show_host_cursor = false;
+    if (lbMouseGrab) // normal input mode, grab cursor normally
+    {
+        grab_cursor = true;
+        show_host_cursor = false;
+        if (unlock_cursor_when_game_paused() && paused)
+        {
+            grab_cursor = false;
+            if (possession_mode)
+            {
+                show_host_cursor = true;
+            }
+        }
+    }
+    else // alt input mode, grab cursor normally
+    {
+        grab_cursor = false;
+        show_host_cursor = false;
+        if (possession_mode && lock_cursor_in_possession() && unlock_cursor_when_game_paused() && paused)
+        {
+            show_host_cursor = true;
+        }
+        else if (possession_mode && lock_cursor_in_possession())
+        {
+            grab_cursor = true;
+        }
+    }
+    if (!lbAppActive)
+    {
+        show_host_cursor = true;
+        grab_cursor = false;
+    }
+    lbMouseGrabbed = grab_cursor;
+    SDL_SetRelativeMouseMode((grab_cursor ? SDL_TRUE : SDL_FALSE));
+    SDL_ShowCursor((show_host_cursor ? SDL_ENABLE : SDL_DISABLE));
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -461,12 +461,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
         return Lb_FAIL;
     }
-    if (lbMouseGrab)
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-    else {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        SDL_ShowCursor(SDL_DISABLE);
-    }
+    LbGrabMouseCheck(false,false);
 
     lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
 

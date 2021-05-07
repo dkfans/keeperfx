@@ -30,6 +30,7 @@
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_network.h"
+#include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
 #include "frontend.h"
@@ -584,7 +585,7 @@ short get_global_inputs(void)
         return true;
       }
   }
-  grab_mouse_check(((game.operation_flags & GOF_Paused) != 0), (player->view_mode == PVM_CreatureView));
+  LbGrabMouseCheck(((game.operation_flags & GOF_Paused) != 0), (player->view_mode == PVM_CreatureView));
   if ((game.operation_flags & GOF_Paused) != 0)
       return true;
   if (get_speed_control_inputs())

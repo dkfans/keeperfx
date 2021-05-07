@@ -34,6 +34,7 @@ extern volatile TbBool lbMouseGrab;
 TbBool LbWindowsControl(void);
 TbBool LbIsActive(void);
 TbBool LbIsMouseActive(void);
+void LbGrabMouseCheck(TbBool paused, TbBool possession_mode);
 
 /******************************************************************************/
 #ifdef __cplusplus
