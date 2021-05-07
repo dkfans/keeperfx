@@ -51,6 +51,7 @@ unsigned long mouse_pos_change_saved;
 struct DevInput joy;
 */
 volatile TbBool lbMouseGrab = true;
+volatile TbBool lbMouseGrabbed = true;
 volatile TbDisplayStructEx lbDisplayEx;
 /******************************************************************************/
 TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_x, long hot_y)
@@ -112,20 +113,46 @@ TbResult LbMouseSetPositionInitial(long x, long y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  if (!lbMouseGrab)
+  if (!lbMouseGrabbed)
   {
     // in altinput mode
     // first move the game cursor to the position of the HostOS cursor, and then move the HostOS cursor to the given x and y location.
     // this keeps Host OS cursor and game cursor in sync (same position)
-    int current_mouse_x, current_mouse_y;
-    SDL_GetMouseState(&current_mouse_x, &current_mouse_y);
-    if (!pointerHandler.SetMousePosition(current_mouse_x, current_mouse_y))
+    if (!LbMoveGameCursorToHostCursor())
       return Lb_FAIL;
     SDL_WarpMouseInWindow(SDL_GetKeyboardFocus(), x, y);
   }
   else if (!pointerHandler.SetMousePosition(x, y))
     return Lb_FAIL;
   return Lb_SUCCESS;
+}
+
+void LbMoveHostCursorToGameCursor(void)
+{
+    int game_cursor_x = lbDisplay.MMouseX;
+    int game_cursor_y = lbDisplay.MMouseY;
+    int host_cursor_x, host_cursor_y;
+    SDL_GetMouseState(&host_cursor_x, &host_cursor_y);
+    if ((host_cursor_x != game_cursor_x) && (host_cursor_y != game_cursor_y))
+    {
+        LbMouseSetPositionInitial(game_cursor_x, game_cursor_y);
+    }
+}
+
+TbResult LbMoveGameCursorToHostCursor(void)
+{
+    int game_cursor_x = lbDisplay.MMouseX;
+    int game_cursor_y = lbDisplay.MMouseY;
+    int host_cursor_x, host_cursor_y;
+    SDL_GetMouseState(&host_cursor_x, &host_cursor_y);
+    if ((host_cursor_x != game_cursor_x) && (host_cursor_y != game_cursor_y))
+    {
+        if (!pointerHandler.SetMousePosition(host_cursor_x, host_cursor_y))
+        {
+            return Lb_FAIL;
+        }
+    }
+    return Lb_SUCCESS;
 }
 
 TbResult LbMouseChangeSprite(struct TbSprite *pointerSprite)

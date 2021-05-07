@@ -30,12 +30,14 @@ extern "C" {
 /******************************************************************************/
 extern volatile int lbUserQuit;
 extern volatile TbBool lbMouseGrab;
+extern volatile TbBool lbMouseGrabbed;
 /******************************************************************************/
 TbBool LbWindowsControl(void);
 TbBool LbIsActive(void);
 TbBool LbIsMouseActive(void);
-void LbGrabMouseCheck(TbBool paused, TbBool possession_mode);
-
+void LbGrabMouseCheck(void);
+void LbGrabMouseInit(void);
+void LbSetMouseGrab(TbBool grab_mouse);
 /******************************************************************************/
 #ifdef __cplusplus
 }
