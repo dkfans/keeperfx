@@ -134,14 +134,16 @@ struct CPU_INFO {
   long feature_edx;
   TbBool timeStampCounter;
   char vendor[17];
+  TbBool BrandString;
+  char brand[47];
 };
 
 /******************************************************************************/
 void cpu_detect(struct CPU_INFO *cpu);
-unsigned short cpu_get_type(struct CPU_INFO *cpu);
-unsigned short cpu_get_family(struct CPU_INFO *cpu);
-unsigned short cpu_get_model(struct CPU_INFO *cpu);
-unsigned short cpu_get_stepping(struct CPU_INFO *cpu);
+unsigned char cpu_get_type(struct CPU_INFO *cpu);
+unsigned char cpu_get_family(struct CPU_INFO *cpu);
+unsigned char cpu_get_model(struct CPU_INFO *cpu);
+unsigned char cpu_get_stepping(struct CPU_INFO *cpu);
 
 
 /******************************************************************************/

@@ -2415,7 +2415,6 @@ long check_out_imp_last_did(struct Thing *creatng)
       }
       if (is_my_player_number(creatng->owner))
       {
-          struct Room *room;
           room = find_room_with_spare_capacity(creatng->owner, RoK_TRAINING, 1);
           if (room_is_invalid(room)) {
               output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_TRAINING, OMsg_RoomTooSmall);
@@ -2785,18 +2784,40 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
         // Do not delete the task - another digger might be able to reach it
         return 0;
     }
+    EventIndex evidx;
     i = crate_thing_to_workshop_item_class(sectng);
     if (i == TCls_Trap)
     {
-      event_create_event_or_update_nearby_existing_event(
+      evidx = event_create_event_or_update_nearby_existing_event(
           subtile_coord_center(stl_x), subtile_coord_center(stl_y),
           EvKind_TrapCrateFound, thing->owner, sectng->index);
+        if (evidx > 0)
+        {
+
+            if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
+            {
+                if (sectng->owner == game.neutral_player_num)
+                {
+                    output_message(SMsg_DiscoveredTrap, 0, true);
+                }
+            }
+        }
     } else
     if (i == TCls_Door)
     {
-      event_create_event_or_update_nearby_existing_event(
+      evidx = event_create_event_or_update_nearby_existing_event(
           subtile_coord_center(stl_x), subtile_coord_center(stl_y),
           EvKind_DoorCrateFound, thing->owner, sectng->index);
+        if (evidx > 0)
+        {
+            if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
+            {
+                if (sectng->owner == game.neutral_player_num)
+                {
+                    output_message(SMsg_DiscoveredDoor, 0, true);
+                }
+            }
+        }
     } else
     {
         WARNLOG("Strange pickup (class %d) - no event",(int)i);

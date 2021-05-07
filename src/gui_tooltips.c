@@ -72,7 +72,8 @@ void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
   va_end(val);
   if (bxtype != 0) {
       tool_tip_box.pos_x = GetMouseX();
-      tool_tip_box.pos_y = GetMouseY()+86;
+      long y_offset = scale_ui_value(86);
+      tool_tip_box.pos_y = GetMouseY() + y_offset;
   }
   tool_tip_box.field_809 = bxtype;
 }
@@ -102,7 +103,8 @@ static inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
     {
         tool_tip_box.gbutton = gbtn;
         tool_tip_box.pos_x = GetMouseX();
-        tool_tip_box.pos_y = GetMouseY()+86;
+        long y_offset = scale_ui_value(86);
+        tool_tip_box.pos_y = GetMouseY() + y_offset;
         tool_tip_box.field_809 = 0;
         return true;
     }
@@ -123,7 +125,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     //thing = get_trap_for_slab_position(subtile_slab_fast(pos->x.stl.num),subtile_slab_fast(pos->y.stl.num));
     if (thing_is_invalid(thing)) return false;
     struct PlayerInfo* player = get_my_player();
-    if ((thing->byte_18 == 0) && (player->id_number != thing->owner))
+    if ((thing->trap_door_active_state == 0) && (player->id_number != thing->owner))
         return false;
     update_gui_tooltip_target(thing);
     if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
@@ -437,28 +439,28 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
     }
     if (tttext != NULL)
     {
-        long x = pos_x + 26 * units_per_pixel / 16;
+        long x = pos_x + scale_ui_value(26);
         lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-        long y = pos_y - (ttheight + 28) * units_per_pixel / 16;
+        long y = pos_y - scale_ui_value(ttheight + 28);
         if (x > MyScreenWidth)
           x = MyScreenWidth;
-        if (x < 6*units_per_pixel/16)
-          x = 6*units_per_pixel/16;
+        if (x < scale_ui_value(6))
+          x = scale_ui_value(6);
         if (y > MyScreenHeight)
           y = MyScreenHeight;
-        if (y < 4*units_per_pixel/16)
-          y = 4*units_per_pixel/16;
-        if (x + viswidth*units_per_pixel/16 >= MyScreenWidth)
-          x = MyScreenWidth - viswidth*units_per_pixel/16;
-        if (y + ttheight*units_per_pixel/16 >= MyScreenHeight)
-          y = MyScreenHeight - ttheight*units_per_pixel/16;
+        if (y < scale_ui_value(4))
+          y = scale_ui_value(4);
+        if (x + scale_ui_value(viswidth) >= MyScreenWidth)
+          x = MyScreenWidth - scale_ui_value(viswidth);
+        if (y + scale_ui_value(ttheight) >= MyScreenHeight)
+          y = MyScreenHeight - scale_ui_value(ttheight);
         if (tttext[0] != '\0')
         {
-            LbTextSetWindow(x, y, viswidth*units_per_pixel/16, ttheight*units_per_pixel/16);
-            draw_slab64k(x, y, units_per_pixel, viswidth*units_per_pixel/16, ttheight*units_per_pixel/16);
+            LbTextSetWindow(x, y, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
+            draw_slab64k(x, y, units_per_pixel_ui, scale_ui_value_lofi(viswidth), scale_ui_value_lofi(ttheight));
             lbDisplay.DrawFlags = 0;
-            int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
-            LbTextDrawResized(tooltip_scroll_offset*units_per_pixel/16, -2*units_per_pixel/16, tx_units_per_px, tttext);
+            int tx_units_per_px = calculate_relative_upp(22, units_per_pixel_ui, LbTextLineHeight());
+            LbTextDrawResized(scale_ui_value_lofi(tooltip_scroll_offset), -scale_ui_value_lofi(2), tx_units_per_px, tttext);
         }
     }
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
@@ -533,9 +535,9 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
   long pos_y = ttpos_y;
   if (player->view_type == PVT_MapScreen)
   {
-      pos_y = GetMouseY() + 24*units_per_pixel/16;
-      if (pos_y > MyScreenHeight - 104*units_per_pixel/16)
-          pos_y = MyScreenHeight - 104*units_per_pixel/16;
+      pos_y = GetMouseY() + scale_ui_value(24);
+      if (pos_y > MyScreenHeight - scale_ui_value(104))
+          pos_y = MyScreenHeight - scale_ui_value(104);
       if (pos_y < 0)
           pos_y = 0;
   }

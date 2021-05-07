@@ -239,6 +239,8 @@ IF(PLAYER_GOOD,FLAG1 == 1)
 		IF(PLAYER1,DUNGEON_DESTROYED == 0)
 			REM "You have turned local heroes into something of an endangered species, now make the enemy Dungeon Keeper extinct."
 			DISPLAY_OBJECTIVE(74,PLAYER0)
+			REM Blue digs out when the heroes are defeated
+			COMPUTER_DIG_TO_LOCATION(PLAYER1,1,2)
 		ENDIF
 		IF(PLAYER1,DUNGEON_DESTROYED >= 1)
 			REM "You have prevailed, Keeper. The bodies of your enemies litter the most forlorn alcoves of your domain, in tribute to their futile efforts to keep you at bay."

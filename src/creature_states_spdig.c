@@ -1475,6 +1475,7 @@ short creature_picks_up_crate_for_workshop(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
+    update_workshop_object_pickup_event(creatng, cratetng);
     creature_drag_object(creatng, cratetng);
     creatng->continue_state = CrSt_CreatureDropsCrateInWorkshop;
     return 1;

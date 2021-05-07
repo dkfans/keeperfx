@@ -1,14 +1,15 @@
 REM ****************************************************************************
-REM  Free Play levels - KeeperFX
+REM	Free Play levels : Standard Map Pack - KeeperFX
 REM ****************************************************************************
-REM  Script for Level 1202 - Desperation
-REM  Author:  Loobinex
-REM  Date:    2015-09-10
-REM  Copying and copyrights:
-REM    This program is free software; you can redistribute it and/or modify
-REM    it under the terms of the GNU General Public License as published by
-REM    the Free Software Foundation; either version 2 of the License, or
-REM    (at your option) any later version.
+REM	Script for Level 453 - Desperation
+REM	Author:  Loobinex
+REM	Date:    2015-09-10
+REM	updated to use pot file for messages by dayokay Jan-2021
+REM	Copying and copyrights:
+REM	This program is free software; you can redistribute it and/or modify
+REM	it under the terms of the GNU General Public License as published by
+REM	the Free Software Foundation; either version 2 of the License, or
+REM	(at your option) any later version.
 REM ****************************************************************************
 
 REM Brief: Player has direct contact with 3 rival keepers with a head start and it would be wise to make them attack each other. When one dies the other two will join forces. And unless there's a swift victory, some heroes will show up just when things are starting to go well for the player.
@@ -135,7 +136,8 @@ REM ****************************************************************************
 REM Level starts here
 REM ****************************************************************************
 
-QUICK_OBJECTIVE(1,"Your chances in this realm are slim to none. Three keepers here are stronger than you are. A desperate struggle awaits you. Hurry!",ALL_PLAYERS)
+REM	QUICK_OBJECTIVE(1,"Your chances in this realm are slim to none. Three keepers here are stronger than you are. A desperate struggle awaits you. Hurry!",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(43,ALL_PLAYERS)
 
 REM When a single Keeper is defeated, the others will ally and an objective is displayed.
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
@@ -151,7 +153,8 @@ IF(PLAYER3,DUNGEON_DESTROYED == 1)
 	ALLY_PLAYERS(PLAYER1,PLAYER2,1)
 ENDIF
 IF(PLAYER0,FLAG0 == 1)
-	QUICK_OBJECTIVE(2,"The remaining keepers have allied against you. Kill all who stand against you.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(2,"The remaining keepers have allied against you. Kill all who stand against you.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(44,ALL_PLAYERS)
 ENDIF
 
 
@@ -159,15 +162,18 @@ REM Take note whenever a Keeper is almost destroyed. If he gets strong again lat
 IF(PLAYER0,GAME_TURN >= 9000)
 	IF_CONTROLS(PLAYER1,TOTAL_CREATURES <= 2)
 		SET_FLAG(PLAYER1,FLAG1,1)
-		QUICK_INFORMATION(4,"Blue is desperate, kill him.",PLAYER1)
+		REM	QUICK_INFORMATION(4,"Blue is desperate, kill him.",PLAYER1)
+		DISPLAY_INFORMATION(45,PLAYER1)
 	ENDIF
 	IF_CONTROLS(PLAYER2,TOTAL_CREATURES <= 2)
 		SET_FLAG(PLAYER2,FLAG2,1)
-		QUICK_INFORMATION(5,"Green is trembling in fear. Finish the job,",PLAYER2)
+		REM	QUICK_INFORMATION(5,"Green is trembling in fear. Finish the job,",PLAYER2)
+		DISPLAY_INFORMATION(46,PLAYER2)
 	ENDIF
 	IF_CONTROLS(PLAYER3,TOTAL_CREATURES <= 2)
 		SET_FLAG(PLAYER3,FLAG3,1)
-		QUICK_INFORMATION(6,"Yellow can't take much more. Strike now to end him.",PLAYER3)
+		REM	QUICK_INFORMATION(6,"Yellow can't take much more. Strike now to end him.",PLAYER3)
+		DISPLAY_INFORMATION(47,PLAYER1)
 	ENDIF
 ENDIF
 
@@ -185,7 +191,8 @@ IF(PLAYER0,GAME_TURN >= 32400)
 	ENDIF
 ENDIF
 IF(PLAYER0,TIMER2 >= 3520)
-	QUICK_OBJECTIVE(7,"Drawn to the scent of desperation, the heroes come to cleanse the land of all evil. Make sure you are the last one standing.",-1)
+	REM	QUICK_OBJECTIVE(7,"Drawn to the scent of desperation, the heroes come to cleanse the land of all evil. Make sure you are the last one standing.",-1)
+	DISPLAY_OBJECTIVE(48,-1)
 ENDIF
 IF(PLAYER0,TIMER2 >= 3600)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,-1,DUNGEON_HEART,0,7,250)
@@ -206,7 +213,8 @@ IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
 ENDIF
 
 IF(PLAYER0,TIMER1 >= 80)
-	QUICK_OBJECTIVE(3,"You are victorious. About time.",ALL_PLAYERS)
+	REM	QUICK_OBJECTIVE(3,"You are victorious. About time.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(49,ALL_PLAYERS)
 	WIN_GAME
 ENDIF
 

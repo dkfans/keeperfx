@@ -256,6 +256,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   if (is_my_player(player))
     game.field_14E92E = 0;
   if ((player->work_state != PSt_CreatrQuery) && (player->work_state != PSt_CreatrInfo)
+     && (player->work_state != PSt_CreatrQueryAll) && (player->work_state != PSt_CreatrInfoAll)
      && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr)
      && (player->work_state != PSt_FreeCtrlDirect) && (player->work_state != PSt_FreeCtrlPassngr))
   {
@@ -264,7 +265,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   switch (player->work_state)
   {
   case PSt_CtrlDungeon:
-      player->field_4A4 = 1;
+      player->full_slab_cursor = 1;
       break;
   case PSt_BuildRoom:
       player->chosen_room_kind = chosen_kind;

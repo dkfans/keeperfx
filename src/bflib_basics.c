@@ -387,8 +387,14 @@ int LbErrorLogClose(void)
     return LbLogClose(&error_log);
 }
 
-FILE *file;
- 
+FILE *file = NULL;
+
+void LbCloseLog()
+{
+    fclose(file);
+    file = NULL;
+}
+
 int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
 {
   enum Header {

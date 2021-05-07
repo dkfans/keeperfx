@@ -554,7 +554,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         set_flag_byte(&thing->field_4F,TF4F_Unknown01,true);
     }
 
-    thing->field_20 = eestat->field_18;
+    thing->fall_acceleration = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
     thing->movement_flags |= TMvF_Unknown08;
@@ -736,7 +736,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
 void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct Coord3d *next_pos)
 {
     struct EffectElementStats* eestat = get_effect_element_model_stats(thing->model);
-    unsigned long blocked_flags = get_thing_blocked_flags_at(thing, next_pos);
+    long blocked_flags = get_thing_blocked_flags_at(thing, next_pos);
     slide_thing_against_wall_at(thing, next_pos, blocked_flags);
     if ( ((blocked_flags & SlbBloF_WalledZ) != 0) && eestat->field_15 && eestat->field_22 )
     {
@@ -826,7 +826,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * eestat->field_13) & TF4F_Unknown02;
     thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & (TF4F_Transpar_Flags);
-    thing->field_20 = eestat->field_18;
+    thing->fall_acceleration = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
     if (eestat->numfield_3 <= 0) {
@@ -1203,7 +1203,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->next_on_mapblk = 0;
     thing->owner = owner;
     thing->parent_idx = thing->index;
-    thing->field_20 = 0;
+    thing->fall_acceleration = 0;
     thing->field_23 = 0;
     thing->field_24 = 0;
     thing->field_4F |= TF4F_Unknown01;

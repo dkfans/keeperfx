@@ -117,6 +117,7 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOS_SAMPLES",       13},
   {"RESIZE_MOVIES",       14},
   {"MUSIC_TRACKS",        15},
+  {"WIBBLE",              16},
   {NULL,                   0},
   };
 
@@ -206,6 +207,14 @@ TbBool atmos_sounds_enabled(void)
 TbBool resize_movies_enabled(void)
 {
   return ((features_enabled & Ft_Resizemovies) != 0);
+}
+
+/**
+ * Returns if the wibble effect is on.
+ */
+TbBool wibble_enabled(void)
+{
+  return ((features_enabled & Ft_Wibble) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -787,6 +796,19 @@ short load_configuration(void)
                 COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
+      case 16: // WIBBLE
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_Wibble;
+          else
+              features_enabled &= ~Ft_Wibble;
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1354,6 +1376,22 @@ struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo)
   if (i < 0)
     return NULL;
   return &campaign.lvinfos[i];
+}
+
+short set_level_info_string_index(LevelNumber lvnum, char *stridx, unsigned long lvoptions)
+{
+    if (campaign.lvinfos == NULL)
+        init_level_info_entries(&campaign, 0);
+    struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
+    if (lvinfo == NULL)
+        return false;
+    int k = atoi(stridx);
+    if (k > 0)
+    {
+        lvinfo->name_stridx = k;
+        return true;
+    }
+  return false;
 }
 
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions)

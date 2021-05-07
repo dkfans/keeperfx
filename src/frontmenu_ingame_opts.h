@@ -37,9 +37,20 @@ extern struct GuiMenu instance_menu;
 extern struct GuiMenu quit_menu;
 extern struct GuiMenu error_box;
 extern struct GuiMenu autopilot_menu;
+extern struct GuiMenu message_box;
 
 extern struct GuiMenu video_menu;
 extern struct GuiMenu sound_menu;
+
+struct MsgBoxInfo {
+    char title[24];
+    char line1[24];
+    char line2[24];
+    char line3[24];
+    char line4[24];
+    char line5[24];
+};
+extern struct MsgBoxInfo MsgBox;
 /******************************************************************************/
 #ifdef __cplusplus
 }
