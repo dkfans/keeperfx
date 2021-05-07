@@ -414,23 +414,18 @@ void LbGrabMouseCheck(TbBool paused, TbBool possession_mode)
         if (unlock_cursor_when_game_paused() && paused)
         {
             grab_cursor = false;
-            if (possession_mode)
-            {
-                show_host_cursor = true;
-            }
         }
     }
     else // alt input mode, grab cursor normally
     {
         grab_cursor = false;
         show_host_cursor = false;
-        if (possession_mode && lock_cursor_in_possession() && unlock_cursor_when_game_paused() && paused)
+        if (possession_mode && lock_cursor_in_possession())
         {
-            show_host_cursor = true;
-        }
-        else if (possession_mode && lock_cursor_in_possession())
-        {
-            grab_cursor = true;
+            if (!(unlock_cursor_when_game_paused() && paused))
+            {
+                grab_cursor = true;
+            }
         }
     }
     if (!lbAppActive)
