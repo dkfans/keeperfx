@@ -764,7 +764,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
                 {
-                    script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, pw, 1, 1, &tmp_value, &tmp_value);                     
+                    script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, pw, 1, 1, &tmp_value);                     
                 }
                 update_powers_tab_to_config();
                 return true; 
