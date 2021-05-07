@@ -1990,9 +1990,8 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
-  if (lbMouseGrabbed) // only do this if we are grabbing the mouse cursor
-    while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
-      LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size);
+  while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
+    LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
   // Set pos_x and pos_y
   if (settings.first_person_move_invert)
     pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
