@@ -336,6 +336,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     struct Packet* pckt;
     struct SlabMap *slb;
     struct Coord3d pos;
+    struct ScriptValue tmp_value = {0};
     if (strcasecmp(parstr, "stats") == 0)
     {
       message_add_fmt(plyr_idx, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
@@ -472,7 +473,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             if (id <= 0 || id > trapdoor_conf.door_types_count)
                 return false;
             unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
-            script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, num);
+            script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, num, &tmp_value);
             update_trap_tab_to_config();
             message_add(plyr_idx, "done!");
             return true;
@@ -753,7 +754,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             }
             unsigned char available = (pr3str == NULL) ? 1 : atoi(pr3str);
             PlayerNumber id = get_player_number_for_command(pr4str);
-            script_process_value(Cmd_ROOM_AVAILABLE, id, roomid, (TbBool)available, (TbBool)available);
+            script_process_value(Cmd_ROOM_AVAILABLE, id, roomid, (TbBool)available, (TbBool)available, &tmp_value);
             update_room_tab_to_config();
             return true;
         }
@@ -763,7 +764,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
                 {
-                    script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, pw, 1, 1);                     
+                    script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, pw, 1, 1, &tmp_value, &tmp_value);                     
                 }
                 update_powers_tab_to_config();
                 return true; 
@@ -775,7 +776,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     power = atoi(pr2str);
                 }
-                script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, power, 1, 1);
+                script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, power, 1, 1, &tmp_value);
                 update_powers_tab_to_config();
                 return true;
             }                
@@ -805,7 +806,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             long crmodel = get_creature_model_for_command(pr2str);
             unsigned char available = (pr3str == NULL) ? 1 : atoi(pr3str);
             PlayerNumber id = get_player_number_for_command(pr4str);
-            script_process_value(Cmd_CREATURE_AVAILABLE, id, crmodel, (TbBool)available, (TbBool)available);
+            script_process_value(Cmd_CREATURE_AVAILABLE, id, crmodel, (TbBool)available, (TbBool)available, &tmp_value);
             return true;
         }
         else if ( (strcasecmp(parstr, "creature.addhealth") == 0) || (strcasecmp(parstr, "creature.health.add") == 0) )
@@ -928,7 +929,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 else
                 {
-                    script_process_value(Cmd_ADD_GOLD_TO_PLAYER, id, atoi(pr3str), 0, 0);
+                    script_process_value(Cmd_ADD_GOLD_TO_PLAYER, id, atoi(pr3str), 0, 0, &tmp_value);
                     return true;
                 }
             }
