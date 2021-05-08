@@ -1201,6 +1201,13 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
+          if (player->thing_under_hand > 0)
+          {
+            if (player->controlled_thing_idx != player->thing_under_hand)
+            {
+                player->influenced_thing_idx = player->thing_under_hand;
+            }
+          }
           if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
           {
             if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
