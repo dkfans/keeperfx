@@ -54,6 +54,7 @@
 #include "game_legacy.h"
 #include "config_magic.h"
 #include "thing_shots.h"
+#include "bflib_inputctrl.h"
 
 #include "keeperfx.hpp"
 
@@ -356,6 +357,7 @@ long pinstfs_direct_control_creature(struct PlayerInfo *player, long *n)
         SYNCDBG(8,"Cleaning up state %s of %s index %d",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
         initialise_thing_state(thing, CrSt_ManualControl);
     }
+    LbGrabMouseCheck(MG_OnPossessionEnter);
     return pinstfs_passenger_control_creature(player, n);
 }
 
@@ -913,6 +915,7 @@ void process_player_instances(void)
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
 {
     SYNCDBG(7,"Starting for player %d within %s index %d",(int)player->id_number,thing_model_name(thing),(int)thing->index);
+    LbGrabMouseCheck(MG_OnPossessionLeave);
     if (((thing->owner != player->id_number) && (player->work_state != PSt_FreeCtrlDirect))
       || (thing->index != player->controlled_thing_idx))
     {

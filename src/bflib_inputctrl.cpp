@@ -45,7 +45,6 @@ volatile int lbUserQuit = 0;
 static int prevMouseX = 0, prevMouseY = 0;
 static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
-static TbBool focusChanged = false;
 
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
@@ -330,16 +329,14 @@ static void process_event(const SDL_Event *ev)
             lbAppActive = true;
             isMouseActive = true;
             isMouseActivated = true;
-            focusChanged = true;
-            LbGrabMouseCheck();
+            LbGrabMouseCheck(MG_OnFocusGained);
         }
         else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
         {
             lbAppActive = false;
             isMouseActive = false;
             isMouseActivated = false;
-            focusChanged = true;
-            LbGrabMouseCheck();
+            LbGrabMouseCheck(MG_OnFocusLost);
         }
         else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
         {
@@ -406,60 +403,69 @@ void LbSetMouseGrab(TbBool grab_mouse)
         SDL_SetRelativeMouseMode(SDL_FALSE);
         LbMoveHostCursorToGameCursor();
     }
+    SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
 }
 
 void LbGrabMouseInit(void)
 {
-    SDL_ShowCursor(SDL_DISABLE);
     LbSetMouseGrab(lbMouseGrab);
 }
 
 #include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
-void LbGrabMouseCheck(void)
+void LbGrabMouseCheck(long grab_event)
 {
     TbBool window_has_focus = lbAppActive;
     TbBool paused = ((game.operation_flags & GOF_Paused) != 0);
-    TbBool possession_mode = get_my_player()->view_mode == PVM_CreatureView;
-
-    TbBool grab_cursor = false, show_host_cursor = false;
-    TbBool last_grab_state = lbMouseGrabbed;
-
-    if (window_has_focus)
+    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl);
+    TbBool grab_cursor = lbMouseGrabbed;
+    if (!window_has_focus)
     {
-        if (lbMouseGrab) // normal input mode, grab cursor normally
+        grab_cursor = false;
+    }
+    else
+    {
+        switch (grab_event)
         {
-            grab_cursor = true;
-            show_host_cursor = false;
-            if (unlock_cursor_when_game_paused() && paused)
+        case MG_OnPauseEnter:
+            if (unlock_cursor_when_game_paused() && lbMouseGrabbed)
             {
                 grab_cursor = false;
             }
-        }
-        else // alt input mode, don't grab cursor normally
-        {
-            grab_cursor = false;
-            show_host_cursor = false;
-            if (possession_mode && lock_cursor_in_possession())
+            break;
+        case MG_OnPauseLeave:
+            if ((unlock_cursor_when_game_paused() && lbMouseGrab) || (!lbMouseGrab && lock_cursor_in_possession() && possession_mode && unlock_cursor_when_game_paused()))
             {
-                if (!(unlock_cursor_when_game_paused() && paused))
-                {
-                    grab_cursor = true;
-                }
+                grab_cursor = true;
             }
+            break;
+        case MG_OnPossessionEnter:
+            if (lock_cursor_in_possession() && !lbMouseGrabbed)
+            {
+                grab_cursor = true;
+            }
+            break;
+        case MG_OnPossessionLeave:
+            if (lock_cursor_in_possession() && !lbMouseGrab)
+            {
+                grab_cursor = false;
+            }
+            break;
+        case MG_OnFocusGained:
+            grab_cursor = lbMouseGrab;
+            if (paused && unlock_cursor_when_game_paused())
+            {
+                grab_cursor = false;
+            }
+            if (!paused && possession_mode && lock_cursor_in_possession() && !lbMouseGrab)
+            {
+                grab_cursor = true;
+            }
+            break;
+        default:
+            break;
         }
     }
-    else // window has lost focus
-    {
-        show_host_cursor = true;
-        grab_cursor = false;
-    }
-
-    if ((grab_cursor != last_grab_state) || focusChanged)
-    {
-        focusChanged = false;
-        LbSetMouseGrab(grab_cursor);
-    }
-    SDL_ShowCursor((show_host_cursor ? SDL_ENABLE : SDL_DISABLE));
+    LbSetMouseGrab(grab_cursor);
 }
 /******************************************************************************/
 #ifdef __cplusplus

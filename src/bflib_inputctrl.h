@@ -28,6 +28,16 @@
 extern "C" {
 #endif
 /******************************************************************************/
+enum MouseGrabEvents {
+    MG_OnPauseEnter      = 0x001,
+    MG_OnPauseLeave      = 0x002,
+    MG_OnFocusLost       = 0x010,
+    MG_OnFocusGained     = 0x020,
+    MG_OnPossessionEnter = 0x100,
+    MG_OnPossessionLeave = 0x200,
+    MG_InPossessionMode  = 0x400,
+};
+/******************************************************************************/
 extern volatile int lbUserQuit;
 extern volatile TbBool lbMouseGrab;
 extern volatile TbBool lbMouseGrabbed;
@@ -35,7 +45,7 @@ extern volatile TbBool lbMouseGrabbed;
 TbBool LbWindowsControl(void);
 TbBool LbIsActive(void);
 TbBool LbIsMouseActive(void);
-void LbGrabMouseCheck(void);
+void LbGrabMouseCheck(long grab_event);
 void LbGrabMouseInit(void);
 void LbSetMouseGrab(TbBool grab_mouse);
 /******************************************************************************/

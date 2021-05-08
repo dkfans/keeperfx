@@ -580,12 +580,13 @@ short get_global_inputs(void)
   {
       if ( is_game_key_pressed(Gkey_TogglePause, &keycode, false) )
       {
+        long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave);// the paused flag is currently set to the current pause state, not the state we are about to enter
+        LbGrabMouseCheck(grab_check_flags);
         set_packet_pause_toggle();
         clear_key_pressed(keycode);
         return true;
       }
   }
-  LbGrabMouseCheck();
   if ((game.operation_flags & GOF_Paused) != 0)
       return true;
   if (get_speed_control_inputs())
