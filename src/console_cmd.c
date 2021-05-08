@@ -1295,14 +1295,18 @@ PlayerNumber get_player_number_for_command(char *msg)
     PlayerNumber id = (msg == NULL) ? my_player_number : get_rid(cmpgn_human_player_options, msg);
     if (id == -1)
     {
-        if (strcasecmp(msg, "neutral") == 0)
+        id = get_rid(player_desc, msg);
+        if (id == -1)
         {
-            id = game.neutral_player_num;
-        }
-        else
-        {
-            id = atoi(msg);
-        }                            
+            if (strcasecmp(msg, "neutral") == 0)
+            {
+                id = game.neutral_player_num;
+            }
+            else
+            {
+                id = atoi(msg);
+            }
+        }        
     }
     return id;
 }
