@@ -173,8 +173,20 @@ void draw_eastegg(void)
   static long vy[2] = {6, 6};
   long i;
   long k;
-  int resize = (22 * units_per_pixel) / LbTextLineHeight();
   SYNCDBG(5,"Starting");
+  int ee_units_per_px = calculate_relative_upp(22, units_per_pixel_best, LbTextLineHeight());
+  int width = 640, height = 400, skeksis_x_offset = 120, skeksis_y_offset = 200;
+  if (is_ar_wider_than_original(MyScreenWidth, MyScreenHeight))
+  {
+    width = height * (MyScreenWidth * 10 / MyScreenHeight) / 10;
+  }
+  else
+  {
+    height = (width * 10) / (MyScreenWidth * 10 / MyScreenHeight);
+  }
+  
+  skeksis_y_offset = height / 2;
+  skeksis_x_offset = (width / 2) - 200;
   LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
   if (eastegg_skeksis_cntr >= eastegg_skeksis_codes.length)
   {
@@ -187,13 +199,13 @@ void draw_eastegg(void)
       {
         pos = game.play_gameturn - i;
         lbDisplay.DrawColour = pos;
-        LbTextDrawResized((LbCosL(16*(long)pos) / 512 + 120) / pixel_size,
-          (LbSinL(32*(long)pos) / 512 + 200) / pixel_size, resize, text);
+        LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
+          scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       }
       set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
       pos=game.play_gameturn;
-      LbTextDrawResized((LbCosL(16*(long)pos) / 512 + 120) / pixel_size,
-        (LbSinL(32*(long)pos) / 512 + 200) / pixel_size, resize, text);
+      LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
+          scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       if (eastegg_skeksis_cntr >= 255)
         eastegg_skeksis_cntr = 0;
   }
@@ -218,20 +230,20 @@ void draw_eastegg(void)
       vy[i] = -vy[i];
     }
     k = pixel_size*LbTextStringWidth(text);
-    if (px[i]+k  >= MyScreenWidth)
+    if (px[i]+k  >= width)
     {
       vx[i] = -vx[i];
-      px[i] = MyScreenWidth-k-1;
+      px[i] = width-k-1;
     }
     k = pixel_size*LbTextStringHeight(text);
-    if (py[i]+k >= MyScreenHeight)
+    if (py[i]+k >= height)
     {
       vy[i] = -vy[i];
-      py[i] = MyScreenHeight-k-1;
+      py[i] = height-k-1;
     }
     if (LbScreenIsLocked())
     {
-      LbTextDrawResized(px[i]/pixel_size, py[i]/pixel_size, resize, text);
+      LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
     }
     play_non_3d_sample_no_overlap(90);
   }
@@ -258,20 +270,20 @@ void draw_eastegg(void)
       vy[i] = -vy[i];
     }
     k = pixel_size * LbTextStringWidth(text);
-    if (px[i]+k >= MyScreenWidth)
+    if (px[i]+k >= width)
     {
       vx[i] = -vx[i];
-      px[i] = MyScreenWidth-k-1;
+      px[i] = width-k-1;
     }
     k = pixel_size * LbTextStringHeight(text);
-    if (py[i]+k >= MyScreenHeight)
+    if (py[i]+k >= height)
     {
       vy[i] = -vy[i];
-      py[i] = MyScreenHeight-k-1;
+      py[i] = height-k-1;
     }
     if (LbScreenIsLocked())
     {
-        LbTextDrawResized(px[i]/pixel_size, py[i]/pixel_size, resize, text);
+        LbTextDrawResized(scale_fixed_DK_value(px[i]/pixel_size), scale_fixed_DK_value(py[i]/pixel_size), ee_units_per_px, text);
     }
     play_non_3d_sample_no_overlap(90);
   }
