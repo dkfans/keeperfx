@@ -460,8 +460,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         } else if ( (strcasecmp(parstr, "give.trap") == 0) || (strcasecmp(parstr, "trap.give") == 0) )
         {
             long id = get_trap_number_for_command(pr2str);
-            if (id <= 0 || id > trapdoor_conf.trap_types_count)
+            if (id <= 0 || id > gameadd.trapdoor_conf.trap_types_count)
+            {
                 return false;
+            }
             unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
             command_add_value(Cmd_TRAP_AVAILABLE, plyr_idx, id, 1, num);
             update_trap_tab_to_config();
@@ -470,8 +472,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         } else if ( (strcasecmp(parstr, "give.door") == 0) || (strcasecmp(parstr, "door.give") == 0) )
         {
             long id = get_door_number_for_command(pr2str);
-            if (id <= 0 || id > trapdoor_conf.door_types_count)
+            if (id <= 0 || id > gameadd.trapdoor_conf.door_types_count)
+            {
                 return false;
+            }
             unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
             script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, num, &tmp_value);
             update_trap_tab_to_config();
