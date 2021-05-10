@@ -27,6 +27,7 @@
 #include "bflib_planar.h"
 #include "bflib_mshandler.hpp"
 #include "config.h"
+#include "music_player.h"
 #include <SDL2/SDL.h>
 
 using namespace std;
@@ -330,6 +331,10 @@ static void process_event(const SDL_Event *ev)
             isMouseActive = true;
             isMouseActivated = true;
             LbGrabMouseCheck(MG_OnFocusGained);
+            if (freeze_game_on_focus_lost())
+            {
+                ResumeMusicPlayer();
+            }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
         {
@@ -337,6 +342,10 @@ static void process_event(const SDL_Event *ev)
             isMouseActive = false;
             isMouseActivated = false;
             LbGrabMouseCheck(MG_OnFocusLost);
+            if (freeze_game_on_focus_lost())
+            {
+                PauseMusicPlayer();
+            }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
         {
