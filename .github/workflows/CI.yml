@@ -14,7 +14,7 @@ jobs:
         set -eux
         sudo apt update && sudo apt -y upgrade
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
-        make DEBUG=1 DOXYTOOL=.git/index PACKAGE_SUFFIX=tryme -j`nproc` -k heavylog
+        make DEBUG=1 DOXYTOOL=cat .git/index PACKAGE_SUFFIX=tryme -j`nproc` -k heavylog
         make -j`nproc` standard
         make -j`nproc` package
         7z a keeperfx_alpha.7z pkg/*.*
