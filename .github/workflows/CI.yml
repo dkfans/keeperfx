@@ -14,9 +14,11 @@ jobs:
         set -eux
         sudo apt update && sudo apt -y upgrade
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
-        make DEBUG=1 GIT_VERSION=.$(git describe --always) PACKAGE_SUFFIX=tryme -j`nproc` -k heavylog
-        make -j`nproc` standard
-        make -j`nproc` package
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        PACKAGE_SUFFIX=Prototype
+        make DEBUG=1 VER_BUILD=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX -j`nproc` -k heavylog
+        make -j`nproc` VER_BUILD=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
+        make -j`nproc` VER_BUILD=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
         7z a keeperfx_alpha.7z pkg/*.*
     - uses: actions/upload-artifact@v2
       with:
