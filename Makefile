@@ -43,7 +43,7 @@ WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
 DOXYTOOL = doxygen
-GIT_VERSION ?= 0
+GIT_VERSION ?=
 PACKAGE_SUFFIX ?= 0
 PNGTOICO = tools/png2ico/png2ico$(CROSS_EXEEXT)
 PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
@@ -371,7 +371,7 @@ LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 # load program version
 include version.mk
 
-VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD).$(GIT_VERSION) Alpha
+VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD)$(GIT_VERSION) Alpha
 
 # load depenency packages
 include prebuilds.mk
