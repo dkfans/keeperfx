@@ -369,7 +369,7 @@ LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 # load program version
 include version.mk
 
-VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD) Alpha
+VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(DOXYTOOL) Alpha
 
 # load depenency packages
 include prebuilds.mk
