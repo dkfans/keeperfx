@@ -19,6 +19,7 @@ jobs:
         make -j`nproc` package
         7z a keeperfx.7z bin/keeperfx.exe
         7z a keeperfx_debug.7z bin/keeperfx_hvlog.exe
+        7z a alpha.7z pkg
     - uses: actions/upload-artifact@v2
       with:
         name: main
