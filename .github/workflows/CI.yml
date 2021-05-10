@@ -19,8 +19,7 @@ jobs:
         make DEBUG=1 BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX -j`nproc` -k heavylog
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
-        7z a keeperfx_alpha.7z pkg/*.*
     - uses: actions/upload-artifact@v2
       with:
         name: main
-        path: keeperfx*.7z
+        path: pkg/keeperfx*.7z
