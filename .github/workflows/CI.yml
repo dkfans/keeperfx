@@ -1,11 +1,17 @@
 name: CI
-
+variables:
+  PACKAGE_SUFFIX: "Alpha"
 on:
   push:
     branches:
     - master
   pull_request:
 jobs:
+  setup_pr:
+    script:
+    - 'echo "PACKAGE_SUFFIX=$(echo "Prototype")" >> $GITHUB_ENV'
+    only:
+    - pull_request
   build:
     runs-on: ubuntu-latest
 
@@ -20,10 +26,9 @@ jobs:
         sudo apt update && sudo apt -y upgrade
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
         BUILD_NUMBER=$(git rev-list --count HEAD)
-        PACKAGE_SUFFIX=Prototype
-        make DEBUG=1 BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX -j`nproc` -k heavylog
-        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
-        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=${{ env.PACKAGE_SUFFIX }} heavylog DEBUG=1 -k
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=${{ env.PACKAGE_SUFFIX }} standard
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=${{ env.PACKAGE_SUFFIX }} package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
         rm pkg/keeperfx*.7z
     - uses: actions/upload-artifact@v2
