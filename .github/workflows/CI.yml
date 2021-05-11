@@ -6,6 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      ZIP_NAME: keeperfx_test
     steps:
     - uses: actions/checkout@v2
     - uses: Trass3r/setup-cpp@master
@@ -19,8 +21,7 @@ jobs:
         make DEBUG=1 BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX -j`nproc` -k heavylog
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
-        rm pkg/keeperfx*.7z
     - uses: actions/upload-artifact@v2
       with:
-        name: test
-        path: pkg/**
+        name: ${{ env.ZIP_NAME }}
+        path: pkg/keeperfx*.7z
