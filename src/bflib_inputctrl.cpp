@@ -283,7 +283,7 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEMOTION:
-        if (!isMouseActive || !lbAppActive)
+        if (!isMouseActive)
         {
           SDL_GetMouseState(&prevMouseX, &prevMouseY);
           return;
