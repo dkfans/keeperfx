@@ -21,5 +21,6 @@ jobs:
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
     - uses: actions/upload-artifact@v2
       with:
-        name: main
-        path: pkg/keeperfx*.7z
+        name: main.7z
+        path: keeperfx*.7z
+        type: file
