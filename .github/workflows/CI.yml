@@ -19,7 +19,11 @@ jobs:
         BUILD_NUMBER=$(git rev-list --count HEAD)
         PACKAGE_SUFFIX=Prototype
         make DEBUG=1 BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX -j`nproc` -k heavylog
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
+        echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
+        rm pkg/keeperfx*.7z
     - uses: actions/upload-artifact@v2
       with:
-        name: test
+        name: ${{ env.ZIP_NAME }}
         path: pkg/**
