@@ -8,13 +8,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - uses: Trass3r/setup-cpp@master
     - name: build
       run: |
         set -eux
         sudo apt update && sudo apt -y upgrade
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
-        BUILD_NUMBER=$(git rev-list --count HEAD...@{u})
+        BUILD_NUMBER=$(git rev-list --count HEAD)
         PACKAGE_SUFFIX=Prototype
         make DEBUG=1 BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX -j`nproc` -k heavylog
     - uses: actions/upload-artifact@v2
