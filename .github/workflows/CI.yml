@@ -7,7 +7,10 @@ on:
   pull_request:
 jobs:
   setup_pr_package_suffix:
-    run: |
+    runs-on: ubuntu-latest
+    steps:
+    - name: setup_pr_package_suffix
+      - run: |
         echo "PACKAGE_SUFFIX=$(echo \"test4\")" >> $GITHUB_ENV
   build:
     runs-on: ubuntu-latest
