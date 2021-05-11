@@ -7,14 +7,14 @@ on:
 jobs:
 
   setup_pr:
-    run:
-    - 'echo "PACKAGE_SUFFIX=$(echo \"Prototype\")" >> $GITHUB_ENV'
+    run: |
+        echo "PACKAGE_SUFFIX=$(echo \"Prototype\")" >> $GITHUB_ENV
     only:
     - pull_request
 
   setup_push:
-    run:
-    - 'echo "PACKAGE_SUFFIX=$(echo \"Alpha\")" >> $GITHUB_ENV'
+    run: |
+        echo "PACKAGE_SUFFIX=$(echo \"Alpha\")" >> $GITHUB_ENV
     only:
     - push
 
