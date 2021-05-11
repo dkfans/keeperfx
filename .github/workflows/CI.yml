@@ -1,13 +1,13 @@
 name: CI
+
 on:
   push:
     branches:
     - master
   pull_request:
 jobs:
-
-    build:
-      runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -20,8 +20,7 @@ jobs:
         sudo apt update && sudo apt -y upgrade
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
         BUILD_NUMBER=$(git rev-list --count HEAD)
-        echo "PACKAGE_SUFFIX=$(echo \"test\")" >> $GITHUB_ENV
-        PACKAGE_SUFFIX=echo ${{ env.RANDOM_NAME }}
+        PACKAGE_SUFFIX=Prototype
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
