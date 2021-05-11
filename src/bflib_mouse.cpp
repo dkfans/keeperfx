@@ -31,6 +31,7 @@
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_mshandler.hpp"
+#include "bflib_inputctrl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -109,11 +110,12 @@ TbResult LbMouseSetPositionInitial(long x, long y)
     return Lb_FAIL;
   return Lb_SUCCESS;
 }
+
 TbResult LbMouseSetPosition(long x, long y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  if (!lbMouseGrabbed)
+  if (!lbMouseGrabbed && IsMouseInsideWindow())
   {
     // in altinput mode
     // first move the game cursor to the position of the HostOS cursor, and then move the HostOS cursor to the given x and y location.
@@ -133,7 +135,7 @@ void LbMoveHostCursorToGameCursor(void)
     int game_cursor_y = lbDisplay.MMouseY;
     int host_cursor_x, host_cursor_y;
     SDL_GetMouseState(&host_cursor_x, &host_cursor_y);
-    if ((host_cursor_x != game_cursor_x) && (host_cursor_y != game_cursor_y))
+    if ((host_cursor_x != game_cursor_x) || (host_cursor_y != game_cursor_y))
     {
         LbMouseSetPosition(game_cursor_x, game_cursor_y);
     }
@@ -145,7 +147,7 @@ TbResult LbMoveGameCursorToHostCursor(void)
     int game_cursor_y = lbDisplay.MMouseY;
     int host_cursor_x, host_cursor_y;
     SDL_GetMouseState(&host_cursor_x, &host_cursor_y);
-    if ((host_cursor_x != game_cursor_x) && (host_cursor_y != game_cursor_y))
+    if (((host_cursor_x != game_cursor_x) || (host_cursor_y != game_cursor_y)) && LbIsActive())
     {
         if (!pointerHandler.SetMousePosition(host_cursor_x, host_cursor_y))
         {
@@ -153,6 +155,13 @@ TbResult LbMoveGameCursorToHostCursor(void)
         }
     }
     return Lb_SUCCESS;
+}
+
+TbBool IsMouseInsideWindow(void)
+{
+    SDL_Window *window = SDL_GetMouseFocus();
+    TbBool isMouseInsideWindow = ((window != NULL) ? true : false); // if window == NULL then the mouse must be outside the kfx window
+    return isMouseInsideWindow;
 }
 
 TbResult LbMouseChangeSprite(struct TbSprite *pointerSprite)

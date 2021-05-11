@@ -405,16 +405,23 @@ TbBool LbIsMouseActive(void)
 
 void LbSetMouseGrab(TbBool grab_mouse)
 {
+    TbBool previousGrabState = lbMouseGrabbed;
     lbMouseGrabbed = grab_mouse;
-    if (lbMouseGrabbed) // swap from no-grab to grab
+    if (lbMouseGrabbed)
     {
-        LbMoveGameCursorToHostCursor();
+        if ((previousGrabState != lbMouseGrabbed) && IsMouseInsideWindow()) // swap from no-grab to grab
+        {
+            LbMoveGameCursorToHostCursor(); // only move the game cursor if swapping from no-grab to grab and the hose cursor is within the kfx window
+        }
         SDL_SetRelativeMouseMode(SDL_TRUE);
     }
-    else // swap from grab to no-grab
+    else
     {
         SDL_SetRelativeMouseMode(SDL_FALSE);
-        LbMoveHostCursorToGameCursor();
+        if (IsMouseInsideWindow())
+        {
+            LbMoveHostCursorToGameCursor(); // only move the host cursor if it is withing the kfx window
+        }
     }
     SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
 }
