@@ -20,7 +20,8 @@ jobs:
         sudo apt update && sudo apt -y upgrade
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
         BUILD_NUMBER=$(git rev-list --count HEAD)
-        PACKAGE_SUFFIX=Prototype
+        echo "PACKAGE_SUFFIX=$(echo \"test\")" >> $GITHUB_ENV
+        PACKAGE_SUFFIX=echo ${{ env.PACKAGE_SUFFIX }}
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
