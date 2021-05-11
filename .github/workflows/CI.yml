@@ -19,8 +19,10 @@ jobs:
         make DEBUG=1 BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX -j`nproc` -k heavylog
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
+        cd pkg
+        echo "::set-env name=ZIP_NAME::$(basename -s .7z pkg/keeperfx*.7z)"
+        rm pkg/keeperfx*.7z
     - uses: actions/upload-artifact@v2
       with:
-        name: main.7z
-        path: keeperfx*.7z
-        type: file
+        name: ${{ env.ZIP_NAME }}
+        path: pkg/*.*
