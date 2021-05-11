@@ -1,13 +1,24 @@
 name: CI
-  variables:
-    PACKAGE_SUFFIX: "Alpha"
 on:
   push:
     branches:
     - master
   pull_request:
 jobs:
-  build:
+
+  setup_pr:
+    run:
+    - 'echo "PACKAGE_SUFFIX=$(echo "Prototype")" >> $GITHUB_ENV'
+    only:
+    - pull_request
+
+  setup_push:
+    run:
+    - 'echo "PACKAGE_SUFFIX=$(echo "Alpha")" >> $GITHUB_ENV'
+    only:
+    - push
+
+    build:
     runs-on: ubuntu-latest
 
     steps:
