@@ -1614,7 +1614,8 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
     }
     long mx = my_mouse_x;
     long my = my_mouse_y;
-    if (mx <= 4)
+    long edge_scrolling_border = max(4, scale_fixed_DK_value(4));
+    if (mx <= edge_scrolling_border)
     {
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
         {
@@ -1623,7 +1624,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         }
         set_packet_control(pckt, PCtr_MoveLeft);
     }
-    if (mx >= MyScreenWidth-4)
+    if (mx >= MyScreenWidth-edge_scrolling_border)
     {
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
         {
@@ -1632,7 +1633,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         }
         set_packet_control(pckt, PCtr_MoveRight);
     }
-    if (my <= 4)
+    if (my <= edge_scrolling_border)
     {
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
         {
@@ -1641,7 +1642,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         }
         set_packet_control(pckt, PCtr_MoveUp);
     }
-    if (my >= MyScreenHeight-4)
+    if (my >= MyScreenHeight-edge_scrolling_border)
     {
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
         {
