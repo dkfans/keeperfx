@@ -6,6 +6,9 @@ on:
     - master
   pull_request:
 jobs:
+  stages:
+    - setup_pr_package_suffix
+    - build
   setup_pr_package_suffix:
     runs-on: ubuntu-latest
     steps:
@@ -26,8 +29,8 @@ jobs:
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
         BUILD_NUMBER=$(git rev-list --count HEAD)
         echo "PACKAGE_SUFFIX=$(echo \"test3\")" >> $GITHUB_ENV
-        PACKAGE_SUFFIX="test2"
-        echo ${{ env.PACKAGE_SUFFIX }}
+        PACKAGE_SUFFIX=${{ env.PACKAGE_SUFFIX }}
+        echo "${{ env.PACKAGE_SUFFIX }}"
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
