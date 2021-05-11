@@ -7,11 +7,6 @@ on:
     - master
   pull_request:
 jobs:
-  setup_pr:
-    script:
-    - 'echo "PACKAGE_SUFFIX=$(echo "Prototype")" >> $GITHUB_ENV'
-    only:
-    - pull_request
   build:
     runs-on: ubuntu-latest
 
