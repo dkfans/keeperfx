@@ -6,8 +6,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      ZIP_NAME: keeperfx_test
     steps:
     - uses: actions/checkout@v2
     - uses: Trass3r/setup-cpp@master
