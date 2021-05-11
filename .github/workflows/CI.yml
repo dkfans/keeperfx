@@ -6,16 +6,6 @@ on:
   pull_request:
 jobs:
 
-  setup_pr_package_suffix:
-    run: |
-        echo "PACKAGE_SUFFIX=$(echo \"Prototype\")" >> $GITHUB_ENV
-
-  setup_push_package_suffix:
-    run: |
-        echo "PACKAGE_SUFFIX=$(echo \"Alpha\")" >> $GITHUB_ENV
-    only:
-    - push
-
     build:
     runs-on: ubuntu-latest
 
