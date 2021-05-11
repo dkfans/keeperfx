@@ -1,12 +1,12 @@
 name: CI
+  variables:
+    PACKAGE_SUFFIX: "Alpha"
 on:
   push:
     branches:
     - master
   pull_request:
 jobs:
-  variables:
-    PACKAGE_SUFFIX: "Alpha"
   build:
     runs-on: ubuntu-latest
 
