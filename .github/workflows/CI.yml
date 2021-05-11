@@ -6,13 +6,11 @@ on:
   pull_request:
 jobs:
 
-  setup_pr:
+  setup_pr_package_suffix:
     run: |
         echo "PACKAGE_SUFFIX=$(echo \"Prototype\")" >> $GITHUB_ENV
-    only:
-    - pull_request
 
-  setup_push:
+  setup_push_package_suffix:
     run: |
         echo "PACKAGE_SUFFIX=$(echo \"Alpha\")" >> $GITHUB_ENV
     only:
