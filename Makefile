@@ -431,7 +431,6 @@ ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 	-$(ECHO) 'Finished building target: $@'
-	-$(ECHO) 'READ ME IM A SPECIAL TEST LOG: $(BUILD_NUMBER)'
 	-$(ECHO) ' '
 
 $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS) hvlog-before
