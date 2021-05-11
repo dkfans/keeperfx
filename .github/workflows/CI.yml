@@ -9,12 +9,15 @@ jobs:
   stages:
     - setup_pr_package_suffix
     - build
+
   setup_pr_package_suffix:
+    stage: setup_pr_package_suffix
     runs-on: ubuntu-latest
     steps:
     - run: |
         echo "PACKAGE_SUFFIX=$(echo \"test4\")" >> $GITHUB_ENV
   build:
+    stage: build
     runs-on: ubuntu-latest
 
     steps:
