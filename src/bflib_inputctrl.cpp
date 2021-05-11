@@ -350,8 +350,11 @@ static void process_event(const SDL_Event *ev)
         }
         else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
         {
-            isMouseActive = true;
-            isMouseActivated = true;
+            if (lbAppActive)
+            {
+                isMouseActive = true;
+                isMouseActivated = true;
+            }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_LEAVE)
         {

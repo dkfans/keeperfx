@@ -1607,7 +1607,11 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if (global_frameskipTurn > frameskipMax) global_frameskipTurn = 0;
         if (!moveTheCamera) return;
     }
-
+    // Camera Panning : mouse at window edge scrolling feature
+    if (!LbIsMouseActive())
+    {
+        return; // don't pan the camera if the mouse has left the window
+    }
     long mx = my_mouse_x;
     long my = my_mouse_y;
     if (mx <= 4)
