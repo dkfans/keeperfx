@@ -5,10 +5,10 @@ on:
     branches:
     - master
   pull_request:
+jobs:
 stages:
   - suffix
   - build
-jobs:
   setup_pr_package_suffix:
     stage: suffix
     runs-on: ubuntu-latest
