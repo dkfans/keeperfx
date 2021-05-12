@@ -9,6 +9,7 @@ jobs:
 stages:
   - suffix
   - make
+
   setup_pr_package_suffix:
     stage: suffix
     runs-on: ubuntu-latest
