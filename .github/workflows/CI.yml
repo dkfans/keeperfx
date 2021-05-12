@@ -6,18 +6,7 @@ on:
     - master
   pull_request:
 jobs:
-  stages:
-    - suffix
-    - make
-
-  setup_pr_package_suffix:
-    stage: suffix
-    runs-on: ubuntu-latest
-    steps:
-    - run: |
-        echo "PACKAGE_SUFFIX=$(echo \"test4\")" >> $GITHUB_ENV
   build:
-    stage: make
     runs-on: ubuntu-latest
 
     steps:
@@ -31,9 +20,7 @@ jobs:
         sudo apt update && sudo apt -y upgrade
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
         BUILD_NUMBER=$(git rev-list --count HEAD)
-        echo "PACKAGE_SUFFIX=$(echo \"test3\")" >> $GITHUB_ENV
-        PACKAGE_SUFFIX=${{ env.PACKAGE_SUFFIX }}
-        echo "${{ env.PACKAGE_SUFFIX }}"
+        PACKAGE_SUFFIX=Alpha
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
@@ -43,3 +30,31 @@ jobs:
       with:
         name: ${{ env.ZIP_NAME }}
         path: pkg/**
+    only:
+    - push
+  build_pr:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: Trass3r/setup-cpp@master
+    - name: build_pr
+      run: |
+        set -eux
+        sudo apt update && sudo apt -y upgrade
+        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        PACKAGE_SUFFIX=Prototype
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
+        echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
+        rm pkg/keeperfx*.7z
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ZIP_NAME }}
+        path: pkg/**
+    only:
+    - pull_request
