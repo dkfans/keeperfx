@@ -8,7 +8,7 @@ on:
 jobs:
 stages:
   - suffix
-  - build
+  - make
   setup_pr_package_suffix:
     stage: suffix
     runs-on: ubuntu-latest
@@ -16,7 +16,7 @@ stages:
     - run: |
         echo "PACKAGE_SUFFIX=$(echo \"test4\")" >> $GITHUB_ENV
   build:
-    stage: build
+    stage: make
     runs-on: ubuntu-latest
 
     steps:
