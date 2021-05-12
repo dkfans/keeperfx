@@ -26,12 +26,12 @@ jobs:
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
         rm pkg/keeperfx*.7z
+      only:
+        - pushes
     - uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ZIP_NAME }}
         path: pkg/**
-    only:
-    - push
   build_pr:
     runs-on: ubuntu-latest
 
@@ -52,9 +52,9 @@ jobs:
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
         echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
         rm pkg/keeperfx*.7z
+      only:
+        - merge_requests
     - uses: actions/upload-artifact@v2
       with:
         name: ${{ env.ZIP_NAME }}
         path: pkg/**
-    only:
-    - pull_request
