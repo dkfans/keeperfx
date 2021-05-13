@@ -207,9 +207,12 @@ void find_nearest_rooms_for_ambient_sound(void)
         return;
     struct PlayerInfo* player = get_my_player();
     struct Camera* cam = player->acamera;
-    if (cam == NULL)
+    if (cam == NULL || LbIsFrozenOrPaused())
     {
-        ERRORLOG("No active camera");
+        if (cam == NULL)
+        {
+            ERRORLOG("No active camera");
+        }
         set_room_playing_ambient_sound(NULL, 0);
         return;
     }

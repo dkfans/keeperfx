@@ -487,6 +487,11 @@ void LbGrabMouseCheck(long grab_event)
     }
     LbSetMouseGrab(grab_cursor);
 }
+
+TbBool LbIsFrozenOrPaused(void)
+{
+    return ((freeze_game_on_focus_lost() && !LbIsActive()) || ((game.operation_flags & GOF_Paused) != 0));
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
