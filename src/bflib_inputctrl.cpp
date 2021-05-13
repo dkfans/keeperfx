@@ -29,7 +29,6 @@
 #include "config.h"
 #include "music_player.h"
 #include "bflib_sound.h"
-#include "bflib_sndlib.h"
 #include <SDL2/SDL.h>
 
 using namespace std;
@@ -48,7 +47,6 @@ volatile int lbUserQuit = 0;
 static int prevMouseX = 0, prevMouseY = 0;
 static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
-static int oldVolume = 0;
 
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
@@ -337,7 +335,6 @@ static void process_event(const SDL_Event *ev)
             if (!SoundDisabled && freeze_game_on_focus_lost())
             {
                 ResumeMusicPlayer();
-                SetSoundMasterVolume(oldVolume);
             }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
@@ -348,8 +345,6 @@ static void process_event(const SDL_Event *ev)
             LbGrabMouseCheck(MG_OnFocusLost);
             if (!SoundDisabled && freeze_game_on_focus_lost())
             {
-                oldVolume = GetCurrentSoundMasterVolume();
-                SetSoundMasterVolume(0);
                 PauseMusicPlayer();
             }
         }
