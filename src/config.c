@@ -220,11 +220,16 @@ TbBool wibble_enabled(void)
   return ((features_enabled & Ft_Wibble) != 0);
 }
 
+#include "game_legacy.h" // it would be nice to not have to include this
 /**
  * Returns if we should freeze the game, if the game window loses focus.
  */
 TbBool freeze_game_on_focus_lost(void)
 {
+    if ((game.system_flags & GSF_NetworkActive) != 0)
+    {
+        return false;
+    }
   return ((features_enabled & Ft_FreezeOnLoseFocus) != 0);
 }
 
