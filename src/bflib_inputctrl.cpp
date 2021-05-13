@@ -27,8 +27,8 @@
 #include "bflib_planar.h"
 #include "bflib_mshandler.hpp"
 #include "config.h"
-#include "music_player.h"
-#include "bflib_sound.h"
+#include "sounds.h"
+#include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
 #include <SDL2/SDL.h>
 
 using namespace std;
@@ -57,6 +57,12 @@ std::map<int, TbKeyCode> keymap_sdl_to_bf;
  * @param button SDL button definition.
  * @return
  */
+ 
+TbBool LbIsFrozenOrPaused(void)
+{
+    return ((freeze_game_on_focus_lost() && !LbIsActive()) || ((game.operation_flags & GOF_Paused) != 0));
+}
+
 static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent * button)
 {
     if (eventType == SDL_MOUSEBUTTONDOWN) {
@@ -332,9 +338,13 @@ static void process_event(const SDL_Event *ev)
             isMouseActive = true;
             isMouseActivated = true;
             LbGrabMouseCheck(MG_OnFocusGained);
-            if (!SoundDisabled && freeze_game_on_focus_lost())
+            if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
             {
-                ResumeMusicPlayer();
+                pause_music(false);
+            }
+            if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
+            {
+                mute_audio(false);
             }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
@@ -343,9 +353,13 @@ static void process_event(const SDL_Event *ev)
             isMouseActive = false;
             isMouseActivated = false;
             LbGrabMouseCheck(MG_OnFocusLost);
-            if (!SoundDisabled && freeze_game_on_focus_lost())
+            if (freeze_game_on_focus_lost())
             {
-                PauseMusicPlayer();
+                pause_music(true);
+            }
+            if (mute_audio_on_focus_lost())
+            {
+                mute_audio(true);
             }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
@@ -431,7 +445,6 @@ void LbGrabMouseInit(void)
     LbSetMouseGrab(lbMouseGrab);
 }
 
-#include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
 void LbGrabMouseCheck(long grab_event)
 {
     TbBool window_has_focus = lbAppActive;
@@ -488,10 +501,7 @@ void LbGrabMouseCheck(long grab_event)
     LbSetMouseGrab(grab_cursor);
 }
 
-TbBool LbIsFrozenOrPaused(void)
-{
-    return ((freeze_game_on_focus_lost() && !LbIsActive()) || ((game.operation_flags & GOF_Paused) != 0));
-}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

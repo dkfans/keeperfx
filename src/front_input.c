@@ -582,6 +582,11 @@ short get_global_inputs(void)
       {
         long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave);// the paused flag is currently set to the current pause state, not the state we are about to enter
         LbGrabMouseCheck(grab_check_flags);
+        if (pause_music_when_game_paused())
+        {
+            // only pause music, rather than pause all audio, because otherwise announcer messages will be lost (it continues to play while muted, it needs a new feature)
+            pause_music((grab_check_flags & MG_OnPauseEnter != 0));
+        }
         set_packet_pause_toggle();
         clear_key_pressed(keycode);
         return true;

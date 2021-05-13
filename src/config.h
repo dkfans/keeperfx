@@ -77,6 +77,8 @@ enum TbFeature {
     Ft_FreezeOnLoseFocus      = 0x0200,
     Ft_UnlockCursorOnPause    = 0x0400,
     Ft_LockCursorInPossession = 0x0800,
+    Ft_PauseMusicOnGamePause  = 0x1000,
+    Ft_MuteAudioOnLoseFocus   = 0x2000,
 };
 
 enum TbExtraLevels {
@@ -213,6 +215,8 @@ TbBool wibble_enabled(void);
 TbBool freeze_game_on_focus_lost(void);
 TbBool unlock_cursor_when_game_paused(void);
 TbBool lock_cursor_in_possession(void);
+TbBool pause_music_when_game_paused(void);
+TbBool mute_audio_on_focus_lost(void);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);

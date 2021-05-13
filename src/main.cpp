@@ -1043,10 +1043,13 @@ short setup_game(void)
   // Enable features that require more resources
   update_features(mem_size);
 
-  features_enabled |= Ft_Wibble; // enable wibble by default
-  features_enabled |= Ft_FreezeOnLoseFocus; // freeze the game, if the game window loses focus
-  features_enabled |= Ft_UnlockCursorOnPause; // unlock the mouse cursor from the window, if the user pauses the game
+  //Default feature settings (in case the options are absent from keeperfx.cfg)
+  features_enabled |= Ft_Wibble; // enable wibble
+  features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
+  features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
   features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
+  features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
+  features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
 
   // Configuration file
   if ( !load_configuration() )

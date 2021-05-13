@@ -121,6 +121,8 @@ const struct NamedCommand conf_commands[] = {
   {"FREEZE_GAME_ON_FOCUS_LOST"     , 17},
   {"UNLOCK_CURSOR_WHEN_GAME_PAUSED", 18},
   {"LOCK_CURSOR_IN_POSSESSION"     , 19},
+  {"PAUSE_MUSIC_WHEN_GAME_PAUSED"  , 20},
+  {"MUTE_AUDIO_ON_FOCUS_LOST"      , 21},
   {NULL,                   0},
   };
 
@@ -247,6 +249,22 @@ TbBool unlock_cursor_when_game_paused(void)
 TbBool lock_cursor_in_possession(void)
 {
   return ((features_enabled & Ft_LockCursorInPossession) != 0);
+}
+
+/**
+ * Returns if we should pause the music, if the user pauses the game.
+ */
+TbBool pause_music_when_game_paused(void)
+{
+  return ((features_enabled & Ft_PauseMusicOnGamePause) != 0);
+}
+
+/**
+ * Returns if we should mute the game audio, if the game window loses focus.
+ */
+TbBool mute_audio_on_focus_lost(void)
+{
+  return ((features_enabled & Ft_MuteAudioOnLoseFocus) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -879,6 +897,32 @@ short load_configuration(void)
               features_enabled |= Ft_LockCursorInPossession;
           else
               features_enabled &= ~Ft_LockCursorInPossession;
+          break;
+      case 20: // PAUSE_MUSIC_WHEN_GAME_PAUSED
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_PauseMusicOnGamePause;
+          else
+              features_enabled &= ~Ft_PauseMusicOnGamePause;
+          break;
+      case 21: // MUTE_AUDIO_ON_FOCUS_LOST
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_MuteAudioOnLoseFocus;
+          else
+              features_enabled &= ~Ft_MuteAudioOnLoseFocus;
           break;
       case 0: // comment
           break;

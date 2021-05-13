@@ -37,7 +37,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
-
+#include "config_settings.h"
 #include "music_player.h"
 
 #include "keeperfx.hpp"
@@ -665,6 +665,48 @@ void stop_thing_playing_sample(struct Thing *heartng, short a2)
     {
         if (S3DEmitterIsPlayingSample(eidx, a2, 0)) {
             S3DDeleteSampleFromEmitter(eidx, a2, 0);
+        }
+    }
+}
+
+void mute_audio(TbBool mute)
+{
+    if (!SoundDisabled)
+    {
+        if (mute)
+        {
+            SetSoundMasterVolume(0);
+            SetMusicPlayerVolume(0);
+            SetMusicMasterVolume(0);
+            if (IsRedbookMusicActive())
+            {
+                PauseRedbookTrack(); // volume seems to have no effect on CD audio, so just pause/resume it
+            }
+        }
+        else
+        {
+            SetMusicPlayerVolume(settings.redbook_volume);
+            SetSoundMasterVolume(settings.sound_volume);
+            SetMusicMasterVolume(settings.sound_volume);
+            if (IsRedbookMusicActive())
+            {
+                ResumeRedbookTrack();
+            }
+        }
+    }
+}
+
+void pause_music(TbBool pause)
+{
+    if (!SoundDisabled)
+    {
+        if (pause)
+        {
+            PauseMusicPlayer();
+        }
+        else
+        {
+            ResumeMusicPlayer();
         }
     }
 }
