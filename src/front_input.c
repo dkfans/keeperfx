@@ -585,7 +585,14 @@ short get_global_inputs(void)
         if (pause_music_when_game_paused())
         {
             // only pause music, rather than pause all audio, because otherwise announcer messages will be lost (it continues to play while muted, it needs a new feature)
-            pause_music((grab_check_flags & MG_OnPauseEnter != 0));
+            pause_music(((grab_check_flags & MG_OnPauseEnter) != 0));
+        }
+        if (((grab_check_flags & MG_OnPauseEnter) != 0))
+        {
+            for (int i = 0; i < PLAYER_NEUTRAL; i++)
+            {
+                stop_thing_playing_sample(find_players_dungeon_heart(i), 93);
+            }
         }
         set_packet_pause_toggle();
         clear_key_pressed(keycode);
