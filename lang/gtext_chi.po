@@ -2147,13 +2147,11 @@ msgid ""
 msgstr "近战攻击: 允许徒手或用剑攻击敌人的基本战斗技能。"
 
 #: guitext:253
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
 msgstr ""
-"毒云术: 生成一片毒云，会同时对敌军和友军造成伤害。"
-"所有呼吸到毒气的怪物都会受到它的影响。"
+"放屁术: 近距离的毒气攻击，只会对敌军造成伤害。"
 
 #: guitext:254
 msgctxt "Creature spell"
