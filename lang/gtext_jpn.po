@@ -5482,7 +5482,7 @@ msgstr ""
 #: guitext:828
 msgctxt "Easter egg"
 msgid "Fill the Avatar with dread. Really make him wet the bed."
-msgstr "アバタールの心を恐怖で満たしてやれ。"
+msgstr "アバタールの心を恐怖で満たしてやれ。思わずズボンを濡らすほど。"
 
 #: guitext:829
 msgctxt "In-game hint message"
@@ -5549,7 +5549,7 @@ msgstr ""
 #: guitext:838
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
-msgstr "思わずズボンを濡らすほど。"
+msgstr ""
 
 #: guitext:839
 msgctxt "In-game hint message"
