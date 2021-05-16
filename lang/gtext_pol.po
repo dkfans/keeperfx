@@ -2245,7 +2245,7 @@ msgstr ""
 "Przyspieszacz: Pozwala zwiększyć metabolizm każdego stwora dwukrotnie, "
 "przyspieszając tak pracę jak i walkę."
 
-#: guitext:237 guitext:253
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
@@ -2376,6 +2376,15 @@ msgid ""
 msgstr ""
 "Ręka w rękę: Podstawowa umiejętność bitewna, pozwala na atak wroga mieczem "
 "lub gołymi rękami."
+
+#: guitext:253
+#, fuzzy
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+"Trujący obłok: Formuje chmurę gazu szkodliwego zarówno wroga i własnych "
+"stworów. Wpływa na wszystkich, wezmą wdech."
 
 #: guitext:254
 msgctxt "Creature spell"

@@ -2023,7 +2023,7 @@ msgid ""
 "tasks really quickly."
 msgstr "速度术: 使怪物的速度提高，使其在战斗中或工作中行动非常迅速。"
 
-#: guitext:237 guitext:253
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
@@ -2145,6 +2145,15 @@ msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
 msgstr "近战攻击: 允许徒手或用剑攻击敌人的基本战斗技能。"
+
+#: guitext:253
+#, fuzzy
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+"毒云术: 生成一片毒云，会同时对敌军和友军造成伤害。"
+"所有呼吸到毒气的怪物都会受到它的影响。"
 
 #: guitext:254
 msgctxt "Creature spell"
