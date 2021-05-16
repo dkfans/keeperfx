@@ -289,7 +289,6 @@ msgstr ""
 
 #. Level Cosyton information soon after start
 #: guitext:22
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "When Imps have no other orders, they run around reinforcing your dungeon. "
@@ -1228,7 +1227,6 @@ msgstr ""
 
 #. Level Woodly Rhyme information
 #: guitext:106
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your latest discovery is the Word of Power Trap. When activated, the trap "
@@ -1388,7 +1386,6 @@ msgstr ""
 
 #. Level Elf's Dance information
 #: guitext:121
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
@@ -1657,7 +1654,6 @@ msgstr "Tiden är ute. Det var en chockerande föreställning."
 
 #. Level Bonus 3 objective
 #: guitext:147
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You "
@@ -1706,7 +1702,6 @@ msgstr ""
 
 #. Level Bonus 4 objective
 #: guitext:152
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Well done. You have excelled in your use of large balls of stone for which "
@@ -1719,7 +1714,6 @@ msgstr ""
 
 #. Level Bonus 4 objective
 #: guitext:153
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "This region of the underworld will test your ability to traverse the network "
@@ -2176,7 +2170,6 @@ msgid ""
 msgstr "Rädsla: Används inte:"
 
 #: guitext:232
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Sight: Allows the creature to temporarily increase its awareness and notice "
@@ -2185,7 +2178,6 @@ msgstr ""
 "Syn: Gör så att varelsen blir mer varsam och kan se det som är osynligt. "
 
 #: guitext:233
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
@@ -2195,7 +2187,6 @@ msgstr ""
 "på de som invarderar. Mycket oroväckande. "
 
 #: guitext:234
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
@@ -2214,7 +2205,6 @@ msgstr ""
 "reptil mot den närmaste hjälte eller fientliga varelse och orsakar dubbel skada. Trevligt "
 
 #: guitext:236
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
@@ -2238,7 +2228,6 @@ msgid "Group: Not used"
 msgstr "Grupp: Används inte"
 
 #: guitext:239
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Invisibility: Cast on one of your minions, it makes the host creature "
@@ -2248,7 +2237,6 @@ msgstr ""
 "fiender - såvida de inte har en övernaturlig syn. "
 
 #: guitext:240
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Teleport: With this spell, a creature can teleport anywhere on the map. If "
@@ -2260,13 +2248,11 @@ msgstr ""
 "den till sin lya eller till grotthjärtat. "
 
 #: guitext:241
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr "Spruta eld: Den förödande konstanta strömmen av brännande eld. "
 
 #: guitext:242
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
@@ -2274,7 +2260,6 @@ msgid ""
 msgstr "Belysning: Används inte"
 
 #: guitext:243
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
@@ -2284,14 +2269,12 @@ msgstr ""
 "ovan. "
 
 #: guitext:244
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a fury of hailstones."
 msgstr ""
 "Hagelstorm: Frammanar en skur av hagel."
 
 #: guitext:245
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Slow: Slows down the target creature, making it attacks and movement delayed."
@@ -2299,7 +2282,6 @@ msgstr ""
 "Långsam: Gör fienden långsam så att dess attacker och rörelse blir fördröjda. "
 
 #: guitext:246
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Drain: This spell drains the target creature a part of its health and gives it "
@@ -2308,7 +2290,6 @@ msgstr ""
 "Blodsugning: Denna trollformel suger en andel av sin fiendes hälsa. "
 
 #: guitext:247
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Word of Power: Causes rings of demonic energy to emanate from the creature's "
@@ -2379,7 +2360,6 @@ msgstr ""
 "att de kan gräva tunnlar. "
 
 #: guitext:255
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Disease: Fired at a foe, gives them a Disease which is then spread to other "
@@ -2391,7 +2371,6 @@ msgstr ""
 "endast botas i ett tempel. "
 
 #: guitext:256
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
@@ -2403,7 +2382,6 @@ msgstr ""
 "kommer därav vara -något- svårare att döda än en vanlig kyckling. "
 
 #: guitext:257
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
 msgstr "Tidsinställd bomb"
@@ -2554,7 +2532,6 @@ msgid "Monk"
 msgstr "Munk"
 
 #: guitext:287
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Query: Select this and left click on a creature to view information on that "
@@ -2579,13 +2556,11 @@ msgid "Main Menu"
 msgstr "Huvudmeny"
 
 #: guitext:343
-#, fuzzy
 msgctxt "Menu interface, Main Menu title"
 msgid "Main Menu"
 msgstr "Huvudmeny"
 
 #: guitext:291
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Anger: How angry the creature is. The higher the bar is, the angrier the "
@@ -2595,13 +2570,11 @@ msgstr ""
 "är varelsen. "
 
 #: guitext:292
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Creature Kills: The total number of enemies the creature has slain."
 msgstr "Antal dödade: Antal fiender varelsen har slagit ihjäl. [23.7]"
 
 #: guitext:293
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Strength: The amount of damage the creature inflicts upon it's enemies with "
@@ -2609,19 +2582,16 @@ msgid ""
 msgstr "Styrka: Den skada varelsen åstadkommer på sina fiender. [23.12]"
 
 #: guitext:294
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Wage: The creature's salary in gold which it takes on each payday."
 msgstr "Lön: Varelsens lön i guld som den kräver varje lönedag. [23.13]"
 
 #: guitext:295
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Gold Held: The amount of gold the creature is carrying."
 msgstr "Innehav av guld: Den mängd guld varelsen bär. [23.8]"
 
 #: guitext:296
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Defence: The chance a creature will avoid a blow. The higher the number, the "
@@ -2631,7 +2601,6 @@ msgstr ""
 "desto större är chansen att undvika. "
 
 #: guitext:297
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Skill: The creature's ability to perform tasks. The higher the Skill level, "
@@ -2639,13 +2608,11 @@ msgid ""
 msgstr "Skicklighet: Varelsens förmåga att utföra uppgifter [23.14]"
 
 #: guitext:298
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Age/Time In Dungeon: The length of time you have employed the creature."
 msgstr "Tid i grottan: Den tid du har haft varelsen anställd. [23.10]"
 
 #: guitext:299
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Dexterity: The chance of a successful attack. Used to break enemy defence. "
@@ -2655,7 +2622,6 @@ msgstr ""
 "[23.15]"
 
 #: guitext:300
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Luck: The chance that a creature will do a double attack or a double defence "
@@ -2665,13 +2631,11 @@ msgstr ""
 "i strid. [23.11]"
 
 #: guitext:301
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Blood type: As if you care. Blood is blood, right?"
 msgstr "Blodtyp: Som om du brydde dig. Blod är blod, eller hur? [23.16]"
 
 #: guitext:302
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Idle: The creature is either sleeping or not working. It's not involved in "
@@ -2681,7 +2645,6 @@ msgstr ""
 "upp varelse. HMK zoomar. [9.1 och 22.2.1]"
 
 #: guitext:303
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Working: The creature is performing tasks and doing work for you. LMB pick "
@@ -2691,7 +2654,6 @@ msgstr ""
 "och 22.2.1]"
 
 #: guitext:304
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom."
 msgstr ""
@@ -2699,14 +2661,12 @@ msgstr ""
 "zoomar. . [9.3 och 22.2.1]"
 
 #: guitext:305
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Fight: Your creatures always attack and not avoid any combat. LMB select."
 msgstr "Slåss: Dina varelser anfaller alltid. VMK väljer. [6.5.1]"
 
 #: guitext:306
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Flee: Your creatures attempt to preserve their lives, running away if they "
@@ -2716,7 +2676,6 @@ msgstr ""
 "skadade. VMK väljer. [5.2]"
 
 #: guitext:307
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Imprison: Your creatures stun their enemies in battle and imprison those "
@@ -2752,13 +2711,11 @@ msgid "For"
 msgstr "För"
 
 #: guitext:313
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
 msgstr "Skuggor: Det antal skuggor varje varelse kastar. VMK växlar. [3.2.2]"
 
 #: guitext:314
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "View Type: Swap between the default and forced perspective views. Default "
@@ -2769,7 +2726,6 @@ msgstr ""
 "växlar. [3.2.2]"
 
 #: guitext:315
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Wall Height: Swap between high or low walls. If you make the walls one block "
@@ -2777,7 +2733,6 @@ msgid ""
 msgstr "Vägghöjd: Växla mellan höga och låga väggar. VMK växlar. [3.2.2]"
 
 #: guitext:316
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "View Distance: The amount of dungeon drawn. This directly affects the speed "
@@ -2787,7 +2742,6 @@ msgstr ""
 "spelets hastighet. VMK växlar. [3.2.2]"
 
 #: guitext:317
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
 msgstr "Gamma: Justerar ljusstyrkan i spelet. VMK växlar. [3.2.2]"
@@ -2808,7 +2762,6 @@ msgid "Paused"
 msgstr "Pause"
 
 #: guitext:321
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
@@ -2816,7 +2769,6 @@ msgid ""
 msgstr "Zooma in: Zooma in på den dynamiska kartan. VMK väljer. [4.1]"
 
 #: guitext:322
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
@@ -2824,7 +2776,6 @@ msgid ""
 msgstr "Zooma ut: Zooma ut från den dynamiska kartan. VMK väljer [4.1]"
 
 #: guitext:323
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Full Screen Map: Takes you to the Map Screen which displays your entire "
@@ -2832,7 +2783,6 @@ msgid ""
 msgstr "Fullskärmskarta: Tar dig till kartmenyn. VMK väljer. [4.1.1]"
 
 #: guitext:324
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
@@ -2840,7 +2790,6 @@ msgid ""
 msgstr "Ogenomtränglig klippa: Dina smådjävlar kan inte gräva sig igenom denna."
 
 #: guitext:325
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Earth: You can excavate this. To dig out some new caverns, choose a location "
@@ -2848,7 +2797,6 @@ msgid ""
 msgstr "Jord: Du kan gräva upp detta. [12.1]"
 
 #: guitext:326
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
@@ -2867,7 +2815,6 @@ msgstr ""
 "en bro över den. "
 
 #: guitext:328
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Water: Creatures move more slowly through water. Build the Bridge to make "
@@ -2875,7 +2822,6 @@ msgid ""
 msgstr "Vatten: Varelser rör sig långsamt genom vatten [14.1]"
 
 #: guitext:329
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Wall: A reinforced stone wall that enemies cannot break through. At least "
@@ -2889,7 +2835,6 @@ msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
 msgstr "Skadad vägg: Om den inte repareras kommer den till slut att kollapsa"
 
 #: guitext:331
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Path: Unclaimed earth floor. You can claim it if it is connected to already "
@@ -2897,7 +2842,6 @@ msgid ""
 msgstr "Jordgolv: Ointaget område. [12.1]"
 
 #: guitext:332
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Claimed area: Your dungeon territory. You can build rooms and drop your "
@@ -3482,14 +3426,12 @@ msgid "Type"
 msgstr "Typ"
 
 #: guitext:447
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 msgid "Information Panel: Miscellaneous information. Shows your and enemy progress and allows changing creature tendencies."
 "Informationspanel: Blandad information. Visar din och din fiendes tillstånd och möjliggör förändring av varelsers tendenser."
 
 #: guitext:448
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Room Panel: The rooms available for you to build. Here you can center map on "
@@ -3497,7 +3439,6 @@ msgid ""
 msgstr "Rumspanel: De rum som finns tillgängliga för dig att bygga. [6.0]"
 
 #: guitext:449
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Research Panel: The spells available to you. Here you can cast or cancel "
@@ -3505,7 +3446,6 @@ msgid ""
 msgstr "Forskningspanel: De trollformler som finns tillgängliga för dig. [7.0]"
 
 #: guitext:450
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Workshop Panel: The traps and doors available to you. You can center the map "
@@ -3514,7 +3454,6 @@ msgstr ""
 "Verkstadspanel: De fällor och dörrar som finns tillgängliga för dig. [8.0]"
 
 #: guitext:451
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Creature Panel: Information on your creatures. Shows activity of your "
@@ -3522,7 +3461,6 @@ msgid ""
 msgstr "Varelsepanel: Information om dina varelser. [9.0]"
 
 #: guitext:452
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Research Time: The time until a new spell is researched. Scholars in your "
@@ -3532,7 +3470,6 @@ msgstr ""
 "[5.4]"
 
 #: guitext:453
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Workshop Time: The time until a new trap is manufactured. Workers in your "
@@ -3542,7 +3479,6 @@ msgstr ""
 "[5.5]"
 
 #: guitext:454
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 msgid "Payday Time: The time until the next Creature Payday. This bar increases over time and, when it reaches its "
@@ -3552,7 +3488,6 @@ msgstr ""
 "när den når sitt slut så kommer alla dina varelser att vilja ha sin lön. "
 
 #: guitext:455
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Number of Rooms: The number of rooms held by this Keeper. Allows you to "
@@ -3560,7 +3495,6 @@ msgid ""
 msgstr "Antal rum: Det antal rum som hålls av denna väktare. [5.6]"
 
 #: guitext:456
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Number of Creatures: The number of creatures owned by this Keeper. Allows "
@@ -3593,14 +3527,12 @@ msgid "Deathmatch"
 msgstr "Dödsmatch"
 
 #: guitext:462
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Sell Room: Sell a room tile for half the building price. LMB select."
 msgstr ""
 "Sälj rum: Sälj en rumsplatta för halva byggnadspriset. VMK väljer. [6.4]"
 
 #: guitext:463
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. "
@@ -3975,40 +3907,39 @@ msgstr "Okänt Fel"
 #: guitext:537
 msgctxt "Network game message"
 msgid "No Carrier"
-msgstr "INGEN LINJE"
+msgstr "Ingen Linje"
 
 #: guitext:538
 msgctxt "Network game message"
 msgid "No Dial Tone"
-msgstr "INGEN KOPPLINGSTON"
+msgstr "Ingen Kopplingston"
 
 #: guitext:539
 msgctxt "Network game message"
 msgid "No Response"
-msgstr "INGET SVAR"
+msgstr "Inget Svar"
 
 #: guitext:540
 msgctxt "Network game message"
 msgid "No Server"
-msgstr "INGEN SERVER"
+msgstr "Ingen Server"
 
 #: guitext:541
 msgctxt "Network game message"
 msgid "Unable to initialise"
-msgstr "KAN INTE INITIERA"
+msgstr "Kan Inte Initiera"
 
 #: guitext:542
 msgctxt "Network game message"
 msgid "Unable to create game"
-msgstr "KAN INTE SKAPA SPEL"
+msgstr "Kan Inte Skapa Spel"
 
 #: guitext:543
 msgctxt "Network game message"
 msgid "Unable to join game"
-msgstr "KAN INTE GÅ MED I SPEL"
+msgstr "Kan Inte Gå Med I Spel"
 
 #: guitext:544
-#, fuzzy
 msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
@@ -4017,7 +3948,6 @@ msgstr ""
 "Ädelstenar: Obegränsat med rikedomar för dina smådjävlar att utvinna. [12.3]"
 
 #: guitext:545
-#, fuzzy
 msgctxt "Object description"
 msgid ""
 "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
@@ -4036,25 +3966,21 @@ msgid "Avatar"
 msgstr "Avatar"
 
 #: guitext:548
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr "Växla datorhjälp: Nuvarande - Aggressiv. VMK växlar. [3.2.4]"
 
 #: guitext:549
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr "Växla datorhjälp: Nuvarande - Defensiv. VMK växlar. [3.2.4]"
 
 #: guitext:550
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr "Växla datorhjälp: Nuvarande - Endast konstruktion. VMK växlar. [3.2.4]"
 
 #: guitext:551
-#, fuzzy
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr "Växla datorhjälp: Nuvarande - Endast flytta. VMK växlar. [3.2.4]"
@@ -4218,7 +4144,6 @@ msgid "Lava Trap"
 msgstr "Lavafälla"
 
 #: guitext:584
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
@@ -4229,7 +4154,6 @@ msgstr ""
 "zoomar. [20.1]"
 
 #: guitext:585
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
@@ -4238,7 +4162,6 @@ msgstr ""
 "Alarmfälla: Utlöser trollformeln Vapengripare. VMK väljer. HMK zoomar. [20.2]"
 
 #: guitext:586
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
@@ -4248,7 +4171,6 @@ msgstr ""
 "väljer. HMK zoomar. [20.3]"
 
 #: guitext:587
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
@@ -4258,7 +4180,6 @@ msgstr ""
 "blixten. VMK väljer. HMK zoomar. [20.4]"
 
 #: guitext:588
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Word of Power Trap: Radiates devastating rings of demonic energy, pushing "
@@ -4268,7 +4189,6 @@ msgstr ""
 "skadar alla varelser inom räckhåll. VMK väljer. HMK zoomar. [20.5]"
 
 #: guitext:589
-#, fuzzy
 msgctxt "Trap description"
 msgid ""
 "Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
@@ -4299,7 +4219,6 @@ msgid "Magic Door"
 msgstr "Magisk dörr"
 
 #: guitext:594
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Wooden Door: The simplest means of restricting access. Can be broken down "
@@ -4309,7 +4228,6 @@ msgstr ""
 "HMK zoomar. [21.1]"
 
 #: guitext:595
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
@@ -4318,7 +4236,6 @@ msgstr ""
 "Förstärkt dörr: En trädörr förstärkt med järn. VMK väljer. HMK zoomar. [21.2]"
 
 #: guitext:596
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
@@ -4328,7 +4245,6 @@ msgstr ""
 "väljer. HMK zoomar. [21.3]"
 
 #: guitext:597
-#, fuzzy
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
@@ -4551,7 +4467,7 @@ msgstr ""
 #: guitext:630
 msgctxt "Keeper spell name"
 msgid "Possess Creature"
-msgstr "BESÄTT VARELSE"
+msgstr "Besätt Varelse"
 
 #: guitext:631
 msgctxt "Keeper spell name"
@@ -4748,7 +4664,6 @@ msgstr ""
 "Hela: På en varelsen för att förbättra dess hälsa. VMK väljer. [18.9]"
 
 #: guitext:662
-#, fuzzy
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
 msgstr "Tidsinställd bomb"
@@ -5025,7 +4940,7 @@ msgstr "Grottspecial hittad: VMK växlar. HMK raderar."
 #: guitext:716
 msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
 msgid "Options"
-msgstr "ALTERNATIV"
+msgstr "Alternativ"
 
 #: guitext:717
 msgctxt "In-game interface item"
@@ -5035,7 +4950,7 @@ msgstr "Grafikalternativ"
 #: guitext:718
 msgctxt "In-game interface item"
 msgid "Sound Options"
-msgstr "LJUDALTERNATIV"
+msgstr "Ljudalternativ"
 
 #: guitext:719
 msgctxt "In-game interface item"
@@ -5045,12 +4960,12 @@ msgstr "LADDA"
 #: guitext:720
 msgctxt "In-game interface item"
 msgid "Save"
-msgstr "SPARA"
+msgstr "Spara"
 
 #: guitext:721
 msgctxt "In-game interface item"
 msgid "Computer Assistance"
-msgstr "DATORHJÄLP"
+msgstr "Datorhjälp"
 
 #: guitext:722
 msgctxt "In-game interface description"
@@ -6411,7 +6326,6 @@ msgstr ""
 
 #. DD Level Dixaroc objective after wizard is dead
 #: guitext:932
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your magical powers are restored Keeper. You can finally show these fools "
@@ -6448,7 +6362,6 @@ msgid "Moo2"
 msgstr "Moo2"
 
 #: guitext:941
-#, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
 msgstr "Fria Spel-världar"
@@ -6474,7 +6387,6 @@ msgid "Your creature cannot reach the room it needs"
 msgstr "Din varelse kan inte nå ett rum den behöver."
 
 #: guitext:946
-#, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
 msgstr "Arbetsrum oåtkomligt: VMK växlar. HMK raderar."
@@ -6485,7 +6397,6 @@ msgid "Your Imp cannot reach a room to drag something into"
 msgstr "Din smådjävul kan inte nå ett rum att dra in något i."
 
 #: guitext:948
-#, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
 msgstr "Lagringsutrumme oåtkomligt: VMK växlar. HMK raderar."
@@ -6517,7 +6428,6 @@ msgstr ""
 "skicklighetsnivå, desto bättre är varelsens prestation. "
 
 #: guitext:953
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
@@ -6526,7 +6436,6 @@ msgstr "Hantverksförmåga: Varelsens förmåga arbeta i verkstad. Ju högre vä
 "desto bättre är varelsens prestation."
 
 #: guitext:954
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
@@ -6535,7 +6444,6 @@ msgstr "Träningsskicklighet: Varelsens förmåga att träna. Ju högre värde "
 "desto bättre är varelsens prestation."
 
 #: guitext:955
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
