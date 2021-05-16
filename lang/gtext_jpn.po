@@ -5429,7 +5429,7 @@ msgstr "お前のダンジョンは暗く冷たく、老ナイトのいるよう
 #: guitext:818
 msgctxt "Easter egg"
 msgid "The fools who enter your domain, Will never see the light again."
-msgstr ""
+msgstr "愚かにもお前の領地に入った者は、二度と光を見ぬであろう。"
 
 #: guitext:819
 msgctxt "Easter egg"
@@ -5462,7 +5462,7 @@ msgstr "お前のダンジョンは暗く冷たく、老ナイトのいるよう
 #: guitext:824
 msgctxt "Easter egg"
 msgid "When your creatures give you hell, Stick them in your Prison Cell."
-msgstr "場所ではない。いかに大胆不敵を自称していようとも。"
+msgstr ""
 
 #: guitext:825
 msgctxt "Easter egg"
