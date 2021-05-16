@@ -5424,7 +5424,7 @@ msgctxt "Easter egg"
 msgid ""
 "Your tunnels will be dark and cold, And no place for a Knight of old, Even "
 "if he claims he's bold."
-msgstr "お前のダンジョンは暗く冷たく、老ナイトのいるような場所ではない。いかに大胆不敵を自称していようとも。"
+msgstr "お前のダンジョンは暗く冷たく、いかに大胆不敵を自称していようとも、老ナイトのいるような場所ではない。"
 
 #: guitext:818
 msgctxt "Easter egg"
@@ -5477,7 +5477,7 @@ msgstr "苦痛と苦悩がお前の道具。愚かな侵入者に使うがよい
 #: guitext:827
 msgctxt "Easter egg"
 msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
-msgstr "善人がお前の宝を狙ったら、楽しみながら狩り立て殺せ。"
+msgstr ""
 
 #: guitext:828
 msgctxt "Easter egg"
