@@ -2398,13 +2398,11 @@ msgstr ""
 "руками или мечом."
 
 #: guitext:253
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
 msgstr ""
-"Ядовитое облако: Создает гибельное облако, наносящее урон как Вашим "
-"созданиям, так и созданиям противника. Действует на всех, кто вдыхает газ."
+Пердеж: Газовая атака, которая наносит урон врагам поблизости. Союзники привыкли.
 
 #: guitext:254
 msgctxt "Creature spell"
