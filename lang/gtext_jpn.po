@@ -5397,7 +5397,7 @@ msgstr "ジャイアント、ドワーフ、シーフ、フェアリー。別に
 #: guitext:812
 msgctxt "Easter egg"
 msgid "The denizens of your domain, Just cannot wait to kill again."
-msgstr ""
+msgstr "お前の領地の住民は、殺しの時が待ちきれない。"
 
 #: guitext:813
 msgctxt "Easter egg"
