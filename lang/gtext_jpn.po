@@ -5557,8 +5557,7 @@ msgid ""
 "Foolish is the Keeper who sells all his rooms and refuses to pay his "
 "creatures."
 msgstr ""
-"インプはお前のダンジョンの命の源なり。それは血のごとく、循環しているに違いな"
-"い。"
+""
 
 #: guitext:840
 msgctxt "Menu interface item"
