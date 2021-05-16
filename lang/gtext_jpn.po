@@ -5457,7 +5457,7 @@ msgstr "お前への手下の恐怖を利用せよ。望み通りに奴らを動
 #: guitext:823
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
-msgstr "お前のダンジョンは暗く冷たく、老ナイトのいるような"
+msgstr "手下のウィザードは不愉快か？ 罠で手早く片付けてしまえ。"
 
 #: guitext:824
 msgctxt "Easter egg"
@@ -5497,14 +5497,14 @@ msgctxt "In-game hint message"
 msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
 "spend some time torturing..."
-msgstr "お前への手下の恐怖を利用せよ。望み通りに奴らを動かせ。"
+msgstr ""
 
 #: guitext:831
 msgctxt "In-game hint message"
 msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
 "realise how lucky they are."
-msgstr "手下のウィザードは不愉快か？ 罠で手早く片付けてしまえ。"
+msgstr ""
 
 #: guitext:832
 msgctxt "In-game hint message"
