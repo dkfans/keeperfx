@@ -5472,7 +5472,7 @@ msgstr "拷問は、ダンジョンキーパー物語における無上の栄誉
 #: guitext:826
 msgctxt "Easter egg"
 msgid "You are the Keeper, chosen one, And being evil is great fun."
-msgstr ""
+msgstr "お前こそが選ばれしキーパー。悪の道は大いなる楽しみ。"
 
 #: guitext:827
 msgctxt "Easter egg"
@@ -5518,14 +5518,14 @@ msgctxt "In-game hint message"
 msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
 "Only evil ones."
-msgstr "拷問は、ダンジョンキーパー物語における無上の栄誉なり。"
+msgstr ""
 
 #: guitext:834
 msgctxt "In-game hint message"
 msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
 "queuing up to enter your dungeon. So stop reading this and get going."
-msgstr "お前こそが選ばれしキーパー。悪の道は大いなる楽しみ。"
+msgstr ""
 
 #: guitext:835
 msgctxt "In-game hint message"
