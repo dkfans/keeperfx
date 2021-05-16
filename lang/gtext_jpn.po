@@ -2125,7 +2125,7 @@ msgid ""
 "tasks really quickly."
 msgstr "加速: [26:21]"
 
-#: guitext:237 guitext:253
+#: guitext:237
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
