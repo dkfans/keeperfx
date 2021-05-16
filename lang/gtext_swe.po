@@ -19,11 +19,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:18+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/"
+
+"Language-Team: KeeperFX Team <github.com/dkfans>\n"
 "Language: sv_SE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -3681,138 +3679,138 @@ msgstr "Rotera Vänster"
 
 #: guitext:478
 msgctxt "Game controls"
-msgid "ROTATE RIGHT"
-msgstr "ROTERA HÖGER"
+msgid "Rotate Right"
+msgstr "Rotera Höger"
 
 #: guitext:479
 msgctxt "Game controls"
-msgid "ZOOM IN"
-msgstr "ZOOMA IN"
+msgid "Zoom In"
+msgstr "Zooma In"
 
 #: guitext:480
 msgctxt "Game controls"
-msgid "ZOOM OUT"
-msgstr "ZOOMA UT"
+msgid "Zoom Out"
+msgstr "Zooma Ut"
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
-msgstr "VÄNSTER CONTROL"
+msgid "Left Control"
+msgstr "Vänster Control"
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
-msgstr "HÖGER CONTROL"
+msgid "Right Control"
+msgstr "Höger Control"
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
-msgstr "VÄNSTER SHIFT"
+msgid "Left Shift"
+msgstr "Vänster Shift"
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
-msgstr "HÖGER SHIFT"
+msgid "Right Shift"
+msgstr "Höger Shift"
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
-msgstr "VÄNSTER ALT"
+msgid "Left Alt"
+msgstr "Vänster Alt"
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
-msgstr "HÖGER ALT"
+msgid "Right Alt"
+msgstr "Höger Alt"
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
-msgstr "MELLANSLAG"
+msgid "Space"
+msgstr "Mellanslag"
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
-msgstr "ENTER"
+msgid "Return"
+msgstr "Blanksteg"
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
-msgstr "TAB"
+msgid "Tab"
+msgstr "Tab"
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
-msgstr "CAPS LOCK"
+msgid "Caps Lock"
+msgstr "Caps Lock"
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
-msgstr "BACKSPACE"
+msgid "Backspace"
+msgstr "Backspace"
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
-msgstr "INSERT"
+msgid "Insert"
+msgstr "Insert"
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
-msgstr "DELETE"
+msgid "Delete"
+msgstr "Delete"
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
-msgstr "HOME"
+msgid "Home"
+msgstr "Home"
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
-msgstr "END"
+msgid "End"
+msgstr "End"
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
-msgstr "PAGE UP"
+msgid "Page Up"
+msgstr "Page Up"
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
-msgstr "PAGE DOWN"
+msgid "Page Down"
+msgstr "Page Down"
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
-msgstr "NUM LOCK"
+msgid "Num Lock"
+msgstr "Num Lock"
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
-msgstr "NUM /"
+msgid "Num /"
+msgstr "Num /"
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
-msgstr "NUM /*"
+msgid "Num *"
+msgstr "Num /*"
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
-msgstr "NUM -"
+msgid "Num -"
+msgstr "Num -"
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
-msgstr "NUM +"
+msgid "Num +"
+msgstr "Num +"
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
-msgstr "NUM ENTER"
+msgid "Num Enter"
+msgstr "Num Enter"
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
-msgstr "NUM DELETE"
+msgid "Num Delete"
+msgstr "Num Delete"
 
 #: guitext:505
 msgctxt "Keyboard"
@@ -3926,33 +3924,33 @@ msgstr "F12"
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
-msgstr "UPP"
+msgid "Up"
+msgstr "Upp"
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
-msgstr "NED"
+msgid "Down"
+msgstr "Ned"
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
-msgstr "VÄNSTER"
+msgid "Left"
+msgstr "Vänster"
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
-msgstr "HÖGER"
+msgid "Right"
+msgstr "Höger"
 
 #: guitext:531
 msgctxt "Network game message"
 msgid "Initialising Modem"
-msgstr "INITIERAR MODEM"
+msgstr "Initierar Modem"
 
 #: guitext:532
 msgctxt "Network game message"
 msgid "Connecting Modem"
-msgstr "ANSLUTER MODEM"
+msgstr "Ansluter Modem"
 
 #: guitext:533
 msgctxt "Network game message"
@@ -3962,17 +3960,17 @@ msgstr "Ring upp"
 #: guitext:534
 msgctxt "Network game message"
 msgid "Continue"
-msgstr "FORTSÄTT"
+msgstr "Fortsätt"
 
 #: guitext:535
 msgctxt "Network game message"
 msgid "Line Engaged"
-msgstr "UPPTAGET"
+msgstr "Upptaget"
 
 #: guitext:536
 msgctxt "Network game message"
 msgid "Unknown Error"
-msgstr "OKÄNT FEL"
+msgstr "Okänt Fel"
 
 #: guitext:537
 msgctxt "Network game message"
@@ -4064,120 +4062,120 @@ msgstr "Växla datorhjälp: Nuvarande - Endast flytta. VMK växlar. [3.2.4]"
 #: guitext:552
 msgctxt "In-game tab with rooms"
 msgid "Treasure Room"
-msgstr "SKATTKAMMARE"
+msgstr "Skattkammare"
 
 #: guitext:553
 msgctxt "In-game tab with rooms"
 msgid "Library"
-msgstr "BIBLIOTEK"
+msgstr "Bibliotek"
 
 #: guitext:554
 msgctxt "In-game tab with rooms"
 msgid "Lair"
-msgstr "LYA"
+msgstr "Lya"
 
 #: guitext:555
 msgctxt "In-game tab with rooms"
 msgid "Prison"
-msgstr "FÄNGELSE"
+msgstr "Fängelse"
 
 #: guitext:556
 msgctxt "In-game tab with rooms"
 msgid "Torture Room"
-msgstr "TORTYRKAMMARE"
+msgstr "Tortyrkammare"
 
 #: guitext:557
 msgctxt "In-game tab with rooms"
 msgid "Training Room"
-msgstr "TRÄNINGSRUM"
+msgstr "Träningsrum"
 
 #: guitext:558
 msgctxt "In-game tab with rooms"
 msgid "Dungeon Heart"
-msgstr "GROTTHJÄRTA"
+msgstr "Grotthjärta"
 
 #: guitext:559
 msgctxt "In-game tab with rooms"
 msgid "Workshop"
-msgstr "VERKSTAD"
+msgstr "Verkstad"
 
 #: guitext:560
 msgctxt "In-game tab with rooms"
 msgid "Scavenger Room"
-msgstr "ASÄTARRUM"
+msgstr "Asätarrum"
 
 #: guitext:561
 msgctxt "In-game tab with rooms"
 msgid "Temple"
-msgstr "TEMPEL"
+msgstr "Tempel"
 
 #: guitext:562
 msgctxt "In-game tab with rooms"
 msgid "Graveyard"
-msgstr "KYRKOGÅRD"
+msgstr "Kyrkogård"
 
 #: guitext:563
 msgctxt "In-game tab with rooms"
 msgid "Barracks"
-msgstr "BARRACKER"
+msgstr "Barracker"
 
 #: guitext:564
 msgctxt "In-game tab with rooms"
 msgid "Hatchery"
-msgstr "ODLINGSANSTALT"
+msgstr "Odlingsanstalt"
 
 #: guitext:565
 msgctxt "In-game tab with rooms"
 msgid "Guard Post"
-msgstr "VAKTPOST"
+msgstr "Vaktpost"
 
 #: guitext:566
 msgctxt "In-game tab with rooms"
 msgid "Bridge"
-msgstr "BRYGGA"
+msgstr "Brygga"
 
 #: guitext:567
 msgid "Fight"
-msgstr "STRID"
+msgstr "Strid"
 
 #: guitext:568
 msgid "Annoyed"
-msgstr "IRRITERAD"
+msgstr "Irriterad"
 
 #: guitext:569
 msgctxt "Keyboard"
 msgid "Shift"
-msgstr "SHIFT"
+msgstr "Shift"
 
 #: guitext:570
 msgctxt "Keyboard"
 msgid "Control"
-msgstr "CONTROL"
+msgstr "Control"
 
 #: guitext:571
 msgctxt "Keyboard"
 msgid "Alt"
-msgstr "ALT"
+msgstr "Alt"
 
 #: guitext:572
 msgctxt "Credits"
 msgid "Additional Artwork"
-msgstr "ÖVRIG GRAFIK"
+msgstr "Övrig Grafik"
 
 #: guitext:573
 msgctxt "Credits"
 msgid "Additional Programming"
-msgstr "ÖVRIG PROGRAMMERING"
+msgstr "Övrig Programmering"
 
 #: guitext:574
 msgctxt "Credits"
 msgid "Manual And Documentation"
-msgstr "HANDBOK OCH DOKUMENTATION"
+msgstr "Handbok Och Dokumentation"
 
 #: guitext:575
 msgctxt "Credits"
 msgid "Installer"
-msgstr "INSTALLERARE"
+msgstr "Installerare"
 
 #: guitext:576
 msgctxt "Credits"
@@ -5739,12 +5737,12 @@ msgstr ""
 #: guitext:840
 msgctxt "Menu interface item"
 msgid "Return to options menu"
-msgstr "ÅTERVÄND TILL ALTERNATIV"
+msgstr "Återvänd Till Alternativ"
 
 #: guitext:841
 msgctxt "Menu interface item"
 msgid "Exit"
-msgstr "AVSLUTA"
+msgstr "Avsluta"
 
 #: guitext:842
 msgctxt "Menu interface item"
@@ -5789,7 +5787,7 @@ msgstr "Känslighet"
 #: guitext:850
 msgctxt "Menu interface item"
 msgid "Mouse Options"
-msgstr "MUSALTERNATIV"
+msgstr "Musalternativ"
 
 #: guitext:851
 msgctxt "Menu interface item"
@@ -5799,87 +5797,87 @@ msgstr "Mus"
 #: guitext:852
 msgctxt "Menu interface item"
 msgid "Undo Pickup"
-msgstr "ÅNGRA PLOCKA UPP"
+msgstr "Ångra Plocka Upp"
 
 #: guitext:853
 msgctxt "Menu interface item"
 msgid "Pause"
-msgstr "PAUSE"
+msgstr "Pause"
 
 #: guitext:854
 msgctxt "Menu interface item"
 msgid "Map"
-msgstr "KARTA"
+msgstr "Karta"
 
 #: guitext:855
 msgctxt "On-screen message"
 msgid "Insufficient Memory"
-msgstr "OTILLRÄCKLIGT MED MINNE"
+msgstr "Otillräckligt Med Minne"
 
 #: guitext:856
 msgctxt "On-screen message"
 msgid "Unable To Change Screen Resolution"
-msgstr "KAN EJ ÄNDRA UPPLÖSNING"
+msgstr "Kan Ej Ändra Upplösning"
 
 #: guitext:857
 msgctxt "Menu interface item"
 msgid "Query"
-msgstr "FÖRKLARING"
+msgstr "Förklaring"
 
 #: guitext:858
 msgctxt "Credits"
 msgid "Support Art"
-msgstr "ASSISTERANDE TECKNARE"
+msgstr "Assisterande Tecknare"
 
 #: guitext:859
 msgctxt "Credits"
 msgid "Navigation System"
-msgstr "NAVIGERINGSSYSTEM"
+msgstr "Navigeringssystem"
 
 #: guitext:860
 msgctxt "Credits"
 msgid "Script"
-msgstr "MANUS"
+msgstr "Manus"
 
 #: guitext:861
 msgctxt "Credits"
 msgid "Voice Over"
-msgstr "TAL"
+msgstr "Tal"
 
 #: guitext:862
 msgctxt "Credits"
 msgid "Finance"
-msgstr "EKONOMI"
+msgstr "Ekonomi"
 
 #: guitext:864
 msgctxt "Credits"
 msgid "Localisation Management"
-msgstr "LOKALISERINGSLEDNING"
+msgstr "Lokaliseringsledning"
 
 #: guitext:865
 msgctxt "Credits"
 msgid "Language Test Supervisor"
-msgstr "SPRÅKTESTLEDARE"
+msgstr "Språktestledare"
 
 #: guitext:866
 msgctxt "Credits"
 msgid "Language Testers"
-msgstr "SPRÅKTESTARE"
+msgstr "Språktestare"
 
 #: guitext:867
 msgctxt "Credits"
 msgid "Localisation Audio Management"
-msgstr "LJUDLOKALISERINGSLEDNING"
+msgstr "Ljudlokaliseringsledning"
 
 #: guitext:868
 msgctxt "Network game message"
 msgid "Attempting To Join"
-msgstr "FÖRSÖKER GÅ MED"
+msgstr "Försöker Gå Med"
 
 #: guitext:869
 msgctxt "Network game message"
 msgid "Resyncing"
-msgstr "OMSYNKRONISERAR"
+msgstr "Omsynkroniserar"
 
 #: guitext:870
 msgctxt "Menu interface item"
@@ -5944,22 +5942,22 @@ msgstr "Mot"
 #: guitext:882
 msgctxt "Credits"
 msgid "Game design"
-msgstr "SPELDESIGN"
+msgstr "Speldesign"
 
 #: guitext:883
 msgctxt "Credits"
 msgid "Associate Producer"
-msgstr "ASSISTERANDE PRODUCENT"
+msgstr "Assisterande Producent"
 
 #: guitext:884
 msgctxt "Credits"
 msgid "Additional Script"
-msgstr "ÖVRIGT MANUS"
+msgstr "Övrigt Manus"
 
 #: guitext:885
 msgctxt "Easter egg"
 msgid "Happy Birthday"
-msgstr "GRATTIS PÅ FÖDELSEDAGEN"
+msgstr "Grattis På Födelsedagen"
 
 #: guitext:886
 msgctxt "Menu interface message"
@@ -6134,7 +6132,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
-"down it's walls and let your creatures feast on the heroes within."
+"down its walls and let your creatures feast on the heroes within."
 msgstr ""
 "Det en gång så starka hjältefortet i detta rike har blivit ruttet och svagt. "
 "Riv ned dess väggar och låt dina varelser mumsa på hjältarna därinne."
@@ -6512,8 +6510,11 @@ msgstr "Lojalitet: Varelsens motståndskraft mot fientligt asätande."
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: unused."
+msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
+"the better the creature's performance."
 msgstr ""
+"Forskningsskicklighet: Hur effektivt varelsen arbetar i biblioteket. Ju högre "
+"skicklighetsnivå, desto bättre är varelsens prestation. "
 
 #: guitext:953
 #, fuzzy
@@ -6554,8 +6555,7 @@ msgstr "Asätarkostnad: Guldkostnad vid asätande."
 
 #: guitext:958
 msgctxt "In-game interface description"
-msgid ""
-"Best Damage: How much harm can be made by the strongest attack the creature "
+msgid "Best Damage: How much harm can be done by the strongest attack the creature has."
 "has."
 msgstr "Hur mycket skada varelsens starkaste attack kan orsaka."
 
@@ -6567,32 +6567,27 @@ msgid ""
 msgstr "Vikt: Varelsens massa. Vissa påstår att övervikt leder till infarkter."
 
 #: guitext:960
+msgctxt "In-game interface description"
+msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
+msgstr ""
+"Resultat: En uppskattning av ett genomsnittligt varelsevärde. Den lägga till till ditt resultat när du fullföljer domänen."
+
+#: guitext:961
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
 msgstr "Den onda handen"
 
-#: guitext:961
-#, fuzzy
+#: guitext:962
 msgctxt "Keeper spell name"
 msgid "Slap"
 msgstr "Dask"
 
-#: guitext:962
+#: guitext:963
 msgctxt "Keeper spell description"
-msgid ""
-"Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
+msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr "Den onda handen: Förmågan att plocka upp dina varelser och att hålla "
 "dem i din hand. Men håll inte i dem för alltid, annars blir de irriterade."
-
-#: guitext:963
-#, fuzzy
-msgctxt "Keeper spell description"
-msgid ""
-"Slap: Makes your creatures work harder, for some time. Your creatures take "
-"some damage from each slap they receive."
-msgstr "Dask: Går så att dina varelser arbetar hårdare, kortsiktigt."
-"Dina varelser tar skada från varje dask de mottar."
 
 #: guitext:964
 msgctxt "Keeper spell description"
@@ -6657,7 +6652,6 @@ msgstr "Personliga världar"
 msgctxt "Menu interface item"
 msgid "Lost Levels"
 msgstr "Försvunna världar"
-
 
 #: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
