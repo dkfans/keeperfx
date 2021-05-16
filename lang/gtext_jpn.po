@@ -5477,7 +5477,7 @@ msgstr "お前こそが選ばれしキーパー。悪の道は大いなる楽し
 #: guitext:827
 msgctxt "Easter egg"
 msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
-msgstr ""
+msgstr "軍隊がハンガーストライキをする時は、ニワトリ小屋があふれる。"
 
 #: guitext:828
 msgctxt "Easter egg"
@@ -5532,14 +5532,14 @@ msgctxt "In-game hint message"
 msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
 "the intruders."
-msgstr "軍隊がハンガーストライキをする時は、"
+msgstr ""
 
 #: guitext:836
 msgctxt "In-game hint message"
 msgid ""
 "Keep your Imps digging. There are always surprises to be found deep in the "
 "earth."
-msgstr "ニワトリ小屋があふれる。"
+msgstr ""
 
 #: guitext:837
 msgctxt "In-game hint message"
