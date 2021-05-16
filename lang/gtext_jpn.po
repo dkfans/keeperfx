@@ -5462,7 +5462,7 @@ msgstr "手下のウィザードは不愉快か？ 罠で手早く片付けて�
 #: guitext:824
 msgctxt "Easter egg"
 msgid "When your creatures give you hell, Stick them in your Prison Cell."
-msgstr ""
+msgstr "手下が悩みの種ならば、奴らを牢に閉じ込めろ。"
 
 #: guitext:825
 msgctxt "Easter egg"
@@ -5511,7 +5511,7 @@ msgctxt "In-game hint message"
 msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
 "show pity, even when the intruders are defenceless and pathetic."
-msgstr "手下が悩みの種ならば、奴らを牢に閉じ込めろ。"
+msgstr ""
 
 #: guitext:833
 msgctxt "In-game hint message"
