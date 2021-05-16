@@ -5372,7 +5372,7 @@ msgstr "すべてを失くしたその時は、シンジケートウォーズで
 #: guitext:807
 msgctxt "Easter egg"
 msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
-msgstr "鎧を着けたナイトには真の勇気が宿っている。つばを吐きかけいつも以上の早業で串刺しにしてあぶるがよい。"
+msgstr "鎧を着けたナイトには真の勇気が宿っている、つばを吐きかけいつも以上の早業で串刺しにしてあぶるがよい。"
 
 #: guitext:808
 msgctxt "Easter egg"
@@ -5434,7 +5434,7 @@ msgstr "愚かにもお前の領地に入った者は、二度と光を見ぬで
 #: guitext:819
 msgctxt "Easter egg"
 msgid "Pain and anguish are your tools, To use upon intruding fools."
-msgstr "苦痛と苦悩がお前の道具。愚かな侵入者に使うがよい。。"
+msgstr "苦痛と苦悩がお前の道具。愚かな侵入者に使うがよい。"
 
 #: guitext:820
 msgctxt "Easter egg"
@@ -5472,7 +5472,7 @@ msgstr "拷問は、ダンジョンキーパー物語における無上の栄誉
 #: guitext:826
 msgctxt "Easter egg"
 msgid "You are the Keeper, chosen one, And being evil is great fun."
-msgstr "苦痛と苦悩がお前の道具。愚かな侵入者に使うがよい。"
+msgstr ""
 
 #: guitext:827
 msgctxt "Easter egg"
