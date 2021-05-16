@@ -6405,7 +6405,7 @@ msgstr ""
 msgctxt "Keeper spell description"
 msgid "Slap: Makes your creatures work harder, for some time. "
 "Your creatures take some damage from each slap they receive."
-msgstr "平手打ち：貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリーチャーは、受け取った叩きから其々損傷を受けます。"
+msgstr "平手打ち：貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリーチャーは、受け取った平手打ちから其々損傷を受けます。"
 
 #: guitext:965
 msgctxt "In-game interface description"
