@@ -5441,7 +5441,7 @@ msgctxt "Easter egg"
 msgid ""
 "When good guys head right for your treasure, Hunt and kill them at your "
 "leisure."
-msgstr "侵入者どもは滅びるであろう、お前のダンジョンの拷問室で。"
+msgstr "善人がお前の宝を狙ったら、楽しみながら狩り立て殺せ。"
 
 #: guitext:821
 msgctxt "Easter egg"
