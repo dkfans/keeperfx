@@ -5417,7 +5417,7 @@ msgstr "侵入者どもは滅びるであろう、お前のダンジョンの拷
 #: guitext:816
 msgctxt "Easter egg"
 msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
-msgstr "侵入者どもは息絶える、お前のダンジョンの土の上で。"
+msgstr "たとえ心は純粋でも、お前のダンジョンの土の上で、侵入者どもは息絶える。"
 
 #: guitext:817
 msgctxt "Easter egg"
@@ -5447,7 +5447,7 @@ msgstr "善人がお前の宝を狙ったら、楽しみながら狩り立て殺
 msgctxt "Easter egg"
 msgid ""
 "Protect your gold and Dungeon Heart, And slap your minions till they fart."
-msgstr "たとえ心は純粋でも、侵入者どもは息絶える、"
+msgstr "財宝とダンジョンハートを守り抜け。そして手下に活を入れよ、奴らが思わず屁をこくまで。"
 
 #: guitext:822
 msgctxt "Easter egg"
