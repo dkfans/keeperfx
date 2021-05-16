@@ -2247,6 +2247,12 @@ msgid ""
 "either bare hands or a sword."
 msgstr "肉弾戦: [25.3]"
 
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr "放屁: 敵のクリーチャーにのみ損傷を加える近距離ガス攻撃。"
+
 #: guitext:254
 #, fuzzy
 msgctxt "Creature spell"
