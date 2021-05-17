@@ -432,7 +432,7 @@ void LbSetMouseGrab(TbBool grab_mouse)
     else
     {
         SDL_SetRelativeMouseMode(SDL_FALSE);
-        if (IsMouseInsideWindow())
+        if (IsMouseInsideWindow() && lbAppActive)
         {
             LbMoveHostCursorToGameCursor(); // only move the host cursor if it is withing the kfx window
         }
