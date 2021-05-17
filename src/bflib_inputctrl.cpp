@@ -489,7 +489,7 @@ void LbGrabMouseCheck(long grab_event)
             {
                 grab_cursor = false;
             }
-            if (!paused && possession_mode && lock_cursor_in_possession() && !lbMouseGrab)
+            if (!paused && possession_mode && ((game.numfield_D & GNFldD_Unkn08) == 0) && lock_cursor_in_possession() && !lbMouseGrab)
             {
                 grab_cursor = true;
             }
