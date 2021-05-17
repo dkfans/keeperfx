@@ -91,7 +91,7 @@ enum GameNumfieldDFlags {
     GNFldD_Unkn01 = 0x01,
     GNFldD_Unkn02 = 0x02,
     GNFldD_Unkn04 = 0x04,
-    GNFldD_Unkn08 = 0x08, // this seems to be enabled when zooming out of the heart at the start of a level
+    GNFldD_CreaturePasngr = 0x08, // Possessing a creature as a passenger (no direct control)
     GNFldD_Unkn10 = 0x10,
     GNFldD_Unkn20 = 0x20,
     GNFldD_Unkn40 = 0x40,

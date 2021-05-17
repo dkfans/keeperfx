@@ -462,12 +462,12 @@ void get_player_gui_clicks(void)
         {
           if (a_menu_window_is_active())
           {
-            game.numfield_D &= ~GNFldD_Unkn08;
+            game.numfield_D &= ~GNFldD_CreaturePasngr;
             player->allocflags &= ~PlaF_Unknown8;
             turn_off_all_window_menus();
           } else
           {
-            game.numfield_D |= GNFldD_Unkn08;
+            game.numfield_D |= GNFldD_CreaturePasngr;
             player->allocflags |= PlaF_Unknown8;
             turn_on_menu(GMnu_QUERY);
           }

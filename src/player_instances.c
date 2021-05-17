@@ -590,7 +590,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
         cctrl->flgfield_1 |= CCFlg_NoCompControl;
         player->allocflags |= PlaF_KeyboardInputDisabled;
         player->allocflags |= PlaF_MouseInputDisabled;
-        game.numfield_D |= GNFldD_Unkn08;
+        game.numfield_D |= GNFldD_CreaturePasngr;
     }
     return 0;
 }
@@ -702,7 +702,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   light_turn_light_on(player->field_460);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
   player->allocflags &= ~PlaF_MouseInputDisabled;
-  game.numfield_D &= ~GNFldD_Unkn08;
+  game.numfield_D &= ~GNFldD_CreaturePasngr;
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, engine_palette);
   return 0;

@@ -449,7 +449,7 @@ void LbGrabMouseCheck(long grab_event)
 {
     TbBool window_has_focus = lbAppActive;
     TbBool paused = ((game.operation_flags & GOF_Paused) != 0);
-    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.numfield_D & GNFldD_Unkn08) == 0);
+    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.numfield_D & GNFldD_CreaturePasngr) == 0);
     TbBool grab_cursor = lbMouseGrabbed;
     if (!window_has_focus)
     {
