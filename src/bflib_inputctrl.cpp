@@ -449,7 +449,7 @@ void LbGrabMouseCheck(long grab_event)
 {
     TbBool window_has_focus = lbAppActive;
     TbBool paused = ((game.operation_flags & GOF_Paused) != 0);
-    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl);
+    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.numfield_D & GNFldD_Unkn08) == 0);
     TbBool grab_cursor = lbMouseGrabbed;
     if (!window_has_focus)
     {
@@ -457,50 +457,56 @@ void LbGrabMouseCheck(long grab_event)
     }
     else
     {
-        switch (grab_event)
+        if ((game.operation_flags & GOF_WorldInfluence) != 0)
         {
-        case MG_OnPauseEnter:
-            if (unlock_cursor_when_game_paused() && lbMouseGrabbed)
+            switch (grab_event)
             {
-                grab_cursor = false;
+            case MG_OnPauseEnter:
+                if (unlock_cursor_when_game_paused() && lbMouseGrabbed)
+                {
+                    grab_cursor = false;
+                }
+                break;
+            case MG_OnPauseLeave:
+                if ((unlock_cursor_when_game_paused() && lbMouseGrab) || (!lbMouseGrab && lock_cursor_in_possession() && possession_mode && unlock_cursor_when_game_paused()))
+                {
+                    grab_cursor = true;
+                }
+                break;
+            case MG_OnPossessionEnter:
+                if (lock_cursor_in_possession() && !lbMouseGrabbed)
+                {
+                    grab_cursor = true;
+                }
+                break;
+            case MG_OnPossessionLeave:
+                if (lock_cursor_in_possession() && !lbMouseGrab)
+                {
+                    grab_cursor = false;
+                }
+                break;
+            case MG_OnFocusGained:
+                grab_cursor = lbMouseGrab;
+                if (paused && unlock_cursor_when_game_paused())
+                {
+                    grab_cursor = false;
+                }
+                if (!paused && possession_mode && lock_cursor_in_possession() && !lbMouseGrab)
+                {
+                    grab_cursor = true;
+                }
+                break;
+            default:
+                break;
             }
-            break;
-        case MG_OnPauseLeave:
-            if ((unlock_cursor_when_game_paused() && lbMouseGrab) || (!lbMouseGrab && lock_cursor_in_possession() && possession_mode && unlock_cursor_when_game_paused()))
-            {
-                grab_cursor = true;
-            }
-            break;
-        case MG_OnPossessionEnter:
-            if (lock_cursor_in_possession() && !lbMouseGrabbed)
-            {
-                grab_cursor = true;
-            }
-            break;
-        case MG_OnPossessionLeave:
-            if (lock_cursor_in_possession() && !lbMouseGrab)
-            {
-                grab_cursor = false;
-            }
-            break;
-        case MG_OnFocusGained:
-            grab_cursor = lbMouseGrab;
-            if (paused && unlock_cursor_when_game_paused())
-            {
-                grab_cursor = false;
-            }
-            if (!paused && possession_mode && ((game.numfield_D & GNFldD_Unkn08) == 0) && lock_cursor_in_possession() && !lbMouseGrab)
-            {
-                grab_cursor = true;
-            }
-            break;
-        default:
-            break;
+        }
+        else
+        {
+            grab_cursor = lbMouseGrab; // keep the default grab state if the player is not in contorl of the dungeon
         }
     }
     LbSetMouseGrab(grab_cursor);
 }
-
 
 /******************************************************************************/
 #ifdef __cplusplus
