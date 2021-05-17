@@ -457,7 +457,7 @@ void LbGrabMouseCheck(long grab_event)
     }
     else
     {
-        if ((game.operation_flags & GOF_WorldInfluence) != 0)
+        if (!game.packet_load_enable)
         {
             switch (grab_event)
             {
@@ -502,7 +502,7 @@ void LbGrabMouseCheck(long grab_event)
         }
         else
         {
-            grab_cursor = lbMouseGrab; // keep the default grab state if the player is not in contorl of the dungeon
+            grab_cursor = lbMouseGrab; // keep the default grab state if the player is viewing a saved packet
         }
     }
     LbSetMouseGrab(grab_cursor);
