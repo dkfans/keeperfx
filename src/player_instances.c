@@ -356,8 +356,8 @@ long pinstfs_direct_control_creature(struct PlayerInfo *player, long *n)
     if (thing_is_creature(thing)) {
         SYNCDBG(8,"Cleaning up state %s of %s index %d",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
         initialise_thing_state(thing, CrSt_ManualControl);
+        LbGrabMouseCheck(MG_OnPossessionEnter);
     }
-    LbGrabMouseCheck(MG_OnPossessionEnter);
     return pinstfs_passenger_control_creature(player, n);
 }
 
