@@ -2620,7 +2620,7 @@ void command_set_trap_configuration(const char* trapname, const char* property, 
  }
 
 
-void command_set_door_configuration(const char* doorname, const char* variable, long val1, long val2)
+void command_set_door_configuration(const char* doorname, const char* property, long value, long optvalue)
 {
     long door_id = get_rid(door_desc, doorname);
     if (door_id == -1)
@@ -2628,7 +2628,7 @@ void command_set_door_configuration(const char* doorname, const char* variable, 
         SCRPTERRLOG("Unknown door, '%s'", doorname);
     }
 
-    long doorvar = get_id(door_config_desc, variable);
+    long doorvar = get_id(door_config_desc, property);
     if (doorvar == -1)
     {
         SCRPTERRLOG("Unknown door variable");
@@ -2636,20 +2636,19 @@ void command_set_door_configuration(const char* doorname, const char* variable, 
     }
 
     //val2 is an optional variable, used when there's 2 numbers on one command. Pass them along as one merged val.
-    if ((val1 > 0xFFFF) || (val1 < 0))
+    if ((value > 0xFFFF) || (value < 0))
     {
-        SCRPTERRLOG("Value out of range: %d", val1);
+        SCRPTERRLOG("Value out of range: %d", value);
         return;
     }
-    if ((val2 > 0xFFFF) || (val2 < 0))
+    if ((optvalue > 0xFFFF) || (optvalue < 0))
     {
-        SCRPTERRLOG("Value out of range: %d", val2);
+        SCRPTERRLOG("Value out of range: %d", optvalue);
         return;
     }
-    long mergedval = val1 + (val2 << 16);
-
+    long mergedval = value + (optvalue << 16);
+    SCRIPTDBG(7, "Setting door %s property %s to %d", doorname, property, mergedval);
     command_add_value(Cmd_SET_DOOR_CONFIGURATION, 0, door_id, doorvar, mergedval);
-    //todo: SCRIPTDBG(7, "Changing door %d configuration from (%d,%d,%d,%d) to (%d,%d,%d,%d)", door_id, mconf->manufct_level, mconf->manufct_required, mconf->selling_value, door_stats[door_id][0].health, val1, val2, val3, val4);
 }
 
 void command_set_computer_events(long plr_range_id, const char *evntname, long val1, long val2, long val3, long val4, long val5)
@@ -7036,7 +7035,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           update_trap_tab_to_config();
           break;
       default:
-          WARNMSG("Unsupported Trap configuration, variable %d.", val3);
+          WARNMSG("Unsupported Door configuration, variable %d.", val3);
           break;
       }
       break;
