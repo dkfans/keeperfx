@@ -2619,8 +2619,8 @@ void command_set_trap_configuration(const char* trapname, const char* property, 
     command_add_value(Cmd_SET_TRAP_CONFIGURATION, 0, trap_id, trapvar, mergedval);
  }
 
-                                              //Name,  ManufactureLevel, ManufactureRequired,SellingValue,Health
-void command_set_door_configuration(const char* doorname, long val1, long val2, long val3, long val4)
+
+void command_set_door_configuration(const char* doorname, const char* variable, long val1, long val2)
 {
     long door_id = get_rid(door_desc, doorname);
     if (door_id == -1)
@@ -6990,7 +6990,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_SET_DOOR_CONFIGURATION:
       doorst = get_door_model_stats(val2);
       mconf = &gameadd.doors_config[val2];
-      manufctr = get_manufacture_data(trapdoor_conf.trap_types_count - 1 + val2);
+      manufctr = get_manufacture_data(gameadd.trapdoor_conf.trap_types_count - 1 + val2);
       switch (val3)
       {
       case 1: // ManufactureLevel
@@ -7018,7 +7018,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 7: // Crate
           object_conf.object_to_door_or_trap[val4] = val2;
           object_conf.workshop_object_class[val4] = TCls_Door;
-          trapdoor_conf.door_to_object[val2] = val4;
+          gameadd.trapdoor_conf.door_to_object[val2] = val4;
           break;
       case 8: //SymbolSprites 
           doorst->bigsym_sprite_idx = val4 << 16 >> 16;
