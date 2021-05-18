@@ -77,7 +77,7 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     struct TrapConfigStats *trapst;
     if (thing->owner == plyr_idx)
     {
-        trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+        trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
         return (trapst->slappable == 1) && trap_is_active(thing);
     }
     return false;
@@ -510,7 +510,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
 {
     traptng->trap.revealed = 1;
     const struct TrapStats *trapstat = &gameadd.trap_stats[traptng->model];
-    struct TrapConfigStats *trapst = &trapdoor_conf.trap_cfgstats[traptng->model];
+    struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[traptng->model];
     // EVM_TRAP_EVENT("trap.actiated", traptng->owner, thing)
     if (trapst->notify == 1)
     {
