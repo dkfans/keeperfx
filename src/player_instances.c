@@ -273,7 +273,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       }
       break;
   case TCls_Trap:
-      trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+      trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
       if ((trapst->slappable == 1) && trap_is_active(thing))
       {
           external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, thing_get(player->hand_thing_idx));

@@ -6198,7 +6198,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
             break;
         case TCls_Trap:
-            trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;
