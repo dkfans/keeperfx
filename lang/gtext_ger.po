@@ -2276,12 +2276,12 @@ msgid ""
 msgstr "Beschleunigen: [26.20]"
 
 #: guitext:237
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
-msgstr "Giftwolke: [26.17]"
+msgstr "Giftwolke: Bildet eine Wolke aus schädlichem Gas, die beide schädigen kann."
+"Feind und deine eigenen Kreaturen. Das Gas betrifft alle, die es atmen."
 
 #: guitext:238
 msgctxt "Creature spell"
@@ -2396,11 +2396,10 @@ msgid ""
 msgstr "Nahkampf: [25.3]"
 
 #: guitext:253
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
-msgstr "Giftwolke: [26.17]"
+msgstr "Furz: Ein Gasangriff aus nächster Nähe, der nur feindlichen Kreaturen Schaden zufügt."
 
 #: guitext:254
 #, fuzzy
