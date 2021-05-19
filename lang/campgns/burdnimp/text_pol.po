@@ -865,13 +865,12 @@ msgstr ""
 "lub gołymi rękami."
 
 #: guitext:253
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
 msgstr ""
-"Trujący obłok: Formuje chmurę gazu szkodliwego zarówno wroga i własnych "
-"stworów. Wpływa na wszystkich, wezmą wdech."
+"Pierdnięcie: Uwalnia gazy bliskiego zasięgu, szkodliwe dla wrogich "
+"stworów."
 
 #: guitext:254
 msgctxt "Creature spell"
