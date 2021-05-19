@@ -1974,15 +1974,15 @@ msgstr ""
 "Accélération: Augmente la vitesse de déplacement et de compétence de la "
 "créature."
 
-#: guitext:237 guitext:253
-#, fuzzy
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
 msgstr ""
-"Nuage empoisonné: Boule puante qui produit des vapeurs toxiques lorsqu'elle "
-"explose au contact d'un obstacle ou d'une créature."
+"Nuage empoisonné: Forme un nuage de gaz nocif capable d'endommager à la fois "
+"l'ennemi et vos propres créatures. Le gaz affecte tous ceux qui le "
+"respirent[26.17]"
 
 #: guitext:238
 msgctxt "Creature spell"
@@ -2107,6 +2107,14 @@ msgstr ""
 "Combat rapproché: Attaque de base de toutes les créatures en utilisant leurs "
 "crocs, griffes, cornes, poings, épée, hache, massue ou toute autre arme de "
 "base."
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+"Flatulence: Une attaque de type gas à courte distance qui "
+"n'endommage que les creatures ennemies"
 
 #: guitext:254
 #, fuzzy

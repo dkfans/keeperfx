@@ -2194,13 +2194,13 @@ msgid ""
 "tasks really quickly."
 msgstr "Versnellen: [26.20]"
 
-#: guitext:237 guitext:253
-#, fuzzy
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
-msgstr "Gifwolk: [26.17]"
+msgstr "Gifwolk: Zorgt voor een schadelijke gaswolk die zowel jouw"
+"als vijandelijke wezens schaden. Maar alleen als ze ademen."
 
 #: guitext:238
 msgctxt "Creature spell"
@@ -2315,6 +2315,12 @@ msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
 msgstr "Man tegen Man: [25.3]"
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr "Een gasaanval die vijandelijke wezens op korte afstand beschadigt."
 
 #: guitext:254
 #, fuzzy

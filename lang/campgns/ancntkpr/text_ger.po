@@ -1476,13 +1476,13 @@ msgid ""
 "tasks really quickly."
 msgstr "Beschleunigen: [26.20]"
 
-#: guitext:237 guitext:253
-#, fuzzy
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
-msgstr "Giftwolke: [26.17]"
+msgstr "Giftwolke: Bildet eine Wolke aus schädlichem Gas, die beide schädigen kann."
+"Feind und deine eigenen Kreaturen. Das Gas betrifft alle, die es atmen."
 
 #: guitext:238
 msgctxt "Creature spell"
@@ -1594,6 +1594,12 @@ msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
 msgstr "Nahkampf: [25.3]"
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr "Furz: Ein Gasangriff aus nächster Nähe, der nur feindlichen Kreaturen Schaden zufügt."
 
 #: guitext:254
 #, fuzzy
