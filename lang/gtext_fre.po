@@ -2375,14 +2375,12 @@ msgstr ""
 "l'ennemi à mains nues ou avec une épée.[25.3]"
 
 #: guitext:253
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
 msgstr ""
-"Nuage empoisonné: Forme un nuage de gaz nocif capable d'endommager à la fois "
-"l'ennemi et vos propres créatures. Le gaz affecte tous ceux qui le "
-"respirent[26.17]"
+"Flatulence: Une attaque de type gas à courte distance qui "
+"n'endommage que les creatures ennemies"
 
 #: guitext:254
 msgctxt "Creature spell"
