@@ -5626,12 +5626,12 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return is_power_available(plyr_idx, validx);
     case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
         dungeonadd = get_dungeonadd(plyr_idx);
-        return dungeonadd->mnfct_info.trap_amount_stored[validx%trapdoor_conf.trap_types_count]
-              + dungeonadd->mnfct_info.trap_amount_offmap[validx%trapdoor_conf.trap_types_count];
+        return dungeonadd->mnfct_info.trap_amount_stored[validx%gameadd.trapdoor_conf.trap_types_count]
+              + dungeonadd->mnfct_info.trap_amount_offmap[validx%gameadd.trapdoor_conf.trap_types_count];
     case SVar_AVAILABLE_DOOR: // IF_AVAILABLE(DOOR)
         dungeonadd = get_dungeonadd(plyr_idx);
-        return dungeonadd->mnfct_info.door_amount_stored[validx%trapdoor_conf.door_types_count]
-              + dungeonadd->mnfct_info.door_amount_offmap[validx%trapdoor_conf.door_types_count];
+        return dungeonadd->mnfct_info.door_amount_stored[validx%gameadd.trapdoor_conf.door_types_count]
+              + dungeonadd->mnfct_info.door_amount_offmap[validx%gameadd.trapdoor_conf.door_types_count];
     case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
         dungeon = get_dungeon(plyr_idx);
         return (dungeon->room_buildable[validx%ROOM_TYPES_COUNT] & 1);
@@ -6884,7 +6884,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_SET_TRAP_CONFIGURATION:  
-      trapst = &trapdoor_conf.trap_cfgstats[val2];
+      trapst = &gameadd.trapdoor_conf.trap_cfgstats[val2];
       mconf = &gameadd.traps_config[val2];
       manufctr = get_manufacture_data(val2);
       switch (val3)
@@ -6913,7 +6913,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 6: // Crate
           object_conf.object_to_door_or_trap[val4] = val2;
           object_conf.workshop_object_class[val4] = TCls_Trap;
-          trapdoor_conf.trap_to_object[val2] = val4;
+          gameadd.trapdoor_conf.trap_to_object[val2] = val4;
           break;
       case 7: // ManufactureLevel
           mconf->manufct_level = val4;
