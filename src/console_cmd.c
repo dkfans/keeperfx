@@ -28,6 +28,7 @@
 #include "config_effects.h"
 #include "config_magic.h"
 #include "config_rules.h"
+#include "config_settings.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
 #include "creature_instances.h"
