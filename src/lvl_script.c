@@ -3423,7 +3423,7 @@ void command_export_variable(long plr_range_id, const char *varib_name, const ch
         SCRPTERRLOG("Unknown CAMPAIGN FLAG, '%s'", cmpflgname);
         return;
     }
-    if (!parse_set_varib(varib_name, &src_id, &src_type))
+    if (!parse_get_varib(varib_name, &src_id, &src_type))
     {
         SCRPTERRLOG("Unknown VARIABLE, '%s'", varib_name);
         return;
