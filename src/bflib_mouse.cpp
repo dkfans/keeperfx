@@ -115,14 +115,17 @@ TbResult LbMouseSetPosition(long x, long y)
 {
   if (!lbMouseInstalled)
     return Lb_FAIL;
-  if (!lbMouseGrabbed && IsMouseInsideWindow())
+  if (!lbMouseGrabbed)
   {
-    // in altinput mode
-    // first move the game cursor to the position of the HostOS cursor, and then move the HostOS cursor to the given x and y location.
-    // this keeps Host OS cursor and game cursor in sync (same position)
-    if (!LbMoveGameCursorToHostCursor())
-      return Lb_FAIL;
-    SDL_WarpMouseInWindow(SDL_GetKeyboardFocus(), x, y);
+    if (IsMouseInsideWindow())
+    {
+      // in altinput mode
+      // first move the game cursor to the position of the HostOS cursor, and then move the HostOS cursor to the given x and y location.
+      // this keeps Host OS cursor and game cursor in sync (same position)
+      if (!LbMoveGameCursorToHostCursor())
+        return Lb_FAIL;
+      SDL_WarpMouseInWindow(SDL_GetKeyboardFocus(), x, y);
+    }
   }
   else if (!pointerHandler.SetMousePosition(x, y))
     return Lb_FAIL;
@@ -161,6 +164,10 @@ TbBool IsMouseInsideWindow(void)
 {
     SDL_Window *window = SDL_GetMouseFocus();
     TbBool isMouseInsideWindow = ((window != NULL) ? true : false); // if window == NULL then the mouse must be outside the kfx window
+    if (!LbIsMouseActive() && !lbMouseGrabbed)
+    {
+        isMouseInsideWindow = false; // LbIsMouseActive() == false when mouse cursor outside window
+    }
     return isMouseInsideWindow;
 }
 
