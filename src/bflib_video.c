@@ -443,15 +443,27 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         int cw, ch, cflags;
         cflags = SDL_GetWindowFlags(lbWindow);
         SDL_GetWindowSize(lbWindow, &cw, &ch);
-        TbBool sameResolution = mdinfo->Width == cw && mdinfo->Height == ch;
-        TbBool sameWindowMode = (cflags & sdlFlags) != 0;
-        TbBool stillInWindowedMode = (int)(sdlFlags & 1) == 0 && (int)(cflags & 1) == 0; // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
+        TbBool sameResolution = ((mdinfo->Width == cw) && (mdinfo->Height == ch));
+        TbBool sameWindowMode = ((cflags & sdlFlags) != 0);
+        TbBool stillInWindowedMode = ((sdlFlags & 1) == 0) && ((cflags & 1) == 0); // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
         if (stillInWindowedMode) {
-            sameWindowMode = sameWindowMode || stillInWindowedMode;
+            sameWindowMode = (sameWindowMode || stillInWindowedMode);
         }
-        if (!sameResolution || !sameWindowMode) { //.. and only destroy the exisiting one if the res/mode has changed
-            SDL_DestroyWindow(lbWindow);
-            lbWindow = NULL;
+        int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
+        if (!sameResolution)
+        {
+            if (fullscreenMode == SDL_WINDOW_FULLSCREEN)
+            {
+                SDL_DisplayMode dm = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0}; // maybe there is a better/more accurate way to describe the display mode...
+                dm.w=mdinfo->Width;
+                dm.h=mdinfo->Height;
+                SDL_SetWindowDisplayMode(lbWindow, &dm); // set display mode for fullscreen
+            }
+            SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height); // we want to set window size for both windowed mode, and fullscreen
+        }
+        if (!sameWindowMode)
+        {
+            SDL_SetWindowFullscreen(lbWindow, fullscreenMode); // change to/from fullscreen if requested
         }
     }
     if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
