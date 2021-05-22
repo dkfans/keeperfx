@@ -47,6 +47,7 @@ volatile int lbUserQuit = 0;
 static int prevMouseX = 0, prevMouseY = 0;
 static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
+static TbBool firstTimeMouseInit = true;
 
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
@@ -417,32 +418,73 @@ TbBool LbIsMouseActive(void)
     return isMouseActive;
 }
 
+void LbMouseCheckPosition(TbBool grab_state_changed)
+{
+    if (!lbAppActive)
+    {
+        if (IsMouseInsideWindow())
+        {
+            LbMoveHostCursorToGameCursor(); // release host mouse
+        }
+    }
+    else // app has focus
+    {
+        if (lbMouseGrabbed)
+        {
+            if (grab_state_changed || firstTimeMouseInit) // if start grab, move cursor appropriately
+            {
+                firstTimeMouseInit = false;
+                if (IsMouseInsideWindow())
+                {
+                    LbMoveGameCursorToHostCursor();
+                }
+                else
+                {
+                    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+                }
+            }
+        }
+        else
+        {
+            if (firstTimeMouseInit) // if start no-grab, move cursor appropriately
+            {
+                firstTimeMouseInit = false;
+                if (IsMouseInsideWindow() && lbAppActive)
+                {
+                    LbMoveGameCursorToHostCursor();
+                }
+            }
+            else if (grab_state_changed) // if release grab, move cursor appropriately
+            {
+                if (IsMouseInsideWindow() && lbAppActive)
+                {
+                    LbMoveHostCursorToGameCursor();
+                }
+            }
+        }
+    }
+}
+
 void LbSetMouseGrab(TbBool grab_mouse)
 {
     TbBool previousGrabState = lbMouseGrabbed;
     lbMouseGrabbed = grab_mouse;
     if (lbMouseGrabbed)
     {
-        if ((previousGrabState != lbMouseGrabbed) && IsMouseInsideWindow()) // swap from no-grab to grab
-        {
-            LbMoveGameCursorToHostCursor(); // only move the game cursor if swapping from no-grab to grab and the hose cursor is within the kfx window
-        }
+        LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
         SDL_SetRelativeMouseMode(SDL_TRUE);
     }
     else
     {
         SDL_SetRelativeMouseMode(SDL_FALSE);
-        if (IsMouseInsideWindow() && lbAppActive)
-        {
-            LbMoveHostCursorToGameCursor(); // only move the host cursor if it is withing the kfx window
-        }
+        LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
     SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
 }
 
 void LbGrabMouseInit(void)
 {
-    LbSetMouseGrab(lbMouseGrab);
+    LbGrabMouseCheck(MG_InitMouse);
 }
 
 void LbGrabMouseCheck(long grab_event)
@@ -486,6 +528,7 @@ void LbGrabMouseCheck(long grab_event)
                 }
                 break;
             case MG_OnFocusGained:
+            case MG_InitMouse:
                 grab_cursor = lbMouseGrab;
                 if (paused && unlock_cursor_when_game_paused())
                 {

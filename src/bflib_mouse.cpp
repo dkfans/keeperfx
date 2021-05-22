@@ -73,19 +73,14 @@ TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_
 TbResult LbMouseSetup(struct TbSprite *pointerSprite)
 {
   TbResult ret;
-  long x;
-  long y;
   if (lbMouseInstalled)
     LbMouseSuspend();
-  y = (lbDisplay.MouseWindowHeight + lbDisplay.MouseWindowY) / 2;
-  x = (lbDisplay.MouseWindowWidth + lbDisplay.MouseWindowX) / 2;
   pointerHandler.Install();
   lbMouseOffline = true;
   lbMouseInstalled = true;
   LbMouseSetWindow(0,0,LbGraphicsScreenWidth(),LbGraphicsScreenHeight());
+  LbGrabMouseInit();
   ret = Lb_SUCCESS;
-  if (LbMouseSetPositionInitial(x,y) != Lb_SUCCESS) // seems to put cursor at 0,0 so we don't want to init the HostOS cursor there in altinput mode
-    ret = Lb_FAIL;
   if (LbMouseChangeSprite(pointerSprite) != Lb_SUCCESS)
     ret = Lb_FAIL;
   lbMouseInstalled = (ret == Lb_SUCCESS);

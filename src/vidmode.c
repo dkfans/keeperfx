@@ -700,7 +700,6 @@ TbBool setup_screen_mode(unsigned short nmode)
     if (parchment_loaded)
       reload_parchment_file(mdinfo->Width >= 640);
     reinitialise_eye_lens(lens_mem);
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
     lbDisplay.DrawFlags = flg_mem;
     if (!setup_heap_memory())
     {
@@ -741,11 +740,11 @@ TbBool update_screen_mode_data(long width, long height)
     LbSpriteSetupAll(setup_sprites_minimal);
   else
     LbSpriteSetupAll(setup_sprites);
-  LbMouseSetup(NULL);
   LbMouseChangeMoveRatio(base_mouse_sensitivity*units_per_pixel/16, base_mouse_sensitivity*units_per_pixel/16);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  LbMouseSetup(NULL);
   return true;
 }
 

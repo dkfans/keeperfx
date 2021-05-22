@@ -474,10 +474,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         return Lb_FAIL;
     }
 
-    LbGrabMouseInit();
-
     lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
-
     if (lbScreenSurface == NULL) {
         ERRORLOG("Failed to initialize mode %d: %s",(int)mode,SDL_GetError());
         return Lb_FAIL;
@@ -519,7 +516,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if ( LbMouseIsInstalled() )
     {
         LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-        LbMouseSetPosition(lbDisplay.PhysicalScreenWidth / 2, lbDisplay.PhysicalScreenHeight / 2);
         if (msspr != NULL)
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }

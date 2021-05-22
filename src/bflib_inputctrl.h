@@ -29,8 +29,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 enum MouseGrabEvents {
-    MG_OnPauseEnter      = 0x001,
-    MG_OnPauseLeave      = 0x002,
+    MG_InitMouse         = 0x001,
+    MG_OnPauseEnter      = 0x002,
+    MG_OnPauseLeave      = 0x004,
     MG_OnFocusLost       = 0x010,
     MG_OnFocusGained     = 0x020,
     MG_OnPossessionEnter = 0x100,
