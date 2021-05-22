@@ -22,6 +22,7 @@
 #include "actionpt.h"
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
+#include "bflib_sndlib.h"
 #include "config.h"
 #include "config_campaigns.h"
 #include "config_effects.h"
