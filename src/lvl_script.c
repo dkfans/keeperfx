@@ -3423,10 +3423,55 @@ void command_export_variable(long plr_range_id, const char *varib_name, const ch
         SCRPTERRLOG("Unknown CAMPAIGN FLAG, '%s'", cmpflgname);
         return;
     }
-    if (!parse_set_varib(varib_name, &src_id, &src_type))
+    // Recognize variable
+    if (level_file_version > 0)
     {
-        SCRPTERRLOG("Unknown VARIABLE, '%s'", varib_name);
-        return;
+        src_type = get_id(variable_desc, varib_name);
+    }
+    else
+    {
+        src_type = get_id(dk1_variable_desc, varib_name);
+    }
+    if (src_type == -1)
+    {
+        src_id = -1;
+    }
+    else
+    {
+        src_id = 0;
+    }
+    if (src_id == -1)
+    {
+        src_id = get_id(creature_desc, varib_name);
+        src_type = SVar_CREATURE_NUM;
+    }
+    if (src_id == -1)
+    {
+        src_id = get_id(room_desc, varib_name);
+        src_type = SVar_ROOM_SLABS;
+    }
+    if (src_id == -1)
+    {
+        src_id = get_id(timer_desc, varib_name);
+        src_type = SVar_TIMER;
+    }
+    if (src_id == -1)
+    {
+        src_id = get_id(door_desc, varib_name);
+        src_type = SVar_DOOR_NUM;
+    }
+    if (src_id == -1)
+    {
+        src_id = get_id(trap_desc, varib_name);
+        src_type = SVar_TRAP_NUM;
+    }
+    if (src_id == -1)
+    {
+        if (!parse_set_varib(varib_name, &src_id, &src_type))
+        {
+            SCRPTERRLOG("Unknown VARIABLE, '%s'", varib_name);
+            return;
+        }
     }
     command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, src_type, src_id, flg_id);
 }
