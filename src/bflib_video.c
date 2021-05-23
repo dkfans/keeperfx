@@ -60,6 +60,7 @@ SDL_Color lbPaletteColors[PALETTE_COLORS];
 char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
 volatile unsigned long lbIconIndex = 0;
+TbBool lbWindowModeInit = true;
 SDL_Window *lbWindow = NULL;
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
@@ -464,6 +465,10 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         if (!sameWindowMode)
         {
             SDL_SetWindowFullscreen(lbWindow, fullscreenMode); // change to/from fullscreen if requested
+            if (lbWindowModeInit)
+            {
+                SDL_SetWindowPosition(lbWindow, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED);
+            }
         }
     }
     if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
@@ -472,6 +477,10 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if (lbWindow == NULL) {
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
         return Lb_FAIL;
+    }
+    if (lbWindowModeInit && ((mdinfo->VideoFlags & Lb_VF_WINDOWED) != 0))
+    {
+        lbWindowModeInit = false;
     }
 
     lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
