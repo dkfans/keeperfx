@@ -467,7 +467,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
             SDL_SetWindowFullscreen(lbWindow, fullscreenMode); // change to/from fullscreen if requested
             if (lbWindowModeInit)
             {
-                SDL_SetWindowPosition(lbWindow, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED);
+                //SDL_SetWindowPosition(lbWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
             }
         }
     }
