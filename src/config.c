@@ -165,15 +165,15 @@ short is_near_new_moon = 0;
  * @param mem_size Amount of memory available for the game.
  * @return
  */
-TbBool update_features(unsigned long uf_mem_size)
+TbBool update_features(unsigned long mem_size)
 {
     short result = false;
-    if (uf_mem_size >= 32)
+    if (mem_size >= 32)
     {
         result = true;
         features_enabled |= Ft_HiResCreatr;
   }
-  if (uf_mem_size >= 16)
+  if (mem_size >= 16)
   {
     features_enabled |= Ft_EyeLens;
     features_enabled |= Ft_HiResVideo;

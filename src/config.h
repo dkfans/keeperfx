@@ -201,7 +201,7 @@ char *prepare_file_path(short fgroup,const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
-TbBool update_features(unsigned long uf_mem_size);
+TbBool update_features(unsigned long mem_size);
 TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);

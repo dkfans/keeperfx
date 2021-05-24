@@ -153,8 +153,8 @@ long triangle_find8(long pt_x, long pt_y)
         int eqB = triangle_divide_areas_s8differ(ntri, 1, 2, pt_x, pt_y) > 0;
         int eqC = triangle_divide_areas_s8differ(ntri, 2, 0, pt_x, pt_y) > 0;
 
-        long ncor = 0;
-        long nxcor = 0; // Used only to verify if pointed_at8() didn't failed
+        long ncor;
+        long nxcor; // Used only to verify if pointed_at8() didn't failed
         switch (eqA + 2 * (eqB + 2 * eqC))
         {
         case 1:

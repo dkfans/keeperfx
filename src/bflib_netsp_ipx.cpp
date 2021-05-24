@@ -92,13 +92,13 @@ TbError IPXServiceProvider::EnableNewPlayers(TbBool allow)
 bool IPXServiceProvider::ReadMessage(unsigned long *, void *, unsigned long *)
 {
   //TODO NET
-  return false; // was Lb_FAIL;
+  return Lb_FAIL;
 }
 
 bool IPXServiceProvider::PeekMessage(unsigned long *, void *, unsigned long *)
 {
   //TODO NET
-  return false; // was Lb_FAIL;
+  return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::SendMessage(unsigned long, void *, unsigned char)

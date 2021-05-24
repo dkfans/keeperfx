@@ -61,20 +61,20 @@ TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit);
 /******************************************************************************/
 // Functions
 
-long get_best_sound_heap_size(long sh_mem_size)
+long get_best_sound_heap_size(long mem_size)
 {
-    if (sh_mem_size < 8)
+    if (mem_size < 8)
     {
       ERRORLOG("Unhandled PhysicalMemory");
       return 0;
     }
-    if (sh_mem_size <= 8)
+    if (mem_size <= 8)
       return 0x100000; // 1MB
-    if (sh_mem_size <= 16)
+    if (mem_size <= 16)
       return 0x200000; // 2MB
-    if (sh_mem_size <= 24)
+    if (mem_size <= 24)
       return 0x500000; // 5MB
-    if (sh_mem_size <= 32)
+    if (mem_size <= 32)
       return 0x800000; // 8MB
     return 0xC00000; // 12MB
 }
