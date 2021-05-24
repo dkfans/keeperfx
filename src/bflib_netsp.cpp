@@ -342,9 +342,9 @@ TbError ServiceProvider::Receive(unsigned long flags)
     void * somePtr;
     long tmpInt1;
     long tmpInt2;
-    TbError result;
+    //TbError result; // unused
 
-    result = 0;
+    //result = 0;
 
     if (this->started < 1)
     {
@@ -384,7 +384,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
               }
               if (!(ReadMessage(&playerId, msgBuffer, &msgLen))) {
                   NETMSG("Inconsistency between reads");
-                  result = 0xff;
+                  //result = 0xff;
               }
           }
 
