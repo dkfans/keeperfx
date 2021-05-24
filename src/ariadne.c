@@ -224,7 +224,10 @@ static long triangle_findSE8(long ptfind_x, long ptfind_y);
 long ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
 void edgelen_init(void);
 /******************************************************************************/
-static void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *arid2)
+
+// ariadne_compare_ways is unused by KFX code
+// This function was added by mefisto: "Prepared a function for debugging Ariadne structure." - https://github.com/dkfans/keeperfx/commit/e92bb5d7a4ad9a9dc232df160e7fc9909fc822df
+void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *arid2)
 {
     const struct Coord3d* p1;
     const struct Coord3d* p2;
