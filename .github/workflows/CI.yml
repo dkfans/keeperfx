@@ -24,7 +24,7 @@ jobs:
         echo $GITHUB_REF
         echo $GITHUB_HEAD_REF
         echo $GITHUB_BASE_REF
-         if [[ "$GITHUB_REF" != "master" ]]; then
+         if [[ "$GITHUB_HEAD_REF" != "$GITHUB_BASE_REF" ]]; then
             PACKAGE_SUFFIX=Prototype;
         fi
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
