@@ -386,7 +386,8 @@ TbResult LbScreenInitialize(void)
     return Lb_SUCCESS;
 }
 
-static LPCTSTR MsResourceMapping(int index)
+// this function is unused
+LPCTSTR MsResourceMapping(int index)
 {
   switch (index)
   {
