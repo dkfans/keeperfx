@@ -784,7 +784,7 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   struct TbNetworkPlayerEntry *netplyr;
   const unsigned char *inp;
   unsigned long plyr_id;
-  unsigned long idx1;
+  //unsigned long idx1;
   TbBool got;
   long i;
   inp = (const unsigned char *)enc_buf;
@@ -799,7 +799,7 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
     netplyr = &this->players[i];
     if ((plyr_id == netplyr->id) && (netplyr->field_9))
     {
-      idx1 = i;
+      //idx1 = i;
       got = 1;
       break;
     }
