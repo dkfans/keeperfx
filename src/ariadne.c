@@ -225,10 +225,9 @@ long ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
 void edgelen_init(void);
 /******************************************************************************/
 
-// remove these pragma directives above and below the ariadne_compare_ways function, when ariadne_compare_ways is used by KFX code
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-static void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *arid2)
+// ariadne_compare_ways is unused by KFX code
+// This function was added by mefisto: "Prepared a function for debugging Ariadne structure." - https://github.com/dkfans/keeperfx/commit/e92bb5d7a4ad9a9dc232df160e7fc9909fc822df
+void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *arid2)
 {
     const struct Coord3d* p1;
     const struct Coord3d* p2;
@@ -294,7 +293,6 @@ static void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariad
         ERRORLOG("field_62 DIFFERS");
     }
 }
-#pragma GCC diagnostic pop
 
 unsigned long fits_thro(long tri_idx, long ormask_idx)
 {
