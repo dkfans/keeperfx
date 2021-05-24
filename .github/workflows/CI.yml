@@ -21,7 +21,7 @@ jobs:
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
         BUILD_NUMBER=$(git rev-list --count HEAD)
         PACKAGE_SUFFIX=Alpha
-        echo ${CI_COMMIT_BRANCH}
+        echo ${CI_DEFAULT_BRANCH}
         if [ ${CI_COMMIT_BRANCH} != ${CI_DEFAULT_BRANCH} ]; then
             PACKAGE_SUFFIX=Prototype;
         fi
