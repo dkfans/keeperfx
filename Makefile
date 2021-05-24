@@ -297,8 +297,8 @@ $(RES)
 
 # include and library directories
 LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net 
-INCS =  -I"sdl/include"
-CXXINCS =  -I"sdl/include"
+INCS =  -I"sdl/include" -I"sdl/include/SDL2"
+CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
