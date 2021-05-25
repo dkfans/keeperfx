@@ -60,7 +60,6 @@ SDL_Color lbPaletteColors[PALETTE_COLORS];
 char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
 volatile unsigned long lbIconIndex = 0;
-TbBool lbWindowModeInit = true;
 SDL_Window *lbWindow = NULL;
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
@@ -451,23 +450,27 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
             sameWindowMode = (sameWindowMode || stillInWindowedMode);
         }
         int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
-        if (!sameResolution)
+        if (!sameWindowMode && (fullscreenMode == 0))
         {
-            if (fullscreenMode == SDL_WINDOW_FULLSCREEN)
+            SDL_DestroyWindow(lbWindow); // destroy window on transition from fullscreen to window, as it is quicker than using SDL_SetWindowFullscreen
+            lbWindow = NULL;
+        } 
+        else
+        {
+            if (!sameResolution)
             {
-                SDL_DisplayMode dm = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0}; // maybe there is a better/more accurate way to describe the display mode...
-                dm.w=mdinfo->Width;
-                dm.h=mdinfo->Height;
-                SDL_SetWindowDisplayMode(lbWindow, &dm); // set display mode for fullscreen
+                if (fullscreenMode == SDL_WINDOW_FULLSCREEN)
+                {
+                    SDL_DisplayMode dm = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0}; // maybe there is a better/more accurate way to describe the display mode...
+                    dm.w=mdinfo->Width;
+                    dm.h=mdinfo->Height;
+                    SDL_SetWindowDisplayMode(lbWindow, &dm); // set display mode for fullscreen
+                }
+                SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height); // we want to set window size for both windowed mode, and fullscreen
             }
-            SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height); // we want to set window size for both windowed mode, and fullscreen
-        }
-        if (!sameWindowMode)
-        {
-            SDL_SetWindowFullscreen(lbWindow, fullscreenMode); // change to/from fullscreen if requested
-            if (lbWindowModeInit)
+            if (!sameWindowMode)
             {
-                SDL_SetWindowPosition(lbWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+                SDL_SetWindowFullscreen(lbWindow, fullscreenMode); // change to/from fullscreen if requested
             }
         }
     }
@@ -477,10 +480,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if (lbWindow == NULL) {
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
         return Lb_FAIL;
-    }
-    if (lbWindowModeInit && ((mdinfo->VideoFlags & Lb_VF_WINDOWED) != 0))
-    {
-        lbWindowModeInit = false;
     }
 
     lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
