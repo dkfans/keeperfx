@@ -317,7 +317,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   player->allocflags &= ~PlaF_Unknown8;
   if (is_my_player(player))
   {
-    game.numfield_D &= ~GNFldD_Unkn08;
+    game.numfield_D &= ~GNFldD_CreaturePasngr;
     game.numfield_D |= GNFldD_Unkn01;
     if (is_my_player(player))
       stop_all_things_playing_samples();

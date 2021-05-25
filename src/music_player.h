@@ -29,9 +29,12 @@ extern "C" {
 #define FIRST_TRACK 2
 extern int max_track;
 
+int IsRedbookMusicActive(void);
 int InitializeMusicPlayer(void);
 void ShutdownMusicPlayer(void);
 void PlayMusicPlayer(int track);
+void PauseMusicPlayer(void);
+void ResumeMusicPlayer(void);
 void StopMusicPlayer(void);
 void SetMusicPlayerVolume(int volume);
 

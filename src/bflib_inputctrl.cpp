@@ -26,6 +26,9 @@
 #include "bflib_video.h"
 #include "bflib_planar.h"
 #include "bflib_mshandler.hpp"
+#include "config.h"
+#include "sounds.h"
+#include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
 #include <SDL2/SDL.h>
 
 using namespace std;
@@ -44,6 +47,7 @@ volatile int lbUserQuit = 0;
 static int prevMouseX = 0, prevMouseY = 0;
 static TbBool isMouseActive = true;
 static TbBool isMouseActivated = false;
+static TbBool firstTimeMouseInit = true;
 
 std::map<int, TbKeyCode> keymap_sdl_to_bf;
 
@@ -54,6 +58,8 @@ std::map<int, TbKeyCode> keymap_sdl_to_bf;
  * @param button SDL button definition.
  * @return
  */
+ 
+
 static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent * button)
 {
     if (eventType == SDL_MOUSEBUTTONDOWN) {
@@ -259,6 +265,11 @@ static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
     return keymod;
 }
 
+TbBool LbIsFrozenOrPaused(void)
+{
+    return ((freeze_game_on_focus_lost() && !LbIsActive()) || ((game.operation_flags & GOF_Paused) != 0));
+}
+
 static void process_event(const SDL_Event *ev)
 {
     struct TbPoint mouseDelta;
@@ -285,7 +296,7 @@ static void process_event(const SDL_Event *ev)
           SDL_GetMouseState(&prevMouseX, &prevMouseY);
           return;
         }
-        if (lbMouseGrab && lbDisplay.MouseMoveRatio > 0)
+        if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
         {
             mouseDelta.x = ev->motion.xrel * lbDisplay.MouseMoveRatio / 256;
             mouseDelta.y = ev->motion.yrel * lbDisplay.MouseMoveRatio / 256;
@@ -328,16 +339,38 @@ static void process_event(const SDL_Event *ev)
             lbAppActive = true;
             isMouseActive = true;
             isMouseActivated = true;
+            LbGrabMouseCheck(MG_OnFocusGained);
+            if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
+            {
+                pause_music(false);
+            }
+            if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
+            {
+                mute_audio(false);
+            }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
         {
             lbAppActive = false;
             isMouseActive = false;
+            isMouseActivated = false;
+            LbGrabMouseCheck(MG_OnFocusLost);
+            if (freeze_game_on_focus_lost())
+            {
+                pause_music(true);
+            }
+            if (mute_audio_on_focus_lost())
+            {
+                mute_audio(true);
+            }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
         {
-            isMouseActive = true;
-            isMouseActivated = true;
+            if (lbAppActive)
+            {
+                isMouseActive = true;
+                isMouseActivated = true;
+            }
         }
         else if (ev->window.event == SDL_WINDOWEVENT_LEAVE)
         {
@@ -385,6 +418,140 @@ TbBool LbIsMouseActive(void)
 {
     return isMouseActive;
 }
+
+void LbMouseCheckPosition(TbBool grab_state_changed)
+{
+    if (!lbAppActive)
+    {
+        if (IsMouseInsideWindow())
+        {
+            LbMoveHostCursorToGameCursor(); // release host mouse
+        }
+    }
+    else // app has focus
+    {
+        if (lbMouseGrabbed)
+        {
+            if (grab_state_changed || firstTimeMouseInit) // if start grab, move cursor appropriately
+            {
+                firstTimeMouseInit = false;
+                if (IsMouseInsideWindow())
+                {
+                    LbMoveGameCursorToHostCursor();
+                }
+                else
+                {
+                    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+                }
+            }
+        }
+        else
+        {
+            if (firstTimeMouseInit) // if start no-grab, move cursor appropriately
+            {
+                firstTimeMouseInit = false;
+                if (IsMouseInsideWindow() && lbAppActive)
+                {
+                    LbMoveGameCursorToHostCursor();
+                }
+            }
+            else if (grab_state_changed) // if release grab, move cursor appropriately
+            {
+                if (IsMouseInsideWindow() && lbAppActive)
+                {
+                    LbMoveHostCursorToGameCursor();
+                }
+            }
+        }
+    }
+}
+
+void LbSetMouseGrab(TbBool grab_mouse)
+{
+    TbBool previousGrabState = lbMouseGrabbed;
+    lbMouseGrabbed = grab_mouse;
+    if (lbMouseGrabbed)
+    {
+        LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+    }
+    else
+    {
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
+    }
+    SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
+}
+
+void LbGrabMouseInit(void)
+{
+    LbGrabMouseCheck(MG_InitMouse);
+}
+
+void LbGrabMouseCheck(long grab_event)
+{
+    TbBool window_has_focus = lbAppActive;
+    TbBool paused = ((game.operation_flags & GOF_Paused) != 0);
+    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.numfield_D & GNFldD_CreaturePasngr) == 0);
+    TbBool grab_cursor = lbMouseGrabbed;
+    if (!window_has_focus)
+    {
+        grab_cursor = false;
+    }
+    else
+    {
+        if (!game.packet_load_enable)
+        {
+            switch (grab_event)
+            {
+            case MG_OnPauseEnter:
+                if (unlock_cursor_when_game_paused() && lbMouseGrabbed)
+                {
+                    grab_cursor = false;
+                }
+                break;
+            case MG_OnPauseLeave:
+                if ((unlock_cursor_when_game_paused() && lbMouseGrab) || (!lbMouseGrab && lock_cursor_in_possession() && possession_mode && unlock_cursor_when_game_paused()))
+                {
+                    grab_cursor = true;
+                }
+                break;
+            case MG_OnPossessionEnter:
+                if (lock_cursor_in_possession() && !lbMouseGrabbed)
+                {
+                    grab_cursor = true;
+                }
+                break;
+            case MG_OnPossessionLeave:
+                if (lock_cursor_in_possession() && !lbMouseGrab)
+                {
+                    grab_cursor = false;
+                }
+                break;
+            case MG_OnFocusGained:
+            case MG_InitMouse:
+                grab_cursor = lbMouseGrab;
+                if (paused && unlock_cursor_when_game_paused())
+                {
+                    grab_cursor = false;
+                }
+                if (!paused && possession_mode && lock_cursor_in_possession() && !lbMouseGrab)
+                {
+                    grab_cursor = true;
+                }
+                break;
+            default:
+                break;
+            }
+        }
+        else
+        {
+            grab_cursor = lbMouseGrab; // keep the default grab state if the player is viewing a saved packet
+        }
+    }
+    LbSetMouseGrab(grab_cursor);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

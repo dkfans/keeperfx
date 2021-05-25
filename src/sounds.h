@@ -105,6 +105,9 @@ void play_thing_walking(struct Thing *thing);
 TbBool ambient_sound_prepare(void);
 TbBool ambient_sound_stop(void);
 struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, PlayerNumber owner);
+
+void mute_audio(TbBool mute);
+void pause_music(TbBool pause);
 /******************************************************************************/
 #ifdef __cplusplus
 }

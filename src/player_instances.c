@@ -54,6 +54,7 @@
 #include "game_legacy.h"
 #include "config_magic.h"
 #include "thing_shots.h"
+#include "bflib_inputctrl.h"
 
 #include "keeperfx.hpp"
 
@@ -355,6 +356,7 @@ long pinstfs_direct_control_creature(struct PlayerInfo *player, long *n)
     if (thing_is_creature(thing)) {
         SYNCDBG(8,"Cleaning up state %s of %s index %d",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
         initialise_thing_state(thing, CrSt_ManualControl);
+        LbGrabMouseCheck(MG_OnPossessionEnter);
     }
     return pinstfs_passenger_control_creature(player, n);
 }
@@ -493,6 +495,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
       turn_off_query_menus();
       turn_on_main_panel_menu();
       set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+      LbGrabMouseCheck(MG_OnPossessionLeave);
   }
   thing = thing_get(player->influenced_thing_idx);
   leave_creature_as_controller(player, thing);
@@ -587,7 +590,7 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
         cctrl->flgfield_1 |= CCFlg_NoCompControl;
         player->allocflags |= PlaF_KeyboardInputDisabled;
         player->allocflags |= PlaF_MouseInputDisabled;
-        game.numfield_D |= GNFldD_Unkn08;
+        game.numfield_D |= GNFldD_CreaturePasngr;
     }
     return 0;
 }
@@ -699,7 +702,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   light_turn_light_on(player->field_460);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
   player->allocflags &= ~PlaF_MouseInputDisabled;
-  game.numfield_D &= ~GNFldD_Unkn08;
+  game.numfield_D &= ~GNFldD_CreaturePasngr;
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, engine_palette);
   return 0;
