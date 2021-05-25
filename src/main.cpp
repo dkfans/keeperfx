@@ -1044,6 +1044,7 @@ short setup_game(void)
   update_features(mem_size);
 
   features_enabled |= Ft_Wibble; // enable wibble by default
+  features_enabled |= Ft_LiquidWibble; // enable liquid wibble by default
 
   // Configuration file
   if ( !load_configuration() )
