@@ -59,10 +59,6 @@ std::map<int, TbKeyCode> keymap_sdl_to_bf;
  * @return
  */
  
-TbBool LbIsFrozenOrPaused(void)
-{
-    return ((freeze_game_on_focus_lost() && !LbIsActive()) || ((game.operation_flags & GOF_Paused) != 0));
-}
 
 static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent * button)
 {
@@ -267,6 +263,11 @@ static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
         break;
     }
     return keymod;
+}
+
+TbBool LbIsFrozenOrPaused(void)
+{
+    return ((freeze_game_on_focus_lost() && !LbIsActive()) || ((game.operation_flags & GOF_Paused) != 0));
 }
 
 static void process_event(const SDL_Event *ev)
