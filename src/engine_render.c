@@ -476,10 +476,18 @@ void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
 struct WibbleTable *get_wibble_from_table(long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct WibbleTable *wibl;
-    struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
-    struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
-    struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
-    if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slb3->kind)  && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind)))
+    TbBool use_wibble = wibble_enabled();
+    if (liquid_wibble_enabled() && !use_wibble)
+    {
+        struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
+        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
+        struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
+        if (slab_kind_is_liquid(slb3->kind) && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind))
+        {
+            use_wibble = true;
+        }
+    }
+    if (use_wibble)
     {
         wibl = &wibble_table[table_index];
     }
