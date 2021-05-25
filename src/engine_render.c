@@ -1099,7 +1099,7 @@ void frame_wibble_generate(void)
     }
 }
 
-void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, long zoom, long map_angle, long map_roll)
+void setup_rotate_stuff(long x, long y, long z, long rotate_fade_max, long rotate_fade_min, long zoom, long map_angle, long rotate_map_roll)
 {
     //_DK_setup_rotate_stuff(x, y, z, fade_max, fade_min, zoom, map_angle, map_roll);
     view_width_over_2 = vec_window_width / 2;
@@ -1109,9 +1109,9 @@ void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, lo
     map_z_pos = z;
     thelens = zoom;
     spr_map_angle = map_angle;
-    lfade_min = fade_min;
-    lfade_max = fade_max;
-    fade_mmm = fade_max - fade_min;
+    lfade_min = rotate_fade_min;
+    lfade_max = rotate_fade_max;
+    fade_mmm = rotate_fade_max - rotate_fade_min;
 }
 
 static void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
