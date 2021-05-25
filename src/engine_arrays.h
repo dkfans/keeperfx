@@ -60,6 +60,7 @@ DLLIMPORT extern long _DK_lintel_bottom_height[256];
 #pragma pack()
 /******************************************************************************/
 extern unsigned short floor_to_ceiling_map[FLOOR_TO_CEILING_MAP_LEN];
+extern struct WibbleTable blank_wibble_table[128];
 /******************************************************************************/
 long convert_td_iso(unsigned long n);
 long straight_td_iso(unsigned long n);
