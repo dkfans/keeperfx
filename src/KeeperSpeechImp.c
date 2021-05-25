@@ -65,7 +65,7 @@ KEEPERSPEECH_REASON KeeperSpeechInit(void)
     }
 
     init = (fpKeeperSpeechInit) GetProcAddress(ks_lib, "KeeperSpeechInit");
-    ks_fn.error_message = (fpKeeperSpeechErrorMessage) GetProcAddress(ks_lib, "KeeperSpeechErrorMessage");
+    ks_fn.error_message = (fpKeeperSpeechErrorMessage)(void *) GetProcAddress(ks_lib, "KeeperSpeechErrorMessage");
     ks_fn.exit = (fpKeeperSpeechExit) GetProcAddress(ks_lib, "KeeperSpeechExit");
     ks_fn.pop_event = (fpKeeperSpeechPopEvent) GetProcAddress(ks_lib, "KeeperSpeechPopEvent");
     ks_fn.clear_events = (fpKeeperSpeechClearEvents) GetProcAddress(ks_lib, "KeeperSpeechClearEvents");

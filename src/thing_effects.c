@@ -1002,6 +1002,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
     const struct InitEffect* effnfo = get_effect_info_for_thing(thing);
     SYNCDBG(18,"Preparing Effect, Generation Type %d",(int)effnfo->generation_type);
     unsigned long arg;
+    struct Thing* elemtng;
     switch (effnfo->generation_type)
     {
     case 1:
@@ -1012,7 +1013,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             if (effnfo->kind_min <= 0)
                 continue;
             long n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
-            struct Thing* elemtng = create_effect_element(&thing->mappos, n, thing->owner);
+            elemtng = create_effect_element(&thing->mappos, n, thing->owner);
             TRACE_THING(elemtng);
             if (thing_is_invalid(elemtng))
                 break;
@@ -1043,7 +1044,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             long mag = effnfo->start_health - thing->health;
             arg = (mag << 7) + k/effnfo->field_B;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
-            struct Thing* elemtng = create_effect_element(&pos, n, thing->owner);
+            elemtng = create_effect_element(&pos, n, thing->owner);
             TRACE_THING(elemtng);
             SYNCDBG(18,"Created %s",thing_model_name(elemtng));
             k += 2048;
@@ -1060,7 +1061,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             long mag = thing->health;
             arg = (mag << 7) + k/effnfo->field_B;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
-            struct Thing* elemtng = create_effect_element(&pos, n, thing->owner);
+            elemtng = create_effect_element(&pos, n, thing->owner);
             TRACE_THING(elemtng);
             k += 2048;
         }

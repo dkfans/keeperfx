@@ -117,7 +117,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
     return 1;
 }
 
-static long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *args)
+long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *args)
 {
     struct Computer2 *comp = get_computer_player(args[0]);
     int i = 0;

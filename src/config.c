@@ -48,7 +48,7 @@ int max_track = 7;
 unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
-extern TbBool AssignCpuKeepers = 0;
+TbBool AssignCpuKeepers = 0;
 
 /**
  * Language 3-char abbreviations.
@@ -165,15 +165,15 @@ short is_near_new_moon = 0;
  * @param mem_size Amount of memory available for the game.
  * @return
  */
-TbBool update_features(unsigned long mem_size)
+TbBool update_features(unsigned long uf_mem_size)
 {
     short result = false;
-    if (mem_size >= 32)
+    if (uf_mem_size >= 32)
     {
         result = true;
         features_enabled |= Ft_HiResCreatr;
   }
-  if (mem_size >= 16)
+  if (uf_mem_size >= 16)
   {
     features_enabled |= Ft_EyeLens;
     features_enabled |= Ft_HiResVideo;
