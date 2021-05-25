@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: Trass3r/setup-cpp@master
+    - name: build
+      run: |
+        set -eux
+        sudo apt update && sudo apt -y upgrade
+        sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        PACKAGE_SUFFIX=Alpha
+        echo $GITHUB_REF
+        echo $GITHUB_HEAD_REF
+        echo $GITHUB_BASE_REF
+         if [[ "$GITHUB_HEAD_REF" != "$GITHUB_BASE_REF" ]]; then
+            PACKAGE_SUFFIX=Prototype;
+        fi
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
+        make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
+        echo "ZIP_NAME=$(basename -s .7z pkg/keeperfx*.7z)" >> $GITHUB_ENV
+        rm pkg/keeperfx*.7z
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.ZIP_NAME }}
+        path: pkg/**
