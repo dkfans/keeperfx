@@ -473,6 +473,23 @@ void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
     matx->r[2].v[3] = matx->r[2].v[0] * matx->r[2].v[1];
 }
 
+struct WibbleTable *get_wibble_from_table(long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct WibbleTable *wibl;
+    struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
+    struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
+    struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
+    if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slb3->kind)  && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind)))
+    {
+        wibl = &wibble_table[table_index];
+    }
+    else
+    {
+        wibl = &blank_wibble_table[table_index];
+    }
+    return wibl;
+}
+
 void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
 {
     //_DK_fill_in_points_perspective(bstl_x, bstl_y, mm); return;
@@ -569,17 +586,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         hpos = subtile_coord(hmin,0) - view_alt;
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
-        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
-        struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
-        if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slb3->kind)  && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind)))
-        {
-            wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
-        }
-        else
-        {
-            wibl = &blank_wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
-        }
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         int idxh;
         for (idxh = hmax-hmin+1; idxh > 0; idxh--)
         {
@@ -605,16 +612,8 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         hpos = subtile_coord(get_mapblk_filled_subtiles(mapblk),0) - view_alt;
         if (wib_v == 2)
         {
-            if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slb3->kind)  && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind)))
-            {
-                wibl = &wibble_table[wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32];
-            }
-            else
-            {
-                wibl = &blank_wibble_table[wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32];
-            }
+            wibl = get_wibble_from_table(wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32, stl_x, stl_y);
         }
-          
         ecord = &ecol->cors[8];
         {
             ecord->x = apos + wibl->field_0;
@@ -789,17 +788,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
-        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
-        struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
-        if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slb3->kind)  && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind)))
-        {
-            wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
-        }
-        else
-        {
-            wibl = &blank_wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
-        }
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         long *randmis;
         randmis = &randomisors[(stl_x + 17 * (stl_y + 1)) & 0xff];
         eview_h = dview_h * hmin + hview_y;
@@ -1030,17 +1019,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
-        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
-        struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
-        if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slb3->kind)  && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind)))
-        {
-            wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
-        }
-        else
-        {
-            wibl = &blank_wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
-        }
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
         randmis = &randomisors[(stl_x + 17 * (stl_y+1)) & 0xff] + hmin;
