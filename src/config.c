@@ -48,7 +48,7 @@ int max_track = 7;
 unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
-extern TbBool AssignCpuKeepers = 0;
+TbBool AssignCpuKeepers = 0;
 
 /**
  * Language 3-char abbreviations.
