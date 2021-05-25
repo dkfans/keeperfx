@@ -21,10 +21,7 @@ jobs:
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
         BUILD_NUMBER=$(git rev-list --count HEAD)
         PACKAGE_SUFFIX=Alpha
-        echo $GITHUB_REF
-        echo $GITHUB_HEAD_REF
-        echo $GITHUB_BASE_REF
-         if [[ "$GITHUB_HEAD_REF" != "$GITHUB_BASE_REF" ]]; then
+        if [[ "$GITHUB_HEAD_REF" != "$GITHUB_BASE_REF" ]]; then
             PACKAGE_SUFFIX=Prototype;
         fi
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
