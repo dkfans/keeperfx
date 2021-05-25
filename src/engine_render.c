@@ -604,7 +604,17 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         wib_v = get_mapblk_wibble_value(mapblk);
         hpos = subtile_coord(get_mapblk_filled_subtiles(mapblk),0) - view_alt;
         if (wib_v == 2)
-          wibl = &wibble_table[wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32];
+        {
+            if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slb3->kind)  && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind)))
+            {
+                wibl = &wibble_table[wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32];
+            }
+            else
+            {
+                wibl = &blank_wibble_table[wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32];
+            }
+        }
+          
         ecord = &ecol->cors[8];
         {
             ecord->x = apos + wibl->field_0;
