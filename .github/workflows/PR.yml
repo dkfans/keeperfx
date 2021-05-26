@@ -1,12 +1,11 @@
-name: CI
+name: Test Prototypes
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
+
 jobs:
   build:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
 
     steps:
@@ -19,11 +18,8 @@ jobs:
         set -eux
         sudo apt update && sudo apt -y upgrade
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
-        BUILD_NUMBER=$(git rev-list --count HEAD)
-        PACKAGE_SUFFIX=Alpha
-        if [[ "$GITHUB_HEAD_REF" != "$GITHUB_BASE_REF" ]]; then
-            PACKAGE_SUFFIX=Prototype;
-        fi
+        BUILD_NUMBER=$(git rev-list --count BASE)
+        PACKAGE_SUFFIX=Prototype
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX heavylog DEBUG=1 -k
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX standard
         make -j`nproc` BUILD_NUMBER=$BUILD_NUMBER PACKAGE_SUFFIX=$PACKAGE_SUFFIX package
