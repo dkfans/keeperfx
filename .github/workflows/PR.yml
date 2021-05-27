@@ -12,7 +12,6 @@ jobs:
     - uses: actions/checkout@v2
       with:
         ref: ${{ github.event.pull_request.head.sha }}
-      with:
         fetch-depth: 0
     - uses: Trass3r/setup-cpp@master
     - name: build
