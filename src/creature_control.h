@@ -476,7 +476,7 @@ struct CreatureStatsOLD { // sizeof = 230
   unsigned char base_speed;
   short grow_up;
   unsigned char grow_up_level;
-  unsigned char entrance_force;
+  TbBool entrance_force;
   short max_angle_change;
   short eye_height;
 short field_57[14];
@@ -571,7 +571,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char base_speed;
     short grow_up;
     unsigned char grow_up_level;
-    unsigned char entrance_force;
+    TbBool entrance_force;
     short max_angle_change;
     short eye_height;
   short field_57[14];
