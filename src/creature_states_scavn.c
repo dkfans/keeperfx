@@ -535,7 +535,9 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         process_scavenge_creature_from_pool(calltng, work_value);
     } else
     {
-        calldngn->portal_scavenge_boost += crstat->entrance_force;
+        if (crstat->entrance_force) {
+          calldngn->portal_scavenge_boost++;
+        }
         return 0;
     }
     callctrl->turns_at_job++;
