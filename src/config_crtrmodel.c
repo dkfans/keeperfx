@@ -835,7 +835,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
         crstat->entrance_rooms[n] = 0;
         crstat->entrance_slabs_req[n] = 0;
       }
-      crstat->entrance_force = 0;
+      crstat->entrance_force = false;
       crstat->entrance_score = 10;
       crstat->scavenge_require = 1;
       crstat->torture_break_time = 1;
