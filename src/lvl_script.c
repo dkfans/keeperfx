@@ -6388,6 +6388,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 26: // ILLUMINATED
           crstat->illuminated = val4;
           break;
+      case 27: // ALLURING_SCVNGR
+          crstat->entrance_force = val4;
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
           break;
