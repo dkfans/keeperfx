@@ -307,6 +307,9 @@ struct DungeonAdd
     unsigned char         creature_entrance_level;
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;
+    unsigned long         traps_sold;
+    unsigned long         doors_sold;
+    unsigned long         manufacture_gold;
     TbBool                one_click_lock_cursor;
     TbBool                ignore_next_PCtr_RBtnRelease;
     TbBool                ignore_next_PCtr_LBtnRelease;
