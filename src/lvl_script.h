@@ -222,6 +222,10 @@ enum ScriptVariables {
   SVar_REWARDED                        = 68,  // Per model
   SVar_EVIL_CREATURES_CONVERTED        = 69,
   SVar_GOOD_CREATURES_CONVERTED        = 70,
+  SVar_TRAPS_SOLD                      = 71,
+  SVar_DOORS_SOLD                      = 72,
+  SVar_MANUFACTURED_SOLD               = 73,
+  SVar_MANUFACTURE_GOLD                = 74
  };
 
 enum MapLocationTypes {

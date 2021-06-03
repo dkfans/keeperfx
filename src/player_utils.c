@@ -899,6 +899,11 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         set_coords_to_slab_center(&pos,slb_x,slb_y);
         remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     }
+
+	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
+	dungeonadd->traps_sold++;
+	dungeonadd->manufacture_gold += sell_value;
+
     struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
     if (is_my_player_number(plyr_idx))
     {
@@ -931,18 +936,24 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         return false;
     }
-    struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
-    dungeon->camera_deviate_jump = 192;
-    long i = gameadd.doors_config[thing->model].selling_value;
+
+	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
+	dungeon->camera_deviate_jump = 192;
+	long sell_value = gameadd.doors_config[thing->model].selling_value;
+
+	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
+	dungeonadd->doors_sold++;
+	dungeonadd->manufacture_gold += sell_value;
+
     destroy_door(thing);
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
     struct Coord3d pos;
     set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
-    if (i != 0)
+    if (sell_value != 0)
     {
-        create_price_effect(&pos, plyr_idx, i);
-        player_add_offmap_gold(plyr_idx, i);
+        create_price_effect(&pos, plyr_idx, sell_value);
+        player_add_offmap_gold(plyr_idx, sell_value);
     }
     { // Add the trap location to related computer player, in case we'll want to place a trap again
         struct Computer2* comp = get_computer_player(plyr_idx);
