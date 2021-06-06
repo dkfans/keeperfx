@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "config_crtrmodel.h"
 #include "globals.h"
+#include "game_merge.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -220,7 +221,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   // Block name and parameter word store variables
   // Initialize block data
   struct CreatureStats* crstat = creature_stats_get(crtr_model);
-  struct CreatureModelConfig* crconf = &crtr_conf.model[crtr_model];
+  struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_model];
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
       crstat->health = 1;
@@ -800,14 +801,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
       if ((crconf->model_flags & CMF_IsEvil) != 0) {
-          crtr_conf.special_digger_evil = crtr_model;
+          gameadd.crtr_conf.special_digger_evil = crtr_model;
       } else {
-          crtr_conf.special_digger_good = crtr_model;
+          gameadd.crtr_conf.special_digger_good = crtr_model;
       }
   }
   if ((crconf->model_flags & CMF_IsSpectator) != 0)
   {
-      crtr_conf.spectator_breed = crtr_model;
+      gameadd.crtr_conf.spectator_breed = crtr_model;
   }
   // Set creature start states based on the flags
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
@@ -2467,7 +2468,7 @@ TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
  */
 TbBool make_all_creatures_free(void)
 {
-    for (long i = 0; i < crtr_conf.model_count; i++)
+    for (long i = 0; i < gameadd.crtr_conf.model_count; i++)
     {
         struct CreatureStats* crstat = creature_stats_get(i);
         crstat->training_cost = 0;

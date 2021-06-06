@@ -2531,7 +2531,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     _DK_update_player_camera_fp(cam, thing);
 }
 
