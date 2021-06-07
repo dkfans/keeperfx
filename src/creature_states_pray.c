@@ -394,7 +394,7 @@ long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, l
       kill_all_players_chickens(plyr_idx);
       return SacR_Punished;
   case UnqF_CheaperImp:
-      count_sacrificed_imps(plyr_idx, 1);
+      tally_sacrificed_imps(plyr_idx);
       return SacR_Pleased;
   case UnqF_CostlierImp:
       count_sacrificed_imps(plyr_idx, -1);
