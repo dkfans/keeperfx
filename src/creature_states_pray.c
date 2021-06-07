@@ -367,6 +367,8 @@ short cleanup_sacrifice(struct Thing *creatng)
 
 long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, long sacfunc, long explevel)
 {
+    struct DungeonAdd* dungeonadd;
+    dungeonadd = get_dungeonadd(plyr_idx);
   switch (sacfunc)
   {
   case UnqF_MkAllAngry:
@@ -382,7 +384,8 @@ long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, l
       kill_all_players_chickens(plyr_idx);
       return SacR_Punished;
   case UnqF_CheaperImp:
-      // No processing needed - just don't clear the amount of sacrificed imps.
+      //count_cheaper_imps()
+      dungeonadd->cheaper_imps++;
       return SacR_Pleased;
   default:
       ERRORLOG("Unsupported unique sacrifice award!");

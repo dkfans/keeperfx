@@ -310,6 +310,7 @@ struct DungeonAdd
     unsigned long         traps_sold;
     unsigned long         doors_sold;
     unsigned long         manufacture_gold;
+    long                  cheaper_imps;
     TbBool                one_click_lock_cursor;
     TbBool                ignore_next_PCtr_RBtnRelease;
     TbBool                ignore_next_PCtr_LBtnRelease;
