@@ -365,7 +365,7 @@ short cleanup_sacrifice(struct Thing *creatng)
     return 1;
 }
 
-TbBool tally_sacrificed_imps(PlayerNumber plyr_idx)
+TbBool tally_sacrificed_imps(PlayerNumber plyr_idx, short count)
 {
     struct DungeonAdd* dungeonadd;
     dungeonadd = get_dungeonadd(plyr_idx);
@@ -394,10 +394,10 @@ long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, l
       kill_all_players_chickens(plyr_idx);
       return SacR_Punished;
   case UnqF_CheaperImp:
-      tally_sacrificed_imps(plyr_idx);
+      tally_sacrificed_imps(plyr_idx,1);
       return SacR_Pleased;
   case UnqF_CostlierImp:
-      count_sacrificed_imps(plyr_idx, -1);
+      tally_sacrificed_imps(plyr_idx, -1);
       return SacR_AngryWarn;
   default:
       ERRORLOG("Unsupported unique sacrifice award!");
