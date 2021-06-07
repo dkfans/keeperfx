@@ -698,7 +698,7 @@ GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwl
         dungeon = get_players_num_dungeon(plyr_idx);
         dungeonadd = get_dungeonadd(plyr_idx);
         // Increase price by amount of diggers, reduce by count of sacrificed diggers
-        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeonadd->cheaper_imps);
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeonadd->cheaper_diggers);
         break;
     default:
         pwrdynst = get_power_dynamic_stats(pwkind);

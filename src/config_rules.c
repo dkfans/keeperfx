@@ -214,6 +214,7 @@ const struct NamedCommand sacrifice_unique_desc[] = {
   {"COMPLETE_MANUFACTR",  UnqF_ComplManufc},
   {"KILL_ALL_CHICKENS",   UnqF_KillChickns},
   {"CHEAPER_IMPS",        UnqF_CheaperImp},
+  {"COSTLIER_IMPS",       UnqF_CostlierImp},
   {NULL,                  0},
   };
 /******************************************************************************/
@@ -1966,7 +1967,7 @@ static void mark_cheaper_diggers_sacrifice(void)
         struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             continue;
-        if ((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp))
+        if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp)) || ((sac->action == SacA_NegUniqFunc) && (sac->param == UnqF_CostlierImp)))
         {
             if ((sac->victims[1] == 0) && (gameadd.cheaper_diggers_sacrifice_model == 0)) {
                 gameadd.cheaper_diggers_sacrifice_model = sac->victims[0];
