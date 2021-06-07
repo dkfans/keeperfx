@@ -365,15 +365,15 @@ short cleanup_sacrifice(struct Thing *creatng)
     return 1;
 }
 
-TbBool tally_sacrificed_imps(PlayerNumber plyr_idx)
+TbBool tally_sacrificed_imps(PlayerNumber plyr_idx, short count)
 {
     struct DungeonAdd* dungeonadd;
     dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeonadd_invalid(dungeonadd)) {
-        ERRORDBG(11, "Can't make imps cheaper, player %d has no dungeon.", (int)plyr_idx);
+        ERRORDBG(11, "Can't change imp price, player %d has no dungeon.", (int)plyr_idx);
         return false;
     }
-    dungeonadd->cheaper_imps++;
+    dungeonadd->cheaper_diggers += count;
     return true;
 }
 
@@ -394,8 +394,11 @@ long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, l
       kill_all_players_chickens(plyr_idx);
       return SacR_Punished;
   case UnqF_CheaperImp:
-      tally_sacrificed_imps(plyr_idx);
+      tally_sacrificed_imps(plyr_idx,1);
       return SacR_Pleased;
+  case UnqF_CostlierImp:
+      tally_sacrificed_imps(plyr_idx, -1);
+      return SacR_AngryWarn;
   default:
       ERRORLOG("Unsupported unique sacrifice award!");
       return SacR_AngryWarn;

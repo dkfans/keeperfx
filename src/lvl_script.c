@@ -1114,7 +1114,7 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     value->sac.action = get_rid(rules_sacrifices_commands, scline->tp[0]);
     if (value->sac.action == -1)
     {
-        SCRPTERRLOG("Unexpcepdted action:%s", scline->tp[0]);
+        SCRPTERRLOG("Unexpected action:%s", scline->tp[0]);
         return;
     }
     long param;
