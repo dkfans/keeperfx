@@ -365,7 +365,7 @@ short cleanup_sacrifice(struct Thing *creatng)
     return 1;
 }
 
-TbBool count_cheaper_imps(PlayerNumber plyr_idx)
+TbBool tally_sacrificed_imps(PlayerNumber plyr_idx)
 {
     struct DungeonAdd* dungeonadd;
     dungeonadd = get_dungeonadd(plyr_idx);
