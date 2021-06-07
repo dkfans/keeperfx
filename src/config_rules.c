@@ -244,6 +244,13 @@ void clear_sacrifice_recipes(void)
   }
 }
 
+static int long_compare_fn(const void *ptr_a, const void *ptr_b)
+{
+    long *a = (long*)ptr_a;
+    long *b = (long*)ptr_b;
+    return *a < *b;
+}
+
 TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
 {
     // If all slots are taken, then just drop it.
@@ -252,17 +259,10 @@ TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
     // Otherwise, find place for our item (array is sorted)
     for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-        if ((sac->victims[i] == 0) || (sac->victims[i] > crtr_idx))
+        if (sac->victims[i] == 0)
         {
-            // Move the entries to make place
-            for (long k = MAX_SACRIFICE_VICTIMS - 1; k > i; k--)
-                sac->victims[k] = sac->victims[k - 1];
-            if (i > 0)
-            {
-                sac->victims[i] = sac->victims[i - 1];
-                i--;
-            }
             sac->victims[i] = crtr_idx;
+            qsort(sac->victims, MAX_SACRIFICE_VICTIMS, sizeof(sac->victims[0]), &long_compare_fn);
             return true;
         }
   }
