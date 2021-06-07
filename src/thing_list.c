@@ -75,7 +75,7 @@ Thing_Class_Func class_functions[] = {
 unsigned long thing_create_errors = 0;
 
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long stl_x, long stl_y);
+
 /******************************************************************************/
 /**
  * Adds thing at beginning of a StructureList.
@@ -2500,10 +2500,10 @@ struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord
     SYNCDBG(19,"Starting");
     struct Thing* retng = INVALID_THING;
     long maximizer = 0;
-    for (int around = 0; around < sizeof(mid_around) / sizeof(mid_around[0]); around++)
+    for (int around_val = 0; around_val < sizeof(mid_around) / sizeof(mid_around[0]); around_val++)
     {
-        MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)mid_around[around].delta_x;
-        MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)mid_around[around].delta_y;
+        MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)mid_around[around_val].delta_x;
+        MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)mid_around[around_val].delta_y;
         struct Map* mapblk = get_map_block_at(sx, sy);
         if (!map_block_invalid(mapblk))
         {
@@ -2539,9 +2539,9 @@ struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y
     SYNCDBG(19,"Starting");
     struct Thing* retng = INVALID_THING;
     long maximizer = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_val = 0; around_val < spiral_len; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);
@@ -2573,9 +2573,9 @@ long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long
     SYNCDBG(19,"Starting");
     long count = 0;
     long maximizer = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_val = 0; around_val < spiral_len; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);
@@ -2605,9 +2605,9 @@ long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len,
 {
     SYNCDBG(19,"Starting");
     long count = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_val = 0; around_val < spiral_len; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);
@@ -2628,9 +2628,9 @@ long do_to_things_with_param_around_map_block(const struct Coord3d *center_pos, 
 {
     SYNCDBG(19,"Starting");
     long count = 0;
-    for (int around = 0; around < sizeof(mid_around) / sizeof(mid_around[0]); around++)
+    for (int around_val = 0; around_val < sizeof(mid_around) / sizeof(mid_around[0]); around_val++)
     {
-        const struct Around* caround = &mid_around[around];
+        const struct Around* caround = &mid_around[around_val];
         MapSubtlCoord sx = coord_subtile(center_pos->x.val) + caround->delta_x;
         MapSubtlCoord sy = coord_subtile(center_pos->y.val) + caround->delta_y;
         SYNCDBG(18,"Doing on (%d,%d)",(int)sx,(int)sy);
@@ -2653,9 +2653,9 @@ long do_to_things_with_param_spiral_near_map_block(const struct Coord3d *center_
     }
     SYNCDBG(19,"Starting");
     long count = 0;
-    for (int around = 0; around < spiral_range * spiral_range; around++)
+    for (int around_val = 0; around_val < spiral_range * spiral_range; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(center_pos->x.val) + sstep->h;
         MapSubtlCoord sy = coord_subtile(center_pos->y.val) + sstep->v;
         SYNCDBG(18,"Doing on (%d,%d)",(int)sx,(int)sy);
@@ -3530,12 +3530,14 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  return _DK_get_nearest_object_at_position(stl_x, stl_y);
+  // return _DK_get_nearest_object_at_position(stl_x, stl_y);
+  return get_object_around_owned_by_and_matching_bool_filter(
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object);
 }
 
 struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  long OldDistance = 0x7FFFFFFF;
+  long OldDistance = LONG_MAX;
   struct Thing *thing;
   unsigned char n,k = 0;
   struct Thing *result = NULL;

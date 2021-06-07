@@ -322,8 +322,10 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_strength(long base_param,unsigned short crlevel)
 {
-  if ((base_param <= 0) || (base_param > 60000))
-    base_param = 60000;
+  if (base_param <= 0)
+      return 0;
+  if (base_param > 60000)
+        base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
@@ -335,8 +337,10 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
 {
-  if ((base_param <= 0) || (base_param > 60000))
-    base_param = 60000;
+  if (base_param <= 0)
+      return 0;
+  if (base_param > 60000)
+      base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (crtr_conf.exp.loyalty_increase_on_exp * base_param * (long)crlevel) / 100;
@@ -348,8 +352,10 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
  */
 long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool armour_spell)
 {
-  if ((base_param <= 0) || (base_param > 60000))
-    base_param = 60000;
+  if (base_param <= 0)
+     return 0;
+  if (base_param > 60000)
+     base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
   long max_param = base_param + (crtr_conf.exp.armour_increase_on_exp * base_param * (long)crlevel) / 100;

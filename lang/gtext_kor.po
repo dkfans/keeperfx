@@ -2160,7 +2160,7 @@ msgid ""
 msgstr ""
 "속도: 피조물의 전투 및 작업을 매우 빠르게 수행할 수 있도록 속도를 높입니다."
 
-#: guitext:237 guitext:253
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
@@ -2284,6 +2284,15 @@ msgid ""
 "either bare hands or a sword."
 msgstr ""
 "육탄공격 : 맨손이나 검으로 적을 공격할 수 있는 기본적인 전투 능력입니다."
+
+#: guitext:253
+#, fuzzy
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+"독 구름: 적과 여러분의 생명체 모두를 해칠 수 있는 유해한 가스의 구름을 형성합"
+"니다. 가스는 숨쉬는 모든 것에게 영향을 미칩니다."
 
 #: guitext:254
 msgctxt "Creature spell"

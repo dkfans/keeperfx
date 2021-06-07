@@ -2542,8 +2542,8 @@ TbBool slab_is_area_inner_fill(MapSlabCoord slb_x, MapSlabCoord slb_y)
     {
         long aslb_x = slb_x + (long)my_around_eight[n].delta_x;
         long aslb_y = slb_y + (long)my_around_eight[n].delta_y;
-        struct SlabMap* slb = get_slabmap_block(aslb_x, aslb_y);
-        if ((slb->kind != slbkind) || (slabmap_owner(slb) != plyr_idx)) {
+        struct SlabMap* aslb = get_slabmap_block(aslb_x, aslb_y);
+        if ((aslb->kind != slbkind) || (slabmap_owner(aslb) != plyr_idx)) {
             return false;
         }
     }

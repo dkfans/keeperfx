@@ -307,6 +307,13 @@ struct DungeonAdd
     unsigned char         creature_entrance_level;
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;
+    unsigned long         traps_sold;
+    unsigned long         doors_sold;
+    unsigned long         manufacture_gold;
+    TbBool                one_click_lock_cursor;
+    TbBool                ignore_next_PCtr_RBtnRelease;
+    TbBool                ignore_next_PCtr_LBtnRelease;
+    long                  swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

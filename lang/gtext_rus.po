@@ -2264,7 +2264,7 @@ msgstr ""
 "Ускорение: Увеличивает скорость создания, что позволяет ему сражаться и "
 "работать по-настоящему быстро."
 
-#: guitext:237 guitext:253
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
@@ -2396,6 +2396,13 @@ msgid ""
 msgstr ""
 "Ближний бой: Основной боевой навык, позволяющий бить противника голыми "
 "руками или мечом."
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+Пердеж: Газовая атака, которая наносит урон врагам поблизости. Союзники привыкли.
 
 #: guitext:254
 msgctxt "Creature spell"

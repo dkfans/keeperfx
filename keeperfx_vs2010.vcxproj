@@ -89,6 +89,7 @@
     <ClCompile Include="src\config_strings.c" />
     <ClCompile Include="src\config_terrain.c" />
     <ClCompile Include="src\config_trapdoor.c" />
+    <ClCompile Include="src\console_cmd.c" />
     <ClCompile Include="src\creature_battle.c" />
     <ClCompile Include="src\creature_control.c" />
     <ClCompile Include="src\creature_graphics.c" />
@@ -120,6 +121,7 @@
     <ClCompile Include="src\engine_lenses.c" />
     <ClCompile Include="src\engine_redraw.c" />
     <ClCompile Include="src\engine_render.c" />
+    <ClCompile Include="src\engine_render_data.cpp" />
     <ClCompile Include="src\engine_textures.c" />
     <ClCompile Include="src\frontend.cpp" />
     <ClCompile Include="src\frontmenu_ingame_evnt.c" />

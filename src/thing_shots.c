@@ -217,7 +217,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     return true;
 }
 
-void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
+void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -364,7 +364,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     struct Thing* efftng = INVALID_THING;
     TbBool shot_explodes = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    unsigned long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
+    long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (shotst->model_flags & ShMF_Digging)
     {
         process_dig_shot_hit_wall(shotng, blocked_flags);
@@ -876,7 +876,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         if (!thing_is_invalid(killertng))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(killertng);
-            struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
@@ -1307,7 +1306,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                   if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
                   {
                       PaletteSetPlayerPalette(player, lightning_palette);
-                      myplyr->field_3 |= Pf3F_Unkn08;
+                      myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
                   }
               }
             }

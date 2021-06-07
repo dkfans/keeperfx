@@ -265,7 +265,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   switch (player->work_state)
   {
   case PSt_CtrlDungeon:
-      player->field_4A4 = 1;
+      player->full_slab_cursor = 1;
       break;
   case PSt_BuildRoom:
       player->chosen_room_kind = chosen_kind;

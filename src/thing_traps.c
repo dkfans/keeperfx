@@ -77,7 +77,7 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     struct TrapConfigStats *trapst;
     if (thing->owner == plyr_idx)
     {
-        trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+        trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
         return (trapst->slappable == 1) && trap_is_active(thing);
     }
     return false;
@@ -510,7 +510,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
 {
     traptng->trap.revealed = 1;
     const struct TrapStats *trapstat = &gameadd.trap_stats[traptng->model];
-    struct TrapConfigStats *trapst = &trapdoor_conf.trap_cfgstats[traptng->model];
+    struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[traptng->model];
     // EVM_TRAP_EVENT("trap.actiated", traptng->owner, thing)
     if (trapst->notify == 1)
     {
@@ -984,20 +984,20 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     return false;
 }
 
-TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
 {
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     TbBool can_place = can_place_trap_on(plyr_idx, stl_x, stl_y);
     int floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    struct PlayerInfo* player = get_player(plyr_idx);
     if (is_my_player_number(plyr_idx))
     {
         if (!game_is_busy_doing_gui() && (game.small_map_state != 2))
         {
             render_roomspace.is_roomspace_a_box = true;
-            if ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles))
+            render_roomspace.render_roomspace_as_box = true;
+            if (full_slab)
             {
                 // Move to first subtile on a slab
                 stl_x = slab_subtile(slb_x,0);
