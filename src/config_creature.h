@@ -273,7 +273,6 @@ extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
 extern const struct NamedCommand creature_graphics_desc[];
-extern struct CreatureConfig crtr_conf;
 /******************************************************************************/
 extern struct CreatureData creature_data[];
 //extern struct Creatures creatures[];
