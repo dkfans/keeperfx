@@ -145,6 +145,7 @@ struct GameAdd {
     unsigned long gem_effectiveness;
     long room_sale_percent;
     unsigned long pay_day_speed;
+    unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
 
 #define TRAPDOOR_TYPES_MAX 128
