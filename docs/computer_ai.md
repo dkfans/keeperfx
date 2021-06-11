@@ -1,4 +1,4 @@
-== Overview ==
+## Overview
 
 Computer logic consists of following primitives:
 
@@ -11,7 +11,7 @@ There is some "emergency mode" if any of these cases:
 * AI lack more than 1000 gold for payday
 * AI has less than 3 imps
 
-== Process
+## Process
 
 Computer process is high-level aspect of AI activity.
 
