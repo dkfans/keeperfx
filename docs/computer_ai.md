@@ -11,6 +11,8 @@ There is some "emergency mode" if any of these cases:
 * AI lack more than 1000 gold for payday
 * AI has less than 3 imps
 
+There is an option `sim_before_dig` that affects how AI routes its corridors
+
 ## Process
 
 Computer process is high-level aspect of AI activity.
@@ -25,26 +27,30 @@ Each process is consist of following functions:
 
 All functions are interchangable but most combinations are useless
 
-* check_build_all_rooms -
-* setup_any_room_continue -
-* check_any_room -
-* setup_any_room -
-* check_dig_to_entrance -
-* setup_dig_to_entrance -
-* check_dig_to_gold -
-* setup_dig_to_gold -
-* check_sight_of_evil -
-* setup_sight_of_evil -
-* process_sight_of_evil -
+* check_build_all_rooms - sets Value4 to next available room that is not built
+* setup_any_room_continue - creates a task to build a room.\
+  Decrease room size one by one if failed.
+* check_any_room - Checks if Value4 room available and some capacity needed
+* setup_any_room - Setup task to build a room
+* check_dig_to_entrance - Wait some time and fail if there is no claimable entrance
+* setup_dig_to_entrance - Check time, choose an entrance and setup dig towards it
+* check_dig_to_gold - Wait if AI has more gold than Value2 
+* setup_dig_to_gold - Setup a task to dig for gold (or wait)  
+* check_sight_of_evil - Wait for available SoE spell
+* setup_sight_of_evil - Count how many casts are done and wait.\
+  Then finish process after Param5 amount  
+* process_sight_of_evil - Cast a SoE on map
 * check_attack1 -
 * setup_attack1 -
-* completed_attack1 -
+* completed_attack1 - ?Pickup creatures and turn off CTA?
 * check_safe_attack -
-* process_task -
+* process_task - finish process
 * completed_build_a_room -
-* paused_task -
-* completed_task -
-* none -
+* paused_task - pause process\
+  Difference vs process_task should be explained
+* completed_task - complete process\
+  Difference vs process_task should be explained
+* none - does nothing
 
 There are `Param` settings. They are initial settings for some turns and counters. Most of them are used to choose next
 process.
@@ -240,7 +246,7 @@ Functions = check_dig_to_entrance setup_dig_to_entrance process_task completed_t
 
 # Dig to gold
 
-Ai want to dig some gold. These processes are mark few slabs of gold starting from nearest to any room
+Ai want to dig some gold. These processes mark few slabs of gold starting from nearest to any room
 
 Common:
 
