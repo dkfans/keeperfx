@@ -547,7 +547,7 @@ TbBool creature_model_bleeds(unsigned long crmodel)
         // If censorship is on, only evil creatures can have blood
         if (!crstat->bleeds)
             return false;
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
         return ((crconf->model_flags & CMF_IsEvil) != 0);
   }
   return crstat->bleeds;
@@ -1552,10 +1552,10 @@ void set_creature_size_stuff(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (creature_affected_by_spell(creatng, SplK_Chicken))
     {
-      creatng->sprite_size = crtr_conf.sprite_size;
+      creatng->sprite_size = gameadd.crtr_conf.sprite_size;
     } else
     {
-      creatng->sprite_size = crtr_conf.sprite_size + (crtr_conf.sprite_size * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+      creatng->sprite_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 }
 
@@ -1573,7 +1573,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         struct Thing* efftng = create_effect_element(&creatng->mappos, 0x3Bu, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            long n = (10 - cctrl->countdown_282) * (crtr_conf.sprite_size + (crtr_conf.sprite_size * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
+            long n = (10 - cctrl->countdown_282) * (gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, 2);
             efftng->field_4F &= ~TF4F_Transpar_Flags;
@@ -1606,7 +1606,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + crtr_conf.sprite_size, -1, 0, 2);
+          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + gameadd.crtr_conf.sprite_size, -1, 0, 2);
           efftng->field_4F &= ~TF4F_Transpar_Flags;
           efftng->field_4F |= TF4F_Transpar_8;
       }

@@ -1657,9 +1657,9 @@ struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel)
 
 TbBool lord_of_the_land_in_prison_or_tortured(void)
 {
-    for (long crtr_model = 0; crtr_model < crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 0; crtr_model < gameadd.crtr_conf.model_count; crtr_model++)
     {
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crtr_model];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             struct Thing* thing = creature_of_model_in_prison_or_tortured(crtr_model);
@@ -1677,9 +1677,9 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
 
 struct Thing *lord_of_the_land_find(void)
 {
-    for (long crtr_model = 0; crtr_model < crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 0; crtr_model < gameadd.crtr_conf.model_count; crtr_model++)
     {
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crtr_model];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             int i = creature_of_model_find_first(crtr_model);
@@ -3665,9 +3665,9 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
 {
     long count = 0;
-    for (ThingModel crmodel = 1; crmodel < crtr_conf.model_count; crmodel++)
+    for (ThingModel crmodel = 1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
     {
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
         if (((crconf->model_flags & need_mdflags) == need_mdflags) &&
            ((crconf->model_flags & excl_mdflags) == 0))
         {
@@ -3680,9 +3680,9 @@ long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, un
 long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
 {
     long count = 0;
-    for (ThingModel crmodel = 1; crmodel < crtr_conf.model_count; crmodel++)
+    for (ThingModel crmodel = 1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
     {
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
         if (((crconf->model_flags & need_mdflags) == need_mdflags) &&
            ((crconf->model_flags & excl_mdflags) == 0))
         {

@@ -1114,7 +1114,7 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     value->sac.action = get_rid(rules_sacrifices_commands, scline->tp[0]);
     if (value->sac.action == -1)
     {
-        SCRPTERRLOG("Unexpcepdted action:%s", scline->tp[0]);
+        SCRPTERRLOG("Unexpected action:%s", scline->tp[0]);
         return;
     }
     long param;
@@ -3031,7 +3031,7 @@ void command_swap_creature(const char *ncrt_name, const char *crtr_name)
       SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
       return;
   }
-  struct CreatureModelConfig* crconf = &crtr_conf.model[crtr_id];
+  struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_id];
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
       SCRPTERRLOG("Unable to swap special diggers");
@@ -6230,7 +6230,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_PROPERTY:
-      crconf = &crtr_conf.model[val2];
+      crconf = &gameadd.crtr_conf.model[val2];
       crstat = creature_stats_get(val2);
       switch (val3)
       {
@@ -6420,6 +6420,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       case 26: // ILLUMINATED
           crstat->illuminated = val4;
+          break;
+      case 27: // ALLURING_SCVNGR
+          crstat->entrance_force = val4;
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);

@@ -575,12 +575,12 @@ TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *po
     for (int i = 0; i < group_len; i++)
     {
         struct MemberPos* avail_pos = &leadctrl->followers_pos[i];
-        if (((avail_pos->flags & 0x02) != 0) && ((avail_pos->flags & 0x01) == 0))
+        if (((avail_pos->flags & MpF_AVAIL) != 0) && ((avail_pos->flags & MpF_OCCUPIED) == 0))
         {
             pos->x.val = subtile_coord_center(stl_num_decode_x(avail_pos->stl_num));
             pos->y.val = subtile_coord_center(stl_num_decode_y(avail_pos->stl_num));
             pos->z.val = 0;
-            avail_pos->flags |= 0x01;
+            avail_pos->flags |= MpF_OCCUPIED;
             return true;
         }
     }
@@ -642,7 +642,7 @@ void creature_follower_pos_add(struct Thing *creatng, int ifollow, const struct 
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct MemberPos* avail_pos = &cctrl->followers_pos[ifollow];
     avail_pos->stl_num = get_subtile_number(pos->x.stl.num, pos->y.stl.num);
-    avail_pos->flags |= 0x02;
+    avail_pos->flags |= MpF_AVAIL;
 }
 
 void leader_find_positions_for_followers(struct Thing *leadtng)
@@ -768,6 +768,19 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
         }
         shift_yv += delta_yv;
         shift_xv += delta_xv;
+    }
+    for (;ifollow < group_len;ifollow++)
+    {
+        // Just go to my slab
+        struct Coord3d pos;
+        pos.x.val = leadtng->mappos.x.val;
+        pos.y.val = leadtng->mappos.y.val;
+
+        pos.x.stl.pos = ACTION_RANDOM(127);
+        pos.y.stl.pos = ACTION_RANDOM(127);
+
+        pos.z.val = get_floor_height_at(&pos);
+        creature_follower_pos_add(leadtng, ifollow, &pos);
     }
 }
 /******************************************************************************/

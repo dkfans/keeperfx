@@ -116,6 +116,7 @@ struct IntralevelData {
  */
 struct GameAdd {
     struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+    struct CreatureConfig crtr_conf;
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
