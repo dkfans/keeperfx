@@ -294,26 +294,27 @@ const struct NamedCommand creature_select_criteria_desc[] = {
 };
 
 const struct NamedCommand game_rule_desc[] = {
-  {"BodiesForVampire",         1},
-  {"PrisonSkeletonChance",     2},
-  {"GhostConvertChance",       3},
-  {"TortureConvertChance",     4},
-  {"TortureDeathChance",       5},
-  {"FoodGenerationSpeed",      6},
-  {"StunEvilEnemyChance",      7},
-  {"StunGoodEnemyChance",      8},
-  {"BodyRemainsFor",           9},
-  {"FightHateKillValue",      10},
-  {"PreserveClassicBugs",     11},
-  {"DungeonHeartHealHealth",  12},
-  {"ImpWorkExperience",       13},
-  {"GemEffectiveness",        14},
-  {"RoomSellGoldBackPercent", 15},
-  {"PayDayGap",               16},
-  {"PayDaySpeed",             17},
-  {"PayDayProgress",          18},
-  {"PlaceTrapsOnSubtiles",    19},
-  {NULL,                      0},
+  {"BodiesForVampire",           1},
+  {"PrisonSkeletonChance",       2},
+  {"GhostConvertChance",         3},
+  {"TortureConvertChance",       4},
+  {"TortureDeathChance",         5},
+  {"FoodGenerationSpeed",        6},
+  {"StunEvilEnemyChance",        7},
+  {"StunGoodEnemyChance",        8},
+  {"BodyRemainsFor",             9},
+  {"FightHateKillValue",        10},
+  {"PreserveClassicBugs",       11},
+  {"DungeonHeartHealHealth",    12},
+  {"ImpWorkExperience",         13},
+  {"GemEffectiveness",          14},
+  {"RoomSellGoldBackPercent",   15},
+  {"PayDayGap",                 16},
+  {"PayDaySpeed",               17},
+  {"PayDayProgress",            18},
+  {"PlaceTrapsOnSubtiles",      19},
+  {"DiseaseHPTemplePercentage", 20},
+  {NULL,                         0},
 };
 
 const struct NamedCommand door_config_desc[] = {
@@ -6910,9 +6911,20 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
-    case 19: //PlaceTrapsOnSubtiles
+      case 19: //PlaceTrapsOnSubtiles
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.place_traps_on_subtiles, val3);
           gameadd.place_traps_on_subtiles = (TbBool)val3;
+          break;
+      case 20: //DiseaseHPTemplePercentage
+          if (val3 >= 0 && val3 <= 100)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
+              gameadd.place_traps_on_subtiles = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
