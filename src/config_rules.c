@@ -94,6 +94,7 @@ const struct NamedCommand rules_computer_commands[] = {
   {"CHECKEXPANDTIME",            3},
   {"MAXDISTANCETODIG",           4},
   {"WAITAFTERROOMAREA",          5},
+  {"DISEASEHPTEMPLEPERCENTAGE",  6},
   {NULL,                         0},
   };
 
@@ -735,6 +736,7 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
         game.check_expand_time = 1000;
         game.max_distance_to_dig = 96;
         game.wait_after_room_area = 200;
+        gameadd.disease_to_temple_pct = 500;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -811,6 +813,19 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 6: // DISEASEHPTEMPLEPERCENTAGE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.disease_to_temple_pct = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case 0: // comment
