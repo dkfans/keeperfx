@@ -105,16 +105,16 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NO_IMPRISONMENT",   24},
   {"IMMUNE_TO_DISEASE", 25},
   {"ILLUMINATED",       26},
+  {"ALLURING_SCVNGR",   27},
   {NULL,                 0},
   };
 
 const struct NamedCommand creatmodel_attraction_commands[] = {
   {"ENTRANCEROOM",       1},
   {"ROOMSLABSREQUIRED",  2},
-  {"ENTRANCEFORCE",      3},
-  {"BASEENTRANCESCORE",  4},
-  {"SCAVENGEREQUIREMENT",5},
-  {"TORTURETIME",        6},
+  {"BASEENTRANCESCORE",  3},
+  {"SCAVENGEREQUIREMENT",4},
+  {"TORTURETIME",        5},
   {NULL,                 0},
   };
 
@@ -736,6 +736,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crstat->illuminated = true;
                 n++;
                 break;
+            case 27: // ALLURING_SCVNGR
+                crstat->entrance_force = true;
+                n++;
+                break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -836,7 +840,6 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
         crstat->entrance_rooms[n] = 0;
         crstat->entrance_slabs_req[n] = 0;
       }
-      crstat->entrance_force = 0;
       crstat->entrance_score = 10;
       crstat->scavenge_require = 1;
       crstat->torture_break_time = 1;
@@ -897,20 +900,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
             }
           }
           break;
-      case 3: // ENTRANCEFORCE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->entrance_force = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // BASEENTRANCESCORE
+      case 3: // BASEENTRANCESCORE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -923,7 +913,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 5: // SCAVENGEREQUIREMENT
+      case 4: // SCAVENGEREQUIREMENT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -936,7 +926,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 6: // TORTURETIME
+      case 5: // TORTURETIME
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
