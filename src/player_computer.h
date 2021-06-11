@@ -178,10 +178,10 @@ enum CompTaskStates {
 /** Return values for computer task functions. */
 enum CompTaskRet {
     CTaskRet_Unk0 = 0,
-    CTaskRet_Unk1, /* CONTINUE */
-    CTaskRet_Unk2,
+    CTaskRet_Unk1, /* Continue to next stage */
+    CTaskRet_Unk2, /* Retry same stage */
     CTaskRet_Unk3,
-    CTaskRet_Unk4, /* FAIL? Wait? */
+    CTaskRet_Unk4, /* Wait */
 };
 
 /** Return values for computer process functions. */
@@ -518,7 +518,7 @@ struct Computer2 { // sizeof = 5322
   unsigned long tasks_did;
   unsigned long field_14;
   unsigned long field_18;
-  unsigned long field_1C; // seems to be signed long
+  unsigned long field_1C; // seems to be signed long /* How much digging task could be done? */
   unsigned long sim_before_dig;
   struct Dungeon *dungeon;
   unsigned long model;

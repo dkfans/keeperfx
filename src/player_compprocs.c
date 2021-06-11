@@ -281,6 +281,7 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
         shut_down_process(comp, cproc);
         return CProcRet_Finish;
     }
+    // Next time we will try to setup a smaller room
     if (cproc->confval_2 > cproc->confval_3)
     {
         if (cproc->confval_2 <= 2) {
@@ -298,6 +299,7 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
     return CProcRet_Finish;
 }
 
+// Not used?
 long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     struct ComputerTask* ctask = computer_setup_build_room(comp, cproc->confval_4, cproc->confval_2, cproc->confval_3, cproc->confval_5);
