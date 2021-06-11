@@ -2075,9 +2075,6 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
 
 TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-    // Block name and parameter word store variables
-    // Initialize block data
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "sounds");
