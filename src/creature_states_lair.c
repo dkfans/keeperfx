@@ -202,7 +202,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     lairtng->belongs_to = creatng->index;
     lairtng->word_15 = 1;
     // Lair size depends on creature level
-    lairtng->size = crtr_conf.sprite_size + (crtr_conf.sprite_size * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    lairtng->size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     lairtng->move_angle_xy = ACTION_RANDOM(2*LbFPMath_PI);
     struct Objects* objdat = get_objects_data_for_thing(lairtng);
     unsigned long i = convert_td_iso(objdat->sprite_anim_idx);

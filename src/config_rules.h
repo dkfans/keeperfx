@@ -50,6 +50,7 @@ enum UniqueFunctions {
     UnqF_ComplManufc,
     UnqF_KillChickns,
     UnqF_CheaperImp,
+    UnqF_CostlierImp,
 };
 
 enum SacrificeReturn {

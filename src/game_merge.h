@@ -116,6 +116,7 @@ struct IntralevelData {
  */
 struct GameAdd {
     struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+    struct CreatureConfig crtr_conf;
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
@@ -144,6 +145,7 @@ struct GameAdd {
     unsigned long gem_effectiveness;
     long room_sale_percent;
     unsigned long pay_day_speed;
+    unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
 
 #define TRAPDOOR_TYPES_MAX 128

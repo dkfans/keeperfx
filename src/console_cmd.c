@@ -22,11 +22,13 @@
 #include "actionpt.h"
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
+#include "bflib_sndlib.h"
 #include "config.h"
 #include "config_campaigns.h"
 #include "config_effects.h"
 #include "config_magic.h"
 #include "config_rules.h"
+#include "config_settings.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
 #include "creature_instances.h"
@@ -117,7 +119,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
     return 1;
 }
 
-static long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *args)
+long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *args)
 {
     struct Computer2 *comp = get_computer_player(args[0]);
     int i = 0;
@@ -342,16 +344,152 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
       message_add_fmt(plyr_idx, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
       message_add_fmt(plyr_idx, "clock is %d, requested fps is %d",clock(),game.num_fps);
       return true;
-    } else if (strcasecmp(parstr, "quit") == 0)
+    } 
+    else if (strcasecmp(parstr, "fps") == 0)
+    {
+        if (pr2str == NULL)
+        {
+            message_add_fmt(plyr_idx, "Framerate is %d fps", game.num_fps);
+        }
+        else
+        {
+            game.num_fps = atoi(pr2str);
+        }
+        return true;
+    }
+    else if (strcasecmp(parstr, "quit") == 0)
     {
         quit_game = 1;
         exit_keeper = 1;
         return true;
-    } else if (strcasecmp(parstr, "turn") == 0)
+    } 
+    else if (strcasecmp(parstr, "time") == 0)
+    {
+        unsigned long turn = (pr2str != NULL) ? atoi(pr2str) : game.play_gameturn;
+        unsigned char frames = (pr3str != NULL) ? atoi(pr3str) : game.num_fps;
+        show_game_time_taken(frames, turn);
+        return true;
+    }
+    else if (strcasecmp(parstr, "timer.toggle") == 0)
+    {
+        game_flags2 ^= GF2_Timer;
+        player = get_player(plyr_idx);
+        if ( (player->victory_state == VicS_WonLevel) && (timer_enabled()) && (TimerGame) )
+        {
+            dungeon = get_my_dungeon();
+            TimerTurns = dungeon->lvstats.hopes_dashed;
+        }
+        return true;
+    }
+    else if (strcasecmp(parstr, "timer.switch") == 0)
+    {
+        TimerGame ^= 1;
+        player = get_player(plyr_idx);
+        if ( (player->victory_state == VicS_WonLevel) && (timer_enabled()) && (TimerGame) )
+        {
+            dungeon = get_my_dungeon();
+            TimerTurns = dungeon->lvstats.hopes_dashed;
+        }
+        return true;
+    }
+    else if (strcasecmp(parstr, "turn") == 0)
     {
         message_add_fmt(plyr_idx, "turn %ld", game.play_gameturn);
         return true;
-    } else if ((game.flags_font & FFlg_AlexCheat) != 0)
+    } 
+    else if (strcasecmp(parstr, "game.save") == 0)
+    {
+        long slot_num = atoi(pr2str);
+        if ( (pr3str != NULL) && (slot_num <= TOTAL_SAVE_SLOTS_COUNT) )
+        {
+            fill_game_catalogue_slot(slot_num, pr3str);
+        }
+        player = get_player(plyr_idx);
+        set_flag_byte(&game.operation_flags,GOF_Paused,true); // games are saved in a paused state
+        TbBool result = save_game(slot_num);
+        if (result)
+        {
+            output_message(SMsg_GameSaved, 0, true);
+        }
+        else
+        {
+          ERRORLOG("Error in save!");
+          create_error_box(GUIStr_ErrorSaving);
+        }
+        set_flag_byte(&game.operation_flags,GOF_Paused,false); // unpause after save attempt
+        return result;
+    }
+    else if (strcasecmp(parstr, "game.load") == 0)
+    {
+        long slot_num = atoi(pr2str);
+        if (is_save_game_loadable(slot_num))
+        {
+            if (load_game(slot_num))
+            {
+                player = get_player(plyr_idx);
+                set_flag_byte(&game.operation_flags,GOF_Paused,false); // unpause, because games are saved whilst puased
+                return true;
+            }
+            else
+            {
+                message_add_fmt(plyr_idx, "Unable to load game %d", slot_num);
+            }
+        }
+        else
+        {
+            message_add_fmt(plyr_idx, "Unable to load game %d", slot_num);
+        }
+    }
+    else if (strcasecmp(parstr, "cls") == 0)
+    {
+        zero_messages();
+        return true;
+    }
+    else if (strcasecmp(parstr, "ver") == 0)
+    {
+        message_add_fmt(plyr_idx, "%s", PRODUCT_VERSION);
+        return true;
+    }
+    else if (strcasecmp(parstr, "volume") == 0)
+    {
+        message_add_fmt(plyr_idx, "%s: %d %s: %d", get_string(340), settings.sound_volume, get_string(341), settings.redbook_volume);
+        return true;        
+    }
+    else if ( (strcasecmp(parstr, "volume.sound") == 0) || (strcasecmp(parstr, "volume.sfx") == 0) )
+    {
+        if (pr2str != NULL)
+        {
+            if (parameter_is_number(pr2str))
+            {
+                settings.sound_volume = atoi(pr2str);
+                if (settings.sound_volume > 127)
+                {
+                    settings.sound_volume = 127;
+                }
+                save_settings();
+                SetSoundMasterVolume(settings.sound_volume);
+                return true;
+            }
+        }
+    }
+    else if ( (strcasecmp(parstr, "volume.music") == 0) || (strcasecmp(parstr, "volume.soundtrack") == 0) )
+    {
+        if (pr2str != NULL)
+        {
+            if (parameter_is_number(pr2str))
+            {
+                settings.redbook_volume = atoi(pr2str);
+                if (settings.redbook_volume > 127)
+                {
+                    settings.redbook_volume = 127;
+                }
+                save_settings();
+                SetMusicPlayerVolume(settings.redbook_volume);
+                return true;
+            }
+        }
+    }
+    else if ((game.flags_font & FFlg_AlexCheat) != 0)
     {
         if (strcasecmp(parstr, "compuchat") == 0)
         {
@@ -423,6 +561,16 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = get_player_soul_container(id);
             thing->health = 0;
             
+        }
+        else if (strcasecmp(parstr, "player.score") == 0)
+        {
+            PlayerNumber id = get_player_number_for_command(pr2str);
+            dungeon = get_dungeon(id);
+            if (!dungeon_invalid(dungeon))
+            {
+                message_add_fmt(plyr_idx, "Player %d score: %ld", id, dungeon->total_score);
+                return true;                
+            }
         }
         else if (strcasecmp(parstr, "player.flag") == 0)
         {
@@ -1214,6 +1362,22 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     set_player_instance(player, PI_ZoomToPos, 0);
                     return true;
                 }
+            }
+        }
+        else if (strcasecmp(parstr, "sound.test") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                play_non_3d_sample(atoi(pr2str));
+                return true;
+            }
+        }
+        else if (strcasecmp(parstr, "speech.test") == 0)
+        {
+            if (pr2str != NULL)
+            {
+                play_speech_sample(atoi(pr2str));
+                return true;
             }
         }
     }

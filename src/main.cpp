@@ -2531,7 +2531,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     _DK_update_player_camera_fp(cam, thing);
 }
 
@@ -4455,7 +4455,7 @@ void wait_at_frontend(void)
     short finish_menu = 0;
     set_flag_byte(&game.flags_cd,MFlg_unk40,false);
     // Begin the frontend loop
-    long last_loop_time = LbTimerClock();
+    long fe_last_loop_time = LbTimerClock();
     do
     {
       if (!LbWindowsControl())
@@ -4505,9 +4505,9 @@ void wait_at_frontend(void)
         fade_palette_in = 0;
       } else
       {
-        LbSleepUntil(last_loop_time + 30);
+        LbSleepUntil(fe_last_loop_time + 30);
       }
-      last_loop_time = LbTimerClock();
+      fe_last_loop_time = LbTimerClock();
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);

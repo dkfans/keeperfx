@@ -1621,7 +1621,7 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     int spr_size;
     int start_frame = objtng->field_48;
     if (objtng->belongs_to) {
-        spr_size = crtr_conf.sprite_size + (crtr_conf.sprite_size * cctrl->explevel * crtr_conf.exp.size_increase_on_exp) / 100;
+        spr_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * cctrl->explevel * gameadd.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
         spr_size = objdat->sprite_size_max;
     }
