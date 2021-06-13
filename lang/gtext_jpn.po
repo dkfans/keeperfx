@@ -2159,7 +2159,7 @@ msgstr "テレポート: クリーチャーは色々地点にテレポート出�
 #, fuzzy
 msgctxt "Creature spell"
 msgid "Flame Breath: The devasting constant stream of searing fire."
-msgstr "炎の息: 灼熱の火の絶え間なく続く流れ[26.6]"
+msgstr "炎の息: 灼熱の火の絶え間なく続く流れ。[26.6]"
 
 #: guitext:242
 #, fuzzy
