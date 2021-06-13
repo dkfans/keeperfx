@@ -2045,7 +2045,7 @@ msgstr "キャンセル"
 #, fuzzy
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
-msgstr "弓矢: [25.4]"
+msgstr "弓矢: 遠距離で威力を発揮する基本的な遠隔の武器。[25.4]"
 
 #: guitext:227
 #, fuzzy
@@ -2053,7 +2053,7 @@ msgctxt "Creature spell"
 msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
 "animation and can be shattered with a well-aimed blow."
-msgstr "凍結: [26.8]"
+msgstr "凍結: 対象のクリーチャーを氷に変える。 其れは中断されたアニメーションに成り、良く狙った一撃で粉砕する事が出来る。[26.8]"
 
 #: guitext:228
 #, fuzzy
@@ -2061,7 +2061,7 @@ msgctxt "Creature spell"
 msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
 "hit, and provides complete immunity to electric shocks."
-msgstr "鎧: [26.1]"
+msgstr "鎧: クリーチャーが攻撃を受ける度に受ける損傷量が減少し、雷撃の飛散損傷に対する完全な耐性が得られ。[26.1]"
 
 #: guitext:229
 #, fuzzy
@@ -2069,29 +2069,29 @@ msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
 "lighting from the creature."
-msgstr "雷撃: [26.13]"
+msgstr "雷撃: 電気攻撃を持つ強力な魔法武器。 落雷をクリーチャーから放つ。[26.13]"
 
 #: guitext:230
 #, fuzzy
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
-msgstr "反射: [26.19]"
+msgstr "反射: 貴方に向けて発射された魔法の武器が攻撃者に跳ね返る。[26.19]"
 
 #: guitext:231
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
-msgstr "恐怖: Not used"
+msgstr "恐怖: 対戦相手を恐怖に陥れ、戦いを避ける事が引き起こす。"
 
 #: guitext:232
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
-msgstr "照準: Not used"
+msgstr "照準: 一時的に意識を高め、目に見えないクリーチャーを見る事が可能にする。"
 
 #: guitext:233
 #, fuzzy
@@ -2099,7 +2099,7 @@ msgctxt "Creature spell"
 msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
 "invaders. Very disconcerting."
-msgstr "ミサイル: [26.15]"
+msgstr "ミサイル: 侵略者に悲鳴を上げる魔法爬虫類を送る簡単な呪文。 迚も不安だ。[26.15]"
 
 #: guitext:234
 #, fuzzy
@@ -2107,7 +2107,7 @@ msgctxt "Creature spell"
 msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
 "bounce off walls and has the traditional delayed fuse."
-msgstr "手りゅう弾: [26.9]"
+msgstr "手りゅう弾: 強力な爆発物を迫りくる敵に投げる。 又、壁に跳ね返る事が出来、伝統的な遅延導火線が有る。[26.9]"
 
 #: guitext:235
 #, fuzzy
@@ -2115,7 +2115,7 @@ msgctxt "Creature spell"
 msgid ""
 "Navigating Missile: This homes in on the nearest hero or enemy creature and "
 "explodes with devastating force."
-msgstr "誘導ミサイル: [16.16]"
+msgstr "誘導ミサイル: 最も近い敵を狙う、壊滅的な力で爆発する。[16.16]"
 
 #: guitext:236
 #, fuzzy
@@ -2123,7 +2123,7 @@ msgctxt "Creature spell"
 msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
 "tasks really quickly."
-msgstr "加速: [26:21]"
+msgstr "加速: クリーチャーの速力を上げて、戦闘と作業の任務を非常に迅速に実行出来る様にする。[26:21]"
 
 #: guitext:237
 #, fuzzy
@@ -2131,12 +2131,12 @@ msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
-msgstr "毒の雲: [26.17]"
+msgstr "毒の雲: 敵と自分のクリーチャーの両方に損傷を加える事が出来る有毒ガスの雲を形成する。 ガスは、其れを吸う全ての人に影響を及ぼす。[26.17]"
 
 #: guitext:238
 msgctxt "Creature spell"
 msgid "Group: Not used"
-msgstr "グループ化: Not used"
+msgstr "グループ化: 未使用だ。"
 
 #: guitext:239
 #, fuzzy
@@ -2144,7 +2144,7 @@ msgctxt "Creature spell"
 msgid ""
 "Invisibility: Cast on one of your minions, it makes the host creature "
 "invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr "透明化: [26.12]"
+msgstr "透明化: 敵が超自然的な視力を持っていない限り、クリーチャーが彼らから見えなく成る。[26.12]"
 
 #: guitext:240
 #, fuzzy
@@ -2153,13 +2153,13 @@ msgid ""
 "Teleport: With this spell, a creature can teleport anywhere on the map. If "
 "you are Possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
-msgstr "テレポート: [26.22]"
+msgstr "テレポート: クリーチャーは色々地点にテレポート出来る。[26.22]"
 
 #: guitext:241
 #, fuzzy
 msgctxt "Creature spell"
 msgid "Flame Breath: The devasting constant stream of searing fire."
-msgstr "炎の息: [26.6]"
+msgstr "炎の息: 灼熱の火の絶え間なく続く流れ[26.6]"
 
 #: guitext:242
 #, fuzzy
@@ -2167,7 +2167,7 @@ msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
-msgstr "照明: 使えない"
+msgstr "照明: 暗闇に光を当てる、クリーチャーは見る事が可能にするだけでなく、他にも目に見えるに成る。"
 
 #: guitext:243
 #, fuzzy
@@ -2175,20 +2175,20 @@ msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
 "from the air."
-msgstr "飛行: [26.7]"
+msgstr "飛行: クリーチャーは地面から離陸させ、空から攻撃する事が可能にする。[26.7]"
 
 #: guitext:244
 #, fuzzy
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
-msgstr "ひょう: [26.10]"
+msgstr "ひょう: 雹を作成する。[26.10]"
 
 #: guitext:245
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
-msgstr "減速: [26.20]"
+"Slow: Slows down the target creature, making its attacks and movement delayed."
+msgstr "減速: 対象の速力を下げる、其の攻撃と移動を遅らせる。[26.20]"
 
 #: guitext:246
 #, fuzzy
@@ -2196,7 +2196,7 @@ msgctxt "Creature spell"
 msgid ""
 "Drain: This spell drains the target creature a fair part of its health and "
 "magical abilities."
-msgstr "消耗: [26.4]"
+msgstr "消耗: 対象のクリーチャーの体力を吸い取ってしまいる。[26.4]"
 
 #: guitext:247
 #, fuzzy
@@ -2205,7 +2205,7 @@ msgid ""
 "Word of Power: Causes rings of demonic energy to emanate from the creature's "
 "body and inflicts massive damage on the vicinity. Very effective against "
 "crowded hordes of enemies, also pushes them back."
-msgstr "言霊: [26.24]"
+msgstr "言霊: クリーチャーの体から悪魔のエネルギーの輪を放ち、周囲に大損傷を加える。 敵の群れに対して非常に効果的で有り、其れを押し戻す。[26.24]"
 
 #: guitext:248
 #, fuzzy
@@ -2213,7 +2213,7 @@ msgctxt "Creature spell"
 msgid ""
 "Heal: When this is cast, the creature is massively healed. Also, any nearby "
 "creatures are healed by a quarter."
-msgstr "治癒: [26.11]"
+msgstr "治癒: クリーチャーを大分治す。[26.11]"
 
 #: guitext:249
 #, fuzzy
@@ -2221,7 +2221,7 @@ msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your Dungeon blowing every creature "
 "away from you."
-msgstr "突風: [26.23]"
+msgstr "突風: 強風を起こし、有らゆるクリーチャーを吹き飛ばす。[26.23]"
 
 #: guitext:250
 #, fuzzy
@@ -2229,7 +2229,7 @@ msgctxt "Creature spell"
 msgid ""
 "Meteor: More powerful that the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
-msgstr "隕石: [26.14]"
+msgstr "隕石: 火の玉よりも強力な、大きな損傷を加える固い火の岩を放つ。[26.14]"
 
 #: guitext:251
 #, fuzzy
@@ -2237,7 +2237,7 @@ msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
 "inflicts minor damage to a Dungeon's walls and doors."
-msgstr "火の玉: [26.5]"
+msgstr "火の玉: 少量の損傷を加える火の玉を一個放つ。[26.5]"
 
 #: guitext:252
 #, fuzzy
@@ -2245,13 +2245,13 @@ msgctxt "Creature spell"
 msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
-msgstr "肉弾戦: [25.3]"
+msgstr "肉弾戦: 基本的な戦闘能力。素手でも剣でも敵を攻撃する事が可能にする。[25.3]"
 
 #: guitext:253
 msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
-msgstr "放屁: 敵のクリーチャーにのみ損傷を加える近距離ガス攻撃。"
+msgstr "放屁: 敵のクリーチャーにのみ損傷を加える近距離ガス攻撃。[26.17.1]"
 
 #: guitext:254
 #, fuzzy
@@ -2259,7 +2259,7 @@ msgctxt "Creature spell"
 msgid ""
 "Dig: This is the basic ability of the Imp and allows it to tunnel through "
 "earth."
-msgstr "掘る: [25.2]"
+msgstr "掘る: インプの基本的な能力、土を掘る事が可能にする。[25.2]"
 
 #: guitext:255
 #, fuzzy
@@ -2268,7 +2268,7 @@ msgid ""
 "Disease: Fired at a foe, gives them a Disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
-msgstr "疫病: [26.3]"
+msgstr "疫病: 敵に伝染病を与え。 感染したクリーチャーはゆっくり死ぬ、神殿でのみ治す事が出来ます。[26.3]"
 
 #: guitext:256
 #, fuzzy
@@ -2277,13 +2277,13 @@ msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
 "attack but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
-msgstr "呪い: [26.2]"
+msgstr "呪い: 敵を一時的にニワトリに変える。 敵は攻撃する事は出来ないが、同じ強さで有る何故なら、通常のニワトリ程簡単に殺す事は出来ない。[26.2]"
 
 #: guitext:257
 #, fuzzy
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "時限爆弾"
+msgstr "時限爆弾: クリーチャーに自爆をさせる。"
 
 #: guitext:258
 msgctxt "Creature name"
