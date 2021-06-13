@@ -4,6 +4,7 @@ Computer logic consists of following primitives:
 
 * Process
 * Event
+* Checks
 * Task
 
 There is some "emergency mode" if any of these cases:
@@ -11,7 +12,8 @@ There is some "emergency mode" if any of these cases:
 * AI lack more than 1000 gold for payday
 * AI has less than 3 imps
 
-There is an option `sim_before_dig` that affects how AI routes its corridors
+There is an option `sim_before_dig` that affects how AI routes its corridors \
+There is a hates array that means "Who this AI hate most"
 
 ## Process
 
@@ -34,18 +36,20 @@ All functions are interchangable but most combinations are useless
 * setup_any_room - Setup task to build a room
 * check_dig_to_entrance - Wait some time and fail if there is no claimable entrance
 * setup_dig_to_entrance - Check time, choose an entrance and setup dig towards it
-* check_dig_to_gold - Wait if AI has more gold than Value2 
-* setup_dig_to_gold - Setup a task to dig for gold (or wait)  
+* check_dig_to_gold - Wait if AI has more gold than Value2
+* setup_dig_to_gold - Setup a task to dig for gold (or wait)
 * check_sight_of_evil - Wait for available SoE spell
 * setup_sight_of_evil - Count how many casts are done and wait.\
-  Then finish process after Param5 amount  
+  Then finish process after Param5 amount
 * process_sight_of_evil - Cast a SoE on map
-* check_attack1 -
-* setup_attack1 -
+* check_attack1 - This check start an attack against most hated enemy\
+  It does not matter how much creatures target has 
+* setup_attack1 - This just send a random harassment
 * completed_attack1 - ?Pickup creatures and turn off CTA?
-* check_safe_attack -
+* check_safe_attack - This check start an attack against most hated enemy\
+  This attack would not start if enemy has more creatures
 * process_task - finish process
-* completed_build_a_room -
+* completed_build_a_room - complete process? or suspends it?
 * paused_task - pause process\
   Difference vs process_task should be explained
 * completed_task - complete process\
@@ -444,8 +448,9 @@ Params = 0 0 0 0
 
 #### Check for full rooms
 
-This check will activate each room-related process to build rooms if they are needed. Will do nothing in emergency
-state.
+This check will activate each room-related process to build rooms if they are needed. \
+This check will NOT affect missing rooms\
+In emergency state AI will not expand rooms with BuildToBroke property.
 
 ```
 [event12]
@@ -532,6 +537,395 @@ Drag imps from combat. Conditions are one of:
 * combat VS non Imp
 
 Also this Check may cast Conceal with 1/150 chance
+
+# Check
+
+Checks are simple periodic functions
+
+### Money
+```
+[check1]
+Name = CHECK MONEY
+Mnemonic = Money1
+Values = 0 100
+; Function which reacts for player having low money, by increasing priority of gold digging,
+; and creating tasks of selling traps and doors, moving creatures with expensive jobs to lair
+; and moving unowned gold to treasury
+Functions = check_for_money
+; Low gold and critical gold value; if after next payday, the planned amount of gold left is low,
+; then actions are taken to get more gold; if remainig value is lower than critical, aggressive actions are taken
+Params = 500 -1000 0 0
+```
+
+#### Room expansion
+
+```
+[check2]
+Name = CHECK EXPAND ROOM
+Mnemonic = RoomExp1
+Values = 0 301
+Functions = check_for_expand_room
+Params = 0 0 0 0
+
+[check3]
+Name = CHECK EXPAND ROOM
+Mnemonic = RoomExp2
+Values = 0 200
+Functions = check_for_expand_room
+Params = 0 0 0 0
+
+[check4]
+Name = CHECK EXPAND ROOM
+Mnemonic = RoomExp3
+Values = 0 101010
+Functions = check_for_expand_room
+Params = 0 0 0 0
+
+[check5]
+Name = CHECK EXPAND ROOM
+Mnemonic = RoomExp4
+Values = 0 210
+Functions = check_for_expand_room
+Params = 0 0 0 0
+
+[check6]
+Name = CHECK EXPAND ROOM
+Mnemonic = RoomExp5
+Values = 0 201
+Functions = check_for_expand_room
+Params = 0 0 0 0
+
+[check7]
+Name = CHECK EXPAND ROOM
+Mnemonic = RoomExp6
+Values = 0 10
+Functions = check_for_expand_room
+Params = 0 0 0 0
+```
+
+#### Traps
+
+This check place random trap somewhere
+
+Param1 - allow last trap \ 
+Param2 - preselected trap type (0 = any)
+
+```
+[check8]
+Name = CHECK AVAILIABLE TRAP
+Mnemonic = TrapAvl1
+Values = 0 430
+Functions = check_for_place_trap
+Params = 0 0 0 0
+
+[check9]
+Name = CHECK AVAILIABLE TRAP
+Mnemonic = TrapAvl2
+Values = 0 330
+Functions = check_for_place_trap
+Params = 0 0 0 0
+```
+
+This will select a random door and place it near random room
+
+```
+[check17]
+Name = CHECK AVAILIABLE DOOR
+Mnemonic = DoorAvl
+Values = 0 330
+Functions = check_for_place_door
+Params = 0 0 0 0
+```
+#### Neutral places
+
+This check start a task to dig to some random points at neutral player's territory
+Related coords are at `opponent_relations->pos_A`
+
+
+```
+[check10]
+Name = CHECK FOR NEUTRAL PLACES
+Mnemonic = NeutPlc1
+Values = 0 5580
+Functions = check_neutral_places
+Params = 0 0 0 15000
+
+[check11]
+Name = CHECK FOR NEUTRAL PLACES
+Mnemonic = NeutPlc2
+Values = 0 1780
+Functions = check_neutral_places
+Params = 0 0 0 15000
+
+[check12]
+Name = CHECK FOR NEUTRAL PLACES
+Mnemonic = NeutPlc3
+Values = 0 1780
+Functions = check_neutral_places
+Params = 0 0 0 20000
+
+[check13]
+Name = CHECK FOR NEUTRAL PLACES
+Mnemonic = NeutPlc4
+Values = 0 780
+Functions = check_neutral_places
+Params = 0 0 0 0
+
+[check14]
+Name = CHECK FOR NEUTRAL PLACES
+Mnemonic = NeutPlc5
+Values = 0 780
+Functions = check_neutral_places
+Params = 0 0 0 5000
+
+[check15]
+Name = CHECK FOR NEUTRAL PLACES
+Mnemonic = NeutPlc6
+Values = 0 5580
+Functions = check_neutral_places
+Params = 0 0 0 25000
+
+[check16]
+Name = CHECK FOR NEUTRAL PLACES
+Mnemonic = NeutPlc7
+Values = 0 5580
+Functions = check_neutral_places
+Params = 0 0 0 0
+```
+
+#### Entrances
+```
+[check18]
+Name = CHECK FOR ENEMY ENTRANCES
+Mnemonic = EnEntrn1
+Values = 0 290
+Functions = check_enemy_entrances
+Params = 0 0 0 0
+
+[check19]
+Name = CHECK FOR ENEMY ENTRANCES
+Mnemonic = EnEntrn2
+Values = 0 690
+Functions = check_enemy_entrances
+Params = 0 0 0 0
+```
+
+#### Slapping imps
+
+```
+[check20]
+Name = CHECK FOR SLAP IMP
+Mnemonic = ImpSlap1
+Values = 0 250
+Functions = check_slap_imps
+Params = 75 0 0 -250
+
+[check21]
+Name = CHECK FOR SLAP IMP
+Mnemonic = ImpSlap2
+Values = 0 250
+Functions = check_slap_imps
+Params = 95 0 0 0
+
+[check22]
+Name = CHECK FOR SLAP IMP
+Mnemonic = ImpSlap3
+Values = 0 21
+Functions = check_slap_imps
+Params = 100 0 0 -250
+```
+#### CHECK FOR SPEED UP
+```
+[check23]
+Name = CHECK FOR SPEED UP
+Mnemonic = SplSpdu1
+Values = 0 200
+Functions = check_for_accelerate
+Params = 0 0 0 0
+
+[check24]
+Name = CHECK FOR SPEED UP
+Mnemonic = SplSpdu2
+Values = 0 19
+Functions = check_for_accelerate
+Params = 0 0 0 0
+```
+#### CHECK FOR QUICK ATTACK
+```
+[check25]
+Name = CHECK FOR QUICK ATTACK
+Mnemonic = AtckQck1
+Values = 0 690
+Functions = check_for_quick_attack
+Params = 90 3000 7 9500
+
+[check26]
+Name = CHECK FOR QUICK ATTACK
+Mnemonic = AtckQck2
+Values = 0 390
+Functions = check_for_quick_attack
+Params = 60 1 0 0
+
+[check27]
+Name = CHECK FOR QUICK ATTACK
+Mnemonic = AtckQck3
+Values = 0 390
+Functions = check_for_quick_attack
+Params = 90 1 14 112000
+
+[check28]
+Name = CHECK FOR QUICK ATTACK
+Mnemonic = AtckQck4
+Values = 0 390
+Functions = check_for_quick_attack
+Params = 90 0 24 3000
+
+[check29]
+Name = CHECK FOR QUICK ATTACK
+Mnemonic = AtckQck5
+Values = 0 390
+Functions = check_for_quick_attack
+Params = 90 0 14 24000
+
+[check30]
+Name = CHECK FOR QUICK ATTACK
+Mnemonic = AtckQck6
+Values = 0 390
+Functions = check_for_quick_attack
+Params = 90 0 14 14000
+```
+#### CHECK TO PRETTY
+```
+[check31]
+Name = CHECK TO PRETTY
+Mnemonic = DnPrtty1
+Values = 0 405
+Functions = check_for_pretty
+Params = 7 0 0 0
+
+[check32]
+Name = CHECK TO PRETTY
+Mnemonic = DnPrtty2
+Values = 0 400
+Functions = check_for_pretty
+Params = 7 0 0 0
+
+[check33]
+Name = CHECK FOR ENOUGH IMPS
+Mnemonic = ImpEngh1
+; Flags and game turns interval between checks
+Values = 0 203
+; Function which uses create imp spell if player has not enough imps
+Functions = check_no_imps
+; Preferred amount of imps, minimal amount of imps, increase per gems face;
+; when player has less than minimum, or less than maximum and spare money, then he will use
+; digger creation spell; both the minimum and maximum are increased by the third amount times
+; number of gem faces marked for digging
+Params = 16 9 3 0
+
+[check34]
+Name = CHECK FOR ENOUGH IMPS
+Mnemonic = ImpEngh2
+Values = 0 200
+Functions = check_no_imps
+Params = 11 5 1 0
+
+[check35]
+Name = CHECK FOR ENOUGH IMPS
+Mnemonic = ImpEngh3
+Values = 0 200
+Functions = check_no_imps
+Params = 14 12 2 0
+
+[check36]
+Name = CHECK FOR ENOUGH IMPS
+Mnemonic = ImpEngh4
+Values = 0 200
+Functions = check_no_imps
+Params = 3 3 0 0
+
+[check37]
+Name = CHECK FOR ENOUGH IMPS
+Mnemonic = ImpEngh5
+Values = 0 200
+Functions = check_no_imps
+Params = 13 5 2 0
+
+[check38]
+Name = CHECK FOR ENOUGH IMPS
+Mnemonic = ImpEngh6
+Values = 0 200
+Functions = check_no_imps
+Params = 13 2 0 0
+
+[check39]
+Name = CHECK FOR ENOUGH IMPS
+Mnemonic = ImpEngh7
+Values = 0 203
+Functions = check_no_imps
+Params = 13 9 3 0
+
+[check40]
+Name = CHECK FOR ENOUGH IMPS
+Mnemonic = ImpEngh8
+Values = 0 20
+Functions = check_no_imps
+Params = 99 9 0 0
+
+[check41]
+Name = MOVE CREATURE TO TRAINING
+Mnemonic = MvTrain1
+Values = 0 400
+Functions = check_move_to_room
+Params = 95 6 0 7000
+
+[check42]
+Name = MOVE CREATURE TO BEST ROOM
+Mnemonic = MvBest1
+Values = 0 270
+Functions = check_move_to_best_room
+Params = 75 0 0 0
+
+[check43]
+Name = MOVE CREATURE TO BEST ROOM
+Mnemonic = MvBest2
+Values = 0 270
+Functions = check_move_to_best_room
+Params = 70 0 0 0
+```
+#### COMPUTER CHECK HATES
+
+These checks update hates value for AI.
+AI will attack targets it hates most.
+```
+[check44]
+Name = COMPUTER CHECK HATES
+Mnemonic = Hates1
+Values = 0 400
+Functions = checks_hates
+Params = 8000 0 0 1600
+
+[check45]
+Name = COMPUTER CHECK HATES
+Mnemonic = Hates2
+Values = 0 500
+Functions = checks_hates
+Params = 4000 0 0 0
+
+[check46]
+Name = COMPUTER CHECK HATES
+Mnemonic = Hates3
+Values = 0 500
+Functions = checks_hates
+Params = 40000 0 0 2000
+
+[check47]
+Name = COMPUTER CHECK HATES
+Mnemonic = Hates4
+Values = 0 400
+Functions = checks_hates
+Params = 4000 0 0 2000
+```
 
 # Task
 
