@@ -354,6 +354,7 @@ keeporig \
 lqizgood \
 lrdvexer \
 ncastles \
+origplus \
 postanck \
 pstunded \
 questfth \
