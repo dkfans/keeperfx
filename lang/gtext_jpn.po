@@ -2069,7 +2069,7 @@ msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
 "lighting from the creature."
-msgstr "雷撃: 電気攻撃を持つ強力な魔法武器。 落雷をクリーチャーから放つ。[26.13]"
+msgstr "雷撃: 電気の攻撃を持つ強力な魔法武器。 落雷をクリーチャーから放つ。[26.13]"
 
 #: guitext:230
 #, fuzzy
