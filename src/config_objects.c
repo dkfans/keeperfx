@@ -21,12 +21,12 @@
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
-#include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
 #include "config.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "custom_sprites.h"
 #include "thing_objects.h"
 #include "game_legacy.h"
 
@@ -46,6 +46,11 @@ const struct NamedCommand objects_object_commands[] = {
   {"GENRE",           2},
   {"RELATEDCREATURE", 3},
   {"PROPERTIES",      4},
+  {"OBJECTSIZE",      5},
+  {"IMAGE",           6},
+  {"REGION",          7},
+  {"IMAGEFP",         8},
+  {"REGIONFP",        9},
   {NULL,              0},
   };
 
@@ -87,8 +92,8 @@ struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel)
 struct ObjectConfig *get_object_model_stats2(ThingModel tngmodel)
 {
     if (tngmodel >= object_conf.object_types_count)
-        return &game.objects_config[0];
-    return &game.objects_config[tngmodel];
+        return &object_conf.base_config[0];
+    return &object_conf.base_config[tngmodel];
 }
 
 ThingClass crate_to_workshop_item_class(ThingModel tngmodel)
@@ -219,6 +224,14 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
     arr_size = object_conf.object_types_count;
     for (i=0; i < arr_size; i++)
     {
+        short sprite_max_size = 0;
+        int sprite_x = 0, sprite_y = 0, sprite_w = 0, sprite_h = 0;
+        int sprite_x_3d = 0, sprite_y_3d = 0, sprite_w_3d = 0, sprite_h_3d = 0;
+        char anim_path[COMMAND_WORD_LEN];
+        char anim_path_3d[COMMAND_WORD_LEN];
+        anim_path[0] = 0;
+        anim_path_3d[0] = 0;
+
         char block_buf[COMMAND_WORD_LEN];
         sprintf(block_buf, "object%d", i);
         long pos = 0;
@@ -248,6 +261,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             }
             int n = 0;
             char word_buf[COMMAND_WORD_LEN];
+            const char *state = NULL;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -313,6 +327,78 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                   }
                 }
                 break;
+            case 5: // ObjectSize
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    sprite_max_size = atoi(word_buf);
+                }
+                break;
+            case 6: // Image
+                if (!get_conf_parameter_quoted(buf,&pos,len,word_buf,sizeof(word_buf)))
+                {
+                    CONFWRNLOG("Incorrect path of \"%s\" in [%s] block of %s file.",
+                               word_buf,block_buf,config_textname);
+                    break;
+                }
+                strcpy(anim_path, word_buf);
+                break;
+            case 7: // Region
+                if (get_conf_parameter_quoted(buf, &pos, len, word_buf, sizeof(word_buf)) == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                               COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                }
+                state = NULL;
+                if (!get_conf_list_int(word_buf, &state, &sprite_x))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_y))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_w))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_h))
+                {
+                    break;
+                }
+                break;
+            case 8: // Image3D
+                if (!get_conf_parameter_quoted(buf,&pos,len,word_buf,sizeof(word_buf)))
+                {
+                    CONFWRNLOG("Incorrect path \"%s\" in [%s] block of %s file.",
+                               word_buf,block_buf,config_textname);
+                    break;
+                }
+                strcpy(anim_path_3d, word_buf);
+                break;
+            case 9: // Region3D
+                if (get_conf_parameter_quoted(buf, &pos, len, word_buf, sizeof(word_buf)) == 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                               COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                }
+                state = NULL;
+                if (!get_conf_list_int(word_buf, &state, &sprite_x_3d))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_y_3d))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_w_3d))
+                {
+                    break;
+                }
+                if (!get_conf_list_int(word_buf, &state, &sprite_h_3d))
+                {
+                    break;
+                }
+                break;
             case 0: // comment
                 break;
             case -1: // end of buffer
@@ -325,6 +411,33 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             skip_conf_to_next_line(buf,&pos,len);
         }
 #undef COMMAND_TEXT
+        if (anim_path[0] != 0)
+        {
+            if (sprite_max_size <= 0)
+            {
+                CONFWRNLOG("Custom sprite without max_size [%s] block of %s file.",
+                           block_buf, config_textname);
+            }
+            else
+            {
+                short anim_idx = add_custom_sprite(prepare_file_path(FGrp_FxData, anim_path),
+                                                   sprite_x, sprite_y,
+                                                   sprite_w > 0? sprite_w : 255, sprite_h > 0? sprite_h : 255);
+                short anim_idx_3d = anim_path_3d[0] == 0? 0 :
+                                add_custom_sprite(prepare_file_path(FGrp_FxData, anim_path_3d),
+                                                   sprite_x_3d, sprite_y_3d,
+                                                   sprite_w_3d > 0? sprite_w_3d : 255,
+                                                   sprite_h_3d > 0? sprite_h_3d : 255);
+                if (anim_idx == 0)
+                {
+                    CONFWRNLOG("Unable to load anim [%s] block of %s file.",
+                               block_buf, config_textname);
+
+                    continue;
+                }
+                define_custom_object(i, sprite_max_size, anim_idx, anim_idx_3d);
+            }
+        }
     }
     return true;
 }
@@ -480,19 +593,19 @@ void init_objects(void)
     game.objects_config[2].field_4 = 0;
     game.objects_config[2].field_5 = 1;
     game.objects_config[2].ilght.is_dynamic = 0;
-    game.objects_config[2].field_8 = 1;
+    game.objects_config[2].movement_flag = 1;
     game.objects_config[49].health = 100;
     game.objects_config[49].field_4 = 0;
     game.objects_config[49].field_5 = 1;
     game.objects_config[49].ilght.is_dynamic = 0;
-    game.objects_config[49].field_8 = 1;
+    game.objects_config[49].movement_flag = 1;
     game.objects_config[3].health = 100;
     game.objects_config[3].field_4 = 20;
     game.objects_config[4].health = 100;
     game.objects_config[4].field_4 = 20;
     game.objects_config[4].field_5 = 1;
     game.objects_config[4].ilght.is_dynamic = 0;
-    game.objects_config[4].field_8 = 1;
+    game.objects_config[4].movement_flag = 1;
     game.objects_config[5].health = 1;
     game.objects_config[2].ilght.field_0 = 0x0600;
     game.objects_config[2].ilght.field_2 = 0x32;
@@ -501,13 +614,13 @@ void init_objects(void)
     game.objects_config[5].field_5 = 0;
     game.objects_config[5].ilght.is_dynamic = 1;
     game.objects_config[5].is_heart = 1;
-    game.objects_config[5].field_8 = 1;
+    game.objects_config[5].movement_flag = 1;
     game.objects_config[6].field_4 = 8;
     game.objects_config[6].health = 50;
     game.objects_config[7].health = 100;
     game.objects_config[7].field_4 = 0;
     game.objects_config[7].field_5 = 1;
-    game.objects_config[7].field_8 = 1;
+    game.objects_config[7].movement_flag = 1;
     game.objects_config[8].health = 100;
     game.objects_config[8].field_4 = 20;
     game.objects_config[8].field_5 = 1;
@@ -526,56 +639,56 @@ void init_objects(void)
     game.objects_config[28].field_4 = 0;
     game.objects_config[28].field_5 = 1;
     game.objects_config[28].ilght.is_dynamic = 0;
-    game.objects_config[28].field_8 = 1;
+    game.objects_config[28].movement_flag = 1;
     game.objects_config[11].ilght.field_0 = 0x0400u;
     game.objects_config[11].ilght.field_2 = 0x3E;
     game.objects_config[11].ilght.field_3 = 0;
     game.objects_config[11].field_4 = 10;
     game.objects_config[11].field_5 = 0;
     game.objects_config[11].ilght.is_dynamic = 0;
-    game.objects_config[11].field_8 = 1;
+    game.objects_config[11].movement_flag = 1;
     game.objects_config[12].ilght.field_0 = 0x0400u;
     game.objects_config[12].ilght.field_2 = 0x3E;
     game.objects_config[12].ilght.field_3 = 0;
     game.objects_config[12].field_4 = 10;
     game.objects_config[12].field_5 = 0;
     game.objects_config[12].ilght.is_dynamic = 0;
-    game.objects_config[12].field_8 = 1;
+    game.objects_config[12].movement_flag = 1;
     game.objects_config[13].field_4 = 10;
     game.objects_config[13].field_5 = 0;
     game.objects_config[13].ilght.field_0 = 0x0400u;
     game.objects_config[13].ilght.field_2 = 0x3E;
     game.objects_config[13].ilght.field_3 = 0;
     game.objects_config[13].ilght.is_dynamic = 0;
-    game.objects_config[13].field_8 = 1;
+    game.objects_config[13].movement_flag = 1;
     game.objects_config[14].ilght.field_0 = 0x0400u;
     game.objects_config[14].ilght.field_2 = 0x3E;
     game.objects_config[14].ilght.field_3 = 0;
     game.objects_config[14].field_4 = 10;
     game.objects_config[14].field_5 = 0;
     game.objects_config[14].ilght.is_dynamic = 0;
-    game.objects_config[14].field_8 = 1;
+    game.objects_config[14].movement_flag = 1;
     game.objects_config[15].field_4 = 10;
     game.objects_config[15].field_5 = 0;
     game.objects_config[15].ilght.field_0 = 0x0400u;
     game.objects_config[15].ilght.field_2 = 0x3E;
     game.objects_config[15].ilght.field_3 = 0;
     game.objects_config[15].ilght.is_dynamic = 0;
-    game.objects_config[15].field_8 = 1;
+    game.objects_config[15].movement_flag = 1;
     game.objects_config[16].ilght.field_0 = 0x0400u;
     game.objects_config[16].ilght.field_2 = 0x3E;
     game.objects_config[16].ilght.field_3 = 0;
     game.objects_config[16].field_4 = 10;
     game.objects_config[16].field_5 = 0;
     game.objects_config[16].ilght.is_dynamic = 0;
-    game.objects_config[16].field_8 = 1;
+    game.objects_config[16].movement_flag = 1;
     game.objects_config[17].field_4 = 10;
     game.objects_config[17].field_5 = 0;
     game.objects_config[17].ilght.field_0 = 0x0400u;
     game.objects_config[17].ilght.field_2 = 0x3E;
     game.objects_config[17].ilght.field_3 = 0;
     game.objects_config[17].ilght.is_dynamic = 0;
-    game.objects_config[17].field_8 = 1;
+    game.objects_config[17].movement_flag = 1;
     game.objects_config[43].field_4 = 8;
     game.objects_config[43].health = 50;
     game.objects_config[28].ilght.field_0 = 0x0600u;
@@ -590,70 +703,70 @@ void init_objects(void)
     game.objects_config[19].ilght.field_0 = 0x0400u;
     game.objects_config[19].ilght.field_2 = 0x3E;
     game.objects_config[19].ilght.field_3 = 0;
-    game.objects_config[18].field_8 = 1;
+    game.objects_config[18].movement_flag = 1;
     game.objects_config[19].field_4 = 10;
     game.objects_config[19].field_5 = 0;
     game.objects_config[20].ilght.field_0 = 0x0400u;
     game.objects_config[20].ilght.field_2 = 0x3E;
     game.objects_config[20].ilght.field_3 = 0;
     game.objects_config[19].ilght.is_dynamic = 0;
-    game.objects_config[19].field_8 = 1;
+    game.objects_config[19].movement_flag = 1;
     game.objects_config[20].field_4 = 10;
     game.objects_config[20].field_5 = 0;
     game.objects_config[20].ilght.is_dynamic = 0;
     game.objects_config[21].ilght.field_0 = 0x0400u;
     game.objects_config[21].ilght.field_2 = 0x3E;
     game.objects_config[21].ilght.field_3 = 0;
-    game.objects_config[20].field_8 = 1;
+    game.objects_config[20].movement_flag = 1;
     game.objects_config[21].field_4 = 10;
     game.objects_config[21].field_5 = 0;
     game.objects_config[22].ilght.field_0 = 0x0400u;
     game.objects_config[22].ilght.field_2 = 0x3E;
     game.objects_config[22].ilght.field_3 = 0;
     game.objects_config[21].ilght.is_dynamic = 0;
-    game.objects_config[21].field_8 = 1;
+    game.objects_config[21].movement_flag = 1;
     game.objects_config[22].field_4 = 10;
     game.objects_config[22].field_5 = 0;
     game.objects_config[22].ilght.is_dynamic = 0;
     game.objects_config[23].ilght.field_0 = 0x0400u;
     game.objects_config[23].ilght.field_2 = 0x3E;
     game.objects_config[23].ilght.field_3 = 0;
-    game.objects_config[22].field_8 = 1;
+    game.objects_config[22].movement_flag = 1;
     game.objects_config[23].field_4 = 10;
     game.objects_config[23].field_5 = 0;
     game.objects_config[45].ilght.field_0 = 0x0400u;
     game.objects_config[45].ilght.field_2 = 0x3E;
     game.objects_config[45].ilght.field_3 = 0;
     game.objects_config[23].ilght.is_dynamic = 0;
-    game.objects_config[23].field_8 = 1;
+    game.objects_config[23].movement_flag = 1;
     game.objects_config[45].field_4 = 10;
     game.objects_config[45].field_5 = 0;
     game.objects_config[45].ilght.is_dynamic = 0;
     game.objects_config[46].ilght.field_0 = 0x0400u;
     game.objects_config[46].ilght.field_2 = 0x3E;
     game.objects_config[46].ilght.field_3 = 0;
-    game.objects_config[45].field_8 = 1;
+    game.objects_config[45].movement_flag = 1;
     game.objects_config[46].field_4 = 10;
     game.objects_config[46].field_5 = 0;
     game.objects_config[47].ilght.field_0 = 0x0400u;
     game.objects_config[47].ilght.field_2 = 0x3E;
     game.objects_config[47].ilght.field_3 = 0;
     game.objects_config[46].ilght.is_dynamic = 0;
-    game.objects_config[46].field_8 = 1;
+    game.objects_config[46].movement_flag = 1;
     game.objects_config[47].field_4 = 10;
     game.objects_config[47].field_5 = 0;
     game.objects_config[47].ilght.is_dynamic = 0;
     game.objects_config[134].ilght.field_0 = 0x0400u;
     game.objects_config[134].ilght.field_2 = 0x3E;
     game.objects_config[134].ilght.field_3 = 0;
-    game.objects_config[47].field_8 = 1;
+    game.objects_config[47].movement_flag = 1;
     game.objects_config[134].field_4 = 10;
     game.objects_config[134].field_5 = 0;
     game.objects_config[134].ilght.is_dynamic = 0;
     game.objects_config[87].ilght.field_0 = 0x0400u;
     game.objects_config[87].ilght.field_2 = 0x3E;
     game.objects_config[87].ilght.field_3 = 0;
-    game.objects_config[134].field_8 = 1;
+    game.objects_config[134].movement_flag = 1;
     game.objects_config[87].field_4 = 10;
     game.objects_config[87].field_5 = 0;
     game.objects_config[88].ilght.field_0 = 0x0400u;
@@ -700,33 +813,35 @@ void init_objects(void)
     game.objects_config[86].field_5 = 0;
     game.objects_config[86].ilght.is_dynamic = 0;
     game.objects_config[109].resistant_to_nonmagic = 1;
-    game.objects_config[109].field_8 = 1;
-    game.objects_config[94].field_8 = 1;
-    game.objects_config[95].field_8 = 1;
-    game.objects_config[96].field_8 = 1;
-    game.objects_config[97].field_8 = 1;
-    game.objects_config[98].field_8 = 1;
-    game.objects_config[99].field_8 = 1;
-    game.objects_config[106].field_8 = 1;
-    game.objects_config[107].field_8 = 1;
-    game.objects_config[108].field_8 = 1;
+    game.objects_config[109].movement_flag = 1;
+    game.objects_config[94].movement_flag = 1;
+    game.objects_config[95].movement_flag = 1;
+    game.objects_config[96].movement_flag = 1;
+    game.objects_config[97].movement_flag = 1;
+    game.objects_config[98].movement_flag = 1;
+    game.objects_config[99].movement_flag = 1;
+    game.objects_config[106].movement_flag = 1;
+    game.objects_config[107].movement_flag = 1;
+    game.objects_config[108].movement_flag = 1;
     game.objects_config[128].field_4 = 10;
     for (long i = 57; i <= 85; i++)
     {
-      game.objects_config[i].field_8 = 1;
+      game.objects_config[i].movement_flag = 1;
     }
-    game.objects_config[126].field_8 = 1;
-    game.objects_config[26].field_8 = 1;
-    game.objects_config[27].field_8 = 1;
-    game.objects_config[31].field_8 = 1;
-    game.objects_config[32].field_8 = 1;
-    game.objects_config[114].field_8 = 1;
-    game.objects_config[115].field_8 = 1;
-    game.objects_config[116].field_8 = 1;
-    game.objects_config[117].field_8 = 1;
-    game.objects_config[118].field_8 = 1;
-    game.objects_config[119].field_8 = 1;
-    game.objects_config[125].field_8 = 1;
+    game.objects_config[126].movement_flag = 1;
+    game.objects_config[26].movement_flag = 1;
+    game.objects_config[27].movement_flag = 1;
+    game.objects_config[31].movement_flag = 1;
+    game.objects_config[32].movement_flag = 1;
+    game.objects_config[114].movement_flag = 1;
+    game.objects_config[115].movement_flag = 1;
+    game.objects_config[116].movement_flag = 1;
+    game.objects_config[117].movement_flag = 1;
+    game.objects_config[118].movement_flag = 1;
+    game.objects_config[119].movement_flag = 1;
+    game.objects_config[125].movement_flag = 1;
+
+    memcpy(&object_conf.base_config, &game.objects_config, sizeof(game.objects_config));
 }
 /******************************************************************************/
 #ifdef __cplusplus
