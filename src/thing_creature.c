@@ -4118,7 +4118,8 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
     switch (pick_check)
     {
     default:
-        WARNLOG("Invalid check selection, %d",(int)pick_check); // fall through
+        WARNLOG("Invalid check selection, %d",(int)pick_check);
+        // fall through
     case 0:
         filter = player_list_creature_filter_most_experienced;
         break;
@@ -4160,7 +4161,8 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
     switch (pick_check)
     {
     default:
-        WARNLOG("Invalid check selection, %d",(int)pick_check); // fallthrough
+        WARNLOG("Invalid check selection, %d",(int)pick_check);
+        // fall through
     case 0:
         filter = player_list_creature_filter_least_experienced;
         break;
@@ -4204,7 +4206,8 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
     switch (pick_check)
     {
     default:
-        WARNLOG("Invalid check selection, %d",(int)pick_check); // fall through
+        WARNLOG("Invalid check selection, %d",(int)pick_check);
+        // fall through
     case 0:
         filter = player_list_creature_filter_of_gui_job;
         break;
@@ -4448,10 +4451,10 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     }
 
     int health_permil = get_creature_health_permil(thing);
-    // If it's angry but not furious, or has lost half or health due to disease,
+    // If it's angry but not furious, or has lost health due to disease,
     // then should be placed in temple
     if ((anger_is_creature_angry(thing) ||
-     (creature_affected_by_spell(thing, SplK_Disease) && (health_permil < 500)))
+     (creature_affected_by_spell(thing, SplK_Disease) && (health_permil <= (gameadd.disease_to_temple_pct*10))))
      && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY, JobChk_None))
     {
         // If already at temple, then don't do anything
