@@ -67,6 +67,7 @@ void pretty_map_remove_flags_and_update(MapSlabCoord slb_x, MapSlabCoord slb_y);
 void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 long element_top_face_texture(struct Map *map);
+void clear_map_cache();
 /******************************************************************************/
 #ifdef __cplusplus
 }

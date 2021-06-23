@@ -125,6 +125,15 @@ const unsigned char  *against_to_case[] = {
     NULL,special_cases[4],special_cases[5],            NULL,
 };
 
+/*
+ * Each cell consists maximum radius of vision from that subtile.
+ * So each visit to same stl may not update visibility while map is unchanged.
+ * Whenever map is changed this cache should be invalidated. (Using reset_visibility_cache)
+ */
+static unsigned char visibility_cache[PLAYERS_COUNT][MAP_SIZE_STL * MAP_SIZE_STL] = { 0 };
+static unsigned char visibility_cache_is_clear = true;
+static void reset_visibility_cache(MapSubtlCoord x, MapSubtlCoord y);
+
 /******************************************************************************/
 TbBool block_has_diggable_side(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
@@ -1383,6 +1392,7 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
         dump_slab_on_map(SlbT_LAVA, 0, stl_x, stl_y, game.neutral_player_num);
         return;
     }
+    reset_visibility_cache(stl_x, stl_y);
     struct SlabMap *slbmap = get_slabmap_block(slb_x, slb_y);
     if (slbmap->kind != SlbT_GEMS)
     {
@@ -1467,7 +1477,21 @@ SlabKind alter_rock_style(SlabKind slbkind, MapSlabCoord tgslb_x, MapSlabCoord t
     return retkind;
 }
 
-void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5,const char *func_name)
+/*
+ * Map is changed so visibility cache should be reset
+ */
+void reset_visibility_cache(MapSubtlCoord x, MapSubtlCoord y)
+{
+    if (visibility_cache_is_clear)
+        return;
+    for (int i = 0; i < PLAYERS_COUNT; i++)
+    {
+        memset(visibility_cache[i], 0, sizeof(visibility_cache[i]));
+    }
+    visibility_cache_is_clear = true;
+}
+
+void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5, const char *func_name)
 {
     SlabKind previous_slab_types_around[8];
     struct SlabMap *slb;
@@ -1481,6 +1505,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
     SYNCDBG(7,"%s: Starting for (%d,%d)",func_name,(int)stl_x,(int)stl_y);
     if (subtile_coords_invalid(stl_x, stl_y))
         return;
+    reset_visibility_cache(stl_x, stl_y);
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
     if (slab_kind_is_animated(nslab))
@@ -2176,6 +2201,149 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
     }
 }
 
+static TbBool column_is_opaque(int stl_x, int stl_y)
+{
+    struct Column *column = get_column_at(stl_x, stl_y);
+    return (column->solidmask & 0x1E) == 0x1E; // All four cubes ignoring botom one d11110b
+}
+
+
+void reveal_seen_slab(int mx_stl, int my_stl, unsigned char owner)
+{
+    reveal_map_subtile(mx_stl, my_stl, owner);
+}
+
+void process_line_visibility(int src_x, int src_y, int dst_x, int dst_y, unsigned char owner)
+{
+    /*
+     * modified Bersenham's line algorithm
+     * It is following a line from src+0.5 to dst+0.5 with step of stl/2
+     */
+    // This ray cant stop in time
+    int ox = src_x;
+    int oy = src_y;
+    int tx = dst_x;
+    int ty = dst_y;
+    int dx = abs(tx - ox);
+    int dy = -abs(ty - oy);
+    int sx = ox < tx? 1 : -1; // signs
+    int sy = oy < ty? 1 : -1;
+    int err = 0;
+
+    TbBool hit = 0;
+
+    while ((ox != tx) || (oy != ty))
+    {
+        // Test column for visibility
+        if (column_is_opaque(ox, oy))
+        {
+            // solid block
+            reveal_seen_slab(ox, oy, owner);
+            hit = 1;
+            break;
+        }
+
+        // continue line
+        // there is only horisontal or vertical slopes
+        if (abs(err + dy) < abs(err + dx))
+        {
+            err += dy;
+            ox += sx;
+        }
+        else
+        {
+            err += dx;
+            oy += sy;
+        }
+    }
+    if (!hit || ((dst_x == ox) && (dst_y == oy)))
+    {
+        reveal_seen_slab(dst_x, dst_y, owner);
+    }
+}
+
+void reveal_seen_slabs(int cx, int cy, unsigned char owner, unsigned char sight_distance)
+{
+    /*
+     * from north to south then from left to right
+     * set each column (mx, my) around center(cx, cy) revealed if it is visible from center
+     */
+    if ( owner == game.neutral_player_num )
+        return;
+    if ( visibility_cache[owner][cy * MAP_SIZE_STL + cx] >= sight_distance)
+        return; // already rounded
+/*    if (mark)
+        sight_distance = 2;*/
+    int start_x, end_x;
+    /* 1. Top half */
+    int my = cy - sight_distance * STL_PER_SLB;
+    if (my < 0)
+        my = 0;
+    for (; my < cy; my++)
+    {
+        start_x = cx - sight_distance * STL_PER_SLB;
+        end_x = cx + sight_distance * STL_PER_SLB;
+
+        if (start_x < 0)
+            start_x = 0;
+        if (end_x >= MAP_SIZE_STL)
+            end_x = MAP_SIZE_STL - 1;
+        for (int mx = start_x; mx <= end_x; mx++)
+        {
+            process_line_visibility(cx, cy, mx, my, owner);
+        }
+    }
+    // 2. left half
+    start_x = cx - sight_distance * STL_PER_SLB;
+    end_x = cx + sight_distance * STL_PER_SLB;
+
+    if (start_x < 0)
+        start_x = 0;
+    if (end_x >= MAP_SIZE_STL)
+        end_x = MAP_SIZE_STL - 1;
+    for (int mx = cx - 1; mx >= start_x; mx--)
+    {
+        reveal_seen_slab(mx, cy, owner);
+        if (column_is_opaque(mx, cy))
+        {
+            break;
+        }
+    }
+    // 3. right half
+    for (int mx = cx + 1; mx <= end_x; mx++)
+    {
+        reveal_seen_slab(mx, cy, owner);
+        if (column_is_opaque(mx, cy))
+        {
+            break;
+        }
+    }
+
+    // 4. bottom half
+    int end_y = cy + sight_distance * STL_PER_SLB;
+    if (end_y >= MAP_SIZE_STL)
+        end_y = MAP_SIZE_STL - 1;
+
+    my = cy + 1;
+    for (; my <= end_y; my++)
+    {
+        start_x = cx - sight_distance * STL_PER_SLB;
+        end_x = cx + sight_distance * STL_PER_SLB;
+
+        if (start_x < 0)
+            start_x = 0;
+        if (end_x > MAP_SIZE_STL)
+            end_x = MAP_SIZE_STL;
+
+        for (int mx = start_x; mx <= end_x; mx++)
+        {
+            process_line_visibility(cx, cy, mx, my, owner);
+        }
+    }
+    // Cache current stl(cx,cy) as already checked
+    visibility_cache[owner][cy * MAP_SIZE_STL + cx] = sight_distance;
+}
+
 void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     if (is_neutral_thing(creatng) || is_hero_thing(creatng))
@@ -2201,15 +2369,18 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
         return;
     }
 
-    int can_see_slabs;
-    can_see_slabs = get_explore_sight_distance_in_slabs(creatng);
+    int slb_sight_distance;
+    slb_sight_distance = get_explore_sight_distance_in_slabs(creatng);
     if (!player_cannot_win(creatng->owner) && ((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0)) {
-        claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
+        claim_neutral_creatures_in_sight(creatng, &pos, slb_sight_distance);
     }
     clear_slab_dig(slb_x, slb_y, creatng->owner);
     set_slab_explored(creatng->owner, slb_x, slb_y);
-    clear_dig_and_set_explored_can_see_x(slb_x, slb_y, creatng->owner, can_see_slabs);
-    clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
+    reveal_seen_slabs(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner, slb_sight_distance);
+    /*
+    clear_dig_and_set_explored_can_see_x(slb_x, slb_y, creatng->owner, slb_sight_distance);
+    clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, slb_sight_distance);
+    */
 }
 
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
@@ -2330,6 +2501,15 @@ void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_
     wrkstl_y = stl_num_decode_y(cctrl->digger.working_stl);
     remove_task_from_all_other_players_digger_stacks(creatng->owner, wrkstl_x, wrkstl_y);
     fill_in_reinforced_corners(creatng->owner, slb_x, slb_y);
+}
+
+void clear_map_cache()
+{
+    for (int i = 0; i < PLAYERS_COUNT; i++)
+    {
+        memset(visibility_cache[i], 0, sizeof(visibility_cache[i]));
+    }
+    visibility_cache_is_clear = true;
 }
 
 /*

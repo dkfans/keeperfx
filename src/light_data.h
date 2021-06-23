@@ -131,6 +131,7 @@ long light_get_total_dynamic_lights(void);
 void light_export_system_state(struct LightSystemState *lightst);
 void light_import_system_state(const struct LightSystemState *lightst);
 TbBool lights_stats_debug_dump(void);
+struct Light *get_light_by_id(unsigned short lgt_idx);
 
 /******************************************************************************/
 #ifdef __cplusplus

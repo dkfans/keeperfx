@@ -64,6 +64,13 @@ void light_free_light(struct Light *lgt)
     LbMemorySet(lgt, 0, sizeof(struct Light));
 }
 
+struct Light *get_light_by_id(unsigned short lgt_idx)
+{
+    if (lgt_idx < 1 || lgt_idx >= LIGHTS_COUNT)
+        return &game.lish.lights[0]; // Invalid light
+    return &game.lish.lights[lgt_idx];
+}
+
 TbBool light_is_invalid(const struct Light *lgt)
 {
     if (lgt == NULL)
