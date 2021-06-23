@@ -2208,9 +2208,15 @@ static TbBool column_is_opaque(int stl_x, int stl_y)
 }
 
 
-void reveal_seen_slab(int mx_stl, int my_stl, unsigned char owner)
+void reveal_seen_slab(int stl_x, int stl_y, unsigned char owner)
 {
-    reveal_map_subtile(mx_stl, my_stl, owner);
+    reveal_map_subtile(stl_x, stl_y, owner);
+    if (subtile_has_slab(stl_x, stl_y))
+    {
+        clear_slab_dig(subtile_slab(stl_x), subtile_slab(stl_y), owner);
+        pannel_map_update(stl_x, stl_y, 1, 1);
+    }
+
 }
 
 void process_line_visibility(int src_x, int src_y, int dst_x, int dst_y, unsigned char owner)
