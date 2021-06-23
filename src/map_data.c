@@ -25,6 +25,7 @@
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
+#include "map_blocks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -606,6 +607,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
                 }
             }
             mapblk->data &= nflag;
+            reset_visibility_cache(x, y);
         }
     }
     pannel_map_update(start_x,start_y,end_x,end_y);

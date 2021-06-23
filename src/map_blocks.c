@@ -132,7 +132,6 @@ const unsigned char  *against_to_case[] = {
  */
 static unsigned char visibility_cache[PLAYERS_COUNT][MAP_SIZE_STL * MAP_SIZE_STL] = { 0 };
 static unsigned char visibility_cache_is_clear = true;
-static void reset_visibility_cache(MapSubtlCoord x, MapSubtlCoord y);
 
 /******************************************************************************/
 TbBool block_has_diggable_side(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -2509,7 +2508,7 @@ void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_
     fill_in_reinforced_corners(creatng->owner, slb_x, slb_y);
 }
 
-void clear_map_cache()
+void reset_visibilty_map()
 {
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
