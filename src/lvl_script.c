@@ -6919,7 +6919,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           if (val3 >= 0 && val3 <= 100)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
-              gameadd.place_traps_on_subtiles = val3;
+              gameadd.disease_to_temple_pct = val3;
           }
           else
           {
@@ -7035,6 +7035,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               door_stats[val2][0].health = val4;
               door_stats[val2][1].health = val4;
           }
+          update_all_door_stats();
           break;
       case 4: //SellingValue
           mconf->selling_value = val4;
