@@ -7069,6 +7069,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           WARNMSG("Unsupported Door configuration, variable %d.", val3);
           break;
       }
+      update_all_door_stats();
       break;
   default:
       WARNMSG("Unsupported Game VALUE, command %d.",var_index);
