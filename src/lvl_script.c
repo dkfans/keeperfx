@@ -6919,7 +6919,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           if (val3 >= 0 && val3 <= 100)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
-              gameadd.place_traps_on_subtiles = val3;
+              gameadd.disease_to_temple_pct = val3;
           }
           else
           {
