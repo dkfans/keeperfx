@@ -7035,6 +7035,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               door_stats[val2][0].health = val4;
               door_stats[val2][1].health = val4;
           }
+          update_all_door_stats();
           break;
       case 4: //SellingValue
           mconf->selling_value = val4;
