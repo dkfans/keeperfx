@@ -415,7 +415,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 {
                     struct Coord3d target_pos;
                     target_pos.x.val = shotng->price.number;
-                    target_pos.y.val = shotng->shot.byte_19 * crtr_conf.sprite_size;
+                    target_pos.y.val = shotng->shot.byte_19 * gameadd.crtr_conf.sprite_size;
                     target_pos.z.val = pos->z.val;
                     const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
                     if (dist <= 800) return detonate_shot(shotng);
@@ -876,7 +876,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         if (!thing_is_invalid(killertng))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(killertng);
-            struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
@@ -1355,7 +1354,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             {
                 struct Coord3d target_pos;
                 target_pos.x.val = thing->price.number;
-                target_pos.y.val = thing->shot.byte_19 * crtr_conf.sprite_size;
+                target_pos.y.val = thing->shot.byte_19 * gameadd.crtr_conf.sprite_size;
                 target_pos.z.val = target->mappos.z.val;
                 dist = get_2d_distance(&thing->mappos, &target_pos);
                 if (dist <= 260) hit = true;

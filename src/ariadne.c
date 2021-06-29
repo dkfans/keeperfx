@@ -224,7 +224,10 @@ static long triangle_findSE8(long ptfind_x, long ptfind_y);
 long ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
 void edgelen_init(void);
 /******************************************************************************/
-static void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *arid2)
+
+// ariadne_compare_ways is unused by KFX code
+// This function was added by mefisto: "Prepared a function for debugging Ariadne structure." - https://github.com/dkfans/keeperfx/commit/e92bb5d7a4ad9a9dc232df160e7fc9909fc822df
+void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *arid2)
 {
     const struct Coord3d* p1;
     const struct Coord3d* p2;
@@ -1945,7 +1948,7 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     tree_By8 = ty;
     // Select a route
     NAVIDBG(19,"Selecting route");
-    if (par_fwd < par_fwd) // //TODO PATHFINDING maybe condition should be (par_fwd < par_bak) ?
+    if (par_fwd < par_bak)
     {
         for (i=0; i <= sizeof(tree_route)/sizeof(tree_route[0]); i++)
         {
@@ -3253,7 +3256,9 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         break;
     }
     if (result != AridRet_OK)
-        WARNDBG(3,"Update state %d returned %d",(int)arid->update_state,(int)result);
+    {
+        WARNDBG(3, "Update state %d returned %d", (int)arid->update_state, (int)result);
+    }
     return result;
 }
 

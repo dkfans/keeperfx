@@ -2125,7 +2125,7 @@ msgid ""
 "tasks really quickly."
 msgstr "加速: [26:21]"
 
-#: guitext:237 guitext:253
+#: guitext:237
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
@@ -2246,6 +2246,12 @@ msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
 msgstr "肉弾戦: [25.3]"
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr "放屁: 敵のクリーチャーにのみ損傷を加える近距離ガス攻撃。"
 
 #: guitext:254
 #, fuzzy

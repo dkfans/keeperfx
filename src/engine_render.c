@@ -1099,7 +1099,7 @@ void frame_wibble_generate(void)
     }
 }
 
-void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, long zoom, long map_angle, long map_roll)
+void setup_rotate_stuff(long x, long y, long z, long rotate_fade_max, long rotate_fade_min, long zoom, long map_angle, long rotate_map_roll)
 {
     //_DK_setup_rotate_stuff(x, y, z, fade_max, fade_min, zoom, map_angle, map_roll);
     view_width_over_2 = vec_window_width / 2;
@@ -1109,9 +1109,9 @@ void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, lo
     map_z_pos = z;
     thelens = zoom;
     spr_map_angle = map_angle;
-    lfade_min = fade_min;
-    lfade_max = fade_max;
-    fade_mmm = fade_max - fade_min;
+    lfade_min = rotate_fade_min;
+    lfade_max = rotate_fade_max;
+    fade_mmm = rotate_fade_max - rotate_fade_min;
 }
 
 static void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
@@ -2337,8 +2337,8 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
 
 void process_isometric_map_volume_box(long x, long y, long z)
 {
-    int default_color = map_volume_box.color;
-    int line_color = default_color;
+    unsigned char default_color = map_volume_box.color;
+    unsigned char line_color = default_color;
     struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
     struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
     // Check if a roomspace is currently being built
@@ -4929,7 +4929,10 @@ void draw_view(struct Camera *cam, unsigned char a2)
     x = cam->mappos.x.val;
     y = cam->mappos.y.val;
     z = cam->mappos.z.val;
-    frame_wibble_generate();
+    if (wibble_enabled())
+    {
+        frame_wibble_generate();
+    }
     view_alt = z;
     if (lens_mode != 0)
     {
@@ -6195,7 +6198,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
             break;
         case TCls_Trap:
-            trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;
@@ -6735,8 +6738,8 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
 
 void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width)
 {
-    int default_color = map_volume_box.color;
-    int line_color = default_color;
+    unsigned char default_color = map_volume_box.color;
+    unsigned char line_color = default_color;
     struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
     struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
     // Check if a roomspace is currently being built

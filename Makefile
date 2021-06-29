@@ -26,7 +26,9 @@ ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
   # linker flags
   # useful for development only: -Wl,-Map,"$(@:%.exe=%.map)"
-  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
+  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
+  # The following flags are only here to prevent a dependency on libwinpthread-1.dll when keeperfx is built with MSYS2:
+  # "-Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
 else
   CROSS_EXEEXT =
   CROSS_COMPILE = i686-w64-mingw32-
@@ -41,6 +43,8 @@ WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
 DOXYTOOL = doxygen
+BUILD_NUMBER ?= $(VER_BUILD)
+PACKAGE_SUFFIX ?= Prototype
 PNGTOICO = tools/png2ico/png2ico$(CROSS_EXEEXT)
 PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
 PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
@@ -293,8 +297,8 @@ $(RES)
 
 # include and library directories
 LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net 
-INCS =  -I"sdl/include"
-CXXINCS =  -I"sdl/include"
+INCS =  -I"sdl/include" -I"sdl/include/SDL2"
+CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
@@ -350,6 +354,7 @@ keeporig \
 lqizgood \
 lrdvexer \
 ncastles \
+origplus \
 postanck \
 pstunded \
 questfth \
@@ -367,7 +372,7 @@ LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 # load program version
 include version.mk
 
-VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD) Alpha
+VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_SUFFIX)
 
 # load depenency packages
 include prebuilds.mk
@@ -468,7 +473,7 @@ obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"
 	$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
-	$(ECHO) \#define VER_BUILD   $(VER_BUILD) >> "$(@D)/tmp"
+	$(ECHO) \#define VER_BUILD   $(BUILD_NUMBER) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
 	$(ECHO) \#define PACKAGE_SUFFIX  \"$(PACKAGE_SUFFIX)\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"

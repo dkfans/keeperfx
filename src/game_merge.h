@@ -116,6 +116,7 @@ struct IntralevelData {
  */
 struct GameAdd {
     struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+    struct CreatureConfig crtr_conf;
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
@@ -144,11 +145,15 @@ struct GameAdd {
     unsigned long gem_effectiveness;
     long room_sale_percent;
     unsigned long pay_day_speed;
+    unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
+
+#define TRAPDOOR_TYPES_MAX 128
 
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
+    struct TrapDoorConfig trapdoor_conf;
 
     uint8_t               max_custom_box_kind;
     unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
@@ -184,6 +189,7 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 /******************************************************************************/
+
 #ifdef __cplusplus
 }
 #endif

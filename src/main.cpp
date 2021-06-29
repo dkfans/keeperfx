@@ -1043,6 +1043,8 @@ short setup_game(void)
   // Enable features that require more resources
   update_features(mem_size);
 
+  features_enabled |= Ft_Wibble; // enable wibble by default
+
   // Configuration file
   if ( !load_configuration() )
   {
@@ -1399,8 +1401,6 @@ void reset_gui_based_on_player_mode(void)
             turn_on_menu(GMnu_ROOM);
         }
     }
-    settings.video_cluedo_mode = player->video_cluedo_mode;
-    copy_settings_to_dk_settings();
     set_gui_visible(true);
 }
 
@@ -2531,7 +2531,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     _DK_update_player_camera_fp(cam, thing);
 }
 
@@ -3102,34 +3102,46 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 {
     SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
     //_DK_tag_cursor_blocks_dig(plyr_idx, stl_x, stl_y, full_slab);
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     TbBool allowed = false;
-    if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false))
+    if (render_roomspace.slab_count > 0 && full_slab) // if roomspace is not empty
     {
         allowed = true;
     }
-    if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
+    else if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) // else if not using roomspace, is current slab diggable
+    {
+        allowed = true;
+    }
+    else if ((dungeonadd->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0))
+    {
+        allowed = true;
+    }
+    unsigned char line_color = allowed;
+    if (render_roomspace.untag_mode && allowed)
+    {
+        line_color = SLC_YELLOW;
+    }
+    if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
     {
         map_volume_box.visible = 1;
-        map_volume_box.color = allowed;
-        map_volume_box.beg_x = (!full_slab ? (subtile_coord(stl_x, 0)) : subtile_coord((slb_x * STL_PER_SLB), 0));
-        map_volume_box.beg_y = (!full_slab ? (subtile_coord(stl_y, 0)) : subtile_coord((slb_y * STL_PER_SLB), 0));
-        map_volume_box.end_x = (!full_slab ? (subtile_coord(stl_x + 1, 0)) : subtile_coord(((slb_x + 1) * STL_PER_SLB), 0));
-        map_volume_box.end_y = (!full_slab ? (subtile_coord(stl_y + 1, 0)) : subtile_coord(((slb_y + 1) * STL_PER_SLB), 0));
+        map_volume_box.color = line_color;
+        map_volume_box.beg_x = (!full_slab ? (subtile_coord(stl_x, 0)) : subtile_coord(((render_roomspace.centreX - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * STL_PER_SLB), 0));
+        map_volume_box.beg_y = (!full_slab ? (subtile_coord(stl_y, 0)) : subtile_coord(((render_roomspace.centreY - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * STL_PER_SLB), 0));
+        map_volume_box.end_x = (!full_slab ? (subtile_coord(stl_x + 1, 0)) : subtile_coord((((render_roomspace.centreX + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) + 1) * STL_PER_SLB), 0));
+        map_volume_box.end_y = (!full_slab ? (subtile_coord(stl_y + 1, 0)) : subtile_coord((((render_roomspace.centreY + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) + 1) * STL_PER_SLB), 0));
         map_volume_box.floor_height_z = floor_height_z;
         render_roomspace.is_roomspace_a_single_subtile = !full_slab;
-        render_roomspace.is_roomspace_a_box = true;
-        render_roomspace.render_roomspace_as_box = true;
     }
 }
 
 void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int is_special_digger, long full_slab)
 {
   SYNCDBG(7,"Starting");
-  render_roomspace.is_roomspace_a_box = true;
-  render_roomspace.render_roomspace_as_box = true;
   _DK_tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_special_digger, full_slab);
 }
 
@@ -4443,7 +4455,7 @@ void wait_at_frontend(void)
     short finish_menu = 0;
     set_flag_byte(&game.flags_cd,MFlg_unk40,false);
     // Begin the frontend loop
-    long last_loop_time = LbTimerClock();
+    long fe_last_loop_time = LbTimerClock();
     do
     {
       if (!LbWindowsControl())
@@ -4493,9 +4505,9 @@ void wait_at_frontend(void)
         fade_palette_in = 0;
       } else
       {
-        LbSleepUntil(last_loop_time + 30);
+        LbSleepUntil(fe_last_loop_time + 30);
       }
-      last_loop_time = LbTimerClock();
+      fe_last_loop_time = LbTimerClock();
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);

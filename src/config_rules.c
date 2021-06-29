@@ -94,6 +94,7 @@ const struct NamedCommand rules_computer_commands[] = {
   {"CHECKEXPANDTIME",            3},
   {"MAXDISTANCETODIG",           4},
   {"WAITAFTERROOMAREA",          5},
+  {"DISEASEHPTEMPLEPERCENTAGE",  6},
   {NULL,                         0},
   };
 
@@ -214,6 +215,7 @@ const struct NamedCommand sacrifice_unique_desc[] = {
   {"COMPLETE_MANUFACTR",  UnqF_ComplManufc},
   {"KILL_ALL_CHICKENS",   UnqF_KillChickns},
   {"CHEAPER_IMPS",        UnqF_CheaperImp},
+  {"COSTLIER_IMPS",       UnqF_CostlierImp},
   {NULL,                  0},
   };
 /******************************************************************************/
@@ -244,6 +246,13 @@ void clear_sacrifice_recipes(void)
   }
 }
 
+static int long_compare_fn(const void *ptr_a, const void *ptr_b)
+{
+    long *a = (long*)ptr_a;
+    long *b = (long*)ptr_b;
+    return *a < *b;
+}
+
 TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
 {
     // If all slots are taken, then just drop it.
@@ -252,17 +261,10 @@ TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
     // Otherwise, find place for our item (array is sorted)
     for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-        if ((sac->victims[i] == 0) || (sac->victims[i] > crtr_idx))
+        if (sac->victims[i] == 0)
         {
-            // Move the entries to make place
-            for (long k = MAX_SACRIFICE_VICTIMS - 1; k > i; k--)
-                sac->victims[k] = sac->victims[k - 1];
-            if (i > 0)
-            {
-                sac->victims[i] = sac->victims[i - 1];
-                i--;
-            }
             sac->victims[i] = crtr_idx;
+            qsort(sac->victims, MAX_SACRIFICE_VICTIMS, sizeof(sac->victims[0]), &long_compare_fn);
             return true;
         }
   }
@@ -734,6 +736,7 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
         game.check_expand_time = 1000;
         game.max_distance_to_dig = 96;
         game.wait_after_room_area = 200;
+        gameadd.disease_to_temple_pct = 500;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -810,6 +813,19 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 6: // DISEASEHPTEMPLEPERCENTAGE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.disease_to_temple_pct = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case 0: // comment
@@ -1966,7 +1982,8 @@ static void mark_cheaper_diggers_sacrifice(void)
         struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             continue;
-        if ((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp))
+        if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp)) 
+            || ((sac->action == SacA_NegUniqFunc) && (sac->param == UnqF_CostlierImp)))
         {
             if ((sac->victims[1] == 0) && (gameadd.cheaper_diggers_sacrifice_model == 0)) {
                 gameadd.cheaper_diggers_sacrifice_model = sac->victims[0];

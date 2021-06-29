@@ -261,6 +261,7 @@ void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
 struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
+void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -168,7 +168,7 @@ long calculate_doors_unused(PlayerNumber plyr_idx)
 {
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     long count = 0;
-    for (long i = 1; i < trapdoor_conf.door_types_count; i++)
+    for (long i = 1; i < gameadd.trapdoor_conf.door_types_count; i++)
     {
       count += dungeonadd->mnfct_info.door_amount_stored[i];
     }
@@ -179,7 +179,7 @@ long calculate_traps_unused(PlayerNumber plyr_idx)
 {
     struct DungeonAdd* dungeon = get_dungeonadd(plyr_idx);
     long count = 0;
-    for (long i = 1; i < trapdoor_conf.trap_types_count; i++)
+    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
     {
       count += dungeon->mnfct_info.trap_amount_stored[i];
     }

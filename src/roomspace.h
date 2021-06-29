@@ -80,6 +80,15 @@ struct RoomSpace {
 	  MapSlabCoord buildx, buildy;
 	  TbBool is_active;
     TbBool render_roomspace_as_box;
+    TbBool tag_for_dig;
+    TbBool highlight_mode;
+    TbBool untag_mode;
+    TbBool one_click_mode_exclusive;
+    MapSlabCoord drag_start_x;
+    MapSlabCoord drag_start_y;
+    MapSlabCoord drag_end_x;
+    MapSlabCoord drag_end_y;
+    TbBool drag_mode;
 };
 /******************************************************************************/
 extern int user_defined_roomspace_width;
@@ -112,13 +121,15 @@ struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx,
                                                MapSlabCoord cursor_x, 
                                                MapSlabCoord cursor_y);
 
+void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+
 void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check);
 
+void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction);
 void keeper_sell_roomspace(struct RoomSpace *roomspace);
-
 void keeper_build_roomspace(struct RoomSpace *roomspace);
 
 void update_roomspaces();

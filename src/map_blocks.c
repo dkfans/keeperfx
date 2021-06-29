@@ -722,7 +722,10 @@ void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, 
             if ( v10 < 0 )
               ERRORLOG("BBlocks instead of columns");
             update_map_collide(slbkind, stl_x+dx, stl_y+dy);
-            set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
+            if (wibble_enabled())
+            {
+                set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
+            }
             colid++;
         }
     }
@@ -1410,7 +1413,10 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
                 MapSubtlCoord sstl_y;
                 sstl_x = slab_subtile(sslb_x,ssub_x);
                 sstl_y = slab_subtile(sslb_y,ssub_y);
-                set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
+                if (wibble_enabled())
+                {
+                    set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
+                }
             }
         }
     }

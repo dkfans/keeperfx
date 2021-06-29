@@ -187,7 +187,7 @@ TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng)
         return false;
     return (creatng->model == get_players_special_digger_model(creatng->owner));
     //struct CreatureModelConfig *crconf;
-    //crconf = &crtr_conf.model[creatng->model];
+    //crconf = &gameadd.crtr_conf.model[creatng->model];
     //return  ((crconf->model_flags & CMF_IsSpecDigger) != 0);
 }
 
@@ -198,7 +198,7 @@ TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingMod
         return false;
     return (crmodel == get_players_special_digger_model(plyr_idx));
     //struct CreatureModelConfig *crconf;
-    //crconf = &crtr_conf.model[crmodel];
+    //crconf = &gameadd.crtr_conf.model[crmodel];
     //is_spec_digger = ((crconf->model_flags & CMF_IsSpecDigger) != 0);
 }
 
@@ -269,7 +269,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
         return false;
       cam = player->acamera;
       crstat = creature_stats_get(get_players_special_digger_model(player->id_number));
-      cam->mappos.z.val += (crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+      cam->mappos.z.val += (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
       return true;
     }
     cctrl->moveto_pos.x.val = 0;
@@ -2781,11 +2781,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
-    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
-    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
-    pos1.z.val += (cctrl->shot_shift_z +(cctrl->shot_shift_z * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) /100);
+    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy+LbFPMath_PI/2);
+    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy+LbFPMath_PI/2);
+    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
+    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
+    pos1.z.val += (cctrl->shot_shift_z +(cctrl->shot_shift_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) /100);
     // Compute launch angles
     if (thing_is_invalid(target))
     {
@@ -2894,14 +2894,14 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             {
                 if (!thing_is_invalid(target))
                 {
-                    long range = 2200 - ((crstat->dexterity + (crstat->dexterity * cctrl->explevel * crtr_conf.exp.dexterity_increase_on_exp)/100) * 19);
+                    long range = 2200 - ((crstat->dexterity + (crstat->dexterity * cctrl->explevel * gameadd.crtr_conf.exp.dexterity_increase_on_exp)/100) * 19);
                     range = range < 1 ? 1 : range;
                     long rnd = (ACTION_RANDOM(2 * range) - range);
                     rnd = rnd < (range / 3) && rnd > 0 ? (ACTION_RANDOM(range / 2) + (range / 2)) + 200 : rnd + 200;
                     rnd = rnd > -(range / 3) && rnd < 0 ? -(ACTION_RANDOM(range / 3) + (range / 3)) : rnd;
                     long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
                     long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
-                    int posint = y / crtr_conf.sprite_size;
+                    int posint = y / gameadd.crtr_conf.sprite_size;
                     shotng->price.number = x;
                     shotng->shot.byte_19 = posint;
                     shotng->shot.dexterity = range / 10;
@@ -3490,7 +3490,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->shot_shift_y = creatures[model].shot_shift_y;
     cctrl->shot_shift_z = creatures[model].shot_shift_z;
     long i = get_creature_anim(crtng, 0);
-    set_thing_draw(crtng, i, 256, crtr_conf.sprite_size, 0, 0, 2);
+    set_thing_draw(crtng, i, 256, gameadd.crtr_conf.sprite_size, 0, 0, 2);
     cctrl->explevel = 1;
     crtng->health = crstat->health;
     cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
@@ -3594,9 +3594,9 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
 {
     ThingModel crmodel;
     while (1) {
-        crmodel = ACTION_RANDOM(crtr_conf.model_count) + 1;
+        crmodel = ACTION_RANDOM(gameadd.crtr_conf.model_count) + 1;
         // Accept only evil creatures
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
         if ((crconf->model_flags & CMF_IsSpectator) != 0) {
             continue;
         }
@@ -3644,17 +3644,17 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
 {
   ThingModel crmodel;
   while (1) {
-      crmodel = ACTION_RANDOM(crtr_conf.model_count) + 1;
+      crmodel = ACTION_RANDOM(gameadd.crtr_conf.model_count) + 1;
 
       // model_count is always one higher than the last available index for creature models
       // This will allow more creature models to be added, but still catch the out-of-bounds model number.
-      if (crmodel >= crtr_conf.model_count) {
+      if (crmodel >= gameadd.crtr_conf.model_count) {
           // try again
           continue;
       }
 
       // Accept only evil creatures
-      struct CreatureModelConfig* crconf = &crtr_conf.model[crmodel];
+      struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
       if ((crconf->model_flags & CMF_IsSpectator) != 0) {
           continue;
       }
@@ -4119,7 +4119,7 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
     {
     default:
         WARNLOG("Invalid check selection, %d",(int)pick_check);
-        // no break
+        // fall through
     case 0:
         filter = player_list_creature_filter_most_experienced;
         break;
@@ -4162,7 +4162,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
     {
     default:
         WARNLOG("Invalid check selection, %d",(int)pick_check);
-        // no break
+        // fall through
     case 0:
         filter = player_list_creature_filter_least_experienced;
         break;
@@ -4207,7 +4207,7 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
     {
     default:
         WARNLOG("Invalid check selection, %d",(int)pick_check);
-        // no break
+        // fall through
     case 0:
         filter = player_list_creature_filter_of_gui_job;
         break;
@@ -4451,10 +4451,10 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     }
 
     int health_permil = get_creature_health_permil(thing);
-    // If it's angry but not furious, or has lost half or health due to disease,
+    // If it's angry but not furious, or has lost health due to disease,
     // then should be placed in temple
     if ((anger_is_creature_angry(thing) ||
-     (creature_affected_by_spell(thing, SplK_Disease) && (health_permil < 500)))
+     (creature_affected_by_spell(thing, SplK_Disease) && (health_permil <= (gameadd.disease_to_temple_pct*10))))
      && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY, JobChk_None))
     {
         // If already at temple, then don't do anything
