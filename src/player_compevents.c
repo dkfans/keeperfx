@@ -406,6 +406,11 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     if (!thing_is_creature(creatng) || creature_is_dying(creatng)) {
         return 4;
     }
+    if (creatng->owner == fightng->owner)
+    {
+        //TODO: Stop computer from initiating attack event on friendly fights
+        return 4;
+    }
     PowerKind pwkind = computer_choose_attack_spell(comp, cevent, creatng);
     if (pwkind == PwrK_None) {
         return 4;

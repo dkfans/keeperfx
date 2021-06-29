@@ -182,7 +182,7 @@ TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job)
         return false;
     }
     cctrl->job_assigned = new_job;
-    SYNCLOG("Assigned job %s for %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(thing),(int)thing->index,(int)thing->owner);
+    SYNCDBG(6,"Assigned job %s for %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(thing),(int)thing->index,(int)thing->owner);
     return true;
 }
 

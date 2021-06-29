@@ -2233,8 +2233,14 @@ struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Co
         }
         i = cctrl->players_next_creature_idx;
         // Per thing code starts
-        if (n == 0) {
-            return thing;
+        
+        if ((n <= 0) )
+        {
+            if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
+                && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+            {
+                return thing;
+            }
         }
         n--;
         // Per thing code ends
