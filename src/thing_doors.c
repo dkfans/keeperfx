@@ -338,7 +338,7 @@ long process_door_opening(struct Thing *thing)
 {
     struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
     int old_frame = (thing->door.word_16d / 256);
-    short delta_h = dostat->field_6;
+    short delta_h = dostat->door_speed;
     int slbparam = dostat->slbkind;
     if (thing->door.word_16d+delta_h < 768)
     {
@@ -359,7 +359,7 @@ long process_door_closing(struct Thing *thing)
 {
     int old_frame = (thing->door.word_16d / 256);
     struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
-    int delta_h = dostat->field_6;
+    int delta_h = dostat->door_speed;
     int slbparam = dostat->slbkind;
     if ( check_door_should_open(thing) )
     {
