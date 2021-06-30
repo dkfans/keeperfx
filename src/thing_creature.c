@@ -2124,10 +2124,15 @@ long move_creature(struct Thing *thing)
             if (is_hero_tunnelling_to_attack(thing)) {
                 update_tunneller_trail(thing);
             }
+            if (
+                (tngpos->x.stl.num != nxpos.x.stl.num) ||
+                (tngpos->y.stl.num != nxpos.y.stl.num))
+            {
+                check_map_explored(thing, nxpos.x.stl.num, nxpos.y.stl.num);
+            }
             if ((subtile_slab_fast(tngpos->x.stl.num) != subtile_slab_fast(nxpos.x.stl.num))
              || (subtile_slab_fast(tngpos->y.stl.num) != subtile_slab_fast(nxpos.y.stl.num)))
             {
-                check_map_explored(thing, nxpos.x.stl.num, nxpos.y.stl.num);
                 struct StateInfo* stati = get_thing_active_state_info(thing);
                 if (!state_info_invalid(stati)) {
                     CreatureStateFunc2 callback = stati->move_from_slab;

@@ -2212,10 +2212,10 @@ void reveal_seen_slab(int stl_x, int stl_y, unsigned char owner)
     reveal_map_subtile(stl_x, stl_y, owner);
     if (subtile_has_slab(stl_x, stl_y))
     {
+        //set_slab_explored(owner, subtile_slab(stl_x), subtile_slab(stl_y));
         clear_slab_dig(subtile_slab(stl_x), subtile_slab(stl_y), owner);
         pannel_map_update(stl_x, stl_y, 1, 1);
     }
-
 }
 
 void process_line_visibility(int src_x, int src_y, int dst_x, int dst_y, unsigned char owner)
@@ -2224,7 +2224,6 @@ void process_line_visibility(int src_x, int src_y, int dst_x, int dst_y, unsigne
      * modified Bersenham's line algorithm
      * It is following a line from src+0.5 to dst+0.5 with step of stl/2
      */
-    // This ray cant stop in time
     int ox = src_x;
     int oy = src_y;
     int tx = dst_x;
@@ -2277,8 +2276,6 @@ void reveal_seen_slabs(int cx, int cy, unsigned char owner, unsigned char sight_
         return;
     if ( visibility_cache[owner][cy * MAP_SIZE_STL + cx] >= sight_distance)
         return; // already rounded
-/*    if (mark)
-        sight_distance = 2;*/
     int start_x, end_x;
     /* 1. Top half */
     int my = cy - sight_distance * STL_PER_SLB;
@@ -2347,6 +2344,7 @@ void reveal_seen_slabs(int cx, int cy, unsigned char owner, unsigned char sight_
     }
     // Cache current stl(cx,cy) as already checked
     visibility_cache[owner][cy * MAP_SIZE_STL + cx] = sight_distance;
+    visibility_cache_is_clear = false;
 }
 
 void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -2382,10 +2380,6 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
     clear_slab_dig(slb_x, slb_y, creatng->owner);
     set_slab_explored(creatng->owner, slb_x, slb_y);
     reveal_seen_slabs(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner, slb_sight_distance);
-    /*
-    clear_dig_and_set_explored_can_see_x(slb_x, slb_y, creatng->owner, slb_sight_distance);
-    clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, slb_sight_distance);
-    */
 }
 
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
