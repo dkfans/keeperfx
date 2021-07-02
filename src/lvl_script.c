@@ -7056,8 +7056,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       switch (val3)
       {
       default:
+          WARNMSG("Unsupported Object configuration, variable %d.", val3);
           break;
       }
+      update_all_object_stats();
       break;
   case Cmd_SET_DOOR_CONFIGURATION:
       doorst = get_door_model_stats(val2);

@@ -471,6 +471,17 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     return result;
 }
 
+void update_all_object_stats()
+{
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
+    for (int i = slist->index; i > 0;)
+        struct Thing* thing = thing_get(i);
+        i = thing->next_of_class
+            TRACE_THING(thing);
+        struct Objects* objdat = get_objects_data_for_thing(thing);
+        set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
+    }
+}
 TbBool load_objects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global objects config";
