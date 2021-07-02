@@ -332,8 +332,16 @@ const struct NamedCommand door_config_desc[] = {
 };
 
 const struct NamedCommand object_config_desc[] = {
-  {"AnimationID",      1},
-  {NULL,                    0},
+  {"Genre",           1},
+  {"AnimationID",     2},
+  {"AnimationSpeed",  3},
+  {"Size_XY",         4},
+  {"Size_YZ",         5},
+  {"MaximumSize",     6},
+  {"DestroyOnLava",   7},
+  {"DestroyOnLiquid", 8},
+  {"Properties",      9},
+  {NULL,              0},
 };
 
 const struct NamedCommand trap_config_desc[] = {
