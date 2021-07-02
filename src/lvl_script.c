@@ -6076,6 +6076,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct DoorConfigStats* doorst;
   struct ManfctrConfig* mconf;
   struct ManufactureData* manufctr;
+  struct Objects* objdat;
   int plr_start;
   int plr_end;
   long i;
@@ -7053,8 +7054,35 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_SET_OBJECT_CONFIGURATION:
+      objdat = get_objects_data(val2);
       switch (val3)
       {
+      case 1: // Genre
+          //fall through
+      case 2: // AnimationID
+          objdat->sprite_anim_idx = val4;
+          break;
+      case 3: // AnimationSpeed
+          objdat->anim_speed = val4;
+          break;
+      case 4: //Size_XY
+          objdat->size_xy = val4;
+          break;
+      case 5: // Size_YZ
+          objdat->size_yz = val4;
+          break;
+      case 6: // MaximumSize
+          objdat->sprite_size_max = val4;
+          break;
+      case 7: // DestroyOnLava
+          objdat->destroy_on_lava = val4;
+          break;
+      case 8: // DestroyOnLiquid
+          objdat->destroy_on_liquid = val4;
+          break;
+      case 9: // Properties
+            //fall through
+          break;
       default:
           WARNMSG("Unsupported Object configuration, variable %d.", val3);
           break;

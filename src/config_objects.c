@@ -475,6 +475,7 @@ void update_all_object_stats()
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
     for (int i = slist->index; i > 0;)
+    {
         struct Thing* thing = thing_get(i);
         i = thing->next_of_class
             TRACE_THING(thing);
