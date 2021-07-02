@@ -331,6 +331,11 @@ const struct NamedCommand door_config_desc[] = {
   {NULL,                    0},
 };
 
+const struct NamedCommand object_config_desc[] = {
+  {"AnimationID",      1},
+  {NULL,                    0},
+};
+
 const struct NamedCommand trap_config_desc[] = {
   {"NameTextID",           1},
   {"TooltipTextID",        2},
@@ -2656,6 +2661,25 @@ void command_set_door_configuration(const char* doorname, const char* property, 
     command_add_value(Cmd_SET_DOOR_CONFIGURATION, 0, door_id, doorvar, mergedval);
 }
 
+void command_set_object_configuration(const char* objectname, const char* property, long value)
+{
+    long objct_id = get_rid(object_desc, objectname);
+    if (objct_id == -1)
+    {
+        SCRPTERRLOG("Unknown object, '%s'", objectname);
+    }
+
+    long objectvar = get_id(object_config_desc, property);
+    if (objectvar == -1)
+    {
+        SCRPTERRLOG("Unknown object variable");
+        return;
+    }
+
+    SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, value);
+    command_add_value(Cmd_SET_OBJECT_CONFIGURATION, 0, objct_id, objectvar, value);
+}
+
 void command_set_computer_events(long plr_range_id, const char *evntname, long val1, long val2, long val3, long val4, long val5)
 {
   int plr_start;
@@ -3897,6 +3921,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_DOOR_CONFIGURATION:
         command_set_door_configuration(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
+        break;
+    case Cmd_SET_OBJECT_CONFIGURATION:
+        command_set_object_configuration(scline->tp[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_CHANGE_SLAB_OWNER:
         command_change_slab_owner(scline->np[0], scline->np[1], scline->np[2]);
@@ -7017,6 +7044,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       }
       break;
+  case Cmd_SET_OBJECT_CONFIGURATION:
+      switch (val3)
+      {
+      default:
+          break;
+      }
+      break;
   case Cmd_SET_DOOR_CONFIGURATION:
       doorst = get_door_model_stats(val2);
       mconf = &gameadd.doors_config[val2];
@@ -7337,6 +7371,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
   {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
   {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
+  {"SET_OBJECT_CONFIGURATION",          "AAN     ", Cmd_SET_OBJECT_CONFIGURATION, NULL, NULL},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
