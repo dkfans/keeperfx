@@ -147,6 +147,7 @@ struct GameAdd {
     unsigned long pay_day_speed;
     unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
+    unsigned long gold_per_hoard;
 
 #define TRAPDOOR_TYPES_MAX 128
 
