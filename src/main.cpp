@@ -689,63 +689,54 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   return 0;
 }
 
-long process_boulder_collision(struct Thing *thing, struct Coord3d *pos, int a3, int a4)
-// Function at 493690. Original name unknown.
+long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int direction_x, int direction_y)
 { 
-  unsigned short i = (thing->clipbox_size_xy >> 1);
-  unsigned long pos_x = (pos->x.val + i * a3) >> 8;
-  unsigned long pos_y = (i * a4 + pos->y.val) >> 8;
-  MapSlabCoord slb_x = *((unsigned long *)&map_to_slab + pos_x);
-  MapSlabCoord slb_y = *((unsigned long *)&map_to_slab + pos_y);
-  MapSubtlCoord stl_x = slab_subtile_center(slb_x);
-  MapSubtlCoord stl_y = slab_subtile_center(slb_y);
-  struct Room *room = subtile_room_get(stl_x, stl_y);
-  if ( room_is_invalid(room) )
-  {
-      struct Map *mapblk = get_map_block_at(stl_x, stl_y);
-      if (!map_block_invalid(mapblk))
-      {
-        if ( (!mapblk->flags & SlbAtFlg_IsDoor) )
+    unsigned short boulder_radius = (boulder->clipbox_size_xy >> 1);
+    MapSubtlCoord pos_x = (pos->x.val + boulder_radius * direction_x) >> 8;
+    MapSubtlCoord pos_y = (pos->y.val + boulder_radius * direction_y) >> 8;
+    MapSubtlCoord stl_x = stl_slab_center_subtile(pos_x);
+    MapSubtlCoord stl_y = stl_slab_center_subtile(pos_y);
+
+    struct Room *room = subtile_room_get(stl_x, stl_y);
+    if (room_exists(room))
+    {
+        if (room->kind == RoK_GUARDPOST)  // Collide with Guardposts
         {
-            return 0;
+            if (room->owner != game.neutral_player_num)
+            {
+                struct Dungeon *dungeon = get_dungeon(room->owner);
+                if (!dungeon_invalid(dungeon))
+                {
+                    dungeon->rooms_destroyed++; // add to player stats
+                }
+            }
+            delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), 0); // destroy guardpost
+            for (long k = 0; k < AROUND_TILES_COUNT; k++)
+            {
+                create_dirt_rubble_for_dug_block(stl_x + around[k].delta_x, stl_y + around[k].delta_y, 4, room->owner);
+            }
+            if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
+            {
+                boulder->health -= game.boulder_reduce_health_room; // decrease boulder health
+            }
+            return 1; // guardpost destroyed
         }
-      }
-    struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-    if ( thing_is_invalid(doortng) )
-    {
-      return 0;
     }
-    short door_health = doortng->health;
-    doortng->health = door_health - thing->health;
-    thing->health -= door_health;
-    if ( doortng->health <= 0 )
+    else
     {
-      return 2;
+        if (subtile_has_door_thing_on(stl_x, stl_y)) // Collide with Doors
+        {
+            struct Thing *doortng = get_door_for_position(stl_x, stl_y);
+            short door_health = doortng->health;
+            doortng->health -= boulder->health; // decrease door health
+            boulder->health -= door_health; // decrease boulder health
+            if (doortng->health <= 0)
+            {
+                return 2; // door destroyed
+            }
+        }
     }
-    return 0;
-  }
-  if ( room->kind != RoK_GUARDPOST )
-  {
-    return 0;
-  }
-  if ( game.neutral_player_num != room->owner )
-  {
-    struct Dungeon *dungeon = get_dungeon(room->owner);
-    if (!dungeon_invalid(dungeon))
-    {
-        dungeon->rooms_destroyed++;
-    }
-  }
-  delete_room_slab(slb_x, slb_y, 0);
-  for (long k = 0; k < AROUND_TILES_COUNT; k++)
-  {
-    create_dirt_rubble_for_dug_block(stl_x + around[k].delta_x, stl_y + around[k].delta_y, 4, room->owner);
-  }
-  if ( thing->model != ShM_SolidBoulder )
-  {
-    thing->health -= game.boulder_reduce_health_room;
-  }
-  return 1;
+    return 0; // Default: No collision OR boulder destroyed on door
 }
 
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step)
