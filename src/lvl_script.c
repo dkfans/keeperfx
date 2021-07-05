@@ -408,6 +408,56 @@ const struct NamedCommand script_operator_desc[] = {
   {NULL,          0},
 };
 
+static struct ScriptValue *allocate_script_value(void)
+{
+    if (game.script.values_num >= SCRIPT_VALUES_COUNT)
+        return NULL;
+    struct ScriptValue* value = &game.script.values[game.script.values_num];
+    game.script.values_num++;
+    return value;
+}
+
+static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id)
+{
+    set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
+    set_flag_byte(&value->flags, TrgF_DISABLED, false);
+    value->valtype = var_index;
+    value->plyr_range = plr_range_id;
+    value->condit_idx = script_current_condition;
+}
+
+#define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
+    struct ScriptValue tmp_value = {0}; \
+    struct ScriptValue* value; \
+    if ((script_current_condition < 0) && (next_command_reusable == 0)) \
+    { \
+    /* Fill local structure */ \
+        value = &tmp_value; \
+    } \
+    else \
+    { \
+        value = allocate_script_value(); \
+        if (value == NULL) \
+        { \
+            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT); \
+            return; \
+        } \
+    } \
+    command_init_value(value, var_index, plr_range_id);
+
+#define DEALLOCATE_SCRIPT_VALUE \
+    if (value != &tmp_value) \
+    {                           \
+        value->flags = TrgF_DISABLED; \
+        game.script.values_num--; \
+    }
+
+#define PROCESS_SCRIPT_VALUE(cmd) \
+    if ((script_current_condition < 0) && (next_command_reusable == 0)) \
+    { \
+        script_process_value(cmd, 0, 0, 0, 0, value); \
+    }
+
 /******************************************************************************/
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
 /******************************************************************************/
@@ -1105,25 +1155,7 @@ static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
 }
 static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
 {
-    struct ScriptValue tmp_value = {0};
-    struct ScriptValue* value;
-
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        // Fill local structure
-        value = &tmp_value;
-    }
-    else
-    {
-        value = allocate_script_value();
-        if (value == NULL)
-        {
-            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
-            return;
-        }
-    }
-
-    command_init_value(value, scline->command, 0);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
     value->sac.action = get_rid(rules_sacrifices_commands, scline->tp[0]);
     if (value->sac.action == -1)
@@ -1170,33 +1202,12 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     }
     qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        script_process_value(scline->command, 0, 0, 0, 0, value);
-    }
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
 {
-    struct ScriptValue tmp_value = {0};
-    struct ScriptValue* value;
-
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        // Fill local structure
-        value = &tmp_value;
-    }
-    else
-    {
-        value = allocate_script_value();
-        if (value == NULL)
-        {
-            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
-            return;
-        }
-    }
-
-    command_init_value(value, scline->command, 0);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
     value->sac.action = SacA_None;
     value->sac.param = 0;
@@ -1210,10 +1221,7 @@ static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
     }
     qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        script_process_value(scline->command, 0, 0, 0, 0, value);
-    }
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_sacrifice_recipe_process(struct ScriptContext *context)
@@ -1309,25 +1317,8 @@ static void set_box_tooltip_id(const struct ScriptLine *scline)
 
 static void create_effects_line_check(const struct ScriptLine *scline)
 {
-    struct ScriptValue tmp_value = {0};
-    struct ScriptValue* value;
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        // Fill local structure
-        value = &tmp_value;
-    }
-    else
-    {
-        value = allocate_script_value();
-        if (value == NULL)
-        {
-            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
-            return;
-        }
-    }
-
-    command_init_value(value, scline->command, 0);
     ((long*)(&value->bytes[0]))[0] = scline->np[0]; // AP `from`
     ((long*)(&value->bytes[4]))[0] = scline->np[1]; // AP `to`
     value->bytes[8] = scline->np[2]; // curvature
@@ -1336,10 +1327,7 @@ static void create_effects_line_check(const struct ScriptLine *scline)
     // TODO: use effect elements when below zero?
     value->bytes[11] = scline->np[5]; // effect
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        script_process_value(scline->command, 0, 0, 0, 0, value);
-    }
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void create_effects_line_process(struct ScriptContext *context)
@@ -1799,45 +1787,10 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
     command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
 }
 
-static struct ScriptValue *allocate_script_value(void)
-{
-  if (game.script.values_num >= SCRIPT_VALUES_COUNT)
-    return NULL;
-  struct ScriptValue* value = &game.script.values[game.script.values_num];
-  game.script.values_num++;
-  return value;
-}
-
-static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id)
-{
-    set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
-    set_flag_byte(&value->flags, TrgF_DISABLED, false);
-    value->valtype = var_index;
-    value->plyr_range = plr_range_id;
-    value->condit_idx = script_current_condition;
-}
-
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
-    struct ScriptValue tmp_value = {0};
-    struct ScriptValue* value;
+    ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id);
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        // Fill local structure
-        value = &tmp_value;
-    }
-    else
-    {
-        value = allocate_script_value();
-        if (value == NULL)
-        {
-            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
-            return;
-        }
-    }
-
-    command_init_value(value, var_index, plr_range_id);
     value->arg0 = val2;
     value->arg1 = val3;
     value->arg2 = val4;
