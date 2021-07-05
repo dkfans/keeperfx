@@ -215,7 +215,7 @@ Thing_Class_Func object_update_functions[] = {
  *
  * Originally was named objects[].
  */
-struct Objects objects_data[] = {
+struct Objects objects_data_init[] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1}, //1 BARREL
   {0, 0, 1, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1}, //2 TORCH
@@ -566,15 +566,15 @@ struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
     unsigned int tmodel = thing->model;
     if (tmodel >= OBJECT_TYPES_COUNT)
-      return &objects_data[0];
-    return &objects_data[tmodel];
+      return &gameadd.thing_objects_data[0];
+    return &gameadd.thing_objects_data[tmodel];
 }
 
 struct Objects *get_objects_data(unsigned int tmodel)
 {
     if (tmodel >= OBJECT_TYPES_COUNT)
-        return &objects_data[0];
-    return &objects_data[tmodel];
+        return &gameadd.thing_objects_data[0];
+    return &gameadd.thing_objects_data[tmodel];
 }
 
 /**
@@ -2113,6 +2113,11 @@ struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
         add_gold_to_pile(thing, value);
     }
     return thing;
+}
+
+void init_thing_objects()
+{
+    memcpy(gameadd.thing_objects_data, objects_data_init, sizeof(objects_data_init));
 }
 /******************************************************************************/
 #ifdef __cplusplus

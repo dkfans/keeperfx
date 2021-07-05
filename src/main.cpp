@@ -1787,6 +1787,7 @@ void clear_game(void)
     clear_things_and_persons_data();
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
+    init_thing_objects();
 }
 
 void clear_game_for_save(void)

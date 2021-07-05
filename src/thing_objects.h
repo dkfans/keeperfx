@@ -28,7 +28,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define OBJECT_TYPES_COUNT  136
+#define OBJECT_TYPES_COUNT_ORIGINAL  136
+#define OBJECT_TYPES_COUNT  255
 
 #define OBJECT_TYPE_SPECBOX_CUSTOM    133
 
@@ -86,7 +87,6 @@ struct CallToArmsGraphics {
 };
 
 /******************************************************************************/
-DLLIMPORT struct Objects _DK_objects[OBJECT_TYPES_COUNT]; // in KeeperFX, named objects_data[]
 DLLIMPORT unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
@@ -162,6 +162,8 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel);
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
+
+void init_thing_objects();
 /******************************************************************************/
 #ifdef __cplusplus
 }
