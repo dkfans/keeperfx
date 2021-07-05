@@ -2182,16 +2182,35 @@ void creature_rebirth_at_lair(struct Thing *thing)
 
 void throw_out_gold(struct Thing *thing)
 {
-    // Compute how many pots we want to drop
-    int num_pots_to_drop = (thing->creature.gold_carried + game.pot_of_gold_holds - 1) / game.pot_of_gold_holds;
-    if (num_pots_to_drop > 8)
-        num_pots_to_drop = 8;
+    if (thing->creature.gold_carried <= 0)
+    {
+        return;
+    }
+
+    int num_pots_to_drop;
+    // Compute if we want bags or pots
+    int dropject = 6; //GOLD object
+    if ((game.pot_of_gold_holds > game.chest_gold_hold) && (thing->creature.gold_carried <= game.chest_gold_hold))
+    {
+            dropject = 3; //Drop GOLD_BAG object when we're dealing with small amounts
+            num_pots_to_drop = 1;
+    }
+    else //drop pots
+    {
+        // Compute how many pots we want to drop
+        num_pots_to_drop = ((thing->creature.gold_carried + game.pot_of_gold_holds - 1) / game.pot_of_gold_holds);
+        if (num_pots_to_drop > 8)
+        {
+            num_pots_to_drop = 8;
+        }
+    }
+   
     GoldAmount gold_dropped = 0;
     // Now do the dropping
     for (int npot = 0; npot < num_pots_to_drop; npot++)
     {
         // Create a new pot object
-        struct Thing* gldtng = create_object(&thing->mappos, 6, game.neutral_player_num, -1);
+        struct Thing* gldtng = create_object(&thing->mappos, dropject, game.neutral_player_num, -1);
         if (thing_is_invalid(gldtng))
             break;
         // Update its position and acceleration
