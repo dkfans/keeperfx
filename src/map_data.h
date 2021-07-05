@@ -52,7 +52,7 @@ struct Map {
 #pragma pack()
 /******************************************************************************/
 extern struct Map bad_map_block;
-extern const long map_to_slab[];
+extern const long map_to_slab[]; // TODO: subtile_slab, subtile_slab_fast and this. Is n't too much?
 extern MapSubtlCoord map_subtiles_x;
 extern MapSubtlCoord map_subtiles_y;
 extern MapSubtlCoord map_subtiles_z;
