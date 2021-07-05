@@ -2056,6 +2056,7 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel)
           return game.gold_pile_value;
       case 128:
           return game.gold_pile_maximum;
+      //todo case 137 gameadd.bag_of_gold_hold
       default:
         break;
     }
