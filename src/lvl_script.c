@@ -1016,6 +1016,68 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long
     return true;
 }
 
+static void set_object_configuration_check(const struct ScriptLine *scline)
+{
+    const char *objectname = scline->tp[0];
+    const char *property = scline->tp[1];
+    long new_value = scline->np[2];
+
+    long objct_id = get_id(object_desc, objectname);
+    if (objct_id == -1)
+    {
+        SCRPTERRLOG("Unknown object, '%s'", objectname);
+        return;
+    }
+
+    long objectvar = get_id(object_config_desc, property);
+    if (objectvar == -1)
+    {
+        SCRPTERRLOG("Unknown object variable");
+        return;
+    }
+
+    SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, new_value);
+    command_add_value(scline->command, 0, objct_id, objectvar, new_value);
+}
+
+static void set_object_configuration_process(struct ScriptContext *context)
+{
+    struct Objects* objdat = get_objects_data(context->value->arg0);
+    switch (context->value->arg1)
+    {
+        case 1: // Genre
+//fall through
+        case 2: // AnimationID
+            objdat->sprite_anim_idx = context->value->arg2;
+            break;
+        case 3: // AnimationSpeed
+            objdat->anim_speed = context->value->arg2;
+            break;
+        case 4: //Size_XY
+            objdat->size_xy = context->value->arg2;
+            break;
+        case 5: // Size_YZ
+            objdat->size_yz = context->value->arg2;
+            break;
+        case 6: // MaximumSize
+            objdat->sprite_size_max = context->value->arg2;
+            break;
+        case 7: // DestroyOnLava
+            objdat->destroy_on_lava = context->value->arg2;
+            break;
+        case 8: // DestroyOnLiquid
+            objdat->destroy_on_liquid = context->value->arg2;
+            break;
+        case 9: // Properties
+//fall through
+            break;
+        default:
+            WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
+            break;
+    }
+    update_all_object_stats();
+}
+
 static void null_process(struct ScriptContext *context)
 {
 }
@@ -1786,6 +1848,7 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
     // Add the condition to script structure
     command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
 }
+
 
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
@@ -2620,25 +2683,6 @@ void command_set_door_configuration(const char* doorname, const char* property, 
     long mergedval = value + (optvalue << 16);
     SCRIPTDBG(7, "Setting door %s property %s to %d", doorname, property, mergedval);
     command_add_value(Cmd_SET_DOOR_CONFIGURATION, 0, door_id, doorvar, mergedval);
-}
-
-void command_set_object_configuration(const char* objectname, const char* property, long value)
-{
-    long objct_id = get_rid(object_desc, objectname);
-    if (objct_id == -1)
-    {
-        SCRPTERRLOG("Unknown object, '%s'", objectname);
-    }
-
-    long objectvar = get_id(object_config_desc, property);
-    if (objectvar == -1)
-    {
-        SCRPTERRLOG("Unknown object variable");
-        return;
-    }
-
-    SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, value);
-    command_add_value(Cmd_SET_OBJECT_CONFIGURATION, 0, objct_id, objectvar, value);
 }
 
 void command_set_computer_events(long plr_range_id, const char *evntname, long val1, long val2, long val3, long val4, long val5)
@@ -3882,9 +3926,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_DOOR_CONFIGURATION:
         command_set_door_configuration(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
-        break;
-    case Cmd_SET_OBJECT_CONFIGURATION:
-        command_set_object_configuration(scline->tp[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_CHANGE_SLAB_OWNER:
         command_change_slab_owner(scline->np[0], scline->np[1], scline->np[2]);
@@ -6029,7 +6070,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct DoorConfigStats* doorst;
   struct ManfctrConfig* mconf;
   struct ManufactureData* manufctr;
-  struct Objects* objdat;
   int plr_start;
   int plr_end;
   long i;
@@ -7006,42 +7046,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       }
       break;
-  case Cmd_SET_OBJECT_CONFIGURATION:
-      objdat = get_objects_data(val2);
-      switch (val3)
-      {
-      case 1: // Genre
-          //fall through
-      case 2: // AnimationID
-          objdat->sprite_anim_idx = val4;
-          break;
-      case 3: // AnimationSpeed
-          objdat->anim_speed = val4;
-          break;
-      case 4: //Size_XY
-          objdat->size_xy = val4;
-          break;
-      case 5: // Size_YZ
-          objdat->size_yz = val4;
-          break;
-      case 6: // MaximumSize
-          objdat->sprite_size_max = val4;
-          break;
-      case 7: // DestroyOnLava
-          objdat->destroy_on_lava = val4;
-          break;
-      case 8: // DestroyOnLiquid
-          objdat->destroy_on_liquid = val4;
-          break;
-      case 9: // Properties
-            //fall through
-          break;
-      default:
-          WARNMSG("Unsupported Object configuration, variable %d.", val3);
-          break;
-      }
-      update_all_object_stats();
-      break;
   case Cmd_SET_DOOR_CONFIGURATION:
       doorst = get_door_model_stats(val2);
       mconf = &gameadd.doors_config[val2];
@@ -7362,7 +7366,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
   {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
   {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
-  {"SET_OBJECT_CONFIGURATION",          "AAN     ", Cmd_SET_OBJECT_CONFIGURATION, NULL, NULL},
+  {"SET_OBJECT_CONFIGURATION",          "AAN     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
