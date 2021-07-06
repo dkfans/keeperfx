@@ -1086,7 +1086,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objdat->destroy_on_liquid = context->value->arg2;
             break;
         case 9: // Properties
-            //fall through
+            objst->model_flags = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
