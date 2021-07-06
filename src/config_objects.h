@@ -43,7 +43,7 @@ enum ObjectCategoryIndex {
     OCtg_GoldHoard,  //< Object is a hoard of treasure stored in room
     OCtg_Food,       //< Object is food for creatures
     OCtg_Power,      //< Object is a keeper power effect, ie. hand of evil or keeper spell
-    OCtg_LairTotem,       //< Object is a creature lair
+    OCtg_LairTotem,  //< Object is a creature lair
     OCtg_Effect,     //< Object is some kind of effect which has influence on things or on terrain
 };
 
@@ -88,6 +88,7 @@ struct ObjectsConfig {
 extern struct ObjectsConfig object_conf;
 extern const char keeper_objects_file[];
 extern struct NamedCommand object_desc[OBJECT_TYPES_MAX];
+extern const struct NamedCommand objects_genres_desc[];
 /******************************************************************************/
 TbBool load_objects_config(const char *conf_fname,unsigned short flags);
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);

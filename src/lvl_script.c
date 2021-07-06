@@ -1020,7 +1020,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
 {
     const char *objectname = scline->tp[0];
     const char *property = scline->tp[1];
-    long new_value = scline->np[2];
+    const char *new_value = scline->tp[2];
 
     long objct_id = get_id(object_desc, objectname);
     if (objct_id == -1)
@@ -1029,24 +1029,41 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
         return;
     }
 
+    long number_value;
     long objectvar = get_id(object_config_desc, property);
     if (objectvar == -1)
     {
         SCRPTERRLOG("Unknown object variable");
         return;
     }
+    if (objectvar == 1)
+    {
+        long genre = get_id(objects_genres_desc, new_value);
+        if (genre == -1)
+        {
+            SCRPTERRLOG("Unknown object variable");
+            return;
+        }
+        number_value = genre;
+    }
+    else 
+    {
+        number_value = atoi(new_value);
+    }
 
-    SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, new_value);
-    command_add_value(scline->command, 0, objct_id, objectvar, new_value);
+    SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
+    command_add_value(scline->command, 0, objct_id, objectvar, number_value);
 }
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
     struct Objects* objdat = get_objects_data(context->value->arg0);
+    struct ObjectConfigStats* objst = &object_conf.object_cfgstats[context->value->arg0];
     switch (context->value->arg1)
     {
         case 1: // Genre
-//fall through
+            objst->genre = context->value->arg2;
+            break;
         case 2: // AnimationID
             objdat->sprite_anim_idx = context->value->arg2;
             break;
@@ -1069,7 +1086,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objdat->destroy_on_liquid = context->value->arg2;
             break;
         case 9: // Properties
-//fall through
+            //fall through
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -1848,7 +1865,6 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
     // Add the condition to script structure
     command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
 }
-
 
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
@@ -7366,7 +7382,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
   {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
   {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
-  {"SET_OBJECT_CONFIGURATION",          "AAN     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
+  {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
