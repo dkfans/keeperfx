@@ -114,11 +114,11 @@ enum ThingEffectKind {
     TngEff_ImpSpangleBlue,
     TngEff_ImpSpangleGreen,
     TngEff_ImpSpangleYellow,
-    TngEff_Unknown60, // teleport puff red
-    TngEff_Unknown61,
-    TngEff_Unknown62,
-    TngEff_Unknown63, // teleport puff yellow
-    TngEff_Unknown64, // teleport puff white
+    TngEff_BallPuffRed, // teleport puff red
+    TngEff_BallPuffBlue,
+    TngEff_BallPuffGreen,
+    TngEff_BallPuffYellow, // teleport puff yellow
+    TngEff_BallPuffWhite, // teleport puff white
     TngEff_BloodyFootstep,
     TngEff_Unknown66, // blood splat
     TngEff_SpecialBox,
