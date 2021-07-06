@@ -122,7 +122,7 @@ enum ThingEffectKind {
     TngEff_BloodyFootstep,
     TngEff_Unknown66, // blood splat
     TngEff_SpecialBox,
-    TngEff_Unknown68, // boulder sink
+    TngEff_BoulderSink, // boulder sink
     TngEff_Unknown69,
 };
 
