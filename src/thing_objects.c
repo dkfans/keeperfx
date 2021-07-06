@@ -586,9 +586,9 @@ PowerKind book_thing_to_power_kind(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
+    if ( (thing->class_id != TCls_Object) || (thing->model >= gameadd.object_conf.object_types_count) )
         return 0;
-    return object_conf.object_to_power_artifact[thing->model];
+    return gameadd.object_conf.object_to_power_artifact[thing->model];
 }
 
 TbBool thing_is_special_box(const struct Thing *thing)

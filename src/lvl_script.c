@@ -1058,7 +1058,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
 static void set_object_configuration_process(struct ScriptContext *context)
 {
     struct Objects* objdat = get_objects_data(context->value->arg0);
-    struct ObjectConfigStats* objst = &object_conf.object_cfgstats[context->value->arg0];
+    struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
     switch (context->value->arg1)
     {
         case 1: // Genre
@@ -7004,8 +7004,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           update_trap_tab_to_config();
           break;
       case 6: // Crate
-          object_conf.object_to_door_or_trap[val4] = val2;
-          object_conf.workshop_object_class[val4] = TCls_Trap;
+          gameadd.object_conf.object_to_door_or_trap[val4] = val2;
+          gameadd.object_conf.workshop_object_class[val4] = TCls_Trap;
           gameadd.trapdoor_conf.trap_to_object[val2] = val4;
           break;
       case 7: // ManufactureLevel
@@ -7092,8 +7092,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           doorst->tooltip_stridx = val4;
           break;
       case 7: // Crate
-          object_conf.object_to_door_or_trap[val4] = val2;
-          object_conf.workshop_object_class[val4] = TCls_Door;
+          gameadd.object_conf.object_to_door_or_trap[val4] = val2;
+          gameadd.object_conf.workshop_object_class[val4] = TCls_Door;
           gameadd.trapdoor_conf.door_to_object[val2] = val4;
           break;
       case 8: //SymbolSprites 

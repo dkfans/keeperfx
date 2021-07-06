@@ -85,7 +85,6 @@ struct ObjectsConfig {
     ThingClass workshop_object_class[OBJECT_TYPES_MAX];
 };
 /******************************************************************************/
-extern struct ObjectsConfig object_conf;
 extern const char keeper_objects_file[];
 extern struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 extern const struct NamedCommand objects_genres_desc[];
