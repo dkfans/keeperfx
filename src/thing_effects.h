@@ -95,7 +95,7 @@ enum ThingEffectKind {
     TngEff_Unknown38, // strange gas
     TngEff_Unknown39, // strange gas
     TngEff_Unknown40, // fart slow
-    TngEff_NumberHop,
+    TngEff_Unknown41,
     TngEff_Unknown42,
     TngEff_LavaTrap,
     TngEff_HearthCollapse,
