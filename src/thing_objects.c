@@ -215,7 +215,7 @@ Thing_Class_Func object_update_functions[] = {
  *
  * Originally was named objects[].
  */
-struct Objects objects_data[] = {
+struct Objects objects_data_init[] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1}, //1 BARREL
   {0, 0, 1, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1}, //2 TORCH
@@ -241,7 +241,7 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //24
-  {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObOC_Unknown0, 0}, //25
+  {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObOC_Unknown0, 0}, //25 ROOM_FLAG
   {0, 0, 0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //26 ANVIL
   {0, 0, 0, 0, 0, 796, 0x0100,    0,    0, 200, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //27 PRISON_BAR
   {0, 0, 1, 0, 0, 791, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1}, //28 CANDLE_UNLIT
@@ -566,15 +566,15 @@ struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
     unsigned int tmodel = thing->model;
     if (tmodel >= OBJECT_TYPES_COUNT)
-      return &objects_data[0];
-    return &objects_data[tmodel];
+      return &gameadd.thing_objects_data[0];
+    return &gameadd.thing_objects_data[tmodel];
 }
 
 struct Objects *get_objects_data(unsigned int tmodel)
 {
     if (tmodel >= OBJECT_TYPES_COUNT)
-        return &objects_data[0];
-    return &objects_data[tmodel];
+        return &gameadd.thing_objects_data[0];
+    return &gameadd.thing_objects_data[tmodel];
 }
 
 /**
@@ -586,9 +586,9 @@ PowerKind book_thing_to_power_kind(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
+    if ( (thing->class_id != TCls_Object) || (thing->model >= gameadd.object_conf.object_types_count) )
         return 0;
-    return object_conf.object_to_power_artifact[thing->model];
+    return gameadd.object_conf.object_to_power_artifact[thing->model];
 }
 
 TbBool thing_is_special_box(const struct Thing *thing)
@@ -2113,6 +2113,11 @@ struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
         add_gold_to_pile(thing, value);
     }
     return thing;
+}
+
+void init_thing_objects()
+{
+    memcpy(gameadd.thing_objects_data, objects_data_init, sizeof(objects_data_init));
 }
 /******************************************************************************/
 #ifdef __cplusplus

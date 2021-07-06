@@ -32,6 +32,8 @@
 #include "creature_control.h"
 #include "light_data.h"
 #include "lvl_script.h"
+#include "thing_objects.h"
+#include "config_objects.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -165,6 +167,9 @@ struct GameAdd {
     int                   active_fx_lines;
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
+
+    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
+    struct ObjectsConfig object_conf;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
