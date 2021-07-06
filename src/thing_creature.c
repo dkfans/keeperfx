@@ -4796,7 +4796,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
         nfoot = get_foot_creature_has_down(thing);
         if (nfoot)
         {
-          create_effect(&thing->mappos, TngEff_Unknown19, thing->owner);
+          create_effect(&thing->mappos, TngEff_Drip1, thing->owner);
         }
         cctrl->bloody_footsteps_turns = 0;
     } else

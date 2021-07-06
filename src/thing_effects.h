@@ -73,9 +73,9 @@ enum ThingEffectKind {
     TngEff_Unknown16, // fart without damage
     TngEff_Unknown17, // fart without damage
     TngEff_Unknown18, // fart without damage
-    TngEff_Unknown19, // water drip
-    TngEff_Unknown20,
-    TngEff_Unknown21,
+    TngEff_Drip1, // water drip
+    TngEff_Drip2,
+    TngEff_Drip3,
     TngEff_HitFrozenUnit,
     TngEff_Hail,
     TngEff_DeathIceExplosion,
