@@ -69,7 +69,7 @@ enum ThingEffectKind {
     TngEff_Unknown12, // fart
     TngEff_Unknown13, // fart
     TngEff_WoPExplosion,
-    TngEff_Unknown15, // Ice shard
+    TngEff_IceShard, // Ice shard
     TngEff_Unknown16, // fart without damage
     TngEff_Unknown17, // fart without damage
     TngEff_Unknown18, // fart without damage
