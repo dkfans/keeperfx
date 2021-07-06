@@ -102,7 +102,7 @@ enum ThingEffectKind {
     TngEff_Unknown45, // claim with sound???
     TngEff_Unknown46,
     TngEff_ColouredRingOfFire, // spiral fx
-    TngEff_Unknown48, // flash with whiteout
+    TngEff_Flash, // flash with whiteout
     TngEff_DamageBlood,
     TngEff_Unknown50, // temple? explosion with sound
     TngEff_FeatherPuff,

@@ -2929,7 +2929,7 @@ long update_cave_in(struct Thing *thing)
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
-            efftng = create_effect_element(&pos, TngEff_Unknown48, owner);
+            efftng = create_effect_element(&pos, TngEff_Flash, owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->health = pwrdynst->time;
             }
