@@ -77,7 +77,7 @@ enum ThingEffectKind {
     TngEff_Unknown20,
     TngEff_Unknown21,
     TngEff_HitFrozenUnit,
-    TngEff_Unknown23,
+    TngEff_Hail,
     TngEff_DeathIceExplosion,
     TngEff_RockChips, // less dirt
     TngEff_DirtRubble,
