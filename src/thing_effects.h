@@ -97,7 +97,7 @@ enum ThingEffectKind {
     TngEff_Unknown40, // fart slow
     TngEff_Unknown41,
     TngEff_Unknown42,
-    TngEff_LavaTrap,
+    TngEff_Eruption,
     TngEff_HearthCollapse,
     TngEff_Unknown45, // claim with sound???
     TngEff_Unknown46,

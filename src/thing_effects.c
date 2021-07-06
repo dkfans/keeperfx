@@ -1241,7 +1241,7 @@ struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_id
 
 TbBool destroy_effect_thing(struct Thing *efftng)
 {
-    if (efftng->model == TngEff_LavaTrap)
+    if (efftng->model == TngEff_Eruption)
     {
         place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner, 0);
         do_slab_efficiency_alteration(subtile_slab_fast(efftng->mappos.x.stl.num), subtile_slab_fast(efftng->mappos.y.stl.num));
