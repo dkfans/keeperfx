@@ -2339,7 +2339,7 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
       pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
       pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
       pos.z.val = get_floor_height_at(&pos);
-      create_effect_element(&pos, TngEff_Unknown10, plyr_idx);
+      create_effect_element(&pos, TngEff_Blood5, plyr_idx);
     }
 }
 

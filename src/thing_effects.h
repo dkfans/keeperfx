@@ -64,7 +64,7 @@ enum ThingEffectKind {
     TngEff_ChickenBlood,
     TngEff_Blood3,
     TngEff_Blood4,
-    TngEff_Unknown10, // blood big
+    TngEff_Blood5, // blood big
     TngEff_Unknown11, // fart
     TngEff_Unknown12, // fart
     TngEff_Unknown13, // fart
