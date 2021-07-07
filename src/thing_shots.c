@@ -699,7 +699,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
             break;
         case ShM_NaviMissile:
         case ShM_Missile:
-            efftng = create_effect(&shotng->mappos, TngEff_Unknown08, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
             break;
         case ShM_Arrow:
         case ShM_SwingSword:
