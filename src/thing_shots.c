@@ -41,7 +41,8 @@
 #include "creature_states.h"
 #include "creature_groups.h"
 #include "game_legacy.h"
-
+#include "creature_instances.h"
+#include "player_instances.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -767,14 +768,36 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
+    struct Thing* shooter = INVALID_THING;
+    if (shotng->parent_idx != shotng->index)
+    {
+        shooter = thing_get(shotng->parent_idx);
+    }
+    if (!thing_is_invalid(shooter))
+    {
+        if (is_thing_directly_controlled(shooter))
+        {
+            if (first_person_dig_claim_mode)
+            {
+                if ( (shotng->model == ShM_SwingFist) || (shotng->model == ShM_SwingSword) )
+                {
+                    if (shooter->model == 20)
+                    {
+                        if (!thing_is_invalid(trgtng))
+                        {
+                            whip_creature(shooter, trgtng);
+                        }                    
+                    }
+                }
+                return;
+            }
+        }
+    }
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     //throw_strength = shotng->fall_acceleration; //this seems to be always 0, this is why it didn't work;
     long throw_strength = shotst->old->push_on_hit;
     if (trgtng->health < 0)
         return 0;
-    struct Thing* shooter = INVALID_THING;
-    if (shotng->parent_idx != shotng->index)
-        shooter = thing_get(shotng->parent_idx);
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(trgtng);
     long damage = get_damage_of_melee_shot(shotng, trgtng);
     if (damage > 0)

@@ -38,14 +38,19 @@
 #include "power_hand.h"
 #include "magic.h"
 #include "map_utils.h"
+#include "ariadne_wallhug.h"
+#include "config_objects.h"
 #include "config_creature.h"
 #include "config_magic.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "player_instances.h"
 #include "engine_camera.h"
+#include "gui_topmsg.h"
 #include "game_legacy.h"
+#include "engine_redraw.h"
 #include "keeperfx.hpp"
+#include "thing_navigate.h"
 
 #ifdef __cplusplus
 extern "C" {
