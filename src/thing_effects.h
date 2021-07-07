@@ -55,11 +55,11 @@ enum AreaAffectTypes {
 
 enum ThingEffectKind {
     TngEff_None = 0,
-    TngEff_Unknown01, // expl small
-    TngEff_Unknown02,
-    TngEff_Unknown03,
-    TngEff_Unknown04,
-    TngEff_Unknown05, // expl big
+    TngEff_Explosion1, // expl small
+    TngEff_Explosion2,
+    TngEff_Explosion3,
+    TngEff_Explosion4,
+    TngEff_Explosion5, // expl big
     TngEff_HitBleedingUnit,
     TngEff_ChickenBlood,
     TngEff_Unknown08,

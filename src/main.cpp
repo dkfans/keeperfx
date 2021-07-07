@@ -282,7 +282,7 @@ void process_dungeon_destroy(struct Thing *heartng)
         // Final phase - destroy the heart, both pedestal room and container thing
         {
             struct Thing *efftng;
-            efftng = create_effect(central_pos, TngEff_Unknown04, plyr_idx);
+            efftng = create_effect(central_pos, TngEff_Explosion4, plyr_idx);
             if (!thing_is_invalid(efftng))
               efftng->byte_16 = 8;
             efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);

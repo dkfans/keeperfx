@@ -689,7 +689,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case ShM_Fireball:
         case ShM_Firebomb:
         case ShM_Lightning:
-            efftng = create_effect(&shotng->mappos, TngEff_Unknown01, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
             break;
         case ShM_PoisonCloud:
             efftng = create_effect(&shotng->mappos, TngEff_Unknown13, shotng->owner);
