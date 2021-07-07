@@ -120,7 +120,7 @@ enum ThingEffectKind {
     TngEff_BallPuffYellow, // teleport puff yellow
     TngEff_BallPuffWhite, // teleport puff white
     TngEff_BloodyFootstep,
-    TngEff_Unknown66, // blood splat
+    TngEff_Blood7, // blood splat
     TngEff_SpecialBox,
     TngEff_BoulderSink, // boulder sink
     TngEff_Unknown69,
