@@ -106,7 +106,7 @@ enum ThingEffectKind {
     TngEff_DamageBlood,
     TngEff_Explosion7, // temple? explosion with sound
     TngEff_FeatherPuff,
-    TngEff_Unknown52,
+    TngEff_Explosion8,
     TngEff_ResearchComplete,
     TngEff_RoomSparkeSmall,
     TngEff_RoomSparkeMedium,
