@@ -78,6 +78,7 @@ enum ClassicBugFlags {
     ClscBug_FullyHappyWithGold     = 0x0100,
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_RebirthKeepsSpells     = 0x0400,
+    ClscBug_FriendlyFaint          = 0x0800,
 };
 
 enum GameFlags2 {
@@ -135,7 +136,7 @@ struct GameAdd {
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
     TbBool armegeddon_teleport_neutrals;
-    unsigned short classic_bugs_flags;
+    unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;
     /** The creature model used for determining amount of sacrifices which decrease digger cost. */
     ThingModel cheaper_diggers_sacrifice_model;
