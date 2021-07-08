@@ -93,8 +93,8 @@ struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel)
 struct ObjectConfig *get_object_model_stats2(ThingModel tngmodel)
 {
     if (tngmodel >= gameadd.object_conf.object_types_count)
-        return &object_conf.base_config[0];
-    return &object_conf.base_config[tngmodel];
+        return &gameadd.object_conf.base_config[0];
+    return &gameadd.object_conf.base_config[tngmodel];
 }
 
 ThingClass crate_to_workshop_item_class(ThingModel tngmodel)
@@ -822,7 +822,7 @@ void init_objects(void)
     game.objects_config[128].field_4 = 10;
     for (long i = 57; i <= 85; i++)
     {
-      game.objects_config[i].movement_flag = 1;
+        game.objects_config[i].movement_flag = 1;
     }
     game.objects_config[126].movement_flag = 1;
     game.objects_config[26].movement_flag = 1;
@@ -836,9 +836,9 @@ void init_objects(void)
     game.objects_config[118].movement_flag = 1;
     game.objects_config[119].movement_flag = 1;
     game.objects_config[125].movement_flag = 1;
-}
 
-memcpy(&object_conf.base_config, &game.objects_config, sizeof(game.objects_config));
+    memcpy(&gameadd.object_conf.base_config, &game.objects_config, sizeof(game.objects_config));
+}
 
 /******************************************************************************/
 #ifdef __cplusplus
