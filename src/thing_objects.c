@@ -1832,7 +1832,7 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     int wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
     if (wealth_size > get_wealth_size_types_count()) {
         WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
@@ -1860,8 +1860,8 @@ int get_wealth_size_types_count(void)
  */
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, GoldAmount value)
 {
-    if (value >= gold_per_hoard)
-        value = gold_per_hoard;
+    if (value >= gameadd.gold_per_hoard)
+        value = gameadd.gold_per_hoard;
     int wealth_size = get_wealth_size_of_gold_amount(value);
     struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
     if (thing_is_invalid(gldtng))
@@ -1872,7 +1872,7 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
 
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
-    GoldAmount wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
         ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
         return INVALID_THING;
@@ -1905,7 +1905,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
 long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
     //return _DK_add_gold_to_hoarde(gldtng, room, amount);
-    GoldAmount wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // Fix amount
     if (gldtng->valuable.gold_stored + amount > max_hoard_size_in_room)

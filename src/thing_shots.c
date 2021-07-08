@@ -759,7 +759,8 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0);
     }
     // Friendly fire should kill the creature, not knock out
-    if (shotng->owner == creatng->owner) {
+    if ((shotng->owner == creatng->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint))
+    {
         dieflags |= CrDed_NoUnconscious;
     }
     return kill_creature(creatng, killertng, shotng->owner, dieflags);

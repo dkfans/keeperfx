@@ -136,7 +136,7 @@ struct InitEffect effect_info[] = {
     { 1, 1,   1,   1,   1,   1,  2,   0, 85, 85,  AAffT_None, 1, {0}, 1},
     { 4, 1,  16,  16, -32,  64,  3,   0, 75, 78,  AAffT_None, 1, {0}, 1},
     {10, 1,  20, 150, -80,  80, 20,  36, 27, 29,  AAffT_None, 1, {2560, 52, 0, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1}, // [68]
-    { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0, 0, {0}, 0},
+    { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0,          0, {0}, 0},
 };
 
 
@@ -1295,7 +1295,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 {
                     CrDeathFlags dieflags = CrDed_DiedInBattle;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if (tngsrc->owner == tngdst->owner)
+                    if ((tngsrc->owner == tngdst->owner &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)))
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
