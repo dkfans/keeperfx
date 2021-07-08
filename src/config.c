@@ -135,6 +135,13 @@ const struct NamedCommand logicval_type[] = {
   {NULL,       0},
   };
 
+  const struct NamedCommand wibble_type[] = {
+  {"ON",             1},
+  {"OFF",            2},
+  {"LIQUIDONLY",     3},
+  {NULL,             0},
+  };
+
   const struct NamedCommand vidscale_type[] = {
   {"OFF",          256}, // = 0x100 = No scaling of Smacker Video
   {"DISABLED",     256},
@@ -225,6 +232,14 @@ TbBool resize_movies_enabled(void)
 TbBool wibble_enabled(void)
 {
   return ((features_enabled & Ft_Wibble) != 0);
+}
+
+/**
+ * Returns if the liquid wibble effect is on.
+ */
+TbBool liquid_wibble_enabled(void)
+{
+  return ((features_enabled & Ft_LiquidWibble) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -807,17 +822,28 @@ short load_configuration(void)
           }
           break;
       case 16: // WIBBLE
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          i = recognize_conf_parameter(buf,&pos,len,wibble_type);
           if (i <= 0)
           {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
-          if (i == 1)
+          if (i == 1) // WIBBLE ON
+          {
               features_enabled |= Ft_Wibble;
-          else
+              features_enabled |= Ft_LiquidWibble;
+          }
+          else if (i == 3) // LIQUID ONLY
+          {
               features_enabled &= ~Ft_Wibble;
+              features_enabled |= Ft_LiquidWibble;
+          }
+          else // WIBBLE OFF
+          {
+              features_enabled &= ~Ft_Wibble;
+              features_enabled &= ~Ft_LiquidWibble;
+          }
           break;
       case 0: // comment
           break;
