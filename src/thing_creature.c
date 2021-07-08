@@ -2285,7 +2285,7 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
-    create_effect(&pos, TngEff_Unknown13, thing->owner);
+    create_effect(&pos, TngEff_Gas3, thing->owner);
     struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
     {

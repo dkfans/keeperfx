@@ -723,7 +723,7 @@ long instf_fart(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
     //return _DK_instf_fart(creatng, param);
-    struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Unknown13, creatng->owner);
+    struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
     if (!thing_is_invalid(efftng))
         efftng->byte_16 = 4;
     thing_play_sample(creatng,94+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
