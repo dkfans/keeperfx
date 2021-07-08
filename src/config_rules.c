@@ -613,7 +613,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             gameadd.classic_bugs_flags = ClscBug_None;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = get_id(rules_game_classicbugs_commands, word_buf);
+              k = get_id(rules_game_classicbugs_commands, word_buf);
               switch (k)
               {
               case 1: // RESURRECT_FOREVER
