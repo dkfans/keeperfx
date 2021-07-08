@@ -2945,7 +2945,7 @@ long update_cave_in(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + ACTION_RANDOM(128);
         pos.y.val = thing->mappos.y.val + ACTION_RANDOM(128);
         pos.z.val = get_floor_height_at(&pos) + 384;
-        create_effect(&pos, TngEff_Unknown31, owner);
+        create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
 
     if ((turns_alive % game.turns_per_collapse_dngn_dmg) == 0)

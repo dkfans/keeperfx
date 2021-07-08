@@ -84,8 +84,8 @@ enum ThingEffectKind {
     TngEff_Unknown27, // more dirt
     TngEff_ImpSpangleRed,
     TngEff_Drip4, // ice drip?
-    TngEff_Unknown30, // super long cloud?
-    TngEff_Unknown31, // super wide cloud?
+    TngEff_Cloud, // super long cloud?
+    TngEff_HarmlessGas4, // super wide cloud?
     TngEff_GoldRubble1, // small gold coins
     TngEff_GoldRubble2,
     TngEff_GoldRubble3, // big gold chunks
