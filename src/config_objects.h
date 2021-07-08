@@ -63,7 +63,7 @@ char field_4;
 char field_5;
 char is_heart;
 char resistant_to_nonmagic;
-char field_8;
+char movement_flag;
     struct InitLight ilght;
 };
 
@@ -83,6 +83,7 @@ struct ObjectsConfig {
     ThingModel object_to_power_artifact[OBJECT_TYPES_MAX];
     ThingModel object_to_special_artifact[OBJECT_TYPES_MAX];
     ThingClass workshop_object_class[OBJECT_TYPES_MAX];
+    struct ObjectConfig base_config[OBJECT_TYPES_MAX];
 };
 /******************************************************************************/
 extern const char keeper_objects_file[];
