@@ -1809,7 +1809,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
 
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price)
 {
-    struct Thing* elemtng = create_effect_element(pos, TngEff_DecelerationGas2, plyr_idx);
+    struct Thing* elemtng = create_effect_element(pos, 41, plyr_idx);
     TRACE_THING(elemtng);
     if (!thing_is_invalid(elemtng)) {
         elemtng->price.number = abs(price);
