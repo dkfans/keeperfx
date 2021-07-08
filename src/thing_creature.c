@@ -2175,9 +2175,9 @@ void creature_rebirth_at_lair(struct Thing *thing)
     thing->health = cctrl->max_health;
     if (thing_is_invalid(lairtng))
         return;
-    create_effect(&thing->mappos, TngEff_Unknown17, thing->owner);
+    create_effect(&thing->mappos, TngEff_HarmlessGas2, thing->owner);
     move_thing_in_map(thing, &lairtng->mappos);
-    create_effect(&lairtng->mappos, TngEff_Unknown17, thing->owner);
+    create_effect(&lairtng->mappos, TngEff_HarmlessGas2, thing->owner);
 }
 
 void throw_out_gold(struct Thing *thing)
@@ -2312,7 +2312,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
-    create_effect(&pos, TngEff_Unknown16, thing->owner);
+    create_effect(&pos, TngEff_HarmlessGas1, thing->owner);
     struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
     {
