@@ -91,9 +91,9 @@ enum ThingEffectKind {
     TngEff_GoldRubble3, // big gold chunks
     TngEff_TempleSplash,
     TngEff_CeilingBreach,
-    TngEff_Unknown37, // strange gas
-    TngEff_Unknown38, // strange gas
-    TngEff_Unknown39, // strange gas
+    TngEff_StrangeGas1, // strange gas
+    TngEff_StrangeGas2, // strange gas
+    TngEff_StrangeGas3, // strange gas
     TngEff_Unknown40, // fart slow
     TngEff_Unknown41,
     TngEff_Unknown42,
