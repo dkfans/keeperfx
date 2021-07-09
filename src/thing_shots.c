@@ -116,8 +116,8 @@ TbBool detonate_shot(struct Thing *shotng)
     case ShM_Grenade:
     case ShM_Lizard:
     case ShM_Firebomb:
-        create_effect(&shotng->mappos, TngEff_Unknown50, shotng->owner);
-        create_effect(&shotng->mappos,  TngEff_Unknown09, shotng->owner);
+        create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
+        create_effect(&shotng->mappos,  TngEff_Blood4, shotng->owner);
         break;
     case ShM_Boulder:
         create_effect_around_thing(shotng, TngEff_DirtRubble);
@@ -689,17 +689,17 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case ShM_Fireball:
         case ShM_Firebomb:
         case ShM_Lightning:
-            efftng = create_effect(&shotng->mappos, TngEff_Unknown01, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
             break;
         case ShM_PoisonCloud:
-            efftng = create_effect(&shotng->mappos, TngEff_Unknown13, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Gas3, shotng->owner);
             if ( !thing_is_invalid(efftng) ) {
                 efftng->byte_16 = 2;
             }
             break;
         case ShM_NaviMissile:
         case ShM_Missile:
-            efftng = create_effect(&shotng->mappos, TngEff_Unknown08, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
             break;
         case ShM_Arrow:
         case ShM_SwingSword:

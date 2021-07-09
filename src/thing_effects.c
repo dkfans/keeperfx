@@ -1241,7 +1241,7 @@ struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_id
 
 TbBool destroy_effect_thing(struct Thing *efftng)
 {
-    if (efftng->model == TngEff_LavaTrap)
+    if (efftng->model == TngEff_Eruption)
     {
         place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner, 0);
         do_slab_efficiency_alteration(subtile_slab_fast(efftng->mappos.x.stl.num), subtile_slab_fast(efftng->mappos.y.stl.num));
@@ -1809,7 +1809,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
 
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price)
 {
-    struct Thing* elemtng = create_effect_element(pos, TngEff_NumberHop, plyr_idx);
+    struct Thing* elemtng = create_effect_element(pos, 41, plyr_idx);
     TRACE_THING(elemtng);
     if (!thing_is_invalid(elemtng)) {
         elemtng->price.number = abs(price);

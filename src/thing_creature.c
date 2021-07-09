@@ -2175,9 +2175,9 @@ void creature_rebirth_at_lair(struct Thing *thing)
     thing->health = cctrl->max_health;
     if (thing_is_invalid(lairtng))
         return;
-    create_effect(&thing->mappos, TngEff_Unknown17, thing->owner);
+    create_effect(&thing->mappos, TngEff_HarmlessGas2, thing->owner);
     move_thing_in_map(thing, &lairtng->mappos);
-    create_effect(&lairtng->mappos, TngEff_Unknown17, thing->owner);
+    create_effect(&lairtng->mappos, TngEff_HarmlessGas2, thing->owner);
 }
 
 void throw_out_gold(struct Thing *thing)
@@ -2249,7 +2249,7 @@ void thing_death_flesh_explosion(struct Thing *thing)
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
         pos.z.val = thing->mappos.z.val+i;
-        create_effect(&pos, TngEff_Unknown09, thing->owner);
+        create_effect(&pos, TngEff_Blood4, thing->owner);
     }
     struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
@@ -2279,13 +2279,13 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
         pos.z.val = thing->mappos.z.val+i;
-        create_effect(&pos, TngEff_Unknown09, thing->owner);
+        create_effect(&pos, TngEff_Blood4, thing->owner);
     }
     i = (thing->clipbox_size_yz >> 1);
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
-    create_effect(&pos, TngEff_Unknown13, thing->owner);
+    create_effect(&pos, TngEff_Gas3, thing->owner);
     struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
     {
@@ -2312,7 +2312,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
-    create_effect(&pos, TngEff_Unknown16, thing->owner);
+    create_effect(&pos, TngEff_HarmlessGas1, thing->owner);
     struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
     {
@@ -4796,7 +4796,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
         nfoot = get_foot_creature_has_down(thing);
         if (nfoot)
         {
-          create_effect(&thing->mappos, TngEff_Unknown19, thing->owner);
+          create_effect(&thing->mappos, TngEff_Drip1, thing->owner);
         }
         cctrl->bloody_footsteps_turns = 0;
     } else
