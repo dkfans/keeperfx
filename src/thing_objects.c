@@ -72,7 +72,7 @@ Thing_State_Func object_state_functions[] = {
     NULL,
 };
 
-Thing_Class_Func object_update_functions[] = {
+Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
     NULL,
     NULL,
     NULL,
@@ -215,7 +215,7 @@ Thing_Class_Func object_update_functions[] = {
  *
  * Originally was named objects[].
  */
-struct Objects objects_data_init[] = {
+struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1}, //1 BARREL
   {0, 0, 1, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1}, //2 TORCH
@@ -355,7 +355,7 @@ struct Objects objects_data_init[] = {
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0},
 };
 
-ThingModel object_to_special[] = {
+ThingModel object_to_special[OBJECT_TYPES_MAX] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -427,7 +427,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->field_22 = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
-    set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->field_8);
+    set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->movement_flag);
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
 

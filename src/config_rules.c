@@ -294,6 +294,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         game.pay_day_gap = 5000;
         game.chest_gold_hold = 1000;
         game.dungeon_heart_health = 100;
+        gameadd.object_conf.base_config[5].health = 100;
         game.objects_config[5].health = 100;
         game.dungeon_heart_heal_time = 10;
         game.dungeon_heart_heal_health = 1;
@@ -562,6 +563,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
               k = atoi(word_buf);
               game.dungeon_heart_health = k;
               game.objects_config[5].health = k;
+              gameadd.object_conf.base_config[5].health = k;
               n++;
             }
             if (n < 1)
