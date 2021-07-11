@@ -153,6 +153,8 @@ enum TbScriptCommands {
     Cmd_RANDOMISE_FLAG                    = 132,
     Cmd_COMPUTE_FLAG                      = 133,
     Cmd_CONCEAL_MAP_RECT                  = 134,
+    Cmd_CREATE_EFFECT                     = 135,
+    Cmd_CREATE_EFFECT_AT_POS              = 136,
 };
 
 enum ScriptVariables {
