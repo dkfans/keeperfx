@@ -42,18 +42,21 @@ const struct NamedCommand objects_common_commands[] = {
   };
 
 const struct NamedCommand objects_object_commands[] = {
-  {"NAME",            1},
-  {"GENRE",           2},
-  {"RELATEDCREATURE", 3},
-  {"PROPERTIES",      4},
-  {"ANIMATIONID",     5},
-  {"ANIMATIONSPEED",  6},
-  {"SIZE_XY",         7},
-  {"SIZE_YZ",         8},
-  {"MAXIMUMSIZE",     9},
-  {"DESTROYONLIQUID",10},
-  {"DESTROYONLAVA"  ,11},
-  {NULL,              0},
+  {"NAME",              1},
+  {"GENRE",             2},
+  {"RELATEDCREATURE",   3},
+  {"PROPERTIES",        4},
+  {"ANIMATIONID",       5},
+  {"ANIMATIONSPEED",    6},
+  {"SIZE_XY",           7},
+  {"SIZE_YZ",           8},
+  {"MAXIMUMSIZE",       9},
+  {"DESTROYONLIQUID",  10},
+  {"DESTROYONLAVA",    11},
+  {"HEALTH",           12},
+  {"FALLACCELERATION", 13},
+  {"LIGHTUNEFFECTED",  14},
+  {NULL,                0},
   };
 
 const struct NamedCommand objects_properties_commands[] = {
@@ -197,6 +200,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
 TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ObjectConfigStats *objst;
+    struct ObjectConfig *objbc;
     int i;
     // Block name and parameter word store variables
     // Initialize the objects array
@@ -238,6 +242,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             continue;
         }
         objst = &gameadd.object_conf.object_cfgstats[i];
+        objbc = &gameadd.object_conf.base_config[i];
         struct Objects* objdat = get_objects_data(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
@@ -402,6 +407,45 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 {
                     n = atoi(word_buf);
                     objdat->destroy_on_lava = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 12: // HEALTH
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objbc->health = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 13: // FALLACCELERATION
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objbc->fall_acceleration = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 14: // LIGHTUNEFFECTED
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objbc->light_uneffected = n;
                     n++;
                 }
                 if (n <= 0)
