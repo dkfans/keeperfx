@@ -2052,7 +2052,7 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel)
     switch (tngmodel)
     {
       case 3:
-        return game.chest_gold_hold;
+          return game.chest_gold_hold;
       case 6:
           return game.pot_of_gold_holds;
       case 43:
