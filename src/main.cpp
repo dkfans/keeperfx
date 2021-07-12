@@ -399,7 +399,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
         pos.y.val = thing->mappos.y.val - (delta_y >> 8);
         pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, 45, thing->owner); // Heal
+        create_effect_element(&pos, TngEffElm_Heal, thing->owner); // Heal
     }
 }
 
@@ -2341,7 +2341,7 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
       pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
       pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
       pos.z.val = get_floor_height_at(&pos);
-      create_effect_element(&pos, 10, plyr_idx);
+      create_effect_element(&pos, TngEffElm_RedFlameBig, plyr_idx);
     }
 }
 

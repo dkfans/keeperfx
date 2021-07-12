@@ -626,7 +626,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         dturn = game.play_gameturn - thing->creation_turn;
         MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
 
-        struct EffectElementStats* eestat = get_effect_element_model_stats(16);
+        struct EffectElementStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
         GameTurnDelta dtadd = 0;
         unsigned short cframe = game.play_gameturn % nframes;
@@ -639,7 +639,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
             pos.x.val = thing->mappos.x.val + shift_x;
             pos.y.val = thing->mappos.y.val + shift_y;
-            effeltng = create_thing(&pos, TCls_EffectElem, 16, thing->owner, -1);
+            effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_FlashBall1, thing->owner, -1);
             if (thing_is_invalid(effeltng))
                 break;
             set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, 2);
@@ -670,18 +670,18 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
             pos.x.val = thing->mappos.x.val + shift_x;
             pos.y.val = thing->mappos.y.val + shift_y;
-            effeltng = create_thing(&pos, TCls_EffectElem, 17, thing->owner, -1);
+            effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedFlash, thing->owner, -1);
         }
     }
 
     if ((cctrl->spell_flags & CSAfF_Flying) != 0)
     {
-        effeltng = create_thing(&thing->mappos, TCls_EffectElem, 0x59u, thing->owner, -1);
+        effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
     }
 
     if ((cctrl->spell_flags & CSAfF_Speed) != 0)
     {
-        effeltng = create_effect_element(&thing->mappos, 18, thing->owner);
+        effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
             // TODO: looks like some "struct AnimSpeed"
@@ -699,7 +699,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         struct SpellConfig* splconf = &game.spells_config[SplK_Teleport];
         if (splconf->duration / 2 < dturn)
         {
-            effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
+            effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
             if (!thing_is_invalid(effeltng))
             {
                 memcpy(&effeltng->anim_speed, &thing->anim_speed, 0x14u);
@@ -1809,7 +1809,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
 
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price)
 {
-    struct Thing* elemtng = create_effect_element(pos, 41, plyr_idx);
+    struct Thing* elemtng = create_effect_element(pos, TngEffElm_Price, plyr_idx);
     TRACE_THING(elemtng);
     if (!thing_is_invalid(elemtng)) {
         elemtng->price.number = abs(price);
