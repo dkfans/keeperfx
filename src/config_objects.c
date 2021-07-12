@@ -81,55 +81,54 @@ const struct NamedCommand objects_genres_desc[] = {
   };
 
 /******************************************************************************/
-struct ObjectsConfig object_conf;
 struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel)
 {
-    if (tngmodel >= object_conf.object_types_count)
-        return &object_conf.object_cfgstats[0];
-    return &object_conf.object_cfgstats[tngmodel];
+    if (tngmodel >= gameadd.object_conf.object_types_count)
+        return &gameadd.object_conf.object_cfgstats[0];
+    return &gameadd.object_conf.object_cfgstats[tngmodel];
 }
 
 struct ObjectConfig *get_object_model_stats2(ThingModel tngmodel)
 {
-    if (tngmodel >= object_conf.object_types_count)
-        return &game.objects_config[0];
-    return &game.objects_config[tngmodel];
+    if (tngmodel >= gameadd.object_conf.object_types_count)
+        return &gameadd.object_conf.base_config[0];
+    return &gameadd.object_conf.base_config[tngmodel];
 }
 
 ThingClass crate_to_workshop_item_class(ThingModel tngmodel)
 {
-    if ((tngmodel <= 0) || (tngmodel >= object_conf.object_types_count))
-        return object_conf.workshop_object_class[0];
-    return object_conf.workshop_object_class[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
+        return gameadd.object_conf.workshop_object_class[0];
+    return gameadd.object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_to_workshop_item_model(ThingModel tngmodel)
 {
-    if ((tngmodel <= 0) || (tngmodel >= object_conf.object_types_count))
-        return object_conf.object_to_door_or_trap[0];
-    return object_conf.object_to_door_or_trap[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
+        return gameadd.object_conf.object_to_door_or_trap[0];
+    return gameadd.object_conf.object_to_door_or_trap[tngmodel];
 }
 
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
 {
     if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
-        return object_conf.workshop_object_class[0];
+        return gameadd.object_conf.workshop_object_class[0];
     ThingModel tngmodel = thing->model;
-    if ((tngmodel <= 0) || (tngmodel >= object_conf.object_types_count))
-        return object_conf.workshop_object_class[0];
-    return object_conf.workshop_object_class[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
+        return gameadd.object_conf.workshop_object_class[0];
+    return gameadd.object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
 {
     if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
-        return object_conf.object_to_door_or_trap[0];
+        return gameadd.object_conf.object_to_door_or_trap[0];
     ThingModel tngmodel = thing->model;
-    if ((tngmodel <= 0) || (tngmodel >= object_conf.object_types_count))
-        return object_conf.object_to_door_or_trap[0];
-    return object_conf.object_to_door_or_trap[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
+        return gameadd.object_conf.object_to_door_or_trap[0];
+    return gameadd.object_conf.object_to_door_or_trap[tngmodel];
 }
 
 TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -138,7 +137,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        object_conf.object_types_count = 1;
+        gameadd.object_conf.object_types_count = 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -169,7 +168,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
               k = atoi(word_buf);
               if ((k > 0) && (k <= OBJECT_TYPES_MAX))
               {
-                  object_conf.object_types_count = k;
+                  gameadd.object_conf.object_types_count = k;
                   n++;
               }
             }
@@ -204,14 +203,14 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(object_conf.object_cfgstats)/sizeof(object_conf.object_cfgstats[0]);
+        arr_size = sizeof(gameadd.object_conf.object_cfgstats)/sizeof(gameadd.object_conf.object_cfgstats[0]);
         for (i=0; i < arr_size; i++)
         {
-            objst = &object_conf.object_cfgstats[i];
+            objst = &gameadd.object_conf.object_cfgstats[i];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
             objst->genre = 0;
-            if (i < object_conf.object_types_count)
+            if (i < gameadd.object_conf.object_types_count)
             {
                 object_desc[i].name = objst->code_name;
                 object_desc[i].num = i;
@@ -223,7 +222,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         }
     }
     // Load the file
-    arr_size = object_conf.object_types_count;
+    arr_size = gameadd.object_conf.object_types_count;
     for (i=0; i < arr_size; i++)
     {
         char block_buf[COMMAND_WORD_LEN];
@@ -238,7 +237,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             }
             continue;
         }
-        objst = &object_conf.object_cfgstats[i];
+        objst = &gameadd.object_conf.object_cfgstats[i];
         struct Objects* objdat = get_objects_data(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
@@ -471,6 +470,18 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     return result;
 }
 
+void update_all_object_stats()
+{
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
+    for (int i = slist->index; i > 0;)
+    {
+        struct Thing* thing = thing_get(i);
+        i = thing->next_of_class
+            TRACE_THING(thing);
+        struct Objects* objdat = get_objects_data_for_thing(thing);
+        set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
+    }
+}
 TbBool load_objects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global objects config";
@@ -505,9 +516,9 @@ const char *object_code_name(ThingModel tngmodel)
  */
 ThingModel object_model_id(const char * code_name)
 {
-    for (int i = 0; i < object_conf.object_types_count; ++i)
+    for (int i = 0; i < gameadd.object_conf.object_types_count; ++i)
     {
-        if (strncasecmp(object_conf.object_cfgstats[i].code_name, code_name,
+        if (strncasecmp(gameadd.object_conf.object_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
         }
@@ -578,19 +589,19 @@ void init_objects(void)
     game.objects_config[2].field_4 = 0;
     game.objects_config[2].field_5 = 1;
     game.objects_config[2].ilght.is_dynamic = 0;
-    game.objects_config[2].field_8 = 1;
+    game.objects_config[2].movement_flag = 1;
     game.objects_config[49].health = 100;
     game.objects_config[49].field_4 = 0;
     game.objects_config[49].field_5 = 1;
     game.objects_config[49].ilght.is_dynamic = 0;
-    game.objects_config[49].field_8 = 1;
+    game.objects_config[49].movement_flag = 1;
     game.objects_config[3].health = 100;
     game.objects_config[3].field_4 = 20;
     game.objects_config[4].health = 100;
     game.objects_config[4].field_4 = 20;
     game.objects_config[4].field_5 = 1;
     game.objects_config[4].ilght.is_dynamic = 0;
-    game.objects_config[4].field_8 = 1;
+    game.objects_config[4].movement_flag = 1;
     game.objects_config[5].health = 1;
     game.objects_config[2].ilght.field_0 = 0x0600;
     game.objects_config[2].ilght.field_2 = 0x32;
@@ -599,13 +610,13 @@ void init_objects(void)
     game.objects_config[5].field_5 = 0;
     game.objects_config[5].ilght.is_dynamic = 1;
     game.objects_config[5].is_heart = 1;
-    game.objects_config[5].field_8 = 1;
+    game.objects_config[5].movement_flag = 1;
     game.objects_config[6].field_4 = 8;
     game.objects_config[6].health = 50;
     game.objects_config[7].health = 100;
     game.objects_config[7].field_4 = 0;
     game.objects_config[7].field_5 = 1;
-    game.objects_config[7].field_8 = 1;
+    game.objects_config[7].movement_flag = 1;
     game.objects_config[8].health = 100;
     game.objects_config[8].field_4 = 20;
     game.objects_config[8].field_5 = 1;
@@ -624,56 +635,56 @@ void init_objects(void)
     game.objects_config[28].field_4 = 0;
     game.objects_config[28].field_5 = 1;
     game.objects_config[28].ilght.is_dynamic = 0;
-    game.objects_config[28].field_8 = 1;
+    game.objects_config[28].movement_flag = 1;
     game.objects_config[11].ilght.field_0 = 0x0400u;
     game.objects_config[11].ilght.field_2 = 0x3E;
     game.objects_config[11].ilght.field_3 = 0;
     game.objects_config[11].field_4 = 10;
     game.objects_config[11].field_5 = 0;
     game.objects_config[11].ilght.is_dynamic = 0;
-    game.objects_config[11].field_8 = 1;
+    game.objects_config[11].movement_flag = 1;
     game.objects_config[12].ilght.field_0 = 0x0400u;
     game.objects_config[12].ilght.field_2 = 0x3E;
     game.objects_config[12].ilght.field_3 = 0;
     game.objects_config[12].field_4 = 10;
     game.objects_config[12].field_5 = 0;
     game.objects_config[12].ilght.is_dynamic = 0;
-    game.objects_config[12].field_8 = 1;
+    game.objects_config[12].movement_flag = 1;
     game.objects_config[13].field_4 = 10;
     game.objects_config[13].field_5 = 0;
     game.objects_config[13].ilght.field_0 = 0x0400u;
     game.objects_config[13].ilght.field_2 = 0x3E;
     game.objects_config[13].ilght.field_3 = 0;
     game.objects_config[13].ilght.is_dynamic = 0;
-    game.objects_config[13].field_8 = 1;
+    game.objects_config[13].movement_flag = 1;
     game.objects_config[14].ilght.field_0 = 0x0400u;
     game.objects_config[14].ilght.field_2 = 0x3E;
     game.objects_config[14].ilght.field_3 = 0;
     game.objects_config[14].field_4 = 10;
     game.objects_config[14].field_5 = 0;
     game.objects_config[14].ilght.is_dynamic = 0;
-    game.objects_config[14].field_8 = 1;
+    game.objects_config[14].movement_flag = 1;
     game.objects_config[15].field_4 = 10;
     game.objects_config[15].field_5 = 0;
     game.objects_config[15].ilght.field_0 = 0x0400u;
     game.objects_config[15].ilght.field_2 = 0x3E;
     game.objects_config[15].ilght.field_3 = 0;
     game.objects_config[15].ilght.is_dynamic = 0;
-    game.objects_config[15].field_8 = 1;
+    game.objects_config[15].movement_flag = 1;
     game.objects_config[16].ilght.field_0 = 0x0400u;
     game.objects_config[16].ilght.field_2 = 0x3E;
     game.objects_config[16].ilght.field_3 = 0;
     game.objects_config[16].field_4 = 10;
     game.objects_config[16].field_5 = 0;
     game.objects_config[16].ilght.is_dynamic = 0;
-    game.objects_config[16].field_8 = 1;
+    game.objects_config[16].movement_flag = 1;
     game.objects_config[17].field_4 = 10;
     game.objects_config[17].field_5 = 0;
     game.objects_config[17].ilght.field_0 = 0x0400u;
     game.objects_config[17].ilght.field_2 = 0x3E;
     game.objects_config[17].ilght.field_3 = 0;
     game.objects_config[17].ilght.is_dynamic = 0;
-    game.objects_config[17].field_8 = 1;
+    game.objects_config[17].movement_flag = 1;
     game.objects_config[43].field_4 = 8;
     game.objects_config[43].health = 50;
     game.objects_config[28].ilght.field_0 = 0x0600u;
@@ -688,70 +699,70 @@ void init_objects(void)
     game.objects_config[19].ilght.field_0 = 0x0400u;
     game.objects_config[19].ilght.field_2 = 0x3E;
     game.objects_config[19].ilght.field_3 = 0;
-    game.objects_config[18].field_8 = 1;
+    game.objects_config[18].movement_flag = 1;
     game.objects_config[19].field_4 = 10;
     game.objects_config[19].field_5 = 0;
     game.objects_config[20].ilght.field_0 = 0x0400u;
     game.objects_config[20].ilght.field_2 = 0x3E;
     game.objects_config[20].ilght.field_3 = 0;
     game.objects_config[19].ilght.is_dynamic = 0;
-    game.objects_config[19].field_8 = 1;
+    game.objects_config[19].movement_flag = 1;
     game.objects_config[20].field_4 = 10;
     game.objects_config[20].field_5 = 0;
     game.objects_config[20].ilght.is_dynamic = 0;
     game.objects_config[21].ilght.field_0 = 0x0400u;
     game.objects_config[21].ilght.field_2 = 0x3E;
     game.objects_config[21].ilght.field_3 = 0;
-    game.objects_config[20].field_8 = 1;
+    game.objects_config[20].movement_flag = 1;
     game.objects_config[21].field_4 = 10;
     game.objects_config[21].field_5 = 0;
     game.objects_config[22].ilght.field_0 = 0x0400u;
     game.objects_config[22].ilght.field_2 = 0x3E;
     game.objects_config[22].ilght.field_3 = 0;
     game.objects_config[21].ilght.is_dynamic = 0;
-    game.objects_config[21].field_8 = 1;
+    game.objects_config[21].movement_flag = 1;
     game.objects_config[22].field_4 = 10;
     game.objects_config[22].field_5 = 0;
     game.objects_config[22].ilght.is_dynamic = 0;
     game.objects_config[23].ilght.field_0 = 0x0400u;
     game.objects_config[23].ilght.field_2 = 0x3E;
     game.objects_config[23].ilght.field_3 = 0;
-    game.objects_config[22].field_8 = 1;
+    game.objects_config[22].movement_flag = 1;
     game.objects_config[23].field_4 = 10;
     game.objects_config[23].field_5 = 0;
     game.objects_config[45].ilght.field_0 = 0x0400u;
     game.objects_config[45].ilght.field_2 = 0x3E;
     game.objects_config[45].ilght.field_3 = 0;
     game.objects_config[23].ilght.is_dynamic = 0;
-    game.objects_config[23].field_8 = 1;
+    game.objects_config[23].movement_flag = 1;
     game.objects_config[45].field_4 = 10;
     game.objects_config[45].field_5 = 0;
     game.objects_config[45].ilght.is_dynamic = 0;
     game.objects_config[46].ilght.field_0 = 0x0400u;
     game.objects_config[46].ilght.field_2 = 0x3E;
     game.objects_config[46].ilght.field_3 = 0;
-    game.objects_config[45].field_8 = 1;
+    game.objects_config[45].movement_flag = 1;
     game.objects_config[46].field_4 = 10;
     game.objects_config[46].field_5 = 0;
     game.objects_config[47].ilght.field_0 = 0x0400u;
     game.objects_config[47].ilght.field_2 = 0x3E;
     game.objects_config[47].ilght.field_3 = 0;
     game.objects_config[46].ilght.is_dynamic = 0;
-    game.objects_config[46].field_8 = 1;
+    game.objects_config[46].movement_flag = 1;
     game.objects_config[47].field_4 = 10;
     game.objects_config[47].field_5 = 0;
     game.objects_config[47].ilght.is_dynamic = 0;
     game.objects_config[134].ilght.field_0 = 0x0400u;
     game.objects_config[134].ilght.field_2 = 0x3E;
     game.objects_config[134].ilght.field_3 = 0;
-    game.objects_config[47].field_8 = 1;
+    game.objects_config[47].movement_flag = 1;
     game.objects_config[134].field_4 = 10;
     game.objects_config[134].field_5 = 0;
     game.objects_config[134].ilght.is_dynamic = 0;
     game.objects_config[87].ilght.field_0 = 0x0400u;
     game.objects_config[87].ilght.field_2 = 0x3E;
     game.objects_config[87].ilght.field_3 = 0;
-    game.objects_config[134].field_8 = 1;
+    game.objects_config[134].movement_flag = 1;
     game.objects_config[87].field_4 = 10;
     game.objects_config[87].field_5 = 0;
     game.objects_config[88].ilght.field_0 = 0x0400u;
@@ -798,34 +809,37 @@ void init_objects(void)
     game.objects_config[86].field_5 = 0;
     game.objects_config[86].ilght.is_dynamic = 0;
     game.objects_config[109].resistant_to_nonmagic = 1;
-    game.objects_config[109].field_8 = 1;
-    game.objects_config[94].field_8 = 1;
-    game.objects_config[95].field_8 = 1;
-    game.objects_config[96].field_8 = 1;
-    game.objects_config[97].field_8 = 1;
-    game.objects_config[98].field_8 = 1;
-    game.objects_config[99].field_8 = 1;
-    game.objects_config[106].field_8 = 1;
-    game.objects_config[107].field_8 = 1;
-    game.objects_config[108].field_8 = 1;
+    game.objects_config[109].movement_flag = 1;
+    game.objects_config[94].movement_flag = 1;
+    game.objects_config[95].movement_flag = 1;
+    game.objects_config[96].movement_flag = 1;
+    game.objects_config[97].movement_flag = 1;
+    game.objects_config[98].movement_flag = 1;
+    game.objects_config[99].movement_flag = 1;
+    game.objects_config[106].movement_flag = 1;
+    game.objects_config[107].movement_flag = 1;
+    game.objects_config[108].movement_flag = 1;
     game.objects_config[128].field_4 = 10;
     for (long i = 57; i <= 85; i++)
     {
-      game.objects_config[i].field_8 = 1;
+        game.objects_config[i].movement_flag = 1;
     }
-    game.objects_config[126].field_8 = 1;
-    game.objects_config[26].field_8 = 1;
-    game.objects_config[27].field_8 = 1;
-    game.objects_config[31].field_8 = 1;
-    game.objects_config[32].field_8 = 1;
-    game.objects_config[114].field_8 = 1;
-    game.objects_config[115].field_8 = 1;
-    game.objects_config[116].field_8 = 1;
-    game.objects_config[117].field_8 = 1;
-    game.objects_config[118].field_8 = 1;
-    game.objects_config[119].field_8 = 1;
-    game.objects_config[125].field_8 = 1;
+    game.objects_config[126].movement_flag = 1;
+    game.objects_config[26].movement_flag = 1;
+    game.objects_config[27].movement_flag = 1;
+    game.objects_config[31].movement_flag = 1;
+    game.objects_config[32].movement_flag = 1;
+    game.objects_config[114].movement_flag = 1;
+    game.objects_config[115].movement_flag = 1;
+    game.objects_config[116].movement_flag = 1;
+    game.objects_config[117].movement_flag = 1;
+    game.objects_config[118].movement_flag = 1;
+    game.objects_config[119].movement_flag = 1;
+    game.objects_config[125].movement_flag = 1;
+
+    memcpy(&gameadd.object_conf.base_config, &game.objects_config, sizeof(game.objects_config));
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

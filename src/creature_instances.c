@@ -677,7 +677,7 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
         ERRORLOG("Cannot delete %s room tile destroyed by %s index %d",room_code_name(room->kind),thing_model_name(creatng),(int)creatng->index);
         return 0;
     }
-    create_effect(&creatng->mappos, TngEff_Unknown03, creatng->owner);
+    create_effect(&creatng->mappos, TngEff_Explosion3, creatng->owner);
     thing_play_sample(creatng, 47, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
@@ -723,7 +723,7 @@ long instf_fart(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
     //return _DK_instf_fart(creatng, param);
-    struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Unknown13, creatng->owner);
+    struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
     if (!thing_is_invalid(efftng))
         efftng->byte_16 = 4;
     thing_play_sample(creatng,94+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);

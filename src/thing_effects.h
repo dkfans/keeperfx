@@ -55,58 +55,58 @@ enum AreaAffectTypes {
 
 enum ThingEffectKind {
     TngEff_None = 0,
-    TngEff_Unknown01, // expl small
-    TngEff_Unknown02,
-    TngEff_Unknown03,
-    TngEff_Unknown04,
-    TngEff_Unknown05, // expl big
+    TngEff_Explosion1, // expl small
+    TngEff_Explosion2,
+    TngEff_Explosion3,
+    TngEff_Explosion4,
+    TngEff_Explosion5, // expl big
     TngEff_HitBleedingUnit,
     TngEff_ChickenBlood,
-    TngEff_Unknown08,
-    TngEff_Unknown09,
-    TngEff_Unknown10, // blood big
-    TngEff_Unknown11, // fart
-    TngEff_Unknown12, // fart
-    TngEff_Unknown13, // fart
+    TngEff_Blood3,
+    TngEff_Blood4,
+    TngEff_Blood5, // blood big
+    TngEff_Gas1, // fart
+    TngEff_Gas2, // fart
+    TngEff_Gas3, // fart
     TngEff_WoPExplosion,
-    TngEff_Unknown15, // Ice shard
-    TngEff_Unknown16, // fart without damage
-    TngEff_Unknown17, // fart without damage
-    TngEff_Unknown18, // fart without damage
-    TngEff_Unknown19, // water drip
-    TngEff_Unknown20,
-    TngEff_Unknown21,
+    TngEff_IceShard, // Ice shard
+    TngEff_HarmlessGas1, // fart without damage
+    TngEff_HarmlessGas2, // fart without damage
+    TngEff_HarmlessGas3, // fart without damage
+    TngEff_Drip1, // water drip
+    TngEff_Drip2,
+    TngEff_Drip3,
     TngEff_HitFrozenUnit,
-    TngEff_Unknown23,
+    TngEff_Hail,
     TngEff_DeathIceExplosion,
     TngEff_RockChips, // less dirt
     TngEff_DirtRubble,
     TngEff_Unknown27, // more dirt
     TngEff_ImpSpangleRed,
-    TngEff_Unknown29, // ice drip?
-    TngEff_Unknown30, // super long cloud?
-    TngEff_Unknown31, // super wide cloud?
-    TngEff_Unknown32, // small gold coins
-    TngEff_GoldRubble,
-    TngEff_Unknown34, // big gold chunks
+    TngEff_Drip4, // ice drip?
+    TngEff_Cloud, // super long cloud?
+    TngEff_HarmlessGas4, // super wide cloud?
+    TngEff_GoldRubble1, // small gold coins
+    TngEff_GoldRubble2,
+    TngEff_GoldRubble3, // big gold chunks
     TngEff_TempleSplash,
     TngEff_CeilingBreach,
-    TngEff_Unknown37, // strange gas
-    TngEff_Unknown38, // strange gas
-    TngEff_Unknown39, // strange gas
-    TngEff_Unknown40, // fart slow
-    TngEff_NumberHop,
-    TngEff_Unknown42,
-    TngEff_LavaTrap,
+    TngEff_StrangeGas1, // strange gas
+    TngEff_StrangeGas2, // strange gas
+    TngEff_StrangeGas3, // strange gas
+    TngEff_DecelerationGas1, // fart slow
+    TngEff_DecelerationGas2,
+    TngEff_DecelerationGas3,
+    TngEff_Eruption,
     TngEff_HearthCollapse,
-    TngEff_Unknown45, // claim with sound???
-    TngEff_Unknown46,
-    TngEff_Unknown47, // spiral fx
-    TngEff_Unknown48, // flash with whiteout
+    TngEff_Explosion6, // claim with sound???
+    TngEff_SpangleRedBig,
+    TngEff_ColouredRingOfFire, // spiral fx
+    TngEff_Flash, // flash with whiteout
     TngEff_DamageBlood,
-    TngEff_Unknown50, // temple? explosion with sound
+    TngEff_Explosion7, // temple? explosion with sound
     TngEff_FeatherPuff,
-    TngEff_Unknown52,
+    TngEff_Explosion8,
     TngEff_ResearchComplete,
     TngEff_RoomSparkeSmall,
     TngEff_RoomSparkeMedium,
@@ -114,15 +114,15 @@ enum ThingEffectKind {
     TngEff_ImpSpangleBlue,
     TngEff_ImpSpangleGreen,
     TngEff_ImpSpangleYellow,
-    TngEff_Unknown60, // teleport puff red
-    TngEff_Unknown61,
-    TngEff_Unknown62,
-    TngEff_Unknown63, // teleport puff yellow
-    TngEff_Unknown64, // teleport puff white
+    TngEff_BallPuffRed, // teleport puff red
+    TngEff_BallPuffBlue,
+    TngEff_BallPuffGreen,
+    TngEff_BallPuffYellow, // teleport puff yellow
+    TngEff_BallPuffWhite, // teleport puff white
     TngEff_BloodyFootstep,
-    TngEff_Unknown66, // blood splat
+    TngEff_Blood7, // blood splat
     TngEff_SpecialBox,
-    TngEff_Unknown68, // boulder sink
+    TngEff_BoulderSink, // boulder sink
     TngEff_Unknown69,
 };
 

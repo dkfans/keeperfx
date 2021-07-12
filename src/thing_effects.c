@@ -136,7 +136,7 @@ struct InitEffect effect_info[] = {
     { 1, 1,   1,   1,   1,   1,  2,   0, 85, 85,  AAffT_None, 1, {0}, 1},
     { 4, 1,  16,  16, -32,  64,  3,   0, 75, 78,  AAffT_None, 1, {0}, 1},
     {10, 1,  20, 150, -80,  80, 20,  36, 27, 29,  AAffT_None, 1, {2560, 52, 0, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1}, // [68]
-    { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0, 0, {0}, 0},
+    { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0,          0, {0}, 0},
 };
 
 
@@ -1241,7 +1241,7 @@ struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_id
 
 TbBool destroy_effect_thing(struct Thing *efftng)
 {
-    if (efftng->model == TngEff_LavaTrap)
+    if (efftng->model == TngEff_Eruption)
     {
         place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner, 0);
         do_slab_efficiency_alteration(subtile_slab_fast(efftng->mappos.x.stl.num), subtile_slab_fast(efftng->mappos.y.stl.num));
@@ -1295,7 +1295,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 {
                     CrDeathFlags dieflags = CrDed_DiedInBattle;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if (tngsrc->owner == tngdst->owner)
+                    if ((tngsrc->owner == tngdst->owner &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)))
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
@@ -1809,7 +1809,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
 
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price)
 {
-    struct Thing* elemtng = create_effect_element(pos, TngEff_NumberHop, plyr_idx);
+    struct Thing* elemtng = create_effect_element(pos, 41, plyr_idx);
     TRACE_THING(elemtng);
     if (!thing_is_invalid(elemtng)) {
         elemtng->price.number = abs(price);

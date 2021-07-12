@@ -85,6 +85,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"FULLY_HAPPY_WITH_GOLD",       9},
   {"FAINTED_IMMUNE_TO_BOULDER",  10},
   {"REBIRTH_KEEPS_SPELLS",       11},
+  {"STUN_FRIENDLY_UNITS",        12},
   {NULL,                          0},
   };
 
@@ -293,6 +294,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         game.pay_day_gap = 5000;
         game.chest_gold_hold = 1000;
         game.dungeon_heart_health = 100;
+        gameadd.object_conf.base_config[5].health = 100;
         game.objects_config[5].health = 100;
         game.dungeon_heart_heal_time = 10;
         game.dungeon_heart_heal_health = 1;
@@ -394,7 +396,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gold_per_hoard = k;
+              gameadd.gold_per_hoard = k;
               n++;
             }
             if (n < 1)
@@ -561,6 +563,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
               k = atoi(word_buf);
               game.dungeon_heart_health = k;
               game.objects_config[5].health = k;
+              gameadd.object_conf.base_config[5].health = k;
               n++;
             }
             if (n < 1)
@@ -657,6 +660,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   break;
               case 11: // REBIRTH_KEEPS_SPELLS
                   gameadd.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
+                  n++;
+                  break;
+              case 12: // STUN_FRIENDLY_UNITS
+                  gameadd.classic_bugs_flags |= ClscBug_FriendlyFaint;
                   n++;
                   break;
               default:
@@ -1328,6 +1335,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       gameadd.scavenge_good_allowed = 1;
       gameadd.scavenge_neutral_allowed = 1;
       gameadd.time_between_prison_break = 64;
+      gameadd.gold_per_hoard = 2000;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];

@@ -72,7 +72,7 @@ Thing_State_Func object_state_functions[] = {
     NULL,
 };
 
-Thing_Class_Func object_update_functions[] = {
+Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
     NULL,
     NULL,
     NULL,
@@ -215,7 +215,7 @@ Thing_Class_Func object_update_functions[] = {
  *
  * Originally was named objects[].
  */
-struct Objects objects_data[] = {
+struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1}, //1 BARREL
   {0, 0, 1, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1}, //2 TORCH
@@ -241,7 +241,7 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //24
-  {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObOC_Unknown0, 0}, //25
+  {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObOC_Unknown0, 0}, //25 ROOM_FLAG
   {0, 0, 0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //26 ANVIL
   {0, 0, 0, 0, 0, 796, 0x0100,    0,    0, 200, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //27 PRISON_BAR
   {0, 0, 1, 0, 0, 791, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1}, //28 CANDLE_UNLIT
@@ -356,7 +356,7 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0},
 };
 
-ThingModel object_to_special[] = {
+ThingModel object_to_special[OBJECT_TYPES_MAX] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -428,7 +428,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->field_22 = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
-    set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->field_8);
+    set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->movement_flag);
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
 
@@ -568,15 +568,15 @@ struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
     unsigned int tmodel = thing->model;
     if (tmodel >= OBJECT_TYPES_COUNT)
-      return &objects_data[0];
-    return &objects_data[tmodel];
+      return &gameadd.thing_objects_data[0];
+    return &gameadd.thing_objects_data[tmodel];
 }
 
 struct Objects *get_objects_data(unsigned int tmodel)
 {
     if (tmodel >= OBJECT_TYPES_COUNT)
-        return &objects_data[0];
-    return &objects_data[tmodel];
+        return &gameadd.thing_objects_data[0];
+    return &gameadd.thing_objects_data[tmodel];
 }
 
 /**
@@ -588,9 +588,9 @@ PowerKind book_thing_to_power_kind(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
+    if ( (thing->class_id != TCls_Object) || (thing->model >= gameadd.object_conf.object_types_count) )
         return 0;
-    return object_conf.object_to_power_artifact[thing->model];
+    return gameadd.object_conf.object_to_power_artifact[thing->model];
 }
 
 TbBool thing_is_special_box(const struct Thing *thing)
@@ -1835,7 +1835,7 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     int wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
     if (wealth_size > get_wealth_size_types_count()) {
         WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
@@ -1863,8 +1863,8 @@ int get_wealth_size_types_count(void)
  */
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, GoldAmount value)
 {
-    if (value >= gold_per_hoard)
-        value = gold_per_hoard;
+    if (value >= gameadd.gold_per_hoard)
+        value = gameadd.gold_per_hoard;
     int wealth_size = get_wealth_size_of_gold_amount(value);
     struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
     if (thing_is_invalid(gldtng))
@@ -1875,7 +1875,7 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
 
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
-    GoldAmount wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
         ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
         return INVALID_THING;
@@ -1908,7 +1908,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
 long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
     //return _DK_add_gold_to_hoarde(gldtng, room, amount);
-    GoldAmount wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // Fix amount
     if (gldtng->valuable.gold_stored + amount > max_hoard_size_in_room)
@@ -2118,6 +2118,11 @@ struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
         add_gold_to_pile(thing, value);
     }
     return thing;
+}
+
+void init_thing_objects()
+{
+    memcpy(gameadd.thing_objects_data, objects_data_init, sizeof(objects_data_init));
 }
 /******************************************************************************/
 #ifdef __cplusplus
