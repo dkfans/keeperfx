@@ -2190,7 +2190,7 @@ void throw_out_gold(struct Thing *thing)
     int num_pots_to_drop;
     // Compute if we want bags or pots
     int dropject = 6; //GOLD object
-    if ((game.pot_of_gold_holds > game.chest_gold_hold) && (thing->creature.gold_carried <= game.chest_gold_hold))
+    if ((game.pot_of_gold_holds > gameadd.bag_gold_hold) && (thing->creature.gold_carried <= gameadd.bag_gold_hold))
     {
             dropject = 136; //Drop GOLD_BAG object when we're dealing with small amounts
             num_pots_to_drop = 1;
