@@ -422,7 +422,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->solid_size_xy = objdat->size_xy;
     thing->solid_size_yz = objdat->size_yz;
     thing->health = saturate_set_signed(objconf->health,16);
-    thing->fall_acceleration = objconf->field_4;
+    thing->fall_acceleration = objconf->fall_acceleration;
     thing->field_23 = 204;
     thing->field_24 = 51;
     thing->field_22 = 0;
