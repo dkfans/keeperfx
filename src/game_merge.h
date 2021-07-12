@@ -130,6 +130,7 @@ struct GameAdd {
     long friendly_fight_area_range_permil;
     unsigned char torture_death_chance;
     unsigned char torture_convert_chance;
+    unsigned short bag_gold_hold;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
     TbBool armegeddon_teleport_neutrals;
