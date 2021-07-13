@@ -373,7 +373,7 @@ unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
 /** Dungeon Heart flame objects model per player index.
  */
 unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
-unsigned short lightning_spangles[] = {83, 90, 91, 92, 0, 0};
+unsigned short lightning_spangles[] = {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_None, TngEffElm_None};
 unsigned short gold_hoard_objects[] = {52, 52, 53, 54, 55, 56};
 unsigned short food_grow_objects[] = {40, 41, 42};
 

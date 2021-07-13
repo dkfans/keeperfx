@@ -124,7 +124,7 @@ unsigned char const slabs_to_centre_peices[] = {
  21, 22, 23, 24, 25,
 };
 
-unsigned short const room_effect_elements[] = { 55, 56, 57, 58, 0, 0 };
+unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None };
 const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *hoardtng, struct Room *room, struct Coord3d *pos, long a4);
