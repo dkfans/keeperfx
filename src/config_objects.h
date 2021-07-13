@@ -59,8 +59,8 @@ enum ObjectModelFlags {
 
 struct ObjectConfig { // sizeof=0x1D
     long health;
-char field_4;
-char field_5;
+char fall_acceleration;
+char light_uneffected;
 char is_heart;
 char resistant_to_nonmagic;
 char movement_flag;

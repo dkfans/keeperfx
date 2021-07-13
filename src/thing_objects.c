@@ -352,6 +352,7 @@ struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //134 SPELLBOOK
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //135
+  {0, 0, 0, 0, 0, 933, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1}, //136 GOLD_BAG
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0},
 };
 
@@ -421,7 +422,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->solid_size_xy = objdat->size_xy;
     thing->solid_size_yz = objdat->size_yz;
     thing->health = saturate_set_signed(objconf->health,16);
-    thing->fall_acceleration = objconf->field_4;
+    thing->fall_acceleration = objconf->fall_acceleration;
     thing->field_23 = 204;
     thing->field_24 = 51;
     thing->field_22 = 0;
@@ -441,7 +442,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       k = -1;
     }
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->field_5);
+    set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->light_uneffected);
     set_flag_byte(&thing->field_4F, TF4F_Unknown01, objdat->field_3 & 0x01);
 
     set_flag_byte(&thing->field_4F, TF4F_Transpar_4, objdat->field_F & 0x01);
@@ -477,6 +478,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       case 3:
       case 6:
       case 43:
+      case 136:
         thing->valuable.gold_stored = gold_object_typical_value(thing->model);
         break;
       case 49:
@@ -695,6 +697,7 @@ TbBool object_is_gold_pile(const struct Thing *thing)
       case 6: // Pot of gold
       case 43: // Gold laying on the ground
       case 128: // Spinning coin
+      case 136: // Gold bag
           return true;
       default:
           return false;
@@ -2045,11 +2048,13 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel)
     switch (tngmodel)
     {
       case 3:
-        return game.chest_gold_hold;
+          return game.chest_gold_hold;
       case 6:
           return game.pot_of_gold_holds;
       case 43:
           return game.gold_pile_value;
+      case 136:
+          return gameadd.bag_gold_hold;
       case 128:
           return game.gold_pile_maximum;
       default:
