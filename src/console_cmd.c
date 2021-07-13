@@ -801,7 +801,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     pos.y.stl.num = coord_subtile(((unsigned short)pckt->pos_y));
                     if (!subtile_coords_invalid(pos.x.stl.num, pos.y.stl.num))
                     {
-                        pos.z.stl.num = get_floor_height(pos.x.stl.num, pos.y.stl.num);
+                        pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
                         PlayerNumber id = get_player_number_for_command(pr4str);
                         thing = create_thing(&pos, tngclass, tngmodel, id, -1);
                         if (!thing_is_invalid(thing))
