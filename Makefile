@@ -61,6 +61,7 @@ ECHO     = @echo
 
 # Names of target binary files
 BIN      = bin/keeperfx$(EXEEXT)
+TEST_BIN = bin/tests$(EXEEXT)
 HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
@@ -292,8 +293,22 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
-obj/main.o \
 $(RES)
+
+MAIN_OBJ = obj/main.o
+
+TESTS_OBJ = obj/tests/tst_main.o \
+obj/tests/tst_fixes.o \
+obj/tests/001_test.o
+
+CU_DIR = deps/CUnit-2.1-3/CUnit
+CU_INC = -I"$(CU_DIR)/Headers"
+CU_OBJS = \
+	obj/cu/Basic.o \
+	obj/cu/TestDB.o \
+	obj/cu/CUError.o \
+	obj/cu/TestRun.o \
+	obj/cu/Util.o
 
 # include and library directories
 LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net 
@@ -302,6 +317,9 @@ CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
+STD_MAIN_OBJ = $(subst obj/,obj/std/,$(MAIN_OBJ))
+HVLOG_MAIN_OBJ = $(subst obj/,obj/hvlog/,$(MAIN_OBJ))
+
 
 # allow extracting files from archives, replacing pre-existing ones
 ENABLE_EXTRACT ?= 1
@@ -384,6 +402,7 @@ include prebuilds.mk
 .PHONY: package clean-package deep-clean-package
 .PHONY: tools clean-tools deep-clean-tools
 .PHONY: libexterns clean-libexterns deep-clean-libexterns
+.PHONY: tests
 
 # dependencies tracking
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
@@ -400,7 +419,7 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog)
+$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu)
 std-before: libexterns
 hvlog-before: libexterns
 
@@ -414,8 +433,8 @@ deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
 clean: clean-build clean-tools clean-libexterns clean-package
 
 clean-build:
-	-$(RM) $(STDOBJS) $(filter %.d,$(STDOBJS:%.o=%.d))
-	-$(RM) $(HVLOGOBJS) $(filter %.d,$(HVLOGOBJS:%.o=%.d))
+	-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))
+	-$(RM) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(filter %.d,$(HVLOGOBJS:%.o=%.d)) $(filter %.d,$(HVLOG_MAIN_OBJ:%.o=%.d))
 	-$(RM) $(BIN) $(BIN:%.exe=%.map)
 	-$(RM) $(BIN) $(BIN:%.exe=%.pdb)
 	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
@@ -425,23 +444,43 @@ clean-build:
 	-$(RM) res/*.ico
 	-$(RM) obj/keeperfx.*
 
-$(BIN): $(GENSRC) $(STDOBJS) $(LIBS) std-before
+$(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) std-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(STDOBJS) $(LDFLAGS)
+	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
 
-$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS) hvlog-before
+$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) hvlog-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(HVLOGOBJS) $(LDFLAGS)
+	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
+
+$(TEST_BIN): $(GENSRC) $(TESTS_OBJ) $(LIBS) $(CU_OBJS) std-before
+	-$(ECHO) 'Building target: $@'
+	$(CPP) -o "$@" $(TESTS_OBJ) $(STDOBJS) $(CU_OBJS) $(LDFLAGS)
+ifdef CV2PDB
+	$(CV2PDB) -C "$@"
+endif
+	-$(ECHO) 'Finished building target: $@'
+
+obj/tests/%.o: tests/%.cpp $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
+	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
+
+obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
+	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
 
 obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)
 	-$(ECHO) 'Building file: $<'
@@ -489,6 +528,8 @@ bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 	$(EXETODLL) -o"$@" --def "obj/keeperfx.def" -p"_DK_" "$<"
 	-$(ECHO) 'Finished creating: $@'
 	-$(ECHO) ' '
+
+tests: std-before $(TEST_BIN)
 
 include libexterns.mk
 
