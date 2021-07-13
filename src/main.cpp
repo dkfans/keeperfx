@@ -409,7 +409,7 @@ unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
     return get_2d_box_distance(&player->acamera->mappos, pos) < subtile_coord(45,0);
 }
 
-TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
+static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
 {
     SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     if (thing->index == param->num2) {
@@ -2343,7 +2343,7 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
     }
 }
 
-void process_dungeon_devastation_effects(void)
+static void process_dungeon_devastation_effects(void)
 {
     SYNCDBG(8,"Starting");
     //_DK_process_dungeon_devastation_effects(); return;

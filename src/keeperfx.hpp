@@ -270,7 +270,6 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
 void toggle_hero_health_flowers(void);
 void check_players_won(void);
 void check_players_lost(void);
-void process_dungeon_devastation_effects(void);
 void process_things_in_dungeon_hand(void);
 void process_payday(void);
 
