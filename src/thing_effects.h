@@ -127,7 +127,7 @@ enum ThingEffectKind {
 };
 
 enum ThingEffectElements {
-    TngEffElm_Unknown00 = 0,
+    TngEffElm_None = 0,
     TngEffElm_Blast1,
     TngEffElm_Blood1,
     TngEffElm_Blood2,
