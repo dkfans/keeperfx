@@ -1718,11 +1718,7 @@ TngUpdateRet update_object(struct Thing *thing)
     TRACE_THING(thing);
 
     Thing_Class_Func upcallback = NULL;
-    if (thing->model < sizeof(object_update_functions)/sizeof(object_update_functions[0])) {
-        upcallback = object_update_functions[thing->model];
-    } else {
-        ERRORLOG("Object model %d exceeds update_functions dimensions",(int)thing->model);
-    }
+    upcallback = object_update_functions[thing->model];
     if (upcallback != NULL)
     {
         if (upcallback(thing) <= 0) {
