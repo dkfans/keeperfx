@@ -1571,7 +1571,7 @@ short creature_change_from_chicken(struct Thing *creatng)
     { // Changing under way - gradually modify size of the creature
         creatng->field_4F |= TF4F_Unknown01;
         creatng->field_50 |= 0x01;
-        struct Thing* efftng = create_effect_element(&creatng->mappos, 0x3Bu, creatng->owner);
+        struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
             long n = (10 - cctrl->countdown_282) * (gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
@@ -1603,7 +1603,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     {
       creatng->field_50 |= 0x01;
       creatng->field_4F |= TF4F_Unknown01;
-      struct Thing* efftng = create_effect_element(&creatng->mappos, 59, creatng->owner);
+      struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);

@@ -483,7 +483,7 @@ struct EffectElementStats effect_element_stats[] = {
 
 long const bounce_table[] = { -160, -160, -120, -120, -80, -40, -20, 0, 20, 40, 80, 120, 120, 160, 160, 160 };
 /** Effects used when creating new imps. Every player color has different index. */
-const int birth_effect_element[] = { 54, 79, 80, 81, 82, 82, };
+const int birth_effect_element[] = { TngEffElm_RedPuff, TngEffElm_BluePuff, TngEffElm_GreenPuff, TngEffElm_YellowPuff, TngEffElm_WhitePuff, TngEffElm_WhitePuff, };
 /******************************************************************************/
 TbBool thing_is_effect(const struct Thing *thing)
 {
