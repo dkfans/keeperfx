@@ -482,7 +482,7 @@ obj/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
 obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
 	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
 
-obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)
+obj/std/%.o obj/hvlog/%.o: src/%.cpp small-sleep-3 $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
@@ -530,6 +530,10 @@ bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 	-$(ECHO) ' '
 
 tests: std-before $(TEST_BIN)
+
+small-sleep-3:
+	sleep 3
+
 
 include libexterns.mk
 

@@ -22,14 +22,11 @@ ARCH = i686-w64-mingw32
 
 .PHONY: clean-libsdl deep-clean-libsdl
 
-libexterns: libsdl libsdlnet libsdlmixer small-sleep-1 small-sleep-2
+libexterns: libsdl libsdlnet libsdlmixer
 
 clean-libexterns: clean-libsdl
 
 deep-clean-libexterns: deep-clean-libsdl
-
-small-sleep-1 small-sleep-2:
-	sleep 1  
 
 ifneq (,$(findstring .tar.gz,$(SDL_PACKAGE)))
 
