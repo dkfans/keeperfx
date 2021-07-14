@@ -22,6 +22,8 @@
 #include "player_computer.h"
 #include "thing_effects.h"
 #include "room_data.h"
+#include "room_library.h"
+#include "room_workshop.h"
 #include "map_columns.h"
 #include "creature_states.h"
 #include "magic.h"
@@ -161,6 +163,38 @@ void process_dungeon_destroy(struct Thing* heartng)
     dungeon->heart_destroy_state = 0;
     dungeon->heart_destroy_turn = 0;
     break;
+    }
+}
+
+/******************************************************************************/
+
+void update_research(void)
+{
+    int i;
+    struct PlayerInfo *player;
+    SYNCDBG(6,"Starting");
+    for (i=0; i<PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player) && (player->is_active == 1))
+        {
+            process_player_research(i);
+        }
+    }
+}
+
+void update_manufacturing(void)
+{
+    int i;
+    struct PlayerInfo *player;
+    SYNCDBG(16,"Starting");
+    for (i=0; i<PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player) && (player->is_active == 1))
+        {
+            process_player_manufacturing(i);
+        }
     }
 }
 

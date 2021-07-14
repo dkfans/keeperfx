@@ -58,10 +58,6 @@ long get_foot_creature_has_down(struct Thing *thing)
 {
 }
 
-void add_creature_to_pool(long kind, long amount, unsigned long a3)
-{
-}
-
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, unsigned char a5)
 {
     return 0;

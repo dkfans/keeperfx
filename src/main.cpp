@@ -2506,36 +2506,6 @@ void update_player_camera(struct PlayerInfo *player)
     }
 }
 
-void update_research(void)
-{
-  int i;
-  struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
-      {
-          process_player_research(i);
-      }
-  }
-}
-
-void update_manufacturing(void)
-{
-  int i;
-  struct PlayerInfo *player;
-  SYNCDBG(16,"Starting");
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
-      {
-          process_player_manufacturing(i);
-      }
-  }
-}
-
 void update_all_players_cameras(void)
 {
   int i;
@@ -2695,32 +2665,6 @@ void update_footsteps_nearest_camera(struct Camera *cam)
         stop_playing_flight_sample_in_all_flying_creatures();
     }
     timeslice = (timeslice + 1) % 4;
-}
-
-void add_creature_to_pool(long kind, long amount, unsigned long a3)
-{
-    long prev_amount;
-    kind %= CREATURE_TYPES_COUNT;
-    prev_amount = game.pool.crtr_kind[kind];
-    if ((a3 == 0) || (prev_amount != -1))
-    {
-        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
-            game.pool.crtr_kind[kind] = prev_amount + amount;
-        else
-            game.pool.crtr_kind[kind] = amount;
-    }
-}
-
-short update_creature_pool_state(void)
-{
-  int i;
-  game.pool.is_empty = true;
-  for (i=1; i < CREATURE_TYPES_COUNT; i++)
-  {
-      if (game.pool.crtr_kind[i] > 0)
-      { game.pool.is_empty = false; break; }
-  }
-  return true;
 }
 
 int clear_active_dungeons_stats(void)
