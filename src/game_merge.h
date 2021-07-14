@@ -32,6 +32,8 @@
 #include "creature_control.h"
 #include "light_data.h"
 #include "lvl_script.h"
+#include "thing_objects.h"
+#include "config_objects.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,6 +78,7 @@ enum ClassicBugFlags {
     ClscBug_FullyHappyWithGold     = 0x0100,
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_RebirthKeepsSpells     = 0x0400,
+    ClscBug_FriendlyFaint          = 0x0800,
 };
 
 enum GameFlags2 {
@@ -130,10 +133,11 @@ struct GameAdd {
     long friendly_fight_area_range_permil;
     unsigned char torture_death_chance;
     unsigned char torture_convert_chance;
+    unsigned short bag_gold_hold;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
     TbBool armegeddon_teleport_neutrals;
-    unsigned short classic_bugs_flags;
+    unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;
     /** The creature model used for determining amount of sacrifices which decrease digger cost. */
     ThingModel cheaper_diggers_sacrifice_model;
@@ -147,6 +151,7 @@ struct GameAdd {
     unsigned long pay_day_speed;
     unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
+    unsigned long gold_per_hoard;
 
 #define TRAPDOOR_TYPES_MAX 128
 
@@ -165,6 +170,9 @@ struct GameAdd {
     int                   active_fx_lines;
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
+
+    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
+    struct ObjectsConfig object_conf;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

@@ -282,7 +282,7 @@ void process_dungeon_destroy(struct Thing *heartng)
         // Final phase - destroy the heart, both pedestal room and container thing
         {
             struct Thing *efftng;
-            efftng = create_effect(central_pos, TngEff_Unknown04, plyr_idx);
+            efftng = create_effect(central_pos, TngEff_Explosion4, plyr_idx);
             if (!thing_is_invalid(efftng))
               efftng->byte_16 = 8;
             efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
@@ -399,7 +399,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
         pos.y.val = thing->mappos.y.val - (delta_y >> 8);
         pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, 45, thing->owner); // Heal
+        create_effect_element(&pos, TngEffElm_Heal, thing->owner); // Heal
     }
 }
 
@@ -1044,6 +1044,7 @@ short setup_game(void)
   update_features(mem_size);
 
   features_enabled |= Ft_Wibble; // enable wibble by default
+  features_enabled |= Ft_LiquidWibble; // enable liquid wibble by default
 
   // Configuration file
   if ( !load_configuration() )
@@ -1788,6 +1789,7 @@ void clear_game(void)
     clear_things_and_persons_data();
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
+    init_thing_objects();
 }
 
 void clear_game_for_save(void)
@@ -2340,7 +2342,7 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
       pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
       pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
       pos.z.val = get_floor_height_at(&pos);
-      create_effect_element(&pos, TngEff_Unknown10, plyr_idx);
+      create_effect_element(&pos, TngEffElm_RedFlameBig, plyr_idx);
     }
 }
 
@@ -2930,7 +2932,7 @@ long update_cave_in(struct Thing *thing)
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
-            efftng = create_effect_element(&pos, TngEff_Unknown48, owner);
+            efftng = create_effect_element(&pos, TngEff_Flash, owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->health = pwrdynst->time;
             }
@@ -2946,7 +2948,7 @@ long update_cave_in(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + ACTION_RANDOM(128);
         pos.y.val = thing->mappos.y.val + ACTION_RANDOM(128);
         pos.z.val = get_floor_height_at(&pos) + 384;
-        create_effect(&pos, TngEff_Unknown31, owner);
+        create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
 
     if ((turns_alive % game.turns_per_collapse_dngn_dmg) == 0)

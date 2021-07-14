@@ -115,7 +115,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
             objtng->long_13 = gold_picked;
             pos.z.val += 128;
             struct Thing *efftng;
-            efftng = create_effect_element(&pos, 0x29u, owner);
+            efftng = create_effect_element(&pos, TngEffElm_Price, owner);
             if (!thing_is_invalid(efftng))
                 efftng->long_13 = gold_picked;
         }
@@ -258,6 +258,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     case 3:
     case 6:
     case 43:
+    case 136:
       i = thing->creature.gold_carried;
       if (i != 0)
       {
