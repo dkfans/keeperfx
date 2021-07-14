@@ -377,7 +377,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             delete_thing_structure(thing, 0);
             return false;
         }
-        long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+        long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
         unsigned long n = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
         thing->owner = room->owner;
         add_gold_to_hoarde(thing, room, n);

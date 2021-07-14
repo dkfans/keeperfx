@@ -1044,9 +1044,9 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               power_desc[i].num = 0;
           }
       }
-      arr_size = sizeof(object_conf.object_to_power_artifact)/sizeof(object_conf.object_to_power_artifact[0]);
+      arr_size = sizeof(gameadd.object_conf.object_to_power_artifact)/sizeof(gameadd.object_conf.object_to_power_artifact[0]);
       for (i=0; i < arr_size; i++) {
-          object_conf.object_to_power_artifact[i] = 0;
+          gameadd.object_conf.object_to_power_artifact[i] = 0;
       }
   }
   arr_size = magic_conf.power_types_count;
@@ -1166,7 +1166,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               k = get_id(object_desc, word_buf);
               if (k >= 0) {
                   powerst->artifact_model = k;
-                  object_conf.object_to_power_artifact[k] = i;
+                  gameadd.object_conf.object_to_power_artifact[k] = i;
                   n++;
               }
           }
@@ -1406,9 +1406,9 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               special_desc[i].num = 0;
           }
       }
-      arr_size = sizeof(object_conf.object_to_special_artifact)/sizeof(object_conf.object_to_special_artifact[0]);
+      arr_size = sizeof(gameadd.object_conf.object_to_special_artifact)/sizeof(gameadd.object_conf.object_to_special_artifact[0]);
       for (i=0; i < arr_size; i++) {
-          object_conf.object_to_special_artifact[i] = 0;
+          gameadd.object_conf.object_to_special_artifact[i] = 0;
       }
   }
   arr_size = magic_conf.special_types_count;
@@ -1460,7 +1460,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               k = get_id(object_desc, word_buf);
               if (k >= 0) {
                   specst->artifact_model = k;
-                  object_conf.object_to_special_artifact[k] = i;
+                  gameadd.object_conf.object_to_special_artifact[k] = i;
                   n++;
               }
           }

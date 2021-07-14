@@ -142,10 +142,10 @@ TbBool parse_trapdoor_common_blocks(char *buf, long len, const char *config_text
     {
         gameadd.trapdoor_conf.trap_types_count = 1;
         gameadd.trapdoor_conf.door_types_count = 1;
-        int arr_size = sizeof(object_conf.object_to_door_or_trap) / sizeof(object_conf.object_to_door_or_trap[0]);
+        int arr_size = sizeof(gameadd.object_conf.object_to_door_or_trap) / sizeof(gameadd.object_conf.object_to_door_or_trap[0]);
         for (int i = 0; i < arr_size; i++)
         {
-            object_conf.object_to_door_or_trap[i] = 0;
+            gameadd.object_conf.object_to_door_or_trap[i] = 0;
         }
     }
     // Find the block
@@ -419,8 +419,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   word_buf,block_buf,config_textname);
               break;
           }
-          object_conf.object_to_door_or_trap[n] = i;
-          object_conf.workshop_object_class[n] = TCls_Trap;
+          gameadd.object_conf.object_to_door_or_trap[n] = i;
+          gameadd.object_conf.workshop_object_class[n] = TCls_Trap;
           gameadd.trapdoor_conf.trap_to_object[i] = n;
           break;
       case 10: // SYMBOLSPRITES
@@ -833,8 +833,8 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                   word_buf,block_buf,config_textname);
               break;
           }
-          object_conf.object_to_door_or_trap[n] = i;
-          object_conf.workshop_object_class[n] = TCls_Door;
+          gameadd.object_conf.object_to_door_or_trap[n] = i;
+          gameadd.object_conf.workshop_object_class[n] = TCls_Door;
           gameadd.trapdoor_conf.door_to_object[i] = n;
           break;
       case 10: // SYMBOLSPRITES
