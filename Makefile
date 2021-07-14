@@ -482,13 +482,13 @@ obj/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
 obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
 	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
 
-obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)
+obj/std/%.o obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/std/%.o obj/hvlog/%.o: src/%.c $(GENSRC)
+obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
