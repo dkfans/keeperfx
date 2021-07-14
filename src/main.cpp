@@ -575,7 +575,6 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
 long apply_wallhug_force_to_boulder(struct Thing *thing)
 {
   // return _DK_apply_wallhug_force_to_boulder(thing);
-  int i = 4 * thing->move_angle_xy;
   unsigned short angle;
   long collide;
   unsigned short new_angle;
@@ -583,9 +582,8 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   struct Coord3d pos;
   struct ShotStats *shotst = &shot_stats[thing->model];
   unsigned short speed = (unsigned short)shotst->speed;
-  pos.x.val = thing->mappos.x.val
-                           + ((speed * *(int *)((char *)lbSinTable + i)) >> 16);
-  int n = speed * *(int *)((char *)lbCosTable + i);
+  pos.x.val = thing->mappos.x.val + ((speed * lbSinTable[thing->move_angle_xy]) >> 16);
+  int n = speed * lbCosTable[thing->move_angle_xy];
   pos.y.val = thing->mappos.y.val + (-(n >> 8) >> 8);
   pos.z.val = thing->mappos.z.val;
   unsigned long seed = 9377 * game.action_rand_seed + 9439;
