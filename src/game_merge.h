@@ -25,15 +25,15 @@
 
 #include "config_creature.h"
 #include "config_crtrmodel.h"
+#include "config_objects.h"
 #include "config_rules.h"
-#include "gui_msgs.h"
-#include "dungeon_data.h"
-#include "thing_creature.h"
 #include "creature_control.h"
+#include "dungeon_data.h"
+#include "gui_msgs.h"
+#include "thing_creature.h"
+#include "thing_objects.h"
 #include "light_data.h"
 #include "lvl_script.h"
-#include "thing_objects.h"
-#include "config_objects.h"
 
 #ifdef __cplusplus
 extern "C" {

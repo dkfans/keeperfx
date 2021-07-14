@@ -1,7 +1,6 @@
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
-#include <winbase.h>
-#include <math.h>
-#include <string>
 #include "keeperfx.hpp"
 
 #include "bflib_math.h"

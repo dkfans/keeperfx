@@ -13,8 +13,8 @@
  */
 /******************************************************************************/
 
-#ifndef DK_GAMELEGACY_H
-#define DK_GAMELEGACY_H
+#ifndef DK_GAMELOOP_H
+#define DK_GAMELOOP_H
 
 #include "bflib_basics.h"
 #include "keeperfx.hpp"
@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-	void process_dungeon_destroy(struct Thing* heartng);
+void process_dungeon_destroy(struct Thing* heartng);
 
 /******************************************************************************/
 /******************************************************************************/

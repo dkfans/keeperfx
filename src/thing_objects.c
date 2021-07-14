@@ -47,6 +47,7 @@
 #include "creature_states_pray.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "game_loop.h"
 
 #ifdef __cplusplus
 extern "C" {

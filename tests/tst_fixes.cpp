@@ -54,10 +54,6 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
     return 1;
 }
 
-void process_dungeon_destroy(struct Thing *heartng)
-{
-}
-
 long get_foot_creature_has_down(struct Thing *thing)
 {
 }
