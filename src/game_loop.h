@@ -18,13 +18,17 @@
 
 #include "bflib_basics.h"
 #include "keeperfx.hpp"
+#include "game_legacy.h"
+#include "game_merge.h"
 #include "globals.h"
+#include "thing_effects.h"
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+	void process_dungeon_destroy(struct Thing* heartng);
 
 /******************************************************************************/
 /******************************************************************************/
