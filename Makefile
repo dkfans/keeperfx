@@ -299,7 +299,8 @@ MAIN_OBJ = obj/main.o
 
 TESTS_OBJ = obj/tests/tst_main.o \
 obj/tests/tst_fixes.o \
-obj/tests/001_test.o
+obj/tests/001_test.o \
+obj/tests/002_sight.o 
 
 CU_DIR = deps/CUnit-2.1-3/CUnit
 CU_INC = -I"$(CU_DIR)/Headers"
