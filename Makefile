@@ -346,7 +346,7 @@ else
 endif
 
 # logging level flags
-STLOGFLAGS = -DBFDEBUG_LEVEL=0 
+STLOGFLAGS = -DBFDEBUG_LEVEL=0
 HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DAUTOTESTING=1
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
@@ -401,7 +401,7 @@ include prebuilds.mk
 .PHONY: heavylog hvlog-before hvlog-after
 .PHONY: package clean-package deep-clean-package
 .PHONY: tools clean-tools deep-clean-tools
-.PHONY: libexterns clean-libexterns deep-clean-libexterns
+.PHONY: clean-libexterns deep-clean-libexterns
 .PHONY: tests
 
 # dependencies tracking
@@ -420,8 +420,8 @@ heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
 $(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu)
-std-before: libexterns
-hvlog-before: libexterns
+std-before:
+hvlog-before:
 
 docs: docsdox
 
@@ -531,7 +531,12 @@ bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 
 tests: std-before $(TEST_BIN)
 
-include libexterns.mk
+export
+libexterns: libexterns.mk
+	$(MAKE) -f libexterns.mk
+
+clean-libexterns: libexterns.mk
+	$(MAKE) -f libexterns.mk clean-libexterns
 
 include tool_peresec.mk
 include tool_png2ico.mk
