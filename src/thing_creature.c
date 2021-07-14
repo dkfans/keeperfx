@@ -2175,23 +2175,42 @@ void creature_rebirth_at_lair(struct Thing *thing)
     thing->health = cctrl->max_health;
     if (thing_is_invalid(lairtng))
         return;
-    create_effect(&thing->mappos, TngEff_Unknown17, thing->owner);
+    create_effect(&thing->mappos, TngEff_HarmlessGas2, thing->owner);
     move_thing_in_map(thing, &lairtng->mappos);
-    create_effect(&lairtng->mappos, TngEff_Unknown17, thing->owner);
+    create_effect(&lairtng->mappos, TngEff_HarmlessGas2, thing->owner);
 }
 
 void throw_out_gold(struct Thing *thing)
 {
-    // Compute how many pots we want to drop
-    int num_pots_to_drop = (thing->creature.gold_carried + game.pot_of_gold_holds - 1) / game.pot_of_gold_holds;
-    if (num_pots_to_drop > 8)
-        num_pots_to_drop = 8;
+    if (thing->creature.gold_carried <= 0)
+    {
+        return;
+    }
+
+    int num_pots_to_drop;
+    // Compute if we want bags or pots
+    int dropject = 6; //GOLD object
+    if ((game.pot_of_gold_holds > gameadd.bag_gold_hold) && (thing->creature.gold_carried <= gameadd.bag_gold_hold))
+    {
+            dropject = 136; //Drop GOLD_BAG object when we're dealing with small amounts
+            num_pots_to_drop = 1;
+    }
+    else //drop pots
+    {
+        // Compute how many pots we want to drop
+        num_pots_to_drop = ((thing->creature.gold_carried + game.pot_of_gold_holds - 1) / game.pot_of_gold_holds);
+        if (num_pots_to_drop > 8)
+        {
+            num_pots_to_drop = 8;
+        }
+    }
+   
     GoldAmount gold_dropped = 0;
     // Now do the dropping
     for (int npot = 0; npot < num_pots_to_drop; npot++)
     {
         // Create a new pot object
-        struct Thing* gldtng = create_object(&thing->mappos, 6, game.neutral_player_num, -1);
+        struct Thing* gldtng = create_object(&thing->mappos, dropject, game.neutral_player_num, -1);
         if (thing_is_invalid(gldtng))
             break;
         // Update its position and acceleration
@@ -2249,7 +2268,7 @@ void thing_death_flesh_explosion(struct Thing *thing)
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
         pos.z.val = thing->mappos.z.val+i;
-        create_effect(&pos, TngEff_Unknown09, thing->owner);
+        create_effect(&pos, TngEff_Blood4, thing->owner);
     }
     struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
@@ -2279,13 +2298,13 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
         pos.z.val = thing->mappos.z.val+i;
-        create_effect(&pos, TngEff_Unknown09, thing->owner);
+        create_effect(&pos, TngEff_Blood4, thing->owner);
     }
     i = (thing->clipbox_size_yz >> 1);
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
-    create_effect(&pos, TngEff_Unknown13, thing->owner);
+    create_effect(&pos, TngEff_Gas3, thing->owner);
     struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
     {
@@ -2312,7 +2331,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
-    create_effect(&pos, TngEff_Unknown16, thing->owner);
+    create_effect(&pos, TngEff_HarmlessGas1, thing->owner);
     struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
     if (thing_is_invalid(deadtng))
     {
@@ -4796,7 +4815,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
         nfoot = get_foot_creature_has_down(thing);
         if (nfoot)
         {
-          create_effect(&thing->mappos, TngEff_Unknown19, thing->owner);
+          create_effect(&thing->mappos, TngEff_Drip1, thing->owner);
         }
         cctrl->bloody_footsteps_turns = 0;
     } else

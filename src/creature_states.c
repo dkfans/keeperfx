@@ -35,6 +35,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "thing_corpses.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
@@ -1570,7 +1571,7 @@ short creature_change_from_chicken(struct Thing *creatng)
     { // Changing under way - gradually modify size of the creature
         creatng->field_4F |= TF4F_Unknown01;
         creatng->field_50 |= 0x01;
-        struct Thing* efftng = create_effect_element(&creatng->mappos, 0x3Bu, creatng->owner);
+        struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
             long n = (10 - cctrl->countdown_282) * (gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
@@ -1602,7 +1603,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     {
       creatng->field_50 |= 0x01;
       creatng->field_4F |= TF4F_Unknown01;
-      struct Thing* efftng = create_effect_element(&creatng->mappos, 59, creatng->owner);
+      struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
@@ -2794,6 +2795,11 @@ void make_creature_unconscious(struct Thing *creatng)
     SYNCDBG(18,"Starting");
     clear_creature_instance(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved)
+    {
+        // If the classic bug is enabled, fainted units are also added to resurrect creature.
+        update_dead_creatures_list_for_owner(creatng);
+    }
     creatng->active_state = CrSt_CreatureUnconscious;
     cctrl->flgfield_1 |= CCFlg_PreventDamage;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
@@ -3030,7 +3036,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
 
     // If the random slab has enough space to drop all gold, go there to drop it
-    long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     if((max_hoard_size_in_room - gldtng->valuable.gold_stored) >= thing->creature.gold_carried)
     {

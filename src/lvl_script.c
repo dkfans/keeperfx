@@ -331,6 +331,19 @@ const struct NamedCommand door_config_desc[] = {
   {NULL,                    0},
 };
 
+const struct NamedCommand object_config_desc[] = {
+  {"Genre",           1},
+  {"AnimationID",     2},
+  {"AnimationSpeed",  3},
+  {"Size_XY",         4},
+  {"Size_YZ",         5},
+  {"MaximumSize",     6},
+  {"DestroyOnLava",   7},
+  {"DestroyOnLiquid", 8},
+  {"Properties",      9},
+  {NULL,              0},
+};
+
 const struct NamedCommand trap_config_desc[] = {
   {"NameTextID",           1},
   {"TooltipTextID",        2},
@@ -394,6 +407,56 @@ const struct NamedCommand script_operator_desc[] = {
   {"MULTIPLY",    4},
   {NULL,          0},
 };
+
+static struct ScriptValue *allocate_script_value(void)
+{
+    if (game.script.values_num >= SCRIPT_VALUES_COUNT)
+        return NULL;
+    struct ScriptValue* value = &game.script.values[game.script.values_num];
+    game.script.values_num++;
+    return value;
+}
+
+static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id)
+{
+    set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
+    set_flag_byte(&value->flags, TrgF_DISABLED, false);
+    value->valtype = var_index;
+    value->plyr_range = plr_range_id;
+    value->condit_idx = script_current_condition;
+}
+
+#define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
+    struct ScriptValue tmp_value = {0}; \
+    struct ScriptValue* value; \
+    if ((script_current_condition < 0) && (next_command_reusable == 0)) \
+    { \
+    /* Fill local structure */ \
+        value = &tmp_value; \
+    } \
+    else \
+    { \
+        value = allocate_script_value(); \
+        if (value == NULL) \
+        { \
+            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT); \
+            return; \
+        } \
+    } \
+    command_init_value(value, var_index, plr_range_id);
+
+#define DEALLOCATE_SCRIPT_VALUE \
+    if (value != &tmp_value) \
+    {                           \
+        value->flags = TrgF_DISABLED; \
+        game.script.values_num--; \
+    }
+
+#define PROCESS_SCRIPT_VALUE(cmd) \
+    if ((script_current_condition < 0) && (next_command_reusable == 0)) \
+    { \
+        script_process_value(cmd, 0, 0, 0, 0, value); \
+    }
 
 /******************************************************************************/
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
@@ -953,6 +1016,85 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long
     return true;
 }
 
+static void set_object_configuration_check(const struct ScriptLine *scline)
+{
+    const char *objectname = scline->tp[0];
+    const char *property = scline->tp[1];
+    const char *new_value = scline->tp[2];
+
+    long objct_id = get_id(object_desc, objectname);
+    if (objct_id == -1)
+    {
+        SCRPTERRLOG("Unknown object, '%s'", objectname);
+        return;
+    }
+
+    long number_value;
+    long objectvar = get_id(object_config_desc, property);
+    if (objectvar == -1)
+    {
+        SCRPTERRLOG("Unknown object variable");
+        return;
+    }
+    if (objectvar == 1)
+    {
+        long genre = get_id(objects_genres_desc, new_value);
+        if (genre == -1)
+        {
+            SCRPTERRLOG("Unknown object variable");
+            return;
+        }
+        number_value = genre;
+    }
+    else 
+    {
+        number_value = atoi(new_value);
+    }
+
+    SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
+    command_add_value(scline->command, 0, objct_id, objectvar, number_value);
+}
+
+static void set_object_configuration_process(struct ScriptContext *context)
+{
+    struct Objects* objdat = get_objects_data(context->value->arg0);
+    struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
+    switch (context->value->arg1)
+    {
+        case 1: // Genre
+            objst->genre = context->value->arg2;
+            break;
+        case 2: // AnimationID
+            objdat->sprite_anim_idx = context->value->arg2;
+            break;
+        case 3: // AnimationSpeed
+            objdat->anim_speed = context->value->arg2;
+            break;
+        case 4: //Size_XY
+            objdat->size_xy = context->value->arg2;
+            break;
+        case 5: // Size_YZ
+            objdat->size_yz = context->value->arg2;
+            break;
+        case 6: // MaximumSize
+            objdat->sprite_size_max = context->value->arg2;
+            break;
+        case 7: // DestroyOnLava
+            objdat->destroy_on_lava = context->value->arg2;
+            break;
+        case 8: // DestroyOnLiquid
+            objdat->destroy_on_liquid = context->value->arg2;
+            break;
+        case 9: // Properties
+            objst->model_flags = context->value->arg2;
+            break;
+        default:
+            WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
+            break;
+    }
+    update_all_object_stats();
+}
+
 static void null_process(struct ScriptContext *context)
 {
 }
@@ -1092,25 +1234,7 @@ static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
 }
 static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
 {
-    struct ScriptValue tmp_value = {0};
-    struct ScriptValue* value;
-
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        // Fill local structure
-        value = &tmp_value;
-    }
-    else
-    {
-        value = allocate_script_value();
-        if (value == NULL)
-        {
-            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
-            return;
-        }
-    }
-
-    command_init_value(value, scline->command, 0);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
     value->sac.action = get_rid(rules_sacrifices_commands, scline->tp[0]);
     if (value->sac.action == -1)
@@ -1157,33 +1281,12 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     }
     qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        script_process_value(scline->command, 0, 0, 0, 0, value);
-    }
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
 {
-    struct ScriptValue tmp_value = {0};
-    struct ScriptValue* value;
-
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        // Fill local structure
-        value = &tmp_value;
-    }
-    else
-    {
-        value = allocate_script_value();
-        if (value == NULL)
-        {
-            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
-            return;
-        }
-    }
-
-    command_init_value(value, scline->command, 0);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
     value->sac.action = SacA_None;
     value->sac.param = 0;
@@ -1197,10 +1300,7 @@ static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
     }
     qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        script_process_value(scline->command, 0, 0, 0, 0, value);
-    }
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_sacrifice_recipe_process(struct ScriptContext *context)
@@ -1296,25 +1396,8 @@ static void set_box_tooltip_id(const struct ScriptLine *scline)
 
 static void create_effects_line_check(const struct ScriptLine *scline)
 {
-    struct ScriptValue tmp_value = {0};
-    struct ScriptValue* value;
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        // Fill local structure
-        value = &tmp_value;
-    }
-    else
-    {
-        value = allocate_script_value();
-        if (value == NULL)
-        {
-            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
-            return;
-        }
-    }
-
-    command_init_value(value, scline->command, 0);
     ((long*)(&value->bytes[0]))[0] = scline->np[0]; // AP `from`
     ((long*)(&value->bytes[4]))[0] = scline->np[1]; // AP `to`
     value->bytes[8] = scline->np[2]; // curvature
@@ -1323,10 +1406,7 @@ static void create_effects_line_check(const struct ScriptLine *scline)
     // TODO: use effect elements when below zero?
     value->bytes[11] = scline->np[5]; // effect
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        script_process_value(scline->command, 0, 0, 0, 0, value);
-    }
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void create_effects_line_process(struct ScriptContext *context)
@@ -1786,45 +1866,10 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
     command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
 }
 
-static struct ScriptValue *allocate_script_value(void)
-{
-  if (game.script.values_num >= SCRIPT_VALUES_COUNT)
-    return NULL;
-  struct ScriptValue* value = &game.script.values[game.script.values_num];
-  game.script.values_num++;
-  return value;
-}
-
-static void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id)
-{
-    set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
-    set_flag_byte(&value->flags, TrgF_DISABLED, false);
-    value->valtype = var_index;
-    value->plyr_range = plr_range_id;
-    value->condit_idx = script_current_condition;
-}
-
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
-    struct ScriptValue tmp_value = {0};
-    struct ScriptValue* value;
+    ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id);
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
-    {
-        // Fill local structure
-        value = &tmp_value;
-    }
-    else
-    {
-        value = allocate_script_value();
-        if (value == NULL)
-        {
-            SCRPTERRLOG("Too many VALUEs in script (limit is %d)", SCRIPT_VALUES_COUNT);
-            return;
-        }
-    }
-
-    command_init_value(value, var_index, plr_range_id);
     value->arg0 = val2;
     value->arg1 = val3;
     value->arg2 = val4;
@@ -6859,7 +6904,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           game.fight_hate_kill_value = val3;
           break;
       case 11: //PreserveClassicBugs
-          if (val3 >= 0 && val3 <= 100)
+          if (val3 >= 0 && val3 <= 4096)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.classic_bugs_flags, val3);
               gameadd.classic_bugs_flags = val3;
@@ -6919,7 +6964,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           if (val3 >= 0 && val3 <= 100)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
-              gameadd.place_traps_on_subtiles = val3;
+              gameadd.disease_to_temple_pct = val3;
           }
           else
           {
@@ -6959,8 +7004,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           update_trap_tab_to_config();
           break;
       case 6: // Crate
-          object_conf.object_to_door_or_trap[val4] = val2;
-          object_conf.workshop_object_class[val4] = TCls_Trap;
+          gameadd.object_conf.object_to_door_or_trap[val4] = val2;
+          gameadd.object_conf.workshop_object_class[val4] = TCls_Trap;
           gameadd.trapdoor_conf.trap_to_object[val2] = val4;
           break;
       case 7: // ManufactureLevel
@@ -7035,6 +7080,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               door_stats[val2][0].health = val4;
               door_stats[val2][1].health = val4;
           }
+          update_all_door_stats();
           break;
       case 4: //SellingValue
           mconf->selling_value = val4;
@@ -7046,8 +7092,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           doorst->tooltip_stridx = val4;
           break;
       case 7: // Crate
-          object_conf.object_to_door_or_trap[val4] = val2;
-          object_conf.workshop_object_class[val4] = TCls_Door;
+          gameadd.object_conf.object_to_door_or_trap[val4] = val2;
+          gameadd.object_conf.workshop_object_class[val4] = TCls_Door;
           gameadd.trapdoor_conf.door_to_object[val2] = val4;
           break;
       case 8: //SymbolSprites 
@@ -7337,6 +7383,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
   {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
   {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
+  {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
