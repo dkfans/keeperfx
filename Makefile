@@ -532,8 +532,8 @@ bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 tests: std-before $(TEST_BIN)
 
 small-sleep-3:
-	sleep 3
-
+	@sleep 3
+	$(ECHO) 'waiting a bit'
 
 include libexterns.mk
 
