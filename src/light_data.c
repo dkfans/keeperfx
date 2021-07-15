@@ -350,9 +350,9 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos)
 {
   // _DK_light_set_light_position(lgt_id, pos);
   struct Light *lgt = &game.lish.lights[lgt_id];
-  if ( *(unsigned short *)&lgt->mappos.x.stl != *(unsigned short *)&pos->x.stl
-    || *(unsigned short *)&pos->y.stl != *(unsigned short *)&lgt->mappos.y.stl
-    || *(unsigned short *)&pos->z.stl != *(unsigned short *)&lgt->mappos.z.stl )
+  if ( lgt->mappos.x.val != pos->x.val
+    || pos->y.val != lgt->mappos.y.val
+    || pos->z.val != lgt->mappos.z.val )
   {
     if ( !(lgt->flags & LgtF_Dynamic) )
     {
