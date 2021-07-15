@@ -137,10 +137,10 @@ void process_dungeon_destroy(struct Thing* heartng)
         struct Thing* efftng;
         efftng = create_effect(central_pos, TngEff_Explosion4, plyr_idx);
         if (!thing_is_invalid(efftng))
-            efftng->byte_16 = 8;
+            efftng->hit_type = THit_HeartOnlyNotOwn;
         efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
         if (!thing_is_invalid(efftng))
-            efftng->byte_16 = 8;
+            efftng->hit_type = THit_HeartOnlyNotOwn;
         destroy_dungeon_heart_room(plyr_idx, heartng);
         delete_thing_structure(heartng, 0);
     }
