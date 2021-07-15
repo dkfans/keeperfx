@@ -156,6 +156,7 @@
     <ClCompile Include="src\game_heap.c" />
     <ClCompile Include="src\game_legacy.c" />
     <ClCompile Include="src\game_lghtshdw.c" />
+    <ClCompile Include="src\game_loop.c" />
     <ClCompile Include="src\game_merge.c" />
     <ClCompile Include="src\game_saves.c" />
     <ClCompile Include="src\gui_boxmenu.c" />
@@ -364,6 +365,7 @@
     <ClInclude Include="src\game_heap.h" />
     <ClInclude Include="src\game_legacy.h" />
     <ClInclude Include="src\game_lghtshdw.h" />
+    <ClInclude Include="src\game_loop.h" />
     <ClInclude Include="src\game_merge.h" />
     <ClInclude Include="src\game_saves.h" />
     <ClInclude Include="src\globals.h" />
