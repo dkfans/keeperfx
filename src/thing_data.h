@@ -181,7 +181,7 @@ struct Thing {
         unsigned char byte_13;
         unsigned char byte_14;
         unsigned char byte_15;
-        unsigned char byte_16;
+        unsigned char hit_type;
         unsigned char byte_17;
         unsigned char trap_door_active_state; // For Doors: if byte_18 = 1 then door is locked/ For Traps: seems to be, if byte_18 = 1 then trap is still active
         unsigned char byte_19;

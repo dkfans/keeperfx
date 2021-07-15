@@ -186,7 +186,6 @@ void setup_stuff(void)
     init_alpha_table();
 }
 
-
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
 {
     long win_plyr_idx;

@@ -1636,7 +1636,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         if (!thing_is_invalid(efthing))
         {
           if (spinfo->cast_effect_model == 14)
-            efthing->byte_16 = 3;
+            efthing->hit_type = THit_CrtrsNObjctsNotOwn;
         }
     }
 }
