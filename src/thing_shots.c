@@ -438,7 +438,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->byte_16 = shotst->area_hit_type;
+        efftng->hit_type = shotst->area_hit_type;
     }
     if ( shot_explodes )
     {
@@ -504,7 +504,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
       }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->byte_16 = shotst->area_hit_type;
+        efftng->hit_type = shotst->area_hit_type;
     }
     if ( shot_explodes )
     {
@@ -694,7 +694,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case ShM_PoisonCloud:
             efftng = create_effect(&shotng->mappos, TngEff_Gas3, shotng->owner);
             if ( !thing_is_invalid(efftng) ) {
-                efftng->byte_16 = 2;
+                efftng->hit_type = THit_CrtrsOnly;
             }
             break;
         case ShM_NaviMissile:
@@ -905,7 +905,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             struct Thing* efftng = create_effect(&trgtng->mappos, TngEff_WoPExplosion, trgtng->owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->byte_16 = 8;
+                efftng->hit_type = THit_HeartOnlyNotOwn;
             }
             shotng->health = -1;
             return 1;

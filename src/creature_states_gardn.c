@@ -186,7 +186,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
     } else
     {
         near_food_tng->byte_15 = 255;
-        near_food_tng->byte_16 = 127;
+        near_food_tng->hit_type = 127;
     }
     creatng->continue_state = CrSt_CreatureEatingAtGarden;
     cctrl = creature_control_get_from_thing(creatng);
