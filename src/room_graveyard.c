@@ -23,6 +23,7 @@
 #include "room_data.h"
 #include "player_data.h"
 #include "dungeon_data.h"
+#include "thing_corpses.h"
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "config_terrain.h"
@@ -49,13 +50,13 @@ TbBool add_body_to_graveyard(struct Thing *deadtng, struct Room *room)
         ERRORLOG("The %s has no space for another corpse",room_code_name(room->kind));
         return false;
     }
-    if (deadtng->byte_14)
+    if (corpse_laid_to_rest(deadtng))
     {
         ERRORLOG("The %s is already decomposing in %s",thing_model_name(deadtng),room_code_name(RoK_GRAVEYARD));
         return false;
     }
     room->used_capacity++;
-    deadtng->byte_14 = 1;
+    deadtng->byte_14 = 1; //Body is laid to rest
     deadtng->health = game.graveyard_convert_time;
     return true;
 }

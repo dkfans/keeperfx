@@ -65,6 +65,24 @@ TbBool corpse_is_rottable(const struct Thing *thing)
 }
 
 /**
+ *  Returns if given corpse placed properly into the graveyard.
+ * @param thing The dead creature thing.
+ * @return True if the corpse has been placed in graveyard.
+ */
+TbBool corpse_laid_to_rest(const struct Thing* thing)
+{
+    if (!thing_exists(thing))
+        return false;
+    if (thing->class_id != TCls_DeadCreature)
+        return false;
+    if ((get_creature_model_flags(thing) & CMF_NoCorpseRotting) != 0)
+        return false;
+    if (thing->byte_14 == 1)
+        return true;
+    return false;
+}
+
+/**
  * Returns if given dead creature thing is a room inventory.
  * Inventory are the things which can be stored in a room, but are movable and optional.
  * @param thing
@@ -123,12 +141,12 @@ void remove_body_from_graveyard(struct Thing *thing)
         ERRORLOG("Graveyard had no allocated capacity to remove body from");
         return;
     }
-    if (thing->byte_14 == 0) {
+    if (!corpse_laid_to_rest(thing)) {
         ERRORLOG("The %s is not in graveyard",thing_model_name(thing));
         return;
     }
     room->used_capacity--;
-    thing->byte_14 = 0;
+    thing->byte_14 = 0; //Laid to rest
     struct Dungeon* dungeon = get_dungeon(room->owner);
     dungeon->bodies_rotten_for_vampire++;
     dungeon->lvstats.graveyard_bodys++;
@@ -196,7 +214,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 set_thing_draw(thing, i, 64, -1, 1, 0, 2);
             }
         } else
-        if (thing->byte_14 != 0)
+        if (!corpse_laid_to_rest(thing))
         {
             if ( corpse_is_rottable(thing) )
             {

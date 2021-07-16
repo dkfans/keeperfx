@@ -1028,7 +1028,7 @@ void reposition_all_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord s
         if (thing_is_dead_creature(thing))
         {
             ThingModel crkind = thing->model;
-            if (thing->byte_14)
+            if (corpse_laid_to_rest(thing))
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                 if (!store_creature_reposition_entry(rrepos, crkind, cctrl->explevel)) {
@@ -1064,7 +1064,7 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
             struct Thing* bodytng = create_dead_creature(&pos, rrepos->models[ri], 0, room->owner, rrepos->explevels[ri]);
             if (!thing_is_invalid(bodytng))
             {
-                bodytng->byte_14 = 1;
+                bodytng->byte_14 = 1; // Laid to rest
                 bodytng->health = game.graveyard_convert_time;
                 rrepos->used--;
                 rrepos->models[ri] = 0;
@@ -1099,7 +1099,7 @@ int check_bodies_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
         // Per thing code
         if (thing_is_dead_creature(thing))
         {
-            if (thing->byte_14)
+            if (corpse_laid_to_rest(thing))
             {
                 // If exceeded capacity of the room
                 if (room->used_capacity >= room->total_capacity)

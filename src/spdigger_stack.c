@@ -1656,7 +1656,7 @@ int add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, int max_task
             break;
         }
         if (!thing_is_dragged_or_pulled(thing) && (thing->active_state == DCrSt_Unknown02)
-           && (thing->byte_14 == 0) && corpse_is_rottable(thing))
+           && (!corpse_laid_to_rest(thing)) && corpse_is_rottable(thing))
         {
             if (thing_revealed(thing, dungeon->owner))
             {
@@ -2135,7 +2135,7 @@ struct Thing *check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x,
         i = thing->next_on_mapblk;
         // Per thing code start
         if ((thing->class_id == TCls_DeadCreature) && !thing_is_dragged_or_pulled(thing)
-            && (thing->active_state == DCrSt_Unknown02) && (thing->byte_14 == 0) && corpse_is_rottable(thing)) {
+            && (thing->active_state == DCrSt_Unknown02) && (!corpse_laid_to_rest(thing)) && corpse_is_rottable(thing)) {
             return thing;
         }
         // Per thing code end
