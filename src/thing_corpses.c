@@ -77,7 +77,7 @@ TbBool corpse_laid_to_rest(const struct Thing* thing)
         return false;
     if ((get_creature_model_flags(thing) & CMF_NoCorpseRotting) != 0)
         return false;
-    if (thing->byte_14 == 1)
+    if (thing->byte_14 >= 1)
         return true;
     return false;
 }
