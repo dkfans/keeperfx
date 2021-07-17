@@ -45,10 +45,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
+
 /**
  *  Returns if given corpse can rot in graveyard.
  * @param thing The dead creature thing.
- * @return True if the corpse can be dragged into graveyard for rotting.
+ * @return True if the corpse can rot in a graveyard.
  */
 TbBool corpse_is_rottable(const struct Thing *thing)
 {
@@ -80,6 +81,24 @@ TbBool corpse_laid_to_rest(const struct Thing* thing)
     if (thing->corpse.laid_to_rest >= 1)
         return true;
     return false;
+}
+
+/**
+*  Returns if given thing is corpse that can be picked up for graveyard.
+* @param thing The dead creature thing.
+* @return True if the corpse can be dragged into graveyard for rotting.
+*/
+TbBool corpse_ready_for_collection(const struct Thing* thing)
+{
+    if (!corpse_is_rottable(thing))
+        return false;
+    if (corpse_laid_to_rest(thing))
+        return false;
+    if (thing_is_dragged_or_pulled(thing))
+        return false;
+    if (thing->active_state != DCrSt_RigorMortis)
+        return false;
+    return true;
 }
 
 /**
@@ -196,7 +215,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     TRACE_THING(thing);
     if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
-        if (thing->active_state == DCrSt_Dramatic)
+        if (thing->active_state == DCrSt_DramaticDying)
         {
             struct Coord3d pos;
             pos.x.val = thing->mappos.x.val;
@@ -209,7 +228,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             if (thing->health > 0)
                 thing->health--;
             if (thing->health <= 0) {
-                thing->active_state = DCrSt_Truedeath;
+                thing->active_state = DCrSt_RigorMortis;
                 long i = get_creature_anim(thing, 16);
                 set_thing_draw(thing, i, 64, -1, 1, 0, 2);
             }
@@ -430,13 +449,13 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     unsigned long k;
     switch (crpscondition)
     {
-    case DCrSt_Truedeath:
-        thing->active_state = DCrSt_Truedeath;
+    case DCrSt_RigorMortis:
+        thing->active_state = DCrSt_RigorMortis;
         k = get_creature_anim(thing, 17);
         set_thing_draw(thing, k, 256, gameadd.crtr_conf.sprite_size, 0, 0, 2);
         break;
     default:
-        thing->active_state = DCrSt_Dramatic;
+        thing->active_state = DCrSt_DramaticDying;
         k = get_creature_anim(thing, 15);
         set_thing_draw(thing, k, 128, gameadd.crtr_conf.sprite_size, 0, 0, 2);
         thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
