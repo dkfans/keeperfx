@@ -178,7 +178,7 @@ struct Thing {
       unsigned char box_kind;
       } custom_box;
       struct {
-          unsigned char byte_13c;
+          unsigned char exp_level;
           unsigned char laid_to_rest;
       } corpse;
       struct {

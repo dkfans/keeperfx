@@ -196,7 +196,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     TRACE_THING(thing);
     if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
-        if (thing->active_state == DCrSt_Unknown01)
+        if (thing->active_state == DCrSt_Dramatic)
         {
             struct Coord3d pos;
             pos.x.val = thing->mappos.x.val;
@@ -209,7 +209,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             if (thing->health > 0)
                 thing->health--;
             if (thing->health <= 0) {
-                thing->active_state = DCrSt_Unknown02;
+                thing->active_state = DCrSt_Truedeath;
                 long i = get_creature_anim(thing, 16);
                 set_thing_draw(thing, i, 64, -1, 1, 0, 2);
             }
@@ -262,7 +262,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     {
         EVM_CREATURE_EVENT("remove.squished", thing->owner, thing);
         delete_thing_structure(thing, 0);
-        create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->byte_13);
+        create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->corpse.exp_level);
         return TUFRet_Deleted;
     }
     move_dead_creature(thing);
@@ -407,7 +407,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->model = model;
     thing->parent_idx = thing->index;
     thing->owner = owner;
-    thing->byte_13 = explevel;
+    thing->corpse.exp_level = explevel;
     thing->mappos.x.val = pos->x.val;
     thing->mappos.y.val = pos->y.val;
     thing->mappos.z.val = 0;
@@ -443,7 +443,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
     }
-    thing->sprite_size = (gameadd.crtr_conf.sprite_size * (long)thing->byte_13) / 20 + gameadd.crtr_conf.sprite_size;
+    thing->sprite_size = (gameadd.crtr_conf.sprite_size * (long)thing->corpse.exp_level) / 20 + gameadd.crtr_conf.sprite_size;
     return thing;
 }
 
