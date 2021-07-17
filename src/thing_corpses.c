@@ -235,7 +235,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         } else
         if (corpse_laid_to_rest(thing))
         {
-            if ( corpse_is_rottable(thing) )
+            if (corpse_is_rottable(thing))
             {
                 if (thing->health > 0)
                     thing->health--;
@@ -255,7 +255,9 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             }
         } else
         {
-            if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
+            if ((game.play_gameturn - thing->creation_turn > game.body_remains_for) ||
+                !corpse_is_rottable(thing))
+            {
                 EVM_CREATURE_EVENT("remove", thing->owner, thing);
                 delete_corpse(thing);
                 return TUFRet_Deleted;
