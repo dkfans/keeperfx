@@ -77,7 +77,7 @@ TbBool corpse_laid_to_rest(const struct Thing* thing)
         return false;
     if ((get_creature_model_flags(thing) & CMF_NoCorpseRotting) != 0)
         return false;
-    if (thing->byte_14 >= 1)
+    if (thing->corpse.laid_to_rest >= 1)
         return true;
     return false;
 }
@@ -389,7 +389,7 @@ TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
     return update_dead_creatures_list(dungeon, thing);
 }
 
-struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short a1, unsigned short owner, long explevel)
+struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, long explevel)
 {
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
@@ -428,15 +428,15 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
     unsigned long k;
-    switch (a1)
+    switch (crpscondition)
     {
-    case 2:
-        thing->active_state = DCrSt_Unknown02;
+    case DCrSt_Truedeath:
+        thing->active_state = DCrSt_Truedeath;
         k = get_creature_anim(thing, 17);
         set_thing_draw(thing, k, 256, gameadd.crtr_conf.sprite_size, 0, 0, 2);
         break;
     default:
-        thing->active_state = DCrSt_Unknown01;
+        thing->active_state = DCrSt_Dramatic;
         k = get_creature_anim(thing, 15);
         set_thing_draw(thing, k, 128, gameadd.crtr_conf.sprite_size, 0, 0, 2);
         thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
@@ -453,7 +453,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
  * @param a1
  * @return The corpse thing, on invalid thing on error.
  */
-struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
+struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpscondition)
 {
     long crmodel = thing->model;
     TbBool memf1 = ((thing->alloc_flags & TAlF_IsControlled) != 0);
@@ -468,7 +468,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
     struct PlayerInfo* player = NULL;
     remove_creature_score_from_owner(thing);
     delete_thing_structure(thing, 0);
-    struct Thing* deadtng = create_dead_creature(&pos, crmodel, a1, owner, explevel);
+    struct Thing* deadtng = create_dead_creature(&pos, crmodel, crpscondition, owner, explevel);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Could not create dead thing while killing %s index %d owned by player %d.",creature_code_name(crmodel),(int)prev_idx,(int)owner);

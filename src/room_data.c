@@ -1025,17 +1025,14 @@ void reposition_all_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord s
         }
         i = thing->next_on_mapblk;
         // Per thing code
-        if (thing_is_dead_creature(thing))
+        if (corpse_laid_to_rest(thing))
         {
             ThingModel crkind = thing->model;
-            if (corpse_laid_to_rest(thing))
-            {
-                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                if (!store_creature_reposition_entry(rrepos, crkind, cctrl->explevel)) {
-                    WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
-                }
-                delete_thing_structure(thing, 0);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if (!store_creature_reposition_entry(rrepos, crkind, cctrl->explevel)) {
+                WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
             }
+            delete_thing_structure(thing, 0);
         }
         // Per thing code ends
         k++;
@@ -1064,7 +1061,7 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
             struct Thing* bodytng = create_dead_creature(&pos, rrepos->models[ri], 0, room->owner, rrepos->explevels[ri]);
             if (!thing_is_invalid(bodytng))
             {
-                bodytng->byte_14 = 1; // Laid to rest
+                bodytng->corpse.laid_to_rest = 1;
                 bodytng->health = game.graveyard_convert_time;
                 rrepos->used--;
                 rrepos->models[ri] = 0;
@@ -1097,24 +1094,21 @@ int check_bodies_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
         }
         i = thing->next_on_mapblk;
         // Per thing code
-        if (thing_is_dead_creature(thing))
+        if (corpse_laid_to_rest(thing))
         {
-            if (corpse_laid_to_rest(thing))
+            // If exceeded capacity of the room
+            if (room->used_capacity >= room->total_capacity)
             {
-                // If exceeded capacity of the room
-                if (room->used_capacity >= room->total_capacity)
-                {
-                    WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
-                    return -1; // re-create all (this could save the object if there are duplicates)
-                } else
-                // If the thing is in wall, remove it but store to re-create later
-                if (thing_in_wall_at(thing, &thing->mappos))
-                {
-                    return -1; // re-create all
-                } else
-                {
-                    matching_things_at_subtile++;
-                }
+                WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                return -1; // re-create all (this could save the object if there are duplicates)
+            } else
+            // If the thing is in wall, remove it but store to re-create later
+            if (thing_in_wall_at(thing, &thing->mappos))
+            {
+                return -1; // re-create all
+            } else
+            {
+                matching_things_at_subtile++;
             }
         }
         // Per thing code ends

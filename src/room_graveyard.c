@@ -56,7 +56,7 @@ TbBool add_body_to_graveyard(struct Thing *deadtng, struct Room *room)
         return false;
     }
     room->used_capacity++;
-    deadtng->byte_14 = 1; //Body is laid to rest
+    deadtng->corpse.laid_to_rest = 1;
     deadtng->health = game.graveyard_convert_time;
     return true;
 }
