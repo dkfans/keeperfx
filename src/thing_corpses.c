@@ -214,7 +214,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 set_thing_draw(thing, i, 64, -1, 1, 0, 2);
             }
         } else
-        if (!corpse_laid_to_rest(thing))
+        if (corpse_laid_to_rest(thing))
         {
             if ( corpse_is_rottable(thing) )
             {
