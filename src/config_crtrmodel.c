@@ -1489,6 +1489,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
         creatures[crtr_model].shot_shift_x = 0;
         creatures[crtr_model].shot_shift_y = 0;
         creatures[crtr_model].shot_shift_z = 0;
+        crstat->corpse_vanish_effect = 0;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
