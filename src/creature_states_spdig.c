@@ -163,7 +163,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
         i = thing->next_of_class;
         // Per-thing code
         if (!thing_is_dragged_or_pulled(thing) && (thing->active_state == DCrSt_Unknown02)
-         && (thing->byte_14 == 0) && thing_revealed(thing, spdigtng->owner) && corpse_is_rottable(thing)
+         && (!corpse_laid_to_rest(thing)) && thing_revealed(thing, spdigtng->owner) && corpse_is_rottable(thing)
          && players_creatures_tolerate_each_other(spdigtng->owner,get_slab_owner_thing_is_on(thing)))
         {
             if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
