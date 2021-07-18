@@ -2386,7 +2386,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SwitchScrnRes:
       if (is_my_player(player))
       {
-          switch_to_next_video_mode();
+          show_onscreen_msg(game.num_fps * 4, "%s", get_vidmode_name(switch_to_next_video_mode()));
       }
       return 1;
   case PckA_TogglePause:
