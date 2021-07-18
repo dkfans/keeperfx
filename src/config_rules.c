@@ -306,6 +306,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         gameadd.gem_effectiveness = 17;
         gameadd.pay_day_speed = 100;
         gameadd.place_traps_on_subtiles = false;
+        gameadd.gold_per_hoard = 2000;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -1350,7 +1351,6 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       gameadd.scavenge_good_allowed = 1;
       gameadd.scavenge_neutral_allowed = 1;
       gameadd.time_between_prison_break = 64;
-      gameadd.gold_per_hoard = 2000;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
