@@ -2386,7 +2386,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SwitchScrnRes:
       if (is_my_player(player))
       {
-          show_onscreen_msg(game.num_fps * 4, "%s", get_vidmode_name(switch_to_next_video_mode()));
+          TbScreenMode scrmodeold = lbDisplay.ScreenMode;
+          TbScreenMode scrmodenew = switch_to_next_video_mode();
+          const char* text = (scrmodenew != scrmodeold) ? get_vidmode_name(scrmodenew) : get_string(856);
+          show_onscreen_msg(game.num_fps * 4, "%s", text);
       }
       return 1;
   case PckA_TogglePause:
