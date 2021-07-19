@@ -1,60 +1,98 @@
 #include "tst_main.h"
 
-#include <map_blocks.h>
 #include <map_data.h>
 #include <slab_data.h>
 
-extern "C" {
-
-extern void reveal_seen_slabs(int slb_x, int slb_y, unsigned char owner, unsigned char sight_distance);
-
-}
-
-static void parse_map(const char *data, MapSlabCoord *src_x, MapSlabCoord *src_y)
+extern "C"
 {
-    MapSlabCoord slab_x = 0;
-    MapSlabCoord slab_y = 0;
-    for (;*data != 0; data++)
-    {
-        struct SlabMap *slab_data = get_slabmap_block(slab_x, slab_y);
-        switch (*data)
-        {
-            case '|': // Next line
-                slab_x = 0;
-                slab_y ++;
-                if (slab_y > MAP_SIZE_SLB)
-                {
-                    CU_FAIL("Map is too big");
-                    return;
-                }
-                continue;
-            case '#': // Rock
-                break;
-            case '.': // Earth
-                break;
-            case '~': // Water
-                break;
-            case 'x': // Empty path with mark
-                *src_x = slab_x;
-                *src_y = slab_y;
-                // Fallthrough
-            case ' ':
-                break;
-        }
-        slab_x++;
-    }
+extern void reveal_seen_slabs(int slb_x, int slb_y, unsigned char owner, unsigned char sight_distance);
+extern void reveal_seen_slabs2(int cx, int cy, unsigned char owner, unsigned char sight_distance);
 }
 
+static int sight_colored(MapSlabCoord x, MapSlabCoord y)
+{
+    if (subtile_revealed(slab_subtile(x, 1), slab_subtile(y, 1), 0))
+        return 32;
+    else
+        return 30;
+}
+
+static const char* sight_fn(MapSlabCoord x, MapSlabCoord y)
+{
+    const char *sym = tst_slab_to_symbol(x, y);
+    if (subtile_revealed(slab_subtile(x, 1), slab_subtile(y, 1), 0))
+        return "o";
+    return sym;
+}
+
+ADD_TEST(test_sight_1)
+{
+    const char * map ="#####|\n"
+                      "#....|\n"
+                      "#..x.|\n"
+                      "#....|\n"
+                      "#....|\n";
+
+    const char *expected = "#####|\n"
+                           "#..o.|\n"
+                           "#.ooo|\n"
+                           "#..o.|\n"
+                           "#....|\n";
+    const char *result;
+    MapSlabCoord slb_x, slb_y, max_x, max_y;
+
+    tst_init_map();
+
+    tst_parse_map(map, &slb_x, &slb_y, &max_x, &max_y);
+    reveal_seen_slabs(slb_x, slb_y, 0,2 );
+    result = tst_print_map(max_x, max_y, &sight_fn);
+    if (strcmp(result, expected) != 0)
+    {
+        printf("\n%s\n", tst_print_colored_map(max_x, max_y, &sight_colored));
+    }
+    CU_ASSERT_STRING_EQUAL(result, expected);
+}
+
+ADD_TEST(test_sight_2)
+{
+    const char * map ="#######|\n"
+                      "#......|\n"
+                      "#..x  .|\n"
+                      "#......|\n"
+                      "#......|\n";
+
+    const char *expected = "#######|\n"
+                           "#..ooo.|\n"
+                           "#.ooooo|\n"
+                           "#..ooo.|\n"
+                           "#......|\n";
+    const char *result;
+    MapSlabCoord slb_x, slb_y, max_x, max_y;
+
+    tst_init_map();
+
+    tst_parse_map(map, &slb_x, &slb_y, &max_x, &max_y);
+    reveal_seen_slabs(slb_x, slb_y, 0,2 );
+    result = tst_print_map(max_x, max_y, &sight_fn);
+    if (strcmp(result, expected) != 0)
+    {
+        printf("\n%s\n", tst_print_colored_map(max_x, max_y, &sight_colored));
+    }
+    CU_ASSERT_STRING_EQUAL(result, expected);
+}
+/*
 ADD_TEST(test_sight_3)
 {
-    const char * map ="#######|"
-                      "#...~~.|"
-                      "#...~~.|"
-                      "#..x...|"
-                      "#......|";
-    MapSlabCoord slb_x, slb_y;
-    reset_visibility_cache(0, 0);
-    parse_map(map, &slb_x, &slb_y);
-    reveal_seen_slabs(3, 3, 0, 2);
-    CU_ASSERT(0);
+    const char * map ="#######|\n"
+                      "#...~~.|\n"
+                      "#...~~.|\n"
+                      "#..x...|\n"
+                      "#......|\n";
+    MapSlabCoord slb_x, slb_y, max_x, max_y;
+
+    tst_init_map();
+
+    tst_parse_map(map, &slb_x, &slb_y, &max_x, &max_y);
+    reveal_seen_slabs(slb_x, slb_y, 0, 2);
 }
+*/

@@ -299,6 +299,7 @@ MAIN_OBJ = obj/main.o
 
 TESTS_OBJ = obj/tests/tst_main.o \
 obj/tests/tst_fixes.o \
+obj/tests/tst_utils.o \
 obj/tests/001_test.o \
 obj/tests/002_sight.o 
 
