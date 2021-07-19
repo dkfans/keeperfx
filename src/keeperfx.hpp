@@ -345,7 +345,6 @@ void initialise_map_health(void);
 void setup_3d(void);
 void setup_stuff(void);
 long ceiling_init(unsigned long a1, unsigned long a2);
-void process_dungeon_destroy(struct Thing *thing);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);

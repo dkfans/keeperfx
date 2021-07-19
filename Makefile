@@ -211,6 +211,7 @@ obj/frontmenu_saves.o \
 obj/frontmenu_specials.o \
 obj/game_heap.o \
 obj/game_legacy.o \
+obj/game_loop.o \
 obj/game_lghtshdw.o \
 obj/game_merge.o \
 obj/game_saves.o \

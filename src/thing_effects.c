@@ -981,7 +981,7 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
         SYNCDBG(18,"Effect tried to shoot its maker; suicide not implemented");
         return false;
     }
-    HitTargetFlags hit_targets = hit_type_to_hit_targets(efftng->byte_16);
+    HitTargetFlags hit_targets = hit_type_to_hit_targets(efftng->hit_type);
     return area_effect_can_affect_thing(thing, hit_targets, efftng->owner);
 }
 
@@ -1295,7 +1295,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 {
                     CrDeathFlags dieflags = CrDed_DiedInBattle;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if ((tngsrc->owner == tngdst->owner &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)))
+                    if ((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint))
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
@@ -1762,7 +1762,7 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
     {
         for (MapSubtlCoord stl_x = start_x; stl_x <= end_x; stl_x++)
         {
-            HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->byte_16);
+            HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->hit_type);
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage/dmg_divider, 0, hit_targets, area_affect_type, DmgT_Respiratory);
         }

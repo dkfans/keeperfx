@@ -1636,7 +1636,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         if (!thing_is_invalid(efthing))
         {
           if (spinfo->cast_effect_model == 14)
-            efthing->byte_16 = 3;
+            efthing->hit_type = THit_CrtrsNObjctsNotOwn;
         }
     }
 }
@@ -2243,7 +2243,7 @@ void thing_death_normal(struct Thing *thing)
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 1);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_DramaticDying);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2275,7 +2275,7 @@ void thing_death_flesh_explosion(struct Thing *thing)
         pos.z.val = thing->mappos.z.val+i;
         create_effect(&pos, TngEff_Blood4, thing->owner);
     }
-    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_RigorMortis);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2310,7 +2310,7 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
     create_effect(&pos, TngEff_Gas3, thing->owner);
-    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_RigorMortis);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2337,7 +2337,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
     create_effect(&pos, TngEff_HarmlessGas1, thing->owner);
-    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_RigorMortis);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
@@ -2371,7 +2371,7 @@ void thing_death_ice_explosion(struct Thing *thing)
         pos.z.val = thing->mappos.z.val+i;
         create_effect(&pos, TngEff_DeathIceExplosion, thing->owner);
     }
-    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, 2);
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_RigorMortis);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");

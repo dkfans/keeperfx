@@ -47,7 +47,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-//field_0; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; field_11; field_12; field_13; size_xy; field_16; trigger_type; activation_type; created_itm_model;  field_1B; etc
+//field_0; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; field_11; field_12; field_13; size_xy; field_16; trigger_type; activation_type; created_itm_model;  hit_type; etc
 struct TrapStats old_trap_stats[7] = {
 {0,           0,   0, 0,   0,        0, 0, 0,          0,      0,          0, 0,  0, 0, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0},
 {128,       861, 384, 1,   0,        0, 0, 1,        640,    512,          1, 1, 15, 9, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Boulder
@@ -382,7 +382,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotng->veloc_push_add.y.val += cvect.y;
         shotng->veloc_push_add.z.val += cvect.z;
         shotng->state_flags |= TF1_PushAdd;
-        shotng->byte_16 = trapstat->field_1B;
+        shotng->hit_type = trapstat->hit_type;
         if (shotst->firing_sound > 0) {
             thing_play_sample(traptng, shotst->firing_sound+UNSYNC_RANDOM(shotst->firing_sound_variants),
                 NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -404,7 +404,7 @@ void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
     struct Thing* efftng = create_effect(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(efftng)) 
     {
-        efftng->byte_16 = trapstat->field_1B;
+        efftng->hit_type = trapstat->hit_type;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
     if(trapstat->created_itm_model == 14) //Word of Power trap
@@ -433,7 +433,7 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
     }
     struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng)) {
-        shotng->byte_16 = trapstat->field_1B;
+        shotng->hit_type = trapstat->hit_type;
         shotng->parent_idx = 0;
         shotng->veloc_push_add.x.val += trapstat->field_30;
         shotng->veloc_push_add.y.val += trapstat->field_32;
@@ -909,7 +909,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     shotng->veloc_push_add.y.val += cvect.y;
     shotng->veloc_push_add.z.val += cvect.z;
     shotng->state_flags |= TF1_PushAdd;
-    shotng->byte_16 = trapstat->field_1B;
+    shotng->hit_type = trapstat->hit_type;
     const struct ManfctrConfig* mconf = &gameadd.traps_config[thing->model];
     thing->long_14 = game.play_gameturn + mconf->shots_delay;
     if (thing->byte_13 != 255)

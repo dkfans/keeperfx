@@ -3270,7 +3270,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
             creatng->mappos.x.val, creatng->mappos.y.val,
             4u, i, 0);
         if (is_my_player_number(i))
-            output_message(7, 0, 1);
+            output_message(SMsg_WallsBreach, 0, 1);
     }
     return 0;
 }
