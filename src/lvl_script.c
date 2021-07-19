@@ -3651,6 +3651,77 @@ void command_compute_flag(long plr_range_id, const char *flgname, const char *op
     command_add_value(Cmd_COMPUTE_FLAG, plr_range_id, srcplr_op_flagtype_srcflagtype, flg_id, src_flg_id);
 }
 
+static void create_effect_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    TbMapLocation location;
+    const char *effect_name = scline->tp[0];
+    long effct_id = get_rid(effect_desc, effect_name);
+    if (effct_id == -1)
+    {
+        effct_id = atoi(effect_name);
+    }
+    value->bytes[0] = effct_id;
+    const char *locname = scline->tp[1];
+    if (!get_map_location_id(locname, &location))
+    {
+        return;
+    }
+    long stl_x;
+    long stl_y;
+    find_map_location_coords(location, &stl_x, &stl_y, 0, __func__);
+    value->bytes[1] = (char)stl_x;
+    value->bytes[2] = (char)stl_y;
+    *(long*)(&value->bytes[3]) = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void create_effect_at_pos_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char *effect_name = scline->tp[0];
+    long effct_id = get_rid(effect_desc, effect_name);
+    if (effct_id == -1)
+    {
+        effct_id = atoi(effect_name);
+    }
+    value->bytes[0] = effct_id;
+    if (subtile_coords_invalid(scline->np[1], scline->np[2]))
+    {
+        SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        return;
+    }
+    value->bytes[1] = scline->np[1];
+    value->bytes[2] = scline->np[2];
+    *(long*)(&value->bytes[3]) = scline->np[3];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void create_effect_process(struct ScriptContext *context)
+{
+    struct Coord3d pos;
+    pos.x.stl.num = (MapSubtlCoord)context->value->bytes[1];
+    pos.y.stl.num = (MapSubtlCoord)context->value->bytes[2];
+    pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
+    TbBool Price = (context->value->bytes[0] == -41);
+    if (Price)
+    {
+        pos.z.val += 128;
+    }
+    struct Thing* efftng = (context->value->bytes[0] >= 0) ? create_effect(&pos, context->value->bytes[0], game.neutral_player_num) : create_effect_element(&pos, ~(context->value->bytes[0]) + 1, game.neutral_player_num);
+    if (!thing_is_invalid(efftng))
+    {
+        if (thing_in_wall_at(efftng, &efftng->mappos))
+        {
+            move_creature_to_nearest_valid_position(efftng);
+        }
+        if (Price)
+        {   
+            efftng->long_13 = *((long*)&context->value->bytes[3]);
+        }
+    }
+}
+
 /** Adds a script command to in-game structures.
  *
  * @param cmd_desc
@@ -7400,6 +7471,8 @@ const struct CommandDesc command_desc[] = {
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
   {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
+  {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
+  {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
