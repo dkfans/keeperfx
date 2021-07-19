@@ -25,6 +25,7 @@
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
+#include "map_blocks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,7 +74,7 @@ long navigation_map_size_y = 256;
 unsigned char *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
-DLLIMPORT void _DK_clear_slab_dig(long a1, long a2, char a3);
+DLLIMPORT void _DK_clear_slab_dig(long a1, long a2, unsigned char a3);
 /******************************************************************************/
 /**
  * Returns if the subtile coords are in range of subtiles which have slab entry.
@@ -520,7 +521,7 @@ void clear_mapmap(void)
  * @param slb_y Slab Y coord.
  * @param plyr_idx Player index whose dig tag shall be cleared.
  */
-void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
+void clear_slab_dig(long slb_x, long slb_y, unsigned char plyr_idx)
 {
   _DK_clear_slab_dig(slb_x, slb_y, plyr_idx);
 }
@@ -606,6 +607,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
                 }
             }
             mapblk->data &= nflag;
+            reset_visibility_cache(x, y);
         }
     }
     pannel_map_update(start_x,start_y,end_x,end_y);

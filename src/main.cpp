@@ -1520,6 +1520,7 @@ void clear_map(void)
     clear_slabs();
     clear_columns();
     clear_slabsets();
+    reset_visibilty_map();
 }
 
 void clear_things_and_persons_data(void)

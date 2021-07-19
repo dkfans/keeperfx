@@ -44,7 +44,7 @@ struct Thing;
 struct DoorStats { // sizeof = 8
     unsigned short slbkind;
     long health;
-    unsigned short field_6;
+    unsigned short door_speed; // how fast door opens or closes
 };
 
 /******************************************************************************/

@@ -46,11 +46,13 @@ struct Map {
 #define STL_PER_SLB 3
 #define COORD_PER_STL 256
 #define FILLED_COLUMN_HEIGHT 1280
+#define MAP_SIZE_SLB 85
+#define MAP_SIZE_STL (MAP_SIZE_SLB * STL_PER_SLB)
 
 #pragma pack()
 /******************************************************************************/
 extern struct Map bad_map_block;
-extern const long map_to_slab[];
+extern const long map_to_slab[]; // TODO: subtile_slab, subtile_slab_fast and this. Is n't too much?
 extern MapSubtlCoord map_subtiles_x;
 extern MapSubtlCoord map_subtiles_y;
 extern MapSubtlCoord map_subtiles_z;
@@ -131,7 +133,7 @@ TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool enemy_wall_diggable);
 
 void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
-void clear_slab_dig(long a1, long a2, char a3);
+void clear_slab_dig(long slb_x, long slb_y, unsigned char owner);
 
 void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
