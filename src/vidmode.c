@@ -36,6 +36,7 @@
 #include "game_heap.h"
 #include "gui_draw.h"
 #include "gui_parchment.h"
+#include "gui_topmsg.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "config.h"
@@ -898,11 +899,13 @@ TbScreenMode switch_to_next_video_mode(void)
     TbScreenMode scrmode = get_next_vidmode(lbDisplay.ScreenMode);
     if ( setup_screen_mode(scrmode) )
     {
+        show_onscreen_msg(game.num_fps * 6, "%s", get_vidmode_name(scrmode));
         settings.video_scrnmode = scrmode;
     } else
     {
         SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
             get_vidmode_name(scrmode),(int)scrmode);
+        show_onscreen_msg(game.num_fps * 6, "%s", get_string(856));
         scrmode = get_failsafe_vidmode();
         if ( !setup_screen_mode(scrmode) )
         {
