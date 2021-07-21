@@ -235,7 +235,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         } else
         if (corpse_laid_to_rest(thing))
         {
-            if ( corpse_is_rottable(thing) )
+            if (corpse_is_rottable(thing))
             {
                 if (thing->health > 0)
                     thing->health--;
@@ -255,9 +255,11 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             }
         } else
         {
-            if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
+            if ((game.play_gameturn - thing->creation_turn > game.body_remains_for) ||
+                !corpse_is_rottable(thing))
+            {
                 EVM_CREATURE_EVENT("remove", thing->owner, thing);
-                delete_thing_structure(thing, 0);
+                delete_corpse(thing);
                 return TUFRet_Deleted;
             }
         }
@@ -505,6 +507,23 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
         }
     }
     return deadtng;
+}
+
+void delete_corpse(struct Thing *thing)
+{
+    struct CreatureStats* crstat = creature_stats_get(thing->model);
+    if (crstat->corpse_vanish_effect != 0)
+    {
+       if (crstat->corpse_vanish_effect > 0)
+       {
+            create_effect(&thing->mappos, crstat->corpse_vanish_effect, thing->owner);
+       }
+       else
+       {
+            create_effect_element(&thing->mappos, ~(crstat->corpse_vanish_effect)+1, thing->owner);
+       }            
+    }
+    delete_thing_structure(thing, 0);
 }
 
 /******************************************************************************/
