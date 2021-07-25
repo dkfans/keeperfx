@@ -600,7 +600,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val - subtile_coord(7, 0) / 16;
-        pos.z.val = thing->mappos.z.val;
+        pos.z.val = thing->mappos.z.val + subtile_coord(1, 0) / 8;
         move_thing_in_map(thing, &pos);
   }
   if (player->instance_remain_rurns <= 8)
