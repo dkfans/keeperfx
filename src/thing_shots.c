@@ -861,10 +861,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
     }
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
-    {
-        return melee_shot_hit_creature_at(shotng, trgtng, pos);
-    }
     if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
         return 0;
     }
@@ -897,6 +893,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             }
         }
         return 1;
+    }
+    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+    {
+        return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
     // Immunity to boulders
     if (shot_is_boulder(shotng))
