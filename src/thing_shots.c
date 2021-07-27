@@ -876,6 +876,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         if (!thing_is_invalid(killertng))
         {
+            if (shot_model_is_navigable(shotng->model))
+            {
+                shotst->model_flags ^= ShMF_Navigable;
+            }
             struct CreatureStats* crstat = creature_stats_get_from_thing(killertng);
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
