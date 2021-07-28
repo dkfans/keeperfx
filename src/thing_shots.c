@@ -1297,7 +1297,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(127) + 63;
               pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(127) + 63;
               pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(127) + 63;
-              create_thing(&pos1, TCls_EffectElem, 1, thing->owner, -1);
+              create_thing(&pos1, TCls_EffectElem, TngEffElm_Blast1, thing->owner, -1);
             }
             break;
         case ShM_Lightning:
