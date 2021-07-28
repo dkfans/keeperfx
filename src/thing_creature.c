@@ -4637,7 +4637,7 @@ void place_bloody_footprint(struct Thing *thing)
     case 5:
         if (nfoot)
         {
-            footng = create_thing(&thing->mappos, TCls_EffectElem, 23, thing->owner, -1);
+            footng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_Blood4, thing->owner, -1);
             if (!thing_is_invalid(footng)) {
                 cctrl->bloody_footsteps_turns--;
             }
