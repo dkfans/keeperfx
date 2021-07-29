@@ -939,7 +939,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
 	dungeon->camera_deviate_jump = 192;
-	long sell_value = gameadd.doors_config[thing->model].selling_value;
+    long sell_value = compute_value_percentage(gameadd.doors_config[thing->model].selling_value, gameadd.door_sale_percent);
 
 	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
 	dungeonadd->doors_sold++;
