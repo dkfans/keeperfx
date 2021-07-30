@@ -861,10 +861,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
     }
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
-    {
-        return melee_shot_hit_creature_at(shotng, trgtng, pos);
-    }
     if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
         return 0;
     }
@@ -876,6 +872,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         if (!thing_is_invalid(killertng))
         {
+            if (shot_model_is_navigable(shotng->model))
+            {
+                shotng->shot.target_idx = 0;
+            }
             struct CreatureStats* crstat = creature_stats_get_from_thing(killertng);
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
@@ -897,6 +897,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             }
         }
         return 1;
+    }
+    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+    {
+        return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
     // Immunity to boulders
     if (shot_is_boulder(shotng))
@@ -1293,7 +1297,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(127) + 63;
               pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(127) + 63;
               pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(127) + 63;
-              create_thing(&pos1, TCls_EffectElem, 1, thing->owner, -1);
+              create_thing(&pos1, TCls_EffectElem, TngEffElm_Blast1, thing->owner, -1);
             }
             break;
         case ShM_Lightning:
