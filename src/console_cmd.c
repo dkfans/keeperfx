@@ -422,12 +422,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     else if (strcasecmp(parstr, "game.load") == 0)
     {
         long slot_num = atoi(pr2str);
+        TbBool Pause = atoi(pr3str);
         if (is_save_game_loadable(slot_num))
         {
             if (load_game(slot_num))
             {
-                player = get_player(plyr_idx);
-                set_flag_byte(&game.operation_flags,GOF_Paused,false); // unpause, because games are saved whilst puased
+                set_flag_byte(&game.operation_flags,GOF_Paused,Pause); // unpause, because games are saved whilst paused
                 return true;
             }
             else
