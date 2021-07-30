@@ -903,7 +903,7 @@ short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
   short result;
-
+  OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
   SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
@@ -912,6 +912,11 @@ short setup_game(void)
   if (cpu_info.BrandString)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
+  }
+  v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+  if (GetVersionEx(&v))
+  {
+      SYNCMSG("Operating System: %s %ld.%ld.%ld", (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows", v.dwMajorVersion,v.dwMinorVersion,v.dwBuildNumber);
   }  
   update_memory_constraits();
   // Enable features that require more resources
