@@ -1323,7 +1323,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     tngdst->veloc_push_add.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
                     tngdst->veloc_push_add.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
                     tngdst->state_flags |= TF1_PushAdd;
-                    if (thing_in_wall_at(tngdst, &tngdst->mappos))
+                    if (thing_in_wall_at(tngdst, &tngdst->veloc_push_add))
                     {
                         move_creature_to_nearest_valid_position(tngdst);
                     }
