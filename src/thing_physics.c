@@ -268,22 +268,22 @@ void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct C
     case SlbBloF_WalledY:
         thing->veloc_base.y.val = 0;
         break;
-    case (SlbBloF_WalledX + SlbBloF_WalledY):
+    case SlbBloF_WalledX|SlbBloF_WalledY:
         thing->veloc_base.x.val = 0;
         thing->veloc_base.y.val = 0;
         break;
     case SlbBloF_WalledZ:
         thing->veloc_base.z.val = 0;
         break;
-    case (SlbBloF_WalledX + SlbBloF_WalledZ):
+    case SlbBloF_WalledX|SlbBloF_WalledZ:
         thing->veloc_base.x.val = 0;
         thing->veloc_base.z.val = 0;
         break;
-    case (SlbBloF_WalledY + SlbBloF_WalledZ):
+    case SlbBloF_WalledY|SlbBloF_WalledZ:
         thing->veloc_base.y.val = 0;
         thing->veloc_base.z.val = 0;
         break;
-    case (SlbBloF_WalledX + SlbBloF_WalledY + SlbBloF_WalledZ):
+    case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
         thing->veloc_base.x.val = 0;
         thing->veloc_base.y.val = 0;
         thing->veloc_base.z.val = 0;
