@@ -1710,7 +1710,10 @@ TngUpdateRet move_object(struct Thing *thing)
             if (thing->model == 6)
               thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
         }
-        move_thing_in_map(thing, &pos);
+        else
+        {
+            move_thing_in_map(thing, &pos);
+        }
     }
     thing->field_60 = get_thing_height_at(thing, &thing->mappos);
     return TUFRet_Modified;
