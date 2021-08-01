@@ -258,32 +258,32 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
   }
 }
 
-void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long a3)
+void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
-    switch ( a3 )
+    switch (blocked_flags)
     {
-    case 1:
+    case SlbBloF_WalledX:
         thing->veloc_base.x.val = 0;
         break;
-    case 2:
+    case SlbBloF_WalledY:
         thing->veloc_base.y.val = 0;
         break;
-    case 3:
+    case (SlbBloF_WalledX + SlbBloF_WalledY):
         thing->veloc_base.x.val = 0;
         thing->veloc_base.y.val = 0;
         break;
-    case 4:
+    case SlbBloF_WalledZ:
         thing->veloc_base.z.val = 0;
         break;
-    case 5:
+    case (SlbBloF_WalledX + SlbBloF_WalledZ):
         thing->veloc_base.x.val = 0;
         thing->veloc_base.z.val = 0;
         break;
-    case 6:
+    case (SlbBloF_WalledY + SlbBloF_WalledZ):
         thing->veloc_base.y.val = 0;
         thing->veloc_base.z.val = 0;
         break;
-    case 7:
+    case (SlbBloF_WalledX + SlbBloF_WalledY + SlbBloF_WalledZ):
         thing->veloc_base.x.val = 0;
         thing->veloc_base.y.val = 0;
         thing->veloc_base.z.val = 0;
