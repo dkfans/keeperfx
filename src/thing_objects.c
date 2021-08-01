@@ -1710,9 +1710,10 @@ TngUpdateRet move_object(struct Thing *thing)
             if (thing->model == 6)
               thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
         }
-        else
+        move_thing_in_map(thing, &pos);
+        if (thing_in_wall_at(thing, &thing->mappos))
         {
-            move_thing_in_map(thing, &pos);
+            move_creature_to_nearest_valid_position(thing);
         }
     }
     thing->field_60 = get_thing_height_at(thing, &thing->mappos);
