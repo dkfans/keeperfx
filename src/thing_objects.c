@@ -1700,15 +1700,24 @@ TngUpdateRet move_object(struct Thing *thing)
     TRACE_THING(thing);
     struct Coord3d pos;
     TbBool move_allowed = get_thing_next_position(&pos, thing);
+    long blocked_flags;
     if ( !positions_equivalent(&thing->mappos, &pos) )
     {
-        if ((!move_allowed) || thing_in_wall_at(thing, &pos))
+        if (thing_in_wall_at(thing, &pos))
         {
-            long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+            blocked_flags = get_thing_blocked_flags_at(thing, &pos);
             slide_thing_against_wall_at(thing, &pos, blocked_flags);
             remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
+        }
+        else if (!move_allowed)
+        {
+            blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+            remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
             if (thing->model == 6)
-              thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
+            {
+                thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
+            }
+            move_thing_in_map(thing, &pos);
         }
         else
         {
