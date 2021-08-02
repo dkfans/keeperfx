@@ -1694,6 +1694,38 @@ TngUpdateRet object_update_power_lightning(struct Thing *objtng)
 }
 #undef NUM_ANGLES
 
+/**
+ * Finds an empty safe adjacent position on slab.
+ * @param thing The thing which is to be moved.
+  * @param pos The target position pointer.
+ */
+TbBool find_free_position_on_slab(const struct Thing* thing, struct Coord3d* pos)
+{
+    MapSubtlCoord start_stl = ACTION_RANDOM(9);
+    int nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing), 0);
+
+    for (long nround = 0; nround < 9; nround++)
+    {
+        MapSubtlCoord x = start_stl % 3 + thing->mappos.x.stl.num;
+        MapSubtlCoord y = start_stl / 3 + thing->mappos.y.stl.num;
+        if (get_floor_filled_subtiles_at(x, y) == 1)
+        {
+            struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
+            if (thing_is_invalid(objtng))
+            {
+                pos->x.val = subtile_coord_center(x);
+                pos->y.val = subtile_coord_center(y);
+                pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
+                    return true;
+                }
+            }
+        }
+        start_stl = (start_stl + 1) % 9;
+    }
+    return false;
+}
+
 TngUpdateRet move_object(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -1706,14 +1738,26 @@ TngUpdateRet move_object(struct Thing *thing)
         if (thing_in_wall_at(thing, &pos))
         {
             blocked_flags = get_thing_blocked_flags_at(thing, &pos);
-            slide_thing_against_wall_at(thing, &pos, blocked_flags);
+            if (blocked_flags & SlbBloF_WalledZ)
+            {
+                find_free_position_on_slab(thing, &pos);
+            }
+            else
+            {
+                slide_thing_against_wall_at(thing, &pos, blocked_flags);
+            }
             remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
+            if (thing_in_wall_at(thing, &pos) == 0)
+            {
+                move_thing_in_map(thing, &pos);
+            }
         }
         else if (!move_allowed)
         {
             blocked_flags = get_thing_blocked_flags_at(thing, &pos);
-            remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
-            if (thing->model == 6)
+            remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags); //remove?
+            // GOLD_POT to make a sound when hitting the floor
+            if (thing->model == 6) 
             {
                 thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
             }
