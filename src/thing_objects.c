@@ -1732,12 +1732,11 @@ TngUpdateRet move_object(struct Thing *thing)
     TRACE_THING(thing);
     struct Coord3d pos;
     TbBool move_allowed = get_thing_next_position(&pos, thing);
-    long blocked_flags;
     if ( !positions_equivalent(&thing->mappos, &pos) )
     {
-        if (thing_in_wall_at(thing, &pos))
+        if ((!move_allowed) || thing_in_wall_at(thing, &pos))
         {
-            blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+            long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
             if (blocked_flags & SlbBloF_WalledZ)
             {
                 find_free_position_on_slab(thing, &pos);
@@ -1745,23 +1744,17 @@ TngUpdateRet move_object(struct Thing *thing)
             else
             {
                 slide_thing_against_wall_at(thing, &pos, blocked_flags);
+                remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
             }
-            remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
-            if (thing_in_wall_at(thing, &pos) == 0)
-            {
-                move_thing_in_map(thing, &pos);
-            }
-        }
-        else if (!move_allowed)
-        {
-            blocked_flags = get_thing_blocked_flags_at(thing, &pos);
-            remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags); //remove?
             // GOLD_POT to make a sound when hitting the floor
-            if (thing->model == 6) 
+            if (thing->model == 6)
             {
                 thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
             }
-            move_thing_in_map(thing, &pos);
+            if (thing_in_wall_at(thing, &pos) == 0) //TODO: Improve 'slide_thing_against_wall_at' so it does not return a pos inside a wall
+            {
+                move_thing_in_map(thing, &pos);
+            }
         }
         else
         {
