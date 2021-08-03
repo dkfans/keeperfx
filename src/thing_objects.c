@@ -1739,7 +1739,12 @@ TngUpdateRet move_object(struct Thing *thing)
             long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
             if (blocked_flags & SlbBloF_WalledZ)
             {
-                find_free_position_on_slab(thing, &pos);
+                if (!find_free_position_on_slab(thing, &pos))
+                {
+                    JUSTMSG("TESTLOG, error with blockflag %d", blocked_flags); //todo replace with pretty log
+                    move_creature_to_nearest_valid_position(thing);
+                }
+
             }
             else
             {
