@@ -34,7 +34,7 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
-long remove_food_from_food_room_if_possible(struct Thing *thing);
+TbBool remove_food_from_food_room_if_possible(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

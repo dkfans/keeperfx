@@ -106,9 +106,8 @@ long load_texture_anim_file(void)
 {
     SYNCDBG(8,"Starting");
     //return _DK_load_anim_file();
-    static const char textname[] = "animated tmap";
     char* fname = prepare_file_path(FGrp_StdData, "tmapanim.dat");
-    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    SYNCDBG(0,"Reading animated tmap file \"%s\".",fname);
     if (LbFileLoadAt(fname, game.texture_animation) != sizeof(game.texture_animation))
     {
         return false;

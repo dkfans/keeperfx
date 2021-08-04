@@ -4,13 +4,14 @@ REM *                   midway                 *
 REM *                                          *
 REM ********************************************
 REM *************************************************
-REM Script for Level 213
-REM By Darren Rees
+REM Script for Level 213 (now 336)
+REM By Darren Rees, created on 06 Jun 1998
 REM Map created		 4 hrs
 REM Script learnt & written	 4 hrs
 REM Playtested & amendments	16 hrs
 REM Comments mrjolly@dadadada.demon.co.uk
 REM Enjoy
+REM v2 to use pot file by dayokay Dec2020
 REM *************************************************
 
 SET_GENERATE_SPEED(2500)
@@ -164,19 +165,23 @@ IF(PLAYER0,BRIDGE > 0)
 ENDIF
 
 IF_ACTION_POINT(1,PLAYER0)
-    QUICK_OBJECTIVE(1,"Souls of ancient keepers lurk to the south-west. They watch you intently with what is left of their magical powers",PLAYER0)
+    REM	QUICK_OBJECTIVE(1,"Souls of ancient keepers lurk to the south-west. They watch you intently with what is left of their magical powers",PLAYER0)
+	DISPLAY_OBJECTIVE(24,1)
 ENDIF
 
 IF_ACTION_POINT(2,PLAYER0)
-    QUICK_OBJECTIVE(2,"Welcome to the Avatar's castle. His domain lies to the North-East, while his followers lurk to the North-West.",PLAYER0)
+    REM	QUICK_OBJECTIVE(2,"Welcome to the Avatar's castle. His domain lies to the North-East, while his followers lurk to the North-West.",PLAYER0)
+	DISPLAY_OBJECTIVE(25,2)
 ENDIF
 
 IF_ACTION_POINT(3,PLAYER0)
-    QUICK_OBJECTIVE(3,"Beware, the Avatar is escaping even now....",PLAYER0)
+    REM	QUICK_OBJECTIVE(3,"Beware, the Avatar is escaping even now....",PLAYER0)
+	DISPLAY_OBJECTIVE(26,3)
 ENDIF
 
 IF_ACTION_POINT(4,PLAYER0)
-    QUICK_OBJECTIVE(4,"The door to the east bears a simple plaque which reads, Emergency Exit - Keep Clear at all Times - Offenders will be shot.",PLAYER0)
+    REM	QUICK_OBJECTIVE(4,"The door to the east bears a simple plaque which reads, Emergency Exit - Keep Clear at all Times - Offenders will be shot.",PLAYER0)
+	DISPLAY_OBJECTIVE(27,4)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ARCHERS,4,2)
 ENDIF
 
@@ -197,7 +202,8 @@ REM **********      INFORMATION       **********
 
 REM ***** Starting objective               *****
 
-QUICK_OBJECTIVE(0,"The Battle of Midway is afoot. Beware Evil one, the enemy is strong and well defended. Turn their misled minions against each other, sit back and let the butchery begin.",PLAYER0)
+REM	QUICK_OBJECTIVE(0,"The Battle of Midway is afoot. Beware Evil one, the enemy is strong and well defended. Turn their misled minions against each other, sit back and let the butchery begin.",PLAYER0)
+DISPLAY_OBJECTIVE(28,PLAYER0)
 
 
 
@@ -208,6 +214,7 @@ REM Player		Variable		Comparison	Value
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
     IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
         IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+			DISPLAY_OBJECTIVE(29,PLAYER0)
             WIN_GAME
         ENDIF
     ENDIF

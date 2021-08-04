@@ -643,7 +643,7 @@ long count_diggers_in_dungeon(const struct Dungeon *dungeon)
  */
 long buildable_traps_amount(struct Dungeon *dungeon, ThingModel trmodel)
 {
-    if ((trmodel < 1) || (trmodel >= trapdoor_conf.trap_types_count))
+    if ((trmodel < 1) || (trmodel >= gameadd.trapdoor_conf.trap_types_count))
         return 0;
 
     struct DungeonAdd *dungeonadd = get_dungeonadd(dungeon->owner);

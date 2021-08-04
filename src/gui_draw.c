@@ -173,19 +173,20 @@ void draw_slab64k_background(long pos_x, long pos_y, long width, long height)
 void draw_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height)
 {
     // Draw one pixel more, to make sure we won't get empty area after scaling
-    draw_slab64k_background(pos_x, pos_y, width+1, height+1);
+    draw_slab64k_background(pos_x, pos_y, width+scale_value_for_resolution_with_upp(1,units_per_px), height+scale_value_for_resolution_with_upp(1,units_per_px));
     struct TbSprite* spr = &button_sprite[206];
-    int bs_units_per_spr = 16*units_per_px/spr->SWidth;
-    int border_shift = 6*units_per_px/16;
+    int bs_units_per_spr = calculate_relative_upp(16, units_per_px, spr->SWidth);
+    int border_shift = scale_value_for_resolution_with_upp(6,units_per_px);
     int i;
-    for (i=16*units_per_px/16 - border_shift; i < width-2*border_shift; i += 16*units_per_px/16)
+    int i_increment = units_per_px;
+    for (i = i_increment - border_shift; i < width-2*border_shift; i += i_increment)
     {
         spr = &button_sprite[210];
         LbSpriteDrawResized(pos_x + i, pos_y - border_shift, bs_units_per_spr, spr);
         spr = &button_sprite[211];
         LbSpriteDrawResized(pos_x + i, pos_y + height, bs_units_per_spr, spr);
     }
-    for (i=16*units_per_px/16 - border_shift; i < height-2*border_shift; i += 16*units_per_px/16)
+    for (i = i_increment - border_shift; i < height-2*border_shift; i += i_increment)
     {
         spr = &button_sprite[212];
         LbSpriteDrawResized(pos_x - border_shift, pos_y + i, bs_units_per_spr, spr);

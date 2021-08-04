@@ -37,6 +37,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
 /******************************************************************************/
 #ifdef __cplusplus
@@ -54,6 +55,14 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     if (thing_is_invalid(creatng)) {
         ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
         return INVALID_THING;
+    }
+    struct DungeonAdd* dungeonadd = get_dungeonadd(room->owner);
+    if (!dungeonadd_invalid(dungeonadd))
+    {
+        if (dungeonadd->creature_entrance_level > 0)
+        {
+            set_creature_level(creatng, dungeonadd->creature_entrance_level);
+        }
     }
     mark_creature_joined_dungeon(creatng);
     if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
@@ -386,3 +395,28 @@ void process_entrance_generation(void)
     }
 }
 /******************************************************************************/
+short update_creature_pool_state(void)
+{
+    int i;
+    game.pool.is_empty = true;
+    for (i=1; i < CREATURE_TYPES_COUNT; i++)
+    {
+        if (game.pool.crtr_kind[i] > 0)
+        { game.pool.is_empty = false; break; }
+    }
+    return true;
+}
+
+void add_creature_to_pool(long kind, long amount, unsigned long a3)
+{
+    long prev_amount;
+    kind %= CREATURE_TYPES_COUNT;
+    prev_amount = game.pool.crtr_kind[kind];
+    if ((a3 == 0) || (prev_amount != -1))
+    {
+        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
+            game.pool.crtr_kind[kind] = prev_amount + amount;
+        else
+            game.pool.crtr_kind[kind] = amount;
+    }
+}

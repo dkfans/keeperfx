@@ -1,0 +1,430 @@
+REM ****************************************************************************
+REM  Free Play levels - KeeperFX
+REM ****************************************************************************
+REM  Script for Level 451 - Thug of War
+REM  Author:  Loobinex
+REM  Date:    2017-01-04
+REM		updated for pot message texts by dayokay Jan-2021
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+LEVEL_VERSION(1)
+SET_GENERATE_SPEED(700)
+START_MONEY(PLAYER0,10000)
+MAX_CREATURES(PLAYER0,6)
+
+REVEAL_MAP_LOCATION(PLAYER0,1,25)
+
+SET_CREATURE_ARMOUR(DRAGON,160)
+SET_CREATURE_HEALTH(DRAGON,1200)
+
+REM ****************************************************************************
+REM Flags used:
+REM  PLAYER_GOOD,FLAG0		- Contact with heroes.
+REM  PLAYER_GOOD,FLAG1		- Prison no longer works
+REM  PLAYER0,FLAG2			- Reached dungeon heart, stop defeat party
+
+REM Timers used:
+REM   PLAYER_GOOD,TIMER1	- Main timer, starts when AP2 is triggered
+REM   PLAYER_GOOD,TIMER2 	- Triggered by TIMER1, spawns melee SW.
+REM   PLAYER_GOOD,TIMER3 	- Triggered by TIMER1, spawns faries.
+REM   PLAYER_GOOD,TIMER4 	- Triggered by TIMER1, spawns holy.
+REM   PLAYER_GOOD,TIMER5 	- Triggered by TIMER1, spawns fierce.
+REM   PLAYER_GOOD,TIMER6 	- Triggered by TIMER1, spawns melee NE.
+REM   PLAYER_GOOD,TIMER7 	- Triggered by TIMER1, initiates defeat.
+
+REM Action Points and Hero Gates
+REM Action Point 1 - Library
+REM Action Point 2 - SW Entrance
+REM Action Point 3 - Water
+REM Action Point 4 - Entrance to good heart
+REM Action Point 5 - NE trigger for AP6~9
+REM Action Point 6~9 - Small rooms NE
+REM Action Point 10 - Protecting prison 1
+REM Action Point 11 - Protecting prison 2
+REM Action Point 12 - SW Corner
+REM Action Point 13 - Protecting TORTURE
+REM Action Point 14 - NE Entrance
+REM Hero Gate 1 - South-west Library
+REM Hero Gate 2 - Inside SW Fortress Left
+REM Hero Gate 3 - Inside SW Fortress Right
+REM Hero Gate 4 - At SW Dungeon Entrance
+REM Hero Gate 5 - Fairy Room
+REM Hero Gate 6 - SW Dungeon Water room L
+REM Hero Gate 7 - SW Dungeon Water room R
+REM Hero Gate 8,9 - Hero Heart
+REM Hero Gate 10 - SE Corner
+REM Hero Gate 11 - NE Entrance
+REM Hero Gate 12 - South of TORTURE area.
+
+REM ****************************************************************************
+REM Initial availability
+REM ****************************************************************************
+ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
+ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
+ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
+ROOM_AVAILABLE(PLAYER0,TRAINING,1,1)
+ROOM_AVAILABLE(PLAYER0,GUARD_POST,1,0)
+
+MAGIC_AVAILABLE(PLAYER0,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_HAND,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_POSSESS,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
+
+ADD_CREATURE_TO_POOL(FLY,1)
+ADD_CREATURE_TO_POOL(SPIDER,3)
+ADD_CREATURE_TO_POOL(TROLL,1)
+ADD_CREATURE_TO_POOL(ORC,4)
+ADD_CREATURE_TO_POOL(DEMONSPAWN,4)
+ADD_CREATURE_TO_POOL(SORCEROR,3)
+ADD_CREATURE_TO_POOL(DARK_MISTRESS,3)
+
+ADD_CREATURE_TO_POOL(HELL_HOUND,2)
+ADD_CREATURE_TO_POOL(TENTACLE,2)
+
+CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER0,SPIDER,1,0)
+CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+CREATURE_AVAILABLE(PLAYER0,ORC,1,0)
+CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
+CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
+CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,0)
+
+CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,0)
+
+REM ****************************************************************************
+REM Additional availability
+REM ****************************************************************************
+
+IF(PLAYER0,WORKSHOP >= 1)
+	ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
+	DOOR_AVAILABLE(PLAYER0,WOOD,1,0)
+	DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+	DOOR_AVAILABLE(PLAYER0,STEEL,1,0)
+	TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+	TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+ENDIF
+
+IF(PLAYER0,RESEARCH >= 1)
+	ROOM_AVAILABLE(PLAYER0,RESEARCH,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_SIGHT,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_HOLD_AUDIENCE,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_PROTECT,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_CONCEAL,1,0)
+	REM	QUICK_OBJECTIVE(2,"Heroes will attack. Raid their dungeon to gain power, or get crushed by the relentless heroes of this realm.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(23,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER0,BARRACKS >= 1)
+	ROOM_AVAILABLE(PLAYER0,BARRACKS,1,0)
+ENDIF
+
+IF(PLAYER0,BRIDGE >= 1)
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
+ENDIF
+
+IF(PLAYER0,PRISON >= 1)
+	ROOM_AVAILABLE(PLAYER0,PRISON,1,0)
+ENDIF
+
+IF(PLAYER0,TEMPLE >= 1)
+	ROOM_AVAILABLE(PLAYER0,TEMPLE,1,0)
+ENDIF
+
+IF(PLAYER0,TORTURE >= 1)
+	ROOM_AVAILABLE(PLAYER0,TORTURE,1,0)
+ENDIF
+
+IF_ACTION_POINT(3,PLAYER0)
+	CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,2)
+ENDIF
+
+
+REM ****************************************************************************
+REM Hero Parties
+REM ****************************************************************************
+
+CREATE_PARTY(melee)
+	ADD_TO_PARTY(melee,GIANT,3,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(melee,BARBARIAN,2,300,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(melee,BARBARIAN,2,300,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(melee,DWARFA,2,300,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(melee,DWARFA,2,300,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(melee,MONK,2,100,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(melee,THIEF,1,300,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(barbs)
+	ADD_TO_PARTY(barbs,BARBARIAN,6,0,STEAL_GOLD,0)
+	ADD_TO_PARTY(barbs,BARBARIAN,5,0,STEAL_GOLD,0)
+	
+CREATE_PARTY(fairies)
+	ADD_TO_PARTY(fairies,FAIRY,7,700,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(fairies,FAIRY,6,600,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(fairies,FAIRY,5,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(fairies,FAIRY,5,500,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(giants)
+	ADD_TO_PARTY(giants,GIANT,6,600,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(giants,ARCHER,5,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(giants,DWARFA,5,500,ATTACK_ENEMIES,0)
+
+	
+CREATE_PARTY(holy)
+	ADD_TO_PARTY(holy,MONK,8,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(holy,WITCH,8,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(holy,DWARFA,6,1000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(holy,DWARFA,6,1000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(holy,DWARFA,6,1000,ATTACK_ENEMIES,0)
+	
+CREATE_PARTY(fierce)
+	ADD_TO_PARTY(fierce,SAMURAI,10,2000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(fierce,GIANT,10,2000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(fierce,BARBARIAN,10,2000,ATTACK_DUNGEON_HEART,0)
+
+CREATE_PARTY(bleed)
+	ADD_TO_PARTY(bleed,AVATAR,10,5000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(bleed,KNIGHT,8,1000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(bleed,KNIGHT,8,1000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(bleed,SAMURAI,6,5000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(bleed,DWARFA,7,1000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(bleed,DWARFA,7,1000,ATTACK_ENEMIES,0)
+	
+CREATE_PARTY(burn)
+	ADD_TO_PARTY(burn,WIZARD,10,3000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(burn,WIZARD,9,1000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(burn,WIZARD,9,1000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(burn,WIZARD,8,1000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(burn,WITCH,7,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(burn,FAIRY,8,1000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(burn,FAIRY,8,1000,ATTACK_ENEMIES,0)
+	
+REM ****************************************************************************
+REM Level starts here
+REM ****************************************************************************
+
+REM	QUICK_OBJECTIVE(1,"The best defence is a good offence. Kill the Heroes and steal their magic or they will overrun you.",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(22,ALL_PLAYERS)
+
+REM: Portal limit increases when you get more rooms. When you have 3 Portals heroes are ignored and you can get 24 creatures. If you lose units the new limit will be between 22-26 units.
+IF(PLAYER0,RESEARCH >= 1)
+	MAX_CREATURES(PLAYER0,12)
+	IF(PLAYER0,BARRACKS >= 1)
+		MAX_CREATURES(PLAYER0,DRAWFROM(18,19))
+		IF(PLAYER0,ENTRANCE >= 27)
+			PLAY_MESSAGE(PLAYER0,SOUND,168)
+			CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,2)
+			MAX_CREATURES(PLAYER0,60)
+			IF(PLAYER0,EVIL_CREATURES >= 24)
+				MAX_CREATURES(PLAYER0,DRAWFROM(22,26))
+			ENDIF
+		ENDIF
+	ENDIF
+ENDIF
+
+REM: There is a limit to how many creatures you can gain through the prison.
+IF(PLAYER0,GOOD_CREATURES >= DRAWFROM(4,8))
+	SET_FLAG(PLAYER_GOOD,FLAG1,1)
+ENDIF
+IF(PLAYER0,SKELETON >= DRAWFROM(3,7))
+	SET_FLAG(PLAYER_GOOD,FLAG1,1)
+ENDIF
+IF(PLAYER_GOOD,FLAG1 == 1)
+	REM	QUICK_INFORMATION(3,"The heroes have learned being captured by you is a fate worse than death. They will avoid your prison at all cost. Better destroy them and take their magic before they really get smart",ALL_PLAYERS)
+	DISPLAY_INFORMATION(24,ALL_PLAYERS)
+	NEXT_COMMAND_REUSABLE
+	SET_CREATURE_TENDENCIES(PLAYER0,IMPRISON,0)
+ENDIF
+
+IF(PLAYER0,DRAGON >= 1)
+	REM	QUICK_INFORMATION(10,"You have a dragon now, more powerful than you have ever seen!",ALL_PLAYERS)
+	DISPLAY_INFORMATION(25,ALL_PLAYERS)
+	PLAY_MESSAGE(PLAYER0,SOUND,386)
+ENDIF
+
+REM ****************************************************************************
+REM: When player reaches SE Fortress entrance, start the main timer for spawning parties.
+REM ****************************************************************************
+REM: When AP 1, 2 or 14 is triggered, start the main loop.
+IF_ACTION_POINT(2,PLAYER0)
+	SET_FLAG(PLAYER_GOOD,FLAG0,1)
+ENDIF
+IF_ACTION_POINT(14,PLAYER0)
+	SET_FLAG(PLAYER_GOOD,FLAG0,1)
+ENDIF
+IF(PLAYER0,GAME_TURN >= DRAWFROM(18000,20000))
+	SET_FLAG(PLAYER_GOOD,FLAG0,1)
+ENDIF
+IF(PLAYER_GOOD,FLAG0 == 1)
+	REM	QUICK_INFORMATION(7,"The heroes know where you are. They will come for you.",ALL_PLAYERS)
+	DISPLAY_INFORMATION(26,ALL_PLAYERS)
+	SET_TIMER(PLAYER_GOOD,TIMER1)
+ENDIF
+
+REM: Every few minutes spawn party melee at one of the Fortress entrances. Loop stops when Heroes have no BARRACKS left.
+IF(PLAYER_GOOD,BARRACKS >= 1)
+	IF(PLAYER_GOOD,TIMER1 >= 3000)
+		SET_TIMER(PLAYER_GOOD,TIMER2)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,melee,-11,1)
+	ENDIF
+	IF(PLAYER_GOOD,TIMER2 >= 8000)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,melee,-4,1)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER_GOOD,TIMER2)
+	ENDIF
+	IF(PLAYER_GOOD,TIMER1 >= 7000)
+		SET_TIMER(PLAYER_GOOD,TIMER6)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,melee,-4,1)
+	ENDIF
+	IF(PLAYER_GOOD,TIMER6 >= DRAWFROM(7500,8500))
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,melee,-11,1)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER_GOOD,TIMER6)
+	ENDIF
+ENDIF
+
+REM: Every few minutes spawn party 'fairies' at the fairy library. Loop stops when RESEARCH taken over.
+IF(PLAYER_GOOD,RESEARCH >= 20)
+	IF(PLAYER_GOOD,TIMER1 >= 24000)
+		SET_TIMER(PLAYER_GOOD,TIMER3)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,fairies,-5,1)
+	ENDIF
+	IF(PLAYER_GOOD,TIMER3 >= DRAWFROM(5500,6500))
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,fairies,-5,1)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER_GOOD,TIMER3)
+	ENDIF
+ENDIF
+
+REM: Every few minutes spawn party 'holy' from the south-east. Loop stops when TEMPLE taken over.
+IF(PLAYER_GOOD,TEMPLE >= 1)
+	IF(PLAYER_GOOD,TIMER1 >= 24000)
+		SET_TIMER(PLAYER_GOOD,TIMER4)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,holy,-10,1)
+	ENDIF
+	IF(PLAYER_GOOD,TIMER4 >= DRAWFROM(5500,6500))
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,holy,-10,1)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER_GOOD,TIMER4)
+	ENDIF
+ENDIF
+
+REM: Every few minutes spawn party 'fierce' from the north-east. Loop stops when TORTURE taken over.
+IF(PLAYER_GOOD,TORTURE >= 1)
+	IF(PLAYER_GOOD,TIMER1 >= 30000)
+		SET_TIMER(PLAYER_GOOD,TIMER5)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,fierce,-11,1)
+	ENDIF
+	IF(PLAYER_GOOD,TIMER5 >= DRAWFROM(10000,14000))
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,fierce,-11,1)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER_GOOD,TIMER5)
+	ENDIF
+ENDIF
+
+REM: If the player turtles too much, we'll crush him.
+IF(PLAYER_GOOD,TIMER1 >= 72000)
+	REM: Not if player already reached enemy heart.
+	IF(PLAYER0,FLAG2 == 0)
+		REM	QUICK_OBJECTIVE(5,"You must hurry, the Heroes are gathering a massive party that will kill you. Strike them down or die trying.",PLAYER_GOOD)
+		DISPLAY_OBJECTIVE(27,PLAYER_GOOD)
+		SET_TIMER(PLAYER_GOOD,TIMER7)
+		BONUS_LEVEL_TIME(36000)
+	ENDIF
+ENDIF
+IF(PLAYER0,FLAG2 == 0)
+	IF(PLAYER_GOOD,TIMER7 >= 36000)
+		REM	QUICK_OBJECTIVE(6,"This will hurt. You should have destroyed the heart.",PLAYER_GOOD)
+		DISPLAY_OBJECTIVE(28,PLAYER_GOOD)
+		ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,bleed,-8,DUNGEON_HEART,0,10,1000)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,burn,-9,5)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,fierce,-8,5)
+	ENDIF
+ENDIF
+	
+REM ****************************************************************************
+REM: End of loop
+REM ****************************************************************************
+
+REM: When the player tries to take over the library, spawn some creatures there and at both dungeon entrances.
+IF_ACTION_POINT(1,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DWARFA,-1,4,3,500)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DWARFA,-2,3,4,500)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DWARFA,-11,3,4,500)
+	SET_FLAG(PLAYER_GOOD,FLAG0,1)
+ENDIF
+
+REM: Player reached good DUNGEON_HEART
+IF_ACTION_POINT(4,PLAYER0)
+	REM	QUICK_OBJECTIVE(4,"You have reached the heart of this fortress. The final battle is upon you. Kill all heroes, destroy the heart and claim their magic.",PLAYER_GOOD)
+	DISPLAY_OBJECTIVE(29,PLAYER_GOOD)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,bleed,-8,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,burn,-8,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,burn,-9,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,burn,-2,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,burn,-11,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,fierce,-10,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,fierce,-12,1)
+	SET_FLAG(PLAYER0,FLAG2,1)
+	BONUS_LEVEL_TIME(0)
+ENDIF
+
+REM: Alarm trap NE
+IF_ACTION_POINT(5,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,barbs,6,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,barbs,7,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,barbs,8,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,barbs,9,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,6,1,6,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,9,1,6,0)
+ENDIF
+
+REM: Left Prison
+IF_ACTION_POINT(10,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,holy,-2,1)
+ENDIF
+REM: Right Prison
+IF_ACTION_POINT(11,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,melee,-3,4)
+ENDIF
+
+REM: Breached south east dungeon
+IF_ACTION_POINT(12,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,giants,-6,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,melee,-7,1)
+ENDIF
+
+REM: When near TORTURE rooms.
+IF_ACTION_POINT(13,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,fierce,-12,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,giants,-12,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,melee,-12,1)
+ENDIF
+
+
+REM ****************************************************************************
+REM Win game
+REM ****************************************************************************
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
+		IF(PLAYER_GOOD,RESEARCH <= 0)
+			REM	QUICK_OBJECTIVE(9,"I was just starting to like them. Victory.",PLAYER0)
+			DISPLAY_OBJECTIVE(30,PLAYER0)
+			WIN_GAME
+		ENDIF
+	ENDIF
+ENDIF
+
+REM ****************************************************************************
+REM End of file
+REM ****************************************************************************

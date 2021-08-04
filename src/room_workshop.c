@@ -525,7 +525,7 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
     struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
 
     // Try getting door kind for manufacture
-    for (tngmodel = 1; tngmodel < trapdoor_conf.door_types_count; tngmodel++)
+    for (tngmodel = 1; tngmodel < gameadd.trapdoor_conf.door_types_count; tngmodel++)
     {
         mconf = &gameadd.doors_config[tngmodel];
         if (((dungeonadd->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
@@ -542,7 +542,7 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
         }
     }
     // Try getting trap kind for manufacture
-    for (tngmodel = 1; tngmodel < trapdoor_conf.trap_types_count; tngmodel++)
+    for (tngmodel = 1; tngmodel < gameadd.trapdoor_conf.trap_types_count; tngmodel++)
     {
         mconf = &gameadd.traps_config[tngmodel];
         if (((dungeonadd->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
@@ -600,10 +600,10 @@ long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, cons
     switch (mfcr_type)
     {
     case TCls_Trap:
-        mconf = &gameadd.traps_config[mfcr_kind%trapdoor_conf.trap_types_count ];
+        mconf = &gameadd.traps_config[mfcr_kind%gameadd.trapdoor_conf.trap_types_count ];
         return mconf->manufct_required;
     case TCls_Door:
-        mconf = &gameadd.doors_config[mfcr_kind%trapdoor_conf.door_types_count];
+        mconf = &gameadd.doors_config[mfcr_kind%gameadd.trapdoor_conf.door_types_count];
         return mconf->manufct_required;
     default:
         ERRORMSG("%s: Invalid type of manufacture: %d",func_name,(int)mfcr_type);
@@ -673,5 +673,49 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     dungeon->lvstats.manufactured_items++;
     get_next_manufacture(dungeon);
     return true;
+}
+
+EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng)
+{
+    EventIndex evidx;
+    ThingClass tngclass = crate_thing_to_workshop_item_class(picktng);
+    if (tngclass == TCls_Trap)
+    {
+        evidx = event_create_event_or_update_nearby_existing_event(
+            picktng->mappos.x.val, picktng->mappos.y.val,
+            EvKind_TrapCrateFound, creatng->owner, picktng->index);
+            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
+            {
+                output_message(SMsg_TrapStolen, 0, true);
+            } 
+            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
+            {
+                if (picktng->owner != game.neutral_player_num)
+                {
+                    output_message(SMsg_TrapTaken, 0, true);
+                }
+            }
+    } else if (tngclass == TCls_Door)
+    {
+       evidx = event_create_event_or_update_nearby_existing_event(
+            picktng->mappos.x.val, picktng->mappos.y.val,
+            EvKind_DoorCrateFound, creatng->owner, picktng->index);
+            if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
+            {
+                output_message(SMsg_DoorStolen, 0, true);
+            } 
+            else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
+            {
+                if (picktng->owner != game.neutral_player_num)
+                {
+                    output_message(SMsg_DoorTaken, 0, true);
+                }
+            }
+    } else
+    {
+        WARNLOG("Strange pickup (model %d) - no event",(int)picktng->model);
+        evidx = 0;
+    }
+    return evidx;
 }
 /******************************************************************************/

@@ -38,6 +38,8 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "frontend.h"
+#include "math.h"
 
 /******************************************************************************/
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
@@ -375,7 +377,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             delete_thing_structure(thing, 0);
             return false;
         }
-        long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+        long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
         unsigned long n = wealth_size_holds * (get_wealth_size_of_gold_hoard_object(thing) + 1);
         thing->owner = room->owner;
         add_gold_to_hoarde(thing, room, n);
@@ -512,4 +514,22 @@ EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_id
     }
     return evidx;
 }
+
+void query_room(struct Room *room)
+{
+    const char title[26];
+    const char* name = room_code_name(room->kind);
+    const char owner[26]; 
+    const char health[26];
+    const char capacity[26];
+    const char efficiency[26] = "\0";
+    sprintf((char*)title, "Room ID: %d", room->index);
+    sprintf((char*)owner, "Owner: %d", room->owner);
+    sprintf((char*)health, "Health: %d", room->health);
+    sprintf((char*)capacity, "Capacity: %d/%d", room->used_capacity, room->total_capacity);
+    float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
+    sprintf((char*)efficiency, "Efficiency: %d", (unsigned char)round(room_efficiency_percent));
+    create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&capacity, (const char*)&efficiency);    
+}
+
 /******************************************************************************/

@@ -2220,7 +2220,7 @@ msgid ""
 "tasks really quickly."
 msgstr "Velocità: [26.20]"
 
-#: guitext:237 guitext:253
+#: guitext:237
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
@@ -2341,6 +2341,13 @@ msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
 msgstr "Corpo a corpo: [25.3]"
+
+#: guitext:253
+#, fuzzy
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr "Nuvola di Veleno: [26.17]"
 
 #: guitext:254
 #, fuzzy

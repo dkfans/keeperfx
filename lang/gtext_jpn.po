@@ -1852,23 +1852,23 @@ msgid ""
 "Marvellous, Keeper! The Avatar and all his pathetic army are finally dead! "
 "There's only one Keeper to get rid of before becoming the absolute master! "
 "So, what are you waiting for?"
-msgstr ""
+msgstr "素晴らしい、キーパー！アバタールと彼の軍隊は遂に死ぬんだ！倒す可きキーパーはたった一人居る、絶対的な支配者に成る前に。何を待っていますか？"
 
 #. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
 msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
-"to reduces your enemies into ashes!"
-msgstr ""
+"to reduce your enemies into ashes!"
+msgstr "見ましたね？貴方のデーモンスポーンは強いドラゴンに成ってで進化されました。彼は敵を焼き払う出来ています！"
 
 #. Level Bonus 6 objective
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
-"Well done! Your immense wealth has drew the attention of a Thief. He will "
+"Well done! Your immense wealth has drawn the attention of a Thief. He will "
 "serve you well in the next realm!"
-msgstr ""
+msgstr "良くやった！貴方の莫大な富はシーフを注意を引いた。同氏は次なる地に良く役立つ。"
 
 #. Level Flowerhat information
 #: guitext:176
@@ -1877,7 +1877,7 @@ msgid ""
 "Your researchers have discovered the Heal Creature spell that allows to "
 "replenish the health of your creatures and keep them from dying for a while "
 "longer."
-msgstr ""
+msgstr "貴方の研究者は治癒魔力を生み出した。其れはクリーチャーの体力を充填する、彼らが死ぬのを一頻り防ぐ。"
 
 #. Level Tulipscent information
 #: guitext:177
@@ -1887,16 +1887,16 @@ msgid ""
 "to obey to all your orders, making all of them working faster without the "
 "possibility for them to take a nap. Be sure to have plenty of money so that "
 "the spell will stay activated."
-msgstr ""
+msgstr "絶対服従魔力を試みれ。此れは常にクリーチャーに貴方の全ての命令に従う事を強制します。彼らはもっと早く働く及び眠る出来ない。呪文は続けて有効化された儘様に、沢山のお金が必要だ。"
 
 #. Level Tulipscent information
 #: guitext:178
 msgctxt "In-game message"
 msgid ""
 "A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
-"in water and their spine can even pierce the most solid armors and paralyze "
+"in water and their spine can even pierce the most solid armours and paralyse "
 "your enemies! Marvellous!"
-msgstr ""
+msgstr "テンタクルは貴方のダンジョンを入った。これ等の稀なクリーチャーは水が好き、背骨は最も頑丈な鎧も突き刺さる及び敵を痺れさせる！素晴らしい！"
 
 #. Level Bonus 1 objective
 #: guitext:179
@@ -1905,7 +1905,7 @@ msgid ""
 "You have entered this realm to gain a creature for your further efforts. You "
 "got the creature from start, so you must only keep it safe. And the only way "
 "to make this place safe is to kill every hero in the realm."
-msgstr ""
+msgstr "クリーチャーを得る為に此の国土を入った。同氏を開始から得られた。従って、其れを守るだけでいいのです。行う唯一の方法は、全ての勇者を殺す事だ。"
 
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
@@ -2125,7 +2125,7 @@ msgid ""
 "tasks really quickly."
 msgstr "加速: [26:21]"
 
-#: guitext:237 guitext:253
+#: guitext:237
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
@@ -2246,6 +2246,12 @@ msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
 msgstr "肉弾戦: [25.3]"
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr "放屁: 敵のクリーチャーにのみ損傷を加える近距離ガス攻撃。"
 
 #: guitext:254
 #, fuzzy
@@ -5642,7 +5648,7 @@ msgstr "Insufficient Memory"
 #: guitext:856
 msgctxt "On-screen message"
 msgid "Unable To Change Screen Resolution"
-msgstr "Unable To Change Screen Resolution"
+msgstr "解像度を変わり得ない"
 
 #: guitext:857
 msgctxt "Menu interface item"
@@ -6262,7 +6268,7 @@ msgstr "Moo2"
 #, fuzzy
 msgctxt "Menu interface, Main Menu item"
 msgid "Free Play levels"
-msgstr "ディーパーダンジョン"
+msgstr "自由遊びのレベル"
 
 #: guitext:942
 msgctxt "Menu interface item"
@@ -6282,46 +6288,47 @@ msgstr "コンピュータ追加"
 #: guitext:945
 msgctxt "Game event name"
 msgid "Your creature cannot reach the room it needs"
-msgstr ""
+msgstr "クリーチャーは必要な部屋に到達出来ません"
 
 #: guitext:946
 #, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
-msgstr "Work room unreachable: 左クリックで切り替え。右クリックで削除。"
+msgstr "作業室に到達され不能: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:947
 msgctxt "Game event name"
 msgid "Your Imp cannot reach a room to drag something into"
-msgstr ""
+msgstr "インプは何かを置く部屋に達す出来ません"
 
 #: guitext:948
 #, fuzzy
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
-msgstr "Storage room unreachable: 左クリックで切り替え。右クリックで削除。"
+msgstr "貯蔵室に到達され不能: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:949
 msgctxt "In-game interface description"
 msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
-msgstr ""
+msgstr "鎧：クリーチャーの体力に障る無い損傷の一部。 数値が高い程、損傷のもっと部分を相殺されます。"
 
 #: guitext:950
 msgctxt "In-game interface description"
 msgid "Speed: How fast the creature moves and perform its dungeon tasks."
-msgstr ""
+msgstr "速力：クリーチャーが移動して仕事をする速度。"
 
 #: guitext:951
 msgctxt "In-game interface description"
 msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
-msgstr ""
+msgstr "忠誠：敵に因る洗脳に対して抵抗。"
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: unused."
-msgstr ""
+msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
+"the better the creature's performance."
+msgstr "研究技能: このクリーチャーが研究をこなす能力。"
 
 #: guitext:953
 #, fuzzy
@@ -6329,7 +6336,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "技能: このクリーチャーが仕事をこなす能力。 [23.14]"
+msgstr "製造技能: このクリーチャーが製造をこなす能力。 [23.14]"
 
 #: guitext:954
 #, fuzzy
@@ -6337,7 +6344,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "技能: このクリーチャーが仕事をこなす能力。 [23.14]"
+msgstr "訓練技能: このクリーチャーが訓練をこなす能力。 [23.14]"
 
 #: guitext:955
 #, fuzzy
@@ -6345,36 +6352,36 @@ msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "技能: このクリーチャーが仕事をこなす能力。 [23.14]"
+msgstr "洗脳技能: このクリーチャーが洗脳をこなす能力。 [23.14]"
 
 #: guitext:956
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr ""
+msgstr "訓練費：訓練為に掛ける金。"
 
 #: guitext:957
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr ""
+msgstr "洗脳費：洗脳為に掛ける金。"
 
 #: guitext:958
 msgctxt "In-game interface description"
 msgid ""
 "Best Damage: How much harm can be made by the strongest attack the creature "
 "has."
-msgstr ""
+msgstr "最高な損傷:このクリーチャーの最も強い攻撃が加える損傷の量。"
 
 #: guitext:959
 msgctxt "In-game interface description"
 msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
-msgstr ""
+msgstr "体量：クリーチャーの質量。 幾つかの人々は、太りすぎが心臓発作に繋がる可能性の有ると言います。"
 
 #: guitext:960
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
-msgstr ""
+msgstr "悪魔の手"
 
 #: guitext:961
 #, fuzzy
@@ -6387,7 +6394,7 @@ msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
-msgstr ""
+msgstr "悪魔の手：貴方のクリーチャーを手持ち為れ能力。 余りにも長くそれ等を保持しないで。然うした場合、彼らは怒る可能性が有ります。"
 
 #: guitext:963
 #, fuzzy
@@ -6404,64 +6411,64 @@ msgstr ""
 msgctxt "Keeper spell description"
 msgid "Slap: Makes your creatures work harder, for some time. "
 "Your creatures take some damage from each slap they receive."
-msgstr ""
+msgstr "平手打ち：貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリーチャーは、受け取った叩きから其々損傷を受けます。"
 
 #: guitext:965
 msgctxt "In-game interface description"
 msgid ""
 "Health: How much health points the creature has left to lose."
-msgstr ""
+msgstr "体力：クリーチャーの残りの体カ点数。"
 
 #: guitext:966
 msgctxt "In-game interface description"
 msgid ""
 "Health: The maximum amount of health points for this creature."
-msgstr ""
+msgstr "体力：クリーチャーの最高な体カ点数。"
 
 #: guitext:967
 msgctxt "Menu interface item"
 msgid "Toggle Message"
-msgstr ""
+msgstr "メッセージ見・削除"
 
 #: guitext:968
 msgctxt "Menu interface item"
 msgid "Return to Free Play levels"
-msgstr ""
+msgstr "自由遊びのレベルに戻る"
 
 #: guitext:969
 msgctxt "Menu interface item"
 msgid "Map packs"
-msgstr ""
+msgstr "マップパック"
 
 #: guitext:970
 msgctxt "Menu interface item"
 msgid "The Deeper Dungeons"
-msgstr ""
+msgstr "ディーパーダンジョン"
 
 #: guitext:971
 msgctxt "Menu interface item"
 msgid "Standard Levels"
-msgstr ""
+msgstr "規格なレベル"
 
 #: guitext:972
 msgctxt "Menu interface item"
 msgid "Classic Levels"
-msgstr ""
+msgstr "旧典なレベル"
 
 #: guitext:973
 msgctxt "Menu interface item"
 msgid "Legacy Levels"
-msgstr ""
+msgstr "レガシーのレベル"
 
 #: guitext:974
 msgctxt "Menu interface item"
 msgid "Personal Levels"
-msgstr ""
+msgstr "個人的なレベル"
 
 #: guitext:975
 msgctxt "Menu interface item"
 msgid "Lost Levels"
-msgstr ""
+msgstr "失われたレベル"
 
 #: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
@@ -6471,124 +6478,125 @@ msgstr ""
 #: guitext:981
 msgctxt "Trap names"
 msgid "Special Trap"
-msgstr ""
+msgstr "特殊の罠"
 
 #: guitext:982
 msgctxt "Trap names"
 msgid "Freeze Trap"
-msgstr ""
+msgstr "フリーズの罠"
 
 #: guitext:983
 msgctxt "Trap names"
 msgid "Fear Trap"
-msgstr ""
+msgstr "フィアーの罠"
 
 #: guitext:984
 msgctxt "Trap names"
 msgid "Sentry Trap"
-msgstr ""
+msgstr "防御の罠"
 
 #: guitext:985
 msgctxt "Trap names"
 msgid "Mimic Trap"
-msgstr ""
+msgstr "模倣の罠"
 
 #: guitext:986
 msgctxt "Trap names"
 msgid "Spawn Trap"
-msgstr ""
+msgstr "出現の罠"
 
 #: guitext:987
 msgctxt "Trap names"
 msgid "Wind Trap"
-msgstr ""
+msgstr "突風の罠"
 
 #: guitext:988
 msgctxt "Trap names"
 msgid "Spitfire Trap"
-msgstr ""
+msgstr "大砲の罠"
 
 #: guitext:989
 msgctxt "Trap names"
 msgid "Chicken Trap"
-msgstr ""
+msgstr "呪いの罠"
 
 #: guitext:990
 msgctxt "Trap names"
 msgid "Disease Trap"
-msgstr ""
+msgstr "疫病の罠"
 
 #: guitext:991
 msgctxt "Trap names"
 msgid "Power Trap"
-msgstr ""
+msgstr "パワーの罠"
 
 #: guitext:992
 msgctxt "Trap names"
 msgid "Switch"
-msgstr ""
+msgstr "スイッチの罠"
 
 #: guitext:993
 msgctxt "Trap names"
 msgid "Hidden Switch"
-msgstr ""
+msgstr "隠されたスイッチ"
 
 #: guitext:994
 msgctxt "Door name"
 msgid "Special Door"
-msgstr ""
+msgstr "特殊のドア"
 
 #: guitext:995
 msgctxt "Door name"
 msgid "Hidden Door"
-msgstr ""
+msgstr "隠されたドア"
 
 #: guitext:996
 msgctxt "Mouse"
 msgid "Scroll Wheel Up"
-msgstr ""
+msgstr "マウスホイールを上向きに廻る"
 
 #: guitext:997
 msgctxt "Mouse"
 msgid "Scroll Wheel Down"
-msgstr ""
+msgstr "マウスホイールを下向きに廻る"
 
 #: guitext:998
 msgctxt "Mouse"
 msgid "Mouse Button"
-msgstr ""
+msgstr "マウスボタン"
 
 #: guitext:999
 msgctxt "Game controls"
 msgid "Build Square Room"
-msgstr ""
+msgstr "正方形の部屋を建てる"
 
 #: guitext:1000
 msgctxt "Game controls"
 msgid "Detect Room"
-msgstr ""
+msgstr "部屋を探し当てる"
 
 #: guitext:1001
 msgctxt "Game controls"
 msgid "Increase Room Size"
-msgstr ""
+msgstr "部屋を広げる"
 
 #: guitext:1002
 msgctxt "Game controls"
 msgid "Decrease Room Size"
-msgstr ""
+msgstr "部屋を縮む"
 
 #: guitext:1003
 msgctxt "Game controls"
 msgid "Precision Sell"
-msgstr ""
+msgstr "サブタイルを売る"
 
 #: guitext:1004
 msgctxt "Game controls"
 msgid "Snap Camera"
-msgstr ""
+msgstr "観点を90度間隔で又はに廻る"
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
-msgid "Mysterious Box: There's no telling what this will do."
-msgstr ""
+msgid ""
+"Mysterious Box: There's no telling what this will do."
+msgstr "不思議な箱: 此れの作用は不明だ。"

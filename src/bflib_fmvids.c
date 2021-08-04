@@ -76,7 +76,7 @@ char SmackSoundUseMSS(void* dig_driver)
     proc=GetProcAddress(hModule,"_SmackSoundUseMSS@4");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SmackSoundUseMSS function; skipped."); return 0; }
-    return ((FARPROCP_C)proc)(dig_driver);
+    return ((FARPROCP_C)(void *)proc)(dig_driver);
 }
 
 struct SmackTag *SmackOpen(const char *name,unsigned int flags,int extrabuf)
@@ -87,7 +87,7 @@ struct SmackTag *SmackOpen(const char *name,unsigned int flags,int extrabuf)
     proc=GetProcAddress(hModule,"_SmackOpen@12");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SmackOpen function; skipped."); return 0; }
-    return ((FARSMACKOPEN)proc)(name,flags,extrabuf);
+    return ((FARSMACKOPEN)(void *)proc)(name,flags,extrabuf);
 }
 
 void SmackSummary(struct SmackTag *smk,struct SmackSumTag *sum)
@@ -98,7 +98,7 @@ void SmackSummary(struct SmackTag *smk,struct SmackSumTag *sum)
     proc=GetProcAddress(hModule,"_SmackSummary@8");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SmackSummary function; skipped."); return; }
-    ((FARSMACKSUMMARY)proc)(smk,sum);
+    ((FARSMACKSUMMARY)(void *)proc)(smk,sum);
 }
 
 unsigned long SmackWait(struct SmackTag *smk)
@@ -120,7 +120,7 @@ void SmackClose(struct SmackTag *smk)
     proc=GetProcAddress(hModule,"_SmackClose@4");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SmackClose function; skipped."); return; }
-    ((FARPROCP_V)proc)(smk);
+    ((FARPROCP_V)(void *)proc)(smk);
 }
 
 unsigned long SmackDoFrame(struct SmackTag *smk)
@@ -142,7 +142,7 @@ void SmackNextFrame(struct SmackTag *smk)
     proc=GetProcAddress(hModule,"_SmackNextFrame@4");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SmackNextFrame function; skipped."); return; }
-    ((FARPROCP_V)proc)(smk);
+    ((FARPROCP_V)(void *)proc)(smk);
 }
 
 void SmackToBuffer(struct SmackTag *smk,unsigned long left,unsigned long top,
@@ -154,7 +154,7 @@ void SmackToBuffer(struct SmackTag *smk,unsigned long left,unsigned long top,
     proc=GetProcAddress(hModule,"_SmackToBuffer@28");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SmackToBuffer function; skipped."); return; }
-    ((FARSMACKTOBUF)proc)(smk,left,top,Pitch,destheight,buf,Flags);
+    ((FARSMACKTOBUF)(void *)proc)(smk,left,top,Pitch,destheight,buf,Flags);
 }
 
 void SmackGoto(struct SmackTag *smk,unsigned long frame)
@@ -165,7 +165,7 @@ void SmackGoto(struct SmackTag *smk,unsigned long frame)
     proc=GetProcAddress(hModule,"_SmackGoto@8");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SmackGoto function; skipped."); return; }
-    ((FARPROCPU_V)proc)(smk,frame);
+    ((FARPROCPU_V)(void *)proc)(smk,frame);
 }
 
 void SmackSimulate(unsigned long sim)
@@ -176,7 +176,7 @@ void SmackSimulate(unsigned long sim)
     proc=GetProcAddress(hModule,"_SmackSimulate@4");
     if (proc==NULL)
     { ERRORLOG("Can't get address of SmackSimulate function; skipped."); return; }
-    ((FARPROCU_V)proc)(sim);
+    ((FARPROCU_V)(void *)proc)(sim);
 }
 
 void copy_to_screen_px_ar_scale(unsigned char *src_buf, unsigned char *dst_buf, int src_width, int src_height, int flags)

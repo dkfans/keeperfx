@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-long const scavenge_effect_element[] = {TngEff_Unknown60, TngEff_Unknown61, TngEff_Unknown62, TngEff_Unknown63, TngEff_Unknown64, TngEff_Unknown64,};
+long const scavenge_effect_element[] = {TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, TngEff_BallPuffWhite,};
 /******************************************************************************/
 long get_scavenge_effect_element(PlayerNumber owner)
 {

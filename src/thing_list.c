@@ -38,17 +38,13 @@
 #include "power_hand.h"
 #include "magic.h"
 #include "map_utils.h"
-#include "ariadne_wallhug.h"
-#include "config_objects.h"
 #include "config_creature.h"
 #include "config_magic.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "player_instances.h"
 #include "engine_camera.h"
-#include "gui_topmsg.h"
 #include "game_legacy.h"
-#include "engine_redraw.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -79,7 +75,7 @@ Thing_Class_Func class_functions[] = {
 unsigned long thing_create_errors = 0;
 
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long stl_x, long stl_y);
+
 /******************************************************************************/
 /**
  * Adds thing at beginning of a StructureList.
@@ -419,8 +415,11 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
                     refpos.x.val = param->num1;
                     refpos.y.val = param->num2;
                     refpos.z.val = 0;
+                    MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                    if (dist > param->num3) // Too far away
+                        return -1;
                     // This function should return max value when the distance is minimal, so:
-                    return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
+                    return LONG_MAX-dist;
                 }
             }
         }
@@ -509,6 +508,11 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFi
 {
     if (thing->class_id == param->class_id)
     {
+        if (param->model_id != -2 && (thing->model == param->model_id))
+        {
+            // Skip wrong models
+            return -1;
+        }
         switch(param->class_id)
         {
         case TCls_Creature:
@@ -1463,7 +1467,7 @@ struct Thing *get_nearest_thing_of_class_and_model_owned_by(MapCoord pos_x, MapC
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
-    param.num3 = 0;
+    param.num3 = LONG_MAX;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -1653,13 +1657,13 @@ struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel)
 
 TbBool lord_of_the_land_in_prison_or_tortured(void)
 {
-    for (long crtr_model = 0; crtr_model < crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 0; crtr_model < gameadd.crtr_conf.model_count; crtr_model++)
     {
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crtr_model];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             struct Thing* thing = creature_of_model_in_prison_or_tortured(crtr_model);
-            if (thing > 0)
+            if (!thing_is_invalid(thing))
             {
                 if (player_keeping_creature_in_custody(thing) == my_player_number)
                 {
@@ -1673,9 +1677,9 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
 
 struct Thing *lord_of_the_land_find(void)
 {
-    for (long crtr_model = 0; crtr_model < crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 0; crtr_model < gameadd.crtr_conf.model_count; crtr_model++)
     {
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crtr_model];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             int i = creature_of_model_find_first(crtr_model);
@@ -1924,7 +1928,7 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((crmodel <= 0) || (thing->model == crmodel))
+        if ((crmodel == 0) || (thing->model == crmodel))
         {
             count++;
         }
@@ -1993,10 +1997,10 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
       struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
       i = cctrl->players_next_creature_idx;
       // Per creature code
-      if ((crtr_idx <= 0) || (thing->model == crmodel && crtr_idx <= 1))
-          return thing;
       if ((crmodel <= 0) || (thing->model == crmodel))
           crtr_idx--;
+      if (crtr_idx == -1)
+          return thing;
       // Per creature code ends
       k++;
       if (k > THINGS_COUNT)
@@ -2125,7 +2129,7 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
     {
         return INVALID_THING;
     }
-    long crtr_idx = ACTION_RANDOM(total_count) + 1;
+    long crtr_idx = ACTION_RANDOM(total_count);
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model(dungeon->digger_list_start, crmodel, crtr_idx);
@@ -2496,10 +2500,10 @@ struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord
     SYNCDBG(19,"Starting");
     struct Thing* retng = INVALID_THING;
     long maximizer = 0;
-    for (int around = 0; around < sizeof(mid_around) / sizeof(mid_around[0]); around++)
+    for (int around_val = 0; around_val < sizeof(mid_around) / sizeof(mid_around[0]); around_val++)
     {
-        MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)mid_around[around].delta_x;
-        MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)mid_around[around].delta_y;
+        MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)mid_around[around_val].delta_x;
+        MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)mid_around[around_val].delta_y;
         struct Map* mapblk = get_map_block_at(sx, sy);
         if (!map_block_invalid(mapblk))
         {
@@ -2535,9 +2539,9 @@ struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y
     SYNCDBG(19,"Starting");
     struct Thing* retng = INVALID_THING;
     long maximizer = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_val = 0; around_val < spiral_len; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);
@@ -2569,9 +2573,9 @@ long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long
     SYNCDBG(19,"Starting");
     long count = 0;
     long maximizer = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_val = 0; around_val < spiral_len; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);
@@ -2601,9 +2605,9 @@ long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len,
 {
     SYNCDBG(19,"Starting");
     long count = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_val = 0; around_val < spiral_len; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);
@@ -2624,9 +2628,9 @@ long do_to_things_with_param_around_map_block(const struct Coord3d *center_pos, 
 {
     SYNCDBG(19,"Starting");
     long count = 0;
-    for (int around = 0; around < sizeof(mid_around) / sizeof(mid_around[0]); around++)
+    for (int around_val = 0; around_val < sizeof(mid_around) / sizeof(mid_around[0]); around_val++)
     {
-        const struct Around* caround = &mid_around[around];
+        const struct Around* caround = &mid_around[around_val];
         MapSubtlCoord sx = coord_subtile(center_pos->x.val) + caround->delta_x;
         MapSubtlCoord sy = coord_subtile(center_pos->y.val) + caround->delta_y;
         SYNCDBG(18,"Doing on (%d,%d)",(int)sx,(int)sy);
@@ -2649,9 +2653,9 @@ long do_to_things_with_param_spiral_near_map_block(const struct Coord3d *center_
     }
     SYNCDBG(19,"Starting");
     long count = 0;
-    for (int around = 0; around < spiral_range * spiral_range; around++)
+    for (int around_val = 0; around_val < spiral_range * spiral_range; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(center_pos->x.val) + sstep->h;
         MapSubtlCoord sy = coord_subtile(center_pos->y.val) + sstep->v;
         SYNCDBG(18,"Doing on (%d,%d)",(int)sx,(int)sy);
@@ -2734,13 +2738,23 @@ TbBool update_thing(struct Thing *thing)
                 thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->field_24) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
-                thing->veloc_push_add.z.val -= thing->field_20;
+                thing->veloc_push_add.z.val -= thing->fall_acceleration;
                 thing->state_flags |= TF1_PushAdd;
             } else
             {
                 // For flying creatures, the Z velocity should also decrease over time
                 if (thing->veloc_base.z.val != 0)
+                {
                     thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->field_24) / 256;
+                }
+                else 
+                {
+                    if (thing_above_flight_altitude(thing))
+                    {
+                        thing->veloc_push_add.z.val -= thing->fall_acceleration;
+                        thing->state_flags |= TF1_PushAdd;
+                    }
+                }
             }
         } else
         {
@@ -3298,9 +3312,10 @@ struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, 
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
  * @param plyr_idx Player whose creature from revealed position will be returned.
+ * @param crmodel Creature model or 0 for any
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
+struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, long crmodel)
 {
     SYNCDBG(19,"Starting");
     //return get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
@@ -3308,6 +3323,7 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, Pla
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
     param.plyr_idx = plyr_idx;
+    param.model_id = crmodel;
     param.num1 = pos_x;
     param.num2 = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
@@ -3514,7 +3530,51 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  return _DK_get_nearest_object_at_position(stl_x, stl_y);
+  // return _DK_get_nearest_object_at_position(stl_x, stl_y);
+  return get_object_around_owned_by_and_matching_bool_filter(
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object);
+}
+
+struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+  long OldDistance = LONG_MAX;
+  struct Thing *thing;
+  unsigned char n,k = 0;
+  struct Thing *result = NULL;
+  MapSubtlCoord x,y; 
+  do
+  {
+    n = 0;
+    y = stl_y + k;  
+    if ( (y >= 0) && (y < 256) )
+    {
+      do
+      {
+        x = stl_x + n;  
+        if ( (x >= 0) && (x < 256) )
+        {
+          struct Map *blk = get_map_block_at(x, y);
+          thing = thing_get(get_mapwho_thing_index(blk));
+          while (!thing_is_invalid(thing)) 
+          {
+            TRACE_THING(thing);
+            long NewDistance = get_2d_box_distance_xy(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            if ( NewDistance < OldDistance )
+            {
+                OldDistance = NewDistance;
+                result = thing;
+            }
+            thing = thing_get(thing->next_on_mapblk);
+          }
+        }
+      n++;
+      }
+      while ( n < STL_PER_SLB );
+    }
+    k++;
+  }
+  while ( k < STL_PER_SLB );
+  return result;
 }
 
 void remove_dead_creatures_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -3605,9 +3665,9 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
 {
     long count = 0;
-    for (ThingModel crmodel = 1; crmodel < crtr_conf.model_count; crmodel++)
+    for (ThingModel crmodel = 1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
     {
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
         if (((crconf->model_flags & need_mdflags) == need_mdflags) &&
            ((crconf->model_flags & excl_mdflags) == 0))
         {
@@ -3620,9 +3680,9 @@ long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, un
 long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
 {
     long count = 0;
-    for (ThingModel crmodel = 1; crmodel < crtr_conf.model_count; crmodel++)
+    for (ThingModel crmodel = 1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
     {
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
         if (((crconf->model_flags & need_mdflags) == need_mdflags) &&
            ((crconf->model_flags & excl_mdflags) == 0))
         {

@@ -61,7 +61,7 @@ TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname);
 static TbError GenericSerialInit(void *init_data);
 static TbError GenericModemInit(void *init_data);
 static TbError GenericIPXInit(void *init_data);
-static TbError GenericTCPInit(void *init_data);
+//static TbError GenericTCPInit(void *init_data); // this is not being used
 TbError StartTwoPlayerExchange(void *buf);
 TbError StartMultiPlayerExchange(void *buf);
 TbError CompleteTwoPlayerExchange(void *buf);
@@ -1669,7 +1669,7 @@ TbError GenericIPXInit(void *init_data)
   return Lb_OK;
 }
 
-static TbError GenericTCPInit(void *init_data)
+TbError GenericTCPInit(void *init_data)
 {
     if (spPtr != NULL) {
         spPtr->Release();
