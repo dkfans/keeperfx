@@ -743,8 +743,8 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
             *p = 0;
           }
           p++;
-          Mapblk1 = (struct map *)((char *)Mapblk1 + 5);
-          Mapblk2 = (struct map *)((char *)Mapblk2 + 5);
+          Mapblk1 = (struct Map *)((char *)Mapblk1 + 5);
+          Mapblk2 = (struct Map *)((char *)Mapblk2 + 5);
           j++;
         }
         while ( j <= x2 );
