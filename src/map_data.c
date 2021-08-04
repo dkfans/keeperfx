@@ -748,6 +748,11 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     }
     return false;
 }
+
+struct Map *get_next_map_block(const struct Map *mapblk)
+{
+    return (struct Map *)((char *)mapblk + sizeof(struct Map));
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
