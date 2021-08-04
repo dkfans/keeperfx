@@ -48,7 +48,7 @@ enum LightFlags {
 
 struct Light { // sizeof = 46
   unsigned char flags;
-  unsigned char field_1;
+  unsigned char flags2;
   unsigned char intensity;
   unsigned char field_3[2];
   unsigned char range;

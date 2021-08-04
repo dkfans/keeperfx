@@ -103,13 +103,13 @@ void light_shadow_cache_free(struct ShadowCache *shdc)
 
 TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
 {
-  if ((lgt->field_1 & 0x01) != 0)
+  if ((lgt->flags2 & 0x01) != 0)
   {
     ERRORLOG("Light is already in list");
     return false;
   }
   list->count++;
-  lgt->field_1 |= 0x01;
+  lgt->flags2 |= 0x01;
   lgt->field_26 = list->index;
   list->index = lgt->index;
   return true;
@@ -147,7 +147,7 @@ long light_create_light(struct InitLight *ilght)
     lgt->radius = ilght->field_0;
     lgt->intensity = ilght->field_2;
     unsigned long k = 2 * ilght->field_3;
-    lgt->field_1 = k ^ ((k ^ lgt->field_1) & 0x01);
+    lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
     lgt->field_1A = ilght->field_8;
     lgt->field_18 = ilght->field_4;
@@ -392,7 +392,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
   TbBool Removed = false;
   struct Light *lgt2;
   struct Light *i;
-  if ( lgt->field_1 & 1 )
+  if ( lgt->flags2 & 1 )
   {
     if ( lgt->index == list->index )
     {
@@ -401,7 +401,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
       list->index = lgt->field_26;
       list->count = NewCount;
       lgt->field_26 = 0;
-      lgt->field_1 &= 0xFEu;
+      lgt->flags2 &= ~1;
     }
     else
     {
@@ -414,7 +414,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
           if ( i )
           {
             i->field_26 = lgt->field_26;
-            lgt->field_1 &= 0xFEu;
+            lgt->flags2 &= ~1;
             list->count--;
             lgt->field_26 = 0;
           }
@@ -831,7 +831,7 @@ void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
     {
       if ( lgt->flags & LgtF_Unkn02 )
       {
-        lgt->flags &= 0xFD;
+        lgt->flags &= ~2;
         if ( lgt->flags & LgtF_Dynamic )
         {
           lgt->field_9[0] = a2;
