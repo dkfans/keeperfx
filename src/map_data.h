@@ -79,7 +79,6 @@ extern long nav_map_initialised;
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Map *get_map_block_at_pos(long stl_num);
 TbBool map_block_invalid(const struct Map *mapblk);
-struct Map *get_next_map_block(const struct Map *mapblk);
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
