@@ -732,9 +732,11 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
           {
             x = 0;
           }
-          struct Map *Mapblk3 = get_map_block_at_pos(x + y);
-          struct Map *Mapblk4 = get_map_block_at_pos((n << 8) + x);
-          if ( get_mapblk_column_index(Mapblk1) && get_mapblk_column_index(Mapblk2) && get_mapblk_column_index(Mapblk3) && get_mapblk_column_index(Mapblk4) )
+          struct Column *Col1 = get_map_column(Mapblk1);
+          struct Column *Col2 = get_map_column(Mapblk2);
+          struct Column *Col3 = get_map_column(get_map_block_at_pos(x + y));
+          struct Column *Col4 = get_map_column(get_map_block_at_pos((n << 8) + x));
+          if ( (!column_invalid(Col1)) && (!column_invalid(Col2)) && (!column_invalid(Col3)) && (!column_invalid(Col4)) )
           {
             *p = game.lish.field_46149 << 8;
           }
