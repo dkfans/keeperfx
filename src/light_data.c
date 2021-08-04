@@ -730,7 +730,7 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
             x = 0;
           struct Map *Mapblk3 = get_map_block_at_pos(x + y);
           struct Map *Mapblk4 = get_map_block_at_pos((n << 8) + x);
-          if ( Mapblk1->data & 0x7FF && Mapblk2->data & 0x7FF && Mapblk3->data & 0x7FF && Mapblk4->data & 0x7FF )
+          if ( get_mapblk_column_index(Mapblk1) && get_mapblk_column_index(Mapblk2) && get_mapblk_column_index(Mapblk3) && get_mapblk_column_index(Mapblk4) )
             *p = game.lish.field_46149 << 8;
           else
             *p = 0;
