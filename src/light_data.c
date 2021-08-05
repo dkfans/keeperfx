@@ -706,16 +706,14 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
   unsigned long j,n,x,k,y;
   unsigned short *p;
   unsigned short *light_map;
-  k = y1;
   if ( y2 >= y1 )
   {
     y = y1 << 8;
     unsigned long i = x1 + (y1 << 8);
     struct Map *Mapblk1 = get_map_block_at_pos(i);
     light_map = &game.lish.stat_light_map[i];
-    do
+    for (k = y1; k <= y2; k++)
     {
-      j = x1;
       if ( x2 >= x1 )
       {
         p = light_map;
@@ -725,7 +723,7 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
           n = 0;
         }
         struct Map *Mapblk2 = get_map_block_at_pos((n << 8) + x1);
-        do
+        for (j = x1; j <= x2; j++)
         {
           x = j - 1;
           if ( x <= 0 )
@@ -747,16 +745,12 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
           p++;
           Mapblk1++;
           Mapblk2++;
-          j++;
         }
-        while ( j <= x2 );
       }
       y += 256;
       i += 320;
       light_map += 256;
-      k++;
     }
-    while ( k <= y2 );
   }
 }
 
