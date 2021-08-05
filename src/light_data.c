@@ -748,7 +748,6 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
         }
       }
       y += 256;
-      i += 320;
       light_map += 256;
     }
   }
