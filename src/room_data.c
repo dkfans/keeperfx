@@ -124,7 +124,7 @@ unsigned char const slabs_to_centre_peices[] = {
  21, 22, 23, 24, 25,
 };
 
-unsigned short const room_effect_elements[] = { 55, 56, 57, 58, 0, 0 };
+unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None };
 const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *hoardtng, struct Room *room, struct Coord3d *pos, long a4);
@@ -455,7 +455,7 @@ void count_gold_hoardes_in_room(struct Room *room)
     //_DK_count_gold_hoardes_in_room(room); return;
     GoldAmount all_gold_amount = 0;
     int all_wealth_size = 0;
-    long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // First, set the values to something big; this will prevent logging warnings on add/remove_gold_from_hoarde()
     room->used_capacity = room->total_capacity;
@@ -1025,17 +1025,14 @@ void reposition_all_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord s
         }
         i = thing->next_on_mapblk;
         // Per thing code
-        if (thing_is_dead_creature(thing))
+        if (corpse_laid_to_rest(thing))
         {
             ThingModel crkind = thing->model;
-            if (thing->byte_14)
-            {
-                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                if (!store_creature_reposition_entry(rrepos, crkind, cctrl->explevel)) {
-                    WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
-                }
-                delete_thing_structure(thing, 0);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if (!store_creature_reposition_entry(rrepos, crkind, cctrl->explevel)) {
+                WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
             }
+            delete_thing_structure(thing, 0);
         }
         // Per thing code ends
         k++;
@@ -1064,7 +1061,7 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
             struct Thing* bodytng = create_dead_creature(&pos, rrepos->models[ri], 0, room->owner, rrepos->explevels[ri]);
             if (!thing_is_invalid(bodytng))
             {
-                bodytng->byte_14 = 1;
+                bodytng->corpse.laid_to_rest = 1;
                 bodytng->health = game.graveyard_convert_time;
                 rrepos->used--;
                 rrepos->models[ri] = 0;
@@ -1097,24 +1094,21 @@ int check_bodies_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
         }
         i = thing->next_on_mapblk;
         // Per thing code
-        if (thing_is_dead_creature(thing))
+        if (corpse_laid_to_rest(thing))
         {
-            if (thing->byte_14)
+            // If exceeded capacity of the room
+            if (room->used_capacity >= room->total_capacity)
             {
-                // If exceeded capacity of the room
-                if (room->used_capacity >= room->total_capacity)
-                {
-                    WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
-                    return -1; // re-create all (this could save the object if there are duplicates)
-                } else
-                // If the thing is in wall, remove it but store to re-create later
-                if (thing_in_wall_at(thing, &thing->mappos))
-                {
-                    return -1; // re-create all
-                } else
-                {
-                    matching_things_at_subtile++;
-                }
+                WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                return -1; // re-create all (this could save the object if there are duplicates)
+            } else
+            // If the thing is in wall, remove it but store to re-create later
+            if (thing_in_wall_at(thing, &thing->mappos))
+            {
+                return -1; // re-create all
+            } else
+            {
+                matching_things_at_subtile++;
             }
         }
         // Per thing code ends
@@ -2299,14 +2293,10 @@ void update_room_efficiency(struct Room *room)
 /**
  * Computes max health of a room of given size.
  */
-long compute_room_max_health(long slabs_count,unsigned short efficiency)
+unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency)
 {
-  if (slabs_count < 1)
-      slabs_count = 1;
-  if (slabs_count > 10000)
-      slabs_count = 10000;
-  long max_health = game.hits_per_slab * slabs_count;
-  return saturate_set_signed(max_health, 16);
+  unsigned long max_health = game.hits_per_slab * slabs_count;
+  return saturate_set_unsigned(max_health, 16);
 }
 
 TbBool update_room_total_health(struct Room *room)
@@ -2546,8 +2536,8 @@ TbBool slab_is_area_inner_fill(MapSlabCoord slb_x, MapSlabCoord slb_y)
     {
         long aslb_x = slb_x + (long)my_around_eight[n].delta_x;
         long aslb_y = slb_y + (long)my_around_eight[n].delta_y;
-        struct SlabMap* slb = get_slabmap_block(aslb_x, aslb_y);
-        if ((slb->kind != slbkind) || (slabmap_owner(slb) != plyr_idx)) {
+        struct SlabMap* aslb = get_slabmap_block(aslb_x, aslb_y);
+        if ((aslb->kind != slbkind) || (slabmap_owner(aslb) != plyr_idx)) {
             return false;
         }
     }

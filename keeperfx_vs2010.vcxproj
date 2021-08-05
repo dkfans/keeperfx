@@ -89,6 +89,7 @@
     <ClCompile Include="src\config_strings.c" />
     <ClCompile Include="src\config_terrain.c" />
     <ClCompile Include="src\config_trapdoor.c" />
+    <ClCompile Include="src\console_cmd.c" />
     <ClCompile Include="src\creature_battle.c" />
     <ClCompile Include="src\creature_control.c" />
     <ClCompile Include="src\creature_graphics.c" />
@@ -120,6 +121,7 @@
     <ClCompile Include="src\engine_lenses.c" />
     <ClCompile Include="src\engine_redraw.c" />
     <ClCompile Include="src\engine_render.c" />
+    <ClCompile Include="src\engine_render_data.cpp" />
     <ClCompile Include="src\engine_textures.c" />
     <ClCompile Include="src\frontend.cpp" />
     <ClCompile Include="src\frontmenu_ingame_evnt.c" />
@@ -154,6 +156,7 @@
     <ClCompile Include="src\game_heap.c" />
     <ClCompile Include="src\game_legacy.c" />
     <ClCompile Include="src\game_lghtshdw.c" />
+    <ClCompile Include="src\game_loop.c" />
     <ClCompile Include="src\game_merge.c" />
     <ClCompile Include="src\game_saves.c" />
     <ClCompile Include="src\gui_boxmenu.c" />
@@ -362,6 +365,7 @@
     <ClInclude Include="src\game_heap.h" />
     <ClInclude Include="src\game_legacy.h" />
     <ClInclude Include="src\game_lghtshdw.h" />
+    <ClInclude Include="src\game_loop.h" />
     <ClInclude Include="src\game_merge.h" />
     <ClInclude Include="src\game_saves.h" />
     <ClInclude Include="src\globals.h" />

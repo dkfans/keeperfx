@@ -684,6 +684,15 @@
     <ClCompile Include="src\roomspace_detection.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine_render_data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\console_cmd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game_loop.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -1284,6 +1293,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\roomspace_detection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game_loop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

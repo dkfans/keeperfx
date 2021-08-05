@@ -35,6 +35,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "thing_corpses.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
@@ -547,7 +548,7 @@ TbBool creature_model_bleeds(unsigned long crmodel)
         // If censorship is on, only evil creatures can have blood
         if (!crstat->bleeds)
             return false;
-        struct CreatureModelConfig* crconf = &crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
         return ((crconf->model_flags & CMF_IsEvil) != 0);
   }
   return crstat->bleeds;
@@ -1552,10 +1553,10 @@ void set_creature_size_stuff(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (creature_affected_by_spell(creatng, SplK_Chicken))
     {
-      creatng->sprite_size = crtr_conf.sprite_size;
+      creatng->sprite_size = gameadd.crtr_conf.sprite_size;
     } else
     {
-      creatng->sprite_size = crtr_conf.sprite_size + (crtr_conf.sprite_size * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+      creatng->sprite_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 }
 
@@ -1570,10 +1571,10 @@ short creature_change_from_chicken(struct Thing *creatng)
     { // Changing under way - gradually modify size of the creature
         creatng->field_4F |= TF4F_Unknown01;
         creatng->field_50 |= 0x01;
-        struct Thing* efftng = create_effect_element(&creatng->mappos, 0x3Bu, creatng->owner);
+        struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            long n = (10 - cctrl->countdown_282) * (crtr_conf.sprite_size + (crtr_conf.sprite_size * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
+            long n = (10 - cctrl->countdown_282) * (gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, 2);
             efftng->field_4F &= ~TF4F_Transpar_Flags;
@@ -1602,11 +1603,11 @@ short creature_change_to_chicken(struct Thing *creatng)
     {
       creatng->field_50 |= 0x01;
       creatng->field_4F |= TF4F_Unknown01;
-      struct Thing* efftng = create_effect_element(&creatng->mappos, 59, creatng->owner);
+      struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + crtr_conf.sprite_size, -1, 0, 2);
+          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + gameadd.crtr_conf.sprite_size, -1, 0, 2);
           efftng->field_4F &= ~TF4F_Transpar_Flags;
           efftng->field_4F |= TF4F_Transpar_8;
       }
@@ -2233,8 +2234,14 @@ struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Co
         }
         i = cctrl->players_next_creature_idx;
         // Per thing code starts
-        if (n == 0) {
-            return thing;
+        
+        if ((n <= 0) )
+        {
+            if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
+                && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+            {
+                return thing;
+            }
         }
         n--;
         // Per thing code ends
@@ -2788,6 +2795,11 @@ void make_creature_unconscious(struct Thing *creatng)
     SYNCDBG(18,"Starting");
     clear_creature_instance(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved)
+    {
+        // If the classic bug is enabled, fainted units are also added to resurrect creature.
+        update_dead_creatures_list_for_owner(creatng);
+    }
     creatng->active_state = CrSt_CreatureUnconscious;
     cctrl->flgfield_1 |= CCFlg_PreventDamage;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
@@ -3024,7 +3036,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
 
     // If the random slab has enough space to drop all gold, go there to drop it
-    long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     if((max_hoard_size_in_room - gldtng->valuable.gold_stored) >= thing->creature.gold_carried)
     {
@@ -3258,7 +3270,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
             creatng->mappos.x.val, creatng->mappos.y.val,
             4u, i, 0);
         if (is_my_player_number(i))
-            output_message(7, 0, 1);
+            output_message(SMsg_WallsBreach, 0, 1);
     }
     return 0;
 }

@@ -1,5 +1,7 @@
 REM titan2.txt - 4 apt, 1 hg(se), 2 enemy keepers
-REM Map made by Kontrare in 2005. In 2015 a fix for endless spawning parties was made by Loobinex, and objectives were added.
+REM Map made by Kontrare in 2005.
+REM In 2015 a fix for endless spawning parties was made by Loobinex, and objectives were added.
+REM in 2020 dayokay converted the objectives to use a dedicated pot file
 
 SET_GENERATE_SPEED(400)
 START_MONEY(ALL_PLAYERS,8000)
@@ -57,11 +59,11 @@ MAGIC_AVAILABLE(PLAYER0,POWER_SIGHT,1,1)
 MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,1,1)
 
 IF(PLAYER0,WORKSHOP > 0)
-    ADD_CREATURE_TO_LEVEL(PLAYER0,TROLL,PLAYER0,1,5,0)
-    DOOR_AVAILABLE(PLAYER0,MAGIC,1,1)
-    TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
-    TRAP_AVAILABLE(PLAYER0,BOULDER,1,0)
-	DISPLAY_OBJECTIVE(49,PLAYER_GOOD)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,TROLL,PLAYER0,1,5,0)
+	DOOR_AVAILABLE(PLAYER0,MAGIC,1,1)
+	TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+	TRAP_AVAILABLE(PLAYER0,BOULDER,1,0)
+	DISPLAY_OBJECTIVE(17,PLAYER_GOOD)
 ENDIF
 
 REM ++++++++++++++++++++++++++++++++++++++++++++++++
@@ -95,7 +97,7 @@ ENDIF
 REM ++++++++++++++++++++++++++++++++++++++++++++++++
 REM ++++++++++++++++++++++++++++++++++++++++++++++++
 
-DISPLAY_OBJECTIVE(912,ALL_PLAYERS)
+DISPLAY_OBJECTIVE(16,ALL_PLAYERS)
 
 SET_TIMER(PLAYER1,TIMER0)
 SET_TIMER(PLAYER2,TIMER0)
@@ -169,7 +171,6 @@ IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
                 ADD_PARTY_TO_LEVEL(PLAYER_GOOD,MIX,3,1)
                 NEXT_COMMAND_REUSABLE
                 ADD_PARTY_TO_LEVEL(PLAYER_GOOD,MIX,4,1)
-                
                 NEXT_COMMAND_REUSABLE
                 SET_TIMER(PLAYER_GOOD,TIMER0)
             ENDIF
@@ -192,7 +193,7 @@ ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
     IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-        DISPLAY_OBJECTIVE(33,ALL_PLAYERS)
-		WIN_GAME
+        DISPLAY_OBJECTIVE(15,ALL_PLAYERS)
+	WIN_GAME
     ENDIF
 ENDIF

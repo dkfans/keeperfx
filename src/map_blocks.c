@@ -170,7 +170,7 @@ void create_gold_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     while (pos.z.val < maxpos_z)
     {
         create_effect(&pos, TngEff_DirtRubble, owner);
-        create_effect(&pos, TngEff_GoldRubble, owner);
+        create_effect(&pos, TngEff_GoldRubble2, owner);
         pos.z.val += COORD_PER_STL;
     }
 }
@@ -722,7 +722,10 @@ void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, 
             if ( v10 < 0 )
               ERRORLOG("BBlocks instead of columns");
             update_map_collide(slbkind, stl_x+dx, stl_y+dy);
-            set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
+            if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slbkind)))
+            {
+                set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
+            }
             colid++;
         }
     }
@@ -1119,7 +1122,6 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
     } else
     if (place_slbattr->category == SlbAtCtg_RoomInterior)
     {
-        int i;
         for (i=1; i < 8; i+=2)
         {
             MapSlabCoord sslb_x;
@@ -1178,24 +1180,24 @@ void place_single_slab_modify_column_near_liquid(SlabKind slbkind, MapSlabCoord 
         sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i-1)&7].delta_y;
         struct SlabMap *slb;
         slb = get_slabmap_block(sslb_x,sslb_y);
-        struct SlabAttr *slbattr;
-        slbattr = get_slab_attrs(slb);
-        if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_RoomInterior) ||
-            (slbattr->category == SlbAtCtg_Obstacle) || (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
+        struct SlabAttr *slbattra;
+        slbattra = get_slab_attrs(slb);
+        if ((slbattra->category == SlbAtCtg_FortifiedGround) || (slbattra->category == SlbAtCtg_RoomInterior) ||
+            (slbattra->category == SlbAtCtg_Obstacle) || (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
         {
             sslb_x = slb_x + (MapSlabCoord)my_around_eight[(i-2)&7].delta_x;
             sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i-2)&7].delta_y;
             slb = get_slabmap_block(sslb_x,sslb_y);
-            struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(slb);
-            if (slbattr->category == SlbAtCtg_FortifiedWall)
+            struct SlabAttr *slbattrb;
+            slbattrb = get_slab_attrs(slb);
+            if (slbattrb->category == SlbAtCtg_FortifiedWall)
             {
                 sslb_x = slb_x + (MapSlabCoord)my_around_eight[(i)&7].delta_x;
                 sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i)&7].delta_y;
                 slb = get_slabmap_block(sslb_x,sslb_y);
-                struct SlabAttr *slbattr;
-                slbattr = get_slab_attrs(slb);
-                if (slbattr->category == SlbAtCtg_FortifiedWall)
+                struct SlabAttr *slbattrc;
+                slbattrc = get_slab_attrs(slb);
+                if (slbattrc->category == SlbAtCtg_FortifiedWall)
                 {
                   neigh = 4 + slab_element_around_eight[(i-1)&7];
                   slab_type_list[neigh] = SlbT_WALLWTWINS;
@@ -1411,7 +1413,10 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
                 MapSubtlCoord sstl_y;
                 sstl_x = slab_subtile(sslb_x,ssub_x);
                 sstl_y = slab_subtile(sslb_y,ssub_y);
-                set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
+                if (wibble_enabled())
+                {
+                    set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
+                }
             }
         }
     }

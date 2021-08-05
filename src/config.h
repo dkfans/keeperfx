@@ -73,6 +73,8 @@ enum TbFeature {
     Ft_Censorship   =  0x0020,
     Ft_Atmossounds  =  0x0040,
     Ft_Resizemovies =  0x0080,
+    Ft_Wibble       =  0x0100,
+    Ft_LiquidWibble =  0x0200,
 };
 
 enum TbExtraLevels {
@@ -200,11 +202,13 @@ char *prepare_file_path(short fgroup,const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
-TbBool update_features(unsigned long mem_size);
+TbBool update_features(unsigned long uf_mem_size);
 TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
 TbBool resize_movies_enabled(void);
+TbBool wibble_enabled(void);
+TbBool liquid_wibble_enabled(void);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);
@@ -251,6 +255,7 @@ struct LevelInformation *get_last_level_info(void);
 struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo);
 struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo);
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions);
+short set_level_info_string_index(LevelNumber lvnum, char *stridx, unsigned long lvoptions);
 short get_level_fgroup(LevelNumber lvnum);
 const char *get_current_language_str(void);
 const char *get_language_lwrstr(int lang_id);

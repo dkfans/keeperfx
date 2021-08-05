@@ -128,7 +128,7 @@ TbBool add_key_on_door(struct Thing *thing)
 
 void unlock_door(struct Thing *thing)
 {
-    thing->byte_18 = 0;
+    thing->trap_door_active_state = 0;
     game.field_14EA4B = 1;
     update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
       thing->mappos.x.stl.num+1, thing->mappos.y.stl.num+1);
@@ -338,7 +338,7 @@ long process_door_opening(struct Thing *thing)
 {
     struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
     int old_frame = (thing->door.word_16d / 256);
-    int delta_h = dostat->field_6;
+    short delta_h = dostat->field_6;
     int slbparam = dostat->slbkind;
     if (thing->door.word_16d+delta_h < 768)
     {
@@ -530,5 +530,19 @@ TbBool player_has_deployed_trap_of_model(PlayerNumber owner, int model)
         }
     }
     return false;
+}
+
+// Update all placed doors to new stats
+void update_all_door_stats()
+{
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Door);
+    for(int i = slist->index; i > 0;)
+    {
+        struct Thing* thing = thing_get(i);
+        i = thing->next_of_class
+        TRACE_THING(thing);
+        struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
+        thing->health = dostat->health;
+    }
 }
 /******************************************************************************/

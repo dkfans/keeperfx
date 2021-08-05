@@ -642,7 +642,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           else {
               k = atoi(word_buf);
                 if (k > 0) {
-                    char* newname = get_string(STRINGS_MAX+k);
+                    const char* newname = get_string(STRINGS_MAX+k);
                     if (strcasecmp(newname,"") != 0) {
                         LbStringCopy(campgn->name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
                     }

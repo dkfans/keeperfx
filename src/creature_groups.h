@@ -45,6 +45,12 @@ enum TriggerFlags {
 
 struct Thing;
 
+enum MemberPosFlags
+{
+        MpF_OCCUPIED = 1,
+        MpF_AVAIL    = 2,
+};
+
 /** Used for storing group members positions around leader.
  */
 struct MemberPos { // sizeof=3

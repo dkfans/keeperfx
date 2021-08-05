@@ -23,7 +23,7 @@
 #include "bflib_memory.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
-
+#include "bflib_sndlib.h"
 #include "thing_objects.h"
 #include "thing_doors.h"
 #include "thing_traps.h"
@@ -36,6 +36,7 @@
 #include "room_workshop.h"
 #include "power_hand.h"
 #include "game_legacy.h"
+#include "player_states.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -369,6 +370,14 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
         {
             evidx = dungeon->event_button_index[i];
             if (evidx == 0) {
+                if (is_my_player_number(dungeon->owner))
+                {
+                    struct PlayerInfo* player = get_player(dungeon->owner);
+                    if ( (game.play_gameturn > 10) && (player->view_type == PVT_DungeonTop) && ((game.operation_flags & GOF_ShowGui)) )
+                    {
+                        play_non_3d_sample(947);
+                    }
+                }
                 SYNCDBG(1,"New button at position %d",(int)i);
                 dungeon->event_button_index[i] = event->index;
                 break;
@@ -670,6 +679,8 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                     if ((i == 1) || ((i >= 2) && dungeon->event_button_index[i-2] != 0))
                     {
                         if (is_my_player_number(dungeon->owner)) {
+                            struct SoundEmitter* emit = S3DGetSoundEmitter(Non3DEmitter);
+                            StopSample(get_emitter_id(emit), 947);
                             play_non_3d_sample(175);
                         }
                         unsigned char prev_ev_idx = dungeon->event_button_index[i - 1];

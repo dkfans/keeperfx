@@ -116,8 +116,8 @@ TbBool detonate_shot(struct Thing *shotng)
     case ShM_Grenade:
     case ShM_Lizard:
     case ShM_Firebomb:
-        create_effect(&shotng->mappos, TngEff_Unknown50, shotng->owner);
-        create_effect(&shotng->mappos,  TngEff_Unknown09, shotng->owner);
+        create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
+        create_effect(&shotng->mappos,  TngEff_Blood4, shotng->owner);
         break;
     case ShM_Boulder:
         create_effect_around_thing(shotng, TngEff_DirtRubble);
@@ -217,7 +217,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     return true;
 }
 
-void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
+void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -364,7 +364,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     struct Thing* efftng = INVALID_THING;
     TbBool shot_explodes = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    unsigned long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
+    long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (shotst->model_flags & ShMF_Digging)
     {
         process_dig_shot_hit_wall(shotng, blocked_flags);
@@ -415,7 +415,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 {
                     struct Coord3d target_pos;
                     target_pos.x.val = shotng->price.number;
-                    target_pos.y.val = shotng->shot.byte_19 * crtr_conf.sprite_size;
+                    target_pos.y.val = shotng->shot.byte_19 * gameadd.crtr_conf.sprite_size;
                     target_pos.z.val = pos->z.val;
                     const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
                     if (dist <= 800) return detonate_shot(shotng);
@@ -438,7 +438,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->byte_16 = shotst->area_hit_type;
+        efftng->hit_type = shotst->area_hit_type;
     }
     if ( shot_explodes )
     {
@@ -504,7 +504,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
       }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->byte_16 = shotst->area_hit_type;
+        efftng->hit_type = shotst->area_hit_type;
     }
     if ( shot_explodes )
     {
@@ -689,17 +689,17 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case ShM_Fireball:
         case ShM_Firebomb:
         case ShM_Lightning:
-            efftng = create_effect(&shotng->mappos, TngEff_Unknown01, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
             break;
         case ShM_PoisonCloud:
-            efftng = create_effect(&shotng->mappos, TngEff_Unknown13, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Gas3, shotng->owner);
             if ( !thing_is_invalid(efftng) ) {
-                efftng->byte_16 = 2;
+                efftng->hit_type = THit_CrtrsOnly;
             }
             break;
         case ShM_NaviMissile:
         case ShM_Missile:
-            efftng = create_effect(&shotng->mappos, TngEff_Unknown08, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
             break;
         case ShM_Arrow:
         case ShM_SwingSword:
@@ -759,7 +759,8 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0);
     }
     // Friendly fire should kill the creature, not knock out
-    if (shotng->owner == creatng->owner) {
+    if ((shotng->owner == creatng->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint))
+    {
         dieflags |= CrDed_NoUnconscious;
     }
     return kill_creature(creatng, killertng, shotng->owner, dieflags);
@@ -768,7 +769,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    //throw_strength = shotng->field_20; //this seems to be always 0, this is why it didn't work;
+    //throw_strength = shotng->fall_acceleration; //this seems to be always 0, this is why it didn't work;
     long throw_strength = shotst->old->push_on_hit;
     if (trgtng->health < 0)
         return 0;
@@ -849,7 +850,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     long i;
     long n;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    //amp = shotng->field_20;
+    //amp = shotng->fall_acceleration;
     long amp = shotst->old->push_on_hit;
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
@@ -859,10 +860,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (thing_is_creature(shooter) && thing_is_creature(trgtng))
     {
         apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
-    }
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
-    {
-        return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
     if (((shotst->model_flags & ShMF_NoHit) != 0) || (trgtng->health < 0)) {
         return 0;
@@ -875,8 +872,11 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         if (!thing_is_invalid(killertng))
         {
+            if (shot_model_is_navigable(shotng->model))
+            {
+                shotng->shot.target_idx = 0;
+            }
             struct CreatureStats* crstat = creature_stats_get_from_thing(killertng);
-            struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
             struct Coord3d pos2;
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
@@ -898,6 +898,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         }
         return 1;
     }
+    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+    {
+        return melee_shot_hit_creature_at(shotng, trgtng, pos);
+    }
     // Immunity to boulders
     if (shot_is_boulder(shotng))
     {
@@ -905,7 +909,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             struct Thing* efftng = create_effect(&trgtng->mappos, TngEff_WoPExplosion, trgtng->owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->byte_16 = 8;
+                efftng->hit_type = THit_HeartOnlyNotOwn;
             }
             shotng->health = -1;
             return 1;
@@ -1293,7 +1297,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(127) + 63;
               pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(127) + 63;
               pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(127) + 63;
-              create_thing(&pos1, TCls_EffectElem, 1, thing->owner, -1);
+              create_thing(&pos1, TCls_EffectElem, TngEffElm_Blast1, thing->owner, -1);
             }
             break;
         case ShM_Lightning:
@@ -1307,7 +1311,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                   if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
                   {
                       PaletteSetPlayerPalette(player, lightning_palette);
-                      myplyr->field_3 |= Pf3F_Unkn08;
+                      myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
                   }
               }
             }
@@ -1355,7 +1359,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             {
                 struct Coord3d target_pos;
                 target_pos.x.val = thing->price.number;
-                target_pos.y.val = thing->shot.byte_19 * crtr_conf.sprite_size;
+                target_pos.y.val = thing->shot.byte_19 * gameadd.crtr_conf.sprite_size;
                 target_pos.z.val = target->mappos.z.val;
                 dist = get_2d_distance(&thing->mappos, &target_pos);
                 if (dist <= 260) hit = true;
@@ -1425,7 +1429,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->parent_idx = thing->index;
     thing->owner = owner;
     thing->field_22 = shotst->old->field_D;
-    thing->field_20 = shotst->old->field_F;
+    thing->fall_acceleration = shotst->old->field_F;
     thing->field_21 = shotst->old->field_10;
     thing->field_23 = shotst->old->field_11;
     thing->field_24 = shotst->old->field_12;

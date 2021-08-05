@@ -100,7 +100,10 @@ void setup_default_settings(void)
      },                         // kbkeys
      1,                         // tooltips_on
      0,                         // first_person_move_invert
-     6                          // first_person_move_sensitivity
+     6,                         // first_person_move_sensitivity
+     256,                       // minimap_zoom
+     8192,                      // isometric_view_zoom_level
+     65536,                     // frontview_zoom_level
     };
     LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
     struct CPU_INFO cpu_info;

@@ -1,7 +1,14 @@
 REM ********************************************
 REM
-REM Script for Level Syndika
-REM Version updated by Mefistotelis
+REM 	Script for Level Syndika
+REM	v1.2.0 created by Stanza on 21 Jan 2008
+REM	updated by Mefistotelis
+REM	updated for pot file by dayokay (Dec2020) for inclusion in 'classic' KeeperFX map-pack
+REM
+REM	Author Description: The kind of map where heroes come knocking at your door. Although there's no
+REM	background nor campaign, heroes are now smugglers in the 'history' of the map, eager of gold and
+REM	lands, a bit like Keepers in fact. Anyway the map is rather difficult. It was made easier from
+REM	original version, but still it's hard.
 REM
 REM ********************************************
 
@@ -56,10 +63,12 @@ MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
 MAGIC_AVAILABLE(PLAYER0,POWER_HOLD_AUDIENCE,1,0)
 MAGIC_AVAILABLE(PLAYER0,POWER_CHICKEN,1,0)
 
-QUICK_OBJECTIVE(1,"Here you are into enemy territory, Keeper. The smugglers are organised and have numerous defense posts at their disposal. Be quick and tactical to insure your victory.",PLAYER0)
+REM	QUICK_OBJECTIVE(1,"Here you are into enemy territory, Keeper. The smugglers are organised and have numerous defense posts at their disposal. Be quick and tactical to insure your victory.",PLAYER0)
+DISPLAY_OBJECTIVE(1,PLAYER0)
 
 IF(PLAYER0,KNIGHT == 1)
-    QUICK_OBJECTIVE(2,"A baron whose lands have been pillaged has joined your lines. Maybe is it here your chance to defeat the syndicate's agents.",PLAYER0)
+REM	QUICK_OBJECTIVE(2,"A baron whose lands have been pillaged has joined your lines. Maybe is it here your chance to defeat the syndicate's agents.",PLAYER0)
+	DISPLAY_OBJECTIVE(2,PLAYER0)
     MAGIC_AVAILABLE(PLAYER0,POWER_PROTECT,1,0)
 ENDIF
 
@@ -359,7 +368,8 @@ REM FLAG2=1 means final party can arrive, as all standard partys have ended
 
 IF(PLAYER_GOOD,FLAG2 == 1)
     IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-QUICK_OBJECTIVE(3,"Now that you have slaughtered the syndicate's troops, his director seems pretty angry, atrociously played, Keeper.One thing left to do though, decimate his army, an easy condition to fill in order to take control over the lands.",PLAYER0)
+REM	QUICK_OBJECTIVE(3,"Now that you have slaughtered the syndicate's troops, his director seems pretty angry, atrociously played, Keeper.One thing left to do though, decimate his army, an easy condition to fill in order to take control over the lands.",PLAYER0)
+	DISPLAY_OBJECTIVE(3,PLAYER0)
         SET_FLAG(PLAYER_GOOD,FLAG1,1)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SYNDIK8,-7,2)
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SYNDIK10,-7,2)
@@ -389,6 +399,7 @@ REM Win and lose conditions
 IF(PLAYER_GOOD,FLAG1 == 1)
     IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
         IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+			DISPLAY_OBJECTIVE(4,PLAYER0)
             WIN_GAME
         ENDIF
     ENDIF
