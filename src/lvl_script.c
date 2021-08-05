@@ -161,10 +161,11 @@ const struct NamedCommand variable_desc[] = {
     //{"DOOR",                      SVar_DOOR_NUM},
     {"GOOD_CREATURES",              SVar_GOOD_CREATURES},
     {"EVIL_CREATURES",              SVar_EVIL_CREATURES},
-	{"TRAPS_SOLD",                  SVar_TRAPS_SOLD},
-	{"DOORS_SOLD",                  SVar_DOORS_SOLD},
-	{"MANUFACTURED_SOLD",           SVar_MANUFACTURED_SOLD},
-	{"MANUFACTURE_GOLD",            SVar_MANUFACTURE_GOLD},
+    {"TRAPS_SOLD",                  SVar_TRAPS_SOLD},
+    {"DOORS_SOLD",                  SVar_DOORS_SOLD},
+    {"MANUFACTURED_SOLD",           SVar_MANUFACTURED_SOLD},
+    {"MANUFACTURE_GOLD",            SVar_MANUFACTURE_GOLD},
+    {"TOTAL_SCORE",                 SVar_TOTAL_SCORE},
     {NULL,                           0},
 };
 
@@ -5768,17 +5769,20 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->good_creatures_converted;
     case SVar_TRAPS_SOLD:
-    	dungeonadd = get_dungeonadd(plyr_idx);
-    	return dungeonadd->traps_sold;
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->traps_sold;
     case SVar_DOORS_SOLD:
-    	dungeonadd = get_dungeonadd(plyr_idx);
-    	return dungeonadd->doors_sold;
-	case SVar_MANUFACTURED_SOLD:
-		dungeonadd = get_dungeonadd(plyr_idx);
-		return dungeonadd->traps_sold + dungeonadd->doors_sold;
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->doors_sold;
+    case SVar_MANUFACTURED_SOLD:
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->traps_sold + dungeonadd->doors_sold;
     case SVar_MANUFACTURE_GOLD:
-    	dungeonadd = get_dungeonadd(plyr_idx);
-    	return dungeonadd->manufacture_gold;
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->manufacture_gold;
+    case SVar_TOTAL_SCORE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->total_score;
     default:
         break;
     };

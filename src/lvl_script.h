@@ -226,7 +226,8 @@ enum ScriptVariables {
   SVar_TRAPS_SOLD                      = 71,
   SVar_DOORS_SOLD                      = 72,
   SVar_MANUFACTURED_SOLD               = 73,
-  SVar_MANUFACTURE_GOLD                = 74
+  SVar_MANUFACTURE_GOLD                = 74,
+  SVar_TOTAL_SCORE                     = 75,
  };
 
 enum MapLocationTypes {
