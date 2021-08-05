@@ -726,7 +726,7 @@ void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
         for (j = x1; j <= x2; j++)
         {
           x = j - 1;
-          if ( x <= 0 )
+          if ( x < 0 )
           {
             x = 0;
           }
