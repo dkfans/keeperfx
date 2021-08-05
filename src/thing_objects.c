@@ -1741,7 +1741,7 @@ TngUpdateRet move_object(struct Thing *thing)
             {
                 if (!find_free_position_on_slab(thing, &pos))
                 {
-                    JUSTMSG("TESTLOG, error with blockflag %d", blocked_flags); //todo replace with pretty log
+                    SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.",pos.x.val,pos.y.val, blocked_flags);
                     move_creature_to_nearest_valid_position(thing);
                 }
 
