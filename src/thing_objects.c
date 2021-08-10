@@ -39,6 +39,7 @@
 #include "player_instances.h"
 #include "map_data.h"
 #include "map_columns.h"
+#include "map_utils.h"
 #include "room_entrance.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -1701,10 +1702,10 @@ TngUpdateRet object_update_power_lightning(struct Thing *objtng)
  */
 TbBool find_free_position_on_slab(const struct Thing* thing, struct Coord3d* pos)
 {
-    MapSubtlCoord start_stl = ACTION_RANDOM(9);
+    MapSubtlCoord start_stl = ACTION_RANDOM(AROUND_TILES_COUNT);
     int nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing), 0);
 
-    for (long nround = 0; nround < 9; nround++)
+    for (long nround = 0; nround < AROUND_TILES_COUNT; nround++)
     {
         MapSubtlCoord x = start_stl % 3 + thing->mappos.x.stl.num;
         MapSubtlCoord y = start_stl / 3 + thing->mappos.y.stl.num;
