@@ -147,7 +147,9 @@ struct GameAdd {
     struct LightSystemState lightst;
     long digger_work_experience;
     unsigned long gem_effectiveness;
+    long door_sale_percent;
     long room_sale_percent;
+    long trap_sale_percent;
     unsigned long pay_day_speed;
     unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;

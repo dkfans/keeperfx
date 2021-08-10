@@ -834,7 +834,7 @@ long remove_trap(struct Thing *traptng, long *sell_value)
         if (sell_value != NULL)
         {
             // Do the refund only if we were able to sell armed trap
-            long i = gameadd.traps_config[traptng->model].selling_value;
+            long i = compute_value_percentage(gameadd.traps_config[traptng->model].selling_value, gameadd.trap_sale_percent);
             if (traptng->trap.num_shots == 0)
             {
                 // Trap not armed - try selling crate from workshop

@@ -310,11 +310,13 @@ const struct NamedCommand game_rule_desc[] = {
   {"ImpWorkExperience",         13},
   {"GemEffectiveness",          14},
   {"RoomSellGoldBackPercent",   15},
-  {"PayDayGap",                 16},
-  {"PayDaySpeed",               17},
-  {"PayDayProgress",            18},
-  {"PlaceTrapsOnSubtiles",      19},
-  {"DiseaseHPTemplePercentage", 20},
+  {"DoorSellValuePercent",      16},
+  {"TrapSellValuePercent",      17},
+  {"PayDayGap",                 18},
+  {"PayDaySpeed",               19},
+  {"PayDayProgress",            20},
+  {"PlaceTrapsOnSubtiles",      21},
+  {"DiseaseHPTemplePercentage", 22},
   {NULL,                         0},
 };
 
@@ -3503,7 +3505,7 @@ void command_set_game_rule(const char* objectv, unsigned long roomvar)
     long ruledesc = get_id(game_rule_desc, objectv);
     if (ruledesc == -1)
     {
-        SCRPTERRLOG("Unknown room variable");
+        SCRPTERRLOG("Unknown game rule variable");
         return;
     }
     command_add_value(Cmd_SET_GAME_RULE, 0, ruledesc, roomvar, 0);
@@ -6934,11 +6936,19 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.room_sale_percent, val3);
           gameadd.room_sale_percent = val3;
           break;
-      case 16: //PayDayGap
+      case 16: //DoorSellGoldBackPercent
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.door_sale_percent, val3);
+          gameadd.door_sale_percent = val3;
+          break;
+      case 17: //TrapSellGoldBackPercent
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.trap_sale_percent, val3);
+          gameadd.trap_sale_percent = val3;
+          break;
+      case 18: //PayDayGap
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
           game.pay_day_gap = val3;
           break;
-      case 17: //PayDaySpeed
+      case 19: //PayDaySpeed
           if (val3 >= 0)
           {
               SCRIPTDBG(7, "Changing rule %s from %d to %d", val2, gameadd.pay_day_speed, val3);
@@ -6949,7 +6959,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
-      case 18: //PayDayProgress
+      case 20: //PayDayProgress
           if (val3 >= 0)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_progress, val3);
@@ -6960,11 +6970,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
-      case 19: //PlaceTrapsOnSubtiles
+      case 21: //PlaceTrapsOnSubtiles
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.place_traps_on_subtiles, val3);
           gameadd.place_traps_on_subtiles = (TbBool)val3;
           break;
-      case 20: //DiseaseHPTemplePercentage
+      case 22: //DiseaseHPTemplePercentage
           if (val3 >= 0 && val3 <= 100)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
