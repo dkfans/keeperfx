@@ -2244,10 +2244,18 @@ void thing_death_normal(struct Thing *thing)
         ERRORLOG("Cannot create dead thing");
         return;
     }
-    deadtng->move_angle_xy = memp1;
-    deadtng->veloc_base.x.val = memaccl.x.val;
-    deadtng->veloc_base.y.val = memaccl.y.val;
-    deadtng->veloc_base.z.val = memaccl.z.val;
+    struct Coord3d pos;
+    TbBool move_allowed = get_thing_next_position(&pos, deadtng);
+    if (!positions_equivalent(&deadtng->mappos, &pos))
+    {
+        if ((move_allowed) && !thing_in_wall_at(deadtng, &pos))
+        {
+            deadtng->move_angle_xy = memp1;
+            deadtng->veloc_base.x.val = memaccl.x.val;
+            deadtng->veloc_base.y.val = memaccl.y.val;
+            deadtng->veloc_base.z.val = memaccl.z.val;
+        }
+    }
 }
 
 /**
