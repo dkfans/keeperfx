@@ -39,6 +39,7 @@
 #include "player_instances.h"
 #include "map_data.h"
 #include "map_columns.h"
+#include "map_utils.h"
 #include "room_entrance.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -1694,6 +1695,38 @@ TngUpdateRet object_update_power_lightning(struct Thing *objtng)
 }
 #undef NUM_ANGLES
 
+/**
+ * Finds an empty safe adjacent position on slab.
+ * @param thing The thing which is to be moved.
+  * @param pos The target position pointer.
+ */
+TbBool find_free_position_on_slab(const struct Thing* thing, struct Coord3d* pos)
+{
+    MapSubtlCoord start_stl = ACTION_RANDOM(AROUND_TILES_COUNT);
+    int nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing), 0);
+
+    for (long nround = 0; nround < AROUND_TILES_COUNT; nround++)
+    {
+        MapSubtlCoord x = start_stl % 3 + thing->mappos.x.stl.num;
+        MapSubtlCoord y = start_stl / 3 + thing->mappos.y.stl.num;
+        if (get_floor_filled_subtiles_at(x, y) == 1)
+        {
+            struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
+            if (thing_is_invalid(objtng))
+            {
+                pos->x.val = subtile_coord_center(x);
+                pos->y.val = subtile_coord_center(y);
+                pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
+                    return true;
+                }
+            }
+        }
+        start_stl = (start_stl + 1) % 9;
+    }
+    return false;
+}
+
 TngUpdateRet move_object(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -1705,12 +1738,34 @@ TngUpdateRet move_object(struct Thing *thing)
         if ((!move_allowed) || thing_in_wall_at(thing, &pos))
         {
             long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
-            slide_thing_against_wall_at(thing, &pos, blocked_flags);
-            remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
+            if (blocked_flags & SlbBloF_WalledZ)
+            {
+                if (!find_free_position_on_slab(thing, &pos))
+                {
+                    SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.",pos.x.val,pos.y.val, blocked_flags);
+                    move_creature_to_nearest_valid_position(thing);
+                }
+
+            }
+            else
+            {
+                slide_thing_against_wall_at(thing, &pos, blocked_flags);
+                remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
+            }
+            // GOLD_POT to make a sound when hitting the floor
             if (thing->model == 6)
-              thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
+            {
+                thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
+            }
+            if (thing_in_wall_at(thing, &pos) == 0) //TODO: Improve 'slide_thing_against_wall_at' so it does not return a pos inside a wall
+            {
+                move_thing_in_map(thing, &pos);
+            }
         }
-        move_thing_in_map(thing, &pos);
+        else
+        {
+            move_thing_in_map(thing, &pos);
+        }
     }
     thing->field_60 = get_thing_height_at(thing, &thing->mappos);
     return TUFRet_Modified;

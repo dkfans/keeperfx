@@ -2411,8 +2411,8 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         MapSubtlCoord stl_x = slab_subtile(slb_num_decode_x(i), 0);
         MapSubtlCoord stl_y = slab_subtile(slb_num_decode_y(i), 0);
         // Per room tile code
-        MapSubtlCoord start_stl = ACTION_RANDOM(9);
-        for (long nround = 0; nround < 9; nround++)
+        MapSubtlCoord start_stl = ACTION_RANDOM(AROUND_TILES_COUNT);
+        for (long nround = 0; nround < AROUND_TILES_COUNT; nround++)
         {
             MapSubtlCoord x = start_stl % 3 + stl_x;
             MapSubtlCoord y = start_stl / 3 + stl_y;
