@@ -659,9 +659,9 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
 
 long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
 {
+    struct Camera* cam = player->acamera;
     if (player->view_mode != PVM_FrontView)
     {
-        struct Camera* cam = player->acamera;
         struct Thing* thing = get_player_soul_container(player->id_number);
         long deltax;
         long deltay;
@@ -718,6 +718,13 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         dstcam = &player->cameras[CamIV_FrontView];
         dstcam->mappos.x.val = thing->mappos.x.val + deltax;
         dstcam->mappos.y.val = thing->mappos.y.val + deltay;
+    }
+    else
+    {
+        if ((IsometricStartAngle == 512) || (IsometricStartAngle == 1024) || (IsometricStartAngle == 1536))
+        {
+            cam->orient_a = IsometricStartAngle;
+        }
     }
     if (player->instance_remain_rurns >= 8)
       LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
