@@ -379,20 +379,24 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     if (player->view_mode != PVM_FrontView)
     {
         view_zoom_camera_in(cam, 30000, 6000);
-        // Compute new camera angle
-        long mv_a = (thing->move_angle_xy - cam->orient_a) & LbFPMath_AngleMask;
-        if (mv_a > LbFPMath_PI)
-          mv_a -= 2*LbFPMath_PI;
-        if (mv_a < -LbFPMath_PI/6)
+        long mv_a;
+        if (PossessAffectCamera)
         {
-            mv_a = -LbFPMath_PI/6;
-        } else
-        if (mv_a > LbFPMath_PI/6)
-        {
-            mv_a = LbFPMath_PI/6;
+            // Compute new camera angle
+            mv_a = (thing->move_angle_xy - cam->orient_a) & LbFPMath_AngleMask;
+            if (mv_a > LbFPMath_PI)
+            mv_a -= 2*LbFPMath_PI;
+            if (mv_a < -LbFPMath_PI/6)
+            {
+                mv_a = -LbFPMath_PI/6;
+            } else
+            if (mv_a > LbFPMath_PI/6)
+            {
+                mv_a = LbFPMath_PI/6;
+            }
+            cam->orient_a += mv_a;
+            cam->orient_a &= LbFPMath_AngleMask;
         }
-        cam->orient_a += mv_a;
-        cam->orient_a &= LbFPMath_AngleMask;
         thing = thing_get(player->influenced_thing_idx);
         struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -662,10 +666,43 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         long deltax;
         long deltay;
         unsigned long addval;
+        TbBool south = ((IsometricStartAngle > 512) && (IsometricStartAngle < 1536));
+        TbBool anticlockwise = (south) ? (IsometricStartAngle < 1024) : (IsometricStartAngle >= 1536);
         if (cam != NULL)
         {
+          if (south)
+          {
+              if ((cam->orient_a > 1536) || (cam->orient_a < 512))
+              {
+                cam->orient_a = 1024;
+              }
+          }
           cam->zoom -= (24000 - settings.isometric_view_zoom_level) / 16;
-          cam->orient_a += LbFPMath_PI/64;
+          if ((IsometricStartAngle > 0) && (IsometricStartAngle != 1024))
+          {
+            if (!south)
+            {
+                if (!anticlockwise)
+                {
+                    cam->orient_a += ((LbFPMath_PI/64) << (unsigned char)(IsometricStartAngle > 256));
+                }
+                else
+                {
+                    cam->orient_a -= ((LbFPMath_PI/64) << (unsigned char)(IsometricStartAngle < 1792));
+                }
+            }
+            else
+            {
+                if (!anticlockwise)
+                {
+                    cam->orient_a += LbFPMath_PI/64;
+                }
+                else
+                {
+                    cam->orient_a -= LbFPMath_PI/64;
+                }
+            }
+          }
           addval = (thing->clipbox_size_yz >> 1);
           deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
           deltay = distance_with_angle_to_coord_y((long)thing->mappos.z.val+addval, cam->orient_a);
@@ -694,7 +731,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
     cam->zoom = settings.isometric_view_zoom_level;
-    cam->orient_a = LbFPMath_PI/4;
+    cam->orient_a = IsometricStartAngle;
   }
   light_turn_light_on(player->field_460);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;

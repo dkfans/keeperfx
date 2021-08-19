@@ -49,6 +49,8 @@ unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
+unsigned short IsometricStartAngle = 256;
+TbBool PossessAffectCamera = true;
 
 /**
  * Language 3-char abbreviations.
@@ -118,6 +120,8 @@ const struct NamedCommand conf_commands[] = {
   {"RESIZE_MOVIES",       14},
   {"MUSIC_TRACKS",        15},
   {"WIBBLE",              16},
+  {"ISOMETRIC_START_ANGLE", 17},
+  {"POSSESS_AFFECT_CAMERA", 18},
   {NULL,                   0},
   };
 
@@ -844,6 +848,74 @@ short load_configuration(void)
               features_enabled &= ~Ft_Wibble;
               features_enabled &= ~Ft_LiquidWibble;
           }
+          break;
+        case 17: // ISOMETRIC_START_ANGLE
+         if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          switch(i)
+          {
+            case 0: // North
+            {
+                IsometricStartAngle = 0;
+                break;  
+            }
+            case 1: // North-east
+            {
+                // Value is already initialised; there is no need to write it again.
+                break;  
+            }
+            case 2: // East
+            {
+                IsometricStartAngle = 512;
+                break;  
+            }
+            case 3: // South-east
+            {
+                IsometricStartAngle = 768;
+                break;  
+            }
+            case 4: // South
+            {
+                IsometricStartAngle = 1024;
+                break;  
+            }
+            case 5: // South-west
+            {
+                IsometricStartAngle = 1280;
+                break;  
+            }
+            case 6: // West
+            {
+                IsometricStartAngle = 1536;
+                break;  
+            }
+            case 7: // North-west
+            {
+                IsometricStartAngle = 1792;
+                break;  
+            }
+            default:
+            {
+                CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+                break;
+            }            
+          }
+          break; 
+        case 18: // POSSESS_AFFECT_CAMERA
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              PossessAffectCamera = true;
+          else
+              PossessAffectCamera = false;
           break;
       case 0: // comment
           break;
