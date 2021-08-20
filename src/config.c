@@ -51,6 +51,7 @@ unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
 unsigned short LevelStartAngle = 256;
 TbBool PossessAffectCamera = true;
+int IsometricTilt = -266;
 
 /**
  * Language 3-char abbreviations.
@@ -122,6 +123,7 @@ const struct NamedCommand conf_commands[] = {
   {"WIBBLE",              16},
   {"LEVEL_START_ANGLE",   17},
   {"POSSESS_AFFECT_CAMERA", 18},
+  {"ISOMETRIC_TILT",       19},
   {NULL,                   0},
   };
 
@@ -916,6 +918,13 @@ short load_configuration(void)
               PossessAffectCamera = true;
           else
               PossessAffectCamera = false;
+          break;
+        case 19: // ISOMETRIC_TILT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+              IsometricTilt = i;
           break;
       case 0: // comment
           break;

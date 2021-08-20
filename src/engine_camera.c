@@ -386,7 +386,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 0;
     cam->orient_c = 0;
     cam->field_13 = 188;
-    cam->orient_b = -266;
+    cam->orient_b = IsometricTilt;
     cam->orient_a = LbFPMath_PI/4;
     cam->view_mode = PVM_IsometricView;
     cam->zoom = settings.isometric_view_zoom_level;

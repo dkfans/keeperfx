@@ -489,6 +489,40 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             }
         }
     }
+    else if (strcasecmp(parstr, "camera.tilt") == 0)
+    {
+        player = get_player(plyr_idx);
+        struct Camera* cam = player->acamera;
+        if (cam != NULL)
+        {
+            if (pr2str != NULL)
+            {
+                if (player->view_mode == PVM_IsometricView)
+                {
+                    cam->orient_b = atoi(pr2str);
+                    return true;
+                }
+            }
+            else
+            {
+                message_add_fmt(plyr_idx, "%d", cam->orient_b);
+                return true;
+            }
+        }
+    }
+    else if (strcasecmp(parstr, "camera.tilt.reset") == 0)
+    {
+        player = get_player(plyr_idx);
+        struct Camera* cam = player->acamera;
+        if (cam != NULL)
+        {
+            if (player->view_mode == PVM_IsometricView)
+            {
+                cam->orient_b = IsometricTilt;
+                return true;
+            }
+        }
+    }
     else if ((game.flags_font & FFlg_AlexCheat) != 0)
     {
         if (strcasecmp(parstr, "compuchat") == 0)
