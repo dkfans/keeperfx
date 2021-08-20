@@ -383,6 +383,8 @@ undedkpr
 
 MAPPACKS  = \
 classic \
+deepdngn \
+legacy \
 lostlvls \
 standard
 
