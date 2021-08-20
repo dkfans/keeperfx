@@ -666,8 +666,8 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         long deltax;
         long deltay;
         unsigned long addval;
-        TbBool south = ((IsometricStartAngle > 512) && (IsometricStartAngle < 1536));
-        TbBool anticlockwise = (south) ? (IsometricStartAngle < 1024) : (IsometricStartAngle >= 1536);
+        TbBool south = ((LevelStartAngle > 512) && (LevelStartAngle < 1536));
+        TbBool anticlockwise = (south) ? (LevelStartAngle < 1024) : (LevelStartAngle >= 1536);
         if (cam != NULL)
         {
           if (south)
@@ -678,17 +678,17 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
               }
           }
           cam->zoom -= (24000 - settings.isometric_view_zoom_level) / 16;
-          if ((IsometricStartAngle > 0) && (IsometricStartAngle != 1024))
+          if ((LevelStartAngle > 0) && (LevelStartAngle != 1024))
           {
             if (!south)
             {
                 if (!anticlockwise)
                 {
-                    cam->orient_a += ((LbFPMath_PI/64) << (unsigned char)(IsometricStartAngle > 256));
+                    cam->orient_a += ((LbFPMath_PI/64) << (unsigned char)(LevelStartAngle > 256));
                 }
                 else
                 {
-                    cam->orient_a -= ((LbFPMath_PI/64) << (unsigned char)(IsometricStartAngle < 1792));
+                    cam->orient_a -= ((LbFPMath_PI/64) << (unsigned char)(LevelStartAngle < 1792));
                 }
             }
             else
@@ -721,9 +721,9 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     }
     else
     {
-        if ((IsometricStartAngle == 512) || (IsometricStartAngle == 1024) || (IsometricStartAngle == 1536))
+        if ((LevelStartAngle == 512) || (LevelStartAngle == 1024) || (LevelStartAngle == 1536))
         {
-            cam->orient_a = IsometricStartAngle;
+            cam->orient_a = LevelStartAngle;
         }
     }
     if (player->instance_remain_rurns >= 8)
@@ -738,7 +738,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
     cam->zoom = settings.isometric_view_zoom_level;
-    cam->orient_a = IsometricStartAngle;
+    cam->orient_a = LevelStartAngle;
   }
   light_turn_light_on(player->field_460);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
