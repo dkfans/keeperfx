@@ -555,6 +555,11 @@ struct ExpandRooms {
     short max_slabs;
 };
 
+struct MoveToBestJob {
+    CreatureJob job_kind;
+    long priority;
+};
+
 /******************************************************************************/
 
 #pragma pack()
@@ -583,6 +588,8 @@ extern Comp_EvntTest_Func computer_event_test_func_list[];
 
 extern const struct NamedCommand computer_check_func_type[];
 extern Comp_Check_Func computer_check_func_list[];
+extern struct MoveToBestJob move_to_best_job[];
+
 /******************************************************************************/
 struct Computer2 *get_computer_player_f(long plyr_idx,const char *func_name);
 #define get_computer_player(plyr_idx) get_computer_player_f(plyr_idx,__func__)

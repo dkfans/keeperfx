@@ -304,6 +304,7 @@ struct DungeonAdd
     struct Coord3d        last_combat_location;
     int                   creature_awarded[CREATURE_TYPES_COUNT];
     struct RoomSpace      roomspace;
+    struct MoveToBestJob  creature_assigment[7]; //todo replace magic number 7
     unsigned char         creature_entrance_level;
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;

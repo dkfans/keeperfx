@@ -68,11 +68,6 @@ struct TrapDoorSelling {
     long model;
 };
 
-struct MoveToBestJob {
-    CreatureJob job_kind;
-    long priority;
-};
-
 struct MyLookup {
     long delta_x;
     long delta_y;
@@ -152,15 +147,6 @@ const struct TrapDoorSelling trapdoor_sell[] = {
     {TDSC_EndList,    0},
 };
 
-const struct MoveToBestJob move_to_best_job[] = {
-    {Job_TRAIN,       60},
-    {Job_RESEARCH,    45},
-    {Job_MANUFACTURE, 28},
-    {Job_SCAVENGE,    20},
-    {Job_GUARD,        2},
-    {Job_BARRACK,      1},
-    {Job_NULL,         0},
-};
 
 const struct MyLookup lookup[] = {
     { 0, -3},

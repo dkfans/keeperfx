@@ -80,6 +80,16 @@ char const move_creature_to_train_text[] = "MOVE CREATURE TO TRAINING";
 char const move_creature_to_best_text[] = "MOVE CREATURE TO BEST ROOM";
 char const computer_check_hates_text[] = "COMPUTER CHECK HATES";
 
+struct MoveToBestJob move_to_best_job[] = {
+    {Job_TRAIN,       60},
+    {Job_RESEARCH,    45},
+    {Job_MANUFACTURE, 28},
+    {Job_SCAVENGE,    20},
+    {Job_GUARD,        2},
+    {Job_BARRACK,      1},
+    {Job_NULL,         0},
+};
+
 /******************************************************************************/
 DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
 DLLIMPORT long _DK_computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
