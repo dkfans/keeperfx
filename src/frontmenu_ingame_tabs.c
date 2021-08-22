@@ -2266,9 +2266,7 @@ void update_powers_tab_to_config(void)
 
 void draw_placefiller(long scr_x, long scr_y, long units_per_px)
 {
-    unsigned int flg_mem = lbDisplay.DrawFlags;
     struct TbSprite* spr = &gui_panel_sprites[517];
     LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
-    lbDisplay.DrawFlags = flg_mem;
 }
 /******************************************************************************/
