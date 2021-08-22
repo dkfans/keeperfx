@@ -65,6 +65,7 @@ void frontend_draw_large_menu_button(struct GuiButton *gbtn);
 void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn);
 void frontend_draw_scroll_box_tab(struct GuiButton *gbtn);
 void frontend_draw_scroll_box(struct GuiButton *gbtn);
+void gui_draw_placefiller(struct GuiButton *gbtn);
 
 void reset_scroll_window(struct GuiMenu *gmnu);
 void clear_radio_buttons(struct GuiMenu *gmnu);

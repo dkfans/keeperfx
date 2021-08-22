@@ -148,6 +148,7 @@ struct GuiButtonInit main_menu_buttons[] = {
   {LbBtnT_NormalBtn,   BID_MSG_EV12, 0, 0,       gui_open_event, gui_kill_event,  NULL,               0, 138,  30, 138,  30, 24, 30, gui_area_event_button,             0, GUIStr_Empty,               0,      {11},            0, maintain_event_button },
   {LbBtnT_NormalBtn,   BID_MSG_EV13, 0, 0,       gui_open_event, gui_kill_event,  NULL,               0, 138,   0, 138,   0, 24, 30, gui_area_event_button,             0, GUIStr_Empty,               0,      {12},            0, maintain_event_button },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0,                 NULL,           NULL,  NULL,               0,  22, 122,  22, 122, 94, 40, NULL,                              0, GUIStr_TeamMoneyAvailable,  0,       {0},            0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0,                 NULL,           NULL,  NULL,             517,   0, 400, 138, 400, 140,80,  gui_draw_placefiller,         517, GUIStr_Empty,               0,       {0},            0, NULL },
   {              -1,    BID_DEFAULT, 0, 0,                 NULL,           NULL,  NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                        0,       {0},            0, NULL },
 };
 
@@ -305,6 +306,7 @@ struct GuiButtonInit creature_query_buttons1[] = {
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  72, 318,  72, 318, 60, 24, gui_area_instance_button,          0, GUIStr_Empty,            0,       {3},               0, maintain_instance },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_instance_button,          0, GUIStr_Empty,            0,       {4},               0, maintain_instance },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, gui_area_instance_button,          0, GUIStr_Empty,            0,       {5},               0, maintain_instance },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0,                 NULL,           NULL,  NULL,             517,   0, 400, 138, 400, 140,80,  gui_draw_placefiller,         517, GUIStr_Empty,               0,       {0},            0, NULL },
   {              -1,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},               0, NULL },
 };
 
@@ -319,6 +321,7 @@ struct GuiButtonInit creature_query_buttons2[] = {
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  72, 318,  72, 318, 60, 24, gui_area_instance_button,          0, GUIStr_Empty,            0,       {7},               0, maintain_instance },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_instance_button,          0, GUIStr_Empty,            0,       {8},               0, maintain_instance },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 1, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, gui_area_instance_button,          0, GUIStr_Empty,            0,       {9},               0, maintain_instance },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0,                 NULL,           NULL,  NULL,             517,   0, 400, 138, 400, 140,80,  gui_draw_placefiller,         517, GUIStr_Empty,               0,       {0},            0, NULL },
   {              -1,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},               0, NULL },
 };
 
@@ -334,6 +337,7 @@ struct GuiButtonInit creature_query_buttons3[] = {
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  72, 316,  72, 316, 60, 24, gui_area_stat_button,            333, GUIStr_CreatureGoldHeldDesc,   0,       {CrLStat_GoldHeld}, 0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_stat_button,            336, GUIStr_CreatureTimeInDungeonDesc,0,      {CrLStat_AgeTime}, 0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, gui_area_stat_button,            331, GUIStr_CreatureKillsDesc,      0,          {CrLStat_Kills}, 0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0,                 NULL,           NULL,  NULL,             517,   0, 400, 138, 400, 140,80,  gui_draw_placefiller,         517, GUIStr_Empty,               0,       {0},            0, NULL },
   {              -1,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                           0,                      {0}, 0, NULL },
 };
 
@@ -349,6 +353,7 @@ struct GuiButtonInit creature_query_buttons4[] = {
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  72, 316,  72, 316, 60, 24, gui_area_stat_button,            516, GUIStr_CreatureScavngCostDesc,  0,   {CrLStat_ScavengeCost}, 0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_stat_button,            152, GUIStr_CreatureWeightDesc,      0,         {CrLStat_Weight}, 0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  72, 346,  72, 346, 60, 24, gui_area_stat_button,            340, GUIStr_CreatureBloodTypeDesc,   0,      {CrLStat_BloodType}, 0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0,                 NULL,           NULL,  NULL,             517,   0, 400, 138, 400, 140,80,  gui_draw_placefiller,         517, GUIStr_Empty,               0,       {0},            0, NULL },
   {              -1,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                            0,                      {0}, 0, NULL },
 };
 
