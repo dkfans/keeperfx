@@ -1067,16 +1067,6 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
     SYNCDBG(12,"Finished");
 }
 
-void gui_draw_placefiller(struct GuiButton *gbtn)
-{
-    if (LbScreenHeight() % 480 == 0)
-    {
-        int i = gbtn->sprite_idx;
-        int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, i, 100);
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i);
-    }
-}
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -2135,6 +2135,10 @@ void draw_whole_status_panel(void)
     pannel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, mm_units_per_px, mmzoom);
     long basic_zoom = player->minimap_zoom;
     pannel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
+    if (LbScreenHeight() % 480 == 0)
+    {
+        draw_placefiller(0, gmnu->pos_y + gmnu->height, bs_units_per_px);
+    }
 }
 
 void gui_set_button_flashing(long btn_idx, long gameturns)
@@ -2258,5 +2262,13 @@ void update_powers_tab_to_config(void)
         ibtn->draw_call = gui_area_spell_button;
         ibtn->maintain_call = maintain_spell;
     }
+}
+
+void draw_placefiller(long scr_x, long scr_y, long units_per_px)
+{
+    unsigned int flg_mem = lbDisplay.DrawFlags;
+    struct TbSprite* spr = &gui_panel_sprites[517];
+    LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
+    lbDisplay.DrawFlags = flg_mem;
 }
 /******************************************************************************/
