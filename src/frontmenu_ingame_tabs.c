@@ -2135,7 +2135,7 @@ void draw_whole_status_panel(void)
     pannel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, mm_units_per_px, mmzoom);
     long basic_zoom = player->minimap_zoom;
     pannel_map_draw_overlay_things(mm_units_per_px, mmzoom, basic_zoom);
-    if (LbScreenHeight() % 480 == 0)
+    if (LbScreenHeight() - gmnu->height >= 80)
     {
         draw_placefiller(0, gmnu->pos_y + gmnu->height, bs_units_per_px);
     }
