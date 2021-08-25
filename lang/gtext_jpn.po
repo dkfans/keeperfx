@@ -5499,6 +5499,7 @@ msgstr "インプはお前のダンジョンの命の源なり。それは血の
 "い。"
 
 #: guitext:830
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
@@ -5506,6 +5507,7 @@ msgid ""
 msgstr ""
 
 #: guitext:831
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
@@ -5513,6 +5515,7 @@ msgid ""
 msgstr ""
 
 #: guitext:832
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
@@ -5520,6 +5523,7 @@ msgid ""
 msgstr ""
 
 #: guitext:833
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
@@ -5527,6 +5531,7 @@ msgid ""
 msgstr ""
 
 #: guitext:834
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
@@ -5534,6 +5539,7 @@ msgid ""
 msgstr ""
 
 #: guitext:835
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
@@ -5541,6 +5547,7 @@ msgid ""
 msgstr ""
 
 #: guitext:836
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Keep your Imps digging. There are always surprises to be found deep in the "
@@ -5548,16 +5555,19 @@ msgid ""
 msgstr ""
 
 #: guitext:837
+#, fuzzy
 msgctxt "In-game hint message"
 msgid "He who controls the most gold controls the entire Underworld."
 msgstr ""
 
 #: guitext:838
+#, fuzzy
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
 msgstr ""
 
 #: guitext:839
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Foolish is the Keeper who sells all his rooms and refuses to pay his "
