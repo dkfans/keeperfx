@@ -3703,12 +3703,20 @@ static void create_effect_process(struct ScriptContext *context)
     pos.x.stl.num = (MapSubtlCoord)context->value->bytes[1];
     pos.y.stl.num = (MapSubtlCoord)context->value->bytes[2];
     pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    TbBool Price = (context->value->bytes[0] == -41);
+    TbBool Price = (context->value->bytes[0] == -(TngEffElem_Price));
     if (Price)
     {
         pos.z.val += 128;
     }
-    struct Thing* efftng = (context->value->bytes[0] >= 0) ? create_effect(&pos, context->value->bytes[0], game.neutral_player_num) : create_effect_element(&pos, ~(context->value->bytes[0]) + 1, game.neutral_player_num);
+    struct Thing* efftng;
+    if (context->value->bytes[0] >= 0)
+    {
+        efftng = create_effect(&pos, context->value->bytes[0], game.neutral_player_num);
+    }
+    else
+    {
+        efftng = create_effect_element(&pos, ~(context->value->bytes[0]) + 1, game.neutral_player_num);
+    }
     if (!thing_is_invalid(efftng))
     {
         if (thing_in_wall_at(efftng, &efftng->mappos))
