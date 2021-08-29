@@ -293,7 +293,7 @@ char field_14EA4B;
     unsigned short torture_health_loss;
     unsigned short turns_per_torture_health_loss;
     unsigned char ghost_convert_chance;
-    struct LevelScript script;
+    struct LevelScriptOld script;
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
     long frame_skip;
