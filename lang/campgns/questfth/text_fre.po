@@ -1903,13 +1903,15 @@ msgid ""
 "tasks really quickly."
 msgstr "Accélération: [26.20]"
 
-#: guitext:237 guitext:253
-#, fuzzy
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
-msgstr "Nuage empoisonné: [26.17]"
+msgstr ""
+"Nuage empoisonné: Forme un nuage de gaz nocif capable d'endommager à la fois "
+"l'ennemi et vos propres créatures. Le gaz affecte tous ceux qui le "
+"respirent[26.17]"
 
 #: guitext:238
 msgctxt "Creature spell"
@@ -2023,6 +2025,14 @@ msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
 msgstr "Combat rapproché: [25.3]"
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+"Flatulence: Une attaque de type gas à courte distance qui "
+"n'endommage que les creatures ennemies"
 
 #: guitext:254
 #, fuzzy

@@ -37,7 +37,7 @@ DLLIMPORT short _DK_td_iso[TD_ISO_POINTS];
 DLLIMPORT short _DK_iso_td[TD_ISO_POINTS];
 #define iso_td _DK_iso_td
 unsigned short floor_to_ceiling_map[FLOOR_TO_CEILING_MAP_LEN];
-
+struct WibbleTable blank_wibble_table[128];
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -1066,38 +1066,45 @@ unsigned short wibble_random(unsigned short range, unsigned short *seed)
 void generate_wibble_table(void)
 {
     struct WibbleTable *wibl;
+    struct WibbleTable *empty_wibl;
     struct WibbleTable *qwibl;
     unsigned short seed;
     int i;
     int n;
-    // Clear the whole wibble table
+    // Clear the whole wibble table and create an empty wibble table
     for (n=0; n < 4; n++)
     {
         wibl = &wibble_table[32*n];
+        empty_wibl = &blank_wibble_table[32*n];
         for (i=0; i < 32; i++)
         {
             LbMemorySet(wibl, 0, sizeof(struct WibbleTable));
             wibl++;
+            LbMemorySet(empty_wibl, 0, sizeof(struct WibbleTable));
+            empty_wibl++;
         }
     }
-    // Set wibble values using special random algorithm
-    seed = 0;
-    for (i=0; i < 32; i++)
+    if (wibble_enabled() || liquid_wibble_enabled())
     {
-        wibl = &wibble_table[i+32];
-        n = wibble_random(65447,&seed);
-        wibl->field_0 = (n % 127) - 63;
-        n = wibble_random(65447,&seed);
-        wibl->field_4 = ((n % 127) - 63) / 3;
-        n = wibble_random(65447,&seed);
-        wibl->field_8 = (n % 127) - 63;
-        qwibl = &wibble_table[i+64];
-        n = wibble_random(65447,&seed);
-        wibl->field_C = (n % 2047) - 1023;
-        n = wibble_random(65447,&seed);
-        qwibl->field_0 = (n % 127) - 63;
-        n = wibble_random(65447,&seed);
-        qwibl->field_8 = (n % 127) - 63;
+        // Set wibble values using special random algorithm
+        seed = 0;
+        for (i=0; i < 32; i++)
+        {
+            wibl = &wibble_table[i+32];
+            n = wibble_random(65447,&seed);
+            wibl->field_0 = (n % 127) - 63;
+            n = wibble_random(65447,&seed);
+            wibl->field_4 = ((n % 127) - 63) / 3;
+            n = wibble_random(65447,&seed);
+            wibl->field_8 = (n % 127) - 63;
+            qwibl = &wibble_table[i+64];
+            n = wibble_random(65447,&seed);
+            wibl->field_C = (n % 2047) - 1023;
+            n = wibble_random(65447,&seed);
+            qwibl->field_0 = (n % 127) - 63;
+            n = wibble_random(65447,&seed);
+            qwibl->field_8 = (n % 127) - 63;
+        }
     }
 }
 

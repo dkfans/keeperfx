@@ -3004,7 +3004,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
             {
             case TDSC_DoorCrate:
                 model = tdsell->model;
-                if ((model <= 0) || (model >= trapdoor_conf.door_types_count)) {
+                if ((model <= 0) || (model >= gameadd.trapdoor_conf.door_types_count)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3017,14 +3017,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         item_sold = true;
-                        value = gameadd.doors_config[model].selling_value;
+                        value = compute_value_percentage(gameadd.doors_config[model].selling_value,gameadd.door_sale_percent);
                         SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
-                        value = gameadd.doors_config[model].selling_value;
+                        value = compute_value_percentage(gameadd.doors_config[model].selling_value, gameadd.door_sale_percent);
                         SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3036,7 +3036,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 break;
             case TDSC_TrapCrate:
                 model = tdsell->model;
-                if ((model <= 0) || (model >= trapdoor_conf.trap_types_count)) {
+                if ((model <= 0) || (model >= gameadd.trapdoor_conf.trap_types_count)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3049,14 +3049,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
-                        value = gameadd.traps_config[model].selling_value;
+                        value = compute_value_percentage(gameadd.traps_config[model].selling_value, gameadd.trap_sale_percent);
                         SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
-                        value = gameadd.traps_config[model].selling_value;
+                        value = compute_value_percentage(gameadd.traps_config[model].selling_value, gameadd.trap_sale_percent);
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3070,7 +3070,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 if (!ctask->sell_traps_doors.allow_deployed)
                     break;
                 model = tdsell->model;
-                if ((model <= 0) || (model >= trapdoor_conf.door_types_count)) {
+                if ((model <= 0) || (model >= gameadd.trapdoor_conf.door_types_count)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3083,7 +3083,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
-                        value = gameadd.doors_config[model].selling_value;
+                        value = compute_value_percentage(gameadd.doors_config[model].selling_value, gameadd.door_sale_percent);
                         destroy_door(doortng);
                         if (is_my_player_number(dungeon->owner))
                             play_non_3d_sample(115);
@@ -3106,7 +3106,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 if (!ctask->sell_traps_doors.allow_deployed)
                     break;
                 model = tdsell->model;
-                if ((model <= 0) || (model >= trapdoor_conf.trap_types_count)) {
+                if ((model <= 0) || (model >= gameadd.trapdoor_conf.trap_types_count)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }

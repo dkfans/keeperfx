@@ -65,6 +65,7 @@ extern short iso_td_add[KEEPERSPRITE_ADD_NUM];
 extern short td_iso_add[KEEPERSPRITE_ADD_NUM];
 /******************************************************************************/
 extern unsigned short floor_to_ceiling_map[FLOOR_TO_CEILING_MAP_LEN];
+extern struct WibbleTable blank_wibble_table[128];
 /******************************************************************************/
 short convert_td_iso(short n);
 short straight_td_iso(short n);

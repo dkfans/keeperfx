@@ -286,13 +286,14 @@ void query_thing(struct Thing *thing)
         const char health[24];
         const char position[24];
         const char amount[24] = "\0";
-        sprintf(title, "Thing ID: %d", querytng->index);
-        sprintf(owner, "Owner: %d", querytng->owner);
-        sprintf(position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
+        char output[36];
+        sprintf((char*)title, "Thing ID: %d", querytng->index);
+        sprintf((char*)owner, "Owner: %d", querytng->owner);
+        sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
             struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
-            sprintf(health, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf(output, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
         }
         else
         {
@@ -300,23 +301,23 @@ void query_thing(struct Thing *thing)
             {
                 if (object_is_gold(querytng))
                 {
-                    sprintf(amount, "Amount: %d", querytng->valuable.gold_stored);   
+                    sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
             }  
-            sprintf(health, "Health: %d", querytng->health);
+            sprintf((char*)health, "Health: %d", querytng->health);
             if (querytng->class_id == TCls_Door)
             {
-                sprintf(health, "%s/%d", health, door_stats[querytng->model][0].health);
+                sprintf(output, "%s/%ld", health, door_stats[querytng->model][0].health);
             }
             else if (querytng->class_id == TCls_Object)
             {
                 if (querytng->model == 5)
                 {
-                    sprintf(health, "%s/%d", health, game.dungeon_heart_health);
+                    sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
                 }
             }
         }
-        create_message_box(&title, name, &owner, &health, &position, &amount);
+        create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&position, (const char*)&amount);
     }
 }
 /******************************************************************************/

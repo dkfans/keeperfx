@@ -1,23 +1,17 @@
-
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <winbase.h>
-#include <math.h>
-#include <string>
+
 #include "keeperfx.hpp"
 
 #include "bflib_math.h"
 #include "bflib_memory.h"
-#include "bflib_heapmgr.h"
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
-#include "bflib_bufrw.h"
-#include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_sndlib.h"
-#include "bflib_fmvids.h"
 #include "bflib_cpu.h"
 #include "bflib_crash.h"
 #include "bflib_video.h"
@@ -124,6 +118,7 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "room_list.h"
+#include "game_loop.h"
 
 #include "music_player.h"
 
@@ -190,127 +185,6 @@ void setup_stuff(void)
     setup_texture_block_mem();
     init_fades_table();
     init_alpha_table();
-}
-
-void powerful_magic_breaking_sparks(struct Thing *breaktng)
-{
-    struct Coord3d pos;
-    pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + ACTION_RANDOM(11) - 5);
-    pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + ACTION_RANDOM(11) - 5);
-    pos.z.val = get_floor_height_at(&pos);
-    draw_lightning(&breaktng->mappos, &pos, 96, 60);
-    if ( !S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0) ) {
-        thing_play_sample(breaktng, 157, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
-    }
-}
-
-void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
-{
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(plyr_idx);
-    if (dungeon->devastation_turn == 0)
-    {
-        struct Thing *heartng;
-        heartng = get_player_soul_container(plyr_idx);
-        if (thing_exists(heartng)) {
-            dungeon->devastation_turn = 1;
-            dungeon->devastation_centr_x = heartng->mappos.x.stl.num;
-            dungeon->devastation_centr_y = heartng->mappos.y.stl.num;
-        } else {
-            dungeon->devastation_turn = 1;
-            dungeon->devastation_centr_x = map_subtiles_x/2;
-            dungeon->devastation_centr_y = map_subtiles_y/2;
-        }
-    }
-}
-
-void process_dungeon_destroy(struct Thing *heartng)
-{
-    struct Dungeon *dungeon;
-    long plyr_idx;
-    plyr_idx = heartng->owner;
-    //_DK_process_dungeon_destroy(heartng); return;
-    dungeon = get_dungeon(plyr_idx);
-    if (dungeon->heart_destroy_state == 0) {
-        return;
-    }
-    powerful_magic_breaking_sparks(heartng);
-    const struct Coord3d *central_pos;
-    central_pos = &heartng->mappos;
-    switch ( dungeon->heart_destroy_state )
-    {
-    case 1:
-        initialise_devastate_dungeon_from_heart(plyr_idx);
-        dungeon->heart_destroy_turn++;
-        if (dungeon->heart_destroy_turn < 32)
-        {
-            if ( ACTION_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32 ) {
-                create_effect(central_pos, TngEff_HearthCollapse, plyr_idx);
-            }
-        } else
-        { // Got to next phase
-            dungeon->heart_destroy_state = 2;
-            dungeon->heart_destroy_turn = 0;
-        }
-        break;
-    case 2:
-        dungeon->heart_destroy_turn++;
-        if (dungeon->heart_destroy_turn < 32)
-        {
-            create_effect(central_pos, TngEff_HearthCollapse, plyr_idx);
-        } else
-        { // Got to next phase
-            dungeon->heart_destroy_state = 3;
-            dungeon->heart_destroy_turn = 0;
-        }
-        break;
-    case 3:
-        // Drop all held things, by keeper
-        if ((dungeon->num_things_in_hand > 0) && ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
-        {
-            dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
-        }
-        // Drop all held things, by computer player
-        struct Computer2 *comp;
-        comp = get_computer_player(plyr_idx);
-        computer_force_dump_held_things_on_map(comp, central_pos);
-        // Now if players things are still in hand - they must be kept by enemies
-        // Got to next phase
-        dungeon->heart_destroy_state = 4;
-        dungeon->heart_destroy_turn = 0;
-        break;
-    case 4:
-        // Final phase - destroy the heart, both pedestal room and container thing
-        {
-            struct Thing *efftng;
-            efftng = create_effect(central_pos, TngEff_Unknown04, plyr_idx);
-            if (!thing_is_invalid(efftng))
-              efftng->byte_16 = 8;
-            efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
-            if (!thing_is_invalid(efftng))
-                efftng->byte_16 = 8;
-            destroy_dungeon_heart_room(plyr_idx, heartng);
-            delete_thing_structure(heartng, 0);
-        }
-        { // If there is another heart owned by this player, set it to "working" heart
-            struct PlayerInfo *player;
-            player = get_player(plyr_idx);
-            init_player_start(player, true);
-            if (player_has_heart(plyr_idx))
-            {
-                // If another heart was found, stop the process
-                dungeon->devastation_turn = 0;
-            } else
-            {
-                // If this is the last heart the player had, finish him
-                setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
-                player->allied_players = (1 << player->id_number);
-            }
-        }
-        dungeon->heart_destroy_state = 0;
-        dungeon->heart_destroy_turn = 0;
-        break;
-    }
 }
 
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
@@ -400,7 +274,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
         pos.y.val = thing->mappos.y.val - (delta_y >> 8);
         pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, 45, thing->owner); // Heal
+        create_effect_element(&pos, TngEffElm_Heal, thing->owner); // Heal
     }
 }
 
@@ -410,7 +284,7 @@ unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
     return get_2d_box_distance(&player->acamera->mappos, pos) < subtile_coord(45,0);
 }
 
-TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
+static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
 {
     SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     if (thing->index == param->num2) {
@@ -667,7 +541,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
                 if ((tngpos.x.val < subtile_coord(map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(map_subtiles_y,0)))
                 {
                     struct Thing *eelemtng;
-                    eelemtng = create_thing(&tngpos, TCls_EffectElem, 9, game.neutral_player_num, -1);
+                    eelemtng = create_thing(&tngpos, TCls_EffectElem, TngEffElm_BallOfLight, game.neutral_player_num, -1);
                     if (!thing_is_invalid(eelemtng)) {
                         eelemtng->sprite_size = sprsize >> 8;
                     }
@@ -1030,7 +904,7 @@ short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
   short result;
-
+  OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
   SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
@@ -1039,10 +913,18 @@ short setup_game(void)
   if (cpu_info.BrandString)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
+  }
+  v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+  if (GetVersionEx(&v))
+  {
+      SYNCMSG("Operating System: %s %ld.%ld.%ld", (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows", v.dwMajorVersion,v.dwMinorVersion,v.dwBuildNumber);
   }  
   update_memory_constraits();
   // Enable features that require more resources
   update_features(mem_size);
+
+  features_enabled |= Ft_Wibble; // enable wibble by default
+  features_enabled |= Ft_LiquidWibble; // enable liquid wibble by default
 
   // Configuration file
   if ( !load_configuration() )
@@ -1228,7 +1110,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
     i = player->work_state;
     if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) )
         return true;
-    if ( (i == PSt_CtrlDungeon) && (player->field_454 != P454_Unkn0) && (player->thing_under_hand == 0) )
+    if ( (i == PSt_CtrlDungeon) && (player->primary_cursor_state != CSt_DefaultArrow) && (player->thing_under_hand == 0) )
         return true;
     return false;
 }
@@ -1400,8 +1282,6 @@ void reset_gui_based_on_player_mode(void)
             turn_on_menu(GMnu_ROOM);
         }
     }
-    settings.video_cluedo_mode = player->video_cluedo_mode;
-    copy_settings_to_dk_settings();
     set_gui_visible(true);
 }
 
@@ -1541,7 +1421,7 @@ void reinit_level_after_load(void)
     SYNCDBG(6,"Starting");
     // Reinit structures from within the game
     player = get_my_player();
-    player->field_7 = 0;
+    player->lens_palette = 0;
     init_lookups();
     init_navigation();
     reinit_packets_after_load();
@@ -1788,6 +1668,7 @@ void clear_game(void)
     clear_things_and_persons_data();
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
+    init_thing_objects();
 }
 
 void clear_game_for_save(void)
@@ -1866,21 +1747,20 @@ void change_engine_window_relative_size(long w_delta, long h_delta)
 
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
 {
-    //Todo: Figure out statement below. Used to be blue_palette like 'pinstfe_control_creature_fade'.
-    if (pal == red_palette)
+    if (pal == blue_palette) // if the requested palette is the Freeze palette
     {
-      if ((player->field_3 & Pf3F_Unkn04) == 0)
-        return;
-      player->field_3 |= Pf3F_Unkn04;
+      if ((player->additional_flags & PlaAF_FreezePaletteIsActive) != 0)
+        return; // Freeze palette is already on
+      player->additional_flags |= PlaAF_FreezePaletteIsActive; // flag Freeze palette is active
     } else
     {
-      player->field_3 &= ~Pf3F_Unkn04;
+      player->additional_flags &= ~PlaAF_FreezePaletteIsActive; // flag Freeze palette is not active
     }
-    if ( (player->field_7 == 0) || ((pal != player->palette) && (pal == player->field_7)) )
+    if ( (player->lens_palette == 0) || ((pal != player->main_palette) && (pal == player->lens_palette)) )
     {
-        player->palette = pal;
-        player->field_4C1 = 0;
-        player->field_4C5 = 0;
+        player->main_palette = pal;
+        player->palette_fade_step_pain = 0;
+        player->palette_fade_step_possession = 0;
         if (is_my_player(player))
         {
             LbScreenWaitVbi();
@@ -2341,11 +2221,11 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
       pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
       pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
       pos.z.val = get_floor_height_at(&pos);
-      create_effect_element(&pos, TngEff_Unknown10, plyr_idx);
+      create_effect_element(&pos, TngEffElm_RedFlameBig, plyr_idx);
     }
 }
 
-void process_dungeon_devastation_effects(void)
+static void process_dungeon_devastation_effects(void)
 {
     SYNCDBG(8,"Starting");
     //_DK_process_dungeon_devastation_effects(); return;
@@ -2533,7 +2413,7 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
     struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     _DK_update_player_camera_fp(cam, thing);
 }
 
@@ -2629,36 +2509,6 @@ void update_player_camera(struct PlayerInfo *player)
     if (dungeon->camera_deviate_jump > 0) {
         dungeon->camera_deviate_jump -= 32;
     }
-}
-
-void update_research(void)
-{
-  int i;
-  struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
-      {
-          process_player_research(i);
-      }
-  }
-}
-
-void update_manufacturing(void)
-{
-  int i;
-  struct PlayerInfo *player;
-  SYNCDBG(16,"Starting");
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
-      {
-          process_player_manufacturing(i);
-      }
-  }
 }
 
 void update_all_players_cameras(void)
@@ -2822,32 +2672,6 @@ void update_footsteps_nearest_camera(struct Camera *cam)
     timeslice = (timeslice + 1) % 4;
 }
 
-void add_creature_to_pool(long kind, long amount, unsigned long a3)
-{
-    long prev_amount;
-    kind %= CREATURE_TYPES_COUNT;
-    prev_amount = game.pool.crtr_kind[kind];
-    if ((a3 == 0) || (prev_amount != -1))
-    {
-        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
-            game.pool.crtr_kind[kind] = prev_amount + amount;
-        else
-            game.pool.crtr_kind[kind] = amount;
-    }
-}
-
-short update_creature_pool_state(void)
-{
-  int i;
-  game.pool.is_empty = true;
-  for (i=1; i < CREATURE_TYPES_COUNT; i++)
-  {
-      if (game.pool.crtr_kind[i] > 0)
-      { game.pool.is_empty = false; break; }
-  }
-  return true;
-}
-
 int clear_active_dungeons_stats(void)
 {
   struct Dungeon *dungeon;
@@ -2931,7 +2755,7 @@ long update_cave_in(struct Thing *thing)
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
-            efftng = create_effect_element(&pos, TngEff_Unknown48, owner);
+            efftng = create_effect_element(&pos, TngEff_Flash, owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->health = pwrdynst->time;
             }
@@ -2947,7 +2771,7 @@ long update_cave_in(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + ACTION_RANDOM(128);
         pos.y.val = thing->mappos.y.val + ACTION_RANDOM(128);
         pos.z.val = get_floor_height_at(&pos) + 384;
-        create_effect(&pos, TngEff_Unknown31, owner);
+        create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
 
     if ((turns_alive % game.turns_per_collapse_dngn_dmg) == 0)
@@ -3026,10 +2850,10 @@ void update(void)
     if ((game.operation_flags & GOF_Paused) == 0)
     {
         player = get_my_player();
-        if (player->field_3 & Pf3F_Unkn08)
+        if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
-            set_flag_byte(&player->field_3,0x08,false);
+            set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
@@ -3100,16 +2924,51 @@ struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long ply
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4)
+void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
 {
-  SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
-  _DK_tag_cursor_blocks_dig(plyr_idx, stl_x, stl_y, a4);
+    SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
+    //_DK_tag_cursor_blocks_dig(plyr_idx, stl_x, stl_y, full_slab);
+    struct PlayerInfo* player = get_player(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Packet* pckt = get_packet_direct(player->packet_num);
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
+    TbBool allowed = false;
+    if (render_roomspace.slab_count > 0 && full_slab) // if roomspace is not empty
+    {
+        allowed = true;
+    }
+    else if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false)) // else if not using roomspace, is current slab diggable
+    {
+        allowed = true;
+    }
+    else if ((dungeonadd->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0))
+    {
+        allowed = true;
+    }
+    unsigned char line_color = allowed;
+    if (render_roomspace.untag_mode && allowed)
+    {
+        line_color = SLC_YELLOW;
+    }
+    if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+    {
+        map_volume_box.visible = 1;
+        map_volume_box.color = line_color;
+        map_volume_box.beg_x = (!full_slab ? (subtile_coord(stl_x, 0)) : subtile_coord(((render_roomspace.centreX - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * STL_PER_SLB), 0));
+        map_volume_box.beg_y = (!full_slab ? (subtile_coord(stl_y, 0)) : subtile_coord(((render_roomspace.centreY - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * STL_PER_SLB), 0));
+        map_volume_box.end_x = (!full_slab ? (subtile_coord(stl_x + 1, 0)) : subtile_coord((((render_roomspace.centreX + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) + 1) * STL_PER_SLB), 0));
+        map_volume_box.end_y = (!full_slab ? (subtile_coord(stl_y + 1, 0)) : subtile_coord((((render_roomspace.centreY + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) + 1) * STL_PER_SLB), 0));
+        map_volume_box.floor_height_z = floor_height_z;
+        render_roomspace.is_roomspace_a_single_subtile = !full_slab;
+    }
 }
 
-void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5)
+void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int is_special_digger, long full_slab)
 {
   SYNCDBG(7,"Starting");
-  _DK_tag_cursor_blocks_thing_in_hand(a1, a2, a3, a4, a5);
+  _DK_tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_special_digger, full_slab);
 }
 
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
@@ -3749,24 +3608,24 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
-TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4, TbBool single_subtile)
+TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
 {
     SYNCDBG(7,"Starting");
-    // _DK_tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, a4);
+    // _DK_tag_cursor_blocks_sell_area(plyr_idx, stl_x, stl_y, full_slab);
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     TbBool allowed = false;
-    if (render_roomspace.slab_count > 1)
+    if (render_roomspace.slab_count > 0 && full_slab)
     {
         allowed = true; // roomspace selling support is basic, this makes roomspace selling work over any slabtype
     }
     else if (floor_height_z == 1)
     {
         if ( ( ((subtile_is_sellable_room(plyr_idx, stl_x, stl_y)) || ( (slabmap_owner(slb) == plyr_idx) && ( (slab_is_door(slb_x, slb_y))
-            || (single_subtile ? (subtile_has_trap_on(stl_x, stl_y)) : (slab_has_trap_on(slb_x, slb_y))) ) ) ) )
+            || ((!full_slab) ? (subtile_has_trap_on(stl_x, stl_y)) : (slab_has_trap_on(slb_x, slb_y))) ) ) ) )
             && ( slb->kind != SlbT_ENTRANCE && slb->kind != SlbT_DUNGHEART ) )
         {
             allowed = true;
@@ -3776,12 +3635,12 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         map_volume_box.visible = 1;
         map_volume_box.color = allowed;
-        map_volume_box.beg_x = single_subtile ? (subtile_coord(stl_x,0)) : (subtile_coord((render_roomspace.left * 3), 0));
-        map_volume_box.beg_y = single_subtile ? (subtile_coord(stl_y,0)) : (subtile_coord((render_roomspace.top * 3), 0));
-        map_volume_box.end_x = single_subtile ? (subtile_coord(stl_x + 1,0)) : (subtile_coord((3*a4) + (render_roomspace.right * 3), 0));
-        map_volume_box.end_y = single_subtile ? (subtile_coord(stl_y + 1,0)) : (subtile_coord((3*a4) + (render_roomspace.bottom * 3), 0));
+        map_volume_box.beg_x = (!full_slab ? (subtile_coord(stl_x, 0)) : subtile_coord(((render_roomspace.centreX - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * STL_PER_SLB), 0));
+        map_volume_box.beg_y = (!full_slab ? (subtile_coord(stl_y, 0)) : subtile_coord(((render_roomspace.centreY - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * STL_PER_SLB), 0));
+        map_volume_box.end_x = (!full_slab ? (subtile_coord(stl_x + 1, 0)) : subtile_coord((((render_roomspace.centreX + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) + 1) * STL_PER_SLB), 0));
+        map_volume_box.end_y = (!full_slab ? (subtile_coord(stl_y + 1, 0)) : subtile_coord((((render_roomspace.centreY + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) + 1) * STL_PER_SLB), 0));
         map_volume_box.floor_height_z = floor_height_z;
-        render_roomspace.is_roomspace_a_single_subtile = single_subtile;
+        render_roomspace.is_roomspace_a_single_subtile = !full_slab;
     }
     return allowed;
 }
@@ -3850,15 +3709,16 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         map_volume_box.floor_height_z = floor_height_z;
         map_volume_box.color = allowed;
         render_roomspace.is_roomspace_a_box = true;
+        render_roomspace.render_roomspace_as_box = true;
         render_roomspace.is_roomspace_a_single_subtile = false;
     }
     return allowed;
 }
 
-TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4)
+TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab)
 {
     SYNCDBG(7,"Starting");
-    //return _DK_tag_cursor_blocks_place_room(plyr_idx, a2, a3, a4);
+    //return _DK_tag_cursor_blocks_place_room(plyr_idx, stl_x, stl_y, full_slab);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     struct SlabMap* slb;
@@ -3882,11 +3742,12 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     {
         map_volume_box.visible = 1;
         map_volume_box.color = allowed;
-        map_volume_box.beg_x = subtile_coord((render_roomspace.left * 3), 0);
-        map_volume_box.beg_y = subtile_coord((render_roomspace.top * 3), 0);
-        map_volume_box.end_x = subtile_coord((3*a4) + (render_roomspace.right * 3), 0);
-        map_volume_box.end_y = subtile_coord(((3*a4) + render_roomspace.bottom * 3), 0);
+        map_volume_box.beg_x = (!full_slab ? (subtile_coord(stl_x, 0)) : subtile_coord(((render_roomspace.centreX - calc_distance_from_roomspace_centre(render_roomspace.width,0)) * STL_PER_SLB), 0));
+        map_volume_box.beg_y = (!full_slab ? (subtile_coord(stl_y, 0)) : subtile_coord(((render_roomspace.centreY - calc_distance_from_roomspace_centre(render_roomspace.height,0)) * STL_PER_SLB), 0));
+        map_volume_box.end_x = (!full_slab ? (subtile_coord(stl_x + 1, 0)) : subtile_coord((((render_roomspace.centreX + calc_distance_from_roomspace_centre(render_roomspace.width,(render_roomspace.width % 2 == 0))) + 1) * STL_PER_SLB), 0));
+        map_volume_box.end_y = (!full_slab ? (subtile_coord(stl_y + 1, 0)) : subtile_coord((((render_roomspace.centreY + calc_distance_from_roomspace_centre(render_roomspace.height,(render_roomspace.height % 2 == 0))) + 1) * STL_PER_SLB), 0));
         map_volume_box.floor_height_z = floor_height_z;
+        render_roomspace.is_roomspace_a_single_subtile = !full_slab;
     }
     return allowed;
 }
@@ -4421,7 +4282,7 @@ void wait_at_frontend(void)
     short finish_menu = 0;
     set_flag_byte(&game.flags_cd,MFlg_unk40,false);
     // Begin the frontend loop
-    long last_loop_time = LbTimerClock();
+    long fe_last_loop_time = LbTimerClock();
     do
     {
       if (!LbWindowsControl())
@@ -4471,9 +4332,9 @@ void wait_at_frontend(void)
         fade_palette_in = 0;
       } else
       {
-        LbSleepUntil(last_loop_time + 30);
+        LbSleepUntil(fe_last_loop_time + 30);
       }
-      last_loop_time = LbTimerClock();
+      fe_last_loop_time = LbTimerClock();
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
@@ -4999,11 +4860,21 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
     }
 }
 
+LONG __stdcall Vex_handler(
+    _EXCEPTION_POINTERS *ExceptionInfo
+)
+{
+    LbJustLog("=== Crash ===");
+    LbCloseLog();
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
   char *text;
   _DK_hInstance = GetModuleHandle(NULL);
 
+  AddVectoredExceptionHandler(0, &Vex_handler);
   get_cmdln_args(bf_argc, bf_argv);
 
 //TODO DLL_CLEANUP delete when won't be needed anymore

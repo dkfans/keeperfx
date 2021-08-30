@@ -226,6 +226,7 @@ DLLIMPORT struct Path _DK_bak_path;
 #pragma pack()
 /******************************************************************************/
 extern unsigned char const actual_sizexy_to_nav_block_sizexy_table[];
+extern unsigned long const actual_sizexy_to_nav_sizexy_table[];
 extern struct Path fwd_path;
 extern struct Path bak_path;
 /******************************************************************************/

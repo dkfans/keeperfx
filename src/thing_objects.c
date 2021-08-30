@@ -39,6 +39,7 @@
 #include "player_instances.h"
 #include "map_data.h"
 #include "map_columns.h"
+#include "map_utils.h"
 #include "room_entrance.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -47,6 +48,7 @@
 #include "creature_states_pray.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "game_loop.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -217,7 +219,7 @@ Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
  *
  * Originally was named objects[].
  */
-struct Objects objects_data[OBJECT_TYPES_MAX] = {
+struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1}, //1 BARREL
   {0, 0, 1, 0, 1, 962, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown2, 1}, //2 TORCH
@@ -243,7 +245,7 @@ struct Objects objects_data[OBJECT_TYPES_MAX] = {
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0},
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //24
-  {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObOC_Unknown0, 0}, //25
+  {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObOC_Unknown0, 0}, //25 ROOM_FLAG
   {0, 0, 0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //26 ANVIL
   {0, 0, 0, 0, 0, 796, 0x0100,    0,    0, 200, 0, 0, 2, 1,  0, ObOC_Unknown2, 1}, //27 PRISON_BAR
   {0, 0, 1, 0, 0, 791, 0x0100,    0,    0, 300, 0, 1, 2, 0,  0, ObOC_Unknown3, 1}, //28 CANDLE_UNLIT
@@ -333,11 +335,11 @@ struct Objects objects_data[OBJECT_TYPES_MAX] = {
   {0, 0, 1, 0, 0, 851, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown0, 0}, //112 DISEASE
   {0, 0, 1, 0, 0, 130, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //113 SCAVENGE_EYE
   {0, 0, 1, 0, 0,  98, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //114 WORKSHOP_MACHINE
-  {0, 0, 1, 0, 0, 102, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //115 GURDFLAG_RED
+  {0, 0, 1, 0, 0, 102, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //115 GUARDFLAG_RED
   {0, 0, 1, 0, 0, 104, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //116
   {0, 0, 1, 0, 0, 106, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //117
   {0, 0, 1, 0, 0, 108, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //118
-  {0, 0, 1, 0, 0, 100, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //119 GURDFLAG_POLE
+  {0, 0, 1, 0, 0, 100, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0}, //119 GUARDFLAG_POLE
   {0, 0, 1, 0, 0, 799, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0}, //120 HEARTFLAME_BLUE
   {0, 0, 1, 0, 0, 800, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0}, //121
   {0, 0, 1, 0, 0, 801, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0}, //122 HEARTFLAME_YELLOW
@@ -354,7 +356,8 @@ struct Objects objects_data[OBJECT_TYPES_MAX] = {
   {0, 0, 1, 0, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //134 SPELLBOOK
   {0, 0, 0, 0, 1, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0}, //135
-  {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0}, //136
+  {0, 0, 0, 0, 0, 933, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1}, //136 GOLD_BAG
+  {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0},
 };
 
 ThingModel object_to_special[OBJECT_TYPES_MAX] = {
@@ -375,7 +378,7 @@ unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
 /** Dungeon Heart flame objects model per player index.
  */
 unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
-unsigned short lightning_spangles[] = {83, 90, 91, 92, 0, 0};
+unsigned short lightning_spangles[] = {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_None, TngEffElm_None};
 unsigned short gold_hoard_objects[] = {52, 52, 53, 54, 55, 56};
 unsigned short food_grow_objects[] = {40, 41, 42};
 
@@ -402,7 +405,7 @@ void define_custom_object(int obj_id, short sprite_max_size, short anim_idx, sho
     if (anim_idx_3d == 0)
         anim_idx_3d = anim_idx;
 
-    struct Objects *obj_dst = &objects_data[obj_id];
+    struct Objects *obj_dst = &gameadd.thing_objects_data[obj_id];
     memset(obj_dst, 0, sizeof(struct Objects));
     obj_dst->draw_class = 2; // Default
     obj_dst->sprite_anim_idx = anim_idx;
@@ -452,7 +455,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->solid_size_xy = objdat->size_xy;
     thing->solid_size_yz = objdat->size_yz;
     thing->health = saturate_set_signed(objconf->health,16);
-    thing->fall_acceleration = objconf->field_4;
+    thing->fall_acceleration = objconf->fall_acceleration;
     thing->field_23 = 204;
     thing->field_24 = 51;
     thing->field_22 = 0;
@@ -472,7 +475,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       k = -1;
     }
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
-    set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->field_5);
+    set_flag_byte(&thing->field_4F, TF4F_Unknown02, objconf->light_unaffected);
     set_flag_byte(&thing->field_4F, TF4F_Unknown01, objdat->field_3 & 0x01);
 
     set_flag_byte(&thing->field_4F, TF4F_Transpar_4, objdat->field_F & 0x01);
@@ -508,6 +511,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       case 3:
       case 6:
       case 43:
+      case 136:
         thing->valuable.gold_stored = gold_object_typical_value(thing->model);
         break;
       case 49:
@@ -596,19 +600,16 @@ void change_object_owner(struct Thing *objtng, PlayerNumber nowner)
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
     unsigned int tmodel = thing->model;
-    if (tmodel >= (sizeof(objects_data)/sizeof(objects_data[0])))
-    {
-        WARNLOG("Object model is too big:%d", tmodel);
-        return &objects_data[0];
-    }
-    return &objects_data[tmodel];
+    if (tmodel >= OBJECT_TYPES_COUNT)
+      return &gameadd.thing_objects_data[0];
+    return &gameadd.thing_objects_data[tmodel];
 }
 
 struct Objects *get_objects_data(unsigned int tmodel)
 {
     if (tmodel >= OBJECT_TYPES_COUNT)
-        return &objects_data[0];
-    return &objects_data[tmodel];
+        return &gameadd.thing_objects_data[0];
+    return &gameadd.thing_objects_data[tmodel];
 }
 
 /**
@@ -620,9 +621,9 @@ PowerKind book_thing_to_power_kind(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
+    if ( (thing->class_id != TCls_Object) || (thing->model >= gameadd.object_conf.object_types_count) )
         return 0;
-    return object_conf.object_to_power_artifact[thing->model];
+    return gameadd.object_conf.object_to_power_artifact[thing->model];
 }
 
 TbBool thing_is_special_box(const struct Thing *thing)
@@ -729,6 +730,7 @@ TbBool object_is_gold_pile(const struct Thing *thing)
       case 6: // Pot of gold
       case 43: // Gold laying on the ground
       case 128: // Spinning coin
+      case 136: // Gold bag
           return true;
       default:
           return false;
@@ -1655,7 +1657,7 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     int spr_size;
     int start_frame = objtng->field_48;
     if (objtng->belongs_to) {
-        spr_size = crtr_conf.sprite_size + (crtr_conf.sprite_size * cctrl->explevel * crtr_conf.exp.size_increase_on_exp) / 100;
+        spr_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * cctrl->explevel * gameadd.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
         spr_size = objdat->sprite_size_max;
     }
@@ -1724,6 +1726,38 @@ TngUpdateRet object_update_power_lightning(struct Thing *objtng)
 }
 #undef NUM_ANGLES
 
+/**
+ * Finds an empty safe adjacent position on slab.
+ * @param thing The thing which is to be moved.
+  * @param pos The target position pointer.
+ */
+TbBool find_free_position_on_slab(const struct Thing* thing, struct Coord3d* pos)
+{
+    MapSubtlCoord start_stl = ACTION_RANDOM(AROUND_TILES_COUNT);
+    int nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing), 0);
+
+    for (long nround = 0; nround < AROUND_TILES_COUNT; nround++)
+    {
+        MapSubtlCoord x = start_stl % 3 + thing->mappos.x.stl.num;
+        MapSubtlCoord y = start_stl / 3 + thing->mappos.y.stl.num;
+        if (get_floor_filled_subtiles_at(x, y) == 1)
+        {
+            struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
+            if (thing_is_invalid(objtng))
+            {
+                pos->x.val = subtile_coord_center(x);
+                pos->y.val = subtile_coord_center(y);
+                pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
+                    return true;
+                }
+            }
+        }
+        start_stl = (start_stl + 1) % 9;
+    }
+    return false;
+}
+
 TngUpdateRet move_object(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -1735,12 +1769,34 @@ TngUpdateRet move_object(struct Thing *thing)
         if ((!move_allowed) || thing_in_wall_at(thing, &pos))
         {
             long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
-            slide_thing_against_wall_at(thing, &pos, blocked_flags);
-            remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
+            if (blocked_flags & SlbBloF_WalledZ)
+            {
+                if (!find_free_position_on_slab(thing, &pos))
+                {
+                    SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.",pos.x.val,pos.y.val, blocked_flags);
+                    move_creature_to_nearest_valid_position(thing);
+                }
+
+            }
+            else
+            {
+                slide_thing_against_wall_at(thing, &pos, blocked_flags);
+                remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
+            }
+            // GOLD_POT to make a sound when hitting the floor
             if (thing->model == 6)
-              thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
+            {
+                thing_play_sample(thing, 79, NORMAL_PITCH, 0, 3, 0, 1, FULL_LOUDNESS);
+            }
+            if (thing_in_wall_at(thing, &pos) == 0) //TODO: Improve 'slide_thing_against_wall_at' so it does not return a pos inside a wall
+            {
+                move_thing_in_map(thing, &pos);
+            }
         }
-        move_thing_in_map(thing, &pos);
+        else
+        {
+            move_thing_in_map(thing, &pos);
+        }
     }
     thing->field_60 = get_thing_height_at(thing, &thing->mappos);
     return TUFRet_Modified;
@@ -1752,11 +1808,7 @@ TngUpdateRet update_object(struct Thing *thing)
     TRACE_THING(thing);
 
     Thing_Class_Func upcallback = NULL;
-    if (thing->model < sizeof(object_update_functions)/sizeof(object_update_functions[0])) {
-        upcallback = object_update_functions[thing->model];
-    } else {
-        ERRORLOG("Object model %d exceeds update_functions dimensions",(int)thing->model);
-    }
+    upcallback = object_update_functions[thing->model];
     if (upcallback != NULL)
     {
         if (upcallback(thing) <= 0) {
@@ -1866,7 +1918,7 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     int wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
     if (wealth_size > get_wealth_size_types_count()) {
         WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
@@ -1894,8 +1946,8 @@ int get_wealth_size_types_count(void)
  */
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, GoldAmount value)
 {
-    if (value >= gold_per_hoard)
-        value = gold_per_hoard;
+    if (value >= gameadd.gold_per_hoard)
+        value = gameadd.gold_per_hoard;
     int wealth_size = get_wealth_size_of_gold_amount(value);
     struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
     if (thing_is_invalid(gldtng))
@@ -1906,7 +1958,7 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
 
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
-    GoldAmount wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
         ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
         return INVALID_THING;
@@ -1939,7 +1991,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
 long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
     //return _DK_add_gold_to_hoarde(gldtng, room, amount);
-    GoldAmount wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // Fix amount
     if (gldtng->valuable.gold_stored + amount > max_hoard_size_in_room)
@@ -2083,11 +2135,13 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel)
     switch (tngmodel)
     {
       case 3:
-        return game.chest_gold_hold;
+          return game.chest_gold_hold;
       case 6:
           return game.pot_of_gold_holds;
       case 43:
           return game.gold_pile_value;
+      case 136:
+          return gameadd.bag_gold_hold;
       case 128:
           return game.gold_pile_maximum;
       default:
@@ -2147,6 +2201,11 @@ struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
         add_gold_to_pile(thing, value);
     }
     return thing;
+}
+
+void init_thing_objects()
+{
+    memcpy(gameadd.thing_objects_data, objects_data_init, sizeof(objects_data_init));
 }
 /******************************************************************************/
 #ifdef __cplusplus

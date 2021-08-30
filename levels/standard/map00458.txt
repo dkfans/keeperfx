@@ -4,7 +4,7 @@ REM ****************************************************************************
 REM  Script for Level 458 - Ghost in the Machine
 REM  Author:  Loobinex
 REM  Date:    2020-01-05
-REM		updated to use pot file for messages by dayokay Jan2021
+REM     updated to use pot file for messages by dayokay Jan2021
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by

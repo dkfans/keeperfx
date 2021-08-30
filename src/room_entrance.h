@@ -41,6 +41,8 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crtr_ki
 TbBool remove_creature_from_generate_pool(ThingModel crtr_kind);
 TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crtr_kind);
 /******************************************************************************/
+short update_creature_pool_state(void);
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

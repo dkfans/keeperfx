@@ -77,6 +77,20 @@ enum TbButtonFrontendFlags {
     LbBFeF_NoTooltip    = 0x8000,
 };
 
+// Rudimentary GUI Layer support
+// Add layers to this enum to distinguish between input layers
+// This allows conflicting use of the same input to be resolved sensibly
+// e.g. `GuiLayer_OneClick` is supposed to signify that the user is in "one-click mode"
+enum GuiLayers {
+    GuiLayer_Default  = 0,
+    GuiLayer_OneClick,
+    GuiLayer_OneClickBridgeBuild,
+};
+
+struct GuiLayer {
+    long current_gui_layer;
+};
+
 struct GuiMenu;
 struct GuiButton;
 
@@ -95,6 +109,8 @@ short game_is_busy_doing_gui_string_input(void);
 short get_gui_inputs(short gameplay_on);
 extern unsigned short const zoom_key_room_order[];
 TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn);
+long get_current_gui_layer();
+TbBool check_current_gui_layer(long layer_id);
 
 /******************************************************************************/
 #ifdef __cplusplus

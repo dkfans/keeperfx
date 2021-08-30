@@ -69,18 +69,18 @@ TbError TCPServiceProvider::Start(struct TbNetworkSessionNameEntry * sessionName
 	return Lb_OK;
 }
 
-TbError TCPServiceProvider::Start(char * sessionName, char * playerName, unsigned long maxPlayers, void * options)
+TbError TCPServiceProvider::Start(char * sessionName, char * playerName, unsigned long tcpMaxPlayers, void * options)
 {
 	SYNCDBG(7, "Starting");
 	assert(!started);
-	assert(maxPlayers >= 2);
-	assert(maxPlayers <= NETSP_PLAYERS_COUNT);
+	assert(tcpMaxPlayers >= 2);
+	assert(tcpMaxPlayers <= NETSP_PLAYERS_COUNT);
 
 	isServer = true;
 
 	ClearPlayers();
 	joinable = true;
-	this->maxPlayers = maxPlayers;
+	this->maxPlayers = tcpMaxPlayers;
 
 	base = new TCP_NetServer(HOST_PORT_NUMBER);
 

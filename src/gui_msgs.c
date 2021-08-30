@@ -50,14 +50,20 @@ void message_draw(void)
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
         LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
-        unsigned long spr_idx;
-        TbBool IsCreature, IsCreatureSpell, IsRoom;
+        unsigned long spr_idx = 0;
+        TbBool IsCreature = false; 
+        TbBool IsCreatureSpell = false; 
+        TbBool IsRoom = false;
+        TbBool IsKeeperSpell = false;
+        TbBool IsQuery = false;
         TbBool NotPlayer = ((char)gameadd.messages[i].plyr_idx < 0);
         if (NotPlayer)
         {
             IsCreature = ( ((char)gameadd.messages[i].plyr_idx >= -31) && ((char)gameadd.messages[i].plyr_idx <= -1) );
             IsCreatureSpell = ((char)gameadd.messages[i].plyr_idx >= -78) && ((char)gameadd.messages[i].plyr_idx <= -32);
-            IsRoom = ((char)gameadd.messages[i].plyr_idx <= -79);
+            IsRoom = ((char)gameadd.messages[i].plyr_idx >= -94) && ((char)gameadd.messages[i].plyr_idx <= -79);
+            IsKeeperSpell = ((char)gameadd.messages[i].plyr_idx >= -113) && ((char)gameadd.messages[i].plyr_idx <= -95);
+            IsQuery = ((char)gameadd.messages[i].plyr_idx >= -123) && ((char)gameadd.messages[i].plyr_idx <= -114);
             if (IsCreature)
             {
                 spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
@@ -77,6 +83,19 @@ void message_draw(void)
                 x -= (10 * units_per_pixel / 16);
                 y -= (10 * units_per_pixel / 16);
             }
+            else if (IsKeeperSpell)
+            {
+                struct PowerConfigStats* powerst = get_power_model_stats(~(char)(((char)gameadd.messages[i].plyr_idx) + 94) + 1);
+                spr_idx = powerst->medsym_sprite_idx;
+                x -= (10 * units_per_pixel / 16);
+                y -= (10 * units_per_pixel / 16);
+            }
+            else if (IsQuery)
+            {
+                spr_idx = (~(char)(((char)gameadd.messages[i].plyr_idx) + 113) + 1) + 330;
+                x -= (10 * units_per_pixel / 16);
+                y -= (10 * units_per_pixel / 16);
+            }
         }
         else
         {
@@ -93,7 +112,7 @@ void message_draw(void)
             {
                 y += (20 * units_per_pixel / 16);
             }
-            else if ( (IsCreatureSpell) || (IsRoom) )
+            else if ( (IsCreatureSpell) || (IsRoom) || (IsKeeperSpell) || (IsQuery) )
             {
                 y += (10 * units_per_pixel / 16);
             }

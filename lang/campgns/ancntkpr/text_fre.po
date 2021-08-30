@@ -1502,7 +1502,7 @@ msgstr ""
 "Accélération: Augmente la vitesse de déplacement et de compétence de la "
 "créature."
 
-#: guitext:237 guitext:253
+#: guitext:237
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
@@ -1635,6 +1635,14 @@ msgstr ""
 "Combat rapproché: Attaque de base de toutes les créatures en utilisant leurs "
 "crocs, griffes, cornes, poings, épée, hache, massue ou toute autre arme de "
 "base."
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+"Flatulence: Une attaque de type gas à courte distance qui "
+"n'endommage que les creatures ennemies"
 
 #: guitext:254
 #, fuzzy

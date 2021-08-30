@@ -281,7 +281,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     init_creature_level(newthing, cctrl->explevel);
     if (creature_model_bleeds(thing->model))
-      create_effect_around_thing(newthing, TngEff_Unknown10);
+      create_effect_around_thing(newthing, TngEff_Blood5);
     set_start_state(newthing);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_DiedInBattle);
     struct Dungeon* dungeon = get_dungeon(room->owner);
@@ -305,7 +305,7 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
     change_creature_owner(creatng, new_owner);
     anger_set_creature_anger_all_types(creatng, 0);
     struct Dungeon* dungeon = get_dungeon(new_owner);
-    struct DungeonAdd* dungeonadd = get_dungeon(new_owner);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(new_owner);
     if (!dungeon_invalid(dungeon)) 
     {
         dungeon->lvstats.creatures_converted++;
