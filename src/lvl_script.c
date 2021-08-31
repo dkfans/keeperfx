@@ -4425,6 +4425,33 @@ short clear_quick_messages(void)
     return true;
 }
 
+static char* process_multiline_comment(char *buf, char *buf_end)
+{
+    for (char *p = buf; p < buf_end - 1; p++)
+    {
+        if ((*p == ' ') || (*p == 9)) // Tabs or spaces
+            continue;
+        if (p[0] == '/') // /
+        {
+            if (p[1] != '*') // /*
+                break;
+            p += 2;
+            for (; p < buf_end - 1; p++)
+            {
+                if ((p[0] == '*') && (p[1] == '/'))
+                {
+                    buf = p + 2;
+                    break;
+                }
+            }
+            break;
+        }
+        else
+            break;
+    }
+    return buf;
+}
+
 short preload_script(long lvnum)
 {
   SYNCDBG(7,"Starting");
@@ -4443,6 +4470,8 @@ short preload_script(long lvnum)
   char* buf_end = script_data + script_len;
   while (buf < buf_end)
   {
+      // Check for long comment
+      buf = process_multiline_comment(buf, buf_end);
     // Find end of the line
     int lnlen = 0;
     while (&buf[lnlen] < buf_end)
@@ -4501,6 +4530,7 @@ short load_script(long lvnum)
     char* buf_end = script_data + script_len;
     while (buf < buf_end)
     {
+        buf = process_multiline_comment(buf, buf_end);
       // Find end of the line
       int lnlen = 0;
       while (&buf[lnlen] < buf_end)
