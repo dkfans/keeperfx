@@ -23,6 +23,8 @@
 #include "front_simple.h"
 #include "engine_render.h"
 
+#include <spng.h>
+
 static int next_free_sprite = 0;
 
 short iso_td_add[KEEPERSPRITE_ADD_NUM];
@@ -50,18 +52,11 @@ void clear_custom_sprites()
     next_free_sprite = 0;
 }
 
-struct TgaSpec
-{
-    unsigned short ofsX;
-    unsigned short ofsY;
-    unsigned short width;
-    unsigned short height;
-    char pixDepth;
-    char desc;
-};
-static unsigned char *read_tga(const char *path, struct TbSprite* sprite)
+static unsigned char *read_png(const char *path, struct TbSprite* sprite)
 {
     unsigned char *dst_buf;
+    int fmt = SPNG_FMT_PNG;
+    size_t out_size;
     FILE *F = fopen(path, "rb");
     sprite->SHeight = 0;
     sprite->SWidth = 0;
@@ -70,45 +65,52 @@ static unsigned char *read_tga(const char *path, struct TbSprite* sprite)
         ERRORLOG("Unable to read %s", path);
         return NULL;
     }
-    if (1 != fread(scratch, 8, 1, F))
+    spng_ctx *ctx = NULL;
+    ctx = spng_ctx_new(0);
+    spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
+
+    size_t limit = 1024 * 1024 * 2;
+    spng_set_chunk_limits(ctx, limit, limit);
+
+    spng_set_png_file(ctx, F);
+    struct spng_ihdr ihdr;
+    int r = spng_get_ihdr(ctx, &ihdr);
+
+    if(r)
     {
-        ERRORLOG("Unable to read %s", path);
+        ERRORLOG("spng_get_ihdr() error: %s", spng_strerror(r));
         fclose(F);
         return NULL;
     }
-    if (memcmp(scratch, "\0\1\1\0\0\0\1\x18", 8) != 0)
+
+    if ((ihdr.bit_depth != 8) || (ihdr.color_type != SPNG_COLOR_TYPE_INDEXED))
     {
-        ERRORLOG("%s should be uncompressed 8bit TGA file with palette", path);
+        ERRORLOG("Wrong spec: %s should be 8bit indexed Png", path);
         fclose(F);
         return NULL;
     }
-    struct TgaSpec *spec = (struct TgaSpec *)scratch;
-    if (1 != fread(spec, sizeof(struct TgaSpec), 1, F))
+    struct spng_plte plte = {0};
+    r = spng_get_plte(ctx, &plte);
+    // TODO: should we check palette?
+
+    sprite->SWidth = ihdr.width;
+    sprite->SHeight = ihdr.height;
+
+    spng_decoded_image_size(ctx, fmt, &out_size);
+    if (limit < out_size)
     {
-        ERRORLOG("Unable to read %s", path);
+        ERRORLOG("Unable to decode %s error: %s", path, spng_strerror(r));
         fclose(F);
         return NULL;
     }
-    if (spec->pixDepth != 8)
-    {
-        ERRORLOG("wrong spec: %s should be uncompressed 8bit TGA file with palette", path);
-        fclose(F);
-        return NULL;
-    }
-    if (spec->desc != 0x20)
-    {
-        WARNLOG("image origin should be top-left(%s)", path);
-    }
-    sprite->SWidth = spec->width;
-    sprite->SHeight = spec->height;
-    fseek(F, 18 + 256 * 3,SEEK_SET);
+
     dst_buf = scratch;
-    if (1 != fread(dst_buf, sprite->SWidth * sprite->SHeight, 1, F))
+    r = spng_decode_image(ctx, dst_buf, out_size, fmt, 0);
+    if (r)
     {
-        ERRORLOG("Unable to read %s", path);
-        fclose(F);
         return NULL;
     }
+
     fclose(F);
     return dst_buf;
 }
@@ -178,7 +180,7 @@ short add_custom_sprite(const char *path, int x, int y, int w, int h)
 {
     short ret;
     struct TbSprite sprite;
-    unsigned char *buf = read_tga(path, &sprite);
+    unsigned char *buf = read_png(path, &sprite);
     if (!buf)
         return 0;
 

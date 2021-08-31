@@ -395,6 +395,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 {
                     n = atoi(word_buf);
                     objdat->sprite_size_max = n;
+                    sprite_max_size = n;
                     n++;
                 }
                 if (n <= 0)

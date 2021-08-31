@@ -67,7 +67,12 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 LIBS     = obj/libkeeperfx.a
+
+DEPS = \
+obj/spng.o
+
 OBJS = \
+$(DEPS) \
 obj/actionpt.o \
 obj/ariadne.o \
 obj/ariadne_edge.o \
@@ -313,8 +318,10 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net 
-INCS =  -I"sdl/include" -I"sdl/include/SDL2"
+LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a \
+	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
+	-L"deps/zlib" -lz
+INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/libspng/spng"
 CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -327,7 +334,7 @@ HVLOG_MAIN_OBJ = $(subst obj/,obj/hvlog/,$(MAIN_OBJ))
 ENABLE_EXTRACT ?= 1
 
 # flags to generate dependency files
-DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -DSPNG_STATIC=1
 # other flags to include while compiling
 INCFLAGS =
 # code optimization and debugging flags
@@ -474,6 +481,12 @@ ifdef CV2PDB
 endif
 	-$(ECHO) 'Finished building target: $@'
 
+obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
 obj/tests/%.o: tests/%.cpp $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"
@@ -535,12 +548,18 @@ bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 
 tests: std-before $(TEST_BIN)
 
-export
 libexterns: libexterns.mk
 	$(MAKE) -f libexterns.mk
 
 clean-libexterns: libexterns.mk
 	$(MAKE) -f libexterns.mk clean-libexterns
+	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc clean
+
+deps/zlib/configure.log:
+	cd deps/zlib && ./configure --static
+
+deps/zlib/libz.a: deps/zlib/Makefile deps/zlib/configure.log
+	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
 
 include tool_peresec.mk
 include tool_png2ico.mk
@@ -556,4 +575,5 @@ include pkg_lang.mk
 include pkg_gfx.mk
 include pkg_sfx.mk
 
+export RM CP MKDIR MV
 #******************************************************************************
