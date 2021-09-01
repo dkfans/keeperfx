@@ -414,6 +414,7 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
 int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen)
 {
     int i;
+    TbBool esc = false;
     if ((*pos) >= buflen) return 0;
     // Skipping spaces after previous parameter
     while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
@@ -425,19 +426,32 @@ int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,lo
     if (buf[*pos] != '"')
         return 0;
     (*pos)++;
-    // TODO: escape quotes (\", \\)
-    for (i=0; i+1 < dstlen; i++)
+
+    for (i=0; i+1 < dstlen;)
     {
-        if (buf[*pos] == '"')
-        {
-            (*pos)++;
-            break;
-        }
-        dst[i]=buf[*pos];
-        (*pos)++;
         if ((*pos) >= buflen) {
             return 0; // End before quote
         }
+        if (!esc)
+        {
+            if (buf[*pos] == '\\')
+            {
+                esc = true;
+                (*pos)++;
+                continue;
+            }
+            else if (buf[*pos] == '"')
+            {
+                (*pos)++;
+                break;
+            }
+        }
+        else
+        {
+            esc = false;
+        }
+        dst[i++]=buf[*pos];
+        (*pos)++;
     }
     dst[i]='\0';
     return i;
