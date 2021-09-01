@@ -7,3 +7,6 @@
 [submodule "deps/zlib"]
 	path = deps/zlib
 	url = https://github.com/madler/zlib.git
+[submodule "deps/centijson"]
+	path = deps/centijson
+	url = https://github.com/mity/centijson.git

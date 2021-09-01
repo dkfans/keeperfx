@@ -69,7 +69,8 @@ RES      = obj/keeperfx_stdres.res
 LIBS     = obj/libkeeperfx.a
 
 DEPS = \
-obj/spng.o
+obj/spng.o \
+obj/json.o
 
 OBJS = \
 $(DEPS) \
@@ -321,7 +322,7 @@ CU_OBJS = \
 LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
 	-L"deps/zlib" -lz
-INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/libspng/spng"
+INCS =  -I"sdl/include" -I"sdl/include/SDL2"
 CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -483,7 +484,19 @@ endif
 
 obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/libspng/spng" -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/json.o obj/hvlog/json.o: deps/centijson/src/json.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/centijson/src" -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/centijson/src" -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 

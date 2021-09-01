@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-short add_custom_sprite(const char *path, int x, int y, int w, int h);
+short add_custom_sprite(const char *path);
 
 void clear_custom_sprites();
 

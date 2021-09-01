@@ -104,7 +104,7 @@ extern unsigned short player_guardflag_objects[];
 extern unsigned short dungeon_flame_objects[];
 
 /******************************************************************************/
-struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
+struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
 void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
@@ -166,7 +166,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
 
-void define_custom_object(int obj_id, short sprite_max_size, short anim_idx, short anim_idx_3d);
+void define_custom_object(int obj_id, short anim_idx);
 void init_thing_objects();
 /******************************************************************************/
 #ifdef __cplusplus

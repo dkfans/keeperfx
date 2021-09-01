@@ -56,11 +56,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"HEALTH",           12},
   {"FALLACCELERATION", 13},
   {"LIGHTUNAFFECTED",  14},
-  {"OBJECTSIZE",       15},
-  {"IMAGE",            16},
-  {"REGION",           17},
-  {"IMAGEFP",          18},
-  {"REGIONFP",         19},
+  {"IMAGE",            15},
   {NULL,                0},
   };
 
@@ -206,44 +202,39 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
 {
     struct ObjectConfigStats *objst;
     struct ObjectConfig *objbc;
-    int i;
+    int tmodel;
     // Block name and parameter word store variables
     // Initialize the objects array
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         arr_size = sizeof(gameadd.object_conf.object_cfgstats)/sizeof(gameadd.object_conf.object_cfgstats[0]);
-        for (i=0; i < arr_size; i++)
+        for (tmodel=0; tmodel < arr_size; tmodel++)
         {
-            objst = &gameadd.object_conf.object_cfgstats[i];
+            objst = &gameadd.object_conf.object_cfgstats[tmodel];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
             objst->genre = 0;
-            if (i < gameadd.object_conf.object_types_count)
+            if (tmodel < gameadd.object_conf.object_types_count)
             {
-                object_desc[i].name = objst->code_name;
-                object_desc[i].num = i;
+                object_desc[tmodel].name = objst->code_name;
+                object_desc[tmodel].num = tmodel;
             } else
             {
-                object_desc[i].name = NULL;
-                object_desc[i].num = 0;
+                object_desc[tmodel].name = NULL;
+                object_desc[tmodel].num = 0;
             }
         }
     }
     // Load the file
     arr_size = gameadd.object_conf.object_types_count;
-    for (i=0; i < arr_size; i++)
+    for (tmodel = 0; tmodel < arr_size; tmodel++)
     {
-        short sprite_max_size = 0;
-        int sprite_x = 0, sprite_y = 0, sprite_w = 0, sprite_h = 0;
-        int sprite_x_3d = 0, sprite_y_3d = 0, sprite_w_3d = 0, sprite_h_3d = 0;
         char anim_path[COMMAND_WORD_LEN];
-        char anim_path_3d[COMMAND_WORD_LEN];
         anim_path[0] = 0;
-        anim_path_3d[0] = 0;
 
         char block_buf[COMMAND_WORD_LEN];
-        sprintf(block_buf, "object%d", i);
+        sprintf(block_buf, "object%d", tmodel);
         long pos = 0;
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
@@ -254,9 +245,9 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             }
             continue;
         }
-        objst = &gameadd.object_conf.object_cfgstats[i];
-        objbc = &gameadd.object_conf.base_config[i];
-        struct Objects* objdat = get_objects_data(i);
+        objst = &gameadd.object_conf.object_cfgstats[tmodel];
+        objbc = &gameadd.object_conf.base_config[tmodel];
+        struct Objects* objdat = get_objects_data(tmodel);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
@@ -272,7 +263,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             }
             int n = 0;
             char word_buf[COMMAND_WORD_LEN];
-            const char *state = NULL;
             switch (cmd_num)
             {
             case 1: // NAME
@@ -395,7 +385,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 {
                     n = atoi(word_buf);
                     objdat->sprite_size_max = n;
-                    sprite_max_size = n;
                     n++;
                 }
                 if (n <= 0)
@@ -469,13 +458,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 15: // ObjectSize
-                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-                {
-                    sprite_max_size = atoi(word_buf);
-                }
-                break;
-            case 16: // Image
+            case 15: // Image
                 if (!get_conf_parameter_quoted(buf,&pos,len,word_buf,sizeof(word_buf)))
                 {
                     CONFWRNLOG("Incorrect path of \"%s\" in [%s] block of %s file.",
@@ -483,63 +466,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     break;
                 }
                 strcpy(anim_path, word_buf);
-                break;
-            case 17: // Region
-                if (get_conf_parameter_quoted(buf, &pos, len, word_buf, sizeof(word_buf)) == 0)
-                {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                               COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
-                }
-                state = NULL;
-                if (!get_conf_list_int(word_buf, &state, &sprite_x))
-                {
-                    break;
-                }
-                if (!get_conf_list_int(word_buf, &state, &sprite_y))
-                {
-                    break;
-                }
-                if (!get_conf_list_int(word_buf, &state, &sprite_w))
-                {
-                    break;
-                }
-                if (!get_conf_list_int(word_buf, &state, &sprite_h))
-                {
-                    break;
-                }
-                break;
-            case 18: // Image3D
-                if (!get_conf_parameter_quoted(buf,&pos,len,word_buf,sizeof(word_buf)))
-                {
-                    CONFWRNLOG("Incorrect path \"%s\" in [%s] block of %s file.",
-                               word_buf,block_buf,config_textname);
-                    break;
-                }
-                strcpy(anim_path_3d, word_buf);
-                break;
-            case 19: // Region3D
-                if (get_conf_parameter_quoted(buf, &pos, len, word_buf, sizeof(word_buf)) == 0)
-                {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                               COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
-                }
-                state = NULL;
-                if (!get_conf_list_int(word_buf, &state, &sprite_x_3d))
-                {
-                    break;
-                }
-                if (!get_conf_list_int(word_buf, &state, &sprite_y_3d))
-                {
-                    break;
-                }
-                if (!get_conf_list_int(word_buf, &state, &sprite_w_3d))
-                {
-                    break;
-                }
-                if (!get_conf_list_int(word_buf, &state, &sprite_h_3d))
-                {
-                    break;
-                }
                 break;
             case 0: // comment
                 break;
@@ -555,30 +481,20 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
 #undef COMMAND_TEXT
         if (anim_path[0] != 0)
         {
-            if (sprite_max_size <= 0)
+            if (objdat->sprite_size_max <= 0)
             {
-                CONFWRNLOG("Custom sprite without max_size [%s] block of %s file.",
+                CONFWRNLOG("MAXIMUMSIZE should be set for custom anim");
+                continue;
+            }
+            short anim_idx = add_custom_sprite(prepare_file_path(FGrp_FxData, anim_path));
+            if (anim_idx == 0)
+            {
+                CONFWRNLOG("Unable to load anim [%s] block of %s file.",
                            block_buf, config_textname);
-            }
-            else
-            {
-                short anim_idx = add_custom_sprite(prepare_file_path(FGrp_FxData, anim_path),
-                                                   sprite_x, sprite_y,
-                                                   sprite_w > 0? sprite_w : 255, sprite_h > 0? sprite_h : 255);
-                short anim_idx_3d = anim_path_3d[0] == 0? 0 :
-                                add_custom_sprite(prepare_file_path(FGrp_FxData, anim_path_3d),
-                                                   sprite_x_3d, sprite_y_3d,
-                                                   sprite_w_3d > 0? sprite_w_3d : 255,
-                                                   sprite_h_3d > 0? sprite_h_3d : 255);
-                if (anim_idx == 0)
-                {
-                    CONFWRNLOG("Unable to load anim [%s] block of %s file.",
-                               block_buf, config_textname);
 
-                    continue;
-                }
-                define_custom_object(i, sprite_max_size, anim_idx, anim_idx_3d);
+                continue;
             }
+            define_custom_object(tmodel, anim_idx);
         }
     }
     return true;
