@@ -175,6 +175,8 @@ struct GameAdd {
 
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
+
+    struct LevelScript script;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
