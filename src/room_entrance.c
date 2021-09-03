@@ -395,7 +395,7 @@ void process_entrance_generation(void)
     }
 }
 /******************************************************************************/
-short update_creature_pool_state(void)
+TbBool update_creature_pool_state(void)
 {
     int i;
     game.pool.is_empty = true;
