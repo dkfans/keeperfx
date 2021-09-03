@@ -353,7 +353,8 @@ struct ScriptValue { // sizeof = 16
         char param;
         char victims[MAX_SACRIFICE_VICTIMS];
     } sac;
-    char bytes[12];
+    unsigned char bytes[12];
+    char chars[12];
   };
 };
 

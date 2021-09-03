@@ -1403,11 +1403,11 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 
     ((long*)(&value->bytes[0]))[0] = scline->np[0]; // AP `from`
     ((long*)(&value->bytes[4]))[0] = scline->np[1]; // AP `to`
-    value->bytes[8] = scline->np[2]; // curvature
+    value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
     // TODO: use effect elements when below zero?
-    value->bytes[11] = scline->np[5]; // effect
+    value->chars[11] = scline->np[5]; // effect
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1432,10 +1432,10 @@ static void create_effects_line_process(struct ScriptContext *context)
     }
     find_location_pos(((long *)(&context->value->bytes[0]))[0], context->player_idx, &fx_line->from, __func__);
     find_location_pos(((long *)(&context->value->bytes[4]))[0], context->player_idx, &fx_line->to, __func__);
-    fx_line->curvature = context->value->bytes[8];
+    fx_line->curvature = context->value->chars[8];
     fx_line->spatial_step = context->value->bytes[9] * 32;
     fx_line->steps_per_turn = context->value->bytes[10];
-    fx_line->effect = context->value->bytes[11];
+    fx_line->effect = context->value->chars[11];
     fx_line->here = fx_line->from;
     fx_line->step = 0;
 
