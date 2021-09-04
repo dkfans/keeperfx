@@ -1749,7 +1749,6 @@ TngUpdateRet move_object(struct Thing *thing)
                         move_creature_to_nearest_valid_position(thing);
                     }
                 }
-
             }
             else
             {
