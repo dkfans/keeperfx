@@ -1741,7 +1741,7 @@ TngUpdateRet move_object(struct Thing *thing)
             if (blocked_flags & SlbBloF_WalledZ)
             {
                 struct Dungeon* dungeon = get_dungeon(thing->owner);
-                if (dungeon->sight_casted_thing_idx != thing_get_index(thing))
+                if (dungeon->sight_casted_thing_idx != thing->index)
                 {
                     if (!find_free_position_on_slab(thing, &pos))
                     {
