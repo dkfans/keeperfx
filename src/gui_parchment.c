@@ -212,15 +212,15 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     {
         pixval = pixmap.ghost[background + 0x1A00];
     } else
-    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
-    {
-        pixval = pixmap.ghost[background + 0x8C00];
-    } else
     if (!map_block_revealed(mapblk,plyr_idx))
     {
         pixval = background;
     } else
-    if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
+    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+    {
+        pixval = pixmap.ghost[background + 0x8C00];
+    }
+    else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
     {
         struct Room* room = subtile_room_get(stl_x, stl_y);
         if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
