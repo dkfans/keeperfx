@@ -2486,7 +2486,7 @@ msgstr "技能: このクリーチャーが仕事をこなす能力。 [23.14]"
 msgctxt "In-game interface description"
 msgid "Age/Time In Dungeon: The length of time you have employed the creature."
 msgstr ""
-"年齢／ダンジョンにいる時間: このクリーチャーを雇ってからの時間の長さ。 "
+"年齢/ダンジョンにいる時間: このクリーチャーを雇ってからの時間の長さ。 "
 "[23.10]"
 
 #: guitext:299
