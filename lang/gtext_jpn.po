@@ -6292,17 +6292,17 @@ msgctxt "In-game interface description"
 msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
-msgstr "鎧：クリーチャーの体力に障る無い損傷の一部。 数値が高い程、損傷のもっと部分を相殺されます。"
+msgstr "鎧: クリーチャーの体力に障る無い損傷の一部。 数値が高い程、損傷のもっと部分を相殺されます。"
 
 #: guitext:950
 msgctxt "In-game interface description"
 msgid "Speed: How fast the creature moves and perform its dungeon tasks."
-msgstr "速力：クリーチャーが移動して仕事をする速度。"
+msgstr "速力: クリーチャーが移動して仕事をする速度。"
 
 #: guitext:951
 msgctxt "In-game interface description"
 msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
-msgstr "忠誠：敵に因る洗脳に対して抵抗。"
+msgstr "忠誠: 敵に因る洗脳に対して抵抗。"
 
 #: guitext:952
 msgctxt "In-game interface description"
@@ -6337,26 +6337,26 @@ msgstr "洗脳技能: このクリーチャーが洗脳をこなす能力。 [23
 #: guitext:956
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr "訓練費：訓練為に掛ける金。"
+msgstr "訓練費: 訓練為に掛ける金。"
 
 #: guitext:957
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr "洗脳費：洗脳為に掛ける金。"
+msgstr "洗脳費: 洗脳為に掛ける金。"
 
 #: guitext:958
 msgctxt "In-game interface description"
 msgid ""
 "Best Damage: How much harm can be made by the strongest attack the creature "
 "has."
-msgstr "最高な損傷:このクリーチャーの最も強い攻撃が加える損傷の量。"
+msgstr "最高な損傷: このクリーチャーの最も強い攻撃が加える損傷の量。"
 
 #: guitext:959
 msgctxt "In-game interface description"
 msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
-msgstr "体量：クリーチャーの質量。 幾つかの人々は、太りすぎが心臓発作に繋がる可能性の有ると言います。"
+msgstr "体量: クリーチャーの質量。 幾つかの人々は、太りすぎが心臓発作に繋がる可能性の有ると言います。"
 
 #: guitext:960
 msgctxt "Keeper spell name"
@@ -6374,7 +6374,7 @@ msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
-msgstr "悪魔の手：貴方のクリーチャーを手持ち為れ能力。 余りにも長くそれ等を保持しないで。然うした場合、彼らは怒る可能性が有ります。"
+msgstr "悪魔の手: 貴方のクリーチャーを手持ち為れ能力。 余りにも長くそれ等を保持しないで。然うした場合、彼らは怒る可能性が有ります。"
 
 #: guitext:963
 #, fuzzy
@@ -6391,19 +6391,19 @@ msgstr ""
 msgctxt "Keeper spell description"
 msgid "Slap: Makes your creatures work harder, for some time. "
 "Your creatures take some damage from each slap they receive."
-msgstr "平手打ち：貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリーチャーは、受け取った平手打ちから其々損傷を受けます。"
+msgstr "平手打ち: 貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリーチャーは、受け取った平手打ちから其々損傷を受けます。"
 
 #: guitext:965
 msgctxt "In-game interface description"
 msgid ""
 "Health: How much health points the creature has left to lose."
-msgstr "体力：クリーチャーの残りの体カ点数。"
+msgstr "体力: クリーチャーの残りの体カ点数。"
 
 #: guitext:966
 msgctxt "In-game interface description"
 msgid ""
 "Health: The maximum amount of health points for this creature."
-msgstr "体力：クリーチャーの最高な体カ点数。"
+msgstr "体力: クリーチャーの最高な体カ点数。"
 
 #: guitext:967
 msgctxt "Menu interface item"
