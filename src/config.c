@@ -1068,6 +1068,15 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       mdir=install_info.inst_path;
       sdir=campaign.land_location;
       break;
+  case FGrp_CmpgSrpites:
+      if (campaign.sprite_data_location[0] == '\0')
+      {
+          mdir=keeper_runtime_directory;
+          sdir="fxdata";
+          break;
+      }
+      mdir=keeper_runtime_directory;
+      sdir=campaign.sprite_data_location;
   case FGrp_CrtrData:
       mdir=keeper_runtime_directory;
       sdir="creatrs";

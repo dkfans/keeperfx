@@ -486,7 +486,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 CONFWRNLOG("MAXIMUMSIZE should be set for custom anim");
                 continue;
             }
-            short anim_idx = add_custom_sprite(prepare_file_path(FGrp_FxData, anim_path));
+            short anim_idx = add_custom_sprite(prepare_file_path(FGrp_CmpgSrpites, anim_path));
             if (anim_idx == 0)
             {
                 CONFWRNLOG("Unable to load anim [%s] block of %s file.",

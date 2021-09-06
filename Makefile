@@ -70,7 +70,11 @@ LIBS     = obj/libkeeperfx.a
 
 DEPS = \
 obj/spng.o \
-obj/json.o
+obj/json/json.o \
+obj/json/value.o \
+obj/json/json-dom.o \
+obj/unzip.o \
+obj/ioapi.o
 
 OBJS = \
 $(DEPS) \
@@ -431,7 +435,7 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu)
+$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu obj/std/json obj/hvlog/json)
 std-before:
 hvlog-before:
 
@@ -488,15 +492,27 @@ obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/std/json.o obj/hvlog/json.o: deps/centijson/src/json.c
+obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/centijson/src" -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
+obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
 obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c
 	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/centijson/src" -o"$@" "$<"
+	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/centijson/src" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 

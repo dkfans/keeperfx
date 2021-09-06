@@ -22,12 +22,15 @@
 #include "creature_graphics.h"
 #include "front_simple.h"
 #include "engine_render.h"
-#include "../deps/centijson/src/json.h"
+#include "../deps/zlib/contrib/minizip/unzip.h"
 
 #include <spng.h>
 #include <json.h>
+#include <json-dom.h>
 
 static short next_free_sprite = 0;
+
+struct NamedCommand *anim_names = NULL;
 
 short iso_td_add[KEEPERSPRITE_ADD_NUM];
 short td_iso_add[KEEPERSPRITE_ADD_NUM];
@@ -38,6 +41,33 @@ TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM] = {
 
 struct KeeperSprite creature_table_add[KEEPERSPRITE_ADD_NUM] = {
         {0}
+};
+
+struct Row
+{
+    int x, y;
+    int w, h;
+};
+
+struct SpriteContext
+{
+    struct TbHugeSprite sprite;
+
+    unsigned long w, h;
+    unsigned long x, y;
+    struct KeeperSprite *ksp_first;
+
+    short *id_ptr; // First person / Top down
+    short *id_sz_ptr; // First person / Top down
+
+    short td_id, td_sz;
+    short fp_id, fp_sz;
+
+    unsigned char *img_buf;
+
+    int state; // 0 -> list, 1 -> anim, 2 -> list of images, 3 -> image data
+    int cnt;
+    TbBool only_one;
 };
 
 void clear_custom_sprites()
@@ -52,21 +82,64 @@ void clear_custom_sprites()
     }
     memset(creature_table_add, 0, sizeof(creature_table_add));
     next_free_sprite = 0;
+    if (anim_names != NULL)
+    {
+        free(anim_names);
+    }
 }
 
-static unsigned char *read_png(const char *path, struct TbHugeSprite *sprite, const char **desc)
+/**
+ * Read from current file in zip archive (it should be opened already)
+ * @param ctx
+ * @param user
+ * @param dst_src
+ * @param length
+ * @return
+ */
+static int zip_read_fn(spng_ctx *ctx, void *user, void *dst_src, size_t length)
 {
-    unsigned char *dst_buf;
-    int fmt = SPNG_FMT_PNG;
+    unzFile zip = user;
+
+    return unzReadCurrentFile(zip, dst_src, length) != length;
+}
+/**
+ * Convert camera name (i.e. fprr) to camera #
+ * @param camera_name
+ * @return index of camera direction
+ */
+static int dir_from_camera_name(const char *camera_name)
+{
+    if (0 == strcasecmp(camera_name + 2, "rff"))
+        return 0;
+    if (0 == strcasecmp(camera_name + 2, "rf"))
+        return 1;
+    if (0 == strcasecmp(camera_name + 2, "r"))
+        return 2;
+    if (0 == strcasecmp(camera_name + 2, "br"))
+        return 3;
+    if (0 == strcasecmp(camera_name + 2, "b"))
+        return 4;
+    return -1;
+}
+/**
+ *
+ * @param zip
+ * @param path
+ * @param context
+ * @param blender_filename
+ * @param subpath
+ * @param node
+ * @return
+ */
+static int read_png(unzFile zip, const char *path, struct SpriteContext *context, const char *blender_filename,
+                    const char *subpath, VALUE *node)
+{
+    struct TbHugeSprite *sprite = &context->sprite;
+    const char *camera = NULL;
     size_t out_size;
-    FILE *F = fopen(path, "rb");
     sprite->SHeight = 0;
     sprite->SWidth = 0;
-    if (F == NULL)
-    {
-        ERRORLOG("Unable to read %s", path);
-        return NULL;
-    }
+
     spng_ctx *ctx = NULL;
     ctx = spng_ctx_new(0);
     spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
@@ -74,22 +147,22 @@ static unsigned char *read_png(const char *path, struct TbHugeSprite *sprite, co
     size_t limit = 1024 * 1024 * 2;
     spng_set_chunk_limits(ctx, limit, limit);
 
-    spng_set_png_file(ctx, F);
+    spng_set_png_stream(ctx, zip_read_fn, (void *) zip);
     struct spng_ihdr ihdr;
     int r = spng_get_ihdr(ctx, &ihdr);
 
     if (r)
     {
         ERRORLOG("spng_get_ihdr() error: %s", spng_strerror(r));
-        fclose(F);
-        return NULL;
+        spng_ctx_free(ctx);
+        return 0;
     }
 
-    if ((ihdr.bit_depth != 8) || (ihdr.color_type != SPNG_COLOR_TYPE_INDEXED))
+    if (ihdr.bit_depth != 8)
     {
-        ERRORLOG("Wrong spec: %s should be 8bit indexed Png", path);
-        fclose(F);
-        return NULL;
+        ERRORLOG("Wrong spec: %s/%s should be 8bit truecolor or indexed .png", path, subpath);
+        spng_ctx_free(ctx);
+        return 0;
     }
     struct spng_plte plte = {0};
     r = spng_get_plte(ctx, &plte);
@@ -98,45 +171,105 @@ static unsigned char *read_png(const char *path, struct TbHugeSprite *sprite, co
     sprite->SWidth = ihdr.width;
     sprite->SHeight = ihdr.height;
 
+    int fmt = SPNG_FMT_RGBA8; // for indexed should be SPNG_FMT_PNG
+
     spng_decoded_image_size(ctx, fmt, &out_size);
-    if (limit < out_size)
+    if (limit < out_size) // Image is too big
     {
         ERRORLOG("Unable to decode %s error: %s", path, spng_strerror(r));
-        fclose(F);
-        return NULL;
+        spng_ctx_free(ctx);
+        return 0;
     }
-
-    dst_buf = scratch;
 
     uint32_t n_text = 0;
-    *desc = "";
-    if (0 == spng_get_text(ctx, NULL, &n_text))
-    {
-        struct spng_text *text = malloc(sizeof(struct spng_text) * n_text);
-        spng_get_text(ctx, text, &n_text);
+    TbBool found = 0;
+    long frame_no = 0;
 
-        *desc = (char *) dst_buf;
-        for (int i = 0; i < n_text; i++)
+    if (0 != spng_get_text(ctx, NULL, &n_text))
+    {
+        spng_ctx_free(ctx);
+        return 0;
+    }
+    struct spng_text *text = malloc(sizeof(struct spng_text) * n_text);
+    spng_get_text(ctx, text, &n_text);
+
+    for (int i = 0; i < n_text; i++)
+    {
+        const char *keyword = text[i].keyword;
+        const char *value = text[i].text;
+        if (0 == strcmp(keyword, "Scene"))
         {
-            if (0 == strcmp(text[i].keyword, "Comment"))
+            if (0 == strncmp(value, blender_filename, text[i].length)) // Not our scene?
             {
-                strcpy((char *) dst_buf, text[i].text);
-                dst_buf += text[i].length;
+                found++;
             }
         }
-        dst_buf[0] = 0;
-        dst_buf++;
-        free(text);
+        else if (0 == strcmp(keyword, "Camera"))
+        {
+            camera = value;
+            found++;
+        }
+        else if (0 == strcmp(keyword, "Frame"))
+        {
+            char *endl = NULL;
+            frame_no = strtol(value, &endl, 10);
+            if (endl == value)
+            {
+                WARNLOG("Invalid Frame metadata at %s/%s", path, subpath);
+                free(text);
+                spng_ctx_free(ctx);
+                return 0;
+            }
+            frame_no--;
+            found++;
+        }
     }
 
-    r = spng_decode_image(ctx, dst_buf, out_size, fmt, 0);
-    if (r)
+    if (found != 3) // Scene + Camera + Frame
     {
-        return NULL;
+        free(text);
+        spng_ctx_free(ctx);
+        return 0;
     }
 
-    fclose(F);
-    return dst_buf;
+    TbBool dir_type = (0 == strncasecmp(camera, "fp", 2));
+    VALUE *td_dir = value_dict_get_or_add(node, dir_type ? "fp" : "td");
+    if (value_type(td_dir) == VALUE_NULL)
+    {
+        value_init_array(td_dir);
+    }
+
+    for (int i = value_array_size(td_dir); i < 5; i++)
+    {
+        value_init_array(value_array_append(td_dir));
+    }
+    int lr_dir = dir_from_camera_name(camera);
+    if (lr_dir < 0)
+    {
+        WARNLOG("Unknown frame: %s/%s dir:%s ", path, subpath, camera);
+        free(text);
+        spng_ctx_free(ctx);
+        return 0;
+    }
+    VALUE *arr = value_array_get(td_dir, lr_dir);
+    
+    if (frame_no >= value_array_size(arr)) // >=
+    {
+        for (int i = value_array_size(arr); i <= frame_no; i++)
+        {
+            value_array_insert(arr, i);
+        }
+    }
+    VALUE *dst = value_array_get(arr, frame_no);
+    if (value_type(dst) != VALUE_NULL)
+    {
+        ERRORLOG("Duplicate frame");
+    }
+    value_init_string(dst, subpath);
+    
+    free(text);
+    spng_ctx_free(ctx);
+    return 1;
 }
 
 #define TRANSP_COLOR 255
@@ -202,33 +335,6 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, in
         src_buf += tail;
     }
 }
-
-struct Row
-{
-    int x, y;
-    int w, h;
-};
-
-struct SpriteContext
-{
-    struct TbHugeSprite sprite;
-
-    unsigned long w, h;
-    unsigned long x, y;
-    struct KeeperSprite *ksp_first;
-
-    short *id_ptr; // First person / Top down
-    int *id_sz_ptr; // First person / Top down
-
-    short td_id, td_sz;
-    short fp_id, fp_sz;
-
-    unsigned char *img_buf;
-
-    int state; // 0 -> list, 1 -> anim, 2 -> list of images, 3 -> image data
-    int cnt;
-    TbBool  only_one;
-};
 
 static int process_json(JSON_TYPE json_type, const char *data, size_t data_size, void *context_)
 {
@@ -297,7 +403,8 @@ static int process_json(JSON_TYPE json_type, const char *data, size_t data_size,
                 context->state = 2;
                 context->only_one = 1;
                 return 0;
-            } else if (context->state == 1)
+            }
+            else if (context->state == 1)
             {
                 context->state = 2;
                 return 0;
@@ -397,25 +504,149 @@ static int process_json(JSON_TYPE json_type, const char *data, size_t data_size,
     return 0;
 }
 
+struct StrBuf
+{
+    char *ptr;
+    size_t size;
+};
+
+static int dump_callback(const char* str, size_t size, void* user_data)
+{
+    struct StrBuf* buf = user_data;
+    buf->ptr = realloc(buf->ptr, buf->size + size + 1);
+    memcpy(buf->ptr + buf->size, str, size);
+    buf->size += size;
+    buf->ptr[buf->size] = 0;
+    return 0;
+}
+/**
+ * Collect sprites from zipfile with specific blender_scene
+ * @param zip - opened zip file
+ */
+static int collect_sprites(const char *path, unzFile zip, const char *blender_scene, VALUE *node)
+{
+    char szCurrentFileName[256];
+    struct SpriteContext context = {0};
+    for (int err = unzGoToFirstFile(zip);
+         err == UNZ_OK;
+         err = unzGoToNextFile(zip))
+    {
+        if (UNZ_OK != unzGetCurrentFileInfo64(zip, NULL,
+                                              szCurrentFileName, sizeof(szCurrentFileName) - 1,
+                                              NULL, 0, NULL, 0)
+                )
+        {
+            continue;
+        }
+        char *term = strrchr(szCurrentFileName, '.');
+        if (term == NULL)
+            continue;
+        if (strcasecmp(term, ".png") != 0)
+            continue;
+        if (UNZ_OK != unzOpenCurrentFile(zip))
+        {
+            return 1;
+        }
+        read_png(zip, path, &context, blender_scene, szCurrentFileName, node);
+        if (UNZ_OK != unzCloseCurrentFile(zip))
+        {
+            return 1;
+        }
+    }
+
+    struct StrBuf buf = {0, 0};
+
+    json_dom_dump(node, &dump_callback, &buf, 2, 0);
+    fprintf(stderr, "%s", buf.ptr);
+    return 0;
+}
+
+static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALUE *root)
+{
+    VALUE *val;
+    val = value_dict_get(root, "name");
+    if (val == NULL)
+    {
+        WARNLOG("Invalid sprite %s/sprites.json[%d]: no \"name\" key", path, idx);
+        return 0;
+    }
+    const char *name = value_string(val);
+    WARNDBG(2, "found sprite: %s", name);
+    val = value_dict_get(root, "blender_scene");
+    if ((val != NULL) && (value_type(val) == VALUE_STRING))
+    {
+        collect_sprites(path, zip, value_string(val), root);
+    }
+    return 1;
+}
+
 short add_custom_sprite(const char *path)
 {
-    short ret;
-    const char *desc;
-    struct SpriteContext context = {0};
+    unz_file_info64 zip_info = {0};
+    VALUE sprites_root;
+    unzFile zip = unzOpen(path);
 
-    context.img_buf = read_png(path, &context.sprite, &desc);
-    JSON_PARSER parser;
-    JSON_CALLBACKS callbacks = {&process_json};
-    if (!context.img_buf)
+    if (zip == NULL)
         return 0;
 
-    json_init(&parser, &callbacks, NULL, &context);
-    json_feed(&parser, desc, strlen(desc));
-    if (json_fini(&parser, NULL))
+    if (UNZ_OK != unzLocateFile(zip, "sprites.json", 0))
     {
-        ERRORLOG("Unable to parse JSON");
+        unzClose(zip);
         return 0;
     }
 
-    return context.td_id;
+    if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0)
+            )
+    {
+        unzClose(zip);
+        return 0;
+    }
+
+    if (zip_info.uncompressed_size >= 1024 * 1024)
+    {
+        WARNLOG("File too big %s/sprites.json", path);
+        unzClose(zip);
+        return 0;
+    }
+
+    if (UNZ_OK != unzOpenCurrentFile(zip))
+    {
+        unzClose(zip);
+        return 0;
+    }
+
+    if (unzReadCurrentFile(zip, scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size)
+    {
+        WARNLOG("Unable to read %s/sprites.json", path);
+        unzClose(zip);
+        return 0;
+    }
+    scratch[zip_info.uncompressed_size] = 0;
+
+    if (UNZ_OK != unzCloseCurrentFile(zip))
+    {
+        unzClose(zip);
+        return 0;
+    }
+
+    json_dom_parse((char *) scratch, zip_info.uncompressed_size, NULL, 0, &sprites_root, NULL);
+    if (VALUE_ARRAY != value_type(&sprites_root))
+    {
+        WARNLOG("%s/sprites.json should be array of dictionaries", path);
+        unzClose(zip);
+        return 0;
+    }
+    for (int i = 0; i < value_array_size(&sprites_root); i++)
+    {
+        VALUE *val = value_array_get(&sprites_root, i);
+        if (!process_sprite_from_list(path, zip, i, val))
+        {
+            continue;
+        }
+    }
+
+    value_fini(&sprites_root);
+
+    unzClose(zip);
+    return 0;
 }
