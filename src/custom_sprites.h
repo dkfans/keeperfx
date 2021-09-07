@@ -24,9 +24,8 @@
 extern "C" {
 #endif
 
-short add_custom_sprite(const char *path);
-
 void clear_custom_sprites();
+short get_anim_id(char *name);
 
 #ifdef __cplusplus
 }

@@ -46,12 +46,6 @@ struct KeeperSprite creature_table_add[KEEPERSPRITE_ADD_NUM] = {
         {0}
 };
 
-struct Row
-{
-    int x, y;
-    int w, h;
-};
-
 struct SpriteContext
 {
     struct TbHugeSprite sprite;
@@ -67,10 +61,6 @@ struct SpriteContext
     short fp_id, fp_sz;
 
     unsigned char *img_buf;
-
-    int state; // 0 -> list, 1 -> anim, 2 -> list of images, 3 -> image data
-    int cnt;
-    TbBool only_one;
 };
 
 struct PaletteRecord
@@ -87,8 +77,16 @@ struct PaletteNode
 
 static struct PaletteRecord pal_records[PALETTE_COLORS]; // for each color of a palette
 static struct PaletteNode pal_tree[MAX_COLOR_VALUE]; // For each component of a palette
+static struct NamedCommand added_sprites[KEEPERSPRITE_ADD_NUM];
+static int num_added_sprite = 0;
 
 static void init_pal_conversion();
+
+static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h);
+
+static TbBool add_custom_sprite(const char *path);
+
+static int cmp_named_command(const void *a, const void *b);
 
 static int pal_compare_fn(const void *a, const void *b)
 {
@@ -114,6 +112,13 @@ void clear_custom_sprites()
             keepersprite_add[i] = NULL;
         }
     }
+    for (int i = 0; i < num_added_sprite; i++)
+    {
+        free(added_sprites[i].name);
+    }
+    num_added_sprite = 0;
+    memset(added_sprites, 0, sizeof(added_sprites));
+
     memset(creature_table_add, 0, sizeof(creature_table_add));
     next_free_sprite = 0;
     if (anim_names != NULL)
@@ -124,6 +129,7 @@ void clear_custom_sprites()
     memset(pal_records, 0, sizeof(pal_records));
     memset(pal_tree, 0, sizeof(pal_tree));
     init_pal_conversion();
+    add_custom_sprite("fxdata/knight.zip");
 }
 
 /**
@@ -225,8 +231,8 @@ static int dir_from_camera_name(const char *camera_name)
  * @param node
  * @return
  */
-static int read_png(unzFile zip, const char *path, struct SpriteContext *context, const char *blender_filename,
-                    const char *subpath, VALUE *node)
+static int read_png_info(unzFile zip, const char *path, struct SpriteContext *context, const char *blender_filename,
+                         const char *subpath, VALUE *node)
 {
     struct TbHugeSprite *sprite = &context->sprite;
     const char *camera = NULL;
@@ -354,14 +360,127 @@ static int read_png(unzFile zip, const char *path, struct SpriteContext *context
             value_array_insert(arr, i);
         }
     }
-    VALUE *dst = value_array_get(arr, frame_no);
+    VALUE *row = value_array_get(arr, frame_no);
+    if (value_type(row) == VALUE_NULL)
+    {
+        value_init_dict(row);
+    }
+    else if (value_type(row) != VALUE_DICT)
+    {
+        ERRORLOG("Invalid frame record");
+        free(text);
+        spng_ctx_free(ctx);
+        return 0;
+    }
+
+    VALUE *dst = value_dict_get_or_add(row, "file");
     if (value_type(dst) != VALUE_NULL)
     {
-        ERRORLOG("Duplicate frame");
+        WARNLOG("Overriding frame %s/%s", path, subpath);
+        value_fini(dst);
     }
     value_init_string(dst, subpath);
 
     free(text);
+    spng_ctx_free(ctx);
+    return 1;
+}
+
+static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath)
+{
+    struct TbHugeSprite *sprite = &context->sprite;
+    size_t out_size;
+    sprite->SHeight = 0;
+    sprite->SWidth = 0;
+
+    spng_ctx *ctx = NULL;
+    ctx = spng_ctx_new(0);
+    spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
+
+    size_t limit = 1024 * 1024 * 2;
+    spng_set_chunk_limits(ctx, limit, limit);
+
+    spng_set_png_stream(ctx, zip_read_fn, (void *) zip);
+    struct spng_ihdr ihdr;
+    int r = spng_get_ihdr(ctx, &ihdr);
+
+    if (r)
+    {
+        ERRORLOG("spng_get_ihdr() error: %s", spng_strerror(r));
+        spng_ctx_free(ctx);
+        return 0;
+    }
+
+    if (ihdr.bit_depth != 8)
+    {
+        ERRORLOG("Wrong spec: %s/%s should be 8bit truecolor or indexed .png", path, subpath);
+        spng_ctx_free(ctx);
+        return 0;
+    }
+    struct spng_plte plte = {0};
+    r = spng_get_plte(ctx, &plte);
+    // TODO: should we check palette?
+
+    sprite->SWidth = ihdr.width;
+    sprite->SHeight = ihdr.height;
+
+    int fmt = SPNG_FMT_RGBA8; // for indexed should be SPNG_FMT_PNG
+
+    spng_decoded_image_size(ctx, fmt, &out_size);
+    if (limit < out_size) // Image is too big
+    {
+        ERRORLOG("Unable to decode %s error: %s", path, spng_strerror(r));
+        spng_ctx_free(ctx);
+        return 0;
+    }
+
+    unsigned char *dst_buf = scratch;
+    spng_decode_image(ctx, dst_buf, out_size, fmt, 0);
+
+    // This should be enough except rare cases like transparent checkerboard
+    int dst_w = min(context->sprite.SWidth, context->w);
+    int dst_h = min(context->sprite.SHeight, context->h);
+
+    if (dst_w >= 255 || dst_h >= 255)
+    {
+        ERRORLOG("Sprites more than 255x255 are not supported");
+        return 1;
+    }
+
+    short sprite_idx = next_free_sprite;
+    next_free_sprite++;
+    if (*context->id_ptr == 0) // First sprite for current view (FP/TD)
+        *context->id_ptr = sprite_idx + KEEPERSPRITE_ADD_OFFSET;
+    (*context->id_sz_ptr)++; // Add new sprite for current view (FP/TD)
+
+    size_t sz = (dst_w + 2) * (dst_h + 3);
+    keepersprite_add[sprite_idx] = malloc(sz);
+    context->sprite.Data = keepersprite_add[sprite_idx];
+    compress_raw(&context->sprite, dst_buf, context->x, context->y, dst_w, dst_h);
+    struct KeeperSprite *ksprite = &creature_table_add[sprite_idx];
+
+    if (context->ksp_first == NULL)
+    {
+        context->ksp_first = ksprite;
+    }
+    else
+    {
+        context->ksp_first->FramesCount++;
+    }
+
+    ksprite->DataOffset = 0;
+    // That is this actually?
+    ksprite->SWidth = dst_w;
+    ksprite->SHeight = dst_h;
+    ksprite->FrameWidth = dst_w;
+    ksprite->FrameHeight = dst_h;
+    ksprite->Rotable = 0; // 2 need more sprite in next slot - not implemented yet
+    ksprite->FramesCount = 1;
+    ksprite->FrameOffsW = 0;
+    ksprite->FrameOffsH = 0;
+    ksprite->field_C = -dst_w / 2; // Offset x
+    ksprite->field_E = 1 - dst_h; // Offset y
+
     spng_ctx_free(ctx);
     return 1;
 }
@@ -430,174 +549,6 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, in
     }
 }
 
-static int process_json(JSON_TYPE json_type, const char *data, size_t data_size, void *context_)
-{
-    struct SpriteContext *context = context_;
-
-    switch (json_type)
-    {
-        case JSON_KEY:
-            if (0 == strncmp("fp", data, data_size))
-            {
-                context->id_ptr = &context->fp_id;
-                context->id_sz_ptr = &context->fp_sz;
-            }
-            else if (0 == strncmp("td", data, data_size))
-            {
-                context->id_ptr = &context->td_id;
-                context->id_sz_ptr = &context->td_sz;
-            }
-            else
-            {
-                context->id_ptr = NULL;
-            }
-            return 0;
-        case JSON_ARRAY_BEG:
-            if (context->state <= 3)
-            {
-                context->state++;
-                return 0;
-            }
-            else
-                return 1;
-        default:
-            return 0;
-        case JSON_NUMBER:
-            if (context->state == 4)
-            {
-                switch (context->cnt)
-                {
-                    case 0:
-                        context->x = strtol(data, NULL, 10);
-                        break;
-                    case 1:
-                        context->y = strtol(data, NULL, 10);
-                        break;
-                    case 2:
-                        context->w = strtol(data, NULL, 10);
-                        break;
-                    case 3:
-                        context->h = strtol(data, NULL, 10);
-                        break;
-                    default:
-                        return 1;
-                }
-                context->cnt++;
-                return 0;
-            }
-            // fallthrough
-        case JSON_NULL:
-        case JSON_FALSE:
-        case JSON_TRUE:
-            ERRORLOG("Unexpected value");
-            return 1;
-        case JSON_OBJECT_BEG:
-            if (context->state == 0) // Only one object
-            {
-                context->state = 2;
-                context->only_one = 1;
-                return 0;
-            }
-            else if (context->state == 1)
-            {
-                context->state = 2;
-                return 0;
-            }
-            ERRORLOG("Unexpected value");
-            return 1;
-        case JSON_OBJECT_END:
-            context->state--;
-            if (context->state == 1)
-            {
-                // Object defined
-                if (context->fp_sz != context->td_sz)
-                {
-                    ERRORLOG("Different number of FP and TD frames is not supported");
-                    return 1;
-                }
-                for (short i = 0; i < context->fp_sz; i++)
-                {
-                    short fp_id = context->fp_id + i;
-                    short td_id = context->td_id + i;
-                    td_iso_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
-                    iso_td_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
-                    iso_td_add[td_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
-                    td_iso_add[td_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
-                }
-            }
-            return 0;
-        case JSON_ARRAY_END:
-            context->state--;
-            if (context->state == 2)
-            {
-                if (context->ksp_first == NULL)
-                {
-                    ERRORLOG("No frames in list");
-                    return 1;
-                }
-                context->ksp_first = NULL;
-            }
-            if (context->state != 3)
-            {
-                return 0;
-            }
-            else
-            {
-                if (context->cnt < 4)
-                {
-                    ERRORLOG("[x, y, w, h] expected in list");
-                    return 1;
-                }
-                context->cnt = 0;
-            }
-    }
-    // This should be enough except rare cases like transparent checkerboard
-    int dst_w = min(context->sprite.SWidth, context->w);
-    int dst_h = min(context->sprite.SHeight, context->h);
-
-    if (dst_w >= 255 || dst_h >= 255)
-    {
-        ERRORLOG("Sprites more than 255x255 are not supported");
-        return 1;
-    }
-
-    short sprite_idx = next_free_sprite;
-    next_free_sprite++;
-    if (*context->id_ptr == 0) // First sprite for current view (FP/TD)
-        *context->id_ptr = sprite_idx + KEEPERSPRITE_ADD_OFFSET;
-    (*context->id_sz_ptr)++; // Add new sprite for current view (FP/TD)
-
-    size_t sz = (dst_w + 2) * (dst_h + 3);
-    keepersprite_add[sprite_idx] = malloc(sz);
-    context->sprite.Data = keepersprite_add[sprite_idx];
-    compress_raw(&context->sprite, context->img_buf, context->x, context->y, dst_w, dst_h);
-    struct KeeperSprite *ksprite = &creature_table_add[sprite_idx];
-
-    if (context->ksp_first == NULL)
-    {
-        context->ksp_first = ksprite;
-    }
-    else
-    {
-        context->ksp_first->FramesCount++;
-    }
-
-    ksprite->DataOffset = 0;
-    // That is this actually?
-    ksprite->SWidth = dst_w;
-    ksprite->SHeight = dst_h;
-    ksprite->FrameWidth = dst_w;
-    ksprite->FrameHeight = dst_h;
-    ksprite->Rotable = 0; // 2 need more sprite in next slot - not implemented yet
-    ksprite->FramesCount = 1;
-    ksprite->FrameOffsW = 0;
-    ksprite->FrameOffsH = 0;
-    ksprite->field_C = -dst_w / 2; // Offset x
-    ksprite->field_E = 1 - dst_h; // Offset y
-
-    return 0;
-}
-
 struct StrBuf
 {
     char *ptr;
@@ -618,10 +569,10 @@ static int dump_callback(const char *str, size_t size, void *user_data)
  * Collect sprites from zipfile with specific blender_scene
  * @param zip - opened zip file
  */
-static int collect_sprites(const char *path, unzFile zip, const char *blender_scene, VALUE *node)
+static int
+collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct SpriteContext *context, VALUE *node)
 {
     char szCurrentFileName[256];
-    struct SpriteContext context = {0};
     for (int err = unzGoToFirstFile(zip);
          err == UNZ_OK;
          err = unzGoToNextFile(zip))
@@ -642,7 +593,7 @@ static int collect_sprites(const char *path, unzFile zip, const char *blender_sc
         {
             return 1;
         }
-        read_png(zip, path, &context, blender_scene, szCurrentFileName, node);
+        read_png_info(zip, path, context, blender_scene, szCurrentFileName, node);
         if (UNZ_OK != unzCloseCurrentFile(zip))
         {
             return 1;
@@ -654,12 +605,67 @@ static int collect_sprites(const char *path, unzFile zip, const char *blender_sc
     json_dom_dump(node, &dump_callback, &buf, 2, 0);
 
     fprintf(stderr, "%s", buf.ptr);
+
+    int prev_sz;
+    VALUE *ud_lst;
+    for (int ud = 0; ud < 2; ud++)
+    {
+        if (ud == 0)
+        {
+            ud_lst = value_dict_get(node, "td");
+            prev_sz = value_array_size(ud_lst);
+            context->id_ptr = &context->td_id;
+            context->id_sz_ptr = &context->td_sz;
+        }
+        else
+        {
+            ud_lst = value_dict_get(node, "td");
+            context->id_ptr = &context->fp_id;
+            context->id_sz_ptr = &context->fp_sz;
+        }
+        for (int lr = 0; lr < 5; lr++)
+        {
+            VALUE *lr_list = value_array_get(ud_lst, lr);
+            for (int frame = 0; frame < value_array_size(lr_list); frame++)
+            {
+                VALUE *itm = value_array_get(lr_list, frame);
+                const char *name = value_string(value_dict_get(itm, "file"));
+
+                unzLocateFile(zip, name, 0);
+                if (UNZ_OK != unzOpenCurrentFile(zip))
+                {
+                    return 1;
+                }
+                read_png_data(zip, path, context, name);
+                if (UNZ_OK != unzCloseCurrentFile(zip))
+                {
+                    return 1;
+                }
+            }
+        }
+    }
+
+    if (prev_sz != value_array_size(ud_lst))
+    {
+        ERRORLOG("Should have same amount of TD and FP frames");
+    }
+    for (short i = 0; i < prev_sz; i++)
+    {
+        short fp_id = context->fp_id + i;
+        short td_id = context->td_id + i;
+        td_iso_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
+        iso_td_add[fp_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
+        iso_td_add[td_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
+        td_iso_add[td_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
+    }
     return 0;
 }
 
 static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALUE *root)
 {
     VALUE *val;
+    struct SpriteContext context = {0};
+
     val = value_dict_get(root, "name");
     if (val == NULL)
     {
@@ -671,12 +677,16 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     val = value_dict_get(root, "blender_scene");
     if ((val != NULL) && (value_type(val) == VALUE_STRING))
     {
-        collect_sprites(path, zip, value_string(val), root);
+        collect_sprites(path, zip, value_string(val), &context, root);
     }
+    struct NamedCommand *spr = &added_sprites[num_added_sprite++];
+    spr->name = strdup(name);
+    spr->num = context.td_id;
+
     return 1;
 }
 
-short add_custom_sprite(const char *path)
+static TbBool add_custom_sprite(const char *path)
 {
     unz_file_info64 zip_info = {0};
     VALUE sprites_root;
@@ -744,5 +754,28 @@ short add_custom_sprite(const char *path)
     value_fini(&sprites_root);
 
     unzClose(zip);
+    return 1;
+}
+
+static int cmp_named_command(const void *a, const void *b)
+{
+
+    const struct NamedCommand *val_a = a;
+    const struct NamedCommand *val_b = b;
+    return strcmp(val_a->name, val_b->name);
+}
+
+short get_anim_id(char *name)
+{
+    short ret = atoi(name);
+    struct NamedCommand key = {name, 0};
+
+    if (ret > 0)
+        return ret;
+
+    struct NamedCommand *val = bsearch(&key, added_sprites, num_added_sprite, sizeof(added_sprites[0]),
+                                       &cmp_named_command);
+    if (val)
+        return val->num;
     return 0;
 }

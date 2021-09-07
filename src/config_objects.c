@@ -56,7 +56,6 @@ const struct NamedCommand objects_object_commands[] = {
   {"HEALTH",           12},
   {"FALLACCELERATION", 13},
   {"LIGHTUNAFFECTED",  14},
-  {"IMAGE",            15},
   {NULL,                0},
   };
 
@@ -230,9 +229,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
     arr_size = gameadd.object_conf.object_types_count;
     for (tmodel = 0; tmodel < arr_size; tmodel++)
     {
-        char anim_path[COMMAND_WORD_LEN];
-        anim_path[0] = 0;
-
         char block_buf[COMMAND_WORD_LEN];
         sprintf(block_buf, "object%d", tmodel);
         long pos = 0;
@@ -331,7 +327,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 5: // ANIMATIONID
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
+
+                    n = get_anim_id(word_buf);
                     objdat->sprite_anim_idx = n;
                     n++;
                 }
@@ -458,15 +455,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 15: // Image
-                if (!get_conf_parameter_quoted(buf,&pos,len,word_buf,sizeof(word_buf)))
-                {
-                    CONFWRNLOG("Incorrect path of \"%s\" in [%s] block of %s file.",
-                               word_buf,block_buf,config_textname);
-                    break;
-                }
-                strcpy(anim_path, word_buf);
-                break;
             case 0: // comment
                 break;
             case -1: // end of buffer
@@ -479,23 +467,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             skip_conf_to_next_line(buf,&pos,len);
         }
 #undef COMMAND_TEXT
-        if (anim_path[0] != 0)
-        {
-            if (objdat->sprite_size_max <= 0)
-            {
-                CONFWRNLOG("MAXIMUMSIZE should be set for custom anim");
-                continue;
-            }
-            short anim_idx = add_custom_sprite(prepare_file_path(FGrp_CmpgSrpites, anim_path));
-            if (anim_idx == 0)
-            {
-                CONFWRNLOG("Unable to load anim [%s] block of %s file.",
-                           block_buf, config_textname);
-
-                continue;
-            }
-            define_custom_object(tmodel, anim_idx);
-        }
     }
     return true;
 }
