@@ -28,6 +28,9 @@
 #include <json.h>
 #include <json-dom.h>
 
+// Each part of RGB tuple of palette file is 1-63 actually
+#define MAX_COLOR_VALUE 64
+
 static short next_free_sprite = 0;
 
 struct NamedCommand *anim_names = NULL;
@@ -70,6 +73,37 @@ struct SpriteContext
     TbBool only_one;
 };
 
+struct PaletteRecord
+{
+    long color;
+    unsigned char color_idx;
+};
+
+struct PaletteNode
+{
+    struct PaletteRecord *rec;
+    int size;
+};
+
+static struct PaletteRecord pal_records[PALETTE_COLORS]; // for each color of a palette
+static struct PaletteNode pal_tree[MAX_COLOR_VALUE]; // For each component of a palette
+
+static void init_pal_conversion();
+
+static int pal_compare_fn(const void *a, const void *b)
+{
+    const struct PaletteRecord *rec_a = a;
+    const struct PaletteRecord *rec_b = b;
+    // FYI: minimal density is G axis (15)
+    long delta = (rec_a->color & 0x00FF00) - (rec_b->color & 0x00FF00);
+    if (delta != 0)  //G first
+        return delta;
+    delta = (rec_a->color & 0xFF0000) - (rec_b->color & 0xFF0000);
+    if (delta != 0)
+        return delta;
+    return (rec_a->color & 0x0000FF) - (rec_b->color & 0x0000FF);
+}
+
 void clear_custom_sprites()
 {
     for (int i = 0; i < KEEPERSPRITE_ADD_NUM; i++)
@@ -85,6 +119,64 @@ void clear_custom_sprites()
     if (anim_names != NULL)
     {
         free(anim_names);
+    }
+
+    memset(pal_records, 0, sizeof(pal_records));
+    memset(pal_tree, 0, sizeof(pal_tree));
+    init_pal_conversion();
+}
+
+/**
+ * Setup data for rgb -> indexed conversion
+ */
+static void init_pal_conversion()
+{
+    // 1. Loading palette into pal_records
+    char stats[64] = {0};
+
+    unsigned char *pal = engine_palette;
+    for (int i = 0; i < PALETTE_COLORS; i++)
+    {
+        if ((pal[i * 3 + 0] > MAX_COLOR_VALUE)
+            || (pal[i * 3 + 1] > MAX_COLOR_VALUE)
+            || (pal[i * 3 + 2] > MAX_COLOR_VALUE)
+                )
+        {
+            WARNLOG("Unexpected: palette file records is out of range");
+        }
+        stats[pal[i * 3 + 2]]++;
+        pal_records[i].color = pal[i * 3 + 0] | (pal[i * 3 + 1] << 8) | (pal[i * 3 + 2] << 16);
+        pal_records[i].color_idx = i;
+    }
+    // 2. Sorting by color
+    qsort(pal_records, PALETTE_COLORS, sizeof(pal_records[0]), &pal_compare_fn);
+    // 3. setting up tree
+    long prev = 0;
+    for (int i = 0; i < PALETTE_COLORS; i++)
+    {
+        int idx = (pal_records[i].color & 0x00FF00) >> 8;
+        struct PaletteNode *node = &pal_tree[idx];
+        if (node->rec == NULL)
+        {
+            node->rec = &pal_records[i];
+        }
+        node->size++;
+    }
+    // 4. Shifting components upwards
+    for (int i = 0; i < MAX_COLOR_VALUE - 1; i++)
+    {
+        if (pal_tree[i].rec == NULL)
+        {
+            if (pal_tree[i + 1].rec == NULL)
+            {
+                WARNLOG("Palette gap too big");
+                pal_tree[i].rec = &pal_records[255];
+            }
+            else
+            {
+                pal_tree[i].rec = pal_tree[i + 1].rec;
+            }
+        }
     }
 }
 
@@ -102,6 +194,7 @@ static int zip_read_fn(spng_ctx *ctx, void *user, void *dst_src, size_t length)
 
     return unzReadCurrentFile(zip, dst_src, length) != length;
 }
+
 /**
  * Convert camera name (i.e. fprr) to camera #
  * @param camera_name
@@ -121,6 +214,7 @@ static int dir_from_camera_name(const char *camera_name)
         return 4;
     return -1;
 }
+
 /**
  *
  * @param zip
@@ -252,7 +346,7 @@ static int read_png(unzFile zip, const char *path, struct SpriteContext *context
         return 0;
     }
     VALUE *arr = value_array_get(td_dir, lr_dir);
-    
+
     if (frame_no >= value_array_size(arr)) // >=
     {
         for (int i = value_array_size(arr); i <= frame_no; i++)
@@ -266,7 +360,7 @@ static int read_png(unzFile zip, const char *path, struct SpriteContext *context
         ERRORLOG("Duplicate frame");
     }
     value_init_string(dst, subpath);
-    
+
     free(text);
     spng_ctx_free(ctx);
     return 1;
@@ -510,15 +604,16 @@ struct StrBuf
     size_t size;
 };
 
-static int dump_callback(const char* str, size_t size, void* user_data)
+static int dump_callback(const char *str, size_t size, void *user_data)
 {
-    struct StrBuf* buf = user_data;
+    struct StrBuf *buf = user_data;
     buf->ptr = realloc(buf->ptr, buf->size + size + 1);
     memcpy(buf->ptr + buf->size, str, size);
     buf->size += size;
     buf->ptr[buf->size] = 0;
     return 0;
 }
+
 /**
  * Collect sprites from zipfile with specific blender_scene
  * @param zip - opened zip file
@@ -557,6 +652,7 @@ static int collect_sprites(const char *path, unzFile zip, const char *blender_sc
     struct StrBuf buf = {0, 0};
 
     json_dom_dump(node, &dump_callback, &buf, 2, 0);
+
     fprintf(stderr, "%s", buf.ptr);
     return 0;
 }
