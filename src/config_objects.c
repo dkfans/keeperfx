@@ -467,6 +467,10 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             skip_conf_to_next_line(buf,&pos,len);
         }
 #undef COMMAND_TEXT
+        if (tmodel > OBJECT_TYPES_COUNT_ORIGINAL)
+        {
+            define_custom_object(tmodel, objdat->sprite_anim_idx);
+        }
     }
     return true;
 }

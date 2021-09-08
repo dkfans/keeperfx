@@ -30,6 +30,7 @@
 
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
+#define TRANSP_COLOR 255
 
 static short next_free_sprite = 0;
 
@@ -50,7 +51,6 @@ struct SpriteContext
 {
     struct TbHugeSprite sprite;
 
-    unsigned long w, h;
     unsigned long x, y;
     struct KeeperSprite *ksp_first;
 
@@ -60,12 +60,12 @@ struct SpriteContext
     short td_id, td_sz;
     short fp_id, fp_sz;
 
-    unsigned char *img_buf;
+    TbBool rotable;
 };
 
 struct PaletteRecord
 {
-    long color;
+    uint32_t color;
     unsigned char color_idx;
 };
 
@@ -114,7 +114,7 @@ void clear_custom_sprites()
     }
     for (int i = 0; i < num_added_sprite; i++)
     {
-        free(added_sprites[i].name);
+        free((char *) added_sprites[i].name);
     }
     num_added_sprite = 0;
     memset(added_sprites, 0, sizeof(added_sprites));
@@ -126,10 +126,8 @@ void clear_custom_sprites()
         free(anim_names);
     }
 
-    memset(pal_records, 0, sizeof(pal_records));
-    memset(pal_tree, 0, sizeof(pal_tree));
     init_pal_conversion();
-    add_custom_sprite("fxdata/knight.zip");
+    add_custom_sprite("fxdata/s2.zip");
 }
 
 /**
@@ -138,7 +136,9 @@ void clear_custom_sprites()
 static void init_pal_conversion()
 {
     // 1. Loading palette into pal_records
-    char stats[64] = {0};
+    memset(pal_records, 0, sizeof(pal_records));
+
+    struct PaletteNode pal_tree_tmp[MAX_COLOR_VALUE] = {0}; // one color
 
     unsigned char *pal = engine_palette;
     for (int i = 0; i < PALETTE_COLORS; i++)
@@ -150,40 +150,41 @@ static void init_pal_conversion()
         {
             WARNLOG("Unexpected: palette file records is out of range");
         }
-        stats[pal[i * 3 + 2]]++;
         pal_records[i].color = pal[i * 3 + 0] | (pal[i * 3 + 1] << 8) | (pal[i * 3 + 2] << 16);
         pal_records[i].color_idx = i;
     }
     // 2. Sorting by color
     qsort(pal_records, PALETTE_COLORS, sizeof(pal_records[0]), &pal_compare_fn);
     // 3. setting up tree
-    long prev = 0;
     for (int i = 0; i < PALETTE_COLORS; i++)
     {
         int idx = (pal_records[i].color & 0x00FF00) >> 8;
-        struct PaletteNode *node = &pal_tree[idx];
+        struct PaletteNode *node = &pal_tree_tmp[idx];
         if (node->rec == NULL)
         {
             node->rec = &pal_records[i];
         }
         node->size++;
     }
-    // 4. Shifting components upwards
-    for (int i = 0; i < MAX_COLOR_VALUE - 1; i++)
+    // 4. Expanding borders
+#define NEAREST_DEPTH 5
+    for (int i = 0; i < MAX_COLOR_VALUE; i++)
     {
-        if (pal_tree[i].rec == NULL)
+        pal_tree[i].rec = NULL;
+        pal_tree[i].size = 0;
+        for (int j = 0; j < NEAREST_DEPTH; j++)
         {
-            if (pal_tree[i + 1].rec == NULL)
+            int k = i + j - NEAREST_DEPTH / 2;
+            if ((k < 0) || (k >= MAX_COLOR_VALUE))
+                continue;
+            if (pal_tree[i].rec == NULL)
             {
-                WARNLOG("Palette gap too big");
-                pal_tree[i].rec = &pal_records[255];
+                pal_tree[i].rec = pal_tree_tmp[k].rec;
             }
-            else
-            {
-                pal_tree[i].rec = pal_tree[i + 1].rec;
-            }
+            pal_tree[i].size += pal_tree_tmp[k].size;
         }
     }
+#undef NEAREST_DEPTH
 }
 
 /**
@@ -208,6 +209,8 @@ static int zip_read_fn(spng_ctx *ctx, void *user, void *dst_src, size_t length)
  */
 static int dir_from_camera_name(const char *camera_name)
 {
+    if (camera_name[2] == 0)
+        return 0;
     if (0 == strcasecmp(camera_name + 2, "rff"))
         return 0;
     if (0 == strcasecmp(camera_name + 2, "rf"))
@@ -229,7 +232,7 @@ static int dir_from_camera_name(const char *camera_name)
  * @param blender_filename
  * @param subpath
  * @param node
- * @return
+ * @return 1 if error
  */
 static int read_png_info(unzFile zip, const char *path, struct SpriteContext *context, const char *blender_filename,
                          const char *subpath, VALUE *node)
@@ -255,14 +258,14 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
     {
         ERRORLOG("spng_get_ihdr() error: %s", spng_strerror(r));
         spng_ctx_free(ctx);
-        return 0;
+        return 1;
     }
 
     if (ihdr.bit_depth != 8)
     {
         ERRORLOG("Wrong spec: %s/%s should be 8bit truecolor or indexed .png", path, subpath);
         spng_ctx_free(ctx);
-        return 0;
+        return 1;
     }
     struct spng_plte plte = {0};
     r = spng_get_plte(ctx, &plte);
@@ -278,7 +281,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
     {
         ERRORLOG("Unable to decode %s error: %s", path, spng_strerror(r));
         spng_ctx_free(ctx);
-        return 0;
+        return 1;
     }
 
     uint32_t n_text = 0;
@@ -288,7 +291,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
     if (0 != spng_get_text(ctx, NULL, &n_text))
     {
         spng_ctx_free(ctx);
-        return 0;
+        return 1;
     }
     struct spng_text *text = malloc(sizeof(struct spng_text) * n_text);
     spng_get_text(ctx, text, &n_text);
@@ -318,7 +321,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
                 WARNLOG("Invalid Frame metadata at %s/%s", path, subpath);
                 free(text);
                 spng_ctx_free(ctx);
-                return 0;
+                return 1;
             }
             frame_no--;
             found++;
@@ -329,7 +332,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
     {
         free(text);
         spng_ctx_free(ctx);
-        return 0;
+        return 0; // File without metadata is not a problem
     }
 
     TbBool dir_type = (0 == strncasecmp(camera, "fp", 2));
@@ -339,7 +342,8 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
         value_init_array(td_dir);
     }
 
-    for (int i = value_array_size(td_dir); i < 5; i++)
+    // At least one image direction should be present
+    for (int i = value_array_size(td_dir); i < 1; i++)
     {
         value_init_array(value_array_append(td_dir));
     }
@@ -349,8 +353,58 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
         WARNLOG("Unknown frame: %s/%s dir:%s ", path, subpath, camera);
         free(text);
         spng_ctx_free(ctx);
-        return 0;
+        return 1;
     }
+
+    if ((!context->rotable) && (lr_dir > 1))
+    {
+        VALUE *rotated = value_dict_get_or_add(node, "rotated");
+        switch (value_type(rotated))
+        {
+            case VALUE_NULL:
+                value_init_bool(rotated, true);
+                break;
+            case VALUE_BOOL:
+                if (!value_bool(rotated))
+                {
+                    WARNLOG("Too many frames and Rotated is false");
+                    free(text);
+                    spng_ctx_free(ctx);
+                    return 1;
+                }
+                break;
+            case VALUE_INT32:
+            case VALUE_UINT32:
+            case VALUE_INT64:
+            case VALUE_UINT64:
+            case VALUE_FLOAT:
+            case VALUE_DOUBLE:
+                if (!value_int32(rotated))
+                {
+                    WARNLOG("Too many frames and Rotated is false");
+                    free(text);
+                    spng_ctx_free(ctx);
+                    return 1;
+                }
+                break;
+            default:
+            {
+                WARNLOG("Rotated has unexpected value");
+                free(text);
+                spng_ctx_free(ctx);
+                return 1;
+            }
+        }
+        context->rotable = true;
+    }
+    if (context -> rotable)
+    {
+        for (int i = value_array_size(td_dir); i < 5; i++)
+        {
+            value_init_array(value_array_append(td_dir));
+        }
+    }
+
     VALUE *arr = value_array_get(td_dir, lr_dir);
 
     if (frame_no >= value_array_size(arr)) // >=
@@ -370,7 +424,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
         ERRORLOG("Invalid frame record");
         free(text);
         spng_ctx_free(ctx);
-        return 0;
+        return 1;
     }
 
     VALUE *dst = value_dict_get_or_add(row, "file");
@@ -383,7 +437,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
 
     free(text);
     spng_ctx_free(ctx);
-    return 1;
+    return 0;
 }
 
 static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath)
@@ -435,11 +489,11 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     }
 
     unsigned char *dst_buf = scratch;
-    spng_decode_image(ctx, dst_buf, out_size, fmt, 0);
+    spng_decode_image(ctx, dst_buf, out_size, fmt, SPNG_DECODE_TRNS);
 
     // This should be enough except rare cases like transparent checkerboard
-    int dst_w = min(context->sprite.SWidth, context->w);
-    int dst_h = min(context->sprite.SHeight, context->h);
+    int dst_w = (int) context->sprite.SWidth;
+    int dst_h = (int) context->sprite.SHeight;
 
     if (dst_w >= 255 || dst_h >= 255)
     {
@@ -474,7 +528,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     ksprite->SHeight = dst_h;
     ksprite->FrameWidth = dst_w;
     ksprite->FrameHeight = dst_h;
-    ksprite->Rotable = 0; // 2 need more sprite in next slot - not implemented yet
+    ksprite->Rotable = context->rotable ? 2 : 0;
     ksprite->FramesCount = 1;
     ksprite->FrameOffsW = 0;
     ksprite->FrameOffsH = 0;
@@ -485,11 +539,39 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     return 1;
 }
 
-#define TRANSP_COLOR 255
-
-static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h)
+static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
 {
+#define SCALE 4
+    for (int i = 0; i < len; i++, src_buf++, dst_buf++)
+    {
+        uint32_t data = *src_buf;
+        int idx = ((data & 0x00FF00) >> 8) / SCALE;
+        const struct PaletteNode *node = &pal_tree[idx];
+        uint8_t max_val = 255;
+        uint32_t max_dst = 3 * 64 * 64;
+
+        for (struct PaletteRecord *rec = node->rec; rec != node->rec + node->size; rec++)
+        {
+            int8_t dr = (rec->color & 0x00000FF) - (data & 0x0000FF) / SCALE;
+            int8_t dg = ((rec->color & 0xFF00) >> 8) - ((data & 0xFF00) >> 8) / SCALE;
+            int8_t db = ((rec->color & 0xFF0000) >> 16) - ((data & 0xFF0000) >> 16) / SCALE;
+            if (dr * dr + dg * dg + db * db < max_dst)
+            {
+                max_dst = dr * dr + dg * dg + db * db;
+                max_val = rec->color_idx;
+            }
+        }
+        *dst_buf = max_val;
+    }
+#undef SCALE
+}
+
+static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, int w, int h)
+{
+#define TEST_TRANSP(x) ((x & 0xFF000000u) < 0x40000000u)
+
     unsigned char *buf = sprite->Data;
+    uint32_t *src_buf = (uint32_t *) inp_buf;
     TbBool is_transp;
     int len;
     int tail = sprite->SWidth - w;
@@ -503,12 +585,12 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, in
         {
             if (is_transp)
             {
-                if ((*src_buf != TRANSP_COLOR) || len == 127)
+                if (!TEST_TRANSP(*src_buf) || len == 127)
                 {
                     *buf = -len;
                     buf++;
                     len = 1;
-                    is_transp = (*src_buf == TRANSP_COLOR);
+                    is_transp = TEST_TRANSP(*src_buf);
                 }
                 else
                 {
@@ -517,17 +599,17 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, in
             }
             else
             {
-                if ((*src_buf == TRANSP_COLOR) || len == 127)
+                if (TEST_TRANSP(*src_buf) || len == 127)
                 {
                     if (len > 0)
                     {
                         *buf = len;
                         buf++;
-                        memcpy(buf, src_buf - len, len);
+                        convert_row(buf, src_buf - len, len);
                         buf += len;
                     }
 
-                    is_transp = (*src_buf == TRANSP_COLOR);
+                    is_transp = TEST_TRANSP(*src_buf);
                     len = 1;
                 }
                 else
@@ -540,7 +622,7 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, in
         {
             *buf = len;
             buf++;
-            memcpy(buf, src_buf - len, len);
+            convert_row(buf, src_buf - len, len);
             buf += len;
         }
         *buf = 0;
@@ -593,18 +675,24 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         {
             return 1;
         }
-        read_png_info(zip, path, context, blender_scene, szCurrentFileName, node);
+        err = read_png_info(zip, path, context, blender_scene, szCurrentFileName, node);
         if (UNZ_OK != unzCloseCurrentFile(zip))
         {
             return 1;
         }
+        if (err)
+        {
+            return err;
+        }
     }
 
+//#if BFDEBUG_LEVEL > 0
     struct StrBuf buf = {0, 0};
 
     json_dom_dump(node, &dump_callback, &buf, 2, 0);
 
     fprintf(stderr, "%s", buf.ptr);
+//#endif
 
     int prev_sz;
     VALUE *ud_lst;
@@ -613,7 +701,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         if (ud == 0)
         {
             ud_lst = value_dict_get(node, "td");
-            prev_sz = value_array_size(ud_lst);
+            prev_sz = value_array_size(value_array_get(ud_lst, 0));
             context->id_ptr = &context->td_id;
             context->id_sz_ptr = &context->td_sz;
         }
@@ -623,9 +711,11 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
             context->id_ptr = &context->fp_id;
             context->id_sz_ptr = &context->fp_sz;
         }
-        for (int lr = 0; lr < 5; lr++)
+        for (int lr = 0; lr < (context->rotable ? 5 : 1); lr++) // If sprite is rotable
         {
             VALUE *lr_list = value_array_get(ud_lst, lr);
+            context->ksp_first = NULL;
+
             for (int frame = 0; frame < value_array_size(lr_list); frame++)
             {
                 VALUE *itm = value_array_get(lr_list, frame);
@@ -645,11 +735,11 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         }
     }
 
-    if (prev_sz != value_array_size(ud_lst))
+    if (prev_sz != value_array_size(value_array_get(ud_lst, 0)))
     {
         ERRORLOG("Should have same amount of TD and FP frames");
     }
-    for (short i = 0; i < prev_sz; i++)
+    for (short i = 0; i < context->td_sz; i++)
     {
         short fp_id = context->fp_id + i;
         short td_id = context->td_id + i;
@@ -677,7 +767,10 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     val = value_dict_get(root, "blender_scene");
     if ((val != NULL) && (value_type(val) == VALUE_STRING))
     {
-        collect_sprites(path, zip, value_string(val), &context, root);
+        if (collect_sprites(path, zip, value_string(val), &context, root))
+        {
+            return 0;
+        }
     }
     struct NamedCommand *spr = &added_sprites[num_added_sprite++];
     spr->name = strdup(name);
