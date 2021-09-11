@@ -397,7 +397,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
         }
         context->rotable = true;
     }
-    if (context -> rotable)
+    if (context->rotable)
     {
         for (int i = value_array_size(td_dir); i < 5; i++)
         {
@@ -707,7 +707,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         }
         else
         {
-            ud_lst = value_dict_get(node, "td");
+            ud_lst = value_dict_get(node, "fp");
             context->id_ptr = &context->fp_id;
             context->id_sz_ptr = &context->fp_sz;
         }
@@ -739,7 +739,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
     {
         ERRORLOG("Should have same amount of TD and FP frames");
     }
-    for (short i = 0; i < context->td_sz; i++)
+    for (int i = context->td_sz - 1; i >= 0; i--)
     {
         short fp_id = context->fp_id + i;
         short td_id = context->td_id + i;
