@@ -3968,7 +3968,7 @@ void init_level(void)
 
     // Load configs which may have per-campaign part, and can even be modified within a level
     load_computer_player_config(CnfLd_Standard);
-    clear_custom_sprites();
+    init_custom_sprites(get_selected_level_number());
     load_stats_files();
     check_and_auto_fix_stats();
 

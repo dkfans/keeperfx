@@ -20,11 +20,14 @@
 #ifndef GIT_CUSTOM_SPRITES_H
 #define GIT_CUSTOM_SPRITES_H
 
+#include "globals.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void clear_custom_sprites();
+void init_custom_sprites(LevelNumber level_no);
+
 short get_anim_id(char *name);
 
 #ifdef __cplusplus

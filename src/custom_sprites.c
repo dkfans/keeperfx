@@ -23,6 +23,7 @@
 #include "front_simple.h"
 #include "engine_render.h"
 #include "../deps/zlib/contrib/minizip/unzip.h"
+#include "bflib_fileio.h"
 
 #include <spng.h>
 #include <json.h>
@@ -102,7 +103,33 @@ static int pal_compare_fn(const void *a, const void *b)
     return (rec_a->color & 0x0000FF) - (rec_b->color & 0x0000FF);
 }
 
-void clear_custom_sprites()
+static int cmp_named_command(const void *a, const void *b)
+{
+
+    const struct NamedCommand *val_a = a;
+    const struct NamedCommand *val_b = b;
+    return strcmp(val_a->name, val_b->name);
+}
+
+static void load_system_sprites()
+{
+    struct TbFileFind fileinfo;
+    int cnt = 0, cnt_ok = 0;
+    char *fname = prepare_file_path(FGrp_FxData, "*.zip");
+    for (int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
+         rc != -1;
+         rc = LbFileFindNext(&fileinfo))
+    {
+        if (add_custom_sprite(prepare_file_path(FGrp_FxData, fileinfo.Filename)))
+        {
+            cnt_ok++;
+        }
+        cnt++;
+    }
+    LbJustLog("Found %d sprite zip files, properly loaded %d.\n", cnt, cnt_ok);
+}
+
+void init_custom_sprites(LevelNumber lvnum)
 {
     for (int i = 0; i < KEEPERSPRITE_ADD_NUM; i++)
     {
@@ -114,7 +141,10 @@ void clear_custom_sprites()
     }
     for (int i = 0; i < num_added_sprite; i++)
     {
-        free((char *) added_sprites[i].name);
+        if (added_sprites[i].name != NULL)
+        {
+            free((char *) added_sprites[i].name);
+        }
     }
     num_added_sprite = 0;
     memset(added_sprites, 0, sizeof(added_sprites));
@@ -127,7 +157,17 @@ void clear_custom_sprites()
     }
 
     init_pal_conversion();
-    add_custom_sprite("fxdata/s2.zip");
+    load_system_sprites();
+
+    char* lvl = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
+    if (add_custom_sprite(lvl))
+    {
+        SYNCDBG(0, "Loaded per-map sprite file");
+    }
+    else
+    {
+        SYNCDBG(0, "Unable to load per-map sprite file");
+    }
 }
 
 /**
@@ -358,7 +398,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
 
     if ((!context->rotable) && (lr_dir > 1))
     {
-        VALUE *rotated = value_dict_get_or_add(node, "rotated");
+        VALUE *rotated = value_dict_get_or_add(node, "rotable");
         switch (value_type(rotated))
         {
             case VALUE_NULL:
@@ -389,7 +429,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
                 break;
             default:
             {
-                WARNLOG("Rotated has unexpected value");
+                WARNLOG("'rotable' has unexpected value");
                 free(text);
                 spng_ctx_free(ctx);
                 return 1;
@@ -655,44 +695,49 @@ static int
 collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct SpriteContext *context, VALUE *node)
 {
     char szCurrentFileName[256];
-    for (int err = unzGoToFirstFile(zip);
-         err == UNZ_OK;
-         err = unzGoToNextFile(zip))
+
+    if (blender_scene != NULL) // Collect sprites by blender_scene
     {
-        if (UNZ_OK != unzGetCurrentFileInfo64(zip, NULL,
-                                              szCurrentFileName, sizeof(szCurrentFileName) - 1,
-                                              NULL, 0, NULL, 0)
-                )
+        for (int err = unzGoToFirstFile(zip);
+             err == UNZ_OK;
+             err = unzGoToNextFile(zip))
         {
-            continue;
-        }
-        char *term = strrchr(szCurrentFileName, '.');
-        if (term == NULL)
-            continue;
-        if (strcasecmp(term, ".png") != 0)
-            continue;
-        if (UNZ_OK != unzOpenCurrentFile(zip))
-        {
-            return 1;
-        }
-        err = read_png_info(zip, path, context, blender_scene, szCurrentFileName, node);
-        if (UNZ_OK != unzCloseCurrentFile(zip))
-        {
-            return 1;
-        }
-        if (err)
-        {
-            return err;
+            if (UNZ_OK != unzGetCurrentFileInfo64(zip, NULL,
+                                                  szCurrentFileName, sizeof(szCurrentFileName) - 1,
+                                                  NULL, 0, NULL, 0)
+                    )
+            {
+                continue;
+            }
+            char *term = strrchr(szCurrentFileName, '.');
+            if (term == NULL)
+                continue;
+            if (strcasecmp(term, ".png") != 0)
+                continue;
+            if (UNZ_OK != unzOpenCurrentFile(zip))
+            {
+                return 1;
+            }
+            err = read_png_info(zip, path, context, blender_scene, szCurrentFileName, node);
+            if (UNZ_OK != unzCloseCurrentFile(zip))
+            {
+                return 1;
+            }
+            if (err)
+            {
+                return err;
+            }
         }
     }
 
-//#if BFDEBUG_LEVEL > 0
+#if BFDEBUG_LEVEL > 0
     struct StrBuf buf = {0, 0};
 
     json_dom_dump(node, &dump_callback, &buf, 2, 0);
 
     fprintf(stderr, "%s", buf.ptr);
-//#endif
+#endif
+    context->rotable = (value_bool(value_dict_get(node, "rotable")) > 0);
 
     int prev_sz;
     VALUE *ud_lst;
@@ -721,7 +766,11 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                 VALUE *itm = value_array_get(lr_list, frame);
                 const char *name = value_string(value_dict_get(itm, "file"));
 
-                unzLocateFile(zip, name, 0);
+                if (unzLocateFile(zip, name, 0))
+                {
+                    WARNLOG("Png '%s' not found in '%s'", name, path);
+                    return 1;
+                }
                 if (UNZ_OK != unzOpenCurrentFile(zip))
                 {
                     return 1;
@@ -763,18 +812,35 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
         return 0;
     }
     const char *name = value_string(val);
+    const char *blend_scene = NULL;
     WARNDBG(2, "found sprite: %s", name);
     val = value_dict_get(root, "blender_scene");
     if ((val != NULL) && (value_type(val) == VALUE_STRING))
     {
-        if (collect_sprites(path, zip, value_string(val), &context, root))
-        {
-            return 0;
-        }
+        blend_scene = value_string(val);
     }
-    struct NamedCommand *spr = &added_sprites[num_added_sprite++];
-    spr->name = strdup(name);
-    spr->num = context.td_id;
+
+    if (collect_sprites(path, zip, blend_scene, &context, root))
+    {
+        WARNLOG("Unable to collect sprites from %s", path);
+        return 0;
+    }
+
+    struct NamedCommand key = {name, 0};
+    struct NamedCommand *spr = bsearch(&key, added_sprites, num_added_sprite, sizeof(added_sprites[0]),
+                                       &cmp_named_command);
+    if (spr)
+    {
+        // TODO: remove old spr->num (all of them are removed on each map load)
+        spr->num = context.td_id;
+        JUSTLOG("Overriding sprite '%s'", name);
+    }
+    else
+    {
+        spr = &added_sprites[num_added_sprite++];
+        spr->name = strdup(name);
+        spr->num = context.td_id;
+    }
 
     return 1;
 }
@@ -847,15 +913,10 @@ static TbBool add_custom_sprite(const char *path)
     value_fini(&sprites_root);
 
     unzClose(zip);
+
+    qsort(added_sprites, num_added_sprite, sizeof(added_sprites[0]), &cmp_named_command);
+
     return 1;
-}
-
-static int cmp_named_command(const void *a, const void *b)
-{
-
-    const struct NamedCommand *val_a = a;
-    const struct NamedCommand *val_b = b;
-    return strcmp(val_a->name, val_b->name);
 }
 
 short get_anim_id(char *name)
