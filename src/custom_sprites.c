@@ -935,7 +935,7 @@ static TbBool add_custom_sprite(const char *path)
     return 1;
 }
 
-short get_anim_id(char *name)
+short get_anim_id(const char *name)
 {
     short ret = atoi(name);
     struct NamedCommand key = {name, 0};

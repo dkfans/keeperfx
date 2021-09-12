@@ -70,6 +70,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "music_player.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1039,19 +1040,21 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unknown object variable");
         return;
     }
-    if (objectvar == 1)
+    switch (objectvar)
     {
-        long genre = get_id(objects_genres_desc, new_value);
-        if (genre == -1)
-        {
-            SCRPTERRLOG("Unknown object variable");
-            return;
-        }
-        number_value = genre;
-    }
-    else 
-    {
-        number_value = atoi(new_value);
+        case 1: // Genre
+            number_value = get_id(objects_genres_desc, new_value);
+            if (number_value == -1)
+            {
+                SCRPTERRLOG("Unknown object variable");
+                return;
+            }
+            break;
+        case  2: // AnimId
+            number_value = get_anim_id(new_value);
+            break;
+        default:
+            number_value = atoi(new_value);
     }
 
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);

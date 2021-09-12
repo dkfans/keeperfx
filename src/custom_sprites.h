@@ -28,7 +28,7 @@ extern "C" {
 
 void init_custom_sprites(LevelNumber level_no);
 
-short get_anim_id(char *name);
+short get_anim_id(const char *name);
 
 #ifdef __cplusplus
 }
