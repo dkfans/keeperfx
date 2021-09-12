@@ -532,4 +532,35 @@ void query_room(struct Room *room)
     create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&capacity, (const char*)&efficiency);    
 }
 
+void check_for_and_update_surrounding_rooms(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    SlabCodedCoords slab_num = get_slab_number(slb_x, slb_y);
+    struct Room* room = NULL;
+    unsigned short room_idx[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    long i = 0;
+    for (long n = 0; n < AROUND_SLAB_LENGTH; n++)
+    {
+        slab_num += around_slab[n];
+        room = slab_number_room_get(slab_num);
+        if (!room_is_invalid(room))
+        {
+            if (index_of(room->index, room_idx) > -1)
+            {
+                continue;
+            }
+            room_idx[i] = room->index;
+            i++;
+        }
+    }
+    if (i > 0)
+    {
+        for (long k = 0; k <= (i - 1); k++)
+        {
+            room = room_get(room_idx[k]);
+            update_room_efficiency(room);
+            set_room_capacity(room,false);
+        }
+    }
+}
+
 /******************************************************************************/

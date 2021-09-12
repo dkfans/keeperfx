@@ -159,6 +159,13 @@ struct Room *slab_room_get(long slb_x, long slb_y)
     return room_get(slb->room_index);
 }
 
+struct Room *slab_number_room_get(SlabCodedCoords slab_num)
+{
+    MapSlabCoord slb_x = slb_num_decode_x(slab_num);
+    MapSlabCoord slb_y = slb_num_decode_y(slab_num);
+    return slab_room_get(slb_x, slb_y);
+}
+
 TbBool room_is_invalid(const struct Room *room)
 {
   if (room == NULL)

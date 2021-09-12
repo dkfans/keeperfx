@@ -177,6 +177,7 @@ extern RoomKind look_through_rooms[18];
 struct Room *room_get(long room_idx);
 struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Room *slab_room_get(long slb_x, long slb_y);
+struct Room *slab_number_room_get(SlabCodedCoords slab_num);
 TbBool room_is_invalid(const struct Room *room);
 TbBool room_exists(const struct Room *room);
 struct RoomData *room_data_get_for_kind(RoomKind rkind);
