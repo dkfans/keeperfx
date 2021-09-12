@@ -163,7 +163,6 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   LbMemorySet(campgn->creatures_location,0,DISKPATH_SIZE);
   LbMemorySet(campgn->configs_location,0,DISKPATH_SIZE);
   LbMemorySet(campgn->media_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->sprite_data_location,0,DISKPATH_SIZE);
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     campgn->single_levels[i] = 0;

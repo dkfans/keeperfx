@@ -111,16 +111,18 @@ static int cmp_named_command(const void *a, const void *b)
     return strcmp(val_a->name, val_b->name);
 }
 
-static void load_system_sprites()
+static void load_system_sprites(short fgroup)
 {
     struct TbFileFind fileinfo;
     int cnt = 0, cnt_ok = 0;
-    char *fname = prepare_file_path(FGrp_FxData, "*.zip");
+    char *fname = prepare_file_path(fgroup, "*.zip");
+    if (0 == *fname) // No campaign
+        return;
     for (int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
          rc != -1;
          rc = LbFileFindNext(&fileinfo))
     {
-        if (add_custom_sprite(prepare_file_path(FGrp_FxData, fileinfo.Filename)))
+        if (add_custom_sprite(prepare_file_path(fgroup, fileinfo.Filename)))
         {
             cnt_ok++;
         }
@@ -157,7 +159,8 @@ void init_custom_sprites(LevelNumber lvnum)
     }
 
     init_pal_conversion();
-    load_system_sprites();
+    load_system_sprites(FGrp_FxData);
+    load_system_sprites(FGrp_CmpgConfig);
 
     char *lvl = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
     if (add_custom_sprite(lvl))

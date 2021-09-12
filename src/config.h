@@ -61,7 +61,6 @@ enum TbFileGroups {
         FGrp_CmpgCrtrs,
         FGrp_CmpgConfig,
         FGrp_CmpgMedia,
-        FGrp_CmpgSrpites,
         FGrp_Music,
 };
 

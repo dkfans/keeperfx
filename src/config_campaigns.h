@@ -76,7 +76,6 @@ struct GameCampaign {
   char creatures_location[DISKPATH_SIZE];
   char configs_location[DISKPATH_SIZE];
   char media_location[DISKPATH_SIZE];
-  char sprite_data_location[DISKPATH_SIZE];
   LevelNumber single_levels[CAMPAIGN_LEVELS_COUNT];
   LevelNumber multi_levels[MULTI_LEVELS_COUNT];
   LevelNumber bonus_levels[CAMPAIGN_LEVELS_COUNT];
