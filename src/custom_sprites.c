@@ -61,7 +61,7 @@ struct SpriteContext
     short td_id, td_sz;
     short fp_id, fp_sz;
 
-    TbBool rotable;
+    TbBool rotatable;
 };
 
 struct PaletteRecord
@@ -396,9 +396,9 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
         return 1;
     }
 
-    if ((!context->rotable) && (lr_dir > 1))
+    if ((!context->rotatable) && (lr_dir > 1))
     {
-        VALUE *rotated = value_dict_get_or_add(node, "rotable");
+        VALUE *rotated = value_dict_get_or_add(node, "rotatable");
         switch (value_type(rotated))
         {
             case VALUE_NULL:
@@ -429,15 +429,15 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
                 break;
             default:
             {
-                WARNLOG("'rotable' has unexpected value");
+                WARNLOG("'rotatable' has unexpected value");
                 free(text);
                 spng_ctx_free(ctx);
                 return 1;
             }
         }
-        context->rotable = true;
+        context->rotatable = true;
     }
-    if (context->rotable)
+    if (context->rotatable)
     {
         for (int i = value_array_size(td_dir); i < 5; i++)
         {
@@ -568,7 +568,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     ksprite->SHeight = dst_h;
     ksprite->FrameWidth = dst_w;
     ksprite->FrameHeight = dst_h;
-    ksprite->Rotable = context->rotable ? 2 : 0;
+    ksprite->Rotable = context->rotatable ? 2 : 0;
     ksprite->FramesCount = 1;
     ksprite->FrameOffsW = 0;
     ksprite->FrameOffsH = 0;
@@ -737,7 +737,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
 
     fprintf(stderr, "%s", buf.ptr);
 #endif
-    context->rotable = (value_bool(value_dict_get(node, "rotable")) > 0);
+    context->rotatable = (value_bool(value_dict_get(node, "rotatable")) > 0);
 
     int prev_sz;
     VALUE *ud_lst;
@@ -756,7 +756,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
             context->id_ptr = &context->fp_id;
             context->id_sz_ptr = &context->fp_sz;
         }
-        for (int lr = 0; lr < (context->rotable ? 5 : 1); lr++) // If sprite is rotable
+        for (int lr = 0; lr < (context->rotatable ? 5 : 1); lr++) // If sprite is rotatable
         {
             VALUE *lr_list = value_array_get(ud_lst, lr);
             // Each frame should keep valid frames count
