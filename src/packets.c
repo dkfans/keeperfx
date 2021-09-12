@@ -1785,7 +1785,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 {
                     place_slab_type_on_map(slbkind, stl_x, stl_y, game.neutral_player_num, 0);
                 }
-                do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                do_slab_efficiency_alteration(slb_x, slb_y);
+                check_for_and_update_surrounding_rooms(slb_x, slb_y);
             }
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);

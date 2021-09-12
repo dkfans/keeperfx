@@ -534,13 +534,13 @@ void query_room(struct Room *room)
 
 void check_for_and_update_surrounding_rooms(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    SlabCodedCoords slab_num = get_slab_number(slb_x, slb_y);
+    SlabCodedCoords slab_num;
     struct Room* room = NULL;
-    unsigned short room_idx[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    unsigned short room_idx[AROUND_SLAB_LENGTH] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     long i = 0;
     for (long n = 0; n < AROUND_SLAB_LENGTH; n++)
     {
-        slab_num += around_slab[n];
+        slab_num = get_slab_number(slb_x, slb_y) + around_slab[n];
         room = slab_number_room_get(slab_num);
         if (!room_is_invalid(room))
         {
