@@ -159,7 +159,7 @@ void init_custom_sprites(LevelNumber lvnum)
     init_pal_conversion();
     load_system_sprites();
 
-    char* lvl = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
+    char *lvl = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
     if (add_custom_sprite(lvl))
     {
         SYNCDBG(0, "Loaded per-map sprite file");
@@ -759,6 +759,14 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         for (int lr = 0; lr < (context->rotable ? 5 : 1); lr++) // If sprite is rotable
         {
             VALUE *lr_list = value_array_get(ud_lst, lr);
+            // Each frame should keep valid frames count
+            if (context->ksp_first != NULL)
+            {
+                for (int i = 1; i < context->ksp_first->FramesCount; i++)
+                {
+                    context->ksp_first[i].FramesCount = context->ksp_first->FramesCount;
+                }
+            }
             context->ksp_first = NULL;
 
             for (int frame = 0; frame < value_array_size(lr_list); frame++)
@@ -781,6 +789,14 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                     return 1;
                 }
             }
+        }
+    }
+    // Each frame should keep valid frames count
+    if (context->ksp_first != NULL)
+    {
+        for (int i = 1; i < context->ksp_first->FramesCount; i++)
+        {
+            context->ksp_first[i].FramesCount = context->ksp_first->FramesCount;
         }
     }
 

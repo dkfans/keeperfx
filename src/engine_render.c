@@ -5918,7 +5918,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     TbBool needs_xflip;
     long long lltemp;
     long sprite_group;
-    long sprite_delta;
+    long sprite_rot;
     long cutoff;
     SYNCDBG(17, "At (%d,%d) opts %d %d %d %d", (int)x, (int)y, (int)kspr_base, (int)kspr_angle, (int)sprgroup, (int)scale);
     player = get_my_player();
@@ -5933,7 +5933,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
       lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     sprite_group = sprgroup;
     lltemp = 4 - ((((long)kspr_angle + 128) & 0x7FF) >> 8);
-    sprite_delta = llabs(lltemp);
+    sprite_rot = llabs(lltemp);
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
     creature_sprites = keepersprite_array(kspr_base);
@@ -5992,8 +5992,8 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         {
             return;
         }
-        kspr = &creature_sprites[sprite_group + sprite_delta * (long)creature_sprites->FramesCount];
-        draw_idx = sprite_group + sprite_delta * (long)kspr->FramesCount + kspr_idx;
+        kspr = &creature_sprites[sprite_group + sprite_rot * (long)creature_sprites->FramesCount];
+        draw_idx = sprite_group + sprite_rot * (long)kspr->FramesCount + kspr_idx;
         if ( needs_xflip )
         {
             draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
