@@ -409,7 +409,7 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
         MapSubtlCoord stl_x = slab_subtile(slb_x, around[k].delta_x + 1);
         MapSubtlCoord stl_y = slab_subtile(slb_y, around[k].delta_y + 1);
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-        
+        unsigned long j = 0;
         for (int i = get_mapwho_thing_index(mapblk); i != 0;)
         {
             struct Thing* gldtng = thing_get(i);
@@ -418,6 +418,13 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
             {
                 gold_gathered += gldtng->valuable.gold_stored; 
                 delete_thing_structure(gldtng, 0);
+            }
+            j++;
+            if (j > THINGS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break_mapwho_infinite_chain(mapblk);
+                break;
             }
         }
     }
