@@ -423,6 +423,11 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
             gold_gathered += gldtng->valuable.gold_stored;
             delete_thing_structure(gldtng, 0);
         }
+        gldtng = find_base_thing_on_mapwho(TCls_Object, 136, stl_x, stl_y);
+        if (!thing_is_invalid(gldtng)) {
+            gold_gathered += gldtng->valuable.gold_stored;
+            delete_thing_structure(gldtng, 0);
+        }
     }
     if (gold_gathered <= 0) {
         return hoardtng;
