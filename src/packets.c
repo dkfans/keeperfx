@@ -1729,7 +1729,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         char msg_buf[255];
         strcpy(msg_buf, msg);
         char* dis_msg = strtok(msg_buf, ":");
-        message_add_fmt(-127, "%s", dis_msg);
+        message_add(-127, dis_msg);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
             slb = get_slabmap_block(slb_x, slb_y);
