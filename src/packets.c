@@ -1731,7 +1731,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         else if (is_key_pressed(KC_MULTIPLY, KMod_NONE))
         {
             place_terrain = SlbT_SLAB50;
-            clear_key_pressed(KC_DIVIDE);
+            clear_key_pressed(KC_MULTIPLY);
         }
         struct SlabConfigStats* slab_cfgstats;
         clear_messages_from_player(-127);
