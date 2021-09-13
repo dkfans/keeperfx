@@ -114,6 +114,7 @@
     <ClCompile Include="src\creature_states_train.c" />
     <ClCompile Include="src\creature_states_tresr.c" />
     <ClCompile Include="src\creature_states_wrshp.c" />
+    <ClCompile Include="src\custom_sprites.c" />
     <ClCompile Include="src\dungeon_data.c" />
     <ClCompile Include="src\dungeon_stats.c" />
     <ClCompile Include="src\engine_arrays.c" />
@@ -334,6 +335,7 @@
     <ClInclude Include="src\creature_states_train.h" />
     <ClInclude Include="src\creature_states_tresr.h" />
     <ClInclude Include="src\creature_states_wrshp.h" />
+    <ClInclude Include="src\custom_sprites.h" />
     <ClInclude Include="src\dungeon_data.h" />
     <ClInclude Include="src\dungeon_stats.h" />
     <ClInclude Include="src\engine_arrays.h" />
