@@ -1736,45 +1736,52 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             char s[3];
             if (is_key_pressed(KC_SLASH, KMod_NONE))
             {
-                 itoa(slb->kind, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_SLASH);
+                struct SlabConfigStats* slab_cfgstats = get_slab_kind_stats(slb->kind);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, slab_cfgstats->code_name);
+                clear_key_pressed(KC_SLASH);
             }
             else if (is_key_pressed(KC_SLASH, KMod_SHIFT))
             {
-                 itoa(slabmap_owner(slb), s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_SLASH);
+                itoa(slabmap_owner(slb), s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_SLASH);
             }
             else if (is_key_pressed(KC_X, KMod_NONE))
             {
-                 itoa(stl_x, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_X);
+                itoa(stl_x, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_X);
             }
             else if (is_key_pressed(KC_Y, KMod_NONE))
             {
-                 itoa(stl_y, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_Y);
+                itoa(stl_y, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_Y);
             }
             else if (is_key_pressed(KC_X, KMod_SHIFT))
             {
-                 itoa(slb_x, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_X);
+                itoa(slb_x, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_X);
             }
             else if (is_key_pressed(KC_Y, KMod_SHIFT))
             {
-                 itoa(slb_y, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_Y);
+                itoa(slb_y, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_Y);
             }
             else if (is_key_pressed(KC_N, KMod_NONE))
             {
-                 itoa(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)), s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_N);
+                itoa(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)), s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_N);
             }
             else
             {
