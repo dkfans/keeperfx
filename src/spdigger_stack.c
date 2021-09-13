@@ -2154,6 +2154,7 @@ struct Thing* check_place_to_pickup_gold(struct Thing* thing, MapSubtlCoord stl_
 //return _DK_check_place_to_pickup_gold(thing, stl_x, stl_y);
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    unsigned long k = 0;
     for (int i = get_mapwho_thing_index(mapblk); i != 0;)
     {
         struct Thing* ret = thing_get(i);
@@ -2161,6 +2162,13 @@ struct Thing* check_place_to_pickup_gold(struct Thing* thing, MapSubtlCoord stl_
         if ((ret->class_id == TCls_Object) && object_is_gold_pile(ret))
         {
             return ret;
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
         }
     }
     return INVALID_THING;
