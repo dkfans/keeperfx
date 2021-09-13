@@ -1739,7 +1739,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
         {
             const char* msg = get_string(slbattr->tooltip_stridx);
-            SYNCMSG("%d", slbattr->tooltip_stridx);
             char msg_buf[255];
             strcpy(msg_buf, msg);
             char* dis_msg = strtok(msg_buf, ":");
