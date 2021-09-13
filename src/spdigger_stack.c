@@ -2150,9 +2150,20 @@ struct Thing *check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x,
     return INVALID_THING;
 }
 
-struct Thing *check_place_to_pickup_gold(struct Thing *thing, long stl_x, long stl_y)
+struct Thing* check_place_to_pickup_gold(struct Thing* thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+//return _DK_check_place_to_pickup_gold(thing, stl_x, stl_y);
 {
-    return _DK_check_place_to_pickup_gold(thing, stl_x, stl_y);
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    for (int i = get_mapwho_thing_index(mapblk); i != 0;)
+    {
+        struct Thing* ret = thing_get(i);
+        i = ret->next_on_mapblk;
+        if ((ret->class_id == TCls_Object) && object_is_gold_pile(ret))
+        {
+            return ret;
+        }
+    }
+    return INVALID_THING;
 }
 
 struct Thing *check_place_to_pickup_spell(struct Thing *thing, long a2, long a3)
