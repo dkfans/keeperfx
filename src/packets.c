@@ -1723,20 +1723,40 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             place_terrain = rand() % (5) + 4;
             clear_key_pressed(KC_NUMPAD9);
         }
+        else if (is_key_pressed(KC_DIVIDE, KMod_NONE))
+        {
+            place_terrain = SlbT_DAMAGEDWALL;
+            clear_key_pressed(KC_DIVIDE);
+        }
+        else if (is_key_pressed(KC_MULTIPLY, KMod_NONE))
+        {
+            place_terrain = SlbT_SLAB50;
+            clear_key_pressed(KC_DIVIDE);
+        }
+        struct SlabConfigStats* slab_cfgstats;
         clear_messages_from_player(-127);
         struct SlabAttr *slbattr = get_slab_kind_attrs(place_terrain);
-        const char* msg = get_string(slbattr->tooltip_stridx);
-        char msg_buf[255];
-        strcpy(msg_buf, msg);
-        char* dis_msg = strtok(msg_buf, ":");
-        message_add(-127, dis_msg);
+        if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
+        {
+            const char* msg = get_string(slbattr->tooltip_stridx);
+            SYNCMSG("%d", slbattr->tooltip_stridx);
+            char msg_buf[255];
+            strcpy(msg_buf, msg);
+            char* dis_msg = strtok(msg_buf, ":");
+            message_add(-127, dis_msg);
+        }
+        else
+        {
+            slab_cfgstats = get_slab_kind_stats(place_terrain);
+            message_add(-127, slab_cfgstats->code_name);           
+        }            
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
             slb = get_slabmap_block(slb_x, slb_y);
             char s[3];
             if (is_key_pressed(KC_SLASH, KMod_NONE))
             {
-                struct SlabConfigStats* slab_cfgstats = get_slab_kind_stats(slb->kind);
+                slab_cfgstats = get_slab_kind_stats(slb->kind);
                 clear_messages_from_player(plyr_idx);
                 message_add(plyr_idx, slab_cfgstats->code_name);
                 clear_key_pressed(KC_SLASH);
