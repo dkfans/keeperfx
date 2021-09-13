@@ -868,6 +868,7 @@ static TbBool add_custom_sprite(const char *path)
 {
     unz_file_info64 zip_info = {0};
     VALUE sprites_root;
+    JSON_INPUT_POS json_input_pos;
     unzFile zip = unzOpen(path);
 
     if (zip == NULL)
@@ -913,7 +914,16 @@ static TbBool add_custom_sprite(const char *path)
         return 0;
     }
 
-    json_dom_parse((char *) scratch, zip_info.uncompressed_size, NULL, 0, &sprites_root, NULL);
+    int ret = json_dom_parse((char *) scratch, zip_info.uncompressed_size, NULL, 0, &sprites_root, &json_input_pos);
+    if (ret)
+    {
+
+        WARNLOG("Incorrect %s/sprites.json line:%d col:%d", path, json_input_pos.line_number,
+                json_input_pos.column_number);
+        unzClose(zip);
+        return 0;
+    }
+
     if (VALUE_ARRAY != value_type(&sprites_root))
     {
         WARNLOG("%s/sprites.json should be array of dictionaries", path);
