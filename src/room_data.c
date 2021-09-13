@@ -408,25 +408,16 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
     {
         MapSubtlCoord stl_x = slab_subtile(slb_x, around[k].delta_x + 1);
         MapSubtlCoord stl_y = slab_subtile(slb_y, around[k].delta_y + 1);
-        struct Thing* gldtng = find_base_thing_on_mapwho(TCls_Object, 43, stl_x, stl_y);
-        if (!thing_is_invalid(gldtng)) {
-            gold_gathered += gldtng->valuable.gold_stored;
-            delete_thing_structure(gldtng, 0);
-        }
-        gldtng = find_base_thing_on_mapwho(TCls_Object, 6, stl_x, stl_y);
-        if (!thing_is_invalid(gldtng)) {
-            gold_gathered += gldtng->valuable.gold_stored;
-            delete_thing_structure(gldtng, 0);
-        }
-        gldtng = find_base_thing_on_mapwho(TCls_Object, 3, stl_x, stl_y);
-        if (!thing_is_invalid(gldtng)) {
-            gold_gathered += gldtng->valuable.gold_stored;
-            delete_thing_structure(gldtng, 0);
-        }
-        gldtng = find_base_thing_on_mapwho(TCls_Object, 136, stl_x, stl_y);
-        if (!thing_is_invalid(gldtng)) {
-            gold_gathered += gldtng->valuable.gold_stored;
-            delete_thing_structure(gldtng, 0);
+        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+        
+        for (int i = get_mapwho_thing_index(mapblk); i != 0;)
+        {
+            struct Thing* gldtng = thing_get(i);
+            if (!thing_is_invalid(gldtng) && object_is_gold_pile(gldtng))
+            {
+                gold_gathered += gldtng->valuable.gold_stored;
+                delete_thing_structure(gldtng, 0);
+            }
         }
     }
     if (gold_gathered <= 0) {
