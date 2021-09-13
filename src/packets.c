@@ -102,6 +102,9 @@ struct Packet bad_packet;
 }
 #endif
 /******************************************************************************/
+/******************************************************************************/
+short place_terrain = 0;
+/******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
     pckt->actn_par1 = par1;
@@ -1669,10 +1672,67 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_PlaceTerrain:
+    {
+        if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
+        {
+            place_terrain = SlbT_ROCK;
+            clear_key_pressed(KC_NUMPAD0);
+        }
+        else if (is_key_pressed(KC_NUMPAD1, KMod_NONE))
+        {
+            place_terrain = SlbT_GOLD;
+            clear_key_pressed(KC_NUMPAD1);
+        }
+        else if (is_key_pressed(KC_NUMPAD2, KMod_NONE))
+        {
+            place_terrain = SlbT_GEMS;
+            clear_key_pressed(KC_NUMPAD2);
+        }
+        else if (is_key_pressed(KC_NUMPAD3, KMod_NONE))
+        {
+            place_terrain = SlbT_EARTH;
+            clear_key_pressed(KC_NUMPAD3);
+        }
+        else if (is_key_pressed(KC_NUMPAD4, KMod_NONE))
+        {
+            place_terrain = SlbT_TORCHDIRT;
+            clear_key_pressed(KC_NUMPAD4);
+        }
+        else if (is_key_pressed(KC_NUMPAD5, KMod_NONE))
+        {
+            place_terrain = SlbT_PATH;
+            clear_key_pressed(KC_NUMPAD5);
+        }
+        else if (is_key_pressed(KC_NUMPAD6, KMod_NONE))
+        {
+            place_terrain = SlbT_CLAIMED;
+            clear_key_pressed(KC_NUMPAD6);
+        }
+        else if (is_key_pressed(KC_NUMPAD7, KMod_NONE))
+        {
+            place_terrain = SlbT_LAVA;
+            clear_key_pressed(KC_NUMPAD7);
+        }
+        else if (is_key_pressed(KC_NUMPAD8, KMod_NONE))
+        {
+            place_terrain = SlbT_WATER;
+            clear_key_pressed(KC_NUMPAD8);
+        }
+        else if (is_key_pressed(KC_NUMPAD9, KMod_NONE))
+        {
+            place_terrain = rand() % (5) + 4;
+            clear_key_pressed(KC_NUMPAD9);
+        }
+        clear_messages_from_player(-127);
+        struct SlabAttr *slbattr = get_slab_kind_attrs(place_terrain);
+        const char* msg = get_string(slbattr->tooltip_stridx);
+        char msg_buf[255];
+        strcpy(msg_buf, msg);
+        char* dis_msg = strtok(msg_buf, ":");
+        message_add_fmt(-127, "%s", dis_msg);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
             slb = get_slabmap_block(slb_x, slb_y);
-            short slbkind;
             char s[3];
             if (is_key_pressed(KC_SLASH, KMod_NONE))
             {
@@ -1718,72 +1778,18 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             }
             else
             {
-                if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
-                {
-                    slbkind = SlbT_ROCK;
-                    clear_key_pressed(KC_NUMPAD0);
-                }
-                else if (is_key_pressed(KC_NUMPAD1, KMod_NONE))
-                {
-                    slbkind = SlbT_GOLD;
-                    clear_key_pressed(KC_NUMPAD1);
-                }
-                else if (is_key_pressed(KC_NUMPAD2, KMod_NONE))
-                {
-                    slbkind = SlbT_GEMS;
-                    clear_key_pressed(KC_NUMPAD2);
-                }
-                else if (is_key_pressed(KC_NUMPAD3, KMod_NONE))
-                {
-                    slbkind = SlbT_EARTH;
-                    clear_key_pressed(KC_NUMPAD3);
-                }
-                else if (is_key_pressed(KC_NUMPAD4, KMod_NONE))
-                {
-                    slbkind = SlbT_TORCHDIRT;
-                    clear_key_pressed(KC_NUMPAD4);
-                }
-                else if (is_key_pressed(KC_NUMPAD5, KMod_NONE))
-                {
-                    slbkind = SlbT_PATH;
-                    clear_key_pressed(KC_NUMPAD5);
-                }
-                else if (is_key_pressed(KC_NUMPAD6, KMod_NONE))
-                {
-                    slbkind = SlbT_CLAIMED;
-                    clear_key_pressed(KC_NUMPAD6);
-                }
-                else if (is_key_pressed(KC_NUMPAD7, KMod_NONE))
-                {
-                    slbkind = SlbT_LAVA;
-                    clear_key_pressed(KC_NUMPAD7);
-                }
-                else if (is_key_pressed(KC_NUMPAD8, KMod_NONE))
-                {
-                    slbkind = SlbT_WATER;
-                    clear_key_pressed(KC_NUMPAD8);
-                }
-                else if (is_key_pressed(KC_NUMPAD9, KMod_NONE))
-                {
-                    slbkind = rand() % (5) + 4;
-                    clear_key_pressed(KC_NUMPAD9);
-                }
-                else
-                {
-                    slbkind = 0;
-                }
                 if (subtile_is_room(stl_x, stl_y)) 
                 {
                     room = subtile_room_get(stl_x, stl_y);
                     delete_room_slab(slb_x, slb_y, true);
                 }
-                if (slab_kind_is_animated(slbkind))
+                if (slab_kind_is_animated(place_terrain))
                 {
-                    place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, game.neutral_player_num);  
+                    place_animating_slab_type_on_map(place_terrain, 0, stl_x, stl_y, game.neutral_player_num);  
                 }
                 else
                 {
-                    place_slab_type_on_map(slbkind, stl_x, stl_y, game.neutral_player_num, 0);
+                    place_slab_type_on_map(place_terrain, stl_x, stl_y, game.neutral_player_num, 0);
                 }
                 do_slab_efficiency_alteration(slb_x, slb_y);
                 check_for_and_update_surrounding_rooms(slb_x, slb_y);
@@ -1791,6 +1797,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);
         break;
+    }
     case PSt_DestroyThing:
         thing = get_nearest_thing_at_position(stl_x, stl_y);
         if (thing_is_invalid(thing))
