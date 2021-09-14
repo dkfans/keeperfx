@@ -31,7 +31,6 @@
 
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
-#define TRANSP_COLOR 255
 
 static short next_free_sprite = 0;
 
@@ -483,7 +482,8 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
     return 0;
 }
 
-static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath)
+static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath,
+                         int fp, VALUE *def, VALUE *itm)
 {
     struct TbHugeSprite *sprite = &context->sprite;
     size_t out_size;
@@ -573,10 +573,71 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     ksprite->FrameHeight = dst_h;
     ksprite->Rotable = context->rotatable ? 2 : 0;
     ksprite->FramesCount = 1;
-    ksprite->FrameOffsW = 0;
-    ksprite->FrameOffsH = 0;
-    ksprite->field_C = -dst_w / 2; // Offset x
-    ksprite->field_E = 1 - dst_h; // Offset y
+
+    VALUE *val;
+    val = value_dict_get(itm, "offset_w");
+    if (value_type(val) != VALUE_NULL)
+    {
+        ksprite->FrameOffsW = value_uint32(val);
+    }
+    else if (val = value_dict_get(def, fp ? "fp_offset_w" : "td_offset_w"),
+            value_type(val) != VALUE_NULL
+            )
+    {
+        ksprite->FrameOffsW = value_uint32(val);
+    }
+    else
+    {
+        ksprite->FrameOffsW = 0;
+    }
+
+    val = value_dict_get(itm, "offset_h");
+    if (value_type(val) != VALUE_NULL)
+    {
+        ksprite->FrameOffsH = value_uint32(val);
+    }
+    else if (val = value_dict_get(def, fp ? "fp_offset_h" : "td_offset_h"),
+            value_type(val) != VALUE_NULL
+            )
+    {
+        ksprite->FrameOffsH = value_uint32(val);
+    }
+    else
+    {
+        ksprite->FrameOffsH = 0;
+    }
+
+    val = value_dict_get(itm, "offset_x");
+    if (value_type(val) != VALUE_NULL)
+    {
+        ksprite->field_C = value_int32(val);
+    }
+    else if (val = value_dict_get(def, fp ? "fp_offset_x" : "td_offset_x"),
+            value_type(val) != VALUE_NULL
+            )
+    {
+        ksprite->field_C = value_int32(val);
+    }
+    else
+    {
+        ksprite->field_C = -dst_w / 2;
+    }
+
+    val = value_dict_get(itm, "offset_y");
+    if (value_type(val) != VALUE_NULL)
+    {
+        ksprite->field_E = value_int32(val);
+    }
+    else if (val = value_dict_get(def, fp ? "fp_offset_y" : "td_offset_y"),
+            value_type(val) != VALUE_NULL
+            )
+    {
+        ksprite->field_E = value_int32(val);
+    }
+    else
+    {
+        ksprite->field_E = 1 - dst_h;
+    }
 
     spng_ctx_free(ctx);
     return 1;
@@ -744,9 +805,9 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
 
     int prev_sz;
     VALUE *ud_lst;
-    for (int ud = 0; ud < 2; ud++)
+    for (int fp = 0; fp < 2; fp++)
     {
-        if (ud == 0)
+        if (fp == 0)
         {
             ud_lst = value_dict_get(node, "td");
             prev_sz = value_array_size(value_array_get(ud_lst, 0));
@@ -786,7 +847,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                 {
                     return 1;
                 }
-                read_png_data(zip, path, context, name);
+                read_png_data(zip, path, context, name, fp, node, itm);
                 if (UNZ_OK != unzCloseCurrentFile(zip))
                 {
                     return 1;
