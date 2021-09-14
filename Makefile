@@ -585,6 +585,11 @@ clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
 	-cd deps/zlib && $(MAKE) -f win32/Makefile.gcc clean
 	-cd deps/zlib && git checkout Makefile zconf.h
+	-$(RM) libexterns
+
+deps/libspng/spng/spng.c:
+	git submodule init
+	git submodule update
 
 deps/zlib/configure.log:
 	git submodule init
@@ -608,5 +613,5 @@ include pkg_lang.mk
 include pkg_gfx.mk
 include pkg_sfx.mk
 
-export RM CP MKDIR MV
+export RM CP MKDIR MV ECHO
 #******************************************************************************
