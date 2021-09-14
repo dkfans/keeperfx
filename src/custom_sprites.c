@@ -544,6 +544,11 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
         return 1;
     }
 
+    if (next_free_sprite >= KEEPERSPRITE_ADD_NUM)
+    {
+        ERRORLOG("Too many custom sprites allocated");
+        return 1;
+    }
     short sprite_idx = next_free_sprite;
     next_free_sprite++;
     if (*context->id_ptr == 0) // First sprite for current view (FP/TD)

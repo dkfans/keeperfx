@@ -35,7 +35,7 @@ extern "C" {
 #define KEEPSPRITE_LENGTH 9149
 
 #define KEEPERSPRITE_ADD_OFFSET 16384
-#define KEEPERSPRITE_ADD_NUM 256
+#define KEEPERSPRITE_ADD_NUM 2048
 
 enum QKinds {
     QK_PolyTriangle = 0,
