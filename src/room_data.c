@@ -3562,30 +3562,33 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             // Per thing code start
             if (thing_is_spellbook(thing) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
-                struct Coord3d pos;
-                // Try to move spellbook within the room
-                if (find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(thing, room, &pos, slbnum))
+                if (thing->owner == room->owner)
                 {
-                    pos.z.val = get_thing_height_at(thing, &pos);
-                    move_thing_in_map(thing, &pos);
-                    create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
-                } else
-                // Try to move spellbook to another library
-                if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
-                {
-                    pos.z.val = get_thing_height_at(thing, &pos);
-                    move_thing_in_map(thing, &pos);
-                    create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
-                    struct Room *nxroom;
-                    nxroom = get_room_thing_is_on(thing);
-                    update_room_contents(nxroom);
-                } else
-                // Cannot store the spellbook anywhere - remove the spell
-                {
-                    if (!is_neutral_thing(thing)) {
-                        remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
+                    struct Coord3d pos;
+                    // Try to move spellbook within the room
+                    if (find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(thing, room, &pos, slbnum))
+                    {
+                        pos.z.val = get_thing_height_at(thing, &pos);
+                        move_thing_in_map(thing, &pos);
+                        create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
+                    } else
+                    // Try to move spellbook to another library
+                    if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
+                    {
+                        pos.z.val = get_thing_height_at(thing, &pos);
+                        move_thing_in_map(thing, &pos);
+                        create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
+                        struct Room *nxroom;
+                        nxroom = get_room_thing_is_on(thing);
+                        update_room_contents(nxroom);
+                    } else
+                    // Cannot store the spellbook anywhere - remove the spell
+                    {
+                        if (!is_neutral_thing(thing)) {
+                            remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
+                        }
+                        delete_thing_structure(thing, 0);
                     }
-                    delete_thing_structure(thing, 0);
                 }
             }
             // Per thing code end
