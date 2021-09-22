@@ -95,10 +95,15 @@ struct KeeperSprite { // sizeof = 16
   short field_E; // Offset y
 };
 
+struct KeeperSpriteExt // More info for custom sprites
+{
+    unsigned char rotation; // Used to implement rotated statues from rotatable
+};
 /******************************************************************************/
 //extern unsigned short creature_graphics[][22];
 //extern struct KeeperSprite *creature_table;
 extern struct KeeperSprite creature_table_add[];
+extern struct KeeperSpriteExt creatures_table_ext[];
 /******************************************************************************/
 DLLIMPORT struct KeeperSprite *_DK_creature_table;
 #define creature_table _DK_creature_table

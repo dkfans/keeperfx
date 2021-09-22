@@ -328,7 +328,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
 
-                    n = get_anim_id(word_buf);
+                    n = get_anim_id(word_buf, objdat);
                     objdat->sprite_anim_idx = n;
                     n++;
                 }

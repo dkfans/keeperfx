@@ -25,10 +25,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+struct Objects;
 
 void init_custom_sprites(LevelNumber level_no);
 
-short get_anim_id(const char *name);
+short get_anim_id(const char *name, struct Objects* objdat);
 
 #ifdef __cplusplus
 }

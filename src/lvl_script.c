@@ -1051,8 +1051,11 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             }
             break;
         case  2: // AnimId
-            number_value = get_anim_id(new_value);
+        {
+            struct Objects obj_tmp;
+            number_value = get_anim_id(new_value, &obj_tmp); // TODO: move to realtime
             break;
+        }
         default:
             number_value = atoi(new_value);
     }

@@ -47,6 +47,8 @@ struct KeeperSprite creature_table_add[KEEPERSPRITE_ADD_NUM] = {
         {0}
 };
 
+struct KeeperSpriteExt creatures_table_ext[KEEPERSPRITE_ADD_NUM] = { { 0 } };
+
 struct SpriteContext
 {
     struct TbHugeSprite sprite;
@@ -164,7 +166,7 @@ void init_custom_sprites(LevelNumber lvnum)
     char *lvl = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
     if (add_custom_sprite(lvl))
     {
-        SYNCDBG(0, "Loaded per-map sprite file");
+        JUSTLOG("Loaded per-map sprite file");
     }
     else
     {
@@ -922,6 +924,11 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     }
     else
     {
+        if (num_added_sprite >= KEEPERSPRITE_ADD_NUM)
+        {
+            ERRORLOG("Too many custom sprites");
+            return 0;
+        }
         spr = &added_sprites[num_added_sprite++];
         spr->name = strdup(name);
         spr->num = context.td_id;
@@ -1014,7 +1021,7 @@ static TbBool add_custom_sprite(const char *path)
     return 1;
 }
 
-short get_anim_id(const char *name)
+short get_anim_id(const char *name, struct Objects* objdat)
 {
     short ret = atoi(name);
     struct NamedCommand key = {name, 0};
@@ -1025,6 +1032,47 @@ short get_anim_id(const char *name)
     struct NamedCommand *val = bsearch(&key, added_sprites, num_added_sprite, sizeof(added_sprites[0]),
                                        &cmp_named_command);
     if (val)
-        return val->num;
+        return (short)val->num;
+
+    if (0 == strcmp(name, "0"))
+        return 0;
+
+    char *P = strrchr(name, ':');
+    if (P != NULL)
+    {
+        char *name2 = strdup(name);
+        P = strchr(name2, ':');
+        *P = 0; // removing :
+        P++;
+        key.name = name2;
+
+        val = bsearch(&key, added_sprites, num_added_sprite, sizeof(added_sprites[0]),
+                      &cmp_named_command);
+        if (!val)
+        {
+            ERRORLOG("Unable to find sprite %s", name);
+            free(name2);
+            return 0;
+        }
+        if (0 == strcmp(P, "NORTH"))
+        {
+            objdat->rotation_flag = 0;
+        }
+        else if (0 == strcmp(P, "EAST"))
+        {
+            objdat->rotation_flag = 1;
+        }
+        else if (0 == strcmp(P, "SOUTH"))
+        {
+            objdat->rotation_flag = 2;
+        }
+        else if (0 == strcmp(P, "WEST"))
+        {
+            objdat->rotation_flag = 3;
+        }
+
+        free(name2);
+        return (short)val->num;
+    }
     return 0;
 }

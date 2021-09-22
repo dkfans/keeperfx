@@ -78,6 +78,7 @@ struct Objects {
     unsigned char related_creatr_model;
     unsigned char own_category;
     unsigned char destroy_on_liquid;
+    unsigned char rotation_flag;
 };
 
 struct CallToArmsGraphics {
