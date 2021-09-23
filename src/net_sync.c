@@ -164,7 +164,7 @@ void resync_game(void)
  * Exchanges verification packets between all players, making sure level data is identical.
  * @return Returns true if all players return same checksum.
  */
-TbBool perform_checksum_verification(CoroutineLoop *con)
+CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
 {
     short result = true;
     unsigned long checksum_mem = 0;
@@ -191,11 +191,11 @@ TbBool perform_checksum_verification(CoroutineLoop *con)
     }
     if (!result)
     {
-        coroutine_clear(con);
-        con->error = true;
+        coroutine_clear(con, true);
         //TODO: we should change state to something like an error screen
+        return CLS_ABORT;
     }
-    return false;
+    return CLS_CONTINUE;
 }
 /******************************************************************************/
 #ifdef __cplusplus

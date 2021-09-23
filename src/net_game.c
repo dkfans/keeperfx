@@ -107,7 +107,7 @@ int setup_old_network_service(void)
     return setup_network_service(net_service_index_selected);
 }
 
-static TbBool setup_exchange_player_number(CoroutineLoop *context)
+static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
 {
   SYNCDBG(6,"Starting");
   clear_packets();
@@ -135,7 +135,7 @@ static TbBool setup_exchange_player_number(CoroutineLoop *context)
           k++;
       }
   }
-  return true; // Continue loop
+  return CLS_CONTINUE; // Skip loop to next function
 }
 
 static short setup_select_player_number(void)

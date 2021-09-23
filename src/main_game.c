@@ -32,7 +32,7 @@ extern TbBool force_player_num;
 
 extern void setup_players_count();
 
-TbBool set_not_has_quit(CoroutineLoop *context);
+CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 
 /**
  * Resets timers and flags of all players into default (zeroed) state.
@@ -264,7 +264,7 @@ void startup_saved_packet_game(void)
     }
 }
 
-static TbBool startup_network_game_tail(CoroutineLoop *context);
+static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
@@ -303,7 +303,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     coroutine_add_args(context, &startup_network_game_tail, args);
 }
 
-static TbBool startup_network_game_tail(CoroutineLoop *context)
+static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
 {
     TbBool ShouldAssignCpuKeepers = coroutine_args(context)[0];
     if (fe_computer_players || ShouldAssignCpuKeepers)
@@ -319,7 +319,7 @@ static TbBool startup_network_game_tail(CoroutineLoop *context)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
-    return false;
+    return CLS_CONTINUE;
 }
 
 /******************************************************************************/
@@ -342,10 +342,10 @@ void faststartup_network_game(CoroutineLoop *context)
     coroutine_add(context, &set_not_has_quit);
 }
 
-TbBool set_not_has_quit(CoroutineLoop *context)
+CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 {
     get_my_player()->flgfield_6 &= ~PlaF6_PlyrHasQuit;
-    return false;
+    return CLS_CONTINUE;
 }
 
 void faststartup_saved_packet_game(void)

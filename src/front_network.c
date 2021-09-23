@@ -171,7 +171,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     }
 }
 
-TbBool setup_alliances(CoroutineLoop *loop)
+CoroutineLoopState setup_alliances(CoroutineLoop *loop)
 {
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
@@ -185,7 +185,7 @@ TbBool setup_alliances(CoroutineLoop *loop)
             }
         }
     }
-    return false; // Exit the loop
+    return CLS_CONTINUE; // Exit the loop
 }
 
 void frontnet_service_update(void)

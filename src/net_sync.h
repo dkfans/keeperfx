@@ -34,7 +34,7 @@ extern "C" {
 #pragma pack()
 /******************************************************************************/
 void resync_game(void);
-TbBool perform_checksum_verification(CoroutineLoop *con);
+CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
 
 /******************************************************************************/
 #ifdef __cplusplus
