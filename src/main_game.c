@@ -298,7 +298,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         game.game_kind = GKind_MultiGame;
         init_players_network_game(context);
     }
-
+    setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};
     coroutine_add_args(context, &startup_network_game_tail, args);
 }

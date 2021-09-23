@@ -135,6 +135,10 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
           k++;
       }
   }
+  if (k != game.active_players_count)
+  {
+      return CLS_REPEAT; // Repeat
+  }
   return CLS_CONTINUE; // Skip loop to next function
 }
 

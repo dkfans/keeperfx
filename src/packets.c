@@ -247,7 +247,7 @@ void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const 
  * Checks if all active players packets have same checksums.
  * @return Returns false if all checksums are same; true if there's mismatch.
  */
-short checksums_different(void)
+short checksums_different()
 {
     TbChecksum checksum = 0;
     unsigned short is_set = false;
