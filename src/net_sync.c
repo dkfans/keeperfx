@@ -184,6 +184,11 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
         ERRORLOG("Network exchange failed on level checksum verification");
         result = false;
     }
+    if (get_packet(0)->action != get_packet(1)->action)
+    {
+        // Wait for message from other side
+        return CLS_REPEAT;
+    }
     if ( checksums_different() )
     {
         ERRORLOG("Level checksums different for network players");
@@ -195,6 +200,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
         //TODO: we should change state to something like an error screen
         return CLS_ABORT;
     }
+    NETLOG("Checksums are verified");
     return CLS_CONTINUE;
 }
 /******************************************************************************/
