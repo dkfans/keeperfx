@@ -173,7 +173,7 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 extern void faststartup_network_game(CoroutineLoop *context);
 extern void faststartup_saved_packet_game(void);
 extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
-extern TbBool set_not_has_quit(CoroutineLoop *context);
+extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 extern void startup_network_game(CoroutineLoop *context, TbBool local);
 
 /******************************************************************************/
@@ -4088,7 +4088,11 @@ void game_loop(void)
     while ( !exit_keeper )
     {
       update_mouse();
-      wait_at_frontend();
+      while (!wait_at_frontend())
+      {
+          if (exit_keeper)
+              break;
+      }
       if ( exit_keeper )
         break;
       struct PlayerInfo *player;
