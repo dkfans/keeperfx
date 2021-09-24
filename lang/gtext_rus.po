@@ -6860,4 +6860,4 @@ msgstr ""
 #: guitext:1006
 msgctxt "Network game message"
 msgid "Joined player has different map version from host."
-msgstr ""
+msgstr "Версии карты у игроков различаются"
