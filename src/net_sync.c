@@ -31,6 +31,7 @@
 #include "lens_api.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "frontend.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -197,7 +198,8 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     if (!result)
     {
         coroutine_clear(con, true);
-        //TODO: we should change state to something like an error screen
+
+        create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
         return CLS_ABORT;
     }
     NETLOG("Checksums are verified");

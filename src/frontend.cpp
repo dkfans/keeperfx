@@ -3717,6 +3717,14 @@ FrontendMenuState get_startup_menu_state(void)
   return FeSt_MAIN_MENU;
 }
 
+void try_restore_frontend_error_box()
+{
+    if (LbTimerClock() < gui_message_timeout)
+    {
+        turn_on_menu(GMnu_FEERROR_BOX);
+    }
+}
+
 void create_frontend_error_box(long showTime, const char * text)
 {
     strncpy(gui_message_text, text, TEXT_BUFFER_LENGTH-1);

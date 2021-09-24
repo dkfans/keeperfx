@@ -3952,6 +3952,7 @@ static TbBool wait_at_frontend(void)
     memset(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
     frontend_set_state(get_startup_menu_state());
+    try_restore_frontend_error_box();
 
     short finish_menu = 0;
     set_flag_byte(&game.flags_cd,MFlg_unk40,false);
