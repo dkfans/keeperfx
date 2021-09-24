@@ -5876,5 +5876,5 @@ msgstr ""
 
 #: guitext:1006
 msgctxt "Network game message"
-msgid "Map is different on other side"
+msgid "Joined player has different map version from host."
 msgstr ""
