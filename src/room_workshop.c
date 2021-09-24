@@ -182,9 +182,6 @@ TbBool set_manufacture_level(struct Dungeon *dungeon)
     {
         dungeon->manufacture_level = 4;
     }
-    // Special cases
-    if (wrkshp_slabs == 4*5)
-        dungeon->manufacture_level++;
     return true;
 }
 
