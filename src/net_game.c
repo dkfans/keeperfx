@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_coroutine.h"
 #include "bflib_memory.h"
 #include "bflib_network.h"
 
@@ -106,7 +107,7 @@ int setup_old_network_service(void)
     return setup_network_service(net_service_index_selected);
 }
 
-void setup_exchange_player_number(void)
+static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
 {
   SYNCDBG(6,"Starting");
   clear_packets();
@@ -134,9 +135,14 @@ void setup_exchange_player_number(void)
           k++;
       }
   }
+  if (k != game.active_players_count)
+  {
+      return CLS_REPEAT; // Repeat
+  }
+  return CLS_CONTINUE; // Skip loop to next function
 }
 
-short setup_select_player_number(void)
+static short setup_select_player_number(void)
 {
     short is_set = 0;
     int k = 0;
@@ -154,8 +160,8 @@ short setup_select_player_number(void)
             }
             k++;
         }
-  }
-  return is_set;
+    }
+    return is_set;
 }
 
 void setup_count_players(void)
@@ -174,15 +180,15 @@ void setup_count_players(void)
   }
 }
 
-void init_players_network_game(void)
+void init_players_network_game(CoroutineLoop *context)
 {
   SYNCDBG(4,"Starting");
   if (LbNetwork_ChangeExchangeBuffer(game.packets, sizeof(struct Packet)))
       ERRORLOG("Unable to reinitialize ExchangeBuffer");
   setup_select_player_number();
-  setup_exchange_player_number();
-  perform_checksum_verification();
-  setup_alliances();
+  coroutine_add(context, &setup_exchange_player_number);
+  coroutine_add(context, &perform_checksum_verification);
+  coroutine_add(context, &setup_alliances);
 }
 
 /** Check whether a network player is active.

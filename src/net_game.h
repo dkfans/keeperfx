@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_coroutine.h"
 #include "bflib_network.h"
 
 #ifdef __cplusplus
@@ -73,7 +74,7 @@ extern long net_current_message_index;
 /******************************************************************************/
 short setup_network_service(int srvidx);
 int setup_old_network_service(void);
-void init_players_network_game(void);
+void init_players_network_game(CoroutineLoop *context);
 void setup_count_players(void);
 
 long network_session_join(void);

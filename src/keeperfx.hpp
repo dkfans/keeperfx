@@ -351,7 +351,6 @@ void process_keeper_spell_effect(struct Thing *thing);
 
 TbPixel get_player_path_colour(unsigned short owner);
 
-void startup_network_game(TbBool local);
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
