@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define STRINGS_MAX       1000
 #define DK_STRINGS_MAX     941
-#define GUI_STRINGS_COUNT 1006
+#define GUI_STRINGS_COUNT 1007
 
 struct GameCampaign;
 
