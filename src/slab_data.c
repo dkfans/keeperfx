@@ -366,11 +366,11 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
                 
                 if (slab_type_from_room_kind == slb->kind)
                 {
-                    result = 3; // same room type
+                    result = 2; // same room type
                 }
                 else if (slab_type_from_room_kind > 0)
                 {
-                    result = 2; // different room type
+                    result = 3; // different room type
                 }
                 
             }
