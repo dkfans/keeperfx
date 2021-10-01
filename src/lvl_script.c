@@ -1959,6 +1959,11 @@ void command_set_start_money(long plr_range_id, long gold_val)
   }
   for (int i = plr_start; i < plr_end; i++)
   {
+      if (gold_val > SENSIBLE_GOLD)
+      {
+          gold_val = SENSIBLE_GOLD;
+          SCRPTWRNLOG("Gold added to player %d reduced to %d", (int)plr_range_id, SENSIBLE_GOLD);
+      }
       player_add_offmap_gold(i, gold_val);
   }
 }
@@ -6527,6 +6532,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_ADD_GOLD_TO_PLAYER:
       for (i=plr_start; i < plr_end; i++)
       {
+          if (val2 > SENSIBLE_GOLD)
+          {
+              val2 = SENSIBLE_GOLD;
+              SCRPTWRNLOG("Gold added to player %d reduced to %d", (int)plr_range_id, SENSIBLE_GOLD);
+          }
           player_add_offmap_gold(i, val2);
       }
       break;

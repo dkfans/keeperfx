@@ -49,6 +49,8 @@ extern "C" {
 #define SCRIPT_VALUES_COUNT_OLD      64
 #define WIN_CONDITIONS_COUNT_OLD      4
 
+#define SENSIBLE_GOLD 99999999
+
 enum TbScriptCommands {
     Cmd_NONE                              =  0,
     Cmd_CREATE_PARTY                      =  1,
