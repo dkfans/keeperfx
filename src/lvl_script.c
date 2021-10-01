@@ -434,7 +434,7 @@ static void command_init_value(struct ScriptValue* value, unsigned long var_inde
 #define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
     struct ScriptValue tmp_value = {0}; \
     struct ScriptValue* value; \
-    if ((script_current_condition < 0) && (next_command_reusable == 0)) \
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0)) \
     { \
     /* Fill local structure */ \
         value = &tmp_value; \
@@ -458,7 +458,7 @@ static void command_init_value(struct ScriptValue* value, unsigned long var_inde
     }
 
 #define PROCESS_SCRIPT_VALUE(cmd) \
-    if ((script_current_condition < 0) && (next_command_reusable == 0)) \
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0)) \
     { \
         script_process_value(cmd, 0, 0, 0, 0, value); \
     }
@@ -1122,7 +1122,7 @@ TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
 
 void command_create_party(const char *prtname)
 {
-    if (script_current_condition != -1)
+    if (script_current_condition != CONDITION_ALWAYS)
     {
         SCRPTWRNLOG("Party '%s' defined inside conditional statement",prtname);
     }
@@ -1131,7 +1131,7 @@ void command_create_party(const char *prtname)
 
 long pop_condition(void)
 {
-  if (script_current_condition == -1)
+  if (script_current_condition == CONDITION_ALWAYS)
   {
     SCRPTERRLOG("unexpected ENDIF");
     return -1;
@@ -1142,7 +1142,7 @@ long pop_condition(void)
     script_current_condition = condition_stack[condition_stack_pos];
   } else
   {
-    script_current_condition = -1;
+    script_current_condition = CONDITION_ALWAYS;
   }
   return script_current_condition;
 }
@@ -1161,7 +1161,7 @@ static void delete_from_party_check(const struct ScriptLine *scline)
       SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
       return;
     }
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
         delete_member_from_party(party_id, creature_id, scline->np[2]);
     } else
@@ -1205,7 +1205,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
     }
   //SCRPTLOG("Party '%s' member kind %d, level %d",prtname,crtr_id,crtr_level);
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
         add_member_to_party(party_id, crtr_id, scline->np[2], scline->np[3], objective_id, scline->np[5]);
     } else
@@ -1535,7 +1535,7 @@ void command_add_party_to_level(long plr_range_id, const char *prtname, const ch
         SCRPTERRLOG("Party of requested name, '%s', is not defined",prtname);
         return;
     }
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
         struct Party* party = &gameadd.script.creature_partys[prty_id];
         script_process_new_party(party, plr_id, location, ncopies);
@@ -1570,7 +1570,7 @@ void command_add_object_to_level(const char *obj_name, const char *locname, long
     // Recognize place where party is created
     if (!get_map_location_id(locname, &location))
         return;
-    if (script_current_condition < 0)
+    if (script_current_condition == CONDITION_ALWAYS)
     {
         script_process_new_object(obj_id, location, arg);
     } else
@@ -1622,7 +1622,7 @@ void command_add_creature_to_level(long plr_range_id, const char *crtr_name, con
     // Recognize place where party is created
     if (!get_map_location_id(locname, &location))
         return;
-    if (script_current_condition < 0)
+    if (script_current_condition == CONDITION_ALWAYS)
     {
         script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, crtr_level-1);
     } else
@@ -1658,7 +1658,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
         SCRPTWRNLOG("Conditions too deep in script");
         return;
     }
-    if (script_current_condition >= 0)
+    if (script_current_condition != CONDITION_ALWAYS)
     {
         condition_stack[condition_stack_pos] = script_current_condition;
         condition_stack_pos++;
@@ -1879,7 +1879,7 @@ void command_add_value(unsigned long var_index, unsigned long plr_range_id, long
     value->arg1 = val3;
     value->arg2 = val4;
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
         script_process_value(var_index, plr_range_id, val2, val3, val4, value);
         return;
@@ -1953,7 +1953,7 @@ void command_set_start_money(long plr_range_id, long gold_val)
         SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
         return;
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Start money set inside conditional block; condition ignored");
   }
@@ -2094,7 +2094,7 @@ void command_if_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y, long slab_type
 
 void command_computer_player(long plr_range_id, long comp_model)
 {
-    if (script_current_condition != -1)
+    if (script_current_condition != CONDITION_ALWAYS)
     {
         SCRPTWRNLOG("Computer player setup inside conditional block; condition ignored");
     }
@@ -2123,7 +2123,7 @@ void command_set_timer(long plr_range_id, const char *timrname)
 
 void command_win_game(void)
 {
-    if (script_current_condition == -1)
+    if (script_current_condition == CONDITION_ALWAYS)
     {
         SCRPTERRLOG("Command WIN GAME found with no condition");
         return;
@@ -2139,7 +2139,7 @@ void command_win_game(void)
 
 void command_lose_game(void)
 {
-  if (script_current_condition == -1)
+  if (script_current_condition == CONDITION_ALWAYS)
   {
     SCRPTERRLOG("Command LOSE GAME found with no condition");
     return;
@@ -2277,7 +2277,7 @@ void command_add_tunneller_to_level(long plr_range_id, const char *locname, cons
     // Recognize place where party is going
     if (!get_map_heading_id(objectv, target, &heading))
         return;
-    if (script_current_condition < 0)
+    if (script_current_condition == CONDITION_ALWAYS)
     {
         script_process_new_tunneler(plr_id, location, heading, crtr_level-1, carried_gold);
     } else
@@ -2338,7 +2338,7 @@ void command_add_tunneller_party_to_level(long plr_range_id, const char *prtname
         return;
     }
     // Either add the party or add item to conditional triggers list
-    if (script_current_condition < 0)
+    if (script_current_condition == CONDITION_ALWAYS)
     {
         script_process_new_tunneller_party(plr_id, prty_id, location, heading, crtr_level-1, carried_gold);
     } else
@@ -2403,7 +2403,7 @@ void command_set_creature_max_level(long plr_range_id, const char *crtr_name, lo
 
 void command_set_music(long val)
 {
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Music set inside conditional block; condition ignored");
   }
@@ -2543,7 +2543,7 @@ void command_set_computer_globals(long plr_range_id, long val1, long val2, long 
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer globals altered inside conditional block; condition ignored");
   }
@@ -2571,7 +2571,7 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer check altered inside conditional block; condition ignored");
   }
@@ -2719,7 +2719,7 @@ void command_set_computer_events(long plr_range_id, const char *evntname, long v
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer event altered inside conditional block; condition ignored");
   }
@@ -2774,7 +2774,7 @@ void command_set_computer_process(long plr_range_id, const char *procname, long 
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer process altered inside conditional block; condition ignored");
   }
@@ -3092,7 +3092,7 @@ void command_swap_creature(const char *ncrt_name, const char *crtr_name)
   {
       SCRPTERRLOG("Unable to swap special diggers");
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
       SCRPTWRNLOG("Creature swapping placed inside conditional statement");
   }
@@ -4421,7 +4421,7 @@ short clear_script(void)
 {
     LbMemorySet(&game.script, 0, sizeof(struct LevelScriptOld));
     LbMemorySet(&gameadd.script, 0, sizeof(struct LevelScript));
-    script_current_condition = -1;
+    script_current_condition = CONDITION_ALWAYS;
     text_line_number = 1;
     return true;
 }
@@ -4436,7 +4436,7 @@ short clear_quick_messages(void)
 short preload_script(long lvnum)
 {
   SYNCDBG(7,"Starting");
-  script_current_condition = -1;
+  script_current_condition = CONDITION_ALWAYS;
   next_command_reusable = 0;
   text_line_number = 1;
   level_file_version = DEFAULT_LEVEL_VERSION;
@@ -4486,7 +4486,7 @@ short load_script(long lvnum)
     // Clear script data
     gui_set_button_flashing(0, 0);
     clear_script();
-    script_current_condition = -1;
+    script_current_condition = CONDITION_ALWAYS;
     next_command_reusable = 0;
     text_line_number = 1;
     game.bonus_time = 0;
@@ -4534,7 +4534,7 @@ short load_script(long lvnum)
     LbMemoryFree(script_data);
     if (gameadd.script.win_conditions_num == 0)
       WARNMSG("No WIN GAME conditions in script file.");
-    if (script_current_condition != -1)
+    if (script_current_condition != CONDITION_ALWAYS)
       WARNMSG("Missing ENDIF's in script file.");
     JUSTLOG("Used script resources: %d/%d tunneller triggers, %d/%d party triggers, %d/%d script values, %d/%d IF conditions, %d/%d party definitions",
         (int)gameadd.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
@@ -5804,11 +5804,11 @@ TbBool get_condition_status(unsigned char opkind, long val1, long val2)
   return LbMathOperation(opkind, val1, val2) != 0;
 }
 
-TbBool is_condition_met(long cond_idx)
+static TbBool is_condition_met(unsigned char cond_idx)
 {
-    if ((cond_idx < 0) || (cond_idx >= CONDITIONS_COUNT))
+    if (cond_idx >= CONDITIONS_COUNT)
     {
-      if (cond_idx == -1)
+      if (cond_idx == CONDITION_ALWAYS)
           return true;
       else
           return false;

@@ -35,10 +35,12 @@ extern "C" {
 
 #define PARTY_TRIGGERS_COUNT     256
 #define CREATURE_PARTYS_COUNT    256
-#define CONDITIONS_COUNT         256
+#define CONDITIONS_COUNT         255
 #define TUNNELLER_TRIGGERS_COUNT 256
 #define SCRIPT_VALUES_COUNT      256
 #define WIN_CONDITIONS_COUNT      4
+
+#define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
 #define PARTY_TRIGGERS_COUNT_OLD     48
 #define CREATURE_PARTYS_COUNT_OLD    16
@@ -310,7 +312,7 @@ struct ScriptLine {
 
 struct TunnellerTrigger { // sizeof = 18
   unsigned char flags;
-  char condit_idx;
+  unsigned char condit_idx;
   unsigned char plyr_idx;
   unsigned long location;
   unsigned char heading_OLD;//no longer used
@@ -322,7 +324,7 @@ struct TunnellerTrigger { // sizeof = 18
 
 struct PartyTrigger { // sizeof = 13
   unsigned char flags;
-  char condit_idx;
+  unsigned char condit_idx;
   char creatr_id;
   union
   {
@@ -345,7 +347,7 @@ struct PartyTrigger { // sizeof = 13
 
 struct ScriptValue { // sizeof = 16
   unsigned char flags;
-  char condit_idx;
+  unsigned char condit_idx;
   unsigned char valtype;
   unsigned char plyr_range;
   union
@@ -504,7 +506,6 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
 TbBool get_condition_status(unsigned char opkind, long val1, long val2);
 TbBool condition_inactive(long cond_idx);
 TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx);
-TbBool is_condition_met(long condit_idx);
 void process_conditions(void);
 void process_values(void);
 void process_win_and_lose_conditions(PlayerNumber plyr_idx);
