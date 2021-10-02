@@ -401,7 +401,7 @@ void gui_draw_network_state()
     draw_plot();
 }
 
-TbBool setup_alliances(CoroutineLoop *loop)
+CoroutineLoopState setup_alliances(CoroutineLoop *loop)
 {
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
@@ -415,7 +415,7 @@ TbBool setup_alliances(CoroutineLoop *loop)
             }
         }
     }
-    return false; // Exit the loop
+    return CLS_CONTINUE; // Exit the loop
 }
 
 void frontnet_service_update(void)

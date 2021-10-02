@@ -401,7 +401,7 @@ TbBool checksum_packet_callback(
  * Exchanges verification packets between all players, making sure level data is identical.
  * @return Returns true if all players return same checksum.
  */
-TbBool perform_checksum_verification(CoroutineLoop *con)
+CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
 {
     static struct ChecksumContext context = {0};
 
@@ -441,10 +441,8 @@ TbBool perform_checksum_verification(CoroutineLoop *con)
     if (LbNetwork_Exchange(&context, &checksum_packet_callback) != NR_OK)
     {
         ERRORLOG("Network exchange failed on level checksum verification");
-        coroutine_clear(con);
-        con->error = true;
-        //TODO: we should change state to something like an error screen
-        return false;
+        coroutine_clear(con, true);
+        return CLS_ABORT;
     }
 
     // TODO: spectrators?
@@ -454,14 +452,13 @@ TbBool perform_checksum_verification(CoroutineLoop *con)
         if ( checksums_different() )
         {
             ERRORLOG("Level checksums different for network players");
-            coroutine_clear(con);
-            con->error = true;
-            //TODO: we should change state to something like an error screen
+            coroutine_clear(con, true);
+            return CLS_ABORT;
         }
         context.sent = 0;
-        return false; // Exit loop
+        return CLS_CONTINUE; // Exit loop
     }
-    return true;
+    return CLS_REPEAT;
 }
 
 /**

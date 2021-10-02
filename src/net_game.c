@@ -167,7 +167,7 @@ static TbBool setup_exchange_player_number_cb(void *context, unsigned long turn,
     return false;
 }
 
-static TbBool setup_exchange_player_number(CoroutineLoop *context)
+static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
 {
   SYNCDBG(6,"Starting");
 
@@ -191,9 +191,9 @@ static TbBool setup_exchange_player_number(CoroutineLoop *context)
   if (exchange_context.answers == net_get_num_clients())
   {
       exchange_context.sent = 0; // return to original state
-      return false;
+      return CLS_CONTINUE; // continue loop
   }
-  return true; // Continue loop
+  return CLS_REPEAT; // repeat loop
 }
 
 static short setup_select_player_number(void)

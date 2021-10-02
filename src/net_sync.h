@@ -57,7 +57,7 @@ TbBool resync_game(TbBool first_resync);
 /*
     Validate checksum of all players
 */
-TbBool perform_checksum_verification(CoroutineLoop *context);
+CoroutineLoopState perform_checksum_verification(CoroutineLoop *context);
 
 void resync_reset_storage();
 

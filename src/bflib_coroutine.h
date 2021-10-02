@@ -25,8 +25,23 @@ extern "C" {
 
 #define COROUTINE_MAX_NUM 8
 #define COROUTINE_ARGS 2
+
+/*
+ * It is a list of functions with some common state (args)
+ *
+ * Maybe it is not a coroutine but whole idea is to split functions into continuable parts within working main loop
+ */
 struct CoroutineLoopS;
-typedef TbBool (*CoroutineFn)(struct CoroutineLoopS *loop_context);
+
+typedef enum CoroutineLoopStateS
+{
+    CLS_ABORT,
+    CLS_REPEAT,
+    CLS_CONTINUE,
+    CLS_RETURN,
+} CoroutineLoopState;
+
+typedef CoroutineLoopState (*CoroutineFn)(struct CoroutineLoopS *loop_context);
 
 typedef struct CoroutineLoopS
 {
@@ -43,7 +58,7 @@ extern void coroutine_add(CoroutineLoop *context, CoroutineFn fn);
 // add a new coroutine to the list with args
 extern void coroutine_add_args(CoroutineLoop *context, CoroutineFn fn, int args[COROUTINE_ARGS]);
 // remove all remaining coroutines from list (i.e. in case of error)
-extern void coroutine_clear(CoroutineLoop *context);
+extern void coroutine_clear(CoroutineLoop *context, TbBool error);
 // exec all coroutines from the list
 extern void coroutine_process(CoroutineLoop *context);
 

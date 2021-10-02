@@ -29,10 +29,10 @@
 
 extern TbBool force_player_num;
 
-TbBool set_not_has_quit(CoroutineLoop *context)
+CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 {
     get_my_player()->flgfield_6 &= ~PlaF6_PlyrHasQuit;
-    return false;
+    return CLS_CONTINUE;
 }
 
 extern void setup_players_count();

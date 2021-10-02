@@ -178,7 +178,7 @@ extern void faststartup_network_game(CoroutineLoop *context);
 extern void faststartup_saved_packet_game(void);
 extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
 extern TbBool update_creature_pool_state(void);
-extern TbBool set_not_has_quit(CoroutineLoop *context);
+extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 
 /******************************************************************************/
 
@@ -3910,7 +3910,7 @@ TbBool swap_creature(long ncrt_id, long crtr_id)
     return true;
 }
 
-static TbBool wait_at_frontend(void)
+static TbBool wait_at_frontend()
 {
     struct PlayerInfo *player;
     // This is an improvised coroutine-like stuff

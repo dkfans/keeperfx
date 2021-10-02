@@ -42,11 +42,22 @@ void coroutine_process(CoroutineLoop *context)
     CoroutineFn fn = context->fns[context->read_idx];
     while (fn)
     {
-        if (!fn(context))
+        CoroutineLoopState ret = fn(context);
+        if (ret == CLS_CONTINUE)
         {
             context->fns[context->read_idx] = 0;
             context->read_idx++;
             fn = context->fns[context->read_idx];
+        }
+        else if (ret == CLS_ABORT)
+        {
+            context->write_idx = 0;
+            context->read_idx = 0;
+            return;
+        }
+        else if (ret == CLS_RETURN)
+        {
+            return;
         }
     }
     context->write_idx = 0;
@@ -58,11 +69,12 @@ int *coroutine_args(CoroutineLoop *context)
     return &context->args[context->read_idx * COROUTINE_ARGS];
 }
 
-void coroutine_clear(CoroutineLoop *context)
+void coroutine_clear(CoroutineLoop *context, TbBool error)
 {
     for (int i = 0; i < context->write_idx; i++)
     {
         context->fns[i] = 0;
     }
     context->write_idx = 0;
+    context->error |= error;
 }
