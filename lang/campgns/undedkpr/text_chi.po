@@ -39,6 +39,7 @@ msgstr "成功了！你拥有了这片土地。按空格键进入下一个王国
 
 #: guitext:1
 msgctxt "In-game message"
+msgid ""
 "Make haste Master. It won't be long before your rival breaks into this realm."
 msgstr "快点行动吧，主人，你的敌人用不了多久就要来到这个王国了。"
 
