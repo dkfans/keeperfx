@@ -43,6 +43,7 @@ void reset_script_timers_and_flags(void)
     struct Dungeon *dungeon;
     int plyr_idx;
     int k;
+    TbBool freeplay = is_map_pack();
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         add_power_to_player(PwrK_HAND, plyr_idx);
@@ -57,6 +58,10 @@ void reset_script_timers_and_flags(void)
         for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
         {
             dungeon->script_flags[k] = 0;
+            if (freeplay)
+            {
+                intralvl.campaign_flags[plyr_idx][k] = 0;
+            }
         }
     }
 }
