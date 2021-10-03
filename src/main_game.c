@@ -184,11 +184,6 @@ static void init_level(void)
     game.manufactr_element = 0;
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
-    if (is_map_pack())
-    {
-        intralvl.transferred_creature.model = 0;
-        intralvl.transferred_creature.explevel = 0;
-    }
 }
 
 static void post_init_level(void)
@@ -204,7 +199,10 @@ static void post_init_level(void)
     load_script(get_loaded_level_number());
     init_dungeons_research();
     init_dungeons_essential_position();
-    create_transferred_creature_on_level();
+    if (!is_map_pack())
+    {
+        create_transferred_creature_on_level();
+    }
     update_dungeons_scores();
     update_dungeon_generation_speeds();
     init_traps();
