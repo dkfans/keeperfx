@@ -3468,6 +3468,11 @@ void command_computer_dig_to_location(long plr_range_id, const char* origin, con
 
 void command_set_campaign_flag(long plr_range_id, const char *cmpflgname, long val)
 {
+    if (is_map_pack)
+    {
+        SCRPTERRLOG("Command is not applicable to free play levels.");
+        return;
+    }
     long flg_id = get_rid(campaign_flag_desc, cmpflgname);
     if (flg_id == -1)
     {
@@ -3479,6 +3484,11 @@ void command_set_campaign_flag(long plr_range_id, const char *cmpflgname, long v
 
 void command_add_to_campaign_flag(long plr_range_id, const char *cmpflgname, long val)
 {
+    if (is_map_pack)
+    {
+        SCRPTERRLOG("Command is not applicable to free play levels.");
+        return;
+    }
     long flg_id = get_rid(campaign_flag_desc, cmpflgname);
     if (flg_id == -1)
     {

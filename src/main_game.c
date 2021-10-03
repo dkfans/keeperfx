@@ -184,6 +184,11 @@ static void init_level(void)
     game.manufactr_element = 0;
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
+    if (is_map_pack())
+    {
+        intralvl.transferred_creature.model = 0;
+        intralvl.transferred_creature.explevel = 0;
+    }
 }
 
 static void post_init_level(void)
