@@ -58,6 +58,7 @@
 #include "config_settings.h"
 #include "game_legacy.h"
 
+#include "creature_senses.h"
 #include "keeperfx.hpp"
 #include "KeeperSpeech.h"
 

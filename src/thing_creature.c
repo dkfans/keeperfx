@@ -5364,6 +5364,14 @@ void illuminate_creature(struct Thing *creatng)
     lgt->radius <<= 1;    
 }
 
+void whip_creature(struct Thing *creatng, struct Thing *whiptng)
+{
+    thing_play_sample(creatng, 87, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct PlayerInfo* whip_plyr = get_player(creatng->owner);
+    slap_creature(whip_plyr, whiptng);
+    play_creature_sound(whiptng, CrSnd_Slap, 3, 0);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
