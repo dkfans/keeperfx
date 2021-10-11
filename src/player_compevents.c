@@ -438,7 +438,11 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
     for (struct ValidRooms* bldroom = valid_rooms_to_build; bldroom->rkind > 0; bldroom++)
     {
         if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > 0) {
-            continue;
+            struct Dungeon* dungeon = comp->dungeon;
+            if(dungeon_has_room(dungeon, bldroom->rkind))
+            {
+                continue;
+            }
         }
         struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[bldroom->rkind];
         int tiles = get_room_slabs_count(comp->dungeon->owner,bldroom->rkind);
