@@ -49,6 +49,7 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
 long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
+long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
@@ -88,6 +89,8 @@ const struct NamedCommand computer_event_func_type[] = {
   {"event_find_link",         2,},
   {"event_check_payday",      3,},
   {"none",                    4,},
+  {"event_rebuild_room",      4,},
+  {"none",                    5,},
   {NULL,                      0,},
 };
 
@@ -96,7 +99,7 @@ Comp_Event_Func computer_event_func_list[] = {
   computer_event_battle,
   computer_event_find_link,
   computer_event_check_payday,
-  NULL,
+  computer_event_rebuild_room,
   NULL,
 };
 
@@ -489,6 +492,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
+    JUSTMSG("TESTLOG: Before the crash?");
     long cproc_idx = 0;
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
