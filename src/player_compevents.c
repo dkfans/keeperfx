@@ -32,6 +32,7 @@
 #include "creature_states_combt.h"
 #include "creature_states.h"
 #include "power_hand.h"
+#include "player_computer.h"
 
 #include "dungeon_data.h"
 #include "game_legacy.h"
@@ -484,6 +485,25 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         }
     }
     return ret;
+}
+
+long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
+{
+    long cproc_idx = 0;
+    for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
+    {
+        struct ComputerProcess* cproc = &comp->processes[i];
+        if ((cproc->flags & ComProc_Unkn0002) != 0)
+            break;
+        if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
+        {
+            cproc->flags &= ~ComProc_Unkn0008;
+            cproc->flags &= ~ComProc_Unkn0001;
+            cproc->last_run_turn = 0;
+            cproc_idx = 1;
+        }
+    }
+    return cproc_idx;
 }
 
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)

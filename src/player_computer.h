@@ -649,6 +649,7 @@ long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 long process_tasks(struct Computer2 *comp);
+long computer_check_any_room(struct Computer2* comp, struct ComputerProcess* cproc);
 TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
