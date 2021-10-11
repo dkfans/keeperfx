@@ -88,7 +88,6 @@ const struct NamedCommand computer_event_func_type[] = {
   {"event_battle",            1,},
   {"event_find_link",         2,},
   {"event_check_payday",      3,},
-  {"none",                    4,},
   {"event_rebuild_room",      4,},
   {"none",                    5,},
   {NULL,                      0,},
