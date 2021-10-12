@@ -43,6 +43,7 @@
 #include "power_hand.h"
 #include "room_data.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -1157,6 +1158,9 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         return false;
     }
     LbMemorySet(comp, 0, sizeof(struct Computer2));
+    comp->event_guard.name = NULL;
+    comp->events = get_dungeonadd(plyr_idx)->computer_info.events;
+
     struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp_model);
     comp->dungeon = get_players_num_dungeon(plyr_idx);
     comp->model = comp_model;

@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "config_trapdoor.h"
+#include "player_computer.h"
 #include "globals.h"
 #include "dungeon_stats.h"
 #include "engine_camera.h"
@@ -297,6 +298,11 @@ struct BoxInfo
     uint8_t               activated[CUSTOM_BOX_COUNT];
 };
 
+struct ComputerInfo
+{
+    struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
+};
+
 struct DungeonAdd
 {
     struct TrapInfo       mnfct_info;
@@ -315,6 +321,7 @@ struct DungeonAdd
     TbBool                ignore_next_PCtr_RBtnRelease;
     TbBool                ignore_next_PCtr_LBtnRelease;
     long                  swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
+    struct ComputerInfo   computer_info;
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
