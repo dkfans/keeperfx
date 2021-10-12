@@ -516,7 +516,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
             if (!creature_is_being_unconscious(creatng) && !creature_affected_by_spell(creatng, SplK_Chicken))
             {
                 // Small chance to casting invisibility,on imp in battle.
-                if((ACTION_RANDOM(150) == 1) && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1) && !thing_affected_by_spell(creatng, PwrK_CONCEAL))
+                if((CREATURE_RANDOM(creatng, 150) == 1) && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1) && !thing_affected_by_spell(creatng, PwrK_CONCEAL))
                 {
                     magic_use_available_power_on_thing(creatng->owner, PwrK_CONCEAL, 8, 0, 0, creatng, PwMod_Default);
                 }

@@ -282,7 +282,7 @@ short researching(struct Thing *thing)
           // Do some random thinking
           if ((cctrl->turns_at_job % 16) == 0)
           {
-              long i = ACTION_RANDOM(LbFPMath_PI) - LbFPMath_PI / 2;
+              long i = CREATURE_RANDOM(thing, LbFPMath_PI) - LbFPMath_PI / 2;
               cctrl->long_9B = ((long)thing->move_angle_xy + i) & LbFPMath_AngleMask;
               cctrl->byte_9A = 4;
           }

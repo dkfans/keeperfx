@@ -177,7 +177,7 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
         // If no reason to hate the player - hate him randomly for just surviving that long
         if ((hate_reasons <= 0) && (check->param1 < game.play_gameturn))
         {
-            if (ACTION_RANDOM(100) < 20) {
+            if (PLAYER_RANDOM(compdngn->owner, 100) < 20) {
                 oprel->hate_amount++;
             }
         }
@@ -590,7 +590,7 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
         if (stack_len <= check->param1 * dungeon->total_area / 100) {
             return CTaskRet_Unk4;
         }
-        long n = find_in_imp_stack_starting_at(DigTsk_ImproveDungeon, ACTION_RANDOM(stack_len), dungeon);
+        long n = find_in_imp_stack_starting_at(DigTsk_ImproveDungeon, PLAYER_RANDOM(compdngn->owner, stack_len), dungeon);
         if (n < 0) {
             return CTaskRet_Unk4;
         }
@@ -615,7 +615,7 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
     if (dungeon_invalid(dungeon) || (slab_conf.room_types_count < 1)) {
         return INVALID_ROOM;
     }
-    int n = opponent_room_kinds[ACTION_RANDOM(sizeof(opponent_room_kinds) / sizeof(opponent_room_kinds[0]))];
+    int n = opponent_room_kinds[PLAYER_RANDOM(comp->dungeon->owner, sizeof(opponent_room_kinds) / sizeof(opponent_room_kinds[0]))];
     for (int i = 0; i < slab_conf.room_types_count; i++)
     {
         struct Room* room = room_get(dungeon->room_kind[n]);
@@ -686,7 +686,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
-    output_message(SMsg_EnemyHarassments+ACTION_RANDOM(8), 500, 1);
+    output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), 500, 1);
     return CTaskRet_Unk1;
 }
 
@@ -778,7 +778,7 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
     }
     long n = check->param1 % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
     if (n <= 0)
-        n = ACTION_RANDOM(sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+        n = PLAYER_RANDOM(comp->dungeon->owner, sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
     for (long i = 0; i < sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]); i++)
     {
         struct Thing* thing = computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(comp, workers_in_rooms[n]);
@@ -867,9 +867,9 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
     return result;
 }
 
-TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3d *pos)
+static TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3d *pos, PlayerNumber plyr_idx)
 {
-    long m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    long m = PLAYER_RANDOM(plyr_idx, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         // Get position containing room center
@@ -957,7 +957,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
             pos.x.val = 0;
             pos.y.val = 0;
             pos.z.val = 0;
-            if (find_place_to_put_door_around_room(room, &pos))
+            if (find_place_to_put_door_around_room(room, &pos, dungeon->owner))
             {
                 if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0, pos.x.stl.num, pos.y.stl.num, doorkind, 0) > Lb_OK) {
                     return CTaskRet_Unk1;
@@ -1165,7 +1165,7 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    long around_start = ACTION_RANDOM(119);
+    long around_start = PLAYER_RANDOM(dungeon->owner, 119);
     // Don't work when placing rooms; we could place in an area for room by mistake
     if (is_task_in_progress(comp, CTT_PlaceRoom) || is_task_in_progress(comp, CTT_CheckRoomDug)) {
         SYNCDBG(8,"No rooms expansion - colliding task already in progress");

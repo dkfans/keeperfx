@@ -776,8 +776,8 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
         pos.x.val = leadtng->mappos.x.val;
         pos.y.val = leadtng->mappos.y.val;
 
-        pos.x.stl.pos = ACTION_RANDOM(127);
-        pos.y.stl.pos = ACTION_RANDOM(127);
+        pos.x.stl.pos = CREATURE_RANDOM(leadtng, 127);
+        pos.y.stl.pos = CREATURE_RANDOM(leadtng, 127);
 
         pos.z.val = get_floor_height_at(&pos);
         creature_follower_pos_add(leadtng, ifollow, &pos);

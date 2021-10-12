@@ -47,8 +47,14 @@ extern "C" {
 
 #define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
-#define ACTION_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
+#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "game")
+#define CREATURE_RANDOM(thing, range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "creature")
 #define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
+#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "player")
+#define LAND_RANDOM(slb_x, slb_y, plyr, range) get_land_random_f(slb_x, slb_y, plyr, range, __func__)
+#define EFFECT_RANDOM(thing, range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "effect")
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,

@@ -274,7 +274,7 @@ static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dun
     {
         if (cum_freq > 0)
         {
-            long rnd = ACTION_RANDOM(cum_freq);
+            long rnd = PLAYER_RANDOM(dungeon->owner, cum_freq);
 
             crmodel = 1;
             while (rnd >= crtr_freq[crmodel])
