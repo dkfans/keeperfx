@@ -492,7 +492,6 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
     SYNCDBG(18, "Starting");
-    long cproc_idx = 0;
     if (get_room_slabs_count(comp->dungeon->owner, event->target) == 0)
     {
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
@@ -502,15 +501,14 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
                 break;
             if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
             {
-                SYNCDBG(8, "Resetting process for player %d to build room %s", comp->dungeon, room_code_name(event->target));
+                SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon, room_code_name(event->target));
                 cproc->flags &= ~ComProc_Unkn0008;
                 cproc->flags &= ~ComProc_Unkn0001;
                 cproc->last_run_turn = 0;
-                cproc_idx = 1;
             }
         }
     }
-    return cproc_idx;
+    return CTaskRet_Unk1;
 }
 
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)
