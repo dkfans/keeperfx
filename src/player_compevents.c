@@ -502,7 +502,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
                 break;
             if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
             {
-                SYNCDBG(8, "Resetting process for player %d to build room", comp->dungeon);
+                SYNCDBG(8, "Resetting process for player %d to build room %s", comp->dungeon, room_code_name(event->target));
                 cproc->flags &= ~ComProc_Unkn0008;
                 cproc->flags &= ~ComProc_Unkn0001;
                 cproc->last_run_turn = 0;
