@@ -533,7 +533,7 @@ struct Computer2 { // sizeof = 5322
       struct ComputerEvent events_OLD[COMPUTER_EVENTS_COUNT_OLD];
       struct
       {
-          struct ComputerEvent event_guard; // Set to invalid event if some would like to list events
+          struct ComputerEvent event_guard[2]; // Set to invalid event if some would like to list events
           struct ComputerEvent *events;
       };
   };

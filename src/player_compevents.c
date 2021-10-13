@@ -491,7 +491,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
-    JUSTMSG("TESTLOG: Before the crash?");
+    WARNDBG(1, "Rebuilding a room");
     long cproc_idx = 0;
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
