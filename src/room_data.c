@@ -2289,11 +2289,6 @@ long calculate_room_efficiency(const struct Room *room)
     return effic;
 }
 
-void update_room_efficiency(struct Room *room)
-{
-    room->efficiency = calculate_room_efficiency(room);
-}
-
 /**
  * Computes max health of a room of given size.
  */
@@ -3870,7 +3865,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     }
     SYNCDBG(7,"Updating efficiency");
     do_slab_efficiency_alteration(slb_x, slb_y);
-    update_room_efficiency(room);
+    set_room_efficiency(room);
     set_room_capacity(room,false);
     if (owner != game.neutral_player_num)
     {
@@ -4305,7 +4300,7 @@ void do_room_unprettying(struct Room *room, PlayerNumber plyr_idx)
 void do_room_integration(struct Room *room)
 {
     SYNCDBG(7,"Starting for %s index %d owned by player %d",room_code_name(room->kind),(int)room->index,(int)room->owner);
-    update_room_efficiency(room);
+    set_room_efficiency(room);
     update_room_total_health(room);
     update_room_total_capacity(room);
     update_room_contents(room);
