@@ -578,7 +578,7 @@ void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
         {
             struct Room* room = slab_room_get(sslb_x, sslb_y);
             set_room_efficiency(room);
-            set_room_capacity(room, true);
+            set_room_capacity(room, false);
         }
     }
 }
