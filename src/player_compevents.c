@@ -491,7 +491,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
-    WARNDBG(1, "Rebuilding a room");
+    SYNCDBG(18, "Starting");
     long cproc_idx = 0;
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
@@ -500,6 +500,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
             break;
         if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
         {
+            SYNCDBG(8, "Resetting task for player %d to build room"), (int)dungeon->owner);
             cproc->flags &= ~ComProc_Unkn0008;
             cproc->flags &= ~ComProc_Unkn0001;
             cproc->last_run_turn = 0;
