@@ -4959,18 +4959,6 @@ __attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, u
     return GameT;
 }
 
-int index_of(int value, const int array[])
-{
-    for (int i = 0; i <= sizeof(array) - 1; i++)
-    {
-        if (array[i] == value)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
 #ifdef __cplusplus
 }
 #endif

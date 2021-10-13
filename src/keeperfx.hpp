@@ -356,7 +356,6 @@ void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
 void update_time(void);
-int index_of(int value, const int array[]);
 extern TbClockMSec timerstarttime;
 struct TimerTime {
         unsigned char Hours;

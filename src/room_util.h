@@ -42,7 +42,6 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
 short check_and_asimilate_thing_by_room(struct Thing *thing);
 EventIndex update_cannot_find_room_wth_spare_capacity_event(PlayerNumber plyr_idx, struct Thing *creatng, RoomKind rkind);
 void query_room(struct Room *room);
-void check_for_and_update_surrounding_rooms(MapSlabCoord slb_x, MapSlabCoord slb_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }
