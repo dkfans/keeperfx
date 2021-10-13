@@ -493,7 +493,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
 {
     SYNCDBG(18, "Starting");
     long cproc_idx = 0;
-    if (computer_get_room_kind_free_capacity(comp, event->target) == 0)
+    if (get_room_slabs_count(comp->dungeon->owner, event->target) == 0)
     {
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
