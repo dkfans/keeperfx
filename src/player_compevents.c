@@ -32,6 +32,7 @@
 #include "creature_states_combt.h"
 #include "creature_states.h"
 #include "power_hand.h"
+#include "player_computer.h"
 
 #include "dungeon_data.h"
 #include "game_legacy.h"
@@ -48,6 +49,7 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
 long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
+long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
@@ -86,7 +88,8 @@ const struct NamedCommand computer_event_func_type[] = {
   {"event_battle",            1,},
   {"event_find_link",         2,},
   {"event_check_payday",      3,},
-  {"none",                    4,},
+  {"event_rebuild_room",      4,},
+  {"none",                    5,},
   {NULL,                      0,},
 };
 
@@ -95,7 +98,7 @@ Comp_Event_Func computer_event_func_list[] = {
   computer_event_battle,
   computer_event_find_link,
   computer_event_check_payday,
-  NULL,
+  computer_event_rebuild_room,
   NULL,
 };
 
@@ -484,6 +487,28 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         }
     }
     return ret;
+}
+
+long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
+{
+    SYNCDBG(18, "Starting");
+    if (get_room_slabs_count(comp->dungeon->owner, event->target) == 0)
+    {
+        for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
+        {
+            struct ComputerProcess* cproc = &comp->processes[i];
+            if ((cproc->flags & ComProc_Unkn0002) != 0)
+                break;
+            if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
+            {
+                SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
+                cproc->flags &= ~ComProc_Unkn0008;
+                cproc->flags &= ~ComProc_Unkn0001;
+                cproc->last_run_turn = 0;
+            }
+        }
+    }
+    return CTaskRet_Unk1;
 }
 
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)

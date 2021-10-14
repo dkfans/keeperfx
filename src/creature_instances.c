@@ -617,7 +617,7 @@ long instf_destroy(struct Thing *creatng, long *param)
         {
             MapCoord ccor_x = subtile_coord_center(room->central_stl_x);
             MapCoord ccor_y = subtile_coord_center(room->central_stl_y);
-            event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, room->owner, 0);
+            event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, room->owner, room->kind);
             claim_enemy_room(room, creatng);
         }
         thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);

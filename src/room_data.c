@@ -4422,6 +4422,9 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
         redraw_room_map_elements(room);
         do_room_unprettying(room, newowner);
         do_room_integration(room);
+        MapCoord ccor_x = subtile_coord_center(room->central_stl_x);
+        MapCoord ccor_y = subtile_coord_center(room->central_stl_y);
+        event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, oldowner, room->kind);
         return 1;
     }
     else
