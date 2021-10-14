@@ -491,22 +491,24 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
-    JUSTMSG("TESTLOG: Before the crash?");
-    long cproc_idx = 0;
-    for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
+    SYNCDBG(18, "Starting");
+    if (get_room_slabs_count(comp->dungeon->owner, event->target) == 0)
     {
-        struct ComputerProcess* cproc = &comp->processes[i];
-        if ((cproc->flags & ComProc_Unkn0002) != 0)
-            break;
-        if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
+        for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
-            cproc->flags &= ~ComProc_Unkn0008;
-            cproc->flags &= ~ComProc_Unkn0001;
-            cproc->last_run_turn = 0;
-            cproc_idx = 1;
+            struct ComputerProcess* cproc = &comp->processes[i];
+            if ((cproc->flags & ComProc_Unkn0002) != 0)
+                break;
+            if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
+            {
+                SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
+                cproc->flags &= ~ComProc_Unkn0008;
+                cproc->flags &= ~ComProc_Unkn0001;
+                cproc->last_run_turn = 0;
+            }
         }
     }
-    return cproc_idx;
+    return CTaskRet_Unk1;
 }
 
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)
