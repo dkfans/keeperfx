@@ -92,6 +92,7 @@
 extern "C" {
 #endif
 
+extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -3589,7 +3590,43 @@ FrontendMenuState get_startup_menu_state(void)
 {
   struct PlayerInfo *player;
   LevelNumber lvnum;
-  if ((game.flags_cd & MFlg_unk40) != 0)
+  if (game_flags2 & GF2_Server)
+  {
+      game_flags2 &= ~GF2_Server;
+      SYNCLOG("Setup server");
+
+      if (setup_network_service(NS_TCP_IP))
+      {
+          frontnet_service_setup();
+          frontnet_session_setup();
+          frontnet_session_create(NULL);
+          return FeSt_NET_START;
+      }
+  }
+  else if (game_flags2 & GF2_Connect)
+  {
+      game_flags2 &= ~GF2_Connect;
+      SYNCLOG("Setup client");
+      if (setup_network_service(NS_TCP_IP))
+      {
+          frontnet_service_setup();
+          frontnet_session_setup();
+          net_number_of_sessions = 0;
+          LbMemorySet(net_session, 0, sizeof(net_session));
+          // TODO: should disable actual network enumerating if either
+          if (LbNetwork_EnumerateSessions(enum_sessions_callback, 0))
+          {
+              ERRORLOG("LbNetwork_EnumerateSessions() failed");
+          }
+          else
+          {
+              net_session_index_active = 0;
+              frontnet_session_join(NULL);
+              return frontend_menu_state;
+          }
+      }
+  }
+  else if ((game.flags_cd & MFlg_unk40) != 0)
   { // If starting up the game after intro
     if (is_full_moon)
     {
@@ -3678,6 +3715,14 @@ FrontendMenuState get_startup_menu_state(void)
   }
   ERRORLOG("Unresolved menu state");
   return FeSt_MAIN_MENU;
+}
+
+void try_restore_frontend_error_box()
+{
+    if (LbTimerClock() < gui_message_timeout)
+    {
+        turn_on_menu(GMnu_FEERROR_BOX);
+    }
 }
 
 void create_frontend_error_box(long showTime, const char * text)

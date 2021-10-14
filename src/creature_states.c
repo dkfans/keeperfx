@@ -3266,11 +3266,11 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
 
         cctrl->byte_8A |= 1 << i;
         ++dgn->times_broken_into;
-        event_create_event_or_update_nearby_existing_event(
-            creatng->mappos.x.val, creatng->mappos.y.val,
-            4u, i, 0);
+        event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Breach, i, 0);
         if (is_my_player_number(i))
+        {
             output_message(SMsg_WallsBreach, 0, 1);
+        }
     }
     return 0;
 }

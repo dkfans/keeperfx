@@ -250,10 +250,11 @@ void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const 
  * Checks if all active players packets have same checksums.
  * @return Returns false if all checksums are same; true if there's mismatch.
  */
-short checksums_different(void)
+short checksums_different()
 {
     TbChecksum checksum = 0;
     unsigned short is_set = false;
+    int plyr = -1;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
@@ -264,9 +265,12 @@ short checksums_different(void)
             {
                 checksum = pckt->chksum;
                 is_set = true;
+                plyr = i;
             }
             else if (checksum != pckt->chksum)
             {
+                ERRORLOG("Checksums %08x(%d) != %08x(%d) turn: %ld", checksum, plyr, pckt->chksum, i, game.play_gameturn);
+
                 return true;
             }
         }

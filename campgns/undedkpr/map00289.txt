@@ -4,7 +4,8 @@ REM Ashspire
 REM Made by Duke Ragereaver
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
-QUICK_OBJECTIVE(0,"A vast legion is hosted in this realm, however with it's commanders at odds this make the fight quite more diverse. Quickly, gather your forces and attack while there is still a state of confusion!",PLAYER0)
+REM "A vast legion is hosted in this realm, however with it's commanders at odds this make the fight quite more diverse. Quickly, gather your forces and attack while there is still a state of confusion!"
+DISPLAY_OBJECTIVE(14,PLAYER0)
 
 COMPUTER_PLAYER(PLAYER1,0)
 COMPUTER_PLAYER(PLAYER2,0)
@@ -142,10 +143,12 @@ TRAP_AVAILABLE(PLAYER3,BOULDER,1,0)
 REM --------------------------------------------------------------------------------------------------------------------------------------------
 
 IF(PLAYER0,GAME_TURN >= 1000)
-QUICK_OBJECTIVE(1,"You cannot hope for victory without a portal to attract creatures. Go out and seek one.",PLAYER0)
+    REM "You cannot hope for victory without a portal to attract creatures. Go out and seek one."
+    DISPLAY_OBJECTIVE(15,PLAYER0)
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-QUICK_OBJECTIVE(2,"A truly devastating victory. You've just routed and destroyed the last barrier between Keeper Bane and you, now... let's kill that dirtbag.",PLAYER0)
+    REM "A truly devastating victory. You've just routed and destroyed the last barrier between Keeper Bane and you, now... let's kill that dirtbag."
+    DISPLAY_OBJECTIVE(16,PLAYER0)
     WIN_GAME
 ENDIF

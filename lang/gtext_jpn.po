@@ -6580,3 +6580,8 @@ msgctxt "Dungeon special decription"
 msgid ""
 "Mysterious Box: There's no telling what this will do."
 msgstr "不思議な箱: 此れの作用は不明だ。"
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
+msgstr "参加しているプレイヤーのマップ版はホストの版とは違う。"

@@ -161,8 +161,13 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
 
 const char * gui_string(unsigned int index)
 {
-    if (index >= GUI_STRINGS_COUNT)
-        return lbEmptyString;
+    static char string_invalid[64];
+
+    if (index > GUI_STRINGS_COUNT)
+    {
+        sprintf(string_invalid, "untranslated <%d>", index);
+        return string_invalid;
+    }
     return gui_strings[index];
 }
 const char * cmpgn_string(unsigned int index)
