@@ -350,7 +350,7 @@ long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_k
     return (used_capacity * 256) / total_capacity;
 }
 
-void set_room_capacity(struct Room *room, TbBool skip_integration)
+void set_room_stats(struct Room *room, TbBool skip_integration)
 {
     struct RoomData* rdata = room_data_get_for_room(room);
     if ((!skip_integration) || (rdata->field_F))
@@ -2074,7 +2074,7 @@ long reinitialise_rooms_of_kind(RoomKind rkind, TbBool skip_integration)
             }
             i = room->next_of_owner;
             // Per-room code starts
-            set_room_capacity(room, skip_integration);
+            set_room_stats(room, skip_integration);
             // Per-room code ends
             k++;
             if (k > ROOMS_COUNT)
@@ -2122,8 +2122,7 @@ TbBool initialise_map_rooms(void)
                 room = INVALID_ROOM;
             if (!room_is_invalid(room))
             {
-                set_room_efficiency(room);
-                set_room_capacity(room, false);
+                set_room_stats(room, false);
             }
         }
     }
@@ -3865,8 +3864,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     }
     SYNCDBG(7,"Updating efficiency");
     do_slab_efficiency_alteration(slb_x, slb_y);
-    set_room_efficiency(room);
-    set_room_capacity(room,false);
+    set_room_stats(room,false);
     if (owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(owner);
