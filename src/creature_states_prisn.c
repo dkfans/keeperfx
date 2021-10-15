@@ -358,8 +358,18 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         return CrCkRet_Continue;
   }
   process_creature_hunger(creatng);
-  if ( process_prisoner_skelification(creatng,room) )
-    return CrCkRet_Deleted;
+  struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+  if (process_prisoner_skelification(creatng, room))
+  {
+      return CrCkRet_Deleted;
+  }
+  else if ((creatng->health < 0) && (!crstat->humanoid_creature))
+  { 
+      if (is_my_player_number(creatng->owner))
+      {
+          output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
+      }
+  }
   struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
   if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room) )
     return CrCkRet_Continue;
