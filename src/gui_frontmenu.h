@@ -74,6 +74,7 @@ enum GUI_Menus {
   GMnu_FEERROR_BOX        = 42,
   GMnu_FEADD_SESSION      = 43,
   GMnu_MAPPACK_SELECT     = 44,
+  GMnu_MSG_BOX            = 45,
 };
 
 #define MENU_INVALID_ID -1

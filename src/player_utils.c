@@ -32,8 +32,10 @@
 #include "power_hand.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
+#include "frontmenu_ingame_evnt.h"
 #include "front_simple.h"
 #include "front_lvlstats.h"
+#include "gui_msgs.h"
 #include "gui_soundmsgs.h"
 #include "gui_frontmenu.h"
 #include "config_settings.h"
@@ -102,6 +104,20 @@ void set_player_as_won_level(struct PlayerInfo *player)
     frontstats_initialise();
   player->victory_state = VicS_WonLevel;
   struct Dungeon* dungeon = get_dungeon(player->id_number);
+  if ( timer_enabled() )
+  {
+    if (TimerGame)
+    {
+        TimerTurns = dungeon->lvstats.hopes_dashed;
+        update_time();
+    }
+    else
+    {
+        show_real_time_taken();
+    }
+    struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game.num_fps);
+    SYNCMSG("Won level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, dungeon->lvstats.hopes_dashed, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+  }
   // Computing player score
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
@@ -112,7 +128,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
     if (lord_of_the_land_in_prison_or_tortured())
     {
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
-        player->field_3 |= Pf3F_Unkn10;
+        player->additional_flags |= PlaAF_UnlockedLordTorture;
     }
     output_message(SMsg_LevelWon, 0, true);
   }
@@ -418,7 +434,6 @@ void init_player_music(struct PlayerInfo *player)
 {
     LevelNumber lvnum = get_loaded_level_number();
     game.audiotrack = 3 + ((lvnum - 1) % 4);
-    randomize_sound_font();
 }
 
 TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)
@@ -520,13 +535,13 @@ void init_player(struct PlayerInfo *player, short no_explore)
     SYNCDBG(5,"Starting");
     player->minimap_pos_x = 11;
     player->minimap_pos_y = 11;
-    player->minimap_zoom = 256;
+    player->minimap_zoom = settings.minimap_zoom;
     player->field_4D1 = player->id_number;
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
-    player->palette = engine_palette;
+    player->main_palette = engine_palette;
     if (is_my_player(player))
     {
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
@@ -819,7 +834,7 @@ void process_player_states(void)
         struct PlayerInfo* player = get_player(plyr_idx);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            if (player->work_state == PSt_CreatrInfo)
+            if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
             {
                 struct Thing* thing = thing_get(player->controlled_thing_idx);
                 struct Camera* cam = player->acamera;
@@ -835,6 +850,7 @@ void process_player_states(void)
 void process_players(void)
 {
     SYNCDBG(5,"Starting");
+    update_roomspaces();
     process_player_instances();
     process_player_states();
     for (int i = 0; i < PLAYERS_COUNT; i++)
@@ -883,6 +899,11 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         set_coords_to_slab_center(&pos,slb_x,slb_y);
         remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     }
+
+	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
+	dungeonadd->traps_sold++;
+	dungeonadd->manufacture_gold += sell_value;
+
     struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
     if (is_my_player_number(plyr_idx))
     {
@@ -915,18 +936,24 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         return false;
     }
-    struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
-    dungeon->camera_deviate_jump = 192;
-    long i = gameadd.doors_config[thing->model].selling_value;
+
+	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
+	dungeon->camera_deviate_jump = 192;
+    long sell_value = compute_value_percentage(gameadd.doors_config[thing->model].selling_value, gameadd.door_sale_percent);
+
+	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
+	dungeonadd->doors_sold++;
+	dungeonadd->manufacture_gold += sell_value;
+
     destroy_door(thing);
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
     struct Coord3d pos;
     set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
-    if (i != 0)
+    if (sell_value != 0)
     {
-        create_price_effect(&pos, plyr_idx, i);
-        player_add_offmap_gold(plyr_idx, i);
+        create_price_effect(&pos, plyr_idx, sell_value);
+        player_add_offmap_gold(plyr_idx, sell_value);
     }
     { // Add the trap location to related computer player, in case we'll want to place a trap again
         struct Computer2* comp = get_computer_player(plyr_idx);

@@ -4,6 +4,7 @@ REM  Campaign: Revenge of the Lord
 REM  Authors:  Alexsa
 REM ****************************************************************************
 REM Update 1.00, august 2018: tweaked things, ensured nothing goes wrong. Still a chance of bug spawning in the wrong place.
+REM V2.0 by dayokay to use pot file
 REM ********************************************
 
 LEVEL_VERSION(1)
@@ -33,11 +34,13 @@ SET_CREATURE_STRENGTH(FAIRY,60)
 SET_CREATURE_STRENGTH(WITCH,60)
 
 IF(PLAYER_GOOD,WIZARD == 0)
-    QUICK_OBJECTIVE(2,"The wizard is dead, and it is time to leave this dungeon.", PLAYER0)
+REM	QUICK_OBJECTIVE(2,"The wizard is dead, and it is time to leave this dungeon.", PLAYER0)
+	DISPLAY_OBJECTIVE(95,PLAYER0)
 	WIN_GAME
 ENDIF
 
-    QUICK_OBJECTIVE(1,"An evil wizard rules this frozen underground realm. He has imprisoned two heroes somewhere in this dungeon; once rescued, they will gladly accompany you in future conquest if you help them slay the renegade wizard. Make haste, for the way back will not remain open for much longer.", PLAYER0)
+REM	QUICK_OBJECTIVE(1,"An evil wizard rules this frozen underground realm. He has imprisoned two heroes somewhere in this dungeon; once rescued, they will gladly accompany you in future conquest if you help them slay the renegade wizard. Make haste, for the way back will not remain open for much longer.", PLAYER0)
+DISPLAY_OBJECTIVE(96,PLAYER0)
 
 REM Blue
 REM Upon startup, run random boulders ;)
@@ -80,12 +83,14 @@ REM Eastern route will be toned down, it's CTA for all.
 SET_TIMER(PLAYER0,TIMER0)
 BONUS_LEVEL_TIME(14000)
 IF(PLAYER0,TIMER0 >= 14000)
-	QUICK_OBJECTIVE(3,"The evil wizard has finished his sinister spell and the way back is barred.", PLAYER0)
+REM	QUICK_OBJECTIVE(3,"The evil wizard has finished his sinister spell and the way back is barred.", PLAYER0)
+	DISPLAY_OBJECTIVE(97,PLAYER0)
 	LOSE_GAME
 ENDIF
 REM Losing all creatures = defeat.
 IF(PLAYER0,TOTAL_CREATURES == 0)
-	QUICK_OBJECTIVE(4,"All of your heroes are dead, while the evil wizard survives.", PLAYER0)
+REM	QUICK_OBJECTIVE(4,"All of your heroes are dead, while the evil wizard survives.", PLAYER0)
+	DISPLAY_OBJECTIVE(98,PLAYER0)
 	LOSE_GAME
 ENDIF
 

@@ -74,6 +74,8 @@ TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short lo
 long count_player_deployed_doors_of_model(PlayerNumber owner, int model);
 TbBool player_has_deployed_trap_of_model(PlayerNumber owner, int model);
 long count_player_deployed_traps_of_model(PlayerNumber owner, int model);
+
+void update_all_door_stats();
 /******************************************************************************/
 #ifdef __cplusplus
 }

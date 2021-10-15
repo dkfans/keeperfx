@@ -85,6 +85,7 @@ CrStateRet process_temple_visuals(struct Thing *creatng, struct Room *room)
     return CrStRet_Modified;
 }
 
+// This is state-process function of a creature
 short at_temple(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -110,6 +111,7 @@ short at_temple(struct Thing *thing)
     return 1;
 }
 
+// This is state-process function of a creature
 CrStateRet praying_in_temple(struct Thing *thing)
 {
     TRACE_THING(thing);
@@ -144,6 +146,7 @@ long process_temple_cure(struct Thing *creatng)
     return 1;
 }
 
+// This is state-movecheck function of a creature
 CrCheckRet process_temple_function(struct Thing *thing)
 {
     struct Room* room = get_room_thing_is_on(thing);
@@ -321,6 +324,7 @@ void kill_all_players_chickens(PlayerNumber plyr_idx)
     do_to_players_all_creatures_of_model(plyr_idx, -1, kill_creature_if_under_chicken_spell);
 }
 
+// This is state-process function of a creature
 short creature_being_summoned(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -335,7 +339,7 @@ short creature_being_summoned(struct Thing *thing)
     if (cctrl->word_9A <= 0)
     {
         get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
-        create_effect(&thing->mappos, TngEff_Unknown04, thing->owner);
+        create_effect(&thing->mappos, TngEff_Explosion4, thing->owner);
         thing->movement_flags |= TMvF_Unknown04;
         cctrl->word_9A = 1;
         cctrl->word_9C = 48;//orig_h;
@@ -361,6 +365,18 @@ short cleanup_sacrifice(struct Thing *creatng)
     return 1;
 }
 
+TbBool tally_sacrificed_imps(PlayerNumber plyr_idx, short count)
+{
+    struct DungeonAdd* dungeonadd;
+    dungeonadd = get_dungeonadd(plyr_idx);
+    if (dungeonadd_invalid(dungeonadd)) {
+        ERRORDBG(11, "Can't change imp price, player %d has no dungeon.", (int)plyr_idx);
+        return false;
+    }
+    dungeonadd->cheaper_diggers += count;
+    return true;
+}
+
 long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, long sacfunc, long explevel)
 {
   switch (sacfunc)
@@ -378,8 +394,11 @@ long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, l
       kill_all_players_chickens(plyr_idx);
       return SacR_Punished;
   case UnqF_CheaperImp:
-      // No processing needed - just don't clear the amount of sacrificed imps.
+      tally_sacrificed_imps(plyr_idx,1);
       return SacR_Pleased;
+  case UnqF_CostlierImp:
+      tally_sacrificed_imps(plyr_idx, -1);
+      return SacR_AngryWarn;
   default:
       ERRORLOG("Unsupported unique sacrifice award!");
       return SacR_AngryWarn;
@@ -449,6 +468,7 @@ TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct Sacrifice
 long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Player %d cannot sacrifice creatures.", (int)plyr_idx);
@@ -486,7 +506,10 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
         case SacA_MkCreature:
             if (explevel >= CREATURE_MAX_LEVEL) explevel = CREATURE_MAX_LEVEL-1;
             if ( summon_creature(sac->param, pos, plyr_idx, explevel) )
-              dungeon->lvstats.creatures_from_sacrifice++;
+            {
+                dungeon->lvstats.creatures_from_sacrifice++;
+                dungeonadd->creature_awarded[sac->param]++;
+            }
             ret = SacR_Awarded;
             break;
         case SacA_MkGoodHero:
@@ -509,6 +532,20 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
         case SacA_PosUniqFunc:
             ret = create_sacrifice_unique_award(pos, plyr_idx, sac->param, explevel);
             break;
+        case SacA_CustomReward:
+            if (sac->param > 0) // Zero means do nothing
+            {
+                dungeon->script_flags[sac->param - 1]++;
+            }
+            ret = SacR_Awarded;
+            break;
+        case SacA_CustomPunish:
+            if (sac->param > 0)
+            {
+                dungeon->script_flags[sac->param - 1]++;
+            }
+            ret = SacR_Punished;
+            break;
         default:
             ERRORLOG("Unsupported sacrifice action %d!",(int)sac->action);
             ret = SacR_Pleased;
@@ -524,6 +561,45 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
   return ret;
 }
 
+void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial)
+{
+    long award = process_sacrifice_award(pos, model, owner);
+    if (is_my_player_number(owner))
+    {
+      switch (award)
+      {
+      case SacR_AngryWarn:
+          if (partial)
+          {
+              output_message(SMsg_SacrificeBad, 0, true);
+          }
+          break;
+      case SacR_DontCare:
+          if (partial)
+          {
+              output_message(SMsg_SacrificeNeutral, 0, true);
+          }
+          break;
+      case SacR_Pleased:
+          if (partial)
+          {
+              output_message(SMsg_SacrificeGood, 0, true);
+          }
+          break;
+      case SacR_Awarded:
+          output_message(SMsg_SacrificeReward, 0, true);
+          break;
+      case SacR_Punished:
+          output_message(SMsg_SacrificePunish, 0, true);
+          break;
+      default:
+          ERRORLOG("Invalid sacrifice return, %d",(int)award);
+          break;
+      }
+    }
+}
+
+// This is state-process function of a creature
 short creature_being_sacrificed(struct Thing *thing)
 {
     SYNCDBG(6,"Starting");
@@ -545,35 +621,15 @@ short creature_being_sacrificed(struct Thing *thing)
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val;
     long model = thing->model;
+
+    memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
+
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
-    long award = process_sacrifice_award(&pos, model, owner);
-    if (is_my_player_number(owner))
-    {
-      switch (award)
-      {
-      case SacR_AngryWarn:
-          output_message(SMsg_SacrificeBad, 0, true);
-          break;
-      case SacR_DontCare:
-          output_message(SMsg_SacrificeNeutral, 0, true);
-          break;
-      case SacR_Pleased:
-          output_message(SMsg_SacrificeGood, 0, true);
-          break;
-      case SacR_Awarded:
-          output_message(SMsg_SacrificeReward, 0, true);
-          break;
-      case SacR_Punished:
-          output_message(SMsg_SacrificePunish, 0, true);
-          break;
-      default:
-          ERRORLOG("Invalid sacrifice return, %d",(int)award);
-          break;
-      }
-    }
+    process_sacrifice_creature(&pos, model, owner, true);
     return -1;
 }
 
+// This is state-process function of a creature
 short creature_sacrifice(struct Thing *thing)
 {
     //return _DK_creature_sacrifice(thing);
@@ -603,9 +659,92 @@ short creature_sacrifice(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_CreatureBeingSacrificed);
         thing->creature.gold_carried = 0;
         struct SlabMap* slb = get_slabmap_thing_is_on(thing);
-        create_effect(&thing->mappos, TngEff_Unknown35, slabmap_owner(slb));
+        create_effect(&thing->mappos, TngEff_TempleSplash, slabmap_owner(slb));
     }
     return 1;
 }
 
+TbBool find_random_sacrifice_center(struct Coord3d *pos, const struct Room *room)
+{
+    // Find a random slab in the room to be used as our starting point
+    long i = ACTION_RANDOM(room->slabs_count);
+    unsigned long n = room->slabs_list;
+    while (i > 0)
+    {
+        n = get_next_slab_number_in_room(n);
+        i--;
+    }
+    // Now loop starting from that point
+    i = room->slabs_count;
+    while (i > 0)
+    {
+        // Loop the slabs list
+        if (n <= 0) {
+            n = room->slabs_list;
+        }
+        MapSlabCoord slb_x = slb_num_decode_x(n);
+        MapSlabCoord slb_y = slb_num_decode_y(n);
+        if  (slab_is_area_inner_fill(slb_x, slb_y))
+        {
+            // In case we will select a column on that subtile, do 3 tries
+            pos->x.val = subtile_coord_center(slab_subtile_center(slb_x));
+            pos->y.val = subtile_coord_center(slab_subtile_center(slb_y));
+            pos->z.val = subtile_coord(1,0);
+            struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
+                && (get_navigation_map_floor_height(pos->x.stl.num, pos->y.stl.num) < 4)
+                )
+            {
+                return true;
+            }
+        }
+        n = get_next_slab_number_in_room(n);
+        i--;
+    }
+    return false;
+}
+
+TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
+{
+    struct Room *best_room = NULL;
+    long max_value = 0;
+    struct Dungeon *dungeon = get_dungeon(player_idx);
+
+    int k = 0, i = dungeon->room_kind[RoK_TEMPLE];
+    while (i != 0)
+    {
+        struct Room* room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        if (find_random_sacrifice_center(pos, room))
+        {
+            if (max_value < room->total_capacity)
+            {
+                max_value = room->total_capacity;
+                best_room = room;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+
+    if (room_is_invalid(best_room))
+    {
+        WARNLOG("No temple to spawn a creature");
+        memset(pos, 0, sizeof(*pos));
+        return false; // No room
+    }
+
+    return true;
+}
 /******************************************************************************/

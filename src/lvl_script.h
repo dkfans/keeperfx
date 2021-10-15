@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "config.h"
+#include "config_rules.h"
 #include "creature_groups.h"
 
 #ifdef __cplusplus
@@ -32,12 +33,23 @@ extern "C" {
 /******************************************************************************/
 #define COMMANDDESC_ARGS_COUNT    8
 
-#define PARTY_TRIGGERS_COUNT     48
-#define CREATURE_PARTYS_COUNT    16
-#define CONDITIONS_COUNT         48
-#define TUNNELLER_TRIGGERS_COUNT 16
-#define SCRIPT_VALUES_COUNT      64
+#define PARTY_TRIGGERS_COUNT     256
+#define CREATURE_PARTYS_COUNT    256
+#define CONDITIONS_COUNT         255
+#define TUNNELLER_TRIGGERS_COUNT 256
+#define SCRIPT_VALUES_COUNT      256
 #define WIN_CONDITIONS_COUNT      4
+
+#define CONDITION_ALWAYS (CONDITIONS_COUNT)
+
+#define PARTY_TRIGGERS_COUNT_OLD     48
+#define CREATURE_PARTYS_COUNT_OLD    16
+#define CONDITIONS_COUNT_OLD         48
+#define TUNNELLER_TRIGGERS_COUNT_OLD 16
+#define SCRIPT_VALUES_COUNT_OLD      64
+#define WIN_CONDITIONS_COUNT_OLD      4
+
+#define SENSIBLE_GOLD 99999999
 
 enum TbScriptCommands {
     Cmd_NONE                              =  0,
@@ -123,19 +135,35 @@ enum TbScriptCommands {
     Cmd_SET_GAME_RULE                     = 103,
     Cmd_SET_TRAP_CONFIGURATION            = 104,
     Cmd_SET_DOOR_CONFIGURATION            = 105,
-    Cmd_SET_CREATURE_PROPERTY             = 106,
-    Cmd_SET_CREATURE_FEARSOME_FACTOR      = 107,
-    Cmd_USE_POWER_ON_CREATURE             = 108,
-    Cmd_USE_POWER_AT_SUBTILE              = 109,
-    Cmd_USE_POWER                         = 110,
-    Cmd_USE_POWER_AT_LOCATION             = 111,
-    Cmd_ADD_OBJECT_TO_LEVEL               = 112,
-    Cmd_USE_SPECIAL_INCREASE_LEVEL        = 113,
-    Cmd_USE_SPECIAL_MULTIPLY_CREATURES    = 114,
-    Cmd_USE_SPECIAL_MAKE_SAFE             = 115,
-    Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 116,
-    Cmd_CHANGE_CREATURES_ANNOYANCE        = 117,
-    Cmd_COMPUTER_DIG_TO_LOCATION          = 118,
+    Cmd_SET_OBJECT_CONFIGURATION          = 106,
+    Cmd_SET_CREATURE_PROPERTY             = 107,
+    Cmd_SET_CREATURE_FEARSOME_FACTOR      = 108,
+    Cmd_USE_POWER_ON_CREATURE             = 109,
+    Cmd_USE_POWER_AT_SUBTILE              = 110,
+    Cmd_USE_POWER                         = 111,
+    Cmd_USE_POWER_AT_LOCATION             = 112,
+    Cmd_ADD_OBJECT_TO_LEVEL               = 113,
+    Cmd_USE_SPECIAL_INCREASE_LEVEL        = 114,
+    Cmd_USE_SPECIAL_MULTIPLY_CREATURES    = 115,
+    Cmd_USE_SPECIAL_MAKE_SAFE             = 116,
+    Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 117,
+    Cmd_CHANGE_CREATURES_ANNOYANCE        = 118,
+    Cmd_COMPUTER_DIG_TO_LOCATION          = 119,
+    Cmd_DELETE_FROM_PARTY                 = 120,
+    Cmd_SET_SACRIFICE_RECIPE              = 121,
+    Cmd_REMOVE_SACRIFICE_RECIPE           = 122,
+    Cmd_SET_BOX_TOOLTIP                   = 123,
+    Cmd_SET_BOX_TOOLTIP_ID                = 124,
+    Cmd_CREATE_EFFECTS_LINE               = 125,
+    Cmd_DISPLAY_MESSAGE                   = 126,
+    Cmd_QUICK_MESSAGE                     = 127,
+    Cmd_USE_SPELL_ON_CREATURE             = 128,
+    Cmd_SET_HEART_HEALTH                  = 129,
+    Cmd_ADD_HEART_HEALTH                  = 130,
+    Cmd_CREATURE_ENTRANCE_LEVEL           = 131,
+    Cmd_RANDOMISE_FLAG                    = 132,
+    Cmd_COMPUTE_FLAG                      = 133,
+    Cmd_CONCEAL_MAP_RECT                  = 134,
 };
 
 enum ScriptVariables {
@@ -196,12 +224,21 @@ enum ScriptVariables {
   SVar_TOTAL_TRAPS_USED                = 58,
   SVar_TOTAL_DOORS_USED                = 59,
   SVar_KEEPERS_DESTROYED               = 60,
-  SVar_CREATURES_SACRIFICED            = 61,
-  SVar_CREATURES_FROM_SACRIFICE        = 62,
+  SVar_CREATURES_SACRIFICED            = 61, // Total
+  SVar_CREATURES_FROM_SACRIFICE        = 62, // Total
   SVar_TIMES_LEVELUP_CREATURE          = 63,
   SVar_TOTAL_SALARY                    = 64,
   SVar_CURRENT_SALARY                  = 65,
   SVar_BOX_ACTIVATED                   = 66,
+  SVar_SACRIFICED                      = 67,  // Per model
+  SVar_REWARDED                        = 68,  // Per model
+  SVar_EVIL_CREATURES_CONVERTED        = 69,
+  SVar_GOOD_CREATURES_CONVERTED        = 70,
+  SVar_TRAPS_SOLD                      = 71,
+  SVar_DOORS_SOLD                      = 72,
+  SVar_MANUFACTURED_SOLD               = 73,
+  SVar_MANUFACTURE_GOLD                = 74,
+  SVar_TOTAL_SCORE                     = 75,
  };
 
 enum MapLocationTypes {
@@ -221,7 +258,7 @@ enum MapLocationTypes {
 };
 
 enum MetaLocation {
-  MML_TRIGGERED_OBJECT = 1,
+  MML_LAST_EVENT = 1,
   MML_RECENT_COMBAT,
 };
 
@@ -229,6 +266,7 @@ enum ScriptOperator {
     SOpr_SET = 1,
     SOpr_INCREASE,
     SOpr_DECREASE,
+    SOpr_MULTIPLY,
 };
 
 enum {
@@ -241,14 +279,32 @@ enum {
 struct Condition;
 struct Party;
 typedef unsigned long TbMapLocation;
+struct ScriptLine;
+struct ScriptValue;
+struct PartyTrigger;
+
+struct ScriptContext
+{
+    int plr_start;
+    int plr_end;
+    int player_idx;
+
+    union {
+      struct ScriptValue *value;
+      struct PartyTrigger *pr_trig;
+    };
+};
 
 struct CommandDesc { // sizeof = 14 // originally was 13
   const char *textptr;
   char args[COMMANDDESC_ARGS_COUNT+1]; // originally was [8]
   unsigned char index;
+  void (*check_fn)(const struct ScriptLine *scline); // should check
+  void (*process_fn)(struct ScriptContext *context); // called from value or from
 };
 
 struct ScriptLine {
+  enum TbScriptCommands command;
   long np[COMMANDDESC_ARGS_COUNT]; /**< Numeric parameters (to be changed into interpreted parameters, containing ie. in-game random) */
   char tcmnd[MAX_TEXT_LENGTH]; /**< Command text */
   char tp[COMMANDDESC_ARGS_COUNT][MAX_TEXT_LENGTH]; /**< Text parameters */
@@ -256,7 +312,7 @@ struct ScriptLine {
 
 struct TunnellerTrigger { // sizeof = 18
   unsigned char flags;
-  char condit_idx;
+  unsigned char condit_idx;
   unsigned char plyr_idx;
   unsigned long location;
   unsigned char heading_OLD;//no longer used
@@ -268,24 +324,52 @@ struct TunnellerTrigger { // sizeof = 18
 
 struct PartyTrigger { // sizeof = 13
   unsigned char flags;
-  char condit_idx;
+  unsigned char condit_idx;
   char creatr_id;
-  unsigned char plyr_idx;
-  unsigned long location;
+  union
+  {
+      unsigned char plyr_idx;
+      char party_id; // for add_to_party
+  };
+  union
+  {
+      unsigned long location;
+      unsigned long countdown;
+  };
   unsigned char crtr_level;
   unsigned short carried_gold;
-  unsigned short ncopies;
+  union
+  {
+      unsigned short ncopies;
+      unsigned char objectv;
+  };
 };
 
 struct ScriptValue { // sizeof = 16
   unsigned char flags;
-  char condit_idx;
+  unsigned char condit_idx;
   unsigned char valtype;
   unsigned char plyr_range;
-  long field_4;
-  long field_8;
-  long field_C;
+  union
+  {
+    struct
+    {
+      long arg0;
+      long arg1;
+      long arg2;
+    };
+    struct
+    {
+        char action;
+        char param;
+        char victims[MAX_SACRIFICE_VICTIMS];
+    } sac;
+    unsigned char bytes[12];
+    char chars[12];
+  };
 };
+
+static_assert(sizeof(struct ScriptValue) == 16, "");
 
 struct Condition { // sizeof = 12
   short condit_idx;
@@ -315,7 +399,43 @@ struct Party { // sizeof = 208
   unsigned long members_num;
 };
 
-struct LevelScript { // sizeof = 5884
+struct ScriptFxLine
+{
+    int used;
+    struct Coord3d from;
+    struct Coord3d here;
+    struct Coord3d to;
+
+    int cx, cy; // midpoint
+
+    int curvature;
+    int spatial_step;
+    int steps_per_turn;
+    int partial_steps;
+    int effect;
+
+    int total_steps;
+    int step;
+};
+
+struct LevelScriptOld { // sizeof = 5884
+    struct TunnellerTrigger tunneller_triggers[TUNNELLER_TRIGGERS_COUNT_OLD];
+    unsigned long tunneller_triggers_num;
+    struct PartyTrigger party_triggers[PARTY_TRIGGERS_COUNT_OLD];
+    unsigned long party_triggers_num;
+    struct ScriptValue values[SCRIPT_VALUES_COUNT_OLD];
+    unsigned long values_num;
+    struct Condition conditions[CONDITIONS_COUNT_OLD];
+    unsigned long conditions_num;
+    struct Party creature_partys[CREATURE_PARTYS_COUNT_OLD];
+    unsigned long creature_partys_num;
+    unsigned short win_conditions[WIN_CONDITIONS_COUNT_OLD];
+    unsigned long win_conditions_num;
+    unsigned short lose_conditions[WIN_CONDITIONS_COUNT_OLD];
+    unsigned long lose_conditions_num;
+};
+
+struct LevelScript {
     struct TunnellerTrigger tunneller_triggers[TUNNELLER_TRIGGERS_COUNT];
     unsigned long tunneller_triggers_num;
     struct PartyTrigger party_triggers[PARTY_TRIGGERS_COUNT];
@@ -333,8 +453,8 @@ struct LevelScript { // sizeof = 5884
 };
 
 /******************************************************************************/
-DLLIMPORT short _DK_script_current_condition;
-#define script_current_condition _DK_script_current_condition
+// DLLIMPORT short _DK_script_current_condition;
+// #define script_current_condition _DK_script_current_condition
 DLLIMPORT unsigned long _DK_script_line_number;
 DLLIMPORT unsigned char _DK_next_command_reusable;
 #define next_command_reusable _DK_next_command_reusable
@@ -361,12 +481,13 @@ unsigned long get_map_location_longval(TbMapLocation location);
 unsigned long get_map_location_plyrval(TbMapLocation location);
 unsigned short get_map_location_plyridx(TbMapLocation location);
 TbBool get_map_location_code_name(TbMapLocation location, char *name);
+TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i);
 
 short clear_script(void);
 short load_script(long lvl_num);
 short preload_script(long lvnum);
 /******************************************************************************/
-void script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
+void script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4, struct ScriptValue *value);
 void script_process_win_game(PlayerNumber plyr_idx);
 void script_process_lose_game(PlayerNumber plyr_idx);
 struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
@@ -385,13 +506,13 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
 TbBool get_condition_status(unsigned char opkind, long val1, long val2);
 TbBool condition_inactive(long cond_idx);
 TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx);
-TbBool is_condition_met(long condit_idx);
 void process_conditions(void);
 void process_values(void);
 void process_win_and_lose_conditions(PlayerNumber plyr_idx);
 void script_process_new_creatures(PlayerNumber plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level);
 void process_check_new_creature_partys(void);
 void process_check_new_tunneller_partys(void);
+char get_player_number_from_value(const char* txt);
 /******************************************************************************/
 #ifdef __cplusplus
 }

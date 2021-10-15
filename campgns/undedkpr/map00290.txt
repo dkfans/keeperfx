@@ -172,11 +172,13 @@ CREATE_PARTY(ELITE)
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
 SET_TIMER(PLAYER_GOOD,TIMER0)
-QUICK_OBJECTIVE(0,"Keeper Bane has barricaded himself in, the pathetic wretch. But the more suprising news is that most of the Elite Heroes along with their leader, the Avatar, have survived and are preparing to attack you!",PLAYER0)
+REM "Keeper Bane has barricaded himself in, the pathetic wretch. But the more suprising news is that most of the Elite Heroes along with their leader, the Avatar, have survived and are preparing to attack you!"
+DISPLAY_OBJECTIVE(17,PLAYER0)
 
 IF(PLAYER_GOOD,TIMER0 >= 9000)
     ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,FIRST_STRIKE,-3,ACTION_POINT,3,4,350)
-QUICK_OBJECTIVE(1,"Keeper Bane is very powerful because all creatures in this realm are supporting him. The Dark Gods, however, are willing to help you, but they demand a tribute in the form of 100 Souls, preferably dead, of course!",PLAYER0)
+    REM "Keeper Bane is very powerful because all creatures in this realm are supporting him. The Dark Gods, however, are willing to help you, but they demand a tribute in the form of 100 Souls, preferably dead, of course!"
+    DISPLAY_OBJECTIVE(18,PLAYER0)
 ENDIF
 
 IF(PLAYER_GOOD,TIMER0 >= 11000)
@@ -205,13 +207,15 @@ IF(PLAYER0,TORTURE > 0)
 ENDIF
 
 IF(PLAYER0,BATTLES_WON >= 100)
-    QUICK_OBJECTIVE(2,"The Dark Gods are pleased with your sacrifice!",PLAYER0)
+    REM "The Dark Gods are pleased with your sacrifice!"
+    DISPLAY_OBJECTIVE(19,PLAYER0)
     ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,1)
     TUTORIAL_FLASH_BUTTON(11,PLAYER0)
 ENDIF
 
 IF_ACTION_POINT(6,PLAYER0)
-    QUICK_OBJECTIVE(3,"Beware, the Avatar has returned and he's stronger than ever. Make this lunatic see the error of his ways because he just won't give up!",PLAYER0)
+    REM "Beware, the Avatar has returned and he's stronger than ever. Make this lunatic see the error of his ways because he just won't give up!"
+    DISPLAY_OBJECTIVE(20,PLAYER0)
     SET_TIMER(PLAYER_GOOD,TIMER1)
 ENDIF
 
@@ -235,7 +239,8 @@ IF(PLAYER_GOOD,TIMER1 >= 2500)
 ENDIF
 
 IF(PLAYER_GOOD,AVATAR == 0)
-    QUICK_OBJECTIVE(4,"The Avatar is badly wounded, finish him off now so we can turn to the real prize of this realm, Bane. ",PLAYER0)
+    REM "The Avatar is badly wounded, finish him off now so we can turn to the real prize of this realm, Bane."
+    DISPLAY_OBJECTIVE(21,PLAYER0)
     ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE,-4,DUNGEON,1,9,1200)
     CREATURE_AVAILABLE(PLAYER1,ORC,1,1)
 ENDIF
@@ -253,7 +258,8 @@ IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
         IF(PLAYER1,TOTAL_CREATURES == 0)
             IF(PLAYER1,DUNGEON_DESTROYED == 1)
                 IF(PLAYER_GOOD,AVATAR == 0)
-QUICK_OBJECTIVE(5,"Finally, Keeper Bane is destroyed, all his minions dead, and so are the Heroes. There are no more living creatures on this continent, and there is nothing left to conquer; you have won.",PLAYER0)
+                    REM "Finally, Keeper Bane is destroyed, all his minions dead, and so are the Heroes. There are no more living creatures on this continent, and there is nothing left to conquer; you have won."
+                    DISPLAY_OBJECTIVE(22,PLAYER0)
                     WIN_GAME
                 ENDIF
             ENDIF

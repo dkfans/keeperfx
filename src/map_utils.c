@@ -216,9 +216,9 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
 {
     SYNCDBG(19,"Starting");
     long maximizer = 0;
-    for (int around = 0; around < spiral_len; around++)
+    for (int around_val = 0; around_val < spiral_len; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around];
+        struct MapOffset* sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
         struct Map* mapblk = get_map_block_at(sx, sy);

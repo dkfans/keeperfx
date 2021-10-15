@@ -774,19 +774,19 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     switch (player->work_state)
     {
     case PSt_CtrlDungeon:
-        if (player->field_455)
-          i = player->field_455;
+        if (player->secondary_cursor_state)
+          i = player->secondary_cursor_state;
         else
-          i = player->field_454;
+          i = player->primary_cursor_state;
         switch (i)
         {
-        case P454_Unkn1:
+        case CSt_PickAxe:
             set_pointer_graphic(MousePG_Pickaxe);
             break;
-        case P454_Unkn2:
+        case CSt_DoorKey:
             set_pointer_graphic(MousePG_LockMark);
             break;
-        case P454_Unkn3:
+        case CSt_PowerHand:
             thing = thing_get(player->thing_under_hand);
             TRACE_THING(thing);
             if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
@@ -807,7 +807,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
             {
-                if ((player->field_3 & Pf3F_Unkn02) != 0) {
+                if ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) {
                   set_pointer_graphic(MousePG_Pickaxe);
                 } else {
                   set_pointer_graphic(MousePG_Invisible);
@@ -853,6 +853,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
+    case PSt_CreatrInfoAll:
     case PSt_CreatrQueryAll:
         set_pointer_graphic(MousePG_Query);
         break;
@@ -972,7 +973,13 @@ void redraw_display(void)
         draw_spell_cost = 0;
     }
     if (bonus_timer_enabled())
+    {
         draw_bonus_timer();
+    }
+    if (timer_enabled())
+    {
+        draw_timer();
+    }
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     {
           LbTextSetFont(winfont);

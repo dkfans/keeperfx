@@ -260,17 +260,17 @@ long PaletteFadePlayer(struct PlayerInfo *player)
     long i;
     unsigned char palette[PALETTE_SIZE];
     // Find the fade step
-    if ((player->field_4C1 != 0) && (player->field_4C5 != 0))
+    if ((player->palette_fade_step_pain != 0) && (player->palette_fade_step_possession != 0))
     {
-        i = 12 * (player->field_4C1 - 1) + 10 * (player->field_4C5 - 1);
+        i = 12 * (player->palette_fade_step_pain - 1) + 10 * (player->palette_fade_step_possession - 1);
   } else
-  if (player->field_4C5 != 0)
+  if (player->palette_fade_step_possession != 0)
   {
-    i = 2 * (5 * (player->field_4C5-1));
+    i = 2 * (5 * (player->palette_fade_step_possession-1));
   } else
-  if (player->field_4C1 != 0)
+  if (player->palette_fade_step_pain != 0)
   {
-    i = 4 * (3 * (player->field_4C1-1));
+    i = 4 * (3 * (player->palette_fade_step_pain-1));
   } else
   { // both are == 0 - no fade
     return 0;
@@ -281,7 +281,7 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   // Create the new palette
   for (i=0; i < PALETTE_COLORS; i++)
   {
-      unsigned char* src = &player->palette[3 * i];
+      unsigned char* src = &player->main_palette[3 * i];
       unsigned char* dst = &palette[3 * i];
       unsigned long pix = ((step * (((long)src[0]) - 63)) / 120) + 63;
       if (pix > 63)
@@ -297,19 +297,19 @@ long PaletteFadePlayer(struct PlayerInfo *player)
       dst[2] = pix;
   }
   // Update the fade step
-  if (player->field_4C1 > 0)
-    player->field_4C1--;
-  if ((player->field_4C5 == 0) || (player->instance_num == PI_Unknown18) || (player->instance_num == PI_Unknown17))
+  if (player->palette_fade_step_pain > 0)
+    player->palette_fade_step_pain--;
+  if ((player->palette_fade_step_possession == 0) || (player->instance_num == PI_Unknown18) || (player->instance_num == PI_Unknown17))
   {
   } else
   if ((player->instance_num == PI_DirctCtrl) || (player->instance_num == PI_PsngrCtrl))
   {
-    if (player->field_4C5 <= 12)
-      player->field_4C5++;
+    if (player->palette_fade_step_possession <= 12)
+      player->palette_fade_step_possession++;
   } else
   {
-    if (player->field_4C5 > 0)
-      player->field_4C5--;
+    if (player->palette_fade_step_possession > 0)
+      player->palette_fade_step_possession--;
   }
   // Set the palette to screen
   LbScreenWaitVbi();
@@ -319,18 +319,18 @@ long PaletteFadePlayer(struct PlayerInfo *player)
 
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense)
 {
-    long i = player->field_4C1 + intense;
+    long i = player->palette_fade_step_pain + intense;
     if (i < 1)
         i = 1;
     else
     if (i > 10)
         i = 10;
-    player->field_4C1 = i;
+    player->palette_fade_step_pain = i;
 }
 
 void PaletteClearPainFromPlayer(struct PlayerInfo *player)
 {
-    player->field_4C1 = 0;
+    player->palette_fade_step_pain = 0;
 }
 
 

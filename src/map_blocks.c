@@ -170,7 +170,7 @@ void create_gold_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     while (pos.z.val < maxpos_z)
     {
         create_effect(&pos, TngEff_DirtRubble, owner);
-        create_effect(&pos, TngEff_GoldRubble, owner);
+        create_effect(&pos, TngEff_GoldRubble2, owner);
         pos.z.val += COORD_PER_STL;
     }
 }
@@ -257,6 +257,8 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
                   if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
                   {
                       mapblk->flags |= SlbAtFlg_TaggedValuable;
+                      if (!map_block_revealed(mapblk, plyr_idx))
+                          mapblk->flags |= SlbAtFlg_Unexplored;
                   } else
                   if (((mapblk->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable)) != 0) || !map_block_revealed(mapblk, plyr_idx))
                   {
@@ -552,7 +554,7 @@ unsigned char get_against(unsigned char agnst_plyr_idx, long agnst_slbkind, long
     slbattr = get_slab_attrs(slb);
     struct SlabAttr *agnst_slbattr;
     agnst_slbattr = get_slab_kind_attrs(agnst_slbkind);
-    return (slbattr->slbfield_10 != agnst_slbattr->slbfield_10)
+    return (slbattr->slb_id != agnst_slbattr->slb_id)
             || ((slabmap_owner(slb) != agnst_plyr_idx) && (slabmap_owner(slb)!= game.neutral_player_num));
 }
 
@@ -654,7 +656,7 @@ void set_alt_bit_based_on_slab(SlabKind slbkind, unsigned char stl_x, unsigned c
 
     sibling_flags = 0;
     edge_flags = 0;
-    wibble = slbattr->is_unknflg11;
+    wibble = slbattr->wibble;
     if (slab_kind_is_liquid(slbkind))
     {
         if ((stl_x % 3) == 0)
@@ -722,7 +724,10 @@ void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, 
             if ( v10 < 0 )
               ERRORLOG("BBlocks instead of columns");
             update_map_collide(slbkind, stl_x+dx, stl_y+dy);
-            set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
+            if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slbkind)))
+            {
+                set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
+            }
             colid++;
         }
     }
@@ -1019,7 +1024,7 @@ void place_single_slab_fill_style_array(MapSlabCoord slb_x, MapSlabCoord slb_y, 
         if (!slabmap_block_invalid(slb)) {
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            style_val = slbattr->field_E;
+            style_val = slbattr->fill_style;
         } else {
             style_val = 0;
         }
@@ -1119,7 +1124,6 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
     } else
     if (place_slbattr->category == SlbAtCtg_RoomInterior)
     {
-        int i;
         for (i=1; i < 8; i+=2)
         {
             MapSlabCoord sslb_x;
@@ -1178,24 +1182,24 @@ void place_single_slab_modify_column_near_liquid(SlabKind slbkind, MapSlabCoord 
         sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i-1)&7].delta_y;
         struct SlabMap *slb;
         slb = get_slabmap_block(sslb_x,sslb_y);
-        struct SlabAttr *slbattr;
-        slbattr = get_slab_attrs(slb);
-        if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_RoomInterior) ||
-            (slbattr->category == SlbAtCtg_Obstacle) || (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
+        struct SlabAttr *slbattra;
+        slbattra = get_slab_attrs(slb);
+        if ((slbattra->category == SlbAtCtg_FortifiedGround) || (slbattra->category == SlbAtCtg_RoomInterior) ||
+            (slbattra->category == SlbAtCtg_Obstacle) || (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
         {
             sslb_x = slb_x + (MapSlabCoord)my_around_eight[(i-2)&7].delta_x;
             sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i-2)&7].delta_y;
             slb = get_slabmap_block(sslb_x,sslb_y);
-            struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(slb);
-            if (slbattr->category == SlbAtCtg_FortifiedWall)
+            struct SlabAttr *slbattrb;
+            slbattrb = get_slab_attrs(slb);
+            if (slbattrb->category == SlbAtCtg_FortifiedWall)
             {
                 sslb_x = slb_x + (MapSlabCoord)my_around_eight[(i)&7].delta_x;
                 sslb_y = slb_y + (MapSlabCoord)my_around_eight[(i)&7].delta_y;
                 slb = get_slabmap_block(sslb_x,sslb_y);
-                struct SlabAttr *slbattr;
-                slbattr = get_slab_attrs(slb);
-                if (slbattr->category == SlbAtCtg_FortifiedWall)
+                struct SlabAttr *slbattrc;
+                slbattrc = get_slab_attrs(slb);
+                if (slbattrc->category == SlbAtCtg_FortifiedWall)
                 {
                   neigh = 4 + slab_element_around_eight[(i-1)&7];
                   slab_type_list[neigh] = SlbT_WALLWTWINS;
@@ -1257,7 +1261,7 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
     {
         struct SlabMap *slb;
         slb = get_slabmap_block(slb_x,slb_y);
-        slb->health = game.block_health[place_slbattr->field_4];
+        slb->health = game.block_health[place_slbattr->block_health_index];
     }
     place_slab_columns(slbkind, STL_PER_SLB * slb_x, STL_PER_SLB * slb_y, col_idx);
     place_slab_objects(slb_x, slb_y, slab_number_list, plyr_idx);
@@ -1287,7 +1291,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     slbattr = get_slab_kind_attrs(slbkind);
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
-    slb->health = game.block_health[slbattr->field_4];
+    slb->health = game.block_health[slbattr->block_health_index];
     struct SlabSet *sset;
     sset = &game.slabset[slabct_num];
     place_slab_columns(slbkind, stl_xa, stl_ya, sset->col_idx);
@@ -1353,7 +1357,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     slb = get_slabmap_block(slb_x, slb_y);
     slb->kind = slbkind;
     pannel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
-    if ((slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
+    if ((slbkind == SlbT_SLAB50) || (slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
     {
         MapSubtlCoord stl_xb;
         MapSubtlCoord stl_yb;
@@ -1411,7 +1415,10 @@ void place_animating_slab_type_on_map(SlabKind slbkind, char ani_frame, MapSubtl
                 MapSubtlCoord sstl_y;
                 sstl_x = slab_subtile(sslb_x,ssub_x);
                 sstl_y = slab_subtile(sslb_y,ssub_y);
-                set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
+                if (wibble_enabled())
+                {
+                    set_alt_bit_based_on_slab(slb->kind, sstl_x, sstl_y);
+                }
             }
         }
     }

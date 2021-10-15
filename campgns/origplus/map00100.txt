@@ -16,7 +16,7 @@ REM ****************************************************************************
 LEVEL_VERSION(1)
 RUN_AFTER_VICTORY(1)
 START_MONEY(PLAYER0,0)
-SET_TRAP_CONFIGURATION(WORD_OF_POWER,3,84,844,2,2,14,0)
+SET_TRAP_CONFIGURATION(WORD_OF_POWER,Hidden,0)
 
 IF(PLAYER0,CAMPAIGN_FLAG1 <= 0)
 	REM "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."

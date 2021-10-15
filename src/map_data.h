@@ -45,6 +45,7 @@ struct Map {
 #define MOVE_VELOCITY_LIMIT 256
 #define STL_PER_SLB 3
 #define COORD_PER_STL 256
+#define FILLED_COLUMN_HEIGHT 1280
 
 #pragma pack()
 /******************************************************************************/
@@ -124,15 +125,17 @@ TbBool lava_at_position(const struct Coord3d *pos);
 TbBool subtile_is_room(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_player_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_is_sellable_door_or_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-#define can_dig_here(stl_x, stl_y, plyr_idx) subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y)
-TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+#define can_dig_here(stl_x, stl_y, plyr_idx, enemy_wall_diggable) subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, enemy_wall_diggable)
+TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool enemy_wall_diggable);
 
 void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void clear_slab_dig(long a1, long a2, char a3);
 
 void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
+void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all);
 void clear_mapwho(void);
 void clear_mapmap(void);
 /******************************************************************************/

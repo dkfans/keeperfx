@@ -59,7 +59,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *outbuf);
-DLLIMPORT void _DK_draw_stripey_line(long pos_x, long pos_z, long beg_y, long end_y, unsigned char scale);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
 DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
@@ -474,6 +473,31 @@ void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
     matx->r[2].v[3] = matx->r[2].v[0] * matx->r[2].v[1];
 }
 
+struct WibbleTable *get_wibble_from_table(long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct WibbleTable *wibl;
+    TbBool use_wibble = wibble_enabled();
+    if (liquid_wibble_enabled() && !use_wibble)
+    {
+        struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
+        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
+        struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
+        if (slab_kind_is_liquid(slb3->kind) && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind))
+        {
+            use_wibble = true;
+        }
+    }
+    if (use_wibble)
+    {
+        wibl = &wibble_table[table_index];
+    }
+    else
+    {
+        wibl = &blank_wibble_table[table_index];
+    }
+    return wibl;
+}
+
 void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
 {
     //_DK_fill_in_points_perspective(bstl_x, bstl_y, mm); return;
@@ -570,7 +594,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         hpos = subtile_coord(hmin,0) - view_alt;
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         int idxh;
         for (idxh = hmax-hmin+1; idxh > 0; idxh--)
         {
@@ -595,7 +619,9 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         wib_v = get_mapblk_wibble_value(mapblk);
         hpos = subtile_coord(get_mapblk_filled_subtiles(mapblk),0) - view_alt;
         if (wib_v == 2)
-          wibl = &wibble_table[wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32];
+        {
+            wibl = get_wibble_from_table(wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32, stl_x, stl_y);
+        }
         ecord = &ecol->cors[8];
         {
             ecord->x = apos + wibl->field_0;
@@ -770,7 +796,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         long *randmis;
         randmis = &randomisors[(stl_x + 17 * (stl_y + 1)) & 0xff];
         eview_h = dview_h * hmin + hview_y;
@@ -1001,7 +1027,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
         randmis = &randomisors[(stl_x + 17 * (stl_y+1)) & 0xff] + hmin;
@@ -1100,7 +1126,7 @@ void frame_wibble_generate(void)
     }
 }
 
-void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, long zoom, long map_angle, long map_roll)
+void setup_rotate_stuff(long x, long y, long z, long rotate_fade_max, long rotate_fade_min, long zoom, long map_angle, long rotate_map_roll)
 {
     //_DK_setup_rotate_stuff(x, y, z, fade_max, fade_min, zoom, map_angle, map_roll);
     view_width_over_2 = vec_window_width / 2;
@@ -1110,9 +1136,9 @@ void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, lo
     map_z_pos = z;
     thelens = zoom;
     spr_map_angle = map_angle;
-    lfade_min = fade_min;
-    lfade_max = fade_max;
-    fade_mmm = fade_max - fade_min;
+    lfade_min = rotate_fade_min;
+    lfade_max = rotate_fade_max;
+    fade_mmm = rotate_fade_max - rotate_fade_min;
 }
 
 static void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
@@ -2062,7 +2088,7 @@ static void create_line_const_yz(long pos_y, long pos_z, long start_x, long end_
     }
 }
 
-void create_map_volume_box(long x, long y, long z)
+void create_map_volume_box(long x, long y, long z, long line_color)
 {
     long box_xs;
     long box_xe;
@@ -2071,6 +2097,8 @@ void create_map_volume_box(long x, long y, long z)
     long box_zs;
     long box_ze;
     long i;
+    long box_color = map_volume_box.color;
+    map_volume_box.color = line_color;
 
     box_xs = map_volume_box.beg_x - x;
     box_ys = y - map_volume_box.beg_y;
@@ -2125,10 +2153,17 @@ void create_map_volume_box(long x, long y, long z)
     create_line_const_yz(box_ys, box_ze, box_xs, box_xe);
     create_line_const_xz(box_xs, box_ze, box_ys, box_ye);
     create_line_const_xz(box_xe, box_ze, box_ys, box_ye);
+
+    map_volume_box.color = box_color;
 }
 
-void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z)
+void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, long z, long color, TbBool show_outer_box)
 {
+    long line_color = color;
+    if (show_outer_box)
+    {
+        line_color = map_volume_box.color; //  set the "inner" box color to the default colour (usually red/green)
+    }
     long box_xs;
     long box_xe;
     long box_ys;
@@ -2136,11 +2171,19 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     long box_zs;
     long box_ze;
     long i;
+    long box_color = map_volume_box.color;
+    map_volume_box.color = line_color;
+    struct MapVolumeBox valid_slabs = map_volume_box;
+    // get the 'accurate' roomspace shape instead of the outer box
+    valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
+    valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
+    valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
+    valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
 
-    box_xs = map_volume_box.beg_x - x;
-    box_ys = y - map_volume_box.beg_y;
-    box_ye = y - map_volume_box.end_y;
-    box_xe = map_volume_box.end_x - x;
+    box_xs = valid_slabs.beg_x - x;
+    box_ys = y - valid_slabs.beg_y;
+    box_ye = y - valid_slabs.end_y;
+    box_xe = valid_slabs.end_x - x;
 
     if ( temp_cluedo_mode )
     {
@@ -2159,22 +2202,21 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
 
     if ( box_xe < box_xs )
     {
-        i = map_volume_box.beg_x;
-        box_xs = map_volume_box.end_x - x;
-        box_xe = map_volume_box.beg_x - x;
-        map_volume_box.beg_x = map_volume_box.end_x;
-        map_volume_box.end_x = i;
+        i = valid_slabs.beg_x;
+        box_xs = valid_slabs.end_x - x;
+        box_xe = valid_slabs.beg_x - x;
+        valid_slabs.beg_x = valid_slabs.end_x;
+        valid_slabs.end_x = i;
     }
 
     if ( box_ye > box_ys )
     {
-        i = map_volume_box.beg_y;
-        box_ys = y - map_volume_box.end_y;
-        box_ye = y - map_volume_box.beg_y;
-        map_volume_box.beg_y = map_volume_box.end_y;
-        map_volume_box.end_y = i;
+        i = valid_slabs.beg_y;
+        box_ys = y - valid_slabs.end_y;
+        box_ye = y - valid_slabs.beg_y;
+        valid_slabs.beg_y = valid_slabs.end_y;
+        valid_slabs.end_y = i;
     }
-
     for (int roomspace_y = 0; roomspace_y < roomspace.height; roomspace_y++)
     {
         for (int roomspace_x = 0; roomspace_x < roomspace.width; roomspace_x++)
@@ -2267,11 +2309,93 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
                         create_line_const_xy(slab_xend, slab_yend, box_zs, box_ze);
                     }
                 }
+                if (show_outer_box) // this handles the "outer line" (only when it is not in the roomspace)
+                {
+                    //draw 2nd line, i.e. the outer line - the one around the edge of the 5x5 cursor, not the valid slabs within the cursor
+                    map_volume_box.color = color; // switch to the "secondary colour" (the one passed as a variable if show_outer_box is true)
+                    TbBool left_edge   = (roomspace_x == 0)                    ? true : false;
+                    TbBool right_edge  = (roomspace_x == roomspace.width - 1)  ? true : false;
+                    TbBool top_edge    = (roomspace_y == 0)                    ? true : false;
+                    TbBool bottom_edge = (roomspace_y == roomspace.height - 1) ? true : false;
+                    if (left_edge)
+                    {
+                        create_line_const_xz(slab_xstart, box_zs, slab_yend, slab_ystart);
+                        create_line_const_xz(slab_xstart, box_ze, slab_yend, slab_ystart);
+                        if (top_edge)
+                        {
+                            create_line_const_xy(slab_xstart, slab_ystart, box_zs, box_ze);
+                        }
+                        if (bottom_edge)
+                        {
+                            create_line_const_xy(slab_xstart, slab_yend, box_zs, box_ze);
+                        }
+                    }
+                    if (right_edge)
+                    {
+                        create_line_const_xz(slab_xend, box_zs, slab_yend, slab_ystart);
+                        create_line_const_xz(slab_xend, box_ze, slab_yend, slab_ystart);
+                        if (top_edge)
+                        {
+                            create_line_const_xy(slab_xend, slab_ystart, box_zs, box_ze);
+                        }
+                        if (bottom_edge)
+                        {
+                            create_line_const_xy(slab_xend, slab_yend, box_zs, box_ze);
+                        }
+                    }
+                    if (top_edge)
+                    {
+                        create_line_const_yz(slab_ystart, box_zs, slab_xstart, slab_xend);
+                        create_line_const_yz(slab_ystart, box_ze, slab_xstart, slab_xend);
+                    }
+                    if (bottom_edge)
+                    {
+                        create_line_const_yz(slab_yend, box_zs, slab_xstart, slab_xend);
+                        create_line_const_yz(slab_yend, box_ze, slab_xstart, slab_xend);
+                    }
+                    map_volume_box.color = line_color; // switch back to default color (red/green) for the inner line
+                }
             }
         }
     }
+
+    map_volume_box.color = box_color;
 }
 
+void process_isometric_map_volume_box(long x, long y, long z)
+{
+    unsigned char default_color = map_volume_box.color;
+    unsigned char line_color = default_color;
+    struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
+    struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
+    // Check if a roomspace is currently being built
+    // and if so feed this back to the user
+    if ((dungeonadd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    {
+        line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
+    }
+    if (render_roomspace.render_roomspace_as_box)
+    {
+        if (render_roomspace.is_roomspace_a_box)
+        {
+            // This is a basic square box
+            create_map_volume_box(x, y, z, line_color);
+        }
+        else
+        {
+            // This is a "2-line" square box
+            // i.e. an "accurate" box with an outer square box
+            map_volume_box.color = line_color;
+            create_fancy_map_volume_box(render_roomspace, x, y, z, SLC_BROWN, true);
+        }
+    }
+    else
+    {
+        // This is an "accurate"/"automagic" box
+        create_fancy_map_volume_box(render_roomspace, x, y, z, line_color, false);
+    }
+    map_volume_box.color = default_color;
+}
 static void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
 {
     _DK_do_a_trig_gourad_tr(ep1, ep2, ep3, a4, a5);
@@ -2551,6 +2675,13 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
     poly->z = coord.z;
 }
 
+unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id)
+{
+    long slb_x = subtile_slab(stl_x);
+    long slb_y = subtile_slab(stl_y);
+    return tex_id + (slab_ext_data[85 * slb_y + slb_x] & 0xF) * TEXTURE_BLOCKS_COUNT;
+}
+
 void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
 {
     struct Column *blank_colmn;
@@ -2637,25 +2768,25 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
             {
               if ((solidmsk_top & height_bit) == 0)
               {
-                  textr_idx = texturing->texture_id[sideoris[0].field_0];
+                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_0]);
                   do_a_trig_gourad_tr(&bec[1].cors[bepos+1], &bec[0].cors[bepos+1], &bec[0].cors[bepos],   textr_idx, normal_shade_back);
                   do_a_trig_gourad_bl(&bec[0].cors[bepos],   &bec[1].cors[bepos],   &bec[1].cors[bepos+1], textr_idx, normal_shade_back);
               }
               if ((solidmsk_bottom & height_bit) == 0)
               {
-                  textr_idx = texturing->texture_id[sideoris[0].field_2];
+                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_2]);
                   do_a_trig_gourad_tr(&fec[0].cors[fepos+1], &fec[1].cors[fepos+1], &fec[1].cors[fepos],   textr_idx, normal_shade_front);
                   do_a_trig_gourad_bl(&fec[1].cors[fepos],   &fec[0].cors[fepos],   &fec[0].cors[fepos+1], textr_idx, normal_shade_front);
               }
               if ((solidmsk_left & height_bit) == 0)
               {
-                  textr_idx = texturing->texture_id[sideoris[0].field_3];
+                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_3]);
                   do_a_trig_gourad_tr(&bec[0].cors[bepos+1], &fec[0].cors[fepos+1], &fec[0].cors[fepos],   textr_idx, normal_shade_left);
                   do_a_trig_gourad_bl(&fec[0].cors[fepos],   &bec[0].cors[bepos],   &bec[0].cors[bepos+1], textr_idx, normal_shade_left);
               }
               if ((solidmsk_right & height_bit) == 0)
               {
-                  textr_idx = texturing->texture_id[sideoris[0].field_1];
+                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_1]);
                   do_a_trig_gourad_tr(&fec[1].cors[fepos+1], &bec[1].cors[bepos+1], &bec[1].cors[bepos],   textr_idx, normal_shade_right);
                   do_a_trig_gourad_bl(&bec[1].cors[bepos],   &fec[1].cors[fepos],   &fec[1].cors[fepos+1], textr_idx, normal_shade_right);
               }
@@ -2670,13 +2801,13 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
             texturing = &game.cubes_data[*cubenum_ptr];
-            textr_idx = texturing->texture_id[4];
+            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         } else
         {
             ecpos = 0;
-            textr_idx = colmn->baseblock;
+            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), colmn->baseblock);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         }
@@ -2686,19 +2817,19 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
             texturing = &game.cubes_data[*cubenum_ptr];
-            textr_idx = texturing->texture_id[4];
+            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
 
             ecpos =  lintel_bottom_height[solidmsk_center];
-            textr_idx = texturing->texture_id[5];
+            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[5]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         }
         // Draw the universal ceiling on top of the columns
         ecpos = 8;
         {
-            textr_idx = floor_to_ceiling_map[colmn->baseblock];
+            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), floor_to_ceiling_map[colmn->baseblock]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         }
@@ -2852,25 +2983,25 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             }
             if ((mask & solidmsk_back) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_0];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_0]);
                 do_a_gpoly_gourad_tr(&bec[1].cors[ncor+1], &bec[0].cors[ncor+1], &bec[0].cors[ncor],   textr_id, normal_shade_back);
                 do_a_gpoly_gourad_bl(&bec[0].cors[ncor],   &bec[1].cors[ncor],   &bec[1].cors[ncor+1], textr_id, normal_shade_back);
             }
             if ((solidmsk_front & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_2];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_2]);
                 do_a_gpoly_gourad_tr(&fec[0].cors[ncor+1], &fec[1].cors[ncor+1], &fec[1].cors[ncor],   textr_id, normal_shade_front);
                 do_a_gpoly_gourad_bl(&fec[1].cors[ncor],   &fec[0].cors[ncor],   &fec[0].cors[ncor+1], textr_id, normal_shade_front);
             }
             if ((solidmsk_left & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_3];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_3]);
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor+1], &fec[0].cors[ncor+1], &fec[0].cors[ncor],   textr_id, normal_shade_left);
                 do_a_gpoly_gourad_bl(&fec[0].cors[ncor],   &bec[0].cors[ncor],   &bec[0].cors[ncor+1], textr_id, normal_shade_left);
             }
             if ((solidmsk_right & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_1];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_1]);
                 do_a_gpoly_gourad_tr(&fec[1].cors[ncor+1], &bec[1].cors[ncor+1], &bec[1].cors[ncor],   textr_id, normal_shade_right);
                 do_a_gpoly_gourad_bl(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
             }
@@ -2881,35 +3012,40 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         {
             int ncor_raw;
             ncor_raw = _DK_floor_height[solidmsk_cur_raw];
-            if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
+            if ( (cur_mapblk->flags & SlbAtFlg_Unexplored) != 0 )
             {
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
+            } else
+            if ((cur_mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+            {
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
+            } else
+             {
                 if ((ncor_raw > 0) && (ncor_raw <= COLUMN_STACK_HEIGHT))
                 {
-                    struct CubeAttribs * cubed;
-                    cubed = &game.cubes_data[cur_colmn->cubes[ncor_raw-1]];
-                    do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
-                    do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+                    struct CubeAttribs * cubed = &game.cubes_data[cur_colmn->cubes[ncor_raw-1]];
+                    unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
+                    // Top surface in cluedo mode
+                    do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
+                    do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
                 }
-            } else
-            if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
-            {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 579);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 579);
-            } else
-            {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 578);
             }
         } else
         {
             if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
             {
-                do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], cur_colmn->baseblock, -1);
-                do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], cur_colmn->baseblock, -1);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->baseblock);
+                do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
+                do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
             } else
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], 578);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id);
             }
         }
         ncor = lintel_top_height[solidmsk_cur];
@@ -2917,8 +3053,9 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         {
             struct CubeAttribs * cubed;
             cubed = &game.cubes_data[cur_colmn->cubes[ncor-1]];
-            do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
-            do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+            unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
+            do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
+            do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
         }
     }
 }
@@ -3034,25 +3171,25 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             }
             if ((mask & solidmsk_back) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_0];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_0]);
                 do_a_gpoly_gourad_tr(&bec[1].cors[ncor+1], &bec[0].cors[ncor+1], &bec[0].cors[ncor],   textr_id, normal_shade_back);
                 do_a_gpoly_gourad_bl(&bec[0].cors[ncor],   &bec[1].cors[ncor],   &bec[1].cors[ncor+1], textr_id, normal_shade_back);
             }
             if ((solidmsk_front & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_2];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_2]);
                 do_a_gpoly_gourad_tr(&fec[0].cors[ncor+1], &fec[1].cors[ncor+1], &fec[1].cors[ncor],   textr_id, normal_shade_front);
                 do_a_gpoly_gourad_bl(&fec[1].cors[ncor],   &fec[0].cors[ncor],   &fec[0].cors[ncor+1], textr_id, normal_shade_front);
             }
             if ((solidmsk_left & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_3];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_3]);
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor+1], &fec[0].cors[ncor+1], &fec[0].cors[ncor],   textr_id, normal_shade_left);
                 do_a_gpoly_gourad_bl(&fec[0].cors[ncor],   &bec[0].cors[ncor],   &bec[0].cors[ncor+1], textr_id, normal_shade_left);
             }
             if ((solidmsk_right & mask) == 0)
             {
-                textr_id = cubed->texture_id[sideoris[0].field_1];
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_1]);
                 do_a_gpoly_gourad_tr(&fec[1].cors[ncor+1], &bec[1].cors[ncor+1], &bec[1].cors[ncor],   textr_id, normal_shade_right);
                 do_a_gpoly_gourad_bl(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
             }
@@ -3061,32 +3198,39 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
         ncor = _DK_floor_height[solidmsk_cur];
         if (ncor > 0)
         {
-            if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
+            if (cur_mapblk->flags & SlbAtFlg_Unexplored)
+            {
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
+            }
+            else if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
             {
                 struct CubeAttribs * cubed;
                 cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
-                do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
-                do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
+                // Top surface on full iso mode
+                do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
+                do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
             } else
             if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 579);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 579);
-            } else
-            {
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], 578);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
         } else
         {
             if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
             {
-                do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], cur_colmn->baseblock, -1);
-                do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], cur_colmn->baseblock, -1);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->baseblock);
+                do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
+                do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
             } else
             {
-                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], 578);
-                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], 578);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id);
             }
         }
         ncor = lintel_top_height[solidmsk_cur];
@@ -3094,8 +3238,9 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
         {
             struct CubeAttribs * cubed;
             cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
-            do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], cubed->texture_id[4], -1);
-            do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], cubed->texture_id[4], -1);
+            unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
+            do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
+            do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
         }
     }
 }
@@ -3486,7 +3631,7 @@ static void draw_engine_room_flag_top(struct RoomFlag *rflg)
 
 static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line_color)
 {
-    //_DK_draw_stripey_line(x1, y1, x2, y2, line_color);
+    if ((x1 == x2) && (y1 == y2)) return; // todo if distance is 0, provide a red square
 
     // get the 4 least significant bits of game.play_gameturn, to loop through the starting index of the color array, using numbers 0-15.
     unsigned char color_index = game.play_gameturn & 0xf;
@@ -3583,7 +3728,14 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     // Clip line within engine_window
     remainder_limit = (distance_b+1)/2;
     // Find starting A coord
-    remainder = start_b_dist_from_window * distance_a % distance_b;
+    if (distance_b == 0)
+    {
+        remainder = 0;
+    }
+    else
+    {
+        remainder = start_b_dist_from_window * distance_a % distance_b;
+    }
     long min_a_start = 0;
     if ((b1 < 0 || b1 > relative_window_b))
     {
@@ -3596,7 +3748,14 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     }
     long a_start = max(a1, min_a_start);
     // Find ending A coord
-    remainder = end_b_dist_from_window * distance_a % distance_b;
+    if (distance_b == 0)
+    {
+        remainder = 0;
+    }
+    else
+    {
+        remainder = end_b_dist_from_window * distance_a % distance_b;
+    }
     long max_a_end = relative_window_a;
     if (b2 < 0 || b2 > relative_window_b)
     {
@@ -3611,7 +3770,14 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     long a_end = min(a2, max_a_end);
     // Find starting B coord
     remainder_limit = (distance_a+1)/2;
-    remainder = (a_start - a1) * distance_b % distance_a; // initialise remainder for loop
+    if (distance_a == 0)
+    {
+        remainder = 0;
+    }
+    else
+    {
+        remainder = (a_start - a1) * distance_b % distance_a; // initialise remainder for loop
+    }
     long b_start =  b1 + ( b_increment * (a_start - a1) * distance_b / distance_a );
     if (remainder >= remainder_limit)
     {
@@ -4482,7 +4648,7 @@ void display_drawlist(void)
         //JUSTLOG("%d",(int)item.b->kind);
         switch ( item.b->kind )
         {
-        case QK_PolyTriangle:
+        case QK_PolyTriangle: // Used in dungeon view and FAR part of FPS view
           vec_mode = VM_Unknown5;
           vec_map = block_ptrs[item.unk00->block];
           draw_gpoly(&item.unk00->p1, &item.unk00->p2, &item.unk00->p3);
@@ -4791,7 +4957,10 @@ void draw_view(struct Camera *cam, unsigned char a2)
     x = cam->mappos.x.val;
     y = cam->mappos.y.val;
     z = cam->mappos.z.val;
-    frame_wibble_generate();
+    if (wibble_enabled() || liquid_wibble_enabled())
+    {
+        frame_wibble_generate();
+    }
     view_alt = z;
     if (lens_mode != 0)
     {
@@ -4817,14 +4986,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     if (map_volume_box.visible)
     {
         poly_pool_end_reserve(0);
-        if (render_roomspace.is_roomspace_a_box)
-        {
-            create_map_volume_box(x, y, z);
-        }
-        else
-        {
-            create_fancy_map_volume_box(render_roomspace, x, y, z);
-        }
+        process_isometric_map_volume_box(x, y, z);
     }
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
@@ -4847,13 +5009,13 @@ static void draw_texturedquad_block(struct TexturedQuad *txquad)
         struct PolyPoint point_c;
         struct PolyPoint point_d;
         vec_mode = VM_Unknown5;
-        switch (txquad->field_2A)
+        switch (txquad->field_2A) // Is visible/selected
         {
         case 0:
-            vec_map = block_ptrs[578];
+            vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
             break;
         case 1:
-            vec_map = block_ptrs[579];
+            vec_map = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
             break;
         case 3:
         default:
@@ -4888,14 +5050,14 @@ static void draw_texturedquad_block(struct TexturedQuad *txquad)
         switch (txquad->field_2A)
         {
         case 0:
-            gtb.field_0 = block_ptrs[578];
+            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_LAND];
             gtb.field_C = txquad->field_1A >> 16;
             gtb.field_10 = txquad->field_1E >> 16;
             gtb.field_18 = txquad->field_22 >> 16;
             gtb.field_14 = txquad->field_26 >> 16;
             break;
         case 1:
-            gtb.field_0 = block_ptrs[579];
+            gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
             gtb.field_C = txquad->field_1A >> 16;
             gtb.field_10 = txquad->field_1E >> 16;
             gtb.field_18 = txquad->field_22 >> 16;
@@ -6064,7 +6226,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
             break;
         case TCls_Trap:
-            trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;
@@ -6363,7 +6525,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     }
 }
 
-void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile)
+void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
 {
     unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
     // _depth_ is "how far in to the screen" the box goes - it will be the width/height of a slab
@@ -6407,18 +6569,23 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     }
     coord_z -= (stl_width >> 1);
     // Draw 4 horizonal line elements
-    create_line_element(coord_x,             coord_y,                      coord_x + box_width, coord_y,                      coord_z,                          map_volume_box.color);
-    create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height,             map_volume_box.color);
-    create_line_element(coord_x,             coord_y + depth,              coord_x + box_width, coord_y + depth,              coord_z,                          map_volume_box.color);
-    create_line_element(coord_x,             coord_y + box_height + depth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height,             map_volume_box.color);
+    create_line_element(coord_x,             coord_y,                      coord_x + box_width, coord_y,                      coord_z,                          line_color);
+    create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
+    create_line_element(coord_x,             coord_y + depth,              coord_x + box_width, coord_y + depth,              coord_z,                          line_color);
+    create_line_element(coord_x,             coord_y + box_height + depth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height,             line_color);
     // Now the lines at left and right
-    create_line_element(coord_x,             coord_y,                      coord_x,             coord_y + box_height,         coord_z - box_height,             map_volume_box.color);
-    create_line_element(coord_x + box_width, coord_y,                      coord_x + box_width, coord_y + box_height,         coord_z - box_height,             map_volume_box.color);
-    create_line_element(coord_x,             coord_y + breadth,            coord_x,             coord_y + box_height + depth, coord_z - box_height + stl_width, map_volume_box.color);
-    create_line_element(coord_x + box_width, coord_y + breadth,            coord_x + box_width, coord_y + box_height + depth, coord_z - box_height + stl_width, map_volume_box.color);
+    create_line_element(coord_x,             coord_y,                      coord_x,             coord_y + box_height,         coord_z - box_height,             line_color);
+    create_line_element(coord_x + box_width, coord_y,                      coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
+    create_line_element(coord_x,             coord_y + breadth,            coord_x,             coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
+    create_line_element(coord_x + box_width, coord_y + breadth,            coord_x + box_width, coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
 }
-void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width)
+void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width, long color, TbBool show_outer_box)
 {
+    long line_color = color;
+    if (show_outer_box)
+    {
+        line_color = map_volume_box.color; //  set the "inner" box color to the default colour (usually red/green)
+    }
     unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
     int floor_height_z = (map_volume_box.floor_height_z == 0) ? 1 : map_volume_box.floor_height_z; // ignore "liquid height", and force it to "floor height". All fancy rooms are on the ground, and this ensures the boundboxes are drawn correctly. A different solution will be required if this function is used to draw fancy rooms over "liquid".
     long depth = ((5 - floor_height_z) * ((long)stl_width << 7) / 256);
@@ -6427,14 +6594,20 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     long coord_y;
     long coord_z;
     long box_width, box_height;
-    pos.y.val = map_volume_box.end_y;
-    pos.x.val = map_volume_box.end_x;
+    struct MapVolumeBox valid_slabs = map_volume_box;
+    // get the 'accurate' roomspace shape instead of the outer box
+    valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
+    valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
+    valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
+    valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
+    pos.y.val = valid_slabs.end_y;
+    pos.x.val = valid_slabs.end_x;
     pos.z.val = subtile_coord(5,0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
-    pos.y.val = map_volume_box.beg_y;
-    pos.x.val = map_volume_box.beg_x;
+    pos.y.val = valid_slabs.beg_y;
+    pos.x.val = valid_slabs.beg_x;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width -= coord_x;
     box_height -= coord_y;
@@ -6506,29 +6679,29 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
                 TbBool air_below = (roomspace_y == room_slab_height - 1) ? true : (rotated_roomspace[roomspace_x][roomspace_y+1] == false);
                 if (air_left)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             line_color);
                     if (air_below)
                     {
-                        create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, map_volume_box.color);
+                        create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
                     }
                 }
                 if (air_right)
                 {
-                    create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
                     if (air_below)
                     {
-                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, map_volume_box.color);
+                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
                     }
                 }
                 if (air_above)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             map_volume_box.color);
-                    create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             line_color);
+                    create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             line_color);
                 }
                 if (air_below)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             map_volume_box.color);
-                    create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             map_volume_box.color);
+                    create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                    create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
                 }
             }
             else if (!is_in_roomspace) //this handles "inside corners"
@@ -6540,21 +6713,91 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
                 {
                     if (room_below)
                     {
-                        create_line_element(coord_x + x_start,  coord_y + y_end,          coord_x + x_start, coord_y + y_end + depth,   bckt_idx,             map_volume_box.color);
+                        create_line_element(coord_x + x_start,  coord_y + y_end,          coord_x + x_start, coord_y + y_end + depth,   bckt_idx,             line_color);
                     }
                 }
                 if (room_right)
                 {
                     if (room_below)
                     {
-                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             map_volume_box.color);
+                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
                     }
+                }
+                if (show_outer_box) // this handles the "outer line" (only when it is not in the roomspace)
+                {
+                    //draw 2nd line, i.e. the outer line - the one around the edge of the 5x5 cursor, not the valid slabs within the cursor
+                    line_color = color; // switch to the "secondary colour" (the one passed as a variable if show_outer_box is true)
+                    TbBool left_edge   = (roomspace_x == 0)                    ? true : false;
+                    TbBool right_edge  = (roomspace_x == room_slab_width - 1)  ? true : false;
+                    TbBool top_edge    = (roomspace_y == 0)                    ? true : false;
+                    TbBool bottom_edge = (roomspace_y == room_slab_height - 1) ? true : false;
+                    if (left_edge)
+                    {
+                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             line_color);
+                        if (bottom_edge)
+                        {
+                            create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
+                        }
+                    }
+                    if (right_edge)
+                    {
+                        create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                        if (bottom_edge)
+                        {
+                            create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
+                        }
+                    }
+                    if (top_edge)
+                    {
+                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             line_color);
+                        create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             line_color);
+                    }
+                    if (bottom_edge)
+                    {
+                        create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                        create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
+                    }
+                    line_color = map_volume_box.color; // switch back to default color (red/green) for the inner line
                 }
             }
         }
     }
 }
 
+void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width)
+{
+    unsigned char default_color = map_volume_box.color;
+    unsigned char line_color = default_color;
+    struct DungeonAdd *dungeonadd = get_dungeonadd(render_roomspace.plyr_idx);
+    struct PlayerInfo* current_player = get_player(render_roomspace.plyr_idx);
+    // Check if a roomspace is currently being built
+    // and if so feed this back to the user
+    if ((dungeonadd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    {
+        line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
+    }
+    if (render_roomspace.render_roomspace_as_box)
+    {
+        if (render_roomspace.is_roomspace_a_box)
+        {
+            // This is a basic square box
+             create_frontview_map_volume_box(cam, stl_width, render_roomspace.is_roomspace_a_single_subtile, line_color);
+        }
+        else
+        {
+            // This is a "2-line" square box
+            // i.e. an "accurate" box with an outer square box
+            map_volume_box.color = line_color;
+            create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, SLC_BROWN, true);
+        }
+    }
+    else
+    {
+        // This is an "accurate"/"automagic" box
+        create_fancy_frontview_map_volume_box(render_roomspace, cam, stl_width, line_color, false);
+    }
+    map_volume_box.color = default_color;
+}
 static void do_map_who_for_thing(struct Thing *thing)
 {
     int bckt_idx;
@@ -6874,14 +7117,7 @@ void draw_frontview_engine(struct Camera *cam)
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
     if (map_volume_box.visible)
     {
-        if (render_roomspace.is_roomspace_a_box)
-        {            
-            create_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), render_roomspace.is_roomspace_a_single_subtile);
-        }
-        else
-        {
-            create_fancy_frontview_map_volume_box(render_roomspace, cam, ((zoom >> 8) & 0xFF));
-        }
+        process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF));
     }
     map_volume_box.visible = 0;
 

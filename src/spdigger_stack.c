@@ -1655,8 +1655,8 @@ int add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, int max_task
         if ( (dungeon->digger_stack_length >= DIGGER_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
-        if (!thing_is_dragged_or_pulled(thing) && (thing->active_state == DCrSt_Unknown02)
-           && (thing->byte_14 == 0) && corpse_is_rottable(thing))
+        if (!thing_is_dragged_or_pulled(thing) && (thing->active_state == DCrSt_RigorMortis)
+           && (!corpse_laid_to_rest(thing)) && corpse_is_rottable(thing))
         {
             if (thing_revealed(thing, dungeon->owner))
             {
@@ -2134,8 +2134,8 @@ struct Thing *check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x,
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->class_id == TCls_DeadCreature) && !thing_is_dragged_or_pulled(thing)
-            && (thing->active_state == DCrSt_Unknown02) && (thing->byte_14 == 0) && corpse_is_rottable(thing)) {
+        if (corpse_ready_for_collection(thing))
+        {
             return thing;
         }
         // Per thing code end
@@ -2150,9 +2150,28 @@ struct Thing *check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x,
     return INVALID_THING;
 }
 
-struct Thing *check_place_to_pickup_gold(struct Thing *thing, long stl_x, long stl_y)
+struct Thing* check_place_to_pickup_gold(struct Thing* thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+//return _DK_check_place_to_pickup_gold(thing, stl_x, stl_y);
 {
-    return _DK_check_place_to_pickup_gold(thing, stl_x, stl_y);
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    unsigned long k = 0;
+    for (int i = get_mapwho_thing_index(mapblk); i != 0;)
+    {
+        struct Thing* ret = thing_get(i);
+        i = ret->next_on_mapblk;
+        if ((ret->class_id == TCls_Object) && object_is_gold_pile(ret))
+        {
+            return ret;
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return INVALID_THING;
 }
 
 struct Thing *check_place_to_pickup_spell(struct Thing *thing, long a2, long a3)
@@ -2415,7 +2434,6 @@ long check_out_imp_last_did(struct Thing *creatng)
       }
       if (is_my_player_number(creatng->owner))
       {
-          struct Room *room;
           room = find_room_with_spare_capacity(creatng->owner, RoK_TRAINING, 1);
           if (room_is_invalid(room)) {
               output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_TRAINING, OMsg_RoomTooSmall);
@@ -2785,18 +2803,40 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
         // Do not delete the task - another digger might be able to reach it
         return 0;
     }
+    EventIndex evidx;
     i = crate_thing_to_workshop_item_class(sectng);
     if (i == TCls_Trap)
     {
-      event_create_event_or_update_nearby_existing_event(
+      evidx = event_create_event_or_update_nearby_existing_event(
           subtile_coord_center(stl_x), subtile_coord_center(stl_y),
           EvKind_TrapCrateFound, thing->owner, sectng->index);
+        if (evidx > 0)
+        {
+
+            if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
+            {
+                if (sectng->owner == game.neutral_player_num)
+                {
+                    output_message(SMsg_DiscoveredTrap, 0, true);
+                }
+            }
+        }
     } else
     if (i == TCls_Door)
     {
-      event_create_event_or_update_nearby_existing_event(
+      evidx = event_create_event_or_update_nearby_existing_event(
           subtile_coord_center(stl_x), subtile_coord_center(stl_y),
           EvKind_DoorCrateFound, thing->owner, sectng->index);
+        if (evidx > 0)
+        {
+            if ( (is_my_player_number(thing->owner)) && (!is_my_player_number(sectng->owner)) )
+            {
+                if (sectng->owner == game.neutral_player_num)
+                {
+                    output_message(SMsg_DiscoveredDoor, 0, true);
+                }
+            }
+        }
     } else
     {
         WARNLOG("Strange pickup (class %d) - no event",(int)i);

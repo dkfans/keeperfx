@@ -58,6 +58,8 @@
 #include "keeperfx.hpp"
 
 /******************************************************************************/
+unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned short tex_id);
+/******************************************************************************/
 void load_parchment_file(void)
 {
     if ( !parchment_loaded )
@@ -210,15 +212,15 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     {
         pixval = pixmap.ghost[background + 0x1A00];
     } else
-    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
-    {
-        pixval = pixmap.ghost[background + 0x8C00];
-    } else
     if (!map_block_revealed(mapblk,plyr_idx))
     {
         pixval = background;
     } else
-    if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
+    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+    {
+        pixval = pixmap.ghost[background + 0x8C00];
+    }
+    else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
     {
         struct Room* room = subtile_room_get(stl_x, stl_y);
         if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
@@ -253,7 +255,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = player_highlight_colours[owner];
           } else
-          if (thing->byte_18)
+          if (thing->trap_door_active_state)
           {
             pixval = 79;
           } else
@@ -501,7 +503,7 @@ int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNu
         {
             if (thing->owner == plyr_idx)
             {
-                if ( (thing->byte_18) || (thing->owner == plyr_idx) )
+                if ( (thing->trap_door_active_state) || (thing->owner == plyr_idx) )
                 {
                     long pos_x = map_area->left + (block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
                     long pos_y = map_area->top + (block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB) + ((block_size + 1)/5);
@@ -669,7 +671,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             }
             case TCls_Trap:
             {
-                if ((!thing->byte_18) && (player->id_number != thing->owner))
+                if ((!thing->trap_door_active_state) && (player->id_number != thing->owner))
                     break;
                 struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(thing->class_id, thing->model));
                 spridx = manufctr->medsym_sprite_idx;
@@ -732,6 +734,7 @@ void draw_zoom_box_terrain(long scrtop_x, long scrtop_y, int stl_x, int stl_y, P
             if (map_block_revealed(mapblk, plyr_idx))
             {
                 int k = element_top_face_texture(mapblk);
+                k = engine_remap_texture_blocks(stl_x + map_dx, stl_y + map_dy, k);
                 draw_texture(scr_x, scr_y, subtile_size, subtile_size, k, 0, -1);
             } else
           {
@@ -787,11 +790,11 @@ void draw_zoom_box(void)
     long mouse_y = GetMouseY();
 
     // zoom box block size
-    const int subtile_size = (8*units_per_pixel+8)/16;
+    const int subtile_size = scale_value_for_resolution(8);
 
     // Drawing coordinates
-    long scrtop_x = mouse_x + 24 * units_per_pixel / 16;
-    long scrtop_y = mouse_y + 24 * units_per_pixel / 16;
+    long scrtop_x = mouse_x + scale_value_for_resolution(24);
+    long scrtop_y = mouse_y + scale_value_for_resolution(24);
     if (scrtop_x > MyScreenWidth-draw_tiles_x*subtile_size)
       scrtop_x = MyScreenWidth-draw_tiles_x*subtile_size;
     if (scrtop_x < 0)
@@ -818,10 +821,10 @@ void draw_zoom_box(void)
         bs_units_per_px = (74 * units_per_pixel) / spr->SWidth;
     }
     LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    int beg_x = scrtop_x - (24 * units_per_pixel + 8) / 16;
-    int beg_y = scrtop_y - (20 * units_per_pixel + 8) / 16;
-    int end_x = scrtop_x - (50 * units_per_pixel + 8) / 16 + draw_tiles_x * subtile_size;
-    int end_y = scrtop_y - (54 * units_per_pixel + 8) / 16 + draw_tiles_y * subtile_size;
+    int beg_x = scrtop_x - scale_value_for_resolution(20);
+    int beg_y = scrtop_y - scale_value_for_resolution(24);
+    int end_x = scrtop_x - scale_value_for_resolution(46) + draw_tiles_x * subtile_size;
+    int end_y = scrtop_y - scale_value_for_resolution(58) + draw_tiles_y * subtile_size;
     LbSpriteDrawResized(beg_x, beg_y, bs_units_per_px, &button_sprite[194]);
     LbSpriteDrawResized(end_x, beg_y, bs_units_per_px, &button_sprite[195]);
     LbSpriteDrawResized(beg_x, end_y, bs_units_per_px, &button_sprite[196]);

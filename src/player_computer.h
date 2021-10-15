@@ -33,7 +33,8 @@ extern "C" {
 #define COMPUTER_TASKS_COUNT        100
 #define COMPUTER_PROCESSES_COUNT     20
 #define COMPUTER_CHECKS_COUNT        15
-#define COMPUTER_EVENTS_COUNT        12
+#define COMPUTER_EVENTS_COUNT        32
+#define COMPUTER_EVENTS_COUNT_OLD    12
 // To add additional computer players update the folowing number. Update ComputerCount in keepcompp.cfg to match.
 // Must match the actual number of consecutive computers listed in that file (don't forget to count computer0).
 #define COMPUTER_MODELS_COUNT        17 // renamed from COMPUTER_PROCESS_LISTS_COUNT, for clarity
@@ -527,7 +528,15 @@ struct Computer2 { // sizeof = 5322
   unsigned long field_34;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
   struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
-  struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
+  union
+  {
+      struct ComputerEvent events_OLD[COMPUTER_EVENTS_COUNT_OLD];
+      struct
+      {
+          struct ComputerEvent event_guard[2]; // Set to invalid event if some would like to list events
+          struct ComputerEvent *events;
+      };
+  };
   struct OpponentRelation opponent_relations[PLAYERS_EXT_COUNT];
   // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
@@ -649,6 +658,7 @@ long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 long process_tasks(struct Computer2 *comp);
+long computer_check_any_room(struct Computer2* comp, struct ComputerProcess* cproc);
 TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,

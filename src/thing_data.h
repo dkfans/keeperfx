@@ -178,12 +178,16 @@ struct Thing {
       unsigned char box_kind;
       } custom_box;
       struct {
+          unsigned char exp_level;
+          unsigned char laid_to_rest;
+      } corpse;
+      struct {
         unsigned char byte_13;
         unsigned char byte_14;
         unsigned char byte_15;
-        unsigned char byte_16;
+        unsigned char hit_type;
         unsigned char byte_17;
-        unsigned char byte_18;
+        unsigned char trap_door_active_state; // For Doors: if byte_18 = 1 then door is locked/ For Traps: seems to be, if byte_18 = 1 then trap is still active
         unsigned char byte_19;
       };
     };
@@ -195,7 +199,7 @@ struct Thing {
      */
     short parent_idx;
     unsigned char class_id;
-    unsigned char field_20;
+    unsigned char fall_acceleration;
 unsigned char field_21;
 unsigned char field_22;
     unsigned char field_23;
@@ -213,7 +217,6 @@ unsigned short anim_sprite;
 
 unsigned char field_48;     // current frame
 unsigned char field_49;     // max frames
-
     char field_4A;          // thing growth speed (when it is growing/shrinking)
 unsigned short field_4B;    // min_sprite_size
 unsigned short field_4D;    // max_sprite_size
@@ -262,7 +265,9 @@ long thing_get_index(const struct Thing *thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char a7);
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char draw_class);
+
+void query_thing(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

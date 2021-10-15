@@ -21,11 +21,12 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "thing_shots.h"
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "thing_creature.h"
 #include "thing_list.h"
+#include "thing_navigate.h"
 #include "creature_control.h"
 #include "config_creature.h"
 #include "config_terrain.h"
@@ -39,8 +40,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
-DLLIMPORT void _DK_bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
 DLLIMPORT long _DK_get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long a3);
 /******************************************************************************/
 
@@ -61,42 +60,230 @@ TbBool thing_touching_flight_altitude(const struct Thing *thing)
         && (thing->mappos.z.val <= floor_height + 19*NORMAL_FLYING_ALTITUDE/17);
 }
 
-void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
+TbBool thing_above_flight_altitude(const struct Thing* thing)
 {
-    _DK_slide_thing_against_wall_at(thing, pos, a3); return;
+    int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
+    return (thing->mappos.z.val > floor_height + 19 * NORMAL_FLYING_ALTITUDE / 17);
 }
 
-void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
+void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
-    _DK_bounce_thing_off_wall_at(thing, pos, a3); return;
+   // _DK_slide_thing_against_wall_at(thing, pos, a3); return;
+  unsigned short x_thing;
+  unsigned short sizexy;
+  unsigned short x_pos;
+  unsigned short y_thing;
+  unsigned short y_pos;
+  switch ( blocked_flags )
+  {
+    case SlbBloF_WalledX:
+      x_thing = thing->mappos.x.val;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      x_pos = pos->x.val;
+      if ( x_pos != x_thing )
+      {
+        if ( x_pos > x_thing )
+        {
+          pos->x.val = ((x_pos + sizexy) & 0xFF00) - sizexy - 1;
+          return;
+        }
+        x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+      }
+      pos->x.val = x_thing;
+      break;
+    case SlbBloF_WalledY:
+      y_thing = thing->mappos.y.val;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      y_pos = pos->y.val;
+      if ( y_thing != y_pos )
+      {
+        if ( y_thing < y_pos )
+        {
+          pos->y.val = ((y_pos + sizexy) & 0xFF00) - sizexy - 1;
+          return;
+        }
+        y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
+      }
+      pos->y.val = y_thing;
+      break;
+    case SlbBloF_WalledX|SlbBloF_WalledY:
+      x_thing = thing->mappos.x.val;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      x_pos = pos->x.val;
+      if ( x_pos != x_thing )
+      {
+        if ( x_pos <= x_thing )
+          x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+        else
+          x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
+      }
+      y_thing = thing->mappos.y.val;
+      y_pos = pos->y.val;
+      if ( y_pos != y_thing )
+      {
+        if ( y_pos <= y_thing )
+          y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
+        else
+          y_thing = (((sizexy + y_pos) & 0xFF00) - sizexy - 1);
+      }
+      pos->x.val = x_thing;
+      pos->y.val = y_thing;
+      break;
+    case SlbBloF_WalledZ:
+      pos->z.val = get_slide_z_coord(thing, pos);
+      break;
+    case SlbBloF_WalledZ|SlbBloF_WalledX:
+      x_thing = thing->mappos.x.val;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      x_pos = pos->x.val;
+      if ( x_pos != x_thing )
+      {
+        if ( x_pos <= x_thing )
+          x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+        else
+          x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
+      }
+      pos->x.val = x_thing;
+      pos->z.val = get_slide_z_coord(thing, pos);
+      break;
+    case SlbBloF_WalledZ|SlbBloF_WalledY:
+      y_thing = thing->mappos.y.val;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      y_pos = pos->y.val;
+      if ( y_thing != y_pos )
+      {
+        if ( y_thing >= y_pos )
+          y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
+        else
+          y_thing = (((y_pos + sizexy) & 0xFF00) - sizexy - 1);
+      }
+      pos->y.val = y_thing;
+      pos->z.val = get_slide_z_coord(thing, pos);
+      break;
+    case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
+      x_thing = thing->mappos.x.val;
+      sizexy = (unsigned short)actual_sizexy_to_nav_sizexy_table[thing->clipbox_size_xy] >> 1;
+      x_pos = pos->x.val;
+      if ( x_pos != x_thing )
+      {
+        if ( x_pos <= x_thing )
+          x_thing = (((x_pos - sizexy) & 0xFF00) + sizexy + 256);
+        else
+          x_thing = (((sizexy + x_pos) & 0xFF00) - sizexy - 1);
+      }
+      y_pos = pos->y.val;
+      y_thing = thing->mappos.y.val;
+      if ( y_pos != y_thing )
+      {
+        if ( y_pos <= y_thing )
+          y_thing = (((y_pos - sizexy) & 0xFF00) + sizexy + 256);
+        else
+          y_thing = (((sizexy + y_pos) & 0xFF00) - sizexy - 1);
+      }
+      pos->x.val = x_thing;
+      pos->y.val = y_thing;
+      pos->z.val = get_slide_z_coord(thing, pos);
+      break;
+    default:
+      return;
+  }
 }
 
-void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long a3)
+void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
-    switch ( a3 )
+   // _DK_bounce_thing_off_wall_at(thing, pos, a3); return;
+  short x = (short)thing->veloc_base.x.val;
+  short y = (short)thing->veloc_base.y.val;
+  short z = (short)thing->veloc_base.z.val;
+  int i;
+  switch ( blocked_flags )
+  {
+    case SlbBloF_WalledX:
+      pos->x.val = thing->mappos.x.val;
+      thing->veloc_base.x.val = -(short)(x * thing->field_22 / 128);
+      i = 256 - thing->field_23;
+      thing->veloc_base.y.val = i * (short)thing->veloc_base.y.val / 256;
+      thing->veloc_base.z.val = i * (short)thing->veloc_base.z.val / 256;
+      break;
+    case SlbBloF_WalledY:
+      pos->y.val = thing->mappos.y.val;
+      thing->veloc_base.y.val = -(short)(y * thing->field_22 / 128);
+      i = 256 - thing->field_23;
+      thing->veloc_base.x.val = i * (short)thing->veloc_base.x.val / 256;
+      thing->veloc_base.z.val = i * (short)thing->veloc_base.z.val / 256;
+      break;
+    case SlbBloF_WalledX|SlbBloF_WalledY:
+      pos->x.val = thing->mappos.x.val;
+      pos->y.val = thing->mappos.y.val;
+      i = thing->field_22;
+      thing->veloc_base.x.val = -(short)(i * x / 128);
+      thing->veloc_base.y.val = -(short)(i * y / 128);
+      break;
+    case SlbBloF_WalledZ:
+      pos->z.val = thing->mappos.z.val;
+      thing->veloc_base.z.val = -(short)(z * thing->field_22 / 128);
+      i = 256 - thing->field_23;
+      thing->veloc_base.x.val = i * (short)thing->veloc_base.x.val / 256;
+      thing->veloc_base.y.val = i * (short)thing->veloc_base.y.val / 256;
+      break;
+    case SlbBloF_WalledZ|SlbBloF_WalledX:
+      pos->z.val = thing->mappos.z.val;
+      pos->x.val = thing->mappos.x.val;
+      i = thing->field_22;
+      thing->veloc_base.x.val = -(short)(i * x / 128);
+      thing->veloc_base.z.val = -(short)(i * z / 128);
+      break;
+    case SlbBloF_WalledZ|SlbBloF_WalledY:
+      pos->y.val = thing->mappos.y.val;
+      pos->z.val = thing->mappos.z.val;
+      i = thing->field_22;
+      thing->veloc_base.y.val = -(short)(i * y / 128);
+      int n = i * y;
+      int j = thing->field_23;
+      int k = (short)thing->veloc_base.x.val;
+      thing->veloc_base.z.val = -(short)(n / 128);
+      thing->veloc_base.x.val = k * (256 - j) / 256;
+      break;
+    case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
+      pos->x.val = thing->mappos.x.val;
+      pos->y.val = thing->mappos.y.val;
+      pos->z.val = thing->mappos.z.val;
+      i = thing->field_22;
+      thing->veloc_base.x.val = -(short)(i * x / 128);
+      thing->veloc_base.y.val = -(short)(i * y / 128);
+      thing->veloc_base.z.val = -(short)(i * z / 128);
+      break;
+    default:
+      return;
+  }
+}
+
+void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
+{
+    switch (blocked_flags)
     {
-    case 1:
+    case SlbBloF_WalledX:
         thing->veloc_base.x.val = 0;
         break;
-    case 2:
+    case SlbBloF_WalledY:
         thing->veloc_base.y.val = 0;
         break;
-    case 3:
+    case SlbBloF_WalledX|SlbBloF_WalledY:
         thing->veloc_base.x.val = 0;
         thing->veloc_base.y.val = 0;
         break;
-    case 4:
+    case SlbBloF_WalledZ:
         thing->veloc_base.z.val = 0;
         break;
-    case 5:
+    case SlbBloF_WalledX|SlbBloF_WalledZ:
         thing->veloc_base.x.val = 0;
         thing->veloc_base.z.val = 0;
         break;
-    case 6:
+    case SlbBloF_WalledY|SlbBloF_WalledZ:
         thing->veloc_base.y.val = 0;
         thing->veloc_base.z.val = 0;
         break;
-    case 7:
+    case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
         thing->veloc_base.x.val = 0;
         thing->veloc_base.y.val = 0;
         thing->veloc_base.z.val = 0;
@@ -345,7 +532,8 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
 TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
 {
     // Don't clip the Z coord - clipping would make impossible to hit base ground (ie. water drip over water)
-    return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, MapCoord_ClipX|MapCoord_ClipY);
+    unsigned short flags = (thing_is_exempt_from_z_axis_clipping(thing)) ? MapCoord_ClipX|MapCoord_ClipY : MapCoord_ClipX|MapCoord_ClipY|MapCoord_ClipZ;
+    return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, flags);
 }
 
 long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
@@ -631,7 +819,7 @@ TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const st
     struct CoordDelta3d dt;
     dt.x.val = dstpos->x.val - (MapCoordDelta)firstng->mappos.x.val;
     dt.y.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
-    dt.z.val = dstpos->y.val - (MapCoordDelta)firstng->mappos.y.val;
+    dt.z.val = dstpos->z.val - (MapCoordDelta)firstng->mappos.z.val;
     // Compute amount of interpoints for collision check
     int interpoints;
     {
@@ -651,6 +839,37 @@ TbBool things_collide_while_first_moves_to(const struct Thing *firstng, const st
         }
     }
     return thing_on_thing_at(firstng, dstpos, sectng);
+}
+
+TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing)
+{
+    if (thing_is_shot(thing))
+    {
+        return (!shot_is_boulder(thing));
+    }
+    return false;
+}
+
+unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d *pos)
+// function at 451700. Original name unknown.
+{
+  unsigned short clipbox_size = thing->clipbox_size_yz;
+  long height = get_ceiling_height_above_thing_at(thing, pos);
+  short z_thing = (short)thing->mappos.z.val;
+  short z_pos = (short)pos->z.val;
+  if ( (height - 1) <= (z_pos + clipbox_size) )
+  {
+    return (height - clipbox_size) - 1;
+  }
+  if ( z_pos == z_thing )
+  {
+    return pos->z.val;
+  }
+  if ( z_pos < z_thing )
+  {
+    return (z_pos & 0xFF00) + 256;
+  }
+  return ((((z_pos + clipbox_size) & 0xFFFFFF00) - clipbox_size) - 1);
 }
 /******************************************************************************/
 #ifdef __cplusplus

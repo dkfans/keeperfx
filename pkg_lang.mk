@@ -47,8 +47,10 @@ pkg/campgns/ancntkpr/text_chi.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/burdnimp/text_pol.dat \
 pkg/campgns/cqarctic/text_eng.dat \
+pkg/campgns/cqarctic/text_chi.dat \
 pkg/campgns/cqarctic/text_pol.dat \
 pkg/campgns/dstninja/text_eng.dat \
+pkg/campgns/dstninja/text_chi.dat \
 pkg/campgns/dstninja/text_pol.dat \
 pkg/campgns/evilkeep/text_eng.dat \
 pkg/campgns/evilkeep/text_fre.dat \
@@ -57,13 +59,15 @@ pkg/campgns/evilkeep/text_pol.dat \
 pkg/campgns/grkreign/text_eng.dat \
 pkg/campgns/grkreign/text_pol.dat \
 pkg/campgns/lqizgood/text_eng.dat \
+pkg/campgns/lqizgood/text_chi.dat \
+pkg/campgns/lqizgood/text_fre.dat \
 pkg/campgns/lqizgood/text_pol.dat \
 pkg/campgns/ncastles/text_eng.dat \
 pkg/campgns/ncastles/text_pol.dat \
-pkg/campgns/pstunded/text_eng.dat \
-pkg/campgns/pstunded/text_pol.dat \
 pkg/campgns/questfth/text_eng.dat \
 pkg/campgns/questfth/text_fre.dat \
+pkg/campgns/revlord/text_eng.dat \
+pkg/campgns/revlord/text_chi.dat \
 pkg/campgns/questfth/text_pol.dat \
 pkg/campgns/twinkprs/text_eng.dat \
 pkg/campgns/twinkprs/text_pol.dat \
@@ -72,7 +76,13 @@ pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
 pkg/campgns/undedkpr/text_pol.dat
 
-pkg-languages: lang-before $(NGTEXTDATS) $(NCTEXTDATS) pkg-before
+MPTEXTDATS = \
+pkg/levels/classic/text_eng.dat \
+pkg/levels/classic/text_chi.dat \
+pkg/levels/standard/text_eng.dat \
+pkg/levels/standard/text_chi.dat
+
+pkg-languages: lang-before $(NGTEXTDATS) $(NCTEXTDATS) $(MPTEXTDATS) pkg-before
 
 lang-before:
 	$(MKDIR) pkg/fxdata
@@ -126,21 +136,47 @@ pkg/fxdata/gtext_%.dat: lang/gtext_%.pot tools/po2ngdat/res/char_encoding_tbl_eu
 # Creation of engine language files for campaigns
 define define_campaign_language_rule
 
-pkg/campgns/$(1)/text_ch%.dat: lang/$(1)/text_ch%.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $$(POTONGDAT)
+pkg/campgns/$(1)/text_ch%.dat: lang/campgns/$(1)/text_ch%.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $$(POTONGDAT)
 	-$$(ECHO) 'Building language file: $$@'
 	@$$(MKDIR) $$(@D)
 	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
-pkg/campgns/$(1)/%.dat: lang/$(1)/%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
+pkg/campgns/$(1)/%.dat: lang/campgns/$(1)/%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
 	-$$(ECHO) 'Building language file: $$@'
 	@$$(MKDIR) $$(@D)
 	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
-pkg/campgns/$(1)/%.dat: lang/$(1)/%.pot tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
+pkg/campgns/$(1)/%.dat: lang/campgns/$(1)/%.pot tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
+endef
+
+# Creation of engine language files for map packs
+define define_mappack_language_rule
+
+pkg/levels/$(1)/text_ch%.dat: lang/levels/$(1)/text_ch%.po tools/po2ngdat/res/char_encoding_tbl_ch.txt $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
+pkg/levels/$(1)/%.dat: lang/levels/$(1)/%.po tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
+pkg/levels/$(1)/%.dat: lang/levels/$(1)/%.pot tools/po2ngdat/res/char_encoding_tbl_eu.txt $$(POTONGDAT)
 	-$$(ECHO) 'Building language file: $$@'
 	@$$(MKDIR) $$(@D)
 	$$(POTONGDAT) -o "$$@" -e "$$(word 2,$$^)" "$$<"
@@ -150,5 +186,6 @@ pkg/campgns/$(1)/%.dat: lang/$(1)/%.pot tools/po2ngdat/res/char_encoding_tbl_eu.
 endef
 
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_language_rule,$(campaign))))
+$(foreach mappack,$(sort $(MAPPACKS)),$(eval $(call define_mappack_language_rule,$(mappack))))
 
 #******************************************************************************

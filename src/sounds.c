@@ -119,7 +119,7 @@ void play_thing_walking(struct Thing *thing)
             S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->field_9) && get_foot_creature_has_down(thing))
+        if ((cctrl->distance_to_destination) && get_foot_creature_has_down(thing))
         {
             int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->field_67 & 0x1F)];
             long smpl_idx;
@@ -482,7 +482,7 @@ TbBool init_sound(void)
       return false;
     struct SoundSettings* snd_settng = &game.sound_settings;
     SetupAudioOptionDefaults(snd_settng);
-    snd_settng->field_E = 3;
+    snd_settng->flags = SndSetting_Sound;
     snd_settng->sound_type = 1622;
     snd_settng->sound_data_path = sound_dir;
     snd_settng->dir3 = sound_dir;
@@ -494,16 +494,13 @@ TbBool init_sound(void)
     else
       snd_settng->max_number_of_samples = 16;
     snd_settng->danger_music = 0;
-    snd_settng->no_load_music = 0;
+    snd_settng->no_load_music = 1;
     snd_settng->no_load_sounds = 1;
-    snd_settng->field_16 = 1;
-    if ((game.flags_font & FFlg_UsrSndFont) == 0)
-      snd_settng->field_16 = 0;
+    snd_settng->field_16 = 0;
     snd_settng->field_18 = 1;
     snd_settng->redbook_enable = ((game.flags_cd & MFlg_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
-    LoadMusic(0);
     InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
@@ -587,26 +584,6 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
     return true;
 }
 
-void randomize_sound_font(void)
-{
-    StopMusic();
-    switch (UNSYNC_RANDOM(3))
-    {
-    case 0:
-        if (LoadAwe32Soundfont("bullfrog"))
-          StartMusic(1, 127);
-        break;
-    case 1:
-        if (LoadAwe32Soundfont("atmos1"))
-          StartMusic(1, 127);
-        break;
-    case 2:
-        if (LoadAwe32Soundfont("atmos2"))
-          StartMusic(1, 127);
-        break;
-    }
-}
-
 struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
@@ -675,9 +652,7 @@ void sound_reinit_after_load(void)
         Non3DEmitter = 0;
     }
     ambient_sound_stop();
-    StartMusic(1, 127);
     init_messages();
-    randomize_sound_font();
 }
 
 void stop_thing_playing_sample(struct Thing *heartng, short a2)

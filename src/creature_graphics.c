@@ -141,7 +141,6 @@ struct CreaturePickedUpOffset creature_picked_up_offset[] = {
 //struct KeeperSprite *creature_table;
 /******************************************************************************/
 DLLIMPORT unsigned short _DK_creature_list[CREATURE_FRAMELIST_LENGTH];
-#define creature_list _DK_creature_list
 /******************************************************************************/
 extern struct CreaturePickedUpOffset creature_picked_up_offset[];
 /******************************************************************************/
@@ -160,7 +159,7 @@ unsigned char keepersprite_frames(unsigned short n)
       ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
   }
-  unsigned long i = creature_list[n];
+  unsigned long i = _DK_creature_list[n];
   return creature_table[i].FramesCount;
 }
 
@@ -171,7 +170,7 @@ unsigned char keepersprite_rotable(unsigned short n)
       ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
   }
-  unsigned long i = creature_list[n];
+  unsigned long i = _DK_creature_list[n];
   return creature_table[i].Rotable;
 }
 
@@ -182,7 +181,7 @@ unsigned char previous_keeper_frame(unsigned short n, unsigned char c)
         ERRORLOG("Frame %d out of range",(int)n);
         n = 0;
     }
-    unsigned long i = creature_list[n];
+    unsigned long i = _DK_creature_list[n];
     if (c > 0)
         return c - 1;
     return creature_table[i].FramesCount - 1;
@@ -195,7 +194,7 @@ unsigned char next_keeper_frame(unsigned short n, unsigned char c)
         ERRORLOG("Frame %d out of range",(int)n);
         n = 0;
     }
-    unsigned long i = creature_list[n];
+    unsigned long i = _DK_creature_list[n];
     return creature_table[i].FramesCount;
 }
 
@@ -206,7 +205,7 @@ struct KeeperSprite * keepersprite_array(unsigned short n)
         ERRORLOG("Frame %d out of range",(int)n);
         n = 0;
     }
-    unsigned long i = creature_list[n];
+    unsigned long i = _DK_creature_list[n];
     return &creature_table[i];
 }
 
@@ -217,7 +216,7 @@ unsigned long keepersprite_index(unsigned short n)
       ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
   }
-  return creature_list[n];
+  return _DK_creature_list[n];
 }
 
 long get_lifespan_of_animation(long ani, long frameskip)
@@ -228,7 +227,7 @@ long get_lifespan_of_animation(long ani, long frameskip)
 void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h)
 {
     TbBool val_in_range;
-    unsigned long i = creature_list[kspr_frame];
+    unsigned long i = _DK_creature_list[kspr_frame];
     struct KeeperSprite* kspr = &creature_table[i];
     if ( ((a2 & 0x7FF) <= 1151) || ((a2 & 0x7FF) >= 1919) )
         val_in_range = 0;
@@ -422,7 +421,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             thing->field_4F &= ~(TF4F_Transpar_Flags);
             update_creature_anim(thing, 128, 12);
         } else
-        if (cctrl->field_9 == 0)
+        if (cctrl->distance_to_destination == 0)
         {
             update_creature_anim(thing, 256, 0);
         } else
@@ -432,7 +431,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         } else
         if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
         {
-            i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
             update_creature_anim(thing, i, 2);
         } else
         if (creatures[thing->model].field_6 == 4)
@@ -440,7 +439,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             update_creature_anim(thing, 256, 1);
         } else
         {
-            i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
             if (!update_creature_anim(thing, i, 1))
             {
                 thing->anim_speed = i;
@@ -449,7 +448,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     } else
     {
         thing->field_4F &= ~(TF4F_Transpar_Flags);
-        if (cctrl->field_9 == 0)
+        if (cctrl->distance_to_destination == 0)
         {
             update_creature_anim_td(thing, 256, 820);
         } else
@@ -462,7 +461,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             update_creature_anim_td(thing, 256, 819);
         } else
         {
-            i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
             if (!update_creature_anim_td(thing, i, 819))
             {
                 thing->anim_speed = i;

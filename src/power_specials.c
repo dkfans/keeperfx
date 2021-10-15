@@ -391,7 +391,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   int spkindidx = cratetng->model - 86;
   short used = 0;
   TbBool no_speech = false;
-  if (thing_exists(cratetng) && is_dungeon_special(cratetng))
+  if (thing_exists(cratetng) && thing_is_special_box(cratetng))
   {
     switch (cratetng->model)
     {
@@ -569,8 +569,8 @@ SpecialKind box_thing_to_special(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
+    if ( (thing->class_id != TCls_Object) || (thing->model >= gameadd.object_conf.object_types_count) )
         return 0;
-    return object_conf.object_to_special_artifact[thing->model];
+    return gameadd.object_conf.object_to_special_artifact[thing->model];
 }
 /******************************************************************************/

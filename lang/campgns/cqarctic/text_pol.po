@@ -1,0 +1,1602 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file cqarctic/text_pol.po
+#      KeeperFX Campaign Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 02 Nov 2013
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: KeeperFX CCP 0.43\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2014-02-10 00:18+0100\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team \n"
+"Language: pl_PL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Generator: Poedit 1.5.7\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid "Success! The land is yours. Press Space to proceed to the next realm."
+msgstr ""
+"Zwycięstwo! Kraina jest twoja. Naciśnij spację, by przejść do następnego "
+"królestwa."
+
+#: guitext:1
+msgctxt "In-game message"
+msgid ""
+"Welcome Keeper in the campaign Conquest of the Arctic. This time we will "
+"fight on the icy grounds of North Pole. We must find the ruler of this land "
+"and kill him for any cost! For starters, let us take over the dungeon of "
+"other keeper!"
+msgstr ""
+"Witaj strazniku w kampani Conquest of the Arctic. Tym razem bedziemy walczyc "
+"na arktyce. Musimy odnalezc wladce tej krainy i go zabic za wszelka cene! Na "
+"poczatek przejmijmy loch innego straznika!"
+
+#: guitext:2
+msgctxt "In-game message"
+msgid ""
+"The initial task is done. You have killed the miserable opponent and now "
+"this land is ours to rule!"
+msgstr "Udalo ci sie! Zabiles wrogiego wladce, teraz ta kraina nalezy do nas!"
+
+#: guitext:3
+msgctxt "In-game message"
+msgid ""
+"Powerful barbarians reign this land. But they do not know that in a certain "
+"cave on the east, lives the Avatar. I've heard he mastered several "
+"interesting incantations. Perhaps it is proper to visit him?"
+msgstr ""
+"W tej krainie panuja potezni barbarzyncy. Podobno na wschodzie w pewnej "
+"jaskini mieszka Avatar, slyszalem ze posiada on kilka zaklec. Moze warto by "
+"go odwiedzic?"
+
+#: guitext:4
+msgctxt "In-game message"
+msgid ""
+"Now barbarians are no longer amongst the living, and you rule over this "
+"land. The rumors of your power was reflected with the wide echo through all "
+"the Arctic. Now, where will we strike next?"
+msgstr ""
+"Teraz barbarzyncy nie zyja, a ty panujesz nad ta kraina. Sluch o twym "
+"zwyciestwie odbil sie szerokim echem po calej arktyce, gdzie teraz udezymy?"
+
+#: guitext:5
+msgctxt "In-game message"
+msgid ""
+"This land is watched over by good heroes. But another keeper is also here, "
+"and he doesn't seem to be pleased by your company. It is likely that we will "
+"have to dispose of him too!"
+msgstr ""
+"Kraina ta jest okupywana przez dobrych bohaterow, mieszka tutaj takze inny "
+"straznik ktory jest wrogo nastawiony do Ciebie, i za pewne będziemy musieli "
+"go zabić!"
+
+#: guitext:6
+msgctxt "In-game message"
+msgid ""
+"Rotting bodies of the good heroes are left as a food for black beetles. What "
+"the next task would be?"
+msgstr ""
+"Dobrzy bohaterowie sa martwi i zostawieni na strawe dla karaluchow, czym "
+"zajmiemy sie teraz?"
+
+#: guitext:7
+msgctxt "In-game message"
+msgid ""
+"This land rules Avatar, is powerful and hides in its own of castle in the "
+"south. We must kill him, to gain these the land! The conquest of Arctic this "
+"our fate!"
+msgstr ""
+"Kraina ta rzadzi Avatar, jest potezny i ukrywa sie w swoim zamku na "
+"poludniu. Musimy go zabic, aby zdobyc te kraine! Podbuj Arktyki to nasze "
+"przeznaczenie!"
+
+#: guitext:8
+msgctxt "In-game message"
+msgid ""
+"Powerful Avatar became dead by our splendid warriors of the shadow, the "
+"perfect work, my lord!"
+msgstr ""
+"Potezny Avatar zostal zabity przez naszych wspanialych wojownikow cienia, "
+"doskonala robota, moj panie!"
+
+#: guitext:9
+msgctxt "In-game message"
+msgid ""
+"Heroes from this land rented two other keeper so that they kill you, "
+"themselves however hide in their own of castle in the north. The time to "
+"gain these the land!"
+msgstr ""
+"Bohaterzy z tej krainy wynajeli dwóch innych straznikow aby zabili cie, sami "
+"jednak ukrywaja sie w swym zamku na polnocy. Czas zdobyc te kraine!"
+
+#: guitext:10
+msgctxt "In-game message"
+msgid ""
+"Nobody is in a position to overcome our power, NOBODY! The perfect work, "
+"Ninja!"
+msgstr ""
+"Nikt nie jest w stanie pokonac naszej potegi, NIKT! Doskonala robota, Ninja."
+
+#: guitext:11
+msgctxt "In-game message"
+msgid ""
+"In this land rule good people which will not take fright other of two keeper "
+"which also want to conquer this land. Promises the interested battle, not "
+"the truth?"
+msgstr ""
+"W krainie tej rzadza dobrzy ludzie, kturzy nie zlekna sie innych dwuch "
+"straznikow kturzy takze chce podbic te kraine. Zapodwiada sie ciekawa bitwa, "
+"nieprawdaż?"
+
+#: guitext:12
+msgctxt "In-game message"
+msgid ""
+"You always you amaze made me so great thing, I am under the impression! "
+"Congratulations, Ninja!"
+msgstr ""
+"Zawsze mnie zadziwiasz dokonales tak wielkiej rzeczy, jestem pod wrazeniem! "
+"Gratulacje, Ninja!"
+
+#: guitext:13
+msgctxt "In-game message"
+msgid ""
+"This land lies in two ravines, in one of them live people, while in second "
+"we. To this other keeper also tries to take over this land, do not permit to "
+"him this!"
+msgstr ""
+"Kraina ta lezy w dwuch wawozach, w jednym z nich mieszkaja ludzie, zas w "
+"drugim my. Do tego inny straznik takze prubuje przejac te kraine, nie pozwol "
+"mu na to!"
+
+#: guitext:14
+msgctxt "In-game message"
+msgid ""
+"The ruler of the land exploded so as and his heart, the now this land is "
+"belonging to us! Congratulations, the warrior of the shadow!"
+msgstr ""
+"Wladca krainy eksplowdowal tak jak i jego serce, teraz ta kraina nalezy do "
+"nas! Gratulacje, wojowniku cienia!"
+
+#: guitext:15
+msgctxt "In-game message"
+msgid ""
+"Downtown of the land be found great riches, Guard them people. Instead two "
+"other keeper also sticks out for these the land, the time to pay a visit to "
+"them!"
+msgstr ""
+"W centrum krainy znajduj sie wielkie bogactwa, strzeza ich ludzie. Natomiast "
+"dwoch innych straznikow takze walczy o te kraine, czas zlozyc im wizyte!"
+
+#: guitext:16
+msgctxt "In-game message"
+msgid ""
+"The perfect work young warrior, in spite of the attack two other keeper you "
+"made this! Congratulations!"
+msgstr ""
+"Doskonala robota mlody wojowniku, mimo atakch dwoch innych straznikow "
+"dokonales tego! Gratulacje!"
+
+#: guitext:17
+msgctxt "In-game message"
+msgid ""
+"One of three other keeper possesses the incantation the destruction of "
+"walls, the ruler of this land walled up the entry to its own heart. This "
+"incantation will be not superfluous to the inroad to his heart. Successes!"
+msgstr ""
+"Jeden z trzech innych straznikow posiada zaklecie zniszczenie scian, wladca "
+"tej krainy zamurowal wejscie do swego serca. To zaklecie bedzie niezbedne do "
+"wtargniecia do jego serca. Powodzenia!"
+
+#: guitext:18
+msgctxt "In-game message"
+msgid "The following subject land, nobody is in a position to overcome us!"
+msgstr "Kolejna podbita kraina, nikt nie jest w stanie nas pokonac!"
+
+#: guitext:19
+msgctxt "In-game message"
+msgid ""
+"It is the already last land lived by men and keeper. Here are best warriors "
+"from all Arctic, easy does it and remember, now hesitate lots for Arctic."
+msgstr ""
+"To juz ostatnia kraina zamieszkiwana przez ludzi i straznikow. Tutaj sa "
+"najlepsi wojownicy z calej arktyki, badz ostrozny i pamietaj ze teraz "
+"wachaja sie losy o arktyke."
+
+#: guitext:20
+msgctxt "In-game message"
+msgid ""
+"Congratulations you finished campaigns Conquest of the Arctic! The inch "
+"Arctic belongs to You!"
+msgstr ""
+"Gratulacje ukonczyles kampanie Conquest of the Arctic! Cala Arktyka nalezy "
+"do Ciebie!"
+
+#: guitext:21
+msgctxt "In-game message"
+msgid "The moonshine showed me this land, the time has come to conquer!"
+msgstr "Blask ksiezyca pokazl mi te kraine, czas ja podbic!"
+
+#: guitext:22
+msgctxt "In-game message"
+msgid "It's time to watch this land in the bright of full moon..."
+msgstr "Czas pooglądać ta kraine w blasku pelni ksiezyca..."
+
+#: guitext:23 guitext:24 guitext:25 guitext:26 guitext:27 guitext:28
+#: guitext:29 guitext:30 guitext:31 guitext:32 guitext:33 guitext:34
+#: guitext:35 guitext:36 guitext:37 guitext:38 guitext:39 guitext:40
+#: guitext:41 guitext:42 guitext:43 guitext:44 guitext:45 guitext:46
+#: guitext:47 guitext:48 guitext:49 guitext:50 guitext:51 guitext:52
+#: guitext:53 guitext:54 guitext:55 guitext:56 guitext:57 guitext:58
+#: guitext:59 guitext:60 guitext:61 guitext:62 guitext:63 guitext:64
+#: guitext:65 guitext:66 guitext:67 guitext:68 guitext:69 guitext:70
+#: guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76
+#: guitext:77 guitext:78 guitext:79 guitext:80 guitext:81 guitext:82
+#: guitext:83 guitext:84 guitext:85 guitext:86 guitext:87 guitext:88
+#: guitext:89 guitext:90 guitext:91 guitext:92 guitext:93 guitext:94
+#: guitext:95 guitext:96 guitext:97 guitext:98 guitext:99 guitext:100
+#: guitext:101 guitext:102 guitext:103 guitext:104 guitext:105 guitext:106
+#: guitext:107 guitext:108 guitext:109 guitext:110 guitext:111 guitext:112
+#: guitext:113 guitext:114 guitext:115 guitext:116 guitext:117 guitext:118
+#: guitext:119 guitext:120 guitext:121 guitext:122 guitext:123 guitext:124
+#: guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130
+#: guitext:131 guitext:132 guitext:133 guitext:134 guitext:135 guitext:136
+#: guitext:137 guitext:138 guitext:139 guitext:140 guitext:141 guitext:142
+#: guitext:143 guitext:144 guitext:145 guitext:146 guitext:147 guitext:148
+#: guitext:149 guitext:150 guitext:151 guitext:152 guitext:153 guitext:154
+#: guitext:155 guitext:156 guitext:157 guitext:158 guitext:159 guitext:160
+#: guitext:161 guitext:162 guitext:163 guitext:164 guitext:165 guitext:166
+#: guitext:167 guitext:168 guitext:169 guitext:170 guitext:171 guitext:172
+#: guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178
+#: guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184
+#: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
+#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
+#: guitext:197 guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr "Muuuu"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "ice blood"
+msgstr "Zmrożona krew"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "barbarian land"
+msgstr "Kraj Barbarzyńców"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "magma land"
+msgstr "Kraina magmy"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "mortal fight"
+msgstr "Śmiertelne starcie"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "death in ice"
+msgstr "Lodowa śmierć"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "land of blood"
+msgstr "Ziemie krwi"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "cold reality"
+msgstr "Zimna rzeczywistość"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "eye of battle"
+msgstr "Oko potyczki"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "battlefield"
+msgstr "Pole walki"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "united kingdom"
+msgstr "Zjednoczone Królestwo"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "moon level"
+msgstr "Poziom wskazany księżycem"
+
+#: guitext:213 guitext:214 guitext:215 guitext:216 guitext:217 guitext:218
+#: guitext:219 guitext:220 guitext:221 guitext:222 guitext:223 guitext:224
+#: guitext:225
+msgctxt "Level name"
+msgid "Unused"
+msgstr "Niewykorzystany"
+
+#: guitext:226
+msgctxt "Creature spell"
+msgid "Arrow: The basic ranged weapon, effective at long distance."
+msgstr "Strzała: Najprostsza broń dystansowa, efektywna z duzej odległości."
+
+#: guitext:227
+msgctxt "Creature spell"
+msgid ""
+"Freeze: Changes the target creature to ice. It is then in suspended "
+"animation and can be shattered with a well-aimed blow."
+msgstr ""
+"Zamrażacz: Robi ze stwora bryłę lodu. Cel nie może się poruszać, jest też "
+"narażony na roztrzaskanie przy dobrze wymierzonym uderzeniu."
+
+#: guitext:228
+msgctxt "Creature spell"
+msgid ""
+"Armour: This lowers the amount of damage a creature takes each time it is "
+"hit, and provides complete immunity to electric shocks."
+msgstr ""
+"Pancerz: Obniża wartość obrażeń otrzymywanych przez stwora przy tafieniach, "
+"powoduje też całkowitą odporność na ataki elektryczne."
+
+#: guitext:229
+msgctxt "Creature spell"
+msgid ""
+"Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
+"lighting from the creature."
+msgstr ""
+"Błyskawica: Potężna broń magiczna z atakiem elektrycznym. Rzuca paczkę "
+"błyskawic w nieszczęsny cel."
+
+#: guitext:230
+msgctxt "Creature spell"
+msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
+msgstr ""
+"Odbicie: Powoduje że wystrzelone wrogie zaklęcia odbijają się na atakującego"
+
+#: guitext:231
+msgctxt "Creature spell"
+msgid ""
+"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"combat."
+msgstr ""
+"Strach: Sprawia że przeciwnik truchleje i szuka okazji na unikniecie "
+"konfrontacji."
+
+#: guitext:232
+msgctxt "Creature spell"
+msgid ""
+"Sight: Allows the creature to temporarely increase its awareness and notice "
+"the invisible."
+msgstr ""
+"Jasnowidzenie: Pozwala stworowi czasowo poszerzyć postrzeganie i dostrzec to "
+"co niewidzialne."
+
+#: guitext:233
+msgctxt "Creature spell"
+msgid ""
+"Missile: A simple spell that sends a screaming magic reptile at the "
+"invaders. Very disconcerting."
+msgstr ""
+"Pocisk: Podstawowe zaklęcie wysyłające wrzeszczącą magiczną gadzinę w stronę "
+"wroga. Bardzo niepokojące."
+
+#: guitext:234
+msgctxt "Creature spell"
+msgid ""
+"Grenade: Throws a powerful explosive at the approaching enemy. It can also "
+"bounce off walls and has the traditional delayed fuse."
+msgstr ""
+"Granat: Rzuca silny ładunek wybuchowy  na wroga. Pocisk odbija się od ścian "
+"i ma tradycyjny zapalnik czasowy."
+
+#: guitext:235
+msgctxt "Creature spell"
+msgid ""
+"Navigating Missile: This homes in on the nearest hero or enemy creature and "
+"explodes with devastating force."
+msgstr ""
+"Pocisk samonawodzący: Odczuwa nieodpartą potrzebę przytulenia się do "
+"najbliższych wrogów i eksploduje z dewastującym efektem."
+
+#: guitext:236
+msgctxt "Creature spell"
+msgid ""
+"Speed: Speeds up the creature so that it can perform fighting and working "
+"tasks really quickly."
+msgstr ""
+"Przyspieszacz: Pozwala zwiększyć metabolizm każdego stwora dwukrotnie, "
+"przyspieszając tak pracę jak i walkę."
+
+#: guitext:237 guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
+"enemy and your own creatures. The gas affects all who breathe it."
+msgstr ""
+"Trujący obłok: Formuje chmurę gazu szkodliwego zarówno wroga i własnych "
+"stworów. Wpływa na wszystkich, wezmą wdech."
+
+#: guitext:238
+msgctxt "Creature spell"
+msgid "Group: Not used"
+msgstr "Grupowanie: nie używane"
+
+#: guitext:239
+msgctxt "Creature spell"
+msgid ""
+"Invisibility: Cast on one of your minions, it makes the host creature "
+"invisible to all enemies. Unless they possess a subnatural Sight."
+msgstr ""
+"Niewidzialność: Rzucona na twojego podopiecznego sprawia, że ​​jest "
+"niewidzialny dla wszystkich wrogów. Chyba, że ​​posiadają zaklęcie "
+"jasnowidzenia."
+
+#: guitext:240
+msgctxt "Creature spell"
+msgid ""
+"Teleport: With this spell, a creature can teleport anywhere on the map. If "
+"you are Possessing a creature, then it teleports to its Lair or to the "
+"Dungeon Heart."
+msgstr ""
+"Teleportacja: Pozwala teleportować się w dowolne miejsce na mapie. Opętany "
+"stwór teleportuje się do Legowiska lub Serca Lochu."
+
+#: guitext:241
+msgctxt "Creature spell"
+msgid "Flame Breath: The devasting constant stream of searing fire."
+msgstr "Ognisty dech: Ciągły strumień piekącego ognia."
+
+#: guitext:242
+msgctxt "Creature spell"
+msgid ""
+"Illumination: Brings light onto darkness, allowing the creature to see but "
+"also be seen by others."
+msgstr ""
+"Oświecenie: Przywołuje światło wrród ciemności, poprawiając widoczność dla "
+"twojego stwora, jak i dla innych."
+
+#: guitext:243
+msgctxt "Creature spell"
+msgid ""
+"Flight: Causes the creature to take off from the ground and attack creatures "
+"from the air."
+msgstr ""
+"Lot: Pozwala stworom unosić się nad ziemią, pokonując przeszkody i atakując "
+"z powietrza."
+
+#: guitext:244
+msgctxt "Creature spell"
+msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
+msgstr "Burza gradowa: Tworzy opad wielkiego gradu w miejscu rzucenia czaru."
+
+#: guitext:245
+msgctxt "Creature spell"
+msgid ""
+"Slow: Slows down the target creature, making it attacks and movement delayed."
+msgstr "Spowolnienie: Spowalnia stwora, opóźniając jego ruch i ataki."
+
+#: guitext:246
+msgctxt "Creature spell"
+msgid ""
+"Drain: This spell drains the target creature a fair part of its health and "
+"magical abilities."
+msgstr ""
+"Wyssanie: Zaklęcie wykrada nieszczęśnikowi znaczącą część zdrowia i "
+"zdolności magicznych."
+
+#: guitext:247
+msgctxt "Creature spell"
+msgid ""
+"Word of Power: Causes rings of fire to emanate from the creature's body and "
+"inflicts massive damage on the vicinity."
+msgstr ""
+"Mocne słowo: Pierścienie ognia rozchodzą się od ciała potwora i wyrządzają "
+"ogromne obrażenia w pobliżu."
+
+#: guitext:248
+msgctxt "Creature spell"
+msgid ""
+"Heal: When this is cast, the creature is massively healed. Also, any nearby "
+"creatures are healed by a quarter."
+msgstr ""
+"Uzdrowienie: Przywraca dużą cześć zdrowia stwora. Również stwory w pobliżu "
+"są lekko odczuwają takie skutki."
+
+#: guitext:249
+msgctxt "Creature spell"
+msgid ""
+"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
+"away from you."
+msgstr ""
+"Huragan: Wiatr o sile 12 w skali Beauforta w korytarzu lochu. Zdmuchuje "
+"wszelkie stwory w pobliżu."
+
+#: guitext:250
+msgctxt "Creature spell"
+msgid ""
+"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"of fire which does a lot of damage to an enemy."
+msgstr ""
+"Meteor: Mocniejszy niż Piorun, to zaklęcie rzuca solidną kulę ognia, który "
+"robi dużo obrażeń wrogowi."
+
+#: guitext:251
+msgctxt "Creature spell"
+msgid ""
+"Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
+"inflicts minor damage to a Dungeon's walls and doors."
+msgstr ""
+"Piorun: Wystrzeliwuje kulę ognia, która zmierza za najbliższym "
+"przeciwnikiek. Zadaje drobne uszkodzenia również ścianom lochu i drzwiom."
+
+#: guitext:252
+msgctxt "Creature spell"
+msgid ""
+"Hand to Hand: The basic battle ability that allows to attack the enemy with "
+"either bare hands or a sword."
+msgstr ""
+"Ręka w rękę: Podstawowa umiejętność bitewna, pozwala na atak wroga mieczem "
+"lub gołymi rękami."
+
+#: guitext:254
+msgctxt "Creature spell"
+msgid ""
+"Dig: This is the basic ability of the Imp and allows it to tunnel through "
+"earth."
+msgstr ""
+"Drążenie: Podstawowa umiejętnośc Choclików, pozwala im przekopywać tunele w "
+"ziemi."
+
+#: guitext:255
+msgctxt "Creature spell"
+msgid ""
+"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"creatures. The infected are slowly dying and can only be healed in the "
+"Temple."
+msgstr ""
+"Choroba: Rzucona na przeciwnika, sprawia że będzie roznosił ją i zarażał "
+"innych. Zainfekowany powoli umiera, może być uzdrowiony w świątyni."
+
+#: guitext:256
+msgctxt "Creature spell"
+msgid ""
+"Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
+"attack but has the same strength and thus won't be as easy to kill as a "
+"normal chicken."
+msgstr ""
+"Kurczak: Na chwilę pokazuje przeciwnikowi świat z perspektywy kurczaka. Wróg "
+"nie jest w stanie atakować, ale ma niezmienioną siłę, więc nie da się zabić "
+"tak łatwo jak kurczak."
+
+#: guitext:257
+msgctxt "Creature spell"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
+msgstr ""
+"Bomba zegarowa: Uzbraja stwora w ładunek wybuchowy i wysyła do wrogiego "
+"lochu. Stwór rozerwie się na wycieczce, więc już z niej nie wróci."
+
+#: guitext:258
+msgctxt "Creature name"
+msgid "Fairy"
+msgstr "Wróżka"
+
+#: guitext:259
+msgctxt "Creature name"
+msgid "Imp"
+msgstr "Chochlik"
+
+#: guitext:260
+msgctxt "Creature name"
+msgid "Beetle"
+msgstr "Żuk"
+
+#: guitext:261
+msgctxt "Creature name"
+msgid "Troll"
+msgstr "Troll"
+
+#: guitext:262
+msgctxt "Creature name"
+msgid "Demon Spawn"
+msgstr "Pączkujący demon"
+
+#: guitext:263
+msgctxt "Creature name"
+msgid "Warlock"
+msgstr "Czarnoksiężnik "
+
+#: guitext:264
+msgctxt "Creature name"
+msgid "Fly"
+msgstr "Mucha"
+
+#: guitext:265
+msgctxt "Creature name"
+msgid "Spider"
+msgstr "Pająk"
+
+#: guitext:266
+msgctxt "Creature name"
+msgid "Skeleton"
+msgstr "Szkieletor"
+
+#: guitext:267
+msgctxt "Creature name"
+msgid "Horned Reaper"
+msgstr "Rogaty Rozpruwacz"
+
+#: guitext:268
+msgctxt "Creature name"
+msgid "Dragon"
+msgstr "Smok"
+
+#: guitext:269
+msgctxt "Creature name"
+msgid "Tentacle"
+msgstr "Macka"
+
+#: guitext:270
+msgctxt "Creature name"
+msgid "Hound"
+msgstr "Ogar"
+
+#: guitext:271
+msgctxt "Creature name"
+msgid "Ghost"
+msgstr "Duch"
+
+#: guitext:272
+msgctxt "Creature name"
+msgid "Mistress"
+msgstr "Dama"
+
+#: guitext:273
+msgctxt "Creature name"
+msgid "Bile Demon"
+msgstr "Demon żółciowy"
+
+#: guitext:274
+msgctxt "Creature name"
+msgid "Vampire"
+msgstr "Wampir"
+
+#: guitext:275
+msgctxt "Creature name"
+msgid "Barbarian"
+msgstr "Barbarzyńca"
+
+#: guitext:276
+msgctxt "Creature name"
+msgid "Knight"
+msgstr "Rycerz"
+
+#: guitext:277
+msgctxt "Creature name"
+msgid "Wizard"
+msgstr "Czarodziej"
+
+#: guitext:278
+msgctxt "Creature name"
+msgid "Orc"
+msgstr "Ork"
+
+#: guitext:279
+msgctxt "Creature name"
+msgid "Mountain Dwarf"
+msgstr "Krasnolud górski"
+
+#: guitext:280
+msgctxt "Creature name"
+msgid "Valley Dwarf"
+msgstr "Krasnolud nizinny"
+
+#: guitext:281
+msgctxt "Creature name"
+msgid "Thief"
+msgstr "Złodziej"
+
+#: guitext:282
+msgctxt "Creature name"
+msgid "Samurai"
+msgstr "Samuraj"
+
+#: guitext:283
+msgctxt "Creature name"
+msgid "Priestess"
+msgstr "Kapłanka"
+
+#: guitext:284
+msgctxt "Creature name"
+msgid "Giant"
+msgstr "Olbrzym"
+
+#: guitext:285
+msgctxt "Creature name"
+msgid "Archer"
+msgstr "Łucznik"
+
+#: guitext:286
+msgctxt "Creature name"
+msgid "Monk"
+msgstr "Mnich"
+
+#: guitext:287 guitext:288 guitext:289 guitext:290 guitext:343 guitext:291
+#: guitext:292 guitext:293 guitext:294 guitext:295 guitext:296 guitext:297
+#: guitext:298 guitext:299 guitext:300 guitext:301 guitext:302 guitext:303
+#: guitext:304 guitext:305 guitext:306 guitext:307 guitext:308 guitext:309
+#: guitext:310 guitext:311 guitext:312 guitext:313 guitext:314 guitext:315
+#: guitext:316 guitext:317 guitext:318 guitext:320 guitext:321 guitext:322
+#: guitext:323 guitext:333
+msgctxt "Unused"
+msgid "Moo9"
+msgstr "Muuu9"
+
+#: guitext:319
+msgctxt "Slab description"
+msgid "Empty Lair: Would suit itinerant creature."
+msgstr "Puste legowisko: Posłuży wędrownemu stworowi."
+
+#: guitext:324
+msgctxt "Slab description"
+msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+msgstr ""
+"Skała nie do przebycia: Twoje chochliki nie mogą się przez nią przebić. "
+"[12.4]"
+
+#: guitext:325
+msgctxt "Slab description"
+msgid "Earth: You can excavate this. [12.1]"
+msgstr "Ziemia: Tu możesz kopać. [12.1]"
+
+#: guitext:326
+msgctxt "Slab description"
+msgid ""
+"Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
+"your Treasure Room. [12.2]"
+msgstr ""
+"Żyła złota: Źródło bogactwa. Wykop złoto, a chochliki zaniosą je do skarbca. "
+"[12.2]"
+
+#: guitext:327
+msgctxt "Slab description"
+msgid "Lava: Burns any creature that step on it. [14.2]"
+msgstr "Magma: Pali wszystko, co na nią wlezie. [14.2]"
+
+#: guitext:328
+msgctxt "Slab description"
+msgid "Water: Creatures move more slowly through water. [14.1]"
+msgstr "Woda: Spowalnia ruch stworów. [14.1]"
+
+#: guitext:329
+msgctxt "Slab description"
+msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgstr ""
+"Ściana: Przez umocnioną ścianę nie przedostanie się nieprzyjaciel. [12.1]"
+
+#: guitext:330
+msgctxt "Slab description"
+msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
+msgstr "Uszkodzona ściana: Jeśli jej nie naprawisz, kiedyś się zawali."
+
+#: guitext:331
+msgctxt "Slab description"
+msgid "Path: Unclaimed earth floor. [12.1]"
+msgstr "Ścieżka: Bezpański kawałek klepiska. [12.1]"
+
+#: guitext:332
+msgctxt "Slab description"
+msgid "Claimed area: Your dungeon territory. [12.1]"
+msgstr "Ścieżka: Bezpański kawałek klepiska. [12.1]"
+
+#: guitext:334
+msgctxt "In-game message"
+msgid "Level completed - press Escape to continue"
+msgstr "Poziom ukończony - naciśnij Escape, aby przejść dalej"
+
+#: guitext:335
+msgctxt "In-game message"
+msgid "You have been defeated. Press Space to restart."
+msgstr "Poziom przegrany - naciśnij Escape, aby zacząć od nowa"
+
+#: guitext:336 guitext:337 guitext:338 guitext:339 guitext:340 guitext:341
+#: guitext:342 guitext:344 guitext:345 guitext:346 guitext:347 guitext:348
+#: guitext:349 guitext:350 guitext:351 guitext:352 guitext:353 guitext:354
+#: guitext:355 guitext:356 guitext:357 guitext:358 guitext:359 guitext:360
+#: guitext:361 guitext:362 guitext:363 guitext:364 guitext:365 guitext:366
+#: guitext:367 guitext:368 guitext:369 guitext:370 guitext:371 guitext:372
+#: guitext:373 guitext:374 guitext:375 guitext:376 guitext:377 guitext:378
+#: guitext:379 guitext:380 guitext:381 guitext:382 guitext:383 guitext:384
+#: guitext:385 guitext:386 guitext:387 guitext:388 guitext:389 guitext:390
+#: guitext:391 guitext:392 guitext:393 guitext:394 guitext:395 guitext:396
+#: guitext:397 guitext:398 guitext:399 guitext:400 guitext:401 guitext:402
+#: guitext:403 guitext:404 guitext:405 guitext:406 guitext:407 guitext:408
+#: guitext:409 guitext:410 guitext:411 guitext:412 guitext:413 guitext:414
+#: guitext:415 guitext:416 guitext:417 guitext:418 guitext:419
+msgctxt "Unused"
+msgid "Moo5"
+msgstr "Muuu5"
+
+#: guitext:420
+msgctxt "Dungeon special decription"
+msgid "Reveal Map: Reveals the entire underground realm to you."
+msgstr "Odsłonięcie mapy: Odkrywa przed Tobą całe podziemne królestwo."
+
+#: guitext:421
+msgctxt "Dungeon special decription"
+msgid ""
+"Resurrect Creature: You may raise one of your fallen minions from the dead."
+msgstr "Wskrzeszenie stwora: Możesz wskrzesić jednego ze swych poległych sług."
+
+#: guitext:422
+msgctxt "Dungeon special decription"
+msgid ""
+"Transfer Creature: Pick one of your creatures to accompany you to the next "
+"realm."
+msgstr ""
+"Przeniesienie stwora: Wybierz jednego sługę, który będzie Ci towarzyszył do "
+"następnego królestwa."
+
+#: guitext:423
+msgctxt "Dungeon special decription"
+msgid "Steal Hero: Subvert a hero to your cause."
+msgstr "Kradzież bohatera: Skaptowanie jednego z bohaterów dla swojej sprawy."
+
+#: guitext:424
+msgctxt "Dungeon special decription"
+msgid "Multiply Creatures: Create a double of each of your creatures."
+msgstr "Pomnożenie stworów: Utworzenie sobowtóra dla każdego stwora."
+
+#: guitext:425
+msgctxt "Dungeon special decription"
+msgid "Increase Level: Bestows greater skill on all your creatures."
+msgstr "Podwyższenie poziomu: Zwiększa umiejętności wszystkich Twoich stworów."
+
+#: guitext:426
+msgctxt "Dungeon special decription"
+msgid "Make Safe : Reinforces your entire dungeon."
+msgstr "Zabezpieczenie: Fortyfikuje całe Twoje podziemie."
+
+#: guitext:427
+msgctxt "Dungeon special decription"
+msgid ""
+"Locate Hidden World: You will be transported to a secret realm after you "
+"have conquered this one."
+msgstr ""
+"Odkrycie ukrytego świata: Po ukończeniu poziomu zostaniesz przeniesiony do "
+"tajnego poziomu."
+
+#: guitext:428
+msgctxt "Dungeon special name"
+msgid "Resurrect Creature"
+msgstr "Wskrzeszenie stwora "
+
+#: guitext:429
+msgctxt "Dungeon special name"
+msgid "Transfer Creature"
+msgstr "Przeniesienie stwora "
+
+#: guitext:430
+msgctxt "Menu interface item"
+msgid "Bonus"
+msgstr "PREMIA "
+
+#: guitext:431 guitext:432 guitext:433 guitext:434 guitext:435 guitext:436
+#: guitext:437 guitext:438 guitext:439 guitext:440 guitext:441 guitext:442
+#: guitext:443 guitext:444 guitext:445 guitext:446 guitext:447 guitext:448
+#: guitext:449 guitext:450 guitext:451 guitext:452 guitext:453 guitext:454
+#: guitext:455 guitext:456 guitext:457 guitext:458 guitext:459 guitext:460
+#: guitext:461 guitext:462 guitext:463 guitext:464 guitext:465 guitext:466
+#: guitext:467 guitext:468 guitext:469 guitext:470 guitext:471 guitext:472
+#: guitext:473 guitext:474 guitext:475 guitext:476 guitext:477 guitext:478
+#: guitext:479 guitext:480 guitext:481 guitext:482 guitext:483 guitext:484
+#: guitext:485 guitext:486 guitext:487 guitext:488 guitext:489 guitext:490
+#: guitext:491 guitext:492 guitext:493 guitext:494 guitext:495 guitext:496
+#: guitext:497 guitext:498 guitext:499 guitext:500 guitext:501 guitext:502
+#: guitext:503 guitext:504 guitext:505 guitext:506 guitext:507 guitext:508
+#: guitext:509 guitext:510 guitext:511 guitext:512 guitext:513 guitext:514
+#: guitext:515 guitext:516 guitext:517 guitext:518 guitext:519 guitext:520
+#: guitext:521 guitext:522 guitext:523 guitext:524 guitext:525 guitext:526
+#: guitext:527 guitext:528 guitext:529 guitext:530 guitext:531 guitext:532
+#: guitext:533 guitext:534 guitext:535 guitext:536 guitext:537 guitext:538
+#: guitext:539 guitext:540 guitext:541 guitext:542 guitext:543
+msgctxt "Unused"
+msgid "Moo6"
+msgstr "Muuu6"
+
+#: guitext:544
+msgctxt "Slab description"
+msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgstr "Klejnoty: Niewyczerpane źródło bogactwa. [12.3]"
+
+#: guitext:545
+msgctxt "Object description"
+msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgstr ""
+"Wejście bohaterów: Za pośrednictwem tego przejścia bohaterowie dostają się "
+"do lochu. [15.4]"
+
+#: guitext:546
+msgctxt "Creature name"
+msgid "Tunneller"
+msgstr "Kret"
+
+#: guitext:547
+msgctxt "Creature name"
+msgid "Avatar"
+msgstr "Avatar"
+
+#: guitext:548 guitext:549 guitext:550 guitext:551
+msgctxt "Unused"
+msgid "Moo7"
+msgstr "Muuu7"
+
+#: guitext:552
+msgctxt "In-game tab with rooms"
+msgid "Treasure Room"
+msgstr "Skarbiec"
+
+#: guitext:553
+msgctxt "In-game tab with rooms"
+msgid "Library"
+msgstr "Biblioteka"
+
+#: guitext:554
+msgctxt "In-game tab with rooms"
+msgid "Lair"
+msgstr "Legowisko"
+
+#: guitext:555
+msgctxt "In-game tab with rooms"
+msgid "Prison"
+msgstr "Więzienie"
+
+#: guitext:556
+msgctxt "In-game tab with rooms"
+msgid "Torture Room"
+msgstr "Sala Tortur"
+
+#: guitext:557
+msgctxt "In-game tab with rooms"
+msgid "Training Room"
+msgstr "Sala Treningowa"
+
+#: guitext:558
+msgctxt "In-game tab with rooms"
+msgid "Dungeon Heart"
+msgstr "Serce Labiryntu"
+
+#: guitext:559
+msgctxt "In-game tab with rooms"
+msgid "Workshop"
+msgstr "Warsztat"
+
+#: guitext:560
+msgctxt "In-game tab with rooms"
+msgid "Scavenger Room"
+msgstr "Oczyszczalnia"
+
+#: guitext:561
+msgctxt "In-game tab with rooms"
+msgid "Temple"
+msgstr "Świątynia"
+
+#: guitext:562
+msgctxt "In-game tab with rooms"
+msgid "Graveyard"
+msgstr "Cmentarzysko"
+
+#: guitext:563
+msgctxt "In-game tab with rooms"
+msgid "Barracks"
+msgstr "Koszary"
+
+#: guitext:564
+msgctxt "In-game tab with rooms"
+msgid "Hatchery"
+msgstr "Kurnik"
+
+#: guitext:565
+msgctxt "In-game tab with rooms"
+msgid "Guard Post"
+msgstr "Posterunek"
+
+#: guitext:566
+msgctxt "In-game tab with rooms"
+msgid "Bridge"
+msgstr "Most"
+
+#: guitext:567 guitext:568 guitext:569 guitext:570 guitext:571 guitext:572
+#: guitext:573 guitext:574 guitext:575 guitext:576 guitext:577
+msgctxt "Unused"
+msgid "Moo8"
+msgstr "Muuu8"
+
+#: guitext:578
+msgctxt "Trap names"
+msgid "Boulder Trap"
+msgstr "Pułapka kamienna"
+
+#: guitext:579
+msgctxt "Trap names"
+msgid "Alarm Trap"
+msgstr "Czujnik alarmowy"
+
+#: guitext:580
+msgctxt "Trap names"
+msgid "Poison Gas Trap"
+msgstr "Pułapka gazowa"
+
+#: guitext:581
+msgctxt "Trap names"
+msgid "Lightning Trap"
+msgstr "Pułapka elektryczna"
+
+#: guitext:582
+msgctxt "Trap names"
+msgid "Word of Power Trap"
+msgstr "Pułapka mocnego słowa"
+
+#: guitext:583
+msgctxt "Trap names"
+msgid "Lava Trap"
+msgstr "Pułapka magmowa"
+
+#: guitext:584
+msgctxt "Trap description"
+msgid ""
+"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
+"select. RMB zoom. [20.1]"
+msgstr ""
+"Pułapka kamienna: Toczący się głaz, który miażdży wszystko na swej drodze. "
+"LPM uaktywnia. PPM przybliża. [20.1]"
+
+#: guitext:585
+msgctxt "Trap description"
+msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgstr ""
+"Czujnik alarmowy: Uruchamia zaklęcie 'Do broni'. LPM uaktywnia. PPM "
+"przybliża. [20.2]"
+
+#: guitext:586
+msgctxt "Trap description"
+msgid ""
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
+"select. RMB zoom. [20.3]"
+msgstr ""
+"Pułapka gazowa: Obłok trujących oparów, wyzwalany przez nieostrożnych "
+"intruzów. LPM uaktywnia. PPM przybliża. [20.3]"
+
+#: guitext:587
+msgctxt "Trap description"
+msgid ""
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
+"select. RMB zoom. [20.4]"
+msgstr ""
+"Pułapka elektryczna: Ostrzeliwuje błyskawicami pobliskie wrogie stwory. LPM "
+"uaktywnia. PPM przybliża. [20.4]"
+
+#: guitext:588
+msgctxt "Trap description"
+msgid ""
+"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
+"all creatures within range. LMB select. RMB zoom. [20.5]"
+msgstr ""
+"Pułapka mocnego słowa: Emituje niszczycielskie pierścienie demonicznej "
+"energii, czyniąc szkody wszystkim znajdującym się w pobliżu. LPM uaktywnia. "
+"PPM przybliża. [20.5]"
+
+#: guitext:589
+msgctxt "Trap description"
+msgid ""
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
+"select. RMB zoom. [20.6]"
+msgstr ""
+"Pułapka magmowa: Powoduje zniknięcie posadzki, zamiast której pojawi się "
+"wrząca magma. LPM uaktywnia. PPM przybliża. [20.5]"
+
+#: guitext:590
+msgctxt "Door name"
+msgid "Wooden Door"
+msgstr "Drzwi drewniane"
+
+#: guitext:591
+msgctxt "Door name"
+msgid "Braced Door"
+msgstr "Drzwi okute"
+
+#: guitext:592
+msgctxt "Door name"
+msgid "Iron Door"
+msgstr "Drzwi żelazne"
+
+#: guitext:593
+msgctxt "Door name"
+msgid "Magic Door"
+msgstr "Drzwi magiczne"
+
+#: guitext:594
+msgctxt "Door description"
+msgid ""
+"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
+"[21.1]"
+msgstr ""
+"Drzwi drewniane: Najprostszy sposób zablokowania przejścia. LPM uaktywnia. "
+"PPM przybliża. [21.1]"
+
+#: guitext:595
+msgctxt "Door description"
+msgid ""
+"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+msgstr ""
+"Drzwi okute: Drewniane drzwi wzmocnione żelazem. LPM uaktywnia. PPM "
+"przybliża. [21.2]"
+
+#: guitext:596
+msgctxt "Door description"
+msgid ""
+"Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
+"select. RMB zoom. [21.3]"
+msgstr ""
+"Drzwi żelazne: Ciężkie drzwi odporne na duże uszkodzenia. LPM uaktywnia. PPM "
+"przybliża. [21.3]"
+
+#: guitext:597
+msgctxt "Door description"
+msgid ""
+"Magic Door: A special door, highly resistant to physical damage but "
+"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+msgstr ""
+"Drzwi magiczne: Specjalne drzwi, w najwyższym stopniu odporne na wyważenie, "
+"ale wrażliwe na magię. LPM uaktywnia. PPM przybliża. [21.4]"
+
+#: guitext:598
+msgctxt "Room name"
+msgid "Portal"
+msgstr "Wejście"
+
+#: guitext:599
+msgctxt "Room name"
+msgid "Treasure Room"
+msgstr "Skarbiec"
+
+#: guitext:600
+msgctxt "Room name"
+msgid "Library"
+msgstr "Biblioteka"
+
+#: guitext:601
+msgctxt "Room name"
+msgid "Prison"
+msgstr "Więzienie"
+
+#: guitext:602
+msgctxt "Room name"
+msgid "Torture Chamber"
+msgstr "Sala tortur"
+
+#: guitext:603
+msgctxt "Room name"
+msgid "Training Room"
+msgstr "Sala treningowa"
+
+#: guitext:604
+msgctxt "Room name"
+msgid "Dungeon Heart"
+msgstr "Serce lochu"
+
+#: guitext:605
+msgctxt "Room name"
+msgid "Workshop"
+msgstr "Warsztat"
+
+#: guitext:606
+msgctxt "Room name"
+msgid "Graveyard"
+msgstr "Cmentarzysko"
+
+#: guitext:607
+msgctxt "Room name"
+msgid "Barracks"
+msgstr "Koszary"
+
+#: guitext:608
+msgctxt "Room name"
+msgid "Hatchery"
+msgstr "Kurnik"
+
+#: guitext:609
+msgctxt "Room name"
+msgid "Lair"
+msgstr "Legowisko"
+
+#: guitext:610
+msgctxt "Room name"
+msgid "Bridge"
+msgstr "Most"
+
+#: guitext:611
+msgctxt "Room name"
+msgid "Guard Post"
+msgstr "Posterunek"
+
+#: guitext:612
+msgctxt "Room name"
+msgid "Temple"
+msgstr "Świątynia"
+
+#: guitext:613
+msgctxt "Room name"
+msgid "Scavenger Room"
+msgstr "Oczyszczalnia"
+
+#: guitext:614
+msgctxt "Object name"
+msgid "Hero Gate"
+msgstr "Wejście bohaterów"
+
+#: guitext:615
+msgctxt "Room description"
+msgid "Treasure Room: Your gold is stored here. LMB select. RMB zoom. [17.1]"
+msgstr ""
+"Skarbiec: Tutaj przechowywane jest Twoje złoto. LPM uaktywnia. PPM "
+"przybliża. [17.1]"
+
+#: guitext:616
+msgctxt "Room description"
+msgid ""
+"Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
+msgstr ""
+"Biblioteka: Służy między innymi do opracowywania zaklęć. LPM uaktywnia. PPM "
+"przybliża. [17.4]"
+
+#: guitext:617
+msgctxt "Room description"
+msgid ""
+"Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. "
+"[17.10]"
+msgstr ""
+"Więzienie: Tutaj umieszczaj wrogie stwory. LPM uaktywnia. PPM przybliża. "
+"[17.10]"
+
+#: guitext:618
+msgctxt "Room description"
+msgid ""
+"Training Room: Place creatures in here to improve their experience. LMB "
+"select. RMB zoom. [17.5]"
+msgstr ""
+"Sala treningowa: Tutaj umieszczaj swoje stwory, by zdobyły doświadczenie. "
+"LPM uaktywnia. PPM przybliża. [17.5]"
+
+#: guitext:619
+msgctxt "Room description"
+msgid ""
+"Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB "
+"zoom. [17.11]"
+msgstr ""
+"Sala tortur: Torturuj stwory dla własnych mrocznych celów. LPM uaktywnia. "
+"PPM przybliża. [17.11]"
+
+#: guitext:620
+msgctxt "Room description"
+msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
+msgstr "Serce labiryntu: Ośrodek życia Twego podziemia. [11.2]"
+
+#: guitext:621
+msgctxt "Room description"
+msgid ""
+"Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. "
+"RMB zoom. [17.8]"
+msgstr ""
+"Warsztat: Umieść tu swoje stwory, aby produkowały drzwi i pułapki. LPM "
+"uaktywnia. PPM przybliża. [17.8]"
+
+#: guitext:622
+msgctxt "Room description"
+msgid ""
+"Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB "
+"zoom. [17.13]"
+msgstr ""
+"Cmentarzysko: Tutaj gniją różnorodne zwłoki. LPM uaktywnia. PPM przybliża. "
+"[17.13]"
+
+#: guitext:623
+msgctxt "Room description"
+msgid ""
+"Barracks: Group creatures by placing them into the room. LMB select. RMB "
+"zoom. [17.9]"
+msgstr ""
+"Koszary: Formuj oddziały, umieszczając stwory w tym pomieszczeniu. LPM "
+"uaktywnia. PPM przybliża. [17.9]"
+
+#: guitext:624
+msgctxt "Room description"
+msgid ""
+"Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
+"RMB zoom. [17.3]"
+msgstr ""
+"Kurnik: Tutaj stwory posilają się bezbronnymi, pożywnymi kurczakami. LPM "
+"uaktywnia. PPM przybliża. [17.3]"
+
+#: guitext:625
+msgctxt "Room description"
+msgid ""
+"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"zoom. [17.2]"
+msgstr ""
+"Legowisko: Tu stwory śpią i regenerują energię. LPM uaktywnia. PPM "
+"przybliża. [17.2]"
+
+#: guitext:626
+msgctxt "Room description"
+msgid ""
+"Bridge: Place this on water and lava to allow creatures to cross. LMB "
+"select. RMB zoom. [17.6]"
+msgstr ""
+"Most: Umożliwia stworom przechodzenie nad wodą i lawą. LPM uaktywnia. PPM "
+"przybliża. [17.6]"
+
+#: guitext:627
+msgctxt "Room description"
+msgid ""
+"Guard Post: Your creatures keep watch over your dungeon when placed on this "
+"room. LMB select. RMB zoom. [17.7]"
+msgstr ""
+"Posterunek: Umieszczone na nim stwory strzegą lochu. LPM uaktywnia. PPM "
+"przybliża. [17.8]"
+
+#: guitext:628
+msgctxt "Room description"
+msgid ""
+"Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
+"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+msgstr ""
+"Świątynia: Odddawanie czci Ciemnym Bogom uszczęśliwia stwory. Możesz także "
+"składać stwory w ofierze na ołtarzu. LPM uaktywnia. PPM przybliża. [17.12]"
+
+#: guitext:629
+msgctxt "Room description"
+msgid ""
+"Scavenger Room: Creatures placed onto the room lure their kin away from "
+"other dungeons or through portals. LMB select. RMB zoom. [17.14]"
+msgstr ""
+"Oczyszczalnia: Umieszczone tutaj stwory wabią swych pobratymców z "
+"pozostałych części podziemia lub przez wejścia. LPM uaktywnia. PPM "
+"przybliża. [17.14]"
+
+#: guitext:630
+msgctxt "Keeper spell name"
+msgid "Possess Creature"
+msgstr "Opętanie"
+
+#: guitext:631
+msgctxt "Keeper spell name"
+msgid "Create Imp"
+msgstr "Tworzenie chochlika"
+
+#: guitext:632
+msgctxt "Keeper spell name"
+msgid "Sight of Evil"
+msgstr "Oko zła"
+
+#: guitext:633
+msgctxt "Keeper spell name"
+msgid "Call To Arms"
+msgstr "Do broni"
+
+#: guitext:634
+msgctxt "Keeper spell name"
+msgid "Hold Audience"
+msgstr "Audiencja"
+
+#: guitext:635
+msgctxt "Keeper spell name"
+msgid "Cave-In"
+msgstr "Zawalenie"
+
+#: guitext:636
+msgctxt "Keeper spell name"
+msgid "Must Obey"
+msgstr "Przymus"
+
+#: guitext:637
+msgctxt "Keeper spell name"
+msgid "Speed Monster"
+msgstr "Przyspieszacz potwora"
+
+#: guitext:638
+msgctxt "Keeper spell name"
+msgid "Protect Monster"
+msgstr "Ochrona potwora"
+
+#: guitext:639
+msgctxt "Keeper spell name"
+msgid "Conceal Monster"
+msgstr "Ukrycie potwora"
+
+#: guitext:640
+msgctxt "Keeper spell name"
+msgid "Lightning Strike"
+msgstr "Błyskawica"
+
+#: guitext:641
+msgctxt "Keeper spell name"
+msgid "Chicken"
+msgstr "Kurczak"
+
+#: guitext:642
+msgctxt "Keeper spell name"
+msgid "Disease"
+msgstr "Choroba"
+
+#: guitext:643
+msgctxt "Keeper spell name"
+msgid "Destroy Walls"
+msgstr "Zniszczenie ścian"
+
+#: guitext:644
+msgctxt "Keeper spell name"
+msgid "Heal"
+msgstr "Uzdrowienie"
+
+#: guitext:645
+msgctxt "Keeper spell name"
+msgid "Time Bomb"
+msgstr "Bomba zegarowa"
+
+#: guitext:646
+msgctxt "Keeper spell name"
+msgid "Armageddon"
+msgstr "Armageddon"
+
+#: guitext:647
+msgctxt "Keeper spell description"
+msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
+msgstr ""
+"Opętanie: Umożliwia bezpośrednie kierowanie stworem. LPM uaktywnia. [18.1]"
+
+#: guitext:648
+msgctxt "Keeper spell description"
+msgid ""
+"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
+"[18.2]"
+msgstr ""
+"Tworzenie chochlika: Przywołuje nowego chochlika w dowolnym punkcie lochu. "
+"LPM uaktywnia. [18.2]"
+
+#: guitext:649
+msgctxt "Keeper spell description"
+msgid ""
+"Sight of Evil: Reveal a hidden area of the map for a limited time. LMB "
+"select. RMB zoom. [18.3]"
+msgstr ""
+"Oko zła: Na pewien czas odsłania ukryty fragment mapy. LPM uaktywnia. PPM "
+"przybliża. [18.3]"
+
+#: guitext:650
+msgctxt "Keeper spell description"
+msgid ""
+"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
+"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+msgstr ""
+"Do broni: Wzywa wszystkie stwory do określonego punktu lochu. LPM uaktywnia, "
+"kolejne kliknięcie LPM uaktywnia powtórnie, trzecie kliknięcie LPM "
+"dezaktywuje. PPM przybliża. [18.6]"
+
+#: guitext:651
+msgctxt "Keeper spell description"
+msgid ""
+"Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. "
+"RMB zoom. [18.8]"
+msgstr ""
+"Audiencja: Wzywa wszystkie Twoje stwory do Serca labiryntu. LPM uaktywnia. "
+"PPM przybliża. [18.8]"
+
+#: guitext:652
+msgctxt "Keeper spell description"
+msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
+msgstr "Zawalenie: Powoduje zapadnięcie się stropu. LPM uaktywnia. [18.13]"
+
+#: guitext:653
+msgctxt "Keeper spell description"
+msgid ""
+"Must Obey: Forces your creatures to obey your every command. LMB select. "
+"[18.5]"
+msgstr ""
+"Przymus: Zmusza wszystkie Twoje stwory do natychmiastowego wykonania Twoich "
+"poleceń. LPM uaktywnia. [18.5]"
+
+#: guitext:654
+msgctxt "Keeper spell description"
+msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgstr ""
+"Przyspieszacz potwora: Zwiększa szybkość działania Twoich stworów. LPM "
+"uaktywnia. [18.4]"
+
+#: guitext:655
+msgctxt "Keeper spell description"
+msgid ""
+"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgstr ""
+"Ochrona potwora: Osłania Twoje stwory przed atakiem. LPM uaktywnia. [18.11]"
+
+#: guitext:656
+msgctxt "Keeper spell description"
+msgid ""
+"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
+"[18.7]"
+msgstr ""
+"Ukrycie potwora: Czyni Twoje stwory niewidzialnymi dla wroga. LPM uaktywnia. "
+"[18.7]"
+
+#: guitext:657
+msgctxt "Keeper spell description"
+msgid ""
+"Lightning Strike: Strikes an area of the dungeon with a devastating bolt of "
+"lightning. LMB select. [18.10]"
+msgstr ""
+"Błyskawica: Uderza w pewien obszar lochu niszczycielską energią. LPM "
+"uaktywnia. [18.10]"
+
+#: guitext:658
+msgctxt "Keeper spell description"
+msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
+msgstr "Kurczak: Przekształca wroga w smaczny kąsek. LPM uaktywnia. [18.12]"
+
+#: guitext:659
+msgctxt "Keeper spell description"
+msgid ""
+"Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
+msgstr "Choroba: zaraża wrogiego śmiertelną chorobą. LPM uaktywnia. [18.14]"
+
+#: guitext:660
+msgctxt "Keeper spell description"
+msgid ""
+"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+msgstr ""
+" Zniszczenie ścian: Kruszy umocnione ściany lochu wroga. LPM uaktywnia. "
+"[18.16]"
+
+#: guitext:661
+msgctxt "Keeper spell description"
+msgid ""
+"Heal: Cast on an area of the dungeon to improve the health of your "
+"creatures. LMB select. [18.9]"
+msgstr ""
+"Uzdrowienie: Rzucone na określony obszar lochu poprawia stan zdrowia Twoich "
+"stworów. LPM uaktywnia. [18.9]"
+
+#: guitext:662
+msgctxt "Keeper spell description"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
+msgstr "Bomba zegarowa: Robi bum po kilku chwilach od namazania stwora."
+
+#: guitext:663
+msgctxt "Keeper spell description"
+msgid ""
+"Armageddon: Transports all the creatures in the land to your Dungeon Heart "
+"for a final, decisive battle. LMB select. [18.15]"
+msgstr ""
+"Armageddon: Przenosi wszystkie stwory obecne w krainie do Serca Twego "
+"labiryntu, by uczestniczyły w ostatecznej bitwie. LPM uaktywnia. [18.15]"

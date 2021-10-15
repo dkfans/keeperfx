@@ -32,6 +32,7 @@
 #include "thing_physics.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "creature_instances.h"
 #include "creature_states.h"
 #include "creature_senses.h"
 #include "ariadne_wallhug.h"
@@ -166,9 +167,12 @@ void process_armageddon_influencing_creature(struct Thing *creatng)
         // If Armageddon is on, teleport creature to its position
         if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
-            cctrl->armageddon_teleport_turn = 0;
-            create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
-            move_thing_in_map(creatng, &game.armageddon.mappos);
+            if (cctrl->instance_id == CrInst_NULL) // Avoid corruption from in progress instances, like claiming floors.
+            {
+                cctrl->armageddon_teleport_turn = 0;
+                create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+                move_thing_in_map(creatng, &game.armageddon.mappos);
+            }
         }
     }
 }
@@ -230,7 +234,7 @@ void lightning_modify_palette(struct Thing *thing)
     if (thing->health == 0)
     {
       PaletteSetPlayerPalette(myplyr, engine_palette);
-      myplyr->field_3 &= ~Pf3F_Unkn08;
+      myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
       return;
     }
     if (myplyr->acamera == NULL)
@@ -240,24 +244,24 @@ void lightning_modify_palette(struct Thing *thing)
     }
     if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
     {
-        if ((myplyr->field_3 & Pf3F_Unkn08) != 0)
+        if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
         {
             if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
                 PaletteSetPlayerPalette(myplyr, engine_palette);
-                myplyr->field_3 &= ~Pf3F_Unkn08;
+                myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
             }
         }
         return;
     }
     if ((myplyr->view_mode != PVM_ParchFadeIn) && (myplyr->view_mode != PVM_ParchFadeOut) && (myplyr->view_mode != PVM_ParchmentView))
     {
-        if ((myplyr->field_3 & Pf3F_Unkn08) == 0)
+        if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) == 0)
         {
             if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
               PaletteSetPlayerPalette(myplyr, lightning_palette);
-              myplyr->field_3 |= Pf3F_Unkn08;
+              myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
             }
         }
     }

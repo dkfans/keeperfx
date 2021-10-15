@@ -366,11 +366,11 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
                 
                 if (slab_type_from_room_kind == slb->kind)
                 {
-                    result = 3; // same room type
+                    result = 2; // same room type
                 }
                 else if (slab_type_from_room_kind > 0)
                 {
-                    result = 2; // different room type
+                    result = 3; // different room type
                 }
                 
             }
@@ -554,7 +554,7 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
     }
     struct SlabAttr* slbattr = get_slab_kind_attrs(slbkind);
     unsigned long nflags;
-    if (slbattr->field_2 < stl_z) {
+    if (slbattr->block_flags_height < stl_z) {
       nflags = slbattr->block_flags;
     } else {
       nflags = slbattr->noblck_flags;
@@ -577,8 +577,7 @@ void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
         if (slbattr->category == SlbAtCtg_RoomInterior)
         {
             struct Room* room = slab_room_get(sslb_x, sslb_y);
-            set_room_efficiency(room);
-            set_room_capacity(room, true);
+            set_room_stats(room, false);
         }
     }
 }

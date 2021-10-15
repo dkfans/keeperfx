@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "config_trapdoor.h"
+#include "player_computer.h"
 #include "globals.h"
 #include "dungeon_stats.h"
 #include "engine_camera.h"
@@ -31,20 +32,23 @@
 #include "map_events.h"
 #include "tasks_list.h"
 #include "thing_traps.h"
+#include "roomspace.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-#define DUNGEONS_COUNT          5
-#define DIGGER_TASK_MAX_COUNT  64
-#define DUNGEON_RESEARCH_COUNT 34
-#define MAX_THINGS_IN_HAND      8
-#define KEEPER_POWERS_COUNT    20
-#define TURN_TIMERS_COUNT       8
-#define SCRIPT_FLAGS_COUNT      8
-#define MAX_SOE_RADIUS         13
-#define CREATURE_GUI_JOBS_COUNT 3
+#define DUNGEONS_COUNT              5
+#define DIGGER_TASK_MAX_COUNT       64
+#define DUNGEON_RESEARCH_COUNT      34
+#define MAX_THINGS_IN_HAND          8
+#define KEEPER_POWERS_COUNT         20
+#define TURN_TIMERS_COUNT           8
+#define SCRIPT_FLAGS_COUNT          8
+#define MAX_SOE_RADIUS              13
+#define CREATURE_GUI_JOBS_COUNT     3
+#define CUSTOM_BOX_COUNT            256
+#define FX_LINES_COUNT              32
 
 #define INVALID_DUNGEON (&bad_dungeon)
 #define INVALID_DUNGEON_ADD (&bad_dungeonadd)
@@ -291,7 +295,12 @@ struct TrapInfo
 
 struct BoxInfo
 {
-    uint8_t               activated[256];
+    uint8_t               activated[CUSTOM_BOX_COUNT];
+};
+
+struct ComputerInfo
+{
+    struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
 };
 
 struct DungeonAdd
@@ -299,6 +308,20 @@ struct DungeonAdd
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;
+    int                   creature_awarded[CREATURE_TYPES_COUNT];
+    struct RoomSpace      roomspace;
+    unsigned char         creature_entrance_level;
+    unsigned long         evil_creatures_converted;
+    unsigned long         good_creatures_converted;
+    unsigned long         traps_sold;
+    unsigned long         doors_sold;
+    unsigned long         manufacture_gold;
+    long                  cheaper_diggers;
+    TbBool                one_click_lock_cursor;
+    TbBool                ignore_next_PCtr_RBtnRelease;
+    TbBool                ignore_next_PCtr_LBtnRelease;
+    long                  swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
+    struct ComputerInfo   computer_info;
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

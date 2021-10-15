@@ -258,9 +258,9 @@ void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
-TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4, TbBool single_subtile);
+TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab);
 long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
-TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4);
+TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab);
 TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
@@ -270,7 +270,6 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
 void toggle_hero_health_flowers(void);
 void check_players_won(void);
 void check_players_lost(void);
-void process_dungeon_devastation_effects(void);
 void process_things_in_dungeon_hand(void);
 void process_payday(void);
 
@@ -285,8 +284,8 @@ void reset_script_timers_and_flags(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
-void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a4);
-void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
+void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long full_slab);
+void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int is_special_digger, long full_slab);
 short zoom_to_next_annoyed_creature(void);
 
 short ceiling_set_info(long height_max, long height_min, long step);
@@ -304,7 +303,7 @@ void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_p
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
 void update_creatr_model_activities_list(void);
-void find_map_location_coords(long location, long *x, long *y, const char *func_name);
+void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name);
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
 void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
@@ -346,17 +345,34 @@ void initialise_map_health(void);
 void setup_3d(void);
 void setup_stuff(void);
 long ceiling_init(unsigned long a1, unsigned long a2);
-void process_dungeon_destroy(struct Thing *thing);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
 
 TbPixel get_player_path_colour(unsigned short owner);
 
-void startup_network_game(TbBool local);
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
+void update_time(void);
+extern TbClockMSec timerstarttime;
+struct TimerTime {
+        unsigned char Hours;
+        unsigned char Minutes;
+        unsigned char Seconds;
+        unsigned short MSeconds;
+};
+extern struct TimerTime Timer;
+extern TbBool TimerGame;
+extern TbBool TimerNoReset;
+extern TbBool TimerFreeze;
+struct GameTime {
+    unsigned char Seconds;
+    unsigned char Minutes;
+    unsigned char Hours;
+};
+
+__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps);
 
 #ifdef __cplusplus
 }

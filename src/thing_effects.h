@@ -55,75 +55,174 @@ enum AreaAffectTypes {
 
 enum ThingEffectKind {
     TngEff_None = 0,
-    TngEff_Unknown01,
-    TngEff_Unknown02,
-    TngEff_Unknown03,
-    TngEff_Unknown04,
-    TngEff_Unknown05,
-    TngEff_Unknown06,
-    TngEff_Unknown07,
-    TngEff_Unknown08,
-    TngEff_Unknown09,
-    TngEff_Unknown10,
-    TngEff_Unknown11,
-    TngEff_Unknown12,
-    TngEff_Unknown13,
+    TngEff_Explosion1, // expl small
+    TngEff_Explosion2,
+    TngEff_Explosion3,
+    TngEff_Explosion4,
+    TngEff_Explosion5, // expl big
+    TngEff_HitBleedingUnit,
+    TngEff_ChickenBlood,
+    TngEff_Blood3,
+    TngEff_Blood4,
+    TngEff_Blood5, // blood big
+    TngEff_Gas1, // fart
+    TngEff_Gas2, // fart
+    TngEff_Gas3, // fart
     TngEff_WoPExplosion,
-    TngEff_Unknown15,
-    TngEff_Unknown16,
-    TngEff_Unknown17,
-    TngEff_Unknown18,
-    TngEff_Unknown19,
-    TngEff_Unknown20,
-    TngEff_Unknown21,
-    TngEff_Unknown22,
-    TngEff_Unknown23,
-    TngEff_Unknown24,
-    TngEff_Unknown25,
+    TngEff_IceShard, // Ice shard
+    TngEff_HarmlessGas1, // fart without damage
+    TngEff_HarmlessGas2, // fart without damage
+    TngEff_HarmlessGas3, // fart without damage
+    TngEff_Drip1, // water drip
+    TngEff_Drip2,
+    TngEff_Drip3,
+    TngEff_HitFrozenUnit,
+    TngEff_Hail,
+    TngEff_DeathIceExplosion,
+    TngEff_RockChips, // less dirt
     TngEff_DirtRubble,
-    TngEff_Unknown27,
+    TngEff_Unknown27, // more dirt
     TngEff_ImpSpangleRed,
-    TngEff_Unknown29,
-    TngEff_Unknown30,
-    TngEff_Unknown31,
-    TngEff_Unknown32,
-    TngEff_GoldRubble,
-    TngEff_Unknown34,
-    TngEff_Unknown35,
-    TngEff_Unknown36,
-    TngEff_Unknown37,
-    TngEff_Unknown38,
-    TngEff_Unknown39,
-    TngEff_Unknown40,
-    TngEff_Unknown41,
-    TngEff_Unknown42,
-    TngEff_Unknown43,
-    TngEff_Unknown44,
-    TngEff_Unknown45,
-    TngEff_Unknown46,
-    TngEff_Unknown47,
-    TngEff_Unknown48,
-    TngEff_Unknown49,
-    TngEff_Unknown50,
-    TngEff_Unknown51,
-    TngEff_Unknown52,
-    TngEff_Unknown53,
-    TngEff_Unknown54,
-    TngEff_Unknown55,
-    TngEff_Unknown56,
+    TngEff_Drip4, // ice drip?
+    TngEff_Cloud, // super long cloud?
+    TngEff_HarmlessGas4, // super wide cloud?
+    TngEff_GoldRubble1, // small gold coins
+    TngEff_GoldRubble2,
+    TngEff_GoldRubble3, // big gold chunks
+    TngEff_TempleSplash,
+    TngEff_CeilingBreach,
+    TngEff_StrangeGas1, // strange gas
+    TngEff_StrangeGas2, // strange gas
+    TngEff_StrangeGas3, // strange gas
+    TngEff_DecelerationGas1, // fart slow
+    TngEff_DecelerationGas2,
+    TngEff_DecelerationGas3,
+    TngEff_Eruption,
+    TngEff_HearthCollapse,
+    TngEff_Explosion6, // claim with sound???
+    TngEff_SpangleRedBig,
+    TngEff_ColouredRingOfFire, // spiral fx
+    TngEff_Flash, // flash with whiteout
+    TngEff_DamageBlood,
+    TngEff_Explosion7, // temple? explosion with sound
+    TngEff_FeatherPuff,
+    TngEff_Explosion8,
+    TngEff_ResearchComplete,
+    TngEff_RoomSparkeSmall,
+    TngEff_RoomSparkeMedium,
+    TngEff_RoomSparkeLarge,
     TngEff_ImpSpangleBlue,
     TngEff_ImpSpangleGreen,
     TngEff_ImpSpangleYellow,
-    TngEff_Unknown60,
-    TngEff_Unknown61,
-    TngEff_Unknown62,
-    TngEff_Unknown63,
-    TngEff_Unknown64,
-    TngEff_Unknown65,
-    TngEff_Unknown66,
-    TngEff_Unknown67,
-    TngEff_Unknown68,
+    TngEff_BallPuffRed, // teleport puff red
+    TngEff_BallPuffBlue,
+    TngEff_BallPuffGreen,
+    TngEff_BallPuffYellow, // teleport puff yellow
+    TngEff_BallPuffWhite, // teleport puff white
+    TngEff_BloodyFootstep,
+    TngEff_Blood7, // blood splat
+    TngEff_SpecialBox,
+    TngEff_BoulderSink, // boulder sink
     TngEff_Unknown69,
+};
+
+enum ThingEffectElements {
+    TngEffElm_None = 0,
+    TngEffElm_Blast1,
+    TngEffElm_Blood1,
+    TngEffElm_Blood2,
+    TngEffElm_Blood3,
+    TngEffElm_Unknown05,
+    TngEffElm_SpikedBall,
+    TngEffElm_Cloud1,
+    TngEffElm_SmallSparkles,
+    TngEffElm_BallOfLight,
+    TngEffElm_RedFlameBig,
+    TngEffElm_IceShard,
+    TngEffElm_Thingy1,
+    TngEffElm_Thingy2,
+    TngEffElm_Thingy3,
+    TngEffElm_TinyFlash1,
+    TngEffElm_FlashBall1,
+    TngEffElm_RedFlash,
+    TngEffElm_FlashBall2,
+    TngEffElm_TinyFlash2,
+    TngEffElm_PurpleStars,
+    TngEffElm_Cloud2,
+    TngEffElm_Drip1,
+    TngEffElm_Blood4,
+    TngEffElm_IceMelt1,
+    TngEffElm_IceMelt2,
+    TngEffElm_TinyRock,
+    TngEffElm_MedRock,
+    TngEffElm_LargeRock1,
+    TngEffElm_Drip2,
+    TngEffElm_LavaFlameStationary,
+    TngEffElm_Unknown31,
+    TngEffElm_LavaFlameMoving,
+    TngEffElm_LargeRock2,
+    TngEffElm_Unknown34,
+    TngEffElm_Unknown35,
+    TngEffElm_Unknown36,
+    TngEffElm_EntranceMist,
+    TngEffElm_Splash,
+    TngEffElm_Blast2,
+    TngEffElm_Drip3,
+    TngEffElm_Price,
+    TngEffElm_ElectricBall1,
+    TngEffElm_RedTwinkle,
+    TngEffElm_RedTwinkle2,
+    TngEffElm_Heal,
+    TngEffElm_Unknown46,
+    TngEffElm_Cloud3,
+    TngEffElm_LargeRock3,
+    TngEffElm_Gold1,
+    TngEffElm_Gold2,
+    TngEffElm_Gold3,
+    TngEffElm_Flash,
+    TngEffElm_ElectricBall2,
+    TngEffElm_RedPuff,
+    TngEffElm_RedFlame,
+    TngEffElm_BlueFlame,
+    TngEffElm_GreenFlame,
+    TngEffElm_YellowFlame,
+    TngEffElm_Chicken,
+    TngEffElm_ElectricBall3,
+    TngEffElm_Feathers,
+    TngEffElm_Unknown62,
+    TngEffElm_WhiteSparklesSmall,
+    TngEffElm_GreenSparklesSmall,
+    TngEffElm_RedSparklesSmall,
+    TngEffElm_BlueSparklesSmall,
+    TngEffElm_WhiteSparklesMed,
+    TngEffElm_GreenSparklesMed,
+    TngEffElm_RedSparklesMed,
+    TngEffElm_BlueSparklesMed,
+    TngEffElm_WhiteSparklesLarge,
+    TngEffElm_GreenSparklesLarge,
+    TngEffElm_RedSparklesLarge,
+    TngEffElm_BlueSparklesLarge,
+    TngEffElm_RedSmokePuff,
+    TngEffElm_BlueSmokePuff,
+    TngEffElm_GreenSmokePuff,
+    TngEffElm_YellowSmokePuff,
+    TngEffElm_BluePuff,
+    TngEffElm_GreenPuff,
+    TngEffElm_YellowPuff,
+    TngEffElm_WhitePuff,
+    TngEffElm_RedTwinkle3,
+    TngEffElm_Thingy4,
+    TngEffElm_BloodSplat,
+    TngEffElm_BlueTwinkle,
+    TngEffElm_GreenTwinkle,
+    TngEffElm_YellowTwinkle,
+    TngEffElm_CloudDisperse,
+    TngEffElm_BlueTwinke2,
+    TngEffElm_GreenTwinkle2,
+    TngEffElm_YellowTwinkle2,
+    TngEffElm_RedDot,
+    TngEffElm_IceMelt3,
+    TngEffElm_Unknown95,
 };
 
 /******************************************************************************/
@@ -151,7 +250,7 @@ struct EffectGeneratorStats { // sizeof = 57
 };
 
 struct EffectElementStats { // sizeof = 79
-  unsigned char field_0;
+  unsigned char draw_class;
   unsigned char field_1;
   unsigned char field_2;
   short numfield_3;

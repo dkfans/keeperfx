@@ -122,6 +122,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"NO_HIT",            9},
   {"STRENGTH_BASED",   10},
   {"ALARMS_UNITS",     11},
+  {"CAN_COLLIDE",      12},
   {NULL,                0},
   };
 
@@ -875,6 +876,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_AlarmsUnits;
                 n++;
                 break;
+            case 12: // CAN_COLLIDE
+                shotst->model_flags |= ShMF_CanCollide;
+                n++;
+                break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -1039,9 +1044,9 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               power_desc[i].num = 0;
           }
       }
-      arr_size = sizeof(object_conf.object_to_power_artifact)/sizeof(object_conf.object_to_power_artifact[0]);
+      arr_size = sizeof(gameadd.object_conf.object_to_power_artifact)/sizeof(gameadd.object_conf.object_to_power_artifact[0]);
       for (i=0; i < arr_size; i++) {
-          object_conf.object_to_power_artifact[i] = 0;
+          gameadd.object_conf.object_to_power_artifact[i] = 0;
       }
   }
   arr_size = magic_conf.power_types_count;
@@ -1161,7 +1166,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               k = get_id(object_desc, word_buf);
               if (k >= 0) {
                   powerst->artifact_model = k;
-                  object_conf.object_to_power_artifact[k] = i;
+                  gameadd.object_conf.object_to_power_artifact[k] = i;
                   n++;
               }
           }
@@ -1401,9 +1406,9 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               special_desc[i].num = 0;
           }
       }
-      arr_size = sizeof(object_conf.object_to_special_artifact)/sizeof(object_conf.object_to_special_artifact[0]);
+      arr_size = sizeof(gameadd.object_conf.object_to_special_artifact)/sizeof(gameadd.object_conf.object_to_special_artifact[0]);
       for (i=0; i < arr_size; i++) {
-          object_conf.object_to_special_artifact[i] = 0;
+          gameadd.object_conf.object_to_special_artifact[i] = 0;
       }
   }
   arr_size = magic_conf.special_types_count;
@@ -1455,7 +1460,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               k = get_id(object_desc, word_buf);
               if (k >= 0) {
                   specst->artifact_model = k;
-                  object_conf.object_to_special_artifact[k] = i;
+                  gameadd.object_conf.object_to_special_artifact[k] = i;
                   n++;
               }
           }
@@ -1833,8 +1838,4 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
   return ret;
 }
 
-TbBool shot_can_collide_other_shots(ThingModel shotkind)
-{
-    return (shotkind == 2) || (shotkind == 11) || (shotkind == 15);
-}
 /******************************************************************************/

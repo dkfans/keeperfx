@@ -28,7 +28,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define OBJECT_TYPES_COUNT  136
+#define OBJECT_TYPES_COUNT_ORIGINAL  136
+#define OBJECT_TYPES_COUNT  255
 
 #define OBJECT_TYPE_SPECBOX_CUSTOM    133
 
@@ -71,7 +72,7 @@ struct Objects {
     short sprite_size_max;
     unsigned char field_F;      // Lower 2 bits are transparency flags
     unsigned char field_10;
-    unsigned char field_11;
+    unsigned char draw_class;
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     unsigned char related_creatr_model;
@@ -86,7 +87,6 @@ struct CallToArmsGraphics {
 };
 
 /******************************************************************************/
-DLLIMPORT struct Objects _DK_objects[OBJECT_TYPES_COUNT]; // in KeeperFX, named objects_data[]
 DLLIMPORT unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
@@ -106,6 +106,7 @@ void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
 void change_object_owner(struct Thing *objtng, PlayerNumber nowner);
+void destroy_food(struct Thing *foodtng);
 
 struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
@@ -117,7 +118,6 @@ SpecialKind box_thing_to_special(const struct Thing *thing);
 PowerKind book_thing_to_power_kind(const struct Thing *thing);
 
 TbBool thing_is_special_box(const struct Thing *thing);
-#define is_dungeon_special thing_is_special_box
 TbBool thing_is_workshop_crate(const struct Thing *thing);
 TbBool thing_is_trap_crate(const struct Thing *thing);
 TbBool thing_is_door_crate(const struct Thing *thing);
@@ -162,6 +162,8 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel);
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
+
+void init_thing_objects();
 /******************************************************************************/
 #ifdef __cplusplus
 }

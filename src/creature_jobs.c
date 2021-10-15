@@ -182,7 +182,7 @@ TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job)
         return false;
     }
     cctrl->job_assigned = new_job;
-    SYNCLOG("Assigned job %s for %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(thing),(int)thing->index,(int)thing->owner);
+    SYNCDBG(6,"Assigned job %s for %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(thing),(int)thing->index,(int)thing->owner);
     return true;
 }
 
@@ -443,7 +443,7 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
     // Select a random job as a starting point
     int n = ACTION_RANDOM(i) + 1;
     i = 0;
-    for (k = 0; k < crtr_conf.angerjobs_count; k++)
+    for (k = 0; k < gameadd.crtr_conf.angerjobs_count; k++)
     {
         if ((crstat->jobs_anger & (1 << k)) != 0) {
             n--;
@@ -454,14 +454,14 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
         }
     }
     // Go through all jobs, starting at randomly selected one, attempting to start each one
-    for (k = 0; k < crtr_conf.angerjobs_count; k++)
+    for (k = 0; k < gameadd.crtr_conf.angerjobs_count; k++)
     {
         if ((crstat->jobs_anger & (1 << i)) != 0)
         {
           if (attempt_anger_job(creatng, 1 << i))
               return 1;
         }
-        i = (i+1) % crtr_conf.angerjobs_count;
+        i = (i+1) % gameadd.crtr_conf.angerjobs_count;
     }
     return 0;
 }
@@ -1101,11 +1101,11 @@ TbBool attempt_job_in_state_internal_near_pos(struct Thing *creatng, MapSubtlCoo
 TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
 {
     // Start checking at random job
-    if (crtr_conf.jobs_count < 1) {
+    if (gameadd.crtr_conf.jobs_count < 1) {
         return false;
     }
-    long n = ACTION_RANDOM(crtr_conf.jobs_count);
-    for (long i = 0; i < crtr_conf.jobs_count; i++, n = (n + 1) % crtr_conf.jobs_count)
+    long n = ACTION_RANDOM(gameadd.crtr_conf.jobs_count);
+    for (long i = 0; i < gameadd.crtr_conf.jobs_count; i++, n = (n + 1) % gameadd.crtr_conf.jobs_count)
     {
         if (n == 0)
             continue;
@@ -1142,7 +1142,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     unsigned long select_curr = select_delta;
     // For some reason, this is a bit different than attempt_job_preference().
     // Probably needs unification
-    for (i=1; i < crtr_conf.jobs_count; i++)
+    for (i=1; i < gameadd.crtr_conf.jobs_count; i++)
     {
         CreatureJob new_job = 1<<(i-1);
         if ((jobpref & new_job) == 0) {

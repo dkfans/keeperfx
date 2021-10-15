@@ -23,7 +23,7 @@
 #include "bflib_memory.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
-
+#include "bflib_sndlib.h"
 #include "thing_objects.h"
 #include "thing_doors.h"
 #include "thing_traps.h"
@@ -36,6 +36,7 @@
 #include "room_workshop.h"
 #include "power_hand.h"
 #include "game_legacy.h"
+#include "player_states.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -98,7 +99,8 @@ struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_i
  */
 EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long target)
 {
-    struct Event* event = get_event_nearby_of_type_for_player(map_x, map_y, subtile_coord(5, 0), evkind, dngn_id);
+    short range = (evkind == EvKind_HeartAttacked) ? 35 : 5;
+    struct Event* event = get_event_nearby_of_type_for_player(map_x, map_y, subtile_coord(range, 0), evkind, dngn_id);
     if (!event_is_invalid(event))
     {
         SYNCDBG(3,"Updating event %d to be kind %d at (%d,%d)",(int)event->index,(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
@@ -368,6 +370,14 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
         {
             evidx = dungeon->event_button_index[i];
             if (evidx == 0) {
+                if (is_my_player_number(dungeon->owner))
+                {
+                    struct PlayerInfo* player = get_player(dungeon->owner);
+                    if ( (game.play_gameturn > 10) && (player->view_type == PVT_DungeonTop) && ((game.operation_flags & GOF_ShowGui)) )
+                    {
+                        play_non_3d_sample(947);
+                    }
+                }
                 SYNCDBG(1,"New button at position %d",(int)i);
                 dungeon->event_button_index[i] = event->index;
                 break;
@@ -669,6 +679,8 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                     if ((i == 1) || ((i >= 2) && dungeon->event_button_index[i-2] != 0))
                     {
                         if (is_my_player_number(dungeon->owner)) {
+                            struct SoundEmitter* emit = S3DGetSoundEmitter(Non3DEmitter);
+                            StopSample(get_emitter_id(emit), 947);
                             play_non_3d_sample(175);
                         }
                         unsigned char prev_ev_idx = dungeon->event_button_index[i - 1];
@@ -728,6 +740,7 @@ ThingIndex get_thing_index_event_is_attached_to(const struct Event *event)
     case EvKind_TrapCrateFound:
     case EvKind_DoorCrateFound:
     case EvKind_DnSpecialFound:
+    case EvKind_HeartAttacked:
         i = event->target;
         break;
     default:
@@ -764,11 +777,11 @@ void event_process_events(void)
             {
                 struct Event* subevent = &game.event[subev_idx];
                 event_update_last_use(subevent);
-                for (int i = 0; i <= EVENT_BUTTONS_COUNT; i++)
+                for (int j = 0; j <= EVENT_BUTTONS_COUNT; j++)
                 {
-                    if (dungeon->event_button_index[i] == subev_idx) {
-                        turn_off_event_box_if_necessary(ev_owner, dungeon->event_button_index[i]);
-                        dungeon->event_button_index[i] = 0;
+                    if (dungeon->event_button_index[j] == subev_idx) {
+                        turn_off_event_box_if_necessary(ev_owner, dungeon->event_button_index[j]);
+                        dungeon->event_button_index[j] = 0;
                         break;
                     }
                 }

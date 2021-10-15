@@ -302,6 +302,7 @@ int frontend_font_string_width(int fnt_idx, const char *str);
 TbBool frontend_font_string_draw(int scr_x, int scr_y, int dst_width, int dst_height, int fnt_idx, const char *str, unsigned short fdflags);
 
 void create_error_box(TextStringId msg_idx);
+void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4, const char* line5);
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
 const char *frontend_button_caption_text(const struct GuiButton *gbtn);
@@ -387,6 +388,7 @@ void frontend_input(void);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
 void create_frontend_error_box(long showTime, const char * text);
+void try_restore_frontend_error_box(); // Restore error box if frontend state was switched
 
 short menu_is_active(short idx);
 TbBool a_menu_window_is_active(void);

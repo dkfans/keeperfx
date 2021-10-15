@@ -128,10 +128,31 @@ long level_lif_entry_parse(char *fname, char *buf)
   // Skip spaces and control chars
   while (buf[i] != '\0')
   {
-    if (!isspace(buf[i]) && (buf[i] != ',') && (buf[i] != ';') && (buf[i] != ':'))
+    // Check for commented-out lines
+    if (buf[i] == ';')
+    {
+      // Loop through the entire commented-out line
+      while (buf[i] != '\0')
+      {
+        if ((buf[i] == '\n') || (buf[i] == '\r'))
+        {
+          break;
+        }
+        i++;
+        if (i >= 10000) // arbritarily big number to prevent an infinte loop if last line is a comment that doesn't have a new line at the end
+        {
+          WARNMSG("commented-out line from \"%s\" is too long at %d characters", fname,i);
+          return 0;
+        }
+      }
+    }
+    if (!isspace(buf[i]) && (buf[i] != ',') && (buf[i] != ';') && (buf[i] != ':') && (buf[i] != '\n') && (buf[i] != '\r'))
       break;
     i++;
   }
+  // when the last line of a .lif is a comment, we check here if the end of the file has been reached (and we should exit the function)
+  if (buf[i] == '\0')
+    return 0;
   // Get level number
   char* cbuf;
   long lvnum = strtol(&buf[i], &cbuf, 0);
@@ -148,6 +169,16 @@ long level_lif_entry_parse(char *fname, char *buf)
       break;
     cbuf++;
   }
+  // IF the next field starts with a "#" then treat it as a string ID for the level's name
+    if (cbuf[0] == '#')
+    {
+      cbuf++;
+      if (!set_level_info_string_index(lvnum,cbuf,LvOp_IsFree))
+      {
+        WARNMSG("Can't set string index of level %d from file \"%s\"", lvnum, fname);
+      }
+      cbuf--;
+    }
   // Find length of level name; make it null-terminated
   i = 0;
   while (cbuf[i] != '\0')
@@ -173,7 +204,7 @@ long level_lif_entry_parse(char *fname, char *buf)
   // Store level name
   if (add_freeplay_level_to_campaign(&campaign,lvnum) < 0)
   {
-    WARNMSG("Can't add freeplay level from \"%s\" to campaign", fname);
+    WARNMSG("Can't add freeplay level from \"%s\" to campaign \"%s\"", fname, campaign.name);
     return 0;
   }
   if (!set_level_info_text_name(lvnum,cbuf,LvOp_IsFree))
@@ -1186,7 +1217,28 @@ short load_and_setup_map_info(unsigned long lv_num)
     return true;
 }
 
-short load_level_file(LevelNumber lvnum)
+static void load_ext_slabs(LevelNumber lvnum)
+{
+    short fgroup = get_level_fgroup(lvnum);
+    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slx", (unsigned long)lvnum);
+    if (LbFileExists(fname))
+    {
+        if (sizeof(slab_ext_data) != LbFileLoadAt(fname, slab_ext_data))
+        {
+            JUSTLOG("Invalid ExtSlab data from %s", fname);
+            memset(slab_ext_data, 0, sizeof(slab_ext_data));
+        }
+        SYNCDBG(1, "ExtSlab file:%s ok", fname);
+        return;
+    }
+    else
+    {
+        SYNCDBG(1, "No ExtSlab file:%s", fname);
+        memset(slab_ext_data, 0, sizeof(slab_ext_data));
+    }
+}
+
+static short load_level_file(LevelNumber lvnum)
 {
     short result;
     short fgroup = get_level_fgroup(lvnum);
@@ -1214,6 +1266,10 @@ short load_level_file(LevelNumber lvnum)
           result = false;
         reinitialise_map_rooms();
         ceiling_init(0, 1);
+        if (result)
+        {
+            load_ext_slabs(lvnum);
+        }
     } else
     {
         ERRORLOG("The level \"map%05lu\" doesn't exist; creating empty map.",lvnum);

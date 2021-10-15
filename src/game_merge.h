@@ -25,12 +25,15 @@
 
 #include "config_creature.h"
 #include "config_crtrmodel.h"
+#include "config_objects.h"
 #include "config_rules.h"
-#include "gui_msgs.h"
-#include "dungeon_data.h"
-#include "thing_creature.h"
 #include "creature_control.h"
+#include "dungeon_data.h"
+#include "gui_msgs.h"
+#include "thing_creature.h"
+#include "thing_objects.h"
 #include "light_data.h"
+#include "lvl_script.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,6 +78,17 @@ enum ClassicBugFlags {
     ClscBug_FullyHappyWithGold     = 0x0100,
     ClscBug_FaintedImmuneToBoulder = 0x0200,
     ClscBug_RebirthKeepsSpells     = 0x0400,
+    ClscBug_FriendlyFaint          = 0x0800,
+};
+
+enum GameFlags2 {
+    GF2_ClearPauseOnSync          = 0x0001,
+    GF2_ClearPauseOnPacket        = 0x0002,
+    GF2_Timer                     = 0x0004,
+    GF2_Server                    = 0x0008,
+    GF2_Connect                   = 0x0010,
+    GF2_ShowEventLog              = 0x00010000,
+    GF2_PERSISTENT_FLAGS          = 0xFFFF0000
 };
 
 /******************************************************************************/
@@ -107,6 +121,7 @@ struct IntralevelData {
  */
 struct GameAdd {
     struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+    struct CreatureConfig crtr_conf;
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
@@ -120,10 +135,11 @@ struct GameAdd {
     long friendly_fight_area_range_permil;
     unsigned char torture_death_chance;
     unsigned char torture_convert_chance;
+    unsigned short bag_gold_hold;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
     TbBool armegeddon_teleport_neutrals;
-    unsigned short classic_bugs_flags;
+    unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;
     /** The creature model used for determining amount of sacrifices which decrease digger cost. */
     ThingModel cheaper_diggers_sacrifice_model;
@@ -133,23 +149,42 @@ struct GameAdd {
     struct LightSystemState lightst;
     long digger_work_experience;
     unsigned long gem_effectiveness;
+    long door_sale_percent;
     long room_sale_percent;
+    long trap_sale_percent;
     unsigned long pay_day_speed;
+    unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
+    unsigned long gold_per_hoard;
+
+#define TRAPDOOR_TYPES_MAX 128
 
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
+    struct TrapDoorConfig trapdoor_conf;
 
     uint8_t               max_custom_box_kind;
     unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
 
+    char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
+    struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
+    int                   active_fx_lines;
+
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
+
+    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
+    struct ObjectsConfig object_conf;
+
+    struct LevelScript script;
 };
 
+extern unsigned long game_flags2; // Should be reset to zero on new level
+
 #pragma pack()
+
 /******************************************************************************/
 extern struct GameAdd gameadd;
 extern struct IntralevelData intralvl;
@@ -168,6 +203,7 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 /******************************************************************************/
+
 #ifdef __cplusplus
 }
 #endif

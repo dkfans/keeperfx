@@ -22,12 +22,16 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_sprfnt.h"
-
+#include "creature_graphics.h"
+#include "creature_instances.h"
 #include "gui_draw.h"
 #include "frontend.h"
 #include "game_legacy.h"
 
+#include "keeperfx.hpp"
+
 /******************************************************************************/
+
 void message_draw(void)
 {
     SYNCDBG(7,"Starting");
@@ -39,15 +43,80 @@ void message_draw(void)
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     int h = LbTextLineHeight();
-    long x = 148 * units_per_pixel / 16;
     long y = 28 * units_per_pixel / 16;
     for (int i = 0; i < game.active_messages_count; i++)
     {
+        long x = 148 * units_per_pixel / 16;
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
         LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
-        draw_gui_panel_sprite_left(x, y, ps_units_per_px, 488+gameadd.messages[i].plyr_idx);
+        unsigned long spr_idx = 0;
+        TbBool IsCreature = false; 
+        TbBool IsCreatureSpell = false; 
+        TbBool IsRoom = false;
+        TbBool IsKeeperSpell = false;
+        TbBool IsQuery = false;
+        TbBool NotPlayer = ((char)gameadd.messages[i].plyr_idx < 0);
+        if (NotPlayer)
+        {
+            IsCreature = ( ((char)gameadd.messages[i].plyr_idx >= -31) && ((char)gameadd.messages[i].plyr_idx <= -1) );
+            IsCreatureSpell = ((char)gameadd.messages[i].plyr_idx >= -78) && ((char)gameadd.messages[i].plyr_idx <= -32);
+            IsRoom = ((char)gameadd.messages[i].plyr_idx >= -94) && ((char)gameadd.messages[i].plyr_idx <= -79);
+            IsKeeperSpell = ((char)gameadd.messages[i].plyr_idx >= -113) && ((char)gameadd.messages[i].plyr_idx <= -95);
+            IsQuery = ((char)gameadd.messages[i].plyr_idx >= -123) && ((char)gameadd.messages[i].plyr_idx <= -114);
+            if (IsCreature)
+            {
+                spr_idx = get_creature_model_graphics(((~gameadd.messages[i].plyr_idx) + 1), CGI_HandSymbol);
+                x -= (7 * units_per_pixel / 16);
+                y -= (20 * units_per_pixel / 16);
+            }
+            else if (IsCreatureSpell)
+            {
+                spr_idx = instance_button_init[~(char)(((char)gameadd.messages[i].plyr_idx) + 31) + 1].symbol_spridx;
+                x -= (10 * units_per_pixel / 16);
+                y -= (10 * units_per_pixel / 16);
+            }
+            else if (IsRoom)
+            {
+                struct RoomData* rdata = room_data_get_for_kind(~(char)(((char)gameadd.messages[i].plyr_idx) + 78) + 1);
+                spr_idx = rdata->medsym_sprite_idx;
+                x -= (10 * units_per_pixel / 16);
+                y -= (10 * units_per_pixel / 16);
+            }
+            else if (IsKeeperSpell)
+            {
+                struct PowerConfigStats* powerst = get_power_model_stats(~(char)(((char)gameadd.messages[i].plyr_idx) + 94) + 1);
+                spr_idx = powerst->medsym_sprite_idx;
+                x -= (10 * units_per_pixel / 16);
+                y -= (10 * units_per_pixel / 16);
+            }
+            else if (IsQuery)
+            {
+                spr_idx = (~(char)(((char)gameadd.messages[i].plyr_idx) + 113) + 1) + 330;
+                x -= (10 * units_per_pixel / 16);
+                y -= (10 * units_per_pixel / 16);
+            }
+        }
+        else
+        {
+            spr_idx = 488+gameadd.messages[i].plyr_idx;
+        }
+        if (gameadd.messages[i].plyr_idx != 127)
+        {
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
+        }
         y += h*units_per_pixel/16;
+        if (NotPlayer)
+        {
+            if (IsCreature)
+            {
+                y += (20 * units_per_pixel / 16);
+            }
+            else if ( (IsCreatureSpell) || (IsRoom) || (IsKeeperSpell) || (IsQuery) )
+            {
+                y += (10 * units_per_pixel / 16);
+            }
+        }        
     }
 }
 
@@ -75,6 +144,31 @@ void zero_messages(void)
     {
       memset(&gameadd.messages[i], 0, sizeof(struct GuiMessage));
     }
+}
+
+void clear_messages_from_player(char plyr_idx)
+{
+    for (int i = 0; i < game.active_messages_count; i++)
+    {
+        if ((char)gameadd.messages[i].plyr_idx == plyr_idx)
+        {
+            delete_message(i);
+        }
+    }
+}
+
+void delete_message(unsigned char msg_idx)
+{
+    memset(&gameadd.messages[msg_idx], 0, sizeof(struct GuiMessage));
+    if (msg_idx < game.active_messages_count - 1)
+    {
+        for (int i = msg_idx; i < game.active_messages_count; i++)
+        {
+            gameadd.messages[i] = gameadd.messages[i+1]; 
+        }
+        memset(&gameadd.messages[game.active_messages_count - 1], 0, sizeof(struct GuiMessage));        
+    }
+    game.active_messages_count--;    
 }
 
 void message_add(PlayerNumber plyr_idx, const char *text)
@@ -105,5 +199,39 @@ void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...)
     va_start(val, fmt_str);
     message_add_va(plyr_idx, fmt_str, val);
     va_end(val);
+}
+
+void message_add_timeout(PlayerNumber plyr_idx, unsigned long timeout, const char *fmt_str, ...)
+{
+    va_list val;
+    va_start(val, fmt_str);
+    static char full_msg_text[2048];
+    vsprintf(full_msg_text, fmt_str, val);
+    SYNCDBG(2,"Player %d: %s",(int)plyr_idx,full_msg_text);
+    for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
+    {
+        memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessage));
+    }
+    strncpy(gameadd.messages[0].text, full_msg_text, sizeof(gameadd.messages[0].text) - 1);
+    gameadd.messages[0].plyr_idx = plyr_idx;
+    gameadd.messages[0].creation_turn = game.play_gameturn + timeout;
+    if (game.active_messages_count < GUI_MESSAGES_COUNT) {
+        game.active_messages_count++;
+    }
+    va_end(val);
+}
+
+void show_game_time_taken(unsigned long fps, unsigned long turns)
+{
+    struct GameTime gt = get_game_time(turns, fps);
+    struct PlayerInfo* player = get_my_player();
+    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld", get_string(746), gt.Hours, gt.Minutes, gt.Seconds);
+}
+
+void show_real_time_taken(void)
+{
+    update_time();
+    struct PlayerInfo* player = get_my_player();
+    message_add_fmt(player->id_number, "%s: %02ld:%02ld:%02ld:%03ld", get_string(746), Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
 }
 /******************************************************************************/
