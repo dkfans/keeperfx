@@ -197,23 +197,7 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
         return INVALID_EVENT;
     }
     struct DungeonAdd* dungeonadd = get_dungeonadd(dngn_id);
-    // TODO FIGHT these are needed because we can't resize "dungeon->event_last_run_turn" and added new events anyway; remove when struct Dungeon can be resized
-    switch (evkind)
-    {
-    case EvKind_QuickInformation:
-        i = dungeonadd->event_last_run_turn[EvKind_Information];
-        break;
-    case EvKind_FriendlyFight:
-        i = dungeonadd->event_last_run_turn[EvKind_EnemyFight];
-        break;
-    case EvKind_WorkRoomUnreachable:
-    case EvKind_StorageRoomUnreachable:
-        i = dungeonadd->event_last_run_turn[EvKind_NoMoreLivingSet];
-        break;
-    default:
-        i = dungeonadd->event_last_run_turn[evkind];
-        break;
-    }
+    i = dungeonadd->event_last_run_turn[evkind];
     if (i != 0)
     {
         long k = event_button_info[evkind].turns_between_events;
