@@ -315,6 +315,8 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
     if (dungeon->owner != event->owner) {
       ERRORLOG("Illegal my_event player allocation");
     }
+    if (event_button_info[event->kind].field_0 == 0)
+        return; //todo pretty this up
     EventKind replace_evkind = event_button_info[event->kind].replace_event_kind_button;
     long i;
     EventIndex evidx;
