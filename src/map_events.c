@@ -197,21 +197,21 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
         return INVALID_EVENT;
     }
     struct Dungeon* dungeon = get_dungeon(dngn_id);
-    // TODO FIGHT these are needed because we can't resize "dungeon->field_13B4" and added new events anyway; remove when struct Dungeon can be resized
+    // TODO FIGHT these are needed because we can't resize "dungeon->event_last_run_turn" and added new events anyway; remove when struct Dungeon can be resized
     switch (evkind)
     {
     case EvKind_QuickInformation:
-        i = dungeon->field_13B4[EvKind_Information];
+        i = dungeon->event_last_run_turn[EvKind_Information];
         break;
     case EvKind_FriendlyFight:
-        i = dungeon->field_13B4[EvKind_EnemyFight];
+        i = dungeon->event_last_run_turn[EvKind_EnemyFight];
         break;
     case EvKind_WorkRoomUnreachable:
     case EvKind_StorageRoomUnreachable:
-        i = dungeon->field_13B4[EvKind_NoMoreLivingSet];
+        i = dungeon->event_last_run_turn[EvKind_NoMoreLivingSet];
         break;
     default:
-        i = dungeon->field_13B4[evkind];
+        i = dungeon->event_last_run_turn[evkind];
         break;
     }
     if (i != 0)
@@ -273,21 +273,21 @@ void event_update_last_use(struct Event *event)
         ERRORLOG("Illegal Event kind %d to be updated",(int)event->kind);
         return;
     }
-    // TODO FIGHT these are needed because we can't resize "dungeon->field_13B4" and added new events anyway; remove when struct Dungeon can be resized
+    // TODO FIGHT these are needed because we can't resize "dungeon->event_last_run_turn" and added new events anyway; remove when struct Dungeon can be resized
     switch (event->kind)
     {
     case EvKind_QuickInformation:
-        dungeon->field_13B4[EvKind_Information] = game.play_gameturn;
+        dungeon->event_last_run_turn[EvKind_Information] = game.play_gameturn;
         break;
     case EvKind_FriendlyFight:
-        dungeon->field_13B4[EvKind_EnemyFight] = game.play_gameturn;
+        dungeon->event_last_run_turn[EvKind_EnemyFight] = game.play_gameturn;
         break;
     case EvKind_WorkRoomUnreachable:
     case EvKind_StorageRoomUnreachable:
-        dungeon->field_13B4[EvKind_NoMoreLivingSet] = game.play_gameturn;
+        dungeon->event_last_run_turn[EvKind_NoMoreLivingSet] = game.play_gameturn;
         break;
     default:
-        dungeon->field_13B4[event->kind] = game.play_gameturn;
+        dungeon->event_last_run_turn[event->kind] = game.play_gameturn;
         break;
     }
 }
