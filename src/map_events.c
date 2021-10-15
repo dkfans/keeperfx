@@ -196,22 +196,22 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
         ERRORLOG("Illegal Event kind %d to be created",(int)evkind);
         return INVALID_EVENT;
     }
-    struct Dungeon* dungeon = get_dungeon(dngn_id);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(dngn_id);
     // TODO FIGHT these are needed because we can't resize "dungeon->event_last_run_turn" and added new events anyway; remove when struct Dungeon can be resized
     switch (evkind)
     {
     case EvKind_QuickInformation:
-        i = dungeon->event_last_run_turn[EvKind_Information];
+        i = dungeonadd->event_last_run_turn[EvKind_Information];
         break;
     case EvKind_FriendlyFight:
-        i = dungeon->event_last_run_turn[EvKind_EnemyFight];
+        i = dungeonadd->event_last_run_turn[EvKind_EnemyFight];
         break;
     case EvKind_WorkRoomUnreachable:
     case EvKind_StorageRoomUnreachable:
-        i = dungeon->event_last_run_turn[EvKind_NoMoreLivingSet];
+        i = dungeonadd->event_last_run_turn[EvKind_NoMoreLivingSet];
         break;
     default:
-        i = dungeon->event_last_run_turn[evkind];
+        i = dungeonadd->event_last_run_turn[evkind];
         break;
     }
     if (i != 0)
@@ -277,17 +277,17 @@ void event_update_last_use(struct Event *event)
     switch (event->kind)
     {
     case EvKind_QuickInformation:
-        dungeon->event_last_run_turn[EvKind_Information] = game.play_gameturn;
+        dungeonadd->event_last_run_turn[EvKind_Information] = game.play_gameturn;
         break;
     case EvKind_FriendlyFight:
-        dungeon->event_last_run_turn[EvKind_EnemyFight] = game.play_gameturn;
+        dungeonadd->event_last_run_turn[EvKind_EnemyFight] = game.play_gameturn;
         break;
     case EvKind_WorkRoomUnreachable:
     case EvKind_StorageRoomUnreachable:
-        dungeon->event_last_run_turn[EvKind_NoMoreLivingSet] = game.play_gameturn;
+        dungeonadd->event_last_run_turn[EvKind_NoMoreLivingSet] = game.play_gameturn;
         break;
     default:
-        dungeon->event_last_run_turn[event->kind] = game.play_gameturn;
+        dungeonadd->event_last_run_turn[event->kind] = game.play_gameturn;
         break;
     }
 }
