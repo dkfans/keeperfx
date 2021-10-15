@@ -50,6 +50,7 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
+long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
@@ -89,7 +90,8 @@ const struct NamedCommand computer_event_func_type[] = {
   {"event_find_link",         2,},
   {"event_check_payday",      3,},
   {"event_rebuild_room",      4,},
-  {"none",                    5,},
+  {"event_handle_prisoner",   5,},
+  {"none",                    6,},
   {NULL,                      0,},
 };
 
@@ -99,6 +101,7 @@ Comp_Event_Func computer_event_func_list[] = {
   computer_event_find_link,
   computer_event_check_payday,
   computer_event_rebuild_room,
+  computer_event_handle_prisoner,
   NULL,
 };
 
@@ -487,6 +490,14 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         }
     }
     return ret;
+}
+
+
+long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
+{
+    //todo remove log message and actually add the event
+    JUSTMSG("TESTLOG: The event has been triggered at turn %d", game.play_gameturn);
+    return CTaskRet_Unk1;
 }
 
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)

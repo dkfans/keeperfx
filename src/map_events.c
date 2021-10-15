@@ -196,6 +196,7 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
         ERRORLOG("Illegal Event kind %d to be created",(int)evkind);
         return INVALID_EVENT;
     }
+    struct Dungeon* dungeon = get_dungeon(dngn_id);
     struct DungeonAdd* dungeonadd = get_dungeonadd(dngn_id);
     i = dungeonadd->event_last_run_turn[evkind];
     if (i != 0)
@@ -248,8 +249,8 @@ void event_delete_event_structure(long ev_idx)
 
 void event_update_last_use(struct Event *event)
 {
-    struct Dungeon* dungeon = get_dungeon(event->owner);
-    if (dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(event->owner);
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORLOG("Player %d dungeon doesn't exist",(int)event->owner);
         return;
     }
@@ -257,23 +258,7 @@ void event_update_last_use(struct Event *event)
         ERRORLOG("Illegal Event kind %d to be updated",(int)event->kind);
         return;
     }
-    // TODO FIGHT these are needed because we can't resize "dungeon->event_last_run_turn" and added new events anyway; remove when struct Dungeon can be resized
-    switch (event->kind)
-    {
-    case EvKind_QuickInformation:
-        dungeonadd->event_last_run_turn[EvKind_Information] = game.play_gameturn;
-        break;
-    case EvKind_FriendlyFight:
-        dungeonadd->event_last_run_turn[EvKind_EnemyFight] = game.play_gameturn;
-        break;
-    case EvKind_WorkRoomUnreachable:
-    case EvKind_StorageRoomUnreachable:
-        dungeonadd->event_last_run_turn[EvKind_NoMoreLivingSet] = game.play_gameturn;
-        break;
-    default:
-        dungeonadd->event_last_run_turn[event->kind] = game.play_gameturn;
-        break;
-    }
+    dungeonadd->event_last_run_turn[event->kind] = game.play_gameturn;
 }
 
 void event_delete_event(long plyr_idx, EventIndex evidx)
