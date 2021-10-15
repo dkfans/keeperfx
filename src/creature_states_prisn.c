@@ -257,6 +257,7 @@ CrStateRet process_prison_visuals(struct Thing *creatng, struct Room *room)
         if (game.play_gameturn - cctrl->turns_at_job < 250)
         {
             set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
+            event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_PrisonerStarving, room->owner, 0);
             if (game.play_gameturn - cctrl->imprison.last_mood_sound_turn > 32)
             {
                 play_creature_sound(creatng, CrSnd_Sad, 2, 0);
@@ -358,8 +359,18 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         return CrCkRet_Continue;
   }
   process_creature_hunger(creatng);
-  if ( process_prisoner_skelification(creatng,room) )
-    return CrCkRet_Deleted;
+  struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+  if (process_prisoner_skelification(creatng, room))
+  {
+      return CrCkRet_Deleted;
+  }
+  else if ((creatng->health < 0) && (!crstat->humanoid_creature))
+  { 
+      if (is_my_player_number(creatng->owner))
+      {
+          output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
+      }
+  }
   struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
   if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room) )
     return CrCkRet_Continue;
