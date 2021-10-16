@@ -509,7 +509,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
             int i = destroom->slabs_list;
             x = slb_num_decode_x(i);
             y = slb_num_decode_y(i);
-            if (!creature_requires_healing(creatng))
+            if (!creature_requires_healing(creatng) && (!creature_is_being_tortured(creatng)))
             {
                 if (create_task_move_creature_to_subtile(comp, creatng, x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, CrSt_Torturing)) //todo cleanup subtiles
                 {
