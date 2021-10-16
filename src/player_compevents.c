@@ -525,7 +525,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
     SYNCDBG(18, "Starting");
-    if (get_room_slabs_count(comp->dungeon->owner, event->target) == 0)
+    if (count_slabs_of_room_type(comp->dungeon->owner, event->target) == 0)
     {
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {

@@ -366,7 +366,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
   }
   else if ((creatng->health < 0) && (!crstat->humanoid_creature))
   { 
-      if (is_my_player_number(creatng->owner))
+      if (is_my_player_number(room->owner))
       {
           output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
       }
