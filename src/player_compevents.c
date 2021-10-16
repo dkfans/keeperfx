@@ -498,24 +498,25 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
 {
     struct Dungeon* dungeon = comp->dungeon;
     struct Thing* creatng = thing_get(event->target);
-    struct Room* origroom = get_room_thing_is_on(creatng);
+    //struct Room* origroom = get_room_thing_is_on(creatng);
     struct Room* destroom;
     if (dungeon_has_room(dungeon, RoK_TORTURE))
     {
         destroom = find_room_with_spare_capacity(dungeon->owner, RoK_TORTURE, 1);
         if (!room_is_invalid(destroom))
         {
-            MapSlabCoord x, y;
-            int i = destroom->slabs_list;
-            x = slb_num_decode_x(i);
-            y = slb_num_decode_y(i);
             if (!creature_requires_healing(creatng) && (!creature_is_being_tortured(creatng)))
             {
-                if (create_task_move_creature_to_subtile(comp, creatng, x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, CrSt_Torturing)) //todo cleanup subtiles
+                if (create_task_move_creature_to_subtile(comp, creatng, destroom->central_stl_x, destroom->central_stl_y, CrSt_Torturing))
                 {
                     return CTaskRet_Unk1;
                 }
             }
+        }
+        else
+        {
+            // wait for capacity to free up.
+            return CTaskRet_Unk4;
         }
     }
     return CTaskRet_Unk1;
