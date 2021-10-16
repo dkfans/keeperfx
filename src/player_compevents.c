@@ -497,10 +497,10 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
 long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
     JUSTMSG("TESTLOG: The event has been triggered at turn %d", game.play_gameturn);
-    return CTaskRet_Unk1;
+    // return CTaskRet_Unk1;
 
     struct Dungeon* dungeon = comp->dungeon;
-    struct Creature* creatng = thing_get(event->index);
+    struct Thing* creatng = thing_get(event->index);
     struct Room* origroom = get_room_thing_is_on(creatng);
     struct Room* destroom;
     if (dungeon_has_room(dungeon, RoK_TORTURE))
