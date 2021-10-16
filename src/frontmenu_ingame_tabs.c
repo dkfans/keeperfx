@@ -1838,7 +1838,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         activate_event_box(evidx);
     }
-    gbtn->sprite_idx = event_button_info[event->kind].field_0;
+    gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
     if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((game.play_gameturn & 0x01) != 0))
     {
