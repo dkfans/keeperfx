@@ -31,6 +31,7 @@
 #include "config_terrain.h"
 #include "creature_states_combt.h"
 #include "creature_states.h"
+#include "creature_states_lair.h"
 #include "power_hand.h"
 #include "player_computer.h"
 
@@ -495,8 +496,36 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
-    //todo remove log message and actually add the event
     JUSTMSG("TESTLOG: The event has been triggered at turn %d", game.play_gameturn);
+    return CTaskRet_Unk1;
+
+    struct Dungeon* dungeon = comp->dungeon;
+    struct Creature* creatng = thing_get(event->index);
+    struct Room* origroom = get_room_thing_is_on(creatng);
+    struct Room* destroom;
+    if (dungeon_has_room(dungeon, RoK_TORTURE))
+    {
+        destroom = find_room_with_spare_capacity(dungeon->owner, RoK_TORTURE, 1);
+        if (!room_is_invalid(destroom))
+        {
+            MapSlabCoord x, y;
+            int i = destroom->slabs_list;
+            x = slb_num_decode_x(i);
+            y = slb_num_decode_y(i);
+            if (!creature_requires_healing(creatng))
+            {
+                if (create_task_move_creature_to_subtile(comp, creatng, x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, CrSt_Torturing)) //todo cleanup subtiles
+                {
+                    JUSTMSG("TESTLOG: Task created at turn %d", game.play_gameturn);
+                    return CTaskRet_Unk1;
+                }
+                else // todo: remove else
+                {
+                    JUSTMSG("TESTLOG: Task failed creation at turn %d", game.play_gameturn);
+                }
+            }
+        }
+    }
     return CTaskRet_Unk1;
 }
 
