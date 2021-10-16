@@ -41,6 +41,7 @@ extern "C" {
 #define MESSAGE_DELAY_SPECIAL       100
 #define MESSAGE_DELAY_LORD          100
 #define MESSAGE_DELAY_CRTR_JOINED   500
+#define MESSAGE_DELAY_STARVING      500
 
 enum TbSpeechMessages {
         SMsg_None = 0,
