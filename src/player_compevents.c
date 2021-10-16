@@ -496,11 +496,8 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
-    JUSTMSG("TESTLOG: The event has been triggered at turn %d", game.play_gameturn);
-    // return CTaskRet_Unk1;
-
     struct Dungeon* dungeon = comp->dungeon;
-    struct Thing* creatng = thing_get(event->index);
+    struct Thing* creatng = thing_get(event->target);
     struct Room* origroom = get_room_thing_is_on(creatng);
     struct Room* destroom;
     if (dungeon_has_room(dungeon, RoK_TORTURE))
@@ -516,12 +513,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
             {
                 if (create_task_move_creature_to_subtile(comp, creatng, x * STL_PER_SLB + 1, y * STL_PER_SLB + 1, CrSt_Torturing)) //todo cleanup subtiles
                 {
-                    JUSTMSG("TESTLOG: Task created at turn %d", game.play_gameturn);
                     return CTaskRet_Unk1;
-                }
-                else // todo: remove else
-                {
-                    JUSTMSG("TESTLOG: Task failed creation at turn %d", game.play_gameturn);
                 }
             }
         }
