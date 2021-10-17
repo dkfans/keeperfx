@@ -257,6 +257,7 @@ CrStateRet process_prison_visuals(struct Thing *creatng, struct Room *room)
         if (game.play_gameturn - cctrl->turns_at_job < 250)
         {
             set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
+            event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_PrisonerStarving, room->owner, creatng->index);
             if (game.play_gameturn - cctrl->imprison.last_mood_sound_turn > 32)
             {
                 play_creature_sound(creatng, CrSnd_Sad, 2, 0);

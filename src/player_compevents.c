@@ -31,6 +31,7 @@
 #include "config_terrain.h"
 #include "creature_states_combt.h"
 #include "creature_states.h"
+#include "creature_states_lair.h"
 #include "power_hand.h"
 #include "player_computer.h"
 
@@ -50,6 +51,7 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
+long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
@@ -89,7 +91,8 @@ const struct NamedCommand computer_event_func_type[] = {
   {"event_find_link",         2,},
   {"event_check_payday",      3,},
   {"event_rebuild_room",      4,},
-  {"none",                    5,},
+  {"event_handle_prisoner",   5,},
+  {"none",                    6,},
   {NULL,                      0,},
 };
 
@@ -99,6 +102,7 @@ Comp_Event_Func computer_event_func_list[] = {
   computer_event_find_link,
   computer_event_check_payday,
   computer_event_rebuild_room,
+  computer_event_handle_prisoner,
   NULL,
 };
 
@@ -487,6 +491,35 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         }
     }
     return ret;
+}
+
+
+long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
+{
+    struct Dungeon* dungeon = comp->dungeon;
+    struct Thing* creatng = thing_get(event->target);
+    //struct Room* origroom = get_room_thing_is_on(creatng);
+    struct Room* destroom;
+    if (dungeon_has_room(dungeon, RoK_TORTURE))
+    {
+        destroom = find_room_with_spare_capacity(dungeon->owner, RoK_TORTURE, 1);
+        if (!room_is_invalid(destroom))
+        {
+            if (!creature_requires_healing(creatng) && (!creature_is_being_tortured(creatng)))
+            {
+                if (create_task_move_creature_to_subtile(comp, creatng, destroom->central_stl_x, destroom->central_stl_y, CrSt_Torturing))
+                {
+                    return CTaskRet_Unk1;
+                }
+            }
+        }
+        else
+        {
+            // wait for capacity to free up.
+            return CTaskRet_Unk4;
+        }
+    }
+    return CTaskRet_Unk1;
 }
 
 long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
