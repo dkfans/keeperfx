@@ -1195,17 +1195,40 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
 long computer_checks_tendencies(struct Computer2* comp, struct ComputerCheck* check)
 {
     SYNCDBG(8, "Starting");
-    struct Dungeon* compdngn = comp->dungeon;
+    struct Dungeon* dungeon = comp->dungeon;
     struct PlayerInfo* player = get_player(comp->dungeon->owner);
+    RoomKind room = get_room_for_job(Job_CAPTIVITY);
+    
+    int min_capacity = check->param1;
+    
+    if (computer_get_room_kind_total_capacity(comp, room) >= min_capacity)
+    {
+        if (set_creature_tendencies(player, CrTend_Imprison, true))
+        {
+            return CTaskRet_Unk1;
+        }
+        else
+        {
+            return CTaskRet_Unk4;
+        }
+    }
+    else
+    {
+        if (set_creature_tendencies(player, CrTend_Imprison, false))
+        {
+            return CTaskRet_Unk1;
+        }
+        else
+        {
+            return CTaskRet_Unk4;
+        }
+    }
 
-    // if prison with free capacity and with over par1 tiles -> enable prison
-    //else disable prison
 
     //if heart health is over par2%, enable flee
     //else disable flee
 
     JUSTMSG("TESTLOG: check at gameturn %d", game.play_gameturn);
-    
-    return CTaskRet_Unk4;
+ return CTaskRet_Unk0;
 }
 /******************************************************************************/
