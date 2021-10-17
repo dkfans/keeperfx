@@ -62,6 +62,7 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
 long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check);
+long computer_checks_tendencies(struct Computer2* comp, struct ComputerCheck* check);
 
 /******************************************************************************/
 const struct NamedCommand computer_check_func_type[] = {
@@ -79,7 +80,8 @@ const struct NamedCommand computer_check_func_type[] = {
   {"check_for_place_trap",   12,},
   {"check_for_expand_room",  13,},
   {"check_for_money",        14,},
-  {"none",                   15,},
+  {"check_tendencies",       15,},
+  {"none",                   16,},
   {NULL,                      0,},
 };
 
@@ -99,6 +101,7 @@ Comp_Check_Func computer_check_func_list[] = {
   computer_check_for_place_trap,
   computer_check_for_expand_room,
   computer_check_for_money,
+  computer_checks_tendencies,
   NULL,
   NULL,
 };
@@ -1187,5 +1190,22 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
     }
     SYNCDBG(8,"No rooms found for expansion");
     return CTaskRet_Unk0;
+}
+
+long computer_checks_tendencies(struct Computer2* comp, struct ComputerCheck* check)
+{
+    SYNCDBG(8, "Starting");
+    struct Dungeon* compdngn = comp->dungeon;
+    struct PlayerInfo* player = get_player(comp->dungeon->owner);
+
+    // if prison with free capacity and with over par1 tiles -> enable prison
+    //else disable prison
+
+    //if heart health is over par2%, enable flee
+    //else disable flee
+
+    JUSTMSG("TESTLOG: check at gameturn %d", game.play_gameturn);
+    
+    return CTaskRet_Unk4;
 }
 /******************************************************************************/
