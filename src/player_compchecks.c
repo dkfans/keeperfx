@@ -62,6 +62,7 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
 long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check);
+long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck* check);
 
 /******************************************************************************/
 const struct NamedCommand computer_check_func_type[] = {
@@ -79,7 +80,8 @@ const struct NamedCommand computer_check_func_type[] = {
   {"check_for_place_trap",   12,},
   {"check_for_expand_room",  13,},
   {"check_for_money",        14,},
-  {"none",                   15,},
+  {"check_prison_tendency",  15,},
+  {"none",                   16,},
   {NULL,                      0,},
 };
 
@@ -99,6 +101,7 @@ Comp_Check_Func computer_check_func_list[] = {
   computer_check_for_place_trap,
   computer_check_for_expand_room,
   computer_check_for_money,
+  computer_check_prison_tendency,
   NULL,
   NULL,
 };
@@ -1185,7 +1188,82 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
             return CTaskRet_Unk1;
         }
     }
-    SYNCDBG(8,"No rooms found for expansion");
+    SYNCDBG(8, "No rooms found for expansion");
     return CTaskRet_Unk0;
+}
+
+long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck* check)
+{
+    SYNCDBG(8, "Starting");
+    struct Dungeon* dungeon = comp->dungeon;
+    struct PlayerInfo* player = get_player(comp->dungeon->owner);
+    RoomKind room = get_room_for_job(Job_CAPTIVITY);
+
+    int status = check->param1;
+    int min_capacity = check->param2;
+    int max_units = check->param3;
+
+    if (status == 0)
+    {
+        SYNCDBG(8, "Prison tendency handled manually by script, aborting.");
+        return CTaskRet_Unk1;
+    }
+    int total_capacity = computer_get_room_kind_total_capacity(comp, room);
+    // Enough prison capacity to enable imprisonment
+    if ((total_capacity >= min_capacity) && (dungeon->num_active_creatrs < max_units))
+    {
+        if ((dungeon->creature_tendencies & 0x01) != 0)
+        {
+            SYNCDBG(8, "Prison tendency already enabled");
+            return CTaskRet_Unk1;
+        }
+        if (status != 3)
+        {
+            if (set_creature_tendencies(player, CrTend_Imprison, true))
+            {
+                SYNCDBG(18, "Player %d has enabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
+                return CTaskRet_Unk1;
+            }
+            else
+            {
+                ERRORLOG("Failed to enable prison tendency");
+                return CTaskRet_Unk4;
+            }
+        }
+        else
+        {
+            SYNCDBG(8, "Enabling prison tendency handled manually by script, aborting.");
+            return CTaskRet_Unk1;
+        }
+    }
+    // Not enough prison capacity to keep imprisonment enabled, or too many units
+    else
+    {
+        if ((dungeon->creature_tendencies & 0x01) == 0)
+        {
+            SYNCDBG(8, "Prison tendency already disabled");
+            return CTaskRet_Unk1;
+        }
+        if (status != 2)
+        {
+            if (set_creature_tendencies(player, CrTend_Imprison, false))
+            {
+                SYNCDBG(18, "Player %d has disabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
+                return CTaskRet_Unk1;
+            }
+            else
+            {
+                ERRORLOG("Failed to disable prison tendency");
+                return CTaskRet_Unk4;
+            }
+        }
+        else
+        {
+            SYNCDBG(8, "Disabling prison tendency handled manually by script, aborting.");
+            return CTaskRet_Unk1;
+        }
+    }
+
+ return CTaskRet_Unk0;
 }
 /******************************************************************************/
