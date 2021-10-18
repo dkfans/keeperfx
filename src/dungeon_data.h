@@ -301,6 +301,7 @@ struct BoxInfo
 struct ComputerInfo
 {
     struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
+    struct ComputerCheck checks[COMPUTER_EVENTS_COUNT];
 };
 
 struct DungeonAdd
