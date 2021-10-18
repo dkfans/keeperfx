@@ -32,7 +32,8 @@ extern "C" {
 /******************************************************************************/
 #define COMPUTER_TASKS_COUNT        100
 #define COMPUTER_PROCESSES_COUNT     20
-#define COMPUTER_CHECKS_COUNT        15
+#define COMPUTER_CHECKS_COUNT        32
+#define COMPUTER_CHECKS_COUNT_OLD    15
 #define COMPUTER_EVENTS_COUNT        32
 #define COMPUTER_EVENTS_COUNT_OLD    12
 // To add additional computer players update the folowing number. Update ComputerCount in keepcompp.cfg to match.
@@ -527,7 +528,15 @@ struct Computer2 { // sizeof = 5322
   unsigned long max_room_build_tasks;
   unsigned long field_34;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
-  struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
+  union
+  {
+      struct ComputerCheck checks_OLD[COMPUTER_CHECKS_COUNT_OLD];
+      struct
+      {
+          struct ComputerCheck checks_guard[2];
+          struct ComputerCheck *checks;
+      };
+  };
   union
   {
       struct ComputerEvent events_OLD[COMPUTER_EVENTS_COUNT_OLD];
