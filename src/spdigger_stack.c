@@ -23,6 +23,7 @@
 #include "bflib_math.h"
 
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "creature_states_train.h"
 #include "map_blocks.h"
 #include "dungeon_data.h"
@@ -511,6 +512,19 @@ TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, Map
         return false;
     }
     if (!check_place_to_convert_excluding(creatng, slb_x, slb_y)) {
+        if (slab_is_door(slb_x, slb_y))
+        {
+            stl_x = slab_subtile_center(slb_x);
+            stl_y = slab_subtile_center(slb_y);
+            struct Thing *doortng = get_door_for_position(stl_x, stl_y);
+            if (!thing_is_invalid(doortng))
+            {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                cctrl->combat.battle_enemy_idx = doortng->index;
+                combat_door_state_melee_combat(creatng);
+                return true;
+            }
+        }
         return false;
     }
     stl_x = slab_subtile_center(slb_x);
