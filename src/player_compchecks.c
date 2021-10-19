@@ -775,7 +775,9 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
 {
     static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
     SYNCDBG(8,"Starting");
-    if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, 8, 3))
+    int power_level = check->param2;
+    int amount = check->param3;
+    if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, power_level, amount))
     {
         return CTaskRet_Unk4;
     }
