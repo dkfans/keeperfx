@@ -2888,11 +2888,21 @@ void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
   if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) )
     {
         map_volume_box.visible = true;
-        map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, is_special_digger);;
-        map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
-        map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
-        map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 0) + STL_PER_SLB, 0);
-        map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 0) + STL_PER_SLB, 0);
+        map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, is_special_digger);
+        if (full_slab)
+        {
+            map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
+            map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
+            map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 0) + STL_PER_SLB, 0);
+            map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 0) + STL_PER_SLB, 0);
+        }
+        else
+        {
+            map_volume_box.beg_x = subtile_coord(stl_x, 0);
+            map_volume_box.beg_y = subtile_coord(stl_y, 0);
+            map_volume_box.end_x = subtile_coord(stl_x + 1, 0);
+            map_volume_box.end_y = subtile_coord(stl_y + 1, 0); 
+        }
         map_volume_box.floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     }
 }
