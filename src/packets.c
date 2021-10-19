@@ -1812,13 +1812,26 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     room = subtile_room_get(stl_x, stl_y);
                     delete_room_slab(slb_x, slb_y, true);
                 }
-                if (slab_kind_is_animated(place_terrain))
+                PlayerNumber id;
+                if ( (place_terrain == SlbT_CLAIMED) || ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_DAMAGEDWALL) ) )
                 {
-                    place_animating_slab_type_on_map(place_terrain, 0, stl_x, stl_y, game.neutral_player_num);  
+                    id = slabmap_owner(slb);
                 }
                 else
                 {
-                    place_slab_type_on_map(place_terrain, stl_x, stl_y, game.neutral_player_num, 0);
+                    id = game.neutral_player_num;
+                }
+                if (slab_kind_is_animated(place_terrain))
+                {
+                    place_animating_slab_type_on_map(place_terrain, 0, stl_x, stl_y, id);                   
+                }
+                else
+                {
+                    place_slab_type_on_map(place_terrain, stl_x, stl_y, id, 0);
+                    if ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_WALLPAIRSHR) )
+                    {
+                        place_terrain = rand() % (5) + 4;
+                    }
                 }
                 do_slab_efficiency_alteration(slb_x, slb_y);
             }
