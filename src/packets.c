@@ -1823,7 +1823,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 }
                 if (slab_kind_is_animated(place_terrain))
                 {
-                    place_animating_slab_type_on_map(place_terrain, 0, stl_x, stl_y, id);                   
+                    place_animating_slab_type_on_map(place_terrain, 0, stl_x, stl_y, id);
                 }
                 else
                 {
