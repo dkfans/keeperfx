@@ -519,10 +519,13 @@ TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, Map
             struct Thing *doortng = get_door_for_position(stl_x, stl_y);
             if (!thing_is_invalid(doortng))
             {
-                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-                cctrl->combat.battle_enemy_idx = doortng->index;
-                combat_door_state_melee_combat(creatng);
-                return true;
+                if (doortng->owner != creatng->owner)
+                {
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                    cctrl->combat.battle_enemy_idx = doortng->index;
+                    combat_door_state_melee_combat(creatng);
+                    return true;
+                }
             }
         }
         return false;
