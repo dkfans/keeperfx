@@ -58,6 +58,7 @@ void draw_timer(void);
 TbBool timer_enabled(void);
 
 extern unsigned long TimerTurns;
+extern TbBool BonusRealTime;
 /******************************************************************************/
 #ifdef __cplusplus
 }

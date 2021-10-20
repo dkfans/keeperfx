@@ -44,6 +44,7 @@
 #include "keeperfx.hpp"
 
 unsigned long TimerTurns = 0;
+TbBool BonusRealTime = false;
 
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
@@ -352,14 +353,29 @@ short zoom_to_fight(PlayerNumber plyr_idx)
 void draw_bonus_timer(void)
 {
     int nturns = game.bonus_time - game.play_gameturn;
-    if (nturns < 0) {
-        nturns = 0;
-    } else
-    if (nturns > 99999) {
-        nturns = 99999;
+    char* text;
+    if (BonusRealTime)
+    {
+        unsigned long total_seconds = (nturns) / game.num_fps;
+        unsigned char seconds = (total_seconds % 60) + 1;
+        unsigned long total_minutes = total_seconds / 60;
+        unsigned char minutes = total_minutes % 60;
+        unsigned char hours = total_minutes / 60;
+        text = (nturns >= 0) ? buf_sprintf("%02d:%02d:%02d", hours, minutes, seconds) : buf_sprintf("00:00:00");
+    }
+    else
+    {
+        if (nturns < 0)
+        {
+            nturns = 0;
+        } 
+        else if (nturns > 99999)
+        {
+            nturns = 99999;
+        }
+        text = buf_sprintf("%05d", nturns / 2);
     }
     LbTextSetFont(winfont);
-    char* text = buf_sprintf("%05d", nturns / 2);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;

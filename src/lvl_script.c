@@ -44,6 +44,7 @@
 #include "gui_msgs.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
+#include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_tabs.h"
 #include "player_instances.h"
 #include "player_data.h"
@@ -1914,14 +1915,14 @@ void command_dead_creatures_return_to_pool(long val)
     command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, ALL_PLAYERS, val, 0, 0);
 }
 
-void command_bonus_level_time(long game_turns)
+void command_bonus_level_time(long game_turns, long real)
 {
     if (game_turns < 0)
     {
         SCRPTERRLOG("Bonus time must be nonnegative");
         return;
     }
-    command_add_value(Cmd_BONUS_LEVEL_TIME, ALL_PLAYERS, game_turns, 0, 0);
+    command_add_value(Cmd_BONUS_LEVEL_TIME, ALL_PLAYERS, game_turns, real, 0);
 }
 
 static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
@@ -3839,7 +3840,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_display_information(scline->np[0], NULL, scline->np[1], scline->np[2]);
         break;
     case Cmd_BONUS_LEVEL_TIME:
-        command_bonus_level_time(scline->np[0]);
+        command_bonus_level_time(scline->np[0], scline->np[1]);
         break;
     case Cmd_QUICK_OBJECTIVE:
         command_quick_objective(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
@@ -6506,6 +6507,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           game.bonus_time = 0;
           game.flags_gui &= ~GGUI_CountdownTimer;
       }
+      if (level_file_version > 0)
+      {
+          BonusRealTime = (TbBool)val3;
+      }
+      else
+      {
+          BonusRealTime = false;
+      }
       break;
   case Cmd_QUICK_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
@@ -7370,7 +7379,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, NULL, NULL},
   {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS, NULL, NULL},
   {"DEAD_CREATURES_RETURN_TO_POOL",     "N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
-  {"BONUS_LEVEL_TIME",                  "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
+  {"BONUS_LEVEL_TIME",                  "Nn      ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
   {"QUICK_OBJECTIVE",                   "NAL     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
   {"QUICK_INFORMATION",                 "NAL     ", Cmd_QUICK_INFORMATION, NULL, NULL},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
