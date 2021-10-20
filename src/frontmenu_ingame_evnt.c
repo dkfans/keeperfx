@@ -356,8 +356,8 @@ void draw_bonus_timer(void)
     char* text;
     if (BonusRealTime)
     {
-        unsigned long total_seconds = (nturns) / game.num_fps;
-        unsigned char seconds = (total_seconds % 60) + 1;
+        unsigned long total_seconds = ((nturns) / game.num_fps) + 1;
+        unsigned char seconds = total_seconds % 60;
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
         unsigned char hours = total_minutes / 60;
