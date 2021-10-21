@@ -51,8 +51,9 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
 long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
-long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
+long computer_event_save_tortured(struct Computer2 *comp, struct ComputerEvent *cevent);
+long computer_event_rebuild_room(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
+long computer_event_handle_prisoner(struct Computer2 *comp, struct ComputerEvent* cevent, struct Event *event);
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
@@ -72,7 +73,8 @@ const struct NamedCommand computer_event_test_func_type[] = {
   {"event_attack_magic_foe",  3,},
   {"event_check_rooms_full",  4,},
   {"event_check_imps_danger", 5,},
-  {"none",                    6,},
+  {"event_save_tortured",     6,},
+  {"none",                    7,},
   {NULL,                      0,},
 };
 
@@ -83,6 +85,7 @@ Comp_EvntTest_Func computer_event_test_func_list[] = {
   computer_event_attack_magic_foe,
   computer_event_check_rooms_full,
   computer_event_check_imps_in_danger,
+  computer_event_save_tortured,
   NULL,
   NULL,
 };
@@ -568,6 +571,12 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
             }
         }
     }
+    return CTaskRet_Unk1;
+}
+
+long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* cevent)
+{
+    JUSTMSG("testlog: event checked at gameturn %d", game.play_gameturn);
     return CTaskRet_Unk1;
 }
 
