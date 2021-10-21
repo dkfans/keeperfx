@@ -576,7 +576,90 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
 
 long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* cevent)
 {
-    JUSTMSG("testlog: event checked at gameturn %d", game.play_gameturn);
+    struct Dungeon* dungeon = comp->dungeon;
+
+    // If we don't have the power to pick up creatures, fail now
+    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
+        return 4;
+    }
+
+    // Do we have a prison to put the unit back into?
+    struct Room* destroom = RoK_NONE;
+    TbBool can_return = false;
+    if (dungeon_has_room(dungeon, RoK_PRISON))
+    {
+        destroom = find_room_with_spare_capacity(dungeon->owner, RoK_PRISON, 1);
+        if (!room_is_invalid(destroom))
+        {
+            can_return = true;
+        }
+    }
+    
+    unsigned long moved = 0;
+    unsigned long slapped = 0;
+    struct Dungeon* victdungeon;
+    for (int j = 0; j < DUNGEONS_COUNT; j++)
+    {
+        if (j == comp->dungeon->owner)
+        {
+            continue;
+        }
+        victdungeon = get_dungeon(j);
+        int i = victdungeon->creatr_list_start;
+        while (i != 0)
+        {
+            struct Thing* creatng = thing_get(i);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+            struct Room* room = get_room_thing_is_on(creatng);
+            if (thing_is_invalid(creatng) || creature_control_invalid(cctrl))
+            {
+                ERRORLOG("Jump to invalid creature detected");
+                break;
+            }
+            i = cctrl->players_next_creature_idx;
+            if (!creature_is_being_tortured(creatng))
+            {
+                continue;
+            }
+            if (get_creature_health_permil(creatng) > 300)
+            {
+                continue;
+            }
+            if (room->owner == creatng->owner)
+            {
+                continue;
+            }
+            //We found a unit in our torture room that's in need of healing.
+            if ((cctrl->instance_available[CrInst_HEAL] != 0) && (cctrl->slap_turns == 0))
+            {
+                //slap creature so he will heal himself
+                if (can_cast_spell(dungeon->owner, PwrK_SLAP, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
+                {
+                    struct CreatureStats* crstat;
+                    crstat = creature_stats_get_from_thing(creatng);
+                    // Check if the slap may cause death
+                    if ((crstat->slaps_to_kill < 1) || (get_creature_health_permil(creatng) >= 2 * 1000 / crstat->slaps_to_kill))
+                    {
+                        if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, creatng->index, 0) > Lb_OK)
+                        {
+                            slapped++;
+                            continue;
+                        }
+
+                    }
+                }
+            }
+
+            //move back to prison
+            if (can_return == true)
+            {
+                if (create_task_move_creature_to_subtile(comp, creatng, destroom->central_stl_x, destroom->central_stl_y, CrSt_CreatureInPrison))
+                {
+                    moved++;
+                }
+            }
+        }
+    }
     return CTaskRet_Unk1;
 }
 
