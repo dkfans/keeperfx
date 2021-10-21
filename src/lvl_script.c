@@ -1116,6 +1116,27 @@ static void display_timer_check(const struct ScriptLine *scline)
     command_add_value(scline->command, plr_range_id, timr_id, limit, real);
 }
 
+static void add_to_timer_check(const struct ScriptLine *scline)
+{
+    const char *timrname = scline->tp[1];
+    long timr_id = get_rid(timer_desc, timrname);
+    if (timr_id == -1)
+    {
+        SCRPTERRLOG("Unknown timer, '%s'", timrname);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    value->arg1 = timr_id;
+    value->arg2 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_to_timer_process(struct ScriptContext *context)
+{
+   add_to_script_timer(context->value->arg0, context->value->arg1, context->value->arg2); 
+}
+
 static void null_process(struct ScriptContext *context)
 {
 }
@@ -7458,6 +7479,7 @@ const struct CommandDesc command_desc[] = {
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
   {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
   {"DISPLAY_TIMER",                     "PANn    ", Cmd_DISPLAY_TIMER, &display_timer_check, NULL},
+  {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
