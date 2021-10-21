@@ -74,6 +74,9 @@ void redraw_frontview(void);
 /******************************************************************************/
 long xtab[640][2];
 long ytab[480][2];
+PlayerNumber ScriptPlayer = 0;
+unsigned char ScriptTimerId = 0;
+unsigned long ScriptTimerLimit = 0;
 /******************************************************************************/
 void setup_engine_window(long x, long y, long width, long height)
 {
@@ -975,6 +978,10 @@ void redraw_display(void)
     if (bonus_timer_enabled())
     {
         draw_bonus_timer();
+    }
+    else if (script_timer_enabled())
+    {
+        draw_script_timer(ScriptPlayer, ScriptTimerId, ScriptTimerLimit, BonusRealTime);
     }
     if (timer_enabled())
     {

@@ -28,7 +28,7 @@
 #include "bflib_sound.h"
 #include "bflib_math.h"
 #include "bflib_guibtns.h"
-
+#include "engine_redraw.h"
 #include "front_simple.h"
 #include "config.h"
 #include "config_creature.h"
@@ -1099,6 +1099,21 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
     }
     update_all_object_stats();
+}
+
+static void display_timer_check(const struct ScriptLine *scline)
+{
+    const char *timrname = scline->tp[1];
+    long timr_id = get_rid(timer_desc, timrname);
+    if (timr_id == -1)
+    {
+        SCRPTERRLOG("Unknown timer, '%s'", timrname);
+        return;
+    }
+    long plr_range_id = scline->np[0];
+    unsigned long limit = scline->np[2];
+    TbBool real = scline->np[3];
+    command_add_value(scline->command, plr_range_id, timr_id, limit, real);
 }
 
 static void null_process(struct ScriptContext *context)
@@ -6822,6 +6837,15 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         }
       }
       break;
+    case Cmd_DISPLAY_TIMER:
+    {
+        ScriptPlayer = plr_range_id;
+        ScriptTimerId = val2;
+        ScriptTimerLimit = val3;
+        BonusRealTime = val4;
+        game_flags2 |= GF2_ScriptTimer;
+      break;
+    }
   case Cmd_SET_GAME_RULE:
       switch (val2)
       {
@@ -7433,6 +7457,7 @@ const struct CommandDesc command_desc[] = {
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
   {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
+  {"DISPLAY_TIMER",                     "PANn    ", Cmd_DISPLAY_TIMER, &display_timer_check, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
