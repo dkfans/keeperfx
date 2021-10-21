@@ -169,6 +169,7 @@ const struct NamedCommand variable_desc[] = {
     {"MANUFACTURED_SOLD",           SVar_MANUFACTURED_SOLD},
     {"MANUFACTURE_GOLD",            SVar_MANUFACTURE_GOLD},
     {"TOTAL_SCORE",                 SVar_TOTAL_SCORE},
+    {"BONUS_TIME",                  SVar_BONUS_TIME},
     {NULL,                           0},
 };
 
@@ -5842,6 +5843,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_TOTAL_SCORE:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_score;
+    case SVar_BONUS_TIME:
+        return (game.bonus_time - game.play_gameturn);
     default:
         break;
     };

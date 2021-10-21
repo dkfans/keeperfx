@@ -242,6 +242,7 @@ enum ScriptVariables {
   SVar_MANUFACTURED_SOLD               = 73,
   SVar_MANUFACTURE_GOLD                = 74,
   SVar_TOTAL_SCORE                     = 75,
+  SVar_BONUS_TIME                      = 76,
  };
 
 enum MapLocationTypes {
