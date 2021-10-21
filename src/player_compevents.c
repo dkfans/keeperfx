@@ -29,6 +29,7 @@
 #include "magic.h"
 #include "player_instances.h"
 #include "config_terrain.h"
+#include "creature_instances.h"
 #include "creature_states_combt.h"
 #include "creature_states.h"
 #include "creature_states_lair.h"
@@ -496,27 +497,53 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
+    SYNCDBG(18, "Starting");
     struct Dungeon* dungeon = comp->dungeon;
     struct Thing* creatng = thing_get(event->target);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     //struct Room* origroom = get_room_thing_is_on(creatng);
     struct Room* destroom;
-    if (dungeon_has_room(dungeon, RoK_TORTURE))
+
+    int actions_allowed = cevent->param1;
+    int power_level = cevent->param2;
+    int amount = cevent->param3;
+
+    if (actions_allowed == 0)
     {
-        destroom = find_room_with_spare_capacity(dungeon->owner, RoK_TORTURE, 1);
-        if (!room_is_invalid(destroom))
+        return CTaskRet_Unk1;
+    }
+
+    if (dungeon_has_room(dungeon, RoK_TORTURE) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
+    {
+        if (!creature_requires_healing(creatng))
         {
-            if (!creature_requires_healing(creatng) && (!creature_is_being_tortured(creatng)))
+            destroom = find_room_with_spare_capacity(dungeon->owner, RoK_TORTURE, 1);
+            if (!room_is_invalid(destroom))
             {
+
                 if (create_task_move_creature_to_subtile(comp, creatng, destroom->central_stl_x, destroom->central_stl_y, CrSt_Torturing))
                 {
                     return CTaskRet_Unk1;
                 }
             }
+            else
+            {
+                // wait for capacity to free up.
+                return CTaskRet_Unk4;
+            }
         }
-        else
+        else if (cctrl->instance_available[CrInst_HEAL] == 0)
         {
-            // wait for capacity to free up.
-            return CTaskRet_Unk4;
+            if (((!crstat->humanoid_creature) && (actions_allowed == 2)) || (actions_allowed == 3)) // 1 = move only, 2 = everybody, 3 = non_humanoids
+            {
+                if (computer_able_to_use_power(comp, PwrK_HEALCRTR, power_level, amount)) 
+                {
+                    magic_use_available_power_on_thing(comp->dungeon->owner, PwrK_HEALCRTR, power_level, 0, 0, creatng, PwMod_Default);
+                    return CTaskRet_Unk1;
+                }
+                return CTaskRet_Unk4;
+            }
         }
     }
     return CTaskRet_Unk1;
