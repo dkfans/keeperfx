@@ -166,6 +166,7 @@ enum TbScriptCommands {
     Cmd_CONCEAL_MAP_RECT                  = 134,
     Cmd_DISPLAY_TIMER                     = 135,
     Cmd_ADD_TO_TIMER                      = 136,
+    Cmd_ADD_BONUS_TIME                    = 137,
 };
 
 enum ScriptVariables {

@@ -1137,6 +1137,18 @@ static void add_to_timer_process(struct ScriptContext *context)
    add_to_script_timer(context->value->arg0, context->value->arg1, context->value->arg2); 
 }
 
+static void add_bonus_time_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_bonus_time_process(struct ScriptContext *context)
+{
+   game.bonus_time += context->value->arg0;
+}
+
 static void null_process(struct ScriptContext *context)
 {
 }
@@ -7480,6 +7492,7 @@ const struct CommandDesc command_desc[] = {
   {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
   {"DISPLAY_TIMER",                     "PANn    ", Cmd_DISPLAY_TIMER, &display_timer_check, NULL},
   {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
+  {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
