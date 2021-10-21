@@ -538,7 +538,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
         }
         else if (cctrl->instance_available[CrInst_HEAL] == 0)
         {
-            if (((!crstat->humanoid_creature) && (actions_allowed == 2)) || (actions_allowed == 3)) // 1 = move only, 2 = everybody, 3 = non_humanoids
+            if (((!crstat->humanoid_creature) && (actions_allowed >= 2)) || (actions_allowed == 2)) // 1 = move only, 2 = everybody, 3 = non_humanoids
             {
                 if (computer_able_to_use_power(comp, PwrK_HEALCRTR, power_level, amount)) 
                 {
