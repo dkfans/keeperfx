@@ -2170,7 +2170,7 @@ short room_grow_food(struct Room *room)
         return 0;
     }
     unsigned long k;
-    long n = ACTION_RANDOM(room->slabs_count);
+    long n = PLAYER_RANDOM(room->owner, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -2187,7 +2187,7 @@ short room_grow_food(struct Room *room)
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
 
-        int m = ACTION_RANDOM(STL_PER_SLB * STL_PER_SLB);
+        int m = PLAYER_RANDOM(room->owner, STL_PER_SLB * STL_PER_SLB);
         for (int i = 0; i < STL_PER_SLB * STL_PER_SLB; i++)
         {
             MapSubtlCoord stl_x = slab_subtile(slb_x, m % STL_PER_SLB);
@@ -2388,8 +2388,8 @@ TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long 
         pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
         pos.z.val = subtile_coord_center(1);
         long effect_kind = effkind;
-        if (effrange > 0)
-            effect_kind += ACTION_RANDOM(effrange);
+        if (effrange > 0) // TODO: always zero?
+            effect_kind += UNSYNC_RANDOM(effrange);
         create_effect(&pos, effect_kind, effowner);
         // Per room tile code ends
         k++;
@@ -2454,7 +2454,7 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
     }
     int navi_radius = abs(thing_nav_block_sizexy(thing) << 8) >> 1;
     unsigned long k;
-    long n = ACTION_RANDOM(room->slabs_count);
+    long n = CREATURE_RANDOM(thing, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -2470,7 +2470,7 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
     {
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
-        int ssub = ACTION_RANDOM(9);
+        int ssub = CREATURE_RANDOM(thing, 9);
         for (int snum = 0; snum < 9; snum++)
         {
             MapSubtlCoord stl_x = slab_subtile(slb_x, ssub % 3);
@@ -2549,10 +2549,11 @@ TbBool slab_is_area_inner_fill(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return true;
 }
 
-TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Room *room, unsigned char room_area)
+TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Room *room, unsigned char room_area,
+        struct Thing *thing)
 {
     // Find a random slab in the room to be used as our starting point
-    long i = ACTION_RANDOM(room->slabs_count);
+    long i = CREATURE_RANDOM(thing, room->slabs_count);
     unsigned long n = room->slabs_list;
     while (i > 0)
     {
@@ -2576,8 +2577,8 @@ TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Ro
             // In case we will select a column on that subtile, do 3 tries
             for (int k = 0; k < 3; k++)
             {
-                pos->x.val = subtile_coord(slab_subtile(slb_x,0),ACTION_RANDOM(STL_PER_SLB*COORD_PER_STL));
-                pos->y.val = subtile_coord(slab_subtile(slb_y,0),ACTION_RANDOM(STL_PER_SLB*COORD_PER_STL));
+                pos->x.val = subtile_coord(slab_subtile(slb_x,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
+                pos->y.val = subtile_coord(slab_subtile(slb_y,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
                 pos->z.val = subtile_coord(1,0);
                 struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
                 if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
@@ -3012,7 +3013,7 @@ struct Room *find_random_room_with_used_capacity_creature_can_navigate_to(struct
     long count = count_rooms_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, nav_flags);
     if (count < 1)
         return INVALID_ROOM;
-    long selected = ACTION_RANDOM(count);
+    long selected = CREATURE_RANDOM(thing, count);
     return find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, nav_flags, selected);
 }
 
@@ -3267,7 +3268,7 @@ struct Room *find_random_room_for_thing(struct Thing *thing, PlayerNumber owner,
     long count = count_rooms_for_thing(thing, owner, rkind, nav_flags);
     if (count < 1)
         return INVALID_ROOM;
-    long selected = ACTION_RANDOM(count);
+    long selected = CREATURE_RANDOM(thing, count);
     return find_nth_room_for_thing(thing, owner, rkind, nav_flags, selected);
 }
 
@@ -3370,7 +3371,7 @@ struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Th
     long count = count_rooms_for_thing_with_spare_room_item_capacity(thing, owner, rkind, nav_flags);
     if (count < 1)
         return INVALID_ROOM;
-    long selected = ACTION_RANDOM(count);
+    long selected = CREATURE_RANDOM(thing, count);
     return find_nth_room_for_thing_with_spare_room_item_capacity(thing, owner, rkind, nav_flags, selected);
 }
 
@@ -3414,7 +3415,7 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
     }
     if (matching_rooms <= 0)
         return 0;
-    int chosen_match_idx = ACTION_RANDOM(matching_rooms);
+    int chosen_match_idx = CREATURE_RANDOM(thing, matching_rooms);
     int curr_match_idx = 0;
     i = dungeon->room_kind[skip_room->kind];
     k = 0;

@@ -4585,7 +4585,7 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         cctrl->party.target_plyr_idx = -1;
     }
 
-    long light_rand = ACTION_RANDOM(8);
+    long light_rand = GAME_RANDOM(8); // this may be unsynced random
     if (light_rand < 2)
     {
         struct InitLight ilght;
@@ -4651,7 +4651,7 @@ static TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsi
         pos->y.val = apt->mappos.y.val;
     } else
     {
-        long direction = ACTION_RANDOM(2 * LbFPMath_PI);
+        long direction = GAME_RANDOM(2 * LbFPMath_PI);
         long delta_x = (apt->range * LbSinL(direction) >> 8);
         long delta_y = (apt->range * LbCosL(direction) >> 8);
         pos->x.val = apt->mappos.x.val + (delta_x >> 8);
@@ -4675,8 +4675,8 @@ TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx)
         ERRORLOG("Script error - attempt to create thing in player %d dungeon with no heart",(int)plyr_idx);
         return false;
     }
-    pos->x.val = heartng->mappos.x.val + ACTION_RANDOM(65) - 32;
-    pos->y.val = heartng->mappos.y.val + ACTION_RANDOM(65) - 32;
+    pos->x.val = heartng->mappos.x.val + PLAYER_RANDOM(plyr_idx, 65) - 32;
+    pos->y.val = heartng->mappos.y.val + PLAYER_RANDOM(plyr_idx, 65) - 32;
     pos->z.val = heartng->mappos.z.val;
     return true;
 }
@@ -4703,8 +4703,8 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
         return false;
     }
 
-    pos->x.val = src->x.val + ACTION_RANDOM(33) - 16;
-    pos->y.val = src->y.val + ACTION_RANDOM(33) - 16;
+    pos->x.val = src->x.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
+    pos->y.val = src->y.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
     pos->z.val = src->z.val;
 
     return true;
@@ -4860,12 +4860,12 @@ static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, T
     {
         cctrl->field_AE |= 0x02;
         cctrl->spell_flags |= CSAfF_MagicFall;
-        thing->veloc_push_add.x.val += ACTION_RANDOM(193) - 96;
-        thing->veloc_push_add.y.val += ACTION_RANDOM(193) - 96;
+        thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
+        thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         if ((thing->movement_flags & TMvF_Flying) != 0) {
-            thing->veloc_push_add.z.val -= ACTION_RANDOM(32);
+            thing->veloc_push_add.z.val -= PLAYER_RANDOM(plyr_idx, 32);
         } else {
-            thing->veloc_push_add.z.val += ACTION_RANDOM(96) + 80;
+            thing->veloc_push_add.z.val += PLAYER_RANDOM(plyr_idx, 96) + 80;
         }
         thing->state_flags |= TF1_PushAdd;
     }
@@ -4883,7 +4883,7 @@ static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, T
     if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
-        output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), MESSAGE_DELAY_LORD, 1);
+        output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
     }
     switch (effect)
     {
@@ -5116,7 +5116,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long loca
 
 struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
 {
-    int n = ACTION_RANDOM(PLAYERS_COUNT);
+    int n = GAME_RANDOM(PLAYERS_COUNT);
     for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
     {
         if (!players_are_enemies(plyr_idx, n))

@@ -1467,9 +1467,9 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         check_map_explored(thing, pos.x.stl.num, pos.y.stl.num);
         if ((thing->movement_flags & TMvF_Flying) == 0)
         {
-            thing->veloc_push_add.x.val += ACTION_RANDOM(193) - 96;
-            thing->veloc_push_add.y.val += ACTION_RANDOM(193) - 96;
-            thing->veloc_push_add.z.val += ACTION_RANDOM(96) + 40;
+            thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 193) - 96;
+            thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 193) - 96;
+            thing->veloc_push_add.z.val += CREATURE_RANDOM(thing, 96) + 40;
             thing->state_flags |= TF1_PushAdd;
         }
         teleport_destination = 18;
@@ -2214,13 +2214,13 @@ void throw_out_gold(struct Thing *thing)
         if (thing_is_invalid(gldtng))
             break;
         // Update its position and acceleration
-        long angle = ACTION_RANDOM(2 * LbFPMath_PI);
-        long radius = ACTION_RANDOM(128);
+        long angle = CREATURE_RANDOM(thing, 2 * LbFPMath_PI);
+        long radius = CREATURE_RANDOM(thing, 128);
         long x = (radius * LbSinL(angle)) / 256;
         long y = (radius * LbCosL(angle)) / 256;
         gldtng->veloc_push_add.x.val += x/256;
         gldtng->veloc_push_add.y.val -= y/256;
-        gldtng->veloc_push_add.z.val += ACTION_RANDOM(64) + 96;
+        gldtng->veloc_push_add.z.val += CREATURE_RANDOM(thing, 64) + 96;
         gldtng->state_flags |= TF1_PushAdd;
         // Set the amount of gold and mark that we've dropped that gold
         GoldAmount delta = (thing->creature.gold_carried - gold_dropped) / (num_pots_to_drop - npot);
@@ -2655,8 +2655,8 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     SYNCDBG(18,"Almost finished");
     if (((flags & CrDed_NoUnconscious) != 0) || (!player_has_room_of_role(killertng->owner,RoRoF_Prison))
       || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)) ||
-        ((get_creature_model_flags(creatng) & CMF_IsEvil) && (ACTION_RANDOM(100) >= gameadd.stun_enemy_chance_evil)) ||
-        (!(get_creature_model_flags(creatng) & CMF_IsEvil) && (ACTION_RANDOM(100) >= gameadd.stun_enemy_chance_good)) ||
+        ((get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= gameadd.stun_enemy_chance_evil)) ||
+        (!(get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= gameadd.stun_enemy_chance_good)) ||
         (get_creature_model_flags(creatng) & CMF_NoImprisonment) )
     {
         if ((flags & CrDed_NoEffects) == 0) {
@@ -2732,12 +2732,12 @@ void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord
  * Calculates damage made by a creature by hand (using strength).
  * @param thing The creature which will be inflicting the damage.
  */
-long calculate_melee_damage(const struct Thing *creatng)
+long calculate_melee_damage(struct Thing *creatng)
 {
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     long strength = compute_creature_max_strength(crstat->strength, cctrl->explevel);
-    return compute_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel);
+    return compute_creature_attack_melee_damage(strength, crstat->luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -2758,12 +2758,12 @@ long project_melee_damage(const struct Thing *creatng)
  * @param thing The creature which will be shooting.
  * @param shot_model Shot kind which will be created.
  */
-long calculate_shot_damage(const struct Thing *creatng, ThingModel shot_model)
+long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
 {
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return compute_creature_attack_spell_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
+    return compute_creature_attack_spell_damage(shotst->old->damage, crstat->luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -2888,8 +2888,8 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
               break;
             shotng = tmptng;
             shotng->shot.hit_type = hit_type;
-            shotng->move_angle_xy = (angle_xy + ACTION_RANDOM(101) - 50) & LbFPMath_AngleMask;
-            shotng->move_angle_z = (angle_yz + ACTION_RANDOM(101) - 50) & LbFPMath_AngleMask;
+            shotng->move_angle_xy = (angle_xy + CREATURE_RANDOM(firing, 101) - 50) & LbFPMath_AngleMask;
+            shotng->move_angle_z = (angle_yz + CREATURE_RANDOM(firing, 101) - 50) & LbFPMath_AngleMask;
             angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->old->speed, &cvect);
             shotng->veloc_push_add.x.val += cvect.x;
             shotng->veloc_push_add.y.val += cvect.y;
@@ -2923,9 +2923,9 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
                 {
                     long range = 2200 - ((crstat->dexterity + (crstat->dexterity * cctrl->explevel * gameadd.crtr_conf.exp.dexterity_increase_on_exp)/100) * 19);
                     range = range < 1 ? 1 : range;
-                    long rnd = (ACTION_RANDOM(2 * range) - range);
-                    rnd = rnd < (range / 3) && rnd > 0 ? (ACTION_RANDOM(range / 2) + (range / 2)) + 200 : rnd + 200;
-                    rnd = rnd > -(range / 3) && rnd < 0 ? -(ACTION_RANDOM(range / 3) + (range / 3)) : rnd;
+                    long rnd = (CREATURE_RANDOM(firing, 2 * range) - range);
+                    rnd = rnd < (range / 3) && rnd > 0 ? (CREATURE_RANDOM(firing, range / 2) + (range / 2)) + 200 : rnd + 200;
+                    rnd = rnd > -(range / 3) && rnd < 0 ? -(CREATURE_RANDOM(firing, range / 3) + (range / 3)) : rnd;
                     long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
                     long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
                     int posint = y / gameadd.crtr_conf.sprite_size;
@@ -3526,8 +3526,8 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
     crtng->creation_turn = game.play_gameturn;
-    cctrl->joining_age = 17+ACTION_RANDOM(13);
-    cctrl->blood_type = ACTION_RANDOM(BLOOD_TYPES_COUNT);
+    cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
+    cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
     if (owner == game.hero_player_num)
     {
       cctrl->party.target_plyr_idx = -1;
@@ -3621,7 +3621,7 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
 {
     ThingModel crmodel;
     while (1) {
-        crmodel = ACTION_RANDOM(gameadd.crtr_conf.model_count) + 1;
+        crmodel = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
         // Accept only evil creatures
         struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
         if ((crconf->model_flags & CMF_IsSpectator) != 0) {
@@ -3654,7 +3654,7 @@ TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
     remove_first_creature(thing);
     set_first_creature(thing);
     set_start_state(thing);
-    CrtrExpLevel lv = ACTION_RANDOM(max_lv);
+    CrtrExpLevel lv = GAME_RANDOM(max_lv);
     set_creature_level(thing, lv);
     return true;
 }
@@ -3671,7 +3671,7 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
 {
   ThingModel crmodel;
   while (1) {
-      crmodel = ACTION_RANDOM(gameadd.crtr_conf.model_count) + 1;
+      crmodel = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
 
       // model_count is always one higher than the last available index for creature models
       // This will allow more creature models to be added, but still catch the out-of-bounds model number.
@@ -3716,7 +3716,7 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
 //  set_start_state(thing); - simplified to the following two commands
   game.field_14E498 = game.play_gameturn;
   game.field_14E49C++;
-  CrtrExpLevel lv = ACTION_RANDOM(max_lv);
+  CrtrExpLevel lv = GAME_RANDOM(max_lv);
   set_creature_level(thing, lv);
   return true;
 }
@@ -4504,7 +4504,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
             if (!creature_is_doing_lair_activity(thing))
             {
                 // cast heal if we can, don't always use max level to appear lifelike
-                int splevel = ACTION_RANDOM(4) + 5;
+                int splevel = PLAYER_RANDOM(dungeon->owner, 4) + 5;
                 if (computer_able_to_use_power(comp, PwrK_HEALCRTR, splevel, 1))
                 {
                     if (try_game_action(comp, dungeon->owner, GA_UsePwrHealCrtr, splevel, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->index, 1) > Lb_OK)

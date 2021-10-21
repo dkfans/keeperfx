@@ -805,7 +805,7 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
     param.ptr1 = (void *)comp;
     param.num2 = Job_NULL; // Our filter function will update that
     filter = player_list_creature_filter_needs_to_be_placed_in_room_for_job;
-    thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param, dungeon->owner);
     if (thing_is_invalid(thing)) {
         return Job_NULL;
     }
@@ -823,7 +823,7 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
         }
         return Job_NULL;
     }
-    room = get_room_of_given_role_for_thing(thing,dungeon, get_room_role_for_job(param.num2), 1);
+    room = get_room_of_given_role_for_thing(thing, dungeon, get_room_role_for_job(param.num2), 1);
     if (room_is_invalid(room))
         return Job_NULL;
     *roomp = room;
@@ -2485,7 +2485,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
             crstat = creature_stats_get_from_thing(thing);
             CreatureJob jobpref;
             jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
-            if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
+            if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref, thing))
             {
                 if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
                     return CTaskRet_Unk2;
@@ -2516,7 +2516,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         //TODO CREATURE_AI try to make sure the creature will do proper activity in the room
         //     ie. select a room tile which is far from CTA and enemies
         ctask->move_to_room.room_idx2 = room->index;
-        if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref))
+        if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref, thing))
         {
             if (computer_place_thing_in_power_hand(comp, thing, &pos)) {
                 SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)dungeon->owner,

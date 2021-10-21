@@ -101,7 +101,7 @@ TbBool detonate_shot(struct Thing *shotng)
         // But currently shot do not store its level, so we don't really have a choice
         struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
         long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel);
-        long damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel);
+        long damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, shotng);
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
@@ -411,7 +411,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         {
             if (shotng->model == ShM_Lizard)
             {
-                if (shotng->shot.dexterity >= ACTION_RANDOM(90))
+                if (shotng->shot.dexterity >= CREATURE_RANDOM(shotng, 90))
                 {
                     struct Coord3d target_pos;
                     target_pos.x.val = shotng->price.number;
@@ -490,7 +490,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
                 if (!thing_is_invalid(efftng))
                 {
                     i = shotst->old->hit_door.sndsample_range;
-                    thing_play_sample(efftng, n + ACTION_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                    thing_play_sample(efftng, n + UNSYNC_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
             // Shall the shot be destroyed on impact
@@ -638,19 +638,21 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     return 1;
 }
 
-long get_damage_of_melee_shot(const struct Thing *shotng, const struct Thing *target)
+long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target)
 {
     const struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
     const struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
     long crdefense = compute_creature_max_defense(tgcrstat->defense, tgcctrl->explevel);
     long hitchance = ((long)shotng->shot.dexterity - crdefense) / 2;
-    if (hitchance < -96) {
+    if (hitchance < -96)
+    {
         hitchance = -96;
     } else
-    if (hitchance > 96) {
+    if (hitchance > 96)
+    {
         hitchance = 96;
     }
-    if (ACTION_RANDOM(256) < (128 + hitchance))
+    if (CREATURE_RANDOM(shotng, 256) < (128 + hitchance))
     {
         return shotng->shot.damage;
     }
@@ -993,14 +995,14 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
                 {
                     i = amp * (long)shotng->velocity.x.val;
                     trgtng->veloc_push_add.x.val += i / 64;
-                    i = amp * (long)shotng->velocity.x.val * (ACTION_RANDOM(3) - 1);
+                    i = amp * (long)shotng->velocity.x.val * (CREATURE_RANDOM(shotng, 3) - 1);
                     trgtng->veloc_push_add.y.val += i / 64;
                 }
                 else
                 {
                     i = amp * (long)shotng->velocity.y.val;
                     trgtng->veloc_push_add.y.val += i / 64;
-                    i = amp * (long)shotng->velocity.y.val * (ACTION_RANDOM(3) - 1);
+                    i = amp * (long)shotng->velocity.y.val * (CREATURE_RANDOM(shotng, 3) - 1);
                     trgtng->veloc_push_add.x.val += i / 64;
                 }
                 trgtng->state_flags |= TF1_PushAdd;
@@ -1294,9 +1296,9 @@ TngUpdateRet update_shot(struct Thing *thing)
         case ShM_Firebomb:
             for (i = 2; i > 0; i--)
             {
-              pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(127) + 63;
-              pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(127) + 63;
-              pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(127) + 63;
+              pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(127) + 63;
+              pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(127) + 63;
+              pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(127) + 63;
               create_thing(&pos1, TCls_EffectElem, TngEffElm_Blast1, thing->owner, -1);
             }
             break;
@@ -1320,10 +1322,10 @@ TngUpdateRet update_shot(struct Thing *thing)
         case ShM_Wind:
             for (i = 10; i > 0; i--)
             {
-              pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(1023) + 511;
-              pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(1023) + 511;
-              pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(1023) + 511;
-              create_thing(&pos1, TCls_EffectElem, 12, thing->owner, -1);
+              pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(1023) + 511;
+              pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(1023) + 511;
+              pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(1023) + 511;
+              create_thing(&pos1, TCls_EffectElem, TngEffElm_Leaves1, thing->owner, -1);
             }
             affect_nearby_enemy_creatures_with_wind(thing);
             break;
@@ -1385,10 +1387,10 @@ TngUpdateRet update_shot(struct Thing *thing)
         case ShM_Disease:
             for (i = 1; i > 0; i--)
             {
-              pos1.x.val = thing->mappos.x.val - ACTION_RANDOM(511) + 255;
-              pos1.y.val = thing->mappos.y.val - ACTION_RANDOM(511) + 255;
-              pos1.z.val = thing->mappos.z.val - ACTION_RANDOM(511) + 255;
-              create_thing(&pos1, TCls_EffectElem, 95, thing->owner, -1);
+              pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(511) + 255;
+              pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(511) + 255;
+              pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(511) + 255;
+              create_thing(&pos1, TCls_EffectElem, TngEffElm_DiseaseFly, thing->owner, -1);
             }
             break;
         default:

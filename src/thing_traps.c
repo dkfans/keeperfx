@@ -474,8 +474,8 @@ void activate_trap_spawn_creature(struct Thing *traptng, const struct TrapStats 
         return;
     }
     cctrl = creature_control_get_from_thing(thing);
-    thing->veloc_push_add.x.val += ACTION_RANDOM(161) - 80;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(161) - 80;
+    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 0;
     thing->state_flags |= TF1_PushAdd;
     cctrl->spell_flags |= CSAfF_MagicFall;

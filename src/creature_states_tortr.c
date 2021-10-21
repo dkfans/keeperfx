@@ -131,7 +131,7 @@ short cleanup_torturing(struct Thing *creatng)
 long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
     unsigned long k;
-    long n = ACTION_RANDOM(room->slabs_count);
+    long n = CREATURE_RANDOM(creatng, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -500,7 +500,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     // Check if we should convert the creature into ghost
     if ((creatng->health < 0) && (game.ghost_convert_chance > 0))
     {
-        if (ACTION_RANDOM(100) < game.ghost_convert_chance)
+        if (CREATURE_RANDOM(creatng, 100) < game.ghost_convert_chance)
         {
             convert_creature_to_ghost(room, creatng);
             return CrCkRet_Deleted;
@@ -514,13 +514,13 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     if ( (i < crstat->torture_break_time) || (cctrl->assigned_torturer == 0) )
         return CrCkRet_Available;
     // After that, every time broke chance is hit, do something
-    if (ACTION_RANDOM(100) < compute_torture_broke_chance(creatng))
+    if (CREATURE_RANDOM(creatng, 100) < compute_torture_broke_chance(creatng))
     {
-        if (ACTION_RANDOM(100) >= (int)gameadd.torture_death_chance)
+        if (CREATURE_RANDOM(creatng, 100) >= (int)gameadd.torture_death_chance)
         {
             SYNCDBG(4, "The %s has been broken", thing_model_name(creatng));
             
-            if (ACTION_RANDOM(100) < (int)gameadd.torture_convert_chance)
+            if (CREATURE_RANDOM(creatng, 100) < (int)gameadd.torture_convert_chance)
             { // converting creature and ending the torture
                 convert_tortured_creature_owner(creatng, room->owner);
                 return CrCkRet_Continue;
@@ -534,7 +534,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         } else
         {
             SYNCDBG(4, "The %s died from torture", thing_model_name(creatng));
-            if (ACTION_RANDOM(100) < game.ghost_convert_chance)
+            if (CREATURE_RANDOM(creatng, 100) < game.ghost_convert_chance)
             {
                 convert_creature_to_ghost(room, creatng);
                 return CrCkRet_Deleted;

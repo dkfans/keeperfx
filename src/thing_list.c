@@ -1383,14 +1383,14 @@ struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, 
     return retng;
 }
 
-struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param)
+struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, PlayerNumber plyr_idx)
 {
     SYNCDBG(19,"Starting");
     long match_count = count_things_of_class_with_filter(filter, param);
     if (match_count < 1) {
         return INVALID_THING;
     }
-    return get_nth_thing_of_class_with_filter(filter, param, ACTION_RANDOM(match_count));
+    return get_nth_thing_of_class_with_filter(filter, param, PLAYER_RANDOM(plyr_idx, match_count));
 }
 
 long do_to_all_things_of_class_and_model(int tngclass, int tngmodel, Thing_Bool_Modifier do_cb)
@@ -1557,7 +1557,7 @@ struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, P
     if (match_count < 1) {
         return INVALID_THING;
     }
-    return get_nth_thing_of_class_with_filter(filter, &param, ACTION_RANDOM(match_count));
+    return get_nth_thing_of_class_with_filter(filter, &param, PLAYER_RANDOM(plyr_idx, match_count));
 }
 
 struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool locked)
@@ -1576,7 +1576,7 @@ struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, 
     if (match_count < 1) {
         return INVALID_THING;
     }
-    return get_nth_thing_of_class_with_filter(filter, &param, ACTION_RANDOM(match_count));
+    return get_nth_thing_of_class_with_filter(filter, &param, PLAYER_RANDOM(plyr_idx, match_count));
 }
 
 struct Thing *find_gold_laying_in_dungeon(const struct Dungeon *dungeon)
@@ -1591,7 +1591,7 @@ struct Thing *find_gold_laying_in_dungeon(const struct Dungeon *dungeon)
     param.num1 = -1;
     param.num2 = -1;
     param.num3 = -1;
-    return get_random_thing_of_class_with_filter(filter, &param);
+    return get_random_thing_of_class_with_filter(filter, &param, dungeon->owner);
 }
 
 long creature_of_model_find_first(ThingModel crmodel)
@@ -2129,7 +2129,7 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
     {
         return INVALID_THING;
     }
-    long crtr_idx = ACTION_RANDOM(total_count);
+    long crtr_idx = PLAYER_RANDOM(plyr_idx, total_count);
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model(dungeon->digger_list_start, crmodel, crtr_idx);
@@ -2157,7 +2157,7 @@ struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber ply
     {
       return INVALID_THING;
     }
-    long crtr_idx = ACTION_RANDOM(total_count) + 1;
+    long crtr_idx = PLAYER_RANDOM(plyr_idx, total_count) + 1;
     if (is_spec_digger)
     {
         return get_player_list_nth_creature_of_model_on_territory(dungeon->digger_list_start, crmodel, crtr_idx, friendly);
@@ -2301,7 +2301,7 @@ struct Thing *get_player_list_creature_with_filter(ThingIndex thing_idx, Thing_M
  * @return Gives the thing, or invalid thing pointer if not found.
  * @see get_player_list_creature_with_filter()
  */
-struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param)
+struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, PlayerNumber plyr_idx)
 {
     SYNCDBG(19,"Starting");
     // Count all creatures in list, so that we can know range for our random index
@@ -2312,7 +2312,7 @@ struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, 
         return retng;
     unsigned long k = 0;
     // Get random index of a thing in list
-    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, 0, ACTION_RANDOM(total_count));
+    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, 0, PLAYER_RANDOM(plyr_idx, total_count));
     long i = thing->index;
     while (k < total_count)
     {
