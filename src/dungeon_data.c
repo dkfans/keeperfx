@@ -389,7 +389,7 @@ TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
 
 void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long value)
 {
-    if ( (timer_id < 0) || (timer_id >= TURN_TIMERS_COUNT) ) {
+    if (timer_id >= TURN_TIMERS_COUNT) {
         ERRORLOG("Can't manipulate timer; invalid timer id %d.",(int)timer_id);
         return;
     }
