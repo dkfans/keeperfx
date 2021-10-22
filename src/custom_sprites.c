@@ -884,7 +884,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         iso_td_add[td_id - KEEPERSPRITE_ADD_OFFSET] = fp_id;
         td_iso_add[td_id - KEEPERSPRITE_ADD_OFFSET] = td_id;
     }
-    return 0;
+    return context->td_sz <= 0;
 }
 
 static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALUE *root)
@@ -1003,11 +1003,13 @@ static TbBool add_custom_sprite(const char *path)
         unzClose(zip);
         return 0;
     }
+    TbBool ret_ok = true;
     for (int i = 0; i < value_array_size(&sprites_root); i++)
     {
         VALUE *val = value_array_get(&sprites_root, i);
         if (!process_sprite_from_list(path, zip, i, val))
         {
+            ret_ok = false;
             continue;
         }
     }
@@ -1018,7 +1020,7 @@ static TbBool add_custom_sprite(const char *path)
 
     qsort(added_sprites, num_added_sprite, sizeof(added_sprites[0]), &cmp_named_command);
 
-    return 1;
+    return ret_ok;
 }
 
 short get_anim_id(const char *name, struct Objects* objdat)
