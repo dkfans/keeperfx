@@ -373,7 +373,7 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
 {
     if (thing->class_id == TCls_Creature)
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -404,7 +404,7 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -555,7 +555,7 @@ long anywhere_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with(con
 {
     if (thing->class_id == param->class_id)
     {
-        if ((param->model_id == -1) || (thing->model == param->model_id))
+        if ((param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
         {
             if ((param->plyr_idx == -1) || players_are_mutual_allies(thing->owner,param->plyr_idx))
             {
@@ -1871,10 +1871,10 @@ long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Th
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
     if (((crmodel > 0) && !is_spec_digger) || (crmodel == -1) || (crmodel == -2)) {
-        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?-1:crmodel, do_cb);
+        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?CREATURE_ANY:crmodel, do_cb);
     }
     if (((crmodel > 0) && is_spec_digger) || (crmodel == -1) || (crmodel == -3)) {
-        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?-1:crmodel, do_cb);
+        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?CREATURE_ANY:crmodel, do_cb);
     }
     return count;
 }
@@ -1928,7 +1928,7 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((crmodel == 0) || (thing->model == crmodel))
+        if ((crmodel == CREATURE_ANY) || (thing->model == crmodel))
         {
             count++;
         }
@@ -1960,7 +1960,9 @@ long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingMode
         i = cctrl->players_next_creature_idx;
         // Per creature code
         int slbwnr = get_slab_owner_thing_is_on(thing);
-        if ( (thing->model == crmodel) && ( (players_are_enemies(thing->owner,slbwnr) && (friendly == 0)) || (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ) )
+        if ( ((thing->model == crmodel) || (crmodel == CREATURE_ANY)) &&
+            ( (players_are_enemies(thing->owner,slbwnr) && (friendly == 0)) ||
+            (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ) )
         {
             count++;
         }
@@ -3343,7 +3345,7 @@ struct Thing *get_creature_in_range_and_owned_by_or_allied_with(MapCoord pos_x, 
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
@@ -3364,7 +3366,7 @@ long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord p
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = -1;
+    param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
