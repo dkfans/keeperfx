@@ -1122,10 +1122,10 @@ static void display_timer_check(const struct ScriptLine *scline)
 
 static void display_timer_process(struct ScriptContext *context)
 {
-    ScriptPlayer = context->value->bytes[0];
-    ScriptTimerId = context->value->bytes[1];
-    ScriptTimerLimit = context->value->arg1;
-    BonusRealTime = context->value->bytes[2];
+    gameadd.script_player = context->value->bytes[0];
+    gameadd.script_timer_id = context->value->bytes[1];
+    gameadd.script_timer_limit = context->value->arg1;
+    gameadd.timer_real = context->value->bytes[2];
     game_flags2 |= GF2_ScriptTimer;
 }
 
@@ -1179,9 +1179,9 @@ static void display_variable_check(const struct ScriptLine *scline)
 
 static void display_variable_process(struct ScriptContext *context)
 {
-   ScriptPlayer = context->value->bytes[0];
-   ScriptValType = context->value->bytes[1];
-   ScriptValidx = context->value->bytes[2];
+   gameadd.script_player = context->value->bytes[0];
+   gameadd.script_value_type = context->value->bytes[1];
+   gameadd.script_value_id = context->value->bytes[2];
    game_flags2 |= GF2_Variable;
 }
 
@@ -6595,11 +6595,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       if (level_file_version > 0)
       {
-          BonusRealTime = (TbBool)val3;
+          gameadd.timer_real = (TbBool)val3;
       }
       else
       {
-          BonusRealTime = false;
+          gameadd.timer_real = false;
       }
       break;
   case Cmd_QUICK_OBJECTIVE:

@@ -44,7 +44,6 @@
 #include "keeperfx.hpp"
 
 unsigned long TimerTurns = 0;
-TbBool BonusRealTime = false;
 
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
@@ -354,7 +353,7 @@ void draw_bonus_timer(void)
 {
     int nturns = game.bonus_time - game.play_gameturn;
     char* text;
-    if (BonusRealTime)
+    if (gameadd.timer_real)
     {
         unsigned long total_seconds = ((nturns) / game.num_fps) + 1;
         unsigned char seconds = total_seconds % 60;

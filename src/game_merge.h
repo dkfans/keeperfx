@@ -181,6 +181,12 @@ struct GameAdd {
     struct ObjectsConfig object_conf;
 
     struct LevelScript script;
+    PlayerNumber script_player;
+    unsigned char script_timer_id;
+    unsigned long script_timer_limit;
+    TbBool timer_real;
+    unsigned char script_value_type;
+    unsigned char script_value_id;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

@@ -74,11 +74,6 @@ void redraw_frontview(void);
 /******************************************************************************/
 long xtab[640][2];
 long ytab[480][2];
-PlayerNumber ScriptPlayer = 0;
-unsigned char ScriptTimerId = 0;
-unsigned long ScriptTimerLimit = 0;
-unsigned char ScriptValType = 0;
-unsigned char ScriptValidx = 0;
 /******************************************************************************/
 void setup_engine_window(long x, long y, long width, long height)
 {
@@ -983,11 +978,11 @@ void redraw_display(void)
     }
     else if (script_timer_enabled())
     {
-        draw_script_timer(ScriptPlayer, ScriptTimerId, ScriptTimerLimit, BonusRealTime);
+        draw_script_timer(gameadd.script_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
     }
     else if (display_variable_enabled())
     {
-        draw_script_variable(ScriptPlayer, ScriptValType, ScriptValidx);
+        draw_script_variable(gameadd.script_player, gameadd.script_value_type, gameadd.script_value_id);
     }
     if (timer_enabled())
     {
