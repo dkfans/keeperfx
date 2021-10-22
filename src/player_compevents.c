@@ -577,6 +577,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
 long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* cevent)
 {
     struct Dungeon* dungeon = comp->dungeon;
+    int health_permil = cevent->param1;
 
     // If we don't have the power to pick up creatures, fail now
     if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
@@ -621,7 +622,7 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
             {
                 continue;
             }
-            if (get_creature_health_permil(creatng) > 300)
+            if (get_creature_health_permil(creatng) > health_permil)
             {
                 continue;
             }
