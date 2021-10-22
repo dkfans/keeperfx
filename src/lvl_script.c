@@ -1162,6 +1162,29 @@ static void add_bonus_time_process(struct ScriptContext *context)
    game.bonus_time += context->value->arg0;
 }
 
+static void display_variable_check(const struct ScriptLine *scline)
+{
+    char varib_id = get_id(variable_desc, scline->tp[1]);
+    if (varib_id == -1)
+    {
+        SCRPTERRLOG("Unknown variable, '%s'", scline->tp[1]);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->bytes[0] = (unsigned char)scline->np[0];
+    value->bytes[1] = varib_id;
+    value->bytes[2] = (unsigned char)scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void display_variable_process(struct ScriptContext *context)
+{
+   ScriptPlayer = context->value->bytes[0];
+   ScriptValType = context->value->bytes[1];
+   ScriptValidx = context->value->bytes[2];
+   game_flags2 |= GF2_Variable;
+}
+
 static void null_process(struct ScriptContext *context)
 {
 }
@@ -7499,6 +7522,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_TIMER",                     "PANn    ", Cmd_DISPLAY_TIMER, &display_timer_check, &display_timer_process},
   {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
   {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
+  {"DISPLAY_VARIABLE",                  "PAn     ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

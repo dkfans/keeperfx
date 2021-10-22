@@ -88,6 +88,7 @@ enum GameFlags2 {
     GF2_Server                    = 0x0008,
     GF2_Connect                   = 0x0010,
     GF2_ScriptTimer               = 0x0020,
+    GF2_Variable                  = 0x0040,
     GF2_ShowEventLog              = 0x00010000,
     GF2_PERSISTENT_FLAGS          = 0xFFFF0000
 };

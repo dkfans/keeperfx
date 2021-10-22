@@ -26,7 +26,7 @@
 #include "bflib_sound.h"
 #include "bflib_mouse.h"
 #include "bflib_dernc.h"
-
+#include "lvl_script.h"
 #include "engine_arrays.h"
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -77,6 +77,8 @@ long ytab[480][2];
 PlayerNumber ScriptPlayer = 0;
 unsigned char ScriptTimerId = 0;
 unsigned long ScriptTimerLimit = 0;
+unsigned char ScriptValType = 0;
+unsigned char ScriptValidx = 0;
 /******************************************************************************/
 void setup_engine_window(long x, long y, long width, long height)
 {
@@ -982,6 +984,10 @@ void redraw_display(void)
     else if (script_timer_enabled())
     {
         draw_script_timer(ScriptPlayer, ScriptTimerId, ScriptTimerLimit, BonusRealTime);
+    }
+    else if (display_variable_enabled())
+    {
+        draw_script_variable(ScriptPlayer, ScriptValType, ScriptValidx);
     }
     if (timer_enabled())
     {

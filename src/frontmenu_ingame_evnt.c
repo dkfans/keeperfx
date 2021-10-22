@@ -421,7 +421,7 @@ void draw_timer(void)
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
-    if ( (bonus_timer_enabled()) || (script_timer_enabled()) || (game.armageddon_cast_turn != 0) )
+    if ( (bonus_timer_enabled()) || (script_timer_enabled()) || (display_variable_enabled()) || (game.armageddon_cast_turn != 0) )
     {
         scr_y <<= 2;
     }
@@ -465,6 +465,27 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     {
         text = buf_sprintf("%08d", nturns);
     }
+    LbTextSetFont(winfont);
+    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    long scr_y = 16 * units_per_pixel / 16;
+    LbTextSetWindow(scr_x, scr_y, width, height);
+    draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
+    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+TbBool display_variable_enabled(void)
+{
+  return ((game_flags2 & GF2_Variable) != 0);
+}
+
+void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+{
+    char* text = buf_sprintf("%ld", get_condition_value(plyr_idx, valtype, validx));
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
