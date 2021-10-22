@@ -1833,7 +1833,7 @@ static long parse_creature_name(const char *creature_name)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
         {
-            return 0;
+            return CREATURE_ANY;
         }
     }
     return ret;
@@ -3117,7 +3117,7 @@ void command_kill_creature(long plr_range_id, const char *crtr_name, const char 
         return;
   }
   long crtr_id = parse_creature_name(crtr_name);
-  if (crtr_id == -1) {
+  if (crtr_id == CREATURE_NONE) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
@@ -3139,7 +3139,7 @@ void command_level_up_creature(long plr_range_id, const char *crtr_name, const c
         return;
   }
   long crtr_id = parse_creature_name(crtr_name);
-  if (crtr_id == -1)
+  if (crtr_id == CREATURE_NONE)
   {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
@@ -3182,7 +3182,7 @@ void command_use_power_on_creature(long plr_range_id, const char *crtr_name, con
     return;
   }
   long crtr_id = parse_creature_name(crtr_name);
-  if (crtr_id == -1) {
+  if (crtr_id == CREATURE_NONE) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
@@ -3414,7 +3414,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
 static void change_creatures_annoyance_check(const struct ScriptLine* scline)
 {
     long crtr_id = parse_creature_name(scline->tp[1]);
-    if (crtr_id == -1)
+    if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         return;
@@ -3440,7 +3440,7 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
 {
     SCRIPTDBG(11, "Starting");
     long crtr_id = parse_creature_name(crtr_name);
-    if (crtr_id == -1)
+    if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
@@ -3548,7 +3548,7 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
     return;
   }
   long crtr_id = parse_creature_name(crtr_name);
-  if (crtr_id == -1) {
+  if (crtr_id == CREATURE_NONE) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
@@ -5169,7 +5169,7 @@ struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
     return INVALID_THING;
 }
 
-struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria) {
+static struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria) {
     switch (filter_criteria_type(criteria))
     {
     case CSelCrit_Any:
@@ -5221,7 +5221,7 @@ struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
         Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_thing_of_class_and_model_owned_by;
         struct CompoundTngFilterParam param;
         param.class_id = TCls_Creature;
-        param.model_id = (crmodel == 0)?-1:crmodel;
+        param.model_id = crmodel;
         param.plyr_idx = (unsigned char)plyr_idx;
         param.num1 = apt->mappos.x.val;
         param.num2 = apt->mappos.y.val;
