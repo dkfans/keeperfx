@@ -51,8 +51,9 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
 long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
-long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
+long computer_event_save_tortured(struct Computer2 *comp, struct ComputerEvent *cevent);
+long computer_event_rebuild_room(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
+long computer_event_handle_prisoner(struct Computer2 *comp, struct ComputerEvent* cevent, struct Event *event);
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
@@ -72,7 +73,8 @@ const struct NamedCommand computer_event_test_func_type[] = {
   {"event_attack_magic_foe",  3,},
   {"event_check_rooms_full",  4,},
   {"event_check_imps_danger", 5,},
-  {"none",                    6,},
+  {"event_save_tortured",     6,},
+  {"none",                    7,},
   {NULL,                      0,},
 };
 
@@ -83,6 +85,7 @@ Comp_EvntTest_Func computer_event_test_func_list[] = {
   computer_event_attack_magic_foe,
   computer_event_check_rooms_full,
   computer_event_check_imps_in_danger,
+  computer_event_save_tortured,
   NULL,
   NULL,
 };
@@ -535,7 +538,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
         }
         else if (cctrl->instance_available[CrInst_HEAL] == 0)
         {
-            if (((!crstat->humanoid_creature) && (actions_allowed == 2)) || (actions_allowed == 3)) // 1 = move only, 2 = everybody, 3 = non_humanoids
+            if (((!crstat->humanoid_creature) && (actions_allowed >= 2)) || (actions_allowed == 2)) // 1 = move only, 2 = everybody, 3 = non_humanoids
             {
                 if (computer_able_to_use_power(comp, PwrK_HEALCRTR, power_level, amount)) 
                 {
@@ -565,6 +568,96 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
                 cproc->flags &= ~ComProc_Unkn0008;
                 cproc->flags &= ~ComProc_Unkn0001;
                 cproc->last_run_turn = 0;
+            }
+        }
+    }
+    return CTaskRet_Unk1;
+}
+
+long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* cevent)
+{
+    struct Dungeon* dungeon = comp->dungeon;
+    int health_permil = (cevent->param1 * 10);
+
+    // If we don't have the power to pick up creatures, fail now
+    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
+        return 4;
+    }
+
+    // Do we have a prison to put the unit back into?
+    struct Room* destroom = RoK_NONE;
+    TbBool can_return = false;
+    if (dungeon_has_room(dungeon, RoK_PRISON))
+    {
+        destroom = find_room_with_spare_capacity(dungeon->owner, RoK_PRISON, 1);
+        if (!room_is_invalid(destroom))
+        {
+            can_return = true;
+        }
+    }
+    
+    unsigned long moved = 0;
+    unsigned long slapped = 0;
+    struct Dungeon* victdungeon;
+    for (int j = 0; j < DUNGEONS_COUNT; j++)
+    {
+        if (j == comp->dungeon->owner)
+        {
+            continue;
+        }
+        victdungeon = get_dungeon(j);
+        int i = victdungeon->creatr_list_start;
+        while (i != 0)
+        {
+            struct Thing* creatng = thing_get(i);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+            struct Room* room = get_room_thing_is_on(creatng);
+            if (thing_is_invalid(creatng) || creature_control_invalid(cctrl))
+            {
+                ERRORLOG("Jump to invalid creature detected");
+                break;
+            }
+            i = cctrl->players_next_creature_idx;
+            if (!creature_is_being_tortured(creatng))
+            {
+                continue;
+            }
+            if (get_creature_health_permil(creatng) > health_permil)
+            {
+                continue;
+            }
+            if (room->owner == creatng->owner)
+            {
+                continue;
+            }
+            //We found a unit in our torture room that's in need of healing.
+            if ((cctrl->instance_available[CrInst_HEAL] != 0) && (cctrl->slap_turns == 0))
+            {
+                //slap creature so he will heal himself
+                if (can_cast_spell(dungeon->owner, PwrK_SLAP, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
+                {
+                    struct CreatureStats* crstat;
+                    crstat = creature_stats_get_from_thing(creatng);
+                    // Check if the slap may cause death
+                    if ((crstat->slaps_to_kill < 1) || (get_creature_health_permil(creatng) >= 2 * 1000 / crstat->slaps_to_kill))
+                    {
+                        if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, creatng->index, 0) > Lb_OK)
+                        {
+                            slapped++;
+                            continue;
+                        }
+
+                    }
+                }
+            }
+
+            //move back to prison
+            if (can_return == true)
+            {
+                if (create_task_move_creature_to_subtile(comp, creatng, destroom->central_stl_x, destroom->central_stl_y, CrSt_CreatureInPrison))
+                {
+                    moved++;
+                }
             }
         }
     }
