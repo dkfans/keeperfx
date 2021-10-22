@@ -1871,10 +1871,10 @@ long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Th
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
     if (((crmodel > 0) && !is_spec_digger) || (crmodel == -1) || (crmodel == -2)) {
-        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?-1:crmodel, do_cb);
+        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?CREATURE_ANY:crmodel, do_cb);
     }
     if (((crmodel > 0) && is_spec_digger) || (crmodel == -1) || (crmodel == -3)) {
-        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?-1:crmodel, do_cb);
+        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?CREATURE_ANY:crmodel, do_cb);
     }
     return count;
 }
@@ -1928,7 +1928,7 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((crmodel == 0) || (thing->model == crmodel))
+        if ((crmodel == CREATURE_ANY) || (thing->model == crmodel))
         {
             count++;
         }
@@ -1960,7 +1960,9 @@ long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingMode
         i = cctrl->players_next_creature_idx;
         // Per creature code
         int slbwnr = get_slab_owner_thing_is_on(thing);
-        if ( (thing->model == crmodel) && ( (players_are_enemies(thing->owner,slbwnr) && (friendly == 0)) || (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ) )
+        if ( ((thing->model == crmodel) || (crmodel == CREATURE_ANY)) &&
+            ( (players_are_enemies(thing->owner,slbwnr) && (friendly == 0)) ||
+            (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ) )
         {
             count++;
         }
