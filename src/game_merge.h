@@ -45,10 +45,26 @@ extern "C" {
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
 
+// UNSYNC_RANDOM is not synced at all. For synced choices the more specific random is better.
+// So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
+
+// Deprecated. Used only once. Maybe it is sound-specific UNSYNC_RANDOM
 #define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
+// This RNG should not be used to affect anything related affecting game state
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
-#define ACTION_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
+// This RNG should be used only for "whole game" events (i.e. from script)
+#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "game")
+// This RNG is for anything related to creatures or their shots. So creatures should act independent
+#define CREATURE_RANDOM(thing, range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "creature")
+// This is messy. Used only for AI choices. Maybe it should be merged with PLAYER_RANDOM.
 #define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
+// This RNG is about something related to specific player
+#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "player")
+// RNG related to effects. I am unsure about its relationship with game state.
+// It should be replaced either with CREATURE_RANDOM or with UNSYNC_RANDOM on case by case basis.
+#define EFFECT_RANDOM(thing, range) \
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "effect")
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
@@ -85,6 +101,8 @@ enum GameFlags2 {
     GF2_ClearPauseOnSync          = 0x0001,
     GF2_ClearPauseOnPacket        = 0x0002,
     GF2_Timer                     = 0x0004,
+    GF2_Server                    = 0x0008,
+    GF2_Connect                   = 0x0010,
     GF2_ShowEventLog              = 0x00010000,
     GF2_PERSISTENT_FLAGS          = 0xFFFF0000
 };
@@ -176,6 +194,8 @@ struct GameAdd {
 
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
+
+    struct LevelScript script;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

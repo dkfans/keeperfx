@@ -1026,14 +1026,14 @@ long food_moves(struct Thing *objtng)
             if (dirct_ctrl) {
                 objtng->food.byte_16 = 6;
             } else {
-                objtng->food.byte_16 = ACTION_RANDOM(4) + 1;
+                objtng->food.byte_16 = CREATURE_RANDOM(objtng ,4) + 1;
             }
         }
         if ((has_near_creature && (objtng->food.byte_16 < 5)) || (objtng->food.byte_16 == 0))
         {
             set_thing_draw(objtng, 819, -1, -1, -1, 0, 2);
-            objtng->food.byte_15 = ACTION_RANDOM(0x39);
-            objtng->food.word_18 = ACTION_RANDOM(0x7FF);
+            objtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x39);
+            objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
             objtng->food.byte_16 = 0;
         } else
         if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->field_40) && (objtng->food.byte_16 < 5))
@@ -1049,7 +1049,7 @@ long food_moves(struct Thing *objtng)
         pos.y.val += vel_y;
         if (thing_in_wall_at(objtng, &pos))
         {
-            objtng->food.word_18 = ACTION_RANDOM(0x7FF);
+            objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
         }
         long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.word_18);
         int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.word_18);
@@ -1133,8 +1133,8 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, 10, tngowner, -1);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->move_angle_xy = ACTION_RANDOM(0x800);
-            nobjtng->food.byte_15 = ACTION_RANDOM(0x6FF);
+            nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
+            nobjtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x6FF);
             nobjtng->food.byte_16 = 0;
           thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
           if (!is_neutral_thing(nobjtng)) {
@@ -1182,7 +1182,7 @@ long gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
         gold_store = add_gold_to_treasure_room_slab(slb_x, slb_y, gold_store);
     }
     unsigned long k;
-    long n = ACTION_RANDOM(room->slabs_count);
+    long n = CREATURE_RANDOM(thing, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -1240,7 +1240,7 @@ TbBool temple_check_for_arachnid_join_dungeon(struct Dungeon *dungeon)
                 return false;
             }
             struct Thing* ncreatng = create_creature_at_entrance(room, crmodel);
-            set_creature_level(ncreatng, ACTION_RANDOM(CREATURE_MAX_LEVEL));
+            set_creature_level(ncreatng, CREATURE_RANDOM(ncreatng, CREATURE_MAX_LEVEL));
             return true;
         }
     }
@@ -1721,9 +1721,9 @@ TngUpdateRet object_update_power_lightning(struct Thing *objtng)
  * @param thing The thing which is to be moved.
   * @param pos The target position pointer.
  */
-TbBool find_free_position_on_slab(const struct Thing* thing, struct Coord3d* pos)
+static TbBool find_free_position_on_slab(struct Thing* thing, struct Coord3d* pos)
 {
-    MapSubtlCoord start_stl = ACTION_RANDOM(AROUND_TILES_COUNT);
+    MapSubtlCoord start_stl = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
     int nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing), 0);
 
     for (long nround = 0; nround < AROUND_TILES_COUNT; nround++)
@@ -1761,12 +1761,15 @@ TngUpdateRet move_object(struct Thing *thing)
             long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
             if (blocked_flags & SlbBloF_WalledZ)
             {
-                if (!find_free_position_on_slab(thing, &pos))
+                struct Dungeon* dungeon = get_dungeon(thing->owner);
+                if (dungeon->sight_casted_thing_idx != thing->index)
                 {
-                    SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.",pos.x.val,pos.y.val, blocked_flags);
-                    move_creature_to_nearest_valid_position(thing);
+                    if (!find_free_position_on_slab(thing, &pos))
+                    {
+                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.",pos.x.val,pos.y.val, blocked_flags);
+                        move_creature_to_nearest_valid_position(thing);
+                    }
                 }
-
             }
             else
             {

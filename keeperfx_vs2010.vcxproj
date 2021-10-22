@@ -25,6 +25,7 @@
     <ClCompile Include="src\bflib_basics.c" />
     <ClCompile Include="src\bflib_bufrw.c" />
     <ClCompile Include="src\bflib_client_tcp.cpp" />
+    <ClCompile Include="src\bflib_coroutine.c" />
     <ClCompile Include="src\bflib_cpu.c" />
     <ClCompile Include="src\bflib_crash.c" />
     <ClCompile Include="src\bflib_datetm.c" />
@@ -180,6 +181,7 @@
     <ClCompile Include="src\lvl_script.c" />
     <ClCompile Include="src\magic.c" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\main_game.c" />
     <ClCompile Include="src\map_blocks.c" />
     <ClCompile Include="src\map_columns.c" />
     <ClCompile Include="src\map_data.c" />
@@ -254,6 +256,7 @@
     <ClInclude Include="src\bflib_basics.h" />
     <ClInclude Include="src\bflib_bufrw.h" />
     <ClInclude Include="src\bflib_client_tcp.hpp" />
+    <ClInclude Include="src\bflib_coroutine.h" />
     <ClInclude Include="src\bflib_cpu.h" />
     <ClInclude Include="src\bflib_crash.h" />
     <ClInclude Include="src\bflib_datetm.h" />

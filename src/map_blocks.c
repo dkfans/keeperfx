@@ -257,6 +257,8 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
                   if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
                   {
                       mapblk->flags |= SlbAtFlg_TaggedValuable;
+                      if (!map_block_revealed(mapblk, plyr_idx))
+                          mapblk->flags |= SlbAtFlg_Unexplored;
                   } else
                   if (((mapblk->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable)) != 0) || !map_block_revealed(mapblk, plyr_idx))
                   {

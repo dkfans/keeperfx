@@ -102,6 +102,9 @@ struct Packet bad_packet;
 }
 #endif
 /******************************************************************************/
+/******************************************************************************/
+short place_terrain = 0;
+/******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
     pckt->actn_par1 = par1;
@@ -247,10 +250,11 @@ void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const 
  * Checks if all active players packets have same checksums.
  * @return Returns false if all checksums are same; true if there's mismatch.
  */
-short checksums_different(void)
+short checksums_different()
 {
     TbChecksum checksum = 0;
     unsigned short is_set = false;
+    int plyr = -1;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
@@ -261,9 +265,12 @@ short checksums_different(void)
             {
                 checksum = pckt->chksum;
                 is_set = true;
+                plyr = i;
             }
             else if (checksum != pckt->chksum)
             {
+                ERRORLOG("Checksums %08x(%d) != %08x(%d) turn: %ld", checksum, plyr, pckt->chksum, i, game.play_gameturn);
+
                 return true;
             }
         }
@@ -534,7 +541,8 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         && (!dungeonadd->one_click_lock_cursor))
       {
         render_roomspace = create_box_roomspace(render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
-        tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->full_slab_cursor);
+        long keycode;
+        tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true)));
       } else
       {
         player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
@@ -1523,7 +1531,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     }
                 }
                 place_slab_type_on_map(slbkind, stl_x, stl_y, i, 0);
-                do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                do_slab_efficiency_alteration(slb_x, slb_y);
                 slb = get_slabmap_block(slb_x, slb_y);
                 for (i = 0; i < PLAYERS_COUNT; i++)
                 {
@@ -1668,127 +1676,170 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_PlaceTerrain:
+    {
+        if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
+        {
+            place_terrain = SlbT_ROCK;
+            clear_key_pressed(KC_NUMPAD0);
+        }
+        else if (is_key_pressed(KC_NUMPAD1, KMod_NONE))
+        {
+            place_terrain = SlbT_GOLD;
+            clear_key_pressed(KC_NUMPAD1);
+        }
+        else if (is_key_pressed(KC_NUMPAD2, KMod_NONE))
+        {
+            place_terrain = SlbT_GEMS;
+            clear_key_pressed(KC_NUMPAD2);
+        }
+        else if (is_key_pressed(KC_NUMPAD3, KMod_NONE))
+        {
+            place_terrain = SlbT_EARTH;
+            clear_key_pressed(KC_NUMPAD3);
+        }
+        else if (is_key_pressed(KC_NUMPAD4, KMod_NONE))
+        {
+            place_terrain = SlbT_TORCHDIRT;
+            clear_key_pressed(KC_NUMPAD4);
+        }
+        else if (is_key_pressed(KC_NUMPAD5, KMod_NONE))
+        {
+            place_terrain = SlbT_PATH;
+            clear_key_pressed(KC_NUMPAD5);
+        }
+        else if (is_key_pressed(KC_NUMPAD6, KMod_NONE))
+        {
+            place_terrain = SlbT_CLAIMED;
+            clear_key_pressed(KC_NUMPAD6);
+        }
+        else if (is_key_pressed(KC_NUMPAD7, KMod_NONE))
+        {
+            place_terrain = SlbT_LAVA;
+            clear_key_pressed(KC_NUMPAD7);
+        }
+        else if (is_key_pressed(KC_NUMPAD8, KMod_NONE))
+        {
+            place_terrain = SlbT_WATER;
+            clear_key_pressed(KC_NUMPAD8);
+        }
+        else if (is_key_pressed(KC_NUMPAD9, KMod_NONE))
+        {
+            place_terrain = rand() % (5) + 4;
+            clear_key_pressed(KC_NUMPAD9);
+        }
+        else if (is_key_pressed(KC_DIVIDE, KMod_NONE))
+        {
+            place_terrain = SlbT_DAMAGEDWALL;
+            clear_key_pressed(KC_DIVIDE);
+        }
+        else if (is_key_pressed(KC_MULTIPLY, KMod_NONE))
+        {
+            place_terrain = SlbT_SLAB50;
+            clear_key_pressed(KC_MULTIPLY);
+        }
+        struct SlabConfigStats* slab_cfgstats;
+        clear_messages_from_player(-127);
+        struct SlabAttr *slbattr = get_slab_kind_attrs(place_terrain);
+        if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
+        {
+            const char* msg = get_string(slbattr->tooltip_stridx);
+            char msg_buf[255];
+            strcpy(msg_buf, msg);
+            char* dis_msg = strtok(msg_buf, ":");
+            message_add(-127, dis_msg);
+        }
+        else
+        {
+            slab_cfgstats = get_slab_kind_stats(place_terrain);
+            message_add(-127, slab_cfgstats->code_name);           
+        }            
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
             slb = get_slabmap_block(slb_x, slb_y);
-            short slbkind;
             char s[3];
             if (is_key_pressed(KC_SLASH, KMod_NONE))
             {
-                 itoa(slb->kind, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_SLASH);
+                slab_cfgstats = get_slab_kind_stats(slb->kind);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, slab_cfgstats->code_name);
+                clear_key_pressed(KC_SLASH);
             }
             else if (is_key_pressed(KC_SLASH, KMod_SHIFT))
             {
-                 itoa(slabmap_owner(slb), s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_SLASH);
+                itoa(slabmap_owner(slb), s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_SLASH);
             }
             else if (is_key_pressed(KC_X, KMod_NONE))
             {
-                 itoa(stl_x, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_X);
+                itoa(stl_x, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_X);
             }
             else if (is_key_pressed(KC_Y, KMod_NONE))
             {
-                 itoa(stl_y, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_Y);
+                itoa(stl_y, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_Y);
             }
             else if (is_key_pressed(KC_X, KMod_SHIFT))
             {
-                 itoa(slb_x, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_X);
+                itoa(slb_x, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_X);
             }
             else if (is_key_pressed(KC_Y, KMod_SHIFT))
             {
-                 itoa(slb_y, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_Y);
+                itoa(slb_y, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_Y);
             }
             else if (is_key_pressed(KC_N, KMod_NONE))
             {
-                 itoa(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)), s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_N);
+                itoa(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)), s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_N);
             }
             else
             {
-                if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
-                {
-                    slbkind = SlbT_ROCK;
-                    clear_key_pressed(KC_NUMPAD0);
-                }
-                else if (is_key_pressed(KC_NUMPAD1, KMod_NONE))
-                {
-                    slbkind = SlbT_GOLD;
-                    clear_key_pressed(KC_NUMPAD1);
-                }
-                else if (is_key_pressed(KC_NUMPAD2, KMod_NONE))
-                {
-                    slbkind = SlbT_GEMS;
-                    clear_key_pressed(KC_NUMPAD2);
-                }
-                else if (is_key_pressed(KC_NUMPAD3, KMod_NONE))
-                {
-                    slbkind = SlbT_EARTH;
-                    clear_key_pressed(KC_NUMPAD3);
-                }
-                else if (is_key_pressed(KC_NUMPAD4, KMod_NONE))
-                {
-                    slbkind = SlbT_TORCHDIRT;
-                    clear_key_pressed(KC_NUMPAD4);
-                }
-                else if (is_key_pressed(KC_NUMPAD5, KMod_NONE))
-                {
-                    slbkind = SlbT_PATH;
-                    clear_key_pressed(KC_NUMPAD5);
-                }
-                else if (is_key_pressed(KC_NUMPAD6, KMod_NONE))
-                {
-                    slbkind = SlbT_CLAIMED;
-                    clear_key_pressed(KC_NUMPAD6);
-                }
-                else if (is_key_pressed(KC_NUMPAD7, KMod_NONE))
-                {
-                    slbkind = SlbT_LAVA;
-                    clear_key_pressed(KC_NUMPAD7);
-                }
-                else if (is_key_pressed(KC_NUMPAD8, KMod_NONE))
-                {
-                    slbkind = SlbT_WATER;
-                    clear_key_pressed(KC_NUMPAD8);
-                }
-                else if (is_key_pressed(KC_NUMPAD9, KMod_NONE))
-                {
-                    slbkind = rand() % (5) + 4;
-                    clear_key_pressed(KC_NUMPAD9);
-                }
-                else
-                {
-                    slbkind = 0;
-                }
                 if (subtile_is_room(stl_x, stl_y)) 
                 {
                     room = subtile_room_get(stl_x, stl_y);
                     delete_room_slab(slb_x, slb_y, true);
                 }
-                if (slab_kind_is_animated(slbkind))
+                PlayerNumber id;
+                if ( (place_terrain == SlbT_CLAIMED) || ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_DAMAGEDWALL) ) )
                 {
-                    place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, game.neutral_player_num);  
+                    id = slabmap_owner(slb);
                 }
                 else
                 {
-                    place_slab_type_on_map(slbkind, stl_x, stl_y, game.neutral_player_num, 0);
+                    id = game.neutral_player_num;
                 }
-                do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                if (slab_kind_is_animated(place_terrain))
+                {
+                    place_animating_slab_type_on_map(place_terrain, 0, stl_x, stl_y, id);
+                }
+                else
+                {
+                    place_slab_type_on_map(place_terrain, stl_x, stl_y, id, 0);
+                    if ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_WALLPAIRSHR) )
+                    {
+                        place_terrain = rand() % (5) + 4;
+                    }
+                }
+                do_slab_efficiency_alteration(slb_x, slb_y);
             }
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);
         break;
+    }
     case PSt_DestroyThing:
         thing = get_nearest_thing_at_position(stl_x, stl_y);
         if (thing_is_invalid(thing))

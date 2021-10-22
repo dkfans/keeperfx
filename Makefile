@@ -91,6 +91,7 @@ obj/ariadne_wallhug.o \
 obj/bflib_base_tcp.o \
 obj/bflib_basics.o \
 obj/bflib_bufrw.o \
+obj/bflib_coroutine.o \
 obj/bflib_client_tcp.o \
 obj/bflib_cpu.o \
 obj/bflib_crash.o \
@@ -245,6 +246,7 @@ obj/light_data.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
 obj/magic.o \
+obj/main_game.o \
 obj/map_blocks.o \
 obj/map_columns.o \
 obj/map_data.o \

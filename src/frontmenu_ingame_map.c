@@ -690,17 +690,17 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
     {
         col = 3;
-    } else
-    if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+    }
+    else if (map_block_revealed(mapblk, plyr_idx))
     {
-        col = 4;
-    } else
-    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
-    {
-        col = 5;
-    } else
-    if (map_block_revealed(mapblk, plyr_idx))
-    {
+        if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+        {
+            col = 4;
+        } else
+        if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+        {
+            col = 5;
+        } else
         if ((mapblk->flags & SlbAtFlg_IsRoom) != 0)
         {
             struct Room *room;

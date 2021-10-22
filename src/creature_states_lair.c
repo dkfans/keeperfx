@@ -203,7 +203,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     lairtng->word_15 = 1;
     // Lair size depends on creature level
     lairtng->size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
-    lairtng->move_angle_xy = ACTION_RANDOM(2*LbFPMath_PI);
+    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2*LbFPMath_PI);
     struct Objects* objdat = get_objects_data_for_thing(lairtng);
     unsigned long i = convert_td_iso(objdat->sprite_anim_idx);
     set_thing_draw(lairtng, i, objdat->anim_speed, lairtng->word_15, 0, -1, objdat->draw_class);
@@ -261,7 +261,7 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
 TbBool setup_head_for_random_unused_lair_subtile(struct Thing *creatng, struct Room *room)
 {
     unsigned long k;
-    long n = ACTION_RANDOM(room->slabs_count);
+    long n = CREATURE_RANDOM(creatng, room->slabs_count);
     SlabCodedCoords start_slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -469,7 +469,7 @@ short creature_sleep(struct Thing *thing)
     }
     if (((game.play_gameturn + thing->index) & 0x3F) == 0)
     {
-        if (ACTION_RANDOM(100) < 5) {
+        if (CREATURE_RANDOM(thing, 100) < 5) {
             struct Dungeon* dungeon = get_dungeon(thing->owner);
             dungeon->lvstats.backs_stabbed++;
         }

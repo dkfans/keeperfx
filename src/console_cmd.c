@@ -888,25 +888,39 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if (strcasecmp(parstr, "room.available") == 0)
         {
-            long roomid = get_rid(room_desc, pr2str);
-            if (roomid <= 0)
-            {
-                if (strcasecmp(pr2str, "Hatchery" ) == 0)
-                {
-                    roomid = RoK_GARDEN;
-                }
-                else if ( (strcasecmp(pr2str, "Guard" ) == 0) || (strcasecmp(pr2str, "GuardPost" ) == 0) )
-                {
-                    roomid = RoK_GUARDPOST;
-                }
-                else
-                {
-                    roomid = atoi(pr2str);
-                }
-            }
             unsigned char available = (pr3str == NULL) ? 1 : atoi(pr3str);
             PlayerNumber id = get_player_number_for_command(pr4str);
-            script_process_value(Cmd_ROOM_AVAILABLE, id, roomid, (TbBool)available, (TbBool)available, &tmp_value);
+            long roomid;
+            if (strcasecmp(pr2str, "all") == 0)
+            {
+                for (roomid = RoK_TREASURE; roomid <= RoK_GUARDPOST; roomid++)
+                {
+                    if (roomid != RoK_DUNGHEART)
+                    {
+                        script_process_value(Cmd_ROOM_AVAILABLE, id, roomid, (TbBool)available, (TbBool)available, &tmp_value);
+                    }                   
+                }
+            }
+            else
+            {
+                roomid = get_rid(room_desc, pr2str);                
+                if (roomid <= 0)
+                {
+                    if (strcasecmp(pr2str, "Hatchery" ) == 0)
+                    {
+                        roomid = RoK_GARDEN;
+                    }
+                    else if ( (strcasecmp(pr2str, "Guard" ) == 0) || (strcasecmp(pr2str, "GuardPost" ) == 0) )
+                    {
+                        roomid = RoK_GUARDPOST;
+                    }
+                    else
+                    {
+                        roomid = atoi(pr2str);
+                    }
+                }
+                script_process_value(Cmd_ROOM_AVAILABLE, id, roomid, (TbBool)available, (TbBool)available, &tmp_value);
+            }
             update_room_tab_to_config();
             return true;
         }

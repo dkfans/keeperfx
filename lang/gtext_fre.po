@@ -6943,3 +6943,8 @@ msgstr "Caméra Snap"
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Boite Mystérieuse : Rien ne peut nous dire ce qu'elle contient."
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
+msgstr ""

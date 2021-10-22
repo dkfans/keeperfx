@@ -33,12 +33,23 @@ extern "C" {
 /******************************************************************************/
 #define COMMANDDESC_ARGS_COUNT    8
 
-#define PARTY_TRIGGERS_COUNT     48
-#define CREATURE_PARTYS_COUNT    16
-#define CONDITIONS_COUNT         48
-#define TUNNELLER_TRIGGERS_COUNT 16
-#define SCRIPT_VALUES_COUNT      64
+#define PARTY_TRIGGERS_COUNT     256
+#define CREATURE_PARTYS_COUNT    256
+#define CONDITIONS_COUNT         255
+#define TUNNELLER_TRIGGERS_COUNT 256
+#define SCRIPT_VALUES_COUNT      256
 #define WIN_CONDITIONS_COUNT      4
+
+#define CONDITION_ALWAYS (CONDITIONS_COUNT)
+
+#define PARTY_TRIGGERS_COUNT_OLD     48
+#define CREATURE_PARTYS_COUNT_OLD    16
+#define CONDITIONS_COUNT_OLD         48
+#define TUNNELLER_TRIGGERS_COUNT_OLD 16
+#define SCRIPT_VALUES_COUNT_OLD      64
+#define WIN_CONDITIONS_COUNT_OLD      4
+
+#define SENSIBLE_GOLD 99999999
 
 enum TbScriptCommands {
     Cmd_NONE                              =  0,
@@ -301,7 +312,7 @@ struct ScriptLine {
 
 struct TunnellerTrigger { // sizeof = 18
   unsigned char flags;
-  char condit_idx;
+  unsigned char condit_idx;
   unsigned char plyr_idx;
   unsigned long location;
   unsigned char heading_OLD;//no longer used
@@ -313,7 +324,7 @@ struct TunnellerTrigger { // sizeof = 18
 
 struct PartyTrigger { // sizeof = 13
   unsigned char flags;
-  char condit_idx;
+  unsigned char condit_idx;
   char creatr_id;
   union
   {
@@ -336,7 +347,7 @@ struct PartyTrigger { // sizeof = 13
 
 struct ScriptValue { // sizeof = 16
   unsigned char flags;
-  char condit_idx;
+  unsigned char condit_idx;
   unsigned char valtype;
   unsigned char plyr_range;
   union
@@ -353,7 +364,8 @@ struct ScriptValue { // sizeof = 16
         char param;
         char victims[MAX_SACRIFICE_VICTIMS];
     } sac;
-    char bytes[12];
+    unsigned char bytes[12];
+    char chars[12];
   };
 };
 
@@ -406,7 +418,24 @@ struct ScriptFxLine
     int step;
 };
 
-struct LevelScript { // sizeof = 5884
+struct LevelScriptOld { // sizeof = 5884
+    struct TunnellerTrigger tunneller_triggers[TUNNELLER_TRIGGERS_COUNT_OLD];
+    unsigned long tunneller_triggers_num;
+    struct PartyTrigger party_triggers[PARTY_TRIGGERS_COUNT_OLD];
+    unsigned long party_triggers_num;
+    struct ScriptValue values[SCRIPT_VALUES_COUNT_OLD];
+    unsigned long values_num;
+    struct Condition conditions[CONDITIONS_COUNT_OLD];
+    unsigned long conditions_num;
+    struct Party creature_partys[CREATURE_PARTYS_COUNT_OLD];
+    unsigned long creature_partys_num;
+    unsigned short win_conditions[WIN_CONDITIONS_COUNT_OLD];
+    unsigned long win_conditions_num;
+    unsigned short lose_conditions[WIN_CONDITIONS_COUNT_OLD];
+    unsigned long lose_conditions_num;
+};
+
+struct LevelScript {
     struct TunnellerTrigger tunneller_triggers[TUNNELLER_TRIGGERS_COUNT];
     unsigned long tunneller_triggers_num;
     struct PartyTrigger party_triggers[PARTY_TRIGGERS_COUNT];
@@ -424,8 +453,8 @@ struct LevelScript { // sizeof = 5884
 };
 
 /******************************************************************************/
-DLLIMPORT short _DK_script_current_condition;
-#define script_current_condition _DK_script_current_condition
+// DLLIMPORT short _DK_script_current_condition;
+// #define script_current_condition _DK_script_current_condition
 DLLIMPORT unsigned long _DK_script_line_number;
 DLLIMPORT unsigned char _DK_next_command_reusable;
 #define next_command_reusable _DK_next_command_reusable
@@ -477,7 +506,6 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
 TbBool get_condition_status(unsigned char opkind, long val1, long val2);
 TbBool condition_inactive(long cond_idx);
 TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx);
-TbBool is_condition_met(long condit_idx);
 void process_conditions(void);
 void process_values(void);
 void process_win_and_lose_conditions(PlayerNumber plyr_idx);

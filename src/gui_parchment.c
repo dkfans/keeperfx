@@ -212,15 +212,15 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     {
         pixval = pixmap.ghost[background + 0x1A00];
     } else
-    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
-    {
-        pixval = pixmap.ghost[background + 0x8C00];
-    } else
     if (!map_block_revealed(mapblk,plyr_idx))
     {
         pixval = background;
     } else
-    if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
+    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+    {
+        pixval = pixmap.ghost[background + 0x8C00];
+    }
+    else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
     {
         struct Room* room = subtile_room_get(stl_x, stl_y);
         if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
@@ -441,7 +441,7 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 TbPixel col;
                 if ((game.play_gameturn & 4) == 0)
                 {
-                    col1 = player_room_colours[cctrl->party.target_plyr_idx];
+                    col1 = player_room_colours[(int)(cctrl->party.target_plyr_idx>=0?cctrl->party.target_plyr_idx:0)];
                     col2 = player_room_colours[thing->owner];
                 }
                 if (thing->owner == plyr_idx)
