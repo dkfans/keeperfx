@@ -49,7 +49,7 @@ void message_draw(void)
     {
             if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
             {
-                y += LbTextLineHeight();
+                y += h*units_per_pixel/16;
             }
     }
     for (int i = 0; i < game.active_messages_count; i++)
