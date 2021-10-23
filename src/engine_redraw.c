@@ -963,7 +963,7 @@ void redraw_display(void)
         {
             if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
             {
-                pos_y <<= 3;
+                pos_y = ((pos_y << 3) + (LbTextLineHeight() * game.active_messages_count));
             }
         }
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
