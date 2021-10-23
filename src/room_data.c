@@ -655,7 +655,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         if (thing->class_id == TCls_Object)
         {
             PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & 0x80) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//At start of map integrate neutral maps on library.
+            if ((spl_idx > 0) && ((thing->alloc_flags & 0x80) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
             {
                 // If exceeded capacity of the library
                 if (room->used_capacity >= room->total_capacity)

@@ -194,7 +194,7 @@ typedef signed char PlayerNumber;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
 /** Type which stores thing model. */
-typedef signed char ThingModel;
+typedef unsigned char ThingModel;
 /** Type which stores thing index. */
 typedef unsigned short ThingIndex;
 /** Type which stores creature state index. */
