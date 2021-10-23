@@ -27,6 +27,7 @@
 #include "gui_draw.h"
 #include "frontend.h"
 #include "game_legacy.h"
+#include "frontmenu_ingame_evnt.h"
 
 #include "keeperfx.hpp"
 
@@ -44,6 +45,13 @@ void message_draw(void)
     }
     int h = LbTextLineHeight();
     long y = 28 * units_per_pixel / 16;
+    if (game.armageddon_cast_turn != 0)
+    {
+            if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
+            {
+                y += LbTextLineHeight();
+            }
+    }
     for (int i = 0; i < game.active_messages_count; i++)
     {
         long x = 148 * units_per_pixel / 16;
