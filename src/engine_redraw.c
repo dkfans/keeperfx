@@ -957,7 +957,16 @@ void redraw_display(void)
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
         text = buf_sprintf( ">%s_", player->mp_message_text);
-        LbTextDrawResized(148*units_per_pixel/16, 8*units_per_pixel/16, tx_units_per_px, text);
+        long pos_x = 148*units_per_pixel/16;
+        long pos_y = 8*units_per_pixel/16;
+        if (game.armageddon_cast_turn != 0)
+        {
+            if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
+            {
+                pos_y <<= 4;
+            }
+        }
+        LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
     }
     if ( draw_spell_cost )
     {
