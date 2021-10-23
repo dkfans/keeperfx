@@ -270,7 +270,6 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
 void toggle_hero_health_flowers(void);
 void check_players_won(void);
 void check_players_lost(void);
-void process_dungeon_devastation_effects(void);
 void process_things_in_dungeon_hand(void);
 void process_payday(void);
 
@@ -348,14 +347,12 @@ void initialise_map_health(void);
 void setup_3d(void);
 void setup_stuff(void);
 long ceiling_init(unsigned long a1, unsigned long a2);
-void process_dungeon_destroy(struct Thing *thing);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
 
 TbPixel get_player_path_colour(unsigned short owner);
 
-void startup_network_game(TbBool local);
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);

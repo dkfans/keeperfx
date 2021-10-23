@@ -274,7 +274,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       }
       break;
   case TCls_Trap:
-      trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+      trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
       if ((trapst->slappable == 1) && trap_is_active(thing))
       {
           external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, thing_get(player->hand_thing_idx));
@@ -399,7 +399,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         // Now mv_a becomes a circle radius
-        mv_a = crstat->eye_height + (crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) + thing->mappos.z.val;
+        mv_a = crstat->eye_height + (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) + thing->mappos.z.val;
         long mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.x.val;
         long mv_y = thing->mappos.y.val + distance_with_angle_to_coord_y(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.y.val;
         if (mv_x < -128)
@@ -603,7 +603,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val - subtile_coord(7, 0) / 16;
-        pos.z.val = thing->mappos.z.val;
+        pos.z.val = thing->mappos.z.val + subtile_coord(1, 0) / 8;
         move_thing_in_map(thing, &pos);
   }
   if (player->instance_remain_rurns <= 8)
@@ -641,7 +641,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if (player->view_mode == PVM_FrontView)
   {
     cam->mappos.y.val = thing->mappos.y.val;
-    cam->zoom = 65536;
+    cam->zoom = settings.frontview_zoom_level;
   } else
   {
     cam->mappos.y.val = thing->mappos.y.val - (thing->clipbox_size_yz >> 1) -  thing->mappos.z.val;
@@ -667,7 +667,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         unsigned long addval;
         if (cam != NULL)
         {
-          cam->zoom -= 988;
+          cam->zoom -= (24000 - settings.isometric_view_zoom_level) / 16;
           cam->orient_a += LbFPMath_PI/64;
           addval = (thing->clipbox_size_yz >> 1);
           deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
@@ -696,7 +696,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   struct Camera* cam = player->acamera;
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
-    cam->zoom = 8192;
+    cam->zoom = settings.isometric_view_zoom_level;
     cam->orient_a = LbFPMath_PI/4;
   }
   light_turn_light_on(player->field_460);
@@ -939,7 +939,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     long i = player->acamera->orient_a;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long k = thing->mappos.z.val + (crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    long k = thing->mappos.z.val + (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
     player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
     player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
     player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
@@ -984,7 +984,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   long i = player->acamera->orient_a;
   struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-  long k = thing->mappos.z.val + (crstat->eye_height + (crstat->eye_height * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+  long k = thing->mappos.z.val + (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
   player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
   player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
   player->cameras[CamIV_FrontView].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);

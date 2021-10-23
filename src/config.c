@@ -48,7 +48,7 @@ int max_track = 7;
 unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
-extern TbBool AssignCpuKeepers = 0;
+TbBool AssignCpuKeepers = 0;
 
 /**
  * Language 3-char abbreviations.
@@ -135,13 +135,30 @@ const struct NamedCommand logicval_type[] = {
   {"FALSE",    2},
   {"YES",      1},
   {"NO",       2},
+  {"1",        1},
+  {"0",        2},
   {NULL,       0},
+  };
+
+  const struct NamedCommand wibble_type[] = {
+  {"ON",             1},
+  {"OFF",            2},
+  {"LIQUIDONLY",     3},
+  {NULL,             0},
   };
 
   const struct NamedCommand vidscale_type[] = {
   {"OFF",          256}, // = 0x100 = No scaling of Smacker Video
+  {"DISABLED",     256},
+  {"FALSE",        256},
+  {"NO",           256},
+  {"0",            256},
   {"FIT",           16}, // = 0x10 = SMK_FullscreenFit - fit to fullscreen, using letterbox and pillarbox as necessary
   {"ON",            16}, // Duplicate of FIT, for legacy reasons
+  {"ENABLED",       16},
+  {"TRUE",          16},
+  {"YES",           16},
+  {"1",             16},
   {"STRETCH",       32}, // = 0x20 = SMK_FullscreenStretch  - stretch to fullscreen - ignores aspect ratio difference between source and destination
   {"CROP",          64}, // = 0x40 = SMK_FullscreenCrop - fill fullscreen and crop - no letterbox or pillarbox
   {"4BY3",          48}, // = 0x10 & 0x20 = [Aspect Ratio correction mode] - stretch 320x200 to 4:3 (i.e. increase height by 1.2)
@@ -170,15 +187,15 @@ short is_near_new_moon = 0;
  * @param mem_size Amount of memory available for the game.
  * @return
  */
-TbBool update_features(unsigned long mem_size)
+TbBool update_features(unsigned long uf_mem_size)
 {
     short result = false;
-    if (mem_size >= 32)
+    if (uf_mem_size >= 32)
     {
         result = true;
         features_enabled |= Ft_HiResCreatr;
   }
-  if (mem_size >= 16)
+  if (uf_mem_size >= 16)
   {
     features_enabled |= Ft_EyeLens;
     features_enabled |= Ft_HiResVideo;
@@ -265,6 +282,14 @@ TbBool pause_music_when_game_paused(void)
 TbBool mute_audio_on_focus_lost(void)
 {
   return ((features_enabled & Ft_MuteAudioOnLoseFocus) != 0);
+}
+  
+/**
+ * Returns if the liquid wibble effect is on.
+ */
+TbBool liquid_wibble_enabled(void)
+{
+  return ((features_enabled & Ft_LiquidWibble) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -847,17 +872,28 @@ short load_configuration(void)
           }
           break;
       case 16: // WIBBLE
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          i = recognize_conf_parameter(buf,&pos,len,wibble_type);
           if (i <= 0)
           {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
-          if (i == 1)
+          if (i == 1) // WIBBLE ON
+          {
               features_enabled |= Ft_Wibble;
-          else
+              features_enabled |= Ft_LiquidWibble;
+          }
+          else if (i == 3) // LIQUID ONLY
+          {
               features_enabled &= ~Ft_Wibble;
+              features_enabled |= Ft_LiquidWibble;
+          }
+          else // WIBBLE OFF
+          {
+              features_enabled &= ~Ft_Wibble;
+              features_enabled &= ~Ft_LiquidWibble;
+          }
           break;
       case 17: // FREEZE_GAME_ON_FOCUS_LOST
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);

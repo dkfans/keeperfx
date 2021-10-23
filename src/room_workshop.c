@@ -182,9 +182,6 @@ TbBool set_manufacture_level(struct Dungeon *dungeon)
     {
         dungeon->manufacture_level = 4;
     }
-    // Special cases
-    if (wrkshp_slabs == 4*5)
-        dungeon->manufacture_level++;
     return true;
 }
 
@@ -525,7 +522,7 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
     struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
 
     // Try getting door kind for manufacture
-    for (tngmodel = 1; tngmodel < trapdoor_conf.door_types_count; tngmodel++)
+    for (tngmodel = 1; tngmodel < gameadd.trapdoor_conf.door_types_count; tngmodel++)
     {
         mconf = &gameadd.doors_config[tngmodel];
         if (((dungeonadd->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
@@ -542,7 +539,7 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
         }
     }
     // Try getting trap kind for manufacture
-    for (tngmodel = 1; tngmodel < trapdoor_conf.trap_types_count; tngmodel++)
+    for (tngmodel = 1; tngmodel < gameadd.trapdoor_conf.trap_types_count; tngmodel++)
     {
         mconf = &gameadd.traps_config[tngmodel];
         if (((dungeonadd->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
@@ -600,10 +597,10 @@ long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, cons
     switch (mfcr_type)
     {
     case TCls_Trap:
-        mconf = &gameadd.traps_config[mfcr_kind%trapdoor_conf.trap_types_count ];
+        mconf = &gameadd.traps_config[mfcr_kind%gameadd.trapdoor_conf.trap_types_count ];
         return mconf->manufct_required;
     case TCls_Door:
-        mconf = &gameadd.doors_config[mfcr_kind%trapdoor_conf.door_types_count];
+        mconf = &gameadd.doors_config[mfcr_kind%gameadd.trapdoor_conf.door_types_count];
         return mconf->manufct_required;
     default:
         ERRORMSG("%s: Invalid type of manufacture: %d",func_name,(int)mfcr_type);

@@ -136,7 +136,7 @@ char numfield_1A;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
     struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
-    struct ObjectConfig objects_config[OBJECT_TYPES_COUNT];
+    struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
 struct ObjectConfig objects_config_UNUSED[103];
 char field_117DA[14];
     // Traps and doors config; note that eventually we'll want to merge it with trapdoor_conf
@@ -293,7 +293,7 @@ char field_14EA4B;
     unsigned short torture_health_loss;
     unsigned short turns_per_torture_health_loss;
     unsigned char ghost_convert_chance;
-    struct LevelScript script;
+    struct LevelScriptOld script;
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
     long frame_skip;
@@ -374,7 +374,6 @@ long field_1516FB;
 DLLIMPORT extern struct Game _DK_game;
 #define game _DK_game
 /******************************************************************************/
-extern unsigned long gold_per_hoard;
 /******************************************************************************/
 #ifdef __cplusplus
 }

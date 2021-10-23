@@ -62,6 +62,7 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
 long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check);
+long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck* check);
 
 /******************************************************************************/
 const struct NamedCommand computer_check_func_type[] = {
@@ -79,7 +80,8 @@ const struct NamedCommand computer_check_func_type[] = {
   {"check_for_place_trap",   12,},
   {"check_for_expand_room",  13,},
   {"check_for_money",        14,},
-  {"none",                   15,},
+  {"check_prison_tendency",  15,},
+  {"none",                   16,},
   {NULL,                      0,},
 };
 
@@ -99,6 +101,7 @@ Comp_Check_Func computer_check_func_list[] = {
   computer_check_for_place_trap,
   computer_check_for_expand_room,
   computer_check_for_money,
+  computer_check_prison_tendency,
   NULL,
   NULL,
 };
@@ -177,7 +180,7 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
         // If no reason to hate the player - hate him randomly for just surviving that long
         if ((hate_reasons <= 0) && (check->param1 < game.play_gameturn))
         {
-            if (ACTION_RANDOM(100) < 20) {
+            if (PLAYER_RANDOM(compdngn->owner, 100) < 20) {
                 oprel->hate_amount++;
             }
         }
@@ -590,7 +593,7 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
         if (stack_len <= check->param1 * dungeon->total_area / 100) {
             return CTaskRet_Unk4;
         }
-        long n = find_in_imp_stack_starting_at(DigTsk_ImproveDungeon, ACTION_RANDOM(stack_len), dungeon);
+        long n = find_in_imp_stack_starting_at(DigTsk_ImproveDungeon, PLAYER_RANDOM(compdngn->owner, stack_len), dungeon);
         if (n < 0) {
             return CTaskRet_Unk4;
         }
@@ -615,7 +618,7 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
     if (dungeon_invalid(dungeon) || (slab_conf.room_types_count < 1)) {
         return INVALID_ROOM;
     }
-    int n = opponent_room_kinds[ACTION_RANDOM(sizeof(opponent_room_kinds) / sizeof(opponent_room_kinds[0]))];
+    int n = opponent_room_kinds[PLAYER_RANDOM(comp->dungeon->owner, sizeof(opponent_room_kinds) / sizeof(opponent_room_kinds[0]))];
     for (int i = 0; i < slab_conf.room_types_count; i++)
     {
         struct Room* room = room_get(dungeon->room_kind[n]);
@@ -686,7 +689,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
-    output_message(SMsg_EnemyHarassments+ACTION_RANDOM(8), 500, 1);
+    output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), 500, 1);
     return CTaskRet_Unk1;
 }
 
@@ -772,13 +775,15 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
 {
     static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
     SYNCDBG(8,"Starting");
-    if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, 8, 3))
+    int power_level = check->param2;
+    int amount = check->param3;
+    if (!computer_able_to_use_power(comp, PwrK_SPEEDCRTR, power_level, amount))
     {
         return CTaskRet_Unk4;
     }
     long n = check->param1 % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
     if (n <= 0)
-        n = ACTION_RANDOM(sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+        n = PLAYER_RANDOM(comp->dungeon->owner, sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
     for (long i = 0; i < sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]); i++)
     {
         struct Thing* thing = computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(comp, workers_in_rooms[n]);
@@ -867,9 +872,9 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
     return result;
 }
 
-TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3d *pos)
+static TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3d *pos, PlayerNumber plyr_idx)
 {
-    long m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    long m = PLAYER_RANDOM(plyr_idx, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         // Get position containing room center
@@ -930,7 +935,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
     struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
-    for (ThingModel doorkind = trapdoor_conf.door_types_count; doorkind > 1; doorkind--)
+    for (ThingModel doorkind = gameadd.trapdoor_conf.door_types_count; doorkind > 1; doorkind--)
     {
         if (dungeonadd->mnfct_info.door_amount_stored[doorkind] <= 0) {
             continue;
@@ -957,7 +962,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
             pos.x.val = 0;
             pos.y.val = 0;
             pos.z.val = 0;
-            if (find_place_to_put_door_around_room(room, &pos))
+            if (find_place_to_put_door_around_room(room, &pos, dungeon->owner))
             {
                 if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0, pos.x.stl.num, pos.y.stl.num, doorkind, 0) > Lb_OK) {
                     return CTaskRet_Unk1;
@@ -1165,7 +1170,7 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    long around_start = ACTION_RANDOM(119);
+    long around_start = PLAYER_RANDOM(dungeon->owner, 119);
     // Don't work when placing rooms; we could place in an area for room by mistake
     if (is_task_in_progress(comp, CTT_PlaceRoom) || is_task_in_progress(comp, CTT_CheckRoomDug)) {
         SYNCDBG(8,"No rooms expansion - colliding task already in progress");
@@ -1185,7 +1190,82 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
             return CTaskRet_Unk1;
         }
     }
-    SYNCDBG(8,"No rooms found for expansion");
+    SYNCDBG(8, "No rooms found for expansion");
     return CTaskRet_Unk0;
+}
+
+long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck* check)
+{
+    SYNCDBG(8, "Starting");
+    struct Dungeon* dungeon = comp->dungeon;
+    struct PlayerInfo* player = get_player(comp->dungeon->owner);
+    RoomKind room = get_room_for_job(Job_CAPTIVITY);
+
+    int status = check->param1;
+    int min_capacity = check->param2;
+    int max_units = check->param3;
+
+    if (status == 0)
+    {
+        SYNCDBG(8, "Prison tendency handled manually by script, aborting.");
+        return CTaskRet_Unk1;
+    }
+    int total_capacity = computer_get_room_kind_total_capacity(comp, room);
+    // Enough prison capacity to enable imprisonment
+    if ((total_capacity >= min_capacity) && (dungeon->num_active_creatrs < max_units))
+    {
+        if ((dungeon->creature_tendencies & 0x01) != 0)
+        {
+            SYNCDBG(8, "Prison tendency already enabled");
+            return CTaskRet_Unk1;
+        }
+        if (status != 3)
+        {
+            if (set_creature_tendencies(player, CrTend_Imprison, true))
+            {
+                SYNCDBG(18, "Player %d has enabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
+                return CTaskRet_Unk1;
+            }
+            else
+            {
+                ERRORLOG("Failed to enable prison tendency");
+                return CTaskRet_Unk4;
+            }
+        }
+        else
+        {
+            SYNCDBG(8, "Enabling prison tendency handled manually by script, aborting.");
+            return CTaskRet_Unk1;
+        }
+    }
+    // Not enough prison capacity to keep imprisonment enabled, or too many units
+    else
+    {
+        if ((dungeon->creature_tendencies & 0x01) == 0)
+        {
+            SYNCDBG(8, "Prison tendency already disabled");
+            return CTaskRet_Unk1;
+        }
+        if (status != 2)
+        {
+            if (set_creature_tendencies(player, CrTend_Imprison, false))
+            {
+                SYNCDBG(18, "Player %d has disabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
+                return CTaskRet_Unk1;
+            }
+            else
+            {
+                ERRORLOG("Failed to disable prison tendency");
+                return CTaskRet_Unk4;
+            }
+        }
+        else
+        {
+            SYNCDBG(8, "Disabling prison tendency handled manually by script, aborting.");
+            return CTaskRet_Unk1;
+        }
+    }
+
+ return CTaskRet_Unk0;
 }
 /******************************************************************************/

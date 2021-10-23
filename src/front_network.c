@@ -171,7 +171,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     }
 }
 
-void setup_alliances(void)
+CoroutineLoopState setup_alliances(CoroutineLoop *loop)
 {
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
@@ -184,7 +184,8 @@ void setup_alliances(void)
                 set_ally_with_player(i, my_player_number, true);
             }
         }
-  }
+    }
+    return CLS_CONTINUE; // Exit the loop
 }
 
 void frontnet_service_update(void)

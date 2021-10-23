@@ -469,9 +469,9 @@ long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng
 
 struct Party *get_party_of_name(const char *prtname)
 {
-    for (int i = 0; i < game.script.creature_partys_num; i++)
+    for (int i = 0; i < gameadd.script.creature_partys_num; i++)
     {
-        struct Party* party = &game.script.creature_partys[i];
+        struct Party* party = &gameadd.script.creature_partys[i];
         if (strcasecmp(party->prtname, prtname) == 0)
             return party;
     }
@@ -480,9 +480,9 @@ struct Party *get_party_of_name(const char *prtname)
 
 int get_party_index_of_name(const char *prtname)
 {
-    for (int i = 0; i < game.script.creature_partys_num; i++)
+    for (int i = 0; i < gameadd.script.creature_partys_num; i++)
     {
-        struct Party* party = &game.script.creature_partys[i];
+        struct Party* party = &gameadd.script.creature_partys[i];
         if (strcasecmp(party->prtname, prtname) == 0)
             return i;
     }
@@ -491,15 +491,15 @@ int get_party_index_of_name(const char *prtname)
 
 TbBool create_party(const char *prtname)
 {
-    if (game.script.creature_partys_num >= CREATURE_PARTYS_COUNT)
+    if (gameadd.script.creature_partys_num >= CREATURE_PARTYS_COUNT)
     {
         SCRPTERRLOG("Too many partys in script");
         return false;
     }
-    struct Party* party = (&game.script.creature_partys[game.script.creature_partys_num]);
+    struct Party* party = (&gameadd.script.creature_partys[gameadd.script.creature_partys_num]);
     strncpy(party->prtname, prtname, sizeof(party->prtname));
     party->members_num = 0;
-    game.script.creature_partys_num++;
+    gameadd.script.creature_partys_num++;
     return true;
 }
 
@@ -510,7 +510,7 @@ TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long 
         ERRORLOG("Party:%d is not defined", party_id);
         return false;
     }
-    struct Party* party = &game.script.creature_partys[party_id];
+    struct Party* party = &gameadd.script.creature_partys[party_id];
     if (party->members_num >= GROUP_MEMBERS_COUNT)
     {
       ERRORLOG("Too many creatures in party '%s' (limit is %d members)",
@@ -536,7 +536,7 @@ TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level)
         ERRORLOG("Party:%d is not defined", party_id);
         return false;
     }
-    struct Party* party = &game.script.creature_partys[party_id];
+    struct Party* party = &gameadd.script.creature_partys[party_id];
 
     for (int i = 0; i < party->members_num; i++)
     {
@@ -575,12 +575,12 @@ TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *po
     for (int i = 0; i < group_len; i++)
     {
         struct MemberPos* avail_pos = &leadctrl->followers_pos[i];
-        if (((avail_pos->flags & 0x02) != 0) && ((avail_pos->flags & 0x01) == 0))
+        if (((avail_pos->flags & MpF_AVAIL) != 0) && ((avail_pos->flags & MpF_OCCUPIED) == 0))
         {
             pos->x.val = subtile_coord_center(stl_num_decode_x(avail_pos->stl_num));
             pos->y.val = subtile_coord_center(stl_num_decode_y(avail_pos->stl_num));
             pos->z.val = 0;
-            avail_pos->flags |= 0x01;
+            avail_pos->flags |= MpF_OCCUPIED;
             return true;
         }
     }
@@ -642,7 +642,7 @@ void creature_follower_pos_add(struct Thing *creatng, int ifollow, const struct 
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct MemberPos* avail_pos = &cctrl->followers_pos[ifollow];
     avail_pos->stl_num = get_subtile_number(pos->x.stl.num, pos->y.stl.num);
-    avail_pos->flags |= 0x02;
+    avail_pos->flags |= MpF_AVAIL;
 }
 
 void leader_find_positions_for_followers(struct Thing *leadtng)
@@ -768,6 +768,19 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
         }
         shift_yv += delta_yv;
         shift_xv += delta_xv;
+    }
+    for (;ifollow < group_len;ifollow++)
+    {
+        // Just go to my slab
+        struct Coord3d pos;
+        pos.x.val = leadtng->mappos.x.val;
+        pos.y.val = leadtng->mappos.y.val;
+
+        pos.x.stl.pos = CREATURE_RANDOM(leadtng, 127);
+        pos.y.stl.pos = CREATURE_RANDOM(leadtng, 127);
+
+        pos.z.val = get_floor_height_at(&pos);
+        creature_follower_pos_add(leadtng, ifollow, &pos);
     }
 }
 /******************************************************************************/

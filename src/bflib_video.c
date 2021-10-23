@@ -205,19 +205,19 @@ TbScreenCoord LbScreenHeight(void)
     return lbDisplay.PhysicalScreenHeight;
 }
 
-TbResult LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fade_steps)
+TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette,long fade_steps)
 {
     unsigned char palette[PALETTE_SIZE];
     for (int i = 0; i < 3 * PALETTE_COLORS; i += 3)
     {
-        int c1 = to_pal[i + 0];
-        int c2 = from_pal[i + 0];
+        int c1 = to_palette[i + 0];
+        int c2 = from_palette[i + 0];
         palette[i+0] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_pal[i+1];
-        c2 = from_pal[i+1];
+        c1 =   to_palette[i+1];
+        c2 = from_palette[i+1];
         palette[i+1] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_pal[i+2];
-        c2 = from_pal[i+2];
+        c1 =   to_palette[i+2];
+        c2 = from_palette[i+2];
         palette[i+2] = fade_count * (c1 - c2) / fade_steps + c2;
     }
     LbScreenWaitVbi();
@@ -386,7 +386,8 @@ TbResult LbScreenInitialize(void)
     return Lb_SUCCESS;
 }
 
-static LPCTSTR MsResourceMapping(int index)
+// this function is unused
+LPCTSTR MsResourceMapping(int index)
 {
   switch (index)
   {

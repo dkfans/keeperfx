@@ -77,7 +77,7 @@ short field_16;
   unsigned char trigger_type;
   unsigned char activation_type;
   unsigned char created_itm_model; // Shot model, effect model, slab kind
-  unsigned char field_1B; // goes to byte_16 of shot or effect == hit_type
+  unsigned char hit_type;
 short light_1C; // creates light if not null
 unsigned char light_1E;
 unsigned char light_1F;

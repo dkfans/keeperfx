@@ -170,7 +170,7 @@ void create_gold_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     while (pos.z.val < maxpos_z)
     {
         create_effect(&pos, TngEff_DirtRubble, owner);
-        create_effect(&pos, TngEff_GoldRubble, owner);
+        create_effect(&pos, TngEff_GoldRubble2, owner);
         pos.z.val += COORD_PER_STL;
     }
 }
@@ -257,6 +257,8 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
                   if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
                   {
                       mapblk->flags |= SlbAtFlg_TaggedValuable;
+                      if (!map_block_revealed(mapblk, plyr_idx))
+                          mapblk->flags |= SlbAtFlg_Unexplored;
                   } else
                   if (((mapblk->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable)) != 0) || !map_block_revealed(mapblk, plyr_idx))
                   {
@@ -722,7 +724,7 @@ void place_slab_columns(long slbkind, unsigned char stl_x, unsigned char stl_y, 
             if ( v10 < 0 )
               ERRORLOG("BBlocks instead of columns");
             update_map_collide(slbkind, stl_x+dx, stl_y+dy);
-            if (wibble_enabled())
+            if (wibble_enabled() || (liquid_wibble_enabled() && slab_kind_is_liquid(slbkind)))
             {
                 set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
             }

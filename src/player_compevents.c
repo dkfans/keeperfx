@@ -29,9 +29,12 @@
 #include "magic.h"
 #include "player_instances.h"
 #include "config_terrain.h"
+#include "creature_instances.h"
 #include "creature_states_combt.h"
 #include "creature_states.h"
+#include "creature_states_lair.h"
 #include "power_hand.h"
+#include "player_computer.h"
 
 #include "dungeon_data.h"
 #include "game_legacy.h"
@@ -48,6 +51,9 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
 long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
+long computer_event_save_tortured(struct Computer2 *comp, struct ComputerEvent *cevent);
+long computer_event_rebuild_room(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
+long computer_event_handle_prisoner(struct Computer2 *comp, struct ComputerEvent* cevent, struct Event *event);
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
@@ -67,7 +73,8 @@ const struct NamedCommand computer_event_test_func_type[] = {
   {"event_attack_magic_foe",  3,},
   {"event_check_rooms_full",  4,},
   {"event_check_imps_danger", 5,},
-  {"none",                    6,},
+  {"event_save_tortured",     6,},
+  {"none",                    7,},
   {NULL,                      0,},
 };
 
@@ -78,6 +85,7 @@ Comp_EvntTest_Func computer_event_test_func_list[] = {
   computer_event_attack_magic_foe,
   computer_event_check_rooms_full,
   computer_event_check_imps_in_danger,
+  computer_event_save_tortured,
   NULL,
   NULL,
 };
@@ -86,7 +94,9 @@ const struct NamedCommand computer_event_func_type[] = {
   {"event_battle",            1,},
   {"event_find_link",         2,},
   {"event_check_payday",      3,},
-  {"none",                    4,},
+  {"event_rebuild_room",      4,},
+  {"event_handle_prisoner",   5,},
+  {"none",                    6,},
   {NULL,                      0,},
 };
 
@@ -95,7 +105,8 @@ Comp_Event_Func computer_event_func_list[] = {
   computer_event_battle,
   computer_event_find_link,
   computer_event_check_payday,
-  NULL,
+  computer_event_rebuild_room,
+  computer_event_handle_prisoner,
   NULL,
 };
 
@@ -406,6 +417,11 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     if (!thing_is_creature(creatng) || creature_is_dying(creatng)) {
         return 4;
     }
+    if (creatng->owner == fightng->owner)
+    {
+        //TODO: Stop computer from initiating attack event on friendly fights
+        return 4;
+    }
     PowerKind pwkind = computer_choose_attack_spell(comp, cevent, creatng);
     if (pwkind == PwrK_None) {
         return 4;
@@ -481,6 +497,173 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
     return ret;
 }
 
+
+long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
+{
+    SYNCDBG(18, "Starting");
+    struct Dungeon* dungeon = comp->dungeon;
+    struct Thing* creatng = thing_get(event->target);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    //struct Room* origroom = get_room_thing_is_on(creatng);
+    struct Room* destroom;
+
+    int actions_allowed = cevent->param1;
+    int power_level = cevent->param2;
+    int amount = cevent->param3;
+
+    if (actions_allowed == 0)
+    {
+        return CTaskRet_Unk1;
+    }
+
+    if (dungeon_has_room(dungeon, RoK_TORTURE) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
+    {
+        if (!creature_requires_healing(creatng))
+        {
+            destroom = find_room_with_spare_capacity(dungeon->owner, RoK_TORTURE, 1);
+            if (!room_is_invalid(destroom))
+            {
+
+                if (create_task_move_creature_to_subtile(comp, creatng, destroom->central_stl_x, destroom->central_stl_y, CrSt_Torturing))
+                {
+                    return CTaskRet_Unk1;
+                }
+            }
+            else
+            {
+                // wait for capacity to free up.
+                return CTaskRet_Unk4;
+            }
+        }
+        else if (cctrl->instance_available[CrInst_HEAL] == 0)
+        {
+            if (((!crstat->humanoid_creature) && (actions_allowed >= 2)) || (actions_allowed == 2)) // 1 = move only, 2 = everybody, 3 = non_humanoids
+            {
+                if (computer_able_to_use_power(comp, PwrK_HEALCRTR, power_level, amount)) 
+                {
+                    magic_use_available_power_on_thing(comp->dungeon->owner, PwrK_HEALCRTR, power_level, 0, 0, creatng, PwMod_Default);
+                    return CTaskRet_Unk1;
+                }
+                return CTaskRet_Unk4;
+            }
+        }
+    }
+    return CTaskRet_Unk1;
+}
+
+long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
+{
+    SYNCDBG(18, "Starting");
+    if (count_slabs_of_room_type(comp->dungeon->owner, event->target) == 0)
+    {
+        for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
+        {
+            struct ComputerProcess* cproc = &comp->processes[i];
+            if ((cproc->flags & ComProc_Unkn0002) != 0)
+                break;
+            if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
+            {
+                SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
+                cproc->flags &= ~ComProc_Unkn0008;
+                cproc->flags &= ~ComProc_Unkn0001;
+                cproc->last_run_turn = 0;
+            }
+        }
+    }
+    return CTaskRet_Unk1;
+}
+
+long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* cevent)
+{
+    struct Dungeon* dungeon = comp->dungeon;
+    int health_permil = (cevent->param1 * 10);
+
+    // If we don't have the power to pick up creatures, fail now
+    if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
+        return 4;
+    }
+
+    // Do we have a prison to put the unit back into?
+    struct Room* destroom = RoK_NONE;
+    TbBool can_return = false;
+    if (dungeon_has_room(dungeon, RoK_PRISON))
+    {
+        destroom = find_room_with_spare_capacity(dungeon->owner, RoK_PRISON, 1);
+        if (!room_is_invalid(destroom))
+        {
+            can_return = true;
+        }
+    }
+    
+    unsigned long moved = 0;
+    unsigned long slapped = 0;
+    struct Dungeon* victdungeon;
+    for (int j = 0; j < DUNGEONS_COUNT; j++)
+    {
+        if (j == comp->dungeon->owner)
+        {
+            continue;
+        }
+        victdungeon = get_dungeon(j);
+        int i = victdungeon->creatr_list_start;
+        while (i != 0)
+        {
+            struct Thing* creatng = thing_get(i);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+            struct Room* room = get_room_thing_is_on(creatng);
+            if (thing_is_invalid(creatng) || creature_control_invalid(cctrl))
+            {
+                ERRORLOG("Jump to invalid creature detected");
+                break;
+            }
+            i = cctrl->players_next_creature_idx;
+            if (!creature_is_being_tortured(creatng))
+            {
+                continue;
+            }
+            if (get_creature_health_permil(creatng) > health_permil)
+            {
+                continue;
+            }
+            if (room->owner == creatng->owner)
+            {
+                continue;
+            }
+            //We found a unit in our torture room that's in need of healing.
+            if ((cctrl->instance_available[CrInst_HEAL] != 0) && (cctrl->slap_turns == 0))
+            {
+                //slap creature so he will heal himself
+                if (can_cast_spell(dungeon->owner, PwrK_SLAP, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
+                {
+                    struct CreatureStats* crstat;
+                    crstat = creature_stats_get_from_thing(creatng);
+                    // Check if the slap may cause death
+                    if ((crstat->slaps_to_kill < 1) || (get_creature_health_permil(creatng) >= 2 * 1000 / crstat->slaps_to_kill))
+                    {
+                        if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, creatng->index, 0) > Lb_OK)
+                        {
+                            slapped++;
+                            continue;
+                        }
+
+                    }
+                }
+            }
+
+            //move back to prison
+            if (can_return == true)
+            {
+                if (create_task_move_creature_to_subtile(comp, creatng, destroom->central_stl_x, destroom->central_stl_y, CrSt_CreatureInPrison))
+                {
+                    moved++;
+                }
+            }
+        }
+    }
+    return CTaskRet_Unk1;
+}
+
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
     struct Dungeon* dungeon = comp->dungeon;
@@ -511,7 +694,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
             if (!creature_is_being_unconscious(creatng) && !creature_affected_by_spell(creatng, SplK_Chicken))
             {
                 // Small chance to casting invisibility,on imp in battle.
-                if((ACTION_RANDOM(150) == 1) && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1) && !thing_affected_by_spell(creatng, PwrK_CONCEAL))
+                if((CREATURE_RANDOM(creatng, 150) == 1) && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1) && !thing_affected_by_spell(creatng, PwrK_CONCEAL))
                 {
                     magic_use_available_power_on_thing(creatng->owner, PwrK_CONCEAL, 8, 0, 0, creatng, PwMod_Default);
                 }

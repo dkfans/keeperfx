@@ -469,7 +469,7 @@ msgstr ""
 "Accélération: Accélère la créature afin qu'elle puisse effectuer des tâches "
 "de combat et de travail très rapidement.[26.20]"
 
-#: guitext:237 guitext:253
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
@@ -599,6 +599,14 @@ msgid ""
 msgstr ""
 "Combat rapproché: La capacité de combat de base qui permet d'attaquer "
 "l'ennemi à mains nues ou avec une épée.[25.3]"
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+"Flatulence: Une attaque de type gas à courte distance qui "
+"n'endommage que les creatures ennemies"
 
 #: guitext:254
 msgctxt "Creature spell"

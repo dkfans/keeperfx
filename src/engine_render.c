@@ -473,6 +473,31 @@ void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
     matx->r[2].v[3] = matx->r[2].v[0] * matx->r[2].v[1];
 }
 
+struct WibbleTable *get_wibble_from_table(long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct WibbleTable *wibl;
+    TbBool use_wibble = wibble_enabled();
+    if (liquid_wibble_enabled() && !use_wibble)
+    {
+        struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
+        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1)); // additional checks needed to keep straight edges around liquid with liquid wibble mode
+        struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
+        if (slab_kind_is_liquid(slb3->kind) && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind))
+        {
+            use_wibble = true;
+        }
+    }
+    if (use_wibble)
+    {
+        wibl = &wibble_table[table_index];
+    }
+    else
+    {
+        wibl = &blank_wibble_table[table_index];
+    }
+    return wibl;
+}
+
 void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
 {
     //_DK_fill_in_points_perspective(bstl_x, bstl_y, mm); return;
@@ -569,7 +594,7 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         hpos = subtile_coord(hmin,0) - view_alt;
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         int idxh;
         for (idxh = hmax-hmin+1; idxh > 0; idxh--)
         {
@@ -594,7 +619,9 @@ void fill_in_points_perspective(long bstl_x, long bstl_y, struct MinMax *mm)
         wib_v = get_mapblk_wibble_value(mapblk);
         hpos = subtile_coord(get_mapblk_filled_subtiles(mapblk),0) - view_alt;
         if (wib_v == 2)
-          wibl = &wibble_table[wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32];
+        {
+            wibl = get_wibble_from_table(wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32, stl_x, stl_y);
+        }
         ecord = &ecol->cors[8];
         {
             ecord->x = apos + wibl->field_0;
@@ -769,7 +796,7 @@ void fill_in_points_cluedo(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         long *randmis;
         randmis = &randomisors[(stl_x + 17 * (stl_y + 1)) & 0xff];
         eview_h = dview_h * hmin + hview_y;
@@ -1000,7 +1027,7 @@ void fill_in_points_isometric(long bstl_x, long bstl_y, struct MinMax *mm)
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
-        wibl = &wibble_table[32 * wib_v + wib_x + (wib_y << 2)];
+        wibl = get_wibble_from_table(32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
         randmis = &randomisors[(stl_x + 17 * (stl_y+1)) & 0xff] + hmin;
@@ -1099,7 +1126,7 @@ void frame_wibble_generate(void)
     }
 }
 
-void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, long zoom, long map_angle, long map_roll)
+void setup_rotate_stuff(long x, long y, long z, long rotate_fade_max, long rotate_fade_min, long zoom, long map_angle, long rotate_map_roll)
 {
     //_DK_setup_rotate_stuff(x, y, z, fade_max, fade_min, zoom, map_angle, map_roll);
     view_width_over_2 = vec_window_width / 2;
@@ -1109,9 +1136,9 @@ void setup_rotate_stuff(long x, long y, long z, long fade_max, long fade_min, lo
     map_z_pos = z;
     thelens = zoom;
     spr_map_angle = map_angle;
-    lfade_min = fade_min;
-    lfade_max = fade_max;
-    fade_mmm = fade_max - fade_min;
+    lfade_min = rotate_fade_min;
+    lfade_max = rotate_fade_max;
+    fade_mmm = rotate_fade_max - rotate_fade_min;
 }
 
 static void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
@@ -2985,8 +3012,19 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         {
             int ncor_raw;
             ncor_raw = _DK_floor_height[solidmsk_cur_raw];
-            if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
+            if ( (cur_mapblk->flags & SlbAtFlg_Unexplored) != 0 )
             {
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
+            } else
+            if ((cur_mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+            {
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
+            } else
+             {
                 if ((ncor_raw > 0) && (ncor_raw <= COLUMN_STACK_HEIGHT))
                 {
                     struct CubeAttribs * cubed = &game.cubes_data[cur_colmn->cubes[ncor_raw-1]];
@@ -2995,17 +3033,6 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
                     do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
                     do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
                 }
-            } else
-            if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
-            {
-                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
-            } else
-            {
-                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
         } else
         {
@@ -3171,7 +3198,13 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
         ncor = _DK_floor_height[solidmsk_cur];
         if (ncor > 0)
         {
-            if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
+            if (cur_mapblk->flags & SlbAtFlg_Unexplored)
+            {
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
+                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
+                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
+            }
+            else if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
             {
                 struct CubeAttribs * cubed;
                 cubed = &game.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
@@ -3183,11 +3216,6 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
-                do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
-                do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
-            } else
-            {
-                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
@@ -4929,7 +4957,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     x = cam->mappos.x.val;
     y = cam->mappos.y.val;
     z = cam->mappos.z.val;
-    if (wibble_enabled())
+    if (wibble_enabled() || liquid_wibble_enabled())
     {
         frame_wibble_generate();
     }
@@ -6198,7 +6226,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, scale);
             break;
         case TCls_Trap:
-            trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;

@@ -288,7 +288,7 @@ void update_player_sounds(void)
         // Rare message easter egg
         if ((game.play_gameturn % 20000) == 0)
         {
-            if (ACTION_RANDOM(2000) == 0)
+            if (UNSYNC_RANDOM(2000) == 0)
             {
               k = UNSYNC_RANDOM(10);
               SYNCDBG(9,"Rare message condition met, selected %d",(int)k);

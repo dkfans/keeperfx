@@ -22,9 +22,13 @@ ARCH = i686-w64-mingw32
 
 .PHONY: clean-libsdl deep-clean-libsdl
 
+.INTERMEDIATE: libsdl libsdlnet libsdlmixer
+
 libexterns: libsdl libsdlnet libsdlmixer
+	touch libexterns
 
 clean-libexterns: clean-libsdl
+	$(RM) libexterns
 
 deep-clean-libexterns: deep-clean-libsdl
 

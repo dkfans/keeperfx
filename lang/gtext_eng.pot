@@ -1750,7 +1750,7 @@ msgid ""
 "tasks really quickly."
 msgstr ""
 
-#: guitext:237 guitext:253
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
@@ -1854,6 +1854,12 @@ msgctxt "Creature spell"
 msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
+msgstr ""
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
 msgstr ""
 
 #: guitext:254
@@ -5866,4 +5872,9 @@ msgstr ""
 #: guitext:1005
 msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
+msgstr ""
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
 msgstr ""

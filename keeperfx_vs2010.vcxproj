@@ -25,6 +25,7 @@
     <ClCompile Include="src\bflib_basics.c" />
     <ClCompile Include="src\bflib_bufrw.c" />
     <ClCompile Include="src\bflib_client_tcp.cpp" />
+    <ClCompile Include="src\bflib_coroutine.c" />
     <ClCompile Include="src\bflib_cpu.c" />
     <ClCompile Include="src\bflib_crash.c" />
     <ClCompile Include="src\bflib_datetm.c" />
@@ -89,6 +90,7 @@
     <ClCompile Include="src\config_strings.c" />
     <ClCompile Include="src\config_terrain.c" />
     <ClCompile Include="src\config_trapdoor.c" />
+    <ClCompile Include="src\console_cmd.c" />
     <ClCompile Include="src\creature_battle.c" />
     <ClCompile Include="src\creature_control.c" />
     <ClCompile Include="src\creature_graphics.c" />
@@ -155,6 +157,7 @@
     <ClCompile Include="src\game_heap.c" />
     <ClCompile Include="src\game_legacy.c" />
     <ClCompile Include="src\game_lghtshdw.c" />
+    <ClCompile Include="src\game_loop.c" />
     <ClCompile Include="src\game_merge.c" />
     <ClCompile Include="src\game_saves.c" />
     <ClCompile Include="src\gui_boxmenu.c" />
@@ -177,6 +180,7 @@
     <ClCompile Include="src\lvl_script.c" />
     <ClCompile Include="src\magic.c" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\main_game.c" />
     <ClCompile Include="src\map_blocks.c" />
     <ClCompile Include="src\map_columns.c" />
     <ClCompile Include="src\map_data.c" />
@@ -251,6 +255,7 @@
     <ClInclude Include="src\bflib_basics.h" />
     <ClInclude Include="src\bflib_bufrw.h" />
     <ClInclude Include="src\bflib_client_tcp.hpp" />
+    <ClInclude Include="src\bflib_coroutine.h" />
     <ClInclude Include="src\bflib_cpu.h" />
     <ClInclude Include="src\bflib_crash.h" />
     <ClInclude Include="src\bflib_datetm.h" />
@@ -363,6 +368,7 @@
     <ClInclude Include="src\game_heap.h" />
     <ClInclude Include="src\game_legacy.h" />
     <ClInclude Include="src\game_lghtshdw.h" />
+    <ClInclude Include="src\game_loop.h" />
     <ClInclude Include="src\game_merge.h" />
     <ClInclude Include="src\game_saves.h" />
     <ClInclude Include="src\globals.h" />

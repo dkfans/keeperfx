@@ -2042,242 +2042,218 @@ msgid "Cancel"
 msgstr "キャンセル"
 
 #: guitext:226
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
-msgstr "弓矢: [25.4]"
+msgstr "弓矢: 遠距離で威力を発揮する基本的な遠隔の武器。[25.4]"
 
 #: guitext:227
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
 "animation and can be shattered with a well-aimed blow."
-msgstr "凍結: [26.8]"
+msgstr "凍結: 対象のクリーチャーを氷に変える。 其れは中断されたアニメーションに成り、良く狙った一撃で粉砕する事が出来る。[26.8]"
 
 #: guitext:228
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
 "hit, and provides complete immunity to electric shocks."
-msgstr "鎧: [26.1]"
+msgstr "鎧: クリーチャーが攻撃を受ける度に受ける損傷量が減少し、雷撃の飛散損傷に対する完全な耐性が得られ。[26.1]"
 
 #: guitext:229
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
 "lighting from the creature."
-msgstr "雷撃: [26.13]"
+msgstr "雷撃: 電気の攻撃を持つ強力な魔法武器。 落雷をクリーチャーから放つ。[26.13]"
 
 #: guitext:230
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
-msgstr "反射: [26.19]"
+msgstr "反射: 貴方に向けて発射された魔法の武器が攻撃者に跳ね返る。[26.19]"
 
 #: guitext:231
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
-msgstr "恐怖: Not used"
+msgstr "恐怖: 対戦相手を恐怖に陥れ、戦いを避ける事が引き起こす。"
 
 #: guitext:232
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
-msgstr "照準: Not used"
+msgstr "照準: 一時的に意識を高め、目に見えないクリーチャーを見る事が可能にする。"
 
 #: guitext:233
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
 "invaders. Very disconcerting."
-msgstr "ミサイル: [26.15]"
+msgstr "ミサイル: 侵略者に悲鳴を上げる魔法爬虫類を送る簡単な呪文。 迚も不安だ。[26.15]"
 
 #: guitext:234
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
 "bounce off walls and has the traditional delayed fuse."
-msgstr "手りゅう弾: [26.9]"
+msgstr "手りゅう弾: 強力な爆発物を迫りくる敵に投げる。 又、壁に跳ね返る事が出来、伝統的な遅延導火線が有る。[26.9]"
 
 #: guitext:235
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Navigating Missile: This homes in on the nearest hero or enemy creature and "
 "explodes with devastating force."
-msgstr "誘導ミサイル: [16.16]"
+msgstr "誘導ミサイル: 最も近い敵を狙う、壊滅的な力で爆発する。[16.16]"
 
 #: guitext:236
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
 "tasks really quickly."
-msgstr "加速: [26:21]"
+msgstr "加速: クリーチャーの速力を上げて、戦闘と作業の任務を非常に迅速に実行出来る様にする。[26:21]"
 
-#: guitext:237 guitext:253
-#, fuzzy
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
-msgstr "毒の雲: [26.17]"
+msgstr "毒の雲: 敵と自分のクリーチャーの両方に損傷を加える事が出来る有毒ガスの雲を形成する。 ガスは、其れを吸う全ての人に影響を及ぼす。[26.17]"
 
 #: guitext:238
 msgctxt "Creature spell"
 msgid "Group: Not used"
-msgstr "グループ化: Not used"
+msgstr "グループ化: 未使用だ。"
 
 #: guitext:239
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Invisibility: Cast on one of your minions, it makes the host creature "
 "invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr "透明化: [26.12]"
+msgstr "透明化: 敵が超自然的な視力を持っていない限り、クリーチャーが彼らから見えなく成る。[26.12]"
 
 #: guitext:240
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Teleport: With this spell, a creature can teleport anywhere on the map. If "
 "you are Possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
-msgstr "テレポート: [26.22]"
+msgstr "テレポート: クリーチャーは色々地点にテレポート出来る。[26.22]"
 
 #: guitext:241
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Flame Breath: The devasting constant stream of searing fire."
-msgstr "炎の息: [26.6]"
+msgstr "炎の息: 灼熱の火の絶え間なく続く流れ。[26.6]"
 
 #: guitext:242
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
-msgstr "照明: 使えない"
+msgstr "照明: 暗闇に光を当てる、クリーチャーは見る事が可能にするだけでなく、他にも目に見えるに成る。"
 
 #: guitext:243
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
 "from the air."
-msgstr "飛行: [26.7]"
+msgstr "飛行: クリーチャーは地面から離陸させ、空から攻撃する事が可能にする。[26.7]"
 
 #: guitext:244
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
-msgstr "ひょう: [26.10]"
+msgstr "ひょう: 雹を作成する。[26.10]"
 
 #: guitext:245
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
-msgstr "減速: [26.20]"
+"Slow: Slows down the target creature, making its attacks and movement delayed."
+msgstr "減速: 対象の速力を下げる、其の攻撃と移動を遅らせる。[26.20]"
 
 #: guitext:246
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Drain: This spell drains the target creature a fair part of its health and "
 "magical abilities."
-msgstr "消耗: [26.4]"
+msgstr "消耗: 対象のクリーチャーの体力を吸い取ってしまいる。[26.4]"
 
 #: guitext:247
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Word of Power: Causes rings of demonic energy to emanate from the creature's "
 "body and inflicts massive damage on the vicinity. Very effective against "
 "crowded hordes of enemies, also pushes them back."
-msgstr "言霊: [26.24]"
+msgstr "言霊: クリーチャーの体から悪魔のエネルギーの輪を放ち、周囲に大損傷を加える。 敵の群れに対して非常に効果的で有り、其れを押し戻す。[26.24]"
 
 #: guitext:248
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Heal: When this is cast, the creature is massively healed. Also, any nearby "
 "creatures are healed by a quarter."
-msgstr "治癒: [26.11]"
+msgstr "治癒: クリーチャーを大分治す。[26.11]"
 
 #: guitext:249
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your Dungeon blowing every creature "
 "away from you."
-msgstr "突風: [26.23]"
+msgstr "突風: 強風を起こし、有らゆるクリーチャーを吹き飛ばす。[26.23]"
 
 #: guitext:250
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Meteor: More powerful that the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
-msgstr "隕石: [26.14]"
+msgstr "隕石: 火の玉よりも強力な、大きな損傷を加える固い火の岩を放つ。[26.14]"
 
 #: guitext:251
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
 "inflicts minor damage to a Dungeon's walls and doors."
-msgstr "火の玉: [26.5]"
+msgstr "火の玉: 少量の損傷を加える火の玉を一個放つ。[26.5]"
 
 #: guitext:252
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
-msgstr "肉弾戦: [25.3]"
+msgstr "肉弾戦: 基本的な戦闘能力。素手でも剣でも敵を攻撃する事が可能にする。[25.3]"
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr "放屁: 敵のクリーチャーにのみ損傷を加える近距離ガス攻撃。[26.17.1]"
 
 #: guitext:254
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Dig: This is the basic ability of the Imp and allows it to tunnel through "
 "earth."
-msgstr "掘る: [25.2]"
+msgstr "掘る: インプの基本的な能力、土を掘る事が可能にする。[25.2]"
 
 #: guitext:255
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Disease: Fired at a foe, gives them a Disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
-msgstr "疫病: [26.3]"
+msgstr "疫病: 敵に伝染病を与え。 感染したクリーチャーはゆっくり死ぬ、神殿でのみ治す事が出来ます。[26.3]"
 
 #: guitext:256
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
 "attack but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
-msgstr "呪い: [26.2]"
+msgstr "呪い: 敵を一時的にニワトリに変える。 敵は攻撃する事は出来ないが、同じ強さで有る何故なら、通常のニワトリ程簡単に殺す事は出来ない。[26.2]"
 
 #: guitext:257
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "時限爆弾"
+msgstr "時限爆弾: クリーチャーに自爆をさせる。"
 
 #: guitext:258
 msgctxt "Creature name"
@@ -5357,207 +5333,217 @@ msgstr ""
 #: guitext:804
 msgctxt "Easter egg"
 msgid "If thou art bold and pure of heart, Come down here, be torn apart."
-msgstr "大胆不敵で純粋な心を汝が持つならば、ここへ来い。"
+msgstr "大胆不敵で純粋な心を汝が持つならば、ここへ来い。 引き裂いてやる。"
 
 #: guitext:805
 msgctxt "Easter egg"
 msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
-msgstr "引き裂いてやる。"
+msgstr "わがダンジョンを歩むがよい。だが、自信過剰は死を招く"
 
 #: guitext:806
 msgctxt "Easter egg"
 msgid "If you find you lose it all, Why not play Theme Hospital?"
-msgstr "わがダンジョンを歩むがよい。だが、自信過剰は死を招く。"
+msgstr "すべてを失くしたその時は、シンジケートウォーズで遊ぶがよい。"
 
 #: guitext:807
 msgctxt "Easter egg"
 msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
-msgstr "すべてを失くしたその時は、"
+msgstr "鎧を着けたナイトには真の勇気が宿っている、つばを吐きかけいつも以上の早業で串刺しにしてあぶるがよい。"
 
 #: guitext:808
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, I think you'll find they're here to stay."
-msgstr "シンジケートウォーズで遊ぶがよい。"
+msgstr "悪、敵意、死、腐敗。ここにあるのはそれだけだ。"
 
 #: guitext:809
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, Just another working day."
-msgstr "鎧を着けたナイトには真の勇気が宿っている。"
+msgstr "悪、敵意、死、腐敗。今日も一日働こう。"
 
 #: guitext:810
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, There really is no better way."
-msgstr "つばを吐きかけいつも以上の早業で串刺しにしてあぶるがよい。"
+msgstr "悪、敵意、死、腐敗。より良き道などどこにもない。"
 
 #: guitext:811
 msgctxt "Easter egg"
 msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
-msgstr "悪、敵意、死、腐敗。ここにあるのはそれだけだ。"
+msgstr "ジャイアント、ドワーフ、シーフ、フェアリー。別にお前らなど怖くはない。"
 
 #: guitext:812
 msgctxt "Easter egg"
 msgid "The denizens of your domain, Just cannot wait to kill again."
-msgstr "悪、敵意、死、腐敗。今日も一日働こう。"
+msgstr "お前の領地の住民は、殺しの時が待ちきれない。"
 
 #: guitext:813
 msgctxt "Easter egg"
 msgid "The better creatures you employ, The greater carnage you enjoy."
-msgstr "悪、敵意、死、腐敗。より良き道などどこにもない。"
+msgstr "よりよいクリーチャーを雇うなら、より派手な虐殺が楽しめよう。"
 
 #: guitext:814
 msgctxt "Easter egg"
 msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
-msgstr "ジャイアント、ドワーフ、シーフ、フェアリー。別にお前らなど怖くはない。"
+msgstr "さあ行け！ アバタールはおらぬ。ロードは恐怖におののいているぞ。"
 
 #: guitext:815
 msgctxt "Easter egg"
 msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
-msgstr "お前の領地の住民は、殺しの時が待ちきれない。"
+msgstr "侵入者どもは滅びるであろう、お前のダンジョンの拷問室で。"
 
 #: guitext:816
 msgctxt "Easter egg"
 msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
-msgstr "よりよいクリーチャーを雇うなら、"
+msgstr "たとえ心は純粋でも、お前のダンジョンの土の上で、侵入者どもは息絶える。"
 
 #: guitext:817
 msgctxt "Easter egg"
 msgid ""
 "Your tunnels will be dark and cold, And no place for a Knight of old, Even "
 "if he claims he's bold."
-msgstr "より派手な虐殺が楽しめよう。"
+msgstr "お前のダンジョンは暗く冷たく、いかに大胆不敵を自称していようとも、老ナイトのいるような場所ではない。"
 
 #: guitext:818
 msgctxt "Easter egg"
 msgid "The fools who enter your domain, Will never see the light again."
-msgstr "さあ行け！ アバタールはおらぬ。"
+msgstr "愚かにもお前の領地に入った者は、二度と光を見ぬであろう。"
 
 #: guitext:819
 msgctxt "Easter egg"
 msgid "Pain and anguish are your tools, To use upon intruding fools."
-msgstr "ロードは恐怖におののいているぞ。"
+msgstr "苦痛と苦悩がお前の道具。愚かな侵入者に使うがよい。"
 
 #: guitext:820
 msgctxt "Easter egg"
 msgid ""
 "When good guys head right for your treasure, Hunt and kill them at your "
 "leisure."
-msgstr "侵入者どもは滅びるであろう、お前のダンジョンの拷問室で。"
+msgstr "善人がお前の宝を狙ったら、楽しみながら狩り立て殺せ。"
 
 #: guitext:821
 msgctxt "Easter egg"
 msgid ""
 "Protect your gold and Dungeon Heart, And slap your minions till they fart."
-msgstr "たとえ心は純粋でも、侵入者どもは息絶える、"
+msgstr "財宝とダンジョンハートを守り抜け。そして手下に活を入れよ、奴らが思わず屁をこくまで。"
 
 #: guitext:822
 msgctxt "Easter egg"
 msgid "Use your creatures' fear of you. To make them do what you want them to."
-msgstr "お前のダンジョンの土の上で。"
+msgstr "お前への手下の恐怖を利用せよ。望み通りに奴らを動かせ。"
 
 #: guitext:823
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
-msgstr "お前のダンジョンは暗く冷たく、老ナイトのいるような"
+msgstr "手下のウィザードは不愉快か？ 罠で手早く片付けてしまえ。"
 
 #: guitext:824
 msgctxt "Easter egg"
 msgid "When your creatures give you hell, Stick them in your Prison Cell."
-msgstr "場所ではない。いかに大胆不敵を自称していようとも。"
+msgstr "手下が悩みの種ならば、奴らを牢に閉じ込めろ。"
 
 #: guitext:825
 msgctxt "Easter egg"
 msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
-msgstr "愚かにもお前の領地に入った者は、二度と光を見ぬであろう。"
+msgstr "拷問は、ダンジョンキーパー物語における無上の栄誉なり"
 
 #: guitext:826
 msgctxt "Easter egg"
 msgid "You are the Keeper, chosen one, And being evil is great fun."
-msgstr "苦痛と苦悩がお前の道具。愚かな侵入者に使うがよい。"
+msgstr "お前こそが選ばれしキーパー。悪の道は大いなる楽しみ。"
 
 #: guitext:827
 msgctxt "Easter egg"
 msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
-msgstr "善人がお前の宝を狙ったら、楽しみながら狩り立て殺せ。"
+msgstr "軍隊がハンガーストライキをする時は、ニワトリ小屋があふれる。"
 
 #: guitext:828
 msgctxt "Easter egg"
 msgid "Fill the Avatar with dread. Really make him wet the bed."
-msgstr "財宝とダンジョンハートを守り抜け。そして手下に活を入れよ、"
+msgstr "アバタールの心を恐怖で満たしてやれ。思わずズボンを濡らすほど。"
 
 #: guitext:829
 msgctxt "In-game hint message"
 msgid ""
 "Imps are the lifeblood of your dungeon. Like blood, they must be allowed to "
 "circulate."
-msgstr "奴らが思わず屁をこくまで。"
+msgstr "インプはお前のダンジョンの命の源なり。それは血のごとく、循環しているに違いな"
+"い。"
 
 #: guitext:830
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
 "spend some time torturing..."
-msgstr "お前への手下の恐怖を利用せよ。望み通りに奴らを動かせ。"
+msgstr ""
 
 #: guitext:831
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
 "realise how lucky they are."
-msgstr "手下のウィザードは不愉快か？ 罠で手早く片付けてしまえ。"
+msgstr ""
 
 #: guitext:832
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
 "show pity, even when the intruders are defenceless and pathetic."
-msgstr "手下が悩みの種ならば、奴らを牢に閉じ込めろ。"
+msgstr ""
 
 #: guitext:833
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
 "Only evil ones."
-msgstr "拷問は、ダンジョンキーパー物語における無上の栄誉なり。"
+msgstr ""
 
 #: guitext:834
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
 "queuing up to enter your dungeon. So stop reading this and get going."
-msgstr "お前こそが選ばれしキーパー。悪の道は大いなる楽しみ。"
+msgstr ""
 
 #: guitext:835
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
 "the intruders."
-msgstr "軍隊がハンガーストライキをする時は、"
+msgstr ""
 
 #: guitext:836
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Keep your Imps digging. There are always surprises to be found deep in the "
 "earth."
-msgstr "ニワトリ小屋があふれる。"
+msgstr ""
 
 #: guitext:837
+#, fuzzy
 msgctxt "In-game hint message"
 msgid "He who controls the most gold controls the entire Underworld."
-msgstr "アバタールの心を恐怖で満たしてやれ。"
+msgstr ""
 
 #: guitext:838
+#, fuzzy
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
-msgstr "思わずズボンを濡らすほど。"
+msgstr ""
 
 #: guitext:839
+#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Foolish is the Keeper who sells all his rooms and refuses to pay his "
 "creatures."
 msgstr ""
-"インプはお前のダンジョンの命の源なり。それは血のごとく、循環しているに違いな"
-"い。"
+""
 
 #: guitext:840
 msgctxt "Menu interface item"
@@ -5642,7 +5628,7 @@ msgstr "Insufficient Memory"
 #: guitext:856
 msgctxt "On-screen message"
 msgid "Unable To Change Screen Resolution"
-msgstr "Unable To Change Screen Resolution"
+msgstr "解像度を変わり得ない"
 
 #: guitext:857
 msgctxt "Menu interface item"
@@ -6306,17 +6292,17 @@ msgctxt "In-game interface description"
 msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
-msgstr "鎧：クリーチャーの体力に障る無い損傷の一部。 数値が高い程、損傷のもっと部分を相殺されます。"
+msgstr "鎧: クリーチャーの体力に障る無い損傷の一部。 数値が高い程、損傷のもっと部分を相殺されます。"
 
 #: guitext:950
 msgctxt "In-game interface description"
 msgid "Speed: How fast the creature moves and perform its dungeon tasks."
-msgstr "速力：クリーチャーが移動して仕事をする速度。"
+msgstr "速力: クリーチャーが移動して仕事をする速度。"
 
 #: guitext:951
 msgctxt "In-game interface description"
 msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
-msgstr "忠誠：敵に因る洗脳に対して抵抗。"
+msgstr "忠誠: 敵に因る洗脳に対して抵抗。"
 
 #: guitext:952
 msgctxt "In-game interface description"
@@ -6351,26 +6337,26 @@ msgstr "洗脳技能: このクリーチャーが洗脳をこなす能力。 [23
 #: guitext:956
 msgctxt "In-game interface description"
 msgid "Training Cost: Gold used for training the creature."
-msgstr "訓練費：訓練為に掛ける金。"
+msgstr "訓練費: 訓練為に掛ける金。"
 
 #: guitext:957
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr "洗脳費：洗脳為に掛ける金。"
+msgstr "洗脳費: 洗脳為に掛ける金。"
 
 #: guitext:958
 msgctxt "In-game interface description"
 msgid ""
 "Best Damage: How much harm can be made by the strongest attack the creature "
 "has."
-msgstr "最高な損傷:このクリーチャーの最も強い攻撃が加える損傷の量。"
+msgstr "最高な損傷: このクリーチャーの最も強い攻撃が加える損傷の量。"
 
 #: guitext:959
 msgctxt "In-game interface description"
 msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
-msgstr "体量：クリーチャーの質量。 幾つかの人々は、太りすぎが心臓発作に繋がる可能性の有ると言います。"
+msgstr "体量: クリーチャーの質量。 幾つかの人々は、太りすぎが心臓発作に繋がる可能性の有ると言います。"
 
 #: guitext:960
 msgctxt "Keeper spell name"
@@ -6388,7 +6374,7 @@ msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
-msgstr "悪魔の手：貴方のクリーチャーを手持ち為れ能力。 余りにも長くそれ等を保持しないで。然うした場合、彼らは怒る可能性が有ります。"
+msgstr "悪魔の手: 貴方のクリーチャーを手持ち為れ能力。 余りにも長くそれ等を保持しないで。然うした場合、彼らは怒る可能性が有ります。"
 
 #: guitext:963
 #, fuzzy
@@ -6405,19 +6391,19 @@ msgstr ""
 msgctxt "Keeper spell description"
 msgid "Slap: Makes your creatures work harder, for some time. "
 "Your creatures take some damage from each slap they receive."
-msgstr "平手打ち：貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリーチャーは、受け取った叩きから其々損傷を受けます。"
+msgstr "平手打ち: 貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリーチャーは、受け取った平手打ちから其々損傷を受けます。"
 
 #: guitext:965
 msgctxt "In-game interface description"
 msgid ""
 "Health: How much health points the creature has left to lose."
-msgstr "体力：クリーチャーの残りの体カ点数。"
+msgstr "体力: クリーチャーの残りの体カ点数。"
 
 #: guitext:966
 msgctxt "In-game interface description"
 msgid ""
 "Health: The maximum amount of health points for this creature."
-msgstr "体力：クリーチャーの最高な体カ点数。"
+msgstr "体力: クリーチャーの最高な体カ点数。"
 
 #: guitext:967
 msgctxt "Menu interface item"
@@ -6594,3 +6580,8 @@ msgctxt "Dungeon special decription"
 msgid ""
 "Mysterious Box: There's no telling what this will do."
 msgstr "不思議な箱: 此れの作用は不明だ。"
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
+msgstr "参加しているプレイヤーのマップ版はホストの版とは違う。"

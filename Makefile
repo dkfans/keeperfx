@@ -43,6 +43,8 @@ WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
 DOXYTOOL = doxygen
+BUILD_NUMBER ?= $(VER_BUILD)
+PACKAGE_SUFFIX ?= Prototype
 PNGTOICO = tools/png2ico/png2ico$(CROSS_EXEEXT)
 PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
 PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
@@ -59,6 +61,7 @@ ECHO     = @echo
 
 # Names of target binary files
 BIN      = bin/keeperfx$(EXEEXT)
+TEST_BIN = bin/tests$(EXEEXT)
 HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 # Names of intermediate build products
 GENSRC   = obj/ver_defs.h
@@ -78,6 +81,7 @@ obj/ariadne_wallhug.o \
 obj/bflib_base_tcp.o \
 obj/bflib_basics.o \
 obj/bflib_bufrw.o \
+obj/bflib_coroutine.o \
 obj/bflib_client_tcp.o \
 obj/bflib_cpu.o \
 obj/bflib_crash.o \
@@ -208,6 +212,7 @@ obj/frontmenu_saves.o \
 obj/frontmenu_specials.o \
 obj/game_heap.o \
 obj/game_legacy.o \
+obj/game_loop.o \
 obj/game_lghtshdw.o \
 obj/game_merge.o \
 obj/game_saves.o \
@@ -230,6 +235,7 @@ obj/light_data.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
 obj/magic.o \
+obj/main_game.o \
 obj/map_blocks.o \
 obj/map_columns.o \
 obj/map_data.o \
@@ -290,16 +296,33 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
-obj/main.o \
 $(RES)
+
+MAIN_OBJ = obj/main.o
+
+TESTS_OBJ = obj/tests/tst_main.o \
+obj/tests/tst_fixes.o \
+obj/tests/001_test.o
+
+CU_DIR = deps/CUnit-2.1-3/CUnit
+CU_INC = -I"$(CU_DIR)/Headers"
+CU_OBJS = \
+	obj/cu/Basic.o \
+	obj/cu/TestDB.o \
+	obj/cu/CUError.o \
+	obj/cu/TestRun.o \
+	obj/cu/Util.o
 
 # include and library directories
 LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net 
-INCS =  -I"sdl/include"
-CXXINCS =  -I"sdl/include"
+INCS =  -I"sdl/include" -I"sdl/include/SDL2"
+CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
+STD_MAIN_OBJ = $(subst obj/,obj/std/,$(MAIN_OBJ))
+HVLOG_MAIN_OBJ = $(subst obj/,obj/hvlog/,$(MAIN_OBJ))
+
 
 # allow extracting files from archives, replacing pre-existing ones
 ENABLE_EXTRACT ?= 1
@@ -326,7 +349,7 @@ else
 endif
 
 # logging level flags
-STLOGFLAGS = -DBFDEBUG_LEVEL=0 
+STLOGFLAGS = -DBFDEBUG_LEVEL=0
 HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DAUTOTESTING=1
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
@@ -352,6 +375,7 @@ keeporig \
 lqizgood \
 lrdvexer \
 ncastles \
+origplus \
 postanck \
 pstunded \
 questfth \
@@ -361,6 +385,8 @@ undedkpr
 
 MAPPACKS  = \
 classic \
+deepdngn \
+legacy \
 lostlvls \
 standard
 
@@ -369,7 +395,7 @@ LANGS = eng chi cht cze dut fre ger ita jpn kor lat pol rus spa swe
 # load program version
 include version.mk
 
-VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD) Alpha
+VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_SUFFIX)
 
 # load depenency packages
 include prebuilds.mk
@@ -380,7 +406,8 @@ include prebuilds.mk
 .PHONY: heavylog hvlog-before hvlog-after
 .PHONY: package clean-package deep-clean-package
 .PHONY: tools clean-tools deep-clean-tools
-.PHONY: libexterns clean-libexterns deep-clean-libexterns
+.PHONY: clean-libexterns deep-clean-libexterns
+.PHONY: tests
 
 # dependencies tracking
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
@@ -397,9 +424,9 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog)
-std-before: libexterns
-hvlog-before: libexterns
+$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu)
+std-before:
+hvlog-before:
 
 docs: docsdox
 
@@ -411,8 +438,8 @@ deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
 clean: clean-build clean-tools clean-libexterns clean-package
 
 clean-build:
-	-$(RM) $(STDOBJS) $(filter %.d,$(STDOBJS:%.o=%.d))
-	-$(RM) $(HVLOGOBJS) $(filter %.d,$(HVLOGOBJS:%.o=%.d))
+	-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))
+	-$(RM) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(filter %.d,$(HVLOGOBJS:%.o=%.d)) $(filter %.d,$(HVLOG_MAIN_OBJ:%.o=%.d))
 	-$(RM) $(BIN) $(BIN:%.exe=%.map)
 	-$(RM) $(BIN) $(BIN:%.exe=%.pdb)
 	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
@@ -422,31 +449,51 @@ clean-build:
 	-$(RM) res/*.ico
 	-$(RM) obj/keeperfx.*
 
-$(BIN): $(GENSRC) $(STDOBJS) $(LIBS) std-before
+$(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) std-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(STDOBJS) $(LDFLAGS)
+	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
 
-$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS) hvlog-before
+$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) hvlog-before
 	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(HVLOGOBJS) $(LDFLAGS)
+	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
 
-obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)
+$(TEST_BIN): $(GENSRC) $(STDOBJS) $(TESTS_OBJ) $(LIBS) $(CU_OBJS) std-before
+	-$(ECHO) 'Building target: $@'
+	$(CPP) -o "$@" $(TESTS_OBJ) $(STDOBJS) $(CU_OBJS) $(LDFLAGS)
+ifdef CV2PDB
+	$(CV2PDB) -C "$@"
+endif
+	-$(ECHO) 'Finished building target: $@'
+
+obj/tests/%.o: tests/%.cpp $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
+	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
+
+obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
+	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
+
+obj/std/%.o obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/std/%.o obj/hvlog/%.o: src/%.c $(GENSRC)
+obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
@@ -470,7 +517,7 @@ obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"
 	$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
-	$(ECHO) \#define VER_BUILD   $(VER_BUILD) >> "$(@D)/tmp"
+	$(ECHO) \#define VER_BUILD   $(BUILD_NUMBER) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
 	$(ECHO) \#define PACKAGE_SUFFIX  \"$(PACKAGE_SUFFIX)\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"
@@ -487,7 +534,14 @@ bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 	-$(ECHO) 'Finished creating: $@'
 	-$(ECHO) ' '
 
-include libexterns.mk
+tests: std-before $(TEST_BIN)
+
+export
+libexterns: libexterns.mk
+	$(MAKE) -f libexterns.mk
+
+clean-libexterns: libexterns.mk
+	$(MAKE) -f libexterns.mk clean-libexterns
 
 include tool_peresec.mk
 include tool_png2ico.mk

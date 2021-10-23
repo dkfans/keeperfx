@@ -39,77 +39,64 @@ msgstr ""
 #: guitext:1
 msgctxt "In-game message"
 msgid ""
-"Make haste master, it won't be long before your rival breaks into this realm."
+"Make haste Master. It won't be long before your rival breaks into this realm."
 msgstr ""
 
 #: guitext:2
 msgctxt "In-game message"
 msgid ""
-"Your rival is advancing from the south. There is also word that "
-"reinforcements from Rosefield have arrived."
+"Your rival is advancing from the south. There is also word that reinforcements from Rosefield have arrived."
 msgstr ""
 
 #: guitext:3
 msgctxt "In-game message"
 msgid ""
-"The first domino falls here. The prisoners will be taken care off properly, "
-"I hope?"
+"The first domino falls here! Can we assume the prisoners will be properly taken care of?!"
 msgstr ""
 
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
-"The Cathedral is currently under siege by one of Keeper Bane's underlings. "
-"Make haste and unearth the treasuries burried here."
+"The Cathedral is currently under siege by one of Keeper Bane's underlings. Make haste and unearth the treasuries buried here."
 msgstr ""
 
 #: guitext:5
 msgctxt "In-game message"
-msgid "Outstanding, master. Now things will be a little more intresting."
+msgid "Outstanding, Master! Now things will become more interesting."
 msgstr ""
 
 #: guitext:6
 msgctxt "In-game message"
-msgid "Just as I thought, the victor was decided before the fight even began!"
+msgid "Just as I thought, the Victor was decided before the fight even began!"
 msgstr ""
 
 #: guitext:7
 msgctxt "In-game message"
 msgid ""
-"This fortress is the last bastion of the Heroes. Some people claim its "
-"construction took several hunderd years, so perhaps you can demolish it in a "
-"worldrecord. Be alert though, I can sense something evil within those walls."
+"This fortress is the last bastion of the Heroes. It is said that the construction took several hundred years, but I'm sure you can demolish it in an instant? However, be warned; there is evil within those walls."
 msgstr ""
 
 #: guitext:8
 msgctxt "In-game message"
 msgid ""
-"The Wizards of this realm have robbed you of your spells. They haven't "
-"obvious ever heard of the saying ''What goes around comes around''! Expect "
-"some reprisals for doing that though."
+"The Wizards of this realm have robbed you of your spells. They obviously haven't heard of the saying ''What goes around comes around''! Reprisals are to be expected."
 msgstr ""
 
 #: guitext:9
 msgctxt "In-game message"
 msgid ""
-"The Avatar is present aswel! May I suggest we capture, torture him and "
-"listen to the wonderful sound of bones being shattered?"
+"The Avatar is also among us! May I suggest we capture, torture him and listen to the wonderful sound of his bones being shattered?"
 msgstr ""
 
 #: guitext:10
 msgctxt "In-game message"
-msgid ""
-"Ahh, now this is what I like to call absolute CARNAGE! Can we move on, "
-"please? This place has gone too corpsy to my liking."
+msgid "Ahh, now this is what I like to call absolute CARNAGE! Can we move on please? This place has become too corpsy for my liking."
 msgstr ""
 
 #: guitext:11
 msgctxt "In-game message"
 msgid ""
-"You are outnumbered here, so use the land itself to your advantage. Speaking "
-"of that; this ancient realm is full of riches, all for you for the taking. "
-"Also, your library has been captured by some vile rogue warlocks in the "
-"east, make them regret it with their lifes."
+"This is an ancient realm full of riches, which you must use to your advantage. You are outnumbered, and your library has been captured by the vile warlocks in the East. Make them pay for this theft with their lives!"
 msgstr ""
 
 #: guitext:12
@@ -120,46 +107,37 @@ msgstr ""
 #: guitext:13
 msgctxt "In-game message"
 msgid ""
-"Another one bites the dust. Let us not waste too much time on these rookies, "
-"there are more challenges on the horizon."
+"Another one bites the dust! Let us not waste too much time on these rookies, as greater challenges await on the horizon."
 msgstr ""
 
 #: guitext:14
 msgctxt "In-game message"
 msgid ""
-"A vast legion is hosted in this realm, however with it's commanders at odds "
-"this make the fight quite more diverse. Quickly, gather your forces and "
-"attack while there is still a state of confusion!"
+"A vast legion is hosted in this realm. However, with it's commanders being at odds, this makes the battle quite diverse. Quickly gather your forces and attack whilst there is still a state of confusion!"
 msgstr ""
 
 #: guitext:15
 msgctxt "In-game message"
 msgid ""
-"You cannot hope for victory without a portal to attract creatures. Go out "
-"and seek one."
+"You cannot hope for victory without a portal to attract creatures. Go out and seek one."
 msgstr ""
 
 #: guitext:16
 msgctxt "In-game message"
 msgid ""
-"A truly devastating victory. You've just routed and destroyed the last "
-"barrier between Keeper Bane and you, now... let's kill that dirtbag."
+"A truly devastating victory. You've just routed and destroyed the last barrier between Keeper Bane and yourself. Now... let's kill that dirtbag!"
 msgstr ""
 
 #: guitext:17
 msgctxt "In-game message"
 msgid ""
-"Keeper Bane has barricaded himself in, the pathetic wretch. But the more "
-"suprising news is that most of the Elite Heroes along with their leader, the "
-"Avatar, have survived and are preparing to attack you!"
+"Keeper Bane has barricaded himself in, the pathetic wretch. But the more suprising news is that most of the Elite Heroes along with their leader, the Avatar, have survived and are preparing to attack you!"
 msgstr ""
 
 #: guitext:18
 msgctxt "In-game message"
 msgid ""
-"Keeper Bane is very powerful because all creatures in this realm are "
-"supporting him. The Dark Gods, however, are willing to help you, but they "
-"demand a tribute in the form of 100 Souls, preferably dead, of course!"
+"Keeper Bane is very powerful because he has the support of all the creatures in this realm. The Dark Gods, however, are willing to help you, but they demand a tribute in the form of 100 Souls; preferably dead, of course!"
 msgstr ""
 
 #: guitext:19
@@ -170,30 +148,25 @@ msgstr ""
 #: guitext:20
 msgctxt "In-game message"
 msgid ""
-"Beware, the Avatar has returned and he's stronger than ever. Make this "
-"lunatic see the error of his ways because he just won't give up!"
+"Beware, the Avatar has returned. He won't give up and he's stronger than ever, so show this lunatic the error of his ways!"
 msgstr ""
 
 #: guitext:21
 msgctxt "In-game message"
 msgid ""
-"The Avatar is badly wounded, finish him off now so we can turn to the real "
-"prize of this realm, Bane."
+"The Avatar is badly wounded. Finish him off now so we can turn to the real prize of this realm - Bane!"
 msgstr ""
 
 #: guitext:22
 msgctxt "In-game message"
 msgid ""
-"Finally, Keeper Bane is destroyed, all his minions dead, and so are the "
-"Heroes. There are no more living creatures on this continent, and there is "
-"nothing left to conquer; you have won."
+"Finally, Keeper Bane is destroyed, his minions are dead, and so are the Heroes. There are no more living creatures on this continent, and there is nothing left to conquer; you have won!"
 msgstr ""
 
 #: guitext:23
 msgctxt "In-game message"
 msgid ""
-"An evil Keeper by the name of Dracovich has his designs for this realm. Let "
-"him know how you feel about those plans... in the appriopiate way of course."
+"An evil Keeper by the name of Dracovich has his designs for this realm. Let him know how you feel about those plans... in the appropriate way of course!"
 msgstr ""
 
 #: guitext:24
@@ -535,7 +508,7 @@ msgid ""
 "tasks really quickly."
 msgstr ""
 
-#: guitext:237 guitext:253
+#: guitext:237
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
@@ -639,6 +612,12 @@ msgctxt "Creature spell"
 msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
+msgstr ""
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
 msgstr ""
 
 #: guitext:254
