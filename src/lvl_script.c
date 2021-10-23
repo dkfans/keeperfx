@@ -7522,7 +7522,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_TIMER",                     "PANn    ", Cmd_DISPLAY_TIMER, &display_timer_check, &display_timer_process},
   {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
   {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
-  {"DISPLAY_VARIABLE",                  "PAn     ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
+  {"DISPLAY_VARIABLE",                  "PA      ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
