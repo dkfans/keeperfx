@@ -2047,8 +2047,11 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
           char word_buf[COMMAND_WORD_LEN];
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-            struct Objects obj_tmp;
-            k = get_anim_id(word_buf, &obj_tmp);
+            k = atoi(word_buf);
+            if ((k == 0) && (strcmp(word_buf, "0") != 0))
+            {
+                CONFWRNLOG("Custom animations are not supported yet");
+            }
             set_creature_model_graphics(crtr_model, cmd_num-1, k);
             n++;
           }
