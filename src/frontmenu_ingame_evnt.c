@@ -493,7 +493,7 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     long scr_y = 16 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
     {
-        scr_x = (scr_x >> 1) - width;
+        scr_x = (scr_x >> 1) - (width + (width >> 1));
     }
     else if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
     {
