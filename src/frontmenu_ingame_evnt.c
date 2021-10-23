@@ -493,7 +493,8 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     long scr_y = 16 * units_per_pixel / 16;
     if (game.armageddon_cast_turn != 0)
     {
-        scr_x = (scr_x >> 1) - (width + (width >> 1));
+        struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+        scr_x = (gmnu->width + (width >> 1) - 16 * units_per_pixel / 16);
     }
     else if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
     {
