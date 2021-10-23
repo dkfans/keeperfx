@@ -980,7 +980,7 @@ void redraw_display(void)
     {
         draw_script_timer(gameadd.script_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
     }
-    else if (display_variable_enabled())
+    if (display_variable_enabled())
     {
         draw_script_variable(gameadd.script_player, gameadd.script_value_type, gameadd.script_value_id);
     }
