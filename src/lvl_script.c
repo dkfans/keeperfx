@@ -1164,24 +1164,24 @@ static void add_bonus_time_process(struct ScriptContext *context)
 
 static void display_variable_check(const struct ScriptLine *scline)
 {
-    char varib_id = get_id(variable_desc, scline->tp[1]);
-    if (varib_id == -1)
+    long varib_id, varib_type;
+    if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type))
     {
         SCRPTERRLOG("Unknown variable, '%s'", scline->tp[1]);
         return;
     }
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->bytes[0] = (unsigned char)scline->np[0];
-    value->bytes[1] = varib_id;
-    value->bytes[2] = (unsigned char)scline->np[2];
+    value->arg0 = scline->np[0];
+    value->arg1 = varib_type;
+    value->arg2 = varib_id;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void display_variable_process(struct ScriptContext *context)
 {
    gameadd.script_player = context->value->bytes[0];
-   gameadd.script_value_type = context->value->bytes[1];
-   gameadd.script_value_id = context->value->bytes[2];
+   gameadd.script_value_type = context->value->arg1;
+   gameadd.script_value_id = context->value->arg2;
    game_flags2 |= GF2_Variable;
 }
 
