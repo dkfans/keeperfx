@@ -153,6 +153,7 @@ struct CompoundTngFilterParam {
      long plyr_idx;
      long class_id;
      long model_id;
+     unsigned char pick_check;
      union {
      long num1;
      void *ptr1;
