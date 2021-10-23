@@ -140,7 +140,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        gameadd.object_conf.object_types_count = 1;
+        gameadd.object_conf.object_types_count = OBJECT_TYPES_MAX - 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -226,8 +226,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         }
     }
     // Load the file
-    arr_size = gameadd.object_conf.object_types_count;
-    for (tmodel = 0; tmodel < arr_size; tmodel++)
+    for (tmodel = 0; tmodel < OBJECT_TYPES_MAX; tmodel++)
     {
         char block_buf[COMMAND_WORD_LEN];
         sprintf(block_buf, "object%d", tmodel);
@@ -235,11 +234,25 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            if ((flags & CnfLd_AcceptPartial) == 0) {
-                WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            if ((flags & CnfLd_AcceptPartial) == 0)
+            {
+                // Just count all found blocks if we didn't that already
+                if (gameadd.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
+                {
+                    gameadd.object_conf.object_types_count = tmodel;
+                    break;
+                }
+                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
                 return false;
             }
             continue;
+        }
+        else
+        {
+            if (tmodel > gameadd.object_conf.object_types_count)
+            {
+                WARNMSG("Found unexpected block [%s] in %s file.", block_buf, config_textname);
+            }
         }
         objst = &gameadd.object_conf.object_cfgstats[tmodel];
         objbc = &gameadd.object_conf.base_config[tmodel];
