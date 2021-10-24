@@ -464,6 +464,19 @@ static void command_init_value(struct ScriptValue* value, unsigned long var_inde
         script_process_value(cmd, 0, 0, 0, 0, value); \
     }
 
+// For dynamic strings
+static char* script_strdup(const char *src)
+{
+    char *ret = gameadd.script.next_string;
+    int remain_len = sizeof(gameadd.script.strings) - (gameadd.script.next_string - gameadd.script.strings);
+    if (strlen(src) >= remain_len)
+    {
+        return NULL;
+    }
+    strcpy(ret, src);
+    gameadd.script.next_string += strlen(src) + 1;
+    return ret;
+}
 /******************************************************************************/
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
 /******************************************************************************/
@@ -1024,6 +1037,7 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long
 
 static void set_object_configuration_check(const struct ScriptLine *scline)
 {
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char *objectname = scline->tp[0];
     const char *property = scline->tp[1];
     const char *new_value = scline->tp[2];
@@ -1032,6 +1046,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     if (objct_id == -1)
     {
         SCRPTERRLOG("Unknown object, '%s'", objectname);
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
 
@@ -1040,6 +1055,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     if (objectvar == -1)
     {
         SCRPTERRLOG("Unknown object variable");
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
     switch (objectvar)
@@ -1049,21 +1065,40 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             if (number_value == -1)
             {
                 SCRPTERRLOG("Unknown object variable");
+                DEALLOCATE_SCRIPT_VALUE
                 return;
             }
+            value->arg2 = number_value;
             break;
         case  2: // AnimId
         {
             struct Objects obj_tmp;
-            number_value = get_anim_id(new_value, &obj_tmp); // TODO: move to realtime
+            number_value = get_anim_id(new_value, &obj_tmp);
+            if (number_value == 0)
+            {
+                SCRPTERRLOG("Invalid animation id");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+
+            value->str2 = script_strdup(new_value);
+            if (value->str2 == NULL)
+            {
+                SCRPTERRLOG("Run out script strings space");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
             break;
         }
         default:
-            number_value = atoi(new_value);
+            value->arg2 = atoi(new_value);
     }
 
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
-    command_add_value(scline->command, 0, objct_id, objectvar, number_value);
+    value->arg0 = objct_id;
+    value->arg1 = objectvar;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_object_configuration_process(struct ScriptContext *context)
@@ -1076,7 +1111,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->genre = context->value->arg2;
             break;
         case 2: // AnimationID
-            objdat->sprite_anim_idx = context->value->arg2;
+            objdat->sprite_anim_idx = get_anim_id(context->value->str2, objdat);
             break;
         case 3: // AnimationSpeed
             objdat->anim_speed = context->value->arg2;
@@ -4427,6 +4462,7 @@ short clear_script(void)
 {
     LbMemorySet(&game.script, 0, sizeof(struct LevelScriptOld));
     LbMemorySet(&gameadd.script, 0, sizeof(struct LevelScript));
+    gameadd.script.next_string = gameadd.script.strings;
     script_current_condition = CONDITION_ALWAYS;
     text_line_number = 1;
     return true;

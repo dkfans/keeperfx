@@ -552,6 +552,9 @@ void update_all_object_stats()
             TRACE_THING(thing);
         struct Objects* objdat = get_objects_data_for_thing(thing);
         set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
+        // TODO: Should we rotate this on per-object basis?
+        get_thingadd(thing->index)->flags = 0;
+        get_thingadd(thing->index)->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
     }
 }
 TbBool load_objects_config(const char *conf_fname, unsigned short flags)

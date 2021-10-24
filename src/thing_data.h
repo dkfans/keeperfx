@@ -251,7 +251,7 @@ unsigned short field_60;
 enum ThingAddFlags
 {
     TAF_ROTATED_SHIFT = 16,
-    TAF_ROTATED_MASK = 0x030000,
+    TAF_ROTATED_MASK = 0x070000,
 };
 
 struct ThingAdd // Additional thing data

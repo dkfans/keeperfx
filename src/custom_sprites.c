@@ -1060,17 +1060,37 @@ short get_anim_id(const char *name, struct Objects* objdat)
         {
             objdat->rotation_flag = 0;
         }
-        else if (0 == strcmp(P, "EAST"))
+        if (0 == strcmp(P, "NORTHEAST"))
         {
             objdat->rotation_flag = 1;
         }
-        else if (0 == strcmp(P, "SOUTH"))
+        else if (0 == strcmp(P, "EAST"))
         {
             objdat->rotation_flag = 2;
         }
-        else if (0 == strcmp(P, "WEST"))
+        else if (0 == strcmp(P, "SOUTHEAST"))
         {
             objdat->rotation_flag = 3;
+        }
+        else if (0 == strcmp(P, "SOUTH"))
+        {
+            objdat->rotation_flag = 4;
+        }
+        else if (0 == strcmp(P, "SOUTHWEST"))
+        {
+            objdat->rotation_flag = 5;
+        }
+        else if (0 == strcmp(P, "WEST"))
+        {
+            objdat->rotation_flag = 6;
+        }
+        else if (0 == strcmp(P, "NORTHWEST"))
+        {
+            objdat->rotation_flag = 7;
+        }
+        else
+        {
+            ERRORLOG("Unexpected Anim direction: %s", P);
         }
 
         free(name2);

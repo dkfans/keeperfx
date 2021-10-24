@@ -6173,7 +6173,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     if (keepersprite_rotable(thing->anim_sprite))
     {
       angle = thing->move_angle_xy - spr_map_angle;
-      angle += 512 * (long)((get_thingadd(thing->index)->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
+      angle += 256 * (long)((get_thingadd(thing->index)->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
     }
     else
       angle = thing->move_angle_xy;
