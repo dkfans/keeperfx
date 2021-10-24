@@ -522,7 +522,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
     if (isalpha(chr))
     {
         // Read the parameter
-        while (isalnum(chr) || (chr == '_') || (chr == '[') || (chr == ']'))
+        while (isalnum(chr) || (chr == '_') || (chr == '[') || (chr == ']') || (chr == ':'))
         {
             param[pos] = chr;
             pos++;
