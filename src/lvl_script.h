@@ -168,6 +168,7 @@ enum TbScriptCommands {
     Cmd_ADD_TO_TIMER                      = 136,
     Cmd_ADD_BONUS_TIME                    = 137,
     Cmd_DISPLAY_VARIABLE                  = 138,
+    Cmd_DISPLAY_COUNTDOWN                 = 139,
 };
 
 enum ScriptVariables {

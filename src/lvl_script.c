@@ -1114,8 +1114,8 @@ static void display_timer_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->bytes[0] = (unsigned char)scline->np[0];
     value->bytes[1] = timr_id;
-    value->arg1 = scline->np[2];
-    value->bytes[2] = (TbBool)scline->np[3];
+    value->arg1 = 0;
+    value->bytes[2] = (TbBool)scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -1183,6 +1183,28 @@ static void display_variable_process(struct ScriptContext *context)
    gameadd.script_value_type = context->value->arg1;
    gameadd.script_value_id = context->value->arg2;
    game_flags2 |= GF2_Variable;
+}
+
+static void display_countdown_check(const struct ScriptLine *scline)
+{
+    if (scline->np[2] <= 0)
+    {
+        SCRPTERRLOG("Can't have a countdown to %ld turns.", scline->np[2]);
+        return; 
+    }
+    const char *timrname = scline->tp[1];
+    char timr_id = get_rid(timer_desc, timrname);
+    if (timr_id == -1)
+    {
+        SCRPTERRLOG("Unknown timer, '%s'", timrname);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->bytes[0] = (unsigned char)scline->np[0];
+    value->bytes[1] = timr_id;
+    value->arg1 = scline->np[2];
+    value->bytes[2] = (TbBool)scline->np[3];
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void null_process(struct ScriptContext *context)
@@ -7519,10 +7541,11 @@ const struct CommandDesc command_desc[] = {
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
   {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
-  {"DISPLAY_TIMER",                     "PANn    ", Cmd_DISPLAY_TIMER, &display_timer_check, &display_timer_process},
+  {"DISPLAY_TIMER",                     "PAn     ", Cmd_DISPLAY_TIMER, &display_timer_check, &display_timer_process},
   {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
   {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
   {"DISPLAY_VARIABLE",                  "PA      ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
+  {"DISPLAY_COUNTDOWN",                 "PANn    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
