@@ -736,10 +736,19 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     if (LbLocTextStringSize(str) < abs(gbtn->field_2D))
     {
         // Check if we have printable character
-        if (!isprint(vischar[0]) && (vischar[0] != ' ')) {
+        if (modifiers == -1)
+        {
+            if (!isprint(vischar[0])) {
                 clear_key_pressed(key);
                 return false;
             }
+        } else
+        {
+            if (!isalnum(vischar[0]) && (vischar[0] != ' ')) {
+                clear_key_pressed(key);
+                return false;
+            }
+        }
         if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->field_2D) != NULL) {
             input_field_pos++;
         }
