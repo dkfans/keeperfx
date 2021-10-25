@@ -671,24 +671,14 @@ short game_is_busy_doing_gui(void)
 TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 {
     char *str;
-    int key;
-    int outchar;
+    TbKeyCode key;
+    unsigned short outchar;
     TbLocChar vischar[4];
     //return _DK_get_button_area_input(gbtn, a2);
     strcpy(vischar," ");
     str = (char *)gbtn->content;
     key = lbInkey;
-    if ((modifiers == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]))
-    {
-        if ((lbInkey == KC_LSHIFT) || (lbInkey == KC_RSHIFT)) {
-            lbInkey = KC_UNASSIGNED;
-            return false;
-        }
-        outchar = key_to_ascii(lbInkey, KMod_SHIFT);
-    } else
-    {
-        outchar = key_to_ascii(lbInkey, KMod_NONE);
-    }
+    outchar = key_to_ascii(key, key_modifiers);
     vischar[0] = outchar;
     if (key == KC_RETURN)
     {
