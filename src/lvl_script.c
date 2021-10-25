@@ -1171,7 +1171,8 @@ static void display_variable_check(const struct ScriptLine *scline)
         return;
     }
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->arg0 = scline->np[0];
+    value->bytes[0] = scline->np[0];
+    value->bytes[1] = scline->np[3];
     gameadd.script_value_type = varib_type;
     value->arg1 = varib_id;
     value->arg2 = scline->np[2];
@@ -1183,6 +1184,7 @@ static void display_variable_process(struct ScriptContext *context)
    gameadd.script_player = context->value->bytes[0];
    gameadd.script_value_id = context->value->arg1;
    gameadd.script_variable_target = context->value->arg2;
+   gameadd.script_variable_target_type = context->value->bytes[1];
    game_flags2 |= GF2_Variable;
 }
 
@@ -7545,7 +7547,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_TIMER",                     "PAn     ", Cmd_DISPLAY_TIMER, &display_timer_check, &display_timer_process},
   {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
   {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
-  {"DISPLAY_VARIABLE",                  "PAn     ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
+  {"DISPLAY_VARIABLE",                  "PAnn    ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
   {"DISPLAY_COUNTDOWN",                 "PANn    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };

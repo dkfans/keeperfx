@@ -188,6 +188,7 @@ struct GameAdd {
     unsigned char script_value_type;
     unsigned char script_value_id;
     long script_variable_target;
+    unsigned char script_variable_target_type;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

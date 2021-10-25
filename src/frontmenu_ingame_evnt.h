@@ -59,7 +59,7 @@ TbBool timer_enabled(void);
 TbBool script_timer_enabled(void);
 void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real);
 TbBool display_variable_enabled(void);
-void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target);
+void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype);
 
 extern unsigned long TimerTurns;
 /******************************************************************************/

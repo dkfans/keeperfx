@@ -492,20 +492,26 @@ TbBool display_variable_enabled(void)
   return ((game_flags2 & GF2_Variable) != 0);
 }
 
-void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target)
+void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype)
 {
     long value = get_condition_value(plyr_idx, valtype, validx);
-    if (target > 0)
+    if (target != 0)
     {
-        value = target - value;
+        if ( (targettype == 0) || (targettype == 2) )
+        {
+            value = target - value;
+        }
+        else if (targettype == 1)
+        {
+            value = ((~target)+1) + value; 
+        }
     }
-    else if (target < 0)
+    if (targettype != 2)
     {
-        value = target + value;
-    }
-    if (value < 0)
-    {
-        value = 0;
+        if (value < 0)
+        {
+            value = 0;
+        }
     }
     char* text = buf_sprintf("%ld", value);
     LbTextSetFont(winfont);
