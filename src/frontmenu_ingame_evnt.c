@@ -492,9 +492,22 @@ TbBool display_variable_enabled(void)
   return ((game_flags2 & GF2_Variable) != 0);
 }
 
-void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target)
 {
-    char* text = buf_sprintf("%ld", get_condition_value(plyr_idx, valtype, validx));
+    long value = get_condition_value(plyr_idx, valtype, validx);
+    if (target > 0)
+    {
+        value = target - value;
+    }
+    else if (target < 0)
+    {
+        value = target + value;
+    }
+    if (value < 0)
+    {
+        value = 0;
+    }
+    char* text = buf_sprintf("%ld", value);
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;

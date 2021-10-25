@@ -991,7 +991,7 @@ void redraw_display(void)
     }
     if (display_variable_enabled())
     {
-        draw_script_variable(gameadd.script_player, gameadd.script_value_type, gameadd.script_value_id);
+        draw_script_variable(gameadd.script_player, gameadd.script_value_type, gameadd.script_value_id, gameadd.script_variable_target);
     }
     if (timer_enabled())
     {

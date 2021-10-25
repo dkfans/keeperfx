@@ -187,6 +187,7 @@ struct GameAdd {
     TbBool timer_real;
     unsigned char script_value_type;
     unsigned char script_value_id;
+    long script_variable_target;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
