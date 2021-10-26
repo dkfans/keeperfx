@@ -742,6 +742,7 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, in
     }
 }
 
+#if BFDEBUG_LEVEL > 0
 struct StrBuf
 {
     char *ptr;
@@ -757,6 +758,7 @@ static int dump_callback(const char *str, size_t size, void *user_data)
     buf->ptr[buf->size] = 0;
     return 0;
 }
+#endif
 
 /**
  * Collect sprites from zipfile with specific blender_scene
