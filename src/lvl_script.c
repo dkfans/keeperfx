@@ -5346,6 +5346,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
     const struct SpellInfo* spinfo = get_magic_info(spkind);
 
     if (spinfo->caster_affected ||
+            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These four should be also marked at configs somehow
             ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
             ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
     {
