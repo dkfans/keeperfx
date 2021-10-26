@@ -1060,7 +1060,7 @@ short get_anim_id(const char *name, struct Objects* objdat)
         {
             objdat->rotation_flag = 0;
         }
-        if (0 == strcmp(P, "NORTHEAST"))
+        else if (0 == strcmp(P, "NORTHEAST"))
         {
             objdat->rotation_flag = 1;
         }
