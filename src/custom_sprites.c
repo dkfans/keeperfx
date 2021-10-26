@@ -617,13 +617,13 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     val = value_dict_get(itm, "offset_x");
     if (value_type(val) != VALUE_NULL)
     {
-        ksprite->field_C = value_int32(val);
+        ksprite->field_C = -value_int32(val);
     }
     else if (val = value_dict_get(def, fp ? "fp_offset_x" : "td_offset_x"),
             value_type(val) != VALUE_NULL
             )
     {
-        ksprite->field_C = value_int32(val);
+        ksprite->field_C = -value_int32(val);
     }
     else
     {
@@ -633,13 +633,13 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     val = value_dict_get(itm, "offset_y");
     if (value_type(val) != VALUE_NULL)
     {
-        ksprite->field_E = value_int32(val);
+        ksprite->field_E = -value_int32(val);
     }
     else if (val = value_dict_get(def, fp ? "fp_offset_y" : "td_offset_y"),
             value_type(val) != VALUE_NULL
             )
     {
-        ksprite->field_E = value_int32(val);
+        ksprite->field_E = -value_int32(val);
     }
     else
     {
