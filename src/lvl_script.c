@@ -1126,7 +1126,7 @@ static void display_timer_process(struct ScriptContext *context)
     gameadd.script_timer_id = context->value->bytes[1];
     gameadd.script_timer_limit = context->value->arg1;
     gameadd.timer_real = context->value->bytes[2];
-    game_flags2 |= GF2_ScriptTimer;
+    game.flags_gui |= GGUI_ScriptTimer;
 }
 
 static void add_to_timer_check(const struct ScriptLine *scline)
@@ -1185,7 +1185,7 @@ static void display_variable_process(struct ScriptContext *context)
    gameadd.script_value_id = context->value->arg1;
    gameadd.script_variable_target = context->value->arg2;
    gameadd.script_variable_target_type = context->value->bytes[1];
-   game_flags2 |= GF2_Variable;
+   game.flags_gui |= GGUI_Variable;
 }
 
 static void display_countdown_check(const struct ScriptLine *scline)

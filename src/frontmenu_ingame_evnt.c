@@ -443,7 +443,7 @@ TbBool timer_enabled(void)
 
 TbBool script_timer_enabled(void)
 {
-  return ((game_flags2 & GF2_ScriptTimer) != 0);
+  return ((game.flags_gui & GGUI_ScriptTimer) != 0);
 }
 
 void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real)
@@ -452,7 +452,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     int nturns = (limit > 0) ? limit - (game.play_gameturn - dungeon->turn_timers[timer_id].count) : game.play_gameturn - dungeon->turn_timers[timer_id].count;
     if (nturns < 0)
     {
-        game_flags2 &= ~GF2_ScriptTimer;
+        game.flags_gui &= ~GGUI_ScriptTimer;
         return;
     }
     char* text;
@@ -489,7 +489,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
 
 TbBool display_variable_enabled(void)
 {
-  return ((game_flags2 & GF2_Variable) != 0);
+  return ((game.flags_gui & GGUI_Variable) != 0);
 }
 
 void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype)
