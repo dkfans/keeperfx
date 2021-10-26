@@ -3546,7 +3546,7 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
-  long select_id = get_rid(creature_select_criteria_desc, criteria);
+  long select_id = parse_criteria(criteria);
   if (select_id == -1) {
     SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
     return;
