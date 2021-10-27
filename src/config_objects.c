@@ -213,6 +213,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             objst = &gameadd.object_conf.object_cfgstats[i];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
+            objst->map_icon = 0;
             objst->genre = 0;
             if (i < gameadd.object_conf.object_types_count)
             {
