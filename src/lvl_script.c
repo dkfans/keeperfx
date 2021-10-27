@@ -1210,6 +1210,22 @@ static void display_countdown_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void cmd_no_param_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void hide_timer_process(struct ScriptContext *context)
+{
+   game.flags_gui &= ~GGUI_ScriptTimer;
+}
+
+static void hide_variable_process(struct ScriptContext *context)
+{
+   game.flags_gui &= ~GGUI_Variable;
+}
+
 static void null_process(struct ScriptContext *context)
 {
 }
@@ -7549,6 +7565,8 @@ const struct CommandDesc command_desc[] = {
   {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
   {"DISPLAY_VARIABLE",                  "PAnn    ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
   {"DISPLAY_COUNTDOWN",                 "PANn    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
+  {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
+  {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
