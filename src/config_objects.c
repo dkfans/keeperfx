@@ -461,12 +461,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 {
                     n = atoi(word_buf);
                     objst->map_icon = n;
-                    n++;
-                }
-                if (n <= 0)
-                {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
             case 0: // comment
                 break;
