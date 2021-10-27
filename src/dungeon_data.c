@@ -398,7 +398,7 @@ void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long val
         ERRORLOG("Can't manipulate timer; player %d has no dungeon.",(int)plyr_idx);
         return;
     }
-    dungeon->turn_timers[timer_id].count += value;
+    dungeon->turn_timers[timer_id].count -= value;
 }
 
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)
