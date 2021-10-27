@@ -387,6 +387,20 @@ TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
     return true;
 }
 
+void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long value)
+{
+    if (timer_id >= TURN_TIMERS_COUNT) {
+        ERRORLOG("Can't manipulate timer; invalid timer id %d.",(int)timer_id);
+        return;
+    }
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Can't manipulate timer; player %d has no dungeon.",(int)plyr_idx);
+        return;
+    }
+    dungeon->turn_timers[timer_id].count -= value;
+}
+
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)
 {
     if ( (flag_id < 0) || (flag_id >= SCRIPT_FLAGS_COUNT) ) {
