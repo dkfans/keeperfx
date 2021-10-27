@@ -1793,7 +1793,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     gameadd.script.conditions_num++;
 }
 
-static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
+TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
 {
     char c;
     int len = 0;

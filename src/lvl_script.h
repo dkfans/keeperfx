@@ -521,7 +521,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, long crtr_breed, long l
 void process_check_new_creature_partys(void);
 void process_check_new_tunneller_partys(void);
 char get_player_number_from_value(const char* txt);
-static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
+TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
 /******************************************************************************/
 #ifdef __cplusplus
 }
