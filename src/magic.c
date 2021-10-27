@@ -23,7 +23,7 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
-
+#include "kjm_input.h"
 #include "player_data.h"
 #include "player_instances.h"
 #include "player_states.h"
@@ -2195,8 +2195,77 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
     i = SPELL_MAX_LEVEL;
   if (pwrdynst->cost[i] <= dungeon->total_money_owned)
   {
-    // If we have more money, increase overcharge
-    player->cast_expand_level++;
+    if (is_my_player(player))
+    {
+        if (is_key_pressed(KC_NUMPAD1, KMod_DONTCARE))
+        {
+            player->cast_expand_level = 1;
+        }
+        else if (is_key_pressed(KC_NUMPAD2, KMod_DONTCARE))
+        {
+            player->cast_expand_level = 4;
+        }
+        else if (is_key_pressed(KC_NUMPAD3, KMod_DONTCARE))
+        {
+            player->cast_expand_level = 8;
+        }
+        else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
+        {
+            player->cast_expand_level = 12;
+        }
+        else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
+        {
+            player->cast_expand_level = 16;
+        }
+        else if (is_key_pressed(KC_NUMPAD6, KMod_DONTCARE))
+        {
+            player->cast_expand_level = 20;
+        }
+        else if (is_key_pressed(KC_NUMPAD7, KMod_DONTCARE))
+        {
+            player->cast_expand_level = 24;
+        }
+        else if (is_key_pressed(KC_NUMPAD8, KMod_DONTCARE))
+        {
+            player->cast_expand_level = 28;
+        }
+        else if (is_key_pressed(KC_NUMPAD9, KMod_DONTCARE))
+        {
+            player->cast_expand_level = 32;
+        }
+        else if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
+        {
+            i = 0;
+            while (pwrdynst->cost[i] < dungeon->total_money_owned)
+            {
+                if (i < SPELL_MAX_LEVEL)
+                {
+                    if (pwrdynst->cost[i+1] <= dungeon->total_money_owned)
+                    {
+                        i++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            player->cast_expand_level = (i << 2);
+        }
+        else
+        {
+            // If we have more money, increase overcharge
+            player->cast_expand_level++;
+        }
+    }
+    else
+    {
+        player->cast_expand_level++;
+    }
   } else
   {
     // If we don't have money, decrease the charge

@@ -357,6 +357,15 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       case PSt_Heal:
           update_power_overcharge(player, PwrK_HEALCRTR);
           break;
+      case PSt_DestroyWalls:
+          update_power_overcharge(player, PwrK_DESTRWALLS);
+          break;
+      case PSt_CastDisease:
+          update_power_overcharge(player, PwrK_DISEASE);
+          break;
+      case PSt_TurnChicken:
+          update_power_overcharge(player, PwrK_CHICKEN);
+          break;
       default:
           player->cast_expand_level++;
           break;
