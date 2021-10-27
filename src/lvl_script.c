@@ -347,7 +347,8 @@ const struct NamedCommand object_config_desc[] = {
   {"MaximumSize",     6},
   {"DestroyOnLava",   7},
   {"DestroyOnLiquid", 8},
-  {"Properties",      9},
+  {"MapIcon",         9},
+  {"Properties",     10},
   {NULL,              0},
 };
 
@@ -1092,7 +1093,10 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 8: // DestroyOnLiquid
             objdat->destroy_on_liquid = context->value->arg2;
             break;
-        case 9: // Properties
+        case 9: // MapIcon
+            objst->map_icon = context->value->arg2;
+            break;
+        case 10: // Properties
             objst->model_flags = context->value->arg2;
             break;
         default:
