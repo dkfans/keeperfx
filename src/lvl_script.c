@@ -72,6 +72,7 @@
 #include "keeperfx.hpp"
 #include "music_player.h"
 #include "custom_sprites.h"
+#include "console_cmd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -3840,7 +3841,15 @@ static void create_effect_check(const struct ScriptLine *scline)
     long effct_id = get_rid(effect_desc, effect_name);
     if (effct_id == -1)
     {
-        effct_id = atoi(effect_name);
+        if (parameter_is_number(effect_name))
+        {
+            effct_id = atoi(effect_name);
+        }
+        else
+        {
+            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+            return;
+        }
     }
     value->bytes[0] = effct_id;
     const char *locname = scline->tp[1];
@@ -3864,7 +3873,15 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
     long effct_id = get_rid(effect_desc, effect_name);
     if (effct_id == -1)
     {
-        effct_id = atoi(effect_name);
+        if (parameter_is_number(effect_name))
+        {
+            effct_id = atoi(effect_name);
+        }
+        else
+        {
+            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+            return;
+        }
     }
     value->bytes[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))
