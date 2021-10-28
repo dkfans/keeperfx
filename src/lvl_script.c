@@ -6846,10 +6846,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
     case Cmd_USE_SPELL_ON_CREATURE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_use_spell_on_creature(i, val2, val3, val4);
-      }
+      script_use_spell_on_creature(plr_range_id, val2, val3, val4);
       break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         for (i = plr_start; i < plr_end; i++)

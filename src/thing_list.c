@@ -407,7 +407,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
     {
         if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
         {
-            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            if ((param->plyr_idx == ALL_PLAYERS) || (thing->owner == param->plyr_idx))
             {
                 if (!thing_is_picked_up(thing))
                 {
