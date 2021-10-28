@@ -1397,8 +1397,14 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         }
         k = (((unsigned long long)heartng->field_40 >> 32) & 0xFF) + heartng->field_40;
         heartng->field_48 = (k >> 8) & 0xFF;
-        if ( !S3DEmitterIsPlayingSample(heartng->snd_emitter_id, 93, 0) )
-          thing_play_sample(heartng, 93, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
+        if (LbIsFrozenOrPaused())
+        {
+            stop_thing_playing_sample(heartng, 93);
+        }
+        else if ( !S3DEmitterIsPlayingSample(heartng->snd_emitter_id, 93, 0) )
+        {
+            thing_play_sample(heartng, 93, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
+        }
     }
 }
 

@@ -912,8 +912,14 @@ short setup_game(void)
   // Enable features that require more resources
   update_features(mem_size);
 
-  features_enabled |= Ft_Wibble; // enable wibble by default
+  //Default feature settings (in case the options are absent from keeperfx.cfg)
+  features_enabled |= Ft_Wibble; // enable wibble
   features_enabled |= Ft_LiquidWibble; // enable liquid wibble by default
+  features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
+  features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
+  features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
+  features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
+  features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
 
   // Configuration file
   if ( !load_configuration() )
@@ -3409,6 +3415,8 @@ TbBool keeper_wait_for_screen_focus(void)
         if (LbIsActive())
           return true;
         if ((game.system_flags & GSF_NetworkActive) != 0)
+          return true;
+        if (!freeze_game_on_focus_lost())
           return true;
         LbSleepFor(50);
     } while ((!exit_keeper) && (!quit_game));

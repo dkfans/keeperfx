@@ -288,6 +288,8 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int is_special_digger, long full_slab);
 short zoom_to_next_annoyed_creature(void);
 
+TbBool LbIsFrozenOrPaused(void); // from bflib_inputctrl.cpp
+
 short ceiling_set_info(long height_max, long height_min, long step);
 void set_mouse_light(struct PlayerInfo *player);
 void delete_all_structures(void);
