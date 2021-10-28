@@ -86,7 +86,7 @@ extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner
 extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 extern void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
-extern long near_map_block_creature_filter_diagonal(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
+extern long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
 
 static int script_current_condition = 0;
 
@@ -5385,7 +5385,7 @@ static struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long
         int dist = 2 * coord_subtile(apt->range + COORD_PER_STL - 1 ) + 1;
         dist = dist * dist;
 
-        Thing_Maximizer_Filter filter = near_map_block_creature_filter_diagonal;
+        Thing_Maximizer_Filter filter = near_map_block_creature_filter_diagonal_random;
         struct CompoundTngFilterParam param;
         param.model_id = crmodel;
         param.plyr_idx = (unsigned char)plyr_idx;

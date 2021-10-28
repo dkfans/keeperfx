@@ -396,6 +396,36 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
 }
 
 /**
+ * Filter function. Random around AP
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if (thing->class_id == TCls_Creature)
+    {
+        if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                if (!thing_is_picked_up(thing))
+                {
+                    MapCoordDelta dist = get_distance_xy(thing->mappos.x.val, thing->mappos.y.val, param->num1, param->num2);
+                    if (dist > param->num3) // Too far away
+                        return -1;
+                    // It is not "correct" randomness (pick random N from list) but rolling a dice on each creature found
+                    unsigned long tmp = maximizer + dist + 1;
+                    return (long)LbRandomSeries(LONG_MAX, &tmp, __func__, __LINE__, "");
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
  * Filter function.
  * @param thing The thing being checked.
  * @param param Parameters exchanged between filter calls.
@@ -429,28 +459,6 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
     return -1;
 }
 
-long near_map_block_creature_filter_diagonal(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
-{
-    if (thing->class_id == TCls_Creature)
-    {
-        if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
-        {
-            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
-            {
-                if (!thing_is_picked_up(thing))
-                {
-                    MapCoordDelta dist = get_distance_xy(thing->mappos.x.val, thing->mappos.y.val, param->num1, param->num2);
-                    if (dist > param->num3) // Too far away
-                        return -1;
-                    // This function should return max value when the distance is minimal, so:
-                    return LONG_MAX-dist;
-                }
-            }
-        }
-    }
-    // If conditions are not met, return -1 to be sure thing will not be returned.
-    return -1;
-}
 /**
  * Filter function.
  * @param thing The thing being checked.
@@ -3273,7 +3281,7 @@ struct Thing *get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specd
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, distance_stl*distance_stl, filter, &param);
 }
 
-/** Finds creature on subtiles in range around given position, who is owned by given player.
+/** Finds nearest creature on subtiles in range around given position, who is owned by given player.
  *
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
