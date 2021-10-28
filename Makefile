@@ -451,7 +451,6 @@ deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
 clean: clean-build clean-tools clean-libexterns clean-package
 
 clean-build:
-	-git submodule init && git submodule update
 	-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))
 	-$(RM) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(filter %.d,$(HVLOGOBJS:%.o=%.d)) $(filter %.d,$(HVLOG_MAIN_OBJ:%.o=%.d))
 	-$(RM) $(BIN) $(BIN:%.exe=%.map)
@@ -580,7 +579,7 @@ deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: deps/zlib/c
 
 
 deps/zlib/configure.log:
-	git submodule init && git submodule update && cd deps/zlib && ./configure --static
+	git submodule update --init && cd deps/zlib && ./configure --static
 
 deps/zlib/libz.a: deps/zlib/configure.log
 	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
