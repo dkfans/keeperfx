@@ -84,7 +84,7 @@ extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner
 extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 extern void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
-extern long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
+extern long near_map_block_creature_filter_random_and_model_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
 
 static int script_current_condition = 0;
 
@@ -5182,7 +5182,7 @@ static struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long
         // Action point range should be inside spiral in subtiles
         int dist = 1 + coord_subtile((2 * apt->range + COORD_PER_STL - 1) ) * 8;
 
-        Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_thing_of_class_and_model_owned_by;
+        Thing_Maximizer_Filter filter = near_map_block_creature_filter_random_and_model_owned_by;
         struct CompoundTngFilterParam param;
         param.class_id = TCls_Creature;
         param.model_id = crmodel;
