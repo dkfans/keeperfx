@@ -589,7 +589,7 @@ clean-libexterns: libexterns.mk
 	-cd deps/zlib && git checkout Makefile zconf.h
 	-$(RM) libexterns
 
-deps/libspng/spng/spng.c:
+deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c deps/libspng/spng/spng.c:
 	git submodule init
 	git submodule update
 
