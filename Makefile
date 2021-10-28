@@ -574,7 +574,9 @@ clean-libexterns: libexterns.mk
 	-cd deps/zlib && git checkout Makefile zconf.h
 	-$(RM) libexterns
 
-deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c deps/libspng/spng/spng.c: deps/zlib/configure.log
+deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: deps/zlib/configure.log
+deps/libspng/spng/spng.c: deps/zlib/configure.log
+deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: deps/zlib/configure.log
 
 
 deps/zlib/configure.log:
