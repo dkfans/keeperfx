@@ -30,6 +30,7 @@
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_network.h"
+#include "bflib_inputctrl.h"
 
 #include "kjm_input.h"
 #include "frontend.h"
@@ -579,6 +580,20 @@ short get_global_inputs(void)
   {
       if ( is_game_key_pressed(Gkey_TogglePause, &keycode, false) )
       {
+        long grab_check_flags = (((game.operation_flags & GOF_Paused) == 0) ? MG_OnPauseEnter : MG_OnPauseLeave);// the paused flag is currently set to the current pause state, not the state we are about to enter
+        LbGrabMouseCheck(grab_check_flags);
+        if (pause_music_when_game_paused())
+        {
+            // only pause music, rather than pause all audio, because otherwise announcer messages will be lost (it continues to play while muted, it needs a new feature)
+            pause_music(((grab_check_flags & MG_OnPauseEnter) != 0));
+        }
+        if (((grab_check_flags & MG_OnPauseEnter) != 0))
+        {
+            for (int i = 0; i < PLAYER_NEUTRAL; i++)
+            {
+                stop_thing_playing_sample(find_players_dungeon_heart(i), 93);
+            }
+        }
         set_packet_pause_toggle();
         clear_key_pressed(keycode);
         return true;
@@ -1604,10 +1619,15 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         if (global_frameskipTurn > frameskipMax) global_frameskipTurn = 0;
         if (!moveTheCamera) return;
     }
-
+    // Camera Panning : mouse at window edge scrolling feature
+    if (!LbIsMouseActive())
+    {
+        return; // don't pan the camera if the mouse has left the window
+    }
     long mx = my_mouse_x;
     long my = my_mouse_y;
-    if (mx <= 4)
+    long edge_scrolling_border = max(4, scale_fixed_DK_value(4));
+    if (mx <= edge_scrolling_border)
     {
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
         {
@@ -1616,7 +1636,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         }
         set_packet_control(pckt, PCtr_MoveLeft);
     }
-    if (mx >= MyScreenWidth-4)
+    if (mx >= MyScreenWidth-edge_scrolling_border)
     {
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
         {
@@ -1625,7 +1645,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         }
         set_packet_control(pckt, PCtr_MoveRight);
     }
-    if (my <= 4)
+    if (my <= edge_scrolling_border)
     {
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
         {
@@ -1634,7 +1654,7 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         }
         set_packet_control(pckt, PCtr_MoveUp);
     }
-    if (my >= MyScreenHeight-4)
+    if (my >= MyScreenHeight-edge_scrolling_border)
     {
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
         {
@@ -1989,7 +2009,7 @@ void get_creature_control_nonaction_inputs(void)
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
   while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, y/pixel_size);
+    LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
   // Set pos_x and pos_y
   if (settings.first_person_move_invert)
     pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;

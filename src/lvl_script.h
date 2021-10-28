@@ -364,7 +364,11 @@ struct ScriptValue { // sizeof = 16
     {
       long arg0;
       long arg1;
-      long arg2;
+      union
+      {
+          long arg2;
+          char* str2;
+      };
     };
     struct
     {
@@ -458,6 +462,10 @@ struct LevelScript {
     unsigned long win_conditions_num;
     unsigned short lose_conditions[WIN_CONDITIONS_COUNT];
     unsigned long lose_conditions_num;
+
+    // Store strings used at level here
+    char strings[2048];
+    char *next_string;
 };
 
 /******************************************************************************/

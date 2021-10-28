@@ -27,8 +27,6 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_input.h"
-#include "gui_draw.h"
-#include "gui_tooltips.h"
 #include "gui_parchment.h"
 #include "gui_frontmenu.h"
 #include "gui_msgs.h"
@@ -40,18 +38,12 @@
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_terrain.h"
-#include "config_trapdoor.h"
 #include "config_objects.h"
-#include "config_rules.h"
-#include "config_lenses.h"
 #include "config_magic.h"
 #include "config_creature.h"
-#include "config_crtrstates.h"
-#include "config_crtrmodel.h"
 #include "config_compp.h"
 #include "config_effects.h"
 #include "lvl_script.h"
-#include "lvl_filesdk1.h"
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -65,45 +57,35 @@
 #include "engine_arrays.h"
 #include "engine_textures.h"
 #include "engine_redraw.h"
-#include "front_landview.h"
-#include "front_lvlstats.h"
 #include "front_easter.h"
 #include "front_fmvids.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_creature.h"
-#include "thing_corpses.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_doors.h"
 #include "thing_traps.h"
-#include "thing_shots.h"
 #include "thing_navigate.h"
 #include "thing_factory.h"
 #include "slab_data.h"
 #include "room_data.h"
 #include "room_entrance.h"
-#include "room_jobs.h"
 #include "room_util.h"
-#include "room_library.h"
 #include "map_columns.h"
 #include "map_events.h"
 #include "map_utils.h"
 #include "map_blocks.h"
-#include "ariadne_wallhug.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
-#include "creature_states_rsrch.h"
-#include "creature_states_lair.h"
 #include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "magic.h"
 #include "power_process.h"
 #include "power_hand.h"
-#include "power_specials.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
 #include "gui_boxmenu.h"
@@ -111,7 +93,6 @@
 #include "gui_frontbtns.h"
 #include "frontmenu_ingame_tabs.h"
 #include "ariadne.h"
-#include "net_game.h"
 #include "sounds.h"
 #include "vidfade.h"
 #include "KeeperSpeech.h"
@@ -931,8 +912,14 @@ short setup_game(void)
   // Enable features that require more resources
   update_features(mem_size);
 
-  features_enabled |= Ft_Wibble; // enable wibble by default
+  //Default feature settings (in case the options are absent from keeperfx.cfg)
+  features_enabled |= Ft_Wibble; // enable wibble
   features_enabled |= Ft_LiquidWibble; // enable liquid wibble by default
+  features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
+  features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
+  features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
+  features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
+  features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
 
   // Configuration file
   if ( !load_configuration() )
@@ -3428,6 +3415,8 @@ TbBool keeper_wait_for_screen_focus(void)
         if (LbIsActive())
           return true;
         if ((game.system_flags & GSF_NetworkActive) != 0)
+          return true;
+        if (!freeze_game_on_focus_lost())
           return true;
         LbSleepFor(50);
     } while ((!exit_keeper) && (!quit_game));

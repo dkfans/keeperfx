@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file music_player.h
- *     Header file for music_player.c.
+/** @file game_heap.c
+ *     Definition of heap, used for storing memory-expensive sounds and graphics.
  * @par Purpose:
- *     ogg music player.
+ *     Functions to create and maintain memory heap.
  * @par Comment:
- *     Uses SDL_mixer
- * @author   Lukas Niemeier
- * @date     20 Feb 2014
+ *     None.
+ * @author   KeeperFX Team
+ * @date     06 Apr 2021
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,30 +16,23 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_MUSICPLAYER_H
-#define DK_MUSICPLAYER_H
+
+#ifndef GIT_CUSTOM_SPRITES_H
+#define GIT_CUSTOM_SPRITES_H
 
 #include "globals.h"
-#include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+struct Objects;
 
-#define FIRST_TRACK 2
-extern int max_track;
+void init_custom_sprites(LevelNumber level_no);
 
-int IsRedbookMusicActive(void);
-int InitializeMusicPlayer(void);
-void ShutdownMusicPlayer(void);
-void PlayMusicPlayer(int track);
-void PauseMusicPlayer(void);
-void ResumeMusicPlayer(void);
-void StopMusicPlayer(void);
-void SetMusicPlayerVolume(int volume);
+short get_anim_id(const char *name, struct Objects* objdat);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif //GIT_CUSTOM_SPRITES_H

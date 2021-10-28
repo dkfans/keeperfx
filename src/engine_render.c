@@ -142,6 +142,7 @@ static int water_wibble_angle = 0;
 static unsigned long render_problems;
 static long render_prob_kind;
 static long sp_x, sp_y, sp_dx, sp_dy;
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -5686,6 +5687,8 @@ static long load_keepersprite_if_needed(unsigned short kspr_idx)
 static long heap_manage_keepersprite(unsigned short kspr_idx)
 {
     long result;
+    if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET)
+        return 1;
     lock_keepersprite(kspr_idx);
     result = load_keepersprite_if_needed(kspr_idx);
     unlock_keepersprite(kspr_idx);
@@ -5698,7 +5701,9 @@ static void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
     long cut_w;
     long cut_h;
     TbSpriteData *kspr_item;
-    if ((kspr_idx < 0) || (kspr_idx >= KEEPSPRITE_LENGTH)) {
+    if ((kspr_idx < 0)
+        || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
+        || (kspr_idx > (KEEPERSPRITE_ADD_NUM + KEEPERSPRITE_ADD_OFFSET))) {
         WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
         return;
     }
@@ -5708,7 +5713,11 @@ static void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
     if (cut_h <= 0) {
         return;
     }
-    kspr_item = keepsprite[kspr_idx];
+    if (kspr_idx < KEEPERSPRITE_ADD_OFFSET)
+        kspr_item = keepsprite[kspr_idx];
+    else
+        kspr_item = &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
+
     sprite.SWidth = cut_w;
     sprite.SHeight = cut_h;
     if (kspr_item != NULL) {
@@ -5893,7 +5902,7 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
 
 // this function is called by draw_fastview_mapwho
 HOOK_DK_FUNC(process_keeper_sprite)
-void process_keeper_sprite(short x, short y, unsigned short kspr_base, short kspr_frame, unsigned char sprgroup, long scale)
+void process_keeper_sprite(short x, short y, unsigned short kspr_base, short kspr_angle, unsigned char sprgroup, long scale)
 {
     struct KeeperSprite *creature_sprites;
     struct PlayerInfo *player;
@@ -5910,12 +5919,12 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     TbBool needs_xflip;
     long long lltemp;
     long sprite_group;
-    long sprite_delta;
+    long sprite_rot;
     long cutoff;
-    SYNCDBG(17,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)kspr_base,(int)kspr_frame,(int)sprgroup,(int)scale);
+    SYNCDBG(17, "At (%d,%d) opts %d %d %d %d", (int)x, (int)y, (int)kspr_base, (int)kspr_angle, (int)sprgroup, (int)scale);
     player = get_my_player();
 
-    if ( ((kspr_frame & 0x7FF) <= 1151) || ((kspr_frame & 0x7FF) >= 1919) )
+    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) )
         needs_xflip = 0;
     else
         needs_xflip = 1;
@@ -5924,8 +5933,8 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     else
       lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     sprite_group = sprgroup;
-    lltemp = 4 - ((((long)kspr_frame + 128) & 0x7FF) >> 8);
-    sprite_delta = llabs(lltemp);
+    lltemp = 4 - ((((long)kspr_angle + 128) & 0x7FF) >> 8);
+    sprite_rot = llabs(lltemp);
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
     creature_sprites = keepersprite_array(kspr_base);
@@ -5984,8 +5993,8 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         {
             return;
         }
-        kspr = &creature_sprites[sprite_group + sprite_delta * (long)creature_sprites->FramesCount];
-        draw_idx = sprite_group + sprite_delta * (long)kspr->FramesCount + kspr_idx;
+        kspr = &creature_sprites[sprite_group + sprite_rot * (long)creature_sprites->FramesCount];
+        draw_idx = sprite_group + sprite_rot * (long)kspr->FramesCount + kspr_idx;
         if ( needs_xflip )
         {
             draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
@@ -6162,7 +6171,10 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     thing = jspr->thing;
     player = get_my_player();
     if (keepersprite_rotable(thing->anim_sprite))
+    {
       angle = thing->move_angle_xy - spr_map_angle;
+      angle += 256 * (long)((get_thingadd(thing->index)->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
+    }
     else
       angle = thing->move_angle_xy;
     prepare_jonty_remap_and_scale(&scale, jspr);
@@ -6208,7 +6220,10 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         thing_being_displayed = NULL;
     }
 
-    if (thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH)
+    if (
+        ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
+        || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+    )
     {
         ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
     } else

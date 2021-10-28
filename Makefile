@@ -67,7 +67,17 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 LIBS     = obj/libkeeperfx.a
+
+DEPS = \
+obj/spng.o \
+obj/json/json.o \
+obj/json/value.o \
+obj/json/json-dom.o \
+obj/unzip.o \
+obj/ioapi.o
+
 OBJS = \
+$(DEPS) \
 obj/actionpt.o \
 obj/ariadne.o \
 obj/ariadne_edge.o \
@@ -146,6 +156,7 @@ obj/config_terrain.o \
 obj/config_cubes.o \
 obj/config_trapdoor.o \
 obj/console_cmd.o \
+obj/custom_sprites.o \
 obj/creature_battle.o \
 obj/creature_control.o \
 obj/creature_graphics.o \
@@ -314,7 +325,9 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net 
+LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a \
+	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
+	-L"deps/zlib" -lz
 INCS =  -I"sdl/include" -I"sdl/include/SDL2"
 CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
 
@@ -328,7 +341,7 @@ HVLOG_MAIN_OBJ = $(subst obj/,obj/hvlog/,$(MAIN_OBJ))
 ENABLE_EXTRACT ?= 1
 
 # flags to generate dependency files
-DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -DSPNG_STATIC=1
 # other flags to include while compiling
 INCFLAGS =
 # code optimization and debugging flags
@@ -424,7 +437,7 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu)
+$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu obj/std/json obj/hvlog/json)
 std-before:
 hvlog-before:
 
@@ -438,6 +451,7 @@ deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
 clean: clean-build clean-tools clean-libexterns clean-package
 
 clean-build:
+	-git submodule init && git submodule update
 	-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))
 	-$(RM) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(filter %.d,$(HVLOGOBJS:%.o=%.d)) $(filter %.d,$(HVLOG_MAIN_OBJ:%.o=%.d))
 	-$(RM) $(BIN) $(BIN:%.exe=%.map)
@@ -474,6 +488,36 @@ ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 	-$(ECHO) 'Finished building target: $@'
+
+obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/libspng/spng" -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/centijson/src" -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/centijson/src" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
 
 obj/tests/%.o: tests/%.cpp $(GENSRC)
 	-$(ECHO) 'Building file: $<'
@@ -536,12 +580,26 @@ bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 
 tests: std-before $(TEST_BIN)
 
-export
 libexterns: libexterns.mk
 	$(MAKE) -f libexterns.mk
 
 clean-libexterns: libexterns.mk
-	$(MAKE) -f libexterns.mk clean-libexterns
+	-$(MAKE) -f libexterns.mk clean-libexterns
+	-cd deps/zlib && $(MAKE) -f win32/Makefile.gcc clean
+	-cd deps/zlib && git checkout Makefile zconf.h
+	-$(RM) libexterns
+
+deps/libspng/spng/spng.c:
+	git submodule init
+	git submodule update
+
+deps/zlib/configure.log:
+	git submodule init
+	git submodule update
+	cd deps/zlib && ./configure --static
+
+deps/zlib/libz.a: deps/zlib/configure.log
+	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
 
 include tool_peresec.mk
 include tool_png2ico.mk
@@ -557,4 +615,5 @@ include pkg_lang.mk
 include pkg_gfx.mk
 include pkg_sfx.mk
 
+export RM CP MKDIR MV ECHO
 #******************************************************************************

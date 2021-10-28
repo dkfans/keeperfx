@@ -21,12 +21,12 @@
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
-#include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
 #include "config.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "custom_sprites.h"
 #include "thing_objects.h"
 #include "game_legacy.h"
 
@@ -141,7 +141,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        gameadd.object_conf.object_types_count = 1;
+        gameadd.object_conf.object_types_count = OBJECT_TYPES_MAX - 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -202,51 +202,74 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
 {
     struct ObjectConfigStats *objst;
     struct ObjectConfig *objbc;
-    int i;
+    int tmodel;
     // Block name and parameter word store variables
     // Initialize the objects array
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         arr_size = sizeof(gameadd.object_conf.object_cfgstats)/sizeof(gameadd.object_conf.object_cfgstats[0]);
-        for (i=0; i < arr_size; i++)
+        for (tmodel=0; tmodel < arr_size; tmodel++)
         {
-            objst = &gameadd.object_conf.object_cfgstats[i];
+            objst = &gameadd.object_conf.object_cfgstats[tmodel];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
             objst->map_icon = 0;
             objst->genre = 0;
-            if (i < gameadd.object_conf.object_types_count)
+            if (tmodel < gameadd.object_conf.object_types_count)
             {
-                object_desc[i].name = objst->code_name;
-                object_desc[i].num = i;
+                object_desc[tmodel].name = objst->code_name;
+                object_desc[tmodel].num = tmodel;
             } else
             {
-                object_desc[i].name = NULL;
-                object_desc[i].num = 0;
+                object_desc[tmodel].name = NULL;
+                object_desc[tmodel].num = 0;
             }
         }
     }
     // Load the file
-    arr_size = gameadd.object_conf.object_types_count;
-    for (i=0; i < arr_size; i++)
+    for (tmodel = 0; tmodel < OBJECT_TYPES_MAX; tmodel++)
     {
         char block_buf[COMMAND_WORD_LEN];
-        sprintf(block_buf, "object%d", i);
+        sprintf(block_buf, "object%d", tmodel);
         long pos = 0;
         char* tail;
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
-            if ((flags & CnfLd_AcceptPartial) == 0) {
-                WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            if ((flags & CnfLd_AcceptPartial) == 0)
+            {
+                // Just count all found blocks if we didn't that already
+                if (gameadd.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
+                {
+                    gameadd.object_conf.object_types_count = tmodel;
+                    JUSTMSG("Loaded %d object types", gameadd.object_conf.object_types_count);
+                    break;
+                }
+                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
                 return false;
+            }
+            else
+            {
+                if (tmodel > gameadd.object_conf.object_types_count)
+                {
+                    gameadd.object_conf.object_types_count = tmodel;
+                    JUSTMSG("Extended to %d object types", gameadd.object_conf.object_types_count);
+                    break;
+                }
             }
             continue;
         }
-        objst = &gameadd.object_conf.object_cfgstats[i];
-        objbc = &gameadd.object_conf.base_config[i];
-        struct Objects* objdat = get_objects_data(i);
+        else
+        {
+            if (tmodel > gameadd.object_conf.object_types_count)
+            {
+                WARNMSG("Found unexpected block [%s] in %s file.", block_buf, config_textname);
+            }
+        }
+        objst = &gameadd.object_conf.object_cfgstats[tmodel];
+        objbc = &gameadd.object_conf.base_config[tmodel];
+        struct Objects* objdat = get_objects_data(tmodel);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
@@ -330,7 +353,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case 5: // ANIMATIONID
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                    n = atoi(word_buf);
+
+                    n = get_anim_id(word_buf, objdat);
                     objdat->sprite_anim_idx = n;
                     n++;
                 }
@@ -481,6 +505,10 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             skip_conf_to_next_line(buf,&pos,len);
         }
 #undef COMMAND_TEXT
+        if (tmodel > OBJECT_TYPES_COUNT_ORIGINAL)
+        {
+            define_custom_object(tmodel, objdat->sprite_anim_idx);
+        }
     }
     return true;
 }
@@ -539,6 +567,9 @@ void update_all_object_stats()
             TRACE_THING(thing);
         struct Objects* objdat = get_objects_data_for_thing(thing);
         set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
+        // TODO: Should we rotate this on per-object basis?
+        get_thingadd(thing->index)->flags = 0;
+        get_thingadd(thing->index)->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
     }
 }
 TbBool load_objects_config(const char *conf_fname, unsigned short flags)
