@@ -227,5 +227,5 @@ ENDIF
 
 IF(PLAYER0,DRAGON == 1)
     DISPLAY_INFORMATION(47,ALL_PLAYERS)
-REM QUICK_INFORMATION(8,"A dragon has joined your cause. There may be others around. Be advised, Keeper, if you seek to imprisonate and torture your enemy, a dragon's flames can burn any victim beyond unconsciousness. It would be best to find other minions to subdue your enemy.")
+REM QUICK_INFORMATION(8,"A dragon has joined your cause. There may be others around. Be advised, Keeper, if you seek to imprison and torture your enemy, a dragon's flames can burn any victim beyond unconsciousness. It would be best to find other minions to subdue your enemy.")
 ENDIF

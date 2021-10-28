@@ -47,7 +47,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-//field_0; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; field_11; field_12; field_13; size_xy; field_16; trigger_type; activation_type; created_itm_model;  field_1B; etc
+//field_0; sprite_anim_idx; sprite_size_max; unanimated; anim_speed; field_11; field_12; field_13; size_xy; field_16; trigger_type; activation_type; created_itm_model;  hit_type; etc
 struct TrapStats old_trap_stats[7] = {
 {0,           0,   0, 0,   0,        0, 0, 0,          0,      0,          0, 0,  0, 0, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0},
 {128,       861, 384, 1,   0,        0, 0, 1,        640,    512,          1, 1, 15, 9, 0, 0, 0, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, 0, 0, 0}, //Boulder
@@ -77,7 +77,7 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     struct TrapConfigStats *trapst;
     if (thing->owner == plyr_idx)
     {
-        trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+        trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
         return (trapst->slappable == 1) && trap_is_active(thing);
     }
     return false;
@@ -382,7 +382,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotng->veloc_push_add.y.val += cvect.y;
         shotng->veloc_push_add.z.val += cvect.z;
         shotng->state_flags |= TF1_PushAdd;
-        shotng->byte_16 = trapstat->field_1B;
+        shotng->hit_type = trapstat->hit_type;
         if (shotst->firing_sound > 0) {
             thing_play_sample(traptng, shotst->firing_sound+UNSYNC_RANDOM(shotst->firing_sound_variants),
                 NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -404,7 +404,7 @@ void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
     struct Thing* efftng = create_effect(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(efftng)) 
     {
-        efftng->byte_16 = trapstat->field_1B;
+        efftng->hit_type = trapstat->hit_type;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
     if(trapstat->created_itm_model == 14) //Word of Power trap
@@ -433,7 +433,7 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
     }
     struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng)) {
-        shotng->byte_16 = trapstat->field_1B;
+        shotng->hit_type = trapstat->hit_type;
         shotng->parent_idx = 0;
         shotng->veloc_push_add.x.val += trapstat->field_30;
         shotng->veloc_push_add.y.val += trapstat->field_32;
@@ -474,8 +474,8 @@ void activate_trap_spawn_creature(struct Thing *traptng, const struct TrapStats 
         return;
     }
     cctrl = creature_control_get_from_thing(thing);
-    thing->veloc_push_add.x.val += ACTION_RANDOM(161) - 80;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(161) - 80;
+    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 0;
     thing->state_flags |= TF1_PushAdd;
     cctrl->spell_flags |= CSAfF_MagicFall;
@@ -510,7 +510,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
 {
     traptng->trap.revealed = 1;
     const struct TrapStats *trapstat = &gameadd.trap_stats[traptng->model];
-    struct TrapConfigStats *trapst = &trapdoor_conf.trap_cfgstats[traptng->model];
+    struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[traptng->model];
     // EVM_TRAP_EVENT("trap.actiated", traptng->owner, thing)
     if (trapst->notify == 1)
     {
@@ -834,7 +834,7 @@ long remove_trap(struct Thing *traptng, long *sell_value)
         if (sell_value != NULL)
         {
             // Do the refund only if we were able to sell armed trap
-            long i = gameadd.traps_config[traptng->model].selling_value;
+            long i = compute_value_percentage(gameadd.traps_config[traptng->model].selling_value, gameadd.trap_sale_percent);
             if (traptng->trap.num_shots == 0)
             {
                 // Trap not armed - try selling crate from workshop
@@ -909,7 +909,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     shotng->veloc_push_add.y.val += cvect.y;
     shotng->veloc_push_add.z.val += cvect.z;
     shotng->state_flags |= TF1_PushAdd;
-    shotng->byte_16 = trapstat->field_1B;
+    shotng->hit_type = trapstat->hit_type;
     const struct ManfctrConfig* mconf = &gameadd.traps_config[thing->model];
     thing->long_14 = game.play_gameturn + mconf->shots_delay;
     if (thing->byte_13 != 255)

@@ -159,6 +159,7 @@ void set_flag_byte(unsigned char *flags,unsigned char mask,short value);
 void set_flag_word(unsigned short *flags,unsigned short mask,short value);
 void set_flag_dword(unsigned long *flags,unsigned long mask,short value);
 void toggle_flag_byte(unsigned char *flags,unsigned char mask);
+void toggle_flag_word(unsigned short *flags,unsigned short mask);
 void toggle_flag_dword(unsigned long *flags,unsigned long mask);
 long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);

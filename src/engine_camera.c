@@ -32,6 +32,7 @@
 #include "vidmode.h"
 #include "map_blocks.h"
 #include "dungeon_data.h"
+#include "config_settings.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -423,7 +424,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->orient_b = -266;
     cam->orient_a = LbFPMath_PI/4;
     cam->view_mode = PVM_IsometricView;
-    cam->zoom = 10000;
+    cam->zoom = settings.isometric_view_zoom_level;
 
     cam = &player->cameras[CamIV_Parchment];
     cam->mappos.x.val = 0;
@@ -438,6 +439,6 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->mappos.z.val = 32;
     cam->horizontal_fov = 94;
     cam->view_mode = PVM_FrontView;
-    cam->zoom = 65536;
+    cam->zoom = settings.frontview_zoom_level;
 }
 /******************************************************************************/

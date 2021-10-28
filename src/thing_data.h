@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+typedef unsigned short Thingid;
+
 /******************************************************************************/
 /** Enums for thing->field_0 bit fields. */
 enum ThingAllocFlags {
@@ -178,10 +180,14 @@ struct Thing {
       unsigned char box_kind;
       } custom_box;
       struct {
+          unsigned char exp_level;
+          unsigned char laid_to_rest;
+      } corpse;
+      struct {
         unsigned char byte_13;
         unsigned char byte_14;
         unsigned char byte_15;
-        unsigned char byte_16;
+        unsigned char hit_type;
         unsigned char byte_17;
         unsigned char trap_door_active_state; // For Doors: if byte_18 = 1 then door is locked/ For Traps: seems to be, if byte_18 = 1 then trap is still active
         unsigned char byte_19;
@@ -241,6 +247,17 @@ unsigned short field_60;
  * Can be defined to any SYNCLOG routine, making complete trace of usage on a thing.
  */
 #define TRACE_THING(thing)
+
+enum ThingAddFlags
+{
+    TAF_ROTATED_SHIFT = 16,
+    TAF_ROTATED_MASK = 0x070000,
+};
+
+struct ThingAdd // Additional thing data
+{
+    unsigned long flags; //ThingAddFlags
+};
 
 #pragma pack()
 /******************************************************************************/

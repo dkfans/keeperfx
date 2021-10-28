@@ -206,19 +206,19 @@ TbScreenCoord LbScreenHeight(void)
     return lbDisplay.PhysicalScreenHeight;
 }
 
-TbResult LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fade_steps)
+TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette,long fade_steps)
 {
     unsigned char palette[PALETTE_SIZE];
     for (int i = 0; i < 3 * PALETTE_COLORS; i += 3)
     {
-        int c1 = to_pal[i + 0];
-        int c2 = from_pal[i + 0];
+        int c1 = to_palette[i + 0];
+        int c2 = from_palette[i + 0];
         palette[i+0] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_pal[i+1];
-        c2 = from_pal[i+1];
+        c1 =   to_palette[i+1];
+        c2 = from_palette[i+1];
         palette[i+1] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_pal[i+2];
-        c2 = from_pal[i+2];
+        c1 =   to_palette[i+2];
+        c2 = from_palette[i+2];
         palette[i+2] = fade_count * (c1 - c2) / fade_steps + c2;
     }
     LbScreenWaitVbi();
@@ -387,7 +387,8 @@ TbResult LbScreenInitialize(void)
     return Lb_SUCCESS;
 }
 
-static LPCTSTR MsResourceMapping(int index)
+// this function is unused
+LPCTSTR MsResourceMapping(int index)
 {
   switch (index)
   {
@@ -444,15 +445,35 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         int cw, ch, cflags;
         cflags = SDL_GetWindowFlags(lbWindow);
         SDL_GetWindowSize(lbWindow, &cw, &ch);
-        TbBool sameResolution = mdinfo->Width == cw && mdinfo->Height == ch;
-        TbBool sameWindowMode = (cflags & sdlFlags) != 0;
-        TbBool stillInWindowedMode = (int)(sdlFlags & 1) == 0 && (int)(cflags & 1) == 0; // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
+        TbBool sameResolution = ((mdinfo->Width == cw) && (mdinfo->Height == ch));
+        TbBool sameWindowMode = ((cflags & sdlFlags) != 0);
+        TbBool stillInWindowedMode = ((sdlFlags & 1) == 0) && ((cflags & 1) == 0); // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
         if (stillInWindowedMode) {
-            sameWindowMode = sameWindowMode || stillInWindowedMode;
+            sameWindowMode = (sameWindowMode || stillInWindowedMode);
         }
-        if (!sameResolution || !sameWindowMode) { //.. and only destroy the exisiting one if the res/mode has changed
-            SDL_DestroyWindow(lbWindow);
+        int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
+        if (!sameWindowMode && (fullscreenMode == 0))
+        {
+            SDL_DestroyWindow(lbWindow); // destroy window on transition from fullscreen to window, as it is quicker than using SDL_SetWindowFullscreen
             lbWindow = NULL;
+        } 
+        else
+        {
+            if (!sameResolution)
+            {
+                if (fullscreenMode == SDL_WINDOW_FULLSCREEN)
+                {
+                    SDL_DisplayMode dm = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0}; // maybe there is a better/more accurate way to describe the display mode...
+                    dm.w=mdinfo->Width;
+                    dm.h=mdinfo->Height;
+                    SDL_SetWindowDisplayMode(lbWindow, &dm); // set display mode for fullscreen
+                }
+                SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height); // we want to set window size for both windowed mode, and fullscreen
+            }
+            if (!sameWindowMode)
+            {
+                SDL_SetWindowFullscreen(lbWindow, fullscreenMode); // change to/from fullscreen if requested
+            }
         }
     }
     if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
@@ -462,15 +483,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
         return Lb_FAIL;
     }
-    if (lbMouseGrab)
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-    else {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        SDL_ShowCursor(SDL_DISABLE);
-    }
 
     lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
-
     if (lbScreenSurface == NULL) {
         ERRORLOG("Failed to initialize mode %d: %s",(int)mode,SDL_GetError());
         return Lb_FAIL;
@@ -512,7 +526,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if ( LbMouseIsInstalled() )
     {
         LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-        LbMouseSetPosition(lbDisplay.PhysicalScreenWidth / 2, lbDisplay.PhysicalScreenHeight / 2);
         if (msspr != NULL)
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }

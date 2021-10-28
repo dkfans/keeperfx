@@ -32,6 +32,10 @@ extern "C" {
 #define CREATURE_TYPES_MAX 64
 #define INSTANCE_TYPES_MAX 64
 #define CREATURE_STATES_MAX 256
+
+#define CREATURE_NONE 255
+#define CREATURE_ANY  254
+
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
@@ -273,7 +277,6 @@ extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
 extern const struct NamedCommand creature_graphics_desc[];
-extern struct CreatureConfig crtr_conf;
 /******************************************************************************/
 extern struct CreatureData creature_data[];
 //extern struct Creatures creatures[];
