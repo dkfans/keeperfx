@@ -3851,9 +3851,9 @@ static void create_effect_check(const struct ScriptLine *scline)
     long stl_x;
     long stl_y;
     find_map_location_coords(location, &stl_x, &stl_y, 0, __func__);
-    value->bytes[1] = (char)stl_x;
-    value->bytes[2] = (char)stl_y;
-    *(long*)(&value->bytes[3]) = scline->np[2];
+    value->bytes[1] = stl_x;
+    value->bytes[2] = stl_y;
+    value->arg1 = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3874,7 +3874,7 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
     }
     value->bytes[1] = scline->np[1];
     value->bytes[2] = scline->np[2];
-    *(long*)(&value->bytes[3]) = scline->np[3];
+    value->arg1 = scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3906,7 +3906,7 @@ static void create_effect_process(struct ScriptContext *context)
         }
         if (Price)
         {   
-            efftng->long_13 = *((long*)&context->value->bytes[3]);
+            efftng->long_13 = context->value->arg1;
         }
     }
 }
