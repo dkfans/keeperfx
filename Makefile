@@ -579,7 +579,7 @@ deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: deps/zlib/c
 
 
 deps/zlib/configure.log:
-	git submodule update --init && cd deps/zlib && ./configure --static
+	git submodule sync && git submodule update --init && cd deps/zlib && ./configure --static
 
 deps/zlib/libz.a: deps/zlib/configure.log
 	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
