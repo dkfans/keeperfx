@@ -594,9 +594,7 @@ deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom
 	git submodule update
 
 deps/zlib/configure.log:
-	git submodule init
-	git submodule update
-	cd deps/zlib && ./configure --static
+	git submodule init && git submodule update && cd deps/zlib && ./configure --static
 
 deps/zlib/libz.a: deps/zlib/configure.log
 	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
