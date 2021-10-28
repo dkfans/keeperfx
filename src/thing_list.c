@@ -46,6 +46,7 @@
 #include "engine_camera.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "bflib_planar.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -428,6 +429,28 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
     return -1;
 }
 
+long near_map_block_creature_filter_diagonal(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if (thing->class_id == TCls_Creature)
+    {
+        if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                if (!thing_is_picked_up(thing))
+                {
+                    MapCoordDelta dist = get_distance_xy(thing->mappos.x.val, thing->mappos.y.val, param->num1, param->num2);
+                    if (dist > param->num3) // Too far away
+                        return -1;
+                    // This function should return max value when the distance is minimal, so:
+                    return LONG_MAX-dist;
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
 /**
  * Filter function.
  * @param thing The thing being checked.
@@ -1258,7 +1281,7 @@ struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlC
             struct Objects* objdat = get_objects_data_for_thing(thing);
             if (objdat->related_creatr_model > 0)
             {
-                if ((crmodel <= 0) || (objdat->related_creatr_model == crmodel))
+                if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (objdat->related_creatr_model == crmodel))
                     return thing;
             }
         }
@@ -1609,7 +1632,7 @@ long creature_of_model_find_first(ThingModel crmodel)
         }
         i = thing->next_of_class;
         // Thing list loop body
-        if ((crmodel <= 0) || (thing->model == crmodel))
+        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
         {
             return i;
         }
@@ -1639,7 +1662,7 @@ struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel)
         }
         i = thing->next_of_class;
         // Thing list loop body
-        if ((crmodel <= 0) || (thing->model == crmodel))
+        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
         {
           if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
               return thing;
@@ -1843,7 +1866,7 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, int crmodel,
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((thing->model == crmodel) || (crmodel < 0))
+        if ((thing->model == crmodel) || (crmodel == 0) || (crmodel == CREATURE_ANY))
         {
             if (do_cb(thing))
                 n++;
@@ -1999,7 +2022,7 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
       struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
       i = cctrl->players_next_creature_idx;
       // Per creature code
-      if ((crmodel <= 0) || (thing->model == crmodel))
+      if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
           crtr_idx--;
       if (crtr_idx == -1)
           return thing;
@@ -2045,11 +2068,11 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
           match = 1;
         }
       }
-      if (((crtr_idx <= 0) || (thing->model == crmodel && crtr_idx <= 1)) && (match == 1))
+      if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel && crtr_idx <= 1)) && (match == 1))
       {
           return thing;
       }
-      if ((crmodel <= 0) || ((thing->model == crmodel) && (match == 1)))
+      if ((crmodel == 0) || (crmodel == CREATURE_ANY) || ((thing->model == crmodel) && (match == 1)))
       {
           crtr_idx--;
       }
@@ -2214,7 +2237,7 @@ long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Fil
 /** Counts on whole map creatures owned by given player, which match given bool filter.
  *
  * @param plyr_idx Player whose things will be searched. Allies are not included, use -1 to select all.
- * @param crmodel Creature model, or -1 for all, or -2 for all except special diggers, -3 for special diggers only.
+ * @param crmodel Creature model, or CREATURE_ANY for all, or -2 for all except special diggers, -3 for special diggers only.
  * @param matcher_cb The test callback function to be executed.
  * @return Amount of matching things.
  */
@@ -2236,10 +2259,10 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
-    if (((crmodel > 0) && !is_spec_digger) || (crmodel == -1) || (crmodel == -2)) {
+    if (((crmodel > 0) && !is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == -2)) {
         count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((crmodel > 0) && is_spec_digger) || (crmodel == -1) || (crmodel == -3)) {
+    if (((crmodel > 0) && is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == -3)) {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return count;

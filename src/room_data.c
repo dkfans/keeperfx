@@ -610,7 +610,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
     }
 }
 
-TbBool rectreate_repositioned_book_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+TbBool recreate_repositioned_book_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
 {
     if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
         return false;
@@ -655,7 +655,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         if (thing->class_id == TCls_Object)
         {
             PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & 0x80) == 0) && (thing->owner == room->owner))
+            if ((spl_idx > 0) && ((thing->alloc_flags & 0x80) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
             {
                 // If exceeded capacity of the library
                 if (room->used_capacity >= room->total_capacity)
@@ -705,7 +705,7 @@ void count_and_reposition_books_in_room_on_subtile(struct Room *room, MapSubtlCo
             break;
         case 0:
             // There are no matching things there, something can be re-created
-            rectreate_repositioned_book_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            recreate_repositioned_book_in_room_on_subtile(room, stl_x, stl_y, rrepos);
             break;
         default:
             WARNLOG("Invalid value returned by reposition check");

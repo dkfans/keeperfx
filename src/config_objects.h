@@ -74,6 +74,7 @@ struct ObjectConfigStats {
     unsigned short model_flags;
     long genre;
     long name_stridx;
+    long map_icon;
 };
 
 struct ObjectsConfig {

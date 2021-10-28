@@ -77,7 +77,10 @@ enum GameSystemFlags {
 };
 
 enum GameGUIFlags {
+    GGUI_1Player         = 0x0001,
     GGUI_CountdownTimer  = 0x0002,
+    GGUI_ScriptTimer     = 0x0004,
+    GGUI_Variable        = 0x0008,
     GGUI_SoloChatEnabled = 0x0080
 };
 
@@ -196,6 +199,14 @@ struct GameAdd {
     struct ObjectsConfig object_conf;
 
     struct LevelScript script;
+    PlayerNumber script_player;
+    unsigned char script_timer_id;
+    unsigned long script_timer_limit;
+    TbBool timer_real;
+    unsigned char script_value_type;
+    unsigned char script_value_id;
+    long script_variable_target;
+    unsigned char script_variable_target_type;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
