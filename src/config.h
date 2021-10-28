@@ -268,6 +268,10 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);
+int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen);
+
+int get_conf_list_int(const char *buf, const char **state, int *dst);
+
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_id(const struct NamedCommand *desc, const char *itmname);

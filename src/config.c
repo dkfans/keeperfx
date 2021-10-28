@@ -411,6 +411,52 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
   return i;
 }
 
+int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen)
+{
+    int i;
+    TbBool esc = false;
+    if ((*pos) >= buflen) return 0;
+    // Skipping spaces after previous parameter
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
+    {
+        (*pos)++;
+        if ((*pos) >= buflen) return 0;
+    }
+    // first quote
+    if (buf[*pos] != '"')
+        return 0;
+    (*pos)++;
+
+    for (i=0; i+1 < dstlen;)
+    {
+        if ((*pos) >= buflen) {
+            return 0; // End before quote
+        }
+        if (!esc)
+        {
+            if (buf[*pos] == '\\')
+            {
+                esc = true;
+                (*pos)++;
+                continue;
+            }
+            else if (buf[*pos] == '"')
+            {
+                (*pos)++;
+                break;
+            }
+        }
+        else
+        {
+            esc = false;
+        }
+        dst[i++]=buf[*pos];
+        (*pos)++;
+    }
+    dst[i]='\0';
+    return i;
+}
+
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen)
 {
     int i;
@@ -437,6 +483,28 @@ int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,lo
     return i;
 }
 
+int get_conf_list_int(const char *buf, const char **state, int *dst)
+{
+    int len = -1;
+    if (*state == NULL)
+    {
+        if (1 != sscanf(buf, " %d%n", dst, &len))
+        {
+            return 0;
+        }
+        *state = buf + len;
+        return 1;
+    }
+    else
+    {
+        if (1 != sscanf(*state, " , %d%n", dst, &len))
+        {
+            return 0;
+        }
+        *state = *state + len;
+        return 1;
+    }
+}
 /**
  * Returns parameter num from given NamedCommand array, or 0 if not found.
  */

@@ -693,6 +693,9 @@
     <ClCompile Include="src\game_loop.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\custom_sprites.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\bflib_coroutine.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1302,6 +1305,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game_loop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\custom_sprites.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_coroutine.h">
