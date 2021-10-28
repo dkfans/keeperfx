@@ -197,23 +197,8 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
         return INVALID_EVENT;
     }
     struct Dungeon* dungeon = get_dungeon(dngn_id);
-    // TODO FIGHT these are needed because we can't resize "dungeon->field_13B4" and added new events anyway; remove when struct Dungeon can be resized
-    switch (evkind)
-    {
-    case EvKind_QuickInformation:
-        i = dungeon->field_13B4[EvKind_Information];
-        break;
-    case EvKind_FriendlyFight:
-        i = dungeon->field_13B4[EvKind_EnemyFight];
-        break;
-    case EvKind_WorkRoomUnreachable:
-    case EvKind_StorageRoomUnreachable:
-        i = dungeon->field_13B4[EvKind_NoMoreLivingSet];
-        break;
-    default:
-        i = dungeon->field_13B4[evkind];
-        break;
-    }
+    struct DungeonAdd* dungeonadd = get_dungeonadd(dngn_id);
+    i = dungeonadd->event_last_run_turn[evkind];
     if (i != 0)
     {
         long k = event_button_info[evkind].turns_between_events;
@@ -264,8 +249,8 @@ void event_delete_event_structure(long ev_idx)
 
 void event_update_last_use(struct Event *event)
 {
-    struct Dungeon* dungeon = get_dungeon(event->owner);
-    if (dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(event->owner);
+    if (dungeonadd_invalid(dungeonadd)) {
         ERRORLOG("Player %d dungeon doesn't exist",(int)event->owner);
         return;
     }
@@ -273,23 +258,7 @@ void event_update_last_use(struct Event *event)
         ERRORLOG("Illegal Event kind %d to be updated",(int)event->kind);
         return;
     }
-    // TODO FIGHT these are needed because we can't resize "dungeon->field_13B4" and added new events anyway; remove when struct Dungeon can be resized
-    switch (event->kind)
-    {
-    case EvKind_QuickInformation:
-        dungeon->field_13B4[EvKind_Information] = game.play_gameturn;
-        break;
-    case EvKind_FriendlyFight:
-        dungeon->field_13B4[EvKind_EnemyFight] = game.play_gameturn;
-        break;
-    case EvKind_WorkRoomUnreachable:
-    case EvKind_StorageRoomUnreachable:
-        dungeon->field_13B4[EvKind_NoMoreLivingSet] = game.play_gameturn;
-        break;
-    default:
-        dungeon->field_13B4[event->kind] = game.play_gameturn;
-        break;
-    }
+    dungeonadd->event_last_run_turn[event->kind] = game.play_gameturn;
 }
 
 void event_delete_event(long plyr_idx, EventIndex evidx)
@@ -345,6 +314,11 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
 {
     if (dungeon->owner != event->owner) {
       ERRORLOG("Illegal my_event player allocation");
+    }
+    if (event_button_info[event->kind].bttn_sprite == 0)
+    {
+        //Event without a button
+        return;
     }
     EventKind replace_evkind = event_button_info[event->kind].replace_event_kind_button;
     long i;

@@ -28,7 +28,7 @@
 #include "bflib_sound.h"
 #include "bflib_math.h"
 #include "bflib_guibtns.h"
-
+#include "engine_redraw.h"
 #include "front_simple.h"
 #include "config.h"
 #include "config_creature.h"
@@ -44,6 +44,7 @@
 #include "gui_msgs.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
+#include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_tabs.h"
 #include "player_instances.h"
 #include "player_data.h"
@@ -70,6 +71,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "music_player.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,7 +86,9 @@ extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner
 extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 extern void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
-extern long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
+extern long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
+
+static int script_current_condition = 0;
 
 const struct CommandDesc dk1_command_desc[];
 const struct CommandDesc subfunction_desc[] = {
@@ -161,10 +165,12 @@ const struct NamedCommand variable_desc[] = {
     //{"DOOR",                      SVar_DOOR_NUM},
     {"GOOD_CREATURES",              SVar_GOOD_CREATURES},
     {"EVIL_CREATURES",              SVar_EVIL_CREATURES},
-	{"TRAPS_SOLD",                  SVar_TRAPS_SOLD},
-	{"DOORS_SOLD",                  SVar_DOORS_SOLD},
-	{"MANUFACTURED_SOLD",           SVar_MANUFACTURED_SOLD},
-	{"MANUFACTURE_GOLD",            SVar_MANUFACTURE_GOLD},
+    {"TRAPS_SOLD",                  SVar_TRAPS_SOLD},
+    {"DOORS_SOLD",                  SVar_DOORS_SOLD},
+    {"MANUFACTURED_SOLD",           SVar_MANUFACTURED_SOLD},
+    {"MANUFACTURE_GOLD",            SVar_MANUFACTURE_GOLD},
+    {"TOTAL_SCORE",                 SVar_TOTAL_SCORE},
+    {"BONUS_TIME",                  SVar_BONUS_TIME},
     {NULL,                           0},
 };
 
@@ -309,11 +315,13 @@ const struct NamedCommand game_rule_desc[] = {
   {"ImpWorkExperience",         13},
   {"GemEffectiveness",          14},
   {"RoomSellGoldBackPercent",   15},
-  {"PayDayGap",                 16},
-  {"PayDaySpeed",               17},
-  {"PayDayProgress",            18},
-  {"PlaceTrapsOnSubtiles",      19},
-  {"DiseaseHPTemplePercentage", 20},
+  {"DoorSellValuePercent",      16},
+  {"TrapSellValuePercent",      17},
+  {"PayDayGap",                 18},
+  {"PayDaySpeed",               19},
+  {"PayDayProgress",            20},
+  {"PlaceTrapsOnSubtiles",      21},
+  {"DiseaseHPTemplePercentage", 22},
   {NULL,                         0},
 };
 
@@ -340,7 +348,8 @@ const struct NamedCommand object_config_desc[] = {
   {"MaximumSize",     6},
   {"DestroyOnLava",   7},
   {"DestroyOnLiquid", 8},
-  {"Properties",      9},
+  {"MapIcon",         9},
+  {"Properties",     10},
   {NULL,              0},
 };
 
@@ -410,10 +419,10 @@ const struct NamedCommand script_operator_desc[] = {
 
 static struct ScriptValue *allocate_script_value(void)
 {
-    if (game.script.values_num >= SCRIPT_VALUES_COUNT)
+    if (gameadd.script.values_num >= SCRIPT_VALUES_COUNT)
         return NULL;
-    struct ScriptValue* value = &game.script.values[game.script.values_num];
-    game.script.values_num++;
+    struct ScriptValue* value = &gameadd.script.values[gameadd.script.values_num];
+    gameadd.script.values_num++;
     return value;
 }
 
@@ -429,7 +438,7 @@ static void command_init_value(struct ScriptValue* value, unsigned long var_inde
 #define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
     struct ScriptValue tmp_value = {0}; \
     struct ScriptValue* value; \
-    if ((script_current_condition < 0) && (next_command_reusable == 0)) \
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0)) \
     { \
     /* Fill local structure */ \
         value = &tmp_value; \
@@ -449,15 +458,28 @@ static void command_init_value(struct ScriptValue* value, unsigned long var_inde
     if (value != &tmp_value) \
     {                           \
         value->flags = TrgF_DISABLED; \
-        game.script.values_num--; \
+        gameadd.script.values_num--; \
     }
 
 #define PROCESS_SCRIPT_VALUE(cmd) \
-    if ((script_current_condition < 0) && (next_command_reusable == 0)) \
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0)) \
     { \
         script_process_value(cmd, 0, 0, 0, 0, value); \
     }
 
+// For dynamic strings
+static char* script_strdup(const char *src)
+{
+    char *ret = gameadd.script.next_string;
+    int remain_len = sizeof(gameadd.script.strings) - (gameadd.script.next_string - gameadd.script.strings);
+    if (strlen(src) >= remain_len)
+    {
+        return NULL;
+    }
+    strcpy(ret, src);
+    gameadd.script.next_string += strlen(src) + 1;
+    return ret;
+}
 /******************************************************************************/
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
 /******************************************************************************/
@@ -516,7 +538,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
     if (isalpha(chr))
     {
         // Read the parameter
-        while (isalnum(chr) || (chr == '_') || (chr == '[') || (chr == ']'))
+        while (isalnum(chr) || (chr == '_') || (chr == '[') || (chr == ']') || (chr == ':'))
         {
             param[pos] = chr;
             pos++;
@@ -1018,6 +1040,7 @@ TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long
 
 static void set_object_configuration_check(const struct ScriptLine *scline)
 {
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char *objectname = scline->tp[0];
     const char *property = scline->tp[1];
     const char *new_value = scline->tp[2];
@@ -1026,6 +1049,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     if (objct_id == -1)
     {
         SCRPTERRLOG("Unknown object, '%s'", objectname);
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
 
@@ -1034,25 +1058,50 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     if (objectvar == -1)
     {
         SCRPTERRLOG("Unknown object variable");
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    if (objectvar == 1)
+    switch (objectvar)
     {
-        long genre = get_id(objects_genres_desc, new_value);
-        if (genre == -1)
+        case 1: // Genre
+            number_value = get_id(objects_genres_desc, new_value);
+            if (number_value == -1)
+            {
+                SCRPTERRLOG("Unknown object variable");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->arg2 = number_value;
+            break;
+        case  2: // AnimId
         {
-            SCRPTERRLOG("Unknown object variable");
-            return;
+            struct Objects obj_tmp;
+            number_value = get_anim_id(new_value, &obj_tmp);
+            if (number_value == 0)
+            {
+                SCRPTERRLOG("Invalid animation id");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+
+            value->str2 = script_strdup(new_value);
+            if (value->str2 == NULL)
+            {
+                SCRPTERRLOG("Run out script strings space");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
         }
-        number_value = genre;
-    }
-    else 
-    {
-        number_value = atoi(new_value);
+        default:
+            value->arg2 = atoi(new_value);
     }
 
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
-    command_add_value(scline->command, 0, objct_id, objectvar, number_value);
+    value->arg0 = objct_id;
+    value->arg1 = objectvar;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_object_configuration_process(struct ScriptContext *context)
@@ -1065,7 +1114,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->genre = context->value->arg2;
             break;
         case 2: // AnimationID
-            objdat->sprite_anim_idx = context->value->arg2;
+            objdat->sprite_anim_idx = get_anim_id(context->value->str2, objdat);
             break;
         case 3: // AnimationSpeed
             objdat->anim_speed = context->value->arg2;
@@ -1085,7 +1134,10 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 8: // DestroyOnLiquid
             objdat->destroy_on_liquid = context->value->arg2;
             break;
-        case 9: // Properties
+        case 9: // MapIcon
+            objst->map_icon = context->value->arg2;
+            break;
+        case 10: // Properties
             objst->model_flags = context->value->arg2;
             break;
         default:
@@ -1093,6 +1145,130 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
     }
     update_all_object_stats();
+}
+
+static void display_timer_check(const struct ScriptLine *scline)
+{
+    const char *timrname = scline->tp[1];
+    char timr_id = get_rid(timer_desc, timrname);
+    if (timr_id == -1)
+    {
+        SCRPTERRLOG("Unknown timer, '%s'", timrname);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->bytes[0] = (unsigned char)scline->np[0];
+    value->bytes[1] = timr_id;
+    value->arg1 = 0;
+    value->bytes[2] = (TbBool)scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+
+static void display_timer_process(struct ScriptContext *context)
+{
+    gameadd.script_player = context->value->bytes[0];
+    gameadd.script_timer_id = context->value->bytes[1];
+    gameadd.script_timer_limit = context->value->arg1;
+    gameadd.timer_real = context->value->bytes[2];
+    game.flags_gui |= GGUI_ScriptTimer;
+}
+
+static void add_to_timer_check(const struct ScriptLine *scline)
+{
+    const char *timrname = scline->tp[1];
+    long timr_id = get_rid(timer_desc, timrname);
+    if (timr_id == -1)
+    {
+        SCRPTERRLOG("Unknown timer, '%s'", timrname);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    value->arg1 = timr_id;
+    value->arg2 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_to_timer_process(struct ScriptContext *context)
+{
+   add_to_script_timer(context->value->arg0, context->value->arg1, context->value->arg2); 
+}
+
+static void add_bonus_time_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_bonus_time_process(struct ScriptContext *context)
+{
+   game.bonus_time += context->value->arg0;
+}
+
+static void display_variable_check(const struct ScriptLine *scline)
+{
+    long varib_id, varib_type;
+    if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type))
+    {
+        SCRPTERRLOG("Unknown variable, '%s'", scline->tp[1]);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->bytes[0] = scline->np[0];
+    value->bytes[1] = scline->np[3];
+    gameadd.script_value_type = varib_type;
+    value->arg1 = varib_id;
+    value->arg2 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void display_variable_process(struct ScriptContext *context)
+{
+   gameadd.script_player = context->value->bytes[0];
+   gameadd.script_value_id = context->value->arg1;
+   gameadd.script_variable_target = context->value->arg2;
+   gameadd.script_variable_target_type = context->value->bytes[1];
+   game.flags_gui |= GGUI_Variable;
+}
+
+static void display_countdown_check(const struct ScriptLine *scline)
+{
+    if (scline->np[2] <= 0)
+    {
+        SCRPTERRLOG("Can't have a countdown to %ld turns.", scline->np[2]);
+        return; 
+    }
+    const char *timrname = scline->tp[1];
+    char timr_id = get_rid(timer_desc, timrname);
+    if (timr_id == -1)
+    {
+        SCRPTERRLOG("Unknown timer, '%s'", timrname);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->bytes[0] = (unsigned char)scline->np[0];
+    value->bytes[1] = timr_id;
+    value->arg1 = scline->np[2];
+    value->bytes[2] = (TbBool)scline->np[3];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void cmd_no_param_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void hide_timer_process(struct ScriptContext *context)
+{
+   game.flags_gui &= ~GGUI_ScriptTimer;
+}
+
+static void hide_variable_process(struct ScriptContext *context)
+{
+   game.flags_gui &= ~GGUI_Variable;
 }
 
 static void null_process(struct ScriptContext *context)
@@ -1117,7 +1293,7 @@ TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
 
 void command_create_party(const char *prtname)
 {
-    if (script_current_condition != -1)
+    if (script_current_condition != CONDITION_ALWAYS)
     {
         SCRPTWRNLOG("Party '%s' defined inside conditional statement",prtname);
     }
@@ -1126,7 +1302,7 @@ void command_create_party(const char *prtname)
 
 long pop_condition(void)
 {
-  if (script_current_condition == -1)
+  if (script_current_condition == CONDITION_ALWAYS)
   {
     SCRPTERRLOG("unexpected ENDIF");
     return -1;
@@ -1137,7 +1313,7 @@ long pop_condition(void)
     script_current_condition = condition_stack[condition_stack_pos];
   } else
   {
-    script_current_condition = -1;
+    script_current_condition = CONDITION_ALWAYS;
   }
   return script_current_condition;
 }
@@ -1156,12 +1332,12 @@ static void delete_from_party_check(const struct ScriptLine *scline)
       SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
       return;
     }
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
         delete_member_from_party(party_id, creature_id, scline->np[2]);
     } else
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_DELETE_FROM_PARTY;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->party_id = party_id;
@@ -1169,7 +1345,7 @@ static void delete_from_party_check(const struct ScriptLine *scline)
         pr_trig->crtr_level = scline->np[2];
         pr_trig->condit_idx = script_current_condition;
 
-        game.script.party_triggers_num++;
+        gameadd.script.party_triggers_num++;
     }
 }
 
@@ -1200,12 +1376,12 @@ static void add_to_party_check(const struct ScriptLine *scline)
     }
   //SCRPTLOG("Party '%s' member kind %d, level %d",prtname,crtr_id,crtr_level);
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
         add_member_to_party(party_id, crtr_id, scline->np[2], scline->np[3], objective_id, scline->np[5]);
     } else
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_ADD_TO_PARTY;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->party_id = party_id;
@@ -1216,7 +1392,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
         pr_trig->countdown = scline->np[5];
         pr_trig->condit_idx = script_current_condition;
 
-        game.script.party_triggers_num++;
+        gameadd.script.party_triggers_num++;
     }
 }
 
@@ -1400,11 +1576,11 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 
     ((long*)(&value->bytes[0]))[0] = scline->np[0]; // AP `from`
     ((long*)(&value->bytes[4]))[0] = scline->np[1]; // AP `to`
-    value->bytes[8] = scline->np[2]; // curvature
+    value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
     // TODO: use effect elements when below zero?
-    value->bytes[11] = scline->np[5]; // effect
+    value->chars[11] = scline->np[5]; // effect
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1429,10 +1605,10 @@ static void create_effects_line_process(struct ScriptContext *context)
     }
     find_location_pos(((long *)(&context->value->bytes[0]))[0], context->player_idx, &fx_line->from, __func__);
     find_location_pos(((long *)(&context->value->bytes[4]))[0], context->player_idx, &fx_line->to, __func__);
-    fx_line->curvature = context->value->bytes[8];
+    fx_line->curvature = context->value->chars[8];
     fx_line->spatial_step = context->value->bytes[9] * 32;
     fx_line->steps_per_turn = context->value->bytes[10];
-    fx_line->effect = context->value->bytes[11];
+    fx_line->effect = context->value->chars[11];
     fx_line->here = fx_line->from;
     fx_line->step = 0;
 
@@ -1509,7 +1685,7 @@ void command_add_party_to_level(long plr_range_id, const char *prtname, const ch
         SCRPTERRLOG("Invalid NUMBER parameter");
         return;
     }
-    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
         return;
@@ -1530,13 +1706,13 @@ void command_add_party_to_level(long plr_range_id, const char *prtname, const ch
         SCRPTERRLOG("Party of requested name, '%s', is not defined",prtname);
         return;
     }
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
-        struct Party* party = &game.script.creature_partys[prty_id];
+        struct Party* party = &gameadd.script.creature_partys[prty_id];
         script_process_new_party(party, plr_id, location, ncopies);
     } else
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_CREATE_PARTY;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->plyr_idx = plr_id;
@@ -1544,7 +1720,7 @@ void command_add_party_to_level(long plr_range_id, const char *prtname, const ch
         pr_trig->location = location;
         pr_trig->ncopies = ncopies;
         pr_trig->condit_idx = script_current_condition;
-        game.script.party_triggers_num++;
+        gameadd.script.party_triggers_num++;
     }
 }
 
@@ -1557,7 +1733,7 @@ void command_add_object_to_level(const char *obj_name, const char *locname, long
         SCRPTERRLOG("Unknown creature, '%s'", obj_name);
         return;
     }
-    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
         return;
@@ -1565,12 +1741,12 @@ void command_add_object_to_level(const char *obj_name, const char *locname, long
     // Recognize place where party is created
     if (!get_map_location_id(locname, &location))
         return;
-    if (script_current_condition < 0)
+    if (script_current_condition == CONDITION_ALWAYS)
     {
         script_process_new_object(obj_id, location, arg);
     } else
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_CREATE_OBJECT;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->plyr_idx = 0; //That is because script is inside `struct Game` and it is not possible to enlarge it
@@ -1580,7 +1756,7 @@ void command_add_object_to_level(const char *obj_name, const char *locname, long
         pr_trig->location = location;
         pr_trig->ncopies = 1;
         pr_trig->condit_idx = script_current_condition;
-        game.script.party_triggers_num++;
+        gameadd.script.party_triggers_num++;
     }
 }
 
@@ -1597,7 +1773,7 @@ void command_add_creature_to_level(long plr_range_id, const char *crtr_name, con
         SCRPTERRLOG("Invalid number of creatures to add");
         return;
     }
-    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
         return;
@@ -1617,12 +1793,12 @@ void command_add_creature_to_level(long plr_range_id, const char *crtr_name, con
     // Recognize place where party is created
     if (!get_map_location_id(locname, &location))
         return;
-    if (script_current_condition < 0)
+    if (script_current_condition == CONDITION_ALWAYS)
     {
         script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, crtr_level-1);
     } else
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_CREATE_CREATURE;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
 
@@ -1633,14 +1809,14 @@ void command_add_creature_to_level(long plr_range_id, const char *crtr_name, con
         pr_trig->location = location;
         pr_trig->ncopies = ncopies;
         pr_trig->condit_idx = script_current_condition;
-        game.script.party_triggers_num++;
+        gameadd.script.party_triggers_num++;
     }
 }
 
 void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
 {
     // TODO: replace with pointer to functions
-    struct Condition* condt = &game.script.conditions[game.script.conditions_num];
+    struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
     condt->condit_idx = script_current_condition;
     condt->plyr_range = plr_range_id;
     condt->variabl_type = varib_type;
@@ -1649,20 +1825,20 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     condt->rvalue = value;
     if (condition_stack_pos >= CONDITIONS_COUNT)
     {
-        game.script.conditions_num++;
+        gameadd.script.conditions_num++;
         SCRPTWRNLOG("Conditions too deep in script");
         return;
     }
-    if (script_current_condition >= 0)
+    if (script_current_condition != CONDITION_ALWAYS)
     {
         condition_stack[condition_stack_pos] = script_current_condition;
         condition_stack_pos++;
     }
-    script_current_condition = game.script.conditions_num;
-    game.script.conditions_num++;
+    script_current_condition = gameadd.script.conditions_num;
+    gameadd.script.conditions_num++;
 }
 
-static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
+TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
 {
     char c;
     int len = 0;
@@ -1822,7 +1998,7 @@ static long parse_creature_name(const char *creature_name)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
         {
-            return 0;
+            return CREATURE_ANY;
         }
     }
     return ret;
@@ -1832,7 +2008,7 @@ void command_if(long plr_range_id, const char *varib_name, const char *operatr, 
 {
     long varib_type;
     long varib_id;
-    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
@@ -1874,7 +2050,7 @@ void command_add_value(unsigned long var_index, unsigned long plr_range_id, long
     value->arg1 = val3;
     value->arg2 = val4;
 
-    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    if ((script_current_condition == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
         script_process_value(var_index, plr_range_id, val2, val3, val4, value);
         return;
@@ -1909,14 +2085,14 @@ void command_dead_creatures_return_to_pool(long val)
     command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, ALL_PLAYERS, val, 0, 0);
 }
 
-void command_bonus_level_time(long game_turns)
+void command_bonus_level_time(long game_turns, long real)
 {
     if (game_turns < 0)
     {
         SCRPTERRLOG("Bonus time must be nonnegative");
         return;
     }
-    command_add_value(Cmd_BONUS_LEVEL_TIME, ALL_PLAYERS, game_turns, 0, 0);
+    command_add_value(Cmd_BONUS_LEVEL_TIME, ALL_PLAYERS, game_turns, real, 0);
 }
 
 static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
@@ -1948,12 +2124,17 @@ void command_set_start_money(long plr_range_id, long gold_val)
         SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
         return;
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Start money set inside conditional block; condition ignored");
   }
   for (int i = plr_start; i < plr_end; i++)
   {
+      if (gold_val > SENSIBLE_GOLD)
+      {
+          gold_val = SENSIBLE_GOLD;
+          SCRPTWRNLOG("Gold added to player %d reduced to %d", (int)plr_range_id, SENSIBLE_GOLD);
+      }
       player_add_offmap_gold(i, gold_val);
   }
 }
@@ -2047,7 +2228,7 @@ void command_research_order(long plr_range_id, const char *trg_type, const char 
 
 void command_if_action_point(long apt_num, long plr_range_id)
 {
-    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
         return;
@@ -2064,7 +2245,7 @@ void command_if_action_point(long apt_num, long plr_range_id)
 
 void command_if_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, long plr_range_id)
 {
-    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
         return;
@@ -2074,7 +2255,7 @@ void command_if_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, long plr_rang
 
 void command_if_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y, long slab_type)
 {
-    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
         return;
@@ -2084,7 +2265,7 @@ void command_if_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y, long slab_type
 
 void command_computer_player(long plr_range_id, long comp_model)
 {
-    if (script_current_condition != -1)
+    if (script_current_condition != CONDITION_ALWAYS)
     {
         SCRPTWRNLOG("Computer player setup inside conditional block; condition ignored");
     }
@@ -2113,34 +2294,34 @@ void command_set_timer(long plr_range_id, const char *timrname)
 
 void command_win_game(void)
 {
-    if (script_current_condition == -1)
+    if (script_current_condition == CONDITION_ALWAYS)
     {
         SCRPTERRLOG("Command WIN GAME found with no condition");
         return;
     }
-    if (game.script.win_conditions_num >= WIN_CONDITIONS_COUNT)
+    if (gameadd.script.win_conditions_num >= WIN_CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many WIN GAME conditions in script");
         return;
     }
-    game.script.win_conditions[game.script.win_conditions_num] = script_current_condition;
-    game.script.win_conditions_num++;
+    gameadd.script.win_conditions[gameadd.script.win_conditions_num] = script_current_condition;
+    gameadd.script.win_conditions_num++;
 }
 
 void command_lose_game(void)
 {
-  if (script_current_condition == -1)
+  if (script_current_condition == CONDITION_ALWAYS)
   {
     SCRPTERRLOG("Command LOSE GAME found with no condition");
     return;
   }
-  if (game.script.lose_conditions_num >= WIN_CONDITIONS_COUNT)
+  if (gameadd.script.lose_conditions_num >= WIN_CONDITIONS_COUNT)
   {
     SCRPTERRLOG("Too many LOSE GAME conditions in script");
     return;
   }
-  game.script.lose_conditions[game.script.lose_conditions_num] = script_current_condition;
-  game.script.lose_conditions_num++;
+  gameadd.script.lose_conditions[gameadd.script.lose_conditions_num] = script_current_condition;
+  gameadd.script.lose_conditions_num++;
 }
 
 void command_set_flag(long plr_range_id, const char *flgname, long val)
@@ -2250,7 +2431,7 @@ void command_add_tunneller_to_level(long plr_range_id, const char *locname, cons
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
         return;
     }
-    if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
+    if (gameadd.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_TUNNELLER commands in script");
         return;
@@ -2267,12 +2448,12 @@ void command_add_tunneller_to_level(long plr_range_id, const char *locname, cons
     // Recognize place where party is going
     if (!get_map_heading_id(objectv, target, &heading))
         return;
-    if (script_current_condition < 0)
+    if (script_current_condition == CONDITION_ALWAYS)
     {
         script_process_new_tunneler(plr_id, location, heading, crtr_level-1, carried_gold);
     } else
     {
-        struct TunnellerTrigger* tn_trig = &game.script.tunneller_triggers[game.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
+        struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
         set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
         set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
         tn_trig->plyr_idx = plr_id;
@@ -2284,7 +2465,7 @@ void command_add_tunneller_to_level(long plr_range_id, const char *locname, cons
         tn_trig->carried_gold = carried_gold;
         tn_trig->party_id = 0;
         tn_trig->condit_idx = script_current_condition;
-        game.script.tunneller_triggers_num++;
+        gameadd.script.tunneller_triggers_num++;
     }
 }
 
@@ -2297,7 +2478,7 @@ void command_add_tunneller_party_to_level(long plr_range_id, const char *prtname
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
         return;
     }
-    if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
+    if (gameadd.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_TUNNELLER commands in script");
         return;
@@ -2321,19 +2502,19 @@ void command_add_tunneller_party_to_level(long plr_range_id, const char *prtname
         SCRPTERRLOG("Party of requested name, '%s', is not defined", prtname);
         return;
     }
-    struct Party* party = &game.script.creature_partys[prty_id];
+    struct Party* party = &gameadd.script.creature_partys[prty_id];
     if (party->members_num >= GROUP_MEMBERS_COUNT-1)
     {
         SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", GROUP_MEMBERS_COUNT-1);
         return;
     }
     // Either add the party or add item to conditional triggers list
-    if (script_current_condition < 0)
+    if (script_current_condition == CONDITION_ALWAYS)
     {
         script_process_new_tunneller_party(plr_id, prty_id, location, heading, crtr_level-1, carried_gold);
     } else
     {
-        struct TunnellerTrigger* tn_trig = &game.script.tunneller_triggers[game.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
+        struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
         set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
         set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
         tn_trig->plyr_idx = plr_id;
@@ -2345,7 +2526,7 @@ void command_add_tunneller_party_to_level(long plr_range_id, const char *prtname
         tn_trig->carried_gold = carried_gold;
         tn_trig->party_id = prty_id+1;
         tn_trig->condit_idx = script_current_condition;
-        game.script.tunneller_triggers_num++;
+        gameadd.script.tunneller_triggers_num++;
     }
 }
 
@@ -2393,7 +2574,7 @@ void command_set_creature_max_level(long plr_range_id, const char *crtr_name, lo
 
 void command_set_music(long val)
 {
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Music set inside conditional block; condition ignored");
   }
@@ -2422,7 +2603,7 @@ void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, long hate_
 void command_if_available(long plr_range_id, const char *varib_name, const char *operatr, long value)
 {
     long varib_type;
-    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
@@ -2483,7 +2664,7 @@ void command_if_available(long plr_range_id, const char *varib_name, const char 
 void command_if_controls(long plr_range_id, const char *varib_name, const char *operatr, long value)
 {
     long varib_id;
-    if (game.script.conditions_num >= CONDITIONS_COUNT)
+    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
@@ -2533,7 +2714,7 @@ void command_set_computer_globals(long plr_range_id, long val1, long val2, long 
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer globals altered inside conditional block; condition ignored");
   }
@@ -2561,7 +2742,7 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer check altered inside conditional block; condition ignored");
   }
@@ -2709,7 +2890,7 @@ void command_set_computer_events(long plr_range_id, const char *evntname, long v
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer event altered inside conditional block; condition ignored");
   }
@@ -2764,7 +2945,7 @@ void command_set_computer_process(long plr_range_id, const char *procname, long 
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer process altered inside conditional block; condition ignored");
   }
@@ -3082,7 +3263,7 @@ void command_swap_creature(const char *ncrt_name, const char *crtr_name)
   {
       SCRPTERRLOG("Unable to swap special diggers");
   }
-  if (script_current_condition != -1)
+  if (script_current_condition != CONDITION_ALWAYS)
   {
       SCRPTWRNLOG("Creature swapping placed inside conditional statement");
   }
@@ -3101,7 +3282,7 @@ void command_kill_creature(long plr_range_id, const char *crtr_name, const char 
         return;
   }
   long crtr_id = parse_creature_name(crtr_name);
-  if (crtr_id == -1) {
+  if (crtr_id == CREATURE_NONE) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
@@ -3123,7 +3304,7 @@ void command_level_up_creature(long plr_range_id, const char *crtr_name, const c
         return;
   }
   long crtr_id = parse_creature_name(crtr_name);
-  if (crtr_id == -1)
+  if (crtr_id == CREATURE_NONE)
   {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
@@ -3166,7 +3347,7 @@ void command_use_power_on_creature(long plr_range_id, const char *crtr_name, con
     return;
   }
   long crtr_id = parse_creature_name(crtr_name);
-  if (crtr_id == -1) {
+  if (crtr_id == CREATURE_NONE) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
@@ -3398,7 +3579,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
 static void change_creatures_annoyance_check(const struct ScriptLine* scline)
 {
     long crtr_id = parse_creature_name(scline->tp[1]);
-    if (crtr_id == -1)
+    if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         return;
@@ -3424,7 +3605,7 @@ void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, 
 {
     SCRIPTDBG(11, "Starting");
     long crtr_id = parse_creature_name(crtr_name);
-    if (crtr_id == -1)
+    if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
@@ -3502,7 +3683,7 @@ void command_set_game_rule(const char* objectv, unsigned long roomvar)
     long ruledesc = get_id(game_rule_desc, objectv);
     if (ruledesc == -1)
     {
-        SCRPTERRLOG("Unknown room variable");
+        SCRPTERRLOG("Unknown game rule variable");
         return;
     }
     command_add_value(Cmd_SET_GAME_RULE, 0, ruledesc, roomvar, 0);
@@ -3532,11 +3713,11 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
     return;
   }
   long crtr_id = parse_creature_name(crtr_name);
-  if (crtr_id == -1) {
+  if (crtr_id == CREATURE_NONE) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
-  long select_id = get_rid(creature_select_criteria_desc, criteria);
+  long select_id = parse_criteria(criteria);
   if (select_id == -1) {
     SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
     return;
@@ -3908,7 +4089,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_display_information(scline->np[0], NULL, scline->np[1], scline->np[2]);
         break;
     case Cmd_BONUS_LEVEL_TIME:
-        command_bonus_level_time(scline->np[0]);
+        command_bonus_level_time(scline->np[0], scline->np[1]);
         break;
     case Cmd_QUICK_OBJECTIVE:
         command_quick_objective(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
@@ -4488,8 +4669,10 @@ long script_scan_line(char *line,TbBool preloaded)
 
 short clear_script(void)
 {
-    LbMemorySet(&game.script, 0, sizeof(struct LevelScript));
-    script_current_condition = -1;
+    LbMemorySet(&game.script, 0, sizeof(struct LevelScriptOld));
+    LbMemorySet(&gameadd.script, 0, sizeof(struct LevelScript));
+    gameadd.script.next_string = gameadd.script.strings;
+    script_current_condition = CONDITION_ALWAYS;
     text_line_number = 1;
     return true;
 }
@@ -4501,10 +4684,37 @@ short clear_quick_messages(void)
     return true;
 }
 
+static char* process_multiline_comment(char *buf, char *buf_end)
+{
+    for (char *p = buf; p < buf_end - 1; p++)
+    {
+        if ((*p == ' ') || (*p == 9)) // Tabs or spaces
+            continue;
+        if (p[0] == '/') // /
+        {
+            if (p[1] != '*') // /*
+                break;
+            p += 2;
+            for (; p < buf_end - 1; p++)
+            {
+                if ((p[0] == '*') && (p[1] == '/'))
+                {
+                    buf = p + 2;
+                    break;
+                }
+            }
+            break;
+        }
+        else
+            break;
+    }
+    return buf;
+}
+
 short preload_script(long lvnum)
 {
   SYNCDBG(7,"Starting");
-  script_current_condition = -1;
+  script_current_condition = CONDITION_ALWAYS;
   next_command_reusable = 0;
   text_line_number = 1;
   level_file_version = DEFAULT_LEVEL_VERSION;
@@ -4519,6 +4729,8 @@ short preload_script(long lvnum)
   char* buf_end = script_data + script_len;
   while (buf < buf_end)
   {
+      // Check for long comment
+      buf = process_multiline_comment(buf, buf_end);
     // Find end of the line
     int lnlen = 0;
     while (&buf[lnlen] < buf_end)
@@ -4554,7 +4766,7 @@ short load_script(long lvnum)
     // Clear script data
     gui_set_button_flashing(0, 0);
     clear_script();
-    script_current_condition = -1;
+    script_current_condition = CONDITION_ALWAYS;
     next_command_reusable = 0;
     text_line_number = 1;
     game.bonus_time = 0;
@@ -4577,6 +4789,7 @@ short load_script(long lvnum)
     char* buf_end = script_data + script_len;
     while (buf < buf_end)
     {
+        buf = process_multiline_comment(buf, buf_end);
       // Find end of the line
       int lnlen = 0;
       while (&buf[lnlen] < buf_end)
@@ -4600,16 +4813,16 @@ short load_script(long lvnum)
       buf += lnlen;
     }
     LbMemoryFree(script_data);
-    if (game.script.win_conditions_num == 0)
+    if (gameadd.script.win_conditions_num == 0)
       WARNMSG("No WIN GAME conditions in script file.");
-    if (script_current_condition != -1)
+    if (script_current_condition != CONDITION_ALWAYS)
       WARNMSG("Missing ENDIF's in script file.");
     JUSTLOG("Used script resources: %d/%d tunneller triggers, %d/%d party triggers, %d/%d script values, %d/%d IF conditions, %d/%d party definitions",
-        (int)game.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
-        (int)game.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
-        (int)game.script.values_num,SCRIPT_VALUES_COUNT,
-        (int)game.script.conditions_num,CONDITIONS_COUNT,
-        (int)game.script.creature_partys_num,CREATURE_PARTYS_COUNT);
+        (int)gameadd.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
+        (int)gameadd.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
+        (int)gameadd.script.values_num,SCRIPT_VALUES_COUNT,
+        (int)gameadd.script.conditions_num,CONDITIONS_COUNT,
+        (int)gameadd.script.creature_partys_num,CREATURE_PARTYS_COUNT);
     return true;
 }
 
@@ -4653,7 +4866,7 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         cctrl->party.target_plyr_idx = -1;
     }
 
-    long light_rand = ACTION_RANDOM(8);
+    long light_rand = GAME_RANDOM(8); // this may be unsynced random
     if (light_rand < 2)
     {
         struct InitLight ilght;
@@ -4719,7 +4932,7 @@ static TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsi
         pos->y.val = apt->mappos.y.val;
     } else
     {
-        long direction = ACTION_RANDOM(2 * LbFPMath_PI);
+        long direction = GAME_RANDOM(2 * LbFPMath_PI);
         long delta_x = (apt->range * LbSinL(direction) >> 8);
         long delta_y = (apt->range * LbCosL(direction) >> 8);
         pos->x.val = apt->mappos.x.val + (delta_x >> 8);
@@ -4743,8 +4956,8 @@ TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx)
         ERRORLOG("Script error - attempt to create thing in player %d dungeon with no heart",(int)plyr_idx);
         return false;
     }
-    pos->x.val = heartng->mappos.x.val + ACTION_RANDOM(65) - 32;
-    pos->y.val = heartng->mappos.y.val + ACTION_RANDOM(65) - 32;
+    pos->x.val = heartng->mappos.x.val + PLAYER_RANDOM(plyr_idx, 65) - 32;
+    pos->y.val = heartng->mappos.y.val + PLAYER_RANDOM(plyr_idx, 65) - 32;
     pos->z.val = heartng->mappos.z.val;
     return true;
 }
@@ -4771,8 +4984,8 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
         return false;
     }
 
-    pos->x.val = src->x.val + ACTION_RANDOM(33) - 16;
-    pos->y.val = src->y.val + ACTION_RANDOM(33) - 16;
+    pos->x.val = src->x.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
+    pos->y.val = src->y.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
     pos->z.val = src->z.val;
 
     return true;
@@ -4928,12 +5141,12 @@ static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, T
     {
         cctrl->field_AE |= 0x02;
         cctrl->spell_flags |= CSAfF_MagicFall;
-        thing->veloc_push_add.x.val += ACTION_RANDOM(193) - 96;
-        thing->veloc_push_add.y.val += ACTION_RANDOM(193) - 96;
+        thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
+        thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         if ((thing->movement_flags & TMvF_Flying) != 0) {
-            thing->veloc_push_add.z.val -= ACTION_RANDOM(32);
+            thing->veloc_push_add.z.val -= PLAYER_RANDOM(plyr_idx, 32);
         } else {
-            thing->veloc_push_add.z.val += ACTION_RANDOM(96) + 80;
+            thing->veloc_push_add.z.val += PLAYER_RANDOM(plyr_idx, 96) + 80;
         }
         thing->state_flags |= TF1_PushAdd;
     }
@@ -4951,7 +5164,7 @@ static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, T
     if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
-        output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), MESSAGE_DELAY_LORD, 1);
+        output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
     }
     switch (effect)
     {
@@ -5165,7 +5378,7 @@ void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbM
         ERRORLOG("Couldn't create tunneling group leader");
         return;
     }
-    struct Thing* gpthing = script_process_new_party(&game.script.creature_partys[prty_id], plyr_idx, location, 1);
+    struct Thing* gpthing = script_process_new_party(&gameadd.script.creature_partys[prty_id], plyr_idx, location, 1);
     if (thing_is_invalid(gpthing))
     {
         ERRORLOG("Couldn't create creature group");
@@ -5184,7 +5397,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long loca
 
 struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
 {
-    int n = ACTION_RANDOM(PLAYERS_COUNT);
+    int n = GAME_RANDOM(PLAYERS_COUNT);
     for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
     {
         if (!players_are_enemies(plyr_idx, n))
@@ -5201,7 +5414,7 @@ struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
     return INVALID_THING;
 }
 
-struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria) {
+static struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria) {
     switch (filter_criteria_type(criteria))
     {
     case CSelCrit_Any:
@@ -5248,12 +5461,12 @@ struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
             return INVALID_THING;
         }
         // Action point range should be inside spiral in subtiles
-        int dist = 1 + coord_subtile((2 * apt->range + COORD_PER_STL - 1) ) * 8;
+        int dist = 2 * coord_subtile(apt->range + COORD_PER_STL - 1 ) + 1;
+        dist = dist * dist;
 
-        Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_thing_of_class_and_model_owned_by;
+        Thing_Maximizer_Filter filter = near_map_block_creature_filter_diagonal_random;
         struct CompoundTngFilterParam param;
-        param.class_id = TCls_Creature;
-        param.model_id = (crmodel == 0)?-1:crmodel;
+        param.model_id = crmodel;
         param.plyr_idx = (unsigned char)plyr_idx;
         param.num1 = apt->mappos.x.val;
         param.num2 = apt->mappos.y.val;
@@ -5411,15 +5624,18 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    if ( ( (spkind == SplK_Freeze) || (spkind == SplK_Light) || (spkind == SplK_Armour) || (spkind == SplK_Rebound) || (spkind == SplK_Heal) || (spkind == SplK_Invisibility) || (spkind == SplK_Teleport) || (spkind == SplK_Speed) || (spkind == SplK_Slow) || (spkind == SplK_Fly) || (spkind == SplK_Sight) )
-        || ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) || ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
+    const struct SpellInfo* spinfo = get_magic_info(spkind);
+
+    if (spinfo->caster_affected ||
+            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These four should be also marked at configs somehow
+            ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
+            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
     {
         if (thing_is_picked_up(thing))
         {
             SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;          
         }
-        const struct SpellInfo* spinfo = get_magic_info(spkind);
         unsigned short sound;
         if (spinfo->caster_affected)
         {
@@ -5847,17 +6063,22 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->good_creatures_converted;
     case SVar_TRAPS_SOLD:
-    	dungeonadd = get_dungeonadd(plyr_idx);
-    	return dungeonadd->traps_sold;
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->traps_sold;
     case SVar_DOORS_SOLD:
-    	dungeonadd = get_dungeonadd(plyr_idx);
-    	return dungeonadd->doors_sold;
-	case SVar_MANUFACTURED_SOLD:
-		dungeonadd = get_dungeonadd(plyr_idx);
-		return dungeonadd->traps_sold + dungeonadd->doors_sold;
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->doors_sold;
+    case SVar_MANUFACTURED_SOLD:
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->traps_sold + dungeonadd->doors_sold;
     case SVar_MANUFACTURE_GOLD:
-    	dungeonadd = get_dungeonadd(plyr_idx);
-    	return dungeonadd->manufacture_gold;
+        dungeonadd = get_dungeonadd(plyr_idx);
+        return dungeonadd->manufacture_gold;
+    case SVar_TOTAL_SCORE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->total_score;
+    case SVar_BONUS_TIME:
+        return (game.bonus_time - game.play_gameturn);
     default:
         break;
     };
@@ -5869,16 +6090,16 @@ TbBool get_condition_status(unsigned char opkind, long val1, long val2)
   return LbMathOperation(opkind, val1, val2) != 0;
 }
 
-TbBool is_condition_met(long cond_idx)
+static TbBool is_condition_met(unsigned char cond_idx)
 {
-    if ((cond_idx < 0) || (cond_idx >= CONDITIONS_COUNT))
+    if (cond_idx >= CONDITIONS_COUNT)
     {
-      if (cond_idx == -1)
+      if (cond_idx == CONDITION_ALWAYS)
           return true;
       else
           return false;
     }
-    unsigned long i = game.script.conditions[cond_idx].status;
+    unsigned long i = gameadd.script.conditions[cond_idx].status;
     return ((i & 0x01) != 0);
 }
 
@@ -5886,18 +6107,15 @@ TbBool condition_inactive(long cond_idx)
 {
   if ((cond_idx < 0) || (cond_idx >= CONDITIONS_COUNT))
   {
-    if (cond_idx == -1)
-      return false;
-    else
       return false;
   }
-  unsigned long i = game.script.conditions[cond_idx].status;
+  unsigned long i = gameadd.script.conditions[cond_idx].status;
   if (((i & 0x01) == 0) || ((i & 0x04) != 0))
     return true;
   return false;
 }
 
-void process_condition(struct Condition *condt)
+static void process_condition(struct Condition *condt, int idx)
 {
     TbBool new_status;
     int plr_start;
@@ -5960,11 +6178,11 @@ void process_condition(struct Condition *condt)
 
 void process_conditions(void)
 {
-    if (game.script.conditions_num > CONDITIONS_COUNT)
-      game.script.conditions_num = CONDITIONS_COUNT;
-    for (long i = 0; i < game.script.conditions_num; i++)
+    if (gameadd.script.conditions_num > CONDITIONS_COUNT)
+      gameadd.script.conditions_num = CONDITIONS_COUNT;
+    for (long i = 0; i < gameadd.script.conditions_num; i++)
     {
-      process_condition(&game.script.conditions[i]);
+      process_condition(&gameadd.script.conditions[i], i);
     }
 }
 
@@ -5990,7 +6208,7 @@ static void process_party(struct PartyTrigger* pr_trig)
         break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
-        script_process_new_party(&game.script.creature_partys[n],
+        script_process_new_party(&gameadd.script.creature_partys[n],
             pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
         break;
     case TrgF_CREATE_CREATURE:
@@ -6003,9 +6221,9 @@ static void process_party(struct PartyTrigger* pr_trig)
 
 void process_check_new_creature_partys(void)
 {
-    for (long i = 0; i < game.script.party_triggers_num; i++)
+    for (long i = 0; i < gameadd.script.party_triggers_num; i++)
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[i];
+        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[i];
         if ((pr_trig->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(pr_trig->condit_idx))
@@ -6020,9 +6238,9 @@ void process_check_new_creature_partys(void)
 
 void process_check_new_tunneller_partys(void)
 {
-    for (long i = 0; i < game.script.tunneller_triggers_num; i++)
+    for (long i = 0; i < gameadd.script.tunneller_triggers_num; i++)
     {
-        struct TunnellerTrigger* tn_trig = &game.script.tunneller_triggers[i];
+        struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[i];
         if ((tn_trig->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(tn_trig->condit_idx))
@@ -6036,7 +6254,7 @@ void process_check_new_tunneller_partys(void)
                         tn_trig->crtr_level, tn_trig->carried_gold);
                     if (!thing_is_invalid(thing))
                     {
-                        struct Thing* grptng = script_process_new_party(&game.script.creature_partys[k - 1], n, tn_trig->location, 1);
+                        struct Thing* grptng = script_process_new_party(&gameadd.script.creature_partys[k - 1], n, tn_trig->location, 1);
                         if (!thing_is_invalid(grptng))
                         {
                             add_creature_to_group_as_leader(thing, grptng);
@@ -6067,17 +6285,17 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     if ((game.system_flags & GSF_NetworkActive) != 0)
       return;
-    for (i=0; i < game.script.win_conditions_num; i++)
+    for (i=0; i < gameadd.script.win_conditions_num; i++)
     {
-      k = game.script.win_conditions[i];
+      k = gameadd.script.win_conditions[i];
       if (is_condition_met(k)) {
           SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
           set_player_as_won_level(player);
       }
     }
-    for (i=0; i < game.script.lose_conditions_num; i++)
+    for (i=0; i < gameadd.script.lose_conditions_num; i++)
     {
-      k = game.script.lose_conditions[i];
+      k = gameadd.script.lose_conditions[i];
       if (is_condition_met(k)) {
           SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
           set_player_as_lost_level(player);
@@ -6087,9 +6305,9 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
 
 void process_values(void)
 {
-    for (long i = 0; i < game.script.values_num; i++)
+    for (long i = 0; i < gameadd.script.values_num; i++)
     {
-        struct ScriptValue* value = &game.script.values[i];
+        struct ScriptValue* value = &gameadd.script.values[i];
         if ((value->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(value->condit_idx))
@@ -6574,6 +6792,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           game.bonus_time = 0;
           game.flags_gui &= ~GGUI_CountdownTimer;
       }
+      if (level_file_version > 0)
+      {
+          gameadd.timer_real = (TbBool)val3;
+      }
+      else
+      {
+          gameadd.timer_real = false;
+      }
       break;
   case Cmd_QUICK_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
@@ -6600,6 +6826,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_ADD_GOLD_TO_PLAYER:
       for (i=plr_start; i < plr_end; i++)
       {
+          if (val2 > SENSIBLE_GOLD)
+          {
+              val2 = SENSIBLE_GOLD;
+              SCRPTWRNLOG("Gold added to player %d reduced to %d", (int)plr_range_id, SENSIBLE_GOLD);
+          }
           player_add_offmap_gold(i, val2);
       }
       break;
@@ -7009,11 +7240,19 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.room_sale_percent, val3);
           gameadd.room_sale_percent = val3;
           break;
-      case 16: //PayDayGap
+      case 16: //DoorSellGoldBackPercent
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.door_sale_percent, val3);
+          gameadd.door_sale_percent = val3;
+          break;
+      case 17: //TrapSellGoldBackPercent
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.trap_sale_percent, val3);
+          gameadd.trap_sale_percent = val3;
+          break;
+      case 18: //PayDayGap
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
           game.pay_day_gap = val3;
           break;
-      case 17: //PayDaySpeed
+      case 19: //PayDaySpeed
           if (val3 >= 0)
           {
               SCRIPTDBG(7, "Changing rule %s from %d to %d", val2, gameadd.pay_day_speed, val3);
@@ -7024,7 +7263,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
-      case 18: //PayDayProgress
+      case 20: //PayDayProgress
           if (val3 >= 0)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_progress, val3);
@@ -7035,11 +7274,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
-      case 19: //PlaceTrapsOnSubtiles
+      case 21: //PlaceTrapsOnSubtiles
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.place_traps_on_subtiles, val3);
           gameadd.place_traps_on_subtiles = (TbBool)val3;
           break;
-      case 20: //DiseaseHPTemplePercentage
+      case 22: //DiseaseHPTemplePercentage
           if (val3 >= 0 && val3 <= 100)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
@@ -7425,7 +7664,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, NULL, NULL},
   {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS, NULL, NULL},
   {"DEAD_CREATURES_RETURN_TO_POOL",     "N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
-  {"BONUS_LEVEL_TIME",                  "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
+  {"BONUS_LEVEL_TIME",                  "Nn      ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
   {"QUICK_OBJECTIVE",                   "NAL     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
   {"QUICK_INFORMATION",                 "NAL     ", Cmd_QUICK_INFORMATION, NULL, NULL},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
@@ -7479,6 +7718,13 @@ const struct CommandDesc command_desc[] = {
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
   {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
+  {"DISPLAY_TIMER",                     "PAn     ", Cmd_DISPLAY_TIMER, &display_timer_check, &display_timer_process},
+  {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
+  {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
+  {"DISPLAY_VARIABLE",                  "PAnn    ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
+  {"DISPLAY_COUNTDOWN",                 "PANn    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
+  {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
+  {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},

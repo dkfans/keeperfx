@@ -59,11 +59,11 @@ enum ObjectModelFlags {
 
 struct ObjectConfig { // sizeof=0x1D
     long health;
-char field_4;
-char field_5;
+char fall_acceleration;
+char light_unaffected;
 char is_heart;
 char resistant_to_nonmagic;
-char field_8;
+char movement_flag;
     struct InitLight ilght;
 };
 
@@ -74,6 +74,7 @@ struct ObjectConfigStats {
     unsigned short model_flags;
     long genre;
     long name_stridx;
+    long map_icon;
 };
 
 struct ObjectsConfig {
@@ -83,6 +84,7 @@ struct ObjectsConfig {
     ThingModel object_to_power_artifact[OBJECT_TYPES_MAX];
     ThingModel object_to_special_artifact[OBJECT_TYPES_MAX];
     ThingClass workshop_object_class[OBJECT_TYPES_MAX];
+    struct ObjectConfig base_config[OBJECT_TYPES_MAX];
 };
 /******************************************************************************/
 extern const char keeper_objects_file[];

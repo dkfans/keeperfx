@@ -36,6 +36,7 @@
 #include "game_heap.h"
 #include "gui_draw.h"
 #include "gui_parchment.h"
+#include "gui_topmsg.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "config.h"
@@ -695,7 +696,6 @@ TbBool setup_screen_mode(unsigned short nmode)
     if (parchment_loaded)
       reload_parchment_file(new_mdinfo->Width >= 640);
     reinitialise_eye_lens(lens_mem);
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
     lbDisplay.DrawFlags = flg_mem;
     if (!setup_heap_memory())
     {
@@ -736,11 +736,11 @@ TbBool update_screen_mode_data(long width, long height)
     LbSpriteSetupAll(setup_sprites_minimal);
   else
     LbSpriteSetupAll(setup_sprites);
-  LbMouseSetup(NULL);
   LbMouseChangeMoveRatio(base_mouse_sensitivity*units_per_pixel/16, base_mouse_sensitivity*units_per_pixel/16);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  LbMouseSetup(NULL);
   return true;
 }
 
@@ -898,11 +898,13 @@ TbScreenMode switch_to_next_video_mode(void)
     TbScreenMode scrmode = get_next_vidmode(lbDisplay.ScreenMode);
     if ( setup_screen_mode(scrmode) )
     {
+        show_onscreen_msg(game.num_fps * 6, "%s", get_vidmode_name(scrmode));
         settings.video_scrnmode = scrmode;
     } else
     {
         SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
             get_vidmode_name(scrmode),(int)scrmode);
+        show_onscreen_msg(game.num_fps * 6, "%s", get_string(856));
         scrmode = get_failsafe_vidmode();
         if ( !setup_screen_mode(scrmode) )
         {

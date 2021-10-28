@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_coroutine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +34,7 @@ extern "C" {
 #pragma pack()
 /******************************************************************************/
 void resync_game(void);
-short perform_checksum_verification(void);
+CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
 
 /******************************************************************************/
 #ifdef __cplusplus

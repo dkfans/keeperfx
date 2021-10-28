@@ -617,7 +617,7 @@ long instf_destroy(struct Thing *creatng, long *param)
         {
             MapCoord ccor_x = subtile_coord_center(room->central_stl_x);
             MapCoord ccor_y = subtile_coord_center(room->central_stl_y);
-            event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, room->owner, 0);
+            event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, room->owner, room->kind);
             claim_enemy_room(room, creatng);
         }
         thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -725,7 +725,7 @@ long instf_fart(struct Thing *creatng, long *param)
     //return _DK_instf_fart(creatng, param);
     struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
     if (!thing_is_invalid(efftng))
-        efftng->byte_16 = 4;
+        efftng->hit_type = THit_CrtrsOnlyNotOwn;
     thing_play_sample(creatng,94+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Start cooldown after fart created
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);

@@ -1,23 +1,18 @@
-
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <winbase.h>
-#include <math.h>
-#include <string>
+
 #include "keeperfx.hpp"
 
+#include "bflib_coroutine.h"
 #include "bflib_math.h"
 #include "bflib_memory.h"
-#include "bflib_heapmgr.h"
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
-#include "bflib_bufrw.h"
-#include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_sndlib.h"
-#include "bflib_fmvids.h"
 #include "bflib_cpu.h"
 #include "bflib_crash.h"
 #include "bflib_video.h"
@@ -32,8 +27,6 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_input.h"
-#include "gui_draw.h"
-#include "gui_tooltips.h"
 #include "gui_parchment.h"
 #include "gui_frontmenu.h"
 #include "gui_msgs.h"
@@ -45,18 +38,12 @@
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_terrain.h"
-#include "config_trapdoor.h"
 #include "config_objects.h"
-#include "config_rules.h"
-#include "config_lenses.h"
 #include "config_magic.h"
 #include "config_creature.h"
-#include "config_crtrstates.h"
-#include "config_crtrmodel.h"
 #include "config_compp.h"
 #include "config_effects.h"
 #include "lvl_script.h"
-#include "lvl_filesdk1.h"
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -70,45 +57,35 @@
 #include "engine_arrays.h"
 #include "engine_textures.h"
 #include "engine_redraw.h"
-#include "front_landview.h"
-#include "front_lvlstats.h"
 #include "front_easter.h"
 #include "front_fmvids.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_creature.h"
-#include "thing_corpses.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_doors.h"
 #include "thing_traps.h"
-#include "thing_shots.h"
 #include "thing_navigate.h"
 #include "thing_factory.h"
 #include "slab_data.h"
 #include "room_data.h"
 #include "room_entrance.h"
-#include "room_jobs.h"
 #include "room_util.h"
-#include "room_library.h"
 #include "map_columns.h"
 #include "map_events.h"
 #include "map_utils.h"
 #include "map_blocks.h"
-#include "ariadne_wallhug.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
-#include "creature_states_rsrch.h"
-#include "creature_states_lair.h"
 #include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "magic.h"
 #include "power_process.h"
 #include "power_hand.h"
-#include "power_specials.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
 #include "gui_boxmenu.h"
@@ -116,13 +93,13 @@
 #include "gui_frontbtns.h"
 #include "frontmenu_ingame_tabs.h"
 #include "ariadne.h"
-#include "net_game.h"
 #include "sounds.h"
 #include "vidfade.h"
 #include "KeeperSpeech.h"
 #include "config_settings.h"
 #include "game_legacy.h"
 #include "room_list.h"
+#include "game_loop.h"
 
 #include "music_player.h"
 
@@ -157,7 +134,6 @@ extern "C" {
 DLLIMPORT void _DK_tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
 DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
@@ -172,6 +148,15 @@ DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
+/******************************************************************************/
+
+extern void faststartup_network_game(CoroutineLoop *context);
+extern void faststartup_saved_packet_game(void);
+extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
+extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
+extern void startup_network_game(CoroutineLoop *context, TbBool local);
+
+/******************************************************************************/
 
 TbClockMSec timerstarttime = 0;
 struct TimerTime Timer;
@@ -189,127 +174,6 @@ void setup_stuff(void)
     setup_texture_block_mem();
     init_fades_table();
     init_alpha_table();
-}
-
-void powerful_magic_breaking_sparks(struct Thing *breaktng)
-{
-    struct Coord3d pos;
-    pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + ACTION_RANDOM(11) - 5);
-    pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + ACTION_RANDOM(11) - 5);
-    pos.z.val = get_floor_height_at(&pos);
-    draw_lightning(&breaktng->mappos, &pos, 96, 60);
-    if ( !S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0) ) {
-        thing_play_sample(breaktng, 157, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
-    }
-}
-
-void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
-{
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(plyr_idx);
-    if (dungeon->devastation_turn == 0)
-    {
-        struct Thing *heartng;
-        heartng = get_player_soul_container(plyr_idx);
-        if (thing_exists(heartng)) {
-            dungeon->devastation_turn = 1;
-            dungeon->devastation_centr_x = heartng->mappos.x.stl.num;
-            dungeon->devastation_centr_y = heartng->mappos.y.stl.num;
-        } else {
-            dungeon->devastation_turn = 1;
-            dungeon->devastation_centr_x = map_subtiles_x/2;
-            dungeon->devastation_centr_y = map_subtiles_y/2;
-        }
-    }
-}
-
-void process_dungeon_destroy(struct Thing *heartng)
-{
-    struct Dungeon *dungeon;
-    long plyr_idx;
-    plyr_idx = heartng->owner;
-    //_DK_process_dungeon_destroy(heartng); return;
-    dungeon = get_dungeon(plyr_idx);
-    if (dungeon->heart_destroy_state == 0) {
-        return;
-    }
-    powerful_magic_breaking_sparks(heartng);
-    const struct Coord3d *central_pos;
-    central_pos = &heartng->mappos;
-    switch ( dungeon->heart_destroy_state )
-    {
-    case 1:
-        initialise_devastate_dungeon_from_heart(plyr_idx);
-        dungeon->heart_destroy_turn++;
-        if (dungeon->heart_destroy_turn < 32)
-        {
-            if ( ACTION_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32 ) {
-                create_effect(central_pos, TngEff_HearthCollapse, plyr_idx);
-            }
-        } else
-        { // Got to next phase
-            dungeon->heart_destroy_state = 2;
-            dungeon->heart_destroy_turn = 0;
-        }
-        break;
-    case 2:
-        dungeon->heart_destroy_turn++;
-        if (dungeon->heart_destroy_turn < 32)
-        {
-            create_effect(central_pos, TngEff_HearthCollapse, plyr_idx);
-        } else
-        { // Got to next phase
-            dungeon->heart_destroy_state = 3;
-            dungeon->heart_destroy_turn = 0;
-        }
-        break;
-    case 3:
-        // Drop all held things, by keeper
-        if ((dungeon->num_things_in_hand > 0) && ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
-        {
-            dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
-        }
-        // Drop all held things, by computer player
-        struct Computer2 *comp;
-        comp = get_computer_player(plyr_idx);
-        computer_force_dump_held_things_on_map(comp, central_pos);
-        // Now if players things are still in hand - they must be kept by enemies
-        // Got to next phase
-        dungeon->heart_destroy_state = 4;
-        dungeon->heart_destroy_turn = 0;
-        break;
-    case 4:
-        // Final phase - destroy the heart, both pedestal room and container thing
-        {
-            struct Thing *efftng;
-            efftng = create_effect(central_pos, TngEff_Explosion4, plyr_idx);
-            if (!thing_is_invalid(efftng))
-              efftng->byte_16 = 8;
-            efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
-            if (!thing_is_invalid(efftng))
-                efftng->byte_16 = 8;
-            destroy_dungeon_heart_room(plyr_idx, heartng);
-            delete_thing_structure(heartng, 0);
-        }
-        { // If there is another heart owned by this player, set it to "working" heart
-            struct PlayerInfo *player;
-            player = get_player(plyr_idx);
-            init_player_start(player, true);
-            if (player_has_heart(plyr_idx))
-            {
-                // If another heart was found, stop the process
-                dungeon->devastation_turn = 0;
-            } else
-            {
-                // If this is the last heart the player had, finish him
-                setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
-                player->allied_players = (1 << player->id_number);
-            }
-        }
-        dungeon->heart_destroy_state = 0;
-        dungeon->heart_destroy_turn = 0;
-        break;
-    }
 }
 
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
@@ -393,13 +257,13 @@ void process_keeper_spell_effect(struct Thing *thing)
         long delta_x;
         long delta_y;
         amp = 5 * thing->clipbox_size_xy / 8;
-        direction = ACTION_RANDOM(2*LbFPMath_PI);
+        direction = CREATURE_RANDOM(thing, 2*LbFPMath_PI);
         delta_x = (amp * LbSinL(direction) >> 8);
         delta_y = (amp * LbCosL(direction) >> 8);
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
         pos.y.val = thing->mappos.y.val - (delta_y >> 8);
         pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, 45, thing->owner); // Heal
+        create_effect_element(&pos, TngEffElm_Heal, thing->owner); // Heal
     }
 }
 
@@ -409,7 +273,7 @@ unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
     return get_2d_box_distance(&player->acamera->mappos, pos) < subtile_coord(45,0);
 }
 
-TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
+static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
 {
     SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     if (thing->index == param->num2) {
@@ -660,13 +524,13 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             for (k = num_per_step; k > 0; k--)
             {
                 struct Coord3d tngpos;
-                tngpos.x.val = curpos.x.val + deviat - ACTION_RANDOM(devrange);
-                tngpos.y.val = curpos.y.val + deviat - ACTION_RANDOM(devrange);
-                tngpos.z.val = curpos.z.val + deviat - ACTION_RANDOM(devrange);
+                tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange); // I hope it is only visual
+                tngpos.y.val = curpos.y.val + deviat - UNSYNC_RANDOM(devrange);
+                tngpos.z.val = curpos.z.val + deviat - UNSYNC_RANDOM(devrange);
                 if ((tngpos.x.val < subtile_coord(map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(map_subtiles_y,0)))
                 {
                     struct Thing *eelemtng;
-                    eelemtng = create_thing(&tngpos, TCls_EffectElem, 9, game.neutral_player_num, -1);
+                    eelemtng = create_thing(&tngpos, TCls_EffectElem, TngEffElm_BallOfLight, game.neutral_player_num, -1);
                     if (!thing_is_invalid(eelemtng)) {
                         eelemtng->sprite_size = sprsize >> 8;
                     }
@@ -738,9 +602,9 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
         deviat_y = 0;
         deviat_z = 0;
         struct Coord3d curpos;
-        curpos.x.val = pos1->x.val + ACTION_RANDOM(eeinterspace/4);
-        curpos.y.val = pos1->y.val + ACTION_RANDOM(eeinterspace/4);
-        curpos.z.val = pos1->z.val + ACTION_RANDOM(eeinterspace/4);
+        curpos.x.val = pos1->x.val + UNSYNC_RANDOM(eeinterspace/4);
+        curpos.y.val = pos1->y.val + UNSYNC_RANDOM(eeinterspace/4);
+        curpos.z.val = pos1->z.val + UNSYNC_RANDOM(eeinterspace/4);
         int i;
         for (i=nsteps+1; i > 0; i--)
         {
@@ -1029,7 +893,7 @@ short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
   short result;
-
+  OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
   SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
@@ -1038,13 +902,24 @@ short setup_game(void)
   if (cpu_info.BrandString)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
+  }
+  v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+  if (GetVersionEx(&v))
+  {
+      SYNCMSG("Operating System: %s %ld.%ld.%ld", (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows", v.dwMajorVersion,v.dwMinorVersion,v.dwBuildNumber);
   }  
   update_memory_constraits();
   // Enable features that require more resources
   update_features(mem_size);
 
-  features_enabled |= Ft_Wibble; // enable wibble by default
+  //Default feature settings (in case the options are absent from keeperfx.cfg)
+  features_enabled |= Ft_Wibble; // enable wibble
   features_enabled |= Ft_LiquidWibble; // enable liquid wibble by default
+  features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
+  features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
+  features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
+  features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
+  features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
 
   // Configuration file
   if ( !load_configuration() )
@@ -1587,39 +1462,6 @@ TbBool set_default_startup_parameters(void)
     return true;
 }
 
-/**
- * Clears the Game structure completely, and copies startup parameters
- * from start_params structure.
- */
-void clear_complete_game(void)
-{
-    memset(&game, 0, sizeof(struct Game));
-    memset(&gameadd, 0, sizeof(struct GameAdd));
-    memset(&intralvl, 0, sizeof(struct IntralevelData));
-    game.turns_packetoff = -1;
-    game.local_plyr_idx = default_loc_player;
-    game.packet_checksum_verify = start_params.packet_checksum_verify;
-    game.numfield_1503A2 = -1;
-    game.flags_font = start_params.flags_font;
-    game.numfield_149F47 = 0;
-    // Set levels to 0, as we may not have the campaign loaded yet
-    set_continue_level_number(first_singleplayer_level());
-    if ((start_params.operation_flags & GOF_SingleLevel) != 0)
-      set_selected_level_number(start_params.selected_level_number);
-    else
-      set_selected_level_number(first_singleplayer_level());
-    game.num_fps = start_params.num_fps;
-    game.flags_cd = start_params.flags_cd;
-    game.no_intro = start_params.no_intro;
-    set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
-    gameadd.computer_chat_flags = start_params.computer_chat_flags;
-    game.operation_flags = start_params.operation_flags;
-    strncpy(game.packet_fname,start_params.packet_fname,150);
-    game.packet_save_enable = start_params.packet_save_enable;
-    game.packet_load_enable = start_params.packet_load_enable;
-    my_player_number = default_loc_player;
-}
-
 void clear_slabsets(void)
 {
     struct SlabSet *sset;
@@ -1818,43 +1660,6 @@ void reset_creature_max_levels(void)
             dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
         }
     }
-}
-
-/**
- * Resets timers and flags of all players into default (zeroed) state.
- * Also enables spells which are always enabled by default.
- */
-void reset_script_timers_and_flags(void)
-{
-    struct Dungeon *dungeon;
-    int plyr_idx;
-    int k;
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-    {
-        add_power_to_player(PwrK_HAND, plyr_idx);
-        add_power_to_player(PwrK_SLAP, plyr_idx);
-        add_power_to_player(PwrK_POSSESS, plyr_idx);
-        dungeon = get_dungeon(plyr_idx);
-        for (k=0; k<TURN_TIMERS_COUNT; k++)
-        {
-            memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
-            dungeon->turn_timers[k].state = 0;
-        }
-        for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
-        {
-            dungeon->script_flags[k] = 0;
-        }
-      }
-}
-
-void init_good_player_as(PlayerNumber plr_idx)
-{
-    struct PlayerInfo *player;
-    game.hero_player_num = plr_idx;
-    player = get_player(plr_idx);
-    player->allocflags |= PlaF_Allocated;
-    player->allocflags |= PlaF_CompCtrl;
-    player->id_number = game.hero_player_num;
 }
 
 void change_engine_window_relative_size(long w_delta, long h_delta)
@@ -2181,30 +1986,6 @@ short complete_level(struct PlayerInfo *player)
     return true;
 }
 
-void init_lookups(void)
-{
-    long i;
-    SYNCDBG(8,"Starting");
-    for (i=0; i < THINGS_COUNT; i++)
-    {
-      game.things.lookup[i] = &game.things_data[i];
-    }
-    game.things.end = &game.things_data[THINGS_COUNT];
-
-    memset(&game.persons, 0, sizeof(struct Persons));
-    for (i=0; i < CREATURES_COUNT; i++)
-    {
-      game.persons.cctrl_lookup[i] = &game.cctrl_data[i];
-    }
-    game.persons.cctrl_end = &game.cctrl_data[CREATURES_COUNT];
-
-    for (i=0; i < COLUMNS_COUNT; i++)
-    {
-      game.columns.lookup[i] = &game.columns_data[i];
-    }
-    game.columns.end = &game.columns_data[COLUMNS_COUNT];
-}
-
 void clear_lookups(void)
 {
     long i;
@@ -2341,11 +2122,11 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
       pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
       pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
       pos.z.val = get_floor_height_at(&pos);
-      create_effect_element(&pos, 10, plyr_idx);
+      create_effect_element(&pos, TngEffElm_RedFlameBig, plyr_idx);
     }
 }
 
-void process_dungeon_devastation_effects(void)
+static void process_dungeon_devastation_effects(void)
 {
     SYNCDBG(8,"Starting");
     //_DK_process_dungeon_devastation_effects(); return;
@@ -2631,36 +2412,6 @@ void update_player_camera(struct PlayerInfo *player)
     }
 }
 
-void update_research(void)
-{
-  int i;
-  struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
-      {
-          process_player_research(i);
-      }
-  }
-}
-
-void update_manufacturing(void)
-{
-  int i;
-  struct PlayerInfo *player;
-  SYNCDBG(16,"Starting");
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if (player_exists(player) && (player->is_active == 1))
-      {
-          process_player_manufacturing(i);
-      }
-  }
-}
-
 void update_all_players_cameras(void)
 {
   int i;
@@ -2822,32 +2573,6 @@ void update_footsteps_nearest_camera(struct Camera *cam)
     timeslice = (timeslice + 1) % 4;
 }
 
-void add_creature_to_pool(long kind, long amount, unsigned long a3)
-{
-    long prev_amount;
-    kind %= CREATURE_TYPES_COUNT;
-    prev_amount = game.pool.crtr_kind[kind];
-    if ((a3 == 0) || (prev_amount != -1))
-    {
-        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
-            game.pool.crtr_kind[kind] = prev_amount + amount;
-        else
-            game.pool.crtr_kind[kind] = amount;
-    }
-}
-
-short update_creature_pool_state(void)
-{
-  int i;
-  game.pool.is_empty = true;
-  for (i=1; i < CREATURE_TYPES_COUNT; i++)
-  {
-      if (game.pool.crtr_kind[i] > 0)
-      { game.pool.is_empty = false; break; }
-  }
-  return true;
-}
-
 int clear_active_dungeons_stats(void)
 {
   struct Dungeon *dungeon;
@@ -2925,9 +2650,9 @@ long update_cave_in(struct Thing *thing)
     if ((game.play_gameturn % 3) == 0)
     {
         int n;
-        n = ACTION_RANDOM(AROUND_TILES_COUNT);
-        pos.x.val = thing->mappos.x.val + ACTION_RANDOM(0x2C0) * around[n].delta_x;
-        pos.y.val = thing->mappos.y.val + ACTION_RANDOM(0x2C0) * around[n].delta_y;
+        n = UNSYNC_RANDOM(AROUND_TILES_COUNT);
+        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_y;
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
@@ -2944,8 +2669,8 @@ long update_cave_in(struct Thing *thing)
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
-        pos.x.val = thing->mappos.x.val + ACTION_RANDOM(128);
-        pos.y.val = thing->mappos.y.val + ACTION_RANDOM(128);
+        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(128);
+        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(128);
         pos.z.val = get_floor_height_at(&pos) + 384;
         create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
@@ -2972,7 +2697,7 @@ long update_cave_in(struct Thing *thing)
         if ((pwrdynst->time < 10) || ((thing->health % (pwrdynst->time / 10)) == 0))
         {
             int round_idx;
-            round_idx = ACTION_RANDOM(AROUND_TILES_COUNT);
+            round_idx = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
             set_coords_to_slab_center(&pos, subtile_slab(thing->mappos.x.val + 3 * around[round_idx].delta_x), subtile_slab(thing->mappos.y.val + 3 * around[round_idx].delta_y));
             if (subtile_has_slab(coord_subtile(pos.x.val), coord_subtile(pos.y.val)) && valid_cave_in_position(thing->owner, coord_subtile(pos.x.val), coord_subtile(pos.y.val)))
             {
@@ -3144,7 +2869,29 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int is_special_digger, long full_slab)
 {
   SYNCDBG(7,"Starting");
-  _DK_tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_special_digger, full_slab);
+  // _DK_tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_special_digger, full_slab);
+  MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+  MapSlabCoord slb_y = subtile_slab_fast(stl_y);  
+  if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) )
+    {
+        map_volume_box.visible = true;
+        map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, is_special_digger);
+        if (full_slab)
+        {
+            map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
+            map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
+            map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 0) + STL_PER_SLB, 0);
+            map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 0) + STL_PER_SLB, 0);
+        }
+        else
+        {
+            map_volume_box.beg_x = subtile_coord(stl_x, 0);
+            map_volume_box.beg_y = subtile_coord(stl_y, 0);
+            map_volume_box.end_x = subtile_coord(stl_x + 1, 0);
+            map_volume_box.end_y = subtile_coord(stl_y + 1, 0); 
+        }
+        map_volume_box.floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
+    }
 }
 
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
@@ -3669,6 +3416,8 @@ TbBool keeper_wait_for_screen_focus(void)
           return true;
         if ((game.system_flags & GSF_NetworkActive) != 0)
           return true;
+        if (!freeze_game_on_focus_lost())
+          return true;
         LbSleepFor(50);
     } while ((!exit_keeper) && (!quit_game));
     return false;
@@ -4124,257 +3873,13 @@ TbBool swap_creature(long ncrt_id, long crtr_id)
     return true;
 }
 
-void init_level(void)
-{
-    SYNCDBG(6,"Starting");
-    struct IntralevelData transfer_mem;
-    //_DK_init_level(); return;
-    //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
-    game.flags_gui = GGUI_SoloChatEnabled;
-    game.action_rand_seed = 1;
-    free_swipe_graphic();
-    game.loaded_swipe_idx = -1;
-    game.play_gameturn = 0;
-    game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
-    clear_game();
-    reset_heap_manager();
-    lens_mode = 0;
-    setup_heap_manager();
-
-    // Load configs which may have per-campaign part, and can even be modified within a level
-    load_computer_player_config(CnfLd_Standard);
-    load_stats_files();
-    check_and_auto_fix_stats();
-
-    // We should do this after 'load stats'
-    update_room_tab_to_config();
-    update_powers_tab_to_config();
-    update_trap_tab_to_config();
-
-    init_creature_scores();
-
-    init_good_player_as(hero_player_number);
-    light_set_lights_on(1);
-    start_rooms = &game.rooms[1];
-    end_rooms = &game.rooms[ROOMS_COUNT];
-
-    erstats_clear();
-    init_dungeons();
-    // Load the actual level files
-    preload_script(get_selected_level_number());
-    load_map_file(get_selected_level_number());
-
-    init_navigation();
-    clear_messages();
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
-#ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    {
-      game.action_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
-    }
-    else
-#else
-    // Initialize unsynchronized random seed (the value may be different
-    // on computers in MP, as it shouldn't affect game actions)
-    game.unsync_rand_seed = (unsigned long)LbTimeSec();
-#endif
-    if (!SoundDisabled)
-    {
-        game.field_14BB54 = (UNSYNC_RANDOM(67) % 3 + 1);
-        game.field_14BB55 = 0;
-    }
-    light_set_lights_on(1);
-    {
-        struct PlayerInfo *player;
-        player = get_player(game.hero_player_num);
-        init_player_start(player, false);
-    }
-    game.numfield_D |= GNFldD_Unkn04;
-    //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
-    event_initialise_all();
-    battle_initialise();
-    ambient_sound_prepare();
-    zero_messages();
-    game.armageddon_cast_turn = 0;
-    game.armageddon_field_15035A = 0;
-    init_messages();
-    game.creatures_tend_imprison = 0;
-    game.creatures_tend_flee = 0;
-    game.pay_day_progress = 0;
-    game.chosen_room_kind = 0;
-    game.chosen_room_spridx = 0;
-    game.chosen_room_tooltip = 0;
-    set_chosen_power_none();
-    game.manufactr_element = 0;
-    game.manufactr_spridx = 0;
-    game.manufactr_tooltip = 0;
-}
-
-void post_init_level(void)
-{
-    SYNCDBG(8,"Starting");
-    //_DK_post_init_level(); return;
-    if (game.packet_save_enable)
-        open_new_packet_file_for_save();
-    calculate_dungeon_area_scores();
-    init_animating_texture_maps();
-    reset_creature_max_levels();
-    clear_creature_pool();
-    setup_computer_players2();
-    load_script(get_loaded_level_number());
-    init_dungeons_research();
-    init_dungeons_essential_position();
-    create_transferred_creature_on_level();
-    update_dungeons_scores();
-    update_dungeon_generation_speeds();
-    init_traps();
-    init_all_creature_states();
-    init_keepers_map_exploration();
-    SYNCDBG(9,"Finished");
-}
-
-void startup_saved_packet_game(void)
-{
-    struct CatalogueEntry centry;
-    //_DK_startup_saved_packet_game(); return;
-    clear_packets();
-    open_packet_file_for_load(game.packet_fname,&centry);
-    if (!change_campaign(centry.campaign_fname))
-    {
-        ERRORLOG("Unable to load campaign associated with packet file");
-    }
-    set_selected_level_number(game.packet_save_head.level_num);
-    lbDisplay.DrawColour = colours[15][15][15];
-    game.pckt_gameturn = 0;
-#if (BFDEBUG_LEVEL > 0)
-    SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
-    SYNCMSG("Packet Loading Active (File contains %d turns)", game.turns_stored);
-    SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
-    SYNCMSG("Fast Forward through %d game turns", game.turns_fastforward);
-    if (game.turns_packetoff != -1)
-        SYNCMSG("Packet Quit at %d", game.turns_packetoff);
-    if (game.packet_load_enable)
-    {
-      if (game.log_things_end_turn != game.log_things_start_turn)
-        SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
-    }
-    SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)game.packet_save_head.game_ver_major,(int)game.packet_save_head.game_ver_minor,
-        (int)game.packet_save_head.game_ver_release,(int)game.packet_save_head.game_ver_build);
-#endif
-    if ((game.packet_save_head.game_ver_major != VER_MAJOR) || (game.packet_save_head.game_ver_minor != VER_MINOR)
-     || (game.packet_save_head.game_ver_release != VER_RELEASE) || (game.packet_save_head.game_ver_build != VER_BUILD)) {
-        WARNLOG("Packet file was created with different version of the game; this rarely works");
-    }
-    game.game_kind = GKind_LocalGame;
-    if (!(game.packet_save_head.players_exist & (1 << game.local_plyr_idx))
-      || (game.packet_save_head.players_comp & (1 << game.local_plyr_idx)))
-      my_player_number = 0;
-    else
-      my_player_number = game.local_plyr_idx;
-    init_level();
-    setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
-    init_players();
-    if (game.active_players_count == 1)
-      game.game_kind = GKind_LocalGame;
-    if (game.turns_stored < game.turns_fastforward)
-      game.turns_fastforward = game.turns_stored;
-    post_init_level();
-    post_init_players();
-    set_selected_level_number(0);
-    if (is_key_pressed(KC_LALT, KMod_NONE))
-    {
-        struct PlayerInfo* player = get_my_player();
-        set_engine_view(player, PVM_FrontView);
-    }
-}
-
-void faststartup_saved_packet_game(void)
-{
-    reenter_video_mode();
-    startup_saved_packet_game();
-    {
-        struct PlayerInfo *player;
-        player = get_my_player();
-        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
-    }
-    set_gui_visible(false);
-    set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
-}
-
-void startup_network_game(TbBool local)
-{
-    SYNCDBG(0,"Starting up network game");
-    //_DK_startup_network_game(); return;
-    unsigned int flgmem;
-    struct PlayerInfo *player;
-    setup_count_players();
-    player = get_my_player();
-    flgmem = player->is_active;
-    if (local && (campaign.human_player >= 0) && (!force_player_num))
-    {
-        default_loc_player = campaign.human_player;
-        game.local_plyr_idx = default_loc_player;
-        my_player_number = default_loc_player;
-    }
-    init_level();
-    player = get_my_player();
-    player->is_active = flgmem;
-    //if (game.flagfield_14EA4A == 2) //was wrong because init_level sets this to 2. global variables are evil (though perhaps that's why they were chosen for DK? ;-))
-    TbBool ShouldAssignCpuKeepers = 0;
-    if (local)
-    {
-        game.game_kind = GKind_LocalGame;
-        init_players_local_game();
-        if (AssignCpuKeepers || campaign.assignCpuKeepers) {
-            ShouldAssignCpuKeepers = 1;
-        }
-    } else
-    {
-        game.game_kind = GKind_MultiGame;
-        init_players_network_game();
-    }
-    if (fe_computer_players || ShouldAssignCpuKeepers)
-    {
-        SYNCDBG(5,"Setting up uninitialized players as computer players");
-        setup_computer_players();
-    } else
-    {
-        SYNCDBG(5,"Setting up uninitialized players as zombie players");
-        setup_zombie_players();
-    }
-    post_init_level();
-    post_init_players();
-    post_init_packets();
-    set_selected_level_number(0);
-    //LbNetwork_EnableLag(1);
-}
-
-void faststartup_network_game(void)
+static TbBool wait_at_frontend(void)
 {
     struct PlayerInfo *player;
-    SYNCDBG(3,"Starting");
-    reenter_video_mode();
-    my_player_number = default_loc_player;
-    game.game_kind = GKind_LocalGame;
-    if (!is_campaign_loaded())
-    {
-        if (!change_campaign(""))
-        ERRORLOG("Unable to load campaign");
-    }
-    player = get_my_player();
-    player->is_active = 1;
-    startup_network_game(true);
-    player = get_my_player();
-    player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
-}
+    // This is an improvised coroutine-like stuff
+    CoroutineLoop loop;
+    memset(&loop, 0, sizeof(loop));
 
-void wait_at_frontend(void)
-{
-    struct PlayerInfo *player;
     SYNCDBG(0,"Falling into frontend menu.");
     // Moon phase calculation
     calculate_moon_phase(true,false);
@@ -4391,7 +3896,7 @@ void wait_at_frontend(void)
     {
       ERRORLOG("No valid campaign files found");
       exit_keeper = 1;
-      return;
+      return true;
     }
     // Make sure mappacks are loaded
     if (!load_mappacks_list())
@@ -4399,9 +3904,11 @@ void wait_at_frontend(void)
       WARNMSG("No valid mappack files found");
     }
     //Set level number and campaign (for single level mode: GOF_SingleLevel)
-    if ((start_params.operation_flags & GOF_SingleLevel) != 0) {
+    if ((start_params.operation_flags & GOF_SingleLevel) != 0)
+    {
         TbBool result = false;
-        if (start_params.selected_campaign[0] != '\0') {
+        if (start_params.selected_campaign[0] != '\0')
+        {
             result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
         }
         if (!result) {
@@ -4418,7 +3925,8 @@ void wait_at_frontend(void)
         set_selected_level_number(start_params.selected_level_number);
         //game.selected_level_number = start_params.selected_level_number;
     }
-    else {
+    else
+    {
         set_selected_level_number(first_singleplayer_level());
     }
     // Init load/save catalogue
@@ -4427,20 +3935,21 @@ void wait_at_frontend(void)
     if ((game.packet_load_enable) && (!game.numfield_149F47))
     {
       faststartup_saved_packet_game();
-      return;
+      return true;
     }
     // Prepare to enter network/standard game
     if ((game.operation_flags & GOF_SingleLevel) != 0)
     {
-      faststartup_network_game();
-      return;
+      faststartup_network_game(&loop);
+      coroutine_process(&loop);
+      return true;
     }
 
     if ( !setup_screen_mode_minimal(get_frontend_vidmode()) )
     {
       FatalError = 1;
       exit_keeper = 1;
-      return;
+      return true;
     }
     LbScreenClear(0);
     LbScreenSwap();
@@ -4448,14 +3957,16 @@ void wait_at_frontend(void)
     {
       ERRORLOG("Unable to load frontend data");
       exit_keeper = 1;
-      return;
+      return true;
     }
     memset(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
     frontend_set_state(get_startup_menu_state());
+    try_restore_frontend_error_box();
 
     short finish_menu = 0;
     set_flag_byte(&game.flags_cd,MFlg_unk40,false);
+    // TODO move to separate function
     // Begin the frontend loop
     long fe_last_loop_time = LbTimerClock();
     do
@@ -4522,11 +4033,12 @@ void wait_at_frontend(void)
     {
       player = get_my_player();
       player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
-      return;
+      return true;
     }
     reenter_video_mode();
 
     display_loading_screen();
+
     short flgmem;
     switch (prev_state)
     {
@@ -4536,14 +4048,14 @@ void wait_at_frontend(void)
           set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
           player = get_my_player();
           player->is_active = 1;
-          startup_network_game(true);
+          startup_network_game(&loop, true);
           break;
     case FeSt_START_MPLEVEL:
           set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
           game.game_kind = GKind_MultiGame;
           player = get_my_player();
           player->is_active = 1;
-          startup_network_game(false);
+          startup_network_game(&loop, false);
           break;
     case FeSt_LOAD_GAME:
           flgmem = game.numfield_15;
@@ -4564,8 +4076,15 @@ void wait_at_frontend(void)
           set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
           break;
     }
-    player = get_my_player();
-    player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+
+    coroutine_add(&loop, &set_not_has_quit);
+    coroutine_process(&loop);
+    if (loop.error)
+    {
+        frontend_set_state(FeSt_INITIAL);
+        return false;
+    }
+    return true;
 }
 
 void game_loop(void)
@@ -4580,7 +4099,11 @@ void game_loop(void)
     while ( !exit_keeper )
     {
       update_mouse();
-      wait_at_frontend();
+      while (!wait_at_frontend())
+      {
+          if (exit_keeper)
+              break;
+      }
       if ( exit_keeper )
         break;
       struct PlayerInfo *player;
@@ -4818,6 +4341,16 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr,"alex") == 0)
       {
          set_flag_byte(&start_params.flags_font,FFlg_AlexCheat,true);
+      } else
+      if (strcasecmp(parstr,"connect") == 0)
+      {
+          narg++;
+          LbNetwork_InitSessionsFromCmdLine(pr2str);
+          game_flags2 |= GF2_Connect;
+      } else
+      if (strcasecmp(parstr,"server") == 0)
+      {
+          game_flags2 |= GF2_Server;
       } else
       if (strcasecmp(parstr,"frameskip") == 0)
       {
