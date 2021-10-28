@@ -3884,7 +3884,7 @@ static void create_effect_process(struct ScriptContext *context)
     pos.x.stl.num = (MapSubtlCoord)context->value->bytes[1];
     pos.y.stl.num = (MapSubtlCoord)context->value->bytes[2];
     pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    TbBool Price = (context->value->bytes[0] == -(TngEffElem_Price));
+    TbBool Price = (context->value->bytes[0] == -(TngEffElm_Price));
     if (Price)
     {
         pos.z.val += 128;
