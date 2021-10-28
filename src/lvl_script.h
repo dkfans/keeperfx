@@ -164,6 +164,13 @@ enum TbScriptCommands {
     Cmd_RANDOMISE_FLAG                    = 132,
     Cmd_COMPUTE_FLAG                      = 133,
     Cmd_CONCEAL_MAP_RECT                  = 134,
+    Cmd_DISPLAY_TIMER                     = 135,
+    Cmd_ADD_TO_TIMER                      = 136,
+    Cmd_ADD_BONUS_TIME                    = 137,
+    Cmd_DISPLAY_VARIABLE                  = 138,
+    Cmd_DISPLAY_COUNTDOWN                 = 139,
+    Cmd_HIDE_TIMER                        = 140,
+    Cmd_HIDE_VARIABLE                     = 141,
 };
 
 enum ScriptVariables {
@@ -239,6 +246,7 @@ enum ScriptVariables {
   SVar_MANUFACTURED_SOLD               = 73,
   SVar_MANUFACTURE_GOLD                = 74,
   SVar_TOTAL_SCORE                     = 75,
+  SVar_BONUS_TIME                      = 76,
  };
 
 enum MapLocationTypes {
@@ -513,6 +521,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, long crtr_breed, long l
 void process_check_new_creature_partys(void);
 void process_check_new_tunneller_partys(void);
 char get_player_number_from_value(const char* txt);
+TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
 /******************************************************************************/
 #ifdef __cplusplus
 }

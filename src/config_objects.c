@@ -56,6 +56,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"HEALTH",           12},
   {"FALLACCELERATION", 13},
   {"LIGHTUNAFFECTED",  14},
+  {"MAPICON",          15},
   {NULL,                0},
   };
 
@@ -213,6 +214,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             objst = &gameadd.object_conf.object_cfgstats[i];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
+            objst->map_icon = 0;
             objst->genre = 0;
             if (i < gameadd.object_conf.object_types_count)
             {
@@ -232,6 +234,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         char block_buf[COMMAND_WORD_LEN];
         sprintf(block_buf, "object%d", i);
         long pos = 0;
+        char* tail;
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {
@@ -454,6 +457,18 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
+            case 15: // MapIcon
+                tail = buf;
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = strtol(word_buf, &tail, 10);
+                    objst->map_icon = n;
+                }
+                if (0 != *tail)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
             case 0: // comment
                 break;
             case -1: // end of buffer

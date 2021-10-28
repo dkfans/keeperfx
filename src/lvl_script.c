@@ -28,7 +28,7 @@
 #include "bflib_sound.h"
 #include "bflib_math.h"
 #include "bflib_guibtns.h"
-
+#include "engine_redraw.h"
 #include "front_simple.h"
 #include "config.h"
 #include "config_creature.h"
@@ -44,6 +44,7 @@
 #include "gui_msgs.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
+#include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_tabs.h"
 #include "player_instances.h"
 #include "player_data.h"
@@ -84,7 +85,7 @@ extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner
 extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 extern void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
-extern long near_map_block_creature_filter_random_and_model_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
+extern long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
 
 static int script_current_condition = 0;
 
@@ -168,6 +169,7 @@ const struct NamedCommand variable_desc[] = {
     {"MANUFACTURED_SOLD",           SVar_MANUFACTURED_SOLD},
     {"MANUFACTURE_GOLD",            SVar_MANUFACTURE_GOLD},
     {"TOTAL_SCORE",                 SVar_TOTAL_SCORE},
+    {"BONUS_TIME",                  SVar_BONUS_TIME},
     {NULL,                           0},
 };
 
@@ -345,7 +347,8 @@ const struct NamedCommand object_config_desc[] = {
   {"MaximumSize",     6},
   {"DestroyOnLava",   7},
   {"DestroyOnLiquid", 8},
-  {"Properties",      9},
+  {"MapIcon",         9},
+  {"Properties",     10},
   {NULL,              0},
 };
 
@@ -1090,7 +1093,10 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 8: // DestroyOnLiquid
             objdat->destroy_on_liquid = context->value->arg2;
             break;
-        case 9: // Properties
+        case 9: // MapIcon
+            objst->map_icon = context->value->arg2;
+            break;
+        case 10: // Properties
             objst->model_flags = context->value->arg2;
             break;
         default:
@@ -1098,6 +1104,130 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
     }
     update_all_object_stats();
+}
+
+static void display_timer_check(const struct ScriptLine *scline)
+{
+    const char *timrname = scline->tp[1];
+    char timr_id = get_rid(timer_desc, timrname);
+    if (timr_id == -1)
+    {
+        SCRPTERRLOG("Unknown timer, '%s'", timrname);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->bytes[0] = (unsigned char)scline->np[0];
+    value->bytes[1] = timr_id;
+    value->arg1 = 0;
+    value->bytes[2] = (TbBool)scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+
+static void display_timer_process(struct ScriptContext *context)
+{
+    gameadd.script_player = context->value->bytes[0];
+    gameadd.script_timer_id = context->value->bytes[1];
+    gameadd.script_timer_limit = context->value->arg1;
+    gameadd.timer_real = context->value->bytes[2];
+    game.flags_gui |= GGUI_ScriptTimer;
+}
+
+static void add_to_timer_check(const struct ScriptLine *scline)
+{
+    const char *timrname = scline->tp[1];
+    long timr_id = get_rid(timer_desc, timrname);
+    if (timr_id == -1)
+    {
+        SCRPTERRLOG("Unknown timer, '%s'", timrname);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    value->arg1 = timr_id;
+    value->arg2 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_to_timer_process(struct ScriptContext *context)
+{
+   add_to_script_timer(context->value->arg0, context->value->arg1, context->value->arg2); 
+}
+
+static void add_bonus_time_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_bonus_time_process(struct ScriptContext *context)
+{
+   game.bonus_time += context->value->arg0;
+}
+
+static void display_variable_check(const struct ScriptLine *scline)
+{
+    long varib_id, varib_type;
+    if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type))
+    {
+        SCRPTERRLOG("Unknown variable, '%s'", scline->tp[1]);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->bytes[0] = scline->np[0];
+    value->bytes[1] = scline->np[3];
+    gameadd.script_value_type = varib_type;
+    value->arg1 = varib_id;
+    value->arg2 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void display_variable_process(struct ScriptContext *context)
+{
+   gameadd.script_player = context->value->bytes[0];
+   gameadd.script_value_id = context->value->arg1;
+   gameadd.script_variable_target = context->value->arg2;
+   gameadd.script_variable_target_type = context->value->bytes[1];
+   game.flags_gui |= GGUI_Variable;
+}
+
+static void display_countdown_check(const struct ScriptLine *scline)
+{
+    if (scline->np[2] <= 0)
+    {
+        SCRPTERRLOG("Can't have a countdown to %ld turns.", scline->np[2]);
+        return; 
+    }
+    const char *timrname = scline->tp[1];
+    char timr_id = get_rid(timer_desc, timrname);
+    if (timr_id == -1)
+    {
+        SCRPTERRLOG("Unknown timer, '%s'", timrname);
+        return;
+    }
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->bytes[0] = (unsigned char)scline->np[0];
+    value->bytes[1] = timr_id;
+    value->arg1 = scline->np[2];
+    value->bytes[2] = (TbBool)scline->np[3];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void cmd_no_param_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void hide_timer_process(struct ScriptContext *context)
+{
+   game.flags_gui &= ~GGUI_ScriptTimer;
+}
+
+static void hide_variable_process(struct ScriptContext *context)
+{
+   game.flags_gui &= ~GGUI_Variable;
 }
 
 static void null_process(struct ScriptContext *context)
@@ -1667,7 +1797,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
     gameadd.script.conditions_num++;
 }
 
-static TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
+TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
 {
     char c;
     int len = 0;
@@ -1914,14 +2044,14 @@ void command_dead_creatures_return_to_pool(long val)
     command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, ALL_PLAYERS, val, 0, 0);
 }
 
-void command_bonus_level_time(long game_turns)
+void command_bonus_level_time(long game_turns, long real)
 {
     if (game_turns < 0)
     {
         SCRPTERRLOG("Bonus time must be nonnegative");
         return;
     }
-    command_add_value(Cmd_BONUS_LEVEL_TIME, ALL_PLAYERS, game_turns, 0, 0);
+    command_add_value(Cmd_BONUS_LEVEL_TIME, ALL_PLAYERS, game_turns, real, 0);
 }
 
 static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
@@ -3839,7 +3969,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_display_information(scline->np[0], NULL, scline->np[1], scline->np[2]);
         break;
     case Cmd_BONUS_LEVEL_TIME:
-        command_bonus_level_time(scline->np[0]);
+        command_bonus_level_time(scline->np[0], scline->np[1]);
         break;
     case Cmd_QUICK_OBJECTIVE:
         command_quick_objective(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
@@ -5180,11 +5310,11 @@ static struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long
             return INVALID_THING;
         }
         // Action point range should be inside spiral in subtiles
-        int dist = 1 + coord_subtile((2 * apt->range + COORD_PER_STL - 1) ) * 8;
+        int dist = 2 * coord_subtile(apt->range + COORD_PER_STL - 1 ) + 1;
+        dist = dist * dist;
 
-        Thing_Maximizer_Filter filter = near_map_block_creature_filter_random_and_model_owned_by;
+        Thing_Maximizer_Filter filter = near_map_block_creature_filter_diagonal_random;
         struct CompoundTngFilterParam param;
-        param.class_id = TCls_Creature;
         param.model_id = crmodel;
         param.plyr_idx = (unsigned char)plyr_idx;
         param.num1 = apt->mappos.x.val;
@@ -5796,6 +5926,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_TOTAL_SCORE:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->total_score;
+    case SVar_BONUS_TIME:
+        return (game.bonus_time - game.play_gameturn);
     default:
         break;
     };
@@ -6508,6 +6640,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       } else {
           game.bonus_time = 0;
           game.flags_gui &= ~GGUI_CountdownTimer;
+      }
+      if (level_file_version > 0)
+      {
+          gameadd.timer_real = (TbBool)val3;
+      }
+      else
+      {
+          gameadd.timer_real = false;
       }
       break;
   case Cmd_QUICK_OBJECTIVE:
@@ -7373,7 +7513,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_COMPUTER_PROCESS",              "PANNNNN ", Cmd_SET_COMPUTER_PROCESS, NULL, NULL},
   {"ALLY_PLAYERS",                      "PPN     ", Cmd_ALLY_PLAYERS, NULL, NULL},
   {"DEAD_CREATURES_RETURN_TO_POOL",     "N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL, NULL, NULL},
-  {"BONUS_LEVEL_TIME",                  "N       ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
+  {"BONUS_LEVEL_TIME",                  "Nn      ", Cmd_BONUS_LEVEL_TIME, NULL, NULL},
   {"QUICK_OBJECTIVE",                   "NAL     ", Cmd_QUICK_OBJECTIVE, NULL, NULL},
   {"QUICK_INFORMATION",                 "NAL     ", Cmd_QUICK_INFORMATION, NULL, NULL},
   {"QUICK_OBJECTIVE_WITH_POS",          "NANN    ", Cmd_QUICK_OBJECTIVE_WITH_POS, NULL, NULL},
@@ -7427,6 +7567,13 @@ const struct CommandDesc command_desc[] = {
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
   {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
+  {"DISPLAY_TIMER",                     "PAn     ", Cmd_DISPLAY_TIMER, &display_timer_check, &display_timer_process},
+  {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
+  {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
+  {"DISPLAY_VARIABLE",                  "PAnn    ", Cmd_DISPLAY_VARIABLE, &display_variable_check, &display_variable_process},
+  {"DISPLAY_COUNTDOWN",                 "PANn    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
+  {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
+  {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

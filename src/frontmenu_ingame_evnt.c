@@ -352,19 +352,39 @@ short zoom_to_fight(PlayerNumber plyr_idx)
 void draw_bonus_timer(void)
 {
     int nturns = game.bonus_time - game.play_gameturn;
-    if (nturns < 0) {
-        nturns = 0;
-    } else
-    if (nturns > 99999) {
-        nturns = 99999;
+    char* text;
+    if (gameadd.timer_real)
+    {
+        unsigned long total_seconds = ((nturns) / game.num_fps) + 1;
+        unsigned char seconds = total_seconds % 60;
+        unsigned long total_minutes = total_seconds / 60;
+        unsigned char minutes = total_minutes % 60;
+        unsigned char hours = total_minutes / 60;
+        text = (nturns >= 0) ? buf_sprintf("%02d:%02d:%02d", hours, minutes, seconds) : buf_sprintf("00:00:00");
+    }
+    else
+    {
+        if (nturns < 0)
+        {
+            nturns = 0;
+        } 
+        else if (nturns > 99999)
+        {
+            nturns = 99999;
+        }
+        text = buf_sprintf("%05d", nturns / 2);
     }
     LbTextSetFont(winfont);
-    char* text = buf_sprintf("%05d", nturns / 2);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
+    if (game.armageddon_cast_turn != 0)
+    {
+        struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+        scr_x = (gmnu->width + (width >> 1) - 16 * units_per_pixel / 16);
+    }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
@@ -405,7 +425,7 @@ void draw_timer(void)
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
-    if ( (bonus_timer_enabled()) || (game.armageddon_cast_turn != 0) )
+    if ( (bonus_timer_enabled()) || (script_timer_enabled()) || (display_variable_enabled()) || (game.armageddon_cast_turn != 0) )
     {
         scr_y <<= 2;
     }
@@ -419,5 +439,104 @@ void draw_timer(void)
 TbBool timer_enabled(void)
 {
   return ((game_flags2 & GF2_Timer) != 0);
+}
+
+TbBool script_timer_enabled(void)
+{
+  return ((game.flags_gui & GGUI_ScriptTimer) != 0);
+}
+
+void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real)
+{
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    int nturns = (limit > 0) ? limit - (game.play_gameturn - dungeon->turn_timers[timer_id].count) : game.play_gameturn - dungeon->turn_timers[timer_id].count;
+    if (nturns < 0)
+    {
+        game.flags_gui &= ~GGUI_ScriptTimer;
+        return;
+    }
+    char* text;
+    if (real)
+    {
+        unsigned long total_seconds = ((nturns) / game.num_fps) + 1;
+        unsigned char seconds = total_seconds % 60;
+        unsigned long total_minutes = total_seconds / 60;
+        unsigned char minutes = total_minutes % 60;
+        unsigned char hours = total_minutes / 60;
+        text = (nturns >= 0) ? buf_sprintf("%02d:%02d:%02d", hours, minutes, seconds) : buf_sprintf("00:00:00");
+    }
+    else
+    {
+        text = buf_sprintf("%08d", nturns);
+    }
+    LbTextSetFont(winfont);
+    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    long scr_y = 16 * units_per_pixel / 16;
+    if (game.armageddon_cast_turn != 0)
+    {
+        struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+        scr_x = (gmnu->width + (width >> 1) - 16 * units_per_pixel / 16);
+    }
+    LbTextSetWindow(scr_x, scr_y, width, height);
+    draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
+    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+TbBool display_variable_enabled(void)
+{
+  return ((game.flags_gui & GGUI_Variable) != 0);
+}
+
+void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype)
+{
+    long value = get_condition_value(plyr_idx, valtype, validx);
+    if (target != 0)
+    {
+        if ( (targettype == 0) || (targettype == 2) )
+        {
+            value = target - value;
+        }
+        else if (targettype == 1)
+        {
+            value = ((~target)+1) + value; 
+        }
+    }
+    if (targettype != 2)
+    {
+        if (value < 0)
+        {
+            value = 0;
+        }
+    }
+    char* text = buf_sprintf("%ld", value);
+    LbTextSetFont(winfont);
+    long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
+    long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
+    long scr_y = 16 * units_per_pixel / 16;
+    if (game.armageddon_cast_turn != 0)
+    {
+        struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
+        scr_x = (gmnu->width + (width >> 1) - 16 * units_per_pixel / 16);
+        if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
+        {
+            scr_x += ((width + (width >> 1)) - 16 * units_per_pixel / 16);
+        }
+    }
+    else if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
+    {
+        scr_x -= ((width + (width >> 1)) - 16 * units_per_pixel / 16);
+    }
+    LbTextSetWindow(scr_x, scr_y, width, height);
+    draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
+    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 /******************************************************************************/

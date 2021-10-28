@@ -46,6 +46,7 @@
 #include "engine_camera.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "bflib_planar.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -400,9 +401,9 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
-long near_map_block_creature_filter_random_and_model_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    if (thing->class_id == TCls_Creature)
     {
         if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
         {
@@ -410,12 +411,7 @@ long near_map_block_creature_filter_random_and_model_owned_by(const struct Thing
             {
                 if (!thing_is_picked_up(thing))
                 {
-                    // Prepare reference Coord3d struct for distance computation
-                    struct Coord3d refpos;
-                    refpos.x.val = param->num1;
-                    refpos.y.val = param->num2;
-                    refpos.z.val = 0;
-                    MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                    MapCoordDelta dist = get_distance_xy(thing->mappos.x.val, thing->mappos.y.val, param->num1, param->num2);
                     if (dist > param->num3) // Too far away
                         return -1;
                     // It is not "correct" randomness (pick random N from list) but rolling a dice on each creature found
