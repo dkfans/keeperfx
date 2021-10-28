@@ -1662,6 +1662,19 @@ void reset_creature_max_levels(void)
     }
 }
 
+void reset_hand_rules(void)
+{
+    for (int i = 0; i < PLAYERS_COUNT; i++)
+        for (int j = 0; j < CREATURE_TYPES_MAX; j++)
+            for (int k = 0; k < HAND_RULE_SLOTS_COUNT; k++)
+                {
+                    gameadd.hand_rules[i][j][k].enabled = 0;
+                    gameadd.hand_rules[i][j][k].param = 0;
+                    gameadd.hand_rules[i][j][k].type = 0;
+                    gameadd.hand_rules[i][j][k].allow = 0;
+                }
+}
+
 void change_engine_window_relative_size(long w_delta, long h_delta)
 {
     struct PlayerInfo *myplyr;

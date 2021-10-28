@@ -173,6 +173,7 @@ enum TbScriptCommands {
     Cmd_HIDE_VARIABLE                     = 141,
     Cmd_CREATE_EFFECT                     = 142,
     Cmd_CREATE_EFFECT_AT_POS              = 143,
+    Cmd_SET_HAND_RULE                     = 144,
 };
 
 enum ScriptVariables {

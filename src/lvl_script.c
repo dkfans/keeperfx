@@ -418,6 +418,43 @@ const struct NamedCommand script_operator_desc[] = {
   {NULL,          0},
 };
 
+const struct NamedCommand hand_rule_desc[] = {
+  {"ALWAYS",                HandRule_Always},
+  {"AGE_LOWER",             HandRule_AgeLower},
+  {"AGE_HIGHER",            HandRule_AgeHigher},
+  {"LEVEL_LOWER",           HandRule_LvlLower},
+  {"LEVEL_HIGHER",          HandRule_LvlHigher},
+  {"AT_ACTION_POINT",       HandRule_AtActionPoint},
+  {"DISEASED",              HandRule_Diseased},
+  {"CHICKENED",             HandRule_Chickened},
+  {"FROZEN",                HandRule_Frozen},
+  {"SLOWED",                HandRule_Slowed},
+  {"WANDERING",             HandRule_Wandering},
+  {"WORKING",               HandRule_Working},
+  {"FIGHTING",              HandRule_Fighting},
+  {NULL,                    0},
+};
+
+const struct NamedCommand rule_slot_desc[] = {
+  {"RULE0",  0},
+  {"RULE1",  1},
+  {"RULE2",  2},
+  {"RULE3",  3},
+  {"RULE4",  4},
+  {"RULE5",  5},
+  {"RULE6",  6},
+  {"RULE7",  7},
+  {NULL,     0},
+};
+
+const struct NamedCommand rule_action_desc[] = {
+  {"DENY",      HandRuleAction_Deny},
+  {"ALLOW",     HandRuleAction_Allow},
+  {"ENABLE",    HandRuleAction_Enable},
+  {"DISABLE",   HandRuleAction_Disable},
+  {NULL,     0},
+};
+
 static struct ScriptValue *allocate_script_value(void)
 {
     if (gameadd.script.values_num >= SCRIPT_VALUES_COUNT)
@@ -2516,6 +2553,75 @@ static void conceal_map_rect_process(struct ScriptContext *context)
 
     conceal_map_area(context->value->plyr_range, context->value->arg0 - (w>>1), context->value->arg0 + (w>>1) + (w&1),
                      context->value->arg1 - (h>>1), context->value->arg1 + (h>>1) + (h&1), context->value->bytes[11]);
+}
+
+static void set_hand_rule_check(const struct ScriptLine* scline)
+{
+    long crtr_id = parse_creature_name(scline->tp[1]);
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    long hand_rule_slot = get_rid(rule_slot_desc, scline->tp[2]);
+    if (hand_rule_slot == -1) {
+        SCRPTERRLOG("Invalid hand rule slot: '%s'", scline->tp[2]);
+        return;
+    }
+    long rule_action = get_rid(rule_action_desc, scline->tp[3]);
+    if (rule_action == -1) {
+        SCRPTERRLOG("Invalid hand rule action: '%s'", scline->tp[3]);
+        return;
+    }
+    if (rule_action == HandRuleAction_Allow || rule_action == HandRuleAction_Deny)
+    {
+        long hand_rule_type = get_rid(hand_rule_desc, scline->tp[4]);
+        if (hand_rule_type == -1) {
+            SCRPTERRLOG("Invalid hand rule: '%s'", scline->tp[4]);
+            return;
+        }
+        long param = scline->np[5];
+        if (hand_rule_type == HandRule_AtActionPoint && action_point_number_to_index(param) == -1)
+        {
+            SCRPTERRLOG("Unknown action point param for hand rule: '%d'", param);
+            return;
+        }
+        long ast_bytes = (rule_action << 24) | (hand_rule_slot << 16) | hand_rule_type; // encode: 1B action,1B slot,2B type
+
+        command_add_value(Cmd_SET_HAND_RULE, scline->np[0], crtr_id, ast_bytes, param);
+    } else
+    {
+        long ast_bytes = (rule_action << 24) | (hand_rule_slot << 16); // encode: 1B action,1B slot,2B type=0
+        command_add_value(Cmd_SET_HAND_RULE, scline->np[0], crtr_id, ast_bytes, 0);
+    }
+}
+
+static void set_hand_rule_process(struct ScriptContext* context)
+{
+    long crtr_id = context->value->arg0;
+    long ast_bytes = context->value->arg1;
+    long hand_rule_type = (ast_bytes & 0xffff);
+    long hand_rule_slot = (ast_bytes >> 16) & 0xff;
+    long hand_rule_action = (ast_bytes >> 24) & 0xff;
+    long crtr_id_start = crtr_id == CREATURE_ANY ? 0 : crtr_id;
+    long crtr_id_end = crtr_id == CREATURE_ANY ? CREATURE_TYPES_MAX : crtr_id + 1;
+    long param = context->value->arg2;
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
+        {
+            if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
+            {
+                gameadd.hand_rules[i][ci][hand_rule_slot].enabled = 1;
+                gameadd.hand_rules[i][ci][hand_rule_slot].type = hand_rule_type;
+                gameadd.hand_rules[i][ci][hand_rule_slot].allow = hand_rule_action;
+                gameadd.hand_rules[i][ci][hand_rule_slot].param = param;
+            } else
+            {
+                gameadd.hand_rules[i][ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
+            }
+        }
+    }
 }
 
 void command_add_tunneller_to_level(long plr_range_id, const char *locname, const char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold)
@@ -4791,6 +4897,7 @@ short load_script(long lvnum)
     game.flags_cd |= MFlg_DeadBackToPool;
     reset_creature_max_levels();
     reset_script_timers_and_flags();
+    reset_hand_rules();
     if ((game.operation_flags & GOF_ColumnConvert) != 0)
     {
         convert_old_column_file(lvnum);
@@ -7741,6 +7848,7 @@ const struct CommandDesc command_desc[] = {
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
+  {"SET_HAND_RULE",                     "PC!Aaan ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

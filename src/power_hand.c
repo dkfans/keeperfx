@@ -189,6 +189,81 @@ TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber
     return false;
 }
 
+TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing, PlayerNumber plyr_idx) {
+    if (thing_is_creature(thing) && thing->owner == plyr_idx)
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct HandRule hand_rule;
+        for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) {
+            hand_rule = gameadd.hand_rules[plyr_idx][thing->model][i];
+            if (hand_rule.enabled)
+            {
+                switch (hand_rule.type)
+                {
+                    case HandRule_Always:
+                        return !hand_rule.allow;
+                    case HandRule_AgeHigher:
+                        if (game.play_gameturn - thing->creation_turn > hand_rule.param)
+                            return !hand_rule.allow;
+                        break;
+                    case HandRule_AgeLower:
+                        if (game.play_gameturn - thing->creation_turn < hand_rule.param)
+                            return !hand_rule.allow;
+                        break;
+                    case HandRule_LvlHigher:
+                        // explevel is numbered 0-9 but param is 1-10. Add +1 to match
+                        if (cctrl->explevel + 1 > hand_rule.param)
+                            return !hand_rule.allow;
+                        break;
+                    case HandRule_LvlLower:
+                        if (cctrl->explevel + 1 < hand_rule.param)
+                            return !hand_rule.allow;
+                        break;
+                    case HandRule_AtActionPoint:
+                        {
+                            struct ActionPoint* apt = action_point_get(action_point_number_to_index(hand_rule.param));
+                            struct Coord3d refpos;
+                            refpos.x.val = apt->mappos.x.val;
+                            refpos.y.val = apt->mappos.y.val;
+                            refpos.z.val = 0;
+                            MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                            return dist <= apt->range ? !hand_rule.allow : !!hand_rule.allow;
+                        }
+                    case HandRule_Diseased:
+                        if (creature_affected_by_spell(thing, SplK_Disease))
+                            return !hand_rule.allow;
+                        break;
+                    case HandRule_Chickened:
+                        if (creature_affected_by_spell(thing, SplK_Chicken))
+                            return !hand_rule.allow;
+                        break;
+                    case HandRule_Frozen:
+                        if (creature_affected_by_spell(thing, SplK_Freeze))
+                            return !hand_rule.allow;
+                        break;
+                    case HandRule_Slowed:
+                        if (creature_affected_by_spell(thing, SplK_Slow))
+                            return !hand_rule.allow;
+                        break;
+                    case HandRule_Wandering:
+                        if (get_creature_gui_job(thing) == CrGUIJob_Wandering)
+                            return !hand_rule.allow;
+                        break;
+                    case HandRule_Working:
+                        if (get_creature_gui_job(thing) == CrGUIJob_Working)
+                            return !hand_rule.allow;
+                        break;
+                    case HandRule_Fighting:
+                        if (get_creature_gui_job(thing) == CrGUIJob_Fighting)
+                            return !hand_rule.allow;
+                        break;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     // Some things can be picked not to be placed in hand, but for direct use
@@ -196,13 +271,14 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
     {
         if (object_is_pickable_by_hand_for_use(thing, plyr_idx))
             return true;
-    }
+    } else if (thing_pickup_is_blocked_by_hand_rule(thing, plyr_idx)) return false;
     // Other things are pickable only for placing in hand
     return can_cast_spell(plyr_idx, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default);
 }
 
 long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
+    if (thing_pickup_is_blocked_by_hand_rule(thing, plyr_idx)) return false;
     //TODO: rewrite, then give it better name
     return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
 }
@@ -1254,7 +1330,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     long i;
     player = get_player(plyr_idx);
     if (!thing_is_pickable_by_hand(player, thing)) {
-        ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
+        SYNCLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return false;
     }
     if (thing_is_picked_up(thing)) {
@@ -1337,7 +1413,7 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     }
     if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
     {
-        ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
+        SYNCLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return Lb_OK;
     }
     if (thing_is_special_box(thing))

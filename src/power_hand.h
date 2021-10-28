@@ -33,6 +33,8 @@ struct Thing;
 struct PlayerInfo;
 struct Dungeon;
 
+#define HAND_RULE_SLOTS_COUNT 8
+
 #pragma pack()
 /******************************************************************************/
 void add_creature_to_sacrifice_list(PlayerNumber owner, long model, long explevel);
@@ -80,6 +82,38 @@ TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);
 TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned long allow_unclaimed);
 TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber plyr_idx);
+
+enum HandRuleType {
+    HandRule_Unset,
+    HandRule_Always,
+    HandRule_AgeLower,
+    HandRule_AgeHigher,
+    HandRule_LvlLower,
+    HandRule_LvlHigher,
+    HandRule_AtActionPoint,
+    HandRule_Diseased,
+    HandRule_Chickened,
+    HandRule_Frozen,
+    HandRule_Slowed,
+    HandRule_Wandering,
+    HandRule_Working,
+    HandRule_Fighting,
+};
+
+enum HandRuleAction {
+    HandRuleAction_Deny,
+    HandRuleAction_Allow,
+    HandRuleAction_Enable,
+    HandRuleAction_Disable,
+};
+
+struct HandRule {
+    char type;
+    char enabled;
+    char allow; // allow: 1, deny: 0
+    long param;
+};
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

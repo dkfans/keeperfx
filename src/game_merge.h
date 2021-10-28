@@ -30,6 +30,7 @@
 #include "creature_control.h"
 #include "dungeon_data.h"
 #include "gui_msgs.h"
+#include "power_hand.h"
 #include "thing_creature.h"
 #include "thing_objects.h"
 #include "light_data.h"
@@ -197,6 +198,8 @@ struct GameAdd {
 
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
+
+    struct HandRule hand_rules[PLAYERS_COUNT][CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
 
     struct LevelScript script;
     PlayerNumber script_player;
