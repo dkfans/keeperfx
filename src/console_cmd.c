@@ -1497,7 +1497,8 @@ TbBool parameter_is_number(char* parstr)
 {
     for (int i = 0; parstr[i] != '\0'; i++)
     {
-        if (!isdigit(parstr[i]))
+        TbBool digit = (i == 0) ? ( (parstr[i] == 0x2D) || (isdigit(parstr[i])) ) : (isdigit(parstr[i]));
+        if (!digit)
         {
             return false;
         }

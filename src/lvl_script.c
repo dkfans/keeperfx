@@ -72,6 +72,7 @@
 #include "keeperfx.hpp"
 #include "music_player.h"
 #include "custom_sprites.h"
+#include "console_cmd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1269,6 +1270,101 @@ static void hide_timer_process(struct ScriptContext *context)
 static void hide_variable_process(struct ScriptContext *context)
 {
    game.flags_gui &= ~GGUI_Variable;
+}
+
+static void create_effect_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    TbMapLocation location;
+    const char *effect_name = scline->tp[0];
+    long effct_id = get_rid(effect_desc, effect_name);
+    if (effct_id == -1)
+    {
+        if (parameter_is_number(effect_name))
+        {
+            effct_id = atoi(effect_name);
+        }
+        else
+        {
+            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+            return;
+        }
+    }
+    value->bytes[0] = effct_id;
+    const char *locname = scline->tp[1];
+    if (!get_map_location_id(locname, &location))
+    {
+        return;
+    }
+    long stl_x;
+    long stl_y;
+    find_map_location_coords(location, &stl_x, &stl_y, 0, __func__);
+    value->bytes[1] = stl_x;
+    value->bytes[2] = stl_y;
+    value->arg1 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void create_effect_at_pos_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char *effect_name = scline->tp[0];
+    long effct_id = get_rid(effect_desc, effect_name);
+    if (effct_id == -1)
+    {
+        if (parameter_is_number(effect_name))
+        {
+            effct_id = atoi(effect_name);
+        }
+        else
+        {
+            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+            return;
+        }
+    }
+    value->bytes[0] = effct_id;
+    if (subtile_coords_invalid(scline->np[1], scline->np[2]))
+    {
+        SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        return;
+    }
+    value->bytes[1] = scline->np[1];
+    value->bytes[2] = scline->np[2];
+    value->arg1 = scline->np[3];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void create_effect_process(struct ScriptContext *context)
+{
+    struct Coord3d pos;
+    pos.x.stl.num = (MapSubtlCoord)context->value->bytes[1];
+    pos.y.stl.num = (MapSubtlCoord)context->value->bytes[2];
+    pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
+    TbBool Price = (context->value->bytes[0] == -(TngEffElm_Price));
+    if (Price)
+    {
+        pos.z.val += 128;
+    }
+    struct Thing* efftng;
+    if (context->value->bytes[0] >= 0)
+    {
+        efftng = create_effect(&pos, context->value->bytes[0], game.neutral_player_num);
+    }
+    else
+    {
+        efftng = create_effect_element(&pos, ~(context->value->bytes[0]) + 1, game.neutral_player_num);
+    }
+    if (!thing_is_invalid(efftng))
+    {
+        if (thing_in_wall_at(efftng, &efftng->mappos))
+        {
+            move_creature_to_nearest_valid_position(efftng);
+        }
+        if (Price)
+        {   
+            efftng->long_13 = context->value->arg1;
+        }
+    }
 }
 
 static void null_process(struct ScriptContext *context)
@@ -7643,6 +7739,8 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_COUNTDOWN",                 "PANn    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
   {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
+  {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
+  {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
