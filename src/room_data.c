@@ -2311,6 +2311,21 @@ TbBool update_room_total_health(struct Room *room)
     return true;
 }
 
+TbBool recalculate_room_health(struct Room* room, int oldmax)
+{
+    SYNCDBG(17, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
+    if ((oldmax == 0) || (room->health == 0))
+    {
+        room->health = compute_room_max_health(room->slabs_count, room->efficiency);
+    }
+    else 
+    {
+        int newmax = compute_room_max_health(room->slabs_count, room->efficiency);
+        room->health = (room->health * newmax / oldmax);
+    }
+    return true;
+}
+
 TbBool update_room_contents(struct Room *room)
 {
     struct RoomData* rdata = room_data_get_for_room(room);
@@ -3872,7 +3887,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     }
     SYNCDBG(7,"Updating efficiency");
     do_slab_efficiency_alteration(slb_x, slb_y);
-    set_room_stats(room,false);
+    do_room_recalculation(room);
     if (owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(owner);
@@ -4310,6 +4325,16 @@ void do_room_integration(struct Room *room)
     update_room_total_health(room);
     update_room_total_capacity(room);
     update_room_contents(room);
+    init_room_sparks(room);
+}
+
+void do_room_recalculation(struct Room* room)
+{
+    SYNCDBG(7, "Starting for %s index %d owned by player %d", room_code_name(room->kind), (int)room->index, (int)room->owner);
+    int oldmax = compute_room_max_health(room->slabs_count, room->efficiency);
+    set_room_efficiency(room);
+    recalculate_room_health(room, oldmax);
+    update_room_total_capacity(room);
     init_room_sparks(room);
 }
 
