@@ -1066,7 +1066,7 @@ void maintain_door(struct GuiButton *gbtn)
 
 void maintain_big_trap(struct GuiButton *gbtn)
 {
-    int manufctr_idx = game.manufactr_element % MANUFCTR_TYPES_COUNT;
+    int manufctr_idx = game.manufactr_element;
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
     gbtn->content = (unsigned long *)manufctr_idx;
     gbtn->sprite_idx = game.manufactr_spridx;
