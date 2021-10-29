@@ -939,10 +939,10 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     return 1;
 }
 
-static TbBool add_custom_sprite(const char *path)
+static TbBool add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root))
 {
     unz_file_info64 zip_info = {0};
-    VALUE sprites_root;
+    VALUE root;
     JSON_INPUT_POS json_input_pos;
     unzFile zip = unzOpen(path);
 
@@ -989,7 +989,7 @@ static TbBool add_custom_sprite(const char *path)
         return 0;
     }
 
-    int ret = json_dom_parse((char *) scratch, zip_info.uncompressed_size, NULL, 0, &sprites_root, &json_input_pos);
+    int ret = json_dom_parse((char *) scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
     if (ret)
     {
 
@@ -999,16 +999,27 @@ static TbBool add_custom_sprite(const char *path)
         return 0;
     }
 
-    if (VALUE_ARRAY != value_type(&sprites_root))
+    if (VALUE_ARRAY != value_type(&root))
     {
         WARNLOG("%s/sprites.json should be array of dictionaries", path);
         unzClose(zip);
         return 0;
     }
+    TbBool ret_ok = process(path, zip, &root);
+
+    value_fini(&root);
+
+    unzClose(zip);
+
+    return ret_ok;
+}
+
+static TbBool process_json(const char *path, unzFile zip, VALUE *root)
+{
     TbBool ret_ok = true;
-    for (int i = 0; i < value_array_size(&sprites_root); i++)
+    for (int i = 0; i < value_array_size(root); i++)
     {
-        VALUE *val = value_array_get(&sprites_root, i);
+        VALUE *val = value_array_get(root, i);
         if (!process_sprite_from_list(path, zip, i, val))
         {
             ret_ok = false;
@@ -1016,13 +1027,13 @@ static TbBool add_custom_sprite(const char *path)
         }
     }
 
-    value_fini(&sprites_root);
-
-    unzClose(zip);
-
     qsort(added_sprites, num_added_sprite, sizeof(added_sprites[0]), &cmp_named_command);
-
     return ret_ok;
+}
+
+static TbBool add_custom_sprite(const char *path)
+{
+    return add_custom_json(path, "sprites.json", &process_json);
 }
 
 short get_anim_id(const char *name, struct Objects* objdat)
