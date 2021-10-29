@@ -15,7 +15,7 @@ jobs:
     - uses: Trass3r/setup-cpp@master
 
     - name: Update system
-      run:
+      run: |
         set -eux
         sudo apt update && sudo apt -y upgrade
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
