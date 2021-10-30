@@ -1346,13 +1346,13 @@ static void create_effect_process(struct ScriptContext *context)
         pos.z.val += 128;
     }
     struct Thing* efftng;
-    if (context->value->arg2 >= 0)
+    if ((char)context->value->bytes[0] >= 0)
     {
-        efftng = create_effect(&pos, context->value->arg2, game.neutral_player_num);
+        efftng = create_effect(&pos, (char)context->value->bytes[0], game.neutral_player_num);
     }
     else
     {
-        efftng = create_effect_element(&pos, ~(context->value->arg2) + 1, game.neutral_player_num);
+        efftng = create_effect_element(&pos, ~((char)context->value->bytes[0]) + 1, game.neutral_player_num);
     }
     if (!thing_is_invalid(efftng))
     {
