@@ -21,19 +21,17 @@
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
-#include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
 #include "config.h"
 #include "config_effects.h"
 #include "config_objects.h"
 #include "config_players.h"
-#include "thing_doors.h"
+#include "custom_sprites.h"
 #include "thing_physics.h"
 #include "thing_effects.h"
 #include "power_process.h"
 #include "game_legacy.h"
-#include "thing_objects.h"
 
 #include "keeperfx.hpp"
 
@@ -607,7 +605,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 7: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   spinfo->bigsym_sprite_idx = k;
@@ -616,7 +614,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   spinfo->medsym_sprite_idx = k;
@@ -1206,7 +1204,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       case 10: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   powerst->bigsym_sprite_idx = k;
@@ -1215,7 +1213,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   powerst->medsym_sprite_idx = k;

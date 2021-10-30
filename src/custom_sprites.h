@@ -30,6 +30,7 @@ struct Objects;
 void init_custom_sprites(LevelNumber level_no);
 
 short get_anim_id(const char *name, struct Objects* objdat);
+short get_icon_id(const char *name);
 
 #ifdef __cplusplus
 }

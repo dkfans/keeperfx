@@ -1222,6 +1222,21 @@ static TbBool add_custom_sprite(const char *path)
     return add_custom_json(path, "sprites.json", &process_sprite);
 }
 
+short get_icon_id(const char *name)
+{
+    short ret = atoi(name);
+    struct NamedCommand key = {name, 0};
+
+    if (ret != 0)
+        return ret;
+
+    struct NamedCommand *val = bsearch(&key, added_icons, num_added_icons, sizeof(added_icons[0]),
+                                       &cmp_named_command);
+    if (val)
+        return (short)val->num;
+    return -2; // -1 is used by SPELLBOOK_POSS etc
+}
+
 short get_anim_id(const char *name, struct Objects* objdat)
 {
     short ret = atoi(name);
