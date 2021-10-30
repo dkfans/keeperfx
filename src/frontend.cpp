@@ -87,6 +87,7 @@
 #include "keeperfx.hpp"
 
 #include "music_player.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -634,7 +635,7 @@ void create_error_box(TextStringId msg_idx)
 
 void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char* line4, const char* line5)
 {
-    memset(&MsgBox,NULL,sizeof(MsgBox));
+    memset(&MsgBox,0, sizeof(MsgBox));
     memcpy(&MsgBox.title, title, sizeof(MsgBox.title)-1);
     memcpy(&MsgBox.line1, line1, sizeof(MsgBox.line1)-1);
     memcpy(&MsgBox.line2, line2, sizeof(MsgBox.line2)-1);
@@ -1236,8 +1237,7 @@ void frontend_draw_icon(struct GuiButton *gbtn)
 {
     int units_per_px;
     units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
-    struct TbSprite *spr;
-    spr = &frontend_sprite[gbtn->sprite_idx];
+    const struct TbSprite *spr = get_frontend_sprite(gbtn->sprite_idx);
     LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr);
 }
 

@@ -25,6 +25,7 @@
 #include "../deps/zlib/contrib/minizip/unzip.h"
 #include "bflib_fileio.h"
 #include "gui_draw.h"
+#include "frontend.h"
 
 #include <spng.h>
 #include <json.h>
@@ -89,6 +90,7 @@ static struct NamedCommand added_sprites[KEEPERSPRITE_ADD_NUM];
 static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
 static int num_added_icons = 0;
+int num_icons_total = 0;
 
 static void init_pal_conversion();
 
@@ -180,6 +182,7 @@ void init_custom_sprites(LevelNumber lvnum)
         }
     }
     num_added_icons = 0;
+    num_icons_total = 0;
     next_free_icon = 0;
     memset(added_icons, 0, sizeof(added_icons));
     memset(&gui_panel_sprites[GUI_PANEL_SPRITES_COUNT], 0, sizeof(gui_panel_sprites[0]) * GUI_PANEL_SPRITES_NEW);
@@ -574,7 +577,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
     size_t sz = (sprite.SWidth + 2) * (sprite.SHeight + 3);
     sprite.Data = malloc(sz);
 
-    compress_raw(&sprite, dst_buf, 0, 0, sprite.SHeight, sprite.SHeight);
+    compress_raw(&sprite, dst_buf, 0, 0, sprite.SWidth, sprite.SHeight);
 
     spng_ctx_free(ctx);
 
@@ -1178,6 +1181,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
         spr = &added_icons[num_added_icons++];
         spr->name = strdup(name);
         spr->num = icon;
+        num_icons_total = num_added_icons + GUI_PANEL_SPRITES_COUNT;
     }
 
     return 1;
@@ -1315,4 +1319,24 @@ short get_anim_id(const char *name, struct Objects* objdat)
         return (short)val->num;
     }
     return 0;
+}
+
+const struct TbSprite *get_button_sprite(short sprite_idx)
+{
+    if (sprite_idx < GUI_PANEL_SPRITES_COUNT)
+        return &button_sprite[sprite_idx];
+    else if (sprite_idx < num_icons_total)
+        return &gui_panel_sprites[sprite_idx];
+    else
+        return &button_sprite[0];
+}
+
+const struct TbSprite *get_frontend_sprite(short sprite_idx)
+{
+    if (sprite_idx < GUI_PANEL_SPRITES_COUNT)
+        return &frontend_sprite[sprite_idx];
+    else if (sprite_idx < num_icons_total)
+        return &gui_panel_sprites[sprite_idx];
+    else
+        return &frontend_sprite[0];
 }

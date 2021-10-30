@@ -2042,7 +2042,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       n = 0;
-      if (cmd_num == CGI_HandSymbol + 1)
+      if ((cmd_num == (CGI_HandSymbol + 1)) || (cmd_num == (CGI_QuerySymbol + 1)))
       {
           char word_buf[COMMAND_WORD_LEN];
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)

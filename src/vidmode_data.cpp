@@ -63,13 +63,13 @@ struct TbSetupSprite setup_sprites_minimal[] = {
 static TbSprite *gui_panel_sprites_ptr = &gui_panel_sprites[0];
 
 struct TbSetupSprite setup_sprites[] = {
-  {&pointer_sprites,      &end_pointer_sprites,   &pointer_data},
+  {&pointer_sprites,      &end_pointer_sprites,   &pointer_data}, // 144 Sprites
   {&font_sprites,         &end_font_sprites,      &font_data},
   {&edit_icon_sprites,    &end_edit_icon_sprites, &edit_icon_data},
   {&winfont,              &end_winfonts,          &winfont_data},
-  {&button_sprite,        &end_button_sprites,    &button_sprite_data},
-  {&port_sprite,          &end_port_sprites,      &port_sprite_data},
-  {&gui_panel_sprites_ptr,    &end_gui_panel_sprites, &gui_panel_sprite_data},
+  {&button_sprite,        &end_button_sprites,    &button_sprite_data}, // 215 Sprites
+  {&port_sprite,          &end_port_sprites,      &port_sprite_data}, // 0 Sprites
+  {&gui_panel_sprites_ptr,    &end_gui_panel_sprites, &gui_panel_sprite_data}, // 517 Sprites
   {NULL,                  NULL,                   NULL},
 };
 
