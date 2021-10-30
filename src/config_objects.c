@@ -233,7 +233,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         char block_buf[COMMAND_WORD_LEN];
         sprintf(block_buf, "object%d", tmodel);
         long pos = 0;
-        char* tail;
         int k = find_conf_block(buf, &pos, len, block_buf);
         if (k < 0)
         {

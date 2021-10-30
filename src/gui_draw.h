@@ -21,9 +21,9 @@
 #define DK_GUIDRAW_H
 
 #include "bflib_basics.h"
-#include "globals.h"
-
 #include "bflib_video.h"
+#include "bflib_sprite.h"
+#include "globals.h"
 #include "vidmode.h"
 
 // Sprites
