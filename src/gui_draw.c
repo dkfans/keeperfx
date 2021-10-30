@@ -341,7 +341,7 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
 int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
     struct TbSprite* spr = &gui_panel_sprites[spridx];
-    if ((spr <= gui_panel_sprites) || (spr >= end_gui_panel_sprites) || (spr->SHeight < 1))
+    if (spr->SHeight < 1)
         return 16;
     int units_per_px = ((gbtn->height * fraction / 100) * 16 + spr->SHeight / 2) / spr->SHeight;
     if (units_per_px < 1)
@@ -359,7 +359,7 @@ int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, lo
 int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
     struct TbSprite* spr = &gui_panel_sprites[spridx];
-    if ((spr <= gui_panel_sprites) || (spr >= end_gui_panel_sprites) || (spr->SWidth < 1))
+    if (spr->SWidth < 1)
         return 16;
     int units_per_px = ((gbtn->width * fraction / 100) * 16 + spr->SWidth / 2) / spr->SWidth;
     if (units_per_px < 1)
@@ -655,7 +655,7 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
 
 void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx)
 {
-    if ((spridx <= 0) || (spridx > num_icons_total))
+    if ((spridx <= 0) || (spridx >= num_icons_total))
       return;
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResized(x, y, units_per_px, spr);
@@ -663,7 +663,7 @@ void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx)
 
 void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap)
 {
-    if ((spridx <= 0) || (spridx > num_icons_total))
+    if ((spridx <= 0) || (spridx >= num_icons_total))
       return;
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
