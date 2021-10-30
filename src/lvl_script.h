@@ -171,6 +171,8 @@ enum TbScriptCommands {
     Cmd_DISPLAY_COUNTDOWN                 = 139,
     Cmd_HIDE_TIMER                        = 140,
     Cmd_HIDE_VARIABLE                     = 141,
+    Cmd_CREATE_EFFECT                     = 142,
+    Cmd_CREATE_EFFECT_AT_POS              = 143,
 };
 
 enum ScriptVariables {
