@@ -274,7 +274,7 @@ void startup_saved_packet_game(void)
     }
 }
 
-static TbBool startup_network_game_tail(CoroutineLoop *context);
+static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
@@ -315,7 +315,7 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     coroutine_add_args(context, &startup_network_game_tail, args);
 }
 
-static TbBool startup_network_game_tail(CoroutineLoop *context)
+static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
 {
     TbBool ShouldAssignCpuKeepers = coroutine_args(context)[0];
     if (fe_computer_players || ShouldAssignCpuKeepers)
@@ -331,7 +331,7 @@ static TbBool startup_network_game_tail(CoroutineLoop *context)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
-    return false;
+    return CLS_CONTINUE;
 }
 
 /******************************************************************************/
