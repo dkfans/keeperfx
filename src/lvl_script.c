@@ -1105,6 +1105,194 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void set_creature_configuration_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char* creatname = scline->tp[0];
+    const char* property = scline->tp[1];
+    const char* new_value = scline->tp[2];
+
+    long creat_id = get_id(creature_desc, creatname);
+    if (creat_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", creatname);
+        DEALLOCATE_SCRIPT_VALUE
+            return;
+    }
+
+    //long number_value;
+    long creatvar = get_id(creatmodel_attributes_commands, property);
+    if (creatvar == -1)
+    {
+        SCRPTERRLOG("Unknown object variable");
+        DEALLOCATE_SCRIPT_VALUE
+            return;
+    }
+    /*
+    switch (creatvar)
+    {
+    case 1: // Genre
+        number_value = get_id(objects_genres_desc, new_value);
+        if (number_value == -1)
+        {
+            SCRPTERRLOG("Unknown object variable");
+            DEALLOCATE_SCRIPT_VALUE
+                return;
+        }
+        value->arg2 = number_value;
+        break;
+    case  2: // AnimId
+    {
+        struct Objects obj_tmp;
+        number_value = get_anim_id(new_value, &obj_tmp);
+        if (number_value == 0)
+        {
+            SCRPTERRLOG("Invalid animation id");
+            DEALLOCATE_SCRIPT_VALUE
+                return;
+        }
+
+        value->str2 = script_strdup(new_value);
+        if (value->str2 == NULL)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+                return;
+        }
+        break;
+    }
+    default:*/
+        value->arg2 = atoi(new_value);
+    //}
+
+    SCRIPTDBG(7, "Setting object %s property %s to %d", creatname, property, number_value);
+    value->arg0 = creat_id;
+    value->arg1 = creatvar;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+
+static void set_creature_configuration_process(struct ScriptContext* context)
+{
+    //struct Objects* objdat = get_objects_data(context->value->arg0);
+    //struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
+    struct CreatureStats* crstat = creature_stats_get(context->value->arg0);
+    struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[context->value->arg0];
+    int cmd_num = context->value->arg1;
+    int k = context->value->arg2;
+
+    switch (cmd_num)
+    {
+    case 1: // NAME
+        // Name is ignored - it was defined in creature.cfg
+        break;
+    case 2: // HEALTH
+        crstat->health = k;
+        break;
+    case 3: // HEALREQUIREMENT
+        crstat->heal_requirement = k;
+        break;
+    case 4: // HEALTHRESHOLD
+        crstat->heal_threshold = k;
+        break;
+    case 5: // STRENGTH
+        crstat->strength = k;
+        break;
+    case 6: // ARMOUR
+        crstat->armour = k;
+        break;
+    case 7: // DEXTERITY
+        crstat->dexterity = k;
+        break;
+    case 8: // FEARWOUNDED
+        crstat->fear_wounded = k;
+        break;
+    case 9: // FEARSTRONGER
+        crstat->fear_stronger = k;
+        break;
+    case 10: // DEFENCE
+        crstat->defense = k;
+        break;
+    case 11: // LUCK
+        crstat->luck = k;
+        break;
+    case 12: // RECOVERY
+        crstat->sleep_recovery = k;
+        break;
+    case 13: // HUNGERRATE
+        crstat->hunger_rate = k;
+        break;
+    case 14: // HUNGERFILL
+        crstat->hunger_fill = k;
+        break;
+    case 15: // LAIRSIZE
+        crstat->lair_size = k;
+        break;
+    case 16: // HURTBYLAVA
+        crstat->hurt_by_lava = k;
+        break;
+    case 17: // BASESPEED
+        crstat->base_speed = k;
+        break;
+    case 18: // GOLDHOLD
+        crstat->gold_hold = k;
+        break;
+    case 19: // SIZE
+        //todo fix this shit.
+        crstat->size_xy = k;
+        crstat->size_yz = k;
+        break;
+    case 20: // ATTACKPREFERENCE
+        crstat->attack_preference = k;
+        break;
+    case 21: // PAY
+        crstat->pay = k;
+        break;
+    case 22: // HEROVSKEEPERCOST
+        crstat->hero_vs_keeper_cost = k;
+        break;
+    case 23: // SLAPSTOKILL
+        crstat->slaps_to_kill = k;
+        break;
+    case 24: // CREATURELOYALTY
+        // Unused
+        break;
+    case 25: // LOYALTYLEVEL
+        // Unused
+        break;
+    case 26: // DAMAGETOBOULDER
+        crstat->damage_to_boulder = k;
+        break;
+    case 27: // THINGSIZE
+        //todo fix the shit like before
+        crstat->thing_size_xy = k;
+        crstat->thing_size_yz = k;
+        break;
+    case 28: // PROPERTIES
+        JUSTMSG("TESTLOG: error, do not set properties");
+        //todo handle properties
+        break;
+    case 29: // NAMETEXTID
+        crconf->namestr_idx = k;
+        break;
+    case 30: // FEARSOMEFACTOR
+        crstat->fearsome_factor = k;
+        break;
+    case 31: // TOKINGRECOVERY
+        crstat->toking_recovery = k;
+        break;
+    case 0: // comment
+        break;
+    case -1: // end of buffer
+        break;
+    default:
+        CONFWRNLOG("Unrecognized command (%d)",cmd_num);
+        break;
+    }
+    creature_stats_updated(context->value->arg0);
+}
+
 static void set_object_configuration_process(struct ScriptContext *context)
 {
     struct Objects* objdat = get_objects_data(context->value->arg0);
@@ -7716,6 +7904,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
   {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
+  {"SET_CREAURE_CONFIGURATION",         "AAA     ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
