@@ -1054,7 +1054,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
         case 11: // POINTERSPRITES
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = atoi(word_buf);
+                k = get_icon_id(word_buf);
                 if (k >= 0)
                 {
                     roomst->pointer_sprite_idx = k;

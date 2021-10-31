@@ -121,7 +121,7 @@ static int cmp_named_command(const void *a, const void *b)
 
     const struct NamedCommand *val_a = a;
     const struct NamedCommand *val_b = b;
-    return strcmp(val_a->name, val_b->name);
+    return strcasecmp(val_a->name, val_b->name);
 }
 
 static void load_system_sprites(short fgroup)
