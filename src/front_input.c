@@ -1510,7 +1510,7 @@ static void get_isometric_or_front_view_mouse_inputs(
         if ( is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            packet->packet.field_10 |= PCAdV_SpeedupPressed;
+            packet->packet.additional_packet_values |= PCAdV_SpeedupPressed;
         }
         set_packet_control(packet, PCtr_MoveLeft);
     }
@@ -1519,7 +1519,7 @@ static void get_isometric_or_front_view_mouse_inputs(
         if ( is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            packet->packet.field_10 |= PCAdV_SpeedupPressed;
+            packet->packet.additional_packet_values |= PCAdV_SpeedupPressed;
         }
         set_packet_control(packet, PCtr_MoveRight);
     }
@@ -1528,7 +1528,7 @@ static void get_isometric_or_front_view_mouse_inputs(
         if ( is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            packet->packet.field_10 |= PCAdV_SpeedupPressed;
+            packet->packet.additional_packet_values |= PCAdV_SpeedupPressed;
         }
         set_packet_control(packet, PCtr_MoveUp);
     }
@@ -1537,7 +1537,7 @@ static void get_isometric_or_front_view_mouse_inputs(
         if ( is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
         {
           if (!rotate_pressed)
-            packet->packet.field_10 |= PCAdV_SpeedupPressed;
+            packet->packet.additional_packet_values |= PCAdV_SpeedupPressed;
         }
         set_packet_control(packet, PCtr_MoveDown);
     }
@@ -1551,7 +1551,7 @@ static void get_isometric_view_nonaction_inputs(struct PacketEx* packet)
     if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_pressed != 0)
-      packet->packet.field_10 |= PCAdV_SpeedupPressed;
+      packet->packet.additional_packet_values |= PCAdV_SpeedupPressed;
     TbBool no_mods = false;
     if ((rotate_pressed != 0) || (speed_pressed != 0))
       no_mods = true;
@@ -1600,7 +1600,7 @@ static void get_overhead_view_nonaction_inputs(struct PacketEx* packet)
     if ((player->allocflags & PlaF_Unknown10) == 0)
     {
         if (speed_pressed)
-          packet->packet.field_10 |= PCAdV_SpeedupPressed;
+          packet->packet.additional_packet_values |= PCAdV_SpeedupPressed;
         if (rotate_pressed)
         {
           if ( is_game_key_pressed(Gkey_MoveUp, NULL, speed_pressed!=0) )
@@ -1633,7 +1633,7 @@ static void get_front_view_nonaction_inputs(struct PacketEx *packet)
     if ((player->allocflags & PlaF_Unknown10) != 0)
       return;
     if (speed_pressed != 0)
-      packet->packet.field_10 |= PCAdV_SpeedupPressed;
+      packet->packet.additional_packet_values |= PCAdV_SpeedupPressed;
 
     get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed,speed_pressed);
 
@@ -2065,11 +2065,11 @@ static TbBool get_inputs()
     // TODO: We should ignore this on server
     if (is_game_key_pressed(Gkey_CrtrContrlMod, NULL, false) != 0)
     {
-        packet->packet.field_10 |= PCAdV_CrtrContrlPressed;
+        packet->packet.additional_packet_values |= PCAdV_CrtrContrlPressed;
     }
     if (is_game_key_pressed(Gkey_CrtrQueryMod, NULL, false) != 0)
     {
-        packet->packet.field_10 |= PCAdV_CrtrQueryPressed;
+        packet->packet.additional_packet_values |= PCAdV_CrtrQueryPressed;
     }
 
     if ((player->allocflags & PlaF_Unknown80) != 0)

@@ -83,8 +83,8 @@ void set_players_packet_position(struct PacketEx *pckt, long x, long y, unsigned
     pckt->packet.pos_x = x;
     pckt->packet.pos_y = y;
     pckt->packet.control_flags |= PCtr_MapCoordsValid;
-    pckt->packet.field_10 &= ~PCAdV_ContextMask;
-    pckt->packet.field_10 |= (context << 1);
+    pckt->packet.additional_packet_values &= ~PCAdV_ContextMask;
+    pckt->packet.additional_packet_values |= (context << 1);
 }
 
 /**

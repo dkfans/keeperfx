@@ -262,7 +262,7 @@ struct Packet { // sizeof = 0x11 (17)
     short pos_x; //! Mouse Cursor Position X
     short pos_y; //! Mouse Cursor Position Y
     unsigned short control_flags;
-    unsigned char field_10;
+    unsigned char additional_packet_values;
 };
 
 struct PacketSaveHead { // sizeof=0xF (15)

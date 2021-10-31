@@ -354,7 +354,7 @@ static void process_players_dungeon_control_packet_control(struct PlayerInfo* pl
         inter_val = 256;
         break;
     }
-    if (pckt->field_10 & PCAdV_SpeedupPressed)
+    if (pckt->additional_packet_values & PCAdV_SpeedupPressed)
       inter_val *= 3;
 
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
@@ -1421,8 +1421,8 @@ static TbBool process_packet_cb(
             NETLOG("WTF?! %d != %d", size, sizeof(struct PacketEx));
         }
         assert (size == sizeof(struct PacketEx));
-        player->input_crtr_control = ((packet_ex->packet.field_10 & PCAdV_CrtrContrlPressed) != 0);
-        player->input_crtr_query = ((packet_ex->packet.field_10 & PCAdV_CrtrQueryPressed) != 0);
+        player->input_crtr_control = ((packet_ex->packet.additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
+        player->input_crtr_query = ((packet_ex->packet.additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
 
         assert((packet_ex->packet.action == PckA_None) 
             || (packet_ex->packet.action == PckA_Invalid));

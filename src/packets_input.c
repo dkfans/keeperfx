@@ -322,7 +322,7 @@ static TbBool process_dungeon_control_packet_dungeon_control(struct PlayerInfo* 
     MapSubtlCoord cy = stl_slab_starting_subtile(stl_y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
       player->field_455 = P454_Unkn0;
-    player->field_454 = (unsigned short)(pckt->field_10 & PCAdV_ContextMask) >> 1;
+    player->field_454 = (unsigned short)(pckt->additional_packet_values & PCAdV_ContextMask) >> 1;
 
     process_dungeon_power_hand_state(player, pckt);
 
