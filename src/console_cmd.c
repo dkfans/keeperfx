@@ -1493,7 +1493,7 @@ PlayerNumber get_player_number_for_command(char *msg)
     return id;
 }
 
-TbBool parameter_is_number(char* parstr)
+TbBool parameter_is_number(const char* parstr)
 {
     for (int i = 0; parstr[i] != '\0'; i++)
     {
