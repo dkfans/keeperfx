@@ -1905,15 +1905,12 @@ void get_dungeon_control_nonaction_inputs(void)
       unsigned char context;
       if (get_player_coords_and_context(&pos, &context))
       {
-          set_players_packet_position(player, pos.x.val, pos.y.val);
-          set_packet_control(pckt, PCtr_MapCoordsValid);
-          pckt->additional_packet_values ^= (pckt->additional_packet_values ^ (context << 1)) & PCAdV_ContextMask; // add the current cursor state (from context variable) to pckt->additional_packet_values
+          set_players_packet_position(pckt, pos.x.val, pos.y.val, context);
     }
   } else
   if (screen_to_map(player->acamera, my_mouse_x, my_mouse_y, &pos))
   {
-      set_players_packet_position(player,pos.x.val,pos.y.val);
-      set_packet_control(pckt, PCtr_MapCoordsValid);
+      set_players_packet_position(pckt, pos.x.val, pos.y.val, 0);
       pckt->additional_packet_values &= ~PCAdV_ContextMask; // reset cursor states to 0 (CSt_DefaultArrow)
   }
   if (lbKeyOn[KC_LALT] && lbKeyOn[KC_X])
@@ -1944,7 +1941,7 @@ void get_map_nonaction_inputs(void)
     pos.z.val = 0;
     struct PlayerInfo* player = get_my_player();
     TbBool coords_valid = screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos);
-    set_players_packet_position(player, pos.x.val, pos.y.val);
+    set_players_packet_position(get_packet(my_player_number), pos.x.val, pos.y.val, 0);
     struct Packet* pckt = get_packet(my_player_number);
     if (coords_valid) {
         set_packet_control(pckt, PCtr_MapCoordsValid);
@@ -2184,7 +2181,7 @@ short get_inputs(void)
     if ((player->allocflags & PlaF_MouseInputDisabled) != 0)
     {
         SYNCDBG(5,"Starting for creature fade");
-        set_players_packet_position(player,127,127);
+        set_players_packet_position(get_packet(my_player_number), 127, 127 , 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
             long keycode;
