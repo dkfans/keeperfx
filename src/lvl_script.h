@@ -139,7 +139,7 @@ enum TbScriptCommands {
     Cmd_SET_CREATURE_PROPERTY             = 107,
     Cmd_SET_CREATURE_FEARSOME_FACTOR      = 108,
     Cmd_USE_POWER_ON_CREATURE             = 109,
-    Cmd_USE_POWER_AT_SUBTILE              = 110,
+    Cmd_USE_POWER_AT_POS                  = 110,
     Cmd_USE_POWER                         = 111,
     Cmd_USE_POWER_AT_LOCATION             = 112,
     Cmd_ADD_OBJECT_TO_LEVEL               = 113,
@@ -171,6 +171,8 @@ enum TbScriptCommands {
     Cmd_DISPLAY_COUNTDOWN                 = 139,
     Cmd_HIDE_TIMER                        = 140,
     Cmd_HIDE_VARIABLE                     = 141,
+    Cmd_CREATE_EFFECT                     = 142,
+    Cmd_CREATE_EFFECT_AT_POS              = 143,
 };
 
 enum ScriptVariables {

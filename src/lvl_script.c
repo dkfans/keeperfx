@@ -72,6 +72,7 @@
 #include "keeperfx.hpp"
 #include "music_player.h"
 #include "custom_sprites.h"
+#include "console_cmd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1269,6 +1270,101 @@ static void hide_timer_process(struct ScriptContext *context)
 static void hide_variable_process(struct ScriptContext *context)
 {
    game.flags_gui &= ~GGUI_Variable;
+}
+
+static void create_effect_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    TbMapLocation location;
+    const char *effect_name = scline->tp[0];
+    long effct_id = get_rid(effect_desc, effect_name);
+    if (effct_id == -1)
+    {
+        if (parameter_is_number(effect_name))
+        {
+            effct_id = atoi(effect_name);
+        }
+        else
+        {
+            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+            return;
+        }
+    }
+    value->bytes[0] = effct_id;
+    const char *locname = scline->tp[1];
+    if (!get_map_location_id(locname, &location))
+    {
+        return;
+    }
+    long stl_x;
+    long stl_y;
+    find_map_location_coords(location, &stl_x, &stl_y, 0, __func__);
+    value->bytes[1] = stl_x;
+    value->bytes[2] = stl_y;
+    value->arg1 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void create_effect_at_pos_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char *effect_name = scline->tp[0];
+    long effct_id = get_rid(effect_desc, effect_name);
+    if (effct_id == -1)
+    {
+        if (parameter_is_number(effect_name))
+        {
+            effct_id = atoi(effect_name);
+        }
+        else
+        {
+            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+            return;
+        }
+    }
+    value->bytes[0] = effct_id;
+    if (subtile_coords_invalid(scline->np[1], scline->np[2]))
+    {
+        SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
+        return;
+    }
+    value->bytes[1] = scline->np[1];
+    value->bytes[2] = scline->np[2];
+    value->arg1 = scline->np[3];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void create_effect_process(struct ScriptContext *context)
+{
+    struct Coord3d pos;
+    pos.x.stl.num = (MapSubtlCoord)context->value->bytes[1];
+    pos.y.stl.num = (MapSubtlCoord)context->value->bytes[2];
+    pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
+    TbBool Price = ((char)context->value->bytes[0] == -(TngEffElm_Price));
+    if (Price)
+    {
+        pos.z.val += 128;
+    }
+    struct Thing* efftng;
+    if ((char)context->value->bytes[0] >= 0)
+    {
+        efftng = create_effect(&pos, context->value->bytes[0], game.neutral_player_num);
+    }
+    else
+    {
+        efftng = create_effect_element(&pos, ~(context->value->bytes[0]) + 1, game.neutral_player_num);
+    }
+    if (!thing_is_invalid(efftng))
+    {
+        if (thing_in_wall_at(efftng, &efftng->mappos))
+        {
+            move_creature_to_nearest_valid_position(efftng);
+        }
+        if (Price)
+        {   
+            efftng->long_13 = context->value->arg1;
+        }
+    }
 }
 
 static void null_process(struct ScriptContext *context)
@@ -3375,7 +3471,7 @@ void command_use_power_on_creature(long plr_range_id, const char *crtr_name, con
   command_add_value(Cmd_USE_POWER_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
-void command_use_power_at_subtile(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, char free)
+void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, char free)
 {
   SCRIPTDBG(11, "Starting");
   if (splevel < 1)
@@ -3411,7 +3507,7 @@ void command_use_power_at_subtile(long plr_range_id, int stl_x, int stl_y, const
       signed char f = free, m = mag_id, lvl = splevel;
       fml_bytes = (f << 16) | (m << 8) | lvl;
   }
-  command_add_value(Cmd_USE_POWER_AT_SUBTILE, plr_range_id, stl_x, stl_y, fml_bytes);
+  command_add_value(Cmd_USE_POWER_AT_POS, plr_range_id, stl_x, stl_y, fml_bytes);
 }
 
 void command_use_power_at_location(long plr_range_id, const char *locname, const char *magname, int splevel, char free)
@@ -4069,8 +4165,8 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_USE_SPELL_ON_CREATURE:
         command_use_spell_on_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->tp[3], scline->np[4]);
         break;
-    case Cmd_USE_POWER_AT_SUBTILE:
-        command_use_power_at_subtile(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->np[5]);
+    case Cmd_USE_POWER_AT_POS:
+        command_use_power_at_pos(scline->np[0], scline->np[1], scline->np[2], scline->tp[3], scline->np[4], scline->np[5]);
         break;
     case Cmd_USE_POWER_AT_LOCATION:
         command_use_power_at_location(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4]);
@@ -5648,7 +5744,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
  * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_use_power_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
+TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
 {
     char is_free = (fml_bytes >> 16) != 0;
     PowerKind powerKind = (fml_bytes >> 8) & 255;
@@ -5679,7 +5775,7 @@ TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation targe
         WARNLOG("Can't decode location %d", target);
         return Lb_FAIL;
     }
-    return script_use_power_at_subtile(plyr_idx, x, y, fml_bytes);
+    return script_use_power_at_pos(plyr_idx, x, y, fml_bytes);
 }
 
 /**
@@ -6854,10 +6950,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
             script_computer_dig_to_location(i, val2, val3);
         }
         break;
-    case Cmd_USE_POWER_AT_SUBTILE:
+    case Cmd_USE_POWER_AT_POS:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_power_at_subtile(i, val2, val3, val4);
+          script_use_power_at_pos(i, val2, val3, val4);
       }
       break;
     case Cmd_USE_POWER_AT_LOCATION:
@@ -7600,7 +7696,8 @@ const struct CommandDesc command_desc[] = {
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
   {"USE_POWER_ON_CREATURE",             "PC!APANN", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
-  {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_SUBTILE, NULL, NULL},
+  {"USE_POWER_AT_POS",                  "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
+  {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
   {"USE_POWER_AT_LOCATION",             "PNANN   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
   {"USE_POWER",                         "PAN     ", Cmd_USE_POWER, NULL, NULL},
   {"USE_SPECIAL_INCREASE_LEVEL",        "PN      ", Cmd_USE_SPECIAL_INCREASE_LEVEL, NULL, NULL},
@@ -7643,6 +7740,8 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_COUNTDOWN",                 "PANn    ", Cmd_DISPLAY_COUNTDOWN, &display_countdown_check, &display_timer_process},
   {"HIDE_TIMER",                        "        ", Cmd_HIDE_TIMER, &cmd_no_param_check, &hide_timer_process},
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
+  {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
+  {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
