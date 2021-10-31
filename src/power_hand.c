@@ -229,20 +229,8 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing, PlayerNum
                             MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
                             return dist <= apt->range ? !hand_rule.allow : !!hand_rule.allow;
                         }
-                    case HandRule_Diseased:
-                        if (creature_affected_by_spell(thing, SplK_Disease))
-                            return !hand_rule.allow;
-                        break;
-                    case HandRule_Chickened:
-                        if (creature_affected_by_spell(thing, SplK_Chicken))
-                            return !hand_rule.allow;
-                        break;
-                    case HandRule_Frozen:
-                        if (creature_affected_by_spell(thing, SplK_Freeze))
-                            return !hand_rule.allow;
-                        break;
-                    case HandRule_Slowed:
-                        if (creature_affected_by_spell(thing, SplK_Slow))
+                    case HandRule_AffectedBy:
+                        if (creature_affected_by_spell(thing, hand_rule.param))
                             return !hand_rule.allow;
                         break;
                     case HandRule_Wandering:

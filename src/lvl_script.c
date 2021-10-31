@@ -425,10 +425,7 @@ const struct NamedCommand hand_rule_desc[] = {
   {"LEVEL_LOWER",           HandRule_LvlLower},
   {"LEVEL_HIGHER",          HandRule_LvlHigher},
   {"AT_ACTION_POINT",       HandRule_AtActionPoint},
-  {"DISEASED",              HandRule_Diseased},
-  {"CHICKENED",             HandRule_Chickened},
-  {"FROZEN",                HandRule_Frozen},
-  {"SLOWED",                HandRule_Slowed},
+  {"AFFECTED_BY",           HandRule_AffectedBy},
   {"WANDERING",             HandRule_Wandering},
   {"WORKING",               HandRule_Working},
   {"FIGHTING",              HandRule_Fighting},
@@ -2580,11 +2577,22 @@ static void set_hand_rule_check(const struct ScriptLine* scline)
             SCRPTERRLOG("Invalid hand rule: '%s'", scline->tp[4]);
             return;
         }
-        long param = scline->np[5];
+        const char *param_name = scline->tp[5];
+        long param = hand_rule_type == HandRule_AffectedBy ? 0 : atol(param_name);
         if (hand_rule_type == HandRule_AtActionPoint && action_point_number_to_index(param) == -1)
         {
             SCRPTERRLOG("Unknown action point param for hand rule: '%d'", param);
             return;
+        }
+        if (hand_rule_type == HandRule_AffectedBy)
+        {
+            long mag_id = get_rid(spell_desc, param_name);
+            if (mag_id == -1)
+            {
+                SCRPTERRLOG("Unknown magic, '%s'", param_name);
+                return;
+            }
+            param = mag_id;
         }
         long ast_bytes = (rule_action << 24) | (hand_rule_slot << 16) | hand_rule_type; // encode: 1B action,1B slot,2B type
 
@@ -7848,7 +7856,7 @@ const struct CommandDesc command_desc[] = {
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
-  {"SET_HAND_RULE",                     "PC!Aaan ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
+  {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
