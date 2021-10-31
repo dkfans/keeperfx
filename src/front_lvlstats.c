@@ -163,7 +163,7 @@ long calculate_rating(PlayerNumber plyr_idx)
 
 long calculate_doors_unused(PlayerNumber plyr_idx)
 {
-    struct DungeonAdd* dungeonadd = get_dungeon(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     long count = 0;
     for (long i = 1; i < trapdoor_conf.door_types_count; i++)
     {

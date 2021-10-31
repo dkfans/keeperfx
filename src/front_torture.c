@@ -262,7 +262,7 @@ TbBool fronttorture_process_packet(void *context, unsigned long turn, int plyr_i
 
     if ((pckt->packet.action == 0) || (player->victory_state != VicS_WonLevel))
     {
-            return;
+            return true;
     }
     if (plyr_idx < PLAYERS_COUNT)
     {
@@ -282,7 +282,7 @@ TbBool fronttorture_process_packet(void *context, unsigned long turn, int plyr_i
         frontend_set_state(FeSt_LEVEL_STATS);
         if ((game.system_flags & GSF_NetworkActive) != 0)
             LbNetwork_Stop();
-        return;
+        return false;
     }
     // Get active door
     long door_id = torture_door_over_point(x, y);
