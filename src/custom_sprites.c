@@ -54,7 +54,7 @@ struct KeeperSprite creature_table_add[KEEPERSPRITE_ADD_NUM] = {
         {0}
 };
 
-struct KeeperSpriteExt creatures_table_ext[KEEPERSPRITE_ADD_NUM] = { { 0 } };
+struct KeeperSpriteExt creatures_table_ext[KEEPERSPRITE_ADD_NUM] = {{0}};
 
 struct SpriteContext
 {
@@ -97,7 +97,10 @@ static void init_pal_conversion();
 static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h);
 
 static TbBool add_custom_sprite(const char *path);
-static TbBool add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root));
+
+static TbBool
+add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root));
+
 static TbBool process_icon(const char *path, unzFile zip, VALUE *root);
 
 static int cmp_named_command(const void *a, const void *b);
@@ -178,7 +181,7 @@ void init_custom_sprites(LevelNumber lvnum)
         if (added_icons[i].name != NULL)
         {
             free((char *) added_icons[i].name);
-            free((char*) gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data);
+            free((char *) gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data);
         }
     }
     num_added_icons = 0;
@@ -1051,7 +1054,8 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
     return 1;
 }
 
-static TbBool add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root))
+static TbBool
+add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root))
 {
     unz_file_info64 zip_info = {0};
     VALUE root;
@@ -1237,7 +1241,7 @@ short get_icon_id(const char *name)
     struct NamedCommand *val = bsearch(&key, added_icons, num_added_icons, sizeof(added_icons[0]),
                                        &cmp_named_command);
     if (val)
-        return (short)val->num;
+        return (short) val->num;
 
     if (0 == strcmp(name, "0"))
         return 0;
@@ -1245,7 +1249,7 @@ short get_icon_id(const char *name)
     return -2; // -1 is used by SPELLBOOK_POSS etc
 }
 
-short get_anim_id(const char *name, struct Objects* objdat)
+short get_anim_id(const char *name, struct Objects *objdat)
 {
     short ret = atoi(name);
     struct NamedCommand key = {name, 0};
@@ -1256,7 +1260,7 @@ short get_anim_id(const char *name, struct Objects* objdat)
     struct NamedCommand *val = bsearch(&key, added_sprites, num_added_sprite, sizeof(added_sprites[0]),
                                        &cmp_named_command);
     if (val)
-        return (short)val->num;
+        return (short) val->num;
 
     if (0 == strcmp(name, "0"))
         return 0;
@@ -1316,7 +1320,7 @@ short get_anim_id(const char *name, struct Objects* objdat)
         }
 
         free(name2);
-        return (short)val->num;
+        return (short) val->num;
     }
     return 0;
 }
@@ -1339,4 +1343,11 @@ const struct TbSprite *get_frontend_sprite(short sprite_idx)
         return &gui_panel_sprites[sprite_idx];
     else
         return &frontend_sprite[0];
+}
+
+const struct TbSprite *get_new_icon_sprite(short sprite_idx)
+{
+    if ((sprite_idx < GUI_PANEL_SPRITES_COUNT) || (sprite_idx > num_icons_total))
+        return NULL;
+    return &gui_panel_sprites[sprite_idx];
 }

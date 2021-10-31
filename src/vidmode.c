@@ -45,6 +45,7 @@
 #include "game_legacy.h"
 #include "creature_graphics.h"
 #include "keeperfx.hpp"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -377,7 +378,7 @@ TbBool set_pointer_graphic(long ptr_idx)
 {
     long x;
     long y;
-    struct TbSprite* spr;
+    const struct TbSprite* spr;
     SYNCDBG(8, "Setting to %d", (int)ptr_idx);
     if (pointer_sprites == NULL)
     {
@@ -459,6 +460,12 @@ TbBool set_pointer_graphic(long ptr_idx)
       x = 12; y = 15;
       break;
   default:
+      spr = get_new_icon_sprite(ptr_idx);
+      if (spr != NULL)
+      {
+          LbMouseChangeSpriteAndHotspot(spr, spr->SWidth/2, spr->SHeight);
+          return true;
+      }
     WARNLOG("Unrecognized Mouse Pointer index, %d",ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
@@ -731,7 +738,7 @@ TbBool update_screen_mode_data(long width, long height)
   units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // 8 for low res, 16 is "kfx default"
   long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
   units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
-  
+
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);
   else

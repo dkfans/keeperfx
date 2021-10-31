@@ -143,7 +143,7 @@ struct DisplayStruct {
         /** Pointer to graphics window buffer, if locked. */
         uchar *GraphicsWindowPtr;
         /** Sprite used as mouse cursor. */
-        struct TbSprite *MouseSprite;
+        const struct TbSprite *MouseSprite;
         /** Resolution in width of the current video mode.
          *  Note that it's not always "physical" size.
          *  It is the part of screen buffer which is being drawn
