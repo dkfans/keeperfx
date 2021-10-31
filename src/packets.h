@@ -311,7 +311,7 @@ struct Packet *get_packet_direct(long pckt_idx);
 struct PacketEx *get_packet_ex(long plyr_idx);
 struct PacketEx *get_packet_ex_direct(long pckt_idx);
 unsigned char get_players_packet_action(struct PlayerInfo *player);
-
+void set_packet_control(struct PacketEx *pckt, unsigned long flag);
 // This function should create a "large" packet
 struct PacketEx *create_outgoing_input_packet();
 void set_packet_position(struct PlayerInfo *player, long x, long y);
