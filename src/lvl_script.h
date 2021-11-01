@@ -381,6 +381,7 @@ struct ScriptValue { // sizeof = 16
     } sac;
     unsigned char bytes[12];
     char chars[12];
+    short shorts[6];
   };
 };
 
