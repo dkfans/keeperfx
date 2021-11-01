@@ -1124,7 +1124,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     long creatvar = get_id(creatmodel_attributes_commands, property);
     if (creatvar == -1)
     {
-        SCRPTERRLOG("Unknown object variable");
+        SCRPTERRLOG("Unknown creature variable");
         DEALLOCATE_SCRIPT_VALUE
             return;
     }
@@ -1175,8 +1175,6 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
 
 static void set_creature_configuration_process(struct ScriptContext* context)
 {
-    //struct Objects* objdat = get_objects_data(context->value->arg0);
-    //struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
     struct CreatureStats* crstat = creature_stats_get(context->value->arg0);
     struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[context->value->arg0];
     int cmd_num = context->value->arg1;
@@ -1185,7 +1183,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     switch (cmd_num)
     {
     case 1: // NAME
-        // Name is ignored - it was defined in creature.cfg
+        CONFWRNLOG("Property (%d) not supported", cmd_num);
         break;
     case 2: // HEALTH
         crstat->health = k;
@@ -1239,9 +1237,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         crstat->gold_hold = k;
         break;
     case 19: // SIZE
-        //todo fix this shit.
-        crstat->size_xy = k;
-        crstat->size_yz = k;
+        crstat->size_xy = k << 16 >> 16;
+        crstat->size_yz = k >> 16;
         break;
     case 20: // ATTACKPREFERENCE
         crstat->attack_preference = k;
@@ -1256,22 +1253,16 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         crstat->slaps_to_kill = k;
         break;
     case 24: // CREATURELOYALTY
-        // Unused
-        break;
     case 25: // LOYALTYLEVEL
-        // Unused
+    case 28: // PROPERTIES
+        CONFWRNLOG("Property (%d) not supported", cmd_num);
         break;
     case 26: // DAMAGETOBOULDER
         crstat->damage_to_boulder = k;
         break;
     case 27: // THINGSIZE
-        //todo fix the shit like before
-        crstat->thing_size_xy = k;
-        crstat->thing_size_yz = k;
-        break;
-    case 28: // PROPERTIES
-        JUSTMSG("TESTLOG: error, do not set properties");
-        //todo handle properties
+        crstat->thing_size_xy = k << 16 >> 16;
+        crstat->thing_size_yz = k >> 16;
         break;
     case 29: // NAMETEXTID
         crconf->namestr_idx = k;
@@ -7904,7 +7895,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
   {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
-  {"SET_CREATURE_CONFIGURATION",         "AAA    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
+  {"SET_CREATURE_CONFIGURATION",        "AAAn    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
