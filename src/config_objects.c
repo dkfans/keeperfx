@@ -259,13 +259,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             }
             continue;
         }
-        else
-        {
-            if (tmodel > gameadd.object_conf.object_types_count)
-            {
-                WARNMSG("Found unexpected block [%s] in %s file.", block_buf, config_textname);
-            }
-        }
+
         objst = &gameadd.object_conf.object_cfgstats[tmodel];
         objbc = &gameadd.object_conf.base_config[tmodel];
         struct Objects* objdat = get_objects_data(tmodel);
