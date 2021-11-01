@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-unsigned short creature_graphics[][22] = {
+short creature_graphics[][22] = {
   {   0,   0,   0,   0,   0,   0,   0,  0,   0,  0,   0,
       0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,},
   { 426, 424, 424, 428,   0,   0,   0,  0, 430, 436, 442,
@@ -283,7 +283,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
 
 }
 
-unsigned long get_creature_model_graphics(long crmodel, unsigned short seq_idx)
+short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 {
   if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
       ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
@@ -309,9 +309,9 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
     creature_graphics[crmodel][seq_idx] = val;
 }
 
-unsigned long get_creature_anim(struct Thing *thing, unsigned short seq_idx)
+short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
-    unsigned long idx = get_creature_model_graphics(thing->model, seq_idx);
+    short idx = get_creature_model_graphics(thing->model, seq_idx);
     return convert_td_iso(idx);
 }
 

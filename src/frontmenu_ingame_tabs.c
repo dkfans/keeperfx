@@ -1150,7 +1150,7 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx = get_creature_model_graphics(ctrltng->model, CGI_QuerySymbol);
-        struct TbSprite* spr = get_button_sprite(spr_idx);
+        const struct TbSprite* spr = get_button_sprite(spr_idx);
         int bs_units_per_px = (gmnu->width * 35 / 100) * 16 / spr->SWidth;
         LbSpriteDrawResized(portrt_x + 12*units_per_px/16, portrt_y + 12*units_per_px/16, bs_units_per_px, get_button_sprite(spr_idx));
     }

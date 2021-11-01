@@ -3646,7 +3646,6 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     //return _DK_tag_cursor_blocks_place_room(plyr_idx, stl_x, stl_y, full_slab);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    struct SlabMap* slb;
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
     struct PlayerInfo *player;
@@ -3659,8 +3658,8 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     }
     else
     {
-        slb = get_slabmap_block(slb_x, slb_y);
-        SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
+        SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind),
+                slab_code_name(get_slabmap_block(slb_x, slb_y)->kind), (int)slb_x, (int)slb_y);
     }
     
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
