@@ -90,7 +90,7 @@ static struct NamedCommand added_sprites[KEEPERSPRITE_ADD_NUM];
 static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
 static int num_added_icons = 0;
-int num_icons_total = 0;
+int num_icons_total = GUI_PANEL_SPRITES_COUNT;
 
 static void init_pal_conversion();
 
@@ -185,7 +185,7 @@ void init_custom_sprites(LevelNumber lvnum)
         }
     }
     num_added_icons = 0;
-    num_icons_total = 0;
+    num_icons_total = GUI_PANEL_SPRITES_COUNT;
     next_free_icon = 0;
     memset(added_icons, 0, sizeof(added_icons));
     memset(&gui_panel_sprites[GUI_PANEL_SPRITES_COUNT], 0, sizeof(gui_panel_sprites[0]) * GUI_PANEL_SPRITES_NEW);
