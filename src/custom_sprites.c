@@ -1143,28 +1143,61 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
     const char *name = value_string(val);
     WARNDBG(2, "found icon: %s", name);
 
-    const char *file = value_string(value_dict_get(root, "file"));
+    TbBool is_lowres = (lbDisplay.PhysicalScreenWidth <= LOWRES_SCREEN_SIZE);
+    const char *file_key = is_lowres ? "lowres" : "file";
 
-    if (unzLocateFile(zip, file, 0))
+    VALUE *file_value = value_dict_get(root, file_key);
+    if ((file_value == NULL) && (is_lowres))
     {
-        WARNLOG("Png '%s' not found in '%s'", file, path);
-        return 0;
-    }
-    if (UNZ_OK != unzOpenCurrentFile(zip))
-    {
-        return 0;
-    }
-
-    int icon;
-    if (!read_png_icon(zip, path, file, &icon))
-    {
-        unzCloseCurrentFile(zip);
-        return 0;
+        WARNLOG("No lowres icons for '%s' in '%s'", name, path);
+        //no lowres -> use hires
+        file_value = value_dict_get(root, "file");
     }
 
-    if (UNZ_OK != unzCloseCurrentFile(zip))
+    if (value_type(file_value) == VALUE_STRING)
     {
+        // convert "String" to ["String"]
+        char *tmp = strdup(value_string(file_value));
+        value_init_array(file_value);
+        value_init_string(value_array_append(file_value), tmp);
+        free(tmp);
+    }
+    else if (value_type(file_value) != VALUE_ARRAY)
+    {
+        WARNLOG("Invalid sprite %s/icons.json[%d]: invalid value for %s", path, idx, file_key);
         return 0;
+    }
+
+    int first_icon = 0;
+    int icons_count = value_array_size(file_value);
+    for (int i = 0; i < icons_count; i++)
+    {
+        const char *file = value_string(value_array_get(file_value, i));
+
+
+        if (unzLocateFile(zip, file, 0))
+        {
+            WARNLOG("Png '%s' not found in '%s'", file, path);
+            return 0;
+        }
+        if (UNZ_OK != unzOpenCurrentFile(zip))
+        {
+            return 0;
+        }
+
+        int icon;
+        if (!read_png_icon(zip, path, file, &icon))
+        {
+            unzCloseCurrentFile(zip);
+            return 0;
+        }
+        if (first_icon == 0)
+            first_icon = icon;
+
+        if (UNZ_OK != unzCloseCurrentFile(zip))
+        {
+            return 0;
+        }
     }
 
     struct NamedCommand key = {name, 0};
@@ -1172,7 +1205,8 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
                                        &cmp_named_command);
     if (spr)
     {
-        spr->num = icon;
+        num_icons_total += icons_count;
+        spr->num = first_icon;
         JUSTLOG("Overriding icon '%s'", name);
     }
     else
@@ -1182,10 +1216,10 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
             ERRORLOG("Too many custom icons");
             return 0;
         }
+        num_icons_total += icons_count;
         spr = &added_icons[num_added_icons++];
         spr->name = strdup(name);
-        spr->num = icon;
-        num_icons_total = num_added_icons + GUI_PANEL_SPRITES_COUNT;
+        spr->num = first_icon;
     }
 
     return 1;
