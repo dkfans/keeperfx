@@ -702,6 +702,9 @@
     <ClCompile Include="src\main_game.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\packets_misc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
