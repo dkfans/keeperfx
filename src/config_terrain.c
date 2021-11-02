@@ -1047,6 +1047,9 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 2)
             {
+                roomst->bigsym_sprite_idx = bad_icon_id;
+                roomst->medsym_sprite_idx = bad_icon_id;
+                rdata->medsym_sprite_idx = bad_icon_id;
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
@@ -1063,6 +1066,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             if (n < 1)
             {
+              roomst->pointer_sprite_idx = bad_icon_id;
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }

@@ -35,6 +35,7 @@ const struct TbSprite *get_button_sprite(short sprite_idx);
 const struct TbSprite *get_frontend_sprite(short sprite_idx);
 const struct TbSprite *get_new_icon_sprite(short sprite_idx);
 
+extern short bad_icon_id;
 #ifdef __cplusplus
 }
 #endif

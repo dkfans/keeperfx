@@ -2054,6 +2054,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
               }
               else
               {
+                  set_creature_model_graphics(crtr_model, cmd_num-1, bad_icon_id);
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                              COMMAND_TEXT(cmd_num),block_buf,config_textname);
               }

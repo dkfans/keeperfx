@@ -105,6 +105,28 @@ static TbBool process_icon(const char *path, unzFile zip, VALUE *root);
 
 static int cmp_named_command(const void *a, const void *b);
 
+static const unsigned char bad_icon_data[] = // 16x16
+        {
+                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+        };
+
+short bad_icon_id = GUI_PANEL_SPRITES_COUNT;
+
 static int pal_compare_fn(const void *a, const void *b)
 {
     const struct PaletteRecord *rec_a = a;
@@ -185,10 +207,15 @@ void init_custom_sprites(LevelNumber lvnum)
         }
     }
     num_added_icons = 0;
-    num_icons_total = GUI_PANEL_SPRITES_COUNT;
-    next_free_icon = 0;
     memset(added_icons, 0, sizeof(added_icons));
     memset(&gui_panel_sprites[GUI_PANEL_SPRITES_COUNT], 0, sizeof(gui_panel_sprites[0]) * GUI_PANEL_SPRITES_NEW);
+
+    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].Data = (unsigned char *) bad_icon_data;
+    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SWidth = 16;
+    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SHeight = 16;
+    next_free_icon = 1;
+    num_icons_total = GUI_PANEL_SPRITES_COUNT + 1;
+
     // Clear creature table (there sprites live)
     memset(creature_table_add, 0, sizeof(creature_table_add));
     next_free_sprite = 0;
