@@ -64,6 +64,7 @@ enum EventKinds {
     EvKind_WorkRoomUnreachable,
     EvKind_StorageRoomUnreachable, //30
     EvKind_PrisonerStarving,
+    EvKind_TorturedHurt,
 };
 
 enum EventFlags {

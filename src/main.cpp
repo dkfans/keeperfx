@@ -27,8 +27,6 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_input.h"
-#include "gui_draw.h"
-#include "gui_tooltips.h"
 #include "gui_parchment.h"
 #include "gui_frontmenu.h"
 #include "gui_msgs.h"
@@ -40,18 +38,12 @@
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_terrain.h"
-#include "config_trapdoor.h"
 #include "config_objects.h"
-#include "config_rules.h"
-#include "config_lenses.h"
 #include "config_magic.h"
 #include "config_creature.h"
-#include "config_crtrstates.h"
-#include "config_crtrmodel.h"
 #include "config_compp.h"
 #include "config_effects.h"
 #include "lvl_script.h"
-#include "lvl_filesdk1.h"
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -65,45 +57,35 @@
 #include "engine_arrays.h"
 #include "engine_textures.h"
 #include "engine_redraw.h"
-#include "front_landview.h"
-#include "front_lvlstats.h"
 #include "front_easter.h"
 #include "front_fmvids.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_creature.h"
-#include "thing_corpses.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_doors.h"
 #include "thing_traps.h"
-#include "thing_shots.h"
 #include "thing_navigate.h"
 #include "thing_factory.h"
 #include "slab_data.h"
 #include "room_data.h"
 #include "room_entrance.h"
-#include "room_jobs.h"
 #include "room_util.h"
-#include "room_library.h"
 #include "map_columns.h"
 #include "map_events.h"
 #include "map_utils.h"
 #include "map_blocks.h"
-#include "ariadne_wallhug.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
-#include "creature_states_rsrch.h"
-#include "creature_states_lair.h"
 #include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
 #include "magic.h"
 #include "power_process.h"
 #include "power_hand.h"
-#include "power_specials.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
 #include "gui_boxmenu.h"
@@ -111,7 +93,6 @@
 #include "gui_frontbtns.h"
 #include "frontmenu_ingame_tabs.h"
 #include "ariadne.h"
-#include "net_game.h"
 #include "sounds.h"
 #include "vidfade.h"
 #include "KeeperSpeech.h"
@@ -153,7 +134,6 @@ extern "C" {
 DLLIMPORT void _DK_tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
 DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
@@ -277,7 +257,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         long delta_x;
         long delta_y;
         amp = 5 * thing->clipbox_size_xy / 8;
-        direction = ACTION_RANDOM(2*LbFPMath_PI);
+        direction = CREATURE_RANDOM(thing, 2*LbFPMath_PI);
         delta_x = (amp * LbSinL(direction) >> 8);
         delta_y = (amp * LbCosL(direction) >> 8);
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
@@ -544,9 +524,9 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             for (k = num_per_step; k > 0; k--)
             {
                 struct Coord3d tngpos;
-                tngpos.x.val = curpos.x.val + deviat - ACTION_RANDOM(devrange);
-                tngpos.y.val = curpos.y.val + deviat - ACTION_RANDOM(devrange);
-                tngpos.z.val = curpos.z.val + deviat - ACTION_RANDOM(devrange);
+                tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange); // I hope it is only visual
+                tngpos.y.val = curpos.y.val + deviat - UNSYNC_RANDOM(devrange);
+                tngpos.z.val = curpos.z.val + deviat - UNSYNC_RANDOM(devrange);
                 if ((tngpos.x.val < subtile_coord(map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(map_subtiles_y,0)))
                 {
                     struct Thing *eelemtng;
@@ -622,9 +602,9 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
         deviat_y = 0;
         deviat_z = 0;
         struct Coord3d curpos;
-        curpos.x.val = pos1->x.val + ACTION_RANDOM(eeinterspace/4);
-        curpos.y.val = pos1->y.val + ACTION_RANDOM(eeinterspace/4);
-        curpos.z.val = pos1->z.val + ACTION_RANDOM(eeinterspace/4);
+        curpos.x.val = pos1->x.val + UNSYNC_RANDOM(eeinterspace/4);
+        curpos.y.val = pos1->y.val + UNSYNC_RANDOM(eeinterspace/4);
+        curpos.z.val = pos1->z.val + UNSYNC_RANDOM(eeinterspace/4);
         int i;
         for (i=nsteps+1; i > 0; i--)
         {
@@ -932,8 +912,14 @@ short setup_game(void)
   // Enable features that require more resources
   update_features(mem_size);
 
-  features_enabled |= Ft_Wibble; // enable wibble by default
+  //Default feature settings (in case the options are absent from keeperfx.cfg)
+  features_enabled |= Ft_Wibble; // enable wibble
   features_enabled |= Ft_LiquidWibble; // enable liquid wibble by default
+  features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
+  features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
+  features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
+  features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
+  features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
 
   // Configuration file
   if ( !load_configuration() )
@@ -2664,9 +2650,9 @@ long update_cave_in(struct Thing *thing)
     if ((game.play_gameturn % 3) == 0)
     {
         int n;
-        n = ACTION_RANDOM(AROUND_TILES_COUNT);
-        pos.x.val = thing->mappos.x.val + ACTION_RANDOM(0x2C0) * around[n].delta_x;
-        pos.y.val = thing->mappos.y.val + ACTION_RANDOM(0x2C0) * around[n].delta_y;
+        n = UNSYNC_RANDOM(AROUND_TILES_COUNT);
+        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_y;
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
@@ -2683,8 +2669,8 @@ long update_cave_in(struct Thing *thing)
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
-        pos.x.val = thing->mappos.x.val + ACTION_RANDOM(128);
-        pos.y.val = thing->mappos.y.val + ACTION_RANDOM(128);
+        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(128);
+        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(128);
         pos.z.val = get_floor_height_at(&pos) + 384;
         create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
@@ -2711,7 +2697,7 @@ long update_cave_in(struct Thing *thing)
         if ((pwrdynst->time < 10) || ((thing->health % (pwrdynst->time / 10)) == 0))
         {
             int round_idx;
-            round_idx = ACTION_RANDOM(AROUND_TILES_COUNT);
+            round_idx = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
             set_coords_to_slab_center(&pos, subtile_slab(thing->mappos.x.val + 3 * around[round_idx].delta_x), subtile_slab(thing->mappos.y.val + 3 * around[round_idx].delta_y));
             if (subtile_has_slab(coord_subtile(pos.x.val), coord_subtile(pos.y.val)) && valid_cave_in_position(thing->owner, coord_subtile(pos.x.val), coord_subtile(pos.y.val)))
             {
@@ -2883,7 +2869,29 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int is_special_digger, long full_slab)
 {
   SYNCDBG(7,"Starting");
-  _DK_tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_special_digger, full_slab);
+  // _DK_tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_special_digger, full_slab);
+  MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+  MapSlabCoord slb_y = subtile_slab_fast(stl_y);  
+  if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) )
+    {
+        map_volume_box.visible = true;
+        map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, is_special_digger);
+        if (full_slab)
+        {
+            map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
+            map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
+            map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 0) + STL_PER_SLB, 0);
+            map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 0) + STL_PER_SLB, 0);
+        }
+        else
+        {
+            map_volume_box.beg_x = subtile_coord(stl_x, 0);
+            map_volume_box.beg_y = subtile_coord(stl_y, 0);
+            map_volume_box.end_x = subtile_coord(stl_x + 1, 0);
+            map_volume_box.end_y = subtile_coord(stl_y + 1, 0); 
+        }
+        map_volume_box.floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
+    }
 }
 
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
@@ -3407,6 +3415,8 @@ TbBool keeper_wait_for_screen_focus(void)
         if (LbIsActive())
           return true;
         if ((game.system_flags & GSF_NetworkActive) != 0)
+          return true;
+        if (!freeze_game_on_focus_lost())
           return true;
         LbSleepFor(50);
     } while ((!exit_keeper) && (!quit_game));

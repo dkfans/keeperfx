@@ -131,10 +131,6 @@ CREATE_PARTY(DWARVES)
 
 REM ****************************************************************************
 
-IF(PLAYER1,PRISON >= 9)
-	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
-ENDIF
-
 REM "This realm is begging to be plunged into darkness. The Avatar himself has a castle here. Another Keeper also seeks his soul. This could get messy."
 DISPLAY_OBJECTIVE(134,ALL_PLAYERS)
 

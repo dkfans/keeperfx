@@ -339,7 +339,7 @@ TbBool check_experience_upgrade(struct Thing *thing);
 void set_creature_size_stuff(struct Thing *creatng);
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val);
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
-SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind);
+SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind, struct Thing *thing);
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
 TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
@@ -356,9 +356,9 @@ TbBool creature_free_for_sleep(const struct Thing *thing,  CrtrStateId state);
 
 // Finding a nearby position to move during a job
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
-TbBool person_get_somewhere_adjacent_in_room_f(const struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name);
+TbBool person_get_somewhere_adjacent_in_room_f(struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name);
 #define person_get_somewhere_adjacent_in_room(thing, room, pos) person_get_somewhere_adjacent_in_room_f(thing, room, pos, __func__)
-TbBool person_get_somewhere_adjacent_in_room_around_borders_f(const struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name);
+TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name);
 #define person_get_somewhere_adjacent_in_room_around_borders(thing, room, pos) person_get_somewhere_adjacent_in_room_around_borders_f(thing, room, pos, __func__)
 
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);

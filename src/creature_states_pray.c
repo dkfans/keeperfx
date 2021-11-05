@@ -667,7 +667,7 @@ short creature_sacrifice(struct Thing *thing)
 TbBool find_random_sacrifice_center(struct Coord3d *pos, const struct Room *room)
 {
     // Find a random slab in the room to be used as our starting point
-    long i = ACTION_RANDOM(room->slabs_count);
+    long i = PLAYER_RANDOM(room->owner, room->slabs_count);
     unsigned long n = room->slabs_list;
     while (i > 0)
     {

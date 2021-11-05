@@ -67,7 +67,17 @@ HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 LIBS     = obj/libkeeperfx.a
+
+DEPS = \
+obj/spng.o \
+obj/json/json.o \
+obj/json/value.o \
+obj/json/json-dom.o \
+obj/unzip.o \
+obj/ioapi.o
+
 OBJS = \
+$(DEPS) \
 obj/actionpt.o \
 obj/ariadne.o \
 obj/ariadne_edge.o \
@@ -146,6 +156,7 @@ obj/config_terrain.o \
 obj/config_cubes.o \
 obj/config_trapdoor.o \
 obj/console_cmd.o \
+obj/custom_sprites.o \
 obj/creature_battle.o \
 obj/creature_control.o \
 obj/creature_graphics.o \
@@ -245,6 +256,7 @@ obj/music_player.o \
 obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \
+obj/packets_misc.o \
 obj/player_compchecks.o \
 obj/player_compevents.o \
 obj/player_complookup.o \
@@ -314,7 +326,9 @@ CU_OBJS = \
 	obj/cu/Util.o
 
 # include and library directories
-LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a -lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net 
+LINKLIB =  -L"sdl/lib" -mwindows obj/libkeeperfx.a \
+	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net \
+	-L"deps/zlib" -lz
 INCS =  -I"sdl/include" -I"sdl/include/SDL2"
 CXXINCS =  -I"sdl/include" -I"sdl/include/SDL2"
 
@@ -328,7 +342,7 @@ HVLOG_MAIN_OBJ = $(subst obj/,obj/hvlog/,$(MAIN_OBJ))
 ENABLE_EXTRACT ?= 1
 
 # flags to generate dependency files
-DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -DSPNG_STATIC=1
 # other flags to include while compiling
 INCFLAGS =
 # code optimization and debugging flags
@@ -424,7 +438,7 @@ heavylog: CFLAGS += $(HVLOGFLAGS)
 heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
-$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu)
+$(shell $(MKDIR) bin obj/std obj/hvlog obj/tests obj/cu obj/std/json obj/hvlog/json)
 std-before:
 hvlog-before:
 
@@ -455,7 +469,6 @@ $(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) $(LIBS) std-before
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
-	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
 
 $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) hvlog-before
@@ -464,7 +477,6 @@ $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LIBS) hvlog-before
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
-	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
 
 $(TEST_BIN): $(GENSRC) $(STDOBJS) $(TESTS_OBJ) $(LIBS) $(CU_OBJS) std-before
@@ -473,12 +485,35 @@ $(TEST_BIN): $(GENSRC) $(STDOBJS) $(TESTS_OBJ) $(LIBS) $(CU_OBJS) std-before
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
-	-$(ECHO) 'Finished building target: $@'
+
+obj/std/spng.o obj/hvlog/spng.o: deps/libspng/spng/spng.c deps/zlib/libz.a
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/libspng/spng" -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/json/%.o obj/hvlog/json/%.o: deps/centijson/src/%.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/centijson/src" -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/unzip.o obj/hvlog/unzip.o: deps/zlib/contrib/minizip/unzip.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
+	-$(ECHO) ' '
+
+obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c
+	-$(ECHO) 'Building file: $<'
+	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/centijson/src" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
+	-$(ECHO) ' '
 
 obj/tests/%.o: tests/%.cpp $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
 obj/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
@@ -490,27 +525,23 @@ obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
 obj/std/%.o obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
 obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
 # Windows resources compilation
 obj/std/%.res obj/hvlog/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
 	-$(ECHO) 'Building resource: $<'
-	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff 
-	-$(ECHO) 'Finished building: $<'
+	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
 	-$(ECHO) ' '
 
 # Creation of Windows icon files from PNG files
 res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08bpp.png res/%128-08bpp.png $(PNGTOICO)
 	-$(ECHO) 'Building icon: $@'
 	$(PNGTOICO) "$@" --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
-	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 obj/ver_defs.h: version.mk Makefile
@@ -525,23 +556,34 @@ obj/ver_defs.h: version.mk Makefile
 obj/libkeeperfx.a: bin/keeperfx.dll obj/keeperfx.def
 	-$(ECHO) 'Generating gcc library archive for: $<'
 	$(DLLTOOL) --dllname "$<" --def "obj/keeperfx.def" --output-lib "$@"
-	-$(ECHO) 'Finished generating: $@'
 	-$(ECHO) ' '
 
 bin/keeperfx.dll obj/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $(EXETODLL)
 	-$(ECHO) 'Rebuilding DLL export table from: $<'
 	$(EXETODLL) -o"$@" --def "obj/keeperfx.def" -p"_DK_" "$<"
-	-$(ECHO) 'Finished creating: $@'
 	-$(ECHO) ' '
 
 tests: std-before $(TEST_BIN)
 
-export
 libexterns: libexterns.mk
 	$(MAKE) -f libexterns.mk
 
 clean-libexterns: libexterns.mk
-	$(MAKE) -f libexterns.mk clean-libexterns
+	-$(MAKE) -f libexterns.mk clean-libexterns
+	-cd deps/zlib && $(MAKE) -f win32/Makefile.gcc clean
+	-cd deps/zlib && git checkout Makefile zconf.h
+	-$(RM) libexterns
+
+deps/centijson/src/json.c deps/centijson/src/value.c deps/centijson/src/json-dom.c: deps/zlib/configure.log
+deps/libspng/spng/spng.c: deps/zlib/configure.log
+deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: deps/zlib/configure.log
+
+
+deps/zlib/configure.log:
+	git submodule sync && git submodule update --init && cd deps/zlib && ./configure --static
+
+deps/zlib/libz.a: deps/zlib/configure.log
+	cd deps/zlib && $(MAKE) -f win32/Makefile.gcc PREFIX=$(CROSS_COMPILE) libz.a
 
 include tool_peresec.mk
 include tool_png2ico.mk
@@ -557,4 +599,5 @@ include pkg_lang.mk
 include pkg_gfx.mk
 include pkg_sfx.mk
 
+export RM CP MKDIR MV ECHO
 #******************************************************************************

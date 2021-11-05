@@ -2479,9 +2479,9 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     // Randomly jump waiting for combat
     if (thing_touching_floor(figtng))
     {
-        if (ACTION_RANDOM(6) == 0)
+        if (CREATURE_RANDOM(figtng, 6) == 0)
         {
-            figtng->veloc_push_add.z.val += ACTION_RANDOM(80) + 40;
+            figtng->veloc_push_add.z.val += CREATURE_RANDOM(figtng, 80) + 40;
             figtng->state_flags |= TF1_PushAdd;
         }
     }
@@ -2843,9 +2843,9 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     return true;
 }
 
-struct Thing *check_for_door_to_fight(const struct Thing *thing)
+struct Thing *check_for_door_to_fight(struct Thing *thing)
 {
-    long m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
@@ -2923,7 +2923,7 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     // Second try
     pos.x.val = figtng->mappos.x.val;
     pos.y.val = figtng->mappos.y.val;
-    if (ACTION_RANDOM(2) == 0)
+    if (CREATURE_RANDOM(figtng, 2) == 0)
         i = 1;
     else
         i = -1;
@@ -2954,7 +2954,7 @@ short creature_attack_rooms(struct Thing *creatng)
         return 1;
     }
     // If we're not (or no longer) on room tile, find adjacent one
-    int n = ACTION_RANDOM(SMALL_AROUND_LENGTH);
+    int n = CREATURE_RANDOM(creatng, SMALL_AROUND_LENGTH);
     for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x = creatng->mappos.x.stl.num + STL_PER_SLB * (int)small_around[n].delta_x;

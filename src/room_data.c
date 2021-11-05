@@ -610,7 +610,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
     }
 }
 
-TbBool rectreate_repositioned_book_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+TbBool recreate_repositioned_book_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
 {
     if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
         return false;
@@ -655,7 +655,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         if (thing->class_id == TCls_Object)
         {
             PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & 0x80) == 0) && (thing->owner == room->owner))
+            if ((spl_idx > 0) && ((thing->alloc_flags & 0x80) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
             {
                 // If exceeded capacity of the library
                 if (room->used_capacity >= room->total_capacity)
@@ -705,7 +705,7 @@ void count_and_reposition_books_in_room_on_subtile(struct Room *room, MapSubtlCo
             break;
         case 0:
             // There are no matching things there, something can be re-created
-            rectreate_repositioned_book_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            recreate_repositioned_book_in_room_on_subtile(room, stl_x, stl_y, rrepos);
             break;
         default:
             WARNLOG("Invalid value returned by reposition check");
@@ -2170,7 +2170,7 @@ short room_grow_food(struct Room *room)
         return 0;
     }
     unsigned long k;
-    long n = ACTION_RANDOM(room->slabs_count);
+    long n = PLAYER_RANDOM(room->owner, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -2187,7 +2187,7 @@ short room_grow_food(struct Room *room)
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
 
-        int m = ACTION_RANDOM(STL_PER_SLB * STL_PER_SLB);
+        int m = PLAYER_RANDOM(room->owner, STL_PER_SLB * STL_PER_SLB);
         for (int i = 0; i < STL_PER_SLB * STL_PER_SLB; i++)
         {
             MapSubtlCoord stl_x = slab_subtile(slb_x, m % STL_PER_SLB);
@@ -2311,6 +2311,21 @@ TbBool update_room_total_health(struct Room *room)
     return true;
 }
 
+TbBool recalculate_room_health(struct Room* room, int oldmax)
+{
+    SYNCDBG(17, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
+    if ((oldmax == 0) || (room->health == 0))
+    {
+        room->health = compute_room_max_health(room->slabs_count, room->efficiency);
+    }
+    else 
+    {
+        int newmax = compute_room_max_health(room->slabs_count, room->efficiency);
+        room->health = (room->health * newmax / oldmax);
+    }
+    return true;
+}
+
 TbBool update_room_contents(struct Room *room)
 {
     struct RoomData* rdata = room_data_get_for_room(room);
@@ -2388,8 +2403,8 @@ TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long 
         pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
         pos.z.val = subtile_coord_center(1);
         long effect_kind = effkind;
-        if (effrange > 0)
-            effect_kind += ACTION_RANDOM(effrange);
+        if (effrange > 0) // TODO: always zero?
+            effect_kind += UNSYNC_RANDOM(effrange);
         create_effect(&pos, effect_kind, effowner);
         // Per room tile code ends
         k++;
@@ -2454,7 +2469,7 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
     }
     int navi_radius = abs(thing_nav_block_sizexy(thing) << 8) >> 1;
     unsigned long k;
-    long n = ACTION_RANDOM(room->slabs_count);
+    long n = CREATURE_RANDOM(thing, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -2470,7 +2485,7 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
     {
         MapSlabCoord slb_x = slb_num_decode_x(slbnum);
         MapSlabCoord slb_y = slb_num_decode_y(slbnum);
-        int ssub = ACTION_RANDOM(9);
+        int ssub = CREATURE_RANDOM(thing, 9);
         for (int snum = 0; snum < 9; snum++)
         {
             MapSubtlCoord stl_x = slab_subtile(slb_x, ssub % 3);
@@ -2549,10 +2564,11 @@ TbBool slab_is_area_inner_fill(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return true;
 }
 
-TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Room *room, unsigned char room_area)
+TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Room *room, unsigned char room_area,
+        struct Thing *thing)
 {
     // Find a random slab in the room to be used as our starting point
-    long i = ACTION_RANDOM(room->slabs_count);
+    long i = CREATURE_RANDOM(thing, room->slabs_count);
     unsigned long n = room->slabs_list;
     while (i > 0)
     {
@@ -2576,8 +2592,8 @@ TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Ro
             // In case we will select a column on that subtile, do 3 tries
             for (int k = 0; k < 3; k++)
             {
-                pos->x.val = subtile_coord(slab_subtile(slb_x,0),ACTION_RANDOM(STL_PER_SLB*COORD_PER_STL));
-                pos->y.val = subtile_coord(slab_subtile(slb_y,0),ACTION_RANDOM(STL_PER_SLB*COORD_PER_STL));
+                pos->x.val = subtile_coord(slab_subtile(slb_x,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
+                pos->y.val = subtile_coord(slab_subtile(slb_y,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
                 pos->z.val = subtile_coord(1,0);
                 struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
                 if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
@@ -3012,7 +3028,7 @@ struct Room *find_random_room_with_used_capacity_creature_can_navigate_to(struct
     long count = count_rooms_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, nav_flags);
     if (count < 1)
         return INVALID_ROOM;
-    long selected = ACTION_RANDOM(count);
+    long selected = CREATURE_RANDOM(thing, count);
     return find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rkind, nav_flags, selected);
 }
 
@@ -3267,7 +3283,7 @@ struct Room *find_random_room_for_thing(struct Thing *thing, PlayerNumber owner,
     long count = count_rooms_for_thing(thing, owner, rkind, nav_flags);
     if (count < 1)
         return INVALID_ROOM;
-    long selected = ACTION_RANDOM(count);
+    long selected = CREATURE_RANDOM(thing, count);
     return find_nth_room_for_thing(thing, owner, rkind, nav_flags, selected);
 }
 
@@ -3370,7 +3386,7 @@ struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Th
     long count = count_rooms_for_thing_with_spare_room_item_capacity(thing, owner, rkind, nav_flags);
     if (count < 1)
         return INVALID_ROOM;
-    long selected = ACTION_RANDOM(count);
+    long selected = CREATURE_RANDOM(thing, count);
     return find_nth_room_for_thing_with_spare_room_item_capacity(thing, owner, rkind, nav_flags, selected);
 }
 
@@ -3414,7 +3430,7 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
     }
     if (matching_rooms <= 0)
         return 0;
-    int chosen_match_idx = ACTION_RANDOM(matching_rooms);
+    int chosen_match_idx = CREATURE_RANDOM(thing, matching_rooms);
     int curr_match_idx = 0;
     i = dungeon->room_kind[skip_room->kind];
     k = 0;
@@ -3871,7 +3887,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     }
     SYNCDBG(7,"Updating efficiency");
     do_slab_efficiency_alteration(slb_x, slb_y);
-    set_room_stats(room,false);
+    do_room_recalculation(room);
     if (owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(owner);
@@ -4309,6 +4325,16 @@ void do_room_integration(struct Room *room)
     update_room_total_health(room);
     update_room_total_capacity(room);
     update_room_contents(room);
+    init_room_sparks(room);
+}
+
+void do_room_recalculation(struct Room* room)
+{
+    SYNCDBG(7, "Starting for %s index %d owned by player %d", room_code_name(room->kind), (int)room->index, (int)room->owner);
+    int oldmax = compute_room_max_health(room->slabs_count, room->efficiency);
+    set_room_efficiency(room);
+    recalculate_room_health(room, oldmax);
+    update_room_total_capacity(room);
     init_room_sparks(room);
 }
 

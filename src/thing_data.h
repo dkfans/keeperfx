@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+typedef unsigned short Thingid;
+
 /******************************************************************************/
 /** Enums for thing->field_0 bit fields. */
 enum ThingAllocFlags {
@@ -245,6 +247,17 @@ unsigned short field_60;
  * Can be defined to any SYNCLOG routine, making complete trace of usage on a thing.
  */
 #define TRACE_THING(thing)
+
+enum ThingAddFlags
+{
+    TAF_ROTATED_SHIFT = 16,
+    TAF_ROTATED_MASK = 0x070000,
+};
+
+struct ThingAdd // Additional thing data
+{
+    unsigned long flags; //ThingAddFlags
+};
 
 #pragma pack()
 /******************************************************************************/

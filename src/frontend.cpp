@@ -464,12 +464,12 @@ void get_player_gui_clicks(void)
         {
           if (a_menu_window_is_active())
           {
-            game.numfield_D &= ~GNFldD_Unkn08;
+            game.numfield_D &= ~GNFldD_CreaturePasngr;
             player->allocflags &= ~PlaF_Unknown8;
             turn_off_all_window_menus();
           } else
           {
-            game.numfield_D |= GNFldD_Unkn08;
+            game.numfield_D |= GNFldD_CreaturePasngr;
             player->allocflags |= PlaF_Unknown8;
             turn_on_menu(GMnu_QUERY);
           }
@@ -671,24 +671,14 @@ short game_is_busy_doing_gui(void)
 TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 {
     char *str;
-    int key;
-    int outchar;
+    TbKeyCode key;
+    unsigned short outchar;
     TbLocChar vischar[4];
     //return _DK_get_button_area_input(gbtn, a2);
     strcpy(vischar," ");
     str = (char *)gbtn->content;
     key = lbInkey;
-    if ((modifiers == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]))
-    {
-        if ((lbInkey == KC_LSHIFT) || (lbInkey == KC_RSHIFT)) {
-            lbInkey = KC_UNASSIGNED;
-            return false;
-        }
-        outchar = key_to_ascii(lbInkey, KMod_SHIFT);
-    } else
-    {
-        outchar = key_to_ascii(lbInkey, KMod_NONE);
-    }
+    outchar = key_to_ascii(key, key_modifiers);
     vischar[0] = outchar;
     if (key == KC_RETURN)
     {
@@ -2570,7 +2560,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
             ERRORLOG("Unable to load FRONTEND PALETTE");
         wait_for_cd_to_be_available();
-        LbMouseSetPosition(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
+        LbMoveGameCursorToHostCursor(); // set the initial cursor position for the main menu
         update_mouse();
         break;
     case FeSt_MAIN_MENU: // main menu state
