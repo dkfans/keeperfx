@@ -3415,7 +3415,7 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
         if (!thing_is_invalid(creatng))
         {
             cor_x = creatng->mappos.x.val;
-            cor_y = creatng->mappos.x.val;
+            cor_y = creatng->mappos.y.val;
         }
         event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index);
     } else
