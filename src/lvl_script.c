@@ -410,6 +410,11 @@ const struct NamedCommand campaign_flag_desc[] = {
   {NULL,     0},
 };
 
+const struct NamedCommand fill_desc[] = {
+  {"FILL",        1},
+  {NULL,          0},
+};
+
 const struct NamedCommand script_operator_desc[] = {
   {"SET",         1},
   {"INCREASE",    2},
@@ -2207,8 +2212,88 @@ void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
     {
         WARNLOG("Can't decode location %d", target);
         return;
-  }
-  reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
+    }
+    if (r == -1)
+    {
+        long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
+        long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);
+        long max_slabs_count = max_slb_dim_x * max_slb_dim_y;
+        char stack_x[max_slabs_count];
+        char stack_y[max_slabs_count];
+        char visited[max_slb_dim_x][max_slb_dim_y];
+        memset(stack_x, 0, max_slabs_count);
+        memset(stack_y, 0, max_slabs_count);
+        memset(visited, 0, max_slabs_count);
+        long stack_head = 0;
+        stack_x[0] = subtile_slab(x);
+        stack_y[0] = subtile_slab(y);
+        long cx, cy; // slab positions currently popped 
+        long s = STL_PER_SLB;
+
+        while (stack_head != -1)
+        {
+            cx = stack_x[stack_head];
+            cy = stack_y[stack_head];
+            stack_head--;
+            long stl_cx = slab_subtile_center(cx), stl_cy = slab_subtile_center(cy);
+            reveal_map_area(plyr_idx, stl_cx, stl_cx, stl_cy, stl_cy);
+            visited[cx][cy] = 1;
+
+            if (slab_is_wall(cx, cy)) continue;
+            if (slab_is_door(cx, cy) && slabmap_owner(get_slabmap_for_subtile(stl_cx, stl_cy)) != plyr_idx) continue;
+            if (cx + 1 < max_slb_dim_x && !visited[cx+1][cy])
+            {
+                stack_head++;
+                stack_x[stack_head] = cx + 1;
+                stack_y[stack_head] = cy;
+            }
+            if (cx - 1 >= 0 && !visited[cx-1][cy])
+            {
+                stack_head++;
+                stack_x[stack_head] = cx - 1;
+                stack_y[stack_head] = cy;
+            }
+            if (cy + 1 < max_slb_dim_y && !visited[cx][cy+1])
+            {
+                stack_head++;
+                stack_x[stack_head] = cx;
+                stack_y[stack_head] = cy + 1;
+            }
+            if (cy - 1 >= 0 && !visited[cx][cy-1])
+            {
+                stack_head++;
+                stack_x[stack_head] = cx;
+                stack_y[stack_head] = cy - 1;
+            }
+            // now also reveal wall corners
+            if (cx - 1 >= 0)
+            {
+                if (cy - 1 >= 0)
+                {
+                    if (slab_is_wall(cx - 1, cy) && slab_is_wall(cx, cy - 1) && slab_is_wall(cx - 1, cy - 1))
+                        reveal_map_area(plyr_idx, stl_cx - s, stl_cx - s, stl_cy - s, stl_cy - s);
+                }
+                if (cy + 1 < max_slb_dim_y)
+                {
+                    if (slab_is_wall(cx - 1, cy) && slab_is_wall(cx, cy + 1) && slab_is_wall(cx - 1, cy + 1))
+                        reveal_map_area(plyr_idx, stl_cx - s, stl_cx - s, stl_cy + s, stl_cy + s);
+                }
+            }
+            if (cx + 1 < max_slb_dim_x)
+            {
+                if (cy - 1 >= 0)
+                {
+                    if (slab_is_wall(cx + 1, cy) && slab_is_wall(cx, cy - 1) && slab_is_wall(cx + 1, cy - 1))
+                        reveal_map_area(plyr_idx, stl_cx + s, stl_cx + s, stl_cy - s, stl_cy - s);
+                }
+                if (cy + 1 < max_slb_dim_y)
+                {
+                    if (slab_is_wall(cx + 1, cy) && slab_is_wall(cx, cy + 1) && slab_is_wall(cx + 1, cy + 1))
+                        reveal_map_area(plyr_idx, stl_cx + s, stl_cx + s, stl_cy + s, stl_cy + s);
+                }
+            }
+        }
+    } else reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
 void command_set_start_money(long plr_range_id, long gold_val)
@@ -3294,12 +3379,14 @@ void command_change_slab_type(long x, long y, long slab_type)
     command_add_value(Cmd_CHANGE_SLAB_TYPE, 0, x, y, slab_type);
 }
 
-void command_reveal_map_location(long plr_range_id, const char *locname, long range)
+void command_reveal_map_location(long plr_range_id, const char *locname, const char *range_arg)
 {
     TbMapLocation location;
     if (!get_map_location_id(locname, &location)) {
         return;
     }
+    long range = -1;
+    if (get_rid(fill_desc, range_arg) == -1) range = atol(range_arg);
     command_add_value(Cmd_REVEAL_MAP_LOCATION, plr_range_id, location, range, 0);
 }
 
@@ -4151,7 +4238,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_reveal_map_rect(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4]);
         break;
     case Cmd_REVEAL_MAP_LOCATION:
-        command_reveal_map_location(scline->np[0], scline->tp[1], scline->np[2]);
+        command_reveal_map_location(scline->np[0], scline->tp[1], scline->tp[2]);
         break;
     case Cmd_KILL_CREATURE:
         command_kill_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -7691,7 +7778,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
   {"CONCEAL_MAP_RECT",                  "PNNNNa  ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
-  {"REVEAL_MAP_LOCATION",               "PNN     ", Cmd_REVEAL_MAP_LOCATION, NULL, NULL},
+  {"REVEAL_MAP_LOCATION",               "PNA     ", Cmd_REVEAL_MAP_LOCATION, NULL, NULL},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
