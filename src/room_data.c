@@ -3887,14 +3887,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     }
     SYNCDBG(7,"Updating efficiency");
     do_slab_efficiency_alteration(slb_x, slb_y);
-    if (rkind == RoK_TREASURE)
-    {
-        set_room_stats(room, false);
-    }
-    else
-    {
-        do_room_recalculation(room);
-    }
+    do_room_recalculation(room);
     if (owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(owner);
@@ -4342,6 +4335,10 @@ void do_room_recalculation(struct Room* room)
     set_room_efficiency(room);
     recalculate_room_health(room, oldmax);
     update_room_total_capacity(room);
+    if (room->kind == RoK_TREASURE)
+    {
+        update_room_contents(room);
+    }
     init_room_sparks(room);
 }
 
