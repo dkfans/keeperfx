@@ -2338,7 +2338,7 @@ struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, 
 {
     SYNCDBG(19,"Starting");
     // Count all creatures in list, so that we can know range for our random index
-    long total_count = count_player_list_creatures_of_model(thing_idx, 0);
+    long total_count = count_player_list_creatures_of_model(thing_idx, CREATURE_ANY);
     struct Thing* retng = INVALID_THING;
     long maximizer = 0;
     if (total_count < 1)
