@@ -539,7 +539,7 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFi
 {
     if (thing->class_id == param->class_id)
     {
-        if (param->model_id != -2 && (thing->model == param->model_id))
+        if (param->model_id != CREATURE_NOT_A_DIGGER && (thing->model == param->model_id))
         {
             // Skip wrong models
             return -1;
@@ -1934,10 +1934,10 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
-    if (((crmodel > 0) && !is_spec_digger) || (crmodel == -1) || (crmodel == -2)) {
+    if (((crmodel > 0) && !is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) {
         count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((crmodel > 0) && is_spec_digger) || (crmodel == -1) || (crmodel == -3)) {
+    if (((crmodel > 0) && is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return count;
@@ -2102,7 +2102,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
  */
 long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
 {
-    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, -2, creature_is_kept_in_custody_by_enemy_or_dying);
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_NOT_A_DIGGER, creature_is_kept_in_custody_by_enemy_or_dying);
 }
 
 /**
@@ -2111,7 +2111,7 @@ long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
  */
 long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx)
 {
-    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, -3, creature_is_kept_in_custody_by_enemy_or_dying);
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_DIGGER, creature_is_kept_in_custody_by_enemy_or_dying);
 }
 
 GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
@@ -2256,7 +2256,7 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
     Thing_Maximizer_Filter filter = anywhere_thing_filter_call_bool_filter;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = (crmodel<0) ? -1 : crmodel;
+    param.model_id = (crmodel <= 0) ? CREATURE_ANY : crmodel;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
@@ -2267,10 +2267,10 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
-    if (((crmodel > 0) && !is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == -2)) {
+    if (((crmodel > 0) && !is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) {
         count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((crmodel > 0) && is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == -3)) {
+    if (((crmodel > 0) && is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return count;
@@ -3690,9 +3690,9 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
         return;
     }
     // Force leave or kill normal creatures
-    do_to_players_all_creatures_of_model(plyr_idx, -2, setup_creature_leave_or_die_if_possible);
+    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_NOT_A_DIGGER, setup_creature_leave_or_die_if_possible);
     // Kill all special diggers
-    do_to_players_all_creatures_of_model(plyr_idx, -3, setup_creature_die_if_not_in_custody);
+    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_DIGGER, setup_creature_die_if_not_in_custody);
 }
 
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
