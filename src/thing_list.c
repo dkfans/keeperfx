@@ -1901,10 +1901,10 @@ long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Th
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
-    if (((crmodel > 0) && !is_spec_digger) || (crmodel == -1) || (crmodel == -2)) {
+    if (((crmodel > 0) && !is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) {
         count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?CREATURE_ANY:crmodel, do_cb);
     }
-    if (((crmodel > 0) && is_spec_digger) || (crmodel == -1) || (crmodel == -3)) {
+    if (((crmodel > 0) && is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) {
         count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?CREATURE_ANY:crmodel, do_cb);
     }
     return count;
@@ -1923,7 +1923,7 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = (crmodel<=0) ? -1 : crmodel;
+    param.model_id = (crmodel <= 0) ? CREATURE_ANY : crmodel;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
