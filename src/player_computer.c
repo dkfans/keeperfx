@@ -629,12 +629,12 @@ long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx)
 
 long count_creatures_in_dungeon(const struct Dungeon *dungeon)
 {
-    return count_player_list_creatures_of_model(dungeon->creatr_list_start, 0);
+    return count_player_list_creatures_of_model(dungeon->creatr_list_start, CREATURE_ANY);
 }
 
 long count_diggers_in_dungeon(const struct Dungeon *dungeon)
 {
-    return count_player_list_creatures_of_model(dungeon->digger_list_start, 0);
+    return count_player_list_creatures_of_model(dungeon->digger_list_start, CREATURE_ANY);
 }
 
 /**
