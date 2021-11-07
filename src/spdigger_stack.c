@@ -521,10 +521,7 @@ TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, Map
             {
                 if (players_are_enemies(doortng->owner, creatng->owner))
                 {
-                    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-                    cctrl->combat.battle_enemy_idx = doortng->index;
-                    combat_door_state_melee_combat(creatng);
-                    return true;
+                    event_create_event_or_update_old_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_EnemyDoor, creatng->owner, doortng->index);
                 }
             }
         }
