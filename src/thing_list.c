@@ -1887,7 +1887,7 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, int crmodel,
 
 /** Does a function on all player creatures of given model.
  * @param plyr_idx Target player.
- * @param crmodel Creature model, or -1 for all, or -2 for all except special diggers, -3 for special diggers only.
+ * @param crmodel Creature model, or CREATURE_ANY for all, or CREATURE_NOT_A_DIGGER for all except special diggers, CREATURE_DIGGER for special diggers only.
  * @param do_cb The callback function to be executed.
  * @return Count of creatures for which the callback returned true.
  */
@@ -1907,7 +1907,7 @@ long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Th
 
 /** Counts creatures of given model belonging to given player.
  * @param plyr_idx Target player.
- * @param crmodel Creature model, or -1 for all (except special diggers).
+ * @param crmodel Creature model, or CREATURE_ANY for all (except special diggers).
  *
  * @return Count of players creatures.
  */
@@ -2240,7 +2240,7 @@ long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Fil
 /** Counts on whole map creatures owned by given player, which match given bool filter.
  *
  * @param plyr_idx Player whose things will be searched. Allies are not included, use -1 to select all.
- * @param crmodel Creature model, or CREATURE_ANY for all, or -2 for all except special diggers, -3 for special diggers only.
+ * @param crmodel Creature model, or CREATURE_ANY for all, or CREATURE_NOT_A_DIGGER for all except special diggers, CREATURE_DIGGER for special diggers only.
  * @param matcher_cb The test callback function to be executed.
  * @return Amount of matching things.
  */
