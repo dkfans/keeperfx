@@ -539,11 +539,6 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFi
 {
     if (thing->class_id == param->class_id)
     {
-        if (param->model_id != CREATURE_NOT_A_DIGGER && (thing->model == param->model_id))
-        {
-            // Skip wrong models
-            return -1;
-        }
         switch(param->class_id)
         {
         case TCls_Creature:
