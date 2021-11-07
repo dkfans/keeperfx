@@ -3424,7 +3424,7 @@ struct Thing *get_cavein_at_subtile_owned_by(MapSubtlCoord stl_x, MapSubtlCoord 
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_CaveIn;
-    param.model_id = CREATURE_ANY;
+    param.model_id = -1;
     param.plyr_idx = plyr_idx;
     const struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
@@ -3442,7 +3442,7 @@ struct Thing *get_food_at_subtile_available_to_eat_and_owned_by(MapSubtlCoord st
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_food_available_to_eat_and_owned_by;
     struct CompoundTngFilterParam param;
     param.class_id = -1;
-    param.model_id = CREATURE_ANY;
+    param.model_id = -1;
     param.plyr_idx = plyr_idx;
     const struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
