@@ -2148,7 +2148,7 @@ GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     long total_count;
-    TbBool is_spec_digger = ((crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
+    TbBool is_spec_digger = ((crmodel > CREATURE_ANY) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (is_spec_digger)
     {
