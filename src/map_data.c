@@ -26,6 +26,7 @@
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
 #include "map_blocks.h"
+#include "map_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -255,6 +256,51 @@ void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
     unsigned short nflag = (1 << plyr_idx);
     unsigned long i = (mapblk->data >> 28) | nflag;
     mapblk->data |= (i & 0x0F) << 28;
+}
+
+TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, SlabsFillIterParam param)
+{
+    PlayerNumber plyr_idx = param->num1;
+    long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
+    long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);
+    MapSubtlCoord stl_cx = slab_subtile_center(slab_x), stl_cy = slab_subtile_center(slab_y);
+    long s = STL_PER_SLB;
+    reveal_map_area(plyr_idx, stl_cx, stl_cx, stl_cy, stl_cy);
+    if (slab_is_wall(slab_x, slab_y))
+        return false;
+    if (slab_is_door(slab_x, slab_y))
+    {
+        if (slabmap_owner(get_slabmap_for_subtile(stl_cx, stl_cy)) != plyr_idx)
+            return false;
+    }
+    // now also reveal wall corners
+    if (slab_x - 1 >= 0)
+    {
+        if (slab_y - 1 >= 0)
+        {
+            if (slab_is_wall(slab_x - 1, slab_y) && slab_is_wall(slab_x, slab_y - 1) && slab_is_wall(slab_x - 1, slab_y - 1))
+                reveal_map_area(plyr_idx, stl_cx - s, stl_cx - s, stl_cy - s, stl_cy - s);
+        }
+        if (slab_y + 1 < max_slb_dim_y)
+        {
+            if (slab_is_wall(slab_x - 1, slab_y) && slab_is_wall(slab_x, slab_y + 1) && slab_is_wall(slab_x - 1, slab_y + 1))
+                reveal_map_area(plyr_idx, stl_cx - s, stl_cx - s, stl_cy + s, stl_cy + s);
+        }
+    }
+    if (slab_x + 1 < max_slb_dim_x)
+    {
+        if (slab_y - 1 >= 0)
+        {
+            if (slab_is_wall(slab_x + 1, slab_y) && slab_is_wall(slab_x, slab_y - 1) && slab_is_wall(slab_x + 1, slab_y - 1))
+                reveal_map_area(plyr_idx, stl_cx + s, stl_cx + s, stl_cy - s, stl_cy - s);
+        }
+        if (slab_y + 1 < max_slb_dim_y)
+        {
+            if (slab_is_wall(slab_x + 1, slab_y) && slab_is_wall(slab_x, slab_y + 1) && slab_is_wall(slab_x + 1, slab_y + 1))
+                reveal_map_area(plyr_idx, stl_cx + s, stl_cx + s, stl_cy + s, stl_cy + s);
+        }
+    }
+    return true;
 }
 
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)

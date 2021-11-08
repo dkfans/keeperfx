@@ -64,6 +64,8 @@
 #include "magic.h"
 #include "power_specials.h"
 #include "map_blocks.h"
+#include "map_data.h"
+#include "map_utils.h"
 #include "lvl_filesdk1.h"
 #include "frontend.h"
 #include "game_merge.h"
@@ -2215,85 +2217,11 @@ void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
     }
     if (r == -1)
     {
-        long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
-        long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);
-        long max_slabs_count = max_slb_dim_x * max_slb_dim_y;
-        char stack_x[max_slabs_count];
-        char stack_y[max_slabs_count];
-        char visited[max_slb_dim_x][max_slb_dim_y];
-        memset(stack_x, 0, max_slabs_count);
-        memset(stack_y, 0, max_slabs_count);
-        memset(visited, 0, max_slabs_count);
-        long stack_head = 0;
-        stack_x[0] = subtile_slab(x);
-        stack_y[0] = subtile_slab(y);
-        long cx, cy; // slab positions currently popped 
-        long s = STL_PER_SLB;
-
-        while (stack_head != -1)
-        {
-            cx = stack_x[stack_head];
-            cy = stack_y[stack_head];
-            stack_head--;
-            long stl_cx = slab_subtile_center(cx), stl_cy = slab_subtile_center(cy);
-            reveal_map_area(plyr_idx, stl_cx, stl_cx, stl_cy, stl_cy);
-            visited[cx][cy] = 1;
-
-            if (slab_is_wall(cx, cy)) continue;
-            if (slab_is_door(cx, cy) && slabmap_owner(get_slabmap_for_subtile(stl_cx, stl_cy)) != plyr_idx) continue;
-            if (cx + 1 < max_slb_dim_x && !visited[cx+1][cy])
-            {
-                stack_head++;
-                stack_x[stack_head] = cx + 1;
-                stack_y[stack_head] = cy;
-            }
-            if (cx - 1 >= 0 && !visited[cx-1][cy])
-            {
-                stack_head++;
-                stack_x[stack_head] = cx - 1;
-                stack_y[stack_head] = cy;
-            }
-            if (cy + 1 < max_slb_dim_y && !visited[cx][cy+1])
-            {
-                stack_head++;
-                stack_x[stack_head] = cx;
-                stack_y[stack_head] = cy + 1;
-            }
-            if (cy - 1 >= 0 && !visited[cx][cy-1])
-            {
-                stack_head++;
-                stack_x[stack_head] = cx;
-                stack_y[stack_head] = cy - 1;
-            }
-            // now also reveal wall corners
-            if (cx - 1 >= 0)
-            {
-                if (cy - 1 >= 0)
-                {
-                    if (slab_is_wall(cx - 1, cy) && slab_is_wall(cx, cy - 1) && slab_is_wall(cx - 1, cy - 1))
-                        reveal_map_area(plyr_idx, stl_cx - s, stl_cx - s, stl_cy - s, stl_cy - s);
-                }
-                if (cy + 1 < max_slb_dim_y)
-                {
-                    if (slab_is_wall(cx - 1, cy) && slab_is_wall(cx, cy + 1) && slab_is_wall(cx - 1, cy + 1))
-                        reveal_map_area(plyr_idx, stl_cx - s, stl_cx - s, stl_cy + s, stl_cy + s);
-                }
-            }
-            if (cx + 1 < max_slb_dim_x)
-            {
-                if (cy - 1 >= 0)
-                {
-                    if (slab_is_wall(cx + 1, cy) && slab_is_wall(cx, cy - 1) && slab_is_wall(cx + 1, cy - 1))
-                        reveal_map_area(plyr_idx, stl_cx + s, stl_cx + s, stl_cy - s, stl_cy - s);
-                }
-                if (cy + 1 < max_slb_dim_y)
-                {
-                    if (slab_is_wall(cx + 1, cy) && slab_is_wall(cx, cy + 1) && slab_is_wall(cx + 1, cy + 1))
-                        reveal_map_area(plyr_idx, stl_cx + s, stl_cx + s, stl_cy + s, stl_cy + s);
-                }
-            }
-        }
-    } else reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
+        struct CompoundSlabsFillIterParam iter_param;
+        iter_param.num1 = plyr_idx;
+        slabs_fill_iterate_from_slab(subtile_slab(x), subtile_slab(y), slabs_reveal_slab_and_corners, &iter_param);
+    } else
+        reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
 void command_set_start_money(long plr_range_id, long gold_val)
