@@ -714,6 +714,8 @@ TbBool object_is_gold_hoard(const struct Thing *thing)
 
 TbBool object_is_gold_pile(const struct Thing *thing)
 {
+    if (thing->class_id != TCls_Object)
+        return false;
     switch (thing->model)
     {
       case 3: // Chest of gold
