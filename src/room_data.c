@@ -2311,19 +2311,19 @@ TbBool update_room_total_health(struct Room *room)
     return true;
 }
 
-TbBool recalculate_room_health(struct Room* room, int oldmax)
+TbBool recalculate_room_health(struct Room* room)
 {
     SYNCDBG(17, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
-    if ((oldmax == 0) || (room->health == 0))
+    int newhealth = (room->health + game.hits_per_slab);
+    int maxhealth = compute_room_max_health(room->slabs_count, room->efficiency);
+    
+    if ((newhealth <= maxhealth) && (newhealth >= 0))
     {
-        room->health = compute_room_max_health(room->slabs_count, room->efficiency);
+        room->health = newhealth;
+        return true;
     }
-    else 
-    {
-        int newmax = compute_room_max_health(room->slabs_count, room->efficiency);
-        room->health = (room->health * newmax / oldmax);
-    }
-    return true;
+    room->health = maxhealth;
+    return false;
 }
 
 TbBool update_room_contents(struct Room *room)
@@ -4331,9 +4331,8 @@ void do_room_integration(struct Room *room)
 void do_room_recalculation(struct Room* room)
 {
     SYNCDBG(7, "Starting for %s index %d owned by player %d", room_code_name(room->kind), (int)room->index, (int)room->owner);
-    int oldmax = compute_room_max_health(room->slabs_count, room->efficiency);
     set_room_efficiency(room);
-    recalculate_room_health(room, oldmax);
+    recalculate_room_health(room);
     update_room_total_capacity(room);
     if (room->kind == RoK_TREASURE)
     {
