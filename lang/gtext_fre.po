@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/POT-Creation-"
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2021-11-10 18:27+0100\n"
+"PO-Revision-Date: 2021-11-10 20:04+0100\n"
 "Last-Translator: Vosa G Thomas <vosathomas@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: fr_FR\n"
@@ -234,7 +234,7 @@ msgid ""
 msgstr ""
 "Que diriez-vous d'une poignée de créatures prêtes à être balancées sur les "
 "intrus? Pour les prendre rapidement, cliquez avec le bouton Gauche dans le "
-"panneau des Creatures. Vous ne pouvez les laisser tomber que dans les limites "
+"panneau des Créatures. Vous ne pouvez les laisser tomber que dans les limites "
 "de votre Donjon."
 
 #. Level Eversmile objective some time after all rooms are built
@@ -288,7 +288,7 @@ msgid ""
 "You require more Imps. Use the Create Imp spell to conjure them into your "
 "domain. Remember, each Imp you create is more expensive than the last."
 msgstr ""
-"Il vous faut plus de lutins. Utilisez le sort de Creation de Lutin pour les "
+"Il vous faut plus de lutins. Utilisez le sort de Création de Lutin pour les "
 "attirer dans votre domaine. N'oubliez pas que chaque nouveau lutin est plus "
 "cher que le précédent."
 
@@ -360,7 +360,7 @@ msgid ""
 "Spawn. Build it and they will come."
 msgstr ""
 "La Salle D'entraînement attire des créatures extrêmement féroces, tel que le "
-"Demon Avorton. Construisez-en une et ils viendront."
+"Démon Avorton. Construisez-en une et ils viendront."
 
 #. Level Cosyton information after attracting Demon Spawn
 #: guitext:28
@@ -371,7 +371,7 @@ msgid ""
 "cost for that creature to train."
 msgstr ""
 "Pour entraîner les créatures, laissez-les tomber dans la Salle "
-"d'Entrainement. Le nombre qui apparaît parfois au-dessus de leur tête indique "
+"d’Entraînement. Le nombre qui apparaît parfois au-dessus de leur tête indique "
 "le prix en or de leur entraînement."
 
 #. Level Cosyton information some time after Demon Spawn
@@ -539,7 +539,7 @@ msgid ""
 "perfected. Cast it on a creature and observe the dramatic increase in its "
 "speed. The effect wears off after a while."
 msgstr ""
-"Vos recherches portent déjà leurs fruits. Le sortilège d'Acceleration est une "
+"Vos recherches portent déjà leurs fruits. Le sortilège d'Accélération est une "
 "réussite. Utilisez-le et constatez la rapidité incroyable de la créature. "
 "L'effet disparaît progressivement."
 
@@ -866,7 +866,7 @@ msgid ""
 "An Orc warlord joins you and brings with him the plans for building a "
 "Barracks. In this room you can form creatures into teams."
 msgstr ""
-"Un sorcier orque vous rejoint et apporte les plans d'un Quartier General. "
+"Un sorcier orque vous rejoint et apporte les plans d'un Quartier Général. "
 "Dans cette salle, vous pourrez rassembler des équipes de créatures."
 
 #. Level Wishvale objective
@@ -923,7 +923,7 @@ msgid ""
 "You have researched the power of Invisibility. Cast it on a creature to hide "
 "it from enemy eyes."
 msgstr ""
-"Vous avez découvert l'Invisibilite. Lancez ce sortilège sur une de vos "
+"Vous avez découvert l’Invisibilité. Lancez ce sortilège sur une de vos "
 "créatures pour que l'ennemi ne puisse plus la voir."
 
 #. Level Tickle information
@@ -1003,7 +1003,7 @@ msgid ""
 "Your researchers have concocted a Disease spell. Cast it on enemy creatures "
 "and watch the affliction spread like the plague."
 msgstr ""
-"Vos chercheurs ont mis au point un sortilège d'Epidemie. Lancez-le sur les "
+"Vos chercheurs ont mis au point un sortilège d’Épidémie. Lancez-le sur les "
 "créatures ennemies et observez le mal se répandre comme la peste."
 
 #. Level Moonbrush Wood information
@@ -1094,7 +1094,7 @@ msgid ""
 "within a Scavenger Room will lure their kin from other dungeons and the "
 "outside world, into your domain."
 msgstr ""
-"Vos bibliothécaires inépuisables ont découvert la salle d'Enrolement. Les "
+"Vos bibliothécaires inépuisables ont découvert la salle d’Enrôlement. Les "
 "créatures qui y sont placées vont y attirer leurs semblables."
 
 #. Level Nevergrim information
@@ -1105,13 +1105,13 @@ msgid ""
 "creatures. Keep your eye on this one."
 msgstr ""
 "Votre richesse colossale a permis d'acheter la loyauté d'un Dragon de "
-"passage. Les Dragons sont des créatures instables, gardez un œil sur lui."
+"passage. Les Dragons sont des créatures instables, gardez un oeil sur lui."
 
 #. Level Nevergrim information
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
-msgstr "Un Cerbere a été attiré dans votre domaine par la salle d'Enrolement."
+msgstr "Un Cerbere a été attiré dans votre domaine par la salle d’Enrôlement."
 
 #. Level Buffy Oak objective
 #: guitext:95
@@ -1614,7 +1614,7 @@ msgstr ""
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
-msgstr "Tempus Fugitivus, Gardien, Vous étiez prévenu."
+msgstr "Tempus Fugit, Gardien, Vous étiez prévenu."
 
 #. Level Bonus 2 objective
 #: guitext:142
@@ -1846,7 +1846,7 @@ msgid ""
 "held captive in this realm, he will serve you for some time to come."
 msgstr ""
 "Eliminez une horde particulièrement abjecte de Nains qui sillonnent la "
-"région, et recrutez autant de Demons Enrages que vous pouvez. Si vous libérez "
+"région, et recrutez autant de Démons Enrages que vous pouvez. Si vous libérez "
 "le Mage emprisonné dans ce royaume, il vous servira pendant quelque temps."
 
 #: guitext:165
@@ -1855,7 +1855,7 @@ msgid ""
 "Take more care of your Bile Demons or you will never make it beyond this "
 "realm."
 msgstr ""
-"Occupez-vous un peu mieux de vos Demons Enrages, sans quoi vous n'irez jamais "
+"Occupez-vous un peu mieux de vos Démons Enrages, sans quoi vous n'irez jamais "
 "plus loin que ce royaume."
 
 #. Level Bonus 1 objective
@@ -2188,7 +2188,7 @@ msgid ""
 "Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
 msgstr ""
-"Œil : Permet à la créature d'augmenter temporairement sa conscience et de "
+"Oeil : Permet à la créature d'augmenter temporairement sa conscience et de "
 "remarquer l'invisible."
 
 #: guitext:233
@@ -4848,7 +4848,7 @@ msgstr "Salle perdue"
 #: guitext:672
 msgctxt "Game event name"
 msgid "Heart attacked"
-msgstr "Cœur attaqué"
+msgstr "Coeur attaqué"
 
 #: guitext:673
 msgctxt "Game event name"
@@ -6924,7 +6924,7 @@ msgstr "Caméra Snap"
 #: guitext:1005
 msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
-msgstr "Boite Mystérieuse : Rien ne peut nous dire ce qu'elle ferra."
+msgstr "Boite Mystérieuse : Rien ne peut nous dire ce qu'elle fera."
 
 #: guitext:1006
 msgctxt "Network game message"
