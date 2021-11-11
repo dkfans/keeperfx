@@ -511,20 +511,8 @@ TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, Map
     if ((slb_y < 0) || (slb_y >= map_tiles_y)) {
         return false;
     }
-    if (!check_place_to_convert_excluding(creatng, slb_x, slb_y)) {
-        if (slab_is_door(slb_x, slb_y))
-        {
-            stl_x = slab_subtile_center(slb_x);
-            stl_y = slab_subtile_center(slb_y);
-            struct Thing *doortng = get_door_for_position(stl_x, stl_y);
-            if (!thing_is_invalid(doortng))
-            {
-                if (players_are_enemies(doortng->owner, creatng->owner))
-                {
-                    event_create_event_or_update_old_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_EnemyDoor, creatng->owner, doortng->index);
-                }
-            }
-        }
+    if (!check_place_to_convert_excluding(creatng, slb_x, slb_y))
+    {
         return false;
     }
     stl_x = slab_subtile_center(slb_x);
@@ -1183,6 +1171,17 @@ long add_to_pretty_to_imp_stack_if_need_to(long slb_x, long slb_y, struct Dungeo
             if (subtile_revealed(stl_x, stl_y, dungeon->owner) && slab_by_players_land(dungeon->owner, slb_x, slb_y)) {
                 (*remain_num)--;
                 return add_to_imp_stack_using_pos(get_subtile_number_at_slab_center(slb_x, slb_y), DigTsk_ConvertDungeon, dungeon);
+            }
+        }
+    }
+    if (slab_is_door(slb_x, slb_y)) // Door is in the way of claiming
+    {
+        struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if (!thing_is_invalid(doortng))
+        {
+            if (players_are_enemies(doortng->owner, dungeon->owner))
+            {
+                event_create_event_or_update_old_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_EnemyDoor, dungeon->owner, doortng->index);
             }
         }
     }
