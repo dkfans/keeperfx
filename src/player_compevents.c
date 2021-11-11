@@ -532,11 +532,17 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
 
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, 1))
     {
+        long creatrs_def = count_creatures_for_defend_pickup(comp);
+        if (creatrs_def < cevent->param1)
+        {
+            SYNCDBG(18, "Not enough creatures to drop", cevent->name);
+            return 0;
+        }
         struct Thing* creatng = find_creature_for_defend_pickup(comp);
         if (creatng == INVALID_THING)
         {
-            SYNCDBG(18, "Cannot find a creature to drop", cevent->name);
-            return 4;
+            SYNCDBG(18, "Invalid creature selected", cevent->name);
+            return 0;
         }
         if(!create_task_move_creature_to_pos(comp, creatng, doorpos, CrSt_CreatureDoorCombat))
         {
@@ -552,7 +558,7 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         {
             if (check_call_to_arms(comp))
             {
-                if (!create_task_magic_battle_call_to_arms(comp, &freepos, cevent->param1, cevent->param2))
+                if (!create_task_magic_battle_call_to_arms(comp, &freepos, cevent->param2, cevent->param3))
                 {
                     SYNCDBG(18, "Cannot call to arms for %s", cevent->name);
                     return 0;
