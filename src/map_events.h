@@ -27,7 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define EVENT_BUTTONS_COUNT    12
-#define EVENT_KIND_COUNT       34
+#define EVENT_KIND_COUNT       32
 #define EVENTS_COUNT          100
 #define INVALID_EVENT &game.event[0]
 
