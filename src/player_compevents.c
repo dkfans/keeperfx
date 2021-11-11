@@ -536,13 +536,13 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         if (creatrs_def < cevent->param1)
         {
             SYNCDBG(18, "Not enough creatures to drop", cevent->name);
-            return 0;
+            return 4;
         }
         struct Thing* creatng = find_creature_for_defend_pickup(comp);
         if (creatng == INVALID_THING)
         {
             SYNCDBG(18, "Invalid creature selected", cevent->name);
-            return 0;
+            return 4;
         }
         if(!create_task_move_creature_to_pos(comp, creatng, doorpos, CrSt_CreatureDoorCombat))
         {

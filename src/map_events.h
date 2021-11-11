@@ -27,7 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define EVENT_BUTTONS_COUNT    12
-#define EVENT_KIND_COUNT       32
+#define EVENT_KIND_COUNT       34
 #define EVENTS_COUNT          100
 #define INVALID_EVENT &game.event[0]
 
@@ -101,7 +101,7 @@ struct Bookmark { // sizeof = 3
 
 #pragma pack()
 /******************************************************************************/
-extern struct EventTypeInfo event_button_info[EVENT_KIND_COUNT];
+extern struct EventTypeInfo event_button_info[EVENT_KIND_COUNT-2];
 /******************************************************************************/
 struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_idx);
 struct Event *get_event_of_target_and_type_for_player(long target, EventKind evkind, PlayerNumber plyr_idx);
