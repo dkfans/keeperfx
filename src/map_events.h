@@ -101,7 +101,7 @@ struct Bookmark { // sizeof = 3
 
 #pragma pack()
 /******************************************************************************/
-extern struct EventTypeInfo event_button_info[EVENT_KIND_COUNT-2];
+extern struct EventTypeInfo event_button_info[EVENT_KIND_COUNT];
 /******************************************************************************/
 struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_idx);
 struct Event *get_event_of_target_and_type_for_player(long target, EventKind evkind, PlayerNumber plyr_idx);
