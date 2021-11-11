@@ -172,9 +172,9 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         SYNCDBG(8,"Drop position is solid for %s",cevent->name);
         return 0;
     }
-    if (computer_able_to_use_power(comp, PwrK_HAND, 1, 1))
+    if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
     {
-        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend))
+        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
         {
             if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2)) {
                 SYNCDBG(18,"Cannot move to defend for %s",cevent->name);
@@ -182,7 +182,6 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
             }
             return 1;
         }
-        return 4;
     }
     if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 1, 1))
     {
