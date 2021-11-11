@@ -4819,7 +4819,7 @@ void display_drawlist(void)
       }
     }
     if (render_problems > 0)
-      WARNLOG("Encoured %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
+      WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
 }
 
 static void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
@@ -5157,7 +5157,7 @@ static void display_fast_drawlist(struct Camera *cam)
         }
     } // end for(bucket_num...
     if (render_problems > 0) {
-        WARNLOG("Encoured %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
+        WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
     }
 }
 
