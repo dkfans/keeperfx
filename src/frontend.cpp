@@ -311,6 +311,7 @@ struct FrontEndButtonData frontend_button_info[] = {
     {GUIStr_MnuMapPacks, 2},
 };
 
+// bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
 struct EventTypeInfo event_button_info[] = {
   {260, GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
   {260, GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
