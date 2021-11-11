@@ -172,9 +172,9 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         SYNCDBG(8,"Drop position is solid for %s",cevent->name);
         return 0;
     }
-    if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
+    if (computer_able_to_use_power(comp, PwrK_HAND, 1, 1))
     {
-        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
+        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend))
         {
             if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2)) {
                 SYNCDBG(18,"Cannot move to defend for %s",cevent->name);
@@ -182,6 +182,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
             }
             return 1;
         }
+        return 4;
     }
     if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 1, 1))
     {
@@ -511,6 +512,12 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         SYNCDBG(8, "Target %s is not a door", thing_model_name(thing));
         return 0;
     }
+    if (!players_are_enemies(comp->dungeon->owner, thing->owner))
+    {
+        SYNCDBG(8, "Door owner is no longer an enemy");
+        return 0;
+    }
+
     struct Coord3d doorpos = thing->mappos;
 
     struct Coord3d freepos;
@@ -518,55 +525,35 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         SYNCDBG(8, "No drop position near (%d,%d) for %s", (int)coord_subtile(event->mappos_x), (int)coord_subtile(event->mappos_y), cevent->name);
         return 0;
     }
-    
-    MapSlabCoord slb_x = subtile_slab(coord_subtile(event->mappos_x));
-    MapSlabCoord slb_y = subtile_slab(coord_subtile(event->mappos_y));
-
-
-    long creatrs_def = count_creatures_for_defend_pickup(comp);
-    long creatrs_num = cevent->param1; // creatures to drop
-    if (creatrs_num > creatrs_def)
-    {
-        creatrs_num = creatrs_def; // Don't drop more units than I have available for defense.
-    }
-    if (creatrs_num <= 0)
-    {
-        SYNCDBG(8, "Not dropping any creatures now %s", cevent->name);
-        if (creatrs_num > 0)
-        {
-            return 4; // Try when we have more units
-        }
-        else
-        {
-            return 1; // If we want to drop 0 units, we're done without dropping.
-        }
-    }
 
     if (!computer_find_non_solid_block(comp, &freepos)) {
         SYNCDBG(8, "Drop position is solid for %s", cevent->name);
         return 0;
     }
-    if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
+
+    if (computer_able_to_use_power(comp, PwrK_HAND, 1, 1))
     {
-        if (!is_task_in_progress(comp, CTT_PickupForAttack) || ((cevent->param2 & 0x02) != 0))
+        struct Thing* creatng = find_creature_for_defend_pickup(comp);
+        if (creatng == INVALID_THING)
         {
-            struct Thing* creatng = find_creature_for_defend_pickup(comp);
-            if(!create_task_move_creature_to_pos(comp, creatng, doorpos, CrSt_CreatureDoorCombat))
-            {
-                SYNCDBG(18, "Cannot move to defend for %s", cevent->name);
-                return 0;
-            }
-            return 1;
+            SYNCDBG(18, "Cannot find a creature to drop", cevent->name);
+            return 4;
         }
+        if(!create_task_move_creature_to_pos(comp, creatng, doorpos, CrSt_CreatureDoorCombat))
+        {
+            SYNCDBG(18, "Cannot move to position for event %s", cevent->name);
+            return 0;
+        }
+        return 1;
     }
 
     if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 1, 1))
     {
-        if (!is_task_in_progress(comp, CTT_MagicCallToArms) || ((cevent->param2 & 0x02) != 0)) //todo wft is param2 used here
+        if (!is_task_in_progress(comp, CTT_MagicCallToArms))
         {
             if (check_call_to_arms(comp))
             {
-                if (!create_task_magic_battle_call_to_arms(comp, &freepos, 2500, 2)) //todo magic numbers
+                if (!create_task_magic_battle_call_to_arms(comp, &freepos, cevent->param1, cevent->param2))
                 {
                     SYNCDBG(18, "Cannot call to arms for %s", cevent->name);
                     return 0;
