@@ -45,12 +45,10 @@ struct MapOffset {
 
 typedef struct CompoundCoordFilterParam * MaxCoordFilterParam;
 
-typedef struct CompoundSlabsFillIterParam * SlabsFillIterParam;
-
 /** Definition of a callback type used for selecting best position by maximizing a value. */
 typedef long (*Coord_Maximizer_Filter)(const struct Coord3d *, MaxCoordFilterParam, long);
 
-typedef TbBool (*SlabsFillIterAction)(MapSlabCoord, MapSlabCoord, SlabsFillIterParam);
+typedef TbBool (*SlabsFillIterAction)(MapSlabCoord, MapSlabCoord, MaxCoordFilterParam);
 
 struct CompoundCoordFilterParam {
      long plyr_idx;
@@ -67,12 +65,6 @@ struct CompoundCoordFilterParam {
      long num3;
      void *ptr3;
      };
-};
-
-struct CompoundSlabsFillIterParam {
-  long num1;
-  long num2;
-  long num3;
 };
 
 /******************************************************************************/
@@ -95,7 +87,7 @@ void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubt
     MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
     MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height);
 
-void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, SlabsFillIterParam param);
+void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param);
 
 unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y);
 
@@ -112,6 +104,13 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
 long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbkind);
 
 TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
+
+enum FillIterType {
+  FillIterType_Match = 1,
+  FillIterType_Floor,
+  FillIterType_FloorBridge,
+};
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -173,7 +173,7 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
     return -1;
 }
 
-void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, SlabsFillIterParam param)
+void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param)
 {
     long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
     long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);

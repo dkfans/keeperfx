@@ -413,8 +413,10 @@ const struct NamedCommand campaign_flag_desc[] = {
 };
 
 const struct NamedCommand fill_desc[] = {
-  {"FILL",        1},
-  {NULL,          0},
+  {"FILL",                  FillIterType_Match},
+  {"FILL_FLOOR",            FillIterType_Floor},
+  {"FILL_FLOOR_BRIDGE",     FillIterType_FloorBridge},
+  {NULL,            0},
 };
 
 const struct NamedCommand script_operator_desc[] = {
@@ -2217,8 +2219,8 @@ void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
     }
     if (r == -1)
     {
-        struct CompoundSlabsFillIterParam iter_param;
-        iter_param.num1 = plyr_idx;
+        struct CompoundCoordFilterParam iter_param;
+        iter_param.plyr_idx = plyr_idx;
         slabs_fill_iterate_from_slab(subtile_slab(x), subtile_slab(y), slabs_reveal_slab_and_corners, &iter_param);
     } else
         reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
@@ -3297,9 +3299,9 @@ void command_reveal_map_rect(long plr_range_id, long x, long y, long w, long h)
     command_add_value(Cmd_REVEAL_MAP_RECT, plr_range_id, x, y, (h<<16)+w);
 }
 
-void command_change_slab_owner(long x, long y, long plr_range_id)
+void command_change_slab_owner(long x, long y, long plr_range_id, const char *fill_type)
 {
-    command_add_value(Cmd_CHANGE_SLAB_OWNER, plr_range_id, x, y, 0);
+    command_add_value(Cmd_CHANGE_SLAB_OWNER, plr_range_id, x, y, get_rid(fill_desc, fill_type));
 }
 
 void command_change_slab_type(long x, long y, long slab_type)
@@ -4236,7 +4238,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_door_configuration(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
     case Cmd_CHANGE_SLAB_OWNER:
-        command_change_slab_owner(scline->np[0], scline->np[1], scline->np[2]);
+        command_change_slab_owner(scline->np[0], scline->np[1], scline->np[2], scline->tp[3]);
         break;
     case Cmd_CHANGE_SLAB_TYPE:
         command_change_slab_type(scline->np[0], scline->np[1], scline->np[2]);
@@ -6410,7 +6412,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct CreatureModelConfig *crconf;
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  struct SlabMap *slb;
   struct TrapConfigStats* trapst;
   struct DoorConfigStats* doorst;
   struct ManfctrConfig* mconf;
@@ -6900,25 +6901,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val3);
       } else
       {
-          slb = get_slabmap_block(val2, val3);
-          if (slb->room_index)
+          if (val4 != -1)
           {
-              struct Room* room = room_get(slb->room_index);
-              take_over_room(room, plr_range_id);
-          } else
-          if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
-          {
-              short slbkind;
-              if (slb->kind == SlbT_PATH)
-              {
-                  slbkind = SlbT_CLAIMED;
-              }
-              else
-              {
-                  slbkind = slb->kind;
-              }
-              place_slab_type_on_map(slbkind, slab_subtile(val2, 0), slab_subtile(val3, 0), plr_range_id, 0);
-          }
+            struct CompoundCoordFilterParam iter_param;
+            iter_param.plyr_idx = plr_range_id;
+            iter_param.num1 = val4;
+            iter_param.num2 = get_slabmap_block(val2, val3)->kind;
+            slabs_fill_iterate_from_slab(val2, val3, slabs_change_owner, &iter_param);
+          } else change_slab_owner_from_script(val2, val3, plr_range_id);
       }
       break;
   case Cmd_CHANGE_SLAB_TYPE:
@@ -7734,7 +7724,7 @@ const struct CommandDesc command_desc[] = {
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
   {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
-  {"CHANGE_SLAB_OWNER",                 "NNP     ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
+  {"CHANGE_SLAB_OWNER",                 "NNPa    ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
   {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
   {"CREATE_EFFECTS_LINE",               "LLNNNN  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},

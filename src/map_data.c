@@ -27,6 +27,7 @@
 #include "frontmenu_ingame_map.h"
 #include "map_blocks.h"
 #include "map_utils.h"
+#include "room_util.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -258,9 +259,9 @@ void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
     mapblk->data |= (i & 0x0F) << 28;
 }
 
-TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, SlabsFillIterParam param)
+TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param)
 {
-    PlayerNumber plyr_idx = param->num1;
+    PlayerNumber plyr_idx = param->plyr_idx;
     long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
     long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);
     MapSubtlCoord stl_cx = slab_subtile_center(slab_x), stl_cy = slab_subtile_center(slab_y);
@@ -301,6 +302,29 @@ TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, S
         }
     }
     return true;
+}
+
+TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
+{
+    unsigned long plr_range_id = param->plyr_idx;
+    long fill_type = param->num1;
+    SlabKind orig_slab_kind = param->num2;
+    SlabKind ck = get_slabmap_block(slb_x, slb_y)->kind; // current kind
+
+    TbBool check_for_any_wall = orig_slab_kind >= SlbT_WALLDRAPE && orig_slab_kind <= SlbT_WALLPAIRSHR;
+    TbBool will_change = ck == orig_slab_kind;
+    will_change |= check_for_any_wall && (ck >= SlbT_WALLDRAPE && ck <= SlbT_WALLPAIRSHR);
+    will_change |= (fill_type == FillIterType_Floor || fill_type == FillIterType_FloorBridge) && (
+        (fill_type == FillIterType_FloorBridge && ck == SlbT_BRIDGE) ||
+        ck == SlbT_PATH || ck == SlbT_CLAIMED || ck == SlbT_GUARDPOST ||
+        (ck >= SlbT_TREASURE && ck <= SlbT_BARRACKS && ck != SlbT_DUNGHEART)
+    );
+    if (will_change)
+    {
+        change_slab_owner_from_script(slb_x, slb_y, plr_range_id);
+        return true;
+    }
+    return false;
 }
 
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
