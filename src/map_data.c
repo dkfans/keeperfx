@@ -327,6 +327,32 @@ TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilter
     return false;
 }
 
+TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
+{
+    SlabKind target_slab_kind = param->num1;
+    long fill_type = param->num2;
+    SlabKind orig_slab_kind = param->num3;
+    SlabKind ck = get_slabmap_block(slb_x, slb_y)->kind; // current kind
+
+    TbBool check_for_any_earth = orig_slab_kind == SlbT_EARTH;
+    TbBool check_for_any_wall = orig_slab_kind >= SlbT_WALLDRAPE && orig_slab_kind <= SlbT_WALLPAIRSHR;
+    TbBool will_change = ck == orig_slab_kind;
+    will_change |= check_for_any_earth && (ck == SlbT_EARTH || ck == SlbT_TORCHDIRT);
+    will_change |= check_for_any_wall && (ck >= SlbT_WALLDRAPE && ck <= SlbT_WALLPAIRSHR);
+    will_change |= (fill_type == FillIterType_Floor || fill_type == FillIterType_FloorBridge) && (
+        (fill_type == FillIterType_FloorBridge && ck == SlbT_BRIDGE) ||
+        ck == SlbT_PATH || ck == SlbT_CLAIMED || ck == SlbT_GUARDPOST ||
+        (ck >= SlbT_TREASURE && ck <= SlbT_BARRACKS && ck != SlbT_DUNGHEART)
+    );
+    if (will_change)
+    {
+        if (ck != target_slab_kind)
+            replace_slab_from_script(slb_x, slb_y, target_slab_kind);
+        return true;
+    }
+    return false;
+}
+
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     unsigned short plyr_bit = (1 << plyr_idx);

@@ -87,6 +87,7 @@ TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx);
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool slabs_change_owner(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
+TbBool slabs_change_type(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx);
 TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit);
 

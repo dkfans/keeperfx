@@ -3304,9 +3304,10 @@ void command_change_slab_owner(long x, long y, long plr_range_id, const char *fi
     command_add_value(Cmd_CHANGE_SLAB_OWNER, plr_range_id, x, y, get_rid(fill_desc, fill_type));
 }
 
-void command_change_slab_type(long x, long y, long slab_type)
+void command_change_slab_type(long x, long y, long slab_type, const char *fill_type)
 {
-    command_add_value(Cmd_CHANGE_SLAB_TYPE, 0, x, y, slab_type);
+    long coords = (x << 16) | y;
+    command_add_value(Cmd_CHANGE_SLAB_TYPE, 0, coords, slab_type, get_rid(fill_desc, fill_type));
 }
 
 void command_reveal_map_location(long plr_range_id, const char *locname, const char *range_arg)
@@ -4241,7 +4242,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_change_slab_owner(scline->np[0], scline->np[1], scline->np[2], scline->tp[3]);
         break;
     case Cmd_CHANGE_SLAB_TYPE:
-        command_change_slab_type(scline->np[0], scline->np[1], scline->np[2]);
+        command_change_slab_type(scline->np[0], scline->np[1], scline->np[2], scline->tp[3]);
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
@@ -6912,20 +6913,32 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
   case Cmd_CHANGE_SLAB_TYPE:
-      if (val2 < 0 || val2 > 85)
       {
-          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val2); 
-      } else
-      if (val3 < 0 || val3 > 85)
-      {
-          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val3);
-      } else
-      if (val4 < 0 || val4 > 53)
-      {
-          SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-53 allowed.", val4);
-      } else
-      {
-          replace_slab_from_script(val2, val3, val4);
+        long x = val2 >> 16;
+        long y = val2 & 0xff;
+        if (x < 0 || x > 85)
+        {
+            SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", x);
+        } else
+        if (y < 0 || y > 85)
+        {
+            SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", y);
+        } else
+        if (val3 < 0 || val3 > 53)
+        {
+            SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-53 allowed.", val3);
+        } else
+        {
+          if (val4 != -1)
+          {
+              struct CompoundCoordFilterParam iter_param;
+              iter_param.num1 = val3;
+              iter_param.num2 = val4;
+              iter_param.num3 = get_slabmap_block(x, y)->kind;
+              slabs_fill_iterate_from_slab(x, y, slabs_change_type, &iter_param);
+          } else
+            replace_slab_from_script(x, y, val3);
+        }
       }
       break;
   case Cmd_KILL_CREATURE:
@@ -7725,7 +7738,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
   {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
   {"CHANGE_SLAB_OWNER",                 "NNPa    ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
-  {"CHANGE_SLAB_TYPE",                  "NNS     ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
+  {"CHANGE_SLAB_TYPE",                  "NNSa    ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
   {"CREATE_EFFECTS_LINE",               "LLNNNN  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
