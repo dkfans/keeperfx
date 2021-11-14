@@ -324,16 +324,32 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     if (room->slabs_count <= 1)
     {
         delete_room_flag(room);
-        // Create a new one-slab room
-        place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
-        if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
+        // If we're looking to place a non-room slab, simply place it.
+        if (rkind == 0)
         {
-            event_create_event_or_update_nearby_existing_event(slb_x, slb_y, EvKind_RoomLost, room->owner, room->kind);
+            if (slab_kind_is_animated(slabkind))
+            {
+                place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+            }
+            else
+            {
+                place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+            }
+        }
+        else
+        {
+            // Create a new one-slab room
+            place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
+            if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
+            {
+                event_create_event_or_update_nearby_existing_event(slb_x, slb_y, EvKind_RoomLost, room->owner, room->kind);
+            }
         }
         //Clean up old room
         kill_all_room_slabs_and_contents(room);
         free_room_structure(room);
         do_slab_efficiency_alteration(slb_x, slb_y);
+        return true;
     }
     else
     {
