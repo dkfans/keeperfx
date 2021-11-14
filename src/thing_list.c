@@ -1894,13 +1894,15 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, int crmodel,
 long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    TbBool is_spec_digger = (((crmodel < CREATURE_DIGGER) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel)) || (crmodel == CREATURE_DIGGER));
+    TbBool is_spec_digger = ((!is_creature_model_wildcard(crmodel) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel)) || (crmodel == CREATURE_DIGGER));
     long count = 0;
-    if (((crmodel < CREATURE_DIGGER) && !is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) {
-        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel >= CREATURE_DIGGER) ? CREATURE_ANY : crmodel, do_cb);
+    if ((!is_creature_model_wildcard(crmodel) && !is_spec_digger) || (is_creature_model_wildcard(crmodel) && !(crmodel == CREATURE_DIGGER)))
+    {
+        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel, do_cb);
     }
-    if (((crmodel < CREATURE_DIGGER) && is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) {
-        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel >= CREATURE_DIGGER) ? CREATURE_ANY : crmodel, do_cb);
+    if ((!is_creature_model_wildcard(crmodel) && is_spec_digger) || (is_creature_model_wildcard(crmodel) && !(crmodel == CREATURE_NOT_A_DIGGER)))
+    {
+        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel, do_cb);
     }
     return count;
 }
