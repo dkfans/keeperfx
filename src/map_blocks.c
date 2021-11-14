@@ -2322,7 +2322,7 @@ void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
             place_slab_type_on_map(pretty_type, slab_subtile(x3, 0), slab_subtile(y3, 0), plyr_idx, 1);
             do_slab_efficiency_alteration(x3, y3);
             set_slab_explored(plyr_idx, x3, y3);
-            remove_task_from_all_other_players_digger_stacks(plyr_idx, slab_subtile(x3, 0), slab_subtile(y3, 0));
+            remove_task_from_all_other_players_digger_stacks(plyr_idx, slab_subtile_center(x3), slab_subtile_center(y3));
           }
         }
       }
