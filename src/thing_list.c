@@ -2006,7 +2006,7 @@ long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingMode
 TbBool reset_all_players_creatures_affected_by_cta(PlayerNumber plyr_idx)
 {
     SYNCDBG(3,"Processing all player %d creatures",plyr_idx);
-    int n = do_to_players_all_creatures_of_model(plyr_idx, -1, reset_creature_if_affected_by_cta);
+    int n = do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, reset_creature_if_affected_by_cta);
     return (n > 0);
 }
 
@@ -3125,7 +3125,7 @@ TbBool update_creature_speed(struct Thing *thing)
 TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
 {
     SYNCDBG(3,"Processing player %d creatures of model %d",plyr_idx,(int)crmodel);
-    int n = do_to_players_all_creatures_of_model(plyr_idx, -1, update_creature_speed);
+    int n = do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
     return (n > 0);
 }
 
