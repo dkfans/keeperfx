@@ -340,10 +340,10 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
         {
             // Create a new one-slab room
             place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
-            if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
-            {
-                event_create_event_or_update_nearby_existing_event(slb_x, slb_y, EvKind_RoomLost, room->owner, room->kind);
-            }
+        }
+        if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
+        {
+            event_create_event_or_update_nearby_existing_event(slb_x, slb_y, EvKind_RoomLost, room->owner, room->kind);
         }
         //Clean up old room
         kill_all_room_slabs_and_contents(room);
