@@ -703,8 +703,8 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
         int pt2;
         pt1 = Triangles[tri2_id].points[MOD3[cor2_id+1]];
         pt2 = Triangles[tri3_id].points[cor3_id];
-        diff_y = Points[pt1].y - Points[pt2].y;
-        diff_x = Points[pt2].x - Points[pt1].x;
+        diff_y = ari_Points[pt1].y - ari_Points[pt2].y;
+        diff_x = ari_Points[pt2].x - ari_Points[pt1].x;
     } else
     {
         diff_y = 0;
@@ -1491,8 +1491,8 @@ void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, l
         pt_id = Triangles[tri1_id].points[cor_id];
         long diff_x;
         long diff_y;
-        diff_x = ((Points[pt_id].x << 8) - dstx) >> 5;
-        diff_y = ((Points[pt_id].y << 8) - dsty) >> 5;
+        diff_x = ((ari_Points[pt_id].x << 8) - dstx) >> 5;
+        diff_y = ((ari_Points[pt_id].y << 8) - dsty) >> 5;
         long dist;
         dist = diff_x * diff_x + diff_y * diff_y;
         if (min_dist > dist)
@@ -1541,8 +1541,8 @@ void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, l
                             long diff_x;
                             long diff_y;
                             pt_id = Triangles[ntri].points[ncor2];
-                            diff_x = ((Points[pt_id].x << 8) - dstx) >> 5;
-                            diff_y = ((Points[pt_id].y << 8) - dsty) >> 5;
+                            diff_x = ((ari_Points[pt_id].x << 8) - dstx) >> 5;
+                            diff_y = ((ari_Points[pt_id].y << 8) - dsty) >> 5;
                             int dist;
                             dist = diff_x * diff_x + diff_y * diff_y;
                             if (min_dist > dist)
@@ -1605,11 +1605,11 @@ long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt)
     ntri = *ret_tri;
     npt = *ret_pt;
     pt_id = Triangles[ntri].points[npt];
-    ptAx = (Points[pt_id].x << 8) - pos_x;
-    ptAy = (Points[pt_id].y << 8) - pos_y;
+    ptAx = (ari_Points[pt_id].x << 8) - pos_x;
+    ptAy = (ari_Points[pt_id].y << 8) - pos_y;
     pt_id =  Triangles[ntri].points[MOD3[npt+2]];
-    ptBx = (Points[pt_id].x << 8) - pos_x;
-    ptBy = (Points[pt_id].y << 8) - pos_y;
+    ptBx = (ari_Points[pt_id].x << 8) - pos_x;
+    ptBy = (ari_Points[pt_id].y << 8) - pos_y;
     char pt_rel;
     pt_rel = LbCompareMultiplications(ptBy, ptAx, ptBx, ptAy) > 0;
     char prev_rel;
@@ -1619,8 +1619,8 @@ long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt)
     {
         prev_rel = pt_rel;
         pt_id = Triangles[ntri].points[MOD3[npt+1]];
-        ptBy = (Points[pt_id].y << 8) - pos_y;
-        ptBx = (Points[pt_id].x << 8) - pos_x;
+        ptBy = (ari_Points[pt_id].y << 8) - pos_y;
+        ptBx = (ari_Points[pt_id].x << 8) - pos_x;
         pt_rel = LbCompareMultiplications(ptBy, ptAx, ptBx, ptAy) > 0;
 
         if ( prev_rel && !pt_rel )
@@ -3439,19 +3439,19 @@ static long delete_4point(long tri1_id, long cor1_id)
 
     int diff_ax;
     int diff_ay;
-    diff_ax = Points[ptA_cor].x - Points[ptB_cor].x;
-    diff_ay = Points[ptA_cor].y - Points[ptB_cor].y;
+    diff_ax = ari_Points[ptA_cor].x - ari_Points[ptB_cor].x;
+    diff_ay = ari_Points[ptA_cor].y - ari_Points[ptB_cor].y;
     ptC_cor = tri3->points[MOD3[cor3_id+2]];
     int diff_bx;
     int diff_by;
-    diff_bx = Points[ptC_cor].x - Points[ptB_cor].x;
-    diff_by = Points[ptC_cor].y - Points[ptB_cor].y;
+    diff_bx = ari_Points[ptC_cor].x - ari_Points[ptB_cor].x;
+    diff_by = ari_Points[ptC_cor].y - ari_Points[ptB_cor].y;
 
     ptD_cor = tri1->points[MOD3[cor1_id + 2]];
     int diff_cx;
     int diff_cy;
-    diff_cx = Points[ptD_cor].x - Points[ptB_cor].x;
-    diff_cy = Points[ptD_cor].y - Points[ptB_cor].y;
+    diff_cx = ari_Points[ptD_cor].x - ari_Points[ptB_cor].x;
+    diff_cy = ari_Points[ptD_cor].y - ari_Points[ptB_cor].y;
 
     if ((LbCompareMultiplications(diff_ay, diff_bx, diff_ax, diff_by) >= 0) ||
         (LbCompareMultiplications(diff_ay, diff_cx, diff_ax, diff_cy) <= 0))
@@ -4409,8 +4409,8 @@ long triangle_area1(long tri_idx)
     ptidx2 = Triangles[tri_idx].points[2];
     long long area1;
     long long area2;
-    area1 = (Points[ptidx2].x - (int)Points[ptidx0].x) * (Points[ptidx0].y - (int)Points[ptidx1].y);
-    area2 = (Points[ptidx1].x - (int)Points[ptidx0].x) * (Points[ptidx2].y - (int)Points[ptidx0].y);
+    area1 = (ari_Points[ptidx2].x - (int)ari_Points[ptidx0].x) * (ari_Points[ptidx0].y - (int)ari_Points[ptidx1].y);
+    area2 = (ari_Points[ptidx1].x - (int)ari_Points[ptidx0].x) * (ari_Points[ptidx2].y - (int)ari_Points[ptidx0].y);
     return llabs(area1+area2);
 }
 
@@ -4443,18 +4443,18 @@ static void brute_fill_rectangle(long start_x, long start_y, long end_x, long en
         long x;
         long y;
         ptidx = tri->points[0];
-        x = Points[ptidx].x;
-        y = Points[ptidx].y;
+        x = ari_Points[ptidx].x;
+        y = ari_Points[ptidx].y;
         if ((x >= start_x) && (x <= end_x) && (y >= start_y) && (y <= end_y))
         {
             ptidx = tri->points[1];
-            x = Points[ptidx].x;
-            y = Points[ptidx].y;
+            x = ari_Points[ptidx].x;
+            y = ari_Points[ptidx].y;
             if ((x >= start_x) && (x <= end_x) && (y >= start_y) && (y <= end_y))
             {
                 ptidx = tri->points[2];
-                x = Points[ptidx].x;
-                y = Points[ptidx].y;
+                x = ari_Points[ptidx].x;
+                y = ari_Points[ptidx].y;
                 if ((x >= start_x) && (x <= end_x) && (y >= start_y) && (y <= end_y))
                 {
                     tri->tree_alt = ntree_alt;
@@ -4979,7 +4979,10 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
         {
             if ((ccolour) || (not_whole_map))
             {
-                tri_set_rectangle(rect_sx, rect_sy, rect_ex, rect_ey, ccolour);
+                if (!tri_set_rectangle(rect_sx, rect_sy, rect_ex, rect_ey, ccolour))
+                    break; // Run out of triangle space
+                //JUSTLOG("fringe_rect (%d, %d)-(%d,%d) triangles ix:%d, free:%d\n", rect_sx, rect_sy, rect_ex, rect_ey,
+                //          get_ix_points(), get_free_points());
                 delaunay_seeded(rect_sx, rect_sy, rect_ex, rect_ey);
             }
         }
