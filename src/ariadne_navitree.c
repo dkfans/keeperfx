@@ -33,25 +33,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#if USE_ORIGINAL_TRIANGLES_DATA
-DLLIMPORT unsigned char _DK_Tags[TREEITEMS_COUNT];
-#define Tags _DK_Tags
-DLLIMPORT long _DK_tree_dad[TREEITEMS_COUNT];
-#define tree_dad _DK_tree_dad
-DLLIMPORT unsigned char _DK_tag_current;
-#define tag_current _DK_tag_current
-DLLIMPORT long _DK_ix_delaunay;
-#define ix_delaunay _DK_ix_delaunay
-DLLIMPORT long _DK_delaunay_stack[DELAUNAY_COUNT];
-#define delaunay_stack _DK_delaunay_stack
-#else
 unsigned char Tags[TREEITEMS_COUNT];
 long tree_dad[TREEITEMS_COUNT];
 unsigned char tag_current = 0;
 long ix_delaunay = 0;
 long delaunay_stack[DELAUNAY_COUNT];
 long tree_val[TREEVALS_COUNT];
-#endif
 
 /******************************************************************************/
 /******************************************************************************/

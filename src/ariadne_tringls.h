@@ -42,19 +42,9 @@ struct Triangle { // sizeof = 16
 };
 
 /******************************************************************************/
-#define USE_ORIGINAL_TRIANGLES_DATA 0
-#if USE_ORIGINAL_TRIANGLES_DATA
-DLLIMPORT struct Triangle _DK_Triangles[TRIANLGLES_COUNT];
-#define Triangles _DK_Triangles
-DLLIMPORT long _DK_count_Triangles;
-#define count_Triangles _DK_count_Triangles
-DLLIMPORT long _DK_ix_Triangles;
-#define ix_Triangles _DK_ix_Triangles
-#else
 extern struct Triangle Triangles[TRIANLGLES_COUNT];
 extern long count_Triangles;
 extern long ix_Triangles;
-#endif
 
 #pragma pack()
 /******************************************************************************/

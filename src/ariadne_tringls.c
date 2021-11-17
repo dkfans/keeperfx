@@ -33,15 +33,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#if USE_ORIGINAL_TRIANGLES_DATA
-DLLIMPORT long _DK_free_Triangles;
-#define free_Triangles _DK_free_Triangles
-#else
 long free_Triangles = 0;
 struct Triangle Triangles[TRIANLGLES_COUNT];
 long count_Triangles = 0;
 long ix_Triangles = 0;
-#endif
 
 /******************************************************************************/
 struct Triangle bad_triangle;
