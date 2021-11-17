@@ -153,7 +153,7 @@ long triangle_find8(long pt_x, long pt_y)
 
         long ncor = 0;
         long nxcor = 0; // Used only to verify if pointed_at8() didn't failed
-        switch (eqA + 2 * (eqB + 2 * eqC))
+        switch ((eqC << 2) + (eqB << 1) + eqA)
         {
         case 1:
             ntri = Triangles[ntri].tags[0];
