@@ -357,7 +357,7 @@ void init_navigation_map(void)
     nav_map_initialised = 1;
 }
 
-long get_navtree_owner(long treeI)
+static long get_navtree_owner(long treeI)
 {
     long owner;
     owner = ((treeI & 0xE0) >> 5) - 1;
@@ -436,6 +436,7 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     ey = end_y + 1;
     if (ey >= map_subtiles_y-2)
       ey = map_subtiles_y-2;
+    // Fill a rectangle with nav colors (based on columns and blocks)
     for (y = sy; y <= ey; y++)
     {
         for (x = sx; x <= ex; x++)
@@ -4469,7 +4470,7 @@ static void brute_fill_rectangle(long start_x, long start_y, long end_x, long en
 HOOK_DK_FUNC(brute_fill_rectangle)
 
 #define fill_rectangle(start_x, start_y, end_x, end_y, a5) fill_rectangle_f(start_x, start_y, end_x, end_y, a5, __func__)
-void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsigned char a5, const char *func_name)
+void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour, const char *func_name)
 {
     //_DK_fill_rectangle(start_x, start_y, end_x, end_y, a5); return;
     long tri_n0;
@@ -4488,7 +4489,7 @@ void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsign
         ERRORMSG("%s: edge from (%d,%d) to (%d,%d) not found",func_name,(int)start_x, (int)start_y, (int)start_x, (int)end_y);
         return;
     }
-    Triangles[tri_n0].tree_alt = a5;
+    Triangles[tri_n0].tree_alt = nav_colour;
     tri_area = triangle_area1(tri_n0);
     if (tri_area == req_area) {
         return;
@@ -4500,7 +4501,7 @@ void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsign
     }
     if (tri_n1 != tri_n0)
     {
-        Triangles[tri_n1].tree_alt = a5;
+        Triangles[tri_n1].tree_alt = nav_colour;
         tri_area += triangle_area1(tri_n1);
     }
     if (tri_area == req_area) {
@@ -4513,7 +4514,7 @@ void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsign
     }
     if ((tri_n2 != tri_n0) && (tri_n2 != tri_n1))
     {
-        Triangles[tri_n2].tree_alt = a5;
+        Triangles[tri_n2].tree_alt = nav_colour;
         tri_area += triangle_area1(tri_n2);
     }
     if (tri_area == req_area) {
@@ -4526,17 +4527,17 @@ void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsign
     }
     if ((tri_n3 != tri_n0) && (tri_n1 != tri_n3) && (tri_n2 != tri_n3))
     {
-        Triangles[tri_n3].tree_alt = a5;
+        Triangles[tri_n3].tree_alt = nav_colour;
         tri_area += triangle_area1(tri_n3);
     }
     if (tri_area == req_area) {
         return;
     }
-    brute_fill_rectangle(start_x, start_y, end_x, end_y, a5);
+    brute_fill_rectangle(start_x, start_y, end_x, end_y, nav_colour);
 }
 
 HOOK_DK_FUNC(tri_set_rectangle)
-TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char a5)
+TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour)
 {
     long sx;
     long sy;
@@ -4574,7 +4575,7 @@ TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, uns
         ERRORLOG("Couldn't make edge for rectangle; start (%d,%d), end (%d,%d)",(int)start_x,(int)start_y,(int)end_x,(int)end_y);
         return r;
     }
-    fill_rectangle(sx, sy, ex, ey, a5);
+    fill_rectangle(sx, sy, ex, ey, nav_colour);
     return r;
 }
 

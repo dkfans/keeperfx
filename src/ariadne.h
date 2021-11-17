@@ -256,7 +256,7 @@ TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, c
 #define edge_unlock_record_and_regions(fin_x, fin_y, bgn_x, bgn_y) edge_unlock_record_and_regions_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
 TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
 void border_internal_points_delete(long a1, long a2, long a3, long a4);
-TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char a5);
+TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour);
 long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char *a5);
 long delaunay_seeded(long a1, long a2, long a3, long a4);
 void border_unlock(long a1, long a2, long a3, long a4);
