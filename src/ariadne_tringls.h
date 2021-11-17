@@ -35,7 +35,7 @@ struct Point;
 
 struct Triangle { // sizeof = 16
   short points[3];
-  short tags[3];
+  short tags[3]; // Id of each triangle neighbour of this one
   unsigned char tree_alt; // 255 is a special value here
   unsigned char field_D;
   unsigned short field_E;

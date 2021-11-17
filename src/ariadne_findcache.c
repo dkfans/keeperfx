@@ -35,7 +35,6 @@ DLLIMPORT long _DK_find_cache[4][4];
 /******************************************************************************/
 long triangle_brute_find8_near(long pos_x, long pos_y)
 {
-    //return _DK_triangle_brute_find8_near(pos_x, pos_y);
     long cx = pos_x >> 14;
     if (cx < 0)
         cx = 0;
@@ -145,7 +144,6 @@ long triangle_find8(long pt_x, long pt_y)
 {
     NAVIDBG(19,"Starting");
     //TODO PATHFINDING triangulate_area sub-sub-sub-function
-    //return _DK_triangle_find8(pt_x, pt_y);
     long ntri = triangle_find_cache_get(pt_x, pt_y);
     for (unsigned long k = 0; k < TRIANLGLES_COUNT; k++)
     {

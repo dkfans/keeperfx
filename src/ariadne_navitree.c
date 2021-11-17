@@ -288,8 +288,6 @@ HOOK_DK_FUNC(delaunay_stack_point)
 
 long optimise_heuristic(long tri_id1, long tri_id2)
 {
-    //return _DK_optimise_heuristic(tri_id1, tri_id2);
-
     struct Triangle* tri1 = get_triangle(tri_id1);
     long tri_id3 = tri1->tags[tri_id2];
     if (tri_id3 == -1)
@@ -330,7 +328,6 @@ long optimise_heuristic(long tri_id1, long tri_id2)
 long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
 {
     NAVIDBG(19,"Starting");
-    //return _DK_delaunay_seeded(start_x, start_y, end_x, end_y);
     tags_init();
     delaunay_init();
     delaunay_stack_point(start_x, start_y);
