@@ -217,7 +217,6 @@ struct RegionT *get_region(long reg_id)
  */
 TbBool regions_connected(long tree_reg1, long tree_reg2)
 {
-    //return _DK_regions_connected(tree_reg1, tree_reg2);
     if ((tree_reg1 < 0) || (tree_reg1 >= TRIANLGLES_COUNT))
         return false;
     if ((tree_reg2 < 0) || (tree_reg2 >= TRIANLGLES_COUNT))
