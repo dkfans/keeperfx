@@ -3809,7 +3809,7 @@ char triangle_divide_areas_differ(long ntri, long ncorA, long ncorB, long pt_x, 
 
 /*
  * There are mesh of all triangles on a map
- * This function insert another point into mesh by splitting triangles into parts
+ * This function inserts another point into mesh by splitting triangles into parts
  */
 static TbBool insert_point(long pt_x, long pt_y)
 {
