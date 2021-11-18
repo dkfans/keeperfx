@@ -534,10 +534,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     {
       if (is_my_player(player))
       {
-        MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-        MapSlabCoord slb_y = subtile_slab_fast(stl_y);
-        if ( (check_room_at_slab_loose(player->id_number, player->chosen_room_kind, slb_x, slb_y, 1) == 1) &&
-        can_build_room_at_slab(player->id_number, player->chosen_room_kind, slb_x, slb_y)  )
+        if (can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
         {
             struct Dungeon* dungeon = get_dungeon(player->id_number);
             if (render_roomspace.total_roomspace_cost > dungeon->total_money_owned)
