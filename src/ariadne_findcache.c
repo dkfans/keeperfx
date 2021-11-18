@@ -35,7 +35,6 @@ DLLIMPORT long _DK_find_cache[4][4];
 /******************************************************************************/
 long triangle_brute_find8_near(long pos_x, long pos_y)
 {
-    //return _DK_triangle_brute_find8_near(pos_x, pos_y);
     long cx = pos_x >> 14;
     if (cx < 0)
         cx = 0;
@@ -145,7 +144,6 @@ long triangle_find8(long pt_x, long pt_y)
 {
     NAVIDBG(19,"Starting");
     //TODO PATHFINDING triangulate_area sub-sub-sub-function
-    //return _DK_triangle_find8(pt_x, pt_y);
     long ntri = triangle_find_cache_get(pt_x, pt_y);
     for (unsigned long k = 0; k < TRIANLGLES_COUNT; k++)
     {
@@ -155,7 +153,7 @@ long triangle_find8(long pt_x, long pt_y)
 
         long ncor = 0;
         long nxcor = 0; // Used only to verify if pointed_at8() didn't failed
-        switch (eqA + 2 * (eqB + 2 * eqC))
+        switch ((eqC << 2) + (eqB << 1) + eqA)
         {
         case 1:
             ntri = Triangles[ntri].tags[0];
