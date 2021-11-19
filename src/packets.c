@@ -534,7 +534,18 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     {
       if (is_my_player(player))
       {
-        play_non_3d_sample(119);
+        if (can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
+        {
+            struct Dungeon* dungeon = get_dungeon(player->id_number);
+            if (render_roomspace.total_roomspace_cost > dungeon->total_money_owned)
+            {
+                output_message(SMsg_GoldNotEnough, 0, true);
+            }
+        }
+        else
+        {
+            play_non_3d_sample(119);
+        }
         unset_packet_control(pckt, PCtr_LBtnClick);
       }
       return false;
