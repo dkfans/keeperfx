@@ -344,9 +344,9 @@ struct EventTypeInfo event_button_info[] = {
   {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
   {260, GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
   {260, GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing},
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing},
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing},
+  {  0, GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
+  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
+  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
 };
 
 /*
