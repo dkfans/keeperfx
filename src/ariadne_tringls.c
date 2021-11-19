@@ -33,15 +33,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#if USE_ORIGINAL_TRIANGLES_DATA
-DLLIMPORT long _DK_free_Triangles;
-#define free_Triangles _DK_free_Triangles
-#else
 long free_Triangles = 0;
 struct Triangle Triangles[TRIANLGLES_COUNT];
 long count_Triangles = 0;
 long ix_Triangles = 0;
-#endif
 
 /******************************************************************************/
 struct Triangle bad_triangle;
@@ -227,23 +222,23 @@ void edgelen_set(long tri_id)
     struct Triangle* tri = &Triangles[tri_id];
     int pt2idx = tri->points[2];
     int pt0idx = tri->points[0];
-    int delta_x = abs(Points[pt2idx].x - Points[pt0idx].x);
-    int delta_y = abs(Points[pt2idx].y - Points[pt0idx].y);
+    int delta_x = abs(ari_Points[pt2idx].x - ari_Points[pt0idx].x);
+    int delta_y = abs(ari_Points[pt2idx].y - ari_Points[pt0idx].y);
     if (delta_x > 3)
         delta_x = 3;
     if (delta_y > 3)
         delta_y = 3;
     unsigned long edge_len = (EdgeLenBits[delta_y][delta_x] << 4);
     int pt1idx = tri->points[1];
-    delta_x = abs(Points[pt1idx].x - Points[pt2idx].x);
-    delta_y = abs(Points[pt1idx].y - Points[pt2idx].y);
+    delta_x = abs(ari_Points[pt1idx].x - ari_Points[pt2idx].x);
+    delta_y = abs(ari_Points[pt1idx].y - ari_Points[pt2idx].y);
     if (delta_x > 3)
         delta_x = 3;
     if (delta_y > 3)
         delta_y = 3;
     edge_len |= (EdgeLenBits[delta_y][delta_x] << 2);
-    delta_x = abs(Points[pt0idx].x - Points[pt1idx].x);
-    delta_y = abs(Points[pt0idx].y - Points[pt1idx].y);
+    delta_x = abs(ari_Points[pt0idx].x - ari_Points[pt1idx].x);
+    delta_y = abs(ari_Points[pt0idx].y - ari_Points[pt1idx].y);
     if (delta_x > 3)
         delta_x = 3;
     if (delta_y > 3)
@@ -255,7 +250,6 @@ void edgelen_set(long tri_id)
 HOOK_DK_FUNC(edge_rotateAC)
 long edge_rotateAC(long tri1_id, long cor1_id)
 {
-    //return _DK_edge_rotateAC(tri1_id, cor1_id);
     long tri2_id = Triangles[tri1_id].tags[cor1_id];
     if (tri2_id == -1) {
         return false;
@@ -289,17 +283,17 @@ long edge_rotateAC(long tri1_id, long cor1_id)
 
     int pt1_id = Triangles[tri1_id].points[cor1_id];
     int pt2_id = Triangles[tri1_id].points[cor1c_id];
-    long diff_ax = Points[pt1_id].x - Points[pt2_id].x;
-    long diff_ay = Points[pt1_id].y - Points[pt2_id].y;
+    long diff_ax = ari_Points[pt1_id].x - ari_Points[pt2_id].x;
+    long diff_ay = ari_Points[pt1_id].y - ari_Points[pt2_id].y;
     int pt3_id = Triangles[tri2_id].points[cor2c_id];
-    long diff_bx = Points[pt3_id].x - Points[pt2_id].x;
-    long diff_by = Points[pt3_id].y - Points[pt2_id].y;
+    long diff_bx = ari_Points[pt3_id].x - ari_Points[pt2_id].x;
+    long diff_by = ari_Points[pt3_id].y - ari_Points[pt2_id].y;
     if (LbCompareMultiplications(diff_ay, diff_bx, diff_ax, diff_by) <= 0) {
         return false;
     }
     int pt4_id = Triangles[tri2_id].points[cor2_id];
-    long diff_cx = Points[pt4_id].x - Points[pt2_id].x;
-    long diff_cy = Points[pt4_id].y - Points[pt2_id].y;
+    long diff_cx = ari_Points[pt4_id].x - ari_Points[pt2_id].x;
+    long diff_cy = ari_Points[pt4_id].y - ari_Points[pt2_id].y;
     if (LbCompareMultiplications(diff_cy, diff_bx, diff_cx, diff_by) >= 0) {
         return false;
     }

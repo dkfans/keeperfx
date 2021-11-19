@@ -1860,7 +1860,7 @@ void command_add_object_to_level(const char *obj_name, const char *locname, long
     long obj_id = get_rid(object_desc, obj_name);
     if (obj_id == -1)
     {
-        SCRPTERRLOG("Unknown creature, '%s'", obj_name);
+        SCRPTERRLOG("Unknown object, '%s'", obj_name);
         return;
     }
     if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)

@@ -698,6 +698,7 @@ void restore_computer_player_after_load(void);
 TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const struct Coord3d *pos);
 TbBool computer_force_dump_specific_held_thing(struct Computer2 *comp, struct Thing *thing, const struct Coord3d *pos);
 TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx);
+struct Thing* find_creature_for_defend_pickup(struct Computer2* comp);
 /******************************************************************************/
 #ifdef __cplusplus
 }
