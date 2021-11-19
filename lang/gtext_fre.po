@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/POT-Creation-"
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2021-11-10 20:04+0100\n"
+"PO-Revision-Date: 2021-11-19 15:20+0100\n"
 "Last-Translator: Vosa G Thomas <vosathomas@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: fr_FR\n"
@@ -1970,8 +1970,8 @@ msgid ""
 "possibility for them to take a nap. Be sure to have plenty of money so that "
 "the spell will stay activated."
 msgstr ""
-"Essayez le sort \"Doit Obéir\". Lorsqu'il est activé, il force constamment "
-"vos créatures à obéir à tous vos ordres, ce qui les fait travailler plus vite "
+"Essayez le sort : Obéissance . Lorsqu'il est activé, il force constamment vos "
+"créatures à obéir à tous vos ordres, ce qui les fait travailler plus vite "
 "sans qu'elles aient la possibilité de faire une sieste. Assurez-vous d'avoir "
 "beaucoup d'argent pour que le sort reste activé."
 
@@ -2568,7 +2568,7 @@ msgstr "Sélectionner Une Partie"
 #: guitext:289
 msgctxt "Menu interface item"
 msgid "Network Menu"
-msgstr "Menu RéÉseau"
+msgstr "Menu Réseau"
 
 #: guitext:290
 msgctxt "Menu interface item"
@@ -2933,7 +2933,7 @@ msgstr "Enregistrement Séquence Incorrect"
 #: guitext:338
 msgctxt "On-screen message"
 msgid "Finished recording FLIC"
-msgstr "Enregistrement Séquence TerminÉ"
+msgstr "Enregistrement Séquence Terminé"
 
 #: guitext:339
 msgctxt "Unused"
@@ -5614,7 +5614,7 @@ msgstr ""
 msgctxt "Easter egg"
 msgid "If you find you lose it all, Why not play Theme Hospital?"
 msgstr ""
-"Si vous trouvez que c'est vraiment la totale, jouez plutôt à Theme Hospital"
+"Si vous trouvez que c'est vraiment la totale, jouez plutôt à Theme Hospital?"
 
 #: guitext:807
 msgctxt "Easter egg"
@@ -5642,7 +5642,7 @@ msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, There really is no better way."
 msgstr ""
 "Malveillance, méchanceté, trépas, putréfaction... Comment concevoir le "
-"plaisir autrement"
+"plaisir autrement."
 
 #: guitext:811
 msgctxt "Easter egg"
@@ -6161,7 +6161,7 @@ msgid ""
 msgstr ""
 "Le Grand Seigneur et sa bande de comparses pitoyables agonisent. Bon "
 "débarras! Maintenant saisissez votre chance et attaquez le gardien rival. "
-"Vous serez bientôt le maître absolu"
+"Vous serez bientôt le maître absolu."
 
 #. DD Level Pladitz first objective
 #: guitext:896
@@ -6600,7 +6600,7 @@ msgstr "Ajouter IA"
 #: guitext:945
 msgctxt "Game event name"
 msgid "Your creature cannot reach the room it needs"
-msgstr "Votre créature ne peut pas atteindre la pièce qu\"elle veut atteindre"
+msgstr "Votre créature ne peut pas atteindre la pièce qu'elle veut atteindre"
 
 #: guitext:946
 msgctxt "Game event description"
@@ -6611,7 +6611,7 @@ msgstr "Salle de travail inaccessible."
 msgctxt "Game event name"
 msgid "Your Imp cannot reach a room to drag something into"
 msgstr ""
-"Vos larbins ne peut pas atteindre une pièce pour y traîner quelque chose"
+"Vos larbins ne peut pas atteindre une pièce pour y apporter quelque chose"
 
 #: guitext:948
 msgctxt "Game event description"
@@ -6764,7 +6764,7 @@ msgstr "Retourner au Niveaux de Jeu Libre"
 #: guitext:969
 msgctxt "Menu interface item"
 msgid "Map packs"
-msgstr "Pack de Cartes"
+msgstr "Collection de Cartes"
 
 #: guitext:970
 msgctxt "Menu interface item"
