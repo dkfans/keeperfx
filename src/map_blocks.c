@@ -2298,7 +2298,7 @@ void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
     MapSlabCoord y = slb_y + small_around[n].delta_y;
     struct SlabMap *slb2 = get_slabmap_block(x, y);
     struct SlabAttr* slbattr2 = get_slab_attrs(slb2);
-    if ( (((slbattr2->category == SlbAtCtg_FortifiedGround) || (slbattr2->category == SlbAtCtg_RoomInterior))) 
+    if ( (((slbattr2->category == SlbAtCtg_FortifiedGround) || (slbattr2->block_flags & SlbAtFlg_IsRoom) || ((slbattr2->block_flags & SlbAtFlg_IsDoor)) )) 
       && (slabmap_owner(slb2) == plyr_idx ) )
     {
       for (int k = -1; k < 2; k+=2)
