@@ -1894,13 +1894,15 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, int crmodel,
 long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
+    TbBool is_spec_digger = ((!is_creature_model_wildcard(crmodel) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel)) || (crmodel == CREATURE_DIGGER));
     long count = 0;
-    if (((crmodel > 0) && !is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) {
-        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?CREATURE_ANY:crmodel, do_cb);
+    if ((!is_creature_model_wildcard(crmodel) && !is_spec_digger) || (is_creature_model_wildcard(crmodel) && !(crmodel == CREATURE_DIGGER)))
+    {
+        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel, do_cb);
     }
-    if (((crmodel > 0) && is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) {
-        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?CREATURE_ANY:crmodel, do_cb);
+    if ((!is_creature_model_wildcard(crmodel) && is_spec_digger) || (is_creature_model_wildcard(crmodel) && !(crmodel == CREATURE_NOT_A_DIGGER)))
+    {
+        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel, do_cb);
     }
     return count;
 }
@@ -1918,7 +1920,7 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = (crmodel <= 0) ? CREATURE_ANY : crmodel;
+    param.model_id = (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
@@ -1929,10 +1931,14 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
-    if (((crmodel > 0) && !is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) {
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && !is_spec_digger) || 
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) 
+    {
         count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((crmodel > 0) && is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) {
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && is_spec_digger) || 
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) 
+    {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return count;
@@ -2006,7 +2012,7 @@ long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingMode
 TbBool reset_all_players_creatures_affected_by_cta(PlayerNumber plyr_idx)
 {
     SYNCDBG(3,"Processing all player %d creatures",plyr_idx);
-    int n = do_to_players_all_creatures_of_model(plyr_idx, -1, reset_creature_if_affected_by_cta);
+    int n = do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, reset_creature_if_affected_by_cta);
     return (n > 0);
 }
 
@@ -3125,7 +3131,7 @@ TbBool update_creature_speed(struct Thing *thing)
 TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
 {
     SYNCDBG(3,"Processing player %d creatures of model %d",plyr_idx,(int)crmodel);
-    int n = do_to_players_all_creatures_of_model(plyr_idx, -1, update_creature_speed);
+    int n = do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
     return (n > 0);
 }
 
