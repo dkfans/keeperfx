@@ -35,6 +35,8 @@ extern "C" {
 
 #define CREATURE_NONE 255
 #define CREATURE_ANY  254
+#define CREATURE_NOT_A_DIGGER  253
+#define CREATURE_DIGGER  252
 
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
@@ -293,6 +295,7 @@ void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);
+TbBool is_creature_model_wildcard(ThingModel crmodel);
 /******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags);
 /******************************************************************************/
