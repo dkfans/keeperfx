@@ -1247,6 +1247,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         CONFWRNLOG("Unrecognized command (%d)",attribute);
         break;
     }
+    check_and_auto_fix_stats();
     creature_stats_updated(creatid);
 }
 
