@@ -3234,6 +3234,9 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         case CrSt_Torturing:
             message_add_fmt(comp->dungeon->owner, "This %s should be tortured.", get_string(crdata->namestr_idx));
             break;
+        case CrSt_CreatureDoorCombat:
+            message_add_fmt(comp->dungeon->owner, "This %s should attack a door.", get_string(crdata->namestr_idx));
+            break;
         default:
             message_add_fmt(comp->dungeon->owner, "This %s should go there.",get_string(crdata->namestr_idx));
             break;
