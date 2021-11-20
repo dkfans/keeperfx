@@ -1389,6 +1389,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             if (slb->kind >= SlbT_EARTH && slb->kind <= SlbT_CLAIMED)
             {
                 short slbkind;
+                i = get_selected_player_for_cheat(plyr_idx);
                 switch(slb->kind)
                 {
                     case SlbT_PATH:
@@ -1398,12 +1399,26 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     }
                     case SlbT_EARTH:
                     {
-                        slbkind = rand() % (5) + 4;
+                        if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
+                        {
+                            slbkind = choose_pretty_type(i, slb_x, slb_y);
+                        }
+                        else
+                        {
+                            slbkind = rand() % (5) + 4;
+                        }
                         break;
                     }
                     case SlbT_TORCHDIRT:
                     {
-                        slbkind = SlbT_WALLTORCH;
+                        if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
+                        {
+                            slbkind = choose_pretty_type(i, slb_x, slb_y);
+                        }
+                        else
+                        {
+                            slbkind = SlbT_WALLTORCH;
+                        }
                         break;
                     }
                     default:
@@ -1412,7 +1427,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                         break;
                     }
                 }
-                i = get_selected_player_for_cheat(plyr_idx);
                 if ((slbkind == SlbT_CLAIMED) || ((slbkind >= SlbT_WALLDRAPE) && (slbkind <= SlbT_WALLPAIRSHR)))
                 {
                     if (is_key_pressed(KC_RALT, KMod_DONTCARE))
@@ -1746,6 +1760,13 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 }
                 else
                 {
+                    if ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_WALLPAIRSHR) )
+                    {
+                        if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
+                        {
+                            place_terrain = choose_pretty_type(id, slb_x, slb_y);
+                        }
+                    }
                     place_slab_type_on_map(place_terrain, stl_x, stl_y, id, 0);
                     if ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_WALLPAIRSHR) )
                     {
