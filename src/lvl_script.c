@@ -2206,26 +2206,6 @@ static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w
   reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
 }
 
-void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
-{
-    SYNCDBG(0, "Revealing location type %d", target);
-    long x = 0;
-    long y = 0;
-    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
-    if ((x == 0) && (y == 0))
-    {
-        WARNLOG("Can't decode location %d", target);
-        return;
-    }
-    if (r == -1)
-    {
-        struct CompoundCoordFilterParam iter_param;
-        iter_param.plyr_idx = plyr_idx;
-        slabs_fill_iterate_from_slab(subtile_slab(x), subtile_slab(y), slabs_reveal_slab_and_corners, &iter_param);
-    } else
-        reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
-}
-
 void command_set_start_money(long plr_range_id, long gold_val)
 {
     int plr_start;
@@ -2512,6 +2492,106 @@ static void display_objective_process(struct ScriptContext *context)
               stl_num_decode_x(context->value->arg2),
               stl_num_decode_y(context->value->arg2));
       }
+}
+
+static void change_slab_owner_check(const struct ScriptLine *scline)
+{
+    command_add_value(Cmd_CHANGE_SLAB_OWNER, scline->np[2], scline->np[0], scline->np[1], get_id(fill_desc, scline->tp[3]));
+}
+
+static void change_slab_owner_process(struct ScriptContext *context)
+{
+    MapSlabCoord x = context->value->arg0;
+    MapSlabCoord y = context->value->arg1;
+    long fill_type = context->value->arg2;
+    if (x < 0 || x > 85)
+    {
+        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", x);
+    } else
+    if (y < 0 || y > 85)
+    {
+        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", y);
+    } else
+    {
+        if (fill_type != -1)
+        {
+          struct CompoundCoordFilterParam iter_param;
+          iter_param.plyr_idx = context->player_idx;
+          iter_param.num1 = fill_type;
+          iter_param.num2 = get_slabmap_block(x, y)->kind;
+          slabs_fill_iterate_from_slab(x, y, slabs_change_owner, &iter_param);
+        } else change_slab_owner_from_script(x, y, context->player_idx);
+    }
+}
+
+static void change_slab_type_check(const struct ScriptLine *scline)
+{
+    long coords = (scline->np[0] << 16) | scline->np[1];
+    command_add_value(Cmd_CHANGE_SLAB_TYPE, 0, coords, scline->np[2], get_id(fill_desc, scline->tp[3]));
+}
+
+static void change_slab_type_process(struct ScriptContext *context)
+{
+    long x = context->value->arg0 >> 16;
+    long y = context->value->arg0 & 0xff;
+    long slab_kind = context->value->arg1;
+    long fill_type = context->value->arg2;
+    if (x < 0 || x > 85)
+    {
+        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", x);
+    } else
+    if (y < 0 || y > 85)
+    {
+        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", y);
+    } else
+    if (context->value->arg1 < 0 || context->value->arg1 > 53)
+    {
+        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-53 allowed.", slab_kind);
+    } else
+    {
+        if (fill_type != -1)
+        {
+            struct CompoundCoordFilterParam iter_param;
+            iter_param.num1 = slab_kind;
+            iter_param.num2 = fill_type;
+            iter_param.num3 = get_slabmap_block(x, y)->kind;
+            slabs_fill_iterate_from_slab(x, y, slabs_change_type, &iter_param);
+        } else
+            replace_slab_from_script(x, y, slab_kind);
+    }
+}
+
+static void reveal_map_location_check(const struct ScriptLine *scline)
+{
+    TbMapLocation location;
+    if (!get_map_location_id(scline->tp[1], &location)) {
+        return;
+    }
+    long range = -1;
+    if (get_id(fill_desc, scline->tp[2]) == -1) range = atol(scline->tp[2]);
+    command_add_value(Cmd_REVEAL_MAP_LOCATION, scline->np[0], location, range, 0);
+}
+
+static void reveal_map_location_process(struct ScriptContext *context)
+{
+    TbMapLocation target = context->value->arg0;
+    SYNCDBG(0, "Revealing location type %d", target);
+    long x = 0;
+    long y = 0;
+    long r = context->value->arg1;
+    find_map_location_coords(target, &x, &y, context->player_idx, __func__);
+    if ((x == 0) && (y == 0))
+    {
+        WARNLOG("Can't decode location %d", target);
+        return;
+    }
+    if (r == -1)
+    {
+        struct CompoundCoordFilterParam iter_param;
+        iter_param.plyr_idx = context->player_idx;
+        slabs_fill_iterate_from_slab(subtile_slab(x), subtile_slab(y), slabs_reveal_slab_and_corners, &iter_param);
+    } else
+        reveal_map_area(context->player_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
 static void conceal_map_rect_check(const struct ScriptLine *scline)
@@ -3297,28 +3377,6 @@ void command_set_creature_tendencies(long plr_range_id, const char *tendency, lo
 void command_reveal_map_rect(long plr_range_id, long x, long y, long w, long h)
 {
     command_add_value(Cmd_REVEAL_MAP_RECT, plr_range_id, x, y, (h<<16)+w);
-}
-
-void command_change_slab_owner(long x, long y, long plr_range_id, const char *fill_type)
-{
-    command_add_value(Cmd_CHANGE_SLAB_OWNER, plr_range_id, x, y, get_rid(fill_desc, fill_type));
-}
-
-void command_change_slab_type(long x, long y, long slab_type, const char *fill_type)
-{
-    long coords = (x << 16) | y;
-    command_add_value(Cmd_CHANGE_SLAB_TYPE, 0, coords, slab_type, get_rid(fill_desc, fill_type));
-}
-
-void command_reveal_map_location(long plr_range_id, const char *locname, const char *range_arg)
-{
-    TbMapLocation location;
-    if (!get_map_location_id(locname, &location)) {
-        return;
-    }
-    long range = -1;
-    if (get_rid(fill_desc, range_arg) == -1) range = atol(range_arg);
-    command_add_value(Cmd_REVEAL_MAP_LOCATION, plr_range_id, location, range, 0);
 }
 
 void command_message(const char *msgtext, unsigned char kind)
@@ -4168,9 +4226,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_REVEAL_MAP_RECT:
         command_reveal_map_rect(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4]);
         break;
-    case Cmd_REVEAL_MAP_LOCATION:
-        command_reveal_map_location(scline->np[0], scline->tp[1], scline->tp[2]);
-        break;
     case Cmd_KILL_CREATURE:
         command_kill_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
@@ -4237,12 +4292,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_DOOR_CONFIGURATION:
         command_set_door_configuration(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
-        break;
-    case Cmd_CHANGE_SLAB_OWNER:
-        command_change_slab_owner(scline->np[0], scline->np[1], scline->np[2], scline->tp[3]);
-        break;
-    case Cmd_CHANGE_SLAB_TYPE:
-        command_change_slab_type(scline->np[0], scline->np[1], scline->np[2], scline->tp[3]);
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
@@ -6886,61 +6935,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           player_reveal_map_area(i, val2, val3, (val4)&0xffff, (val4>>16)&0xffff);
       }
       break;
-  case Cmd_REVEAL_MAP_LOCATION:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          player_reveal_map_location(i, val2, val3);
-      }
-      break;
-  case Cmd_CHANGE_SLAB_OWNER:
-      if (val2 < 0 || val2 > 85)
-      {
-          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val2);
-      } else
-      if (val3 < 0 || val3 > 85)
-      {
-          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val3);
-      } else
-      {
-          if (val4 != -1)
-          {
-            struct CompoundCoordFilterParam iter_param;
-            iter_param.plyr_idx = plr_range_id;
-            iter_param.num1 = val4;
-            iter_param.num2 = get_slabmap_block(val2, val3)->kind;
-            slabs_fill_iterate_from_slab(val2, val3, slabs_change_owner, &iter_param);
-          } else change_slab_owner_from_script(val2, val3, plr_range_id);
-      }
-      break;
-  case Cmd_CHANGE_SLAB_TYPE:
-      {
-        long x = val2 >> 16;
-        long y = val2 & 0xff;
-        if (x < 0 || x > 85)
-        {
-            SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", x);
-        } else
-        if (y < 0 || y > 85)
-        {
-            SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", y);
-        } else
-        if (val3 < 0 || val3 > 53)
-        {
-            SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-53 allowed.", val3);
-        } else
-        {
-          if (val4 != -1)
-          {
-              struct CompoundCoordFilterParam iter_param;
-              iter_param.num1 = val3;
-              iter_param.num2 = val4;
-              iter_param.num3 = get_slabmap_block(x, y)->kind;
-              slabs_fill_iterate_from_slab(x, y, slabs_change_type, &iter_param);
-          } else
-            replace_slab_from_script(x, y, val3);
-        }
-      }
-      break;
   case Cmd_KILL_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
@@ -7709,7 +7703,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
   {"CONCEAL_MAP_RECT",                  "PNNNNa  ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
-  {"REVEAL_MAP_LOCATION",               "PNA     ", Cmd_REVEAL_MAP_LOCATION, NULL, NULL},
+  {"REVEAL_MAP_LOCATION",               "PNA     ", Cmd_REVEAL_MAP_LOCATION, &reveal_map_location_check, &reveal_map_location_process},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
@@ -7738,8 +7732,8 @@ const struct CommandDesc command_desc[] = {
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
   {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
-  {"CHANGE_SLAB_OWNER",                 "NNPa    ", Cmd_CHANGE_SLAB_OWNER, NULL, NULL},
-  {"CHANGE_SLAB_TYPE",                  "NNSa    ", Cmd_CHANGE_SLAB_TYPE, NULL, NULL},
+  {"CHANGE_SLAB_OWNER",                 "NNPa    ", Cmd_CHANGE_SLAB_OWNER, &change_slab_owner_check, &change_slab_owner_process},
+  {"CHANGE_SLAB_TYPE",                  "NNSa    ", Cmd_CHANGE_SLAB_TYPE, &change_slab_type_check, &change_slab_type_process},
   {"CREATE_EFFECTS_LINE",               "LLNNNN  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},

@@ -180,8 +180,6 @@ void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab
     MapSlabCoord stack_x[max_slb_dim_x * max_slb_dim_y];
     MapSlabCoord stack_y[max_slb_dim_x * max_slb_dim_y];
     char visited[max_slb_dim_x][max_slb_dim_y];
-    memset(stack_x, 0, max_slb_dim_x * max_slb_dim_y * sizeof(MapSlabCoord));
-    memset(stack_y, 0, max_slb_dim_x * max_slb_dim_y * sizeof(MapSlabCoord));
     memset(visited, 0, max_slb_dim_x * max_slb_dim_y);
     long stack_head = 0;
     stack_x[0] = src_slab_x;
