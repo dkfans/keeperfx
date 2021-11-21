@@ -2661,6 +2661,10 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
     {
         if (thing_is_creature(thing))
         {
+            if (!players_are_mutual_allies(thing->owner, dungeon->owner))
+            {
+                return CTaskRet_Unk4;
+            }
             if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos)) {
                 return CTaskRet_Unk2;
             }
