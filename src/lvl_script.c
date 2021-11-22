@@ -1392,6 +1392,42 @@ static void set_heart_health_process(struct ScriptContext *context)
     }
 }
 
+static void add_heart_health_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    value->arg1 = scline->np[1];
+    value->arg2 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_heart_health_process(struct ScriptContext *context)
+{
+    struct Thing* heartng = get_player_soul_container(context->value->arg0);
+    if (!thing_is_invalid(heartng))
+    {
+        short old_health = heartng->health;
+        long new_health = heartng->health + context->value->arg1;
+        if (new_health > (signed long)game.dungeon_heart_health)
+        {
+            WARNLOG("Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, game.dungeon_heart_health);
+            new_health = game.dungeon_heart_health;
+        }
+        heartng->health = (short)new_health;
+        if (context->value->arg2 > 0)
+        {
+            if (heartng->health < old_health)
+            {
+                event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
+                if (is_my_player_number(heartng->owner))
+                {
+                    output_message(SMsg_HeartUnderAttack, 400, true);
+                }
+            }
+        }
+    }
+}
+
 static void null_process(struct ScriptContext *context)
 {
 }
@@ -3853,11 +3889,6 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
   command_add_value(Cmd_USE_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
-void command_add_heart_health(long plr_range_id, int health, TbBool warning)
-{
-  command_add_value(Cmd_ADD_HEART_HEALTH, plr_range_id, health, warning, 0);
-}
-
 void command_creature_entrance_level(long plr_range_id, unsigned char val)
 {
   command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
@@ -4248,9 +4279,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
-        break;
-    case Cmd_ADD_HEART_HEALTH:
-        command_add_heart_health(scline->np[0], scline->np[1], scline->np[2]);
         break;
     case Cmd_CREATURE_ENTRANCE_LEVEL:
         command_creature_entrance_level(scline->np[0], scline->np[1]);
@@ -7045,27 +7073,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         message_add_fmt(val2, "%s", get_string(val3));
         break;        
   }
-  case Cmd_ADD_HEART_HEALTH:
-  {
-    struct Thing* heartng = get_player_soul_container(plr_range_id);
-    if (thing_is_dungeon_heart(heartng))
-    {
-        short health = heartng->health;
-        heartng->health += val2;
-        if (val3)
-        {
-            if (heartng->health < health)
-            {
-                event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
-                if (is_my_player_number(heartng->owner))
-                {
-                    output_message(SMsg_HeartUnderAttack, 400, true);
-                }
-            }
-        }
-    }
-    break;
-  }
   case Cmd_CREATURE_ENTRANCE_LEVEL:
   {
     if (val2 > 0)
@@ -7737,7 +7744,7 @@ const struct CommandDesc command_desc[] = {
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
   {"USE_SPELL_ON_CREATURE",             "PC!AAN  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
-  {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
+  {"ADD_HEART_HEALTH",                  "PNn     ", Cmd_ADD_HEART_HEALTH, &add_heart_health_check, &add_heart_health_process},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
   {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
