@@ -1367,6 +1367,31 @@ static void create_effect_process(struct ScriptContext *context)
     }
 }
 
+static void set_heart_health_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    if (scline->np[1] > game.dungeon_heart_health)
+    {
+        WARNLOG("Value %ld is greater than maximum: %ld", scline->np[1], game.dungeon_heart_health);
+        value->arg1 = game.dungeon_heart_health;
+    }
+    else
+    {
+        value->arg1 = scline->np[1];
+    }
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_heart_health_process(struct ScriptContext *context)
+{
+    struct Thing* heartng = get_player_soul_container(context->value->arg0);
+    if (!thing_is_invalid(heartng))
+    {
+        heartng->health = (short)context->value->arg1;
+    }
+}
+
 static void null_process(struct ScriptContext *context)
 {
 }
@@ -3828,11 +3853,6 @@ void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, con
   command_add_value(Cmd_USE_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
-void command_set_heart_health(long plr_range_id, int health)
-{
-  command_add_value(Cmd_SET_HEART_HEALTH, plr_range_id, health, 0, 0);
-}
-
 void command_add_heart_health(long plr_range_id, int health, TbBool warning)
 {
   command_add_value(Cmd_ADD_HEART_HEALTH, plr_range_id, health, warning, 0);
@@ -4228,9 +4248,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
-        break;
-    case Cmd_SET_HEART_HEALTH:
-        command_set_heart_health(scline->np[0], scline->np[1]);
         break;
     case Cmd_ADD_HEART_HEALTH:
         command_add_heart_health(scline->np[0], scline->np[1], scline->np[2]);
@@ -7028,15 +7045,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         message_add_fmt(val2, "%s", get_string(val3));
         break;        
   }
-  case Cmd_SET_HEART_HEALTH:
-  {
-    struct Thing* heartng = get_player_soul_container(plr_range_id);
-    if (thing_is_dungeon_heart(heartng))
-    {
-        heartng->health = val2;
-    }
-    break;
-  }
   case Cmd_ADD_HEART_HEALTH:
   {
     struct Thing* heartng = get_player_soul_container(plr_range_id);
@@ -7728,7 +7736,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
   {"USE_SPELL_ON_CREATURE",             "PC!AAN  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
-  {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, NULL, NULL},
+  {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
   {"ADD_HEART_HEALTH",                  "PNN     ", Cmd_ADD_HEART_HEALTH, NULL, NULL},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
   {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
