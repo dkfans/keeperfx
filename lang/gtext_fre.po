@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/POT-Creation-"
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2021-11-19 15:26+0100\n"
+"PO-Revision-Date: 2021-11-22 14:59+0100\n"
 "Last-Translator: Vosa G Thomas <vosathomas@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: fr_FR\n"
@@ -371,7 +371,7 @@ msgid ""
 "cost for that creature to train."
 msgstr ""
 "Pour entraîner les créatures, laissez-les tomber dans la Salle "
-"d’Entraînement. Le nombre qui apparaît parfois au-dessus de leur tête indique "
+"d'Entraînement. Le nombre qui apparaît parfois au-dessus de leur tête indique "
 "le prix en or de leur entraînement."
 
 #. Level Cosyton information some time after Demon Spawn
@@ -428,7 +428,7 @@ msgid ""
 "morale of your minions."
 msgstr ""
 "Construisez un donjon avec une Salle du Trésor, un Antre, un Couvoir et une "
-"Salle D'entraînement. Ces salles doivent être assez grandes, car la "
+"Salle d'entraînement. Ces salles doivent être assez grandes, car la "
 "promiscuité nuit au moral de vos larbins."
 
 #. Level Waterdream Warm objective after basic 5 rooms are built/claimed
@@ -923,7 +923,7 @@ msgid ""
 "You have researched the power of Invisibility. Cast it on a creature to hide "
 "it from enemy eyes."
 msgstr ""
-"Vous avez découvert l’Invisibilité. Lancez ce sortilège sur une de vos "
+"Vous avez découvert l'Invisibilité. Lancez ce sortilège sur une de vos "
 "créatures pour que l'ennemi ne puisse plus la voir."
 
 #. Level Tickle information
@@ -1003,7 +1003,7 @@ msgid ""
 "Your researchers have concocted a Disease spell. Cast it on enemy creatures "
 "and watch the affliction spread like the plague."
 msgstr ""
-"Vos chercheurs ont mis au point un sortilège d’Épidémie. Lancez-le sur les "
+"Vos chercheurs ont mis au point un sortilège d'Épidémie. Lancez-le sur les "
 "créatures ennemies et observez le mal se répandre comme la peste."
 
 #. Level Moonbrush Wood information
@@ -1094,7 +1094,7 @@ msgid ""
 "within a Scavenger Room will lure their kin from other dungeons and the "
 "outside world, into your domain."
 msgstr ""
-"Vos bibliothécaires inépuisables ont découvert la salle d’Enrôlement. Les "
+"Vos bibliothécaires inépuisables ont découvert la salle d'Enrôlement. Les "
 "créatures qui y sont placées vont y attirer leurs semblables."
 
 #. Level Nevergrim information
@@ -1111,7 +1111,7 @@ msgstr ""
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
-msgstr "Un Cerbere a été attiré dans votre domaine par la salle d’Enrôlement."
+msgstr "Un Cerbere a été attiré dans votre domaine par la salle d'Enrôlement."
 
 #. Level Buffy Oak objective
 #: guitext:95
@@ -2913,7 +2913,7 @@ msgstr "Suite..."
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "Niveau Termine - Appuyez Sur La Barre D'Espacement Pour Continuer"
+msgstr "Niveau Termine - Appuyez Sur La Barre Espace Pour Continuer"
 
 #: guitext:335
 msgctxt "In-game message"
@@ -6664,7 +6664,7 @@ msgid ""
 "Training Skill: How fast the creature works on training. The higher the Skill "
 "level, the better the creature's performance."
 msgstr ""
-"Compétence d’entraînement : Aptitude d'une créature à effectuer des tâches. "
+"Compétence d'entraînement : Aptitude d'une créature à effectuer des tâches. "
 "Une valeur haute signifie une meilleur performance[23.14]"
 
 #: guitext:955
