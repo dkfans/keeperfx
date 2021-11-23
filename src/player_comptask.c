@@ -723,7 +723,8 @@ TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, con
         return !creature_is_celebrating(thing) && !creature_is_being_summoned(thing)
             && !creature_is_doing_garden_activity(thing) && !creature_is_taking_salary_activity(thing)
             && !creature_is_sleeping(thing) && !creature_is_doing_toking(thing)
-            && !creature_is_being_sacrificed(thing) && !creature_is_being_scavenged(thing);
+            && !creature_is_roaming_map(thing) && !creature_is_being_sacrificed(thing)
+            && !creature_is_being_scavenged(thing);
     }
     return false;
 }
