@@ -659,6 +659,14 @@ TbBool creature_is_being_sacrificed(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_roaming_map(const struct Thing* thing)
+{
+    CrtrStateId i = get_creature_state_besides_interruptions(thing);
+    if ((i == CrSt_CreatureExploreDungeon) || (i == CrSt_SeekTheEnemy))
+        return true;
+    return false;
+}
+
 TbBool creature_is_kept_in_prison(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
