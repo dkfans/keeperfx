@@ -2846,7 +2846,8 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
   for (long i = plr_start; i < plr_end; i++)
   {
       struct Computer2* comp = get_computer_player(i);
-      if (computer_player_invalid(comp)) {
+      if ( (computer_player_invalid(comp)) || (!player_is_computer(get_player(i))) ) {
+          SCRPTERRLOG("Player %d is invalid or not a computer.", i);
           continue;
       }
       for (long k = 0; k < COMPUTER_CHECKS_COUNT; k++)

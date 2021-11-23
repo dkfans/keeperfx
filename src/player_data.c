@@ -392,4 +392,18 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
       break;
   }
 }
+
+TbBool player_is_computer(const struct PlayerInfo *player)
+{
+    if (!player_exists(player))
+    {
+        return false;
+    }
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    if (dungeon_invalid(dungeon))
+    {
+        return false;
+    }
+    return (((player->allocflags & PlaF_CompCtrl) != 0) && ((dungeon->computer_enabled & 0x01) != 0));
+}
 /******************************************************************************/

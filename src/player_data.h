@@ -254,7 +254,8 @@ TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
 TbBool players_creatures_tolerate_each_other(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber origin_plyr_idx);
 TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state);
-void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
+void toggle_ally_with_player(long plyridx, unsigned int allyidx);
+TbBool player_is_computer(const struct PlayerInfo *player);
 
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 void set_player_mode(struct PlayerInfo *player, unsigned short nview);
