@@ -399,11 +399,6 @@ TbBool player_is_computer(const struct PlayerInfo *player)
     {
         return false;
     }
-    struct Dungeon* dungeon = get_players_dungeon(player);
-    if (dungeon_invalid(dungeon))
-    {
-        return false;
-    }
-    return (((player->allocflags & PlaF_CompCtrl) != 0) && ((dungeon->computer_enabled & 0x01) != 0));
+    return ((player->allocflags & PlaF_CompCtrl) != 0);
 }
 /******************************************************************************/
