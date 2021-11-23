@@ -1373,7 +1373,7 @@ static void set_heart_health_check(const struct ScriptLine *scline)
     value->arg0 = scline->np[0];
     if (scline->np[1] > (signed long)game.dungeon_heart_health)
     {
-        WARNLOG("Value %ld is greater than maximum: %ld", scline->np[1], game.dungeon_heart_health);
+        SCRPTWRNLOG("Value %ld is greater than maximum: %ld", scline->np[1], game.dungeon_heart_health);
         value->arg1 = game.dungeon_heart_health;
     }
     else
