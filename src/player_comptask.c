@@ -2475,7 +2475,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     dungeon = comp->dungeon;
     room = room_get(ctask->move_to_room.room_idx1);
     thing = thing_get(comp->held_thing_idx);
-    if (!thing_is_invalid(thing)) // We have no unit in hand
+    if (!thing_is_invalid(thing)) // We already have a unit in hand
     {
         // 2nd phase - we have specific creature and specific room index, and creature is picked up already
         SYNCDBG(9,"Starting player %d drop",(int)dungeon->owner);
@@ -2504,7 +2504,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    // 1st phase - we need to find a room and a creature for pickup, and take it to hand
+    // 1st phase - empty hand - we need to find a room and a creature for pickup, and take it to hand
     SYNCDBG(9,"Starting player %d pickup",(int)dungeon->owner);
     i = ctask->move_to_room.repeat_num;
     ctask->move_to_room.repeat_num--;
