@@ -323,6 +323,7 @@ const struct NamedCommand game_rule_desc[] = {
   {"PayDayProgress",            20},
   {"PlaceTrapsOnSubtiles",      21},
   {"DiseaseHPTemplePercentage", 22},
+  {"DungeonHeartHealth",        23},
   {NULL,                         0},
 };
 
@@ -7309,6 +7310,19 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           else
           {
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 23:  //DungeonHeartHealth
+          if (val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_health, val3);
+              game.dungeon_heart_health = val3;
+              game.objects_config[5].health = val3;
+              gameadd.object_conf.base_config[5].health = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, SHRT_MAX);
           }
           break;
       default:
