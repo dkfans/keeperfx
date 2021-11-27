@@ -228,7 +228,8 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing, PlayerNum
                             refpos.y.val = apt->mappos.y.val;
                             refpos.z.val = 0;
                             MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
-                            return dist <= apt->range ? !hand_rule.allow : !!hand_rule.allow;
+                            if (dist <= apt->range) return !hand_rule.allow;
+                            break;
                         }
                     case HandRule_AffectedBy:
                         if (creature_affected_by_spell(thing, hand_rule.param))
