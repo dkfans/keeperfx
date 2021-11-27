@@ -46,7 +46,6 @@ DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, lon
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long stl_x);
-DLLIMPORT unsigned char _DK_choose_pretty_type(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT void _DK_delete_attached_things_on_slab(long slb_x, long slb_y);
 
 const signed short slab_element_around_eight[] = {
@@ -2330,10 +2329,71 @@ void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
   }
 }
 
-unsigned char choose_pretty_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+SlabKind choose_pretty_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
+    struct SlabMap *pvslb, *nxslb;
     SYNCDBG(16,"Starting");
-    return _DK_choose_pretty_type(plyr_idx, slb_x, slb_y);
+    // return _DK_choose_pretty_type(plyr_idx, slb_x, slb_y);
+    // if x co-ordinate is divisible by 5
+    if (slb_x % 5 == 0)
+    {
+        pvslb = get_slabmap_block(slb_x, slb_y - 1);
+        nxslb = get_slabmap_block(slb_x, slb_y + 1);
+        if ( (pvslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED) )  
+        {
+            return SlbT_WALLTORCH;
+        }
+    }
+    // if y co-ordinate is divisible by 5
+    if (slb_y % 5 == 0)
+    {
+        pvslb = get_slabmap_block(slb_x - 1, slb_y);
+        nxslb = get_slabmap_block(slb_x + 1, slb_y);
+        if ( (pvslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED) )
+        {
+            return SlbT_WALLTORCH;
+        }
+    }
+    // if x co-ordinate is odd
+    if ((slb_x & 1) != 0)
+    {
+        pvslb = get_slabmap_block(slb_x, slb_y - 1);
+        nxslb = get_slabmap_block(slb_x, slb_y + 1);
+        if ( (pvslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED) )
+        {
+        return SlbT_WALLDRAPE;
+        }
+    }
+    // if y co-ordinate is odd
+    if ((slb_y & 1) != 0)
+    {
+        pvslb = get_slabmap_block(slb_x - 1, slb_y);
+        nxslb = get_slabmap_block(slb_x + 1, slb_y);
+        if ( (pvslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED) )
+        {
+            return SlbT_WALLDRAPE;
+        }
+    }
+    /* else, choose an art type, based on the tile's distance from its owner's Dungeon Heart,
+    or the centre of the map if there's no heart */
+    const SlabKind pretty_types[3] = {SlbT_WALLWTWINS, SlbT_WALLWWOMAN, SlbT_WALLPAIRSHR};
+    struct Coord3d pos, pos2;
+    struct Thing *heartng = get_player_soul_container(plyr_idx);
+    // this function calculates distance in slabs, not subtiles
+    if (thing_is_invalid(heartng))
+    {
+        pos.x.val = 42;
+        pos.y.val = 42;
+    }
+    else
+    {
+        pos.x.val = heartng->mappos.x.stl.num / STL_PER_SLB;
+        pos.y.val = heartng->mappos.y.stl.num / STL_PER_SLB;
+    }
+    pos2.x.val = slb_x;
+    pos2.y.val = slb_y;
+    MapCoordDelta dist = get_2d_distance(&pos, &pos2);
+    return pretty_types[(dist / 4) % 3];
 }
 
 void pretty_map_remove_flags_and_update(MapSlabCoord slb_x, MapSlabCoord slb_y)
