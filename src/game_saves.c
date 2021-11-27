@@ -29,6 +29,7 @@
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "config_compp.h"
+#include "custom_sprites.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_landview.h"
@@ -401,6 +402,7 @@ TbBool load_game(long slot_num)
         init_lookups();
         return false;
     }
+    init_custom_sprites(get_selected_level_number());
     my_player_number = game.local_plyr_idx;
     LbFileClose(fh);
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
