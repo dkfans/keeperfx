@@ -2554,39 +2554,43 @@ static void conceal_map_rect_process(struct ScriptContext *context)
 
 static void set_hand_rule_check(const struct ScriptLine* scline)
 {
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    const char *param_name = scline->tp[5];
     long crtr_id = parse_creature_name(scline->tp[1]);
+    short hr_action, hr_slot, hr_type, param;
+
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
         return;
     }
-    long hand_rule_slot = get_rid(rule_slot_desc, scline->tp[2]);
-    if (hand_rule_slot == -1) {
+    hr_slot = get_id(rule_slot_desc, scline->tp[2]);
+    if (hr_slot == -1) {
         SCRPTERRLOG("Invalid hand rule slot: '%s'", scline->tp[2]);
         return;
     }
-    long rule_action = get_rid(rule_action_desc, scline->tp[3]);
-    if (rule_action == -1) {
+    hr_action = get_id(rule_action_desc, scline->tp[3]);
+    if (hr_action == -1) {
         SCRPTERRLOG("Invalid hand rule action: '%s'", scline->tp[3]);
         return;
     }
-    if (rule_action == HandRuleAction_Allow || rule_action == HandRuleAction_Deny)
+    if (hr_action == HandRuleAction_Allow || hr_action == HandRuleAction_Deny)
     {
-        long hand_rule_type = get_rid(hand_rule_desc, scline->tp[4]);
-        if (hand_rule_type == -1) {
+        hr_type = get_id(hand_rule_desc, scline->tp[4]);
+        if (hr_type == -1) {
             SCRPTERRLOG("Invalid hand rule: '%s'", scline->tp[4]);
             return;
         }
-        const char *param_name = scline->tp[5];
-        long param = hand_rule_type == HandRule_AffectedBy ? 0 : atol(param_name);
-        if (hand_rule_type == HandRule_AtActionPoint && action_point_number_to_index(param) == -1)
+        param = hr_type == HandRule_AffectedBy ? 0 : atol(param_name);
+        if (hr_type == HandRule_AtActionPoint && action_point_number_to_index(param) == -1)
         {
             SCRPTERRLOG("Unknown action point param for hand rule: '%d'", param);
             return;
         }
-        if (hand_rule_type == HandRule_AffectedBy)
+        if (hr_type == HandRule_AffectedBy)
         {
-            long mag_id = get_rid(spell_desc, param_name);
+            long mag_id = get_id(spell_desc, param_name);
             if (mag_id == -1)
             {
                 SCRPTERRLOG("Unknown magic, '%s'", param_name);
@@ -2594,26 +2598,30 @@ static void set_hand_rule_check(const struct ScriptLine* scline)
             }
             param = mag_id;
         }
-        long ast_bytes = (rule_action << 24) | (hand_rule_slot << 16) | hand_rule_type; // encode: 1B action,1B slot,2B type
-
-        command_add_value(Cmd_SET_HAND_RULE, scline->np[0], crtr_id, ast_bytes, param);
     } else
     {
-        long ast_bytes = (rule_action << 24) | (hand_rule_slot << 16); // encode: 1B action,1B slot,2B type=0
-        command_add_value(Cmd_SET_HAND_RULE, scline->np[0], crtr_id, ast_bytes, 0);
+        hr_type = 0;
+        param = 0;
     }
+
+    value->shorts[0] = crtr_id;
+    value->shorts[1] = hr_action;
+    value->shorts[2] = hr_slot;
+    value->shorts[3] = hr_type;
+    value->shorts[4] = param;
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_hand_rule_process(struct ScriptContext* context)
 {
-    long crtr_id = context->value->arg0;
-    long ast_bytes = context->value->arg1;
-    long hand_rule_type = (ast_bytes & 0xffff);
-    long hand_rule_slot = (ast_bytes >> 16) & 0xff;
-    long hand_rule_action = (ast_bytes >> 24) & 0xff;
+    long crtr_id = context->value->shorts[0];
+    long hand_rule_action = context->value->shorts[1];
+    long hand_rule_slot = context->value->shorts[2];
+    long hand_rule_type = context->value->shorts[3];
+    long param = context->value->shorts[4];
     long crtr_id_start = crtr_id == CREATURE_ANY ? 0 : crtr_id;
     long crtr_id_end = crtr_id == CREATURE_ANY ? CREATURE_TYPES_MAX : crtr_id + 1;
-    long param = context->value->arg2;
+
     struct DungeonAdd* dungeonadd;
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
