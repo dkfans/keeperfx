@@ -3838,11 +3838,7 @@ long player_list_creature_filter_most_experienced(const struct Thing *thing, Max
       && !thing_is_picked_up(thing)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
-      if (
-        !(param->pick_check) ||
-        (param->pick_check == 1 && can_thing_be_picked_up_by_player(thing, param->plyr_idx)) ||
-        (param->pick_check == 2 && can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
-      )
+      if (!param->pick_check || (param->pick_check && can_thing_be_picked_up_by_player(thing, param->plyr_idx)))
         {
           return nmaxim;
         }
@@ -3871,11 +3867,7 @@ long player_list_creature_filter_least_experienced(const struct Thing *thing, Ma
       && !thing_is_picked_up(thing)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
-      if (
-        !(param->pick_check) ||
-        (param->pick_check == 1 && can_thing_be_picked_up_by_player(thing, param->plyr_idx)) ||
-        (param->pick_check == 2 && can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
-      )
+      if (!param->pick_check || (param->pick_check && can_thing_be_picked_up_by_player(thing, param->plyr_idx)))
       {
         return nmaxim;
       }
@@ -3901,11 +3893,7 @@ long player_list_creature_filter_of_gui_job(const struct Thing *thing, MaxTngFil
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1)) // job_idx
       && (thing->active_state != CrSt_CreatureUnconscious) )
     {
-      if (
-        !(param->pick_check) ||
-        (param->pick_check == 1 && can_thing_be_picked_up_by_player(thing, param->plyr_idx)) ||
-        (param->pick_check == 2 && can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
-      )
+      if (!param->pick_check || (param->pick_check && can_thing_be_picked_up_by_player(thing, param->plyr_idx)))
       {
           // New 'maximizer' equal to MAX_LONG will stop the sweeping
           // and return this thing immediately.
