@@ -1530,6 +1530,7 @@ void setup_computer_players2(void)
 #endif
       }
       get_computer_player(i)->events = &get_dungeonadd(i)->computer_info.events[0];
+      get_computer_player(i)->checks = &get_dungeonadd(i)->computer_info.checks[0];
     }
   }
 }

@@ -2472,13 +2472,16 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     long i;
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    room = INVALID_ROOM;
+    room = room_get(ctask->move_to_room.room_idx1);
     thing = thing_get(comp->held_thing_idx);
-    if (!thing_is_invalid(thing))
+    if (!thing_is_invalid(thing)) // We have no unit in hand
     {
         // 2nd phase - we have specific creature and specific room index, and creature is picked up already
         SYNCDBG(9,"Starting player %d drop",(int)dungeon->owner);
-        room = room_get(ctask->move_to_room.room_idx2);
+        if (room_is_invalid(room))
+        {
+            room = room_get(ctask->move_to_room.room_idx2);
+        }
         if (thing_is_creature(thing) && room_exists(room))
         {
             struct CreatureStats *crstat;
@@ -2661,6 +2664,10 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
     {
         if (thing_is_creature(thing))
         {
+            if (!players_are_mutual_allies(thing->owner, dungeon->owner))
+            {
+                return CTaskRet_Unk4;
+            }
             if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos)) {
                 return CTaskRet_Unk2;
             }

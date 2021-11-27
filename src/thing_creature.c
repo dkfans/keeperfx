@@ -4626,7 +4626,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     {
         place_bloody_footprint(thing);
         nfoot = get_foot_creature_has_down(thing);
-        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, 23, thing->owner);
+        footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_Blood4, thing->owner);
         if (!thing_is_invalid(footng)) {
             cctrl->bloody_footsteps_turns--;
         }
@@ -4639,7 +4639,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
         {
           thing->movement_flags |= TMvF_Unknown80;
           nfoot = get_foot_creature_has_down(thing);
-          footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, 94, thing->owner);
+          footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
         }
     }
 }
