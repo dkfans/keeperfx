@@ -1410,11 +1410,12 @@ static void add_heart_health_process(struct ScriptContext *context)
         long new_health = heartng->health + context->value->arg1;
         if (new_health > (signed long)game.dungeon_heart_health)
         {
-            SCRPTWRNLOG("Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, game.dungeon_heart_health);
+            SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, game.dungeon_heart_health);
             new_health = game.dungeon_heart_health;
         }
         heartng->health = (short)new_health;
-        if (context->value->arg2 > 0)
+        TbBool warn_on_damage = (context->value->arg2);
+        if (warn_on_damage)
         {
             if (heartng->health < old_health)
             {
