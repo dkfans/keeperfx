@@ -199,8 +199,6 @@ struct GameAdd {
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
 
-    struct HandRule hand_rules[PLAYERS_COUNT][CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
-
     struct LevelScript script;
     PlayerNumber script_player;
     unsigned char script_timer_id;

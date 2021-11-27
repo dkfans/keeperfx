@@ -33,6 +33,8 @@
 #include "tasks_list.h"
 #include "thing_traps.h"
 #include "roomspace.h"
+#include "power_hand.h"
+#include "config_creature.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -324,6 +326,7 @@ struct DungeonAdd
     long                  swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
     struct ComputerInfo   computer_info;
     long event_last_run_turn[EVENT_KIND_COUNT];
+    struct HandRule hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;

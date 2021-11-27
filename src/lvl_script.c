@@ -2614,19 +2614,21 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long crtr_id_start = crtr_id == CREATURE_ANY ? 0 : crtr_id;
     long crtr_id_end = crtr_id == CREATURE_ANY ? CREATURE_TYPES_MAX : crtr_id + 1;
     long param = context->value->arg2;
+    struct DungeonAdd* dungeonadd;
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
         for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
         {
+            dungeonadd = get_dungeonadd(i);
             if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
             {
-                gameadd.hand_rules[i][ci][hand_rule_slot].enabled = 1;
-                gameadd.hand_rules[i][ci][hand_rule_slot].type = hand_rule_type;
-                gameadd.hand_rules[i][ci][hand_rule_slot].allow = hand_rule_action;
-                gameadd.hand_rules[i][ci][hand_rule_slot].param = param;
+                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = 1;
+                dungeonadd->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
+                dungeonadd->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
+                dungeonadd->hand_rules[ci][hand_rule_slot].param = param;
             } else
             {
-                gameadd.hand_rules[i][ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
+                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
             }
         }
     }

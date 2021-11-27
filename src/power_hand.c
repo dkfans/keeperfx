@@ -190,12 +190,13 @@ TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber
 }
 
 TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing, PlayerNumber plyr_idx) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (thing_is_creature(thing) && thing->owner == plyr_idx)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         struct HandRule hand_rule;
         for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) {
-            hand_rule = gameadd.hand_rules[plyr_idx][thing->model][i];
+            hand_rule = dungeonadd->hand_rules[thing->model][i];
             if (hand_rule.enabled)
             {
                 switch (hand_rule.type)
