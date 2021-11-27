@@ -2735,38 +2735,60 @@ static void change_slab_owner_process(struct ScriptContext *context)
 
 static void change_slab_type_check(const struct ScriptLine *scline)
 {
-    long coords = (scline->np[0] << 16) | scline->np[1];
-    command_add_value(Cmd_CHANGE_SLAB_TYPE, 0, coords, scline->np[2], get_id(fill_desc, scline->tp[3]));
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    if (scline->np[0] < 0 || scline->np[0] > 85) //x coord
+    {
+        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        return;
+    }
+    else
+    {
+        value->shorts[0] = scline->np[0];
+    }
+
+    if (scline->np[1] < 0 || scline->np[1] > 85) //y coord
+    {
+        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        return;
+    }
+    else
+    {
+        value->shorts[1] = scline->np[1];
+    }
+
+    if (scline->np[2] < 0 || scline->np[2] > 53) //slab kind
+    {
+        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-53 allowed.", scline->np[2]);
+        return;
+    }
+    else
+    {
+        value->shorts[2] = scline->np[2];
+    }
+
+    value->shorts[3] = get_id(fill_desc, scline->tp[3]);
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void change_slab_type_process(struct ScriptContext *context)
 {
-    long x = context->value->arg0 >> 16;
-    long y = context->value->arg0 & 0xff;
-    long slab_kind = context->value->arg1;
-    long fill_type = context->value->arg2;
-    if (x < 0 || x > 85)
+    long x = context->value->shorts[0];
+    long y = context->value->shorts[1];
+    long slab_kind = context->value->shorts[2];
+    long fill_type = context->value->shorts[3];
+ 
+    if (fill_type != -1)
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", x);
-    } else
-    if (y < 0 || y > 85)
+        struct CompoundCoordFilterParam iter_param;
+        iter_param.num1 = slab_kind;
+        iter_param.num2 = fill_type;
+        iter_param.num3 = get_slabmap_block(x, y)->kind;
+        slabs_fill_iterate_from_slab(x, y, slabs_change_type, &iter_param);
+    } 
+    else
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", y);
-    } else
-    if (context->value->arg1 < 0 || context->value->arg1 > 53)
-    {
-        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-53 allowed.", slab_kind);
-    } else
-    {
-        if (fill_type != -1)
-        {
-            struct CompoundCoordFilterParam iter_param;
-            iter_param.num1 = slab_kind;
-            iter_param.num2 = fill_type;
-            iter_param.num3 = get_slabmap_block(x, y)->kind;
-            slabs_fill_iterate_from_slab(x, y, slabs_change_type, &iter_param);
-        } else
-            replace_slab_from_script(x, y, slab_kind);
+        replace_slab_from_script(x, y, slab_kind);
     }
 }
 
