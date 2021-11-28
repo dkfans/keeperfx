@@ -207,6 +207,9 @@ struct GameAdd {
     unsigned char script_value_id;
     long script_variable_target;
     unsigned char script_variable_target_type;
+    TbBool lose_display_message;
+    TbBool lose_quick_message;
+    unsigned long lose_message_id;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
