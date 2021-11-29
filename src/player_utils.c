@@ -151,7 +151,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         if (gameadd.lose_display_message)
         {
             const char *objective = (gameadd.lose_quick_message) ? gameadd.quick_messages[gameadd.lose_message_id] : get_string(gameadd.lose_message_id);
-            process_objective(objective, 0, 0, 0);
+            process_objective(objective, gameadd.lose_message_target, 0, 0);
         }
         frontstats_initialise();
     }

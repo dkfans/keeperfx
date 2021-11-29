@@ -1599,6 +1599,14 @@ static void losing_objective_check(const struct ScriptLine *scline)
         value->arg1 = scline->tp[1];
     }
     value->arg0 = scline->np[0];
+    if (scline->tp[2] != '\0')
+    {
+        TbMapLocation location;
+        if (get_map_location_id(scline->tp[2], &location))
+        {
+            value->arg2 = location;
+        }
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -1607,6 +1615,7 @@ static void losing_objective_process(struct ScriptContext *context)
     gameadd.lose_display_message = true;
     gameadd.lose_quick_message = ((const char*)context->value->arg1 != '\0');
     gameadd.lose_message_id = context->value->arg0;
+    gameadd.lose_message_target = context->value->arg2;
 }
 
 static void null_process(struct ScriptContext *context)
@@ -7952,7 +7961,7 @@ const struct CommandDesc command_desc[] = {
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
-  {"LOSING_OBJECTIVE",                  "Na      ", Cmd_LOSING_OBJECTIVE, &losing_objective_check, &losing_objective_process},
+  {"LOSING_OBJECTIVE",                  "Nal     ", Cmd_LOSING_OBJECTIVE, &losing_objective_check, &losing_objective_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

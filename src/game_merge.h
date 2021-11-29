@@ -210,6 +210,7 @@ struct GameAdd {
     TbBool lose_display_message;
     TbBool lose_quick_message;
     unsigned long lose_message_id;
+    long lose_message_target;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
