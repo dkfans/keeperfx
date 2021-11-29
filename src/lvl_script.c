@@ -1596,10 +1596,10 @@ static void losing_objective_check(const struct ScriptLine *scline)
         }
         strncpy(gameadd.quick_messages[scline->np[0]], scline->tp[1], MESSAGE_TEXT_LEN-1);
         gameadd.quick_messages[scline->np[0]][MESSAGE_TEXT_LEN-1] = '\0';
-        value->arg1 = scline->tp[1];
     }
+    value->arg1 = scline->tp[1];
     value->arg0 = scline->np[0];
-    if (scline->tp[2] != '\0')
+    if (scline->tp[2][0] != '\0')
     {
         TbMapLocation location;
         if (get_map_location_id(scline->tp[2], &location))
@@ -1613,7 +1613,7 @@ static void losing_objective_check(const struct ScriptLine *scline)
 static void losing_objective_process(struct ScriptContext *context)
 {
     gameadd.lose_display_message = true;
-    gameadd.lose_quick_message = ((const char*)context->value->arg1 != '\0');
+    gameadd.lose_quick_message = (*(const char*)context->value->arg1 != '\0');
     gameadd.lose_message_id = context->value->arg0;
     gameadd.lose_message_target = context->value->arg2;
 }
