@@ -174,6 +174,7 @@ enum TbScriptCommands {
     Cmd_HIDE_VARIABLE                     = 142,
     Cmd_CREATE_EFFECT                     = 143,
     Cmd_CREATE_EFFECT_AT_POS              = 144,
+    Cmd_LOSING_QUICK_OBJECTIVE            = 144,
     Cmd_LOSING_OBJECTIVE                  = 145,
 };
 

@@ -1576,36 +1576,48 @@ static void add_heart_health_process(struct ScriptContext *context)
     }
 }
 
-static void losing_objective_check(const struct ScriptLine *scline)
+static void losing_quick_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    if (scline->tp[1][0] != '\0')
+    if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
     {
-        if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
-        {
-            SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%d)", scline->np[0]);
-            return;
-        }
-        if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
-        {
-            SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-        }
-        if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
-        {
-            SCRPTWRNLOG("Quick Objective no %d overwritten by different text", scline->np[0]);
-        }
-        strncpy(gameadd.quick_messages[scline->np[0]], scline->tp[1], MESSAGE_TEXT_LEN-1);
-        gameadd.quick_messages[scline->np[0]][MESSAGE_TEXT_LEN-1] = '\0';
+        SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%d)", scline->np[0]);
+        return;
     }
+    if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+    }
+    if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
+    {
+        SCRPTWRNLOG("Quick Objective no %d overwritten by different text", scline->np[0]);
+    }
+    strncpy(gameadd.quick_messages[scline->np[0]], scline->tp[1], MESSAGE_TEXT_LEN-1);
+    gameadd.quick_messages[scline->np[0]][MESSAGE_TEXT_LEN-1] = '\0';
     value->arg1 = scline->tp[1];
     value->arg0 = scline->np[0];
     if (scline->tp[2][0] != '\0')
     {
-        TbMapLocation location;
-        if (get_map_location_id(scline->tp[2], &location))
-        {
-            value->arg2 = location;
-        }
+        get_map_location_id(scline->tp[2], &value->arg2);
+    }
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void losing_quick_objective_process(struct ScriptContext *context)
+{
+    gameadd.lose_display_message = true;
+    gameadd.lose_quick_message = true;
+    gameadd.lose_message_id = context->value->arg0;
+    gameadd.lose_message_target = context->value->arg2;
+}
+
+static void losing_objective_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    if (scline->tp[1][0] != '\0')
+    {
+        get_map_location_id(scline->tp[1], &value->arg1);
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1613,9 +1625,9 @@ static void losing_objective_check(const struct ScriptLine *scline)
 static void losing_objective_process(struct ScriptContext *context)
 {
     gameadd.lose_display_message = true;
-    gameadd.lose_quick_message = (*(const char*)context->value->arg1 != '\0');
+    gameadd.lose_quick_message = false;
     gameadd.lose_message_id = context->value->arg0;
-    gameadd.lose_message_target = context->value->arg2;
+    gameadd.lose_message_target = context->value->arg1;
 }
 
 static void null_process(struct ScriptContext *context)
@@ -7961,7 +7973,8 @@ const struct CommandDesc command_desc[] = {
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
-  {"LOSING_OBJECTIVE",                  "Nal     ", Cmd_LOSING_OBJECTIVE, &losing_objective_check, &losing_objective_process},
+  {"LOSING_QUICK_OBJECTIVE",            "NAl     ", Cmd_LOSING_QUICK_OBJECTIVE, &losing_quick_objective_check, &losing_quick_objective_process},
+  {"LOSING_OBJECTIVE",                  "Nl      ", Cmd_LOSING_OBJECTIVE, &losing_objective_check, &losing_objective_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
