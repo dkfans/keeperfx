@@ -614,13 +614,16 @@ SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoor
  * @param slb_y Target slab to check around, Y coord.
  * @return Number of owned slabs.
  */
-int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool IncludeDiagonals)
 {
     int num_owned = 0;
-    for (int i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
+    int i;
+    MapSlabCoord sslb_x;
+    MapSlabCoord sslb_y;
+    for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
     {
-        MapSlabCoord sslb_x = slb_x + small_around[i].delta_x;
-        MapSlabCoord sslb_y = slb_y + small_around[i].delta_y;
+        sslb_x = slb_x + small_around[i].delta_x;
+        sslb_y = slb_y + small_around[i].delta_y;
         struct SlabMap* slb = get_slabmap_block(sslb_x, sslb_y);
         if (slabmap_owner(slb) == plyr_idx)
         {
@@ -628,10 +631,29 @@ int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
             if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->block_flags & SlbAtFlg_IsRoom) || (slbattr->block_flags & SlbAtFlg_IsDoor))
             {
                 num_owned++;
-            } 
-                
+            }    
         }
-
+    }
+    if (IncludeDiagonals)
+    {
+        for (i = 0; i < AROUND_SLAB_LENGTH; i+=2)
+        {
+            if (i == 4)
+            {
+                continue;
+            }
+            sslb_x = slb_x + around[i].delta_x;
+            sslb_y = slb_y + around[i].delta_y;
+            struct SlabMap* slb = get_slabmap_block(sslb_x, sslb_y);
+            if (slabmap_owner(slb) == plyr_idx)
+            {
+                struct SlabAttr* slbattr = get_slab_attrs(slb);
+                if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->block_flags & SlbAtFlg_IsRoom) || (slbattr->block_flags & SlbAtFlg_IsDoor))
+                {
+                    num_owned++;
+                }    
+            } 
+        }
     }
     return num_owned;
 }
@@ -647,7 +669,7 @@ void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb
         struct SlabAttr* slbattr = get_slab_attrs(slb);
         if ((slbattr->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != keep_plyr_idx))
         {
-            int num_owned_around = count_owned_ground_around(slabmap_owner(slb), slb_x, slb_y);
+            int num_owned_around = count_owned_ground_around(slabmap_owner(slb), slb_x, slb_y, true);
             if (num_owned_around == 0)
             {
                 SlabKind slbkind = alter_rock_style(SlbT_EARTH, slb_x, slb_y, game.neutral_player_num);
