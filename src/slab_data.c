@@ -608,11 +608,11 @@ SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoor
 }
 
 /**
- * Counts amount of tiles owned by given player around given slab.
+ * Counts number of tiles owned by given player around given slab.
  * @param plyr_idx Owning player to be checked.
  * @param slb_x Target slab to check around, X coord.
  * @param slb_y Target slab to check around, Y coord.
- * @return Amount 0-4 of owned slabs, or just 4 if there is any owned ground or room slab.
+ * @return Number of owned slabs.
  */
 int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
@@ -625,12 +625,11 @@ int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
         if (slabmap_owner(slb) == plyr_idx)
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_RoomInterior)) {
-                num_owned = 4;
-                break;
-            } else {
+            if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->block_flags & SlbAtFlg_IsRoom) || (slbattr->block_flags & SlbAtFlg_IsDoor))
+            {
                 num_owned++;
-            }
+            } 
+                
         }
 
     }
@@ -649,7 +648,7 @@ void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb
         if ((slbattr->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != keep_plyr_idx))
         {
             int num_owned_around = count_owned_ground_around(slabmap_owner(slb), slb_x, slb_y);
-            if (num_owned_around < 2)
+            if (num_owned_around == 0)
             {
                 SlabKind slbkind = alter_rock_style(SlbT_EARTH, slb_x, slb_y, game.neutral_player_num);
                 place_slab_type_on_map(slbkind, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 0);
