@@ -1576,7 +1576,7 @@ static void add_heart_health_process(struct ScriptContext *context)
     }
 }
 
-static void losing_quick_objective_check(const struct ScriptLine *scline)
+static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
@@ -1603,7 +1603,7 @@ static void losing_quick_objective_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void losing_quick_objective_process(struct ScriptContext *context)
+static void heart_lost_quick_objective_process(struct ScriptContext *context)
 {
     gameadd.lose_display_message = true;
     gameadd.lose_quick_message = true;
@@ -1611,7 +1611,7 @@ static void losing_quick_objective_process(struct ScriptContext *context)
     gameadd.lose_message_target = context->value->arg2;
 }
 
-static void losing_objective_check(const struct ScriptLine *scline)
+static void heart_lost_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->arg0 = scline->np[0];
@@ -1622,7 +1622,7 @@ static void losing_objective_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void losing_objective_process(struct ScriptContext *context)
+static void heart_lost_objective_process(struct ScriptContext *context)
 {
     gameadd.lose_display_message = true;
     gameadd.lose_quick_message = false;
@@ -7973,8 +7973,8 @@ const struct CommandDesc command_desc[] = {
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
-  {"LOSING_QUICK_OBJECTIVE",            "NAl     ", Cmd_LOSING_QUICK_OBJECTIVE, &losing_quick_objective_check, &losing_quick_objective_process},
-  {"LOSING_OBJECTIVE",                  "Nl      ", Cmd_LOSING_OBJECTIVE, &losing_objective_check, &losing_objective_process},
+  {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
+  {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
