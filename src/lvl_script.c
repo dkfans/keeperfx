@@ -1605,10 +1605,10 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
 
 static void heart_lost_quick_objective_process(struct ScriptContext *context)
 {
-    gameadd.lose_display_message = true;
-    gameadd.lose_quick_message = true;
-    gameadd.lose_message_id = context->value->arg0;
-    gameadd.lose_message_target = context->value->arg2;
+    gameadd.heart_lost_display_message = true;
+    gameadd.heart_lost_quick_message = true;
+    gameadd.heart_lost_message_id = context->value->arg0;
+    gameadd.heart_lost_message_target = context->value->arg2;
 }
 
 static void heart_lost_objective_check(const struct ScriptLine *scline)
@@ -1624,10 +1624,10 @@ static void heart_lost_objective_check(const struct ScriptLine *scline)
 
 static void heart_lost_objective_process(struct ScriptContext *context)
 {
-    gameadd.lose_display_message = true;
-    gameadd.lose_quick_message = false;
-    gameadd.lose_message_id = context->value->arg0;
-    gameadd.lose_message_target = context->value->arg1;
+    gameadd.heart_lost_display_message = true;
+    gameadd.heart_lost_quick_message = false;
+    gameadd.heart_lost_message_id = context->value->arg0;
+    gameadd.heart_lost_message_target = context->value->arg1;
 }
 
 static void null_process(struct ScriptContext *context)
