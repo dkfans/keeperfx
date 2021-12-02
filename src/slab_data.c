@@ -636,14 +636,10 @@ int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
     }
     if (IncludeDiagonals)
     {
-        for (i = 0; i < AROUND_SLAB_LENGTH; i+=2)
+        for (i = 5; i < MID_AROUND_LENGTH; i++)
         {
-            if (i == 4)
-            {
-                continue;
-            }
-            sslb_x = slb_x + around[i].delta_x;
-            sslb_y = slb_y + around[i].delta_y;
+            sslb_x = slb_x + mid_around[i].delta_x;
+            sslb_y = slb_y + mid_around[i].delta_y;
             struct SlabMap* slb = get_slabmap_block(sslb_x, sslb_y);
             if (slabmap_owner(slb) == plyr_idx)
             {
@@ -661,20 +657,41 @@ int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
 void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb_x, MapSlabCoord base_slb_y)
 {
     //_DK_unfill_reinforced_corners(plyr_idx, base_slb_x, base_slb_y); return;
-    for (int i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
+    struct SlabMap *slb = get_slabmap_block(base_slb_x, base_slb_y);
+    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
-        MapSlabCoord slb_x = base_slb_x + small_around[i].delta_x;
-        MapSlabCoord slb_y = base_slb_y + small_around[i].delta_y;
-        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-        struct SlabAttr* slbattr = get_slab_attrs(slb);
-        if ((slbattr->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != keep_plyr_idx))
+        MapSlabCoord x = base_slb_x + small_around[n].delta_x;
+        MapSlabCoord y = base_slb_y + small_around[n].delta_y;
+        struct SlabMap *slb2 = get_slabmap_block(x, y);
+        struct SlabAttr* slbattr2 = get_slab_attrs(slb2);
+        if ( (((slbattr2->category == SlbAtCtg_FortifiedGround) || (slbattr2->block_flags & SlbAtFlg_IsRoom) || ((slbattr2->block_flags & SlbAtFlg_IsDoor)) )) 
+        && (slabmap_owner(slb2) == keep_plyr_idx ) )
         {
-            int num_owned_around = count_owned_ground_around(slabmap_owner(slb), slb_x, slb_y, true);
-            if (num_owned_around == 0)
+            for (int k = -1; k < 2; k+=2)
             {
-                SlabKind slbkind = alter_rock_style(SlbT_EARTH, slb_x, slb_y, game.neutral_player_num);
-                place_slab_type_on_map(slbkind, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 0);
-                do_slab_efficiency_alteration(slb_x, slb_y);
+                int j = (k + n) & 3;
+                MapSlabCoord x2 = x + small_around[j].delta_x;
+                MapSlabCoord y2 = y + small_around[j].delta_y;
+                struct SlabMap *slb3 = get_slabmap_block(x2, y2);
+                struct SlabAttr* slbattr3 = get_slab_attrs(slb3);
+                if ( ( (slbattr3->category == SlbAtCtg_FortifiedWall) ) || (slbattr3->category == SlbAtCtg_FriableDirt) )
+                {
+                    int m = (k + j) & 3;
+                    MapSlabCoord x3 = x2 + small_around[m].delta_x;
+                    MapSlabCoord y3 = y2 + small_around[m].delta_y;
+                    struct SlabMap *slb4 = get_slabmap_block(x3, y3);
+                    struct SlabAttr* slbattr4 = get_slab_attrs(slb4);
+                    if ( (slbattr4->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb4) != keep_plyr_idx) )
+                    {
+                        if (count_owned_ground_around(slabmap_owner(slb4), x3, y3, true) == 0)
+                        {
+                            SlabKind slbkind = alter_rock_style(SlbT_EARTH, x3, y3, game.neutral_player_num);
+                            place_slab_type_on_map(slbkind, slab_subtile_center(x3), slab_subtile_center(y3), game.neutral_player_num, 0);
+                            do_slab_efficiency_alteration(x3, y3);
+                        }
+                    }
+                }
             }
         }
     }
