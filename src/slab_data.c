@@ -673,7 +673,7 @@ void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb
                 MapSlabCoord y2 = y + small_around[j].delta_y;
                 struct SlabMap *slb2 = get_slabmap_block(x2, y2);
                 struct SlabAttr* slbattr2 = get_slab_attrs(slb2);
-                if ( ( (slbattr2->category == SlbAtCtg_FortifiedWall) ) || (slbattr2->category == SlbAtCtg_FriableDirt) )
+                if ( (slbattr2->category == SlbAtCtg_FortifiedWall) || (slbattr2->category == SlbAtCtg_FriableDirt) )
                 {
                     int m = (k + j) & 3;
                     MapSlabCoord x3 = x2 + small_around[m].delta_x;
