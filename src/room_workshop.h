@@ -26,8 +26,6 @@
 extern "C" {
 #endif
 
-/** Count of possible manufacture types */
-#define MANUFCTR_TYPES_COUNT  11
 /** Maximal count of manufactured boxes of specific kind. */
 #define MANUFACTURED_ITEMS_LIMIT 49
 
