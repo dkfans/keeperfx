@@ -177,6 +177,17 @@ static void load_system_sprites(short fgroup)
 
 void init_custom_sprites(LevelNumber lvnum)
 {
+    static LevelNumber last_level = 0;
+
+    // This is a workaround because get_selected_level_number is zeroed on res change
+    if (lvnum == SPRITE_LAST_LEVEL)
+    {
+        lvnum = last_level;
+    }
+    else
+    {
+        last_level = lvnum;
+    }
     // Clear sprite data
     for (int i = 0; i < KEEPERSPRITE_ADD_NUM; i++)
     {

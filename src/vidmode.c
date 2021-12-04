@@ -924,6 +924,7 @@ TbScreenMode switch_to_next_video_mode(void)
     SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
     save_settings();
     reinit_all_menus();
+    init_custom_sprites(SPRITE_LAST_LEVEL);
     return scrmode;
 }
 

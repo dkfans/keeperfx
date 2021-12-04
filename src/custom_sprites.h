@@ -27,6 +27,7 @@ extern "C" {
 #endif
 struct Objects;
 
+#define SPRITE_LAST_LEVEL -1
 void init_custom_sprites(LevelNumber level_no);
 
 short get_anim_id(const char *name, struct Objects* objdat);
