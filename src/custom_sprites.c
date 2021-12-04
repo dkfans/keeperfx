@@ -238,6 +238,14 @@ void init_custom_sprites(LevelNumber lvnum)
     {
         SYNCDBG(0, "Unable to load per-map sprite file");
     }
+    if (add_custom_json(lvl, "icons.json", &process_icon))
+    {
+        JUSTLOG("Loaded per-map icons file");
+    }
+    else
+    {
+        SYNCDBG(0, "Unable to load per-map icons file");
+    }
 }
 
 /**
