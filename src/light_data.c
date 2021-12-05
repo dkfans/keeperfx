@@ -390,6 +390,11 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos)
 void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
 {
   // _DK_light_remove_light_from_list(lgt, list);
+  if ( list->count == 0 )
+  {
+      ERRORLOG("List %d has no structures", list->index);
+      return;
+  }
   TbBool Removed = false;
   struct Light *lgt2;
   struct Light *i;
@@ -398,9 +403,8 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
     if ( lgt->index == list->index )
     {
       Removed = true;
-      unsigned long NewCount = list->count - 1;
+      list->count--;
       list->index = lgt->field_26;
-      list->count = NewCount;
       lgt->field_26 = 0;
       lgt->flags2 &= ~1;
     }
@@ -431,8 +435,6 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
     {
       ERRORLOG("Could not find light %d in list", lgt->index);
     }
-    if ( list->count == 0 )
-      ERRORLOG("List has no structures");
   }
 }
 
