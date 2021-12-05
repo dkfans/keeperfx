@@ -179,10 +179,25 @@ enum TbPacketControl {
 enum TbPacketAddValues {
     PCAdV_None              = 0x00, //!< Dummy flag
     PCAdV_SpeedupPressed    = 0x01, //!< The keyboard modified used for speeding up camera movement is pressed.
-    PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-byte integer; stores context of map coordinates.
+    PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-byte integer; stores context of map coordinates. The context is used to set the Cursor State.
     PCAdV_CrtrContrlPressed = 0x20, //!< The keyboard modified used for creature control is pressed.
     PCAdV_CrtrQueryPressed  = 0x40, //!< The keyboard modified used for querying creatures is pressed.
     PCAdV_Unknown80         = 0x80, //!< Seem unused
+};
+
+enum ChecksumKind {
+    CKS_Action = 0,
+    CKS_Players,
+    CKS_Creatures_1,
+    CKS_Creatures_2,
+    CKS_Creatures_3,
+    CKS_Creatures_4,
+    CKS_Creatures_5,  // Heroes
+    CKS_Creatures_6,  // Neutral
+    CKS_Things, //Objects, Traps, Shots etc
+    CKS_Effects,
+    CKS_Rooms,
+    CKS_MAX
 };
 
 #define PCtr_LBtnAnyAction (PCtr_LBtnClick | PCtr_LBtnHeld | PCtr_LBtnRelease)
@@ -209,7 +224,7 @@ struct Packet { // sizeof = 0x11 (17)
     short pos_x; //! Mouse Cursor Position X
     short pos_y; //! Mouse Cursor Position Y
     unsigned short control_flags;
-    unsigned char field_10;
+    unsigned char additional_packet_values; // uses the flags and values from TbPacketAddValues
 };
 
 struct PacketSaveHead { // sizeof=0xF (15)
@@ -221,6 +236,12 @@ struct PacketSaveHead { // sizeof=0xF (15)
     unsigned char players_exist;
     unsigned char players_comp;
     TbBool chksum_available; // if needed, this can be replaced with flags
+};
+
+struct PacketEx
+{
+    struct Packet packet;
+    TbBigChecksum sums[CKS_MAX];
 };
 
 #pragma pack()
@@ -235,8 +256,8 @@ void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 unsigned char get_players_packet_action(struct PlayerInfo *player);
 void unset_packet_control(struct Packet *pckt, unsigned long flag);
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
-void set_players_packet_position(struct PlayerInfo *player, long x, long y);
-short set_packet_pause_toggle(void);
+void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
+void set_packet_pause_toggle(void);
 TbBool process_dungeon_control_packet_clicks(long idx);
 TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
@@ -261,6 +282,7 @@ void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
 struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
+void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

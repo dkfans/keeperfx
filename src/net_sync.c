@@ -31,6 +31,7 @@
 #include "lens_api.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "frontend.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -164,7 +165,7 @@ void resync_game(void)
  * Exchanges verification packets between all players, making sure level data is identical.
  * @return Returns true if all players return same checksum.
  */
-short perform_checksum_verification(void)
+CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
 {
     short result = true;
     unsigned long checksum_mem = 0;
@@ -184,12 +185,25 @@ short perform_checksum_verification(void)
         ERRORLOG("Network exchange failed on level checksum verification");
         result = false;
     }
+    if (get_packet(0)->action != get_packet(1)->action)
+    {
+        // Wait for message from other side
+        return CLS_REPEAT;
+    }
     if ( checksums_different() )
     {
         ERRORLOG("Level checksums different for network players");
         result = false;
     }
-    return result;
+    if (!result)
+    {
+        coroutine_clear(con, true);
+
+        create_frontend_error_box(5000, get_string(GUIStr_NetUnsyncedMap));
+        return CLS_ABORT;
+    }
+    NETLOG("Checksums are verified");
+    return CLS_CONTINUE;
 }
 /******************************************************************************/
 #ifdef __cplusplus

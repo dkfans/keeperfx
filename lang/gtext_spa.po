@@ -2289,7 +2289,7 @@ msgstr ""
 "Velocidad: Acelera la criatura para que pueda combatir y realizar tareas de "
 "trabajo muy rápido."
 
-#: guitext:237 guitext:253
+#: guitext:237
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
@@ -2441,6 +2441,15 @@ msgid ""
 msgstr ""
 "Mano a mano: La capacidad de combate básico que permite atacar al enemigo, "
 "ya sea con las manos desnudas o una espada."
+
+#: guitext:253
+#, fuzzy
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+"Nube venenosa: Forma una nube de gas nocivo capaz de dañar tanto a enemigos "
+"como a tus propias criaturas. El gas afecta a cualquiera que lo respire."
 
 #: guitext:254
 #, fuzzy
@@ -6974,4 +6983,9 @@ msgstr ""
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
+msgstr ""
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
 msgstr ""

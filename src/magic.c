@@ -56,6 +56,7 @@
 #include "map_columns.h"
 #include "sounds.h"
 #include "game_legacy.h"
+#include "creature_instances.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -268,7 +269,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         {
             if (thing->owner == plyr_idx) {
                 struct TrapConfigStats *trapst;
-                trapst = &trapdoor_conf.trap_cfgstats[thing->model];
+                trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
                 if ((trapst->slappable == 1) && trap_is_active(thing)) {
                     return true;
                 }
@@ -688,16 +689,16 @@ GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKi
 GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     struct Dungeon *dungeon;
+    struct DungeonAdd* dungeonadd;
     const struct MagicStats *pwrdynst;
     long price;
-    unsigned long k;
     switch (pwkind)
     {
     case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
-        k = gameadd.cheaper_diggers_sacrifice_model;
-        // Increase price by amount of diggers, reduce by count of sacrificed diggers
-        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeon->creature_sacrifice[k]);
+        dungeonadd = get_dungeonadd(plyr_idx);
+        // Increase price by amount of diggers, reduce by count of sacrificed diggers. Cheaper diggers may be a negative amount.
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeonadd->cheaper_diggers);
         break;
     default:
         pwrdynst = get_power_dynamic_stats(pwkind);
@@ -1179,8 +1180,8 @@ TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         ERRORLOG("There was place to create new thing, but creation failed");
         return Lb_OK;
     }
-    thing->veloc_push_add.x.val += ACTION_RANDOM(321) - 160;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(321) - 160;
+    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 321) - 160;
+    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 321) - 160;
     thing->veloc_push_add.z.val += 40;
     thing->state_flags |= TF1_PushAdd;
     powerst = get_power_model_stats(PwrK_TIMEBOMB);
@@ -1216,8 +1217,8 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
         return Lb_OK;
     }
     EVM_CREATURE_EVENT("joined", plyr_idx, thing);
-    thing->veloc_push_add.x.val += ACTION_RANDOM(161) - 80;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(161) - 80;
+    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 160;
     thing->state_flags |= TF1_PushAdd;
     thing->move_angle_xy = 0;
@@ -1710,6 +1711,7 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
     teleport_destination = 18;
+    first_person_dig_claim_mode = false;
     battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);

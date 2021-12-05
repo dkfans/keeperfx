@@ -1,0 +1,2433 @@
+# ******************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# ******************************************************************************
+#   @file gtext_chi.po
+#      KeeperFX GUI Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team / Dayokay / JieLeTian
+#  @date     Nov 2020 - Jan 2021
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# ******************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: GUI Strings for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2021-01-11 21:24+0100\n"
+"Last-Translator: JieLeTian <jieletian@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Generator: Poedit 1.5.7\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid "Success! The land is yours. Press Space to proceed to the next realm."
+msgstr "成功了！你拥有了这片土地。按空格键进入下一个王国。"
+
+#. Tymnath Herez (lv301)
+#: guitext:1
+msgctxt "In-game message"
+msgid "The mighty Keepers Prerun (Blue) and Swailihr (Green) are both eager to seize this realm and each will not hesitate to start the conflict. The Heroes have dug themselves in, naively hoping they can survive the imminent onslaught! It is a shame they hold strategic positions and possess vital knowledge and treasures. "
+msgstr "强大的守护者普瑞伦（蓝色）和斯瓦里赫尔（绿色）渴望占据这个王国，他们两个人都会毫不犹豫地参与这场争夺战。英雄们向你的地下城进发，他们天真地以为他们能在即将到来的战斗中存活下来。遗憾的是，他们掌握了战略要领，还拥有着一些重要的知识和财富。"
+
+#. Tymnath Herez (lv301)
+#: guitext:2
+msgctxt "In-game message"
+msgid "Excellent Keeper! One of your enemies has fallen. I trust your losses were not too severe, as it's now time to eliminate another? "
+msgstr "很好，守护者！你已经消灭了一个敌人。我相信你的损失还不算太惨重，还可以继续消灭另一个敌人吧？"
+
+#. Tymnath Herez (lv301)
+#: guitext:3
+msgctxt "In-game message"
+msgid "Those greedy Keepers, and the irritiating Heroes have been dealt with effectively Master. This land is now yours! "
+msgstr "那些贪婪的守护者们和那些烦人的英雄都已经被正确地处理掉了，主人。这片土地现在是你的了！"
+
+#. Tymnath Herez (lv301)
+#: guitext:4
+msgctxt "In-game message"
+msgid "So your rivals Prerun and Swailihr have been defeated? Good work. But Heroes remain, so you must hunt them down and eliminate them! "
+msgstr "所以你将你的两个对手普瑞伦和斯瓦里赫尔都打败了？干得不错。但是英雄们还活着，所以你必须追捕他们并消灭他们！"
+
+#. Yami (lv405)
+#: guitext:5
+msgctxt "In-game message"
+msgid "This realm is ruled by the Shogun, a legendary Samurai warrior with great swordfighting skills. I say it's time we put these so-called skills to the test? But be warned, the Shogun may decide to pre-emptively attack us if we become too powerful. "
+msgstr "这个国家由一位将军统治，他是一位具有高超剑术的传奇忍者。我想，是时候考验一下他这些所谓的高超技术了！不过，要注意的是，如果我们发展得太强大了，这位将军可能会决定先发制人，主动进攻我们。"
+
+#. Yami (lv405)
+#: guitext:6
+msgctxt "In-game message"
+msgid "The Shogun himself has arrived... string him up! "
+msgstr "这位将军亲自上阵了……把他吊起来吧！"
+
+#. Yami (lv405)
+#: guitext:7
+msgctxt "In-game message"
+msgid "The Shogun has fallen, now eliminate any remaining opposition! "
+msgstr "将军已经倒下了，现在消灭所有剩余的敌人！"
+
+#. Yami (lv405)
+#: guitext:8
+msgctxt "In-game message"
+msgid "Yami, the land of the Shogun is now under your control! An impressive victory Master. I'm sure there will be more? "
+msgstr "曾经统治这片土地的将军，亚米，现在拜倒在你的麾下了！一次令人印象深刻的胜利，主人。我相信你还会再接再厉的，对吧？"
+
+#. Temple Deal (lv443)
+#: guitext:9
+msgctxt "In-game message"
+msgid "Welcome Keeper! This a land where the wealth has been taken by Heroes and a Keeper to the South-East. Tunnellers will shortly arrive to steal what little gold you have, so your first task is to eliminate them somehow. To work! "
+msgstr "欢迎，守护者！这片土地上的大部分黄金已经被英雄和敌方守护者夺走了。而这些挖掘者们甚至还要前来把你地下城仅剩的一点黄金也抢走，所以你的首要任务是不惜一切代价消灭他们。开始行动吧！"
+
+#. Temple Deal (lv443)
+#: guitext:10
+msgctxt "In-game message"
+msgid "You will claim no portals in this realm Master. You know what is required? "
+msgstr "你无法在这片土地中获得入口，主人。你知道你需要做什么了吧？"
+
+#. Temple Deal (lv443)
+#: guitext:11
+msgctxt "In-game message"
+msgid "Do I hear the sound of bones coming from north? Go have a look, but one skeleton won't be able to fight off these tunnellers! "
+msgstr "我好像听到附近有骨骼活动的声音？好像是从北方发出来的声音…去看一看吧；但是，光靠一只骷髅还不足以击败挖掘者！"
+
+#. Temple Deal (lv443)
+#: guitext:12
+msgctxt "In-game message"
+msgid "The rival keeper is very wealthy. Do not expect him to run out of gold. Heroes are gathering to the North-East. You would be wise  to avoid them until you have sufficient forces. An early encounter may cause an untimely end to your quest! "
+msgstr "敌方守护者非常富有。别指望等着他的黄金耗尽。英雄们聚集在东北方。在你积累了足够的兵力之前，最好避免与他们交战。贸然地出兵只会导致你的任务过早地失败！"
+
+#. Temple Deal (lv443)
+#: guitext:13
+msgctxt "In-game message"
+msgid "Skeletons will not bring victory against the Hero troops. You must obtain stronger minions somehow? "
+msgstr "光靠几个骷髅还不足以对抗英雄部队。想办法获得更强大的怪物吧？"
+
+#. Temple Deal (lv443)
+#: guitext:14
+msgctxt "In-game message"
+msgid "Your enemies have realised that their minions end up in your army of the Undead, and have changed their strategy accordingly. These are formidable adversaries My Lord! "
+msgstr "英雄们看到他们的战友们居然都被你变成了你的亡灵大军，他们决定改变战略。这真是一群难缠的敌人，主人！"
+
+#. Temple Deal (lv443)
+#: guitext:15
+msgctxt "In-game message"
+msgid "Look! Your imprisoned Vampire has company! "
+msgstr "看！你被囚禁的吸血鬼有人陪伴了！"
+
+#. Temple Deal (lv443)
+#: guitext:16
+msgctxt "In-game message"
+msgid "If you listen carefully you can hear one of your Keeper neighbours trying to break into the Hero Dungeon? "
+msgstr "仔细听，你应该能听见隔壁地下城的守护者正试图进攻英雄地下城的动静吧？"
+
+#. Temple Deal (lv443)
+#: guitext:17
+msgctxt "In-game message"
+msgid "The Hero dungeon heart has fallen! However, this will attract further Hero reprisals! Will you survive Keeper? "
+msgstr "英雄的地下城心脏被摧毁了！但是，更多的英雄会前来复仇！你能生存下来吗，守护者?"
+
+#. Temple Deal (lv443)
+#: guitext:18
+msgctxt "In-game message"
+msgid "Here they come! Defeat the Lord of Land and his company and the land is yours forever."
+msgstr "他们来了！打败这片土地的国王和他的军队，这片土地就永远是你的了。"
+
+#. Temple Deal (lv443)
+#: guitext:19
+msgctxt "In-game message"
+msgid "The Lord of the Land lies dead! You have conquered this realm, and added it to your growing Empire. Congratulations Master. "
+msgstr "国王已经倒地身亡了！你征服了这个王国，并把它列入了你不断扩张的帝国版图。恭喜你。"
+
+#. Temple Deal (lv443)
+#: guitext:20
+msgctxt "In-game message"
+msgid "Gold is not the only resource scarce in this land. You're limited to build only one tile of bridge at a time."
+msgstr "黄金并不是这块土地上唯一稀缺的资源。由于材料稀缺，你一次只能建造一格桥梁。"
+
+#. Temple Deal (lv443)
+#: guitext:21
+msgctxt "In-game message"
+msgid "Smart move. But are you wealthy enough to afford them? "
+msgstr "聪明的发现。但是你有足够的钱供养这些怪物吗？"
+
+#. Thug of War (lv451)
+#: guitext:22
+msgctxt "In-game message"
+msgid "The best defence is a good offence. Kill the Heroes and steal their magic or they will overrun you."
+msgstr "进攻是最好的防守。尽快杀死英雄并窃取他们的魔法，否则他们会打败你。"
+
+#. Thug of War (lv451)
+#: guitext:23
+msgctxt "In-game message"
+msgid "Heroes will attack. Raid their dungeon to gain power, or get crushed by the relentless heroes of this realm."
+msgstr "英雄们很快就会发起进攻。掠夺他们的地下城以获取力量，否则你会被他们无情的军队粉碎。"
+
+#. Thug of War (lv451)
+#: guitext:24
+msgctxt "In-game message"
+msgid "The Heroes have learned that being captured by you is a fate worse than death. They will avoid your prison at all cost. Better destroy them and take their magic before they really get smart! "
+msgstr "英雄们已经明白了，被你俘虏是比战死还糟糕的事情。他们会不惜一切代价避免被你抓进监狱。最好在他们学聪明之前杀死他们，并抢走他们的魔法！"
+
+#. Thug of War (lv451)
+#: guitext:25
+msgctxt "In-game message"
+msgid "You have a Dragon now, more powerful than you have ever seen!"
+msgstr "你获得了一条龙，它比你以前见过的普通的龙还要更强大！"
+
+#. Thug of War (lv451)
+#: guitext:26
+msgctxt "In-game message"
+msgid "The Heroes know where you are. They will come for you."
+msgstr "英雄们发现你在哪里了。他们会来找你的。"
+
+#. Thug of War (lv451)
+#: guitext:27
+msgctxt "In-game message"
+msgid "You must hurry! The Heroes are gathering a massive party that will kill you. Strike them down or die trying."
+msgstr "你必须快点行动！英雄们正在聚集一个庞大的军团，他们会杀了你。要么打倒他们，要么战死沙场。"
+
+#. Thug of War (lv451)
+#: guitext:28
+msgctxt "In-game message"
+msgid "This will hurt. You should have destroyed the heart."
+msgstr "这很要命。你之前应该摧毁这个地下城心脏的。"
+
+#. Thug of War (lv451)
+#: guitext:29
+msgctxt "In-game message"
+msgid "You have reached the heart of this fortress. The final battle is upon you. Kill all Heroes, destroy the heart and claim their magic."
+msgstr "你已经到达了敌人要塞的中心地带。最后的决战就在你的面前。杀死所有英雄，摧毁心脏并夺取他们的魔法。"
+
+#. Thug of War (lv451)
+#: guitext:30
+msgctxt "In-game message"
+msgid "I was just starting to like them. Victory!"
+msgstr "我甚至有点喜欢上他们了。你胜利了！"
+
+#. Generic defeat message
+#: guitext:31
+msgctxt "In-game message"
+msgid "You have failed in your duties Keeper. Defeat and shame are your reward."
+msgstr "你没能履行你的职责，守护者。失败和耻辱将是对你的回报。"
+
+#. Wetlands (lv452)
+#: guitext:32
+msgctxt "In-game message"
+msgid "I'll keep it simple. Get a Horned Reaper and use it to destroy the lord of the land."
+msgstr "任务：获得一个冥界使者，然后用它杀死这片土地上的国王。"
+
+#. Wetlands (lv452)
+#: guitext:33
+msgctxt "In-game message"
+msgid "You'll need a bridge to get a Horned Reaper. But Wizards have a spell in play to stop you from building one."
+msgstr "你需要一座桥才能获得一个冥界使者。然而巫师施展了一个咒语，阻止了你建造桥梁。"
+
+#. Wetlands (lv452)
+#: guitext:34
+msgctxt "In-game message"
+msgid "We can't build temples in this realm, but we can move the pieces we have. Summon Horny!"
+msgstr "我们不能在这个王国自由建造寺庙，但我们可以移动我们已有的每一格寺庙。想办法召唤冥界使者吧！"
+
+#. Wetlands (lv452)
+#: guitext:35
+msgctxt "In-game message"
+msgid "Great, you can now make bridges! Use them to get a Horned Reaper to join you."
+msgstr "太好了，你现在可以造桥了。利用桥梁帮助你获得一个冥界使者吧。"
+
+#. Wetlands (lv452)
+#: guitext:36
+msgctxt "In-game message"
+msgid "Well done. Bile demons may now join us. "
+msgstr "做得很好。巨魔现在会从入口加入我们的阵营了。"
+
+#. Wetlands (lv452)
+#: guitext:37
+msgctxt "In-game message"
+msgid "Well done! Destroy the Heroes and their stronghold. Keep Horny alive or all is lost."
+msgstr "做得很好！摧毁英雄和他们的堡垒。冥界使者必须存活，否则就前功尽弃了。"
+
+#. Wetlands (lv452)
+#: guitext:38
+msgctxt "In-game message"
+msgid "You've lost Horny? No second chances."
+msgstr "你失去了冥界使者？已经没有第二次机会了。"
+
+#. Wetlands (lv452)
+#: guitext:39
+msgctxt "In-game message"
+msgid "Heroes think you are vulnerable, and will try to attack you until the bitter end. "
+msgstr "英雄认为你现在很脆弱，会试图进攻你，直到痛苦的尽头。"
+
+#. Wetlands (lv452)
+#: guitext:40
+msgctxt "In-game message"
+msgid "Your enemies have learned that getting captured by you is a fate worse than death. They will avoid your prison at all cost."
+msgstr "你的敌人已经明白被你俘虏是比战死更糟糕的事情。他们会不惜一切代价避免被你抓进监狱。"
+
+#. Wetlands (lv452)
+#: guitext:41
+msgctxt "In-game message"
+msgid "Your powers in this realm have been limited by the Magical Heroes, which will make progress difficult. However, their arrogance prevents them working together effectively, which will give you an opportunity to slay them all! "
+msgstr "你在这个王国中的力量受到了这些英雄的限制，这将使你很难继续发展。然而，这些自以为是的家伙们并不愿意并肩作战，这给了你一个将他们所有人逐个杀死的机会！"
+
+#. Wetlands (lv452)
+#: guitext:42
+msgctxt "In-game message"
+msgid "Victory! This realm is yours Keeper."
+msgstr "你胜利了！这个王国属于你了。"
+
+#. Desperation (lv453)
+#: guitext:43
+msgctxt "In-game message"
+msgid "Your chances in this realm are slim to none. Three Keepers here are stronger than you. A desperate struggle awaits you. Hurry!"
+msgstr "你在这个王国取胜的机会微乎其微。这里的三个守护者都比你更加强大。你必须面临一场绝境中的斗争。快点行动吧！"
+
+#. Desperation (lv453)
+#: guitext:44
+msgctxt "In-game message"
+msgid "The remaining Keepers have now formed an alliance. Kill all who stand against you!"
+msgstr "剩下的两个守护者现在结盟了。杀死所有反抗你的人！"
+
+#. Desperation (lv453)
+#: guitext:45
+msgctxt "In-game message"
+msgid "Blue is desperate. Kill him!"
+msgstr "蓝色守护者陷入了绝境。杀死他吧！"
+
+#. Desperation (lv453)
+#: guitext:46
+msgctxt "In-game message"
+msgid "Green is trembling in fear. Finish the job!"
+msgstr "绿色守护者害怕得发抖。了结他吧！"
+
+#. Desperation (lv453)
+#: guitext:47
+msgctxt "In-game message"
+msgid "Yellow can't take much more. Strike now to end him! "
+msgstr "黄色守护者已经不堪一击了。现在就动手，消灭他吧！"
+
+#. Desperation (lv453)
+#: guitext:48
+msgctxt "In-game message"
+msgid "Drawn to the scent of desperation, the Heroes come to cleanse the land of all evil! Make sure you are the last one standing."
+msgstr "被绝望的气息所吸引，英雄们前来净化这片土地上的一切邪恶势力。确保你是笑到最后的那个人。"
+
+#. Desperation (lv453)
+#: guitext:49
+msgctxt "In-game message"
+msgid "You are victorious! About time."
+msgstr "你胜利了！你赢得了与时间的赛跑。"
+
+#. Dread Mountain (lv454)
+#: guitext:50
+msgctxt "In-game message"
+msgid "In this realm, food is power. Claim hatcheries, feed your bile demons until they are big and strong. Hurry, Heroes are coming!"
+msgstr "在这个王国中，食物就是力量。占领孵化室，喂养你的巨魔，直到它们变得又大又壮。快点行动，英雄们就要来了！"
+
+#. Dread Mountain (lv454)
+#: guitext:51
+msgctxt "In-game message"
+msgid "This magic gizmo spawns ugly little creatures called imps that you may use as slaves. To conquer the realm I mean. Don't have sex with them."
+msgstr "这个神奇的召唤阵会召唤一种叫做“小鬼”的丑陋小怪物，你可以用它们做你的奴隶。我的意思是奴役它们来帮你征服这个王国。注意，不要和它们做爱。"
+
+#. Dread Mountain (lv454)
+#: guitext:52
+msgctxt "In-game message"
+msgid "Two butt holes are better than one! Research a prison to give your bile demons more slaves. Be careful though, they don't care for the undead."
+msgstr "两个混蛋总比一个好！研究一个监狱给你的巨魔更多的奴隶吧。不过要注意，它们不喜欢亡灵生物。"
+
+#. Dread Mountain (lv454)
+#: guitext:53
+msgctxt "In-game message"
+msgid "Time to grow strong. Capture Heroes and claim hatcheries. When you're strong enough, find a weak spot in the blue defenses."
+msgstr "是时候发展壮大了。俘虏英雄并占领孵化室。当你足够强大的时候，找出蓝色守护者防御工事的弱点。"
+
+#. Dread Mountain (lv454)
+#: guitext:54
+msgctxt "In-game message"
+msgid "Destroy blue and clear the path towards the Hero stronghold."
+msgstr "摧毁蓝色守护者并清理通往英雄要塞的道路。"
+
+#. Dread Mountain (lv454)
+#: guitext:55
+msgctxt "In-game message"
+msgid "You have found a way beyond the mountains. Destroy blue and clear the path towards the hero stronghold."
+msgstr "你找到了一条越过这座山脉的路。摧毁蓝色守护者并清理通往英雄要塞的道路。"
+
+#. Dread Mountain (lv454)
+#: guitext:56
+msgctxt "In-game message"
+msgid "With blue out of the way it is time to destroy the hero heart and rule this realm!"
+msgstr "随着蓝色守护者的灭亡，是时候摧毁英雄的心脏并征服这个王国了！"
+
+#. Dread Mountain (lv454)
+#: guitext:57
+msgctxt "In-game message"
+msgid "Get the barbecue ready, it is time to eat those who stood against you. Victory! "
+msgstr "现在可以把烤架拿出来，准备烧烤那些与你作对的人了。你胜利了！"
+
+#. Dread Mountain (lv454)
+#: guitext:58
+msgctxt "In-game message"
+msgid "Not only will these barracks attract powerful allies to your dungeon, they will also help you lead the assault on your rival. "
+msgstr "兵营不仅会吸引强大的怪物来到你的地下城，它也将帮助你组织怪物发起进攻。"
+
+#. Dread Mountain (lv454)
+#: guitext:59
+msgctxt "In-game message"
+msgid "Your ghost has been drawn into the void, and has returned with a tiny body. "
+msgstr "你的鬼魂被拉进了虚空，带着一个小小的身躯回来了。"
+
+#. Dread Mountain (lv454)
+#: guitext:60
+msgctxt "In-game message"
+msgid "Your Bile Demons killed a Skeleton. The undead won't be much help here? "
+msgstr "你的巨魔杀死了一只骷髅。看来亡灵生物在这里帮不上什么忙了。"
+
+#. Dread Mountain (lv454)
+#: guitext:61
+msgctxt "In-game message"
+msgid "All hope is lost! Farts breathe life into your dungeon. Keep your Bile Demons happy and alive. "
+msgstr "一切希望都破灭了！巨魔放的屁会让你的地下城充满生机。你必须保证你的巨魔快乐地存活着。"
+
+#. Dread Mountain (lv454)
+#: guitext:62
+msgctxt "In-game message"
+msgid "Blue is well fortified. Claim all hatcheries to grow in power, then find a way through the mountains to kill him and the heroes. "
+msgstr "蓝色守护者的城池固若金汤。占领所有的孵化室以获得力量，然后找到一个办法穿过这座山脉杀死他和英雄们。"
+
+#. Dread Mountain (lv454)
+#: guitext:63
+msgctxt "In-game message"
+msgid "Your Dark Mistress has rejoined blue! They don't seem to mind being tortured?"
+msgstr "你招降的黑暗女王又重新回到蓝色的阵营了！看来她们似乎并不介意被拷打？"
+
+#. Frozen Legion (lv455)
+#: guitext:64
+msgctxt "In-game message"
+msgid "The Heroes have gathered the biggest army you've ever seen. Your creatures won't be able to put up a fight. Traps will be the key to victory here. "
+msgstr "英雄们集结了你所见过的最强大的一支军队，你的怪物将难以抵挡。陷阱将是取得胜利的关键。"
+
+#. Frozen Legion (lv455)
+#: guitext:65
+msgctxt "In-game message"
+msgid "The level will start when you claim your first creature. "
+msgstr "当你获得你的第一只怪物时，游戏将开始。"
+
+#. Frozen Legion (lv455)
+#: guitext:66
+msgctxt "In-game message"
+msgid "You should have started by claiming the creature. Welcome to hard mode! "
+msgstr "你应该一开始先去获取怪物，而不是去挖金子。欢迎进入困难模式！"
+
+#. Frozen Legion (lv455)
+#: guitext:67
+msgctxt "In-game message"
+msgid "Corpses are starting to build up. You need to find a graveyard! "
+msgstr "尸体开始堆积如山了。寻找一座陵墓吧！"
+
+#. Frozen Legion (lv455)
+#: guitext:68
+msgctxt "In-game message"
+msgid "The Heroes will keep getting stronger. You must do something or perish! "
+msgstr "英雄们会变得越来越强大，如果不想坐以待毙的话，你必须做出行动！"
+
+#. Frozen Legion (lv455)
+#: guitext:69
+msgctxt "In-game message"
+msgid "You have the upper hand. Make a push to destroy their heart and break the attack! "
+msgstr "你在战斗中占了上风。一鼓作气地摧毁他们的心脏，阻止他们的进攻！"
+
+#. Frozen Legion (lv455)
+#: guitext:70
+msgctxt "In-game message"
+msgid "End it now! Kill the Lord and destroy his heart to conquer this realm. "
+msgstr "是时候结束了！杀死国王，摧毁他的心脏，并征服这个王国。"
+
+#. Frozen Legion (lv455)
+#: guitext:71
+msgctxt "In-game message"
+msgid "That was easy? Victory! "
+msgstr "易如反掌。胜利了！"
+
+#. Frozen Legion (lv455)
+#: guitext:72
+msgctxt "In-game message"
+msgid "You have a fighting chance. Don't let the Heroes whittle you down. "
+msgstr "你获得了进攻的机会。不要让英雄把你打垮。"
+
+#. Frozen Legion (lv455)
+#: guitext:73
+msgctxt "In-game message"
+msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, keep enough imps alive and you'll have an undead army to kill the heroes with. "
+msgstr "你的魔法发生器会牺牲你的吸血鬼，并为你提供足够数量的小鬼。然而，只有保持足够的小鬼存活，你才会拥有一支亡灵军团来消灭英雄。"
+
+#. Shores of Battle (lv456)
+#: guitext:74
+msgctxt "In-game message"
+msgid "An ancient truce, the land divided. Kill them all, let none survive. And the Heroes? We'll cross that bridge when we come to it! "
+msgstr "由于古代战争，土地四分五裂。把他们都杀光，不留一个活口。那英雄怎么对付？船到桥头自然直！"
+
+#. Shores of Battle (lv456)
+#: guitext:75
+msgctxt "In-game message"
+msgid "As the wise man looks for a bridge the fool crosses the river. "
+msgstr "智者会去寻找桥梁，愚者才会赤脚过河。"
+
+#. Shores of Battle (lv456)
+#: guitext:76
+msgctxt "In-game message"
+msgid "Think of these heroes as dessert. Finish your main course first: Blue, Yellow and Green. After that, turn the Lord of the Land into whipped cream. "
+msgstr "把这些英雄想象成甜点。先吃完你的主菜：蓝色的、黄色的、绿色的。然后，把这片土地的国王变成鲜奶油吧。"
+
+#. Shores of Battle (lv456)
+#: guitext:77
+msgctxt "In-game message"
+msgid "With your rivals destroyed, plunder their dungeons and breach the centre. "
+msgstr "你的敌人们被消灭了，掠夺他们的地下城并攻破中心地带。"
+
+#. Shores of Battle (lv456)
+#: guitext:78
+msgctxt "In-game message"
+msgid "A bridge of blood and havoc stretches from the homes of heroes to the unforgiving nightmare emerging anew. Leave none alive. "
+msgstr "鲜血与浩劫的桥梁从英雄的家园延伸到无情的噩梦再次出现。不要留下活口。"
+
+#. Shores of Battle (lv456)
+#: guitext:79
+msgctxt "In-game message"
+msgid "The Heroes know conflict is imminent. Destroy them now before they take the offensive with a larger force. "
+msgstr "英雄们知道战争已经迫在眉睫，在他们集结更强大的力量发动进攻之前消灭他们。"
+
+#. Shores of Battle (lv456)
+#: guitext:80
+msgctxt "In-game message"
+msgid "It's now or never? Kill or be killed! "
+msgstr "时不再来。杀死敌人或者被敌人杀死！"
+
+#. Shores of Battle (lv456)
+#: guitext:81
+msgctxt "In-game message"
+msgid "Here they come! "
+msgstr "他们来了！"
+
+#. Shores of Battle (lv456)
+#: guitext:82
+msgctxt "In-game message"
+msgid "I give your performance 2 out of 5 spleens. But I guess it's the result that counts. Victory!"
+msgstr "我为你的表现打两分。但我想结果才是最重要的。你胜利了！"
+
+#. My Pet Dungeon (lv457)
+#: guitext:83
+msgctxt "In-game message"
+msgid "Welcome to SimDungeon. You can attract 25 evil creatures per portal. Heroes can be summoned at the spawner."
+msgstr "欢迎来到西姆的地下城。这里的每个入口可以吸引最多25个邪恶怪物加入。你可以把怪物放在三个召唤阵中来触发英雄进攻。"
+
+#. My Pet Dungeon (lv457)
+#: guitext:84
+msgctxt "In-game message"
+msgid "Find a way to build a bridge. It will help you to expand in this realm. "
+msgstr "想办法建一座桥。它将帮助你在这个王国中扩张地盘。"
+
+#. My Pet Dungeon (lv457)
+#: guitext:85
+msgctxt "In-game message"
+msgid "You're well on your way to an impressive dungeon? Get to one hundred units and we'll talk. "
+msgstr "看来你的地下城变得越来越具有吸引力了？当你获得100个怪物时，我们再来谈谈。"
+
+#. My Pet Dungeon (lv457)
+#: guitext:86
+msgctxt "In-game message"
+msgid "There is a way to breach the white wall and take over the north-west corner of the map. Useful but optional. "
+msgstr "有一种办法可以打破白色的墙壁，并占领地图的西北角。这很有帮助，但不是必须要做的。"
+
+#. My Pet Dungeon (lv457)
+#: guitext:87
+msgctxt "In-game message"
+msgid "You have a most impressive army. When you're done sell your prison. It will trigger an endless invasion. "
+msgstr "你建立了一支最令人印象深刻的军队。当你准备完成的时候，卖掉你的监狱。这将触发源源不断的敌人进攻。"
+
+#. My Pet Dungeon (lv457)
+#: guitext:88
+msgctxt "In-game message"
+msgid "Let's see how good your dungeon really is. How long can you survive? "
+msgstr "让我们看看你的地下城到底有多厉害吧。你能坚持几波攻击？"
+
+#. My Pet Dungeon (lv457)
+#: guitext:89
+msgctxt "In-game message"
+msgid "You've done the impossible. Victory! "
+msgstr "你完成了不可能完成的任务。你胜利了！"
+
+#. Ghost in the Machine (lv458)
+#: guitext:90
+msgctxt "In-game message"
+msgid "You have an old version of KeeperFX. You need to update to play this map. Visit www.keeperklan.com "
+msgstr "你的FX版游戏是旧版的。请更新至最新版本再来游玩本关卡。请访问www.keeperklan.com"
+
+#. Ghost in the Machine (lv458)
+#: guitext:91
+msgctxt "In-game message"
+msgid "The yellow Wizards are using powerful magic to hold you at bay. You can't reach them but the dark gods will help. Sacrifice all imps in battle or at the temple and they will send your ghosts to fight them. "
+msgstr "黄色的巫师施展了一种强大的魔法牵制住了你。你无法接触到他们，但黑暗之神会助你一臂之力。如果你在战斗中损失所有的小鬼或利用寺庙献祭所有的小鬼，黑暗之神就会把你的鬼魂传送过去和敌人的巫师战斗。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:92
+msgctxt "In-game message"
+msgid "You have angered the gods and lost all hope of victory. "
+msgstr "你把神惹怒了，已经失去了胜利的希望。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:93
+msgctxt "In-game message"
+msgid "Barbarians have started to attack. They will only increase in number. Kill them and you can use their ghosts in this ream. "
+msgstr "野蛮人开始进攻了。他们的数量会不断增加。杀死他们，你就可以将他们的灵魂为你所用。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:94
+msgctxt "In-game message"
+msgid "The Barbarians you've killed have returned as ghosts and joined your army. I suggest you kill all the Barbarians you can find? "
+msgstr "你杀死的每一个野蛮人都已经变成了鬼魂，加入了你的军队。我建议你继续杀死所有你能遇到的野蛮人。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:95
+msgctxt "In-game message"
+msgid "The Wizards will keep sending Barbarians in ever greater numbers, but it is all a distraction. They will use this time to grow beyond your might. Keep their power in check by regularly attacking them. "
+msgstr "巫师们会不断地派出越来越多的野蛮人，但这只是在分散你的注意力。他们会利用这段时间成长得更为强大。你必须通过经常对他们发动攻击来控制住他们的力量。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:96
+msgctxt "In-game message"
+msgid "With each Monk killed, the Ghosts gain in strength! Keep killing Monks as well as Barbarians. "
+msgstr "你每杀死一名僧侣，你召唤出的鬼魂的力量就会变得更强大！继续杀死僧侣和野蛮人吧。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:97
+msgctxt "In-game message"
+msgid "There are no more Monks so your Ghosts are as strong as they can get. They should be able to do some serious damage to the yellow Wizards? Dispose of your imps to initiate the attack. "
+msgstr "僧侣已经被杀光了，所以你召唤出的鬼魂已经是最强大的了。这样它们一定可以对黄色的巫师造成严重的打击了吧？扔掉你的所有小鬼，发起进攻吧。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:98
+msgctxt "In-game message"
+msgid "Your Ghosts are being transported to the yellow Hero stronghold! Destroy their heart and this realm is yours. "
+msgstr "你的鬼魂将被传送到黄色守护者的基地中！摧毁他的地下城心脏，这个王国就是你的了。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:99
+msgctxt "In-game message"
+msgid "These Ghosts are at maximum power. Surely the wizards don't stand a chance now? "
+msgstr "这些鬼魂已经是最强大的了。这下敌人的巫师肯定没有生还的机会了吧？"
+
+#. Ghost in the Machine (lv458)
+#: guitext:100
+msgctxt "In-game message"
+msgid "Your Ghosts have failed and paid the price for it! Luckily there's always more death? When you have regained enough Ghosts, eliminate your imps to try again. "
+msgstr "你的鬼魂战败了，并为此付出了代价。幸运的是，你还能杀死更多的敌人来获得更多的鬼魂。当你获得足够多的鬼魂了，扔掉你的所有小鬼，再试一次吧。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:101
+msgctxt "In-game message"
+msgid "This is taking too long. Let's see what happens. "
+msgstr "你花的时间太长了。是时候发起进攻了，让我们看看会发生什么吧。"
+
+#. Ghost in the Machine (lv458)
+#: guitext:102
+msgctxt "In-game message"
+msgid "Your message could be posted here. Victory"
+msgstr "你可以在这里写下到此一游了。你胜利了！"
+
+#. Grail Run (lv444)
+#: guitext:103
+msgctxt "In-game message"
+msgid "As you have claimed your first room, Heroes have started gathering their troops and will be here soon. The more Heroes are wiped out, the stronger the groups they will form."
+msgstr "当你得到你的第一个房间时，英雄们就会开始集结他们的军队，很快就会来到这里。英雄被消灭的越多，他们组建的军团就越强大。"
+
+#. Grail Run (lv444)
+#: guitext:104
+msgctxt "In-game message"
+msgid "First party has arrived! They seem to go lightly on on you. For now..."
+msgstr "第一个英雄军团来进攻了！他们似乎对你不能造成多大影响。至少现在是这样……"
+
+#. Grail Run (lv444)
+#: guitext:105
+msgctxt "In-game message"
+msgid "Having seen their previous efforts fail, the Heroes have formed a new group."
+msgstr "看到他们之前的努力都白费了，英雄们又组成了一个新的军团。"
+
+#. Grail Run (lv444)
+#: guitext:106
+msgctxt "In-game message"
+msgid "Heroes have returned, this time with modified creatures to aid them! Careful, as these are definitely tougher than any common dungeon creatures!"
+msgstr "英雄们又来了，这次他们还带来了一些变异的怪物来帮助他们！小心，因为这些变异怪物绝对比普通的地下城怪物更强大！"
+
+#. Grail Run (lv444)
+#: guitext:107
+msgctxt "In-game message"
+msgid "Heroes have formed yet another army. If this attempt fails, the Avatar will come and take care of you!"
+msgstr "英雄们又组成了一个新的军团。如果这次进攻再次失败的话，圣者就要亲自前来处理你了！"
+
+#. Grail Run (lv444)
+#: guitext:108
+msgctxt "In-game message"
+msgid "It's time to prove yourself, Keeper. Clear the last wave and the land is yours!"
+msgstr "是时候证明你自己了，守护者。清除最后一波敌人，这片土地就是你的了！"
+
+#. Grail Run (lv444)
+#: guitext:109
+msgctxt "In-game message"
+msgid "This has been a humiliating defeat for the Heroes. Congratulations!"
+msgstr "英雄们十分耻辱地战败了。恭喜你！"
+
+#. Grail Run (lv444)
+#: guitext:110
+msgctxt "In-game message"
+msgid "You are in possession of a very unusual hero gate located to the east of your dungeon heart. It attracts units from other realms based on your claimed  dungeon rooms. Claim rooms to attract more and stronger units. Barracks=Barbarians, Workshop=Dwarves, Library=Warlocks, Temple=Monks, Training Rooms=Archers. New units arrive in groups but only if you have fewer than 22 minions. Withstand the hero waves, defeat the Avatar and his guards and this land is yours!"
+msgstr "你拥有一个非同寻常的传送门，位于你的地下城心脏的东面。它将来自其他王国的怪物召唤到你的地下城中。占领更多的房间来吸引更多更强大的怪物来帮助你。兵营吸引野蛮人，工厂吸引矮人，图书馆吸引魔术师，寺庙吸引僧侣，训练室吸引弓箭手。你一次可以获得一组新的怪物，并且只有当你拥有少于22个怪物时才会有效。顶住英雄的一波又一波进攻，打败圣者和他的军队，这片土地就是你的了！"
+
+#. The Death Clock (lv450)
+#: guitext:111
+msgctxt "In-game message"
+msgid "Your dungeon lies in ruins and you are powerless. Fortunately the Dungeon Heart is still intact. Reclaim it to get back your strength."
+msgstr "你的地下城已经沦为一片废墟，你的力量也被夺走了。幸运的是，你的地下城心脏还完好无损。重建你的地下城来找回你的力量。"
+
+#. The Death Clock (lv450)
+#: guitext:112
+msgctxt "In-game message"
+msgid "Good, you have your dungeon back, your power is returning. The heroes know, they will return to kill us all. Make the most of your final moments."
+msgstr "很好，你重建了你的地下城，你的力量正在逐渐恢复。但是英雄们得知了你的存在，他们正赶往这里来除掉你。在这生命中的最后时刻尽你所能吧。"
+
+#. The Death Clock (lv450)
+#: guitext:113
+msgctxt "In-game message"
+msgid "If you want the heroes to remember your final battle, quickly take whatever you can from their remaining forces here and the keeper they left for dead."
+msgstr "如果你想彻底战胜这些英雄，你必须尽快从附近的英雄势力手中和一名已被英雄消灭的守护者处夺取资源。"
+
+#. The Death Clock (lv450)
+#: guitext:114
+msgctxt "In-game message"
+msgid "Heroes waltzed over your former rival, I'm sure they will muster a counter attack if you claim this dungeon and its riches as your own."
+msgstr "英雄们已经将这里的前任守护者踩在了脚底下，我确信如果你打算占领这座地下城并把其中的财宝据为己有，他们一定会发起反击。"
+
+#. The Death Clock (lv450)
+#: guitext:115
+msgctxt "In-game message"
+msgid "Heroes! Send in the hounds! Then have them lick your wounds, because I'm sure there are more to come."
+msgstr "英雄来袭！关门放地狱之犬！战斗结束后让它们帮你舔舐伤口吧，因为我确信还会有更多英雄前来。"
+
+#. The Death Clock (lv450)
+#: guitext:116
+msgctxt "In-game message"
+msgid "A sizeable graveyard would be useful right about now,..."
+msgstr "你现在一定很需要一座足够大的陵墓吧……"
+
+#. The Death Clock (lv450)
+#: guitext:117
+msgctxt "In-game message"
+msgid "Kill all the heroes you can find. They will do the same thing to you soon enough."
+msgstr "杀掉你遇见的每一个英雄，不留活口。他们很快会再次对你发起进攻。"
+
+#. The Death Clock (lv450)
+#: guitext:118
+msgctxt "In-game message"
+msgid "In the east the heroes have a fortress. Why don't you go find out what it contains?"
+msgstr "英雄们在东边有一座要塞。为什么不去看一看里面有些什么呢？"
+
+#. The Death Clock (lv450)
+#: guitext:119
+msgctxt "In-game message"
+msgid "Mole-man save us, they are almost here! Place more traps now or hope your little army is stronger than it looks."
+msgstr "我们的小鬼救了我们一命，敌人差一点就要进来了！尽快部署更多的陷阱，你该不会指望着你现在脆弱的军队能挡住敌人吧。"
+
+#. The Death Clock (lv450)
+#: guitext:120
+msgctxt "In-game message"
+msgid "I have a bad feeling about this. You know you are supposed to kill the little white men right?"
+msgstr "我有种不好的预感。你应该知道你必须把这些白色的弱小人类都杀掉，对吧？"
+
+#. The Death Clock (lv450)
+#: guitext:121
+msgctxt "In-game message"
+msgid "Yes, we have some creatures left! I never doubted you for a second. Congratulations!"
+msgstr "很好，我们的怪物们存活了下来！我从来没有怀疑过你的能力。恭喜！"
+
+#. The Death Clock (lv450)
+#: guitext:122
+msgctxt "In-game message"
+msgid "You lost your only creature. You needed it to get claim the tiles around your heart. Hopeless."
+msgstr "你失去了你唯一的怪物。你需要它才能夺回你地下城心脏周围的领土。现在已经没有希望了。"
+
+#: guitext:123 guitext:124 guitext:125
+#: guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 guitext:131
+#: guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137
+#: guitext:138 guitext:139 guitext:140 guitext:141 guitext:142 guitext:143
+#: guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 guitext:149
+#: guitext:150 guitext:151 guitext:152 guitext:153 guitext:154 guitext:155
+#: guitext:156 guitext:157 guitext:158 guitext:159 guitext:160 guitext:161
+#: guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167
+#: guitext:168 guitext:169 guitext:170 guitext:171 guitext:172 guitext:173
+#: guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179
+#: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
+#: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
+#: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
+#: guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr ""
+
+#: guitext:201
+msgctxt "Level name"
+msgid "Tymnath Herez"
+msgstr "提姆纳斯·赫瑞兹"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Yami"
+msgstr "亚米"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Temple Deal"
+msgstr "寺庙争夺战"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Grail Run"
+msgstr "妄想之旅"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Thug of War"
+msgstr "战争暴徒"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Wetlands"
+msgstr "湿地"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Desperation"
+msgstr "绝境"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Dread Mountain"
+msgstr "恐惧之山"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Frozen Legion"
+msgstr "冰封军团"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Shores of Battle"
+msgstr "海岸战争"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "My Pet Dungeon"
+msgstr "我的宠物地城"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Ghost in the Machine"
+msgstr "鬼魂制造机"
+
+#: guitext:213
+msgctxt "Level name"
+msgid "The Death Clock"
+msgstr "死亡时钟"
+
+#: guitext:214 guitext:215 guitext:216
+#: guitext:217 guitext:218 guitext:219 guitext:220 guitext:221 guitext:222
+
+#: guitext:223 guitext:224 guitext:225
+msgctxt "Level name"
+msgid "Unused"
+
+#: guitext:226
+msgctxt "Creature spell"
+msgid "Arrow: The basic ranged weapon, effective at long distance."
+msgstr "箭: 基本的远程武器，在远距离使用时效果很好。"
+
+#: guitext:227
+msgctxt "Creature spell"
+msgid ""
+"Freeze: Changes the target creature to ice. It is then in suspended "
+"animation and can be shattered with a well-aimed blow."
+msgstr "冰冻术: 把一只怪物冻成冰，并暂停它的行动，还可以使它能被猛力地一击打碎。"
+
+#: guitext:228
+msgctxt "Creature spell"
+msgid ""
+"Armour: This lowers the amount of damage a creature takes each time it is "
+"hit, and provides complete immunity to electric shocks."
+msgstr "装甲: 可以降低怪物每次受到的伤害，并且使其完全免疫守护者的闪电术。"
+
+#: guitext:229
+msgctxt "Creature spell"
+msgid ""
+"Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
+"lighting from the creature."
+msgstr "闪电术: 一个使用闪电攻击的强力魔法武器。可以使怪物释放出一道闪电。"
+
+#: guitext:230
+msgctxt "Creature spell"
+msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
+msgstr "反弹术: 将向你发射的所有投射物反弹给攻击者。"
+
+#: guitext:231
+msgctxt "Creature spell"
+msgid ""
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
+"combat."
+msgstr "恐惧术: 使敌人感到害怕并试图放弃参与战斗。"
+
+#: guitext:232
+msgctxt "Creature spell"
+msgid ""
+"Sight: Allows the creature to temporarily increase its awareness and notice "
+"the invisible."
+msgstr "邪眼术: 使怪物暂时集中精力，可以看破隐身的怪物。"
+
+#: guitext:233
+msgctxt "Creature spell"
+msgid ""
+"Missile: A simple spell that sends a screaming magic reptile at the "
+"invaders. Very disconcerting."
+msgstr ""
+"导弹: 一个简单的魔法，可以向入侵者发射一枚发出尖叫声的魔法蜥蜴导弹。"
+"令人感到十分不安。"
+
+#: guitext:234
+msgctxt "Creature spell"
+msgid ""
+"Grenade: Throws a powerful explosive at the approaching enemy. It can also "
+"bounce off walls and has the traditional delayed fuse."
+msgstr ""
+"手榴弹: 向靠近的敌人投掷一枚强力的爆弹。它可以通过墙壁反弹，"
+"并且由传统的延时引线引爆。"
+
+#: guitext:235
+msgctxt "Creature spell"
+msgid ""
+"Navigating Missile: A spell that sends a screaming magic reptile homing "
+"in on the nearest hero or enemy creature for double damage. Nice."
+msgstr ""
+"巡航导弹: 这个魔法会发射一枚发出尖叫声的魔法蜥蜴导弹，"
+"它会自动追踪最近的英雄或敌方怪物，并造成双倍伤害。真不错。"
+
+#: guitext:236
+msgctxt "Creature spell"
+msgid ""
+"Speed: Speeds up the creature so that it can perform fighting and working "
+"tasks really quickly."
+msgstr "速度术: 使怪物的速度提高，使其在战斗中或工作中行动非常迅速。"
+
+#: guitext:237
+msgctxt "Creature spell"
+msgid ""
+"Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
+"enemy and your own creatures. The gas affects all who breathe it."
+msgstr ""
+"毒云术: 生成一片毒云，会同时对敌军和友军造成伤害。"
+"所有呼吸到毒气的怪物都会受到它的影响。"
+
+#: guitext:238
+msgctxt "Creature spell"
+msgid "Group: Not used"
+msgstr "集结术: 未使用"
+
+#: guitext:239
+msgctxt "Creature spell"
+msgid ""
+"Invisibility: Cast on one of your minions, it makes the host creature "
+"invisible to all enemies. Unless they possess a subnatural Sight."
+msgstr ""
+"隐身术: 对你的一个怪物使用，使其对敌人隐身。"
+"除非拥有超常视力的敌人才能看破隐身。"
+
+#: guitext:240
+msgctxt "Creature spell"
+msgid ""
+"Teleport: With this spell, a creature can teleport anywhere on the map. If "
+"you are Possessing a creature, then it teleports to its Lair or to the "
+"Dungeon Heart."
+msgstr ""
+"传送术: 一个拥有这项技能的怪物可以传送到地图的任何区域。如果你正在控制这个怪物，"
+"它会传送到它的巢穴处或地下城心脏处。"
+
+#: guitext:241
+msgctxt "Creature spell"
+msgid "Flame Breath: The devastating constant stream of searing fire."
+msgstr "火焰术: 持续喷射具有毁灭性威力的灼热火焰。"
+
+#: guitext:242
+msgctxt "Creature spell"
+msgid ""
+"Illumination: Brings light onto darkness, allowing the creature to see but "
+"also be seen by others."
+msgstr "照明术: 为黑暗带来光明，使怪物能看清别人，但同时也会被别人看到。"
+
+#: guitext:243
+msgctxt "Creature spell"
+msgid ""
+"Flight: Causes the creature to take off from the ground and attack creatures "
+"from the air or cross lava unharmed."
+msgstr ""
+"飞行术:使怪物可以离开地面，从而在空中向其他怪物发起攻击，"
+"并能飞越岩浆而不受伤害。"
+
+#: guitext:244
+msgctxt "Creature spell"
+msgid "Hail Storm: Creates a fury of hailstones."
+msgstr "冰雹术: 发射密集的冰雹块。"
+
+#: guitext:245
+msgctxt "Creature spell"
+msgid ""
+"Slow: Slows down the target creature, making it attacks and movement delayed."
+msgstr "缓慢术:降低目标怪物的速度，使它的行动和攻击变得迟缓。"
+
+#: guitext:246
+msgctxt "Creature spell"
+msgid ""
+"Drain: This spell drains the target creature a part of its health and gives it "
+"to the caster."
+msgstr "吸精术: 这项魔法可以吸取目标的一部分生命值为自己所用。"
+
+#: guitext:247
+msgctxt "Creature spell"
+msgid ""
+"Word of Power: Causes rings of demonic energy to emanate from the creature's "
+"body and inflicts massive damage on the vicinity. Very effective against "
+"crowded hordes of enemies, also pushes them back."
+msgstr ""
+"强力咒语: 从怪物的身体中释放出恶魔般的能量，并对周围造成巨大伤害。"
+"对成群的敌人非常有效，同时也能将他们击退。"
+
+#: guitext:248
+msgctxt "Creature spell"
+msgid ""
+"Heal: When this is cast, the creature is massively healed. Also, any nearby "
+"creatures are healed by a quarter."
+msgstr ""
+"治疗术: 施放时，使目标怪物回复大量生命值。"
+"周围的怪物也会获得四分之一的治疗量。"
+
+#: guitext:249
+msgctxt "Creature spell"
+msgid ""
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
+"away from you. And nasty smells of course."
+msgstr ""
+"风暴术: 在地下城中制造12股风暴力量，把所有怪物都向外吹走。"
+"肯定还夹杂着一股臭气。"
+
+#: guitext:250
+msgctxt "Creature spell"
+msgid ""
+"Meteor: More powerful than the fireball, this spell throws out a solid ball "
+"of fire which does a lot of damage to an enemy."
+msgstr ""
+"流星术: 比火球术更强大，这个魔法能发射一颗固体的火球，"
+"并对敌人造成大量伤害。"
+
+#: guitext:251
+msgctxt "Creature spell"
+msgid ""
+"Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
+"inflicts minor damage to a Dungeon's walls and doors."
+msgstr "火球术: 发射一颗火球，瞄准最近的敌人。对地下城的墙壁和门也会造成轻微伤害。"
+
+#: guitext:252
+msgctxt "Creature spell"
+msgid ""
+"Hand to Hand: The basic battle ability that allows to attack the enemy with "
+"either bare hands or a sword."
+msgstr "近战攻击: 允许徒手或用剑攻击敌人的基本战斗技能。"
+
+#: guitext:253
+msgctxt "Creature spell"
+msgid ""
+"Fart: A close range gas attack that only damages enemy creatures."
+msgstr ""
+"放屁术: 近距离的毒气攻击，只会对敌军造成伤害。"
+
+#: guitext:254
+msgctxt "Creature spell"
+msgid ""
+"Dig: This is the basic ability of the Imp and allows it to tunnel through "
+"earth."
+msgstr "挖掘: 这是小鬼的基本能力，使它可以在地底下挖掘隧道。"
+
+#: guitext:255
+msgctxt "Creature spell"
+msgid ""
+"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"creatures. The infected are slowly dying and can only be healed in the "
+"Temple."
+msgstr ""
+"疾病术: 对敌人使用，会让它们染上疾病，并可以传染给其他怪物。"
+"被感染的怪物将会慢慢死去，只能在寺庙里获得治愈。"
+
+#: guitext:256
+msgctxt "Creature spell"
+msgid ""
+"Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
+"attack but has the same strength and thus won't be as easy to kill as a "
+"normal chicken."
+msgstr ""
+"变为小鸡:暂时把敌人变成一只小鸡。敌人不能攻击，但拥有同样的力量，"
+"因此不会像一只普通的小鸡那么容易被杀死。"
+
+#: guitext:257
+msgctxt "Creature spell"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
+msgstr "定时炸弹"
+
+#: guitext:258
+msgctxt "Creature name"
+msgid "Fairy"
+msgstr "仙女"
+
+#: guitext:259
+msgctxt "Creature name"
+msgid "Imp"
+msgstr "小鬼"
+
+#: guitext:260
+msgctxt "Creature name"
+msgid "Beetle"
+msgstr "甲虫"
+
+#: guitext:261
+msgctxt "Creature name"
+msgid "Troll"
+msgstr "精灵"
+
+#: guitext:262
+msgctxt "Creature name"
+msgid "Demon Spawn"
+msgstr "恶鬼"
+
+#: guitext:263
+msgctxt "Creature name"
+msgid "Warlock"
+msgstr "魔术师"
+
+#: guitext:264
+msgctxt "Creature name"
+msgid "Fly"
+msgstr "苍蝇"
+
+#: guitext:265
+msgctxt "Creature name"
+msgid "Spider"
+msgstr "蜘蛛"
+
+#: guitext:266
+msgctxt "Creature name"
+msgid "Skeleton"
+msgstr "骷髅"
+
+#: guitext:267
+msgctxt "Creature name"
+msgid "Horned Reaper"
+msgstr "冥界使者"
+
+#: guitext:268
+msgctxt "Creature name"
+msgid "Dragon"
+msgstr "龙"
+
+#: guitext:269
+msgctxt "Creature name"
+msgid "Tentacle"
+msgstr "水怪"
+
+#: guitext:270
+msgctxt "Creature name"
+msgid "Hound"
+msgstr "地狱之犬"
+
+#: guitext:271
+msgctxt "Creature name"
+msgid "Ghost"
+msgstr "鬼"
+
+#: guitext:272
+msgctxt "Creature name"
+msgid "Mistress"
+msgstr "黑暗女王"
+
+#: guitext:273
+msgctxt "Creature name"
+msgid "Bile Demon"
+msgstr "巨魔"
+
+#: guitext:274
+msgctxt "Creature name"
+msgid "Vampire"
+msgstr "吸血鬼"
+
+#: guitext:275
+msgctxt "Creature name"
+msgid "Barbarian"
+msgstr "野蛮人"
+
+#: guitext:276
+msgctxt "Creature name"
+msgid "Knight"
+msgstr "骑士"
+
+#: guitext:277
+msgctxt "Creature name"
+msgid "Wizard"
+msgstr "巫师"
+
+#: guitext:278
+msgctxt "Creature name"
+msgid "Orc"
+msgstr "兽人"
+
+#: guitext:279
+msgctxt "Creature name"
+msgid "Mountain Dwarf"
+msgstr "山脉矮人"
+
+#: guitext:280
+msgctxt "Creature name"
+msgid "Valley Dwarf"
+msgstr "山谷矮人"
+
+#: guitext:281
+msgctxt "Creature name"
+msgid "Thief"
+msgstr "小偷"
+
+#: guitext:282
+msgctxt "Creature name"
+msgid "Samurai"
+msgstr "忍者"
+
+#: guitext:283
+msgctxt "Creature name"
+msgid "Priestess"
+msgstr "女祭司"
+
+#: guitext:284
+msgctxt "Creature name"
+msgid "Giant"
+msgstr "巨人"
+
+#: guitext:285
+msgctxt "Creature name"
+msgid "Archer"
+msgstr "弓箭手"
+
+#: guitext:286
+msgctxt "Creature name"
+msgid "Monk"
+msgstr "僧侣"
+
+#: guitext:287
+msgctxt "In-game interface description"
+msgid ""
+"Query: Select this and left click on a creature to view information on that "
+"creature and track it on screen. LMB select."
+msgstr "查询: 选择它并左键单击一个怪物察看怪物的信息，并在屏幕上跟踪它。左键选择。"
+
+#: guitext:288
+msgctxt "Menu interface item"
+msgid "Select game"
+msgstr "选择游戏"
+
+#: guitext:289
+msgctxt "Menu interface item"
+msgid "Network Menu"
+msgstr "网络菜单"
+
+#: guitext:290
+msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr "主菜单"
+
+#: guitext:343
+msgctxt "Menu interface, Main Menu title"
+msgid "Main Menu"
+msgstr "主菜单"
+
+#: guitext:291
+msgctxt "In-game interface description"
+msgid ""
+"Anger: How angry the creature is. The higher the bar is, the angrier the "
+"creature is."
+msgstr "愤怒: 怪物生气的程度。条的长度越长，表示怪物越生气。"
+
+#: guitext:292
+msgctxt "In-game interface description"
+msgid "Creature Kills: The total number of enemies the creature has slain."
+msgstr "杀敌: 怪物杀死的敌人的数量。"
+
+#: guitext:293
+msgctxt "In-game interface description"
+msgid ""
+"Strength: The amount of damage the creature inflicts upon its enemies with "
+"each hit."
+msgstr "力量: 怪物每一次击中敌人可以对敌人造成的伤害数量。"
+
+#: guitext:294
+msgctxt "In-game interface description"
+msgid "Wage: The creature's salary in gold which it takes on each payday."
+msgstr "薪水: 怪物每次发薪时领取的金子。"
+
+#: guitext:295
+msgctxt "In-game interface description"
+msgid "Gold Held: The amount of gold the creature is carrying."
+msgstr "财产: 这个怪物所带有的金子。"
+
+#: guitext:296
+msgctxt "In-game interface description"
+msgid ""
+"Defence: The chance a creature will avoid a blow. The higher the number, the "
+"greater the chance of avoidance."
+msgstr "防御: 怪物躲避一次攻击的机会。这个数值越高，躲避的成功率就越大。"
+
+#: guitext:297
+msgctxt "In-game interface description"
+msgid ""
+"Skill: The creature's ability to perform tasks. The higher the Skill level, "
+"the better the creature's performance."
+msgstr "技巧: 怪物执行任务的能力。这个数值越高，怪物的表现就越好。"
+
+#: guitext:298
+msgctxt "In-game interface description"
+msgid "Age/Time In Dungeon: The length of time you have employed the creature."
+msgstr "在地下城中的时间: 你雇佣了这个怪物多长时间。"
+
+#: guitext:299
+msgctxt "In-game interface description"
+msgid ""
+"Dexterity: The chance of a successful attack. Used to break enemy defence. "
+"The higher the number, the greater the chance of hitting."
+msgstr ""
+"敏捷: 一次攻击成功的机会。用于破解敌人的防御。"
+"这个数值越高，击中的几率就越大。"
+
+#: guitext:300
+msgctxt "In-game interface description"
+msgid ""
+"Luck: The chance that a creature will do a double attack or a double defence "
+"in combat. Taken into account only when the hit is not avoided."
+msgstr ""
+"幸运: 在战斗中怪物施展一次双倍攻击或防御的机会。"
+"只有在此次攻击没被躲避的情况下生效。"
+
+#: guitext:301
+msgctxt "In-game interface description"
+msgid "Blood type: As if you care. Blood is blood, right?"
+msgstr "血型: 仿佛你关心。血就是血，对吗？"
+
+#: guitext:302
+msgctxt "In-game interface description"
+msgid ""
+"Idle: The creature is either sleeping or not working. It's not involved in "
+"anything constructive or useful. LMB pick up creature. RMB zoom."
+msgstr ""
+"空闲: 怪物睡觉或不工作的时间。怪物没有涉及任何建设性或有用的事情。"
+"左键拿起怪物。右键缩放。"
+
+#: guitext:303
+msgctxt "In-game interface description"
+msgid ""
+"Working: The creature is performing tasks and doing work for you. LMB pick "
+"up creature. RMB zoom."
+msgstr "工作中: 怪物正在执行任务。左键拿起怪物。右键缩放。"
+
+#: guitext:304
+msgctxt "In-game interface description"
+msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom."
+msgstr "战斗中: 怪物正在进行战斗。左键拿起怪物。右键缩放。 "
+
+#: guitext:305
+msgctxt "In-game interface description"
+msgid ""
+"Fight: Your creatures always attack and not avoid any combat. LMB select."
+msgstr "战斗: 你的怪物总是会攻击敌人，不会逃离战斗。左键选择。"
+
+#: guitext:306
+msgctxt "In-game interface description"
+msgid ""
+"Flee: Your creatures attempt to preserve their lives, running away if they "
+"are too badly injured. LMB select."
+msgstr "逃跑: 你的怪物试着保护自己，在严重受伤时会开始逃跑。 左键选择。"
+
+#: guitext:307
+msgctxt "In-game interface description"
+msgid ""
+"Imprison: Your creatures stun their enemies in battle and imprison those "
+"they defeat. LMB select."
+msgstr "囚禁: 你的怪物在战斗中只将敌人打晕并将其囚禁。左键选择。"
+
+#: guitext:308
+msgctxt "In-game interface description"
+msgid ""
+"Defending: The creature is concentrating on avoiding its adversary's blows."
+msgstr "防御:  怪物专注于避免敌人的打击。"
+
+#: guitext:309
+msgctxt "In-game interface item"
+msgid "Are you sure?"
+msgstr "你确定吗？"
+
+#: guitext:310
+msgctxt "In-game interface item"
+msgid "Yes"
+msgstr "是"
+
+#: guitext:311
+msgctxt "In-game interface item"
+msgid "No"
+msgstr "否"
+
+#: guitext:312
+msgctxt "In-game interface item"
+msgid "For"
+msgstr "为"
+
+#: guitext:313
+msgctxt "In-game interface description"
+msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
+msgstr "影子: 每个怪物的影子的数量。左键切换。"
+
+#: guitext:314
+msgctxt "In-game interface description"
+msgid ""
+"View Type: Swap between the default and forced perspective views. Default "
+"view has warped walls and can be rotated, forced perspective shows larger "
+"area but can only be rotated 90 degrees. LMB toggle."
+msgstr ""
+"视角: 在默认视角和强制透视视角间切换。默认视角有弯曲的墙壁，可以旋转，"
+"而强制透视视角显示的区域较大，但只能一次旋转90度。左键切换。"
+
+#: guitext:315
+msgctxt "In-game interface description"
+msgid ""
+"Wall Height: Swap between high or low walls. If you make the walls one block "
+"high, they are easier to see over. LMB toggle."
+msgstr ""
+"墙高: 在高墙和低墙间切换。如果你把墙调成一格高，就更容易看清地图。"
+"左键切换。"
+
+#: guitext:316
+msgctxt "In-game interface description"
+msgid ""
+"View Distance: The amount of dungeon drawn. This directly affects the speed "
+"of the game. LMB toggle."
+msgstr "距离: 决定你从多高的地方俯视地下城。这将直接影响游戏的速度。左键切换。"
+
+#: guitext:317
+msgctxt "In-game interface description"
+msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
+msgstr "伽马校正: 调整游戏的亮度。左键切换。"
+
+#: guitext:318
+msgctxt "In-game interface item"
+msgid "Of"
+msgstr "的"
+
+#: guitext:319
+msgctxt "Slab description"
+msgid "Empty Lair: Would suit itinerant creature."
+msgstr "空巢穴: 将满足投奔的怪物。"
+
+#: guitext:320
+msgctxt "Menu interface item"
+msgid "Paused"
+msgstr "暂停"
+
+#: guitext:321
+msgctxt "In-game interface description"
+msgid ""
+"Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
+"select."
+"放大: 放大动态地图。这会扩大你所看到的地图尺寸。左键选择。"
+
+#: guitext:322
+msgctxt "In-game interface description"
+msgid ""
+"Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
+"select."
+msgstr "缩小: 缩小动态地图。这会缩小你所看到的地图尺寸。左键选择。"
+
+#: guitext:323
+msgctxt "In-game interface description"
+msgid ""
+"Full Screen Map: Takes you to the Map Screen which displays your entire "
+"Dungeon and the surrounding area. LMB select."
+msgstr "全屏地图: 进入全屏地图画面，显示你的整个地下城和周围的区域。左键选择。"
+
+#: guitext:324
+msgctxt "Slab description"
+msgid ""
+"Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
+"to go round. It is visible even if far from your territory."
+msgstr ""
+"无法挖掘的岩石: 你的小鬼无法挖穿这样的岩石，唯一的办法就是绕过它。这类岩石永"
+"远可见。"
+
+#: guitext:325
+msgctxt "Slab description"
+msgid ""
+"Earth: You can excavate this. To dig out some new caverns, choose a location "
+"and tag for digging with LMB. Press LMB again to untag."
+msgstr ""
+"土块: 你可以将其凿开。想要挖开一些洞穴，用鼠标左键标记一个区域。再次按下鼠标"
+"左键可解除标记。"
+
+#: guitext:326
+msgctxt "Slab description"
+msgid ""
+"Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
+"your Treasure Room. You can also pick up the lumps of treasure left on the "
+"ground."
+msgstr ""
+"金矿: 你的财富的源泉。挖掘它，你的小鬼将把它带入你的储金室。"
+"你也可以拿起留在地上的金子。"
+
+#: guitext:327
+msgctxt "Slab description"
+msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
+msgstr "岩浆: 灼烧任何触碰到它的生物。施放一个塌方术或者建造一座桥来越过它。"
+
+#: guitext:328
+msgctxt "Slab description"
+msgid ""
+"Water: Creatures move more slowly through water. Build the Bridge to make "
+"new land on the water."
+msgstr "水: 怪物在水中移动得很慢。在水上造桥可以创造出水上的平地。"
+
+#: guitext:329
+msgctxt "Slab description"
+msgid ""
+"Wall: A reinforced stone wall that enemies cannot break through. At least "
+"without the Destroy Walls spell."
+msgstr "墙: 敌人无法穿越加固过的墙。至少在他们还没有破坏墙壁魔法的时候。"
+
+#: guitext:330
+msgctxt "Slab description"
+msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
+msgstr "被损坏的墙: 除非进行修复，否则将最终倒塌。"
+
+#: guitext:331
+msgctxt "Slab description"
+msgid ""
+"Path: Unclaimed earth floor. You can claim it if it is connected to already "
+"claimed territory."
+msgstr "泥地: 未占领的地面。如果这里与你的领地相邻，你就可以占有此地。"
+
+#: guitext:332
+msgctxt "Slab description"
+msgid ""
+"Claimed area: Your dungeon territory. You can build rooms and drop your "
+"creatures on it."
+msgstr "已占领的地面:你的地下城领地。你可以在此建造房间或是放置你的怪物。"
+
+#: guitext:333
+msgctxt "In-game interface item"
+msgid "More..."
+msgstr "更多..."
+
+#: guitext:334
+msgctxt "In-game message"
+msgid "Level completed - press Escape to continue"
+msgstr "任务完成 - 按ESCAPE键继续"
+
+#: guitext:335
+msgctxt "In-game message"
+msgid "You have been defeated. Press Space to restart."
+msgstr "任务失败 - 按ESCAPE键重新开始"
+
+#: guitext:336 guitext:337 guitext:338 guitext:339 guitext:340 guitext:341
+#: guitext:342 guitext:344 guitext:345 guitext:346 guitext:347 guitext:348
+#: guitext:349 guitext:350 guitext:351 guitext:352 guitext:353 guitext:354
+#: guitext:355 guitext:356 guitext:357 guitext:358 guitext:359 guitext:360
+#: guitext:361 guitext:362 guitext:363 guitext:364 guitext:365 guitext:366
+#: guitext:367 guitext:368 guitext:369 guitext:370 guitext:371 guitext:372
+#: guitext:373 guitext:374 guitext:375 guitext:376 guitext:377 guitext:378
+#: guitext:379 guitext:380 guitext:381 guitext:382 guitext:383 guitext:384
+#: guitext:385 guitext:386 guitext:387 guitext:388 guitext:389 guitext:390
+#: guitext:391 guitext:392 guitext:393 guitext:394 guitext:395 guitext:396
+#: guitext:397 guitext:398 guitext:399 guitext:400 guitext:401 guitext:402
+#: guitext:403 guitext:404 guitext:405 guitext:406 guitext:407 guitext:408
+#: guitext:409 guitext:410 guitext:411 guitext:412 guitext:413 guitext:414
+#: guitext:415 guitext:416 guitext:417 guitext:418 guitext:419
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:420
+msgctxt "Dungeon special decription"
+msgid "Reveal Map: Reveals the entire underground realm to you."
+msgstr "显示地图: 为你显示这个地下城的地图。"
+
+#: guitext:421
+msgctxt "Dungeon special decription"
+msgid ""
+"Resurrect Creature: You may raise one of your fallen minions from the dead."
+msgstr "复活怪物: 你可以将一个已经死亡的你的怪物复活。"
+
+#: guitext:422
+msgctxt "Dungeon special decription"
+msgid ""
+"Transfer Creature: Pick one of your creatures to accompany you to the next "
+"realm."
+msgstr "传送怪物: 选择一个你的怪物带入下一个任务。"
+
+#: guitext:423
+msgctxt "Dungeon special decription"
+msgid "Steal Hero: Subvert a hero to your cause."
+msgstr "偷英雄: 使一个英雄倒戈。"
+
+#: guitext:424
+msgctxt "Dungeon special decription"
+msgid "Multiply Creatures: Create a double of each of your creatures."
+msgstr "繁殖怪物: 加倍你的每一种怪物。"
+
+#: guitext:425
+msgctxt "Dungeon special decription"
+msgid "Increase Level: Bestows greater skill on all your creatures."
+msgstr "提高等级: 授予你全部的怪物更高的等级。"
+
+#: guitext:426
+msgctxt "Dungeon special decription"
+msgid "Make Safe: Reinforces your entire dungeon."
+msgstr "安全: 强化你的整个地下城。"
+
+#: guitext:427
+msgctxt "Dungeon special decription"
+msgid ""
+"Locate Hidden World: You will get access to a secret realm after you "
+"have conquered this one."
+msgstr "找出了隐藏的世界: 在你征服这里后将可以通往一个秘密王国。"
+
+#: guitext:428
+msgctxt "Dungeon special name"
+msgid "Resurrect Creature"
+msgstr "复活怪物"
+
+#: guitext:429
+msgctxt "Dungeon special name"
+msgid "Transfer Creature"
+msgstr "传送怪物"
+
+#: guitext:430
+msgctxt "Menu interface item"
+msgid "Bonus"
+msgstr "奖励关卡"
+
+#: guitext:431 guitext:432 guitext:433 guitext:434 guitext:435 guitext:436
+#: guitext:437 guitext:438 guitext:439 guitext:440 guitext:441 guitext:442
+#: guitext:443 guitext:444 guitext:445 guitext:446 guitext:447 guitext:448
+#: guitext:449 guitext:450 guitext:451 guitext:452 guitext:453 guitext:454
+#: guitext:455 guitext:456 guitext:457 guitext:458 guitext:459 guitext:460
+#: guitext:461 guitext:462 guitext:463 guitext:464 guitext:465 guitext:466
+#: guitext:467 guitext:468 guitext:469 guitext:470 guitext:471 guitext:472
+#: guitext:473 guitext:474 guitext:475 guitext:476 guitext:477 guitext:478
+#: guitext:479 guitext:480 guitext:481 guitext:482 guitext:483 guitext:484
+#: guitext:485 guitext:486 guitext:487 guitext:488 guitext:489 guitext:490
+#: guitext:491 guitext:492 guitext:493 guitext:494 guitext:495 guitext:496
+#: guitext:497 guitext:498 guitext:499 guitext:500 guitext:501 guitext:502
+#: guitext:503 guitext:504 guitext:505 guitext:506 guitext:507 guitext:508
+#: guitext:509 guitext:510 guitext:511 guitext:512 guitext:513 guitext:514
+#: guitext:515 guitext:516 guitext:517 guitext:518 guitext:519 guitext:520
+#: guitext:521 guitext:522 guitext:523 guitext:524 guitext:525 guitext:526
+#: guitext:527 guitext:528 guitext:529 guitext:530 guitext:531 guitext:532
+#: guitext:533 guitext:534 guitext:535 guitext:536 guitext:537 guitext:538
+#: guitext:539 guitext:540 guitext:541 guitext:542 guitext:543
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:544
+msgctxt "Slab description"
+msgid ""
+"Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
+"takes longer to mine than Gold."
+msgstr "宝石: 供小鬼开采的无限的财富。宝石矿不会被摧毁，但从中挖金子花费的时间比金矿更长。"
+
+#: guitext:545
+msgctxt "Object description"
+msgid ""
+"Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
+"closed on your side."
+msgstr "英雄门: 英雄们通过这个入口入侵你的地下城。你无法将其关闭。"
+
+#: guitext:546
+msgctxt "Creature name"
+msgid "Tunneller"
+msgstr "挖掘者"
+
+#: guitext:547
+msgctxt "Creature name"
+msgid "Avatar"
+msgstr "圣者"
+
+#: guitext:548 guitext:549 guitext:550 guitext:551
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:552
+msgctxt "In-game tab with rooms"
+msgid "Treasure Room"
+msgstr "储金室"
+
+#: guitext:553
+msgctxt "In-game tab with rooms"
+msgid "Library"
+msgstr "图书馆"
+
+#: guitext:554
+msgctxt "In-game tab with rooms"
+msgid "Lair"
+msgstr "巢穴"
+
+#: guitext:555
+msgctxt "In-game tab with rooms"
+msgid "Prison"
+msgstr "监狱"
+
+#: guitext:556
+msgctxt "In-game tab with rooms"
+msgid "Torture Room"
+msgstr "审讯室"
+
+#: guitext:557
+msgctxt "In-game tab with rooms"
+msgid "Training Room"
+msgstr "训练室"
+
+#: guitext:558
+msgctxt "In-game tab with rooms"
+msgid "Dungeon Heart"
+msgstr "地下城心脏"
+
+#: guitext:559
+msgctxt "In-game tab with rooms"
+msgid "Workshop"
+msgstr "工厂"
+
+#: guitext:560
+msgctxt "In-game tab with rooms"
+msgid "Scavenger Room"
+msgstr "招募中心"
+
+#: guitext:561
+msgctxt "In-game tab with rooms"
+msgid "Temple"
+msgstr "寺庙"
+
+#: guitext:562
+msgctxt "In-game tab with rooms"
+msgid "Graveyard"
+msgstr "陵墓"
+
+#: guitext:563
+msgctxt "In-game tab with rooms"
+msgid "Barracks"
+msgstr "兵营"
+
+#: guitext:564
+msgctxt "In-game tab with rooms"
+msgid "Hatchery"
+msgstr "孵化室"
+
+#: guitext:565
+msgctxt "In-game tab with rooms"
+msgid "Guard Post"
+msgstr "警戒哨所"
+
+#: guitext:566
+msgctxt "In-game tab with rooms"
+msgid "Bridge"
+msgstr "桥"
+
+#: guitext:567 guitext:568 guitext:569 guitext:570 guitext:571 guitext:572
+#: guitext:573 guitext:574 guitext:575 guitext:576 guitext:577
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:578
+msgctxt "Trap names"
+msgid "Boulder Trap"
+msgstr "圆石陷井"
+
+#: guitext:579
+msgctxt "Trap names"
+msgid "Alarm Trap"
+msgstr "警戒陷井"
+
+#: guitext:580
+msgctxt "Trap names"
+msgid "Poison Gas Trap"
+msgstr "毒气陷井"
+
+#: guitext:581
+msgctxt "Trap names"
+msgid "Lightning Trap"
+msgstr "闪电陷井"
+
+#: guitext:582
+msgctxt "Trap names"
+msgid "Word of Power Trap"
+msgstr "强力咒语陷井"
+
+#: guitext:583
+msgctxt "Trap names"
+msgid "Lava Trap"
+msgstr "岩浆陷井"
+
+#: guitext:584
+msgctxt "Trap description"
+msgid ""
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
+"when enemy creature is close and within line of sight, or when slapped by a "
+"Keeper. LMB select. RMB zoom."
+msgstr ""
+"圆石陷井: 一个滚动的巨石将碾碎一切阻挡它的东西。当敌方怪物进入它的视野时，"
+"或被守护者打耳光时，圆石陷井将会被触发。左键选择。右键缩放。"
+
+#: guitext:585
+msgctxt "Trap description"
+msgid ""
+"Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
+"summoned to it. LMB select. RMB zoom."
+msgstr "警戒陷井: 被触发后施展召唤军队魔法，召唤附近的怪物集合。左键选择。右键缩放。"
+
+#: guitext:586
+msgctxt "Trap description"
+msgid ""
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can "
+"hurt owner creatures if they inhale it. LMB select. RMB zoom."
+msgstr ""
+"毒气陷井: 被你的敌人触发后放出有毒的烟雾。如果自己的怪物吸入毒气，"
+"同样会受到伤害。左键选择。右键缩放。"
+
+#: guitext:587
+msgctxt "Trap description"
+msgid ""
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when "
+"tripped. Does no harm to owner creatures. LMB select. RMB zoom."
+msgstr ""
+"闪电陷井: 用闪电攻击附近的敌人的怪物。不会伤害到自己的怪物。"
+"左键选择。右键缩放。"
+
+#: guitext:588
+msgctxt "Trap description"
+msgid ""
+"Word of Power Trap: Radiates devastating rings of demonic energy, pushing "
+"and damaging all enemy creatures within range. LMB select. RMB zoom."
+msgstr ""
+"强力咒语陷井: 释放出魔鬼般的环形能量，毁灭一切在它的作用范围内的怪物。左键选"
+"择。右键缩放。"
+
+#: guitext:589
+msgctxt "Trap description"
+msgid ""
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects "
+"are irreversible, so Bridge is needed to be able to step on affected area "
+"again. LMB select. RMB zoom."
+msgstr ""
+"岩浆陷井: 使一格地板熔化成为炙热的岩浆。此效果不可挽回，"
+"所以必须造桥才能再次通过这个区域。左键选择。右键缩放。"
+
+#: guitext:590
+msgctxt "Door name"
+msgid "Wooden Door"
+msgstr "木门"
+
+#: guitext:591
+msgctxt "Door name"
+msgid "Braced Door"
+msgstr "铁皮门"
+
+#: guitext:592
+msgctxt "Door name"
+msgid "Iron Door"
+msgstr "铁门"
+
+#: guitext:593
+msgctxt "Door name"
+msgid "Magic Door"
+msgstr "魔法门"
+
+#: guitext:594
+msgctxt "Door description"
+msgid ""
+"Wooden Door: The simplest means of restricting access. Can be broken down "
+"easily. LMB select. RMB zoom."
+msgstr "木门: 最简单的限制通行的工具。可以轻易地摧毁。左键选择。右键缩放。"
+
+#: guitext:595
+msgctxt "Door description"
+msgid ""
+"Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
+"RMB zoom."
+msgstr "铁皮门: 包有铁皮的木门，使其耐久更高。左键选择。右键缩放。"
+
+#: guitext:596
+msgctxt "Door description"
+msgid ""
+"Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
+"select. RMB zoom."
+msgstr "铁门: 重而坚固的门，可以承受巨大的攻击。左键选择。右键缩放。"
+
+#: guitext:597
+msgctxt "Door description"
+msgid ""
+"Magic Door: A special door, highly resistant to physical damage but "
+"susceptible to magical damage. LMB select. RMB zoom."
+msgstr ""
+"魔法门: 一种特殊的门，可以极大地抵抗物理攻击，但易受魔法攻击。左键选择。右键"
+"缩放。 "
+
+#: guitext:598
+msgctxt "Room name"
+msgid "Portal"
+msgstr "入口"
+
+#: guitext:599
+msgctxt "Room name"
+msgid "Treasure Room"
+msgstr "储金室"
+
+#: guitext:600
+msgctxt "Room name"
+msgid "Library"
+msgstr "图书馆"
+
+#: guitext:601
+msgctxt "Room name"
+msgid "Prison"
+msgstr "监狱"
+
+#: guitext:602
+msgctxt "Room name"
+msgid "Torture Chamber"
+msgstr "审讯室"
+
+#: guitext:603
+msgctxt "Room name"
+msgid "Training Room"
+msgstr "训练室"
+
+#: guitext:604
+msgctxt "Room name"
+msgid "Dungeon Heart"
+msgstr "地下城心脏"
+
+#: guitext:605
+msgctxt "Room name"
+msgid "Workshop"
+msgstr "工厂"
+
+#: guitext:606
+msgctxt "Room name"
+msgid "Graveyard"
+msgstr "陵墓"
+
+#: guitext:607
+msgctxt "Room name"
+msgid "Barracks"
+msgstr "兵营"
+
+#: guitext:608
+msgctxt "Room name"
+msgid "Hatchery"
+msgstr "孵化室"
+
+#: guitext:609
+msgctxt "Room name"
+msgid "Lair"
+msgstr "巢穴"
+
+#: guitext:610
+msgctxt "Room name"
+msgid "Bridge"
+msgstr "桥"
+
+#: guitext:611
+msgctxt "Room name"
+msgid "Guard Post"
+msgstr "警戒哨所"
+
+#: guitext:612
+msgctxt "Room name"
+msgid "Temple"
+msgstr "寺庙"
+
+#: guitext:613
+msgctxt "Room name"
+msgid "Scavenger Room"
+msgstr "招募中心"
+
+#: guitext:614
+msgctxt "Object name"
+msgid "Hero Gate"
+msgstr "英雄门"
+
+#: guitext:615
+msgctxt "Room description"
+msgid "Treasure Room: Your gold is stored here. LMB select. RMB zoom. [17.1]"
+msgstr "储金室: 你的金子储藏在这里。左键选择。右键缩放。[17.1]"
+
+#: guitext:616
+msgctxt "Room description"
+msgid ""
+"Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
+msgstr "图书馆: 研究魔法的房间。左键选择。右键缩放。[17.4]"
+
+#: guitext:617
+msgctxt "Room description"
+msgid ""
+"Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. "
+"[17.10]"
+msgstr "监狱: 安全关押敌人的怪物的地方。左键选择。右键缩放。[17.10]"
+
+#: guitext:618
+msgctxt "Room description"
+msgid ""
+"Training Room: Place creatures in here to improve their experience. LMB "
+"select. RMB zoom. [17.5]"
+msgstr "训练室: 将怪物放到这里可以提高他们的经验。左键选择。右键缩放。[17.5]"
+
+#: guitext:619
+msgctxt "Room description"
+msgid ""
+"Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB "
+"zoom. [17.11]"
+msgstr "审讯室: 拷问怪物的地方。左键选择。右键缩放。[17.11]"
+
+#: guitext:620
+msgctxt "Room description"
+msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
+msgstr "地下城心脏: 地下城的生命的源泉。[11.2]"
+
+#: guitext:621
+msgctxt "Room description"
+msgid ""
+"Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. "
+"RMB zoom. [17.8]"
+msgstr "工厂: 将怪物放到这里可以制造陷井和门。左键选择。右键缩放。[17.8]"
+
+#: guitext:622
+msgctxt "Room description"
+msgid ""
+"Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB "
+"zoom. [17.13]"
+msgstr "陵墓: 死亡的怪物将被放置到这里直至腐烂。左键选择。右键缩放。[17.13]"
+
+#: guitext:623
+msgctxt "Room description"
+msgid ""
+"Barracks: Group creatures by placing them into the room. LMB select. RMB "
+"zoom. [17.9]"
+msgstr "兵营: 将怪物放到这里编组。左键选择。右键缩放。[17.9]"
+
+#: guitext:624
+msgctxt "Room description"
+msgid ""
+"Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
+"RMB zoom. [17.3]"
+msgstr "孵化室: 怪物在这里可以吃到可爱而无助的小鸡。左键选择。右键缩放。[17.3]"
+
+#: guitext:625
+msgctxt "Room description"
+msgid ""
+"Lair: Where your creatures sleep and replenish their health. LMB select. RMB "
+"zoom. [17.2]"
+msgstr "巢穴: 怪物睡觉和补充体力的地方。左键选择。右键缩放。[17.2]"
+
+#: guitext:626
+msgctxt "Room description"
+msgid ""
+"Bridge: Place this on water and lava to allow creatures to cross. LMB "
+"select. RMB zoom. [17.6]"
+msgstr "桥: 放置在水上和岩浆上使怪物可以通过。左键选择。右键缩放。[17.6]"
+
+#: guitext:627
+msgctxt "Room description"
+msgid ""
+"Guard Post: Your creatures keep watch over your dungeon when placed on this "
+"room. LMB select. RMB zoom. [17.7]"
+msgstr ""
+"警戒哨所: 怪物被放置到上面后会看守你的地下城。左键选择。右键缩放。[17.7]"
+
+#: guitext:628
+msgctxt "Room description"
+msgid ""
+"Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
+"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
+msgstr ""
+"寺庙: 崇拜黑暗之神可以使怪物更快乐。将怪物放到祭坛上作祭品。左键选择。右键缩"
+"放。[17.12]"
+
+#: guitext:629
+msgctxt "Room description"
+msgid ""
+"Scavenger Room: Creatures placed onto the room lure their kin away from "
+"other dungeons or through portals. LMB select. RMB zoom. [17.14]"
+msgstr ""
+"招募中心: 在这里的怪物会引诱在其它的地下城中的或入口外的他们的同类。左键选"
+"择。右键缩放。[17.14]"
+
+#: guitext:630
+msgctxt "Keeper spell name"
+msgid "Possess Creature"
+msgstr "控制怪物"
+
+#: guitext:631
+msgctxt "Keeper spell name"
+msgid "Create Imp"
+msgstr "制造小鬼"
+
+#: guitext:632
+msgctxt "Keeper spell name"
+msgid "Sight of Evil"
+msgstr "邪恶之眼"
+
+#: guitext:633
+msgctxt "Keeper spell name"
+msgid "Call To Arms"
+msgstr "召唤军队"
+
+#: guitext:634
+msgctxt "Keeper spell name"
+msgid "Hold Audience"
+msgstr "召唤术"
+
+#: guitext:635
+msgctxt "Keeper spell name"
+msgid "Cave-In"
+msgstr "塌方术"
+
+#: guitext:636
+msgctxt "Keeper spell name"
+msgid "Must Obey"
+msgstr "无上权威"
+
+#: guitext:637
+msgctxt "Keeper spell name"
+msgid "Speed Monster"
+msgstr "速度术"
+
+#: guitext:638
+msgctxt "Keeper spell name"
+msgid "Protect Monster"
+msgstr "保护术"
+
+#: guitext:639
+msgctxt "Keeper spell name"
+msgid "Conceal Monster"
+msgstr "隐身术"
+
+#: guitext:640
+msgctxt "Keeper spell name"
+msgid "Lightning Strike"
+msgstr "闪电术"
+
+#: guitext:641
+msgctxt "Keeper spell name"
+msgid "Chicken"
+msgstr "变为小鸡"
+
+#: guitext:642
+msgctxt "Keeper spell name"
+msgid "Disease"
+msgstr "疾病术"
+
+#: guitext:643
+msgctxt "Keeper spell name"
+msgid "Destroy Walls"
+msgstr "破坏墙壁"
+
+#: guitext:644
+msgctxt "Keeper spell name"
+msgid "Heal"
+msgstr "治疗术"
+
+#: guitext:645
+msgctxt "Keeper spell name"
+msgid "Time Bomb"
+msgstr "定时炸弹"
+
+#: guitext:646
+msgctxt "Keeper spell name"
+msgid "Armageddon"
+msgstr "末日审判"
+
+#: guitext:647
+msgctxt "Keeper spell description"
+msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
+msgstr "控制怪物: 直接控制一个怪物。左键选择。[18.1]"
+
+#: guitext:648
+msgctxt "Keeper spell description"
+msgid ""
+"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
+"[18.2]"
+msgstr "制造小鬼: 召唤一个新的小鬼进入你的地下城。左键选择。[18.2]"
+
+#: guitext:649
+msgctxt "Keeper spell description"
+msgid ""
+"Sight of Evil: Reveal a hidden area of the map for a limited time. LMB "
+"select. RMB zoom. [18.3]"
+msgstr ""
+"邪恶之眼: 在有限时间内揭示地图上的一个隐藏区域。左键选择。右键缩放。[18.3]"
+
+#: guitext:650
+msgctxt "Keeper spell description"
+msgid ""
+"Call To Arms: Calls creatures in range to any destination. LMB Select. "
+"Cast in range of creatures to gather, cast again for destination. "
+"RMB zoom. LMB Cancel. [18.6]"
+msgstr ""
+"召唤军队: 召唤在地下城的这个区域的全部怪物。左键选择，再按左键重新选择，第三"
+"次按左键取消。右键缩放。[18.6]"
+
+#: guitext:651
+msgctxt "Keeper spell description"
+msgid ""
+"Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. "
+"RMB zoom. [18.8]"
+msgstr "召唤术: 召唤你的全部的怪物来到地下城的心脏。右键缩放。[18.8]"
+
+#: guitext:652
+msgctxt "Keeper spell description"
+msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
+msgstr "塌方术: 使地下城的顶部倒塌。左键选择。[18.13]"
+
+#: guitext:653
+msgctxt "Keeper spell description"
+msgid ""
+"Must Obey: Forces your creatures to obey your every command. LMB select. "
+"[18.5]"
+msgstr "无上权威: 强迫你的怪物服从你的每一个命令。左键选择。[18.5]"
+
+#: guitext:654
+msgctxt "Keeper spell description"
+msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgstr "速度术: 提高你的怪物的速度。左键选择。[18.4]"
+
+#: guitext:655
+msgctxt "Keeper spell description"
+msgid ""
+"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgstr "保护术: 保护怪物免受攻击。左键选择。[18.11]"
+
+#: guitext:656
+msgctxt "Keeper spell description"
+msgid ""
+"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
+"[18.7]"
+msgstr "隐身术: 使敌人看不见你的怪物。左键选择。[18.7]"
+
+#: guitext:657
+msgctxt "Keeper spell description"
+msgid ""
+"Lightning Strike: Strikes an area of the dungeon with a devastating bolt of "
+"lightning. LMB select. [18.10]"
+msgstr "闪电术: 释放一道毁灭性的闪电电击地下城中的一片区域。左键选择。[18.10]"
+
+#: guitext:658
+msgctxt "Keeper spell description"
+msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
+msgstr "变为小鸡: 将敌人变为美味佳肴。左键选择。[18.12]"
+
+#: guitext:659
+msgctxt "Keeper spell description"
+msgid ""
+"Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
+msgstr "疾病术: 使一个敌人的怪物染上致命的瘟疫。左键选择。[18.14]"
+
+#: guitext:660
+msgctxt "Keeper spell description"
+msgid ""
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
+msgstr "破坏墙壁: 击毁加固过的敌人的墙壁。左键选择。[18.16]"
+
+#: guitext:661
+msgctxt "Keeper spell description"
+msgid ""
+"Heal: Cast on a creature to improve its health. LMB select. [18.9]"
+msgstr "治疗术: 可以使一个区域内的你的怪物的生命值恢复。左键选择。[18.9]"
+
+#: guitext:662
+msgctxt "Keeper spell description"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
+msgstr "定时炸弹"
+
+#: guitext:663
+msgctxt "Keeper spell description"
+msgid ""
+"Armageddon: Transports all the creatures in the land to your Dungeon Heart "
+"for a final, decisive battle. LMB select. [18.15]"
+msgstr ""
+"末日审判: 将地下所有的怪物传送至地下城的心脏，进行大决战。左键选择。[18.15]"
+
+#: guitext:664 guitext:665 guitext:666 guitext:667 guitext:668 guitext:669
+#: guitext:670
+#: guitext:671 guitext:672 guitext:673 guitext:674 guitext:675 guitext:676
+#: guitext:677 guitext:678 guitext:679 guitext:680 guitext:681 guitext:682
+#: guitext:683 guitext:684 guitext:685 guitext:686 guitext:687 guitext:688
+#: guitext:689 guitext:690 guitext:691 guitext:692 guitext:693 guitext:694
+#: guitext:695 guitext:696 guitext:697 guitext:698 guitext:699 guitext:700
+#: guitext:701 guitext:702 guitext:703 guitext:704 guitext:705 guitext:706
+#: guitext:707 guitext:708 guitext:709 guitext:710 guitext:711 guitext:712
+#: guitext:713 guitext:714 guitext:715 guitext:716 guitext:717 guitext:718
+#: guitext:719 guitext:720 guitext:721 guitext:722 guitext:723 guitext:724
+#: guitext:725 guitext:726 guitext:727 guitext:728 guitext:729 guitext:730
+#: guitext:731 guitext:732 guitext:733 guitext:734 guitext:735 guitext:736
+#: guitext:737 guitext:738 guitext:739 guitext:740 guitext:741 guitext:742
+#: guitext:743 guitext:744 guitext:745 guitext:746 guitext:747 guitext:748
+#: guitext:749 guitext:750 guitext:751 guitext:752 guitext:753 guitext:754
+#: guitext:755 guitext:756 guitext:757 guitext:758 guitext:759 guitext:760
+#: guitext:761 guitext:762 guitext:763 guitext:764 guitext:765 guitext:766
+#: guitext:767 guitext:768 guitext:769 guitext:770 guitext:771 guitext:772
+#: guitext:773 guitext:774 guitext:775 guitext:776 guitext:777 guitext:778
+#: guitext:779 guitext:780 guitext:781 guitext:782 guitext:783 guitext:784
+#: guitext:785 guitext:786 guitext:787 guitext:788 guitext:789 guitext:790
+#: guitext:791 guitext:792 guitext:793 guitext:794 guitext:795 guitext:796
+#: guitext:797 guitext:798 guitext:799 guitext:800
+#: guitext:801 guitext:802 guitext:803 guitext:804 guitext:805 guitext:806
+#: guitext:807 guitext:808 guitext:809 guitext:810 guitext:811 guitext:812
+#: guitext:813 guitext:814 guitext:815 guitext:816 guitext:817 guitext:818
+#: guitext:819 guitext:820 guitext:821 guitext:822 guitext:823 guitext:824
+#: guitext:825 guitext:826 guitext:827 guitext:828 guitext:829 guitext:830
+#: guitext:831 guitext:832 guitext:833 guitext:834 guitext:835 guitext:836
+#: guitext:837 guitext:838 guitext:839 guitext:840 guitext:841 guitext:842
+#: guitext:843 guitext:844 guitext:845 guitext:846 guitext:847 guitext:848
+#: guitext:849 guitext:850 guitext:851 guitext:852 guitext:853 guitext:854
+#: guitext:855 guitext:856 guitext:857 guitext:858 guitext:859 guitext:860
+#: guitext:861 guitext:862 guitext:863 guitext:864 guitext:865 guitext:866
+#: guitext:867 guitext:868 guitext:869 guitext:870 guitext:871 guitext:872
+#: guitext:873 guitext:874 guitext:875 guitext:876 guitext:877 guitext:878
+#: guitext:879 guitext:880 guitext:881 guitext:882 guitext:883 guitext:884
+#: guitext:885 guitext:886 guitext:887 guitext:888 guitext:889 guitext:890
+#: guitext:891 guitext:892 guitext:893 guitext:894 guitext:895 guitext:896
+#: guitext:897 guitext:898 guitext:899 guitext:900
+#: guitext:901 guitext:902 guitext:903 guitext:904 guitext:905 guitext:906
+#: guitext:907 guitext:908 guitext:909 guitext:910 guitext:911 guitext:912
+#: guitext:913 guitext:914 guitext:915 guitext:916 guitext:917 guitext:918
+#: guitext:919 guitext:920 guitext:921 guitext:922 guitext:923 guitext:924
+#: guitext:925 guitext:926 guitext:927 guitext:928 guitext:929 guitext:930
+#: guitext:931 guitext:932 guitext:933 guitext:934 guitext:935 guitext:936
+#: guitext:937 guitext:938 guitext:939 guitext:940 guitext:941 guitext:942
+#: guitext:943 guitext:944 guitext:945 guitext:946 guitext:947 guitext:948
+#: guitext:949 guitext:950 guitext:951 guitext:952 guitext:953 guitext:954
+#: guitext:955 guitext:956 guitext:957 guitext:958 guitext:959 guitext:960
+#: guitext:961 guitext:962 guitext:963 guitext:964 guitext:965 guitext:966
+#: guitext:967 guitext:968 guitext:969 guitext:970 guitext:971 guitext:972
+#: guitext:973 guitext:974 guitext:975 guitext:976 guitext:977 guitext:978
+#: guitext:979 guitext:980
+
+#: guitext:981
+msgctxt "Trap names"
+msgid "Special Trap"
+msgstr "特殊陷井"
+
+#: guitext:982
+msgctxt "Trap names"
+msgid "Freeze Trap"
+msgstr "冰冻陷井"
+
+#: guitext:983
+msgctxt "Trap names"
+msgid "Fear Trap"
+msgstr "恐惧陷井"
+
+#: guitext:984
+msgctxt "Trap names"
+msgid "Sentry Trap"
+msgstr "岗哨陷井"
+
+#: guitext:985
+msgctxt "Trap names"
+msgid "Mimic Trap"
+msgstr "模拟陷井"
+
+#: guitext:986
+msgctxt "Trap names"
+msgid "Spawn Trap"
+msgstr "召唤陷井"
+
+#: guitext:987
+msgctxt "Trap names"
+msgid "Wind Trap"
+msgstr "风暴陷井"
+
+#: guitext:988
+msgctxt "Trap names"
+msgid "Spitfire Trap"
+msgstr "喷火陷井"
+
+#: guitext:989
+msgctxt "Trap names"
+msgid "Chicken Trap"
+msgstr "小鸡陷井"
+
+#: guitext:990
+msgctxt "Trap names"
+msgid "Disease Trap"
+msgstr "疾病陷井"
+
+#: guitext:991
+msgctxt "Trap names"
+msgid "Power Trap"
+msgstr "能量陷井"
+
+#: guitext:992
+msgctxt "Trap names"
+msgid "Switch"
+msgstr "开关"
+
+#: guitext:993
+msgctxt "Trap names"
+msgid "Hidden Switch"
+msgstr "隐藏开关"
+
+#: guitext:994
+msgctxt "Door name"
+msgid "Special Door"
+msgstr "特殊门"
+
+#: guitext:995
+msgctxt "Door name"
+msgid "Hidden Door"
+msgstr "隐藏门"
+
+#: guitext:996 guitext:997 guitext:998 guitext:999 guitext:1000 guitext:1001
+#: guitext:1002 guitext:1003 guitext:1004
+
+#: guitext:1005
+msgctxt "Dungeon special decription"
+msgid "Mysterious Box: There's no telling what this will do."
+msgstr "神秘物品：没有说明它是干什么用的。"

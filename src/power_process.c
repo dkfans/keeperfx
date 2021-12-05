@@ -185,7 +185,7 @@ void process_disease(struct Thing *creatng)
     if (!creature_affected_by_spell(creatng, SplK_Disease)) {
         return;
     }
-    if (ACTION_RANDOM(100) < game.disease_transfer_percentage)
+    if (CREATURE_RANDOM(creatng, 100) < game.disease_transfer_percentage)
     {
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
@@ -234,7 +234,7 @@ void lightning_modify_palette(struct Thing *thing)
     if (thing->health == 0)
     {
       PaletteSetPlayerPalette(myplyr, engine_palette);
-      myplyr->field_3 &= ~Pf3F_Unkn08;
+      myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
       return;
     }
     if (myplyr->acamera == NULL)
@@ -242,26 +242,26 @@ void lightning_modify_palette(struct Thing *thing)
         ERRORLOG("No active camera");
         return;
     }
-    if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
+    if (((thing->health % 8) != 7) && (thing->health != 1) && (UNSYNC_RANDOM(4) != 0))
     {
-        if ((myplyr->field_3 & Pf3F_Unkn08) != 0)
+        if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
         {
             if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
                 PaletteSetPlayerPalette(myplyr, engine_palette);
-                myplyr->field_3 &= ~Pf3F_Unkn08;
+                myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
             }
         }
         return;
     }
     if ((myplyr->view_mode != PVM_ParchFadeIn) && (myplyr->view_mode != PVM_ParchFadeOut) && (myplyr->view_mode != PVM_ParchmentView))
     {
-        if ((myplyr->field_3 & Pf3F_Unkn08) == 0)
+        if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) == 0)
         {
             if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
               PaletteSetPlayerPalette(myplyr, lightning_palette);
-              myplyr->field_3 |= Pf3F_Unkn08;
+              myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
             }
         }
     }

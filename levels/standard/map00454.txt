@@ -1,0 +1,519 @@
+REM ****************************************************************************
+REM  Free Play levels : Standard Map Pack - KeeperFX
+REM ****************************************************************************
+REM  Script for Level 454 - Dread Mountain
+REM  Author:  Loobinex
+REM  Date:    2015-10-25
+REM     updated to use pot file for messages by dayokay Jan-2021
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+
+REM Brief: Player starts with only bile demons and need to claim hatcheries scattered throughout the map to gain power.
+REM To stop the hero attacks the player has to kill blue first, but he is too well defended. When strong enough the player 
+REM needs to navigate hidden caves to attack blue from behind and continue to kill hero stronghold. Undead can't be used, prisoners need food.
+
+LEVEL_VERSION(1)
+SET_GENERATE_SPEED(900)
+START_MONEY(PLAYER0,5000)
+START_MONEY(PLAYER1,250000)
+
+COMPUTER_PLAYER(PLAYER1,4)
+
+REM ****************************************************************************
+REM Flags used:
+REM  PLAYER0,FLAG1	- 	1: Player has breached blue dungeon
+REM	 PLAYER0,FLAG2	-	1: Player has entered central hills
+
+REM Timers used:
+REM   PLAYER0,TIMER1 		- Imp spawner
+REM   PLAYER0,TIMER2 		- Skeleton killer/Blue misstress spawner
+REM   PLAYER0,TIMER3 		- Mistress convertion prevention
+
+REM Action Points and Hero Gates
+REM Action Point  1 - Player portal
+REM Action Point  2 - Imp spawner
+REM Action Point  3 - In front of Hatchery3
+REM Action Point  4 - Inside Hatchery3
+REM Action Point  5 - Behind hero wall
+REM Action Point  6 - Inside hero wall fortress
+REM Action Point  7 - Blue portal
+REM Action Point  8 - Made it through the tunnel
+REM Action Point  9 - Opening in bedrock in front of blue wall
+REM Action Point 10 - Inside central mountain range
+REM Action Point 11 - Northwestern mountain range
+REM Action Point 12 - Alarm trap in front of Hatchery 5
+REM Action Point 13 - In front of hero dungeon.
+REM Action Point 14 - Inside hero scavenger room
+REM Action Point 15 - Hero heart room
+REM Action Point 16 - West of the hero wall fortress, triggered when digging gems
+REM Action Point 17 - Triggered before reaching Hatchery 7
+REM Action Point 18 - Inside blue dungeon
+
+REM Herogate  1 - Near Hatchery 5 (linked to AP12)
+REM Herogate  2 - Hero barracks
+
+REM ****************************************************************************
+REM Initial availability
+REM ****************************************************************************
+ROOM_AVAILABLE(PLAYER0,TREASURE,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,0)
+ROOM_AVAILABLE(PLAYER0,GARDEN,0,0)
+ROOM_AVAILABLE(PLAYER1,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,0)
+ROOM_AVAILABLE(PLAYER0,SCAVENGER,0,0)
+ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
+ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
+ROOM_AVAILABLE(PLAYER0,BARRACKS,0,0)
+ROOM_AVAILABLE(PLAYER0,GUARD_POST,0,0)
+ROOM_AVAILABLE(PLAYER0,TORTURE,1,0)
+ROOM_AVAILABLE(PLAYER0,GRAVEYARD,0,0)
+ROOM_AVAILABLE(PLAYER0,BARRACKS,4,0)
+ROOM_AVAILABLE(PLAYER0,SCAVENGER,4,0)
+
+MAGIC_AVAILABLE(PLAYER0,POWER_IMP,0,0)
+MAGIC_AVAILABLE(PLAYER1,POWER_SIGHT,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_HEAL_CREATURE,0,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,0,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_OBEY,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_DESTROY_WALLS,1,0)
+MAGIC_AVAILABLE(PLAYER1,POWER_HEAL_CREATURE,1,0)
+
+SET_TIMER(PLAYER0,TIMER1)
+SET_TIMER(PLAYER0,TIMER2)
+SET_TIMER(PLAYER0,TIMER3)
+
+REM Research rooms first, prison quickly. Destroy wall is to pause research until condition is met.
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,LAIR,1000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,TREASURE,1000)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_DESTROY_WALLS,950000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,PRISON,3000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,BARRACKS,3000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,TRAINING,1000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,WORKSHOP,6000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,TORTURE,9000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,BRIDGE,4600)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,GUARD_POST,2000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,RESEARCH,5000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,TEMPLE,25000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,GRAVEYARD,25000)
+RESEARCH_ORDER(ALL_PLAYERS,ROOM,SCAVENGER,27500)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_CALL_TO_ARMS,7400)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_SIGHT,3800)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_CONCEAL,9400)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_SPEED,5700)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_PROTECT,15000)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_CAVE_IN,25000)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_HEAL_CREATURE,14000)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_LIGHTNING,15000)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_OBEY,6000)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_HOLD_AUDIENCE,11000)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_CHICKEN,20000)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_DISEASE,20000)
+RESEARCH_ORDER(ALL_PLAYERS,MAGIC,POWER_ARMAGEDDON,100000)
+
+DOOR_AVAILABLE(PLAYER1,MAGIC,1,10)
+DOOR_AVAILABLE(PLAYER1,STEEL,1,10)
+
+DOOR_AVAILABLE(PLAYER0,WOOD,1,0)
+TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+
+
+ADD_CREATURE_TO_POOL(ORC,1)
+
+CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(PLAYER0,ORC,1,0)
+CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
+CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
+CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,2)
+CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+CREATURE_AVAILABLE(PLAYER0,SPIDER,1,0)
+CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+
+
+REM ****************************************************************************
+REM Hero Parties
+REM ****************************************************************************
+
+CREATE_PARTY(Breach)
+	ADD_TO_PARTY(Breach,BARBARIAN,8,250,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Breach,WIZARD,4,150,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Breach,ARCHER,7,150,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Breach,ARCHER,7,150,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Breach,DWARFA,5,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Breach,DWARFA,5,500,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(Foodblock)
+	ADD_TO_PARTY(Foodblock,GIANT,4,750,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Foodblock,BARBARIAN,3,550,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Foodblock,BARBARIAN,3,550,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Foodblock,DWARFA,2,350,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Foodblock,MONK,1,50,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Foodblock,MONK,1,50,ATTACK_ENEMIES,0)
+	
+CREATE_PARTY(Chickensave)
+	ADD_TO_PARTY(Chickensave,ARCHER,7,750,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Chickensave,ARCHER,7,750,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Chickensave,ARCHER,7,750,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Chickensave,DWARFA,6,350,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Chickensave,DWARFA,6,350,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Chickensave,DWARFA,6,350,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(Babies)
+	ADD_TO_PARTY(Babies,BARBARIAN,2,150,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Babies,DWARFA,2,150,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Babies,DWARFA,2,150,ATTACK_ENEMIES,0)
+	
+CREATE_PARTY(Hillfolk)
+	ADD_TO_PARTY(Hillfolk,BARBARIAN,4,250,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Hillfolk,BARBARIAN,3,250,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Hillfolk,DWARFA,3,250,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Hillfolk,DWARFA,3,250,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Hillfolk,TUNNELLER,3,250,ATTACK_ENEMIES,0)
+	
+CREATE_PARTY(Rogues)
+	ADD_TO_PARTY(Rogues,THIEF,8,50,STEAL_GOLD,0)
+	ADD_TO_PARTY(Rogues,THIEF,7,50,STEAL_GOLD,0)
+	ADD_TO_PARTY(Rogues,THIEF,6,50,STEAL_GOLD,0)
+	ADD_TO_PARTY(Rogues,THIEF,6,50,STEAL_GOLD,0)
+	ADD_TO_PARTY(Rogues,THIEF,5,50,STEAL_GOLD,0)
+	ADD_TO_PARTY(Rogues,THIEF,5,50,STEAL_GOLD,0)
+	
+CREATE_PARTY(Sentry)
+	ADD_TO_PARTY(Sentry,GIANT,8,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Sentry,FAIRY,8,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Sentry,WITCH,8,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Sentry,BARBARIAN,7,750,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Sentry,THIEF,7,750,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(Landlord)
+	ADD_TO_PARTY(Landlord,KNIGHT,10,5000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Landlord,WIZARD,10,2500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Landlord,MONK,10,1000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Landlord,MONK,10,1000,ATTACK_ENEMIES,0)
+	
+	
+
+REM ****************************************************************************
+REM Additional availability
+REM ****************************************************************************
+
+IF(PLAYER0,BARRACKS >= 1)
+	ADD_CREATURE_TO_POOL(DEMONSPAWN,1)
+	REM "Not only will these barracks attract powerful allies to your dungeon, they will also help you lead the assault on your rival."
+	DISPLAY_INFORMATION_WITH_POS(58,132,174)
+	SET_TIMER(PLAYER0,TIMER4)
+ENDIF
+
+IF(PLAYER0,SCAVENGER >= 1)
+	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Hillfolk,11,DUNGEON,0,3,250)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,GIANT,11,4,6,600)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,11,2,8,800)
+ENDIF
+
+
+REM ****************************************************************************
+REM Level scripts
+REM ****************************************************************************
+
+REM: Portal limit is 22 creatures not counting heroes
+IF(PLAYER0,EVIL_CREATURES <= 21)
+	NEXT_COMMAND_REUSABLE
+	MAX_CREATURES(PLAYER0,60)
+ENDIF
+IF(PLAYER0,EVIL_CREATURES >= 22)
+	NEXT_COMMAND_REUSABLE
+	MAX_CREATURES(PLAYER0,22)
+ENDIF
+
+REM Player gets a new imp every 2 minutes until he has 4.
+IF(PLAYER0,TIMER1 >= 2400)
+	IF(PLAYER0,IMP < 4)
+		NEXT_COMMAND_REUSABLE
+		ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,2,1,1,10)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER0,TIMER1)
+		NEXT_COMMAND_REUSABLE
+		PLAY_MESSAGE(PLAYER0,SOUND,160)
+	ENDIF
+ENDIF
+
+REM Ghosts get replaced by imps. 25 max imps.
+IF(PLAYER0,GHOST >= 1)
+	NEXT_COMMAND_REUSABLE
+	KILL_CREATURE(PLAYER0,GHOST,MOST_EXPERIENCED,1)
+	IF(PLAYER0,IMP	<= 25)
+		NEXT_COMMAND_REUSABLE
+		ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,2,1,2,150)
+		NEXT_COMMAND_REUSABLE
+		PLAY_MESSAGE(PLAYER0,SOUND,496)
+		REM "Your ghost has been drawn into the void, and has returned with a tiny body."
+		DISPLAY_INFORMATION(59,2)
+	ENDIF
+ENDIF
+
+REM Skeleton dies every 90 seconds.
+IF(PLAYER0,TIMER2 >= 1800)
+	IF(PLAYER0,SKELETON > 0)
+		NEXT_COMMAND_REUSABLE
+		KILL_CREATURE(PLAYER0,SKELETON,MOST_EXPERIENCED,1)
+		NEXT_COMMAND_REUSABLE
+		PLAY_MESSAGE(PLAYER0,SOUND,144)
+		NEXT_COMMAND_REUSABLE
+		PLAY_MESSAGE(PLAYER0,SOUND,145)
+		NEXT_COMMAND_REUSABLE
+		PLAY_MESSAGE(PLAYER0,SOUND,146)
+		NEXT_COMMAND_REUSABLE
+		PLAY_MESSAGE(PLAYER0,SOUND,99)
+		REM "Your Bile Demons killed a Skeleton. The undead won't be much help here."
+		DISPLAY_INFORMATION(60,ALL_PLAYERS)
+	ENDIF
+	REM Blue can't lose misstresses as long as frontdoor is save. Get backup imp as well.
+	IF(PLAYER0,FLAG1 == 0)
+		IF(PLAYER1,DARK_MISTRESS <= 7)
+			NEXT_COMMAND_REUSABLE
+			ADD_CREATURE_TO_LEVEL(PLAYER1,DARK_MISTRESS,7,1,10,1000)
+			ADD_CREATURE_TO_LEVEL(PLAYER1,IMP,7,1,1,250)
+		ENDIF
+	ENDIF
+	NEXT_COMMAND_REUSABLE
+	SET_TIMER(PLAYER0,TIMER2)
+ENDIF
+REM No longer spawn mistresses when player has reached blue dungeon.
+IF_ACTION_POINT(18,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG1,1)
+	MAGIC_AVAILABLE(PLAYER1,POWER_IMP,1,1)
+	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
+ENDIF
+
+REM Game over when all bile demons are lost.
+IF(PLAYER0,BILE_DEMON <= 0)
+	REM "All hope is lost. Farts breathe life into your dungeon. Keep your Bile Demons happy and save."
+	DISPLAY_OBJECTIVE(61,ALL_PLAYERS)
+	LOSE_GAME
+ENDIF
+
+
+IF(PLAYER1,DUNGEON_DESTROYED == 0)
+	REM When player finds the blue wall, inform him he has to go the other way.
+	IF_ACTION_POINT(9,PLAYER0)
+		REM "Blue is well fortified. Claim all hatcheries to grow in power, then find a way through the mountains to kill him and the heroes."
+		DISPLAY_INFORMATION(62,10)
+	ENDIF
+REM Player can't win by stealing away misstresses from blue
+	IF(PLAYER0,DARK_MISTRESS >= 1)
+		IF(PLAYER0,TIMER3 >= 600)
+			NEXT_COMMAND_REUSABLE
+			KILL_CREATURE(PLAYER0,DARK_MISTRESS,MOST_EXPERIENCED,1)
+			NEXT_COMMAND_REUSABLE
+			ADD_CREATURE_TO_LEVEL(PLAYER1,DARK_MISTRESS,7,1,10,1000)
+			NEXT_COMMAND_REUSABLE
+			SET_TIMER(PLAYER0,TIMER3)
+			NEXT_COMMAND_REUSABLE
+			REM "Your Dark Mistress has rejoined blue. They don't seem to mind being tortured."
+			DISPLAY_INFORMATION(63,7)
+		ENDIF
+	ENDIF
+ENDIF
+REM Don't allow blue to get accidentally too powerfull
+IF_CONTROLS(PLAYER1,DARK_MISTRESS >= 11)
+	NEXT_COMMAND_REUSABLE
+	KILL_CREATURE(PLAYER1,DARK_MISTRESS,LEAST_EXPERIENCED,1)
+ENDIF
+
+
+REM ****************************************************************************
+REM Level starts here
+REM ****************************************************************************
+
+REM "In this realm, food is power. Claim hatcheries, feed your bile demons until they are big and strong. Hurry, heroes are comming."
+DISPLAY_OBJECTIVE_WITH_POS(50,231,168)
+
+REM Bile demon is killed by dwarfs. Shows position of second hatchery. 
+IF(PLAYER0,GAME_TURN >= 75)
+	KILL_CREATURE(PLAYER0,BILE_DEMON,MOST_EXPERIENCED,1)
+ENDIF
+
+REM Inform player of the workings of the imp spawner.
+IF(PLAYER0,GAME_TURN >= 600)
+	REM "This magic gizmo spawns ugly little creatures called imps that you may use as slaves. To conquer the realm I mean. Don't have sex with them."
+	DISPLAY_INFORMATION(51,2)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,2,1,1,10)
+	PLAY_MESSAGE(PLAYER0,SOUND,160)
+ENDIF
+
+REM Hatchery 2 (start out with one.) Frees up research by disabling power destroy walls.
+IF(PLAYER0,GARDEN >= 18)
+	REM Two butt holes are better than one. Research a prison to give your bile demons more slaves. Be careful though, they don't care for the undead."
+	DISPLAY_OBJECTIVE(52,1)
+	MAGIC_AVAILABLE(PLAYER0,POWER_DESTROY_WALLS,0,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,BILE_DEMON,1,1,3,500)
+ENDIF
+
+IF(PLAYER0,PRISON >= 8)
+	REM "Time to grow strong. Capture heroes and claim hatcheries. When you're strong enough find a weak spot in the blue defenses."
+	DISPLAY_OBJECTIVE_WITH_POS(53,81,123)
+	SET_CREATURE_TENDENCIES(PLAYER0,IMPRISON,1)
+ENDIF
+
+REM 4 minutes after claiming barracks a party will dig a tunnel from the next hatchery.
+IF(PLAYER0,TIMER4 >= 4800)
+	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Babies,3,DUNGEON,0,2,50)
+ENDIF
+
+REM Defend hatchery.
+IF_ACTION_POINT(3,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Foodblock,4,1)
+ENDIF
+REM Hatchery 3: More creatures become available.
+IF(PLAYER0,GARDEN >= 27)
+	ADD_CREATURE_TO_POOL(BILE_DEMON,2)
+	ADD_CREATURE_TO_POOL(SORCEROR,1)
+	DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+ENDIF
+
+REM After 33 minutes a party shall come from the central hills. Barbarians from the center will follow.
+IF(PLAYER0,GAME_TURN >= 39600)
+	REM: Player is expected to have 2 bile demons, orc, demon spawn, sorceror, few skeletons and a low level hero
+	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Hillfolk,10,DUNGEON,0,3,250)
+ENDIF
+
+REM When player has mined all the gold he can or reached the mountains, the hero wall is breached by tunneler, giving access to more space. Blue is also attacked.
+IF(PLAYER0,TOTAL_GOLD_MINED >= 80000)
+	SET_FLAG(PLAYER0,FLAG2,1)
+ENDIF
+IF_ACTION_POINT(10,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG2,1)
+ENDIF
+IF(PLAYER0,FLAG2 >= 1)
+	REM: Player is expected to have 4 bile demons, orc, demon spawn, sorceror, few skeletons and a few low level heroes
+	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Breach,5,DUNGEON,0,4,417)
+	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Breach,13,DUNGEON,1,4,2000)
+ENDIF
+
+REM Hatchery 4: Steel door, additional bile demon and troll available.
+IF(PLAYER0,GARDEN >= 36)
+	DOOR_AVAILABLE(PLAYER0,STEEL,1,2)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,BILE_DEMON,1,1,1,600)
+	ADD_CREATURE_TO_POOL(TROLL,1)
+	REM "Time to grow strong. Capture heroes and claim hatcheries. When you're strong enough find a weak spot in the blue defenses."
+	DISPLAY_OBJECTIVE_WITH_POS(53,27,120)
+ENDIF
+
+REM Weak party to make a tunnel
+IF_ACTION_POINT(5,PLAYER0)
+	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Hillfolk,16,DUNGEON,0,4,500)
+ENDIF
+
+REM When player reaches central location spawn the first party from the hero mountains.
+IF_ACTION_POINT(16,PLAYER0)
+	REM Player is expected to have 5 bile demons, orc, demon spawn, sorceror, troll and several heroes
+	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Rogues,11,DUNGEON,0,6,200)
+ENDIF
+
+REM:Defend the hatchery. 
+IF_ACTION_POINT(12,PLAYER0)
+	REM Player is expected to have 5-7 bile demons, orc, demon spawn, sorceror, troll and several heroes
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Chickensave,-1,1)
+ENDIF
+REM Hatchery 5: A party shall come from the central hills. Bile demons, traps and magic. (5 and 6 are interchangable, players choice)
+IF(PLAYER0,GARDEN >= 45)
+	TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,BILE_DEMON,1,1,1,600)
+	ADD_CREATURE_TO_POOL(BILE_DEMON,2)
+	MAGIC_AVAILABLE(PLAYER0,POWER_HOLD_AUDIENCE,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_DISEASE,1,0)
+ENDIF
+
+
+REM Defend the hatchery
+IF_ACTION_POINT(14,PLAYER0)
+	REM Player is expected to have 5-8 bile demons, orc, demon spawn, sorceror, troll and several heroes
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,WITCH,14,6,7,500)
+ENDIF
+REM Hatchery 6: Additional bile demons and some stuff available. 
+IF(PLAYER0,GARDEN >= 54)
+	ADD_CREATURE_TO_POOL(BILE_DEMON,2)
+	DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_CONCEAL,1,0)
+	TRAP_AVAILABLE(PLAYER0,WORD_OF_POWER,1,0)
+ENDIF
+
+REM Some heroes to wander from the mountains before when the player is almost finished.
+IF_ACTION_POINT(17,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,11,3,8,300)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,11,3,8,250)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,THIEF,11,3,7,0)
+ENDIF
+
+REM Hatchery 7: That's all. Lightning and additional bile demon.
+IF(PLAYER0,GARDEN >= 65)
+	REM "Destroy blue and clear the path towards the hero stronghold."
+	DISPLAY_OBJECTIVE(54,8)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,BILE_DEMON,1,1,1,600)
+	TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+	MAGIC_AVAILABLE(PLAYER0,POWER_LIGHTNING,1,0)
+ENDIF
+
+IF_ACTION_POINT(8,PLAYER0)	
+	REM "You have found a way beyond the mountains. Destroy blue and clear the path towards the hero stronghold."
+	DISPLAY_OBJECTIVE(55,8)
+	MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
+	TUTORIAL_FLASH_BUTTON(23,100)
+ENDIF
+
+REM When all heroes are killed, heroes will attack blue.
+IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
+	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Foodblock,13,DUNGEON,1,6,2500)
+ENDIF
+
+REM Hatchery 8: Player needs blue hatchery for this, as a reward give mistresses and buildable hatchery.
+IF(PLAYER0,GARDEN >= 80)
+	TUTORIAL_FLASH_BUTTON(7,100)
+	ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
+	CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,0)
+ENDIF
+
+IF(PLAYER1,DUNGEON_DESTROYED == 1)
+	REM "With blue out of the way it is time to destroy the hero heart and rule this realm"
+	DISPLAY_OBJECTIVE(56,PLAYER_GOOD)
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
+ENDIF
+
+REM When player reaches front door of hero gate, spawn some creatures from both sides
+IF_ACTION_POINT(13,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,-2,6,6,250)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,-2,6,5,250)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,11,6,6,250)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,11,6,5,250)
+ENDIF
+
+REM When the player reaches the dungeon heart spawn final party
+IF_ACTION_POINT(15,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Sentry,-2,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Landlord,-2,1)
+ENDIF
+
+
+REM ****************************************************************************
+REM Win game
+REM ****************************************************************************
+
+IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
+	IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
+		REM "Get the barbecue ready, it is time to eat those who stood against you. Victory."
+		DISPLAY_OBJECTIVE(57,ALL_PLAYERS)
+		WIN_GAME
+	ENDIF
+ENDIF
+
+REM ****************************************************************************
+REM End of file
+REM ****************************************************************************

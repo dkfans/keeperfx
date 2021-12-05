@@ -61,6 +61,8 @@ int __stdcall SetSoundMasterVolume(int volume);
 int __stdcall SetMusicMasterVolume(int volume);
 int __stdcall GetSoundInstalled(void);
 int __stdcall PlayRedbookTrack(int);
+int __stdcall PauseRedbookTrack(void);
+int __stdcall ResumeRedbookTrack(void);
 int __stdcall MonitorStreamedSoundTrack(void);
 int __stdcall StopRedbookTrack(void);
 void * __stdcall GetSoundDriver(void);

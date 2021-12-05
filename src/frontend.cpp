@@ -92,6 +92,7 @@
 extern "C" {
 #endif
 
+extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -186,6 +187,7 @@ struct GuiMenu *menu_list[] = {
     &frontend_error_box,
     &frontend_add_session_box,
     &frontend_select_mappack_menu,
+    &message_box,
     NULL,
 };
 
@@ -309,38 +311,42 @@ struct FrontEndButtonData frontend_button_info[] = {
     {GUIStr_MnuMapPacks, 2},
 };
 
+// bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
 struct EventTypeInfo event_button_info[] = {
-  {260, GUIStr_Empty,                    GUIStr_Empty,                      1,   1, EvKind_Nothing},
-  {260, GUIStr_EventDnHeartAttackedDesc, GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
-  {262, GUIStr_EventFightDesc,           GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
-  {258, GUIStr_EventObjective,           GUIStr_Empty,                     -1,   0, EvKind_Objective},
-  {260, GUIStr_EventBreachDesc,          GUIStr_EventBreach,              300,   0, EvKind_Nothing},
-  {250, GUIStr_EventNewRoomResrchDesc,   GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
-  {256, GUIStr_EventNewCreatureDesc,     GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
-  {252, GUIStr_EventNewSpellResrchDesc,  GUIStr_EventNewSpellResearched, 1200,   0, EvKind_Nothing},
-  {254, GUIStr_EventNewTrapDesc,         GUIStr_EventNewTrap,            1200,   0, EvKind_Nothing},
-  {254, GUIStr_EventNewDoorDesc,         GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreatrScavngDesc,    GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
-  {266, GUIStr_EventTreasrRoomFullDesc,  GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
-  {266, GUIStr_EventCreaturePaydayDesc,  GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventAreaDiscoveredDesc,  GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventSpellPickedUpDesc,   GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
-  {266, GUIStr_EventRoomTakenOverDesc,   GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreatrAnnoyedDesc,   GUIStr_EventCreatureAnnoyed,    1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventNoMoreLivingSetDesc, GUIStr_EventNoMoreLivingSpace,  1200, 500, EvKind_Nothing},
-  {260, GUIStr_EventAlarmTriggeredDesc,  GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
-  {260, GUIStr_EventRoomUnderAttackDesc, GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
-  {260, GUIStr_EventNeedTreasrRoomDesc,  GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
-  {268, GUIStr_EventInformationDesc,     GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventRoomLostDesc,        GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
-  {260, GUIStr_EventCreaturesHungryDesc, GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
-  {266, GUIStr_EventTrapCrateFoundDesc,  GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
-  {266, GUIStr_EventDoorCrateFoundDesc,  GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
-  {266, GUIStr_EventDnSpecialFoundDesc,  GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
-  {268, GUIStr_EventInformationDesc,     GUIStr_Empty,                   1200,   0, EvKind_Nothing},
-  {262, GUIStr_EventFightDesc,           GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
-  {260, GUIStr_EventWorkRoomUnreachblDesc,GUIStr_EventWorkRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
-  {260, GUIStr_EventStorgRoomUnreachblDesc,GUIStr_EventStorgRoomUnreachbl,1200,500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
+  {260, GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
+  {260, GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
+  {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_FriendlyFight},
+  {258, GUIStr_EventObjective,              GUIStr_Empty,                     -1,   0, EvKind_Objective},
+  {260, GUIStr_EventBreachDesc,             GUIStr_EventBreach,              300,   0, EvKind_Nothing},
+  {250, GUIStr_EventNewRoomResrchDesc,      GUIStr_EventNewRoomResearched,  1200,   0, EvKind_Nothing},
+  {256, GUIStr_EventNewCreatureDesc,        GUIStr_EventNewCreature,        1200,   0, EvKind_Nothing},
+  {252, GUIStr_EventNewSpellResrchDesc,     GUIStr_EventNewSpellResearched, 1200,   0, EvKind_Nothing},
+  {254, GUIStr_EventNewTrapDesc,            GUIStr_EventNewTrap,            1200,   0, EvKind_Nothing},
+  {254, GUIStr_EventNewDoorDesc,            GUIStr_EventNewDoor,            1200,   0, EvKind_Nothing},
+  {260, GUIStr_EventCreatrScavngDesc,       GUIStr_EventScavengingDetected, 1200,   0, EvKind_Nothing}, // EvKind_CreatrScavenged
+  {266, GUIStr_EventTreasrRoomFullDesc,     GUIStr_EventTreasureRoomFull,   1200, 500, EvKind_Nothing},
+  {266, GUIStr_EventCreaturePaydayDesc,     GUIStr_EventCreaturePayday,     1200,   0, EvKind_Nothing},
+  {266, GUIStr_EventAreaDiscoveredDesc,     GUIStr_EventAreaDiscovered,     1200,   0, EvKind_Nothing},
+  {266, GUIStr_EventSpellPickedUpDesc,      GUIStr_EventNewSpellPickedUp,   1200,   0, EvKind_Nothing},
+  {266, GUIStr_EventRoomTakenOverDesc,      GUIStr_EventNewRoomTakenOver,   1200,   0, EvKind_Nothing},
+  {260, GUIStr_EventCreatrAnnoyedDesc,      GUIStr_EventCreatureAnnoyed,    1200,   0, EvKind_Nothing},
+  {260, GUIStr_EventNoMoreLivingSetDesc,    GUIStr_EventNoMoreLivingSpace,  1200, 500, EvKind_Nothing},
+  {260, GUIStr_EventAlarmTriggeredDesc,     GUIStr_EventAlarmTriggered,      300, 200, EvKind_Nothing},
+  {260, GUIStr_EventRoomUnderAttackDesc,    GUIStr_EventRoomUnderAttack,     300, 250, EvKind_Nothing},
+  {260, GUIStr_EventNeedTreasrRoomDesc,     GUIStr_EventTreasureRoomNeeded,  300, 500, EvKind_Nothing}, // EvKind_NeedTreasureRoom
+  {268, GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {260, GUIStr_EventRoomLostDesc,           GUIStr_EventRoomLost,           1200,   0, EvKind_Nothing},
+  {260, GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
+  {266, GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
+  {266, GUIStr_EventDoorCrateFoundDesc,     GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
+  {266, GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
+  {268, GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
+  {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
+  {260, GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
+  {260, GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
+  {  0, GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
+  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
+  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
 };
 
 /*
@@ -374,6 +380,7 @@ long num_chars_in_font = 128;
 #endif
 
 int status_panel_width = 140;
+// struct MsgBoxInfo MsgBox;
 
 /******************************************************************************/
 short menu_is_active(short idx)
@@ -460,12 +467,12 @@ void get_player_gui_clicks(void)
         {
           if (a_menu_window_is_active())
           {
-            game.numfield_D &= ~GNFldD_Unkn08;
+            game.numfield_D &= ~GNFldD_CreaturePasngr;
             player->allocflags &= ~PlaF_Unknown8;
             turn_off_all_window_menus();
           } else
           {
-            game.numfield_D |= GNFldD_Unkn08;
+            game.numfield_D |= GNFldD_CreaturePasngr;
             player->allocflags |= PlaF_Unknown8;
             turn_on_menu(GMnu_QUERY);
           }
@@ -490,7 +497,7 @@ void get_player_gui_clicks(void)
               set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
               right_button_released = 0;
             } else
-            if ((player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CtrlDungeon))
+            if ((player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CreatrInfoAll) && (player->work_state != PSt_CtrlDungeon))
             {
               set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
               right_button_released = 0;
@@ -627,14 +634,30 @@ void create_error_box(TextStringId msg_idx)
     }
 }
 
+
+void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char* line4, const char* line5)
+{
+    memset(&MsgBox,NULL,sizeof(MsgBox));
+    memcpy(&MsgBox.title, title, sizeof(MsgBox.title)-1);
+    memcpy(&MsgBox.line1, line1, sizeof(MsgBox.line1)-1);
+    memcpy(&MsgBox.line2, line2, sizeof(MsgBox.line2)-1);
+    memcpy(&MsgBox.line3, line3, sizeof(MsgBox.line3)-1);
+    memcpy(&MsgBox.line4, line4, sizeof(MsgBox.line4)-1);
+    memcpy(&MsgBox.line5, line5, sizeof(MsgBox.line5)-1);
+    turn_on_menu(GMnu_MSG_BOX);
+}
+
 short game_is_busy_doing_gui(void)
 {
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
+    if (dungeonadd->one_click_lock_cursor)
+      return false;
     if (!busy_doing_gui)
       return false;
     if (battle_creature_over <= 0)
       return true;
-    struct PlayerInfo *player;
-    player = get_my_player();
     PowerKind pwkind;
     pwkind = 0;
     if (player->work_state < PLAYER_STATES_COUNT)
@@ -651,24 +674,14 @@ short game_is_busy_doing_gui(void)
 TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 {
     char *str;
-    int key;
-    int outchar;
+    TbKeyCode key;
+    unsigned short outchar;
     TbLocChar vischar[4];
     //return _DK_get_button_area_input(gbtn, a2);
     strcpy(vischar," ");
     str = (char *)gbtn->content;
     key = lbInkey;
-    if ((modifiers == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]))
-    {
-        if ((lbInkey == KC_LSHIFT) || (lbInkey == KC_RSHIFT)) {
-            lbInkey = KC_UNASSIGNED;
-            return false;
-        }
-        outchar = key_to_ascii(lbInkey, KMod_SHIFT);
-    } else
-    {
-        outchar = key_to_ascii(lbInkey, KMod_NONE);
-    }
+    outchar = key_to_ascii(key, key_modifiers);
     vischar[0] = outchar;
     if (key == KC_RETURN)
     {
@@ -778,9 +791,12 @@ void maintain_scroll_up(struct GuiButton *gbtn)
     //_DK_maintain_scroll_up(gbtn);
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (scrollwnd->start_y < 0)) & LbBtnF_Enabled;
-    if (wheel_scrolled_up & lbKeyOn[KC_LCONTROL])
+    if (!check_current_gui_layer(GuiLayer_OneClick))
     {
-        scrollwnd->action = 1;
+        if (wheel_scrolled_up & lbKeyOn[KC_LCONTROL])
+        {
+            scrollwnd->action = 1;
+        }
     }
 }
 
@@ -791,9 +807,12 @@ void maintain_scroll_down(struct GuiButton *gbtn)
     scrollwnd = (struct TextScrollWindow *)gbtn->content;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled
         * (scrollwnd->window_height - scrollwnd->text_height + 2 < scrollwnd->start_y)) & LbBtnF_Enabled;
-    if (wheel_scrolled_down & lbKeyOn[KC_LCONTROL])
+    if (!check_current_gui_layer(GuiLayer_OneClick))
     {
-        scrollwnd->action = 2;
+        if (wheel_scrolled_down & lbKeyOn[KC_LCONTROL])
+        {
+            scrollwnd->action = 2;
+        }
     }
 }
 
@@ -1754,13 +1773,13 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     // Save some of the data from clearing
     victory_state = player->victory_state;
     memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
-    flg_mem = ((player->field_3 & Pf3F_Unkn10) != 0);
+    flg_mem = ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0);
     // clear all data
     clear_game_for_save();
     // Restore saved data
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-    set_flag_byte(&player->field_3,Pf3F_Unkn10,flg_mem);
+    set_flag_byte(&player->additional_flags,PlaAF_UnlockedLordTorture,flg_mem);
     // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
     if (((game.system_flags & GSF_NetworkActive) != 0)
      || ((game.operation_flags & GOF_SingleLevel) != 0)
@@ -2460,6 +2479,11 @@ void set_gui_visible(TbBool visible)
   if (player->acamera && player->acamera->view_mode == PVM_IsometricView)
   {
       update_camera_zoom_bounds(player->acamera, CAMERA_ZOOM_MAX, adjust_min_camera_zoom(player->acamera, game.operation_flags & GOF_ShowGui));
+      if (is_my_player(player))
+      {
+        settings.isometric_view_zoom_level = player->acamera->zoom;
+        save_settings();
+      }
   }
 }
 
@@ -2539,7 +2563,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
             ERRORLOG("Unable to load FRONTEND PALETTE");
         wait_for_cd_to_be_available();
-        LbMouseSetPosition(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
+        LbMoveGameCursorToHostCursor(); // set the initial cursor position for the main menu
         update_mouse();
         break;
     case FeSt_MAIN_MENU: // main menu state
@@ -3394,7 +3418,7 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
         if (!thing_is_invalid(creatng))
         {
             cor_x = creatng->mappos.x.val;
-            cor_y = creatng->mappos.x.val;
+            cor_y = creatng->mappos.y.val;
         }
         event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index);
     } else
@@ -3560,7 +3584,43 @@ FrontendMenuState get_startup_menu_state(void)
 {
   struct PlayerInfo *player;
   LevelNumber lvnum;
-  if ((game.flags_cd & MFlg_unk40) != 0)
+  if (game_flags2 & GF2_Server)
+  {
+      game_flags2 &= ~GF2_Server;
+      SYNCLOG("Setup server");
+
+      if (setup_network_service(NS_TCP_IP))
+      {
+          frontnet_service_setup();
+          frontnet_session_setup();
+          frontnet_session_create(NULL);
+          return FeSt_NET_START;
+      }
+  }
+  else if (game_flags2 & GF2_Connect)
+  {
+      game_flags2 &= ~GF2_Connect;
+      SYNCLOG("Setup client");
+      if (setup_network_service(NS_TCP_IP))
+      {
+          frontnet_service_setup();
+          frontnet_session_setup();
+          net_number_of_sessions = 0;
+          LbMemorySet(net_session, 0, sizeof(net_session));
+          // TODO: should disable actual network enumerating if either
+          if (LbNetwork_EnumerateSessions(enum_sessions_callback, 0))
+          {
+              ERRORLOG("LbNetwork_EnumerateSessions() failed");
+          }
+          else
+          {
+              net_session_index_active = 0;
+              frontnet_session_join(NULL);
+              return frontend_menu_state;
+          }
+      }
+  }
+  else if ((game.flags_cd & MFlg_unk40) != 0)
   { // If starting up the game after intro
     if (is_full_moon)
     {
@@ -3583,9 +3643,9 @@ FrontendMenuState get_startup_menu_state(void)
     if ((game.system_flags & GSF_NetworkActive) != 0)
     { // If played real network game, then resulting screen isn't changed based on victory
         SYNCLOG("Network game summary state selected");
-        if ((player->field_3 & Pf3F_Unkn10) != 0)
+        if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)
         { // Player has tortured LOTL - go FeSt_TORTURE before any others
-          player->field_3 &= ~Pf3F_Unkn10;
+          player->additional_flags &= ~PlaAF_UnlockedLordTorture;
           return FeSt_DRAG;
         } else
         if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
@@ -3620,9 +3680,9 @@ FrontendMenuState get_startup_menu_state(void)
             {
                 return FeSt_OUTRO;
             } else
-            if ((player->field_3 & Pf3F_Unkn10) != 0)
+            if ((player->additional_flags & PlaAF_UnlockedLordTorture) != 0)
             {
-                player->field_3 &= ~Pf3F_Unkn10;
+                player->additional_flags &= ~PlaAF_UnlockedLordTorture;
                 return FeSt_DRAG;
             } else
             {
@@ -3649,6 +3709,14 @@ FrontendMenuState get_startup_menu_state(void)
   }
   ERRORLOG("Unresolved menu state");
   return FeSt_MAIN_MENU;
+}
+
+void try_restore_frontend_error_box()
+{
+    if (LbTimerClock() < gui_message_timeout)
+    {
+        turn_on_menu(GMnu_FEERROR_BOX);
+    }
 }
 
 void create_frontend_error_box(long showTime, const char * text)

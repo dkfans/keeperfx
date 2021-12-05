@@ -205,19 +205,19 @@ TbScreenCoord LbScreenHeight(void)
     return lbDisplay.PhysicalScreenHeight;
 }
 
-TbResult LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fade_steps)
+TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette,long fade_steps)
 {
     unsigned char palette[PALETTE_SIZE];
     for (int i = 0; i < 3 * PALETTE_COLORS; i += 3)
     {
-        int c1 = to_pal[i + 0];
-        int c2 = from_pal[i + 0];
+        int c1 = to_palette[i + 0];
+        int c2 = from_palette[i + 0];
         palette[i+0] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_pal[i+1];
-        c2 = from_pal[i+1];
+        c1 =   to_palette[i+1];
+        c2 = from_palette[i+1];
         palette[i+1] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_pal[i+2];
-        c2 = from_pal[i+2];
+        c1 =   to_palette[i+2];
+        c2 = from_palette[i+2];
         palette[i+2] = fade_count * (c1 - c2) / fade_steps + c2;
     }
     LbScreenWaitVbi();
@@ -386,7 +386,8 @@ TbResult LbScreenInitialize(void)
     return Lb_SUCCESS;
 }
 
-static LPCTSTR MsResourceMapping(int index)
+// this function is unused
+LPCTSTR MsResourceMapping(int index)
 {
   switch (index)
   {
@@ -443,15 +444,35 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         int cw, ch, cflags;
         cflags = SDL_GetWindowFlags(lbWindow);
         SDL_GetWindowSize(lbWindow, &cw, &ch);
-        TbBool sameResolution = mdinfo->Width == cw && mdinfo->Height == ch;
-        TbBool sameWindowMode = (cflags & sdlFlags) != 0;
-        TbBool stillInWindowedMode = (int)(sdlFlags & 1) == 0 && (int)(cflags & 1) == 0; // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
+        TbBool sameResolution = ((mdinfo->Width == cw) && (mdinfo->Height == ch));
+        TbBool sameWindowMode = ((cflags & sdlFlags) != 0);
+        TbBool stillInWindowedMode = ((sdlFlags & 1) == 0) && ((cflags & 1) == 0); // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
         if (stillInWindowedMode) {
-            sameWindowMode = sameWindowMode || stillInWindowedMode;
+            sameWindowMode = (sameWindowMode || stillInWindowedMode);
         }
-        if (!sameResolution || !sameWindowMode) { //.. and only destroy the exisiting one if the res/mode has changed
-            SDL_DestroyWindow(lbWindow);
+        int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
+        if (!sameWindowMode && (fullscreenMode == 0))
+        {
+            SDL_DestroyWindow(lbWindow); // destroy window on transition from fullscreen to window, as it is quicker than using SDL_SetWindowFullscreen
             lbWindow = NULL;
+        } 
+        else
+        {
+            if (!sameResolution)
+            {
+                if (fullscreenMode == SDL_WINDOW_FULLSCREEN)
+                {
+                    SDL_DisplayMode dm = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0}; // maybe there is a better/more accurate way to describe the display mode...
+                    dm.w=mdinfo->Width;
+                    dm.h=mdinfo->Height;
+                    SDL_SetWindowDisplayMode(lbWindow, &dm); // set display mode for fullscreen
+                }
+                SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height); // we want to set window size for both windowed mode, and fullscreen
+            }
+            if (!sameWindowMode)
+            {
+                SDL_SetWindowFullscreen(lbWindow, fullscreenMode); // change to/from fullscreen if requested
+            }
         }
     }
     if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
@@ -461,15 +482,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
         return Lb_FAIL;
     }
-    if (lbMouseGrab)
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-    else {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        SDL_ShowCursor(SDL_DISABLE);
-    }
 
     lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
-
     if (lbScreenSurface == NULL) {
         ERRORLOG("Failed to initialize mode %d: %s",(int)mode,SDL_GetError());
         return Lb_FAIL;
@@ -511,7 +525,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if ( LbMouseIsInstalled() )
     {
         LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-        LbMouseSetPosition(lbDisplay.PhysicalScreenWidth / 2, lbDisplay.PhysicalScreenHeight / 2);
         if (msspr != NULL)
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }
@@ -967,6 +980,152 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
         }
     }
     return *o;
+}
+
+/**
+ * Takes a fixed value designed for 640x400 resolution and scales it to the game's current resolution
+ * Returns a new integer value, calculated from base_value relative to ("current units_per_pixel" / "reference units_per_pixel")
+ *
+ * "reference units_per_pixel" is = 16, as this is the value of units_per_pixel at 640x400 or 640x480 mode
+ *
+ * If 640x400 mode   (units_per_pixel = 16) then this function returns (base_value * 1)
+ * If 320x200 mode   (units_per_pixel =  8) then this function returns (base_value * 0.5)
+ * If 1920x1080 mode (units_per_pixel = 48) then this function returns (base_value * 3)
+ *
+ * (!base_value should always be divisible by 2, for compatibility with 320x200 resolution!)
+ *
+ * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current resolution
+ */
+long scale_value_for_resolution(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel /16)
+    long value = ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
+}
+
+/**
+ * Duplicates scale_value_for_resolution() except that this function:
+ * is passed a units_per_px parameter, rather than using the global units_per_pixel
+ *
+ * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current resolution
+ * @param units_per_px The current units_per_px value for the current resolution
+ */
+long scale_value_for_resolution_with_upp(long base_value, long units_per_px)
+{
+    long value = ((((units_per_px * base_value) >> 3) + (((units_per_px * base_value) >> 3) & 1)) >> 1);
+    // return value is equivalent to: round(base_value * units_per_px /16)
+    return max(1,value);
+}
+
+/**
+ * Duplicates scale_value_for_resolution() except that this function:
+ * uses units_per_pixel_width rather than using units_per_pixel
+ *
+ * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current horizontal resolution
+ */
+long scale_value_by_horizontal_resolution(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_width /16)
+    long value = ((((units_per_pixel_width * base_value) >> 3) + (((units_per_pixel_width * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
+}
+
+/**
+ * Duplicates scale_value_for_resolution() except that this function:
+ * uses units_per_pixel_height rather than using units_per_pixel
+ *
+ * @param base_value The fixed value from original DK 640x400 mode that needs to be scaled with the game's current vertical resolution
+ */
+long scale_value_by_vertical_resolution(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_height /16)
+    long value = ((((units_per_pixel_height * base_value) >> 3) + (((units_per_pixel_height * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
+}
+
+/**
+ * Takes a fixed value tuned for original DK at 640x400 and scales it for the game's current resolution and UI scale.
+ * Uses units_per_pixel_ui (which is 16 at 640x400)
+ *
+ * @param base_value The fixed value tuned for original DK 640x400 mode
+ */
+long scale_ui_value(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_ui /16)
+    long value = ((((units_per_pixel_ui * base_value) >> 3) + (((units_per_pixel_ui * base_value) >> 3) & 1)) >> 1);
+    return value; // can return zero
+}
+
+/**
+ * Sames as scale_ui_value, but if "lofi" detected, then scale is doubled
+ *
+ * @param base_value The fixed value tuned for original DK 640x400 mode
+ */
+long scale_ui_value_lofi(long base_value)
+{
+    TbBool lofi_mode = ((LbGraphicsScreenHeight() < 400) ? true : false);
+    long value;
+    if (lofi_mode)
+    {
+        value = scale_ui_value(base_value * 2);
+    }
+    else
+    {
+        value = scale_ui_value(base_value);
+    }
+    return value; // can return zero
+}
+
+/**
+ * Takes a fixed value tuned for original DK at 640x400 and scales it for the game's current resolution.
+ * Uses units_per_pixel_best (which is 16 at 640x400)
+ *
+ * @param base_value The fixed value tuned for original DK 640x400 mode
+ */
+long scale_fixed_DK_value(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_best /16)
+    long value = ((((units_per_pixel_best * base_value) >> 3) + (((units_per_pixel_best * base_value) >> 3) & 1)) >> 1);
+    return max(1,value);
+}
+
+/**
+ * Determine whether the current window aspect ratio is wider than the original (16/10)
+ *
+ * @param width current window width
+ * @param height current window height
+ */
+TbBool is_ar_wider_than_original(long width, long height)
+{
+    long original_aspect_ratio = (320 << 8) / 200;
+    long current_aspect_ratio = (width << 8) / height;
+    return (current_aspect_ratio > original_aspect_ratio);
+}
+
+/**
+ * Calculate a units_per_px value relative to a given 640x400 base length,
+*  a current reference length, and a current reference units_per_pixel
+ *
+ * @param base_length a given length/size for DK 640x400 mode
+ * @param reference_upp a reference units_per_pixel value, that is relative to the current window resolution
+ * @param reference_length a reference length/size to put in a ratio relative to the give base_length
+ */
+long calculate_relative_upp(long base_length, long reference_upp, long reference_length)
+{
+    long value = ((((base_length * reference_upp) << 2) / reference_length) >> 2); // bitshifts to round up
+    return max(1,value);
+}
+
+/**
+ * Scale UI relative to the base DEFAULT_UI_SCALE
+ *
+ * @param units_per_px the current units_per_pixel value
+ * @param ui_scale the relative scale to multiply units_per_px by
+ */
+long resize_ui(long units_per_px, long ui_scale)
+{
+    long value = (units_per_px * ui_scale / DEFAULT_UI_SCALE);
+    return max(1,value);
 }
 /******************************************************************************/
 #ifdef __cplusplus

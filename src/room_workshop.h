@@ -26,8 +26,6 @@
 extern "C" {
 #endif
 
-/** Count of possible manufacture types */
-#define MANUFCTR_TYPES_COUNT  11
 /** Maximal count of manufactured boxes of specific kind. */
 #define MANUFACTURED_ITEMS_LIMIT 49
 
@@ -76,6 +74,7 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
 long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind);
 TbBool get_next_manufacture(struct Dungeon *dungeon);
 short process_player_manufacturing(PlayerNumber plyr_idx);
+EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

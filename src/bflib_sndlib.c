@@ -104,6 +104,24 @@ int __stdcall PlayRedbookTrack(int track)
     return ((FARPROCI)proc)(track);
 }
 
+int __stdcall PauseRedbookTrack(void)
+{
+    HMODULE hModule = GetModuleHandle("WSND7R");
+    FARPROC proc = GetProcAddress(hModule, "_PauseRedbookTrack@0");
+    if (proc==NULL)
+    { ERRORLOG("Can't get address of PauseRedbookTrack function; skipped."); return 0; }
+    return proc();
+}
+
+int __stdcall ResumeRedbookTrack(void)
+{
+    HMODULE hModule = GetModuleHandle("WSND7R");
+    FARPROC proc = GetProcAddress(hModule, "_ResumeRedbookTrack@0");
+    if (proc==NULL)
+    { ERRORLOG("Can't get address of ResumeRedbookTrack function; skipped."); return 0; }
+    return proc();
+}
+
 int __stdcall MonitorStreamedSoundTrack(void)
 {
     HMODULE hModule = GetModuleHandle("WSND7R");
@@ -272,7 +290,7 @@ struct SampleInfo * __stdcall PlaySampleFromAddress(int a1, int smpl_idx, int a3
     FARPROC proc = GetProcAddress(hModule, "_PlaySampleFromAddress@36");
     if (proc==NULL)
     { ERRORLOG("Can't get address of PlaySampleFromAddress function; skipped."); return 0; }
-    return ((FARPROC_PLAY1)proc)(a1, smpl_idx, a3, a4, a5, a6, a7, buf, sfxid);
+    return ((FARPROC_PLAY1)(void *)proc)(a1, smpl_idx, a3, a4, a5, a6, a7, buf, sfxid);
 }
 
 /******************************************************************************/

@@ -30,7 +30,7 @@ extern "C" {
 #define MAX_USER_ROOMSPACE_WIDTH                    9
 #define MIN_USER_ROOMSPACE_WIDTH                    1
 #define DEFAULT_USER_ROOMSPACE_WIDTH                5
-#define DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS  0
+#define DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS  2
 #define MAX_USER_ROOMSPACE_DETECTION_LOOSENESS      9
 
 enum roomspace_placement_modes {
@@ -43,8 +43,8 @@ enum roomspace_placement_modes {
 enum roomspace_tolerance_layers {
     disable_tolerance_layers = 0,
     tolerate_only_self_claimed_path = 1,
-    tolerate_other_room_types = 2,
-    tolerate_same_room_type = 3,
+    tolerate_same_room_type = 2,
+    tolerate_other_room_types = 3,
     tolerate_gems = 4,
     tolerate_gold = 5,
     tolerate_liquid = 6,
@@ -79,6 +79,16 @@ struct RoomSpace {
 
 	  MapSlabCoord buildx, buildy;
 	  TbBool is_active;
+    TbBool render_roomspace_as_box;
+    TbBool tag_for_dig;
+    TbBool highlight_mode;
+    TbBool untag_mode;
+    TbBool one_click_mode_exclusive;
+    MapSlabCoord drag_start_x;
+    MapSlabCoord drag_start_y;
+    MapSlabCoord drag_end_x;
+    MapSlabCoord drag_end_y;
+    TbBool drag_mode;
 };
 /******************************************************************************/
 extern int user_defined_roomspace_width;
@@ -106,14 +116,20 @@ int can_build_roomspace_of_dimensions_loose(PlayerNumber plyr_idx,
 
 int can_build_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     struct RoomSpace roomspace);
+    
+struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx, 
+                                               MapSlabCoord cursor_x, 
+                                               MapSlabCoord cursor_y);
 
-void get_dungeon_sell_user_roomspace(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+
+void get_dungeon_sell_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void get_dungeon_build_user_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, int *mode, TbBool drag_check);
 
+void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction);
 void keeper_sell_roomspace(struct RoomSpace *roomspace);
-
 void keeper_build_roomspace(struct RoomSpace *roomspace);
 
 void update_roomspaces();

@@ -115,7 +115,14 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
     int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
     i = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
-    LbTextDrawResized(0, 0, tx_units_per_px, lvinfo->name);
+    if (lvinfo->name_stridx > 0)
+    {
+        LbTextDrawResized(0, 0, tx_units_per_px, get_string(lvinfo->name_stridx));
+    }
+    else
+    {
+        LbTextDrawResized(0, 0, tx_units_per_px, lvinfo->name);
+    }
 }
 
 void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn)
@@ -468,7 +475,7 @@ void frontend_campaign_list_load(void)
 }
 void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn)
 {
-    short str_idx = 111; //Return to Free-Play
+    long str_idx = 111; //Return to Free-Play
     unsigned short mnu_idx = 34; //map pack selection screen
     if (mappacks_list.items_num == 1)
     {
@@ -476,7 +483,7 @@ void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn)
         mnu_idx = 1; //main menu
     }
     gbtn->btype_value = mnu_idx;
-    gbtn->content = str_idx;
+    gbtn->content = (unsigned long *)str_idx;
     const char *text;
     text = frontend_button_caption_text(gbtn);
     frontend_draw_button(gbtn, 1, text, Lb_TEXT_HALIGN_CENTER);

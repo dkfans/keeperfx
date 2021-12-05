@@ -449,8 +449,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
 
     struct RoomStats* rstat = room_stats_get_for_kind(rkind);
-    //game.chosen_room_kind
-    if (player->boxsize > 1)
+    if ((player->work_state == PSt_BuildRoom) && (player->boxsize > 1))
     {
         sprintf(gui_textbuf, "%ld", (long)rstat->cost * player->boxsize);
     }
@@ -1067,7 +1066,7 @@ void maintain_door(struct GuiButton *gbtn)
 
 void maintain_big_trap(struct GuiButton *gbtn)
 {
-    int manufctr_idx = game.manufactr_element % MANUFCTR_TYPES_COUNT;
+    int manufctr_idx = game.manufactr_element % gameadd.trapdoor_conf.manufacture_types_count;
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
     gbtn->content = (unsigned long *)manufctr_idx;
     gbtn->sprite_idx = game.manufactr_spridx;
@@ -1091,7 +1090,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     LbTextSetJustifyWindow((x - (dst_w / 2)), y, dst_w);
     LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, 16*dst_w/base_w);
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
-    LbTextDrawResized(0, -6*dst_w/base_w, 16*dst_w/base_w, text);
+    LbTextDrawResized(0, -6*dst_w/base_w, (22 * units_per_pixel) / LbTextLineHeight(), text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
@@ -1839,7 +1838,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         activate_event_box(evidx);
     }
-    gbtn->sprite_idx = event_button_info[event->kind].field_0;
+    gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
     if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((game.play_gameturn & 0x01) != 0))
     {
@@ -2085,14 +2084,14 @@ void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_p
         ndigits++;
     }
     struct TbSprite* spr = &button_sprite[71];
-    val_width = (spr->SWidth * units_per_px / 16) * ndigits;
+    val_width = scale_value_for_resolution_with_upp(spr->SWidth, units_per_px) * ndigits;
     if (ndigits > 0)
     {
         long pos_x = scr_x + val_width / 2;
         for (i = value; i > 0; i /= 10)
         {
             // Make space for the character first, as we're drawing right char towards left
-            pos_x -= spr->SWidth * units_per_px / 16;
+            pos_x -= scale_value_for_resolution_with_upp(spr->SWidth, units_per_px);
             spr = &button_sprite[i % 10 + 71];
             LbSpriteDrawResized(pos_x, scr_y, units_per_px, spr);
         }
@@ -2128,9 +2127,9 @@ void draw_whole_status_panel(void)
     lbDisplay.DrawFlags = 0;
     LbTiledSpriteDraw(0, 0, fs_units_per_px, &status_panel, gui_panel_sprites);
     // Draws gold amount; note that button_sprite[] is used instead of full font
-    draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, bs_units_per_px, dungeon->total_money_owned);
+    draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, fs_units_per_px, dungeon->total_money_owned);
     if (16/mm_units_per_px < 3)
-        mmzoom = (player->minimap_zoom) / (3-16/mm_units_per_px);
+        mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2,mm_units_per_px);
     else
         mmzoom = player->minimap_zoom;
     pannel_map_draw_slabs(player->minimap_pos_x, player->minimap_pos_y, mm_units_per_px, mmzoom);
@@ -2191,7 +2190,7 @@ void update_trap_tab_to_config(void)
         ibtn->draw_call = gui_area_new_null_button;
         ibtn->maintain_call = NULL;
     }
-    for (i=0; i < trapdoor_conf.manufacture_types_count; i++)
+    for (i=0; i < gameadd.trapdoor_conf.manufacture_types_count; i++)
     {
         struct ManufactureData* manufctr = get_manufacture_data(i);
         if (manufctr->panel_tab_idx < 1)

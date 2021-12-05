@@ -1,0 +1,205 @@
+REM ****************************************************
+REM Deserted Crypt
+REM
+REM Assmist Isle Campaign by Kix
+REM
+REM v2.0 for DAT file objectives (by dayokay)
+REM 14-Nov-2020
+REM ****************************************************
+
+LEVEL_VERSION(1)
+START_MONEY(PLAYER0,3000)
+
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,4)
+MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
+
+CREATE_PARTY(THVS)
+	ADD_TO_PARTY(THVS,THIEF,1,0,STEAL_GOLD,0)
+	ADD_TO_PARTY(THVS,THIEF,1,0,STEAL_GOLD,0)
+
+CREATE_PARTY(A1)
+	ADD_TO_PARTY(A1,FLY,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A1,FLY,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A1,FLY,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A1,BUG,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A1,BUG,1,0,ATTACK_DUNGEON_HEART,0)
+
+CREATE_PARTY(A2)
+	ADD_TO_PARTY(A2,BUG,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A2,BUG,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A2,BUG,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A2,FLY,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A2,SPIDER,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A2,SPIDER,1,0,ATTACK_DUNGEON_HEART,0)
+
+CREATE_PARTY(A3)
+	ADD_TO_PARTY(A3,SPIDER,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A3,SPIDER,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A3,BUG,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A3,BUG,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A3,BUG,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A3,SPIDER,1,0,ATTACK_DUNGEON_HEART,0)
+
+CREATE_PARTY(A4)
+	ADD_TO_PARTY(A4,FLY,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A4,FLY,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A4,BUG,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A4,BUG,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A4,SPIDER,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(A4,SPIDER,1,0,ATTACK_DUNGEON_HEART,0)
+
+CREATE_PARTY(HRS)
+	ADD_TO_PARTY(HRS,ARCHER,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(HRS,ARCHER,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(HRS,BARBARIAN,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(HRS,MONK,1,0,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(HRS,MONK,1,0,ATTACK_DUNGEON_HEART,0)
+
+IF(PLAYER0,MONEY>=32000)
+REM	QUICK_OBJECTIVE(1,"We're done here but the siege just begins. Let's head to the isle.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(1,ALL_PLAYERS)
+	WIN_GAME
+ENDIF
+
+REM if player reached this action point located at lightning spell, set flag0
+IF_ACTION_POINT(5,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG0,1)
+ENDIF
+
+IF_ACTION_POINT(2,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,A1,-1,1)
+ENDIF
+
+IF_ACTION_POINT(12,PLAYER0)
+REM	QUICK_INFORMATION(2,"I can see some familiar structures in the south. Make sure you're well prepared in case guards are nearby.",-1)
+	DISPLAY_INFORMATION(2,-1)
+ENDIF
+
+IF_ACTION_POINT(3,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,A4,3,1)
+ENDIF
+
+IF_ACTION_POINT(5,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,A2,5,1)
+ENDIF
+
+IF_ACTION_POINT(4,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,A2,5,1)
+ENDIF
+
+IF_ACTION_POINT(6,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,A3,6,2)
+ENDIF
+
+IF_ACTION_POINT(7,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),7,2)
+ENDIF
+
+IF_ACTION_POINT(8,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),8,3)
+ENDIF
+
+IF_ACTION_POINT(9,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),9,4)
+ENDIF
+
+IF_ACTION_POINT(10,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),10,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),9,3)
+ENDIF
+
+IF(PLAYER0,LAIR>0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),10,4)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),-2,3)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),7,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),4,3)
+ENDIF
+
+IF(PLAYER0,TOTAL_CREATURES>0)
+REM	QUICK_INFORMATION(6,"Great, a troop! Find the transfer creature special and you get to keep him.",ALL_PLAYERS)
+	DISPLAY_INFORMATION(3,ALL_PLAYERS)
+ENDIF
+
+IF_ACTION_POINT(2,PLAYER0)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,HRS,-1,1)
+REM	QUICK_INFORMATION(5,"Heroes were alarmed and are heading into your dungeon now.",-1)
+	DISPLAY_INFORMATION(4,-1)
+ENDIF
+
+IF(PLAYER0,WORKSHOP>0)
+REM	QUICK_OBJECTIVE(3,"Locate and deploy any traps you can find to prevent these pests from attacking you. Acquiring 32000 pieces of gold is our goal.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(5,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER0,RESEARCH>0)
+	REM only display the message if player has not visited it yet
+	IF(PLAYER0,FLAG0==0)
+	REM	QUICK_OBJECTIVE(4,"As the library becomes a part of your dungeon, you have a strange vision uncovering a small area. Getting to the spell as soon as possible should be your top priority. Acquiring 32000 pieces of gold is our goal.",5)
+		DISPLAY_OBJECTIVE(6,5)
+		REVEAL_MAP_LOCATION(PLAYER0,5,18)
+	ENDIF
+ENDIF
+
+IF(PLAYER0,TOTAL_AREA>150)
+REM	QUICK_INFORMATION(10,"The sacred tombs are infested with pests of all kinds. You'll have to find a way to raid the tombs and resist pest attacks.",ALL_PLAYERS)
+	DISPLAY_INFORMATION(7,ALL_PLAYERS)
+	SET_TIMER(PLAYER0,TIMER0)
+ENDIF
+
+IF(PLAYER0,TIMER0>15000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),-2,2)
+ENDIF
+
+IF(PLAYER0,TIMER0>34000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),-2,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),-2,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),-2,2)
+ENDIF
+
+IF(PLAYER0,TIMER0>62000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),-2,3)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),-2,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(A1,A2,A3,A4),-2,3)
+ENDIF
+
+REM only if player visited the lightning spell area
+IF(PLAYER0,FLAG0>0)
+	IF(PLAYER0,MONEY>13000)
+		REM	QUICK_OBJECTIVE(8,"Unsurprisingly, even down here, far from any civilisation, a few cheap slavs came to rob you. Stop them before they render your goal to obtain 32000 pieces of gold impossible. I also think you can expect at least one more party.",6)
+		DISPLAY_OBJECTIVE(8,6)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,THVS,6,1)
+	ENDIF
+	IF(PLAYER0,MONEY>21000)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,THVS,DRAWFROM(2,3,4,5,7),2)
+	ENDIF
+ENDIF
+
+REM	QUICK_OBJECTIVE(7,"The mission of this campaign is to save the people living on Acemist Isle from their own boring lives. Pray and work. Those are the sacred words there. Don't think killing some of them is too cruel: they'll be glad their miserable lives are over, believe me. Now, let's find a way how to get to the isle and take the island from Polish empire.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(9,ALL_PLAYERS)
+
+IF(PLAYER0,IMP>0)
+REM	QUICK_OBJECTIVE(11,"There's a shipyard nearby. Although heavily guarded, some cheap Polish sailors agreed to transport you to the isle for a small bribe of 32000 gold. Now raid these tombs, loot the required amount of gold and off we go.",ALL_PLAYERS)
+	DISPLAY_OBJECTIVE(10,ALL_PLAYERS)
+ENDIF
+
+REM ***********************************************************************************************************************************************
+REM Blocks people with wrong version from attemting this map. If-statement will be ignored on old versions as it is followed by a 'new' command.
+
+SET_FLAG(PLAYER0,FLAG5,1)
+ADD_TO_FLAG(PLAYER0,FLAG5,1)
+
+IF (PLAYER0,CAMPAIGN_FLAG7 == 43)
+	SET_FLAG(PLAYER0,FLAG5,0)
+ENDIF
+IF(PLAYER0,FLAG5<2)
+REM	QUICK_OBJECTIVE(40,"You have an old version of KeeperFX. Update to play this campaign.",PLAYER0)
+	DISPLAY_OBJECTIVE(11,PLAYER0)
+	IF(PLAYER0,GAME_TURN >= 20)
+		LOSE_GAME
+	ENDIF
+ENDIF
+
+REM ***********************************************************************************************************************************************
+REM ***********************************************************************************************************************************************

@@ -95,108 +95,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct Packet) + sizeof(TbBigChecksum))
-struct Packet bad_packet;
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
+/******************************************************************************/
+/******************************************************************************/
+short place_terrain = 0;
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
     pckt->action = pcktype;
-}
-
-void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    pckt->actn_par1 = par1;
-    pckt->actn_par2 = par2;
-    pckt->action = pcktype;
-}
-
-unsigned char get_players_packet_action(struct PlayerInfo *player)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    return pckt->action;
-}
-
-void set_packet_control(struct Packet *pckt, unsigned long flag)
-{
-  pckt->control_flags |= flag;
-}
-
-void set_players_packet_control(struct PlayerInfo *player, unsigned long flag)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    pckt->control_flags |= flag;
-}
-
-void unset_packet_control(struct Packet *pckt, unsigned long flag)
-{
-  pckt->control_flags &= ~flag;
-}
-
-void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    pckt->control_flags &= ~flag;
-}
-
-void set_players_packet_position(struct PlayerInfo *player, long x, long y)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    pckt->pos_x = x;
-    pckt->pos_y = y;
-}
-
-/**
- * Gives a pointer for the player's packet.
- * @param plyr_idx The player index for which we want the packet.
- * @return Returns Packet pointer. On error, returns a dummy structure.
- */
-struct Packet *get_packet(long plyr_idx)
-{
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (player_invalid(player))
-        return INVALID_PACKET;
-    if (player->packet_num >= PACKETS_COUNT)
-        return INVALID_PACKET;
-    return &game.packets[player->packet_num];
-}
-
-/**
- * Gives a pointer to packet of given index.
- * @param pckt_idx Packet index in the array. Note that it may differ from player index.
- * @return Returns Packet pointer. On error, returns a dummy structure.
- */
-struct Packet *get_packet_direct(long pckt_idx)
-{
-    if ((pckt_idx < 0) || (pckt_idx >= PACKETS_COUNT))
-        return INVALID_PACKET;
-    return &game.packets[pckt_idx];
-}
-
-void clear_packets(void)
-{
-    for (int i = 0; i < PACKETS_COUNT; i++)
-    {
-        LbMemorySet(&game.packets[i], 0, sizeof(struct Packet));
-    }
-}
-
-short set_packet_pause_toggle(void)
-{
-    struct PlayerInfo* player = get_my_player();
-    if (player_invalid(player))
-        return false;
-    if (player->packet_num >= PACKETS_COUNT)
-        return false;
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
-    return true;
 }
 
 TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
@@ -247,10 +157,11 @@ void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const 
  * Checks if all active players packets have same checksums.
  * @return Returns false if all checksums are same; true if there's mismatch.
  */
-short checksums_different(void)
+short checksums_different()
 {
     TbChecksum checksum = 0;
     unsigned short is_set = false;
+    int plyr = -1;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
@@ -261,9 +172,12 @@ short checksums_different(void)
             {
                 checksum = pckt->chksum;
                 is_set = true;
+                plyr = i;
             }
             else if (checksum != pckt->chksum)
             {
+                ERRORLOG("Checksums %08x(%d) != %08x(%d) turn: %ld", checksum, plyr, pckt->chksum, i, game.play_gameturn);
+
                 return true;
             }
         }
@@ -292,8 +206,9 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct RoomStats* rstat = room_stats_get_for_kind(rkind);
-    MapCoord x = ((player->field_4A4 + 1) / 2) + slab_subtile(subtile_slab_fast(stl_x), 0);
-    MapCoord y = ((player->field_4A4 + 1) / 2) + slab_subtile(subtile_slab_fast(stl_y), 0);
+    // Take top left subtile on single subtile boundbox, take center subtile on full slab boundbox
+    MapCoord x = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_x), 0) : slab_subtile_center(subtile_slab_fast(stl_x)));
+    MapCoord y = ((player->full_slab_cursor == 0) ? slab_subtile(subtile_slab_fast(stl_y), 0) : slab_subtile_center(subtile_slab_fast(stl_y)));
     struct Room* room = player_build_room_at(x, y, plyr_idx, rkind);
     if (!room_is_invalid(room))
     {
@@ -399,9 +314,9 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     long keycode = 0;
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
-        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->full_slab_cursor != 0))
         {
-            player->field_4AF = 0;
+            player->full_slab_cursor = 0;
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         return false;
@@ -410,28 +325,28 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    player->field_4A4 = 1;
+    player->full_slab_cursor = (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true));
     if (is_my_player(player))
     {
         if (!game_is_busy_doing_gui())
         {
-            get_dungeon_sell_user_roomspace(stl_x, stl_y);
-            tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->field_4A4, (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true)));
+            get_dungeon_sell_user_roomspace(player->id_number, stl_x, stl_y);
+            tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->full_slab_cursor);
         }
     }
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
-      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->full_slab_cursor != 0))
       {
-          player->field_4AF = 0;
+          player->full_slab_cursor = 0;
           unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       return false;
     }
-    if (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
+    if (player->full_slab_cursor)
     {
         //Slab Mode
-        if (render_roomspace.slab_count > 1)
+        if (render_roomspace.slab_count > 0)
         {
             keeper_sell_roomspace(&render_roomspace);
         }
@@ -498,14 +413,15 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
 TbBool process_dungeon_power_hand_state(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     MapCoord x = ((unsigned short)pckt->pos_x);
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
 
-    player->field_3 &= ~Pf3F_Unkn02;
-    if ((player->field_455 != P454_Unkn0) && (player->field_455 != P454_Unkn3))
+    player->additional_flags &= ~PlaAF_ChosenSubTileIsHigh;
+    if ((player->secondary_cursor_state != CSt_DefaultArrow) && (player->secondary_cursor_state != CSt_PowerHand))
     {
       if (player->instance_num != PI_Grab) {
           delete_power_hand(player->id_number);
@@ -513,7 +429,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
       return false;
     }
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(plyr_idx, x, y);
-    if (!thing_is_invalid(thing))
+    if (!thing_is_invalid(thing) && (!dungeonadd->one_click_lock_cursor))
     {
       SYNCDBG(19,"Thing %d under hand at (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
       if (player->hand_thing_idx == 0)
@@ -527,14 +443,18 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         create_power_hand(player->id_number);
       }
       long i = thing_is_creature_special_digger(thing);
-      if (can_drop_thing_here(stl_x, stl_y, player->id_number, i)
-        || !can_dig_here(stl_x, stl_y, player->id_number))
+      if ((can_drop_thing_here(stl_x, stl_y, player->id_number, i)
+        || !can_dig_here(stl_x, stl_y, player->id_number, true))
+        && (!dungeonadd->one_click_lock_cursor))
       {
-        tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->field_4A4);
+        render_roomspace = create_box_roomspace(render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
+        long keycode;
+        tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true)));
       } else
       {
-        player->field_3 |= Pf3F_Unkn02;
-        tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->field_4A4);
+        player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
+        get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
+        tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
       }
     }
     if (player->hand_thing_idx != 0)
@@ -575,29 +495,29 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     long keycode = 0;
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
-      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
       {
-        player->field_4AF = 0;
+        player->cursor_button_down = 0;
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       return false;
     }
-    player->field_4A4 = 1;
+    player->full_slab_cursor = 1; // always use full slabs, not single subtiles
     if (is_my_player(player))
     {
         gui_room_type_highlighted = player->chosen_room_kind;
     }
     TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
     get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, stl_x, stl_y, &mode, drag_check);
-    long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->field_4A4);
+    long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
     
     if (mode != drag_placement_mode) // allows the user to hold the left mouse to use "paint mode"
     {
         if ((pckt->control_flags & PCtr_LBtnClick) == 0)
         {
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
             {
-                player->field_4AF = 0;
+                player->cursor_button_down = 0;
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             return false;
@@ -614,7 +534,18 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     {
       if (is_my_player(player))
       {
-        play_non_3d_sample(119);
+        if (can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
+        {
+            struct Dungeon* dungeon = get_dungeon(player->id_number);
+            if (render_roomspace.total_roomspace_cost > dungeon->total_money_owned)
+            {
+                output_message(SMsg_GoldNotEnough, 0, true);
+            }
+        }
+        else
+        {
+            play_non_3d_sample(119);
+        }
         unset_packet_control(pckt, PCtr_LBtnClick);
       }
       return false;
@@ -645,20 +576,20 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
-        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
         {
-          player->field_4AF = 0;
+          player->cursor_button_down = 0;
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         return false;
     }
-    player->field_4A4 = 1;
-    long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y);
+    player->full_slab_cursor = ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles));
+    long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->full_slab_cursor);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
-      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
       {
-        player->field_4AF = 0;
+        player->cursor_button_down = 0;
         unset_packet_control(pckt, PCtr_LBtnRelease);
       }
       return false;
@@ -679,23 +610,39 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
     return true;
 }
 
+void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    // The commented out section is the old way, this check is now performed as part of keeper_highlight_roomspace() in roomspace.cabs
+    // which sets render_roomspace.untag_mode
+    /*long i;
+    i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
+    if (find_from_task_list(plyr_idx,i) != -1)
+        player->allocflags |= PlaF_ChosenSlabHasActiveTask;
+    else
+        player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;*/
+
+    if (render_roomspace.untag_mode)
+        player->allocflags |= PlaF_ChosenSlabHasActiveTask;
+    else
+        player->allocflags &= ~PlaF_ChosenSlabHasActiveTask;
+}
+
 TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 {
     struct Thing *thing;
-
-    long i;
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     MapCoord x = ((unsigned short)pckt->pos_x);
     MapCoord y = ((unsigned short)pckt->pos_y);
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    MapSubtlCoord cx = stl_slab_starting_subtile(stl_x);
-    MapSubtlCoord cy = stl_slab_starting_subtile(stl_y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
-      player->field_455 = P454_Unkn0;
-    player->field_454 = (unsigned short)(pckt->field_10 & PCAdV_ContextMask) >> 1;
+      player->secondary_cursor_state = CSt_DefaultArrow;
+    player->primary_cursor_state = (unsigned short)(pckt->additional_packet_values & PCAdV_ContextMask) >> 1; // get current cursor state from pckt->additional_packet_values
+    render_roomspace.highlight_mode = false; // reset one-click highlight mode
 
     process_dungeon_power_hand_state(plyr_idx);
 
@@ -703,45 +650,40 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
       if (is_my_player(player) && !game_is_busy_doing_gui())
       {
-        if (player->field_454 == P454_Unkn1)
-          tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->field_4A4);
+        if (player->primary_cursor_state == CSt_PickAxe)
+        {
+          get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
+          tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+        }
       }
       if ((pckt->control_flags & PCtr_LBtnClick) != 0)
       {
-        player->field_4AB = stl_x;
-        player->field_4AD = stl_y;
-        player->field_4AF = 1;
-        player->field_455 = player->field_454;
-        switch (player->field_454)
+        player->cursor_stl_x = stl_x;
+        player->cursor_stl_y = stl_y;
+        player->cursor_button_down = 1;
+        player->secondary_cursor_state = player->primary_cursor_state;
+        switch (player->primary_cursor_state)
         {
-        case P454_Unkn1:
-          i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
-          if (find_from_task_list(plyr_idx,i) != -1)
-              player->allocflags |= PlaF_Unknown20;
-          else
-              player->allocflags &= ~PlaF_Unknown20;
+        case CSt_PickAxe:
+          set_tag_untag_mode(plyr_idx, stl_x, stl_y);
           break;
-        case P454_Unkn2:
-          thing = get_door_for_position(player->field_4AB, player->field_4AD);
+        case CSt_DoorKey:
+          thing = get_door_for_position(player->cursor_stl_x, player->cursor_stl_y);
           if (thing_is_invalid(thing))
           {
-            ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->field_4AB,(int)player->field_4AD);
+            ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->cursor_stl_x,(int)player->cursor_stl_y);
             break;
           }
-          if (thing->byte_18)
+          if (thing->trap_door_active_state)
             unlock_door(thing);
           else
             lock_door(thing);
           break;
-        case P454_Unkn3:
+        case CSt_PowerHand:
           if (player->thing_under_hand == 0)
           {
-            i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
-            if (find_from_task_list(plyr_idx,i) != -1)
-                player->allocflags |= PlaF_Unknown20;
-            else
-                player->allocflags &= ~PlaF_Unknown20;
-            player->field_3 |= Pf3F_Unkn01;
+            set_tag_untag_mode(plyr_idx, stl_x, stl_y);
+            player->additional_flags |= PlaAF_NoThingUnderPowerHand;
           }
           break;
         }
@@ -749,60 +691,36 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
       }
       if ((pckt->control_flags & PCtr_RBtnClick) != 0)
       {
-        player->field_4AB = stl_x;
-        player->field_4AD = stl_y;
-        player->field_4AF = 1;
+        player->cursor_stl_x = stl_x;
+        player->cursor_stl_y = stl_y;
+        player->cursor_button_down = 1;
         unset_packet_control(pckt, PCtr_RBtnClick);
       }
     }
 
     if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
     {
-        if (player->field_455 == P454_Unkn0)
+        if (player->secondary_cursor_state == CSt_DefaultArrow)
         {
-          player->field_455 = player->field_454;
-          if (player->field_454 == P454_Unkn1)
+          player->secondary_cursor_state = player->primary_cursor_state;
+          if (player->primary_cursor_state == CSt_PickAxe)
           {
-            i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
-            if (find_from_task_list(plyr_idx,i) != -1)
-                player->allocflags |= PlaF_Unknown20;
-            else
-                player->allocflags &= ~PlaF_Unknown20;
+            set_tag_untag_mode(plyr_idx, stl_x, stl_y);
           }
         }
-        if (player->field_4AF != 0)
+        if (player->cursor_button_down != 0)
         {
-          if (player->field_454 == player->field_455)
+          if (!render_roomspace.drag_mode) // allow drag and click to not place on LMB hold
           {
-            if (player->field_455 == P454_Unkn1)
+            if (player->primary_cursor_state == player->secondary_cursor_state)
             {
-              if ((player->allocflags & PlaF_Unknown20) != 0)
+              if (player->secondary_cursor_state == CSt_PickAxe)
               {
-                untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
+                keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
               } else
-              if (dungeon->task_count < 300)
+              if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))
               {
-                tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (is_my_player(player))
-              {
-                output_message(SMsg_WorkerJobsLimit, 500, true);
-              }
-            } else
-            if ((player->field_455 == P454_Unkn3) && ((player->field_3 & Pf3F_Unkn01) != 0))
-            {
-              if ((player->allocflags & PlaF_Unknown20) != 0)
-              {
-                untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (dungeon->task_count < 300)
-              {
-                if (can_dig_here(stl_x, stl_y, player->id_number))
-                  tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-              } else
-              if (is_my_player(player))
-              {
-                output_message(SMsg_WorkerJobsLimit, 500, true);
+                keeper_highlight_roomspace(plyr_idx, &render_roomspace, 0);
               }
             }
           }
@@ -811,14 +729,23 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     }
     if ((pckt->control_flags & PCtr_RBtnHeld) != 0)
     {
-      if (player->field_4AF != 0)
+      if (player->cursor_button_down != 0)
         unset_packet_control(pckt, PCtr_RBtnRelease);
     }
     if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
     {
-      if (player->field_455 == P454_Unkn0)
-        player->field_455 = player->field_454;
-      if (player->field_4AF != 0)
+      if (player->secondary_cursor_state == CSt_DefaultArrow)
+        player->secondary_cursor_state = player->primary_cursor_state;
+      if (dungeonadd->ignore_next_PCtr_LBtnRelease)
+      {
+          dungeonadd->ignore_next_PCtr_LBtnRelease = false;
+          if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
+          {
+              player->cursor_button_down = 0;
+          }
+          unset_packet_control(pckt, PCtr_LBtnRelease);
+      } else
+      if (player->cursor_button_down != 0)
       {
         thing = thing_get(player->thing_under_hand);
         if ((player->thing_under_hand != 0) && (player->input_crtr_control != 0)
@@ -857,24 +784,13 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
         } else
-        if (player->field_455 == player->field_454)
+        if (player->secondary_cursor_state == player->primary_cursor_state)
         {
-          if (player->field_454 == P454_Unkn1)
+          if ((player->primary_cursor_state == CSt_PickAxe) || ((player->primary_cursor_state == CSt_PowerHand) && render_roomspace.drag_mode))
           {
-            if ((player->allocflags & PlaF_Unknown20) != 0)
-            {
-              untag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-            } else
-            if (300-dungeon->task_count >= 9)
-            {
-              tag_blocks_for_digging_in_rectangle_around(cx, cy, plyr_idx);
-            } else
-            if (is_my_player(player))
-            {
-              output_message(SMsg_WorkerJobsLimit, 500, true);
-            }
+            keeper_highlight_roomspace(plyr_idx, &render_roomspace, 9);
           } else
-          if (player->field_454 == P454_Unkn3)
+          if (player->primary_cursor_state == CSt_PowerHand)
           {
             if (player->thing_under_hand != 0) {
                 // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
@@ -882,32 +798,73 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             }
           }
         }
-        player->field_4AF = 0;
+        if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
+        {
+            player->cursor_button_down = 0;
+            dungeonadd->one_click_lock_cursor = false;
+        }
         unset_packet_control(pckt, PCtr_LBtnRelease);
-        player->field_455 = P454_Unkn0;
-        player->field_3 &= ~Pf3F_Unkn01;
+        if (render_roomspace.drag_mode)
+        {
+            if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
+            {
+                render_roomspace.drag_mode = false;
+            }
+            else
+            {
+                render_roomspace.untag_mode = !render_roomspace.untag_mode;
+                set_tag_untag_mode(plyr_idx, stl_x, stl_y);
+            }
+        }
+        player->secondary_cursor_state = CSt_DefaultArrow;
+        player->additional_flags &= ~PlaAF_NoThingUnderPowerHand;
       }
     }
 
     if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
     {
-      if (player->field_4AF != 0)
+      if (dungeonadd->ignore_next_PCtr_RBtnRelease && (!dungeonadd->one_click_lock_cursor))
       {
-        if (!power_hand_is_empty(player))
+          dungeonadd->ignore_next_PCtr_RBtnRelease = false;
+          if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
+          {
+              player->cursor_button_down = 0;
+          }
+          unset_packet_control(pckt, PCtr_RBtnRelease);
+      } else
+      if (player->cursor_button_down != 0)
+      {
+        if (!power_hand_is_empty(player) && (!dungeonadd->one_click_lock_cursor))
         {
           if (dump_first_held_thing_on_map(player->id_number, stl_x, stl_y, 1)) {
-              player->field_4AF = 0;
+              if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
+              {
+                  player->cursor_button_down = 0;
+              }
               unset_packet_control(pckt, PCtr_RBtnRelease);
           }
         } else
         {
-          if (player->field_454 == P454_Unkn3) {
+          if (player->primary_cursor_state == CSt_PowerHand && (!dungeonadd->one_click_lock_cursor)) {
               thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
               magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing, PwMod_Default);
           }
-          player->field_4AF = 0;
+          if ((pckt->control_flags & PCtr_LBtnHeld) == 0)
+          {
+              player->cursor_button_down = 0;
+              dungeonadd->one_click_lock_cursor = false;
+          }
           unset_packet_control(pckt, PCtr_RBtnRelease);
         }
+      }
+    }
+    if ((player->cursor_button_down == 0) || (!dungeonadd->one_click_lock_cursor))
+    {
+      //if (untag_or_tag_completed_or_cancelled)
+      dungeonadd->swap_to_untag_mode = 0; // no
+      if ((player->cursor_button_down == 0) && ((pckt->control_flags & PCtr_LBtnHeld) == 0))
+      {
+        dungeonadd->one_click_lock_cursor = false;
       }
     }
     return true;
@@ -918,9 +875,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     struct Thing *thing;
     PowerKind pwkind;
     struct PlayerInfo* player = get_player(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
-    player->field_4A4 = 1;
+    player->full_slab_cursor = 1;
     packet_left_button_double_clicked[plyr_idx] = 0;
     if ((pckt->control_flags & PCtr_Unknown4000) != 0)
       return false;
@@ -945,7 +903,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     short influence_own_creatures = false;
     struct SlabMap *slb;
     long i;
-    struct Room* room;
+    struct Room* room = NULL;
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     switch (player->work_state)
@@ -974,7 +932,22 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_MkGoldPot:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            create_gold_pot_at(x, y, player->id_number);
+            thing = create_gold_pot_at(x, y, player->id_number);
+            if (!thing_is_invalid(thing))
+            {
+                if (thing_in_wall_at(thing, &thing->mappos))
+                {
+                    move_creature_to_nearest_valid_position(thing);
+                }
+                room = subtile_room_get(stl_x, stl_y);
+                if (room_exists(room))
+                {
+                    if (room->kind == RoK_TREASURE)
+                    {
+                        count_gold_hoardes_in_room(room);
+                    }
+                }
+            }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1007,9 +980,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_FreeCtrlPassngr:
         influence_own_creatures = 1;
         if (player->work_state == PSt_CtrlPassngr)
-            thing = get_creature_near_and_owned_by(x, y, plyr_idx);
+            thing = get_creature_near_and_owned_by(x, y, plyr_idx, -1);
         else
-            thing = get_creature_near_and_owned_by(x, y, -1);
+            thing = get_creature_near_and_owned_by(x, y, -1, -1);
         if (thing_is_invalid(thing))
             player->thing_under_hand = 0;
         else
@@ -1062,10 +1035,28 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
+    case PSt_CreatrInfoAll:
     case PSt_CreatrQueryAll:
         influence_own_creatures = 1;
         thing = get_creature_near(x, y);
-        TbBool CanQuery = (player->work_state == PSt_CreatrQueryAll) ? (thing_is_creature(thing)) : (can_thing_be_queried(thing, plyr_idx));
+        TbBool CanQuery = false;
+        TbBool All = ( (player->work_state == PSt_CreatrQueryAll) || (player->work_state == PSt_CreatrInfoAll) );
+        if (thing_is_creature(thing))
+        {
+            CanQuery = (All) ? true : (can_thing_be_queried(thing, plyr_idx));
+        }
+        else
+        {
+            if (All)
+            {
+                thing = get_nearest_thing_at_position(stl_x, stl_y);
+                CanQuery = (!thing_is_invalid(thing));
+                if (!CanQuery)
+                {
+                    room = subtile_room_get(stl_x, stl_y);
+                }
+            }
+        }
         if (!CanQuery)
         {
             player->thing_under_hand = 0;
@@ -1078,21 +1069,32 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->thing_under_hand > 0)
           {
-            if (player->controlled_thing_idx != player->thing_under_hand)
+            if (thing->class_id == TCls_Creature)
             {
-              if (is_my_player(player))
-              {
-                turn_off_all_panel_menus();
-                initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
-                turn_on_menu(GMnu_CREATURE_QUERY1);
-              }
-              player->influenced_thing_idx = player->thing_under_hand;
-              set_player_instance(player, PI_QueryCrtr, 0);
+                if (player->controlled_thing_idx != player->thing_under_hand)
+                {
+                    if (is_my_player(player))
+                    {
+                        turn_off_all_panel_menus();
+                        initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
+                        turn_on_menu(GMnu_CREATURE_QUERY1);
+                    }
+                    player->influenced_thing_idx = player->thing_under_hand;
+                    set_player_instance(player, PI_QueryCrtr, 0);
+                }
+            }
+            else
+            {
+                query_thing(thing);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
+          else if ( (All) && (room_exists(room)) )
+          {
+             query_room(room);
+          }
         }
-        if (player->work_state == PSt_CreatrInfo)
+        if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
         {
           thing = thing_get(player->controlled_thing_idx);
           if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
@@ -1125,6 +1127,13 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
+          if (player->thing_under_hand > 0)
+          {
+            if (player->controlled_thing_idx != player->thing_under_hand)
+            {
+                player->influenced_thing_idx = player->thing_under_hand;
+            }
+          }
           if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
           {
             if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
@@ -1183,7 +1192,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         long k;
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
         {
-            player->field_4A4 = 1;
+            player->full_slab_cursor = 1;
             // Make the frame around active slab
             i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
             if ((pckt->control_flags & PCtr_LBtnClick) != 0)
@@ -1196,9 +1205,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-            if (player->field_4AF != 0)
+            if (player->cursor_button_down != 0)
             {
-              player->field_4AF = 0;
+              player->cursor_button_down = 0;
               unset_packet_control(pckt, PCtr_LBtnRelease);
             }
         }
@@ -1380,6 +1389,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             if (slb->kind >= SlbT_EARTH && slb->kind <= SlbT_CLAIMED)
             {
                 short slbkind;
+                i = get_selected_player_for_cheat(plyr_idx);
                 switch(slb->kind)
                 {
                     case SlbT_PATH:
@@ -1389,12 +1399,26 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     }
                     case SlbT_EARTH:
                     {
-                        slbkind = rand() % (5) + 4;
+                        if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
+                        {
+                            slbkind = choose_pretty_type(i, slb_x, slb_y);
+                        }
+                        else
+                        {
+                            slbkind = rand() % (5) + 4;
+                        }
                         break;
                     }
                     case SlbT_TORCHDIRT:
                     {
-                        slbkind = SlbT_WALLTORCH;
+                        if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
+                        {
+                            slbkind = choose_pretty_type(i, slb_x, slb_y);
+                        }
+                        else
+                        {
+                            slbkind = SlbT_WALLTORCH;
+                        }
                         break;
                     }
                     default:
@@ -1403,7 +1427,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                         break;
                     }
                 }
-                i = get_selected_player_for_cheat(plyr_idx);
                 if ((slbkind == SlbT_CLAIMED) || ((slbkind >= SlbT_WALLDRAPE) && (slbkind <= SlbT_WALLPAIRSHR)))
                 {
                     if (is_key_pressed(KC_RALT, KMod_DONTCARE))
@@ -1440,7 +1463,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     }
                 }
                 place_slab_type_on_map(slbkind, stl_x, stl_y, i, 0);
-                do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                do_slab_efficiency_alteration(slb_x, slb_y);
                 slb = get_slabmap_block(slb_x, slb_y);
                 for (i = 0; i < PLAYERS_COUNT; i++)
                 {
@@ -1454,6 +1477,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_LevelCreatureUp:
+    case PSt_LevelCreatureDown:
         thing = get_creature_near(x, y);
         if (!thing_is_creature(thing))
         {
@@ -1467,7 +1491,23 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
              if (player->thing_under_hand > 0)
              {
-                creature_increase_level(thing);
+                switch (player->work_state)
+                {
+                    case PSt_LevelCreatureUp:
+                    {
+                        creature_increase_level(thing);
+                        break;
+                    }
+                    case PSt_LevelCreatureDown:
+                    {
+                        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                        if (!creature_control_invalid(cctrl))
+                        {
+                            set_creature_level(thing, cctrl->explevel-1);
+                        }
+                        break;
+                    }
+                }
              }
         unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
@@ -1480,7 +1520,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
               thing = get_player_soul_container(PlayerToKill->id_number);
               if (thing_is_dungeon_heart(thing))
               {
-                    thing->health = -1;
+                    thing->health = 0;
               }
           }
         break;
@@ -1568,126 +1608,238 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_PlaceTerrain:
+    {
+        if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
+        {
+            place_terrain = SlbT_ROCK;
+            clear_key_pressed(KC_NUMPAD0);
+        }
+        else if (is_key_pressed(KC_NUMPAD1, KMod_NONE))
+        {
+            place_terrain = SlbT_GOLD;
+            clear_key_pressed(KC_NUMPAD1);
+        }
+        else if (is_key_pressed(KC_NUMPAD2, KMod_NONE))
+        {
+            place_terrain = SlbT_GEMS;
+            clear_key_pressed(KC_NUMPAD2);
+        }
+        else if (is_key_pressed(KC_NUMPAD3, KMod_NONE))
+        {
+            place_terrain = SlbT_EARTH;
+            clear_key_pressed(KC_NUMPAD3);
+        }
+        else if (is_key_pressed(KC_NUMPAD4, KMod_NONE))
+        {
+            place_terrain = SlbT_TORCHDIRT;
+            clear_key_pressed(KC_NUMPAD4);
+        }
+        else if (is_key_pressed(KC_NUMPAD5, KMod_NONE))
+        {
+            place_terrain = SlbT_PATH;
+            clear_key_pressed(KC_NUMPAD5);
+        }
+        else if (is_key_pressed(KC_NUMPAD6, KMod_NONE))
+        {
+            place_terrain = SlbT_CLAIMED;
+            clear_key_pressed(KC_NUMPAD6);
+        }
+        else if (is_key_pressed(KC_NUMPAD7, KMod_NONE))
+        {
+            place_terrain = SlbT_LAVA;
+            clear_key_pressed(KC_NUMPAD7);
+        }
+        else if (is_key_pressed(KC_NUMPAD8, KMod_NONE))
+        {
+            place_terrain = SlbT_WATER;
+            clear_key_pressed(KC_NUMPAD8);
+        }
+        else if (is_key_pressed(KC_NUMPAD9, KMod_NONE))
+        {
+            place_terrain = rand() % (5) + 4;
+            clear_key_pressed(KC_NUMPAD9);
+        }
+        else if (is_key_pressed(KC_DIVIDE, KMod_NONE))
+        {
+            place_terrain = SlbT_DAMAGEDWALL;
+            clear_key_pressed(KC_DIVIDE);
+        }
+        else if (is_key_pressed(KC_MULTIPLY, KMod_NONE))
+        {
+            place_terrain = SlbT_SLAB50;
+            clear_key_pressed(KC_MULTIPLY);
+        }
+        struct SlabConfigStats* slab_cfgstats;
+        clear_messages_from_player(-127);
+        struct SlabAttr *slbattr = get_slab_kind_attrs(place_terrain);
+        if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
+        {
+            const char* msg = get_string(slbattr->tooltip_stridx);
+            char msg_buf[255];
+            strcpy(msg_buf, msg);
+            char* dis_msg = strtok(msg_buf, ":");
+            message_add(-127, dis_msg);
+        }
+        else
+        {
+            slab_cfgstats = get_slab_kind_stats(place_terrain);
+            message_add(-127, slab_cfgstats->code_name);           
+        }            
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
             slb = get_slabmap_block(slb_x, slb_y);
-            short slbkind;
             char s[3];
             if (is_key_pressed(KC_SLASH, KMod_NONE))
             {
-                 itoa(slb->kind, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_SLASH);
+                slab_cfgstats = get_slab_kind_stats(slb->kind);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, slab_cfgstats->code_name);
+                clear_key_pressed(KC_SLASH);
             }
             else if (is_key_pressed(KC_SLASH, KMod_SHIFT))
             {
-                 itoa(slabmap_owner(slb), s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_SLASH);
+                itoa(slabmap_owner(slb), s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_SLASH);
             }
             else if (is_key_pressed(KC_X, KMod_NONE))
             {
-                 itoa(stl_x, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_X);
+                itoa(stl_x, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_X);
             }
             else if (is_key_pressed(KC_Y, KMod_NONE))
             {
-                 itoa(stl_y, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_Y);
+                itoa(stl_y, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_Y);
             }
             else if (is_key_pressed(KC_X, KMod_SHIFT))
             {
-                 itoa(slb_x, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_X);
+                itoa(slb_x, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_X);
             }
             else if (is_key_pressed(KC_Y, KMod_SHIFT))
             {
-                 itoa(slb_y, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_Y);
+                itoa(slb_y, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_Y);
             }
             else if (is_key_pressed(KC_N, KMod_NONE))
             {
-                 itoa(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)), s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_N);
+                itoa(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)), s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_N);
             }
             else
             {
-                if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
-                {
-                    slbkind = SlbT_ROCK;
-                    clear_key_pressed(KC_NUMPAD0);
-                }
-                else if (is_key_pressed(KC_NUMPAD1, KMod_NONE))
-                {
-                    slbkind = SlbT_GOLD;
-                    clear_key_pressed(KC_NUMPAD1);
-                }
-                else if (is_key_pressed(KC_NUMPAD2, KMod_NONE))
-                {
-                    slbkind = SlbT_GEMS;
-                    clear_key_pressed(KC_NUMPAD2);
-                }
-                else if (is_key_pressed(KC_NUMPAD3, KMod_NONE))
-                {
-                    slbkind = SlbT_EARTH;
-                    clear_key_pressed(KC_NUMPAD3);
-                }
-                else if (is_key_pressed(KC_NUMPAD4, KMod_NONE))
-                {
-                    slbkind = SlbT_TORCHDIRT;
-                    clear_key_pressed(KC_NUMPAD4);
-                }
-                else if (is_key_pressed(KC_NUMPAD5, KMod_NONE))
-                {
-                    slbkind = SlbT_PATH;
-                    clear_key_pressed(KC_NUMPAD5);
-                }
-                else if (is_key_pressed(KC_NUMPAD6, KMod_NONE))
-                {
-                    slbkind = SlbT_CLAIMED;
-                    clear_key_pressed(KC_NUMPAD6);
-                }
-                else if (is_key_pressed(KC_NUMPAD7, KMod_NONE))
-                {
-                    slbkind = SlbT_LAVA;
-                    clear_key_pressed(KC_NUMPAD7);
-                }
-                else if (is_key_pressed(KC_NUMPAD8, KMod_NONE))
-                {
-                    slbkind = SlbT_WATER;
-                    clear_key_pressed(KC_NUMPAD8);
-                }
-                else if (is_key_pressed(KC_NUMPAD9, KMod_NONE))
-                {
-                    slbkind = rand() % (5) + 4;
-                    clear_key_pressed(KC_NUMPAD9);
-                }
-                else
-                {
-                    slbkind = 0;
-                }
                 if (subtile_is_room(stl_x, stl_y)) 
                 {
                     room = subtile_room_get(stl_x, stl_y);
                     delete_room_slab(slb_x, slb_y, true);
                 }
-                if (slab_kind_is_animated(slbkind))
+                PlayerNumber id;
+                if ( (place_terrain == SlbT_CLAIMED) || ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_DAMAGEDWALL) ) )
                 {
-                    place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, game.neutral_player_num);  
+                    id = slabmap_owner(slb);
                 }
                 else
                 {
-                    place_slab_type_on_map(slbkind, stl_x, stl_y, game.neutral_player_num, 0);
+                    id = game.neutral_player_num;
                 }
-                do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                if (slab_kind_is_animated(place_terrain))
+                {
+                    place_animating_slab_type_on_map(place_terrain, 0, stl_x, stl_y, id);
+                }
+                else
+                {
+                    if ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_WALLPAIRSHR) )
+                    {
+                        if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
+                        {
+                            place_terrain = choose_pretty_type(id, slb_x, slb_y);
+                        }
+                    }
+                    place_slab_type_on_map(place_terrain, stl_x, stl_y, id, 0);
+                    if ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_WALLPAIRSHR) )
+                    {
+                        place_terrain = rand() % (5) + 4;
+                    }
+                }
+                do_slab_efficiency_alteration(slb_x, slb_y);
             }
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);
+        break;
+    }
+    case PSt_DestroyThing:
+        thing = get_nearest_thing_at_position(stl_x, stl_y);
+        if (thing_is_invalid(thing))
+        {
+            player->thing_under_hand = 0;
+        }
+        else
+        {
+            player->thing_under_hand = thing->index;
+        }
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (player->thing_under_hand > 0)
+            {
+                room = get_room_thing_is_on(thing);
+                TbBool IsRoom = (!room_is_invalid(room));
+                switch(thing->class_id)
+                {
+                    case TCls_Door:
+                    {
+                        destroy_door(thing);
+                        break;                    
+                    }
+                    case TCls_Effect:
+                    {
+                        destroy_effect_thing(thing);
+                        break;
+                    }
+                    default:
+                    {
+                        if (thing_is_spellbook(thing))
+                        {
+                            if (!is_neutral_thing(thing)) 
+                            {
+                                remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
+                            }
+                        }
+                        else if (thing_is_workshop_crate(thing))
+                        {
+                            if (!is_neutral_thing(thing)) 
+                            {
+                                ThingClass tngclass = crate_thing_to_workshop_item_class(thing);
+                                ThingModel tngmodel = crate_thing_to_workshop_item_model(thing);
+                                if (IsRoom)
+                                {
+                                    remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap);
+                                }
+                                remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);                                
+                            }
+                        }
+                        destroy_object(thing);
+                        break;
+                    }
+                }
+                if (IsRoom)
+                {
+                    update_room_contents(room);
+                }
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);    
+        }
         break;
     default:
         ERRORLOG("Unrecognized player %d work state: %d", (int)plyr_idx, (int)player->work_state);
@@ -1711,7 +1863,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     }
     if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (influence_own_creatures))
     {
-      if ((player->field_455 == P454_Unkn0) || (player->field_455 == P454_Unkn3))
+      if (((player->secondary_cursor_state == CSt_DefaultArrow) || (player->secondary_cursor_state == CSt_PowerHand)) && (!dungeonadd->one_click_lock_cursor))
         stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
     }
     return ret;
@@ -1740,103 +1892,6 @@ TbBigChecksum get_thing_simple_checksum(const struct Thing *tng)
           }
       }
       return sum;
-}
-
-TbBool reinit_packets_after_load(void)
-{
-    game.packet_save_enable = false;
-    game.packet_load_enable = false;
-    game.packet_save_fp = -1;
-    game.packet_fopened = 0;
-    return true;
-}
-
-TbBool open_new_packet_file_for_save(void)
-{
-    // Filling the header
-    SYNCMSG("Starting packet saving, turn %lu",(unsigned long)game.play_gameturn);
-    game.packet_save_head.game_ver_major = VER_MAJOR;
-    game.packet_save_head.game_ver_minor = VER_MINOR;
-    game.packet_save_head.game_ver_release = VER_RELEASE;
-    game.packet_save_head.game_ver_build = VER_BUILD;
-    game.packet_save_head.level_num = get_loaded_level_number();
-    game.packet_save_head.players_exist = 0;
-    game.packet_save_head.players_comp = 0;
-    game.packet_save_head.chksum_available = game.packet_checksum_verify;
-    for (int i = 0; i < PLAYERS_COUNT; i++)
-    {
-        struct PlayerInfo* player = get_player(i);
-        if (player_exists(player))
-        {
-            game.packet_save_head.players_exist |= (1 << i) & 0xff;
-            if ((player->allocflags & PlaF_CompCtrl) != 0)
-              game.packet_save_head.players_comp |= (1 << i) & 0xff;
-        }
-    }
-    LbFileDelete(game.packet_fname);
-    game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_NEW);
-    if (game.packet_save_fp == -1)
-    {
-        ERRORLOG("Cannot open keeper packet file for save, \"%s\".",game.packet_fname);
-        game.packet_fopened = 0;
-        return false;
-    }
-    struct CatalogueEntry centry;
-    fill_game_catalogue_entry(&centry, "Packet file");
-    if (!save_packet_chunks(game.packet_save_fp,&centry))
-    {
-        WARNMSG("Cannot write to packet file, \"%s\".",game.packet_fname);
-        LbFileClose(game.packet_save_fp);
-        game.packet_fopened = 0;
-        game.packet_save_fp = -1;
-        return false;
-    }
-    game.packet_fopened = 1;
-    return true;
-}
-
-void load_packets_for_turn(GameTurn nturn)
-{
-    SYNCDBG(19,"Starting");
-    const int turn_data_size = PACKET_TURN_SIZE;
-    unsigned char pckt_buf[PACKET_TURN_SIZE+4];
-    struct Packet* pckt = get_packet(my_player_number);
-    TbChecksum pckt_chksum = pckt->chksum;
-    if (nturn >= game.turns_stored)
-    {
-        ERRORDBG(18,"Out of turns to load from Packet File");
-        erstat_inc(ESE_CantReadPackets);
-        return;
-    }
-
-    if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
-    {
-        ERRORDBG(18,"Cannot read turn data from Packet File");
-        erstat_inc(ESE_CantReadPackets);
-        return;
-    }
-    game.packet_file_pos += turn_data_size;
-    for (long i = 0; i < NET_PLAYERS_COUNT; i++)
-        LbMemoryCopy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
-    TbBigChecksum tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT * sizeof(struct Packet)]);
-    if (game.turns_fastforward > 0)
-        game.turns_fastforward--;
-    if (game.packet_checksum_verify)
-    {
-        pckt = get_packet(my_player_number);
-        if (get_packet_save_checksum() != tot_chksum)
-        {
-            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
-            if (!is_onscreen_msg_visible())
-              show_onscreen_msg(game.num_fps, "Out of sync");
-        } else
-        if (pckt->chksum != pckt_chksum)
-        {
-            ERRORLOG("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
-            if (!is_onscreen_msg_visible())
-              show_onscreen_msg(game.num_fps, "Out of sync");
-        }
-    }
 }
 
 void process_pause_packet(long curr_pause, long new_pause)
@@ -1888,10 +1943,10 @@ void process_pause_packet(long curr_pause, long new_pause)
       }
       if ((game.operation_flags & GOF_Paused) != 0)
       {
-          if ((player->field_3 & Pf3F_Unkn08) != 0)
+          if ((player->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
           {
               PaletteSetPlayerPalette(player, engine_palette);
-              player->field_3 &= ~Pf3F_Unkn08;
+              player->additional_flags &= ~PlaAF_LightningPaletteIsActive;
           }
       }
   }
@@ -1916,7 +1971,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         inter_val = 256;
         break;
     }
-    if (pckt->field_10 & PCAdV_SpeedupPressed)
+    if (pckt->additional_packet_values & PCAdV_SpeedupPressed)
       inter_val *= 3;
 
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
@@ -1960,10 +2015,20 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsometricView:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            if (is_my_player(player))
+            {
+                settings.isometric_view_zoom_level = cam->zoom;
+                save_settings();
+            }
             break;
         default:
             view_zoom_camera_in(cam, zoom_max, zoom_min);
             break;
+        }
+        if (is_my_player(player))
+        {
+            settings.frontview_zoom_level = cam->zoom;
+            save_settings();
         }
     }
     if (pckt->control_flags & PCtr_ViewZoomOut)
@@ -1973,9 +2038,19 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         case PVM_IsometricView:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
             update_camera_zoom_bounds(cam, zoom_max, zoom_min);
+            if (is_my_player(player))
+            {
+                settings.isometric_view_zoom_level = cam->zoom;
+                save_settings();
+            }
             break;
         default:
             view_zoom_camera_out(cam, zoom_max, zoom_min);
+            if (is_my_player(player))
+            {
+                settings.frontview_zoom_level = cam->zoom;
+                save_settings();
+            }
             break;
         }
     }
@@ -2061,7 +2136,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         if ((!winning_quit) || (plyr_count <= 1))
           LbNetwork_Stop();
         else
-          myplyr->field_3 |= Pf3F_Unkn10;
+          myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
       } else
       {
         if (!winning_quit)
@@ -2085,7 +2160,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
         if (plyr_count <= 1)
           LbNetwork_Stop();
         else
-          myplyr->field_3 |= Pf3F_Unkn10;
+          myplyr->additional_flags |= PlaAF_UnlockedLordTorture;
       }
       quit_game = 1;
       if (complete_quit)
@@ -2211,12 +2286,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       process_pause_packet((game.operation_flags & GOF_Paused) == 0, pckt->actn_par1);
       return 1;
   case PckA_SetCluedo:
+      player->video_cluedo_mode = pckt->actn_par1;
       if (is_my_player(player))
       {
-          settings.video_cluedo_mode = pckt->actn_par1;
-          save_settings();
+        settings.video_cluedo_mode = player->video_cluedo_mode;
+        save_settings();
       }
-      player->video_cluedo_mode = pckt->actn_par1;
       return 0;
   case PckA_Unknown025:
       if (is_my_player(player))
@@ -2237,6 +2312,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_SetMinimapConf:
       player->minimap_zoom = pckt->actn_par1;
+      if (is_my_player(player))
+      {
+        settings.minimap_zoom = player->minimap_zoom;
+        save_settings();
+      }
       return 0;
   case PckA_SetMapRotation:
       player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
@@ -2507,8 +2587,8 @@ void process_players_packet(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6, "Processing player %d packet of type %d.", plyr_idx, (int)pckt->action);
-    player->input_crtr_control = ((pckt->field_10 & PCAdV_CrtrContrlPressed) != 0);
-    player->input_crtr_query = ((pckt->field_10 & PCAdV_CrtrQueryPressed) != 0);
+    player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
+    player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
     if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
     {
         process_players_message_character(player);
@@ -2763,116 +2843,6 @@ void process_players_creature_control_packet_action(long plyr_idx)
       }
       break;
   }
-}
-
-TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
-{
-    LbMemorySet(centry, 0, sizeof(struct CatalogueEntry));
-    strcpy(game.packet_fname, fname);
-    game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
-    if (game.packet_save_fp == -1)
-    {
-        ERRORLOG("Cannot open keeper packet file for load");
-        game.packet_fopened = 0;
-        return false;
-    }
-    int i = load_game_chunks(game.packet_save_fp, centry);
-    if ((i != GLoad_PacketStart) && (i != GLoad_PacketContinue))
-    {
-        LbFileClose(game.packet_save_fp);
-        game.packet_save_fp = -1;
-        game.packet_fopened = 0;
-        WARNMSG("Couldn't correctly read packet file \"%s\" header.",fname);
-        return false;
-    }
-    game.packet_file_pos = LbFilePosition(game.packet_save_fp);
-    game.turns_stored = (LbFileLengthHandle(game.packet_save_fp) - game.packet_file_pos) / PACKET_TURN_SIZE;
-    if ((game.packet_checksum_verify) && (!game.packet_save_head.chksum_available))
-    {
-        WARNMSG("PacketSave checksum not available, checking disabled.");
-        game.packet_checksum_verify = false;
-    }
-    if (game.log_things_start_turn == -1)
-    {
-        game.log_things_start_turn = 0;
-        game.log_things_end_turn = game.turns_stored + 1;
-    }
-    game.packet_fopened = 1;
-    return true;
-}
-
-void post_init_packets(void)
-{
-    SYNCDBG(6,"Starting");
-    if ((game.packet_load_enable) && (game.numfield_149F47))
-    {
-        struct CatalogueEntry centry;
-        open_packet_file_for_load(game.packet_fname, &centry);
-        game.pckt_gameturn = 0;
-    }
-    clear_packets();
-}
-
-short save_packets(void)
-{
-    const int turn_data_size = PACKET_TURN_SIZE;
-    unsigned char pckt_buf[PACKET_TURN_SIZE+4];
-    TbBigChecksum chksum;
-    SYNCDBG(6,"Starting");
-    if (game.packet_checksum_verify)
-      chksum = get_packet_save_checksum();
-    else
-      chksum = 0;
-    LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
-    // Prepare data in the buffer
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-        LbMemoryCopy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[i], sizeof(struct Packet));
-    LbMemoryCopy(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)], &chksum, sizeof(TbBigChecksum));
-    // Write buffer into file
-    if (LbFileWrite(game.packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
-    {
-      ERRORLOG("Packet file write error");
-    }
-    if ( !LbFileFlush(game.packet_save_fp) )
-    {
-      ERRORLOG("Unable to flush PacketSave File");
-      return false;
-    }
-    return true;
-}
-
-void close_packet_file(void)
-{
-    if ( game.packet_fopened )
-    {
-        LbFileClose(game.packet_save_fp);
-        game.packet_fopened = 0;
-        game.packet_save_fp = -1;
-    }
-}
-
-void dump_memory_to_file(const char * fname, const char * buf, size_t len)
-{
-    FILE* file = fopen(fname, "w");
-    fwrite(buf, 1, len, file);
-    fflush(file);
-    fclose(file);
-}
-
-void write_debug_packets(void)
-{
-    //note, changed this to be more general and to handle multiplayer where there can
-    //be several players writing to same directory if testing on local machine
-    char filename[32];
-    snprintf(filename, sizeof(filename), "%s%u.%s", "keeperd", my_player_number, "pck");
-    dump_memory_to_file(filename, (char*) game.packets, sizeof(game.packets));
-}
-
-void write_debug_screenpackets(void)
-{
-    char filename[32];
-    snprintf(filename, sizeof(filename), "%s%u.%s", "keeperd", my_player_number, "spck");
-    dump_memory_to_file(filename, (char*) net_screen_packet, sizeof(net_screen_packet));
 }
 
 /**

@@ -182,7 +182,7 @@ TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job)
         return false;
     }
     cctrl->job_assigned = new_job;
-    SYNCLOG("Assigned job %s for %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(thing),(int)thing->index,(int)thing->owner);
+    SYNCDBG(6,"Assigned job %s for %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(thing),(int)thing->index,(int)thing->owner);
     return true;
 }
 
@@ -341,7 +341,7 @@ TbBool attempt_anger_job_persuade(struct Thing *creatng)
     if (persuade_count <= 0) {
         return false;
     }
-    persuade_count = ACTION_RANDOM(persuade_count) + 1;
+    persuade_count = CREATURE_RANDOM(creatng, persuade_count) + 1;
     if (!external_set_thing_state(creatng, CrSt_CreaturePersuade)) {
         return false;
     }
@@ -351,7 +351,7 @@ TbBool attempt_anger_job_persuade(struct Thing *creatng)
 
 TbBool attempt_anger_job_join_enemy(struct Thing *creatng)
 {
-    int n = ACTION_RANDOM(PLAYERS_COUNT);
+    int n = CREATURE_RANDOM(creatng, PLAYERS_COUNT);
     for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
     {
         if ((n == game.neutral_player_num) || (n == creatng->owner))
@@ -441,9 +441,9 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
         return false;
     }
     // Select a random job as a starting point
-    int n = ACTION_RANDOM(i) + 1;
+    int n = CREATURE_RANDOM(creatng, i) + 1;
     i = 0;
-    for (k = 0; k < crtr_conf.angerjobs_count; k++)
+    for (k = 0; k < gameadd.crtr_conf.angerjobs_count; k++)
     {
         if ((crstat->jobs_anger & (1 << k)) != 0) {
             n--;
@@ -454,14 +454,14 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
         }
     }
     // Go through all jobs, starting at randomly selected one, attempting to start each one
-    for (k = 0; k < crtr_conf.angerjobs_count; k++)
+    for (k = 0; k < gameadd.crtr_conf.angerjobs_count; k++)
     {
         if ((crstat->jobs_anger & (1 << i)) != 0)
         {
           if (attempt_anger_job(creatng, 1 << i))
               return 1;
         }
-        i = (i+1) % crtr_conf.angerjobs_count;
+        i = (i+1) % gameadd.crtr_conf.angerjobs_count;
     }
     return 0;
 }
@@ -589,7 +589,8 @@ TbBool creature_can_do_barracking_for_player(const struct Thing *creatng, Player
  * @return
  * @see creature_move_to_place_in_room()
  */
-TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const struct Room *room, CreatureJob jobpref)
+TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const struct Room *room, CreatureJob jobpref,
+        struct Thing *thing)
 {
     if (!room_exists(room)) {
         return false;
@@ -600,20 +601,20 @@ TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const str
     {
     case JoKF_AssignOnAreaBorder:
         SYNCDBG(9,"Job %s requires dropping at %s border",creature_job_code_name(jobpref),room_code_name(room->kind));
-        result = find_random_position_at_area_of_room(pos, room, RoArC_BORDER);
+        result = find_random_position_at_area_of_room(pos, room, RoArC_BORDER, thing);
         break;
     case JoKF_AssignOnAreaCenter:
         SYNCDBG(9,"Job %s requires dropping at %s center",creature_job_code_name(jobpref),room_code_name(room->kind));
-        result = find_random_position_at_area_of_room(pos, room, RoArC_CENTER);
+        result = find_random_position_at_area_of_room(pos, room, RoArC_CENTER, thing);
         result = true;
         break;
     case (JoKF_AssignOnAreaBorder|JoKF_AssignOnAreaCenter):
         SYNCDBG(9,"Job %s has no %s area preference",creature_job_code_name(jobpref),room_code_name(room->kind));
-        result = find_random_position_at_area_of_room(pos, room, RoArC_ANY);
+        result = find_random_position_at_area_of_room(pos, room, RoArC_ANY, thing);
         break;
     default:
         WARNLOG("Invalid drop area flags 0x%04x for job %s",(int)room_area,creature_job_code_name(jobpref));
-        result = find_random_position_at_area_of_room(pos, room, RoArC_ANY);
+        result = find_random_position_at_area_of_room(pos, room, RoArC_ANY, thing);
         break;
     }
     return result;
@@ -626,7 +627,7 @@ TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const str
  * @param drop_kind_flags Flags to select whether we want to set to init or drop the creature.
  * @return
  */
-TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const struct Dungeon *dungeon, const struct Thing *creatng, CreatureJob new_job, unsigned long drop_kind_flags)
+TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const struct Dungeon *dungeon, struct Thing *creatng, CreatureJob new_job, unsigned long drop_kind_flags)
 {
     struct CreatureJobConfig* jobcfg = get_config_for_job(new_job);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
@@ -646,7 +647,7 @@ TbBool get_drop_position_for_creature_job_in_dungeon(struct Coord3d *pos, const 
         }
         struct Room* room = get_room_of_given_role_for_thing(creatng, dungeon, jobcfg->room_role, needed_capacity);
         // Returns position, either on border on within room center
-        if (get_drop_position_for_creature_job_in_room(pos, room, new_job)) {
+        if (get_drop_position_for_creature_job_in_room(pos, room, new_job, creatng)) {
             return true;
         }
         SYNCDBG(3,"No place to assign %s for %s index %d owner %d within room",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
@@ -1101,11 +1102,11 @@ TbBool attempt_job_in_state_internal_near_pos(struct Thing *creatng, MapSubtlCoo
 TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
 {
     // Start checking at random job
-    if (crtr_conf.jobs_count < 1) {
+    if (gameadd.crtr_conf.jobs_count < 1) {
         return false;
     }
-    long n = ACTION_RANDOM(crtr_conf.jobs_count);
-    for (long i = 0; i < crtr_conf.jobs_count; i++, n = (n + 1) % crtr_conf.jobs_count)
+    long n = CREATURE_RANDOM(creatng, gameadd.crtr_conf.jobs_count);
+    for (long i = 0; i < gameadd.crtr_conf.jobs_count; i++, n = (n + 1) % gameadd.crtr_conf.jobs_count)
     {
         if (n == 0)
             continue;
@@ -1137,12 +1138,12 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     if (i <= 0) {
         return false;
     }
-    unsigned long select_val = ACTION_RANDOM(512);
+    unsigned long select_val = CREATURE_RANDOM(creatng, 512);
     unsigned long select_delta = 512 / i;
     unsigned long select_curr = select_delta;
     // For some reason, this is a bit different than attempt_job_preference().
     // Probably needs unification
-    for (i=1; i < crtr_conf.jobs_count; i++)
+    for (i=1; i < gameadd.crtr_conf.jobs_count; i++)
     {
         CreatureJob new_job = 1<<(i-1);
         if ((jobpref & new_job) == 0) {
@@ -1161,7 +1162,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         }
     }
     // If no job, give 1% chance of going to temple
-    if (ACTION_RANDOM(100) == 0)
+    if (CREATURE_RANDOM(creatng, 100) == 0)
     {
         CreatureJob new_job = Job_TEMPLE_PRAY;
         if (creature_can_do_job_for_player(creatng, creatng->owner, new_job, JobChk_None))

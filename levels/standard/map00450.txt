@@ -1,0 +1,430 @@
+REM ****************************************************************************
+REM  Free Play levels - KeeperFX
+REM ****************************************************************************
+REM  Script for Level 450 - The Death Clock
+REM  Author:  Loobinex
+REM  Date:    2015-08-29
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
+LEVEL_VERSION(1)
+SET_GENERATE_SPEED(400)
+START_MONEY(PLAYER0,800)
+MAX_CREATURES(PLAYER0,18)
+
+REM ****************************************************************************
+REM Flags used:
+REM  PLAYER0,FLAG1	- Level progress
+REM						0: Starting out
+REM						1: Chosen creature
+REM						2: Power returned - countdown to hero attack started
+REM						3: Countdown is over, first wave of heroes has spawned
+REM						4: Second wave of heroes has spawned
+REM						5: Final wave of heroes has spawned. Kill everything that carries a sword to win the level.
+REM  PLAYER0,FLAG2	- Continuous spawning of thieves to steal gold.
+REM						0: Heroes have treasure room, no activity
+REM						1: Treasure room stolen, party spawned. Player must kill party.
+REM						2: Party killed, Timer 3 started. When Timer 3 reaches 2500, Spawn party and return to 1.
+REM						3: Spawning stopped.
+REM PLAYER0,FLAG3	-	1: Hero fortress found
+
+REM Timers used:
+REM   PLAYER_GOOD,TIMER1 	- From claiming dungeon until final hero attack.
+REM   PLAYER_GOOD,TIMER2 	- Hero parties spawning when yellow dungeon claimed.
+REM   PLAYER_GOOD,TIMER3 	- Continuous spawning of thieves to steal gold.
+REM   PLAYER0,TIMER4 		- Victory timer
+
+REM Action Points and Hero Gates
+REM Action Point 1 - Player portal
+REM Action Point 2 - Workshop
+REM Action Point 3 - Top left, detect player
+REM Action Point 4 - Top left, spawn tentacles on trigger of AP3
+REM Action Point 5 - Yellow dungeon entrance
+REM Action Point 6 - Yellow library
+REM Action Point 7 - Yellow workshop
+REM Action Point 8 - Yellow treasury
+REM Action Point 9 - Hero fortress north
+REM Action Point 10 - Hero fortress south
+REM Action Point 11 - Hero fortress entrance
+REM Hero Gate 1 - Near dungeon heart, left
+REM Hero Gate 2 - Near dungeon heart, right
+REM Hero Gate 3 - Decorative, near captured Orcs
+REM Hero Gate 4 - Near yellow Dungeon, left
+REM Hero Gate 5 - Near yellow Dungeon, right
+REM Hero Gate 6 - Next to hero treasury
+REM Hero Gate 7 - Hero fortress center
+REM Hero Gate 8 - Decorative, next to dwarven gold
+
+REM ****************************************************************************
+REM Initial availability
+REM ****************************************************************************
+ROOM_AVAILABLE(PLAYER0,TREASURE,1,0)
+ROOM_AVAILABLE(PLAYER0,LAIR,1,0)
+ROOM_AVAILABLE(PLAYER0,GARDEN,1,0)
+ROOM_AVAILABLE(PLAYER0,TRAINING,1,0)
+ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
+ROOM_AVAILABLE(PLAYER0,SCAVENGER,1,1)
+ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
+ROOM_AVAILABLE(PLAYER0,WORKSHOP,0,0)
+ROOM_AVAILABLE(PLAYER0,BARRACKS,0,0)
+ROOM_AVAILABLE(PLAYER0,GUARD_POST,0,0)
+ROOM_AVAILABLE(PLAYER0,TORTURE,0,0)
+ROOM_AVAILABLE(PLAYER0,GRAVEYARD,0,0)
+
+MAGIC_AVAILABLE(PLAYER0,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(PLAYER0,POWER_HAND,0,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_POSSESS,0,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_IMP,0,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_SIGHT,0,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_HEAL_CREATURE,0,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,0,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_OBEY,0,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_PROTECT,0,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_SPEED,0,0)
+
+ADD_CREATURE_TO_POOL(FLY,1)
+ADD_CREATURE_TO_POOL(TROLL,1)
+ADD_CREATURE_TO_POOL(ORC,2)
+ADD_CREATURE_TO_POOL(DEMONSPAWN,0)
+ADD_CREATURE_TO_POOL(TENTACLE,0)
+ADD_CREATURE_TO_POOL(SPIDER,0)
+ADD_CREATURE_TO_POOL(BUG,0)
+ADD_CREATURE_TO_POOL(HELL_HOUND,2)
+ADD_CREATURE_TO_POOL(BILE_DEMON,0)
+ADD_CREATURE_TO_POOL(SORCEROR,0)
+ADD_CREATURE_TO_POOL(DARK_MISTRESS,1)
+
+CREATURE_AVAILABLE(PLAYER0,FLY,0,0)
+CREATURE_AVAILABLE(PLAYER0,TROLL,1,0)
+CREATURE_AVAILABLE(PLAYER0,ORC,1,0)
+CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,0)
+CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,2)
+CREATURE_AVAILABLE(PLAYER0,SPIDER,1,0)
+CREATURE_AVAILABLE(PLAYER0,BUG,1,0)
+CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,0,0)
+CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,0)
+CREATURE_AVAILABLE(PLAYER0,SORCEROR,1,0)
+CREATURE_AVAILABLE(PLAYER0,DARK_MISTRESS,1,0)
+
+REM: Traps available: Lightning
+REM: Doors available: Braced, Steel, Magic
+
+REM ****************************************************************************
+REM Additional availability
+REM ****************************************************************************
+
+IF(PLAYER0,IMP >= 1)
+	MAGIC_AVAILABLE(PLAYER0,POWER_IMP,1,0)
+	TUTORIAL_FLASH_BUTTON(21,40)
+ENDIF
+
+IF(PLAYER0,TROLL >= 1)
+	ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
+	TUTORIAL_FLASH_BUTTON(13,40)
+	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
+	TUTORIAL_FLASH_BUTTON(18,40)
+	DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+	DOOR_AVAILABLE(PLAYER0,STEEL,1,0)
+ENDIF
+
+IF(PLAYER0,ORC >= 1)
+	ROOM_AVAILABLE(PLAYER0,BARRACKS,1,0)
+	TUTORIAL_FLASH_BUTTON(16,40)
+	ROOM_AVAILABLE(PLAYER0,GUARD_POST,1,0)
+	TUTORIAL_FLASH_BUTTON(19,40)
+ENDIF
+
+IF(PLAYER0,ENTRANCE >= 18)
+	PLAY_MESSAGE(PLAYER0,SOUND,168)
+	CREATURE_AVAILABLE(PLAYER0,HELL_HOUND,1,0)
+	MAX_CREATURES(PLAYER0,25)
+ENDIF
+
+IF(PLAYER0,DARK_MISTRESS >= 1)
+	ROOM_AVAILABLE(PLAYER0,TORTURE,1,0)
+	TUTORIAL_FLASH_BUTTON(17,40)
+ENDIF
+
+REM ****************************************************************************
+REM Hero Parties
+REM ****************************************************************************
+
+CREATE_PARTY(Pinata)
+	ADD_TO_PARTY(Pinata,FAIRY,6,1500,STEAL_GOLD,0)
+	ADD_TO_PARTY(Pinata,FAIRY,5,750,STEAL_GOLD,0)
+	ADD_TO_PARTY(Pinata,FAIRY,5,750,STEAL_GOLD,0)
+	ADD_TO_PARTY(Pinata,FAIRY,3,500,STEAL_GOLD,0)
+	ADD_TO_PARTY(Pinata,FAIRY,3,500,STEAL_GOLD,0)
+
+CREATE_PARTY(Candy)
+	ADD_TO_PARTY(Candy,ARCHER,6,1500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Candy,MONK,6,1500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Candy,DWARFA,6,1500,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(Cake)
+	ADD_TO_PARTY(Cake,SAMURAI,7,2500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cake,GIANT,6,2000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cake,GIANT,6,2500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cake,BARBARIAN,6,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cake,BARBARIAN,6,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cake,DWARFA,6,750,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cake,DWARFA,5,500,ATTACK_ENEMIES,0)
+	
+CREATE_PARTY(Shots)
+	ADD_TO_PARTY(Shots,MONK,7,750,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Shots,ARCHER,6,750,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Shots,DWARFA,5,500,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(Surprise)
+	ADD_TO_PARTY(Surprise,SAMURAI,8,1500,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Surprise,WIZARD,8,1500,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Surprise,GIANT,8,1500,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Surprise,GIANT,8,1500,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Surprise,GIANT,8,1500,ATTACK_DUNGEON_HEART,0)
+	
+CREATE_PARTY(Snacks)
+	ADD_TO_PARTY(Snacks,DWARFA,1,50,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Snacks,DWARFA,2,50,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Snacks,DWARFA,3,50,ATTACK_DUNGEON_HEART,0)
+
+CREATE_PARTY(Fireworks)
+	ADD_TO_PARTY(Fireworks,WIZARD,6,100,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Fireworks,WIZARD,5,100,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Fireworks,MONK,7,100,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Fireworks,MONK,6,100,ATTACK_DUNGEON_HEART,0)
+	
+CREATE_PARTY(Hangover)
+	ADD_TO_PARTY(Hangover,KNIGHT,10,10000,ATTACK_DUNGEON_HEART,0)
+	ADD_TO_PARTY(Hangover,SAMURAI,7,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Hangover,SAMURAI,7,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Hangover,KNIGHT,4,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Hangover,KNIGHT,4,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Hangover,KNIGHT,4,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Hangover,KNIGHT,4,200,ATTACK_ENEMIES,0)
+	
+CREATE_PARTY(Cleanup)
+	ADD_TO_PARTY(Cleanup,SAMURAI,8,5000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cleanup,KNIGHT,5,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cleanup,SAMURAI,5,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cleanup,KNIGHT,4,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cleanup,KNIGHT,4,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cleanup,KNIGHT,4,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(Cleanup,SAMURAI,4,200,ATTACK_ENEMIES,0)
+	
+REM ****************************************************************************
+REM Level starts here
+REM ****************************************************************************
+
+REM "Your dungeon lies in ruins and you are powerless. Fortunately the Dungeon Heart is still intact. Reclaim it to get back your strength."
+DISPLAY_OBJECTIVE(111,PLAYER0)
+
+IF(PLAYER0,FLAG1 == 0)
+	IF(PLAYER0,RESEARCH >= 12)
+		ADD_CREATURE_TO_LEVEL(PLAYER0,SORCEROR,1,1,4,250)
+		SET_FLAG(PLAYER0,FLAG1,1)
+	ENDIF
+	IF(PLAYER0,SCAVENGER >= 12)
+		ADD_CREATURE_TO_LEVEL(PLAYER0,VAMPIRE,1,1,4,250)
+		SET_FLAG(PLAYER0,FLAG1,1)
+	ENDIF
+ENDIF
+
+
+IF(PLAYER0,FLAG1 == 1)
+	MAGIC_AVAILABLE(ALL_PLAYERS,POWER_POSSESS,1,1)
+	TUTORIAL_FLASH_BUTTON(36,100)
+
+	REM: "So be it."
+	PLAY_MESSAGE(PLAYER0,SPEECH,80)
+	
+	REM: You have no chance in hell without your creature.
+	IF(PLAYER0,TOTAL_CREATURES <= 0)
+		REM "You lost your only creature. You needed it to get claim the tiles around your heart. Hopeless."
+		DISPLAY_OBJECTIVE(122,PLAYER0)
+		LOSE_GAME
+	ENDIF
+ENDIF
+
+REM: Start the timer as soon as the player has claimed the area around his dungeon.
+IF(PLAYER0,TOTAL_AREA >= 100)
+	MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+	REM "Good, you have your dungeon back, your power is returning. The heroes know, they will return to kill us all. Make the most of your final moments."
+	DISPLAY_OBJECTIVE(112,-1)
+	PLAY_MESSAGE(PLAYER0,SOUND,116)
+	BONUS_LEVEL_TIME(90000)
+	SET_TIMER(PLAYER_GOOD,TIMER1)
+	CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
+	SET_FLAG(PLAYER0,FLAG1,2)
+ENDIF
+
+IF(PLAYER_GOOD,TIMER1 >= 5000)
+	REM "If you want the heroes to remember your final battle, quickly take whatever you can from their remaining forces here and the keeper they left for dead."
+	DISPLAY_OBJECTIVE(113,ALL_PLAYERS)
+ENDIF
+
+REM: To limit creatures on map, only spawn tentacles when the player is near.
+IF_ACTION_POINT(3,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,TENTACLE,4,3,7,2500)
+ENDIF
+
+REM: If close to the yellow dungeon, spawn the creatures there, and warn the player about having to fight heroes if he enters.
+IF_ACTION_POINT(5,PLAYER0)
+	REM "Heroes waltzed over your former rival, I'm sure they will muster a counter attack if you claim this dungeon and its riches as your own."
+	DISPLAY_OBJECTIVE(114,5)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,6,3,5,500)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,WIZARD,6,2,6,600)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DWARFA,7,4,4,400)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,THIEF,8,4,4,3000)
+ENDIF
+
+REM: Claim the yellow dungeon to get access to new traps and spells found there and trigger counter attacks.
+IF_AVAILABLE(PLAYER0,LIGHTNING >= 1)
+	TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+	PLAY_MESSAGE(PLAYER0,SPEECH,74)
+	TUTORIAL_FLASH_BUTTON(56,30)
+	DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
+	PLAY_MESSAGE(PLAYER0,SPEECH,73)
+	TUTORIAL_FLASH_BUTTON(61,30)
+	SET_TIMER(PLAYER_GOOD,TIMER2)
+ENDIF
+IF(PLAYER_GOOD,TIMER2 >= 5000)
+	PLAY_MESSAGE(PLAYER0,SPEECH,125)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Candy,-4,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Candy,-5,1)
+	REM "Heroes! Send in the hounds! Then have them lick your wounds, because I'm sure there are more to come."
+	DISPLAY_INFORMATION(115,5)
+ENDIF
+IF(PLAYER_GOOD,TIMER2 >= 10000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Cake,-4,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Cake,-5,1)
+	REM "A sizeable graveyard would be useful right about now,..."
+	DISPLAY_INFORMATION(116,5)
+ENDIF
+
+REM When hero party has lost big treasure room, continuously spawn fairy party
+REM ****************************
+REM Spawn party, initialize loop
+IF(PLAYER_GOOD,TREASURE <= 24)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Pinata,-6,1)
+	SET_FLAG(PLAYER0,FLAG2,1)
+ENDIF
+REM: When treasure room is stolen and tunneller defeated, start/reset timer
+IF(PLAYER0,FLAG2 == 1)
+	IF_CONTROLS(PLAYER_GOOD,TUNNELLER <= 0)
+		NEXT_COMMAND_REUSABLE
+		SET_TIMER(PLAYER_GOOD,TIMER3)
+		NEXT_COMMAND_REUSABLE
+		SET_FLAG(PLAYER0,FLAG2,2)
+	ENDIF
+ENDIF
+REM: When timer reaches 2 minutes, Spawn party reset flag.
+IF(PLAYER0,FLAG2 == 2)
+	IF(PLAYER_GOOD,TIMER3 >= 6000)
+		NEXT_COMMAND_REUSABLE
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Pinata,-6,1)
+		NEXT_COMMAND_REUSABLE
+		SET_FLAG(PLAYER0,FLAG2,1)
+	ENDIF
+ENDIF
+
+
+REM: When player finds the hero fortress, spawn the heroes. When fighting the second party, reinforcements arrive from central hero gate.
+IF_ACTION_POINT(11,PLAYER0)
+	SET_FLAG(PLAYER0,FLAG3,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Shots,9,2)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Shots,10,2)
+ENDIF
+IF_ACTION_POINT(9,PLAYER0)
+	IF_ACTION_POINT(10,PLAYER0)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Surprise,-7,1)
+		REM "Kill all the heroes you can find. They will do the same thing to you soon enough."
+		DISPLAY_OBJECTIVE(117,-7)
+	ENDIF
+ENDIF
+REM: If not found yet, let the player know about the hero fortress.
+IF(PLAYER_GOOD,TIMER2 >= 14000)
+	IF(PLAYER0,FLAG3 == 0)
+		REM "In the east the heroes have a fortress. Why don't you go find out what it contains?"
+		DISPLAY_OBJECTIVE(118,-7)
+	ENDIF
+ENDIF
+
+REM Endgame Starting!
+REM ****************************
+IF(PLAYER_GOOD,TIMER1 >= 88800)
+	REM "Mole-man save us, they are almost here! Place more traps now or hope your little army is stronger than it looks."
+	DISPLAY_INFORMATION(119,PLAYER0)
+ENDIF
+
+REM: Spawn 50 dwarves. O, wait, two of them are giants. Also spawn final party of fairies just to be a dick.
+IF(PLAYER_GOOD,TIMER1 >= 90000)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Pinata,-6,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Snacks,-1,8)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Snacks,-2,8)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,GIANT,-1,1,10,0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,GIANT,-2,1,10,0)
+
+	REM: Kill left over good wizards/samurai, to not mess up the counts of next wave. Add them to final party to punish player.
+	IF_CONTROLS(PLAYER_GOOD,WIZARD >= 1)
+		KILL_CREATURE(PLAYER_GOOD,WIZARD,MOST_EXPERIENCED,10)
+		ADD_TO_PARTY(Fireworks,WIZARD,6,100,ATTACK_DUNGEON_HEART,0)
+	ENDIF
+	IF_CONTROLS(PLAYER_GOOD,SAMURAI >= 1)
+		KILL_CREATURE(PLAYER_GOOD,SAMURAI,MOST_EXPERIENCED,10)
+		ADD_TO_PARTY(Fireworks,SAMURAI,8,100,ATTACK_DUNGEON_HEART,0)
+	ENDIF
+	
+	SET_FLAG(PLAYER0,FLAG1,3)
+ENDIF
+
+REM: When a few dwarves are dead, it is time for the Wizards and Monks. Hide counter.
+IF(PLAYER0,FLAG1 == 3)
+	BONUS_LEVEL_TIME(0)
+	IF_CONTROLS(PLAYER_GOOD,DWARFA <= 30)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Fireworks,-1,2)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Fireworks,-2,2)
+		SET_FLAG(PLAYER0,FLAG1,4)
+	ENDIF
+ENDIF
+
+REM: When half the Wizards are dead, the final parties appears from either side.
+IF(PLAYER0,FLAG1 == 4)
+	IF_CONTROLS(PLAYER_GOOD,WIZARD <= 4)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Hangover,DRAWFROM(-2,-1),1)
+		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,Cleanup,DRAWFROM(-2,-1),1)
+		SET_FLAG(PLAYER0,FLAG1,5)
+	ENDIF
+ENDIF
+
+REM: If Knights and Samurai are dead, you've won in a few seconds. Kill any possible left over heroes just in case.
+IF(PLAYER0,FLAG1 == 5)
+	IF_CONTROLS(PLAYER_GOOD,KNIGHT >= 1)
+		IF_CONTROLS(PLAYER0,TOTAL_CREATURES <= 2)
+			REM "I have a bad feeling about this. You know you are supposed to kill the little white men right?"
+			DISPLAY_OBJECTIVE(120,PLAYER0)
+		ENDIF
+	ENDIF
+	IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
+		IF_CONTROLS(PLAYER_GOOD,SAMURAI <= 0)
+			KILL_CREATURE(PLAYER_GOOD,WIZARD,MOST_EXPERIENCED,10)
+			KILL_CREATURE(PLAYER_GOOD,MONK,MOST_EXPERIENCED,10)
+			KILL_CREATURE(PLAYER_GOOD,GIANT,MOST_EXPERIENCED,10)
+			KILL_CREATURE(PLAYER_GOOD,DWARFA,MOST_EXPERIENCED,50)
+			SET_TIMER(PLAYER0,TIMER4)
+			REM "Yes, we have some creatures left! I never doubted you for a second. Congratulations!"
+			DISPLAY_OBJECTIVE(121,PLAYER0)
+			REM "The battle is over."
+			PLAY_MESSAGE(PLAYER0,SPEECH,21)
+		ENDIF
+	ENDIF
+ENDIF
+IF(PLAYER0,TIMER4 >= 200)
+	WIN_GAME
+ENDIF
+
+REM ****************************************************************************
+REM End of file
+REM ****************************************************************************

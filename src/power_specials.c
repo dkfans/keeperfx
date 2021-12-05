@@ -181,7 +181,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     struct Dungeon* herodngn = get_players_num_dungeon(game.hero_player_num);
     unsigned long k = 0;
     if (herodngn->num_active_creatrs > 0) {
-        heronum = ACTION_RANDOM(herodngn->num_active_creatrs);
+        heronum = PLAYER_RANDOM(game.hero_player_num, herodngn->num_active_creatrs);
         i = herodngn->creatr_list_start;
         SYNCDBG(4,"Selecting random creature %d out of %d heroes",(int)heronum,(int)herodngn->num_active_creatrs);
     } else {
@@ -235,7 +235,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
     }
     else
     {
-        i = ACTION_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
+        i = PLAYER_RANDOM(game.hero_player_num, sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
         struct Thing* creatng = create_creature(pos, prefer_steal_models[i], player->id_number);
         if (thing_is_invalid(creatng))
             return false;
@@ -569,8 +569,8 @@ SpecialKind box_thing_to_special(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= object_conf.object_types_count) )
+    if ( (thing->class_id != TCls_Object) || (thing->model >= gameadd.object_conf.object_types_count) )
         return 0;
-    return object_conf.object_to_special_artifact[thing->model];
+    return gameadd.object_conf.object_to_special_artifact[thing->model];
 }
 /******************************************************************************/

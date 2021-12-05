@@ -64,7 +64,7 @@ short at_kinky_torture_room(struct Thing *thing)
         return 0;
     }
     add_creature_to_torture_room(thing, room);
-    cctrl->word_A6 = 0;
+    cctrl->assigned_torturer = 0;
     cctrl->turns_at_job = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->tortured.long_9Ex = game.play_gameturn;
@@ -98,7 +98,7 @@ short at_torture_room(struct Thing *thing)
     }
     add_creature_to_torture_room(thing, room);
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
-    cctrl->word_A6 = 0;
+    cctrl->assigned_torturer = 0;
     cctrl->turns_at_job = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->tortured.long_9Ex = game.play_gameturn;
@@ -111,14 +111,14 @@ short at_torture_room(struct Thing *thing)
 short cleanup_torturing(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->word_A6 > 0)
+    if (cctrl->assigned_torturer > 0)
     {
-        struct Thing* thing = thing_get(cctrl->word_A6);
+        struct Thing* thing = thing_get(cctrl->assigned_torturer);
         if (thing_exists(thing)) {
             thing->belongs_to = 0;
             thing->field_4F &= ~TF4F_Unknown01;
         }
-        cctrl->word_A6 = 0;
+        cctrl->assigned_torturer = 0;
     }
     // If the creature has flight ability, return it to flying state
     restore_creature_flight_flag(creatng);
@@ -131,7 +131,7 @@ short cleanup_torturing(struct Thing *creatng)
 long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, CreatureJob jobpref)
 {
     unsigned long k;
-    long n = ACTION_RANDOM(room->slabs_count);
+    long n = CREATURE_RANDOM(creatng, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -160,7 +160,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
             creatng->continue_state = get_continue_state_for_job(jobpref);
             tortrtng->belongs_to = creatng->index;
             tortrtng->word_15 = tortrtng->sprite_size;
-            cctrl->word_A6 = tortrtng->index;
+            cctrl->assigned_torturer = tortrtng->index;
             return 1;
         }
         slbnum = get_next_slab_number_in_room(slbnum);
@@ -202,7 +202,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         cctrl->tortured.long_9Ex = game.play_gameturn;
         return 1;
     case CTVS_TortureInDevice:
-        sectng = thing_get(cctrl->word_A6);
+        sectng = thing_get(cctrl->assigned_torturer);
         if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= LbFPMath_PI/12) {
             return CrStRet_Unchanged;
         }
@@ -281,7 +281,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     init_creature_level(newthing, cctrl->explevel);
     if (creature_model_bleeds(thing->model))
-      create_effect_around_thing(newthing, TngEff_Unknown10);
+      create_effect_around_thing(newthing, TngEff_Blood5);
     set_start_state(newthing);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_DiedInBattle);
     struct Dungeon* dungeon = get_dungeon(room->owner);
@@ -305,8 +305,21 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
     change_creature_owner(creatng, new_owner);
     anger_set_creature_anger_all_types(creatng, 0);
     struct Dungeon* dungeon = get_dungeon(new_owner);
-    if (!dungeon_invalid(dungeon)) {
+    struct DungeonAdd* dungeonadd = get_dungeonadd(new_owner);
+    if (!dungeon_invalid(dungeon)) 
+    {
         dungeon->lvstats.creatures_converted++;
+        if (((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0) && ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) == 0))
+        {
+            if (get_creature_model_flags(creatng) & CMF_IsEvil)
+            {
+                dungeonadd->evil_creatures_converted++;
+            }
+            else
+            {
+                dungeonadd->good_creatures_converted++;
+            }
+        }
     }
 }
 
@@ -487,7 +500,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     // Check if we should convert the creature into ghost
     if ((creatng->health < 0) && (game.ghost_convert_chance > 0))
     {
-        if (ACTION_RANDOM(100) < game.ghost_convert_chance)
+        if (CREATURE_RANDOM(creatng, 100) < game.ghost_convert_chance)
         {
             convert_creature_to_ghost(room, creatng);
             return CrCkRet_Deleted;
@@ -498,16 +511,16 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         return CrCkRet_Available;
     // Torture must take some time before it has any affect
     i = compute_torture_convert_time(creatng,room);
-    if ( (i < crstat->torture_break_time) || (cctrl->word_A6 == 0) )
+    if ( (i < crstat->torture_break_time) || (cctrl->assigned_torturer == 0) )
         return CrCkRet_Available;
     // After that, every time broke chance is hit, do something
-    if (ACTION_RANDOM(100) < compute_torture_broke_chance(creatng))
+    if (CREATURE_RANDOM(creatng, 100) < compute_torture_broke_chance(creatng))
     {
-        if (ACTION_RANDOM(100) >= (int)gameadd.torture_death_chance)
+        if (CREATURE_RANDOM(creatng, 100) >= (int)gameadd.torture_death_chance)
         {
             SYNCDBG(4, "The %s has been broken", thing_model_name(creatng));
             
-            if (ACTION_RANDOM(100) < (int)gameadd.torture_convert_chance)
+            if (CREATURE_RANDOM(creatng, 100) < (int)gameadd.torture_convert_chance)
             { // converting creature and ending the torture
                 convert_tortured_creature_owner(creatng, room->owner);
                 return CrCkRet_Continue;
@@ -521,7 +534,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         } else
         {
             SYNCDBG(4, "The %s died from torture", thing_model_name(creatng));
-            if (ACTION_RANDOM(100) < game.ghost_convert_chance)
+            if (CREATURE_RANDOM(creatng, 100) < game.ghost_convert_chance)
             {
                 convert_creature_to_ghost(room, creatng);
                 return CrCkRet_Deleted;

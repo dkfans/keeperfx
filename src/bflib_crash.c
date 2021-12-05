@@ -150,7 +150,7 @@ static LONG CALLBACK ctrl_handler_w32(LPEXCEPTION_POINTERS info)
             LbErrorLog("User-mode data execution prevention (DEP) violation.\n");
             break;
         default:
-            LbErrorLog("Memory access voilation, code %d.\n",(int)info->ExceptionRecord->ExceptionInformation[0]);
+            LbErrorLog("Memory access violation, code %d.\n",(int)info->ExceptionRecord->ExceptionInformation[0]);
             break;
         }
         break;

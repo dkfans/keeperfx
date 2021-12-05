@@ -25,6 +25,7 @@
     <ClCompile Include="src\bflib_basics.c" />
     <ClCompile Include="src\bflib_bufrw.c" />
     <ClCompile Include="src\bflib_client_tcp.cpp" />
+    <ClCompile Include="src\bflib_coroutine.c" />
     <ClCompile Include="src\bflib_cpu.c" />
     <ClCompile Include="src\bflib_crash.c" />
     <ClCompile Include="src\bflib_datetm.c" />
@@ -89,6 +90,7 @@
     <ClCompile Include="src\config_strings.c" />
     <ClCompile Include="src\config_terrain.c" />
     <ClCompile Include="src\config_trapdoor.c" />
+    <ClCompile Include="src\console_cmd.c" />
     <ClCompile Include="src\creature_battle.c" />
     <ClCompile Include="src\creature_control.c" />
     <ClCompile Include="src\creature_graphics.c" />
@@ -113,6 +115,7 @@
     <ClCompile Include="src\creature_states_train.c" />
     <ClCompile Include="src\creature_states_tresr.c" />
     <ClCompile Include="src\creature_states_wrshp.c" />
+    <ClCompile Include="src\custom_sprites.c" />
     <ClCompile Include="src\dungeon_data.c" />
     <ClCompile Include="src\dungeon_stats.c" />
     <ClCompile Include="src\engine_arrays.c" />
@@ -120,6 +123,7 @@
     <ClCompile Include="src\engine_lenses.c" />
     <ClCompile Include="src\engine_redraw.c" />
     <ClCompile Include="src\engine_render.c" />
+    <ClCompile Include="src\engine_render_data.cpp" />
     <ClCompile Include="src\engine_textures.c" />
     <ClCompile Include="src\frontend.cpp" />
     <ClCompile Include="src\frontmenu_ingame_evnt.c" />
@@ -154,6 +158,7 @@
     <ClCompile Include="src\game_heap.c" />
     <ClCompile Include="src\game_legacy.c" />
     <ClCompile Include="src\game_lghtshdw.c" />
+    <ClCompile Include="src\game_loop.c" />
     <ClCompile Include="src\game_merge.c" />
     <ClCompile Include="src\game_saves.c" />
     <ClCompile Include="src\gui_boxmenu.c" />
@@ -176,6 +181,7 @@
     <ClCompile Include="src\lvl_script.c" />
     <ClCompile Include="src\magic.c" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\main_game.c" />
     <ClCompile Include="src\map_blocks.c" />
     <ClCompile Include="src\map_columns.c" />
     <ClCompile Include="src\map_data.c" />
@@ -185,6 +191,7 @@
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_sync.c" />
     <ClCompile Include="src\packets.c" />
+    <ClCompile Include="src\packets_misc.c" />
     <ClCompile Include="src\player_compchecks.c" />
     <ClCompile Include="src\player_compevents.c" />
     <ClCompile Include="src\player_complookup.c" />
@@ -250,6 +257,7 @@
     <ClInclude Include="src\bflib_basics.h" />
     <ClInclude Include="src\bflib_bufrw.h" />
     <ClInclude Include="src\bflib_client_tcp.hpp" />
+    <ClInclude Include="src\bflib_coroutine.h" />
     <ClInclude Include="src\bflib_cpu.h" />
     <ClInclude Include="src\bflib_crash.h" />
     <ClInclude Include="src\bflib_datetm.h" />
@@ -331,6 +339,7 @@
     <ClInclude Include="src\creature_states_train.h" />
     <ClInclude Include="src\creature_states_tresr.h" />
     <ClInclude Include="src\creature_states_wrshp.h" />
+    <ClInclude Include="src\custom_sprites.h" />
     <ClInclude Include="src\dungeon_data.h" />
     <ClInclude Include="src\dungeon_stats.h" />
     <ClInclude Include="src\engine_arrays.h" />
@@ -362,6 +371,7 @@
     <ClInclude Include="src\game_heap.h" />
     <ClInclude Include="src\game_legacy.h" />
     <ClInclude Include="src\game_lghtshdw.h" />
+    <ClInclude Include="src\game_loop.h" />
     <ClInclude Include="src\game_merge.h" />
     <ClInclude Include="src\game_saves.h" />
     <ClInclude Include="src\globals.h" />

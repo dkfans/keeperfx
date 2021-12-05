@@ -22,7 +22,9 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "engine_render.h"
 
+// All anims below this have two different sprites in 3d and map view
 #define TD_ISO_POINTS        982
 #define FLOOR_TO_CEILING_MAP_LEN 592
 #define RANDOMISORS_LEN      512
@@ -58,12 +60,16 @@ DLLIMPORT extern long _DK_lintel_bottom_height[256];
 #define lintel_bottom_height _DK_lintel_bottom_height
 
 #pragma pack()
+
+extern short iso_td_add[KEEPERSPRITE_ADD_NUM];
+extern short td_iso_add[KEEPERSPRITE_ADD_NUM];
 /******************************************************************************/
 extern unsigned short floor_to_ceiling_map[FLOOR_TO_CEILING_MAP_LEN];
+extern struct WibbleTable blank_wibble_table[128];
 /******************************************************************************/
-long convert_td_iso(unsigned long n);
-long straight_td_iso(unsigned long n);
-long straight_iso_td(unsigned long n);
+short convert_td_iso(short n);
+short straight_td_iso(short n);
+short straight_iso_td(short n);
 
 void init_iso_3d_conversion_tables(void);
 void setup_3d(void);

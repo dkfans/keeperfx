@@ -28,7 +28,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define OBJECT_TYPES_COUNT  136
+#define OBJECT_TYPES_COUNT_ORIGINAL  136
+#define OBJECT_TYPES_COUNT  255
 
 #define OBJECT_TYPE_SPECBOX_CUSTOM    133
 
@@ -77,6 +78,7 @@ struct Objects {
     unsigned char related_creatr_model;
     unsigned char own_category;
     unsigned char destroy_on_liquid;
+    unsigned char rotation_flag;
 };
 
 struct CallToArmsGraphics {
@@ -86,12 +88,14 @@ struct CallToArmsGraphics {
 };
 
 /******************************************************************************/
-DLLIMPORT struct Objects _DK_objects[OBJECT_TYPES_COUNT]; // in KeeperFX, named objects_data[]
+/*
+TODO: Test and remove these
 DLLIMPORT unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 DLLIMPORT extern unsigned char _DK_magic_to_object[24];
+*/
 
 #pragma pack()
 /******************************************************************************/
@@ -101,7 +105,7 @@ extern unsigned short player_guardflag_objects[];
 extern unsigned short dungeon_flame_objects[];
 
 /******************************************************************************/
-struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
+struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
 void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
@@ -162,6 +166,9 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel);
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
+
+void define_custom_object(int obj_id, short anim_idx);
+void init_thing_objects();
 /******************************************************************************/
 #ifdef __cplusplus
 }

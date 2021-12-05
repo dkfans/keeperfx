@@ -136,7 +136,7 @@ struct InitEffect effect_info[] = {
     { 1, 1,   1,   1,   1,   1,  2,   0, 85, 85,  AAffT_None, 1, {0}, 1},
     { 4, 1,  16,  16, -32,  64,  3,   0, 75, 78,  AAffT_None, 1, {0}, 1},
     {10, 1,  20, 150, -80,  80, 20,  36, 27, 29,  AAffT_None, 1, {2560, 52, 0, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1}, // [68]
-    { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0, 0, {0}, 0},
+    { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0,          0, {0}, 0},
 };
 
 
@@ -483,7 +483,7 @@ struct EffectElementStats effect_element_stats[] = {
 
 long const bounce_table[] = { -160, -160, -120, -120, -80, -40, -20, 0, 20, 40, 80, 120, 120, 160, 160, 160 };
 /** Effects used when creating new imps. Every player color has different index. */
-const int birth_effect_element[] = { 54, 79, 80, 81, 82, 82, };
+const int birth_effect_element[] = { TngEffElm_RedPuff, TngEffElm_BluePuff, TngEffElm_GreenPuff, TngEffElm_YellowPuff, TngEffElm_WhitePuff, TngEffElm_WhitePuff, };
 /******************************************************************************/
 TbBool thing_is_effect(const struct Thing *thing)
 {
@@ -543,8 +543,8 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 
     if (eestat->sprite_idx != -1)
     {
-        i = ACTION_RANDOM(eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
-        long n = ACTION_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
+        i = EFFECT_RANDOM(thing, eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
+        long n = EFFECT_RANDOM(thing, eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
         set_flag_byte(&thing->field_4F,TF4F_Unknown02,eestat->field_13);
         thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & (TF4F_Transpar_Flags);
@@ -554,7 +554,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         set_flag_byte(&thing->field_4F,TF4F_Unknown01,true);
     }
 
-    thing->field_20 = eestat->field_18;
+    thing->fall_acceleration = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
     thing->movement_flags |= TMvF_Unknown08;
@@ -563,7 +563,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 
     if (eestat->numfield_3 > 0)
     {
-        i = ACTION_RANDOM(eestat->numfield_5 - (long)eestat->numfield_3 + 1);
+        i = EFFECT_RANDOM(thing, eestat->numfield_5 - (long)eestat->numfield_3 + 1);
         thing->health = eestat->numfield_3 + i;
     } else
     {
@@ -624,9 +624,9 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
+        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
 
-        struct EffectElementStats* eestat = get_effect_element_model_stats(16);
+        struct EffectElementStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
         GameTurnDelta dtadd = 0;
         unsigned short cframe = game.play_gameturn % nframes;
@@ -639,7 +639,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
             pos.x.val = thing->mappos.x.val + shift_x;
             pos.y.val = thing->mappos.y.val + shift_y;
-            effeltng = create_thing(&pos, TCls_EffectElem, 16, thing->owner, -1);
+            effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_FlashBall1, thing->owner, -1);
             if (thing_is_invalid(effeltng))
                 break;
             set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, 2);
@@ -652,7 +652,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_Slow) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
+        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
         int i = cor_z_max / 64;
         if (i <= 1)
           i = 1;
@@ -670,18 +670,18 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             shift_y = -(radius * LbCosL(angle) >> 8) >> 8;
             pos.x.val = thing->mappos.x.val + shift_x;
             pos.y.val = thing->mappos.y.val + shift_y;
-            effeltng = create_thing(&pos, TCls_EffectElem, 17, thing->owner, -1);
+            effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_RedFlash, thing->owner, -1);
         }
     }
 
     if ((cctrl->spell_flags & CSAfF_Flying) != 0)
     {
-        effeltng = create_thing(&thing->mappos, TCls_EffectElem, 0x59u, thing->owner, -1);
+        effeltng = create_thing(&thing->mappos, TCls_EffectElem, TngEffElm_CloudDisperse, thing->owner, -1);
     }
 
     if ((cctrl->spell_flags & CSAfF_Speed) != 0)
     {
-        effeltng = create_effect_element(&thing->mappos, 18, thing->owner);
+        effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
             // TODO: looks like some "struct AnimSpeed"
@@ -699,7 +699,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         struct SpellConfig* splconf = &game.spells_config[SplK_Teleport];
         if (splconf->duration / 2 < dturn)
         {
-            effeltng = create_effect_element(&thing->mappos, 0x12u, thing->owner);
+            effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
             if (!thing_is_invalid(effeltng))
             {
                 memcpy(&effeltng->anim_speed, &thing->anim_speed, 0x14u);
@@ -736,7 +736,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
 void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct Coord3d *next_pos)
 {
     struct EffectElementStats* eestat = get_effect_element_model_stats(thing->model);
-    unsigned long blocked_flags = get_thing_blocked_flags_at(thing, next_pos);
+    long blocked_flags = get_thing_blocked_flags_at(thing, next_pos);
     slide_thing_against_wall_at(thing, next_pos, blocked_flags);
     if ( ((blocked_flags & SlbBloF_WalledZ) != 0) && eestat->field_15 && eestat->field_22 )
     {
@@ -820,19 +820,19 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     SYNCDBG(18,"Starting");
     //return _DK_change_effect_element_into_another(thing,nmodel);
     struct EffectElementStats* eestat = get_effect_element_model_stats(nmodel);
-    int speed = eestat->sprite_speed_min + ACTION_RANDOM(eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
-    int scale = eestat->sprite_size_min + ACTION_RANDOM(eestat->sprite_size_max - eestat->sprite_size_min + 1);
+    int speed = eestat->sprite_speed_min + EFFECT_RANDOM(thing, eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
+    int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * eestat->field_13) & TF4F_Unknown02;
     thing->field_4F ^= (thing->field_4F ^ 0x10 * eestat->field_14) & (TF4F_Transpar_Flags);
-    thing->field_20 = eestat->field_18;
+    thing->fall_acceleration = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
     if (eestat->numfield_3 <= 0) {
         thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     } else {
-        thing->health = ACTION_RANDOM(eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
+        thing->health = EFFECT_RANDOM(thing, eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
     }
     thing->field_49 = keepersprite_frames(thing->anim_sprite);
 }
@@ -981,7 +981,7 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
         SYNCDBG(18,"Effect tried to shoot its maker; suicide not implemented");
         return false;
     }
-    HitTargetFlags hit_targets = hit_type_to_hit_targets(efftng->byte_16);
+    HitTargetFlags hit_targets = hit_type_to_hit_targets(efftng->hit_type);
     return area_effect_can_affect_thing(thing, hit_targets, efftng->owner);
 }
 
@@ -1002,6 +1002,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
     const struct InitEffect* effnfo = get_effect_info_for_thing(thing);
     SYNCDBG(18,"Preparing Effect, Generation Type %d",(int)effnfo->generation_type);
     unsigned long arg;
+    struct Thing* elemtng;
     switch (effnfo->generation_type)
     {
     case 1:
@@ -1011,23 +1012,23 @@ void effect_generate_effect_elements(const struct Thing *thing)
         {
             if (effnfo->kind_min <= 0)
                 continue;
-            long n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
-            struct Thing* elemtng = create_effect_element(&thing->mappos, n, thing->owner);
+            long n = effnfo->kind_min + EFFECT_RANDOM(thing, effnfo->kind_max - effnfo->kind_min + 1);
+            elemtng = create_effect_element(&thing->mappos, n, thing->owner);
             TRACE_THING(elemtng);
             if (thing_is_invalid(elemtng))
                 break;
-            arg = ACTION_RANDOM(0x800);
-            argZ = ACTION_RANDOM(0x400);
+            arg = EFFECT_RANDOM(thing, 0x800);
+            argZ = EFFECT_RANDOM(thing, 0x400);
             // Setting XY acceleration
             long k = abs(effnfo->accel_xy_max - effnfo->accel_xy_min);
             if (k <= 1) k = 1;
-            long mag = effnfo->accel_xy_min + ACTION_RANDOM(k);
+            long mag = effnfo->accel_xy_min + EFFECT_RANDOM(thing, k);
             elemtng->veloc_push_add.x.val += distance_with_angle_to_coord_x(mag,arg);
             elemtng->veloc_push_add.y.val += distance_with_angle_to_coord_y(mag,arg);
             // Setting Z acceleration
             k = abs(effnfo->accel_z_max - effnfo->accel_z_min);
             if (k <= 1) k = 1;
-            mag = effnfo->accel_z_min + ACTION_RANDOM(k);
+            mag = effnfo->accel_z_min + EFFECT_RANDOM(thing, k);
             elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
             elemtng->state_flags |= TF1_PushAdd;
         }
@@ -1039,11 +1040,11 @@ void effect_generate_effect_elements(const struct Thing *thing)
         struct Coord3d pos;
         for (long i=0; i < effnfo->field_B; i++)
         {
-            long n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
+            long n = effnfo->kind_min + EFFECT_RANDOM(thing, effnfo->kind_max - effnfo->kind_min + 1);
             long mag = effnfo->start_health - thing->health;
             arg = (mag << 7) + k/effnfo->field_B;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
-            struct Thing* elemtng = create_effect_element(&pos, n, thing->owner);
+            elemtng = create_effect_element(&pos, n, thing->owner);
             TRACE_THING(elemtng);
             SYNCDBG(18,"Created %s",thing_model_name(elemtng));
             k += 2048;
@@ -1056,11 +1057,11 @@ void effect_generate_effect_elements(const struct Thing *thing)
         struct Coord3d pos;
         for (long i=0; i < effnfo->field_B; i++)
         {
-            long n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
+            long n = effnfo->kind_min + EFFECT_RANDOM(thing, effnfo->kind_max - effnfo->kind_min + 1);
             long mag = thing->health;
             arg = (mag << 7) + k/effnfo->field_B;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
-            struct Thing* elemtng = create_effect_element(&pos, n, thing->owner);
+            elemtng = create_effect_element(&pos, n, thing->owner);
             TRACE_THING(elemtng);
             k += 2048;
         }
@@ -1127,8 +1128,8 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
     struct EffectGeneratorStats* egenstat = &effect_generator_stats[thing->model];
     for (long i = 0; i < egenstat->genation_amount; i++)
     {
-        long deviation_angle = ACTION_RANDOM(0x800);
-        long deviation_mag = ACTION_RANDOM(thing->belongs_to + 1);
+        long deviation_angle = EFFECT_RANDOM(thing, 0x800);
+        long deviation_mag = EFFECT_RANDOM(thing, thing->belongs_to + 1);
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
         SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
@@ -1159,9 +1160,9 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         } else
         {
             SYNCDBG(18,"The %s created effect %d/%d, index %d",thing_model_name(thing),(int)i,(int)egenstat->genation_amount,(int)elemtng->index);
-            long acc_x = egenstat->acc_x_min + ACTION_RANDOM(egenstat->acc_x_max - egenstat->acc_x_min + 1);
-            long acc_y = egenstat->acc_y_min + ACTION_RANDOM(egenstat->acc_y_max - egenstat->acc_y_min + 1);
-            long acc_z = egenstat->acc_z_min + ACTION_RANDOM(egenstat->acc_z_max - egenstat->acc_z_min + 1);
+            long acc_x = egenstat->acc_x_min + EFFECT_RANDOM(thing, egenstat->acc_x_max - egenstat->acc_x_min + 1);
+            long acc_y = egenstat->acc_y_min + EFFECT_RANDOM(thing, egenstat->acc_y_max - egenstat->acc_y_min + 1);
+            long acc_z = egenstat->acc_z_min + EFFECT_RANDOM(thing, egenstat->acc_z_max - egenstat->acc_z_min + 1);
             elemtng->veloc_push_add.x.val += acc_x;
             elemtng->veloc_push_add.y.val += acc_y;
             elemtng->veloc_push_add.z.val += acc_z;
@@ -1171,7 +1172,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
                 struct Thing* sectng = create_effect(&elemtng->mappos, TngEff_DamageBlood, thing->owner);
                 TRACE_THING(sectng);
                 if (!thing_is_invalid(sectng)) {
-                    thing_play_sample(sectng, egenstat->sound_sample_idx + ACTION_RANDOM(egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                    thing_play_sample(sectng, egenstat->sound_sample_idx + EFFECT_RANDOM(thing, egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
             if (egenstat->sound_sample_sec > 0) {
@@ -1179,7 +1180,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             }
         }
     }
-    thing->long_15 = egenstat->genation_delay_min + ACTION_RANDOM(egenstat->genation_delay_max - egenstat->genation_delay_min + 1);
+    thing->long_15 = egenstat->genation_delay_min + EFFECT_RANDOM(thing, egenstat->genation_delay_max - egenstat->genation_delay_min + 1);
     return TUFRet_Modified;
 }
 
@@ -1203,7 +1204,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->next_on_mapblk = 0;
     thing->owner = owner;
     thing->parent_idx = thing->index;
-    thing->field_20 = 0;
+    thing->fall_acceleration = 0;
     thing->field_23 = 0;
     thing->field_24 = 0;
     thing->field_4F |= TF4F_Unknown01;
@@ -1240,7 +1241,7 @@ struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_id
 
 TbBool destroy_effect_thing(struct Thing *efftng)
 {
-    if (efftng->model == TngEff_LavaTrap)
+    if (efftng->model == TngEff_Eruption)
     {
         place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner, 0);
         do_slab_efficiency_alteration(subtile_slab_fast(efftng->mappos.x.stl.num), subtile_slab_fast(efftng->mappos.y.stl.num));
@@ -1294,7 +1295,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 {
                     CrDeathFlags dieflags = CrDed_DiedInBattle;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if (tngsrc->owner == tngdst->owner)
+                    if ((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint))
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
@@ -1761,7 +1762,7 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
     {
         for (MapSubtlCoord stl_x = start_x; stl_x <= end_x; stl_x++)
         {
-            HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->byte_16);
+            HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->hit_type);
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage/dmg_divider, 0, hit_targets, area_affect_type, DmgT_Respiratory);
         }
@@ -1808,7 +1809,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
 
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price)
 {
-    struct Thing* elemtng = create_effect_element(pos, TngEff_NumberHop, plyr_idx);
+    struct Thing* elemtng = create_effect_element(pos, TngEffElm_Price, plyr_idx);
     TRACE_THING(elemtng);
     if (!thing_is_invalid(elemtng)) {
         elemtng->price.number = abs(price);

@@ -26,7 +26,7 @@
 #include "bflib_sound.h"
 #include "bflib_mouse.h"
 #include "bflib_dernc.h"
-
+#include "lvl_script.h"
 #include "engine_arrays.h"
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -774,19 +774,19 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     switch (player->work_state)
     {
     case PSt_CtrlDungeon:
-        if (player->field_455)
-          i = player->field_455;
+        if (player->secondary_cursor_state)
+          i = player->secondary_cursor_state;
         else
-          i = player->field_454;
+          i = player->primary_cursor_state;
         switch (i)
         {
-        case P454_Unkn1:
+        case CSt_PickAxe:
             set_pointer_graphic(MousePG_Pickaxe);
             break;
-        case P454_Unkn2:
+        case CSt_DoorKey:
             set_pointer_graphic(MousePG_LockMark);
             break;
-        case P454_Unkn3:
+        case CSt_PowerHand:
             thing = thing_get(player->thing_under_hand);
             TRACE_THING(thing);
             if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
@@ -807,7 +807,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 player->flgfield_6 |= PlaF6_Unknown01;
             } else
             {
-                if ((player->field_3 & Pf3F_Unkn02) != 0) {
+                if ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) {
                   set_pointer_graphic(MousePG_Pickaxe);
                 } else {
                   set_pointer_graphic(MousePG_Invisible);
@@ -853,6 +853,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
+    case PSt_CreatrInfoAll:
     case PSt_CreatrQueryAll:
         set_pointer_graphic(MousePG_Query);
         break;
@@ -885,7 +886,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if ((game.numfield_D & GNFldD_Unkn08) != 0)
+        if ((game.numfield_D & GNFldD_CreaturePasngr) != 0)
           set_pointer_graphic(MousePG_Arrow);
         else
           set_pointer_graphic(MousePG_Invisible);
@@ -956,7 +957,16 @@ void redraw_display(void)
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
         text = buf_sprintf( ">%s_", player->mp_message_text);
-        LbTextDrawResized(148*units_per_pixel/16, 8*units_per_pixel/16, tx_units_per_px, text);
+        long pos_x = 148*units_per_pixel/16;
+        long pos_y = 8*units_per_pixel/16;
+        if (game.armageddon_cast_turn != 0)
+        {
+            if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
+            {
+                pos_y = ((pos_y << 3) + ((LbTextLineHeight()*units_per_pixel/16) * game.active_messages_count));
+            }
+        }
+        LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
     }
     if ( draw_spell_cost )
     {
@@ -974,6 +984,14 @@ void redraw_display(void)
     if (bonus_timer_enabled())
     {
         draw_bonus_timer();
+    }
+    else if (script_timer_enabled())
+    {
+        draw_script_timer(gameadd.script_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
+    }
+    if (display_variable_enabled())
+    {
+        draw_script_variable(gameadd.script_player, gameadd.script_value_type, gameadd.script_value_id, gameadd.script_variable_target, gameadd.script_variable_target_type);
     }
     if (timer_enabled())
     {

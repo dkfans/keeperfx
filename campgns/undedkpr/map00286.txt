@@ -133,16 +133,19 @@ ENDIF
 
 REM --------------------------------------------------------------------------------------------------------------------------------------------
 
-QUICK_OBJECTIVE(0,"The Cathedral is currently under siege by one of Keeper Bane's underlings. Make haste and unearth the treasuries burried here.",PLAYER0)
+REM "The Cathedral is currently under siege by one of Keeper Bane's underlings. Make haste and unearth the treasuries burried here."
+DISPLAY_OBJECTIVE(4,PLAYER0)
 
 IF_AVAILABLE(PLAYER0,POWER_DISEASE == 1)
-    QUICK_OBJECTIVE(1,"Outstanding, master. Now things will be a little more intresting.",PLAYER0)
+    REM "Outstanding, master. Now things will be a little more intresting."
+    DISPLAY_OBJECTIVE(5,PLAYER0)
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
     IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
         IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-            QUICK_OBJECTIVE(2,"Just as I thought, the victor was decided before the fight even began!",PLAYER0)
+            REM "Just as I thought, the victor was decided before the fight even began!"
+            DISPLAY_OBJECTIVE(6,PLAYER0)
             WIN_GAME
         ENDIF
     ENDIF
