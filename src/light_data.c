@@ -354,7 +354,7 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos)
     || pos->y.val != lgt->mappos.y.val
     || pos->z.val != lgt->mappos.z.val )
   {
-    if ( !(lgt->flags & LgtF_Dynamic) )
+    if ( (lgt->flags & LgtF_Dynamic) == 0 )
     {
       stat_light_needs_updating = 1;
       unsigned char range = lgt->range;
@@ -431,8 +431,8 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
     {
       ERRORLOG("Could not find light %d in list", lgt->index);
     }
-    if ( list->count < 0 )
-      ERRORLOG("List has fewer than 0 structures");
+    if ( list->count == 0 )
+      ERRORLOG("List has no structures");
   }
 }
 
@@ -704,7 +704,7 @@ void light_initialise(void)
 void light_stat_light_map_clear_area(long x1, long y1, long x2, long y2)
 {
   // _DK_light_stat_light_map_clear_area(x1, y1, x2, y2);
-  unsigned long j,n,x,k,y;
+  long j,n,x,k,y;
   unsigned short *p;
   unsigned short *light_map;
   if ( y2 >= y1 )
