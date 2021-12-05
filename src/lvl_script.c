@@ -3258,7 +3258,7 @@ void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 3: // SymbolSprites
         {
-             trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
+            trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
             trapst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
             manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
             manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
