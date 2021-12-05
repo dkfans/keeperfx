@@ -344,32 +344,37 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
         LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
         return false;
   }
-  if ((group_idx < 0) || (group_idx >= SPELL_POINTER_GROUPS))
-  {
-    WARNLOG("Group index out of range, setting pointer to none");
-    LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
-    return false;
-  }
   if (is_feature_on(Ft_BigPointer))
   {
     y = 32;
     x = 32;
-    i = 8*group_idx + (frame%8);
+    i = (is_custom_icon(group_idx)? group_idx : 8*group_idx) + (frame%8);
   } else
   {
     y = 78;
     x = 26;
     i = group_idx;
   }
-  struct TbSprite* spr = &pointer_sprites[40 + i];
-  SYNCDBG(8,"Activating pointer %d",40+i);
-  if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
+  const struct TbSprite* spr;
+
+  if (is_custom_icon(i))
   {
-    LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
-  } else
+      spr = get_new_icon_sprite(i);
+      SYNCDBG(8,"Activating pointer %d", i);
+      LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
+  }
+  else
   {
-    WARNLOG("Sprite %d exceeds buffer, setting pointer to none",(int)i);
-    LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
+      spr = &pointer_sprites[40 + i];
+      SYNCDBG(8,"Activating pointer %d", 40+i);
+      if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
+      {
+          LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
+      } else
+      {
+          WARNLOG("Sprite %d exceeds buffer, setting pointer to none",(int)i);
+          LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
+      }
   }
   return true;
 }

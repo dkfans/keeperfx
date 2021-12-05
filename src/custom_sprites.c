@@ -1431,3 +1431,8 @@ const struct TbSprite *get_new_icon_sprite(short sprite_idx)
         return NULL;
     return &gui_panel_sprites[sprite_idx];
 }
+
+int is_custom_icon(short icon_idx)
+{
+    return (icon_idx >= GUI_PANEL_SPRITES_COUNT) && (icon_idx < num_icons_total);
+}
