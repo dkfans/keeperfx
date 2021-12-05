@@ -147,7 +147,9 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))
+    {
         frontstats_initialise();
+    }
     player->victory_state = VicS_LostLevel;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     // Computing player score

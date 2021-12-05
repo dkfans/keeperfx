@@ -1610,6 +1610,60 @@ static void add_heart_health_process(struct ScriptContext *context)
     }
 }
 
+static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ((scline->np[0] < 0) || (scline->np[0] >= QUICK_MESSAGES_COUNT))
+    {
+        SCRPTERRLOG("Invalid QUICK OBJECTIVE number (%d)", scline->np[0]);
+        return;
+    }
+    if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
+    }
+    if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
+    {
+        SCRPTWRNLOG("Quick Objective no %d overwritten by different text", scline->np[0]);
+    }
+    strncpy(gameadd.quick_messages[scline->np[0]], scline->tp[1], MESSAGE_TEXT_LEN-1);
+    gameadd.quick_messages[scline->np[0]][MESSAGE_TEXT_LEN-1] = '\0';
+    value->arg1 = scline->tp[1];
+    value->arg0 = scline->np[0];
+    if (scline->tp[2][0] != '\0')
+    {
+        get_map_location_id(scline->tp[2], &value->arg2);
+    }
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void heart_lost_quick_objective_process(struct ScriptContext *context)
+{
+    gameadd.heart_lost_display_message = true;
+    gameadd.heart_lost_quick_message = true;
+    gameadd.heart_lost_message_id = context->value->arg0;
+    gameadd.heart_lost_message_target = context->value->arg2;
+}
+
+static void heart_lost_objective_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[0];
+    if (scline->tp[1][0] != '\0')
+    {
+        get_map_location_id(scline->tp[1], &value->arg1);
+    }
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void heart_lost_objective_process(struct ScriptContext *context)
+{
+    gameadd.heart_lost_display_message = true;
+    gameadd.heart_lost_quick_message = false;
+    gameadd.heart_lost_message_id = context->value->arg0;
+    gameadd.heart_lost_message_target = context->value->arg1;
+}
+
 static void null_process(struct ScriptContext *context)
 {
 }
@@ -8044,6 +8098,8 @@ const struct CommandDesc command_desc[] = {
   {"HIDE_VARIABLE",                     "        ", Cmd_HIDE_VARIABLE, &cmd_no_param_check, &hide_variable_process},
   {"CREATE_EFFECT",                     "AAn     ", Cmd_CREATE_EFFECT, &create_effect_check, &create_effect_process},
   {"CREATE_EFFECT_AT_POS",              "ANNn    ", Cmd_CREATE_EFFECT_AT_POS, &create_effect_at_pos_check, &create_effect_process},
+  {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
+  {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
