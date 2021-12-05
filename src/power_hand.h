@@ -82,8 +82,10 @@ TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);
 TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned long allow_unclaimed);
 TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber plyr_idx);
+TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx);
 
 enum HandRuleType {
+    // hand_rule_test_fns are indexed by these enum values -> reordering or adding new types affects test_fns
     HandRule_Unset,
     HandRule_Always,
     HandRule_AgeLower,
@@ -110,6 +112,9 @@ struct HandRule {
     char allow; // allow: 1, deny: 0
     long param;
 };
+
+typedef TbBool (*HandTestFn) (struct HandRule *rule, const struct Thing *thing);
+#define HAND_RULE(body) ( {TbBool anon(struct HandRule *hand_rule, const struct Thing *thing) body; &anon; })
 
 /******************************************************************************/
 #ifdef __cplusplus
