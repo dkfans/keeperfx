@@ -147,7 +147,9 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))
+    {
         frontstats_initialise();
+    }
     player->victory_state = VicS_LostLevel;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     // Computing player score
@@ -509,7 +511,7 @@ TbBool check_map_explored_at_current_pos(struct Thing *creatng)
 
 void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player)
 {
-    do_to_players_all_creatures_of_model(player->id_number, -1, check_map_explored_at_current_pos);
+    do_to_players_all_creatures_of_model(player->id_number, CREATURE_ANY, check_map_explored_at_current_pos);
 }
 
 void init_player_as_single_keeper(struct PlayerInfo *player)

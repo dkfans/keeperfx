@@ -791,11 +791,22 @@ void event_kill_all_players_events(long plyr_idx)
 {
     SYNCDBG(8,"Starting");
     //_DK_event_kill_all_players_events(plyr_idx);
+    TbBool keep_objective = gameadd.heart_lost_display_message;
     for (int i = 1; i < EVENTS_COUNT; i++)
     {
         struct Event* event = &game.event[i];
         if (((event->flags & EvF_Exists) != 0) && (event->owner == plyr_idx)) {
-            event_delete_event(plyr_idx, event->index);
+            if (keep_objective)
+            {
+                if (event->kind != EvKind_Objective)
+                {
+                    event_delete_event(plyr_idx, event->index);
+                }
+            }
+            else
+            {
+                event_delete_event(plyr_idx, event->index);
+            }
         }
     }
 }

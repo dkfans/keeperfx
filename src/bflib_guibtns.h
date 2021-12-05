@@ -197,7 +197,7 @@ struct FrontEndButtonData {
         unsigned char font_index;
 };
 
-struct EventTypeInfo { //sizeof=0x10
+struct EventTypeInfo {
     int bttn_sprite;
     unsigned short tooltip_stridx;
     unsigned short msg_stridx;

@@ -423,6 +423,15 @@ struct CreatureData *creature_data_get_from_thing(const struct Thing *thing)
   return &creature_data[thing->model];
 }
 
+TbBool is_creature_model_wildcard(ThingModel crmodel)
+{
+    if((crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER) || (crmodel == CREATURE_DIGGER))
+    {
+        return true;
+    }
+    return false;
+}
+
 /**
  * Returns Code Name (name to use in script file) of given creature model.
  */

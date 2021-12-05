@@ -39,6 +39,7 @@
 #include "dungeon_data.h"
 #include "game_legacy.h"
 #include "map_utils.h"
+#include "map_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +55,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
 long computer_event_save_tortured(struct Computer2 *comp, struct ComputerEvent *cevent);
 long computer_event_rebuild_room(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 long computer_event_handle_prisoner(struct Computer2 *comp, struct ComputerEvent* cevent, struct Event *event);
+long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
@@ -96,7 +98,8 @@ const struct NamedCommand computer_event_func_type[] = {
   {"event_check_payday",      3,},
   {"event_rebuild_room",      4,},
   {"event_handle_prisoner",   5,},
-  {"none",                    6,},
+  {"event_attack_door",       6,},
+  {"none",                    7,},
   {NULL,                      0,},
 };
 
@@ -107,6 +110,7 @@ Comp_Event_Func computer_event_func_list[] = {
   computer_event_check_payday,
   computer_event_rebuild_room,
   computer_event_handle_prisoner,
+  computer_event_attack_door,
   NULL,
 };
 
@@ -150,7 +154,8 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     }
     // Check if there are any enemies in the vicinity - no enemies, don't drop creatures
     struct Thing* enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(pos.x.val, pos.y.val, 21, comp->dungeon->owner);
-    if (thing_is_invalid(enmtng)) {
+    if (thing_is_invalid(enmtng)) 
+    {
         SYNCDBG(8,"No enemies near %s",cevent->name);
         return 0;
     }
@@ -497,6 +502,74 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
     return ret;
 }
 
+long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
+{
+    SYNCDBG(18, "Starting for %s", cevent->name);
+    struct Thing* thing = thing_get(event->target);
+    if (!thing_is_deployed_door(thing))
+    {
+        SYNCDBG(8, "Target %s is not a door", thing_model_name(thing));
+        return 0;
+    }
+    if (!players_are_enemies(comp->dungeon->owner, thing->owner))
+    {
+        SYNCDBG(8, "Door owner is no longer an enemy");
+        return 0;
+    }
+
+    struct Coord3d doorpos = thing->mappos;
+
+    struct Coord3d freepos;
+    if (!get_computer_drop_position_near_subtile(&freepos, comp->dungeon, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
+        SYNCDBG(8, "No drop position near (%d,%d) for %s", (int)coord_subtile(event->mappos_x), (int)coord_subtile(event->mappos_y), cevent->name);
+        return 0;
+    }
+
+    if (!computer_find_non_solid_block(comp, &freepos)) {
+        SYNCDBG(8, "Drop position is solid for %s", cevent->name);
+        return 0;
+    }
+
+    if (computer_able_to_use_power(comp, PwrK_HAND, 1, 1))
+    {
+        long creatrs_def = count_creatures_for_defend_pickup(comp);
+        if (creatrs_def < cevent->param1)
+        {
+            SYNCDBG(18, "Not enough creatures to drop", cevent->name);
+            return 4;
+        }
+        struct Thing* creatng = find_creature_for_defend_pickup(comp);
+        if (creatng == INVALID_THING)
+        {
+            SYNCDBG(18, "Invalid creature selected", cevent->name);
+            return 4;
+        }
+        if(!create_task_move_creature_to_pos(comp, creatng, doorpos, CrSt_CreatureDoorCombat))
+        {
+            SYNCDBG(18, "Cannot move to position for event %s", cevent->name);
+            return 0;
+        }
+        return 1;
+    }
+
+    if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 1, 1))
+    {
+        if (!is_task_in_progress(comp, CTT_MagicCallToArms))
+        {
+            if (check_call_to_arms(comp))
+            {
+                if (!create_task_magic_battle_call_to_arms(comp, &freepos, cevent->param2, cevent->param3))
+                {
+                    SYNCDBG(18, "Cannot call to arms for %s", cevent->name);
+                    return 0;
+                }
+                return 1;
+            }
+        }
+    }
+    SYNCDBG(18, "No hand nor CTA, giving up with %s", cevent->name);
+    return 0;
+}
 
 long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event)
 {
