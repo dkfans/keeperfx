@@ -380,8 +380,9 @@ void light_set_light_position(long lgt_id, struct Coord3d *pos)
       }
       light_signal_stat_light_update_in_area(beg_x, beg_y, end_x, end_y);
     }
-    *(unsigned long *)&lgt->mappos.x.stl = *(unsigned long *)&pos->x.stl;
-    *(unsigned short *)&lgt->mappos.z.stl = *(unsigned short *)&pos->z.stl;
+    lgt->mappos.x.val = pos->x.val;
+    lgt->mappos.y.val = pos->y.val;
+    lgt->mappos.z.val = pos->z.val;
     lgt->flags |= LgtF_Unkn08;
   }
 }
