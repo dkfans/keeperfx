@@ -2018,7 +2018,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
         return -1;
     }
     gbtn = &active_buttons[gidx];
-    gbtn->flags |= LbBtnF_Unknown01;
+    gbtn->flags |= LbBtnF_Active;
     struct GuiMenu *gmnuinit;
     gmnuinit = gmnu->menu_init;
     gbtn->gmenu_idx = gmnu->number;
@@ -3066,7 +3066,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     {
         gbtn = &active_buttons[i];
         callback = gbtn->draw_call;
-        if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
+        if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Active) && (gbtn->gmenu_idx == gmnu->number))
         {
           if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == LbBtnT_HorizSlider) || (callback == gui_area_null) )
             callback(gbtn);
@@ -3077,7 +3077,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     {
         gbtn = &active_buttons[i];
         callback = gbtn->draw_call;
-        if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
+        if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Active) && (gbtn->gmenu_idx == gmnu->number))
         {
           if (((gbtn->gbactn_1) || (gbtn->gbactn_2)) && (gbtn->gbtype != LbBtnT_HorizSlider) && (callback != gui_area_null))
             callback(gbtn);
@@ -3160,7 +3160,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((gbtn->draw_call == NULL) || ((gbtn->flags & LbBtnF_Visible) == 0) || ((gbtn->flags & LbBtnF_Unknown01) == 0) || (game.flash_button_index == 0))
+        if ((gbtn->draw_call == NULL) || ((gbtn->flags & LbBtnF_Visible) == 0) || ((gbtn->flags & LbBtnF_Active) == 0) || (game.flash_button_index == 0))
           continue;
         if ((gbtn->id_num > BID_DEFAULT) && (gbtn->id_num == button_designation_to_tab_designation(game.flash_button_index)))
         {

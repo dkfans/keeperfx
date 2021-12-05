@@ -2220,6 +2220,12 @@ void update_trap_tab_to_config(void)
             break;
         }
     }
+    // Update active menu
+    if ( menu_is_active(GMnu_TRAP) )
+    {
+        turn_off_menu(GMnu_TRAP);
+        turn_on_menu(GMnu_TRAP);
+    }
 }
 
 void update_powers_tab_to_config(void)

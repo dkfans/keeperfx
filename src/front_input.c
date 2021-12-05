@@ -2339,7 +2339,7 @@ short get_gui_inputs(short gameplay_on)
       for (int idx = 0; idx < ACTIVE_BUTTONS_COUNT; idx++)
       {
         struct GuiButton *gbtn = &active_buttons[idx];
-        if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gbtype == LbBtnT_Unknown6))
+        if ((gbtn->flags & LbBtnF_Active) && (gbtn->gbtype == LbBtnT_Unknown6))
             gbtn->gbactn_1 = 0;
       }
   }
@@ -2354,7 +2354,7 @@ short get_gui_inputs(short gameplay_on)
   for (int gidx = 0; gidx < ACTIVE_BUTTONS_COUNT; gidx++)
   {
       gbtn = &active_buttons[gidx];
-      if ((gbtn->flags & LbBtnF_Unknown01) == 0)
+      if ((gbtn->flags & LbBtnF_Active) == 0)
           continue;
       if (!get_active_menu(gbtn->gmenu_idx)->is_turned_on)
           continue;

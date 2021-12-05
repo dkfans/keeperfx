@@ -2914,37 +2914,165 @@ void refresh_trap_anim(long trap_id)
     }
 }
 
-
-void command_set_trap_configuration(const char* trapname, const char* property, long value, long optvalue)
+static void set_trap_configuration_check(const struct ScriptLine* scline)
 {
-    long trap_id = get_rid(trap_desc, trapname);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    const char *trapname = scline->tp[0];
+    short trap_id = get_id(trap_desc, trapname);
     if (trap_id == -1)
     {
         SCRPTERRLOG("Unknown trap, '%s'", trapname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
     }
 
-    long trapvar = get_id(trap_config_desc, property);
+    short trapvar = get_id(trap_config_desc, scline->tp[1]);
     if (trapvar == -1)
     {
         SCRPTERRLOG("Unknown trap variable");
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
 
+    value->shorts[0] = trap_id;
+    value->shorts[1] = trapvar;
     //val2 is an optional variable, used when there's 2 numbers on one command. Pass them along as one merged val.
-    if ((value > 0xFFFF) || (value < 0))
+    if (trapvar == 3) // SymbolSprites
     {
-        SCRPTERRLOG("Value out of range: %d", value);
-        return;
+        char *P = strchr(scline->tp[2], ' ');
+        if (P == NULL)
+        {
+            SCRPTERRLOG("Value should be two animation strings separated by space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->str2 = script_strdup(scline->tp[2]);
+        P = strchr(value->str2, ' ');
+        P[0] = 0; // split into two strings
     }
-    if ((optvalue > 0xFFFF) || (optvalue < 0))
+    else if (
+        (trapvar != 4) && // PointerSprites
+        (trapvar != 12) // Model
+        )
     {
-        SCRPTERRLOG("Value out of range: %d", optvalue);
-        return;
+        if ((scline->np[2] > 0xFFFF) || (scline->np[2] < 0))
+        {
+            SCRPTERRLOG("Value out of range: %d", scline->np[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->shorts[2] = (short)scline->np[2];
     }
-    long mergedval = value + (optvalue << 16);
+    else
+    {
+        value->str2 = script_strdup(scline->tp[2]);
+        if (value->str2 == NULL)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
     SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, property, mergedval);
-    command_add_value(Cmd_SET_TRAP_CONFIGURATION, 0, trap_id, trapvar, mergedval);
- }
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+void set_trap_configuration_process(struct ScriptContext *context)
+{
+    long trap_type = context->value->shorts[0];
+    struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[trap_type];
+    struct ManfctrConfig *mconf = &gameadd.traps_config[trap_type];
+    struct ManufactureData *manufctr = get_manufacture_data(trap_type);
+    short value = context->value->shorts[2];
+    switch (context->value->shorts[1])
+    {
+        case 1: // NameTextID
+            trapst->name_stridx = value;
+            break;
+        case 2: // TooltipTextID
+            trapst->tooltip_stridx = value;
+            break;
+        case 3: // SymbolSprites
+        {
+             trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
+            trapst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+            manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
+            manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
+            update_trap_tab_to_config();
+        }
+            break;
+        case 4: // PointerSprites
+            trapst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            update_trap_tab_to_config();
+            break;
+        case 5: // PanelTabIndex
+            trapst->panel_tab_idx = value;
+            manufctr->panel_tab_idx = value;
+            update_trap_tab_to_config();
+            break;
+        case 6: // Crate
+            gameadd.object_conf.object_to_door_or_trap[value] = trap_type;
+            gameadd.object_conf.workshop_object_class[value] = TCls_Trap;
+            gameadd.trapdoor_conf.trap_to_object[trap_type] = value;
+            break;
+        case 7: // ManufactureLevel
+            mconf->manufct_level = value;
+            break;
+        case 8: // ManufactureRequired
+            mconf->manufct_required = value;
+            break;
+        case 9: // Shots
+            mconf->shots = value;
+            break;
+        case 10: // TimeBetweenShots
+            mconf->shots_delay = value;
+            break;
+        case 11: // SellingValue
+            mconf->selling_value = value;
+            break;
+        case 12: // Model
+        {
+            struct Objects obj_tmp;
+            gameadd.trap_stats[trap_type].sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            refresh_trap_anim(trap_type);
+        }
+            break;
+        case 13: // ModelSize
+            gameadd.trap_stats[trap_type].sprite_size_max = value;
+            refresh_trap_anim(trap_type);
+            break;
+        case 14: // AnimationSpeed
+            gameadd.trap_stats[trap_type].anim_speed = value;
+            refresh_trap_anim(trap_type);
+            break;
+        case 15: // TriggerType
+            gameadd.trap_stats[trap_type].trigger_type = value;
+            break;
+        case 16: // ActivationType
+            gameadd.trap_stats[trap_type].activation_type = value;
+            break;
+        case 17: // EffectType
+            gameadd.trap_stats[trap_type].created_itm_model = value;
+            break;
+        case 18: // Hidden
+            trapst->hidden = value;
+            break;
+        case 19: // TriggerAlarm
+            trapst->notify = value;
+            break;
+        case 20: // Slappable
+            trapst->slappable = value;
+            break;
+        case 21: // Unanimated
+            gameadd.trap_stats[trap_type].unanimated = value;
+            refresh_trap_anim(trap_type);
+            break;
+        default:
+            WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
+            break;
+    }
+}
 
 
 void command_set_door_configuration(const char* doorname, const char* property, long value, long optvalue)
@@ -4213,9 +4341,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_GAME_RULE:
         command_set_game_rule(scline->tp[0], scline->np[1]);
-        break;
-    case Cmd_SET_TRAP_CONFIGURATION:
-        command_set_trap_configuration(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
     case Cmd_SET_DOOR_CONFIGURATION:
         command_set_door_configuration(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
@@ -6396,7 +6521,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct SlabMap *slb;
-  struct TrapConfigStats* trapst;
   struct DoorConfigStats* doorst;
   struct ManfctrConfig* mconf;
   struct ManufactureData* manufctr;
@@ -7308,92 +7432,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       }
       break;
-  case Cmd_SET_TRAP_CONFIGURATION:  
-      trapst = &gameadd.trapdoor_conf.trap_cfgstats[val2];
-      mconf = &gameadd.traps_config[val2];
-      manufctr = get_manufacture_data(val2);
-      switch (val3)
-      {
-      case 1: // NameTextID
-          trapst->name_stridx = val4;
-          break;
-      case 2: // TooltipTextID
-          trapst->tooltip_stridx = val4;
-          break;
-      case 3: // SymbolSprites
-          trapst->bigsym_sprite_idx = val4 << 16 >> 16;
-          trapst->medsym_sprite_idx = val4 >> 16;
-          manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
-          manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
-          update_trap_tab_to_config();
-          break;
-      case 4: // PointerSprites
-          trapst->pointer_sprite_idx = val4;
-          break;
-      case 5: // PanelTabIndex
-          trapst->panel_tab_idx = val4;
-          manufctr->panel_tab_idx = val4;
-          update_trap_tab_to_config();
-          break;
-      case 6: // Crate
-          gameadd.object_conf.object_to_door_or_trap[val4] = val2;
-          gameadd.object_conf.workshop_object_class[val4] = TCls_Trap;
-          gameadd.trapdoor_conf.trap_to_object[val2] = val4;
-          break;
-      case 7: // ManufactureLevel
-          mconf->manufct_level = val4;
-          break;
-      case 8: // ManufactureRequired
-          mconf->manufct_required = val4;
-          break;
-      case 9: // Shots
-          mconf->shots = val4;
-          break;
-      case 10: // TimeBetweenShots
-          mconf->shots_delay = val4;
-          break;
-      case 11: // SellingValue
-          mconf->selling_value = val4;
-          break;
-      case 12: // Model
-          gameadd.trap_stats[val2].sprite_anim_idx = val4;
-          refresh_trap_anim(val2);
-          break;
-      case 13: // ModelSize
-          gameadd.trap_stats[val2].sprite_size_max = val4;
-          refresh_trap_anim(val2);
-          break;
-      case 14: // AnimationSpeed
-          gameadd.trap_stats[val2].anim_speed = val4;
-          refresh_trap_anim(val2);
-          break;
-      case 15: // TriggerType
-          gameadd.trap_stats[val2].trigger_type = val4;
-          break;
-      case 16: // ActivationType
-          gameadd.trap_stats[val2].activation_type = val4;
-          break;
-      case 17: // EffectType
-          gameadd.trap_stats[val2].created_itm_model = val4;
-          break;
-      case 18: // Hidden
-          trapst->hidden = val4;
-          break;
-      case 19: // TriggerAlarm
-          trapst->notify = val4;
-          break;
-      case 20: // Slappable
-          trapst->slappable = val4;
-          break;
-      case 21: // Unanimated
-          gameadd.trap_stats[val2].unanimated = val4;
-          refresh_trap_anim(val2);
-          break;
-      default:
-          WARNMSG("Unsupported Trap configuration, variable %d.", val3);
-          break;
-      }
-      break;
   case Cmd_SET_DOOR_CONFIGURATION:
       doorst = get_door_model_stats(val2);
       mconf = &gameadd.doors_config[val2];
@@ -7713,7 +7751,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
-  {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
+  {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
