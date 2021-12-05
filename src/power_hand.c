@@ -189,8 +189,8 @@ TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber
     return false;
 }
 
-
-TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx) {
+TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick)
+{
     HandTestFn hand_rule_test_fns[] = {
         HAND_RULE({
             // unset
@@ -245,6 +245,10 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, P
             return (get_creature_gui_job(thing) == CrGUIJob_Fighting) ? !hand_rule->allow : !!hand_rule->allow;
         }),
     };
+    return hand_rule_test_fns[(int)rule->type](rule, thing_to_pick);
+}
+
+TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx) {
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (thing_is_creature(thing_to_pick) && thing_to_pick->owner == plyr_idx)
     {
@@ -252,7 +256,7 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, P
         for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) {
             hand_rule = dungeonadd->hand_rules[thing_to_pick->model][i];
             if (hand_rule.enabled && hand_rule.type != HandRule_Unset)
-                return hand_rule_test_fns[(int)hand_rule.type](&hand_rule, thing_to_pick);
+                return eval_hand_rule_for_thing(&hand_rule, thing_to_pick);
         }
     }
     return false;
