@@ -656,6 +656,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         angle = thing->move_angle_xy;
         if ( (angle) && (angle <= 0x400u) ) 
         {
+          pos2.z.val = 0;
           pos2.y.val = thing->mappos.y.val;
           pos2.x.val = thing->mappos.x.val + STL_PER_SLB * speed;
           pos2.z.val = get_thing_height_at(thing, &pos2);
@@ -664,6 +665,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
         else
         {
           unsigned short x = thing->mappos.x.val;
+          pos2.z.val = 0;
           pos2.y.val = thing->mappos.y.val;
           pos2.x.val = x - STL_PER_SLB * speed;
           pos2.z.val = get_thing_height_at(thing, &pos2);
