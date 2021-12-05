@@ -586,8 +586,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   int n = speed * lbCosTable[thing->move_angle_xy];
   pos.y.val = thing->mappos.y.val + (-(n >> 8) >> 8);
   pos.z.val = thing->mappos.z.val;
-  unsigned long seed = 9377 * game.action_rand_seed + 9439;
-  game.action_rand_seed = LB_RANDOM(ULONG_MAX, &seed);
+  game.action_rand_seed = ACTION_RANDOM(ULONG_MAX);
   if ( !(game.action_rand_seed & 7) && (!thing->velocity.z.val ) )
   {
     if ( thing_touching_floor(thing) )
