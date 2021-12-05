@@ -1109,7 +1109,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
 static void set_creature_configuration_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    
+
     short creatvar = get_id(creatmodel_attributes_commands, scline->tp[1]);
     if (creatvar == -1)
     {
@@ -1141,7 +1141,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     short creatid = context->value->shorts[0];
     struct CreatureStats* crstat = creature_stats_get(creatid);
     struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatid];
-    
+
     short attribute = context->value->shorts[1];
     short value = context->value->shorts[2];
     short value2 = context->value->shorts[3];
@@ -1340,7 +1340,7 @@ static void add_to_timer_check(const struct ScriptLine *scline)
 
 static void add_to_timer_process(struct ScriptContext *context)
 {
-   add_to_script_timer(context->value->arg0, context->value->arg1, context->value->arg2); 
+   add_to_script_timer(context->value->arg0, context->value->arg1, context->value->arg2);
 }
 
 static void add_bonus_time_check(const struct ScriptLine *scline)
@@ -1386,7 +1386,7 @@ static void display_countdown_check(const struct ScriptLine *scline)
     if (scline->np[2] <= 0)
     {
         SCRPTERRLOG("Can't have a countdown to %ld turns.", scline->np[2]);
-        return; 
+        return;
     }
     const char *timrname = scline->tp[1];
     char timr_id = get_rid(timer_desc, timrname);
@@ -1508,7 +1508,7 @@ static void create_effect_process(struct ScriptContext *context)
             move_creature_to_nearest_valid_position(efftng);
         }
         if (Price)
-        {   
+        {
             efftng->long_13 = context->value->arg1;
         }
     }
@@ -1594,7 +1594,6 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     }
     strncpy(gameadd.quick_messages[scline->np[0]], scline->tp[1], MESSAGE_TEXT_LEN-1);
     gameadd.quick_messages[scline->np[0]][MESSAGE_TEXT_LEN-1] = '\0';
-    value->arg1 = scline->tp[1];
     value->arg0 = scline->np[0];
     if (scline->tp[2][0] != '\0')
     {
@@ -3203,16 +3202,20 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     //val2 is an optional variable, used when there's 2 numbers on one command. Pass them along as one merged val.
     if (trapvar == 3) // SymbolSprites
     {
-        char *P = strchr(scline->tp[2], ' ');
-        if (P == NULL)
+        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
+        strcpy(tmp, scline->tp[2]);
+        tmp[strlen(scline->tp[2])] = '|' ;
+        tmp[strlen(scline->tp[2]) + 1] = 0;
+        strcat(tmp,scline->tp[3]);
+        value->str2 = script_strdup(tmp); // first\0second
+        value->str2[strlen(scline->tp[2])] = 0;
+        free(tmp);
+        if (value->str2 == NULL)
         {
-            SCRPTERRLOG("Value should be two animation strings separated by space");
+            SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value->str2 = script_strdup(scline->tp[2]);
-        P = strchr(value->str2, ' ');
-        P[0] = 0; // split into two strings
     }
     else if (
         (trapvar != 4) && // PointerSprites
@@ -3258,7 +3261,7 @@ void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 3: // SymbolSprites
         {
-             trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
+            trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
             trapst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
             manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
             manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
@@ -5504,7 +5507,7 @@ static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, T
             return INVALID_THING;
         }
         effect = 0;
-        break;      
+        break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
@@ -5549,7 +5552,7 @@ static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, T
             cctrl->field_AE |= 0x01;
         }
     }
-    
+
     if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
@@ -5635,7 +5638,7 @@ static struct Thing *script_process_new_object(long tngmodel, TbMapLocation loca
         {
             return INVALID_THING;
         }
-        break;      
+        break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
@@ -6023,7 +6026,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         if (thing_is_picked_up(thing))
         {
             SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
-            return Lb_FAIL;          
+            return Lb_FAIL;
         }
         unsigned short sound;
         if (spinfo->caster_affected)
@@ -6060,7 +6063,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
     else
     {
         SCRPTERRLOG("Spell not supported for this command: %d", (int)spkind);
-        return Lb_FAIL; 
+        return Lb_FAIL;
     }
 }
 
@@ -6121,7 +6124,7 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
     char is_free = (fml_bytes >> 16) != 0;
     PowerKind powerKind = (fml_bytes >> 8) & 255;
     long splevel = fml_bytes & 255;
-    
+
     unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
     if (is_free)
         spell_flags |= PwMod_CastForFree;
@@ -6804,7 +6807,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       return;
   }
-  
+
   switch (var_index)
   {
   case Cmd_SET_HATE:
@@ -7048,7 +7051,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_IsEvil;
           }
-          break; 
+          break;
       case 16: // NEVER_CHICKENS
           if (val4 >= 1)
           {
@@ -7058,7 +7061,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_NeverChickens;
           }
-          break; 
+          break;
       case 17: // IMMUNE_TO_BOULDER
           if (val4 >= 1)
           {
@@ -7068,7 +7071,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_ImmuneToBoulder;
           }
-          break; 
+          break;
       case 18: // NO_CORPSE_ROTTING
           if (val4 >= 1)
           {
@@ -7078,7 +7081,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_NoCorpseRotting;
           }
-          break; 
+          break;
       case 19: // NO_ENMHEART_ATTCK
           if (val4 >= 1)
           {
@@ -7088,7 +7091,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_NoEnmHeartAttack;
           }
-          break; 
+          break;
       case 20: // TREMBLING_FAT
           if (val4 >= 1)
           {
@@ -7098,7 +7101,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_TremblingFat;
           }
-          break; 
+          break;
       case 21: // FEMALE
           if (val4 >= 1)
           {
@@ -7108,7 +7111,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_Female;
           }
-          break; 
+          break;
       case 22: // INSECT
           if (val4 >= 1)
           {
@@ -7118,7 +7121,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_Insect;
           }
-          break; 
+          break;
       case 23: // ONE_OF_KIND
           if (val4 >= 1)
           {
@@ -7128,7 +7131,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_OneOfKind;
           }
-          break; 
+          break;
       case 24: // NO_IMPRISONMENT
           if (val4 >= 1)
           {
@@ -7138,7 +7141,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_NoImprisonment;
           }
-          break; 
+          break;
       case 25: // NEVER_SICK
           if (val4 >= 1)
           {
@@ -7280,7 +7283,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_CHANGE_SLAB_TYPE:
       if (val2 < 0 || val2 > 85)
       {
-          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val2); 
+          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val2);
       } else
       if (val3 < 0 || val3 > 85)
       {
@@ -7397,7 +7400,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_DISPLAY_MESSAGE:
   {
         message_add_fmt(val2, "%s", get_string(val3));
-        break;        
+        break;
   }
   case Cmd_CREATURE_ENTRANCE_LEVEL:
   {
@@ -7696,7 +7699,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           gameadd.object_conf.workshop_object_class[val4] = TCls_Door;
           gameadd.trapdoor_conf.door_to_object[val2] = val4;
           break;
-      case 8: //SymbolSprites 
+      case 8: //SymbolSprites
           doorst->bigsym_sprite_idx = val4 << 16 >> 16;
           doorst->medsym_sprite_idx = val4 >> 16;
           manufctr->bigsym_sprite_idx = doorst->bigsym_sprite_idx;
@@ -7881,8 +7884,8 @@ char get_player_number_from_value(const char* txt)
                         }
                     }
                 }
-            }   
-        }        
+            }
+        }
     }
     return id;
 }
