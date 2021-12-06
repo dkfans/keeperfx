@@ -605,6 +605,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 7: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
+              spinfo->bigsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
@@ -614,6 +615,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
+              spinfo->medsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
@@ -623,8 +625,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 2)
           {
-              spinfo->bigsym_sprite_idx = bad_icon_id;
-              spinfo->medsym_sprite_idx = bad_icon_id;
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
@@ -1206,6 +1206,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       case 10: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
+              powerst->bigsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
@@ -1215,6 +1216,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
+              powerst->medsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
@@ -1224,8 +1226,6 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 2)
           {
-              powerst->bigsym_sprite_idx = bad_icon_id;
-              powerst->medsym_sprite_idx = bad_icon_id;
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }

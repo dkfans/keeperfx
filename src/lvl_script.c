@@ -3263,6 +3263,10 @@ void set_trap_configuration_process(struct ScriptContext *context)
         {
             trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
             trapst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+            if (trapst->bigsym_sprite_idx < 0)
+                trapst->bigsym_sprite_idx = bad_icon_id;
+            if (trapst->medsym_sprite_idx < 0)
+                trapst->medsym_sprite_idx = bad_icon_id;
             manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
             manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
             update_trap_tab_to_config();
@@ -3270,6 +3274,8 @@ void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 4: // PointerSprites
             trapst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            if (trapst->pointer_sprite_idx < 0)
+                trapst->pointer_sprite_idx = bad_icon_id;
             update_trap_tab_to_config();
             break;
         case 5: // PanelTabIndex
