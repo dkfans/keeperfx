@@ -1108,8 +1108,8 @@ msgid ""
 "All the heroes are dead, which is as it should be. This land and all its "
 "spoils are yours. May I suggest that you waste everything?"
 msgstr ""
-"所有的英雄都得到了他们应有的下场，死亡。这片土地和所有的战利品都属于你。我会"
-"建议你浪费任何东西吗？"
+"所有的英雄都得到了他们应有的下场：死亡。这片土地和所有的战利品都属于你。"
+"把它们全都糟蹋掉怎么样？"
 
 #. Level Hearth objective
 #: guitext:105
@@ -1132,7 +1132,7 @@ msgid ""
 "triggers an expanding ring of demonic energy that incinerates anything "
 "caught in its area of effect. What a scream that should be."
 msgstr ""
-"你最后发现的是圣言陷阱的咒语。当它被触发时，一个扩散的能量环将毁灭它作用范围"
+"你的最新发明是强力咒语陷阱。当它被触发时，一个扩散的能量环将毁灭它作用范围"
 "内的任何东西。我已经听见了绝望的尖叫声。"
 
 #. Level Moonbrush Wood information
@@ -2187,7 +2187,7 @@ msgstr ""
 #: guitext:257
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "定时炸弹: 将你的生物变成一个自杀机器。"
+msgstr "定时炸弹: 将你的生物变成一个自杀炸弹。"
 
 #: guitext:258
 msgctxt "Creature name"
@@ -3912,7 +3912,7 @@ msgstr "闪电陷阱"
 #: guitext:582
 msgctxt "Trap names"
 msgid "Word of Power Trap"
-msgstr "圣言陷阱"
+msgstr "强力咒语陷阱"
 
 #: guitext:583
 msgctxt "Trap names"
@@ -4546,7 +4546,7 @@ msgstr "储金室满了: 左键切换。右键删除。"
 #: guitext:691
 msgctxt "Game event description"
 msgid "Creature being scavenged: LMB toggle. RMB delete."
-msgstr "怪物被招降: 左键切换。右键删除。"
+msgstr "怪物被招募: 左键切换。右键删除。"
 
 #: guitext:692
 msgctxt "Game event description"
@@ -4900,7 +4900,7 @@ msgstr "研究"
 #: guitext:759
 msgctxt "Statistic name"
 msgid "Creatures Scavenged"
-msgstr "招降怪物"
+msgstr "招募怪物"
 
 #: guitext:760
 msgctxt "Statistic name"
@@ -5797,7 +5797,7 @@ msgctxt "In-game message"
 msgid ""
 "Choices, choices Keeper. Choose your path wisely. Some routes are more "
 "perilous than others ..."
-msgstr "选择！选择！守护者：明智地选择你的道路。有些路线比其它的更加致命……"
+msgstr "选择！选择！守护者：明智地选择你的道路。有些路线比其他的更加致命……"
 
 #. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
