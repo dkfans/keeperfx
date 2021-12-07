@@ -23,6 +23,7 @@
 #include "bflib_filelst.h"
 #include "bflib_network.h"
 
+#include "custom_sprites.h"
 #include "version.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -1414,6 +1415,7 @@ void reinit_level_after_load(void)
     struct PlayerInfo *player;
     int i;
     SYNCDBG(6,"Starting");
+    init_custom_sprites(get_selected_level_number());
     // Reinit structures from within the game
     player = get_my_player();
     player->lens_palette = 0;
