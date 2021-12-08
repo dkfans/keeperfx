@@ -67,6 +67,7 @@
 #include "thing_doors.h"
 #include "thing_traps.h"
 #include "thing_navigate.h"
+#include "thing_shots.h"
 #include "thing_factory.h"
 #include "slab_data.h"
 #include "room_data.h"
