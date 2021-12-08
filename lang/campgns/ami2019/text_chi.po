@@ -869,8 +869,8 @@ msgstr "这片土地的统治者进入了你的地下城。我可以感觉到他
 #. Mill Vault (lv12)
 #: guitext:140
 msgctxt "In-game message"
-msgid "Highly skilled Imps will join your army through the Portal when you seize any fort.ahead."
-msgstr "当你占领了任何一个怪物的住所后，就会有高等级的小鬼从入口进入你的地下城。"
+msgid "Highly skilled Imps will join your army through the Portal when you seize any fort."
+msgstr "当你抢占了任何一种怪物的住所后，就会有高等级的小鬼从入口进入你的地下城。"
 
 #. Mill Vault (lv12) Victory Message
 #: guitext:141

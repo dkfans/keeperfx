@@ -310,6 +310,10 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
     {
         dungeonadd->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Manufacturable;
     }
+    else
+    {
+        dungeonadd->mnfct_info.trap_build_flags[tngmodel] &= ~MnfBldF_Manufacturable;
+    }
     dungeonadd->mnfct_info.trap_amount_offmap[tngmodel] += amount;
     dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] += amount;
     if (amount > 0)
@@ -331,7 +335,13 @@ TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
         return false;
     }
     if (buildable)
+    {
         dungeonadd->mnfct_info.door_build_flags[tngmodel] |= MnfBldF_Manufacturable;
+    }
+    else
+    {
+       dungeonadd->mnfct_info.door_build_flags[tngmodel] &= ~MnfBldF_Manufacturable;
+    }
     dungeonadd->mnfct_info.door_amount_offmap[tngmodel] += amount;
     dungeonadd->mnfct_info.door_amount_placeable[tngmodel] += amount;
     if (amount > 0)
@@ -385,6 +395,20 @@ TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
     dungeon->turn_timers[timer_id].state = 1;
     dungeon->turn_timers[timer_id].count = game.play_gameturn;
     return true;
+}
+
+void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long value)
+{
+    if (timer_id >= TURN_TIMERS_COUNT) {
+        ERRORLOG("Can't manipulate timer; invalid timer id %d.",(int)timer_id);
+        return;
+    }
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Can't manipulate timer; player %d has no dungeon.",(int)plyr_idx);
+        return;
+    }
+    dungeon->turn_timers[timer_id].count -= value;
 }
 
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)

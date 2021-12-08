@@ -91,7 +91,7 @@ enum GameNumfieldDFlags {
     GNFldD_Unkn01 = 0x01,
     GNFldD_Unkn02 = 0x02,
     GNFldD_Unkn04 = 0x04,
-    GNFldD_Unkn08 = 0x08,
+    GNFldD_CreaturePasngr = 0x08, // Possessing a creature as a passenger (no direct control)
     GNFldD_Unkn10 = 0x10,
     GNFldD_Unkn20 = 0x20,
     GNFldD_Unkn40 = 0x40,
@@ -293,7 +293,7 @@ char field_14EA4B;
     unsigned short torture_health_loss;
     unsigned short turns_per_torture_health_loss;
     unsigned char ghost_convert_chance;
-    struct LevelScript script;
+    struct LevelScriptOld script;
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
     long frame_skip;

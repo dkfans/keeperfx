@@ -25,6 +25,7 @@
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
+#include "map_blocks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -522,7 +523,25 @@ void clear_mapmap(void)
  */
 void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
 {
-  _DK_clear_slab_dig(slb_x, slb_y, plyr_idx);
+  //_DK_clear_slab_dig(slb_x, slb_y, plyr_idx);
+
+    const struct SlabMap *slb = &game.slabmap[slb_x + 85 * slb_y];
+    if ( get_slab_attrs(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
+    {
+        if (slb->kind == SlbT_ROCK) // fix #1128
+        {
+            untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+        }
+        else if ( (get_slab_attrs(slb)->category == SlbAtCtg_FortifiedWall)
+            && (slabmap_owner(slb) != plyr_idx ))
+        {
+        untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+        }
+    }
+    else if ( !subtile_revealed(slab_subtile(slb_x, 0) , slab_subtile(slb_y, 0), plyr_idx) )
+    {
+        untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+    }
 }
 
 /**

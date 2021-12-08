@@ -6699,3 +6699,8 @@ msgstr "Klap Camera"
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Mysterieuze Doos: Er valt niet te achterhalen wat dit zal doen."
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
+msgstr "Spelers hebben verschillende versies van het level."

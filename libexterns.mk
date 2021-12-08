@@ -20,6 +20,8 @@
 
 ARCH = i686-w64-mingw32
 
+include prebuilds.mk
+
 .PHONY: clean-libsdl deep-clean-libsdl
 
 .INTERMEDIATE: libsdl libsdlnet libsdlmixer

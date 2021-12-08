@@ -177,6 +177,7 @@ extern RoomKind look_through_rooms[18];
 struct Room *room_get(long room_idx);
 struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Room *slab_room_get(long slb_x, long slb_y);
+struct Room *slab_number_room_get(SlabCodedCoords slab_num);
 TbBool room_is_invalid(const struct Room *room);
 TbBool room_exists(const struct Room *room);
 struct RoomData *room_data_get_for_kind(RoomKind rkind);
@@ -187,7 +188,8 @@ struct RoomStats *room_stats_get_for_room(const struct Room *room);
 long get_room_look_through(RoomKind rkind);
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency);
 void set_room_efficiency(struct Room *room);
-void set_room_capacity(struct Room *room, TbBool skip_integration);
+void set_room_stats(struct Room *room, TbBool skip_integration);
+void do_room_recalculation(struct Room* room);
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind);
 void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind room_kind, long *total_cap, long *used_cap);
@@ -201,7 +203,7 @@ struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 // Finding position within room
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *thing, struct Room *room, struct Coord3d *pos);
-TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Room *room, unsigned char room_area);
+TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Room *room, unsigned char room_area, struct Thing *thing);
 
 // Finding a room for a thing
 TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner);
@@ -229,7 +231,6 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num);
 struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, MapSubtlCoord y, RoomKind rkind);
 struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short room_grow_food(struct Room *room);
-void update_room_efficiency(struct Room *room);
 TbBool update_room_contents(struct Room *room);
 struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const struct Dungeon *dungeon, RoomRole rrole, int needed_capacity);
 struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

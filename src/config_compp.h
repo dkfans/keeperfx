@@ -31,7 +31,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct ComputerProcessTypes { // sizeof = 1124
+struct ComputerProcessTypes {
   char *name;
   long field_4;
   long field_8;

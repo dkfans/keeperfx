@@ -212,15 +212,15 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     {
         pixval = pixmap.ghost[background + 0x1A00];
     } else
-    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
-    {
-        pixval = pixmap.ghost[background + 0x8C00];
-    } else
     if (!map_block_revealed(mapblk,plyr_idx))
     {
         pixval = background;
     } else
-    if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
+    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+    {
+        pixval = pixmap.ghost[background + 0x8C00];
+    }
+    else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
     {
         struct Room* room = subtile_room_get(stl_x, stl_y);
         if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
@@ -441,7 +441,7 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 TbPixel col;
                 if ((game.play_gameturn & 4) == 0)
                 {
-                    col1 = player_room_colours[cctrl->party.target_plyr_idx];
+                    col1 = player_room_colours[(int)(cctrl->party.target_plyr_idx>=0?cctrl->party.target_plyr_idx:0)];
                     col2 = player_room_colours[thing->owner];
                 }
                 if (thing->owner == plyr_idx)
@@ -638,6 +638,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
     }
     struct PlayerInfo* player = get_my_player();
     unsigned long k = 0;
+    struct ObjectConfigStats* objst;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
@@ -680,27 +681,21 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
                 break;
             }
             case TCls_Object:
-                if (thing_is_dungeon_heart(thing))
+                //get spridx from config
+                objst = get_object_model_stats(thing->model);
+                spridx = objst->map_icon;
+                if (spridx < 0)
                 {
-                    spridx = 512;
-                    draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y /2), ps_units_per_px, spridx);
-                } else
-                if (object_is_gold(thing))
+                    if (thing_is_spellbook(thing))
+                    {
+                        struct PowerConfigStats* powerst;
+                        powerst = get_power_model_stats(book_thing_to_power_kind(thing));
+                        spridx = powerst->medsym_sprite_idx;
+                    }
+                }
+                if (spridx > 0)
                 {
-                    spridx = 511;
-                    draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y /2), ps_units_per_px, spridx);
-                } else
-                if (thing_is_special_box(thing))
-                {
-                    spridx = 164;
-                    draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y /2), ps_units_per_px, spridx);
-                } else
-                if (thing_is_spellbook(thing))
-                {
-                    struct PowerConfigStats *powerst;
-                    powerst = get_power_model_stats(book_thing_to_power_kind(thing));
-                    spridx = powerst->medsym_sprite_idx;
-                    draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y /2), ps_units_per_px, spridx);
+                    draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y / 2), ps_units_per_px, spridx);
                 }
                 break;
             default:

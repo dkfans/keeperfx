@@ -95,108 +95,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct Packet) + sizeof(TbBigChecksum))
-struct Packet bad_packet;
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
+/******************************************************************************/
+/******************************************************************************/
+short place_terrain = 0;
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
 {
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
     pckt->action = pcktype;
-}
-
-void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    pckt->actn_par1 = par1;
-    pckt->actn_par2 = par2;
-    pckt->action = pcktype;
-}
-
-unsigned char get_players_packet_action(struct PlayerInfo *player)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    return pckt->action;
-}
-
-void set_packet_control(struct Packet *pckt, unsigned long flag)
-{
-  pckt->control_flags |= flag;
-}
-
-void set_players_packet_control(struct PlayerInfo *player, unsigned long flag)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    pckt->control_flags |= flag;
-}
-
-void unset_packet_control(struct Packet *pckt, unsigned long flag)
-{
-  pckt->control_flags &= ~flag;
-}
-
-void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    pckt->control_flags &= ~flag;
-}
-
-void set_players_packet_position(struct PlayerInfo *player, long x, long y)
-{
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    pckt->pos_x = x;
-    pckt->pos_y = y;
-}
-
-/**
- * Gives a pointer for the player's packet.
- * @param plyr_idx The player index for which we want the packet.
- * @return Returns Packet pointer. On error, returns a dummy structure.
- */
-struct Packet *get_packet(long plyr_idx)
-{
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (player_invalid(player))
-        return INVALID_PACKET;
-    if (player->packet_num >= PACKETS_COUNT)
-        return INVALID_PACKET;
-    return &game.packets[player->packet_num];
-}
-
-/**
- * Gives a pointer to packet of given index.
- * @param pckt_idx Packet index in the array. Note that it may differ from player index.
- * @return Returns Packet pointer. On error, returns a dummy structure.
- */
-struct Packet *get_packet_direct(long pckt_idx)
-{
-    if ((pckt_idx < 0) || (pckt_idx >= PACKETS_COUNT))
-        return INVALID_PACKET;
-    return &game.packets[pckt_idx];
-}
-
-void clear_packets(void)
-{
-    for (int i = 0; i < PACKETS_COUNT; i++)
-    {
-        LbMemorySet(&game.packets[i], 0, sizeof(struct Packet));
-    }
-}
-
-short set_packet_pause_toggle(void)
-{
-    struct PlayerInfo* player = get_my_player();
-    if (player_invalid(player))
-        return false;
-    if (player->packet_num >= PACKETS_COUNT)
-        return false;
-    struct Packet* pckt = get_packet_direct(player->packet_num);
-    set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
-    return true;
 }
 
 TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
@@ -247,10 +157,11 @@ void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const 
  * Checks if all active players packets have same checksums.
  * @return Returns false if all checksums are same; true if there's mismatch.
  */
-short checksums_different(void)
+short checksums_different()
 {
     TbChecksum checksum = 0;
     unsigned short is_set = false;
+    int plyr = -1;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
@@ -261,9 +172,12 @@ short checksums_different(void)
             {
                 checksum = pckt->chksum;
                 is_set = true;
+                plyr = i;
             }
             else if (checksum != pckt->chksum)
             {
+                ERRORLOG("Checksums %08x(%d) != %08x(%d) turn: %ld", checksum, plyr, pckt->chksum, i, game.play_gameturn);
+
                 return true;
             }
         }
@@ -534,7 +448,8 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         && (!dungeonadd->one_click_lock_cursor))
       {
         render_roomspace = create_box_roomspace(render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
-        tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, player->full_slab_cursor);
+        long keycode;
+        tag_cursor_blocks_thing_in_hand(player->id_number, stl_x, stl_y, i, (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true)));
       } else
       {
         player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
@@ -619,7 +534,18 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     {
       if (is_my_player(player))
       {
-        play_non_3d_sample(119);
+        if (can_build_room_at_slab(player->id_number, player->chosen_room_kind, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
+        {
+            struct Dungeon* dungeon = get_dungeon(player->id_number);
+            if (render_roomspace.total_roomspace_cost > dungeon->total_money_owned)
+            {
+                output_message(SMsg_GoldNotEnough, 0, true);
+            }
+        }
+        else
+        {
+            play_non_3d_sample(119);
+        }
         unset_packet_control(pckt, PCtr_LBtnClick);
       }
       return false;
@@ -1463,6 +1389,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             if (slb->kind >= SlbT_EARTH && slb->kind <= SlbT_CLAIMED)
             {
                 short slbkind;
+                i = get_selected_player_for_cheat(plyr_idx);
                 switch(slb->kind)
                 {
                     case SlbT_PATH:
@@ -1472,12 +1399,26 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     }
                     case SlbT_EARTH:
                     {
-                        slbkind = rand() % (5) + 4;
+                        if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
+                        {
+                            slbkind = choose_pretty_type(i, slb_x, slb_y);
+                        }
+                        else
+                        {
+                            slbkind = rand() % (5) + 4;
+                        }
                         break;
                     }
                     case SlbT_TORCHDIRT:
                     {
-                        slbkind = SlbT_WALLTORCH;
+                        if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
+                        {
+                            slbkind = choose_pretty_type(i, slb_x, slb_y);
+                        }
+                        else
+                        {
+                            slbkind = SlbT_WALLTORCH;
+                        }
                         break;
                     }
                     default:
@@ -1486,7 +1427,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                         break;
                     }
                 }
-                i = get_selected_player_for_cheat(plyr_idx);
                 if ((slbkind == SlbT_CLAIMED) || ((slbkind >= SlbT_WALLDRAPE) && (slbkind <= SlbT_WALLPAIRSHR)))
                 {
                     if (is_key_pressed(KC_RALT, KMod_DONTCARE))
@@ -1523,7 +1463,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     }
                 }
                 place_slab_type_on_map(slbkind, stl_x, stl_y, i, 0);
-                do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                do_slab_efficiency_alteration(slb_x, slb_y);
                 slb = get_slabmap_block(slb_x, slb_y);
                 for (i = 0; i < PLAYERS_COUNT; i++)
                 {
@@ -1668,127 +1608,177 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_PlaceTerrain:
+    {
+        if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
+        {
+            place_terrain = SlbT_ROCK;
+            clear_key_pressed(KC_NUMPAD0);
+        }
+        else if (is_key_pressed(KC_NUMPAD1, KMod_NONE))
+        {
+            place_terrain = SlbT_GOLD;
+            clear_key_pressed(KC_NUMPAD1);
+        }
+        else if (is_key_pressed(KC_NUMPAD2, KMod_NONE))
+        {
+            place_terrain = SlbT_GEMS;
+            clear_key_pressed(KC_NUMPAD2);
+        }
+        else if (is_key_pressed(KC_NUMPAD3, KMod_NONE))
+        {
+            place_terrain = SlbT_EARTH;
+            clear_key_pressed(KC_NUMPAD3);
+        }
+        else if (is_key_pressed(KC_NUMPAD4, KMod_NONE))
+        {
+            place_terrain = SlbT_TORCHDIRT;
+            clear_key_pressed(KC_NUMPAD4);
+        }
+        else if (is_key_pressed(KC_NUMPAD5, KMod_NONE))
+        {
+            place_terrain = SlbT_PATH;
+            clear_key_pressed(KC_NUMPAD5);
+        }
+        else if (is_key_pressed(KC_NUMPAD6, KMod_NONE))
+        {
+            place_terrain = SlbT_CLAIMED;
+            clear_key_pressed(KC_NUMPAD6);
+        }
+        else if (is_key_pressed(KC_NUMPAD7, KMod_NONE))
+        {
+            place_terrain = SlbT_LAVA;
+            clear_key_pressed(KC_NUMPAD7);
+        }
+        else if (is_key_pressed(KC_NUMPAD8, KMod_NONE))
+        {
+            place_terrain = SlbT_WATER;
+            clear_key_pressed(KC_NUMPAD8);
+        }
+        else if (is_key_pressed(KC_NUMPAD9, KMod_NONE))
+        {
+            place_terrain = rand() % (5) + 4;
+            clear_key_pressed(KC_NUMPAD9);
+        }
+        else if (is_key_pressed(KC_DIVIDE, KMod_NONE))
+        {
+            place_terrain = SlbT_DAMAGEDWALL;
+            clear_key_pressed(KC_DIVIDE);
+        }
+        else if (is_key_pressed(KC_MULTIPLY, KMod_NONE))
+        {
+            place_terrain = SlbT_SLAB50;
+            clear_key_pressed(KC_MULTIPLY);
+        }
+        struct SlabConfigStats* slab_cfgstats;
+        clear_messages_from_player(-127);
+        struct SlabAttr *slbattr = get_slab_kind_attrs(place_terrain);
+        if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
+        {
+            const char* msg = get_string(slbattr->tooltip_stridx);
+            char msg_buf[255];
+            strcpy(msg_buf, msg);
+            char* dis_msg = strtok(msg_buf, ":");
+            message_add(-127, dis_msg);
+        }
+        else
+        {
+            slab_cfgstats = get_slab_kind_stats(place_terrain);
+            message_add(-127, slab_cfgstats->code_name);           
+        }            
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {          
             slb = get_slabmap_block(slb_x, slb_y);
-            short slbkind;
             char s[3];
             if (is_key_pressed(KC_SLASH, KMod_NONE))
             {
-                 itoa(slb->kind, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_SLASH);
+                slab_cfgstats = get_slab_kind_stats(slb->kind);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, slab_cfgstats->code_name);
+                clear_key_pressed(KC_SLASH);
             }
             else if (is_key_pressed(KC_SLASH, KMod_SHIFT))
             {
-                 itoa(slabmap_owner(slb), s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_SLASH);
+                itoa(slabmap_owner(slb), s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_SLASH);
             }
             else if (is_key_pressed(KC_X, KMod_NONE))
             {
-                 itoa(stl_x, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_X);
+                itoa(stl_x, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_X);
             }
             else if (is_key_pressed(KC_Y, KMod_NONE))
             {
-                 itoa(stl_y, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_Y);
+                itoa(stl_y, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_Y);
             }
             else if (is_key_pressed(KC_X, KMod_SHIFT))
             {
-                 itoa(slb_x, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_X);
+                itoa(slb_x, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_X);
             }
             else if (is_key_pressed(KC_Y, KMod_SHIFT))
             {
-                 itoa(slb_y, s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_Y);
+                itoa(slb_y, s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_Y);
             }
             else if (is_key_pressed(KC_N, KMod_NONE))
             {
-                 itoa(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)), s, 10);
-                 message_add(plyr_idx, s);
-                 clear_key_pressed(KC_N);
+                itoa(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)), s, 10);
+                clear_messages_from_player(plyr_idx);
+                message_add(plyr_idx, s);
+                clear_key_pressed(KC_N);
             }
             else
             {
-                if (is_key_pressed(KC_NUMPAD0, KMod_NONE))
-                {
-                    slbkind = SlbT_ROCK;
-                    clear_key_pressed(KC_NUMPAD0);
-                }
-                else if (is_key_pressed(KC_NUMPAD1, KMod_NONE))
-                {
-                    slbkind = SlbT_GOLD;
-                    clear_key_pressed(KC_NUMPAD1);
-                }
-                else if (is_key_pressed(KC_NUMPAD2, KMod_NONE))
-                {
-                    slbkind = SlbT_GEMS;
-                    clear_key_pressed(KC_NUMPAD2);
-                }
-                else if (is_key_pressed(KC_NUMPAD3, KMod_NONE))
-                {
-                    slbkind = SlbT_EARTH;
-                    clear_key_pressed(KC_NUMPAD3);
-                }
-                else if (is_key_pressed(KC_NUMPAD4, KMod_NONE))
-                {
-                    slbkind = SlbT_TORCHDIRT;
-                    clear_key_pressed(KC_NUMPAD4);
-                }
-                else if (is_key_pressed(KC_NUMPAD5, KMod_NONE))
-                {
-                    slbkind = SlbT_PATH;
-                    clear_key_pressed(KC_NUMPAD5);
-                }
-                else if (is_key_pressed(KC_NUMPAD6, KMod_NONE))
-                {
-                    slbkind = SlbT_CLAIMED;
-                    clear_key_pressed(KC_NUMPAD6);
-                }
-                else if (is_key_pressed(KC_NUMPAD7, KMod_NONE))
-                {
-                    slbkind = SlbT_LAVA;
-                    clear_key_pressed(KC_NUMPAD7);
-                }
-                else if (is_key_pressed(KC_NUMPAD8, KMod_NONE))
-                {
-                    slbkind = SlbT_WATER;
-                    clear_key_pressed(KC_NUMPAD8);
-                }
-                else if (is_key_pressed(KC_NUMPAD9, KMod_NONE))
-                {
-                    slbkind = rand() % (5) + 4;
-                    clear_key_pressed(KC_NUMPAD9);
-                }
-                else
-                {
-                    slbkind = 0;
-                }
                 if (subtile_is_room(stl_x, stl_y)) 
                 {
                     room = subtile_room_get(stl_x, stl_y);
                     delete_room_slab(slb_x, slb_y, true);
                 }
-                if (slab_kind_is_animated(slbkind))
+                PlayerNumber id;
+                if ( (place_terrain == SlbT_CLAIMED) || ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_DAMAGEDWALL) ) )
                 {
-                    place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, game.neutral_player_num);  
+                    id = slabmap_owner(slb);
                 }
                 else
                 {
-                    place_slab_type_on_map(slbkind, stl_x, stl_y, game.neutral_player_num, 0);
+                    id = game.neutral_player_num;
                 }
-                do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+                if (slab_kind_is_animated(place_terrain))
+                {
+                    place_animating_slab_type_on_map(place_terrain, 0, stl_x, stl_y, id);
+                }
+                else
+                {
+                    if ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_WALLPAIRSHR) )
+                    {
+                        if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
+                        {
+                            place_terrain = choose_pretty_type(id, slb_x, slb_y);
+                        }
+                    }
+                    place_slab_type_on_map(place_terrain, stl_x, stl_y, id, 0);
+                    if ( (place_terrain >= SlbT_WALLDRAPE) && (place_terrain <= SlbT_WALLPAIRSHR) )
+                    {
+                        place_terrain = rand() % (5) + 4;
+                    }
+                }
+                do_slab_efficiency_alteration(slb_x, slb_y);
             }
         }
         unset_packet_control(pckt, PCtr_LBtnRelease);
         break;
+    }
     case PSt_DestroyThing:
         thing = get_nearest_thing_at_position(stl_x, stl_y);
         if (thing_is_invalid(thing))
@@ -1902,103 +1892,6 @@ TbBigChecksum get_thing_simple_checksum(const struct Thing *tng)
           }
       }
       return sum;
-}
-
-TbBool reinit_packets_after_load(void)
-{
-    game.packet_save_enable = false;
-    game.packet_load_enable = false;
-    game.packet_save_fp = -1;
-    game.packet_fopened = 0;
-    return true;
-}
-
-TbBool open_new_packet_file_for_save(void)
-{
-    // Filling the header
-    SYNCMSG("Starting packet saving, turn %lu",(unsigned long)game.play_gameturn);
-    game.packet_save_head.game_ver_major = VER_MAJOR;
-    game.packet_save_head.game_ver_minor = VER_MINOR;
-    game.packet_save_head.game_ver_release = VER_RELEASE;
-    game.packet_save_head.game_ver_build = VER_BUILD;
-    game.packet_save_head.level_num = get_loaded_level_number();
-    game.packet_save_head.players_exist = 0;
-    game.packet_save_head.players_comp = 0;
-    game.packet_save_head.chksum_available = game.packet_checksum_verify;
-    for (int i = 0; i < PLAYERS_COUNT; i++)
-    {
-        struct PlayerInfo* player = get_player(i);
-        if (player_exists(player))
-        {
-            game.packet_save_head.players_exist |= (1 << i) & 0xff;
-            if ((player->allocflags & PlaF_CompCtrl) != 0)
-              game.packet_save_head.players_comp |= (1 << i) & 0xff;
-        }
-    }
-    LbFileDelete(game.packet_fname);
-    game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_NEW);
-    if (game.packet_save_fp == -1)
-    {
-        ERRORLOG("Cannot open keeper packet file for save, \"%s\".",game.packet_fname);
-        game.packet_fopened = 0;
-        return false;
-    }
-    struct CatalogueEntry centry;
-    fill_game_catalogue_entry(&centry, "Packet file");
-    if (!save_packet_chunks(game.packet_save_fp,&centry))
-    {
-        WARNMSG("Cannot write to packet file, \"%s\".",game.packet_fname);
-        LbFileClose(game.packet_save_fp);
-        game.packet_fopened = 0;
-        game.packet_save_fp = -1;
-        return false;
-    }
-    game.packet_fopened = 1;
-    return true;
-}
-
-void load_packets_for_turn(GameTurn nturn)
-{
-    SYNCDBG(19,"Starting");
-    const int turn_data_size = PACKET_TURN_SIZE;
-    unsigned char pckt_buf[PACKET_TURN_SIZE+4];
-    struct Packet* pckt = get_packet(my_player_number);
-    TbChecksum pckt_chksum = pckt->chksum;
-    if (nturn >= game.turns_stored)
-    {
-        ERRORDBG(18,"Out of turns to load from Packet File");
-        erstat_inc(ESE_CantReadPackets);
-        return;
-    }
-
-    if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
-    {
-        ERRORDBG(18,"Cannot read turn data from Packet File");
-        erstat_inc(ESE_CantReadPackets);
-        return;
-    }
-    game.packet_file_pos += turn_data_size;
-    for (long i = 0; i < NET_PLAYERS_COUNT; i++)
-        LbMemoryCopy(&game.packets[i], &pckt_buf[i * sizeof(struct Packet)], sizeof(struct Packet));
-    TbBigChecksum tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT * sizeof(struct Packet)]);
-    if (game.turns_fastforward > 0)
-        game.turns_fastforward--;
-    if (game.packet_checksum_verify)
-    {
-        pckt = get_packet(my_player_number);
-        if (get_packet_save_checksum() != tot_chksum)
-        {
-            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
-            if (!is_onscreen_msg_visible())
-              show_onscreen_msg(game.num_fps, "Out of sync");
-        } else
-        if (pckt->chksum != pckt_chksum)
-        {
-            ERRORLOG("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
-            if (!is_onscreen_msg_visible())
-              show_onscreen_msg(game.num_fps, "Out of sync");
-        }
-    }
 }
 
 void process_pause_packet(long curr_pause, long new_pause)
@@ -2950,116 +2843,6 @@ void process_players_creature_control_packet_action(long plyr_idx)
       }
       break;
   }
-}
-
-TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
-{
-    LbMemorySet(centry, 0, sizeof(struct CatalogueEntry));
-    strcpy(game.packet_fname, fname);
-    game.packet_save_fp = LbFileOpen(game.packet_fname, Lb_FILE_MODE_READ_ONLY);
-    if (game.packet_save_fp == -1)
-    {
-        ERRORLOG("Cannot open keeper packet file for load");
-        game.packet_fopened = 0;
-        return false;
-    }
-    int i = load_game_chunks(game.packet_save_fp, centry);
-    if ((i != GLoad_PacketStart) && (i != GLoad_PacketContinue))
-    {
-        LbFileClose(game.packet_save_fp);
-        game.packet_save_fp = -1;
-        game.packet_fopened = 0;
-        WARNMSG("Couldn't correctly read packet file \"%s\" header.",fname);
-        return false;
-    }
-    game.packet_file_pos = LbFilePosition(game.packet_save_fp);
-    game.turns_stored = (LbFileLengthHandle(game.packet_save_fp) - game.packet_file_pos) / PACKET_TURN_SIZE;
-    if ((game.packet_checksum_verify) && (!game.packet_save_head.chksum_available))
-    {
-        WARNMSG("PacketSave checksum not available, checking disabled.");
-        game.packet_checksum_verify = false;
-    }
-    if (game.log_things_start_turn == -1)
-    {
-        game.log_things_start_turn = 0;
-        game.log_things_end_turn = game.turns_stored + 1;
-    }
-    game.packet_fopened = 1;
-    return true;
-}
-
-void post_init_packets(void)
-{
-    SYNCDBG(6,"Starting");
-    if ((game.packet_load_enable) && (game.numfield_149F47))
-    {
-        struct CatalogueEntry centry;
-        open_packet_file_for_load(game.packet_fname, &centry);
-        game.pckt_gameturn = 0;
-    }
-    clear_packets();
-}
-
-short save_packets(void)
-{
-    const int turn_data_size = PACKET_TURN_SIZE;
-    unsigned char pckt_buf[PACKET_TURN_SIZE+4];
-    TbBigChecksum chksum;
-    SYNCDBG(6,"Starting");
-    if (game.packet_checksum_verify)
-      chksum = get_packet_save_checksum();
-    else
-      chksum = 0;
-    LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
-    // Prepare data in the buffer
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++)
-        LbMemoryCopy(&pckt_buf[i*sizeof(struct Packet)], &game.packets[i], sizeof(struct Packet));
-    LbMemoryCopy(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)], &chksum, sizeof(TbBigChecksum));
-    // Write buffer into file
-    if (LbFileWrite(game.packet_save_fp, &pckt_buf, turn_data_size) != turn_data_size)
-    {
-      ERRORLOG("Packet file write error");
-    }
-    if ( !LbFileFlush(game.packet_save_fp) )
-    {
-      ERRORLOG("Unable to flush PacketSave File");
-      return false;
-    }
-    return true;
-}
-
-void close_packet_file(void)
-{
-    if ( game.packet_fopened )
-    {
-        LbFileClose(game.packet_save_fp);
-        game.packet_fopened = 0;
-        game.packet_save_fp = -1;
-    }
-}
-
-void dump_memory_to_file(const char * fname, const char * buf, size_t len)
-{
-    FILE* file = fopen(fname, "w");
-    fwrite(buf, 1, len, file);
-    fflush(file);
-    fclose(file);
-}
-
-void write_debug_packets(void)
-{
-    //note, changed this to be more general and to handle multiplayer where there can
-    //be several players writing to same directory if testing on local machine
-    char filename[32];
-    snprintf(filename, sizeof(filename), "%s%u.%s", "keeperd", my_player_number, "pck");
-    dump_memory_to_file(filename, (char*) game.packets, sizeof(game.packets));
-}
-
-void write_debug_screenpackets(void)
-{
-    char filename[32];
-    snprintf(filename, sizeof(filename), "%s%u.%s", "keeperd", my_player_number, "spck");
-    dump_memory_to_file(filename, (char*) net_screen_packet, sizeof(net_screen_packet));
 }
 
 /**

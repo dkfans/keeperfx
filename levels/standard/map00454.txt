@@ -4,7 +4,7 @@ REM ****************************************************************************
 REM  Script for Level 454 - Dread Mountain
 REM  Author:  Loobinex
 REM  Date:    2015-10-25
-REM		updated to use pot file for messages by dayokay Jan-2021
+REM     updated to use pot file for messages by dayokay Jan-2021
 REM  Copying and copyrights:
 REM    This program is free software; you can redistribute it and/or modify
 REM    it under the terms of the GNU General Public License as published by
@@ -73,6 +73,8 @@ ROOM_AVAILABLE(PLAYER0,BARRACKS,0,0)
 ROOM_AVAILABLE(PLAYER0,GUARD_POST,0,0)
 ROOM_AVAILABLE(PLAYER0,TORTURE,1,0)
 ROOM_AVAILABLE(PLAYER0,GRAVEYARD,0,0)
+ROOM_AVAILABLE(PLAYER0,BARRACKS,4,0)
+ROOM_AVAILABLE(PLAYER0,SCAVENGER,4,0)
 
 MAGIC_AVAILABLE(PLAYER0,POWER_IMP,0,0)
 MAGIC_AVAILABLE(PLAYER1,POWER_SIGHT,1,0)
@@ -205,14 +207,12 @@ REM ****************************************************************************
 
 IF(PLAYER0,BARRACKS >= 1)
 	ADD_CREATURE_TO_POOL(DEMONSPAWN,1)
-	ROOM_AVAILABLE(PLAYER0,BARRACKS,1,0)
-	REM	QUICK_INFORMATION_WITH_POS(6,"Not only will these barracks attract powerful allies to your dungeon, they will also help you lead the assault on your rival.",132,174)
+	REM "Not only will these barracks attract powerful allies to your dungeon, they will also help you lead the assault on your rival."
 	DISPLAY_INFORMATION_WITH_POS(58,132,174)
 	SET_TIMER(PLAYER0,TIMER4)
 ENDIF
 
 IF(PLAYER0,SCAVENGER >= 1)
-	ROOM_AVAILABLE(PLAYER0,SCAVENGER,1,0)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Hillfolk,11,DUNGEON,0,3,250)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,GIANT,11,4,6,600)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,BARBARIAN,11,2,8,800)
@@ -254,7 +254,7 @@ IF(PLAYER0,GHOST >= 1)
 		ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,2,1,2,150)
 		NEXT_COMMAND_REUSABLE
 		PLAY_MESSAGE(PLAYER0,SOUND,496)
-		REM	QUICK_INFORMATION(20,"Your ghost has been drawn into the void, and has returned with a tiny body.",2)
+		REM "Your ghost has been drawn into the void, and has returned with a tiny body."
 		DISPLAY_INFORMATION(59,2)
 	ENDIF
 ENDIF
@@ -272,7 +272,7 @@ IF(PLAYER0,TIMER2 >= 1800)
 		PLAY_MESSAGE(PLAYER0,SOUND,146)
 		NEXT_COMMAND_REUSABLE
 		PLAY_MESSAGE(PLAYER0,SOUND,99)
-		REM	QUICK_INFORMATION(21,"Your Bile Demons killed a Skeleton. The undead won't be much help here.",ALL_PLAYERS)
+		REM "Your Bile Demons killed a Skeleton. The undead won't be much help here."
 		DISPLAY_INFORMATION(60,ALL_PLAYERS)
 	ENDIF
 	REM Blue can't lose misstresses as long as frontdoor is save. Get backup imp as well.
@@ -295,7 +295,7 @@ ENDIF
 
 REM Game over when all bile demons are lost.
 IF(PLAYER0,BILE_DEMON <= 0)
-	REM	QUICK_OBJECTIVE(22,"All hope is lost. Farts breathe life into your dungeon. Keep your Bile Demons happy and save.",ALL_PLAYERS)
+	REM "All hope is lost. Farts breathe life into your dungeon. Keep your Bile Demons happy and save."
 	DISPLAY_OBJECTIVE(61,ALL_PLAYERS)
 	LOSE_GAME
 ENDIF
@@ -304,7 +304,7 @@ ENDIF
 IF(PLAYER1,DUNGEON_DESTROYED == 0)
 	REM When player finds the blue wall, inform him he has to go the other way.
 	IF_ACTION_POINT(9,PLAYER0)
-		REM	QUICK_INFORMATION(5,"Blue is well fortified. Claim all hatcheries to grow in power, then find a way through the mountains to kill him and the heroes.",10)
+		REM "Blue is well fortified. Claim all hatcheries to grow in power, then find a way through the mountains to kill him and the heroes."
 		DISPLAY_INFORMATION(62,10)
 	ENDIF
 REM Player can't win by stealing away misstresses from blue
@@ -317,7 +317,7 @@ REM Player can't win by stealing away misstresses from blue
 			NEXT_COMMAND_REUSABLE
 			SET_TIMER(PLAYER0,TIMER3)
 			NEXT_COMMAND_REUSABLE
-			REM	QUICK_INFORMATION(23,"Your Dark Mistress has rejoined blue. They don't seem to mind being tortured.",7)
+			REM "Your Dark Mistress has rejoined blue. They don't seem to mind being tortured."
 			DISPLAY_INFORMATION(63,7)
 		ENDIF
 	ENDIF
@@ -333,7 +333,7 @@ REM ****************************************************************************
 REM Level starts here
 REM ****************************************************************************
 
-REM	QUICK_OBJECTIVE_WITH_POS(1,"In this realm, food is power. Claim hatcheries, feed your bile demons until they are big and strong. Hurry, heroes are comming.",231,168)
+REM "In this realm, food is power. Claim hatcheries, feed your bile demons until they are big and strong. Hurry, heroes are comming."
 DISPLAY_OBJECTIVE_WITH_POS(50,231,168)
 
 REM Bile demon is killed by dwarfs. Shows position of second hatchery. 
@@ -343,7 +343,7 @@ ENDIF
 
 REM Inform player of the workings of the imp spawner.
 IF(PLAYER0,GAME_TURN >= 600)
-	REM	QUICK_INFORMATION(2,"This magic gizmo spawns ugly little creatures called imps that you may use as slaves. To conquer the realm I mean. Don't have sex with them.",2)
+	REM "This magic gizmo spawns ugly little creatures called imps that you may use as slaves. To conquer the realm I mean. Don't have sex with them."
 	DISPLAY_INFORMATION(51,2)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,IMP,2,1,1,10)
 	PLAY_MESSAGE(PLAYER0,SOUND,160)
@@ -351,14 +351,14 @@ ENDIF
 
 REM Hatchery 2 (start out with one.) Frees up research by disabling power destroy walls.
 IF(PLAYER0,GARDEN >= 18)
-	REM	QUICK_OBJECTIVE(3,"Two butt holes are better than one. Research a prison to give your bile demons more slaves. Be careful though, they don't care for the undead.",1)
+	REM Two butt holes are better than one. Research a prison to give your bile demons more slaves. Be careful though, they don't care for the undead."
 	DISPLAY_OBJECTIVE(52,1)
 	MAGIC_AVAILABLE(PLAYER0,POWER_DESTROY_WALLS,0,0)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,BILE_DEMON,1,1,3,500)
 ENDIF
 
 IF(PLAYER0,PRISON >= 8)
-	REM	QUICK_OBJECTIVE_WITH_POS(4,"Time to grow strong. Capture heroes and claim hatcheries. When you're strong enough find a weak spot in the blue defenses.",81,123)
+	REM "Time to grow strong. Capture heroes and claim hatcheries. When you're strong enough find a weak spot in the blue defenses."
 	DISPLAY_OBJECTIVE_WITH_POS(53,81,123)
 	SET_CREATURE_TENDENCIES(PLAYER0,IMPRISON,1)
 ENDIF
@@ -379,8 +379,8 @@ IF(PLAYER0,GARDEN >= 27)
 	DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
 ENDIF
 
- REM After 33 minutes a party shall come from the central hills. Barbarians from the center will follow.
- IF(PLAYER0,GAME_TURN >= 39600)
+REM After 33 minutes a party shall come from the central hills. Barbarians from the center will follow.
+IF(PLAYER0,GAME_TURN >= 39600)
 	REM: Player is expected to have 2 bile demons, orc, demon spawn, sorceror, few skeletons and a low level hero
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,Hillfolk,10,DUNGEON,0,3,250)
 ENDIF
@@ -403,7 +403,7 @@ IF(PLAYER0,GARDEN >= 36)
 	DOOR_AVAILABLE(PLAYER0,STEEL,1,2)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,BILE_DEMON,1,1,1,600)
 	ADD_CREATURE_TO_POOL(TROLL,1)
-	REM	QUICK_OBJECTIVE_WITH_POS(7,"Time to grow strong. Capture heroes and claim hatcheries. When you're strong enough find a weak spot in the blue defenses.",27,120)
+	REM "Time to grow strong. Capture heroes and claim hatcheries. When you're strong enough find a weak spot in the blue defenses."
 	DISPLAY_OBJECTIVE_WITH_POS(53,27,120)
 ENDIF
 
@@ -455,7 +455,7 @@ ENDIF
 
 REM Hatchery 7: That's all. Lightning and additional bile demon.
 IF(PLAYER0,GARDEN >= 65)
-	REM	QUICK_OBJECTIVE(8,"Destroy blue and clear the path towards the hero stronghold.",8)
+	REM "Destroy blue and clear the path towards the hero stronghold."
 	DISPLAY_OBJECTIVE(54,8)
 	ADD_CREATURE_TO_LEVEL(PLAYER0,BILE_DEMON,1,1,1,600)
 	TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
@@ -463,7 +463,7 @@ IF(PLAYER0,GARDEN >= 65)
 ENDIF
 
 IF_ACTION_POINT(8,PLAYER0)	
-	REM	QUICK_OBJECTIVE(9,"You have found a way beyond the mountains. Destroy blue and clear the path towards the hero stronghold.",8)
+	REM "You have found a way beyond the mountains. Destroy blue and clear the path towards the hero stronghold."
 	DISPLAY_OBJECTIVE(55,8)
 	MAGIC_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS,1,0)
 	TUTORIAL_FLASH_BUTTON(23,100)
@@ -482,7 +482,7 @@ IF(PLAYER0,GARDEN >= 80)
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
-	REM	QUICK_OBJECTIVE(10,"With blue out of the way it is time to destroy the hero heart and rule this realm",PLAYER_GOOD)
+	REM "With blue out of the way it is time to destroy the hero heart and rule this realm"
 	DISPLAY_OBJECTIVE(56,PLAYER_GOOD)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
 ENDIF
@@ -508,7 +508,7 @@ REM ****************************************************************************
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
 	IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
-		REM	QUICK_OBJECTIVE(11,"Get the barbecue ready, it is time to eat those who stood against you. Victory.",ALL_PLAYERS)
+		REM "Get the barbecue ready, it is time to eat those who stood against you. Victory."
 		DISPLAY_OBJECTIVE(57,ALL_PLAYERS)
 		WIN_GAME
 	ENDIF
