@@ -341,20 +341,6 @@ const struct NamedCommand door_config_desc[] = {
   {NULL,                    0},
 };
 
-const struct NamedCommand object_config_desc[] = {
-  {"Genre",           1},
-  {"AnimationID",     2},
-  {"AnimationSpeed",  3},
-  {"Size_XY",         4},
-  {"Size_YZ",         5},
-  {"MaximumSize",     6},
-  {"DestroyOnLava",   7},
-  {"DestroyOnLiquid", 8},
-  {"MapIcon",         9},
-  {"Properties",     10},
-  {NULL,              0},
-};
-
 const struct NamedCommand trap_config_desc[] = {
   {"NameTextID",           1},
   {"TooltipTextID",        2},
@@ -1056,7 +1042,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     }
 
     long number_value;
-    long objectvar = get_id(object_config_desc, property);
+    long objectvar = get_id(objects_object_commands, property);
     if (objectvar == -1)
     {
         SCRPTERRLOG("Unknown object variable");
@@ -1065,7 +1051,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     }
     switch (objectvar)
     {
-        case 1: // Genre
+        case 2: // Genre
             number_value = get_id(objects_genres_desc, new_value);
             if (number_value == -1)
             {
@@ -1075,7 +1061,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             }
             value->arg2 = number_value;
             break;
-        case  2: // AnimId
+        case  5: // AnimId
         {
             struct Objects obj_tmp;
             number_value = get_anim_id(new_value, &obj_tmp);
@@ -1258,35 +1244,35 @@ static void set_object_configuration_process(struct ScriptContext *context)
     struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
     switch (context->value->arg1)
     {
-        case 1: // Genre
+        case 2: // Genre
             objst->genre = context->value->arg2;
             break;
-        case 2: // AnimationID
+        case 4: // Properties
+            objst->model_flags = context->value->arg2;
+            break;
+        case 5: // AnimationID
             objdat->sprite_anim_idx = get_anim_id(context->value->str2, objdat);
             break;
-        case 3: // AnimationSpeed
+        case 6: // AnimationSpeed
             objdat->anim_speed = context->value->arg2;
             break;
-        case 4: //Size_XY
+        case 7: //Size_XY
             objdat->size_xy = context->value->arg2;
             break;
-        case 5: // Size_YZ
+        case 8: // Size_YZ
             objdat->size_yz = context->value->arg2;
             break;
-        case 6: // MaximumSize
+        case 9: // MaximumSize
             objdat->sprite_size_max = context->value->arg2;
             break;
-        case 7: // DestroyOnLava
+        case 11: // DestroyOnLava
             objdat->destroy_on_lava = context->value->arg2;
             break;
-        case 8: // DestroyOnLiquid
+        case 10: // DestroyOnLiquid
             objdat->destroy_on_liquid = context->value->arg2;
             break;
-        case 9: // MapIcon
+        case 18: // MapIcon
             objst->map_icon = context->value->arg2;
-            break;
-        case 10: // Properties
-            objst->model_flags = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
