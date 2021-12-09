@@ -501,7 +501,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objbc->ilght.radius = n;
+                    objbc->ilght.radius = n << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
                     n++;
                 }
                 if (n <= 0)
