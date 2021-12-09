@@ -5140,15 +5140,15 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         ilght.mappos.z.val = thing->mappos.z.val;
         if (light_rand == 1)
         {
-            ilght.field_2 = 48;
+            ilght.intensity = 48;
             ilght.field_3 = 5;
         } else
         {
-            ilght.field_2 = 36;
+            ilght.intensity = 36;
             ilght.field_3 = 1;
         }
         ilght.is_dynamic = 1;
-        ilght.field_0 = 2560;
+        ilght.radius = 2560;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id != 0) {
             light_set_light_never_cache(thing->light_id);
