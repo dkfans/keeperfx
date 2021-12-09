@@ -1061,6 +1061,16 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             }
             value->arg2 = number_value;
             break;
+        case 3: // RELATEDCREATURE
+            number_value = get_id(creature_desc, new_value);
+            if (number_value == -1)
+            {
+                SCRPTERRLOG("Unknown object variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+            value->arg2 = number_value;
+            break;
         case  5: // AnimId
         {
             struct Objects obj_tmp;
@@ -1242,36 +1252,58 @@ static void set_object_configuration_process(struct ScriptContext *context)
 {
     struct Objects* objdat = get_objects_data(context->value->arg0);
     struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
+    struct ObjectConfig* objbc = &gameadd.object_conf.base_config[context->value->arg0];
     switch (context->value->arg1)
     {
-        case 2: // Genre
+        case 2: // GENRE
             objst->genre = context->value->arg2;
             break;
-        case 4: // Properties
+        case 3: // RELATEDCREATURE
+            objdat->related_creatr_model = context->value->arg2;
+            break;
+        case 4: // PROPERTIES
             objst->model_flags = context->value->arg2;
             break;
-        case 5: // AnimationID
+        case 5: // ANIMATIONID
             objdat->sprite_anim_idx = get_anim_id(context->value->str2, objdat);
             break;
-        case 6: // AnimationSpeed
+        case 6: // ANIMATIONSPEED
             objdat->anim_speed = context->value->arg2;
             break;
-        case 7: //Size_XY
+        case 7: //SIZE_XY
             objdat->size_xy = context->value->arg2;
             break;
-        case 8: // Size_YZ
+        case 8: // SIZE_YZ
             objdat->size_yz = context->value->arg2;
             break;
-        case 9: // MaximumSize
+        case 9: // MAXIMUMSIZE
             objdat->sprite_size_max = context->value->arg2;
             break;
-        case 11: // DestroyOnLava
-            objdat->destroy_on_lava = context->value->arg2;
-            break;
-        case 10: // DestroyOnLiquid
+        case 10: // DESTROYONLIQUID
             objdat->destroy_on_liquid = context->value->arg2;
             break;
-        case 18: // MapIcon
+        case 11: // DESTROYONLAVA
+            objdat->destroy_on_lava = context->value->arg2;
+            break;
+        case 12: // HEALTH
+            objbc->health = context->value->arg2;
+            break;
+        case 13: // FALLACCELERATION
+            objbc->fall_acceleration = context->value->arg2;
+            break;
+        case 14: // LIGHTUNAFFECTED
+            objbc->light_unaffected = context->value->arg2;
+            break;
+        case 15: // LIGHTINTENSITY
+            objbc->ilght.intensity = context->value->arg2;
+            break;
+        case 16: // LIGHTRADIUS
+            objbc->ilght.radius = context->value->arg2 << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+            break;
+        case 17: // LIGHTISDYNAMIC
+            objbc->ilght.is_dynamic = context->value->arg2;
+            break;
+        case 18: // MAPICON
             objst->map_icon = context->value->arg2;
             break;
         default:
