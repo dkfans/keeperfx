@@ -612,6 +612,23 @@ void update_all_object_stats()
         // TODO: Should we rotate this on per-object basis?
         get_thingadd(thing->index)->flags = 0;
         get_thingadd(thing->index)->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+
+        struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
+        if (thing->light_id != 0)
+        {
+            light_delete_light(thing->light_id);
+        }
+        if (objconf->ilght.radius != 0)
+        {
+            struct InitLight ilight;
+            LbMemorySet(&ilight, 0, sizeof(struct InitLight));
+            LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+            ilight.radius = objconf->ilght.radius;
+            ilight.intensity = objconf->ilght.intensity;
+            ilight.field_3 = objconf->ilght.field_3;
+            ilight.is_dynamic = objconf->ilght.is_dynamic;
+            thing->light_id = light_create_light(&ilight);
+        }
     }
 }
 TbBool load_objects_config(const char *conf_fname, unsigned short flags)
