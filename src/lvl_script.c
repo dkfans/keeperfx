@@ -1594,12 +1594,22 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     }
     strncpy(gameadd.quick_messages[scline->np[0]], scline->tp[1], MESSAGE_TEXT_LEN-1);
     gameadd.quick_messages[scline->np[0]][MESSAGE_TEXT_LEN-1] = '\0';
-    value->arg1 = scline->tp[1];
-    value->arg0 = scline->np[0];
+    
+    value->str2 = script_strdup(scline->tp[1]);
+    if (value->str2 == NULL)
+    {
+        SCRPTERRLOG("Run out script strings space");
+        DEALLOCATE_SCRIPT_VALUE
+            return;
+    }
+    TbMapLocation location;
     if (scline->tp[2][0] != '\0')
     {
-        get_map_location_id(scline->tp[2], &value->uarg2);
+        get_map_location_id(scline->tp[2], &location);
     }
+
+    value->arg0 = scline->np[0];
+    value->uarg2 = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -1615,10 +1625,12 @@ static void heart_lost_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->arg0 = scline->np[0];
+    TbMapLocation location;
     if (scline->tp[1][0] != '\0')
     {
-        get_map_location_id(scline->tp[1], &value->uarg1);
+        get_map_location_id(scline->tp[1], &location);
     }
+    value->uarg1 = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
