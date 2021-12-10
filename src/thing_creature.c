@@ -5342,8 +5342,8 @@ void create_light_for_possession(struct Thing *creatng)
     ilght.mappos.y.val = creatng->mappos.y.val;
     ilght.mappos.z.val = creatng->mappos.z.val;
     ilght.field_3 = 1;
-    ilght.field_2 = 36;
-    ilght.field_0 = 2560;
+    ilght.intensity = 36;
+    ilght.radius = 2560;
     ilght.is_dynamic = 1;
     creatng->light_id = light_create_light(&ilght);
     if (creatng->light_id != 0) {

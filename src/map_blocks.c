@@ -786,8 +786,8 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 ilght.mappos.x.val = pos.x.val;
                 ilght.mappos.y.val = pos.y.val;
                 ilght.mappos.z.val = pos.z.val;
-                ilght.field_0 = sobj->sofield_C << 8;
-                ilght.field_2 = sobj->sofield_B;
+                ilght.radius = sobj->sofield_C << 8;
+                ilght.intensity = sobj->sofield_B;
                 ilght.field_3 = 0;
                 ilght.is_dynamic = 0;
                 long lgt_id;

@@ -67,8 +67,8 @@ struct Light { // sizeof = 46
 };
 
 struct InitLight { // sizeof=0x14
-short field_0;
-unsigned char field_2;
+short radius;
+unsigned char intensity;
 unsigned char field_3;
 short field_4;
 short field_6;
