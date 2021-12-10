@@ -1437,7 +1437,7 @@ static void create_effect_check(const struct ScriptLine *scline)
             return;
         }
     }
-    value->bytes[0] = effct_id;
+    value->chars[0] = effct_id;
     const char *locname = scline->tp[1];
     if (!get_map_location_id(locname, &location))
     {
@@ -1469,7 +1469,7 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
             return;
         }
     }
-    value->bytes[0] = effct_id;
+    value->chars[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
         SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
@@ -1487,13 +1487,13 @@ static void create_effect_process(struct ScriptContext *context)
     pos.x.stl.num = (MapSubtlCoord)context->value->bytes[1];
     pos.y.stl.num = (MapSubtlCoord)context->value->bytes[2];
     pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    TbBool Price = ((char)context->value->bytes[0] == -(TngEffElm_Price));
+    TbBool Price = (context->value->chars[0] == -(TngEffElm_Price));
     if (Price)
     {
         pos.z.val += 128;
     }
     struct Thing* efftng;
-    if ((char)context->value->bytes[0] >= 0)
+    if (context->value->chars[0] >= 0)
     {
         efftng = create_effect(&pos, context->value->bytes[0], game.neutral_player_num);
     }
@@ -1598,7 +1598,7 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     value->arg0 = scline->np[0];
     if (scline->tp[2][0] != '\0')
     {
-        get_map_location_id(scline->tp[2], &value->arg2);
+        get_map_location_id(scline->tp[2], &value->uarg2);
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1617,7 +1617,7 @@ static void heart_lost_objective_check(const struct ScriptLine *scline)
     value->arg0 = scline->np[0];
     if (scline->tp[1][0] != '\0')
     {
-        get_map_location_id(scline->tp[1], &value->arg1);
+        get_map_location_id(scline->tp[1], &value->uarg1);
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
