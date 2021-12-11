@@ -1595,13 +1595,6 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     strncpy(gameadd.quick_messages[scline->np[0]], scline->tp[1], MESSAGE_TEXT_LEN-1);
     gameadd.quick_messages[scline->np[0]][MESSAGE_TEXT_LEN-1] = '\0';
     
-    value->str2 = script_strdup(scline->tp[1]);
-    if (value->str2 == NULL)
-    {
-        SCRPTERRLOG("Run out script strings space");
-        DEALLOCATE_SCRIPT_VALUE
-            return;
-    }
     TbMapLocation location;
     if (scline->tp[2][0] != '\0')
     {
