@@ -772,8 +772,8 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;
-        ilght.field_0 = trapstat->light_1C;
-        ilght.field_2 = trapstat->light_1E;
+        ilght.radius = trapstat->light_1C;
+        ilght.intensity = trapstat->light_1E;
         ilght.is_dynamic = 1;
         ilght.field_3 = trapstat->light_1F;
         thing->light_id = light_create_light(&ilght);

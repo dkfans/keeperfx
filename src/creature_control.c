@@ -199,10 +199,10 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     ilght.mappos.x.val = thing->mappos.x.val;
     ilght.mappos.y.val = thing->mappos.y.val;
     ilght.mappos.z.val = thing->mappos.z.val;
-    ilght.field_2 = 36;
+    ilght.intensity = 36;
     ilght.field_3 = 1;
     ilght.is_dynamic = 1;
-    ilght.field_0 = 2560;
+    ilght.radius = 2560;
     thing->light_id = light_create_light(&ilght);
     if (thing->light_id != 0)
     {

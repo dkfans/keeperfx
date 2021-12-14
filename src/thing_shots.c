@@ -1452,8 +1452,8 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
         struct InitLight ilght;
         LbMemorySet(&ilght, 0, sizeof(struct InitLight));
         memcpy(&ilght.mappos,&thing->mappos,sizeof(struct Coord3d));
-        ilght.field_0 = shotst->old->lightf_50;
-        ilght.field_2 = shotst->old->lightf_52;
+        ilght.radius = shotst->old->lightf_50;
+        ilght.intensity = shotst->old->lightf_52;
         ilght.is_dynamic = 1;
         ilght.field_3 = shotst->old->lightf_53;
         thing->light_id = light_create_light(&ilght);

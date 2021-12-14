@@ -144,8 +144,8 @@ long light_create_light(struct InitLight *ilght)
     lgt->mappos.x.val = ilght->mappos.x.val;
     lgt->mappos.y.val = ilght->mappos.y.val;
     lgt->mappos.z.val = ilght->mappos.z.val;
-    lgt->radius = ilght->field_0;
-    lgt->intensity = ilght->field_2;
+    lgt->radius = ilght->radius;
+    lgt->intensity = ilght->intensity;
     unsigned long k = 2 * ilght->field_3;
     lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);

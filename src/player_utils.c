@@ -519,8 +519,8 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
     player->field_4CD = 0;
-    ilght.field_0 = 2560;
-    ilght.field_2 = 48;
+    ilght.radius = 2560;
+    ilght.intensity = 48;
     ilght.field_3 = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
