@@ -444,10 +444,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng);
     }
-    if (shotst->old->field_D <= 0)
-    {
-        slide_thing_against_wall_at(shotng, pos, blocked_flags);
-    } else
+    if (shotng->bounce_angle > 0)
     {
         bounce_thing_off_wall_at(shotng, pos, blocked_flags);
     }
@@ -510,10 +507,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng);
     }
-    if (shotst->old->field_D <= 0)
-    {
-        slide_thing_against_wall_at(shotng, pos, blocked_flags);
-    } else
+    if (shotng->bounce_angle > 0)
     {
         bounce_thing_off_wall_at(shotng, pos, blocked_flags);
     }
@@ -1430,7 +1424,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->parent_idx = thing->index;
     thing->owner = owner;
-    thing->field_22 = shotst->old->field_D;
+    thing->bounce_angle = shotst->old->field_D;
     thing->fall_acceleration = shotst->old->field_F;
     thing->field_21 = shotst->old->field_10;
     thing->field_23 = shotst->old->field_11;

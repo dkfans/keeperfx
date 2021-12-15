@@ -444,7 +444,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->fall_acceleration = objconf->fall_acceleration;
     thing->field_23 = 204;
     thing->field_24 = 51;
-    thing->field_22 = 0;
+    thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
     set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->movement_flag);

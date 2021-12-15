@@ -203,7 +203,7 @@ struct Thing {
     unsigned char class_id;
     unsigned char fall_acceleration;
 unsigned char field_21;
-unsigned char field_22;
+    unsigned char bounce_angle;
     unsigned char field_23;
     unsigned char field_24;
     unsigned char movement_flags;
