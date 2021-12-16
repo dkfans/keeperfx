@@ -377,8 +377,8 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
         if (!thing_is_invalid(doortng))
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_door.effect_model, shotst->old->hit_door.sndsample_idx, shotst->old->hit_door.sndsample_range);
-            if (shotst->old->hit_door.destroyed)
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
+            if (shotst->hit_door.destroyed)
               destroy_shot = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
@@ -398,8 +398,8 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             }
         } else
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_generic.effect_model, shotst->old->hit_generic.sndsample_idx, shotst->old->hit_generic.sndsample_range);
-            if (shotst->old->hit_generic.destroyed) {
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
+            if (shotst->hit_generic.destroyed) {
                 destroy_shot = 1;
             }
         }
@@ -424,15 +424,15 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
             if (!thing_is_invalid(doortng))
             {
-                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_door.effect_model, shotst->old->hit_door.sndsample_idx, shotst->old->hit_door.sndsample_range);
-                if (shotst->old->hit_door.destroyed)
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
+                if (shotst->hit_door.destroyed)
                     destroy_shot = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
             {
-                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_generic.effect_model, shotst->old->hit_generic.sndsample_idx, shotst->old->hit_generic.sndsample_range);
-                if (shotst->old->hit_generic.destroyed)
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
+                if (shotst->hit_generic.destroyed)
                 {
                     destroy_shot = 1;
                 }
@@ -480,24 +480,24 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
         if (!thing_is_invalid(doortng))
         {
             // If the shot hit is supposed to create effect thing
-            int n = shotst->old->hit_door.effect_model;
+            int n = shotst->hit_door.effect_model;
             if (n > 0)
             {
                 efftng = create_effect(&shotng->mappos, n, shotng->owner);
             }
             // If the shot hit is supposed to create sound
-            n = shotst->old->hit_door.sndsample_idx;
+            n = shotst->hit_door.sndsample_idx;
             int i;
             if (n > 0)
             {
                 if (!thing_is_invalid(efftng))
                 {
-                    i = shotst->old->hit_door.sndsample_range;
+                    i = shotst->hit_door.sndsample_range;
                     thing_play_sample(efftng, n + UNSYNC_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
             // Shall the shot be destroyed on impact
-            if (shotst->old->hit_door.destroyed)
+            if (shotst->hit_door.destroyed)
             {
                 shot_explodes = true;
             }
@@ -776,7 +776,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     //throw_strength = shotng->fall_acceleration; //this seems to be always 0, this is why it didn't work;
-    long throw_strength = shotst->old->push_on_hit;
+    long throw_strength = shotst->push_on_hit;
     if (trgtng->health < 0)
         return 0;
     struct Thing* shooter = INVALID_THING;
@@ -799,7 +799,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       if (shotst->old->field_24 != 0) {
           tgcctrl->field_B1 = shotst->old->field_24;
       }
-      if ( shotst->old->push_on_hit || creature_is_being_unconscious(trgtng))
+      if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
       {
           if (creature_is_being_unconscious(trgtng)) {
               throw_strength++;
@@ -857,7 +857,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     long n;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     //amp = shotng->fall_acceleration;
-    long amp = shotst->old->push_on_hit;
+    long amp = shotst->push_on_hit;
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
@@ -966,7 +966,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             WARNDBG(8,"The %s index %d owner %d cannot group; invalid parent",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
         }
     }
-    if (shotst->old->push_on_hit != 0 )
+    if (shotst->push_on_hit != 0 )
     {
         i = amp * (long)shotng->velocity.x.val;
         trgtng->veloc_push_add.x.val += i / 16;

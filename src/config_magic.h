@@ -217,6 +217,14 @@ struct SpellConfigStats {
     char code_name[COMMAND_WORD_LEN];
 };
 
+
+struct ShotHitConfig {
+    short effect_model; /**< Effect kind to be created when the shot hits. */
+    short sndsample_idx; /**< Base sound sample to be played on hit. */
+    unsigned char sndsample_range; /**< Range for random sound sample selection. */
+    unsigned char destroyed; /**< Whether the shot is destroyed after hit; could be converted to flags. */
+};
+
 /**
  * Configuration parameters for shots.
  */
@@ -238,6 +246,8 @@ struct ShotConfigStats {
     short speed;
     DamageType damage_type;
     struct ShotStats *old;
+    struct ShotHitConfig hit_generic;
+    struct ShotHitConfig hit_door;
     short firing_sound;
     short shot_sound;
     unsigned char firing_sound_variants;
@@ -245,6 +255,7 @@ struct ShotConfigStats {
     unsigned short sprite_anim_idx;
     unsigned short sprite_size_max;
     unsigned char cast_spell_kind;
+    unsigned char push_on_hit;
     short bounce_angle;
 };
 
@@ -299,13 +310,6 @@ struct SpellConfig { // sizeof=4
   int duration;
 };
 
-struct ShotHitConfig {
-    short effect_model; /**< Effect kind to be created when the shot hits. */
-    short sndsample_idx; /**< Base sound sample to be played on hit. */
-    unsigned char sndsample_range; /**< Range for random sound sample selection. */
-    unsigned char destroyed; /**< Whether the shot is destroyed after hit; could be converted to flags. */
-};
-
 struct ShotStats // sizeof = 101
 {
   short sprite_anim_idx_UNUSED;
@@ -336,9 +340,9 @@ struct ShotStats // sizeof = 101
   unsigned char health_drain_UNUSED;
   unsigned char cannot_hit_thing_UNUSED;
   unsigned char rebound_immune_UNUSED;
-  unsigned char push_on_hit;
-  struct ShotHitConfig hit_generic;
-  struct ShotHitConfig hit_door;
+  unsigned char push_on_hit_UNUSED;
+  struct ShotHitConfig hit_generic_UNUSED;
+  struct ShotHitConfig hit_door_UNUSED;
   short hit_water_effect_model;
   short hit_water_sndsample_idx;
   unsigned char hit_water_destroyed;

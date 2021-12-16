@@ -687,7 +687,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->area_range = 0;
           shotst->area_damage = 0;
           shotst->area_blow = 0;
-          shotst->old->push_on_hit = 0;
+          shotst->push_on_hit = 0;
           shotst->max_range = 0;
       }
   }
@@ -893,7 +893,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->old->push_on_hit = k;
+              shotst->push_on_hit = k;
               n++;
           }
           if (n < 1)
@@ -997,7 +997,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->old->hit_door.destroyed = k;
+              shotst->hit_door.destroyed = k;
               n++;
           }
           if (n < 1)
@@ -1010,7 +1010,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->old->hit_generic.destroyed = k;
+              shotst->hit_generic.destroyed = k;
               n++;
           }
           if (n < 1)
