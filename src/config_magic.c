@@ -82,6 +82,8 @@ const struct NamedCommand magic_shot_commands[] = {
   {"DESTROYEDBYDOORS",    17},
   {"DESTROYEDBYWALLS",    18},
   {"BOUNCEANGLE",         19},
+  {"SIZE_XY",             20},
+  {"SIZE_YZ",             21},
   {NULL,                   0},
   };
 
@@ -1024,6 +1026,32 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->bounce_angle = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 20: //SIZE_XY
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->size_xy = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 21: //SIZE_YZ
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->size_yz = k;
               n++;
           }
           if (n < 1)
