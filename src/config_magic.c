@@ -79,6 +79,9 @@ const struct NamedCommand magic_shot_commands[] = {
   {"ANIMATION",           14},
   {"ANIMATIONSIZE",       15},
   {"SPELLEFFECT",         16},
+  {"DESTROYEDBYDOORS",    17},
+  {"DESTROYEDBYWALLS",    18},
+  {"BOUNCEANGLE",         19},
   {NULL,                   0},
   };
 
@@ -982,6 +985,45 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->cast_spell_kind = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 17: //DESTROYEDBYDOORS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->old->hit_door.destroyed = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 18: //DESTROYEDBYWALLS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->old->hit_generic.destroyed = k; = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 19: //BOUNCEANGLE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->old->field_D = k;
               n++;
           }
           if (n < 1)
