@@ -433,7 +433,9 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             {
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_generic.effect_model, shotst->old->hit_generic.sndsample_idx, shotst->old->hit_generic.sndsample_range);
                 if (shotst->old->hit_generic.destroyed)
-                  shot_explodes = 1;
+                {
+                    shot_explodes = 1;
+                }
             }
         }
     }
@@ -444,7 +446,11 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng);
     }
-    if (shotng->bounce_angle > 0)
+    if (shotng->bounce_angle <= 0)
+    {
+        slide_thing_against_wall_at(shotng, pos, blocked_flags);
+    }
+    else
     {
         bounce_thing_off_wall_at(shotng, pos, blocked_flags);
     }
@@ -507,7 +513,11 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng);
     }
-    if (shotng->bounce_angle > 0)
+    if (shotng->bounce_angle <= 0)
+    {
+        slide_thing_against_wall_at(shotng, pos, blocked_flags);
+    }
+    else
     {
         bounce_thing_off_wall_at(shotng, pos, blocked_flags);
     }
