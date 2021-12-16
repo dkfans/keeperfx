@@ -256,6 +256,7 @@ struct ShotConfigStats {
     unsigned short sprite_size_max;
     short size_xy;
     short size_yz;
+    unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;
     short bounce_angle;
@@ -323,7 +324,7 @@ struct ShotStats // sizeof = 101
   short size_xy_UNUSED;
   short size_yz_UNUSED;
   short bounce_angle_UNUSED;
-  unsigned char field_F;
+  unsigned char fall_acceleration_UNUSED;
   unsigned char field_10;
   unsigned char field_11;
   unsigned char field_12;
