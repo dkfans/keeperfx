@@ -471,7 +471,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     if ( blocked_flags & SlbBloF_WalledX )
     {
       angle = thing->move_angle_xy;
-      if ( (angle) && (angle <= 0x400u) )
+      if ( (angle) && (angle <= 1024) )
         collide = process_boulder_collision(thing, &pos, 1, 0);
       else
         collide = process_boulder_collision(thing, &pos, -1, 0);
@@ -479,7 +479,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     else if ( blocked_flags & SlbBloF_WalledY )
     {
       angle = thing->move_angle_xy;
-      if ( (angle <= 0x200u) || (angle > 0x600u) )
+      if ( (angle <= 512) || (angle > 1536) )
         collide = process_boulder_collision(thing, &pos, 0, -1);
       else
         collide = process_boulder_collision(thing, &pos, 0, 1);
@@ -498,14 +498,14 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
       if ( blocked_flags & SlbBloF_WalledX )
       {
         angle = thing->move_angle_xy;
-        if ( (angle) && ( (angle <= 0x200u) || (angle > 0x600u) ) )
+        if ( (angle) && ( (angle <= 512) || (angle > 1536) ) )
         {
           unsigned short y = thing->mappos.y.val;
           pos2.x.val = thing->mappos.x.val;
           pos2.z.val = 0;
           pos2.y.val = y - STL_PER_SLB * speed;
           pos2.z.val = get_thing_height_at(thing, &pos2);
-          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 0x400;
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 1024;
         }
         else
         {
@@ -513,13 +513,13 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
           pos2.z.val = 0;
           pos2.y.val = thing->mappos.y.val + STL_PER_SLB * speed;
           pos2.z.val = get_thing_height_at(thing, &pos2);
-          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0x400 : 0;
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1024 : 0;
         }
       }
       else if ( blocked_flags & SlbBloF_WalledY )
       {
         angle = thing->move_angle_xy;
-        if ( (angle) && (angle <= 0x400u) ) 
+        if ( (angle) && (angle <= 1024) ) 
         {
           pos2.z.val = 0;
           pos2.y.val = thing->mappos.y.val;
