@@ -2824,7 +2824,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         pos2.y.val = target->mappos.y.val;
         pos2.z.val = target->mappos.z.val;
         pos2.z.val += (target->clipbox_size_yz >> 1);
-        if (((shotst->model_flags & ShMF_StrengthBased) != 0) && (target->class_id != TCls_Door))
+        if (((shotst->model_flags & ShMF_StrengthBased) != 0) && ((shotst->model_flags & ShMF_ReboundImmune) != 0) && (target->class_id != TCls_Door))
         {
           flag1 = true;
           pos1.z.val = pos2.z.val;
