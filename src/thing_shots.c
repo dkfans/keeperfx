@@ -1434,7 +1434,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->parent_idx = thing->index;
     thing->owner = owner;
-    thing->bounce_angle = shotst->old->field_D;
+    thing->bounce_angle = shotst->old->bounce_angle;
     thing->fall_acceleration = shotst->old->field_F;
     thing->field_21 = shotst->old->field_10;
     thing->field_23 = shotst->old->field_11;

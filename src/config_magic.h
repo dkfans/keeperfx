@@ -313,7 +313,7 @@ struct ShotStats // sizeof = 101
   unsigned char field_8; // transparency mode
   short size_xy;
   short size_yz;
-  short field_D;
+  short bounce_angle;
   unsigned char field_F;
   unsigned char field_10;
   unsigned char field_11;
