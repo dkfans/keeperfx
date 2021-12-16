@@ -689,8 +689,16 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->area_range = 0;
           shotst->area_damage = 0;
           shotst->area_blow = 0;
+          shotst->bounce_angle = 0;
+          shotst->damage = 0;
+          shotst->fall_acceleration = 0;
+          shotst->hit_door.destroyed = 0;
+          shotst->hit_generic.destroyed = 0;
           shotst->push_on_hit = 0;
           shotst->max_range = 0;
+          shotst->size_xy = 0;
+          shotst->size_yz = 0;
+          shotst->speed = 0;
       }
   }
   // Load the file
