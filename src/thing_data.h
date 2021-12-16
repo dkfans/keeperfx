@@ -83,7 +83,7 @@ enum ThingMovementFlags {
     TMvF_IsOnLava           = 0x02,
     TMvF_Unknown04          = 0x04, //Touching ground? Also don't cast shadows when this is set
     TMvF_Unknown08          = 0x08,
-    TMvF_Unknown10          = 0x10,
+    TMvF_Unknown10          = 0x10, //Stopped by walls?
     TMvF_Flying             = 0x20,
     TMvF_Unknown40          = 0x40,
     TMvF_Unknown80          = 0x80,
