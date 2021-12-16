@@ -362,7 +362,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     SYNCDBG(8,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
 
     struct Thing* efftng = INVALID_THING;
-    TbBool shot_explodes = 0;
+    TbBool destroy_shot = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (shotst->model_flags & ShMF_Digging)
@@ -379,7 +379,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_door.effect_model, shotst->old->hit_door.sndsample_idx, shotst->old->hit_door.sndsample_range);
             if (shotst->old->hit_door.destroyed)
-              shot_explodes = 1;
+              destroy_shot = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
         } else
@@ -387,25 +387,25 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_water_effect_model, shotst->old->hit_water_sndsample_idx, 1);
             if (shotst->old->hit_water_destroyed) {
-                shot_explodes = 1;
+                destroy_shot = 1;
             }
         } else
         if (cube_is_lava(cube_id))
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_lava_effect_model, shotst->old->hit_lava_sndsample_idx, 1);
             if (shotst->old->hit_lava_destroyed) {
-                shot_explodes = 1;
+                destroy_shot = 1;
             }
         } else
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_generic.effect_model, shotst->old->hit_generic.sndsample_idx, shotst->old->hit_generic.sndsample_range);
             if (shotst->old->hit_generic.destroyed) {
-                shot_explodes = 1;
+                destroy_shot = 1;
             }
         }
     }
 
-    if ( !shot_explodes )
+    if ( !destroy_shot )
     {
         if ((blocked_flags & (SlbBloF_WalledX|SlbBloF_WalledY)) != 0)
         {
@@ -426,7 +426,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             {
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_door.effect_model, shotst->old->hit_door.sndsample_idx, shotst->old->hit_door.sndsample_range);
                 if (shotst->old->hit_door.destroyed)
-                    shot_explodes = 1;
+                    destroy_shot = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
@@ -434,7 +434,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_generic.effect_model, shotst->old->hit_generic.sndsample_idx, shotst->old->hit_generic.sndsample_range);
                 if (shotst->old->hit_generic.destroyed)
                 {
-                    shot_explodes = 1;
+                    destroy_shot = 1;
                 }
             }
         }
@@ -442,7 +442,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     if (!thing_is_invalid(efftng)) {
         efftng->hit_type = shotst->area_hit_type;
     }
-    if ( shot_explodes )
+    if ( destroy_shot )
     {
         return detonate_shot(shotng);
     }
