@@ -234,6 +234,8 @@ struct ShotConfigStats {
     /** Strength of the blow which pushes creatures on explosion. */
     MapCoordDelta area_blow;
     /** Type of the damage inflicted by this shot. */
+    short damage;
+    short speed;
     DamageType damage_type;
     struct ShotStats *old;
     short firing_sound;
@@ -243,6 +245,7 @@ struct ShotConfigStats {
     unsigned short sprite_anim_idx;
     unsigned short sprite_size_max;
     unsigned char cast_spell_kind;
+    short bounce_angle;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -313,16 +316,16 @@ struct ShotStats // sizeof = 101
   unsigned char field_8; // transparency mode
   short size_xy;
   short size_yz;
-  short bounce_angle;
+  short bounce_angle_unused;
   unsigned char field_F;
   unsigned char field_10;
   unsigned char field_11;
   unsigned char field_12;
   unsigned char field_13;
   short health_UNUSED;
-  short damage;
+  short damage_UNUSED;
   unsigned char destroy_on_first_hit;
-  short speed;
+  short speed_UNUSED;
   short firing_sound_UNUSED;
   unsigned char firing_sound_variants_UNUSED;
   short shot_sound_UNUSED;

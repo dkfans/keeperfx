@@ -1268,7 +1268,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                 pos2.z.val += (target->clipbox_size_yz >> 1);
                 thing->move_angle_xy = get_angle_xy_to(&thing->mappos, &pos2);
                 thing->move_angle_z = get_angle_yz_to(&thing->mappos, &pos2);
-                angles_to_vector(thing->move_angle_xy, thing->move_angle_z, shotst->old->speed, &cvect);
+                angles_to_vector(thing->move_angle_xy, thing->move_angle_z, shotst->speed, &cvect);
                 dtpos.x.val = cvect.x - thing->veloc_base.x.val;
                 dtpos.y.val = cvect.y - thing->veloc_base.y.val;
                 dtpos.z.val = cvect.z - thing->veloc_base.z.val;
@@ -1384,7 +1384,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               {
                   shotst = get_shot_model_stats(ShM_GodLightBall);
                   draw_lightning(&thing->mappos,&target->mappos, 96, 60);
-                  apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
+                  apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
               }
             }
             break;
@@ -1434,7 +1434,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->parent_idx = thing->index;
     thing->owner = owner;
-    thing->bounce_angle = shotst->old->bounce_angle;
+    thing->bounce_angle = shotst->bounce_angle;
     thing->fall_acceleration = shotst->old->field_F;
     thing->field_21 = shotst->old->field_10;
     thing->field_23 = shotst->old->field_11;
@@ -1448,7 +1448,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->clipbox_size_yz = shotst->old->size_yz;
     thing->solid_size_xy = shotst->old->size_xy;
     thing->solid_size_yz = shotst->old->size_yz;
-    thing->shot.damage = shotst->old->damage;
+    thing->shot.damage = shotst->damage;
     thing->shot.dexterity = 255;
     thing->health = shotst->health;
     if (shotst->old->lightf_50)
