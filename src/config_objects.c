@@ -56,7 +56,10 @@ const struct NamedCommand objects_object_commands[] = {
   {"HEALTH",           12},
   {"FALLACCELERATION", 13},
   {"LIGHTUNAFFECTED",  14},
-  {"MAPICON",          15},
+  {"LIGHTINTENSITY",   15},
+  {"LIGHTRADIUS",      16},
+  {"LIGHTISDYNAMIC",   17},
+  {"MAPICON",          18},
   {NULL,                0},
   };
 
@@ -474,7 +477,47 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 15: // MapIcon
+            case 15: // LIGHTINTENSITY
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objbc->ilght.intensity = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 16: // LIGHTRADIUS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objbc->ilght.radius = n << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 17: // LIGHTISDYNAMIC
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objbc->ilght.is_dynamic = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 18: // MAPICON
+                tail = buf;
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = get_icon_id(word_buf);
@@ -566,6 +609,23 @@ void update_all_object_stats()
         // TODO: Should we rotate this on per-object basis?
         get_thingadd(thing->index)->flags = 0;
         get_thingadd(thing->index)->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+
+        struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
+        if (thing->light_id != 0)
+        {
+            light_delete_light(thing->light_id);
+        }
+        if (objconf->ilght.radius != 0)
+        {
+            struct InitLight ilight;
+            LbMemorySet(&ilight, 0, sizeof(struct InitLight));
+            LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+            ilight.radius = objconf->ilght.radius;
+            ilight.intensity = objconf->ilght.intensity;
+            ilight.field_3 = objconf->ilght.field_3;
+            ilight.is_dynamic = objconf->ilght.is_dynamic;
+            thing->light_id = light_create_light(&ilight);
+        }
     }
 }
 TbBool load_objects_config(const char *conf_fname, unsigned short flags)
@@ -665,8 +725,8 @@ int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmode
 
 void init_objects(void)
 {
-    game.objects_config[1].ilght.field_0 = 0;
-    game.objects_config[1].ilght.field_2 = 0x00;
+    game.objects_config[1].ilght.radius = 0;
+    game.objects_config[1].ilght.intensity = 0x00;
     game.objects_config[1].ilght.field_3 = 0;
     game.objects_config[1].health = 100;
     game.objects_config[1].fall_acceleration = 20;
@@ -689,8 +749,8 @@ void init_objects(void)
     game.objects_config[4].ilght.is_dynamic = 0;
     game.objects_config[4].movement_flag = 1;
     game.objects_config[5].health = 1;
-    game.objects_config[2].ilght.field_0 = 0x0600;
-    game.objects_config[2].ilght.field_2 = 0x32;
+    game.objects_config[2].ilght.radius = 0x0600;
+    game.objects_config[2].ilght.intensity = 0x32;
     game.objects_config[2].ilght.field_3 = 5;
     game.objects_config[5].fall_acceleration = 20;
     game.objects_config[5].light_unaffected = 0;
@@ -709,28 +769,28 @@ void init_objects(void)
     game.objects_config[10].health = 1000;
     game.objects_config[10].fall_acceleration = 9;
     game.objects_config[28].health = 100;
-    game.objects_config[49].ilght.field_0 = 0x0A00u;
-    game.objects_config[49].ilght.field_2 = 0x28;
+    game.objects_config[49].ilght.radius = 0x0A00u;
+    game.objects_config[49].ilght.intensity = 0x28;
     game.objects_config[49].ilght.field_3 = 5;
-    game.objects_config[4].ilght.field_0 = 0x0700u;
-    game.objects_config[4].ilght.field_2 = 0x2F;
+    game.objects_config[4].ilght.radius = 0x0700u;
+    game.objects_config[4].ilght.intensity = 0x2F;
     game.objects_config[4].ilght.field_3 = 5;
-    game.objects_config[5].ilght.field_0 = 0x0E00u;
-    game.objects_config[5].ilght.field_2 = 0x24;
+    game.objects_config[5].ilght.radius = 0x0E00u;
+    game.objects_config[5].ilght.intensity = 0x24;
     game.objects_config[5].ilght.field_3 = 5;
     game.objects_config[28].fall_acceleration = 0;
     game.objects_config[28].light_unaffected = 1;
     game.objects_config[28].ilght.is_dynamic = 0;
     game.objects_config[28].movement_flag = 1;
-    game.objects_config[11].ilght.field_0 = 0x0400u;
-    game.objects_config[11].ilght.field_2 = 0x3E;
+    game.objects_config[11].ilght.radius = 0x0400u;
+    game.objects_config[11].ilght.intensity = 0x3E;
     game.objects_config[11].ilght.field_3 = 0;
     game.objects_config[11].fall_acceleration = 10;
     game.objects_config[11].light_unaffected = 0;
     game.objects_config[11].ilght.is_dynamic = 0;
     game.objects_config[11].movement_flag = 1;
-    game.objects_config[12].ilght.field_0 = 0x0400u;
-    game.objects_config[12].ilght.field_2 = 0x3E;
+    game.objects_config[12].ilght.radius = 0x0400u;
+    game.objects_config[12].ilght.intensity = 0x3E;
     game.objects_config[12].ilght.field_3 = 0;
     game.objects_config[12].fall_acceleration = 10;
     game.objects_config[12].light_unaffected = 0;
@@ -738,13 +798,13 @@ void init_objects(void)
     game.objects_config[12].movement_flag = 1;
     game.objects_config[13].fall_acceleration = 10;
     game.objects_config[13].light_unaffected = 0;
-    game.objects_config[13].ilght.field_0 = 0x0400u;
-    game.objects_config[13].ilght.field_2 = 0x3E;
+    game.objects_config[13].ilght.radius = 0x0400u;
+    game.objects_config[13].ilght.intensity = 0x3E;
     game.objects_config[13].ilght.field_3 = 0;
     game.objects_config[13].ilght.is_dynamic = 0;
     game.objects_config[13].movement_flag = 1;
-    game.objects_config[14].ilght.field_0 = 0x0400u;
-    game.objects_config[14].ilght.field_2 = 0x3E;
+    game.objects_config[14].ilght.radius = 0x0400u;
+    game.objects_config[14].ilght.intensity = 0x3E;
     game.objects_config[14].ilght.field_3 = 0;
     game.objects_config[14].fall_acceleration = 10;
     game.objects_config[14].light_unaffected = 0;
@@ -752,13 +812,13 @@ void init_objects(void)
     game.objects_config[14].movement_flag = 1;
     game.objects_config[15].fall_acceleration = 10;
     game.objects_config[15].light_unaffected = 0;
-    game.objects_config[15].ilght.field_0 = 0x0400u;
-    game.objects_config[15].ilght.field_2 = 0x3E;
+    game.objects_config[15].ilght.radius = 0x0400u;
+    game.objects_config[15].ilght.intensity = 0x3E;
     game.objects_config[15].ilght.field_3 = 0;
     game.objects_config[15].ilght.is_dynamic = 0;
     game.objects_config[15].movement_flag = 1;
-    game.objects_config[16].ilght.field_0 = 0x0400u;
-    game.objects_config[16].ilght.field_2 = 0x3E;
+    game.objects_config[16].ilght.radius = 0x0400u;
+    game.objects_config[16].ilght.intensity = 0x3E;
     game.objects_config[16].ilght.field_3 = 0;
     game.objects_config[16].fall_acceleration = 10;
     game.objects_config[16].light_unaffected = 0;
@@ -766,129 +826,129 @@ void init_objects(void)
     game.objects_config[16].movement_flag = 1;
     game.objects_config[17].fall_acceleration = 10;
     game.objects_config[17].light_unaffected = 0;
-    game.objects_config[17].ilght.field_0 = 0x0400u;
-    game.objects_config[17].ilght.field_2 = 0x3E;
+    game.objects_config[17].ilght.radius = 0x0400u;
+    game.objects_config[17].ilght.intensity = 0x3E;
     game.objects_config[17].ilght.field_3 = 0;
     game.objects_config[17].ilght.is_dynamic = 0;
     game.objects_config[17].movement_flag = 1;
     game.objects_config[43].fall_acceleration = 8;
     game.objects_config[43].health = 50;
-    game.objects_config[28].ilght.field_0 = 0x0600u;
-    game.objects_config[28].ilght.field_2 = 0x2E;
+    game.objects_config[28].ilght.radius = 0x0600u;
+    game.objects_config[28].ilght.intensity = 0x2E;
     game.objects_config[28].ilght.field_3 = 5;
     game.objects_config[18].fall_acceleration = 10;
     game.objects_config[18].light_unaffected = 0;
-    game.objects_config[18].ilght.field_0 = 0x0400u;
-    game.objects_config[18].ilght.field_2 = 0x3E;
+    game.objects_config[18].ilght.radius = 0x0400u;
+    game.objects_config[18].ilght.intensity = 0x3E;
     game.objects_config[18].ilght.field_3 = 0;
     game.objects_config[18].ilght.is_dynamic = 0;
-    game.objects_config[19].ilght.field_0 = 0x0400u;
-    game.objects_config[19].ilght.field_2 = 0x3E;
+    game.objects_config[19].ilght.radius = 0x0400u;
+    game.objects_config[19].ilght.intensity = 0x3E;
     game.objects_config[19].ilght.field_3 = 0;
     game.objects_config[18].movement_flag = 1;
     game.objects_config[19].fall_acceleration = 10;
     game.objects_config[19].light_unaffected = 0;
-    game.objects_config[20].ilght.field_0 = 0x0400u;
-    game.objects_config[20].ilght.field_2 = 0x3E;
+    game.objects_config[20].ilght.radius = 0x0400u;
+    game.objects_config[20].ilght.intensity = 0x3E;
     game.objects_config[20].ilght.field_3 = 0;
     game.objects_config[19].ilght.is_dynamic = 0;
     game.objects_config[19].movement_flag = 1;
     game.objects_config[20].fall_acceleration = 10;
     game.objects_config[20].light_unaffected = 0;
     game.objects_config[20].ilght.is_dynamic = 0;
-    game.objects_config[21].ilght.field_0 = 0x0400u;
-    game.objects_config[21].ilght.field_2 = 0x3E;
+    game.objects_config[21].ilght.radius = 0x0400u;
+    game.objects_config[21].ilght.intensity = 0x3E;
     game.objects_config[21].ilght.field_3 = 0;
     game.objects_config[20].movement_flag = 1;
     game.objects_config[21].fall_acceleration = 10;
     game.objects_config[21].light_unaffected = 0;
-    game.objects_config[22].ilght.field_0 = 0x0400u;
-    game.objects_config[22].ilght.field_2 = 0x3E;
+    game.objects_config[22].ilght.radius = 0x0400u;
+    game.objects_config[22].ilght.intensity = 0x3E;
     game.objects_config[22].ilght.field_3 = 0;
     game.objects_config[21].ilght.is_dynamic = 0;
     game.objects_config[21].movement_flag = 1;
     game.objects_config[22].fall_acceleration = 10;
     game.objects_config[22].light_unaffected = 0;
     game.objects_config[22].ilght.is_dynamic = 0;
-    game.objects_config[23].ilght.field_0 = 0x0400u;
-    game.objects_config[23].ilght.field_2 = 0x3E;
+    game.objects_config[23].ilght.radius = 0x0400u;
+    game.objects_config[23].ilght.intensity = 0x3E;
     game.objects_config[23].ilght.field_3 = 0;
     game.objects_config[22].movement_flag = 1;
     game.objects_config[23].fall_acceleration = 10;
     game.objects_config[23].light_unaffected = 0;
-    game.objects_config[45].ilght.field_0 = 0x0400u;
-    game.objects_config[45].ilght.field_2 = 0x3E;
+    game.objects_config[45].ilght.radius = 0x0400u;
+    game.objects_config[45].ilght.intensity = 0x3E;
     game.objects_config[45].ilght.field_3 = 0;
     game.objects_config[23].ilght.is_dynamic = 0;
     game.objects_config[23].movement_flag = 1;
     game.objects_config[45].fall_acceleration = 10;
     game.objects_config[45].light_unaffected = 0;
     game.objects_config[45].ilght.is_dynamic = 0;
-    game.objects_config[46].ilght.field_0 = 0x0400u;
-    game.objects_config[46].ilght.field_2 = 0x3E;
+    game.objects_config[46].ilght.radius = 0x0400u;
+    game.objects_config[46].ilght.intensity = 0x3E;
     game.objects_config[46].ilght.field_3 = 0;
     game.objects_config[45].movement_flag = 1;
     game.objects_config[46].fall_acceleration = 10;
     game.objects_config[46].light_unaffected = 0;
-    game.objects_config[47].ilght.field_0 = 0x0400u;
-    game.objects_config[47].ilght.field_2 = 0x3E;
+    game.objects_config[47].ilght.radius = 0x0400u;
+    game.objects_config[47].ilght.intensity = 0x3E;
     game.objects_config[47].ilght.field_3 = 0;
     game.objects_config[46].ilght.is_dynamic = 0;
     game.objects_config[46].movement_flag = 1;
     game.objects_config[47].fall_acceleration = 10;
     game.objects_config[47].light_unaffected = 0;
     game.objects_config[47].ilght.is_dynamic = 0;
-    game.objects_config[134].ilght.field_0 = 0x0400u;
-    game.objects_config[134].ilght.field_2 = 0x3E;
+    game.objects_config[134].ilght.radius = 0x0400u;
+    game.objects_config[134].ilght.intensity = 0x3E;
     game.objects_config[134].ilght.field_3 = 0;
     game.objects_config[47].movement_flag = 1;
     game.objects_config[134].fall_acceleration = 10;
     game.objects_config[134].light_unaffected = 0;
     game.objects_config[134].ilght.is_dynamic = 0;
-    game.objects_config[87].ilght.field_0 = 0x0400u;
-    game.objects_config[87].ilght.field_2 = 0x3E;
+    game.objects_config[87].ilght.radius = 0x0400u;
+    game.objects_config[87].ilght.intensity = 0x3E;
     game.objects_config[87].ilght.field_3 = 0;
     game.objects_config[134].movement_flag = 1;
     game.objects_config[87].fall_acceleration = 10;
     game.objects_config[87].light_unaffected = 0;
-    game.objects_config[88].ilght.field_0 = 0x0400u;
-    game.objects_config[88].ilght.field_2 = 0x3E;
+    game.objects_config[88].ilght.radius = 0x0400u;
+    game.objects_config[88].ilght.intensity = 0x3E;
     game.objects_config[88].ilght.field_3 = 0;
     game.objects_config[87].ilght.is_dynamic = 0;
     game.objects_config[88].fall_acceleration = 10;
     game.objects_config[88].light_unaffected = 0;
-    game.objects_config[89].ilght.field_0 = 0x0400u;
-    game.objects_config[89].ilght.field_2 = 0x3E;
+    game.objects_config[89].ilght.radius = 0x0400u;
+    game.objects_config[89].ilght.intensity = 0x3E;
     game.objects_config[89].ilght.field_3 = 0;
     game.objects_config[88].ilght.is_dynamic = 0;
     game.objects_config[89].fall_acceleration = 10;
     game.objects_config[89].light_unaffected = 0;
-    game.objects_config[90].ilght.field_0 = 0x0400u;
-    game.objects_config[90].ilght.field_2 = 0x3E;
+    game.objects_config[90].ilght.radius = 0x0400u;
+    game.objects_config[90].ilght.intensity = 0x3E;
     game.objects_config[90].ilght.field_3 = 0;
     game.objects_config[89].ilght.is_dynamic = 0;
     game.objects_config[90].fall_acceleration = 10;
     game.objects_config[90].light_unaffected = 0;
-    game.objects_config[91].ilght.field_0 = 0x0400u;
-    game.objects_config[91].ilght.field_2 = 0x3E;
+    game.objects_config[91].ilght.radius = 0x0400u;
+    game.objects_config[91].ilght.intensity = 0x3E;
     game.objects_config[91].ilght.field_3 = 0;
     game.objects_config[90].ilght.is_dynamic = 0;
     game.objects_config[91].fall_acceleration = 10;
     game.objects_config[91].light_unaffected = 0;
-    game.objects_config[92].ilght.field_0 = 0x0400u;
-    game.objects_config[92].ilght.field_2 = 0x3E;
+    game.objects_config[92].ilght.radius = 0x0400u;
+    game.objects_config[92].ilght.intensity = 0x3E;
     game.objects_config[92].ilght.field_3 = 0;
     game.objects_config[91].ilght.is_dynamic = 0;
     game.objects_config[92].fall_acceleration = 10;
     game.objects_config[92].light_unaffected = 0;
-    game.objects_config[93].ilght.field_0 = 0x0400u;
-    game.objects_config[93].ilght.field_2 = 0x3E;
+    game.objects_config[93].ilght.radius = 0x0400u;
+    game.objects_config[93].ilght.intensity = 0x3E;
     game.objects_config[93].ilght.field_3 = 0;
     game.objects_config[92].ilght.is_dynamic = 0;
     game.objects_config[93].fall_acceleration = 10;
     game.objects_config[93].light_unaffected = 0;
-    game.objects_config[86].ilght.field_0 = 0x0400u;
-    game.objects_config[86].ilght.field_2 = 0x3E;
+    game.objects_config[86].ilght.radius = 0x0400u;
+    game.objects_config[86].ilght.intensity = 0x3E;
     game.objects_config[86].ilght.field_3 = 0;
     game.objects_config[93].ilght.is_dynamic = 0;
     game.objects_config[86].fall_acceleration = 10;
