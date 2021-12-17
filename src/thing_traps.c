@@ -377,7 +377,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotng->move_angle_z = 0;
         struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
         struct ComponentVector cvect;
-        angles_to_vector(shotng->move_angle_xy, 0, shotst->old->speed, &cvect);
+        angles_to_vector(shotng->move_angle_xy, 0, shotst->speed, &cvect);
         shotng->veloc_push_add.x.val += cvect.x;
         shotng->veloc_push_add.y.val += cvect.y;
         shotng->veloc_push_add.z.val += cvect.z;
@@ -904,7 +904,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     shotng->move_angle_xy = a2;
     shotng->move_angle_z = 0;
     struct ComponentVector cvect;
-    angles_to_vector(shotng->move_angle_xy, 0, shotst->old->speed, &cvect);
+    angles_to_vector(shotng->move_angle_xy, 0, shotst->speed, &cvect);
     shotng->veloc_push_add.x.val += cvect.x;
     shotng->veloc_push_add.y.val += cvect.y;
     shotng->veloc_push_add.z.val += cvect.z;
