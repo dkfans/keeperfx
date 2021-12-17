@@ -82,7 +82,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"BOUNCEANGLE",         17},
   {"SIZE_XY",             18},
   {"SIZE_YZ",             19},
-  {"FALL_ACCELERATION",   20},
+  {"FALLACCELERATION",    20},
   {NULL,                   0},
   };
 
@@ -1051,7 +1051,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 20: //FALL_ACCELERATION
+      case 20: //FALLACCELERATION
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
