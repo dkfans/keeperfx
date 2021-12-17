@@ -2824,7 +2824,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         pos2.y.val = target->mappos.y.val;
         pos2.z.val = target->mappos.z.val;
         pos2.z.val += (target->clipbox_size_yz >> 1);
-        if (((shotst->model_flags & ShMF_StrengthBased) != 0) && (target->class_id != TCls_Door))
+        if (((shotst->model_flags & ShMF_StrengthBased) != 0) && ((shotst->model_flags & ShMF_ReboundImmune) != 0) && (target->class_id != TCls_Door))
         {
           flag1 = true;
           pos1.z.val = pos2.z.val;
@@ -3505,7 +3505,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->solid_size_xy = crstat->thing_size_xy;
     crtng->solid_size_yz = crstat->thing_size_yz;
     crtng->fall_acceleration = 32;
-    crtng->field_22 = 0;
+    crtng->bounce_angle = 0;
     crtng->field_23 = 32;
     crtng->field_24 = 8;
     crtng->movement_flags |= TMvF_Unknown08;

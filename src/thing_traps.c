@@ -532,7 +532,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         activate_trap_slab_change(traptng, creatng);
         break;
     case TrpAcT_CreatureShot:
-        creature_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, 1);
+        creature_fire_shot(traptng, creatng, trapstat->created_itm_model, THit_CrtrsNObjcts, 1);
         break;
     case TrpAcT_CreatureSpawn:
         activate_trap_spawn_creature(traptng, trapstat);
