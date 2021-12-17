@@ -222,7 +222,7 @@ struct ShotHitConfig {
     short effect_model; /**< Effect kind to be created when the shot hits. */
     short sndsample_idx; /**< Base sound sample to be played on hit. */
     unsigned char sndsample_range; /**< Range for random sound sample selection. */
-    unsigned char destroyed; /**< Whether the shot is destroyed after hit; could be converted to flags. */
+    unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
 };
 
 /**

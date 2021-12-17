@@ -79,11 +79,10 @@ const struct NamedCommand magic_shot_commands[] = {
   {"ANIMATION",           14},
   {"ANIMATIONSIZE",       15},
   {"SPELLEFFECT",         16},
-  {"DESTROYEDBYDOORS",    17},
-  {"DESTROYEDBYWALLS",    18},
-  {"BOUNCEANGLE",         19},
-  {"SIZE_XY",             20},
-  {"SIZE_YZ",             21},
+  {"BOUNCEANGLE",         17},
+  {"SIZE_XY",             18},
+  {"SIZE_YZ",             19},
+  {"FALL_ACCELERATION",   20},
   {NULL,                   0},
   };
 
@@ -116,19 +115,21 @@ const struct NamedCommand magic_special_commands[] = {
   };
 
 const struct NamedCommand shotmodel_properties_commands[] = {
-  {"SLAPPABLE",         1},
-  {"NAVIGABLE",         2},
-  {"BOULDER",           3},
-  {"REBOUND_IMMUNE",    4},
-  {"DIGGING",           5},
-  {"LIFE_DRAIN",        6},
-  {"GROUP_UP",          7},
-  {"NO_STUN",           8},
-  {"NO_HIT",            9},
-  {"STRENGTH_BASED",   10},
-  {"ALARMS_UNITS",     11},
-  {"CAN_COLLIDE",      12},
-  {NULL,                0},
+  {"SLAPPABLE",           1},
+  {"NAVIGABLE",           2},
+  {"BOULDER",             3},
+  {"REBOUND_IMMUNE",      4},
+  {"DIGGING",             5},
+  {"LIFE_DRAIN",          6},
+  {"GROUP_UP",            7},
+  {"NO_STUN",             8},
+  {"NO_HIT",              9},
+  {"STRENGTH_BASED",     10},
+  {"ALARMS_UNITS",       11},
+  {"CAN_COLLIDE",        12},
+  {"WITHSTAND_DOOR_HIT", 13},
+  {"WITHSTAND_WALL_HIT", 14},
+  {NULL,                  0},
   };
 
 const struct NamedCommand powermodel_castability_commands[] = {
@@ -692,8 +693,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->bounce_angle = 0;
           shotst->damage = 0;
           shotst->fall_acceleration = 0;
-          shotst->hit_door.destroyed = 0;
-          shotst->hit_generic.destroyed = 0;
+          shotst->hit_door.withstand = 0;
+          shotst->hit_generic.withstand = 0;
           shotst->push_on_hit = 0;
           shotst->max_range = 0;
           shotst->size_xy = 0;
@@ -893,6 +894,14 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_CanCollide;
                 n++;
                 break;
+            case 13: // WITHSTAND_DOOR_HIT
+                shotst->hit_door.withstand = 1; //todo flag
+                n++;
+                break;
+            case 14: // WITHSTAND_WALL_HIT
+                shotst->hit_generic.withstand = 1; //todo flag
+                n++;
+                break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -1003,33 +1012,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 17: //DESTROYEDBYDOORS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_door.destroyed = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 18: //DESTROYEDBYWALLS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_generic.destroyed = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 19: //BOUNCEANGLE
+      case 17: //BOUNCEANGLE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1042,7 +1025,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 20: //SIZE_XY
+      case 18: //SIZE_XY
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1055,7 +1038,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 21: //SIZE_YZ
+      case 19: //SIZE_YZ
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1068,7 +1051,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 22: //FALL_ACCELERATION
+      case 20: //FALL_ACCELERATION
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);

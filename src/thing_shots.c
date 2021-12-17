@@ -378,7 +378,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         if (!thing_is_invalid(doortng))
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
-            if (shotst->hit_door.destroyed)
+            if (!shotst->hit_door.withstand)
               destroy_shot = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
@@ -399,7 +399,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         } else
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
-            if (shotst->hit_generic.destroyed) {
+            if (!shotst->hit_generic.withstand) {
                 destroy_shot = 1;
             }
         }
@@ -425,14 +425,14 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             if (!thing_is_invalid(doortng))
             {
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
-                if (shotst->hit_door.destroyed)
+                if (!shotst->hit_door.withstand)
                     destroy_shot = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
             {
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
-                if (shotst->hit_generic.destroyed)
+                if (!shotst->hit_generic.withstand)
                 {
                     destroy_shot = 1;
                 }
@@ -497,7 +497,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
                 }
             }
             // Shall the shot be destroyed on impact
-            if (shotst->hit_door.destroyed)
+            if (!shotst->hit_door.withstand)
             {
                 shot_explodes = true;
             }
