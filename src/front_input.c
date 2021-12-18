@@ -1551,17 +1551,6 @@ short get_creature_control_action_inputs(void)
                 }
             }
         }
-        /*
-        else if (is_key_pressed(KC_SPACE,KMod_ALT))
-        {
-           struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-           struct Thing* cratetng = thing_get(cctrl->dragtng_idx);
-           if (thing_is_workshop_crate(cratetng))
-           {
-               internal_set_thing_state(thing, CrSt_CreatureArmsTrap);
-           }               
-        }
-        */
     if (numkey != -1)
     {
         int num_avail = 0;
