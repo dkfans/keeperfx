@@ -98,7 +98,7 @@ struct Room {
     /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
-      long capacity_used_for_storage;
+      unsigned long capacity_used_for_storage;
       short hatchfield_1B;
       unsigned char field_1D[26];
     };
@@ -263,6 +263,7 @@ void do_room_integration(struct Room *room);
 void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng);
 
 void count_gold_hoardes_in_room(struct Room *room);
+void update_room_total_capacity(struct Room *room);
 
 /* MOVE TO room_list.c/h */
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_flags);
