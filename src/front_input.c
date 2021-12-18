@@ -1479,8 +1479,8 @@ short get_creature_control_action_inputs(void)
                 else
                 {
                     struct Map *blk = get_map_block_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
-                    struct Thing* picktng = thing_get(get_mapwho_thing_index(blk));
-                    while (!thing_is_invalid(picktng)) 
+                    struct Thing* picktng;
+                    for (picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk)) 
                     {
                         if (picktng != creatng)
                         {
@@ -1498,6 +1498,10 @@ short get_creature_control_action_inputs(void)
                             else if (thing_is_dead_creature(picktng))
                             {
                                 rkind = RoK_GRAVEYARD;
+                            }
+                            else
+                            {
+                                continue;
                             }
                             if (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, rkind, TngFRPickF_Default))
                             {
@@ -1523,7 +1527,6 @@ short get_creature_control_action_inputs(void)
                                 }
                             }
                         }
-                        picktng = thing_get(picktng->next_on_mapblk);
                     }
                 }
             }
