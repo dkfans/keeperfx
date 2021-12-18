@@ -1420,6 +1420,7 @@ short get_creature_control_action_inputs(void)
                             {
                                 if (traptng->model == crate_to_workshop_item_model(dragtng->model))
                                 {
+                                    remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
                                     cctrl->arming_thing_id = traptng->index;
                                     internal_set_thing_state(creatng, CrSt_CreatureArmsTrap);
                                 }
