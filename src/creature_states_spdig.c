@@ -1163,6 +1163,10 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
     {
         long gold_taken = take_from_gold_pile(spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num, crstat->gold_hold - spdigtng->creature.gold_carried);
         spdigtng->creature.gold_carried += gold_taken;
+        if (gold_taken > 0)
+        {
+            thing_play_sample(spdigtng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        }
     }
     unsigned char state = ((spdigtng->alloc_flags & TAlF_IsControlled) == 0) ? CrSt_ImpLastDidJob : CrSt_Unused;
     internal_set_thing_state(spdigtng, state);
