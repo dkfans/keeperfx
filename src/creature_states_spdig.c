@@ -19,6 +19,7 @@
 #include "creature_states_spdig.h"
 #include "globals.h"
 
+#include "bflib_sound.h"
 #include "bflib_math.h"
 #include "creature_states.h"
 #include "thing_list.h"
@@ -1016,10 +1017,13 @@ short imp_drops_gold(struct Thing *spdigtng)
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
+    long gold_added = 0;
+    TbBool gold_created = false;
     struct Thing* gldtng = find_gold_hoard_at(center_stl_x, center_stl_y);
     if (!thing_is_invalid(gldtng))
     {
-        spdigtng->creature.gold_carried -= add_gold_to_hoarde(gldtng, room, spdigtng->creature.gold_carried);
+        gold_added = add_gold_to_hoarde(gldtng, room, spdigtng->creature.gold_carried);
+        spdigtng->creature.gold_carried -= gold_added;
     } else
     {
         struct Coord3d pos;
@@ -1028,9 +1032,19 @@ short imp_drops_gold(struct Thing *spdigtng)
         pos.z.val = spdigtng->mappos.z.val;
         gldtng = create_gold_hoarde(room, &pos, spdigtng->creature.gold_carried);
         if (!thing_is_invalid(gldtng))
+        {
             spdigtng->creature.gold_carried -= gldtng->valuable.gold_stored;
+            gold_created = true;
+        }
     }
-    thing_play_sample(spdigtng, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    if ( (gold_added > 0) || (gold_created) )
+    {
+        thing_play_sample(spdigtng, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    }
+    else
+    {
+        play_non_3d_sample(119);
+    }
     if (gameadd.digger_work_experience != 0)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
