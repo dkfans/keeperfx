@@ -1460,12 +1460,15 @@ short get_creature_control_action_inputs(void)
                                     {
                                         if (!imp_will_soon_be_getting_object(creatng->owner, picktng))
                                         {
-                                            if (remove_item_from_room_capacity(room))
+                                            if (picktng->owner == creatng->owner)
                                             {
-                                                if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) == WrkCrtS_Stored)
-                                                {                                                  
-                                                    controlled_creature_pick_thing_up(creatng, picktng);
-                                                    break;
+                                                if (remove_item_from_room_capacity(room))
+                                                {
+                                                    if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) == WrkCrtS_Stored)
+                                                    {                                                  
+                                                        controlled_creature_pick_thing_up(creatng, picktng);
+                                                        break;
+                                                    }
                                                 }
                                             }
                                         }
