@@ -5397,6 +5397,37 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     else
     {
         creature_drop_dragged_object(creatng, droptng);
+        unsigned short smpl_idx, pitch;
+        switch(droptng->class_id)
+        {
+            case TCls_Object:
+            {
+                smpl_idx = 992;
+                struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
+                switch (objst->genre)
+                {
+                    case OCtg_WrkshpBox:
+                    case OCtg_SpecialBox:
+                    {
+                        pitch = 25;
+                        break;
+                    }
+                    case OCtg_Spellbook:
+                    {
+                        pitch = 90;
+                        break;
+                    }
+                }
+                break;
+            }
+            case TCls_DeadCreature:
+            {
+                smpl_idx = 58;
+                pitch = 50;
+                break;
+            }
+        }
+        thing_play_sample(creatng, smpl_idx, pitch, 0, 3, 0, 2, FULL_LOUDNESS);
         struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         if (!room_is_invalid(room))
         {
