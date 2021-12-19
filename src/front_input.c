@@ -1402,7 +1402,7 @@ short get_creature_control_action_inputs(void)
             message_add(CrInst, get_string(StrID));
         }
         first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
-        if (is_key_pressed(KC_SPACE,KMod_DONTCARE))
+        if (is_key_pressed(KC_LSHIFT,KMod_DONTCARE))
         {
             if (thing_is_creature_special_digger(creatng))
             {
@@ -1416,6 +1416,7 @@ short get_creature_control_action_inputs(void)
                 {
                     struct Map *blk = get_map_block_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
                     struct Thing* picktng;
+                    struct Room* room;
                     for (picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk)) 
                     {
                         if (picktng != creatng)
@@ -1435,6 +1436,11 @@ short get_creature_control_action_inputs(void)
                             {
                                 rkind = RoK_GRAVEYARD;
                             }
+                            else if (object_is_gold_pile(picktng))
+                            {
+                                internal_set_thing_state(creatng, CrSt_ImpPicksUpGoldPile);
+                                break;
+                            }
                             else
                             {
                                 continue;
@@ -1446,7 +1452,7 @@ short get_creature_control_action_inputs(void)
                             }
                             else if (can_remove_from_storage)
                             {
-                                struct Room* room = get_room_thing_is_on(picktng);
+                                room = get_room_thing_is_on(picktng);
                                 if (!room_is_invalid(room))
                                 {
                                     if ( (room->kind == RoK_WORKSHOP) && (room->owner == creatng->owner) )
@@ -1464,8 +1470,26 @@ short get_creature_control_action_inputs(void)
                             }
                         }
                     }
+                    if (thing_is_invalid(picktng))
+                    {
+                        room = get_room_thing_is_on(creatng);
+                        if (!room_is_invalid(room))
+                        {
+                            if (room->kind == RoK_TREASURE)
+                            {
+                                if (room->owner == creatng->owner)
+                                {
+                                    if (creatng->creature.gold_carried > 0)
+                                    {
+                                        internal_set_thing_state(creatng, CrSt_ImpDropsGold);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
+            clear_key_pressed(KC_LSHIFT);
         }
     if (numkey != -1)
     {

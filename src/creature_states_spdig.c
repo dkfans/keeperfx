@@ -1039,9 +1039,12 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     if ((spdigtng->creature.gold_carried != 0) && (room->used_capacity < room->total_capacity))
     {
-        if (setup_head_for_empty_treasure_space(spdigtng, room)) {
-            spdigtng->continue_state = CrSt_ImpDropsGold;
-            return 1;
+        if ((spdigtng->alloc_flags & TAlF_IsControlled) == 0)
+        {
+            if (setup_head_for_empty_treasure_space(spdigtng, room)) {
+                spdigtng->continue_state = CrSt_ImpDropsGold;
+                return 1;
+            }
         }
     }
     internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
@@ -1144,7 +1147,10 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
         long gold_taken = take_from_gold_pile(spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num, crstat->gold_hold - spdigtng->creature.gold_carried);
         spdigtng->creature.gold_carried += gold_taken;
     }
-    internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
+    if ((spdigtng->alloc_flags & TAlF_IsControlled) == 0)
+    {
+        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
+    }
     return 0;
 }
 
