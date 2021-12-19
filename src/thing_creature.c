@@ -5364,6 +5364,101 @@ void illuminate_creature(struct Thing *creatng)
     lgt->radius <<= 1;    
 }
 
+void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng)
+{
+    creature_drag_object(creatng, picktng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->pickup_object_id = picktng->index;
+}
+
+void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng)
+{
+    struct Thing* traptng = get_trap_for_position(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+    if (!thing_is_invalid(traptng))
+    {
+        if (traptng->owner == creatng->owner)
+        {
+            if (thing_is_trap_crate(droptng))
+            {
+                if (traptng->model == crate_to_workshop_item_model(droptng->model))
+                {
+                    remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                    cctrl->arming_thing_id = traptng->index;
+                    internal_set_thing_state(creatng, CrSt_CreatureArmsTrap);
+                }
+            }
+        }
+    }
+    else
+    {
+        creature_drop_dragged_object(creatng, droptng);
+        struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+        if (!room_is_invalid(room))
+        {
+            if (room->owner == creatng->owner)
+            {
+                switch(room->kind)
+                {
+                    case RoK_LIBRARY:
+                    {
+                        if (thing_is_spellbook(droptng))
+                        {
+                            if (add_item_to_room_capacity(room, true))
+                            {
+                                droptng->owner = creatng->owner;
+                                add_power_to_player(book_thing_to_power_kind(droptng), creatng->owner);
+                            }
+                            else
+                            {
+                                WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_LIBRARY));
+                                output_message(SMsg_LibraryTooSmall, 0, true);
+                            }
+                        } 
+                        else if (thing_is_special_box(droptng))
+                        {
+                            droptng->owner = creatng->owner;
+                        }
+                        break;
+                    }
+                    case RoK_WORKSHOP:
+                    {
+                        if (thing_is_workshop_crate(droptng))
+                        {
+                            if (add_item_to_room_capacity(room, true))
+                            {
+                                droptng->owner = creatng->owner;
+                                add_workshop_item_to_amounts(room->owner, crate_thing_to_workshop_item_class(droptng), crate_thing_to_workshop_item_model(droptng));
+                            }
+                            else
+                            {
+                                WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_WORKSHOP));
+                                output_message(SMsg_WorkshopTooSmall, 0, true);
+                            }
+                        }
+                        break;
+                    }
+                    case RoK_GRAVEYARD:
+                    {
+                        if (thing_is_dead_creature(droptng))
+                        {
+                            if (add_body_to_graveyard(droptng, room))
+                            {
+                                droptng->owner = creatng->owner;
+                            }
+                            else
+                            {
+                                output_message(SMsg_GraveyardTooSmall, 0, true);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -182,6 +182,9 @@ void illuminate_creature(struct Thing *creatng);
 
 long get_spell_slot(const struct Thing *thing, SpellKind spkind);
 TbBool free_spell_slot(struct Thing *thing, long slot_idx);
+
+void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng);
+void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);
