@@ -64,6 +64,7 @@
 #include "light_data.h"
 #include "room_list.h"
 #include "room_jobs.h"
+#include "room_graveyard.h"
 #include "map_utils.h"
 #include "map_blocks.h"
 #include "gui_topmsg.h"
