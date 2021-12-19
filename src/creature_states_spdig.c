@@ -1017,6 +1017,7 @@ short imp_drops_gold(struct Thing *spdigtng)
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
+    unsigned char state = ((spdigtng->alloc_flags & TAlF_IsControlled) == 0) ? CrSt_ImpLastDidJob : CrSt_Unused;
     long gold_added = 0;
     TbBool gold_created = false;
     struct Thing* gldtng = find_gold_hoard_at(center_stl_x, center_stl_y);
@@ -1044,7 +1045,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     else
     {
         play_non_3d_sample(119);
-        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
+        internal_set_thing_state(spdigtng, state);
         return 1;
     }
     if (gameadd.digger_work_experience != 0)
@@ -1063,7 +1064,7 @@ short imp_drops_gold(struct Thing *spdigtng)
             }
         }
     }
-    internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
+    internal_set_thing_state(spdigtng, state);
     return 1;
 }
 
@@ -1163,10 +1164,8 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
         long gold_taken = take_from_gold_pile(spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num, crstat->gold_hold - spdigtng->creature.gold_carried);
         spdigtng->creature.gold_carried += gold_taken;
     }
-    if ((spdigtng->alloc_flags & TAlF_IsControlled) == 0)
-    {
-        internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
-    }
+    unsigned char state = ((spdigtng->alloc_flags & TAlF_IsControlled) == 0) ? CrSt_ImpLastDidJob : CrSt_Unused;
+    internal_set_thing_state(spdigtng, state);
     return 0;
 }
 
