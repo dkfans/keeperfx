@@ -5427,7 +5427,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                 break;
             }
         }
-        thing_play_sample(creatng, smpl_idx, pitch, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, FULL_LOUDNESS);
         struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         if (!room_is_invalid(room))
         {
