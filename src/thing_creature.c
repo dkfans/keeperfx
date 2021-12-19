@@ -28,6 +28,7 @@
 #include "bflib_sprite.h"
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
+#include "bflib_sound.h"
 
 #include "engine_lenses.h"
 #include "engine_arrays.h"
@@ -5386,12 +5387,19 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
             {
                 if (traptng->model == crate_to_workshop_item_model(droptng->model))
                 {
-                    remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
                     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                     cctrl->arming_thing_id = traptng->index;
                     internal_set_thing_state(creatng, CrSt_CreatureArmsTrap);
                 }
+                else
+                {
+                    play_non_3d_sample(119);
+                }
             }
+        }
+        else
+        {
+            play_non_3d_sample(119);
         }
     }
     else
