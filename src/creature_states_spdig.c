@@ -1044,6 +1044,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     else
     {
         play_non_3d_sample(119);
+        return 1;
     }
     if (gameadd.digger_work_experience != 0)
     {
