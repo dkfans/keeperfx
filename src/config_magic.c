@@ -144,6 +144,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"WITHSTAND_LAVA_HIT",  15},
   {"WITHSTAND_WATER_HIT", 16},
   {"NO_AIR_DAMAGE",       17},
+  {"WIND_IMMUNE",         18},
   {NULL,                   0},
   };
 
@@ -930,6 +931,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 17: // NO_AIR_DAMAGE
                 shotst->no_air_damage = 1;
+                n++;
+                break;
+            case 18: // WIND_IMMUNE
+                shotst->wind_immune = 1;
                 n++;
                 break;
             default:

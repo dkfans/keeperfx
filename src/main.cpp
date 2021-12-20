@@ -326,7 +326,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
             struct ShotConfigStats *shotst;
             shotst = get_shot_model_stats(thing->model);
             dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && shotst->old->affected_by_wind)
+            if ((dist < param->num1) && !shotst->wind_immune)
             {
                 apply_velocity = true;
             }

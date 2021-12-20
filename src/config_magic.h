@@ -262,6 +262,7 @@ struct ShotConfigStats {
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;
     short bounce_angle;
+    short wind_immune;
     short no_air_damage;
 };
 
@@ -372,7 +373,7 @@ struct ShotStats // sizeof = 101
   unsigned char field_54[4];
   unsigned char field_58[8];
   unsigned char field_60[4];
-  unsigned char affected_by_wind;
+  unsigned char affected_by_wind_UNUSED;
 };
 
 struct MagicStats {  // sizeof=0x4C
