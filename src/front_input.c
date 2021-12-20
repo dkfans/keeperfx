@@ -1422,20 +1422,24 @@ short get_creature_control_action_inputs(void)
                     {
                         if (picktng != creatng)
                         {
-                            RoomKind rkind;
+                            TbBool can_be_picked_up = false;
                             TbBool can_remove_from_storage = false;
                             if ( (thing_is_spellbook(picktng)) || (thing_is_special_box(picktng)) )
                             {
-                                rkind = RoK_LIBRARY;
+                                can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default);
                             }
                             else if (thing_is_workshop_crate(picktng))
                             {
-                                rkind = RoK_WORKSHOP;
+                                can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default);
                                 can_remove_from_storage = true;
                             }
                             else if (thing_is_dead_creature(picktng))
                             {
-                                rkind = RoK_GRAVEYARD;
+                                can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default);
+                            }
+                            else if (thing_is_creature(picktng))
+                            {
+                                can_be_picked_up = creature_is_being_unconscious(picktng);
                             }
                             else if (object_is_gold_pile(picktng))
                             {
@@ -1446,7 +1450,7 @@ short get_creature_control_action_inputs(void)
                             {
                                 continue;
                             }
-                            if (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, rkind, TngFRPickF_Default))
+                            if (can_be_picked_up)
                             {
                                 controlled_creature_pick_thing_up(creatng, picktng);
                                 break;

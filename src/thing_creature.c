@@ -46,6 +46,7 @@
 #include "creature_states_train.h"
 #include "creature_states_spdig.h"
 #include "creature_states_hero.h"
+#include "creature_states_prisn.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "creature_battle.h"
@@ -5368,7 +5369,14 @@ void illuminate_creature(struct Thing *creatng)
 
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng)
 {
-    creature_drag_object(creatng, picktng);
+    if (picktng->class_id == TCls_Creature)
+    {
+        set_creature_being_dragged_by(picktng, creatng);
+    }
+    else
+    {
+        creature_drag_object(creatng, picktng);
+    }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->pickup_object_id = picktng->index;
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
@@ -5492,6 +5500,27 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                             else
                             {
                                 output_message(SMsg_GraveyardTooSmall, 0, true);
+                            }
+                        }
+                        break;
+                    }
+                    case RoK_PRISON:
+                    {
+                        if (thing_is_creature(droptng))
+                        {
+                            if (creature_is_being_unconscious(droptng))
+                            {
+                                if (room->used_capacity < room->total_capacity)
+                                {
+                                    make_creature_conscious(droptng);
+                                    initialise_thing_state(droptng, CrSt_CreatureArrivedAtPrison);
+                                    struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
+                                    dropctrl->flgfield_1 |= CCFlg_NoCompControl;
+                                }
+                                else
+                                {
+                                   output_message(SMsg_PrisonTooSmall, 0, true); 
+                                }
                             }
                         }
                         break;

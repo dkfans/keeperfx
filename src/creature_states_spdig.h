@@ -60,6 +60,7 @@ short creature_going_to_safety_for_toking(struct Thing *thing);
 long check_out_available_spdigger_drop_tasks(struct Thing *digger);
 TbBool creature_is_dragging_or_being_dragged(const struct Thing *thing);
 TbBool creature_drop_thing_to_another_room(struct Thing* thing, struct Room* skiproom, signed char rkind);
+TbBool set_creature_being_dragged_by(struct Thing *dragtng, struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

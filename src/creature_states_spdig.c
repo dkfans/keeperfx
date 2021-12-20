@@ -1317,8 +1317,11 @@ TbBool set_creature_being_dragged_by(struct Thing *dragtng, struct Thing *thing)
     picktng = thing_get(dragctrl->dragtng_idx);
     TRACE_THING(picktng);
     if (!thing_is_invalid(picktng)) {
-        ERRORLOG("Thing is already dragged by something");
-        return false;
+        if (picktng->index != thing->index)
+        {
+            ERRORLOG("Thing is already dragged by something");
+            return false;
+        }
     }
     // Set the new dragging
     cctrl->dragtng_idx = dragtng->index;

@@ -2338,6 +2338,8 @@ void creature_drop_dragged_object(struct Thing *creatng, struct Thing *dragtng)
         ERRORLOG("The %s isn't dragging %s",thing_model_name(creatng),thing_model_name(dragtng));
     }
     cctrl->dragtng_idx = 0;
+    struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
+    dragctrl->dragtng_idx = 0;
     dragtng->alloc_flags &= ~TAlF_IsDragged;
     dragtng->state_flags &= ~TF1_IsDragged1;
     move_thing_in_map(dragtng, &creatng->mappos);
