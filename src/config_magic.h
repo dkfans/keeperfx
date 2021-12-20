@@ -248,6 +248,8 @@ struct ShotConfigStats {
     struct ShotStats *old;
     struct ShotHitConfig hit_generic;
     struct ShotHitConfig hit_door;
+    struct ShotHitConfig hit_water;
+    struct ShotHitConfig hit_lava;
     short firing_sound;
     short shot_sound;
     unsigned char firing_sound_variants;
@@ -347,12 +349,12 @@ struct ShotStats // sizeof = 101
   unsigned char push_on_hit_UNUSED;
   struct ShotHitConfig hit_generic_UNUSED;
   struct ShotHitConfig hit_door_UNUSED;
-  short hit_water_effect_model;
-  short hit_water_sndsample_idx;
-  unsigned char hit_water_destroyed;
-  short hit_lava_effect_model;
-  short hit_lava_sndsample_idx;
-  unsigned char hit_lava_destroyed;
+  short hit_water_effect_model_UNUSED;
+  short hit_water_sndsample_idx_UNUSED;
+  unsigned char hit_water_destroyed_UNUSED;
+  short hit_lava_effect_model_UNUSED;
+  short hit_lava_sndsample_idx_UNUSED;
+  unsigned char hit_lava_destroyed_UNUSED;
   short area_range_UNUSED;
   short area_damage_UNUSED;
   short is_boulder_UNUSED;

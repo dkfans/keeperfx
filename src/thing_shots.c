@@ -385,15 +385,15 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         } else
         if (cube_is_water(cube_id))
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_water_effect_model, shotst->old->hit_water_sndsample_idx, 1);
-            if (shotst->old->hit_water_destroyed) {
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_water.effect_model, shotst->hit_water.sndsample_idx, shotst->hit_water.sndsample_range);
+            if (!shotst->hit_water.withstand) {
                 destroy_shot = 1;
             }
         } else
         if (cube_is_lava(cube_id))
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_lava_effect_model, shotst->old->hit_lava_sndsample_idx, 1);
-            if (shotst->old->hit_lava_destroyed) {
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_lava.effect_model, shotst->hit_lava.sndsample_idx, shotst->hit_lava.sndsample_range);
+            if (!shotst->hit_lava.withstand) {
                 destroy_shot = 1;
             }
         } else
