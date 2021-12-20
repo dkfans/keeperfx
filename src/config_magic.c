@@ -115,21 +115,22 @@ const struct NamedCommand magic_special_commands[] = {
   };
 
 const struct NamedCommand shotmodel_properties_commands[] = {
-  {"SLAPPABLE",           1},
-  {"NAVIGABLE",           2},
-  {"BOULDER",             3},
-  {"REBOUND_IMMUNE",      4},
-  {"DIGGING",             5},
-  {"LIFE_DRAIN",          6},
-  {"GROUP_UP",            7},
-  {"NO_STUN",             8},
-  {"NO_HIT",              9},
-  {"STRENGTH_BASED",     10},
-  {"ALARMS_UNITS",       11},
-  {"CAN_COLLIDE",        12},
-  {"WITHSTAND_DOOR_HIT", 13},
-  {"WITHSTAND_WALL_HIT", 14},
-  {NULL,                  0},
+  {"SLAPPABLE",            1},
+  {"NAVIGABLE",            2},
+  {"BOULDER",              3},
+  {"REBOUND_IMMUNE",       4},
+  {"DIGGING",              5},
+  {"LIFE_DRAIN",           6},
+  {"GROUP_UP",             7},
+  {"NO_STUN",              8},
+  {"NO_HIT",               9},
+  {"STRENGTH_BASED",      10},
+  {"ALARMS_UNITS",        11},
+  {"CAN_COLLIDE",         12},
+  {"WITHSTAND_DOOR_HIT",  13},
+  {"WITHSTAND_WALL_HIT",  14},
+  {"NO_AIR_DAMAGE",       17},
+  {NULL,                   0},
   };
 
 const struct NamedCommand powermodel_castability_commands[] = {
@@ -695,6 +696,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->fall_acceleration = 0;
           shotst->hit_door.withstand = 0;
           shotst->hit_generic.withstand = 0;
+          shotst->no_air_damage = 0;
           shotst->push_on_hit = 0;
           shotst->max_range = 0;
           shotst->size_xy = 0;
@@ -900,6 +902,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 14: // WITHSTAND_WALL_HIT
                 shotst->hit_generic.withstand = 1; //todo flag
+                n++;
+                break;
+            case 17: // NO_AIR_DAMAGE
+                shotst->no_air_damage = 1;
                 n++;
                 break;
             default:

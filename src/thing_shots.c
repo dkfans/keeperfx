@@ -1248,8 +1248,10 @@ TngUpdateRet update_shot(struct Thing *thing)
         if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->shot_sound, 0))
             thing_play_sample(thing, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
-    if (shotst->old->field_47)
+    if (!shotst->no_air_damage)
+    {
         thing->health--;
+    }
     if (thing->health < 0)
     {
         hit = true;

@@ -260,6 +260,7 @@ struct ShotConfigStats {
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;
     short bounce_angle;
+    short no_air_damage;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -355,7 +356,7 @@ struct ShotStats // sizeof = 101
   short area_range_UNUSED;
   short area_damage_UNUSED;
   short is_boulder_UNUSED;
-  unsigned char field_47;
+  unsigned char takes_air_damage_UNUSED;
   unsigned char is_melee_UNUSED;
   unsigned char is_digging_UNUSED;
   unsigned char area_hit_type_UNUSED;
