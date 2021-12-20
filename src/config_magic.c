@@ -95,6 +95,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITLAVASOUND",          30},
   {"HITLAVASOUNDVARIANTS",  31},
   {"HITLAVAEFFECT",         32},
+  {"HITCREATURESOUND",      33},
   {NULL,                     0},
   };
 
@@ -719,6 +720,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->size_xy = 0;
           shotst->size_yz = 0;
           shotst->speed = 0;
+          shotst->wind_immune = 0;
       }
   }
   // Load the file

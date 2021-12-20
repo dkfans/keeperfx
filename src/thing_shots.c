@@ -617,7 +617,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         }
     } else
     {
-        int i = shotst->old->hit_sound;
+        int i = shotst->hit_creature.sndsample_idx;
         if (i > 0) {
             thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
@@ -786,9 +786,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     long damage = get_damage_of_melee_shot(shotng, trgtng);
     if (damage > 0)
     {
-      if (shotst->old->hit_sound > 0)
+      if (shotst->hit_creature.sndsample_idx > 0)
       {
-          thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+          thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
           play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
       }
       if (!thing_is_invalid(shooter)) {
@@ -985,10 +985,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             i = amp * (long)shotng->velocity.y.val;
             trgtng->veloc_push_add.y.val += i / 16;
             trgtng->state_flags |= TF1_PushAdd;
-            if (shotst->old->hit_sound != 0)
+            if (shotst->hit_creature.sndsample_idx != 0)
             {
                 play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
-                thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
         }
         else
@@ -1024,10 +1024,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     else // not for unconscious units
     {
-        if (shotst->old->hit_sound != 0)
+        if (shotst->hit_creature.sndsample_idx != 0)
         {
             play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
-            thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
 

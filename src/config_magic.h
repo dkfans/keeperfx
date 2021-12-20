@@ -250,6 +250,7 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_door;
     struct ShotHitConfig hit_water;
     struct ShotHitConfig hit_lava;
+    struct ShotHitConfig hit_creature;
     short firing_sound;
     short shot_sound;
     unsigned char firing_sound_variants;
@@ -341,7 +342,7 @@ struct ShotStats // sizeof = 101
   unsigned char firing_sound_variants_UNUSED;
   short shot_sound_UNUSED;
   short field_20;
-  short hit_sound;
+  short hit_sound_UNUSED;
   unsigned char field_24;
   short cast_spell_kind_UNUSED;
   unsigned char health_drain_UNUSED;
