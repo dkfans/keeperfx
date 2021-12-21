@@ -3217,13 +3217,12 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = trap_id;
     value->shorts[1] = trapvar;
-    //val2 is an optional variable, used when there's 2 numbers on one command. Pass them along as one merged val.
     if (trapvar == 3) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
+        // Pass two vars along as one merged val like: first\nsecond\m
         strcpy(tmp, scline->tp[2]);
-        tmp[strlen(scline->tp[2])] = '|' ;
-        tmp[strlen(scline->tp[2]) + 1] = 0;
+        strcat(tmp, "|");
         strcat(tmp,scline->tp[3]);
         value->str2 = script_strdup(tmp); // first\0second
         value->str2[strlen(scline->tp[2])] = 0;
