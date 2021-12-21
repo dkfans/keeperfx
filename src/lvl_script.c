@@ -1091,6 +1091,18 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             }
             break;
         }
+        case 18: // MapIcon
+        {
+            number_value = get_icon_id(new_value);
+            if (number_value == 0)
+            {
+                SCRPTERRLOG("Invalid icon id");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->arg2 = number_value;
+            break;
+        }
         default:
             value->arg2 = atoi(new_value);
     }
