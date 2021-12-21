@@ -437,35 +437,35 @@ void process_creature_instance(struct Thing *thing)
 long instf_creature_fire_shot(struct Thing *creatng, long *param)
 {
     struct Thing *target;
-    int i;
+    int hittype;
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->targtng_idx <= 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
-            i = 4;
+            hittype = THit_CrtrsOnlyNotOwn;
         else
-            i = 1;
+            hittype = THit_CrtrsNObjcts;
     }
     else if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
     {
         target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
-            i = 1;
+            hittype = THit_CrtrsNObjcts;
         else
-            i = 2;
+            hittype = THit_CrtrsOnly;
     }
     else
     {
         target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
-            i = 1;
+            hittype = THit_CrtrsNObjcts;
         else if (target->owner == creatng->owner)
-            i = 2;
+            hittype = THit_CrtrsOnly;
         else
-            i = 4;
+            hittype = THit_CrtrsOnlyNotOwn;
     }
     if (cctrl->targtng_idx > 0)
     {
@@ -477,7 +477,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         target = NULL;
         SYNCDBG(8,"The %s index %d fires %s",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param));
     }
-    creature_fire_shot(creatng, target, *param, 1, i);
+    creature_fire_shot(creatng, target, *param, 1, hittype);
     // Start cooldown after shot is fired
     cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
