@@ -3379,26 +3379,26 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    const char *trapname = scline->tp[0];
-    short trap_id = get_id(door_desc, trapname);
-    if (trap_id == -1)
+    const char *doorname = scline->tp[0];
+    short door_id = get_id(door_desc, doorname);
+    if (door_id == -1)
     {
-        SCRPTERRLOG("Unknown trap, '%s'", trapname);
+        SCRPTERRLOG("Unknown door, '%s'", doorname);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
 
-    short trapvar = get_id(door_config_desc, scline->tp[1]);
-    if (trapvar == -1)
+    short doorvar = get_id(door_config_desc, scline->tp[1]);
+    if (doorvar == -1)
     {
-        SCRPTERRLOG("Unknown trap variable");
+        SCRPTERRLOG("Unknown door variable");
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
 
-    value->shorts[0] = trap_id;
-    value->shorts[1] = trapvar;
-    if (trapvar == 8) // SymbolSprites
+    value->shorts[0] = door_id;
+    value->shorts[1] = doorvar;
+    if (doorvar == 8) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
         // Pass two vars along as one merged val like: first\nsecond\m
@@ -3415,7 +3415,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (trapvar != 9) // PointerSprites
+    else if (doorvar != 9) // PointerSprites
     {
         if ((scline->np[2] > 0xFFFF) || (scline->np[2] < 0))
         {
@@ -3435,16 +3435,16 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    SCRIPTDBG(7, "Setting door %s property %s to %d", trapname, trapvar, value->shorts[2]);
+    SCRIPTDBG(7, "Setting door %s property %s to %d", doorname, doorvar, value->shorts[2]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 void set_door_configuration_process(struct ScriptContext *context)
 {
     long door_type = context->value->shorts[0];
-    struct TrapConfigStats *doorst = &gameadd.trapdoor_conf.trap_cfgstats[door_type];
+    struct DoorConfigStats *doorst = get_door_model_stats(door_type);
     struct ManfctrConfig *mconf = &gameadd.doors_config[door_type];
-    struct ManufactureData *manufctr = get_manufacture_data(door_type);
+    struct ManufactureData *manufctr = get_manufacture_data(gameadd.trapdoor_conf.trap_types_count - 1 + door_type);
     short value = context->value->shorts[2];
     switch (context->value->shorts[1])
     {
