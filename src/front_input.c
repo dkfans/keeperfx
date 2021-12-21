@@ -1478,7 +1478,10 @@ short get_creature_control_action_inputs(void)
                                         }
                                         else
                                         {
-                                            play_non_3d_sample(119);
+                                            if (is_my_player_number(creatng->owner))
+                                            {
+                                                play_non_3d_sample(119);
+                                            }
                                             break;
                                         }
                                     }

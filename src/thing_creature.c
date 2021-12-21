@@ -5401,13 +5401,19 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                 }
                 else
                 {
-                    play_non_3d_sample(119);
+                    if (is_my_player_number(creatng->owner))
+                    {
+                        play_non_3d_sample(119);
+                    }
                 }
             }
         }
         else
         {
-            play_non_3d_sample(119);
+            if (is_my_player_number(creatng->owner))
+            {
+                play_non_3d_sample(119);
+            }
         }
     }
     else

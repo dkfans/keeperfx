@@ -1044,7 +1044,10 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     else
     {
-        play_non_3d_sample(119);
+        if (is_my_player_number(spdigtng->owner))
+        {
+            play_non_3d_sample(119);
+        }
         internal_set_thing_state(spdigtng, state);
         return 1;
     }
