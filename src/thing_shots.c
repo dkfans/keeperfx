@@ -624,13 +624,15 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     }
     if (shotng->damagepoints)
     {
+        HitPoints damage_done;
+        damage_done = apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
+        target->byte_13 = 20;
+
         // Drain allows caster to regain half of damage
         if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(creatng)) 
         {
-            apply_health_to_thing(creatng, shotng->damagepoints/2);
+            apply_health_to_thing(creatng, damage_done/2);
         }
-        apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
-        target->byte_13 = 20;
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
     if (target->health < 0) {
