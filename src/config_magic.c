@@ -862,6 +862,12 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           break;
       case 8: // PROPERTIES
           shotst->model_flags = 0;
+          shotst->hit_door.withstand = 0;
+          shotst->hit_generic.withstand = 0;
+          shotst->hit_lava.withstand = 0;
+          shotst->hit_water.withstand = 0;
+          shotst->no_air_damage = 0;
+          shotst->wind_immune = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = get_id(shotmodel_properties_commands, word_buf);
