@@ -128,7 +128,7 @@ struct TbLoadFiles gui_load_files_320[] = {
   {"data/font1-32.tab",  (unsigned char **)&font_sprites,       (unsigned char **)&end_font_sprites,            0, 0, 0},
   {"data/slab0-0.dat",   (unsigned char **)&gui_slab,           NULL,                                           0, 0, 0},
   {"data/gui2-32.dat",   (unsigned char **)&gui_panel_sprite_data,(unsigned char **)&end_gui_panel_sprite_data, 0, 0, 0},
-  {"!data/gui2-32.tab",   (unsigned char **)&gui_panel_sprites_ptr,  (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
+  {"!data/gui2-32.tab",  (unsigned char **)&gui_panel_sprites_ptr,  (unsigned char **)&end_gui_panel_sprites,   0, 0, 0},
   {"",                    NULL,                                 NULL,                                           0, 0, 0},
 };
 
