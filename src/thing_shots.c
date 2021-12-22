@@ -925,14 +925,15 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (shotng->shot.damage != 0)
     {
+        HitPoints damage_done;
+        if (!thing_is_invalid(shooter)) {
+            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+        } else {
+            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+        }
         if (shotst->model_flags & ShMF_LifeDrain)
         {
-            give_shooter_drained_health(shooter, shotng->shot.damage / 2);
-        }
-        if (!thing_is_invalid(shooter)) {
-            apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
-        } else {
-            apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+            give_shooter_drained_health(shooter, damage_done / 2);
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
