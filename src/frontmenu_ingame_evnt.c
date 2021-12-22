@@ -200,7 +200,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     if (thing_is_invalid(thing)) {
         return;
     }
-    unsigned long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
+    short spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
     struct TbSprite* spr = &gui_panel_sprites[spr_idx];
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;

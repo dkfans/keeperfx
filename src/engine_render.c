@@ -53,6 +53,7 @@
 #include "config_creature.h"
 #include "keeperfx.hpp"
 #include "player_states.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -3480,7 +3481,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     h_add = 0;
     int w;
     int h;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     int bs_units_per_px;
     spr = &button_sprite[70];
     bs_units_per_px = 17 * units_per_pixel / spr->SHeight;
@@ -3499,12 +3500,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-        spr = &button_sprite[state_spridx];
+        spr = get_button_sprite(state_spridx);
         h_add += spr->SHeight * bs_units_per_px/16;
-    } else
-    if ( state_spridx )
+    }
+    else if ( state_spridx )
     {
-        spr = &button_sprite[state_spridx];
+        spr = get_button_sprite(state_spridx);
         w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
@@ -3518,7 +3519,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         } else {
             flash_owner = thing->owner;
         }
-        spr = &button_sprite[health_spridx];
+        spr = get_button_sprite(health_spridx);
         w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
@@ -3532,7 +3533,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         || (mycam->view_mode == PVM_ParchmentView))
       {
           if (health_spridx > 0) {
-              spr = &button_sprite[health_spridx];
+              spr = get_button_sprite(health_spridx);
               w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
               h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);

@@ -37,7 +37,7 @@ struct StatsData main_stats_data[] = {
     {1746, stat_return_c_slong, &frontstats_data.gameplay_time},
     {1747, stat_return_c_slong, &frontstats_data.player_style},
     {1748, stat_return_c_slong, &frontstats_data.player_rating},
-    {0}
+    {0, NULL, NULL}
 };
 
 struct StatsData scrolling_stats_data[] = {
@@ -96,7 +96,7 @@ struct StatsData scrolling_stats_data[] = {
     {1800, stat_return_c_slong, &frontstats_data.creatures_annoyed},
     {1801, stat_return_c_slong, &frontstats_data.graveyard_bodys},
     {1802, stat_return_c_slong, &frontstats_data.vamps_created},
-    {0}
+    {0, NULL, NULL}
 };
 /******************************************************************************/
 long stat_return_c_slong(void *ptr)

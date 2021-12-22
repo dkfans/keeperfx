@@ -198,6 +198,7 @@ struct GameAdd {
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
 
+    LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
     PlayerNumber script_player;
     unsigned char script_timer_id;
