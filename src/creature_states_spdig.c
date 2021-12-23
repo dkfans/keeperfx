@@ -49,6 +49,7 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "player_instances.h"
 
 const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 
@@ -1044,7 +1045,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     else
     {
-        if (is_my_player_number(spdigtng->owner))
+        if (is_thing_directly_controlled_by_player(spdigtng, my_player_number))
         {
             play_non_3d_sample(119);
         }

@@ -5401,7 +5401,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                 }
                 else
                 {
-                    if (is_my_player_number(creatng->owner))
+                    if (is_thing_directly_controlled_by_player(creatng, my_player_number))
                     {
                         play_non_3d_sample(119);
                     }
@@ -5410,7 +5410,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
         }
         else
         {
-            if (is_my_player_number(creatng->owner))
+            if (is_thing_directly_controlled_by_player(creatng, my_player_number))
             {
                 play_non_3d_sample(119);
             }

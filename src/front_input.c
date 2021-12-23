@@ -1478,7 +1478,7 @@ short get_creature_control_action_inputs(void)
                                         }
                                         else
                                         {
-                                            if (is_my_player_number(creatng->owner))
+                                            if (is_thing_directly_controlled_by_player(creatng, my_player_number))
                                             {
                                                 play_non_3d_sample(119);
                                             }

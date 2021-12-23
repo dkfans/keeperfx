@@ -1272,4 +1272,42 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     return 1;
 }
+
+TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (!thing_exists(thing))
+        return false;
+     struct PlayerInfo* player = get_player(plyr_idx);
+     if (player_invalid(player))
+     {
+         ERRORLOG("Bad player: $d", plyr_idx);
+         return false;
+     }
+     else
+     {
+        if ((player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_FreeCtrlDirect))
+        {
+            return false;
+        }
+        switch (player->instance_num)
+        {
+            case PI_DirctCtrl:
+                return (thing->index == player->influenced_thing_idx);
+            case PI_CrCtrlFade:
+                return (thing->index == player->controlled_thing_idx);
+            case PI_DirctCtLeave:
+                return (thing->index == player->influenced_thing_idx);
+            case PI_Unset:
+            case PI_Whip: // Whip can be used at any time by comp. assistant
+            case PI_WhipEnd:
+                return (thing->index == player->controlled_thing_idx);
+            case PI_PsngrCtLeave: // Leaving the possessed creature
+                break;
+            default:
+                ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);
+                break;
+        }
+     }
+    return false;
+}
 /******************************************************************************/
