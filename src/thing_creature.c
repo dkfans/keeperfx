@@ -2864,7 +2864,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         else
           draw_lightning(&pos1, &pos2, 96, 60);
         shotng->health = shotst->health;
-        shotng->shot.damage = shotst->damage;
+        shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
     case ShM_FlameBreathe:
@@ -2875,7 +2875,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
           return;
         draw_flame_breath(&pos1, &pos2, 96, 2);
         shotng->health = shotst->health;
-        shotng->shot.damage = shotst->damage;
+        shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
     case ShM_Hail_storm:

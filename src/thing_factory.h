@@ -41,7 +41,7 @@ struct InitThing { // sizeof=0x15
 #pragma pack()
 /******************************************************************************/
 short thing_create_thing(struct InitThing *itng);
-struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long a4);
+struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long parent_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
