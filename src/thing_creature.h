@@ -185,6 +185,7 @@ TbBool free_spell_slot(struct Thing *thing, long slot_idx);
 
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng);
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng);
+void direct_control_pick_up_or_drop(struct PlayerInfo *player);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

@@ -1408,6 +1408,7 @@ short get_creature_control_action_inputs(void)
             set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
             clear_key_pressed(KC_LSHIFT);
             clear_key_pressed(KC_RSHIFT);
+            return 1;
         }
     if (numkey != -1)
     {
@@ -1427,7 +1428,7 @@ short get_creature_control_action_inputs(void)
                 }
                 num_avail++;
             }
-      }
+        }
     }
     return false;
 }
