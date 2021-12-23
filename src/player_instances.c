@@ -1304,7 +1304,7 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
             case PI_PsngrCtLeave: // Leaving the possessed creature
                 break;
             default:
-                ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);
+                ERRORLOG("Bad player %d instance %d",plyr_idx,(int)player->instance_num);
                 break;
         }
      }
