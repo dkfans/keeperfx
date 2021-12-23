@@ -86,6 +86,7 @@
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
 #include "vidfade.h"
+#include "spdigger_stack.h"
 
 #include "keeperfx.hpp"
 
@@ -2849,6 +2850,114 @@ void process_players_creature_control_packet_action(long plyr_idx)
         }
       }
       break;
+      case PckA_DirectCtrlDragDrop:
+      {
+          thing = thing_get(player->controlled_thing_idx);
+            if (thing_is_creature_special_digger(thing))
+            {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+                if (!thing_is_invalid(dragtng))
+                {
+                    controlled_creature_drop_thing(thing, dragtng);
+                }
+                else
+                {
+                    struct Map *blk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                    struct Thing* picktng;
+                    struct Room* room;
+                    for (picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk)) 
+                    {
+                        if (picktng != thing)
+                        {
+                            TbBool can_be_picked_up = false;
+                            TbBool can_remove_from_storage = false;
+                            if ( (thing_is_spellbook(picktng)) || (thing_is_special_box(picktng)) )
+                            {
+                                can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, thing->owner, RoK_LIBRARY, TngFRPickF_Default);
+                            }
+                            else if (thing_is_workshop_crate(picktng))
+                            {
+                                can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, thing->owner, RoK_WORKSHOP, TngFRPickF_Default);
+                                can_remove_from_storage = true;
+                            }
+                            else if (thing_is_dead_creature(picktng))
+                            {
+                                can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, thing->owner, RoK_GRAVEYARD, TngFRPickF_Default);
+                            }
+                            else if (thing_is_creature(picktng))
+                            {
+                                can_be_picked_up = creature_is_being_unconscious(picktng);
+                            }
+                            else if (object_is_gold_pile(picktng))
+                            {
+                                internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
+                                break;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                            if (can_be_picked_up)
+                            {
+                                controlled_creature_pick_thing_up(thing, picktng);
+                                break;
+                            }
+                            else if (can_remove_from_storage)
+                            {
+                                room = get_room_thing_is_on(picktng);
+                                if (!room_is_invalid(room))
+                                {
+                                    if ( (room->kind == RoK_WORKSHOP) && (room->owner == thing->owner) )
+                                    {
+                                        if (!imp_will_soon_be_getting_object(thing->owner, picktng))
+                                        {
+                                            if (picktng->owner == thing->owner)
+                                            {
+                                                if (remove_item_from_room_capacity(room))
+                                                {
+                                                    if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) == WrkCrtS_Stored)
+                                                    {                                                  
+                                                        controlled_creature_pick_thing_up(thing, picktng);
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (is_thing_directly_controlled_by_player(thing, my_player_number))
+                                            {
+                                                play_non_3d_sample(119);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (thing_is_invalid(picktng))
+                    {
+                        room = get_room_thing_is_on(thing);
+                        if (!room_is_invalid(room))
+                        {
+                            if (room->kind == RoK_TREASURE)
+                            {
+                                if (room->owner == thing->owner)
+                                {
+                                    if (thing->creature.gold_carried > 0)
+                                    {
+                                        internal_set_thing_state(thing, CrSt_ImpDropsGold);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+         break;
+      }
   }
 }
 
