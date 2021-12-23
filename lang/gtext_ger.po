@@ -6643,7 +6643,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
-msgstr "Ein Teil des Schadens, der die Gesundheit der Kreaturen nicht beeinträchtigt. Der höhere "
+msgstr "Rüstung: Ein Teil des Schadens, der die Gesundheit der Kreaturen nicht beeinträchtigt. Der höhere "
 "Die Zahl, der größte Teil des Schadens wird verworfen."
 
 #: guitext:950
@@ -6664,7 +6664,6 @@ msgstr "Forschungsfähigkeit: Wie schnell die Kreatur in der Bibliothek arbeitet
 "Je besser die Leistung der Kreatur."
 
 #: guitext:953
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
@@ -6674,7 +6673,6 @@ msgstr ""
 "Fähigkeitsstufe, je besser die Leistung der Kreatur ist." 
 
 #: guitext:954
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
@@ -6682,7 +6680,6 @@ msgid ""
 msgstr "Trainingsfähigkeit: Wie schnell die Kreatur am Training arbeitet."
 
 #: guitext:955
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
