@@ -112,7 +112,7 @@ void draw_swipe_graphic(void);
 long creature_available_for_combat_this_turn(struct Thing *thing);
 TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
+void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char a2, unsigned char hit_type);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
 void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
@@ -186,6 +186,7 @@ TbBool free_spell_slot(struct Thing *thing, long slot_idx);
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng);
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng);
 void direct_control_pick_up_or_drop(struct PlayerInfo *player);
+void display_controlled_picked_up_thing_name(struct Thing *picktng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

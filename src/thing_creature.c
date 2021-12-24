@@ -5383,6 +5383,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
     unsigned short smpl_idx = crsound->index + 1;
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS);
+    display_controlled_picked_up_thing_name(picktng);
 }
 
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng)
@@ -5399,6 +5400,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                     cctrl->arming_thing_id = traptng->index;
                     internal_set_thing_state(creatng, CrSt_CreatureArmsTrap);
+                    clear_messages_from_player(-86);
                 }
                 else
                 {
@@ -5420,6 +5422,8 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     else
     {
         creature_drop_dragged_object(creatng, droptng);
+        clear_messages_from_player(-81);
+        clear_messages_from_player(-86);
         unsigned short smpl_idx, pitch;
         switch(droptng->class_id)
         {
@@ -5644,6 +5648,45 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
             }
         }
     }
+}
+
+void display_controlled_picked_up_thing_name(struct Thing *picktng)
+{
+    char id;
+    const char* str;
+    if (thing_is_trap_crate(picktng))
+    {
+        struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(picktng));
+        str = get_string(trapst->name_stridx);
+        id = -86;
+    }
+    else if (thing_is_door_crate(picktng))
+    {
+        struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(picktng));
+        str = get_string(doorst->name_stridx);
+        id = -86;
+    }
+    else if (thing_is_spellbook(picktng))
+    {
+        str = get_string(get_power_name_strindex(book_thing_to_power_kind(picktng)));
+        id = -81;
+    }
+    else if (thing_is_special_box(picktng))
+    {
+        str = get_string(get_special_description_strindex(box_thing_to_special(picktng)));
+        id = -81;
+        char msg_buf[255];
+        strcpy(msg_buf, str);
+        char* new_msg = strtok(msg_buf, ":");
+        str = new_msg;
+    }
+    else
+    {
+        return;
+    }
+    clear_messages_from_player(-81);
+    clear_messages_from_player(-86);
+    message_add(id, str);
 }
 
 /******************************************************************************/
