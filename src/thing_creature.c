@@ -5674,11 +5674,10 @@ void display_controlled_picked_up_thing_name(struct Thing *picktng)
     else if (thing_is_special_box(picktng))
     {
         str = get_string(get_special_description_strindex(box_thing_to_special(picktng)));
-        id = -81;
         char msg_buf[255];
         strcpy(msg_buf, str);
-        char* new_msg = strtok(msg_buf, ":");
-        str = new_msg;
+        str = strtok(msg_buf, ":");
+        id = -81;
     }
     else
     {
