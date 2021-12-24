@@ -87,6 +87,7 @@
 #include "keeperfx.hpp"
 
 #include "music_player.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -311,6 +312,7 @@ struct FrontEndButtonData frontend_button_info[] = {
     {GUIStr_MnuMapPacks, 2},
 };
 
+// bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
 struct EventTypeInfo event_button_info[] = {
   {260, GUIStr_Empty,                       GUIStr_Empty,                      1,   1, EvKind_Nothing},
   {260, GUIStr_EventDnHeartAttackedDesc,    GUIStr_EventHeartAttacked,       300, 250, EvKind_Nothing},
@@ -343,7 +345,9 @@ struct EventTypeInfo event_button_info[] = {
   {262, GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
   {260, GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
   {260, GUIStr_EventStorgRoomUnreachblDesc, GUIStr_EventStorgRoomUnreachbl, 1200, 500, EvKind_Nothing}, // EvKind_StorageRoomUnreachable
-  {  0, GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing},
+  {  0, GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
+  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
+  {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
 };
 
 /*
@@ -634,7 +638,7 @@ void create_error_box(TextStringId msg_idx)
 
 void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char* line4, const char* line5)
 {
-    memset(&MsgBox,NULL,sizeof(MsgBox));
+    memset(&MsgBox,0, sizeof(MsgBox));
     memcpy(&MsgBox.title, title, sizeof(MsgBox.title)-1);
     memcpy(&MsgBox.line1, line1, sizeof(MsgBox.line1)-1);
     memcpy(&MsgBox.line2, line2, sizeof(MsgBox.line2)-1);
@@ -1236,8 +1240,7 @@ void frontend_draw_icon(struct GuiButton *gbtn)
 {
     int units_per_px;
     units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
-    struct TbSprite *spr;
-    spr = &frontend_sprite[gbtn->sprite_idx];
+    const struct TbSprite *spr = get_frontend_sprite(gbtn->sprite_idx);
     LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, units_per_px, spr);
 }
 
@@ -2018,7 +2021,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
         return -1;
     }
     gbtn = &active_buttons[gidx];
-    gbtn->flags |= LbBtnF_Unknown01;
+    gbtn->flags |= LbBtnF_Active;
     struct GuiMenu *gmnuinit;
     gmnuinit = gmnu->menu_init;
     gbtn->gmenu_idx = gmnu->number;
@@ -3066,7 +3069,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     {
         gbtn = &active_buttons[i];
         callback = gbtn->draw_call;
-        if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
+        if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Active) && (gbtn->gmenu_idx == gmnu->number))
         {
           if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == LbBtnT_HorizSlider) || (callback == gui_area_null) )
             callback(gbtn);
@@ -3077,7 +3080,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
     {
         gbtn = &active_buttons[i];
         callback = gbtn->draw_call;
-        if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number))
+        if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Active) && (gbtn->gmenu_idx == gmnu->number))
         {
           if (((gbtn->gbactn_1) || (gbtn->gbactn_2)) && (gbtn->gbtype != LbBtnT_HorizSlider) && (callback != gui_area_null))
             callback(gbtn);
@@ -3160,7 +3163,7 @@ void draw_menu_spangle(struct GuiMenu *gmnu)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((gbtn->draw_call == NULL) || ((gbtn->flags & LbBtnF_Visible) == 0) || ((gbtn->flags & LbBtnF_Unknown01) == 0) || (game.flash_button_index == 0))
+        if ((gbtn->draw_call == NULL) || ((gbtn->flags & LbBtnF_Visible) == 0) || ((gbtn->flags & LbBtnF_Active) == 0) || (game.flash_button_index == 0))
           continue;
         if ((gbtn->id_num > BID_DEFAULT) && (gbtn->id_num == button_designation_to_tab_designation(game.flash_button_index)))
         {
@@ -3415,7 +3418,7 @@ void display_objectives(PlayerNumber plyr_idx, long x, long y)
         if (!thing_is_invalid(creatng))
         {
             cor_x = creatng->mappos.x.val;
-            cor_y = creatng->mappos.x.val;
+            cor_y = creatng->mappos.y.val;
         }
         event_create_event_or_update_nearby_existing_event(cor_x, cor_y, EvKind_Objective, plyr_idx, creatng->index);
     } else

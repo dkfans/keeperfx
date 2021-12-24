@@ -444,7 +444,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->fall_acceleration = objconf->fall_acceleration;
     thing->field_23 = 204;
     thing->field_24 = 51;
-    thing->field_22 = 0;
+    thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
     set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->movement_flag);
@@ -468,13 +468,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     set_flag_byte(&thing->field_4F, TF4F_Transpar_8, objdat->field_F & 0x02);
 
     thing->active_state = objdat->initial_state;
-    if (objconf->ilght.field_0 != 0)
+    if (objconf->ilght.radius != 0)
     {
         struct InitLight ilight;
         LbMemorySet(&ilight, 0, sizeof(struct InitLight));
         LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
-        ilight.field_0 = objconf->ilght.field_0;
-        ilight.field_2 = objconf->ilght.field_2;
+        ilight.radius = objconf->ilght.radius;
+        ilight.intensity = objconf->ilght.intensity;
         ilight.field_3 = objconf->ilght.field_3;
         ilight.is_dynamic = objconf->ilght.is_dynamic;
         thing->light_id = light_create_light(&ilight);
@@ -714,6 +714,8 @@ TbBool object_is_gold_hoard(const struct Thing *thing)
 
 TbBool object_is_gold_pile(const struct Thing *thing)
 {
+    if (thing->class_id != TCls_Object)
+        return false;
     switch (thing->model)
     {
       case 3: // Chest of gold

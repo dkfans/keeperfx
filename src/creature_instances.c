@@ -437,35 +437,35 @@ void process_creature_instance(struct Thing *thing)
 long instf_creature_fire_shot(struct Thing *creatng, long *param)
 {
     struct Thing *target;
-    int i;
+    int hittype;
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->targtng_idx <= 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
-            i = 4;
+            hittype = THit_CrtrsOnlyNotOwn;
         else
-            i = 1;
+            hittype = THit_CrtrsNObjcts;
     }
     else if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
     {
         target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
-            i = 1;
+            hittype = THit_CrtrsNObjcts;
         else
-            i = 2;
+            hittype = THit_CrtrsOnly;
     }
     else
     {
         target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
-            i = 1;
+            hittype = THit_CrtrsNObjcts;
         else if (target->owner == creatng->owner)
-            i = 2;
+            hittype = THit_CrtrsOnly;
         else
-            i = 4;
+            hittype = THit_CrtrsOnlyNotOwn;
     }
     if (cctrl->targtng_idx > 0)
     {
@@ -477,7 +477,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         target = NULL;
         SYNCDBG(8,"The %s index %d fires %s",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param));
     }
-    creature_fire_shot(creatng, target, *param, 1, i);
+    creature_fire_shot(creatng, target, *param, 1, hittype);
     // Start cooldown after shot is fired
     cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
@@ -676,6 +676,10 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
     {
         ERRORLOG("Cannot delete %s room tile destroyed by %s index %d",room_code_name(room->kind),thing_model_name(creatng),(int)creatng->index);
         return 0;
+    }
+    if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
+    {
+        event_create_event_or_update_nearby_existing_event(coord_slab(creatng->mappos.x.val), coord_slab(creatng->mappos.y.val), EvKind_RoomLost, room->owner, room->kind);
     }
     create_effect(&creatng->mappos, TngEff_Explosion3, creatng->owner);
     thing_play_sample(creatng, 47, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);

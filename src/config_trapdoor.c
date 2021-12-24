@@ -30,6 +30,7 @@
 #include "player_instances.h"
 #include "player_states.h"
 #include "game_legacy.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -426,7 +427,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 10: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              trapst->bigsym_sprite_idx = bad_icon_id;
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   trapst->bigsym_sprite_idx = k;
@@ -435,7 +437,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              trapst->medsym_sprite_idx = bad_icon_id;
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   trapst->medsym_sprite_idx = k;
@@ -451,7 +454,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 11: // POINTERSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   trapst->pointer_sprite_idx = k;
@@ -460,6 +463,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
+            trapst->pointer_sprite_idx = bad_icon_id;
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
@@ -531,7 +535,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 16: // MODEL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
+            struct Objects obj_tmp;
+            k = get_anim_id(word_buf, &obj_tmp);
             if (k >= 0)
             {
                 gameadd.trap_stats[i].sprite_anim_idx = k;
@@ -840,7 +845,8 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       case 10: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              doorst->bigsym_sprite_idx = bad_icon_id;
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   doorst->bigsym_sprite_idx = k;
@@ -849,7 +855,8 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              doorst->medsym_sprite_idx = bad_icon_id;
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   doorst->medsym_sprite_idx = k;
@@ -865,7 +872,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       case 11: // POINTERSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   doorst->pointer_sprite_idx = k;
@@ -874,6 +881,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           }
           if (n < 1)
           {
+            doorst->pointer_sprite_idx = bad_icon_id;
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }

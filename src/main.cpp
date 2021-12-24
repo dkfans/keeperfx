@@ -23,6 +23,7 @@
 #include "bflib_filelst.h"
 #include "bflib_network.h"
 
+#include "custom_sprites.h"
 #include "version.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -325,7 +326,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
             struct ShotConfigStats *shotst;
             shotst = get_shot_model_stats(thing->model);
             dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && shotst->old->affected_by_wind)
+            if ((dist < param->num1) && !shotst->wind_immune)
             {
                 apply_velocity = true;
             }
@@ -1414,6 +1415,7 @@ void reinit_level_after_load(void)
     struct PlayerInfo *player;
     int i;
     SYNCDBG(6,"Starting");
+    init_custom_sprites(SPRITE_LAST_LEVEL);
     // Reinit structures from within the game
     player = get_my_player();
     player->lens_palette = 0;
@@ -3618,7 +3620,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         }
         if ( ( (slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) )
             && (Orientation != -1)
-            && ( ( (gameadd.place_traps_on_subtiles) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(stl_x, stl_y) ) )
+            && ( ( (gameadd.place_traps_on_subtiles) ? (Check) : (!slab_has_trap_on(slb_x, slb_y) ) ) && (!slab_has_door_thing_on(slb_x, slb_y) ) )
             )
         {
             allowed = true;
@@ -3646,7 +3648,6 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     //return _DK_tag_cursor_blocks_place_room(plyr_idx, stl_x, stl_y, full_slab);
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    struct SlabMap* slb;
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
     struct PlayerInfo *player;
@@ -3659,8 +3660,8 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     }
     else
     {
-        slb = get_slabmap_block(slb_x, slb_y);
-        SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
+        SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind),
+                slab_code_name(get_slabmap_block(slb_x, slb_y)->kind), (int)slb_x, (int)slb_y);
     }
     
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2))
