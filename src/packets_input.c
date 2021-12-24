@@ -1,4 +1,5 @@
 
+#include "config_players.h"
 #include "packets.h"
 #include "player_data.h"
 #include "map_data.h"
