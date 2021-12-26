@@ -67,6 +67,7 @@
 #include "room_list.h"
 #include "room_jobs.h"
 #include "room_graveyard.h"
+#include "room_library.h"
 #include "map_utils.h"
 #include "map_blocks.h"
 #include "gui_topmsg.h"
@@ -5376,6 +5377,17 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     }
     else
     {
+        if ((picktng->owner != creatng->owner) )
+        {
+            if (thing_is_workshop_crate(picktng))
+            {
+                update_workshop_object_pickup_event(creatng, picktng);
+            }
+            else if ( (thing_is_spellbook(picktng)) || (thing_is_special_box(picktng)) )
+            {
+                update_library_object_pickup_event(creatng, picktng);
+            }
+        }
         creature_drag_object(creatng, picktng);
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
