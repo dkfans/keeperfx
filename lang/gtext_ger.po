@@ -2959,27 +2959,27 @@ msgstr "MEHR..."
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "LEVEL ABGESCHLOSSEN - ZUM FORTFAHREN LEERTASTE DRÜCKEN"
+msgstr "Level abgeschlossen - zum fortfahren Leertaste drücken"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "LEVEL VERLOREN - ZUM NEUSTARTEN LEERTASTE DRÜCKEN"
+msgstr "Level verloren - zum neustarten Leertaste drücken"
 
 #: guitext:336
 msgctxt "On-screen message"
 msgid "Recording FLIC"
-msgstr "FLIC AUFNEHMEN"
+msgstr "Flic Aufnehmen"
 
 #: guitext:337
 msgctxt "On-screen message"
 msgid "Error recording FLIC"
-msgstr "FEHLER BEI FLIC-AUFNAHME"
+msgstr "Fehler Bei Flic-Aufnahme"
 
 #: guitext:338
 msgctxt "On-screen message"
 msgid "Finished recording FLIC"
-msgstr "FLIC-AUFNAHME BEENDET"
+msgstr "Flic-Aufnahme Beendet"
 
 #: guitext:339
 msgctxt "Unused"
@@ -6765,7 +6765,7 @@ msgstr ""
 #: guitext:967
 msgctxt "Menu interface item"
 msgid "Toggle Message"
-msgstr "NACHRICHT WECHSELN"
+msgstr "Nachricht Wechseln"
 
 #: guitext:968
 msgctxt "Menu interface item"
