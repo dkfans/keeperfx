@@ -597,6 +597,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     long prev_owner = slabmap_owner(slb);
     struct PlayerInfo* player;
     player = get_my_player();
+    int volume = 32;
 
     if ( !room_is_invalid(room) && (prev_owner != creatng->owner) )
     {
@@ -605,8 +606,9 @@ long instf_destroy(struct Thing *creatng, long *param)
             room->health--;
             if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
             {
-                thing_play_sample(creatng, 5 + UNSYNC_RANDOM(2), 200, 0, 3, 0, 2, FULL_LOUDNESS);
+                volume = FULL_LOUDNESS;
             }
+            thing_play_sample(creatng, 5 + UNSYNC_RANDOM(2), 200, 0, 3, 0, 2, volume);
             return 0;
         }
         clear_dig_on_room_slabs(room, creatng->owner);
@@ -629,8 +631,9 @@ long instf_destroy(struct Thing *creatng, long *param)
         slb->health--;
         if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
         {
-            thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 120, 0, 3, 0, 2, FULL_LOUDNESS);
+            volume = FULL_LOUDNESS;
         }
+        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
         return 0;
     }
     if (prev_owner != game.neutral_player_num) {
@@ -639,8 +642,10 @@ long instf_destroy(struct Thing *creatng, long *param)
     }
     if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
     {
-        thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 120, 0, 3, 0, 2, FULL_LOUDNESS);
+        volume = FULL_LOUDNESS;
     }
+    thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
+
     decrease_dungeon_area(prev_owner, 1);
     neutralise_enemy_block(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng->owner);
     remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
@@ -874,15 +879,12 @@ long instf_reinforce(struct Thing *creatng, long *param)
         {
             struct PlayerInfo* player;
             player = get_my_player();
+            int volume = 32;
             if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
             {
-                thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                volume = FULL_LOUDNESS;
             }
-            else
-            {
-                thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, 32);
-            }
-            
+            thing_play_sample(creatng, 1005 + UNSYNC_RANDOM(7), NORMAL_PITCH, 0, 3, 0, 2, volume);
         }
         return 0;
     }
