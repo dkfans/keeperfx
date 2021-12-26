@@ -805,6 +805,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                     }
                 }
             }
+            return 1;
         }
         else
         {
@@ -827,10 +828,13 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                     }
                 }
             }
-            //TODO CONFIG shot model dependency
-            long locparam = ShM_Dig;
-            instf_creature_fire_shot(creatng, &locparam);
         }
+    }
+    if (first_person_dig_claim_mode == false)
+    {
+        //TODO CONFIG shot model dependency
+        long locparam = ShM_Dig;
+        instf_creature_fire_shot(creatng, &locparam);
     }
     return 1;
 }
