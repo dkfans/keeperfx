@@ -1403,7 +1403,7 @@ short get_creature_control_action_inputs(void)
             message_add(CrInst, get_string(StrID));
         }
         first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
-        if ( (is_key_pressed(KC_LSHIFT,KMod_DONTCARE)) || (is_key_pressed(KC_RSHIFT,KMod_DONTCARE)) )
+        if ( (is_key_pressed(KC_LALT,KMod_DONTCARE)) || (is_key_pressed(KC_RALT,KMod_DONTCARE)) )
         {
             set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
             clear_key_pressed(KC_LSHIFT);
