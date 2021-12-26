@@ -359,11 +359,11 @@ void update_creature_graphic_field_4F(struct Thing *thing)
     if (((thing->alloc_flags & TAlF_IsControlled) != 0) && is_my_player_number(thing->owner))
     {
         thing->field_4F |= TF4F_Unknown01;
-    } else
+    }
     if (creatures[thing->model].field_7)
     {
         thing->field_4F |= TF4F_Transpar_Alpha;
-    } else
+    }
     if (creature_is_invisible(thing))
     {
       if (is_my_player_number(thing->owner))
