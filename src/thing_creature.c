@@ -5466,6 +5466,12 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                 pitch = 50;
                 break;
             }
+            default:
+            {
+                smpl_idx = 0;
+                pitch = 0;
+                break;
+            }
         }
         thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, FULL_LOUDNESS);
         struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
