@@ -1285,14 +1285,22 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
      }
      else
      {
-        if ((player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_FreeCtrlDirect))
+        if ((player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_FreeCtrlDirect) && (player->work_state != PSt_CtrlDungeon))
         {
             return false;
         }
         switch (player->instance_num)
         {
             case PI_DirctCtrl:
-                return (thing->index == player->influenced_thing_idx);
+            case PI_HeartZoom:
+            case PI_HeartZoomOut:
+            {
+                if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+                {
+                    return (player->view_type == PVT_CreatureContrl);
+                }
+                return false;
+            }
             case PI_CrCtrlFade:
                 return (thing->index == player->controlled_thing_idx);
             case PI_DirctCtLeave:

@@ -357,7 +357,7 @@ void update_creature_graphic_field_4F(struct Thing *thing)
     thing->field_4F &= ~TF4F_Transpar_Flags;
     thing->field_4F &= ~TF4F_Unknown40;
     // Now set only those that should be
-    if ( ((thing->alloc_flags & TAlF_IsControlled) != 0) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
+    if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
     {
         thing->field_4F |= TF4F_Unknown01;
     } else
