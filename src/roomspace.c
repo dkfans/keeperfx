@@ -630,7 +630,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             struct RoomSpace untag_roomspace = current_roomspace;
             untag_roomspace.untag_mode = true;
             untag_roomspace = check_roomspace_for_diggable_slabs(untag_roomspace, plyr_idx);
-            if (untag_roomspace.slab_count > 0)
+            if ((untag_roomspace.slab_count > 0) && (render_roomspace.drag_mode == true))
             {
                 current_roomspace = untag_roomspace;
                 dungeonadd->swap_to_untag_mode = 2;
@@ -655,6 +655,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     if (dungeonadd->swap_to_untag_mode == 2) // if swap_to_untag_mode == yes
     {
         // change to untag mode, as requested, and disable swap_to_untag_mode
+        JUSTMSG("Testlog: Untag mode 5");
         set_tag_untag_mode(plyr_idx, stl_x, stl_y);
         dungeonadd->swap_to_untag_mode = -1; // disable
     }
