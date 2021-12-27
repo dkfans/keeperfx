@@ -5574,81 +5574,49 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
         }
         else
         {
-            struct Map *blk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-            struct Thing* picktng;
+            struct Thing* picktng = controlled_get_thing_to_pick_up(thing);
             struct Room* room;
-            for (picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk)) 
+            if (!thing_is_invalid(picktng))
             {
-                if (picktng != thing)
+                if (object_is_gold_pile(picktng))
                 {
-                    TbBool can_be_picked_up = false;
-                    TbBool can_remove_from_storage = false;
-                    if ( (thing_is_spellbook(picktng)) || (thing_is_special_box(picktng)) )
+                    internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
+                    return;
+                }
+                room = get_room_thing_is_on(picktng);
+                if (!room_is_invalid(room))
+                {
+                    if ( (room->kind == RoK_WORKSHOP) && (room->owner == thing->owner) )
                     {
-                        can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, thing->owner, RoK_LIBRARY, TngFRPickF_Default);
-                    }
-                    else if (thing_is_workshop_crate(picktng))
-                    {
-                        can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, thing->owner, RoK_WORKSHOP, TngFRPickF_Default);
-                        can_remove_from_storage = true;
-                    }
-                    else if (thing_is_dead_creature(picktng))
-                    {
-                        can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, thing->owner, RoK_GRAVEYARD, TngFRPickF_Default);
-                    }
-                    else if (thing_is_creature(picktng))
-                    {
-                        can_be_picked_up = creature_is_being_unconscious(picktng);
-                    }
-                    else if (object_is_gold_pile(picktng))
-                    {
-                        internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
-                        break;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                    if (can_be_picked_up)
-                    {
-                        controlled_creature_pick_thing_up(thing, picktng);
-                        break;
-                    }
-                    else if (can_remove_from_storage)
-                    {
-                        room = get_room_thing_is_on(picktng);
-                        if (!room_is_invalid(room))
+                        if (thing_is_workshop_crate(picktng))
                         {
-                            if ( (room->kind == RoK_WORKSHOP) && (room->owner == thing->owner) )
+                            if (!imp_will_soon_be_getting_object(thing->owner, picktng))
                             {
-                                if (!imp_will_soon_be_getting_object(thing->owner, picktng))
+                                if (picktng->owner == thing->owner)
                                 {
-                                    if (picktng->owner == thing->owner)
+                                    if (remove_item_from_room_capacity(room))
                                     {
-                                        if (remove_item_from_room_capacity(room))
-                                        {
-                                            if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) == WrkCrtS_Stored)
-                                            {                                                  
-                                                controlled_creature_pick_thing_up(thing, picktng);
-                                                break;
-                                            }
+                                        if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) != WrkCrtS_Stored)
+                                        {                                                  
+                                            return;
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    if (is_thing_directly_controlled_by_player(thing, my_player_number))
-                                    {
-                                        play_non_3d_sample(119);
-                                    }
-                                    break;
-                                }
+                            }
+                        }
+                        else
+                        {
+                            if (is_thing_directly_controlled_by_player(thing, my_player_number))
+                            {
+                                play_non_3d_sample(119);
+                                return;
                             }
                         }
                     }
                 }
+                controlled_creature_pick_thing_up(thing, picktng);
             }
-            if (thing_is_invalid(picktng))
+            else
             {
                 room = get_room_thing_is_on(thing);
                 if (!room_is_invalid(room))
@@ -5707,7 +5675,7 @@ void display_controlled_picked_up_thing_name(struct Thing *picktng)
     message_add(id, str);
 }
 
-TbBool controlled_there_is_thing_to_pick_up(struct Thing *creatng)
+struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
 {
     struct Map *blk = get_map_block_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     for (struct Thing* picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk))
@@ -5720,7 +5688,7 @@ TbBool controlled_there_is_thing_to_pick_up(struct Thing *creatng)
                   ( (thing_is_creature(picktng)) && creature_is_being_unconscious(picktng) ) ||
                   (object_is_gold_pile(picktng)) )
                   {
-                      return true;
+                      return picktng;
                   }
                   struct Room* room = get_room_thing_is_on(creatng);
                     if (!room_is_invalid(room))
@@ -5735,7 +5703,7 @@ TbBool controlled_there_is_thing_to_pick_up(struct Thing *creatng)
                                     {
                                         if ( (picktng->owner == room->owner) && (picktng->owner == creatng->owner) )
                                         {
-                                            return true;
+                                            return picktng;
                                         }
                                     }
                                 }
@@ -5744,7 +5712,7 @@ TbBool controlled_there_is_thing_to_pick_up(struct Thing *creatng)
                     }
         }
     }
-    return false;
+    return INVALID_THING;
 }
 
 /******************************************************************************/
