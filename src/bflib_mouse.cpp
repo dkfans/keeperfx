@@ -55,7 +55,7 @@ volatile TbBool lbMouseGrab = true;
 volatile TbBool lbMouseGrabbed = true;
 volatile TbDisplayStructEx lbDisplayEx;
 /******************************************************************************/
-TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *pointerSprite, long hot_x, long hot_y)
+TbResult LbMouseChangeSpriteAndHotspot(const struct TbSprite *pointerSprite, long hot_x, long hot_y)
 {
 #if (BFDEBUG_LEVEL > 18)
   if (pointerSprite == NULL)

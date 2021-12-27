@@ -256,6 +256,8 @@ obj/music_player.o \
 obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \
+obj/packets_cheats.o \
+obj/packets_input.o \
 obj/packets_misc.o \
 obj/player_compchecks.o \
 obj/player_compevents.o \

@@ -60,6 +60,7 @@
 #include "keeperfx.hpp"
 #include "vidfade.h"
 #include "kjm_input.h"
+#include "custom_sprites.h"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -1149,9 +1150,9 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx = get_creature_model_graphics(ctrltng->model, CGI_QuerySymbol);
-        struct TbSprite* spr = &button_sprite[spr_idx];
+        const struct TbSprite* spr = get_button_sprite(spr_idx);
         int bs_units_per_px = (gmnu->width * 35 / 100) * 16 / spr->SWidth;
-        LbSpriteDrawResized(portrt_x + 12*units_per_px/16, portrt_y + 12*units_per_px/16, bs_units_per_px, &button_sprite[spr_idx]);
+        LbSpriteDrawResized(portrt_x + 12*units_per_px/16, portrt_y + 12*units_per_px/16, bs_units_per_px, get_button_sprite(spr_idx));
     }
     {
         struct TbSprite* spr = &gui_panel_sprites[464];
@@ -2218,6 +2219,12 @@ void update_trap_tab_to_config(void)
         default:
             break;
         }
+    }
+    // Update active menu
+    if ( menu_is_active(GMnu_TRAP) )
+    {
+        turn_off_menu(GMnu_TRAP);
+        turn_on_menu(GMnu_TRAP);
     }
 }
 

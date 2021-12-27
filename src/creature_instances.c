@@ -28,6 +28,7 @@
 #include "thing_effects.h"
 #include "thing_traps.h"
 #include "thing_stats.h"
+#include "thing_shots.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "config_creature.h"
@@ -804,6 +805,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                     }
                 }
             }
+            return 1;
         }
         else
         {
@@ -821,16 +823,17 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                             cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
                             instf_reinforce(creatng, NULL);
+                            return 1;
                         } 
                     }
                 }
             }
         }
     }
-    else
+    if (first_person_dig_claim_mode == false)
     {
         //TODO CONFIG shot model dependency
-        long locparam = 23;
+        long locparam = ShM_Dig;
         instf_creature_fire_shot(creatng, &locparam);
     }
     return 1;
