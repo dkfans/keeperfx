@@ -655,7 +655,6 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
     if (dungeonadd->swap_to_untag_mode == 2) // if swap_to_untag_mode == yes
     {
         // change to untag mode, as requested, and disable swap_to_untag_mode
-        JUSTMSG("Testlog: Untag mode 5");
         set_tag_untag_mode(plyr_idx, stl_x, stl_y);
         dungeonadd->swap_to_untag_mode = -1; // disable
     }
