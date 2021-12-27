@@ -1403,6 +1403,23 @@ short get_creature_control_action_inputs(void)
             message_add(CrInst, get_string(StrID));
         }
         first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+        if (thing_is_trap_crate(dragtng))
+        {
+            struct Thing* traptng = get_trap_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            if (!thing_is_invalid(traptng))
+            {
+                if (traptng->owner == thing->owner)
+                {
+                    if (traptng->model == crate_to_workshop_item_model(dragtng->model))
+                    {
+                        clear_messages_from_player(-86);
+                        message_add_timeout(-86, 1, "");
+                    }
+                }
+            }
+        }
         if ( (is_key_pressed(KC_LALT,KMod_DONTCARE)) || (is_key_pressed(KC_RALT,KMod_DONTCARE)) )
         {
             set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
