@@ -1294,6 +1294,7 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
             case PI_DirctCtrl:
             case PI_HeartZoom:
             case PI_HeartZoomOut:
+            case PI_Drop:
             {
                 if ((thing->alloc_flags & TAlF_IsControlled) != 0)
                 {
