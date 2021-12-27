@@ -1310,4 +1310,38 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
      }
     return false;
 }
+
+TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (!thing_exists(thing))
+        return false;
+     struct PlayerInfo* player = get_player(plyr_idx);
+     if (player_invalid(player))
+     {
+         ERRORLOG("Bad player: $d", plyr_idx);
+         return false;
+     }
+    else
+    {
+        if ((player->work_state != PSt_CtrlPassngr) && (player->work_state != PSt_FreeCtrlPassngr))
+            return false;
+        switch (player->instance_num)
+        {
+        case PI_PsngrCtrl:
+            return (thing->index == player->influenced_thing_idx);
+        case PI_CrCtrlFade:
+            return (thing->index == player->controlled_thing_idx);
+        case PI_PsngrCtLeave:
+            return (thing->index == player->influenced_thing_idx);
+        case PI_Unset:
+        case PI_Whip: // Whip can be used at any time by comp. assistant
+        case PI_WhipEnd:
+            return (thing->index == player->controlled_thing_idx);
+        default:
+            ERRORLOG("Bad player %d instance %d",plyr_idx,(int)player->instance_num);
+            break;
+        }
+    }
+    return false;
+}
 /******************************************************************************/
