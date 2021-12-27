@@ -1328,7 +1328,7 @@ TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, Player
         switch (player->instance_num)
         {
         case PI_PsngrCtrl:
-            return (thing->index == player->influenced_thing_idx);
+            return ( (thing->index == player->influenced_thing_idx) && (player->view_type == PVT_CreaturePasngr) );
         case PI_CrCtrlFade:
             return (thing->index == player->controlled_thing_idx);
         case PI_PsngrCtLeave:
