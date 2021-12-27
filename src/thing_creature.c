@@ -5395,6 +5395,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
     unsigned short smpl_idx = crsound->index + 1;
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS);
+    clear_messages_from_player(-115);
     display_controlled_picked_up_thing_name(picktng);
 }
 
@@ -5698,6 +5699,46 @@ void display_controlled_picked_up_thing_name(struct Thing *picktng)
     clear_messages_from_player(-81);
     clear_messages_from_player(-86);
     message_add(id, str);
+}
+
+TbBool controlled_there_is_thing_to_pick_up(struct Thing *creatng)
+{
+    struct Map *blk = get_map_block_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+    for (struct Thing* picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk))
+    {
+        if (picktng != creatng)
+        {
+            if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
+                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
+                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default)) || 
+                  ( (thing_is_creature(picktng)) && creature_is_being_unconscious(picktng) ) ||
+                  (object_is_gold_pile(picktng)) )
+                  {
+                      return true;
+                  }
+                  struct Room* room = get_room_thing_is_on(creatng);
+                    if (!room_is_invalid(room))
+                    {
+                        if (room->kind == RoK_WORKSHOP)
+                        {
+                            if (room->owner == creatng->owner)
+                            {
+                                for (picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk))
+                                {
+                                    if (thing_is_workshop_crate(picktng))
+                                    {
+                                        if ( (picktng->owner == room->owner) && (picktng->owner == creatng->owner) )
+                                        {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+        }
+    }
+    return false;
 }
 
 /******************************************************************************/

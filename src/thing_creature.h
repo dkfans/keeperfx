@@ -187,6 +187,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng);
 void direct_control_pick_up_or_drop(struct PlayerInfo *player);
 void display_controlled_picked_up_thing_name(struct Thing *picktng);
+TbBool controlled_there_is_thing_to_pick_up(struct Thing *creatng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

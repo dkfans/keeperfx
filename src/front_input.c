@@ -1403,20 +1403,34 @@ short get_creature_control_action_inputs(void)
             message_add(CrInst, get_string(StrID));
         }
         first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-        if (thing_is_trap_crate(dragtng))
+        if (thing_is_creature_special_digger(thing))
         {
-            struct Thing* traptng = get_trap_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-            if (!thing_is_invalid(traptng))
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+            if (thing_is_trap_crate(dragtng))
             {
-                if (traptng->owner == thing->owner)
+                struct Thing* traptng = get_trap_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                if (!thing_is_invalid(traptng))
                 {
-                    if (traptng->model == crate_to_workshop_item_model(dragtng->model))
+                    if (traptng->owner == thing->owner)
                     {
-                        clear_messages_from_player(-86);
-                        message_add_timeout(-86, 1, "");
+                        if (traptng->model == crate_to_workshop_item_model(dragtng->model))
+                        {
+                            if (traptng->trap.num_shots == 0)
+                            {
+                                clear_messages_from_player(-86);
+                                message_add_timeout(-86, 1, "");
+                            }
+                        }
                     }
+                }
+            }
+            else if (thing_is_invalid(dragtng))
+            {
+                if (controlled_there_is_thing_to_pick_up(thing))
+                {
+                    clear_messages_from_player(-115);
+                    message_add_timeout(-115, 1, "");
                 }
             }
         }
