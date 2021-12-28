@@ -1617,79 +1617,6 @@ void recount_and_reassociate_room_slabs(struct Room *room)
     room->slabs_count = n;
 }
 
-/**
- * Checks if a room slab of given kind at given subtile could link to any of rooms at adjacent slabs.
- * @param owner The owning player index of the new room slab.
- * @param x The x subtile of the new room slab.
- * @param y The y subtile of the new room slab.
- * @param rkind  Kind of the new room slab.
- * @return
- */
-struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, MapSubtlCoord y, RoomKind rkind)
-{
-    struct Room *room;
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    long n;
-    // Central slab coords - we will need it if we'll find adjacent room
-    MapSlabCoord central_slb_x = subtile_slab_fast(x);
-    MapSlabCoord central_slb_y = subtile_slab_fast(y);
-    // Localize the room to be merged with other rooms
-    struct Room* linkroom = INVALID_ROOM;
-    for (n = 0; n < SMALL_AROUND_LENGTH; n++)
-    {
-        stl_x = x + STL_PER_SLB * (long)small_around[n].delta_x;
-        stl_y = y + STL_PER_SLB * (long)small_around[n].delta_y;
-        room = subtile_room_get(stl_x,stl_y);
-        if ( !room_is_invalid(room) )
-        {
-          if ( (room->owner == owner) && (room->kind == rkind) )
-          {
-              // Add the central slab to room which was found
-              room->total_capacity = 0;
-              add_slab_to_room_tiles_list(room, central_slb_x, central_slb_y);
-              linkroom = room;
-              break;
-          }
-        }
-    }
-    if ( room_is_invalid(linkroom) )
-    {
-        return INVALID_ROOM;
-    }
-    // If slab was added to the room, check if more rooms now have to be linked together
-    for (n++; n < SMALL_AROUND_LENGTH; n++)
-    {
-        stl_x = x + STL_PER_SLB * (long)small_around[n].delta_x;
-        stl_y = y + STL_PER_SLB * (long)small_around[n].delta_y;
-        room = subtile_room_get(stl_x,stl_y);
-        if ( !room_is_invalid(room) )
-        {
-          if ( (room->owner == owner) && (room->kind == rkind) )
-          {
-              if (room != linkroom)
-              {
-                  add_slab_list_to_room_tiles_list(linkroom, room->slabs_list);
-                  // Update slabs in the new list
-                  recount_and_reassociate_room_slabs(linkroom);
-                  update_room_total_capacity(linkroom);
-                  // Make sure creatures working in the room won't leave
-                  change_work_room_of_creatures_working_in_room(room, linkroom);
-                  // Get rid of the old room ensign
-                  delete_room_flag(room);
-                  // Clear list of slabs in the old room
-                  room->slabs_count = 0;
-                  room->slabs_list = 0;
-                  room->slabs_list_tail = 0;
-                  // Delete the old room
-                  free_room_structure(room);
-              }
-          }
-        }
-    }
-    return linkroom;
-}
-
 /** Returns coordinates of slab at mass centre of given room.
  *  Note that the slab returned may not be pat of the room - it is possible
  *   that the room is just surrounding the spot.
@@ -2311,6 +2238,19 @@ TbBool update_room_total_health(struct Room *room)
     return true;
 }
 
+TbBool link_room_health(struct Room* linkroom, struct Room* oldroom)
+{
+    int newhealth = linkroom->health + oldroom->health;
+    int maxhealth = compute_room_max_health(linkroom->slabs_count, linkroom->efficiency);
+
+    if ((newhealth > maxhealth) || (newhealth <= 0))
+    {
+        newhealth = maxhealth;
+    }
+    linkroom->health = newhealth;
+    return false;
+}
+
 TbBool recalculate_room_health(struct Room* room)
 {
     SYNCDBG(17, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
@@ -2339,6 +2279,81 @@ TbBool update_room_contents(struct Room *room)
         cb(room);
     }
     return true;
+}
+
+
+/**
+ * Checks if a room slab of given kind at given subtile could link to any of rooms at adjacent slabs.
+ * @param owner The owning player index of the new room slab.
+ * @param x The x subtile of the new room slab.
+ * @param y The y subtile of the new room slab.
+ * @param rkind  Kind of the new room slab.
+ * @return
+ */
+struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, MapSubtlCoord y, RoomKind rkind)
+{
+    struct Room* room;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
+    long n;
+    // Central slab coords - we will need it if we'll find adjacent room
+    MapSlabCoord central_slb_x = subtile_slab_fast(x);
+    MapSlabCoord central_slb_y = subtile_slab_fast(y);
+    // Localize the room to be merged with other rooms
+    struct Room* linkroom = INVALID_ROOM;
+    for (n = 0; n < SMALL_AROUND_LENGTH; n++)
+    {
+        stl_x = x + STL_PER_SLB * (long)small_around[n].delta_x;
+        stl_y = y + STL_PER_SLB * (long)small_around[n].delta_y;
+        room = subtile_room_get(stl_x, stl_y);
+        if (!room_is_invalid(room))
+        {
+            if ((room->owner == owner) && (room->kind == rkind))
+            {
+                // Add the central slab to room which was found
+                room->total_capacity = 0;
+                add_slab_to_room_tiles_list(room, central_slb_x, central_slb_y);
+                linkroom = room;
+                break;
+            }
+        }
+    }
+    if (room_is_invalid(linkroom))
+    {
+        return INVALID_ROOM;
+    }
+    // If slab was added to the room, check if more rooms now have to be linked together
+    for (n++; n < SMALL_AROUND_LENGTH; n++)
+    {
+        stl_x = x + STL_PER_SLB * (long)small_around[n].delta_x;
+        stl_y = y + STL_PER_SLB * (long)small_around[n].delta_y;
+        room = subtile_room_get(stl_x, stl_y);
+        if (!room_is_invalid(room))
+        {
+            if ((room->owner == owner) && (room->kind == rkind))
+            {
+                if (room != linkroom)
+                {
+                    add_slab_list_to_room_tiles_list(linkroom, room->slabs_list);
+                    // Update slabs in the new list
+                    recount_and_reassociate_room_slabs(linkroom);
+                    update_room_total_capacity(linkroom);
+                    link_room_health(linkroom,room);
+                    // Make sure creatures working in the room won't leave
+                    change_work_room_of_creatures_working_in_room(room, linkroom);
+                    // Get rid of the old room ensign
+                    delete_room_flag(room);
+                    // Clear list of slabs in the old room
+                    room->slabs_count = 0;
+                    room->slabs_list = 0;
+                    room->slabs_list_tail = 0;
+                    // Delete the old room
+                    free_room_structure(room);
+                }
+            }
+        }
+    }
+    return linkroom;
 }
 
 TbBool thing_is_on_any_room_tile(const struct Thing *thing)
