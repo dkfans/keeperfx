@@ -290,9 +290,9 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
-    thing->field_4F |= TF4F_Unknown01;
     set_start_state(thing);
     set_player_mode(player, PVT_CreatureContrl);
+    update_creature_graphic_field_4F(thing);
     if (thing_is_creature(thing))
     {
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -341,7 +341,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
-    thing->field_4F |= TF4F_Unknown01;
+    update_creature_graphic_field_4F(thing);
     return true;
 }
 
