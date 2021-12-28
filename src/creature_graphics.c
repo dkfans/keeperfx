@@ -376,13 +376,16 @@ void update_creature_graphic_field_4F(struct Thing *thing)
             thing->field_4F |= TF4F_Unknown01;
             struct PlayerInfo* player = get_my_player();
             struct Thing* creatng = thing_get(player->influenced_thing_idx);
-            if ( (is_thing_directly_controlled_by_player(creatng, player->id_number)) || (is_thing_passenger_controlled_by_player(creatng, player->id_number)) )
+            if (creatng != thing)
             {
-                if (creature_can_see_invisible(creatng))
+                if ( (is_thing_directly_controlled_by_player(creatng, player->id_number)) || (is_thing_passenger_controlled_by_player(creatng, player->id_number)) )
                 {
-                    thing->field_4F &= ~TF4F_Unknown01;
-                    thing->field_4F &= ~TF4F_Transpar_Flags;
-                    thing->field_4F |= TF4F_Transpar_4;
+                    if (creature_can_see_invisible(creatng))
+                    {
+                        thing->field_4F &= ~TF4F_Unknown01;
+                        thing->field_4F &= ~TF4F_Transpar_Flags;
+                        thing->field_4F |= TF4F_Transpar_4;
+                    }
                 }
             }
       }
