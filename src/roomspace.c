@@ -630,7 +630,7 @@ void get_dungeon_highlight_user_roomspace(PlayerNumber plyr_idx, MapSubtlCoord s
             struct RoomSpace untag_roomspace = current_roomspace;
             untag_roomspace.untag_mode = true;
             untag_roomspace = check_roomspace_for_diggable_slabs(untag_roomspace, plyr_idx);
-            if ((untag_roomspace.slab_count > 0) && (render_roomspace.drag_mode == true))
+            if ((untag_roomspace.slab_count > 0) && ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)) //only switch modes when no buttons are held
             {
                 current_roomspace = untag_roomspace;
                 dungeonadd->swap_to_untag_mode = 2;
