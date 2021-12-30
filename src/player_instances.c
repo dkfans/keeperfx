@@ -1214,7 +1214,17 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     {
         set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
     }
-    delete_room_slabbed_objects(get_slab_number(subtile_slab_fast(stl_x),subtile_slab_fast(stl_y)));
+    struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+    for (struct Thing *thing = thing_get(get_mapwho_thing_index(mapblk)); !thing_is_invalid(thing); thing = thing_get(thing->next_on_mapblk))
+    {
+        if ((thing->parent_idx != get_slab_number(subtile_slab_fast(pos.x.stl.num),subtile_slab_fast(pos.y.stl.num))) && (thing->class_id == TCls_Object))
+        {
+            struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+            if ((objst->model_flags & OMF_DestroyedOnRoomPlace) != 0) {
+                destroy_object(thing);
+            }
+        }
+    }
     struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
     if (thing_is_invalid(traptng)) {
         return false;
