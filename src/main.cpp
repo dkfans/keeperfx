@@ -471,7 +471,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     if ( blocked_flags & SlbBloF_WalledX )
     {
       angle = thing->move_angle_xy;
-      if ( (angle) && (angle <= 1024) )
+      if ( (angle) && (angle <= ANGLE_SOUTH) )
         collide = process_boulder_collision(thing, &pos, 1, 0);
       else
         collide = process_boulder_collision(thing, &pos, -1, 0);
@@ -479,7 +479,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     else if ( blocked_flags & SlbBloF_WalledY )
     {
       angle = thing->move_angle_xy;
-      if ( (angle <= 512) || (angle > 1536) )
+      if ( (angle <= ANGLE_EAST) || (angle > ANGLE_WEST) )
         collide = process_boulder_collision(thing, &pos, 0, -1);
       else
         collide = process_boulder_collision(thing, &pos, 0, 1);
@@ -498,14 +498,14 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
       if ( blocked_flags & SlbBloF_WalledX )
       {
         angle = thing->move_angle_xy;
-        if ( (angle) && ( (angle <= 512) || (angle > 1536) ) )
+        if ( (angle) && ( (angle <= ANGLE_EAST) || (angle > ANGLE_WEST) ) )
         {
           unsigned short y = thing->mappos.y.val;
           pos2.x.val = thing->mappos.x.val;
           pos2.z.val = 0;
           pos2.y.val = y - STL_PER_SLB * speed;
           pos2.z.val = get_thing_height_at(thing, &pos2);
-          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 0 : 1024;
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_NORTH : ANGLE_SOUTH;
         }
         else
         {
@@ -513,19 +513,19 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
           pos2.z.val = 0;
           pos2.y.val = thing->mappos.y.val + STL_PER_SLB * speed;
           pos2.z.val = get_thing_height_at(thing, &pos2);
-          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1024 : 0;
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_SOUTH : ANGLE_NORTH;
         }
       }
       else if ( blocked_flags & SlbBloF_WalledY )
       {
         angle = thing->move_angle_xy;
-        if ( (angle) && (angle <= 1024) ) 
+        if ( (angle) && (angle <= ANGLE_SOUTH) ) 
         {
           pos2.z.val = 0;
           pos2.y.val = thing->mappos.y.val;
           pos2.x.val = thing->mappos.x.val + STL_PER_SLB * speed;
           pos2.z.val = get_thing_height_at(thing, &pos2);
-          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 512 : 1536;
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_EAST : ANGLE_WEST;
         }
         else
         {
@@ -534,7 +534,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
           pos2.y.val = thing->mappos.y.val;
           pos2.x.val = x - STL_PER_SLB * speed;
           pos2.z.val = get_thing_height_at(thing, &pos2);
-          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? 1536 : 512;
+          new_angle = (thing_in_wall_at(thing, &pos2) < 1) ? ANGLE_WEST : ANGLE_EAST;
         }
       }
       else
