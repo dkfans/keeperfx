@@ -837,7 +837,7 @@ void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3)
     {
       if ( lgt->flags & LgtF_Unkn02 )
       {
-        lgt->flags &= ~2;
+        lgt->flags &= ~LgtF_Unkn02;
         if ( lgt->flags & LgtF_Dynamic )
         {
           lgt->field_9[0] = a2;
