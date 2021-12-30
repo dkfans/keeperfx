@@ -453,12 +453,12 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   pos.y.val = thing->mappos.y.val + (-(n >> 8) >> 8);
   pos.z.val = thing->mappos.z.val;
   game.action_rand_seed = ACTION_RANDOM(ULONG_MAX);
-  if ( !(game.action_rand_seed & 7) && (!thing->velocity.z.val ) )
+  if ( (ACTION_RANDOM(8) == 0) && (!thing->velocity.z.val ) )
   {
     if ( thing_touching_floor(thing) )
     {
       long top_cube = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num, NULL);
-      if ( ((top_cube & 0xFFFFFFFE) != 40) && (top_cube != 39) )
+      if ( ((top_cube & 0xFFFFFFFE) != 0x28) && (top_cube != 39) )
       {
         thing->veloc_push_add.z.val += 48;
         thing->state_flags |= TF1_PushAdd;
