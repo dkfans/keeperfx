@@ -993,6 +993,7 @@ long food_moves(struct Thing *objtng)
                         update_room_contents(hatchroom);                    
                     }
                 }
+                objtng->parent_idx = -1;
             }
       }
       if (objtng->food.word_13 >= 0)
