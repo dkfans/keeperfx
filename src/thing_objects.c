@@ -976,8 +976,24 @@ long food_moves(struct Thing *objtng)
             {
                 room->used_capacity++;
                 objtng->food.word_13 = -1;
+                objtng->parent_idx = room->index;
             }
         }
+      }
+      else
+      {
+            if ( (room_is_invalid(room)) || (!room_role_matches(room->kind, RoRoF_FoodSpawn)) || (room->owner != objtng->owner) || (room->used_capacity > room->total_capacity) )
+            {
+                objtng->food.word_13 = game.food_life_out_of_hatchery;
+                struct Room* hatchroom = room_get(objtng->parent_idx);
+                if (!room_is_invalid(hatchroom))
+                {
+                    if (hatchroom->kind == RoK_GARDEN)
+                    {
+                        update_room_contents(hatchroom);                    
+                    }
+                }
+            }
       }
       if (objtng->food.word_13 >= 0)
       {
@@ -994,8 +1010,9 @@ long food_moves(struct Thing *objtng)
       }
     }
     TbBool has_near_creature = false;
-    if (!room_is_invalid(room) && (room->kind == 13) && (objtng->food.word_13 < 0))
+    if (!room_is_invalid(room) && (room->kind == RoK_GARDEN) && (objtng->food.word_13 < 0))
     {
+        objtng->parent_idx = room->index;
         struct Thing* near_creatng;
         if (room->hatch_gameturn == game.play_gameturn)
         {
@@ -1101,12 +1118,14 @@ long food_grows(struct Thing *objtng)
     long ret = 0;
     PlayerNumber tngowner = objtng->owner;
     struct Thing* nobjtng;
+    struct Room* room = subtile_room_get(pos.x.stl.num, pos.y.stl.num);
+    short room_idx = (!room_is_invalid(room)) ? room->index : -1;
     switch (objtng->anim_sprite)
     {
       case 893:
       case 897:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, food_grow_objects[0], tngowner, -1);
+        nobjtng = create_object(&pos, food_grow_objects[0], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
@@ -1115,7 +1134,7 @@ long food_grows(struct Thing *objtng)
       case 894:
       case 898:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, food_grow_objects[1], tngowner, -1);
+        nobjtng = create_object(&pos, food_grow_objects[1], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->anim_speed - 1);
         }
@@ -1124,7 +1143,7 @@ long food_grows(struct Thing *objtng)
       case 895:
       case 899:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, food_grow_objects[2], tngowner, -1);
+        nobjtng = create_object(&pos, food_grow_objects[2], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
@@ -1133,7 +1152,7 @@ long food_grows(struct Thing *objtng)
       case 896:
       case 900:
         delete_thing_structure(objtng, 0);
-        nobjtng = create_object(&pos, 10, tngowner, -1);
+        nobjtng = create_object(&pos, 10, tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
             nobjtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x6FF);
