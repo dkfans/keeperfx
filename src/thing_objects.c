@@ -968,14 +968,14 @@ long food_moves(struct Thing *objtng)
     struct Room* room = get_room_thing_is_on(objtng);
     if (!dirct_ctrl)
     {
-      if (objtng->food.word_13 >= 0)
+      if (objtng->food.life_remaining >= 0)
       {
-        if (!room_is_invalid(room) && !is_neutral_thing(objtng) && (objtng->food.word_13 != -1))
+        if (!room_is_invalid(room) && !is_neutral_thing(objtng) && (objtng->food.life_remaining != -1))
         {
             if (room_role_matches(room->kind, RoRoF_FoodSpawn) && (room->owner == objtng->owner) && (room->total_capacity > room->used_capacity))
             {
                 room->used_capacity++;
-                objtng->food.word_13 = -1;
+                objtng->food.life_remaining = -1;
                 objtng->parent_idx = room->index;
             }
         }
@@ -984,7 +984,7 @@ long food_moves(struct Thing *objtng)
       {
             if ( (room_is_invalid(room)) || (!room_role_matches(room->kind, RoRoF_FoodSpawn)) || (room->owner != objtng->owner) || (room->used_capacity > room->total_capacity) )
             {
-                objtng->food.word_13 = game.food_life_out_of_hatchery;
+                objtng->food.life_remaining = game.food_life_out_of_hatchery;
                 struct Room* hatchroom = room_get(objtng->parent_idx);
                 if (!room_is_invalid(hatchroom))
                 {
@@ -996,10 +996,10 @@ long food_moves(struct Thing *objtng)
                 objtng->parent_idx = -1;
             }
       }
-      if (objtng->food.word_13 >= 0)
+      if (objtng->food.life_remaining >= 0)
       {
-        objtng->food.word_13--;
-        if (objtng->food.word_13 <= 0)
+        objtng->food.life_remaining--;
+        if (objtng->food.life_remaining <= 0)
         {
             struct Dungeon* dungeon = get_dungeon(objtng->owner);
             dungeon->lvstats.chickens_wasted++;
@@ -1011,7 +1011,7 @@ long food_moves(struct Thing *objtng)
       }
     }
     TbBool has_near_creature = false;
-    if (!room_is_invalid(room) && (room->kind == RoK_GARDEN) && (objtng->food.word_13 < 0))
+    if (!room_is_invalid(room) && (room->kind == RoK_GARDEN) && (objtng->food.life_remaining < 0))
     {
         objtng->parent_idx = room->index;
         struct Thing* near_creatng;
@@ -1107,9 +1107,9 @@ long food_moves(struct Thing *objtng)
 long food_grows(struct Thing *objtng)
 {
     //return _DK_food_grows(objtng);
-    if (objtng->food.word_13 > 0)
+    if (objtng->food.life_remaining > 0)
     {
-        objtng->food.word_13--;
+        objtng->food.life_remaining--;
         return 1;
     }
     struct Coord3d pos;
@@ -1128,7 +1128,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[0], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
+            nobjtng->food.life_remaining = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1137,7 +1137,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[1], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = 3 * ((nobjtng->field_49 << 8) / nobjtng->anim_speed - 1);
+            nobjtng->food.life_remaining = 3 * ((nobjtng->field_49 << 8) / nobjtng->anim_speed - 1);
         }
         ret = -1;
         break;
@@ -1146,7 +1146,7 @@ long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, food_grow_objects[2], tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->food.word_13 = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
+            nobjtng->food.life_remaining = (nobjtng->field_49 << 8) / nobjtng->anim_speed - 1;
         }
         ret = -1;
         break;
@@ -1164,7 +1164,7 @@ long food_grows(struct Thing *objtng)
               dungeon = get_dungeon(nobjtng->owner);
               dungeon->lvstats.chickens_hatched++;
           }
-          nobjtng->food.word_13 = -1;
+          nobjtng->food.life_remaining = -1;
         }
         ret = -1;
         break;
