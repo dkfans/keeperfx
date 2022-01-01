@@ -1063,13 +1063,37 @@ long food_moves(struct Thing *objtng)
     }
     else
     {
-        int vel_x = 32 * LbSinL(objtng->food.word_18) >> 16;
-        pos.x.val += vel_x;
-        int vel_y = -(32 * LbCosL(objtng->food.word_18) >> 8) >> 8;
-        pos.y.val += vel_y;
-        if (thing_in_wall_at(objtng, &pos))
+        int vel_x, vel_y;
+        if (objtng->parent_idx != -1)
         {
-            objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
+            vel_x = 32 * LbSinL(objtng->food.word_18) >> 16;
+            pos.x.val += vel_x;
+            vel_y = -(32 * LbCosL(objtng->food.word_18) >> 8) >> 8;
+            pos.y.val += vel_y;
+            room = subtile_room_get(pos.x.stl.num, pos.y.stl.num);
+            TbBool out_of_bounds = ( (thing_in_wall_at(objtng, &pos)) || (room_is_invalid(room)) || (room->kind != RoK_GARDEN) || (room->index != objtng->parent_idx) );
+            if (out_of_bounds)
+            {
+                if ( (objtng->food.word_18 >= 0) && (objtng->food.word_18 <= 1024) )
+                {
+                    objtng->food.word_18 = (objtng->food.word_18 + 1024) & 0x7FF;
+                }
+                else
+                {
+                    objtng->food.word_18 = (objtng->food.word_18 - 1024) & 0x7FF;
+                }
+            }
+        }
+        else
+        {
+            vel_x = 32 * LbSinL(objtng->food.word_18) >> 16;
+            pos.x.val += vel_x;
+            vel_y = -(32 * LbCosL(objtng->food.word_18) >> 8) >> 8;
+            pos.y.val += vel_y;
+            if (thing_in_wall_at(objtng, &pos))
+            {
+                objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
+            }
         }
         long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.word_18);
         int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.word_18);
