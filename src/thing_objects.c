@@ -1074,7 +1074,7 @@ long food_moves(struct Thing *objtng)
             TbBool out_of_bounds = ( (thing_in_wall_at(objtng, &pos)) || (room_is_invalid(room)) || (room->kind != RoK_GARDEN) || (room->index != objtng->parent_idx) );
             if (out_of_bounds)
             {
-                if ( (objtng->food.word_18 >= 0) && (objtng->food.word_18 < 1024) )
+                if ( (objtng->food.word_18 >= 0) && (objtng->food.word_18 <= 1024) )
                 {
                     objtng->food.word_18 = (objtng->food.word_18 + 1024) & 0x7FF;
                 }
