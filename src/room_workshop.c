@@ -182,9 +182,6 @@ TbBool set_manufacture_level(struct Dungeon *dungeon)
     {
         dungeon->manufacture_level = 4;
     }
-    // Special cases
-    if (wrkshp_slabs == 4*5)
-        dungeon->manufacture_level++;
     return true;
 }
 
@@ -622,8 +619,11 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     }
     if (dungeon->manufacture_class == TCls_Empty)
     {
-        get_next_manufacture(dungeon);
-        return true;
+        if (get_next_manufacture(dungeon))
+        {
+            return true;
+        }
+        return false;
     }
     int k = manufacture_points_required(dungeon->manufacture_class, dungeon->manufacture_kind);
     // If we don't have enough manufacture points, don't do anything
@@ -671,8 +671,12 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     dungeon->manufacture_progress -= (k << 8);
     dungeon->field_118B = game.play_gameturn;
     dungeon->lvstats.manufactured_items++;
-    get_next_manufacture(dungeon);
-    return true;
+    if (get_next_manufacture(dungeon))
+    {
+        return true;
+    }
+    dungeon->manufacture_class = TCls_Empty;
+    return false;
 }
 
 EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng)

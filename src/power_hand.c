@@ -751,13 +751,13 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
 {
     struct Coord3d locpos;
     int i;
-    locpos.z.val = get_ceiling_height_at(pos) - ACTION_RANDOM(128);
+    locpos.z.val = get_ceiling_height_at(pos) - PLAYER_RANDOM(plyr_idx, 128);
     for (i = 0; i < 8; i++)
     {
         if (i > 0)
         {
             long angle;
-            angle = ACTION_RANDOM(2*LbFPMath_PI);
+            angle = PLAYER_RANDOM(plyr_idx, 2*LbFPMath_PI);
             locpos.x.val = pos->x.val + distance_with_angle_to_coord_x(127, angle);
             locpos.y.val = pos->y.val + distance_with_angle_to_coord_y(127, angle);
         } else
@@ -771,7 +771,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
             break;
         if (i > 0)
         {
-            thing->fall_acceleration += ACTION_RANDOM(thing->fall_acceleration) - thing->fall_acceleration / 2;
+            thing->fall_acceleration += PLAYER_RANDOM(plyr_idx, thing->fall_acceleration) - thing->fall_acceleration / 2;
             thing->valuable.gold_stored = 0;
         } else
         {

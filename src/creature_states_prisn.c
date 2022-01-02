@@ -257,6 +257,7 @@ CrStateRet process_prison_visuals(struct Thing *creatng, struct Room *room)
         if (game.play_gameturn - cctrl->turns_at_job < 250)
         {
             set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
+            event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_PrisonerStarving, room->owner, creatng->index);
             if (game.play_gameturn - cctrl->imprison.last_mood_sound_turn > 32)
             {
                 play_creature_sound(creatng, CrSnd_Sad, 2, 0);
@@ -330,7 +331,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
         return false;
     }
     //TODO CONFIG Allow skeletification only if spent specific amount of turns in prison (set low value)
-    if (ACTION_RANDOM(101) > game.prison_skeleton_chance)
+    if (CREATURE_RANDOM(thing, 101) > game.prison_skeleton_chance)
       return false;
     if (is_my_player_number(room->owner))
       output_message(SMsg_PrisonMadeSkeleton, 0, true);
@@ -358,8 +359,18 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         return CrCkRet_Continue;
   }
   process_creature_hunger(creatng);
-  if ( process_prisoner_skelification(creatng,room) )
-    return CrCkRet_Deleted;
+  struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+  if (process_prisoner_skelification(creatng, room))
+  {
+      return CrCkRet_Deleted;
+  }
+  else if ((creatng->health < 0) && (!crstat->humanoid_creature))
+  { 
+      if (is_my_player_number(room->owner))
+      {
+          output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
+      }
+  }
   struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
   if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room) )
     return CrCkRet_Continue;
@@ -369,7 +380,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
       (game.play_gameturn > cctrl->imprison.start_gameturn + gameadd.time_in_prison_without_break))
   {
       // Check the base jail break condition - whether prison touches enemy land
-      if (jailbreak_possible(room, creatng->owner) && (ACTION_RANDOM(100) < gameadd.prison_break_chance))
+      if (jailbreak_possible(room, creatng->owner) && (CREATURE_RANDOM(creatng, 100) < gameadd.prison_break_chance))
       {
           if (is_my_player_number(room->owner))
               output_message(SMsg_PrisonersEscaping, 40, true);

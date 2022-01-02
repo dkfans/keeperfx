@@ -380,7 +380,7 @@ int mod_key_to_normal_key(unsigned int mods)
     }
     else
     {
-        ERRORLOG("Reached a place we should not be able");
+        ERRORLOG("Reached a place we should not be able to");
         ncode = KC_UNASSIGNED;
     }
     return ncode;

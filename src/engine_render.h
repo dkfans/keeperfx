@@ -34,6 +34,9 @@ extern "C" {
 #define BUCKETS_COUNT 704
 #define KEEPSPRITE_LENGTH 9149
 
+#define KEEPERSPRITE_ADD_OFFSET 16384
+#define KEEPERSPRITE_ADD_NUM 2048
+
 enum QKinds {
     QK_PolyTriangle = 0,
     QK_PolyTriangleSimp,
@@ -526,6 +529,7 @@ DLLIMPORT TbFileHandle _DK_file_handle;
 DLLIMPORT long _DK_cam_map_angle;
 #define cam_map_angle _DK_cam_map_angle
 
+extern TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM];
 #pragma pack()
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
@@ -546,11 +550,11 @@ void fill_in_points_isometric(long a1, long a2, struct MinMax *mm);
 void frame_wibble_generate(void);
 void setup_rotate_stuff(long a1, long a2, long a3, long a4, long a5, long a6, long a7, long a8);
 
-void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6);
+void process_keeper_sprite(short x, short y, unsigned short a3, short kspr_angle, unsigned char a5, long a6);
 void draw_engine_number(struct Number *num);
 void draw_engine_room_flagpole(struct RoomFlag *rflg);
 void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
-void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
+void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, unsigned char a3, unsigned char *a4);
 void draw_mapwho_ariadne_path(struct Thing *thing);
 void draw_jonty_mapwho(struct JontySpr *jspr);
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color);

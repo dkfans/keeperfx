@@ -137,9 +137,9 @@ enum ThingEffectElements {
     TngEffElm_Cloud1,
     TngEffElm_SmallSparkles,
     TngEffElm_BallOfLight,
-    TngEffElm_RedFlameBig,
+    TngEffElm_RedFlameBig, // 10
     TngEffElm_IceShard,
-    TngEffElm_Thingy1,
+    TngEffElm_Leaves1,
     TngEffElm_Thingy2,
     TngEffElm_Thingy3,
     TngEffElm_TinyFlash1,
@@ -147,7 +147,7 @@ enum ThingEffectElements {
     TngEffElm_RedFlash,
     TngEffElm_FlashBall2,
     TngEffElm_TinyFlash2,
-    TngEffElm_PurpleStars,
+    TngEffElm_PurpleStars, // 20
     TngEffElm_Cloud2,
     TngEffElm_Drip1,
     TngEffElm_Blood4,
@@ -157,7 +157,7 @@ enum ThingEffectElements {
     TngEffElm_MedRock,
     TngEffElm_LargeRock1,
     TngEffElm_Drip2,
-    TngEffElm_LavaFlameStationary,
+    TngEffElm_LavaFlameStationary, // 30
     TngEffElm_Unknown31,
     TngEffElm_LavaFlameMoving,
     TngEffElm_LargeRock2,
@@ -167,7 +167,7 @@ enum ThingEffectElements {
     TngEffElm_EntranceMist,
     TngEffElm_Splash,
     TngEffElm_Blast2,
-    TngEffElm_Drip3,
+    TngEffElm_Drip3, // 40
     TngEffElm_Price,
     TngEffElm_ElectricBall1,
     TngEffElm_RedTwinkle,
@@ -177,7 +177,7 @@ enum ThingEffectElements {
     TngEffElm_Cloud3,
     TngEffElm_LargeRock3,
     TngEffElm_Gold1,
-    TngEffElm_Gold2,
+    TngEffElm_Gold2, // 50
     TngEffElm_Gold3,
     TngEffElm_Flash,
     TngEffElm_ElectricBall2,
@@ -187,7 +187,7 @@ enum ThingEffectElements {
     TngEffElm_GreenFlame,
     TngEffElm_YellowFlame,
     TngEffElm_Chicken,
-    TngEffElm_ElectricBall3,
+    TngEffElm_ElectricBall3, // 60
     TngEffElm_Feathers,
     TngEffElm_Unknown62,
     TngEffElm_WhiteSparklesSmall,
@@ -197,7 +197,7 @@ enum ThingEffectElements {
     TngEffElm_WhiteSparklesMed,
     TngEffElm_GreenSparklesMed,
     TngEffElm_RedSparklesMed,
-    TngEffElm_BlueSparklesMed,
+    TngEffElm_BlueSparklesMed, // 70
     TngEffElm_WhiteSparklesLarge,
     TngEffElm_GreenSparklesLarge,
     TngEffElm_RedSparklesLarge,
@@ -207,7 +207,7 @@ enum ThingEffectElements {
     TngEffElm_GreenSmokePuff,
     TngEffElm_YellowSmokePuff,
     TngEffElm_BluePuff,
-    TngEffElm_GreenPuff,
+    TngEffElm_GreenPuff, // 80
     TngEffElm_YellowPuff,
     TngEffElm_WhitePuff,
     TngEffElm_RedTwinkle3,
@@ -217,12 +217,12 @@ enum ThingEffectElements {
     TngEffElm_GreenTwinkle,
     TngEffElm_YellowTwinkle,
     TngEffElm_CloudDisperse,
-    TngEffElm_BlueTwinke2,
+    TngEffElm_BlueTwinke2, // 90
     TngEffElm_GreenTwinkle2,
     TngEffElm_YellowTwinkle2,
     TngEffElm_RedDot,
     TngEffElm_IceMelt3,
-    TngEffElm_Unknown95,
+    TngEffElm_DiseaseFly,
 };
 
 /******************************************************************************/
