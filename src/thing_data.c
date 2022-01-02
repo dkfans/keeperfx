@@ -32,7 +32,6 @@
 #include "creature_graphics.h"
 #include "game_legacy.h"
 #include "engine_arrays.h"
-#include "gui_topmsg.h" 
 #include "kjm_input.h"
 
 #ifdef __cplusplus
@@ -92,10 +91,6 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
 
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
 {
-    if (game.free_things_start_index > THINGS_COUNT - 5)
-    {
-        show_onscreen_msg(game.num_fps, "Warning: thing slots used %d/%d", game.free_things_start_index+1, THINGS_COUNT);
-    }
     // Check if there are free slots
     if (game.free_things_start_index < THINGS_COUNT-1)
         return true;
