@@ -846,7 +846,7 @@ void set_thing_acceleration_angles(struct Thing *thing, long angle_xy, long angl
 
 TbBool shot_model_makes_flesh_explosion(long shot_model)
 {
-    if ((shot_model == ShM_Firebomb) || (shot_model == ShM_GodLightBall))
+    if ((shot_model == ShM_Firebomb) || (shot_model == ShM_GodLightBall)) //todo This should be a shot property
         return true;
     return false;
 }
