@@ -2407,6 +2407,9 @@ void creature_death_as_nature_intended(struct Thing *thing)
     case Death_IceExplode:
         thing_death_ice_explosion(thing);
         break;
+    case Death_Sparkles:
+        destroy_creature_and_create_effect_element(thing, TngEffElm_WhiteSparklesSmall);
+        break;
     default:
         WARNLOG("Unexpected %s death cause %d",thing_model_name(thing),(int)i);
         break;

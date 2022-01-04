@@ -190,6 +190,7 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);
 TbBool creature_can_see_invisible(const struct Thing *thing);
 int get_creature_health_permil(const struct Thing *thing);
+void prepare_to_controlled_creature_death(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

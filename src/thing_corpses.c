@@ -466,6 +466,26 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     return thing;
 }
 
+
+/**
+ * Kills a creature but creates and effect element instead of a corpse.
+ * @param thing The creature to be killed.
+ * @param effect_element The Effect Element created
+ */
+void destroy_creature_and_create_effect_element(struct Thing* creatng, long effect_element)
+{
+    remove_creature_score_from_owner(creatng);
+    if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        prepare_to_controlled_creature_death(creatng);
+    }
+    if (effect_element > 0)
+    {
+        create_effect_element(&creatng->mappos, effect_element, creatng->owner);
+    }
+    delete_thing_structure(creatng, 0);
+}
+
 /**
  * Kills a creature and creates a proper corpse on its place.
  * @param thing The creature to be killed.
