@@ -83,7 +83,7 @@ enum ThingMovementFlags {
     TMvF_IsOnLava           = 0x02,
     TMvF_Unknown04          = 0x04, //Touching ground? Also don't cast shadows when this is set
     TMvF_Unknown08          = 0x08,
-    TMvF_Unknown10          = 0x10,
+    TMvF_Unknown10          = 0x10, //Stopped by walls?
     TMvF_Flying             = 0x20,
     TMvF_Unknown40          = 0x40,
     TMvF_Unknown80          = 0x80,
@@ -114,7 +114,7 @@ struct Thing {
         short word_17v;
       } valuable;
       struct {
-        short word_13;
+        short life_remaining;
         char byte_15;
         unsigned char byte_16;
         unsigned char byte_17;
@@ -203,7 +203,7 @@ struct Thing {
     unsigned char class_id;
     unsigned char fall_acceleration;
 unsigned char field_21;
-unsigned char field_22;
+    unsigned char bounce_angle;
     unsigned char field_23;
     unsigned char field_24;
     unsigned char movement_flags;

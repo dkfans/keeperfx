@@ -2763,7 +2763,7 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
     const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return compute_creature_attack_spell_damage(shotst->old->damage, crstat->luck, cctrl->explevel, creatng);
+    return compute_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel, creatng);
 }
 
 /**
@@ -2786,7 +2786,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     } else
     {
         // Project shot damage
-        damage = project_creature_attack_spell_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
+        damage = project_creature_attack_spell_damage(shotst->damage, crstat->luck, cctrl->explevel);
     }
     return damage;
 }
@@ -2824,7 +2824,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         pos2.y.val = target->mappos.y.val;
         pos2.z.val = target->mappos.z.val;
         pos2.z.val += (target->clipbox_size_yz >> 1);
-        if (((shotst->model_flags & ShMF_StrengthBased) != 0) && (target->class_id != TCls_Door))
+        if (((shotst->model_flags & ShMF_StrengthBased) != 0) && ((shotst->model_flags & ShMF_ReboundImmune) != 0) && (target->class_id != TCls_Door))
         {
           flag1 = true;
           pos1.z.val = pos2.z.val;
@@ -2864,7 +2864,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         else
           draw_lightning(&pos1, &pos2, 96, 60);
         shotng->health = shotst->health;
-        shotng->shot.damage = shotst->old->damage;
+        shotng->shot.damage = shotst->damage;
         shotng->parent_idx = firing->index;
         break;
     case ShM_FlameBreathe:
@@ -2875,7 +2875,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
           return;
         draw_flame_breath(&pos1, &pos2, 96, 2);
         shotng->health = shotst->health;
-        shotng->shot.damage = shotst->old->damage;
+        shotng->shot.damage = shotst->damage;
         shotng->parent_idx = firing->index;
         break;
     case ShM_Hail_storm:
@@ -2890,7 +2890,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             shotng->shot.hit_type = hit_type;
             shotng->move_angle_xy = (angle_xy + CREATURE_RANDOM(firing, 101) - 50) & LbFPMath_AngleMask;
             shotng->move_angle_z = (angle_yz + CREATURE_RANDOM(firing, 101) - 50) & LbFPMath_AngleMask;
-            angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->old->speed, &cvect);
+            angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->speed, &cvect);
             shotng->veloc_push_add.x.val += cvect.x;
             shotng->veloc_push_add.y.val += cvect.y;
             shotng->veloc_push_add.z.val += cvect.z;
@@ -2907,7 +2907,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             return;
         shotng->move_angle_xy = angle_xy;
         shotng->move_angle_z = angle_yz;
-        angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->old->speed, &cvect);
+        angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->speed, &cvect);
         shotng->veloc_push_add.x.val += cvect.x;
         shotng->veloc_push_add.y.val += cvect.y;
         shotng->veloc_push_add.z.val += cvect.z;
@@ -3505,7 +3505,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->solid_size_xy = crstat->thing_size_xy;
     crtng->solid_size_yz = crstat->thing_size_yz;
     crtng->fall_acceleration = 32;
-    crtng->field_22 = 0;
+    crtng->bounce_angle = 0;
     crtng->field_23 = 32;
     crtng->field_24 = 8;
     crtng->movement_flags |= TMvF_Unknown08;
@@ -5342,8 +5342,8 @@ void create_light_for_possession(struct Thing *creatng)
     ilght.mappos.y.val = creatng->mappos.y.val;
     ilght.mappos.z.val = creatng->mappos.z.val;
     ilght.field_3 = 1;
-    ilght.field_2 = 36;
-    ilght.field_0 = 2560;
+    ilght.intensity = 36;
+    ilght.radius = 2560;
     ilght.is_dynamic = 1;
     creatng->light_id = light_create_light(&ilght);
     if (creatng->light_id != 0) {

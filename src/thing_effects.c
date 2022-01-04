@@ -595,8 +595,8 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;
-        ilght.field_0 = eestat->field_3A;
-        ilght.field_2 = eestat->field_3C;
+        ilght.radius = eestat->field_3A;
+        ilght.intensity = eestat->field_3C;
         ilght.is_dynamic = 1;
         ilght.field_3 = eestat->field_3D;
         thing->light_id = light_create_light(&ilght);
@@ -1209,7 +1209,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->field_24 = 0;
     thing->field_4F |= TF4F_Unknown01;
     thing->health = ieffect->start_health;
-    if (ieffect->ilght.field_0 != 0)
+    if (ieffect->ilght.radius != 0)
     {
         struct InitLight ilght;
         memcpy(&ilght, &ieffect->ilght, sizeof(struct InitLight));

@@ -341,20 +341,6 @@ const struct NamedCommand door_config_desc[] = {
   {NULL,                    0},
 };
 
-const struct NamedCommand object_config_desc[] = {
-  {"Genre",           1},
-  {"AnimationID",     2},
-  {"AnimationSpeed",  3},
-  {"Size_XY",         4},
-  {"Size_YZ",         5},
-  {"MaximumSize",     6},
-  {"DestroyOnLava",   7},
-  {"DestroyOnLiquid", 8},
-  {"MapIcon",         9},
-  {"Properties",     10},
-  {NULL,              0},
-};
-
 const struct NamedCommand trap_config_desc[] = {
   {"NameTextID",           1},
   {"TooltipTextID",        2},
@@ -1056,7 +1042,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     }
 
     long number_value;
-    long objectvar = get_id(object_config_desc, property);
+    long objectvar = get_id(objects_object_commands, property);
     if (objectvar == -1)
     {
         SCRPTERRLOG("Unknown object variable");
@@ -1065,7 +1051,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     }
     switch (objectvar)
     {
-        case 1: // Genre
+        case 2: // Genre
             number_value = get_id(objects_genres_desc, new_value);
             if (number_value == -1)
             {
@@ -1075,7 +1061,17 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             }
             value->arg2 = number_value;
             break;
-        case  2: // AnimId
+        case 3: // RELATEDCREATURE
+            number_value = get_id(creature_desc, new_value);
+            if (number_value == -1)
+            {
+                SCRPTERRLOG("Unknown object variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+            value->arg2 = number_value;
+            break;
+        case  5: // AnimId
         {
             struct Objects obj_tmp;
             number_value = get_anim_id(new_value, &obj_tmp);
@@ -1095,6 +1091,18 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             }
             break;
         }
+        case 18: // MapIcon
+        {
+            number_value = get_icon_id(new_value);
+            if (number_value < 0)
+            {
+                SCRPTERRLOG("Invalid icon id");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->arg2 = number_value;
+            break;
+        }
         default:
             value->arg2 = atoi(new_value);
     }
@@ -1109,7 +1117,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
 static void set_creature_configuration_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    
+
     short creatvar = get_id(creatmodel_attributes_commands, scline->tp[1]);
     if (creatvar == -1)
     {
@@ -1141,7 +1149,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     short creatid = context->value->shorts[0];
     struct CreatureStats* crstat = creature_stats_get(creatid);
     struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatid];
-    
+
     short attribute = context->value->shorts[1];
     short value = context->value->shorts[2];
     short value2 = context->value->shorts[3];
@@ -1256,37 +1264,59 @@ static void set_object_configuration_process(struct ScriptContext *context)
 {
     struct Objects* objdat = get_objects_data(context->value->arg0);
     struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
+    struct ObjectConfig* objbc = &gameadd.object_conf.base_config[context->value->arg0];
     switch (context->value->arg1)
     {
-        case 1: // Genre
+        case 2: // GENRE
             objst->genre = context->value->arg2;
             break;
-        case 2: // AnimationID
+        case 3: // RELATEDCREATURE
+            objdat->related_creatr_model = context->value->arg2;
+            break;
+        case 4: // PROPERTIES
+            objst->model_flags = context->value->arg2;
+            break;
+        case 5: // ANIMATIONID
             objdat->sprite_anim_idx = get_anim_id(context->value->str2, objdat);
             break;
-        case 3: // AnimationSpeed
+        case 6: // ANIMATIONSPEED
             objdat->anim_speed = context->value->arg2;
             break;
-        case 4: //Size_XY
+        case 7: //SIZE_XY
             objdat->size_xy = context->value->arg2;
             break;
-        case 5: // Size_YZ
+        case 8: // SIZE_YZ
             objdat->size_yz = context->value->arg2;
             break;
-        case 6: // MaximumSize
+        case 9: // MAXIMUMSIZE
             objdat->sprite_size_max = context->value->arg2;
             break;
-        case 7: // DestroyOnLava
-            objdat->destroy_on_lava = context->value->arg2;
-            break;
-        case 8: // DestroyOnLiquid
+        case 10: // DESTROYONLIQUID
             objdat->destroy_on_liquid = context->value->arg2;
             break;
-        case 9: // MapIcon
-            objst->map_icon = context->value->arg2;
+        case 11: // DESTROYONLAVA
+            objdat->destroy_on_lava = context->value->arg2;
             break;
-        case 10: // Properties
-            objst->model_flags = context->value->arg2;
+        case 12: // HEALTH
+            objbc->health = context->value->arg2;
+            break;
+        case 13: // FALLACCELERATION
+            objbc->fall_acceleration = context->value->arg2;
+            break;
+        case 14: // LIGHTUNAFFECTED
+            objbc->light_unaffected = context->value->arg2;
+            break;
+        case 15: // LIGHTINTENSITY
+            objbc->ilght.intensity = context->value->arg2;
+            break;
+        case 16: // LIGHTRADIUS
+            objbc->ilght.radius = context->value->arg2 << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+            break;
+        case 17: // LIGHTISDYNAMIC
+            objbc->ilght.is_dynamic = context->value->arg2;
+            break;
+        case 18: // MAPICON
+            objst->map_icon = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -1340,7 +1370,7 @@ static void add_to_timer_check(const struct ScriptLine *scline)
 
 static void add_to_timer_process(struct ScriptContext *context)
 {
-   add_to_script_timer(context->value->arg0, context->value->arg1, context->value->arg2); 
+   add_to_script_timer(context->value->arg0, context->value->arg1, context->value->arg2);
 }
 
 static void add_bonus_time_check(const struct ScriptLine *scline)
@@ -1386,7 +1416,7 @@ static void display_countdown_check(const struct ScriptLine *scline)
     if (scline->np[2] <= 0)
     {
         SCRPTERRLOG("Can't have a countdown to %ld turns.", scline->np[2]);
-        return; 
+        return;
     }
     const char *timrname = scline->tp[1];
     char timr_id = get_rid(timer_desc, timrname);
@@ -1508,7 +1538,7 @@ static void create_effect_process(struct ScriptContext *context)
             move_creature_to_nearest_valid_position(efftng);
         }
         if (Price)
-        {   
+        {
             efftng->long_13 = context->value->arg1;
         }
     }
@@ -3182,68 +3212,304 @@ void refresh_trap_anim(long trap_id)
     }
 }
 
-
-void command_set_trap_configuration(const char* trapname, const char* property, long value, long optvalue)
+static void set_trap_configuration_check(const struct ScriptLine* scline)
 {
-    long trap_id = get_rid(trap_desc, trapname);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    const char *trapname = scline->tp[0];
+    short trap_id = get_id(trap_desc, trapname);
     if (trap_id == -1)
     {
         SCRPTERRLOG("Unknown trap, '%s'", trapname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
     }
 
-    long trapvar = get_id(trap_config_desc, property);
+    short trapvar = get_id(trap_config_desc, scline->tp[1]);
     if (trapvar == -1)
     {
         SCRPTERRLOG("Unknown trap variable");
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
 
-    //val2 is an optional variable, used when there's 2 numbers on one command. Pass them along as one merged val.
-    if ((value > 0xFFFF) || (value < 0))
+    value->shorts[0] = trap_id;
+    value->shorts[1] = trapvar;
+    if (trapvar == 3) // SymbolSprites
     {
-        SCRPTERRLOG("Value out of range: %d", value);
-        return;
+        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
+        // Pass two vars along as one merged val like: first\nsecond\m
+        strcpy(tmp, scline->tp[2]);
+        strcat(tmp, "|");
+        strcat(tmp,scline->tp[3]);
+        value->str2 = script_strdup(tmp); // first\0second
+        value->str2[strlen(scline->tp[2])] = 0;
+        free(tmp);
+        if (value->str2 == NULL)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
-    if ((optvalue > 0xFFFF) || (optvalue < 0))
+    else if (
+        (trapvar != 4) && // PointerSprites
+        (trapvar != 12) // Model
+        )
     {
-        SCRPTERRLOG("Value out of range: %d", optvalue);
-        return;
+        if ((scline->np[2] > 0xFFFF) || (scline->np[2] < 0))
+        {
+            SCRPTERRLOG("Value out of range: %d", scline->np[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->shorts[2] = (short)scline->np[2];
     }
-    long mergedval = value + (optvalue << 16);
-    SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, property, mergedval);
-    command_add_value(Cmd_SET_TRAP_CONFIGURATION, 0, trap_id, trapvar, mergedval);
- }
+    else
+    {
+        value->str2 = script_strdup(scline->tp[2]);
+        if (value->str2 == NULL)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, trapvar, value->shorts[2]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
 
-
-void command_set_door_configuration(const char* doorname, const char* property, long value, long optvalue)
+void set_trap_configuration_process(struct ScriptContext *context)
 {
-    long door_id = get_rid(door_desc, doorname);
+    long trap_type = context->value->shorts[0];
+    struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[trap_type];
+    struct ManfctrConfig *mconf = &gameadd.traps_config[trap_type];
+    struct ManufactureData *manufctr = get_manufacture_data(trap_type);
+    short value = context->value->shorts[2];
+    switch (context->value->shorts[1])
+    {
+        case 1: // NameTextID
+            trapst->name_stridx = value;
+            break;
+        case 2: // TooltipTextID
+            trapst->tooltip_stridx = value;
+            break;
+        case 3: // SymbolSprites
+        {
+            trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
+            trapst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+            if (trapst->bigsym_sprite_idx < 0)
+                trapst->bigsym_sprite_idx = bad_icon_id;
+            if (trapst->medsym_sprite_idx < 0)
+                trapst->medsym_sprite_idx = bad_icon_id;
+            manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
+            manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
+            update_trap_tab_to_config();
+        }
+            break;
+        case 4: // PointerSprites
+            trapst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            if (trapst->pointer_sprite_idx < 0)
+                trapst->pointer_sprite_idx = bad_icon_id;
+            update_trap_tab_to_config();
+            break;
+        case 5: // PanelTabIndex
+            trapst->panel_tab_idx = value;
+            manufctr->panel_tab_idx = value;
+            update_trap_tab_to_config();
+            break;
+        case 6: // Crate
+            gameadd.object_conf.object_to_door_or_trap[value] = trap_type;
+            gameadd.object_conf.workshop_object_class[value] = TCls_Trap;
+            gameadd.trapdoor_conf.trap_to_object[trap_type] = value;
+            break;
+        case 7: // ManufactureLevel
+            mconf->manufct_level = value;
+            break;
+        case 8: // ManufactureRequired
+            mconf->manufct_required = value;
+            break;
+        case 9: // Shots
+            mconf->shots = value;
+            break;
+        case 10: // TimeBetweenShots
+            mconf->shots_delay = value;
+            break;
+        case 11: // SellingValue
+            mconf->selling_value = value;
+            break;
+        case 12: // Model
+        {
+            struct Objects obj_tmp;
+            gameadd.trap_stats[trap_type].sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            refresh_trap_anim(trap_type);
+        }
+            break;
+        case 13: // ModelSize
+            gameadd.trap_stats[trap_type].sprite_size_max = value;
+            refresh_trap_anim(trap_type);
+            break;
+        case 14: // AnimationSpeed
+            gameadd.trap_stats[trap_type].anim_speed = value;
+            refresh_trap_anim(trap_type);
+            break;
+        case 15: // TriggerType
+            gameadd.trap_stats[trap_type].trigger_type = value;
+            break;
+        case 16: // ActivationType
+            gameadd.trap_stats[trap_type].activation_type = value;
+            break;
+        case 17: // EffectType
+            gameadd.trap_stats[trap_type].created_itm_model = value;
+            break;
+        case 18: // Hidden
+            trapst->hidden = value;
+            break;
+        case 19: // TriggerAlarm
+            trapst->notify = value;
+            break;
+        case 20: // Slappable
+            trapst->slappable = value;
+            break;
+        case 21: // Unanimated
+            gameadd.trap_stats[trap_type].unanimated = value;
+            refresh_trap_anim(trap_type);
+            break;
+        default:
+            WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
+            break;
+    }
+}
+
+static void set_door_configuration_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    const char *doorname = scline->tp[0];
+    short door_id = get_id(door_desc, doorname);
     if (door_id == -1)
     {
         SCRPTERRLOG("Unknown door, '%s'", doorname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
     }
 
-    long doorvar = get_id(door_config_desc, property);
+    short doorvar = get_id(door_config_desc, scline->tp[1]);
     if (doorvar == -1)
     {
         SCRPTERRLOG("Unknown door variable");
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
 
-    //val2 is an optional variable, used when there's 2 numbers on one command. Pass them along as one merged val.
-    if ((value > 0xFFFF) || (value < 0))
+    value->shorts[0] = door_id;
+    value->shorts[1] = doorvar;
+    if (doorvar == 8) // SymbolSprites
     {
-        SCRPTERRLOG("Value out of range: %d", value);
-        return;
+        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
+        // Pass two vars along as one merged val like: first\nsecond\m
+        strcpy(tmp, scline->tp[2]);
+        strcat(tmp, "|");
+        strcat(tmp,scline->tp[3]);
+        value->str2 = script_strdup(tmp); // first\0second
+        value->str2[strlen(scline->tp[2])] = 0;
+        free(tmp);
+        if (value->str2 == NULL)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
-    if ((optvalue > 0xFFFF) || (optvalue < 0))
+    else if (doorvar != 9) // PointerSprites
     {
-        SCRPTERRLOG("Value out of range: %d", optvalue);
-        return;
+        if ((scline->np[2] > 0xFFFF) || (scline->np[2] < 0))
+        {
+            SCRPTERRLOG("Value out of range: %d", scline->np[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->shorts[2] = (short)scline->np[2];
     }
-    long mergedval = value + (optvalue << 16);
-    SCRIPTDBG(7, "Setting door %s property %s to %d", doorname, property, mergedval);
-    command_add_value(Cmd_SET_DOOR_CONFIGURATION, 0, door_id, doorvar, mergedval);
+    else
+    {
+        value->str2 = script_strdup(scline->tp[2]);
+        if (value->str2 == NULL)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    SCRIPTDBG(7, "Setting door %s property %s to %d", doorname, doorvar, value->shorts[2]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+void set_door_configuration_process(struct ScriptContext *context)
+{
+    long door_type = context->value->shorts[0];
+    struct DoorConfigStats *doorst = get_door_model_stats(door_type);
+    struct ManfctrConfig *mconf = &gameadd.doors_config[door_type];
+    struct ManufactureData *manufctr = get_manufacture_data(gameadd.trapdoor_conf.trap_types_count - 1 + door_type);
+    short value = context->value->shorts[2];
+    switch (context->value->shorts[1])
+    {
+        case 1: // ManufactureLevel
+            mconf->manufct_level = value;
+            break;
+        case 2: // ManufactureRequired
+            mconf->manufct_required = value;
+            break;
+        case 3: // Health
+            if (door_type < DOOR_TYPES_COUNT)
+            {
+                door_stats[door_type][0].health = value;
+                door_stats[door_type][1].health = value;
+            }
+            update_all_door_stats();
+            break;
+        case 4: //SellingValue
+            mconf->selling_value = value;
+            break;
+        case 5: // NametextId
+            doorst->name_stridx = value;
+            break;
+        case 6: // TooltipTextId
+            doorst->tooltip_stridx = value;
+            break;
+        case 7: // Crate
+            gameadd.object_conf.object_to_door_or_trap[value] = door_type;
+            gameadd.object_conf.workshop_object_class[value] = TCls_Door;
+            gameadd.trapdoor_conf.door_to_object[door_type] = value;
+            break;
+        case 8: //SymbolSprites
+            {
+                doorst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
+                doorst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+                if (doorst->bigsym_sprite_idx < 0)
+                    doorst->bigsym_sprite_idx = bad_icon_id;
+                if (doorst->medsym_sprite_idx < 0)
+                    doorst->medsym_sprite_idx = bad_icon_id;
+                manufctr->bigsym_sprite_idx = doorst->bigsym_sprite_idx;
+                manufctr->medsym_sprite_idx = doorst->medsym_sprite_idx;
+                update_trap_tab_to_config();
+            }
+            break;
+        case 9: // PointerSprites
+            doorst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            if (doorst->pointer_sprite_idx < 0)
+                doorst->pointer_sprite_idx = bad_icon_id;
+            update_trap_tab_to_config();
+            break;
+        case 10: // PanelTabIndex
+            doorst->panel_tab_idx = value;
+            manufctr->panel_tab_idx = value;
+            update_trap_tab_to_config();
+            break;
+        default:
+            WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
+            break;
+    }
 }
 
 void command_set_computer_events(long plr_range_id, const char *evntname, long val1, long val2, long val3, long val4, long val5)
@@ -4472,12 +4738,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_SET_GAME_RULE:
         command_set_game_rule(scline->tp[0], scline->np[1]);
         break;
-    case Cmd_SET_TRAP_CONFIGURATION:
-        command_set_trap_configuration(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
-        break;
-    case Cmd_SET_DOOR_CONFIGURATION:
-        command_set_door_configuration(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3]);
-        break;
     case Cmd_CHANGE_SLAB_OWNER:
         command_change_slab_owner(scline->np[0], scline->np[1], scline->np[2]);
         break;
@@ -5145,15 +5405,15 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         ilght.mappos.z.val = thing->mappos.z.val;
         if (light_rand == 1)
         {
-            ilght.field_2 = 48;
+            ilght.intensity = 48;
             ilght.field_3 = 5;
         } else
         {
-            ilght.field_2 = 36;
+            ilght.intensity = 36;
             ilght.field_3 = 1;
         }
         ilght.is_dynamic = 1;
-        ilght.field_0 = 2560;
+        ilght.radius = 2560;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id != 0) {
             light_set_light_never_cache(thing->light_id);
@@ -5384,7 +5644,7 @@ static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, T
             return INVALID_THING;
         }
         effect = 0;
-        break;      
+        break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
@@ -5429,7 +5689,7 @@ static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, T
             cctrl->field_AE |= 0x01;
         }
     }
-    
+
     if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
@@ -5515,7 +5775,7 @@ static struct Thing *script_process_new_object(long tngmodel, TbMapLocation loca
         {
             return INVALID_THING;
         }
-        break;      
+        break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
@@ -5903,7 +6163,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         if (thing_is_picked_up(thing))
         {
             SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
-            return Lb_FAIL;          
+            return Lb_FAIL;
         }
         unsigned short sound;
         if (spinfo->caster_affected)
@@ -5940,7 +6200,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
     else
     {
         SCRPTERRLOG("Spell not supported for this command: %d", (int)spkind);
-        return Lb_FAIL; 
+        return Lb_FAIL;
     }
 }
 
@@ -6001,7 +6261,7 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
     char is_free = (fml_bytes >> 16) != 0;
     PowerKind powerKind = (fml_bytes >> 8) & 255;
     long splevel = fml_bytes & 255;
-    
+
     unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
     if (is_free)
         spell_flags |= PwMod_CastForFree;
@@ -6648,10 +6908,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct SlabMap *slb;
-  struct TrapConfigStats* trapst;
-  struct DoorConfigStats* doorst;
-  struct ManfctrConfig* mconf;
-  struct ManufactureData* manufctr;
   int plr_start;
   int plr_end;
   long i;
@@ -6685,7 +6941,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       return;
   }
-  
+
   switch (var_index)
   {
   case Cmd_SET_HATE:
@@ -6929,7 +7185,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_IsEvil;
           }
-          break; 
+          break;
       case 16: // NEVER_CHICKENS
           if (val4 >= 1)
           {
@@ -6939,7 +7195,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_NeverChickens;
           }
-          break; 
+          break;
       case 17: // IMMUNE_TO_BOULDER
           if (val4 >= 1)
           {
@@ -6949,7 +7205,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_ImmuneToBoulder;
           }
-          break; 
+          break;
       case 18: // NO_CORPSE_ROTTING
           if (val4 >= 1)
           {
@@ -6959,7 +7215,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_NoCorpseRotting;
           }
-          break; 
+          break;
       case 19: // NO_ENMHEART_ATTCK
           if (val4 >= 1)
           {
@@ -6969,7 +7225,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_NoEnmHeartAttack;
           }
-          break; 
+          break;
       case 20: // TREMBLING_FAT
           if (val4 >= 1)
           {
@@ -6979,7 +7235,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_TremblingFat;
           }
-          break; 
+          break;
       case 21: // FEMALE
           if (val4 >= 1)
           {
@@ -6989,7 +7245,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_Female;
           }
-          break; 
+          break;
       case 22: // INSECT
           if (val4 >= 1)
           {
@@ -6999,7 +7255,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_Insect;
           }
-          break; 
+          break;
       case 23: // ONE_OF_KIND
           if (val4 >= 1)
           {
@@ -7009,7 +7265,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_OneOfKind;
           }
-          break; 
+          break;
       case 24: // NO_IMPRISONMENT
           if (val4 >= 1)
           {
@@ -7019,7 +7275,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               crconf->model_flags ^= CMF_NoImprisonment;
           }
-          break; 
+          break;
       case 25: // NEVER_SICK
           if (val4 >= 1)
           {
@@ -7161,7 +7417,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_CHANGE_SLAB_TYPE:
       if (val2 < 0 || val2 > 85)
       {
-          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val2); 
+          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val2);
       } else
       if (val3 < 0 || val3 > 85)
       {
@@ -7278,7 +7534,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_DISPLAY_MESSAGE:
   {
         message_add_fmt(val2, "%s", get_string(val3));
-        break;        
+        break;
   }
   case Cmd_CREATURE_ENTRANCE_LEVEL:
   {
@@ -7543,146 +7799,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       }
       break;
-  case Cmd_SET_TRAP_CONFIGURATION:  
-      trapst = &gameadd.trapdoor_conf.trap_cfgstats[val2];
-      mconf = &gameadd.traps_config[val2];
-      manufctr = get_manufacture_data(val2);
-      switch (val3)
-      {
-      case 1: // NameTextID
-          trapst->name_stridx = val4;
-          break;
-      case 2: // TooltipTextID
-          trapst->tooltip_stridx = val4;
-          break;
-      case 3: // SymbolSprites
-          trapst->bigsym_sprite_idx = val4 << 16 >> 16;
-          trapst->medsym_sprite_idx = val4 >> 16;
-          manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
-          manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
-          update_trap_tab_to_config();
-          break;
-      case 4: // PointerSprites
-          trapst->pointer_sprite_idx = val4;
-          break;
-      case 5: // PanelTabIndex
-          trapst->panel_tab_idx = val4;
-          manufctr->panel_tab_idx = val4;
-          update_trap_tab_to_config();
-          break;
-      case 6: // Crate
-          gameadd.object_conf.object_to_door_or_trap[val4] = val2;
-          gameadd.object_conf.workshop_object_class[val4] = TCls_Trap;
-          gameadd.trapdoor_conf.trap_to_object[val2] = val4;
-          break;
-      case 7: // ManufactureLevel
-          mconf->manufct_level = val4;
-          break;
-      case 8: // ManufactureRequired
-          mconf->manufct_required = val4;
-          break;
-      case 9: // Shots
-          mconf->shots = val4;
-          break;
-      case 10: // TimeBetweenShots
-          mconf->shots_delay = val4;
-          break;
-      case 11: // SellingValue
-          mconf->selling_value = val4;
-          break;
-      case 12: // Model
-          gameadd.trap_stats[val2].sprite_anim_idx = val4;
-          refresh_trap_anim(val2);
-          break;
-      case 13: // ModelSize
-          gameadd.trap_stats[val2].sprite_size_max = val4;
-          refresh_trap_anim(val2);
-          break;
-      case 14: // AnimationSpeed
-          gameadd.trap_stats[val2].anim_speed = val4;
-          refresh_trap_anim(val2);
-          break;
-      case 15: // TriggerType
-          gameadd.trap_stats[val2].trigger_type = val4;
-          break;
-      case 16: // ActivationType
-          gameadd.trap_stats[val2].activation_type = val4;
-          break;
-      case 17: // EffectType
-          gameadd.trap_stats[val2].created_itm_model = val4;
-          break;
-      case 18: // Hidden
-          trapst->hidden = val4;
-          break;
-      case 19: // TriggerAlarm
-          trapst->notify = val4;
-          break;
-      case 20: // Slappable
-          trapst->slappable = val4;
-          break;
-      case 21: // Unanimated
-          gameadd.trap_stats[val2].unanimated = val4;
-          refresh_trap_anim(val2);
-          break;
-      default:
-          WARNMSG("Unsupported Trap configuration, variable %d.", val3);
-          break;
-      }
-      break;
-  case Cmd_SET_DOOR_CONFIGURATION:
-      doorst = get_door_model_stats(val2);
-      mconf = &gameadd.doors_config[val2];
-      manufctr = get_manufacture_data(gameadd.trapdoor_conf.trap_types_count - 1 + val2);
-      switch (val3)
-      {
-      case 1: // ManufactureLevel
-          mconf->manufct_level = val4;
-          break;
-      case 2: // ManufactureRequired
-          mconf->manufct_required = val4;
-          break;
-      case 3: // Health
-          if (val2 < DOOR_TYPES_COUNT)
-          {
-              door_stats[val2][0].health = val4;
-              door_stats[val2][1].health = val4;
-          }
-          update_all_door_stats();
-          break;
-      case 4: //SellingValue
-          mconf->selling_value = val4;
-          break;
-      case 5: // NametextId
-          doorst->name_stridx = val4;
-          break;
-      case 6: // TooltipTextId
-          doorst->tooltip_stridx = val4;
-          break;
-      case 7: // Crate
-          gameadd.object_conf.object_to_door_or_trap[val4] = val2;
-          gameadd.object_conf.workshop_object_class[val4] = TCls_Door;
-          gameadd.trapdoor_conf.door_to_object[val2] = val4;
-          break;
-      case 8: //SymbolSprites 
-          doorst->bigsym_sprite_idx = val4 << 16 >> 16;
-          doorst->medsym_sprite_idx = val4 >> 16;
-          manufctr->bigsym_sprite_idx = doorst->bigsym_sprite_idx;
-          manufctr->medsym_sprite_idx = doorst->medsym_sprite_idx;
-          update_trap_tab_to_config();
-          break;
-      case 9: // PointerSprites
-          doorst->pointer_sprite_idx = val4;
-          break;
-      case 10: // PanelTabIndex
-          doorst->panel_tab_idx = val4;
-          manufctr->panel_tab_idx = val4;
-          update_trap_tab_to_config();
-          break;
-      default:
-          WARNMSG("Unsupported Door configuration, variable %d.", val3);
-          break;
-      }
-      break;
   default:
       WARNMSG("Unsupported Game VALUE, command %d.",var_index);
       break;
@@ -7848,8 +7964,8 @@ char get_player_number_from_value(const char* txt)
                         }
                     }
                 }
-            }   
-        }        
+            }
+        }
     }
     return id;
 }
@@ -7948,8 +8064,8 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
-  {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, NULL, NULL},
-  {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, NULL, NULL},
+  {"SET_TRAP_CONFIGURATION",            "AANn    ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
+  {"SET_DOOR_CONFIGURATION",            "AANn    ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_CREATURE_CONFIGURATION",        "CAAn    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},

@@ -2959,27 +2959,27 @@ msgstr "MEHR..."
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "LEVEL ABGESCHLOSSEN - ZUM FORTFAHREN LEERTASTE DRÜCKEN"
+msgstr "Level abgeschlossen - zum fortfahren Leertaste drücken"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "LEVEL VERLOREN - ZUM NEUSTARTEN LEERTASTE DRÜCKEN"
+msgstr "Level verloren - zum neustarten Leertaste drücken"
 
 #: guitext:336
 msgctxt "On-screen message"
 msgid "Recording FLIC"
-msgstr "FLIC AUFNEHMEN"
+msgstr "Flic Aufnehmen"
 
 #: guitext:337
 msgctxt "On-screen message"
 msgid "Error recording FLIC"
-msgstr "FEHLER BEI FLIC-AUFNAHME"
+msgstr "Fehler Bei Flic-Aufnahme"
 
 #: guitext:338
 msgctxt "On-screen message"
 msgid "Finished recording FLIC"
-msgstr "FLIC-AUFNAHME BEENDET"
+msgstr "Flic-Aufnahme Beendet"
 
 #: guitext:339
 msgctxt "Unused"
@@ -3695,22 +3695,22 @@ msgstr "HOCH"
 #: guitext:472
 msgctxt "Game controls"
 msgid "DOWN"
-msgstr "RUNTER"
+msgstr "Runter"
 
 #: guitext:473
 msgctxt "Game controls"
 msgid "LEFT"
-msgstr "LINKS"
+msgstr "Links"
 
 #: guitext:474
 msgctxt "Game controls"
 msgid "RIGHT"
-msgstr "RECHTS"
+msgstr "Rechts"
 
 #: guitext:475
 msgctxt "Game controls"
 msgid "ROTATE"
-msgstr "ROTIEREN"
+msgstr "Rotieren"
 
 #: guitext:476
 msgctxt "Game controls"
@@ -3720,87 +3720,87 @@ msgstr "BESCHLEUNIGEN"
 #: guitext:477
 msgctxt "Game controls"
 msgid "ROTATE LEFT"
-msgstr "L. ROTIEREN"
+msgstr "L. Rotieren"
 
 #: guitext:478
 msgctxt "Game controls"
 msgid "ROTATE RIGHT"
-msgstr "R. ROTIEREN"
+msgstr "R. Rotieren"
 
 #: guitext:479
 msgctxt "Game controls"
 msgid "ZOOM IN"
-msgstr "HERANZOOMEN"
+msgstr "Heranzoomen"
 
 #: guitext:480
 msgctxt "Game controls"
 msgid "ZOOM OUT"
-msgstr "WEGZOOMEN"
+msgstr "Wegzoomen"
 
 #: guitext:481
 msgctxt "Keyboard"
 msgid "LEFT CONTROL"
-msgstr "STRG LINKS"
+msgstr "Strg Links"
 
 #: guitext:482
 msgctxt "Keyboard"
 msgid "RIGHT CONTROL"
-msgstr "STRG RECHTS"
+msgstr "Strg Rechts"
 
 #: guitext:483
 msgctxt "Keyboard"
 msgid "LEFT SHIFT"
-msgstr "SHIFT LINKS"
+msgstr "Shift Links"
 
 #: guitext:484
 msgctxt "Keyboard"
 msgid "RIGHT SHIFT"
-msgstr "SHIFT RECHTS"
+msgstr "Shift Rechts"
 
 #: guitext:485
 msgctxt "Keyboard"
 msgid "LEFT ALT"
-msgstr "ALT LINKS"
+msgstr "Alt Links"
 
 #: guitext:486
 msgctxt "Keyboard"
 msgid "RIGHT ALT"
-msgstr "ALT RECHTS"
+msgstr "Alt Rechts"
 
 #: guitext:487
 msgctxt "Keyboard"
 msgid "SPACE"
-msgstr "LEERTASTE"
+msgstr "Leertaste"
 
 #: guitext:488
 msgctxt "Keyboard"
 msgid "RETURN"
-msgstr "ENTER"
+msgstr "Eingabe"
 
 #: guitext:489
 msgctxt "Keyboard"
 msgid "TAB"
-msgstr "TAB"
+msgstr "Tab"
 
 #: guitext:490
 msgctxt "Keyboard"
 msgid "CAPS LOCK"
-msgstr "FESTSTELLTASTE"
+msgstr "Feststelltaste"
 
 #: guitext:491
 msgctxt "Keyboard"
 msgid "BACKSPACE"
-msgstr "BACKSPACE"
+msgstr "Backspace"
 
 #: guitext:492
 msgctxt "Keyboard"
 msgid "INSERT"
-msgstr "EINF."
+msgstr "Einf."
 
 #: guitext:493
 msgctxt "Keyboard"
 msgid "DELETE"
-msgstr "ENTF."
+msgstr "Entf."
 
 #: guitext:494
 msgctxt "Keyboard"
@@ -3810,22 +3810,22 @@ msgstr "POS 1"
 #: guitext:495
 msgctxt "Keyboard"
 msgid "END"
-msgstr "ENDE"
+msgstr "Ende"
 
 #: guitext:496
 msgctxt "Keyboard"
 msgid "PAGE UP"
-msgstr "BILD AUF"
+msgstr "Bild Auf"
 
 #: guitext:497
 msgctxt "Keyboard"
 msgid "PAGE DOWN"
-msgstr "BILD AB"
+msgstr "Bild Ab"
 
 #: guitext:498
 msgctxt "Keyboard"
 msgid "NUM LOCK"
-msgstr "NUM"
+msgstr "Num"
 
 #: guitext:499
 msgctxt "Keyboard"
@@ -3850,12 +3850,12 @@ msgstr "NUM +"
 #: guitext:503
 msgctxt "Keyboard"
 msgid "NUM ENTER"
-msgstr "NUM ENTER"
+msgstr "Num Enter"
 
 #: guitext:504
 msgctxt "Keyboard"
 msgid "NUM DELETE"
-msgstr "NUM ENTF."
+msgstr "Num Entf."
 
 #: guitext:505
 msgctxt "Keyboard"
@@ -3970,22 +3970,22 @@ msgstr "F12"
 #: guitext:527
 msgctxt "Keyboard"
 msgid "UP"
-msgstr "CURSOR HOCH"
+msgstr "Cursor Hoch"
 
 #: guitext:528
 msgctxt "Keyboard"
 msgid "DOWN"
-msgstr "CURSOR RUNTER"
+msgstr "Cursor Runter"
 
 #: guitext:529
 msgctxt "Keyboard"
 msgid "LEFT"
-msgstr "CURSOR LINKS"
+msgstr "Cursor Links"
 
 #: guitext:530
 msgctxt "Keyboard"
 msgid "RIGHT"
-msgstr "CURSOR RECHTS"
+msgstr "Cursor Rechts"
 
 #: guitext:531
 msgctxt "Network game message"
@@ -4115,85 +4115,85 @@ msgstr ""
 #: guitext:552
 msgctxt "In-game tab with rooms"
 msgid "Treasure Room"
-msgstr "SCHATZKAMMER"
+msgstr "Schatzkammer"
 
 #: guitext:553
 msgctxt "In-game tab with rooms"
 msgid "Library"
-msgstr "BIBLIOTHEK"
+msgstr "Bibliothek"
 
 #: guitext:554
 msgctxt "In-game tab with rooms"
 msgid "Lair"
-msgstr "VERSTECK"
+msgstr "Versteck"
 
 #: guitext:555
 msgctxt "In-game tab with rooms"
 msgid "Prison"
-msgstr "GEFÄNGNIS"
+msgstr "Gefängnis"
 
 #: guitext:556
 msgctxt "In-game tab with rooms"
 msgid "Torture Room"
-msgstr "FOLTERKAMMER"
+msgstr "Folterkammer"
 
 #: guitext:557
 msgctxt "In-game tab with rooms"
 msgid "Training Room"
-msgstr "TRAININGSRAUM"
+msgstr "Trainingsraum"
 
 #: guitext:558
 msgctxt "In-game tab with rooms"
 msgid "Dungeon Heart"
-msgstr "DUNGEON-HERZ"
+msgstr "Dungeon-Herz"
 
 #: guitext:559
 msgctxt "In-game tab with rooms"
 msgid "Workshop"
-msgstr "HANDWERKSR."
+msgstr "Handwerksr."
 
 #: guitext:560
 msgctxt "In-game tab with rooms"
 msgid "Scavenger Room"
-msgstr "KÖDERRAUM"
+msgstr "Köderraum"
 
 #: guitext:561
 msgctxt "In-game tab with rooms"
 msgid "Temple"
-msgstr "TEMPEL"
+msgstr "Tempel"
 
 #: guitext:562
 msgctxt "In-game tab with rooms"
 msgid "Graveyard"
-msgstr "FRIEDHOF"
+msgstr "Friedhof"
 
 #: guitext:563
 msgctxt "In-game tab with rooms"
 msgid "Barracks"
-msgstr "BARRACKEN"
+msgstr "Barracken"
 
 #: guitext:564
 msgctxt "In-game tab with rooms"
 msgid "Hatchery"
-msgstr "HÜHNERFARM"
+msgstr "Hühnerfarm"
 
 #: guitext:565
 msgctxt "In-game tab with rooms"
 msgid "Guard Post"
-msgstr "WACHPOSTEN"
+msgstr "Wachposten"
 
 #: guitext:566
 msgctxt "In-game tab with rooms"
 msgid "Bridge"
-msgstr "BRÜCKE"
+msgstr "Brücke"
 
 #: guitext:567
 msgid "Fight"
-msgstr "KAMPF"
+msgstr "Kampf"
 
 #: guitext:568
 msgid "Annoyed"
-msgstr "VERÄRGERT"
+msgstr "Verärgert"
 
 #: guitext:569
 msgctxt "Keyboard"
@@ -6643,7 +6643,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
-msgstr "Ein Teil des Schadens, der die Gesundheit der Kreaturen nicht beeinträchtigt. Der höhere "
+msgstr "Rüstung: Ein Teil des Schadens, der die Gesundheit der Kreaturen nicht beeinträchtigt. Der höhere "
 "Die Zahl, der größte Teil des Schadens wird verworfen."
 
 #: guitext:950
@@ -6664,7 +6664,6 @@ msgstr "Forschungsfähigkeit: Wie schnell die Kreatur in der Bibliothek arbeitet
 "Je besser die Leistung der Kreatur."
 
 #: guitext:953
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
@@ -6674,7 +6673,6 @@ msgstr ""
 "Fähigkeitsstufe, je besser die Leistung der Kreatur ist." 
 
 #: guitext:954
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
@@ -6682,7 +6680,6 @@ msgid ""
 msgstr "Trainingsfähigkeit: Wie schnell die Kreatur am Training arbeitet."
 
 #: guitext:955
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
@@ -6768,7 +6765,7 @@ msgstr ""
 #: guitext:967
 msgctxt "Menu interface item"
 msgid "Toggle Message"
-msgstr "NACHRICHT WECHSELN"
+msgstr "Nachricht Wechseln"
 
 #: guitext:968
 msgctxt "Menu interface item"

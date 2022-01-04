@@ -362,7 +362,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     SYNCDBG(8,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
 
     struct Thing* efftng = INVALID_THING;
-    TbBool shot_explodes = 0;
+    TbBool destroy_shot = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (shotst->model_flags & ShMF_Digging)
@@ -377,35 +377,35 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
         if (!thing_is_invalid(doortng))
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_door.effect_model, shotst->old->hit_door.sndsample_idx, shotst->old->hit_door.sndsample_range);
-            if (shotst->old->hit_door.destroyed)
-              shot_explodes = 1;
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
+            if (!shotst->hit_door.withstand)
+              destroy_shot = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
         } else
         if (cube_is_water(cube_id))
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_water_effect_model, shotst->old->hit_water_sndsample_idx, 1);
-            if (shotst->old->hit_water_destroyed) {
-                shot_explodes = 1;
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_water.effect_model, shotst->hit_water.sndsample_idx, shotst->hit_water.sndsample_range);
+            if (!shotst->hit_water.withstand) {
+                destroy_shot = 1;
             }
         } else
         if (cube_is_lava(cube_id))
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_lava_effect_model, shotst->old->hit_lava_sndsample_idx, 1);
-            if (shotst->old->hit_lava_destroyed) {
-                shot_explodes = 1;
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_lava.effect_model, shotst->hit_lava.sndsample_idx, shotst->hit_lava.sndsample_range);
+            if (!shotst->hit_lava.withstand) {
+                destroy_shot = 1;
             }
         } else
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_generic.effect_model, shotst->old->hit_generic.sndsample_idx, shotst->old->hit_generic.sndsample_range);
-            if (shotst->old->hit_generic.destroyed) {
-                shot_explodes = 1;
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
+            if (!shotst->hit_generic.withstand) {
+                destroy_shot = 1;
             }
         }
     }
 
-    if ( !shot_explodes )
+    if ( !destroy_shot )
     {
         if ((blocked_flags & (SlbBloF_WalledX|SlbBloF_WalledY)) != 0)
         {
@@ -424,30 +424,33 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
             if (!thing_is_invalid(doortng))
             {
-                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_door.effect_model, shotst->old->hit_door.sndsample_idx, shotst->old->hit_door.sndsample_range);
-                if (shotst->old->hit_door.destroyed)
-                    shot_explodes = 1;
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_door.effect_model, shotst->hit_door.sndsample_idx, shotst->hit_door.sndsample_range);
+                if (!shotst->hit_door.withstand)
+                    destroy_shot = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
             {
-                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->hit_generic.effect_model, shotst->old->hit_generic.sndsample_idx, shotst->old->hit_generic.sndsample_range);
-                if (shotst->old->hit_generic.destroyed)
-                  shot_explodes = 1;
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
+                if (!shotst->hit_generic.withstand)
+                {
+                    destroy_shot = 1;
+                }
             }
         }
     }
     if (!thing_is_invalid(efftng)) {
         efftng->hit_type = shotst->area_hit_type;
     }
-    if ( shot_explodes )
+    if ( destroy_shot )
     {
         return detonate_shot(shotng);
     }
-    if (shotst->old->field_D <= 0)
+    if (shotng->bounce_angle <= 0)
     {
         slide_thing_against_wall_at(shotng, pos, blocked_flags);
-    } else
+    }
+    else
     {
         bounce_thing_off_wall_at(shotng, pos, blocked_flags);
     }
@@ -477,24 +480,24 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
         if (!thing_is_invalid(doortng))
         {
             // If the shot hit is supposed to create effect thing
-            int n = shotst->old->hit_door.effect_model;
+            int n = shotst->hit_door.effect_model;
             if (n > 0)
             {
                 efftng = create_effect(&shotng->mappos, n, shotng->owner);
             }
             // If the shot hit is supposed to create sound
-            n = shotst->old->hit_door.sndsample_idx;
+            n = shotst->hit_door.sndsample_idx;
             int i;
             if (n > 0)
             {
                 if (!thing_is_invalid(efftng))
                 {
-                    i = shotst->old->hit_door.sndsample_range;
+                    i = shotst->hit_door.sndsample_range;
                     thing_play_sample(efftng, n + UNSYNC_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
             // Shall the shot be destroyed on impact
-            if (shotst->old->hit_door.destroyed)
+            if (!shotst->hit_door.withstand)
             {
                 shot_explodes = true;
             }
@@ -510,10 +513,11 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng);
     }
-    if (shotst->old->field_D <= 0)
+    if (shotng->bounce_angle <= 0)
     {
         slide_thing_against_wall_at(shotng, pos, blocked_flags);
-    } else
+    }
+    else
     {
         bounce_thing_off_wall_at(shotng, pos, blocked_flags);
     }
@@ -613,7 +617,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         }
     } else
     {
-        int i = shotst->old->hit_sound;
+        int i = shotst->hit_creature.sndsample_idx;
         if (i > 0) {
             thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
@@ -772,7 +776,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     //throw_strength = shotng->fall_acceleration; //this seems to be always 0, this is why it didn't work;
-    long throw_strength = shotst->old->push_on_hit;
+    long throw_strength = shotst->push_on_hit;
     if (trgtng->health < 0)
         return 0;
     struct Thing* shooter = INVALID_THING;
@@ -782,9 +786,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     long damage = get_damage_of_melee_shot(shotng, trgtng);
     if (damage > 0)
     {
-      if (shotst->old->hit_sound > 0)
+      if (shotst->hit_creature.sndsample_idx > 0)
       {
-          thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+          thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
           play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
       }
       if (!thing_is_invalid(shooter)) {
@@ -795,7 +799,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       if (shotst->old->field_24 != 0) {
           tgcctrl->field_B1 = shotst->old->field_24;
       }
-      if ( shotst->old->push_on_hit || creature_is_being_unconscious(trgtng))
+      if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
       {
           if (creature_is_being_unconscious(trgtng)) {
               throw_strength++;
@@ -853,7 +857,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     long n;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     //amp = shotng->fall_acceleration;
-    long amp = shotst->old->push_on_hit;
+    long amp = shotst->push_on_hit;
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
@@ -962,7 +966,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             WARNDBG(8,"The %s index %d owner %d cannot group; invalid parent",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
         }
     }
-    if (shotst->old->push_on_hit != 0 )
+    if (shotst->push_on_hit != 0 )
     {
         i = amp * (long)shotng->velocity.x.val;
         trgtng->veloc_push_add.x.val += i / 16;
@@ -981,10 +985,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             i = amp * (long)shotng->velocity.y.val;
             trgtng->veloc_push_add.y.val += i / 16;
             trgtng->state_flags |= TF1_PushAdd;
-            if (shotst->old->hit_sound != 0)
+            if (shotst->hit_creature.sndsample_idx != 0)
             {
                 play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
-                thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
         }
         else
@@ -1020,10 +1024,10 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     else // not for unconscious units
     {
-        if (shotst->old->hit_sound != 0)
+        if (shotst->hit_creature.sndsample_idx != 0)
         {
             play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
-            thing_play_sample(trgtng, shotst->old->hit_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
 
@@ -1244,8 +1248,10 @@ TngUpdateRet update_shot(struct Thing *thing)
         if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, shotst->shot_sound, 0))
             thing_play_sample(thing, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
-    if (shotst->old->field_47)
+    if (!shotst->no_air_damage)
+    {
         thing->health--;
+    }
     if (thing->health < 0)
     {
         hit = true;
@@ -1264,7 +1270,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                 pos2.z.val += (target->clipbox_size_yz >> 1);
                 thing->move_angle_xy = get_angle_xy_to(&thing->mappos, &pos2);
                 thing->move_angle_z = get_angle_yz_to(&thing->mappos, &pos2);
-                angles_to_vector(thing->move_angle_xy, thing->move_angle_z, shotst->old->speed, &cvect);
+                angles_to_vector(thing->move_angle_xy, thing->move_angle_z, shotst->speed, &cvect);
                 dtpos.x.val = cvect.x - thing->veloc_base.x.val;
                 dtpos.y.val = cvect.y - thing->veloc_base.y.val;
                 dtpos.z.val = cvect.z - thing->veloc_base.z.val;
@@ -1380,7 +1386,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               {
                   shotst = get_shot_model_stats(ShM_GodLightBall);
                   draw_lightning(&thing->mappos,&target->mappos, 96, 60);
-                  apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
+                  apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
               }
             }
             break;
@@ -1430,8 +1436,8 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->parent_idx = thing->index;
     thing->owner = owner;
-    thing->field_22 = shotst->old->field_D;
-    thing->fall_acceleration = shotst->old->field_F;
+    thing->bounce_angle = shotst->bounce_angle;
+    thing->fall_acceleration = shotst->fall_acceleration;
     thing->field_21 = shotst->old->field_10;
     thing->field_23 = shotst->old->field_11;
     thing->field_24 = shotst->old->field_12;
@@ -1440,11 +1446,11 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & TF4F_Unknown02;
     thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Transpar_8 * shotst->old->field_8) & (TF4F_Transpar_Flags));
     thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;
-    thing->clipbox_size_xy = shotst->old->size_xy;
-    thing->clipbox_size_yz = shotst->old->size_yz;
-    thing->solid_size_xy = shotst->old->size_xy;
-    thing->solid_size_yz = shotst->old->size_yz;
-    thing->shot.damage = shotst->old->damage;
+    thing->clipbox_size_xy = shotst->size_xy;
+    thing->clipbox_size_yz = shotst->size_yz;
+    thing->solid_size_xy = shotst->size_xy;
+    thing->solid_size_yz = shotst->size_yz;
+    thing->shot.damage = shotst->damage;
     thing->shot.dexterity = 255;
     thing->health = shotst->health;
     if (shotst->old->lightf_50)
@@ -1452,8 +1458,8 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
         struct InitLight ilght;
         LbMemorySet(&ilght, 0, sizeof(struct InitLight));
         memcpy(&ilght.mappos,&thing->mappos,sizeof(struct Coord3d));
-        ilght.field_0 = shotst->old->lightf_50;
-        ilght.field_2 = shotst->old->lightf_52;
+        ilght.radius = shotst->old->lightf_50;
+        ilght.intensity = shotst->old->lightf_52;
         ilght.is_dynamic = 1;
         ilght.field_3 = shotst->old->lightf_53;
         thing->light_id = light_create_light(&ilght);
