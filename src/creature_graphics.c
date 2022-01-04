@@ -31,12 +31,13 @@
 #include "game_legacy.h"
 #include "vidfade.h"
 #include "keeperfx.hpp"
+#include "engine_render.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-unsigned short creature_graphics[][22] = {
+short creature_graphics[][22] = {
   {   0,   0,   0,   0,   0,   0,   0,  0,   0,  0,   0,
       0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,},
   { 426, 424, 424, 428,   0,   0,   0,  0, 430, 436, 442,
@@ -138,7 +139,6 @@ struct CreaturePickedUpOffset creature_picked_up_offset[] = {
   {  0,   0,  0,  0},
 };
 
-//struct KeeperSprite *creature_table;
 /******************************************************************************/
 DLLIMPORT unsigned short _DK_creature_list[CREATURE_FRAMELIST_LENGTH];
 /******************************************************************************/
@@ -154,10 +154,16 @@ struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing
 
 unsigned char keepersprite_frames(unsigned short n)
 {
-  if (n >= CREATURE_FRAMELIST_LENGTH)
+  if ((n >= CREATURE_FRAMELIST_LENGTH && n < KEEPERSPRITE_ADD_OFFSET)
+        || (n > KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+        )
   {
       ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
+  }
+  else if (n >= KEEPERSPRITE_ADD_OFFSET)
+  {
+      return creature_table_add[n - KEEPERSPRITE_ADD_OFFSET].FramesCount;
   }
   unsigned long i = _DK_creature_list[n];
   return creature_table[i].FramesCount;
@@ -165,45 +171,33 @@ unsigned char keepersprite_frames(unsigned short n)
 
 unsigned char keepersprite_rotable(unsigned short n)
 {
-  if (n >= CREATURE_FRAMELIST_LENGTH)
-  {
+    if ((n >= CREATURE_FRAMELIST_LENGTH && n < KEEPERSPRITE_ADD_OFFSET)
+        || (n > KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+        )
+    {
       ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
-  }
-  unsigned long i = _DK_creature_list[n];
-  return creature_table[i].Rotable;
-}
-
-unsigned char previous_keeper_frame(unsigned short n, unsigned char c)
-{
-    if (n >= CREATURE_FRAMELIST_LENGTH)
+    }
+    else if (n >= KEEPERSPRITE_ADD_OFFSET)
     {
-        ERRORLOG("Frame %d out of range",(int)n);
-        n = 0;
+        return creature_table_add[n - KEEPERSPRITE_ADD_OFFSET].Rotable;
     }
     unsigned long i = _DK_creature_list[n];
-    if (c > 0)
-        return c - 1;
-    return creature_table[i].FramesCount - 1;
-}
-
-unsigned char next_keeper_frame(unsigned short n, unsigned char c)
-{
-    if (n >= CREATURE_FRAMELIST_LENGTH)
-    {
-        ERRORLOG("Frame %d out of range",(int)n);
-        n = 0;
-    }
-    unsigned long i = _DK_creature_list[n];
-    return creature_table[i].FramesCount;
+    return creature_table[i].Rotable;
 }
 
 struct KeeperSprite * keepersprite_array(unsigned short n)
 {
-    if (n >= CREATURE_FRAMELIST_LENGTH)
+    if ((n >= CREATURE_FRAMELIST_LENGTH && n < KEEPERSPRITE_ADD_OFFSET)
+        || (n > KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+        )
     {
         ERRORLOG("Frame %d out of range",(int)n);
         n = 0;
+    }
+    else if (n >= KEEPERSPRITE_ADD_OFFSET)
+    {
+        return &creature_table_add[n - KEEPERSPRITE_ADD_OFFSET];
     }
     unsigned long i = _DK_creature_list[n];
     return &creature_table[i];
@@ -211,12 +205,18 @@ struct KeeperSprite * keepersprite_array(unsigned short n)
 
 unsigned long keepersprite_index(unsigned short n)
 {
-  if (n >= CREATURE_FRAMELIST_LENGTH)
-  {
+    if ((n >= CREATURE_FRAMELIST_LENGTH && n < KEEPERSPRITE_ADD_OFFSET)
+        || (n > KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+        )
+    {
       ERRORLOG("Frame %d out of range",(int)n);
       n = 0;
-  }
-  return _DK_creature_list[n];
+    }
+    else if (n >= KEEPERSPRITE_ADD_OFFSET)
+    {
+        return n;
+    }
+    return _DK_creature_list[n];
 }
 
 long get_lifespan_of_animation(long ani, long frameskip)
@@ -224,11 +224,20 @@ long get_lifespan_of_animation(long ani, long frameskip)
     return (keepersprite_frames(ani) << 8) / frameskip;
 }
 
+static struct KeeperSprite* sprite_by_frame(long kspr_frame)
+{
+    if (kspr_frame >= KEEPERSPRITE_ADD_OFFSET)
+    {
+        return &creature_table_add[kspr_frame];
+    }
+    unsigned long i = _DK_creature_list[kspr_frame];
+    return &creature_table[i];
+}
+
 void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h)
 {
     TbBool val_in_range;
-    unsigned long i = _DK_creature_list[kspr_frame];
-    struct KeeperSprite* kspr = &creature_table[i];
+    struct KeeperSprite* kspr = sprite_by_frame(kspr_frame);
     if ( ((a2 & 0x7FF) <= 1151) || ((a2 & 0x7FF) >= 1919) )
         val_in_range = 0;
     else
@@ -274,7 +283,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
 
 }
 
-unsigned long get_creature_model_graphics(long crmodel, unsigned short seq_idx)
+short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
 {
   if (seq_idx >= CREATURE_GRAPHICS_INSTANCES) {
       ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
@@ -300,9 +309,9 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
     creature_graphics[crmodel][seq_idx] = val;
 }
 
-unsigned long get_creature_anim(struct Thing *thing, unsigned short seq_idx)
+short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 {
-    unsigned long idx = get_creature_model_graphics(thing->model, seq_idx);
+    short idx = get_creature_model_graphics(thing->model, seq_idx);
     return convert_td_iso(idx);
 }
 
@@ -350,11 +359,11 @@ void update_creature_graphic_field_4F(struct Thing *thing)
     if (((thing->alloc_flags & TAlF_IsControlled) != 0) && is_my_player_number(thing->owner))
     {
         thing->field_4F |= TF4F_Unknown01;
-    } else
+    }
     if (creatures[thing->model].field_7)
     {
         thing->field_4F |= TF4F_Transpar_Alpha;
-    } else
+    }
     if (creature_is_invisible(thing))
     {
       if (is_my_player_number(thing->owner))

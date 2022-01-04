@@ -26,6 +26,7 @@
 #include "engine_lenses.h"
 #include "config.h"
 #include "front_simple.h"
+#include "engine_render.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,31 +43,47 @@ struct WibbleTable blank_wibble_table[128];
 }
 #endif
 /******************************************************************************/
-long convert_td_iso(unsigned long n)
+short convert_td_iso(short n)
 {
     if ((lens_mode == 2) || (lens_mode == 3))
     {
         if ((n < TD_ISO_POINTS) && (iso_td[n] >= 0))
           return iso_td[n];
+        else if ((n >= KEEPERSPRITE_ADD_OFFSET) && (n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM))
+        {
+            return iso_td_add[n - KEEPERSPRITE_ADD_OFFSET];
+        }
     } else
     {
         if ((n < TD_ISO_POINTS) && (td_iso[n] >= 0))
           return td_iso[n];
+        else if ((n >= KEEPERSPRITE_ADD_OFFSET) && (n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM))
+        {
+            return td_iso_add[n - KEEPERSPRITE_ADD_OFFSET];
+        }
     }
     return n;
 }
 
-long straight_td_iso(unsigned long n)
+short straight_td_iso(short n)
 {
     if (n < TD_ISO_POINTS)
         return td_iso[n];
+    else if ((n >= KEEPERSPRITE_ADD_OFFSET) && (n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM))
+    {
+        return td_iso_add[n - KEEPERSPRITE_ADD_OFFSET];
+    }
     return n;
 }
 
-long straight_iso_td(unsigned long n)
+short straight_iso_td(short n)
 {
     if (n < TD_ISO_POINTS)
         return iso_td[n];
+    else if ((n >= KEEPERSPRITE_ADD_OFFSET) && (n < KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM))
+    {
+        return iso_td_add[n - KEEPERSPRITE_ADD_OFFSET];
+    }
     return n;
 }
 

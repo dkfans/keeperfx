@@ -250,7 +250,7 @@ unsigned char field_67;
         long start_gameturn;
         long long_9Ex;
         long long_A2x;
-        short word_A6;
+        short assigned_torturer;
         unsigned char vis_state;
   } tortured;
   struct {
@@ -315,7 +315,7 @@ unsigned char field_67;
     short word_9E;
     long long_A0;
     short word_A4;
-    short word_A6;
+    short assigned_torturer;
   };
   struct {
     short word_9A_cp2;

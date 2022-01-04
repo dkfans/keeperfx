@@ -185,7 +185,7 @@ void process_disease(struct Thing *creatng)
     if (!creature_affected_by_spell(creatng, SplK_Disease)) {
         return;
     }
-    if (ACTION_RANDOM(100) < game.disease_transfer_percentage)
+    if (CREATURE_RANDOM(creatng, 100) < game.disease_transfer_percentage)
     {
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
@@ -242,7 +242,7 @@ void lightning_modify_palette(struct Thing *thing)
         ERRORLOG("No active camera");
         return;
     }
-    if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
+    if (((thing->health % 8) != 7) && (thing->health != 1) && (UNSYNC_RANDOM(4) != 0))
     {
         if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
         {
@@ -293,7 +293,7 @@ void update_god_lightning_ball(struct Thing *thing)
         if (thing_is_invalid(target))
             break;
         struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodLightBall);
-        apply_damage_to_thing_and_display_health(target, shotst->old->damage, shotst->damage_type, thing->owner);
+        apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
         if (target->health < 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(target);

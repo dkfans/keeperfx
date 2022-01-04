@@ -38,9 +38,9 @@ class MouseStateHandler {
     struct TbPoint *GetPosition(void);
     bool SetMousePosition(long x, long y);
     bool SetPosition(long x, long y);
-    struct TbSprite *GetPointer(void);
-    bool SetMousePointerAndOffset(struct TbSprite *mouseSprite, long x, long y);
-    bool SetMousePointer(struct TbSprite *mouseSprite);
+    const struct TbSprite *GetPointer(void);
+    bool SetMousePointerAndOffset(const struct TbSprite *mouseSprite, long x, long y);
+    bool SetMousePointer(const struct TbSprite *mouseSprite);
     bool SetPointerOffset(long x, long y);
     struct TbPoint *GetPointerOffset(void);
     bool SetMouseWindow(long x, long y,long width, long height);
@@ -48,11 +48,11 @@ class MouseStateHandler {
     bool PointerBeginSwap(void);
     bool PointerEndSwap(void);
  protected:
-    bool SetPointer(struct TbSprite *spr, struct TbPoint *pt);
+    bool SetPointer(const struct TbSprite *spr, struct TbPoint *pt);
     // Properties
     LbSemaphore semaphore;
     bool installed;
-    struct TbSprite *mssprite;
+    const struct TbSprite *mssprite;
     struct TbPoint mspos;
     struct TbPoint hotspot;
     class LbI_PointerHandler pointer;

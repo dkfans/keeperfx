@@ -30,7 +30,7 @@ extern "C" {
 #define MAX_USER_ROOMSPACE_WIDTH                    9
 #define MIN_USER_ROOMSPACE_WIDTH                    1
 #define DEFAULT_USER_ROOMSPACE_WIDTH                5
-#define DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS  0
+#define DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS  2
 #define MAX_USER_ROOMSPACE_DETECTION_LOOSENESS      9
 
 enum roomspace_placement_modes {
@@ -43,8 +43,8 @@ enum roomspace_placement_modes {
 enum roomspace_tolerance_layers {
     disable_tolerance_layers = 0,
     tolerate_only_self_claimed_path = 1,
-    tolerate_other_room_types = 2,
-    tolerate_same_room_type = 3,
+    tolerate_same_room_type = 2,
+    tolerate_other_room_types = 3,
     tolerate_gems = 4,
     tolerate_gold = 5,
     tolerate_liquid = 6,

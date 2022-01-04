@@ -6715,3 +6715,8 @@ msgstr "스넵 카메라"
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "신비한 상자: 이게 뭘 할지 알 수 없어요."
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
+msgstr ""

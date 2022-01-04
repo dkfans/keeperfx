@@ -57,7 +57,7 @@ enum TbButtonType {
 };
 
 enum TbButtonFlags {
-    LbBtnF_Unknown01  =  0x01,  // Created, slot occupied
+    LbBtnF_Active     =  0x01,  // Created, slot occupied
     LbBtnF_Unknown02  =  0x02,
     LbBtnF_Visible    =  0x04,  /**< Informs if the button is visible and uses its drawing callback. If not set, the button is not being displayed. */
     LbBtnF_Enabled    =  0x08,  /**< Informs if the button is enabled and can be clicked, or disabled and grayed out with no reaction to input. */
@@ -197,8 +197,8 @@ struct FrontEndButtonData {
         unsigned char font_index;
 };
 
-struct EventTypeInfo { //sizeof=0x10
-    int field_0;
+struct EventTypeInfo {
+    int bttn_sprite;
     unsigned short tooltip_stridx;
     unsigned short msg_stridx;
     int lifespan_turns;

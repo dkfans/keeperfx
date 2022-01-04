@@ -38,6 +38,7 @@
 #include "creature_graphics.h"
 #include "creature_states.h"
 #include "player_data.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2051,12 +2052,34 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       n = 0;
-      if ((cmd_num > 0) && (cmd_num <= CREATURE_GRAPHICS_INSTANCES))
+      if ((cmd_num == (CGI_HandSymbol + 1)) || (cmd_num == (CGI_QuerySymbol + 1)))
+      {
+          char word_buf[COMMAND_WORD_LEN];
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              n = get_icon_id(word_buf);
+              if (n >= 0)
+              {
+                  set_creature_model_graphics(crtr_model, cmd_num-1, n);
+              }
+              else
+              {
+                  set_creature_model_graphics(crtr_model, cmd_num-1, bad_icon_id);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                             COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              }
+          }
+      }
+      else if ((cmd_num > 0) && (cmd_num <= CREATURE_GRAPHICS_INSTANCES))
       {
           char word_buf[COMMAND_WORD_LEN];
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
+            if ((k == 0) && (strcmp(word_buf, "0") != 0))
+            {
+                CONFWRNLOG("Custom animations are not supported yet");
+            }
             set_creature_model_graphics(crtr_model, cmd_num-1, k);
             n++;
           }

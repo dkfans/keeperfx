@@ -26,7 +26,7 @@
 #include "bflib_sound.h"
 #include "bflib_mouse.h"
 #include "bflib_dernc.h"
-
+#include "lvl_script.h"
 #include "engine_arrays.h"
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -886,7 +886,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if ((game.numfield_D & GNFldD_Unkn08) != 0)
+        if ((game.numfield_D & GNFldD_CreaturePasngr) != 0)
           set_pointer_graphic(MousePG_Arrow);
         else
           set_pointer_graphic(MousePG_Invisible);
@@ -957,7 +957,16 @@ void redraw_display(void)
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
         text = buf_sprintf( ">%s_", player->mp_message_text);
-        LbTextDrawResized(148*units_per_pixel/16, 8*units_per_pixel/16, tx_units_per_px, text);
+        long pos_x = 148*units_per_pixel/16;
+        long pos_y = 8*units_per_pixel/16;
+        if (game.armageddon_cast_turn != 0)
+        {
+            if ( (bonus_timer_enabled()) || (script_timer_enabled()) || display_variable_enabled() )
+            {
+                pos_y = ((pos_y << 3) + ((LbTextLineHeight()*units_per_pixel/16) * game.active_messages_count));
+            }
+        }
+        LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
     }
     if ( draw_spell_cost )
     {
@@ -975,6 +984,14 @@ void redraw_display(void)
     if (bonus_timer_enabled())
     {
         draw_bonus_timer();
+    }
+    else if (script_timer_enabled())
+    {
+        draw_script_timer(gameadd.script_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
+    }
+    if (display_variable_enabled())
+    {
+        draw_script_variable(gameadd.script_player, gameadd.script_value_type, gameadd.script_value_id, gameadd.script_variable_target, gameadd.script_variable_target_type);
     }
     if (timer_enabled())
     {

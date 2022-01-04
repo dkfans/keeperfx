@@ -377,7 +377,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotng->move_angle_z = 0;
         struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
         struct ComponentVector cvect;
-        angles_to_vector(shotng->move_angle_xy, 0, shotst->old->speed, &cvect);
+        angles_to_vector(shotng->move_angle_xy, 0, shotst->speed, &cvect);
         shotng->veloc_push_add.x.val += cvect.x;
         shotng->veloc_push_add.y.val += cvect.y;
         shotng->veloc_push_add.z.val += cvect.z;
@@ -474,8 +474,8 @@ void activate_trap_spawn_creature(struct Thing *traptng, const struct TrapStats 
         return;
     }
     cctrl = creature_control_get_from_thing(thing);
-    thing->veloc_push_add.x.val += ACTION_RANDOM(161) - 80;
-    thing->veloc_push_add.y.val += ACTION_RANDOM(161) - 80;
+    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 0;
     thing->state_flags |= TF1_PushAdd;
     cctrl->spell_flags |= CSAfF_MagicFall;
@@ -532,7 +532,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         activate_trap_slab_change(traptng, creatng);
         break;
     case TrpAcT_CreatureShot:
-        creature_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, 1);
+        creature_fire_shot(traptng, creatng, trapstat->created_itm_model, THit_CrtrsNObjcts, 1);
         break;
     case TrpAcT_CreatureSpawn:
         activate_trap_spawn_creature(traptng, trapstat);
@@ -772,8 +772,8 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;
-        ilght.field_0 = trapstat->light_1C;
-        ilght.field_2 = trapstat->light_1E;
+        ilght.radius = trapstat->light_1C;
+        ilght.intensity = trapstat->light_1E;
         ilght.is_dynamic = 1;
         ilght.field_3 = trapstat->light_1F;
         thing->light_id = light_create_light(&ilght);
@@ -834,7 +834,7 @@ long remove_trap(struct Thing *traptng, long *sell_value)
         if (sell_value != NULL)
         {
             // Do the refund only if we were able to sell armed trap
-            long i = gameadd.traps_config[traptng->model].selling_value;
+            long i = compute_value_percentage(gameadd.traps_config[traptng->model].selling_value, gameadd.trap_sale_percent);
             if (traptng->trap.num_shots == 0)
             {
                 // Trap not armed - try selling crate from workshop
@@ -904,7 +904,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     shotng->move_angle_xy = a2;
     shotng->move_angle_z = 0;
     struct ComponentVector cvect;
-    angles_to_vector(shotng->move_angle_xy, 0, shotst->old->speed, &cvect);
+    angles_to_vector(shotng->move_angle_xy, 0, shotst->speed, &cvect);
     shotng->veloc_push_add.x.val += cvect.x;
     shotng->veloc_push_add.y.val += cvect.y;
     shotng->veloc_push_add.z.val += cvect.z;

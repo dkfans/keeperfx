@@ -36,6 +36,7 @@
 #include "game_heap.h"
 #include "gui_draw.h"
 #include "gui_parchment.h"
+#include "gui_topmsg.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "config.h"
@@ -44,6 +45,7 @@
 #include "game_legacy.h"
 #include "creature_graphics.h"
 #include "keeperfx.hpp"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -342,32 +344,37 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
         LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
         return false;
   }
-  if ((group_idx < 0) || (group_idx >= SPELL_POINTER_GROUPS))
-  {
-    WARNLOG("Group index out of range, setting pointer to none");
-    LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
-    return false;
-  }
   if (is_feature_on(Ft_BigPointer))
   {
     y = 32;
     x = 32;
-    i = 8*group_idx + (frame%8);
+    i = (is_custom_icon(group_idx)? group_idx : 8*group_idx) + (frame%8);
   } else
   {
     y = 78;
     x = 26;
     i = group_idx;
   }
-  struct TbSprite* spr = &pointer_sprites[40 + i];
-  SYNCDBG(8,"Activating pointer %d",40+i);
-  if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
+  const struct TbSprite* spr;
+
+  if (is_custom_icon(i))
   {
-    LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
-  } else
+      spr = get_new_icon_sprite(i);
+      SYNCDBG(8,"Activating pointer %d", i);
+      LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
+  }
+  else
   {
-    WARNLOG("Sprite %d exceeds buffer, setting pointer to none",(int)i);
-    LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
+      spr = &pointer_sprites[40 + i];
+      SYNCDBG(8,"Activating pointer %d", 40+i);
+      if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
+      {
+          LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
+      } else
+      {
+          WARNLOG("Sprite %d exceeds buffer, setting pointer to none",(int)i);
+          LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
+      }
   }
   return true;
 }
@@ -376,7 +383,7 @@ TbBool set_pointer_graphic(long ptr_idx)
 {
     long x;
     long y;
-    struct TbSprite* spr;
+    const struct TbSprite* spr;
     SYNCDBG(8, "Setting to %d", (int)ptr_idx);
     if (pointer_sprites == NULL)
     {
@@ -458,6 +465,12 @@ TbBool set_pointer_graphic(long ptr_idx)
       x = 12; y = 15;
       break;
   default:
+      spr = get_new_icon_sprite(ptr_idx);
+      if (spr != NULL)
+      {
+          LbMouseChangeSpriteAndHotspot(spr, spr->SWidth/2, spr->SHeight);
+          return true;
+      }
     WARNLOG("Unrecognized Mouse Pointer index, %d",ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
@@ -695,7 +708,6 @@ TbBool setup_screen_mode(unsigned short nmode)
     if (parchment_loaded)
       reload_parchment_file(new_mdinfo->Width >= 640);
     reinitialise_eye_lens(lens_mem);
-    LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1);
     lbDisplay.DrawFlags = flg_mem;
     if (!setup_heap_memory())
     {
@@ -731,16 +743,16 @@ TbBool update_screen_mode_data(long width, long height)
   units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // 8 for low res, 16 is "kfx default"
   long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
   units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
-  
+
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);
   else
     LbSpriteSetupAll(setup_sprites);
-  LbMouseSetup(NULL);
   LbMouseChangeMoveRatio(base_mouse_sensitivity*units_per_pixel/16, base_mouse_sensitivity*units_per_pixel/16);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+  LbMouseSetup(NULL);
   return true;
 }
 
@@ -898,11 +910,13 @@ TbScreenMode switch_to_next_video_mode(void)
     TbScreenMode scrmode = get_next_vidmode(lbDisplay.ScreenMode);
     if ( setup_screen_mode(scrmode) )
     {
+        show_onscreen_msg(game.num_fps * 6, "%s", get_vidmode_name(scrmode));
         settings.video_scrnmode = scrmode;
     } else
     {
         SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
             get_vidmode_name(scrmode),(int)scrmode);
+        show_onscreen_msg(game.num_fps * 6, "%s", get_string(856));
         scrmode = get_failsafe_vidmode();
         if ( !setup_screen_mode(scrmode) )
         {
@@ -915,6 +929,7 @@ TbScreenMode switch_to_next_video_mode(void)
     SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
     save_settings();
     reinit_all_menus();
+    init_custom_sprites(SPRITE_LAST_LEVEL);
     return scrmode;
 }
 
