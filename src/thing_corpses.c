@@ -281,7 +281,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         {
             if (corpse_is_sparkly(thing))
             {
-                if (game.play_gameturn - thing->creation_turn > (game.body_remains_for / 40))
+                if (game.play_gameturn - thing->creation_turn > (game.body_remains_for / 20))
                 {
                     EVM_CREATURE_EVENT("remove", thing->owner, thing);
                     //todo set correct sparkle color

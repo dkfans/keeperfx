@@ -173,6 +173,7 @@ const struct NamedCommand creature_deathkind_desc[] = {
     {"SMOKEEXPLODE",    Death_SmokeExplode},
     {"ICEEXPLODE",      Death_IceExplode},
     {"SPARKLES",        Death_Sparkles},
+    {"FLESHSPLAT",      Death_FleshSplat},
     {NULL,              0},
     };
 

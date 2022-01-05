@@ -2326,6 +2326,39 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
 }
 
+/**
+ * Creates an effect of death with bloody flesh explosion, killing the creature.
+ * @param thing
+ */
+void thing_death_small_flesh_explosion(struct Thing* thing)
+{
+    //_DK_thing_death_flesh_explosion(thing);return;
+    long memp1 = thing->move_angle_xy;
+    struct Coord3d memaccl;
+    memaccl.x.val = thing->veloc_base.x.val;
+    memaccl.y.val = thing->veloc_base.y.val;
+    memaccl.z.val = thing->veloc_base.z.val;
+    for (long i = 0; i <= thing->clipbox_size_yz; i += 64)
+    {
+        struct Coord3d pos;
+        pos.x.val = thing->mappos.x.val;
+        pos.y.val = thing->mappos.y.val;
+        pos.z.val = thing->mappos.z.val + i;
+        create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
+    }
+    struct Thing* deadtng = destroy_creature_and_create_corpse(thing, DCrSt_RigorMortis);
+    if (thing_is_invalid(deadtng))
+    {
+        ERRORLOG("Cannot create dead thing");
+        return;
+    }
+    deadtng->move_angle_xy = memp1;
+    deadtng->veloc_base.x.val = memaccl.x.val;
+    deadtng->veloc_base.y.val = memaccl.y.val;
+    deadtng->veloc_base.z.val = memaccl.z.val;
+    thing_play_sample(deadtng, 57, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+}
+
 void thing_death_smoke_explosion(struct Thing *thing)
 {
     //_DK_thing_death_smoke_explosion(thing);return;
@@ -2409,6 +2442,9 @@ void creature_death_as_nature_intended(struct Thing *thing)
         break;
     case Death_Sparkles:
         destroy_creature_and_create_effect_element(thing, TngEffElm_WhiteSparklesSmall);
+        break;
+    case Death_FleshSplat:
+        thing_death_small_flesh_explosion(thing);
         break;
     default:
         WARNLOG("Unexpected %s death cause %d",thing_model_name(thing),(int)i);

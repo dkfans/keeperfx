@@ -155,6 +155,7 @@ enum CreatureDeathKind {
     Death_SmokeExplode,
     Death_IceExplode,
     Death_Sparkles,
+    Death_FleshSplat,
 };
 
 enum CreatureAttackType {
