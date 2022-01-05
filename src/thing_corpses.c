@@ -66,6 +66,22 @@ TbBool corpse_is_rottable(const struct Thing *thing)
 }
 
 /**
+ *  Returns if given corpse will turn into sparks.
+ * @param thing The dead creature thing.
+ * @return True if the corpse should turn to sparks.
+ */
+TbBool corpse_is_sparkly(const struct Thing* thing)
+{
+    if (!thing_exists(thing))
+        return false;
+    if (thing->class_id != TCls_DeadCreature)
+        return false;
+
+    struct CreatureStats* crstat = creature_stats_get(thing->model);
+        return crstat->sparkly_corpse;
+}
+
+/**
  *  Returns if given corpse placed properly into the graveyard.
  * @param thing The dead creature thing.
  * @return True if the corpse has been placed in graveyard.
@@ -235,6 +251,13 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         } else
         if (corpse_laid_to_rest(thing))
         {
+            if (corpse_is_sparkly(thing)) // Sparkly corpses go poof
+            {
+                EVM_CREATURE_EVENT("remove", thing->owner, thing);
+                create_effect_element(&thing->mappos, TngEffElm_WhiteSparklesSmall, thing->owner);
+                delete_thing_structure(thing, 0);
+                return TUFRet_Deleted;
+            }
             if ( corpse_is_rottable(thing) )
             {
                 if (thing->health > 0)
@@ -247,7 +270,8 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 }
             } else
             {
-                if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
+                if (game.play_gameturn - thing->creation_turn > game.body_remains_for) 
+                {
                     EVM_CREATURE_EVENT("remove", thing->owner, thing);
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
@@ -255,10 +279,25 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             }
         } else
         {
-            if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
-                EVM_CREATURE_EVENT("remove", thing->owner, thing);
-                delete_thing_structure(thing, 0);
-                return TUFRet_Deleted;
+            if (corpse_is_sparkly(thing))
+            {
+                if (game.play_gameturn - thing->creation_turn > (game.body_remains_for / 40))
+                {
+                    EVM_CREATURE_EVENT("remove", thing->owner, thing);
+                    //todo set correct sparkle color
+                    create_effect_element(&thing->mappos, TngEffElm_RedSparklesSmall, thing->owner);
+                    delete_thing_structure(thing, 0);
+                    return TUFRet_Deleted;
+                }
+            }
+            else 
+            {
+                if (game.play_gameturn - thing->creation_turn > game.body_remains_for)
+                {
+                    EVM_CREATURE_EVENT("remove", thing->owner, thing);
+                    delete_thing_structure(thing, 0);
+                    return TUFRet_Deleted;
+                }
             }
         }
     }

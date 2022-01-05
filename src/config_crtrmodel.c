@@ -107,6 +107,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"IMMUNE_TO_DISEASE", 25},
   {"ILLUMINATED",       26},
   {"ALLURING_SCVNGR",   27},
+  {"SPARKLY_CORPSE",    28},
   {NULL,                 0},
   };
 
@@ -256,6 +257,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->thing_size_yz = 64;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
+      crstat->sparkly_corpse = false;
       crstat->immune_to_gas = false;
       crstat->humanoid_creature = false;
       crstat->piss_on_dead = false;
@@ -625,6 +627,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           break;
       case 28: // PROPERTIES
           crstat->bleeds = false;
+          crstat->sparkly_corpse = false;
           crstat->affected_by_wind = true;
           crstat->immune_to_gas = false;
           crstat->humanoid_creature = false;
@@ -740,6 +743,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 27: // ALLURING_SCVNGR
                 crstat->entrance_force = true;
+                n++;
+                break;
+            case 28: // SPARKLY_CORPSE
+                crstat->sparkly_corpse = true;
                 n++;
                 break;
             default:

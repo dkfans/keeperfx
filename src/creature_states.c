@@ -553,6 +553,7 @@ TbBool creature_model_bleeds(unsigned long crmodel)
   }
   return crstat->bleeds;
 }
+
 /******************************************************************************/
 /** Returns type of given creature state.
  *

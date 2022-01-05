@@ -634,6 +634,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool can_go_locked_doors;
     TbBool bleeds;
     TbBool affected_by_wind;
+    TbBool sparkly_corpse;
     unsigned short thing_size_xy;
     unsigned short thing_size_yz;
     short annoy_eat_food;

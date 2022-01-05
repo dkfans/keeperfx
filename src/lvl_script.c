@@ -4834,7 +4834,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         }
         scline->np[idx] = opertr_id;
         };break;
-    case 'X': {
+    case 'X': {  //todo remove X and move this to refactored script command
         long prop_id = get_rid(creatmodel_properties_commands, scline->tp[idx]);
         if (prop_id == -1)
         {
@@ -7291,6 +7291,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
+          break;
+      case 28: // SPARKLY_CORPSE
+          crstat->sparkly_corpse = val4;
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
