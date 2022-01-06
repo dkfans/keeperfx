@@ -5460,6 +5460,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
 
     // Draw the columns cubes
 
+    unsigned short textr_idx;
     y = a7 + pos_y;
     unkstrcp = NULL;
     for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
@@ -5471,7 +5472,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if (*ymax > y)
       {
         *ymax = y;
-        add_lgttextrdquad_to_polypool(pos_x, y, unkstrcp->texture_id[cube_itm], a7, delta_y, 0,
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
+        add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
             lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
       }
     }
@@ -5482,18 +5484,19 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if (*ymax > i)
       {
         *ymax = i;
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
         if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a8,
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
               2097152, 1, bckt_idx);
         } else
         if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a8,
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
               2097152, 0, bckt_idx);
         } else
         {
-          add_lgttextrdquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a7, a8,
+          add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
               lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
         }
       }
@@ -5518,7 +5521,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             unkstrcp = &game.cubes_data[col->cubes[tc]];
             if (*ymax > y)
             {
-              add_lgttextrdquad_to_polypool(pos_x, y, unkstrcp->texture_id[cube_itm], a7, delta_y, 0,
+              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
+              add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
                   lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
             }
         }
@@ -5527,7 +5531,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
           i = y - a7;
           if (*ymax > i)
           {
-            add_lgttextrdquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a7, a8,
+              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
+            add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
                 lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
           }
         }
