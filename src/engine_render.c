@@ -5438,7 +5438,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       i = game.unrevealed_column_idx;
     col = get_column(i);
     mapblk = get_map_block_at(stl_x, stl_y);
-
+    unsigned short textr_idx;
     // Draw the columns base block
 
     if (*ymax > pos_y)
@@ -5446,21 +5446,21 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if ((col->baseblock != 0) && (col->cubes[0] == 0))
       {
           *ymax = pos_y;
+          textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->baseblock);
           if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
           {
-              add_textruredquad_to_polypool(pos_x, pos_y, col->baseblock, a7, 0,
+              add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, a7, 0,
                   2097152, 0, bckt_idx);
           } else
           {
-              add_lgttextrdquad_to_polypool(pos_x, pos_y, col->baseblock, a7, a7, 0,
+              add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, a7, a7, 0,
                   lightness_arr[0][0], lightness_arr[1][0], lightness_arr[2][0], lightness_arr[3][0], bckt_idx);
           }
       }
     }
 
     // Draw the columns cubes
-
-    unsigned short textr_idx;
+    
     y = a7 + pos_y;
     unkstrcp = NULL;
     for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
