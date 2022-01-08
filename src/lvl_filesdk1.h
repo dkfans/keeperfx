@@ -49,7 +49,7 @@ TbBool load_thing_file(LevelNumber lv_num);
 TbBool load_action_point_file(LevelNumber lv_num);
 
 TbBool load_map_file(LevelNumber lvnum);
-void load_ext_slabs(LevelNumber lvnum);
+static void load_ext_slabs(LevelNumber lvnum);
 /******************************************************************************/
 #ifdef __cplusplus
 }

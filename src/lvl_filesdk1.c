@@ -1217,16 +1217,16 @@ short load_and_setup_map_info(unsigned long lv_num)
     return true;
 }
 
-void load_ext_slabs(LevelNumber lvnum)
+static void load_ext_slabs(LevelNumber lvnum)
 {
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slx", (unsigned long)lvnum);
     if (LbFileExists(fname))
     {
-        if (sizeof(slab_ext_data) != LbFileLoadAt(fname, slab_ext_data))
+        if (sizeof(gameadd.slab_ext_data) != LbFileLoadAt(fname, gameadd.slab_ext_data))
         {
             JUSTLOG("Invalid ExtSlab data from %s", fname);
-            memset(slab_ext_data, 0, sizeof(slab_ext_data));
+            memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
         }
         SYNCDBG(1, "ExtSlab file:%s ok", fname);
         return;
@@ -1234,7 +1234,7 @@ void load_ext_slabs(LevelNumber lvnum)
     else
     {
         SYNCDBG(1, "No ExtSlab file:%s", fname);
-        memset(slab_ext_data, 0, sizeof(slab_ext_data));
+        memset(gameadd.slab_ext_data, 0, sizeof(gameadd.slab_ext_data));
     }
 }
 
