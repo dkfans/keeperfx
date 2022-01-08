@@ -1217,7 +1217,7 @@ short load_and_setup_map_info(unsigned long lv_num)
     return true;
 }
 
-static void load_ext_slabs(LevelNumber lvnum)
+void load_ext_slabs(LevelNumber lvnum)
 {
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slx", (unsigned long)lvnum);
