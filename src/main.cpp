@@ -101,7 +101,6 @@
 #include "game_legacy.h"
 #include "room_list.h"
 #include "game_loop.h"
-
 #include "music_player.h"
 
 #ifdef AUTOTESTING
@@ -1434,7 +1433,6 @@ void reinit_level_after_load(void)
     end_rooms = &game.rooms[ROOMS_COUNT];
     load_texture_map_file(game.texture_id, 2);
     init_animating_texture_maps();
-
     init_gui();
     reset_gui_based_on_player_mode();
     erstats_clear();

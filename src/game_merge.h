@@ -212,6 +212,7 @@ struct GameAdd {
     TbBool heart_lost_quick_message;
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
+    unsigned char slab_ext_data[85 * 85];
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
