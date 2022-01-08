@@ -101,7 +101,6 @@
 #include "game_legacy.h"
 #include "room_list.h"
 #include "game_loop.h"
-#include "lvl_filesdk1.h"
 #include "music_player.h"
 
 #ifdef AUTOTESTING
