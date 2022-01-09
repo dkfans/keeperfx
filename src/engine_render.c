@@ -6198,10 +6198,23 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     {
         if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
         {
-          if ( (player->acamera->view_mode == PVM_IsometricView) || (player->acamera->view_mode == PVM_CreatureView) )
+          if (player->acamera->view_mode == PVM_IsometricView)
           {
               lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
               lbSpriteReMapPtr = white_pal;
+          }
+          else if (player->acamera->view_mode == PVM_CreatureView)
+          {
+              struct Thing *creatng = thing_get(player->influenced_thing_idx);
+              if (thing_is_creature(creatng))
+              {
+                  struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                  if (cctrl->dragtng_idx == 0)
+                  {
+                    lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                    lbSpriteReMapPtr = white_pal;  
+                  }
+              }
           }
         } else
         if ((thing->field_4F & TF4F_Unknown80) != 0)
