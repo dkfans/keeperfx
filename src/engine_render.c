@@ -3363,21 +3363,21 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
         int n;
         //TODO CONFIG object model dependency, move to config
 
-        long v14;
-        long v15;
+        long dx;
+        long dy;
         long v16;
         if (thing->model == 2)
         {
             n = 113;
             if (player->view_type == PVT_DungeonTop)
             {
-                v14 = 0;
-                v15 = 3 * a6_2 >> 3;
+                dx = 0;
+                dy = 3 * a6_2 >> 3;
             }
             else
             {
-                v14 = a6_2 * LbSinL(angle) >> 20;
-                v15 = a6_2 * LbCosL(angle) >> 20;
+                dx = a6_2 * LbSinL(angle) >> 20;
+                dy = a6_2 * LbCosL(angle) >> 20;
             }
             v16 = 2 * a6_2 / 3;
         }
@@ -3385,13 +3385,13 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
         {
             if (player->view_type == PVT_DungeonTop)
             {
-                v14 = (a6_2 >> 2 )/ 3;
-                v15 = a6_2 / 6;
+                dx = (a6_2 >> 2 ) / 3;
+                dy = a6_2 / 6;
             }
             else
             {
-                v14 = a6_2 * LbSinL(angle) >> 20;
-                v15 = (-(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16) / 3;
+                dx = a6_2 * LbSinL(angle) >> 20;
+                dy = (-(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16) / 3;
             }
             v16 = a6_2 / 3;
         }
@@ -3400,13 +3400,13 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
             n = 112;
             if (player->view_type == PVT_DungeonTop)
             {
-                v14 = a6_2 >> 3;
-                v15 = (a6_2 >> 2) - a6_2;
+                dx = a6_2 >> 3;
+                dy = (a6_2 >> 2) - a6_2;
             }
             else
             {
-                v14 = a6_2 * LbSinL(angle) >> 20;
-                v15 = -(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16;
+                dx = a6_2 * LbSinL(angle) >> 20;
+                dy = -(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16;
             }
             v16 = a6_2 / 2;
         }
@@ -3414,7 +3414,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
         unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
         process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
         EngineSpriteDrawUsingAlpha = 1;
-        process_keeper_sprite(v14 + jspr->scr_x, v15 + jspr->scr_y, n, v21, 0, v16);
+        process_keeper_sprite(dx + jspr->scr_x, dy + jspr->scr_y, n, v21, 0, v16);
     }
     else
     {
