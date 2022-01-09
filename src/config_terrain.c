@@ -1348,6 +1348,30 @@ TbBool slab_kind_is_indestructible(RoomKind slbkind)
 }
 
 /**
+ * Returns if given slab kind is a reinforced wall modified by the room besides it.
+ * @param slbkind The slab kind to be checked.
+ * @return True if the slab is a fortified wall next to a room, false otherwise.
+ */
+TbBool slab_kind_is_room_wall(RoomKind slbkind)
+{
+    return
+        (slbkind == SlbT_ENTRANCE_WALL)  ||
+        (slbkind == SlbT_TREASURE_WALL)  ||
+        (slbkind == SlbT_LIBRARY_WALL)   ||
+        (slbkind == SlbT_PRISON_WALL)    ||
+        (slbkind == SlbT_TORTURE_WALL)   ||
+        (slbkind == SlbT_TRAINING_WALL)  ||
+        (slbkind == SlbT_DUNGHEART_WALL) ||
+        (slbkind == SlbT_WORKSHOP_WALL)  ||
+        (slbkind == SlbT_SCAVENGER_WALL) ||
+        (slbkind == SlbT_TEMPLE_WALL)    ||
+        (slbkind == SlbT_GRAVEYARD_WALL) ||
+        (slbkind == SlbT_GARDEN_WALL)    ||
+        (slbkind == SlbT_LAIR_WALL)      ||
+        (slbkind == SlbT_BARRACKS_WALL);
+}
+
+/**
  * Returns if given slab kind is a reinforced wall, fortified by a player.
  * @param slbkind The slab kind to be checked.
  * @return True if the slab is a fortified wall, false otherwise.
