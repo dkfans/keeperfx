@@ -244,6 +244,9 @@ obj/lens_mist.o \
 obj/light_data.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
+obj/lvl_script_commands.o \
+obj/lvl_script_lib.o \
+obj/lvl_script_statehandler.o \
 obj/magic.o \
 obj/main_game.o \
 obj/map_blocks.o \

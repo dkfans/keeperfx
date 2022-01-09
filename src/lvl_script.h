@@ -308,13 +308,6 @@ struct ScriptContext
     };
 };
 
-struct CommandDesc { // sizeof = 14 // originally was 13
-  const char *textptr;
-  char args[COMMANDDESC_ARGS_COUNT+1]; // originally was [8]
-  unsigned char index;
-  void (*check_fn)(const struct ScriptLine *scline); // should check
-  void (*process_fn)(struct ScriptContext *context); // called from value or from
-};
 
 struct ScriptLine {
   enum TbScriptCommands command;
@@ -396,8 +389,6 @@ struct ScriptValue { // sizeof = 16
     short shorts[6];
   };
 };
-
-static_assert(sizeof(struct ScriptValue) == 16, "");
 
 struct Condition { // sizeof = 12
   short condit_idx;
@@ -497,7 +488,7 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 
 #pragma pack()
 /******************************************************************************/
-extern const struct CommandDesc command_desc[];
+
 extern const struct NamedCommand player_desc[];
 /******************************************************************************/
 TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
