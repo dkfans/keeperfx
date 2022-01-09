@@ -5678,41 +5678,91 @@ void display_controlled_picked_up_thing_name(struct Thing *picktng)
 
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
 {
-    struct Map *blk = get_map_block_at(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
-    for (struct Thing* picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk))
+    unsigned char radius = 0;
+    MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
+    MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
+    do
     {
-        if (picktng != creatng)
+        struct Map *blk = get_map_block_at(stl_x, stl_y);
+        for (struct Thing* picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk))
         {
-            if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
+            if (picktng != creatng)
+            {
+                if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
                   (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
                   (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default)) || 
                   ( (thing_is_creature(picktng)) && creature_is_being_unconscious(picktng) ) ||
                   (object_is_gold_pile(picktng)) )
-                  {
-                      return picktng;
-                  }
-                  struct Room* room = get_room_thing_is_on(creatng);
-                    if (!room_is_invalid(room))
                     {
-                        if (room->kind == RoK_WORKSHOP)
+                        if (line_of_sight_3d(&creatng->mappos, &picktng->mappos))
                         {
-                            if (room->owner == creatng->owner)
+                            return picktng;
+                        }
+                    }
+                    struct Room* room = get_room_thing_is_on(creatng);
+                        if (!room_is_invalid(room))
+                        {
+                            if (room->kind == RoK_WORKSHOP)
                             {
-                                for (picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk))
+                                if (room->owner == creatng->owner)
                                 {
-                                    if (thing_is_workshop_crate(picktng))
+                                    for (picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk))
                                     {
-                                        if ( (picktng->owner == room->owner) && (picktng->owner == creatng->owner) )
+                                        if (thing_is_workshop_crate(picktng))
                                         {
-                                            return picktng;
+                                            if ( (picktng->owner == room->owner) && (picktng->owner == creatng->owner) )
+                                            {
+                                                if (line_of_sight_3d(&creatng->mappos, &picktng->mappos))
+                                                {
+                                                    return picktng;
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
+            }
         }
+        if ( (creatng->move_angle_xy > 1920) || (creatng->move_angle_xy <= 127) )
+        {
+            stl_y--;
+        }            
+        else if ( (creatng->move_angle_xy >= 128) && (creatng->move_angle_xy <= 384) )
+        {
+            stl_x++;
+            stl_y--;
+        }
+        else if ( (creatng->move_angle_xy >= 385) && (creatng->move_angle_xy <= 640) )
+        {
+            stl_x++;
+        }
+        else if ( (creatng->move_angle_xy >= 641) && (creatng->move_angle_xy <= 896) )
+        {
+            stl_x++;
+            stl_y++;            
+        }
+        else if ( (creatng->move_angle_xy >= 897) && (creatng->move_angle_xy <= 1152) )
+        {
+            stl_y++;
+        }
+        else if ( (creatng->move_angle_xy >= 1153) && (creatng->move_angle_xy <= 1408) )
+        {
+            stl_x--;
+            stl_y++;
+        }
+        else if ( (creatng->move_angle_xy >= 1409) && (creatng->move_angle_xy <= 1664) )
+        {
+            stl_x--;
+        }
+        else if ( (creatng->move_angle_xy >= 1665) && (creatng->move_angle_xy <= 1920) )
+        {
+            stl_x--;
+            stl_y--;
+        }
+        radius++;
     }
+    while (radius < STL_PER_SLB);
     return INVALID_THING;
 }
 
