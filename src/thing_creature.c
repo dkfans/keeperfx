@@ -5574,7 +5574,7 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
         }
         else
         {
-            struct Thing* picktng = controlled_get_thing_to_pick_up(thing);
+            struct Thing* picktng = thing_get(player->thing_under_hand);
             struct Room* room;
             if (!thing_is_invalid(picktng))
             {
