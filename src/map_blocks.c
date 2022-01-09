@@ -742,12 +742,12 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
         ERRORLOG("%s: Illegal animating slab style: %d", func_name, (int)style);
         style = 0;
     }
-    if ((pick >= 9) || ((style == 3) && (pick >= 1))) 
+    if ((pick >= 9) || ((style == (SlbFillStl_Water+1)) && (pick >= 1)))
     {
         if (slab_kind_is_room_wall(slbkind) && (pick < 9))
         {
-            style = 2; //todo figure out what style=3 is
-            slbkind = SlbT_DAMAGEDWALL;
+            style = SlbFillStl_Water;
+            slbkind = SlbT_DAMAGEDWALL; // There's no columns for room walls next to water, so we're using a regular wall instead.
         }
         else
         {
