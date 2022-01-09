@@ -59,7 +59,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *outbuf);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
 DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
@@ -3258,9 +3257,174 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
     map_volume_box.color = color;
 }
 
-static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
+static unsigned short get_thing_shade(struct Thing* thing);
+static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
 {
-    _DK_draw_fastview_mapwho(cam, spr);
+    unsigned short flg_mem;
+    unsigned char alpha_mem;
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    long angle;
+    long scale;
+    flg_mem = lbDisplay.DrawFlags;
+    alpha_mem = EngineSpriteDrawUsingAlpha;
+    thing = jspr->thing;
+    player = get_my_player();
+    if (keepersprite_rotable(thing->anim_sprite))
+    {
+        angle = thing->move_angle_xy - cam->orient_a; // orient_a maybe short
+    }
+    else
+    {
+        angle = thing->move_angle_xy;
+    }
+
+    switch(thing->field_4F & TF4F_Transpar_Alpha)
+    {
+        case TF4F_Transpar_8:
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+            break;
+        case TF4F_Transpar_4:
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+            break;
+        default:
+            break;
+    }
+    unsigned short v6 = 0x2000;
+    if ( !(thing->field_4F & TF4F_Unknown02) )
+        v6 = get_thing_shade(thing);
+
+    int a6_2 = thing->sprite_size * ((cam->zoom << 13) / 0x10000 / pixel_size) / 0x10000;
+    if ( thing->field_4F & TF4F_Tint_Flags )
+    {
+        lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+        lbSpriteReMapPtr = (int)&pixmap.ghost[256 * thing->field_51];
+    }
+    else if ( v6 == 0x2000 )
+    {
+        lbDisplay.DrawFlags &= 0xF7FFu;
+    }
+    else
+    {
+        lbDisplay.DrawFlags |= 0x800u;
+        lbSpriteReMapPtr = (int)&pixmap + v6;
+    }
+
+    EngineSpriteDrawUsingAlpha = 0;
+    switch (thing->field_4F & (TF4F_Transpar_Flags))
+    {
+        case TF4F_Transpar_8:
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+            lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+            break;
+        case TF4F_Transpar_4:
+            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+            lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+            break;
+        case TF4F_Transpar_Alpha:
+            EngineSpriteDrawUsingAlpha = 1;
+            break;
+    }
+//
+    if ((thing->class_id == TCls_Creature)
+        || (thing->class_id == TCls_Object)
+        || (thing->class_id == TCls_DeadCreature))
+    {
+        if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
+        {
+            lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+            lbSpriteReMapPtr = white_pal;
+        }
+        else if ((thing->field_4F & TF4F_Unknown80) != 0)
+        {
+            lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+            lbSpriteReMapPtr = red_pal;
+            thing->field_4F &= ~TF4F_Unknown80;
+        }
+        thing_being_displayed_is_creature = 1;
+        thing_being_displayed = thing;
+    } else
+    {
+        thing_being_displayed_is_creature = 0;
+        thing_being_displayed = NULL;
+    }
+
+    if (
+            ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
+            || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
+            )
+    {
+        ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
+        return;
+    }
+    struct TrapConfigStats *trapst;
+    if (thing->class_id == TCls_Object)
+    {
+        int n;
+        //TODO CONFIG object model dependency, move to config
+
+        long v14;
+        long v15;
+        long v16;
+        if (thing->model == 2)
+        {
+            n = 113;
+            if (player->view_type == PVT_DungeonTop)
+            {
+                v14 = 0;
+                v15 = 3 * a6_2 >> 3;
+            }
+            else
+            {
+                v14 = a6_2 * LbSinL(angle) >> 20;
+                v15 = a6_2 * LbCosL(angle) >> 20;
+            }
+            v16 = 2 * a6_2 / 3;
+        }
+        else if (thing->model == 4)
+        {
+            if (player->view_type == PVT_DungeonTop)
+            {
+                v14 = (a6_2 >> 2 )/ 3;
+                v15 = a6_2 / 6;
+            }
+            else
+            {
+                v14 = a6_2 * LbSinL(angle) >> 20;
+                v15 = (-(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16) / 3;
+            }
+            v16 = a6_2 / 3;
+        }
+        else if ( thing->model == 28) //torchflames
+        {
+            n = 112;
+            if (player->view_type == PVT_DungeonTop)
+            {
+                v14 = a6_2 >> 3;
+                v15 = (a6_2 >> 2) - a6_2;
+            }
+            else
+            {
+                v14 = a6_2 * LbSinL(angle) >> 20;
+                v15 = -(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16;
+            }
+            v16 = a6_2 / 2;
+        }
+        EngineSpriteDrawUsingAlpha = 0;
+        unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
+        process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
+        EngineSpriteDrawUsingAlpha = 1;
+        process_keeper_sprite(v14 + jspr->scr_x, v15 + jspr->scr_y, n, v21, 0, v16);
+    }
+    else
+    {
+        if ( thing->class_id != TCls_Trap || thing->model == 1 || // TODO: Boulder is always shown here
+                get_my_player()->id_number == (char)thing->owner ||
+                thing->trap_door_active_state )
+            process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
+    }
+    lbDisplay.DrawFlags = flg_mem;
+    EngineSpriteDrawUsingAlpha = alpha_mem;
 }
 
 void draw_engine_number(struct Number *num)
