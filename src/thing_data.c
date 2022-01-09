@@ -288,7 +288,7 @@ void query_thing(struct Thing *thing)
         if (querytng->class_id == TCls_Trap)
         {
             struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
-            sprintf(output, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf((char*)health, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
         }
         else
         {
