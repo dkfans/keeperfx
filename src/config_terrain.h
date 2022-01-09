@@ -57,6 +57,12 @@ enum SlabAttrFlags {
     SlbAtFlg_TaggedValuable = 0x80,
 };
 
+enum SlabFillStyle {
+    SlbFillStl_Normal = 0,
+    SlbFillStl_Lava = 1,
+    SlbFillStl_Water = 2,
+};
+
 enum RoomCfgFlags {
     RoCFlg_None          = 0x00,
     RoCFlg_NoEnsign      = 0x01,
