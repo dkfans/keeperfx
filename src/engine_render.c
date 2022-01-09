@@ -6194,13 +6194,11 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         break;
     }
 
-    if ((thing->class_id == TCls_Creature)
-     || (thing->class_id == TCls_Object)
-     || (thing->class_id == TCls_DeadCreature))
+    if (!thing_is_invalid(thing))
     {
         if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
         {
-          if (player->acamera->view_mode == PVM_IsometricView)
+          if ( (player->acamera->view_mode == PVM_IsometricView) || (player->acamera->view_mode == PVM_CreatureView) )
           {
               lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
               lbSpriteReMapPtr = white_pal;

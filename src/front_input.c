@@ -1434,6 +1434,10 @@ short get_creature_control_action_inputs(void)
                     message_add_timeout(-115, 1, "");
                     player->thing_under_hand = picktng->index;
                 }
+                else
+                {
+                    player->thing_under_hand = NULL;
+                }
             }
         }
         if ( (is_key_pressed(KC_LALT,KMod_DONTCARE)) || (is_key_pressed(KC_RALT,KMod_DONTCARE)) )
