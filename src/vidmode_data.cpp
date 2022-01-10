@@ -189,6 +189,8 @@ struct TbLoadFiles pointer_small_load_files_640[] = {
 };
 #else
 struct TbLoadFiles front_load_files_minimal_640[] = {
+  {"data/gui1-32.dat",   (unsigned char **)&button_sprite_data, (unsigned char **)&end_button_sprite_data,      0, 0, 0},
+  {"data/gui1-32.tab",   (unsigned char **)&button_sprite,      (unsigned char **)&end_button_sprites,          0, 0, 0},
   {"ldata/frontft1.dat", (unsigned char **)&frontend_font_data[0],(unsigned char **)&frontend_end_font_data[0], 0, 0, 0},
   {"ldata/frontft1.tab", (unsigned char **)&frontend_font[0],     (unsigned char **)&frontend_end_font[0],      0, 0, 0},
   {"ldata/frontft2.dat", (unsigned char **)&frontend_font_data[1],(unsigned char **)&frontend_end_font_data[1], 0, 0, 0},
