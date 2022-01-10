@@ -5663,13 +5663,32 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         str = strtok(msg_buf, ":");
         id = -81;
     }
+            long gold_remaining = (crstat->gold_hold - creatng->creature.gold_carried);
+            if (gold_remaining > 0)
+            {
+                str = calloc(10, 1);
+                long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
+                if (value > 0)
+                {
+                    sprintf(str, "%ld", value);
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+    }
     else
     {
         return;
     }
     clear_messages_from_player(-81);
     clear_messages_from_player(-86);
+    clear_messages_from_player(-116);
+    clear_messages_from_player(-117);
     message_add_timeout(id, timeout, str);
+    free(str);
 }
 
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
