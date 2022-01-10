@@ -3423,7 +3423,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
         unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
         process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
         EngineSpriteDrawUsingAlpha = 1;
-        process_keeper_sprite(dx + jspr->scr_x, dy + jspr->scr_y, n, v21, 0, v16);
+        process_keeper_sprite(dx + jspr->scr_x, dy + jspr->scr_y, n, angle, v21, v16);
     }
     else
     {
