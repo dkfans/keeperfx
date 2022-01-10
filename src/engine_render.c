@@ -3418,7 +3418,8 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     }
     else
     {
-        if ( thing->class_id != TCls_Trap || thing->model == 1 || // TODO: Boulder is always shown here
+        struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+        if ( thing->class_id != TCls_Trap || trapst->hidden == 0 ||
                 get_my_player()->id_number == (char)thing->owner ||
                 thing->trap_door_active_state )
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
