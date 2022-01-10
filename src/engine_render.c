@@ -3421,8 +3421,10 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     {
         EngineSpriteDrawUsingAlpha = 0;
         unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
+        // drawing torch
         process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
         EngineSpriteDrawUsingAlpha = 1;
+        // drawing flame
         process_keeper_sprite(dx + jspr->scr_x, dy + jspr->scr_y, n, angle, v21, v16);
     }
     else
