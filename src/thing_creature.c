@@ -5689,7 +5689,8 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
                   (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
                   (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default)) || 
                   ( (thing_is_creature(picktng)) && creature_is_being_unconscious(picktng) ) ||
-                  (object_is_gold_pile(picktng)) )
+                  ( (object_is_gold_pile(picktng)) && ( (picktng->mappos.x.stl.num == creatng->mappos.x.stl.num) && (picktng->mappos.y.stl.num == creatng->mappos.y.stl.num) ) ) 
+                    )                  
                     {
                         if (line_of_sight_3d(&creatng->mappos, &picktng->mappos))
                         {

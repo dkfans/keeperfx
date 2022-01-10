@@ -1435,13 +1435,6 @@ short get_creature_control_action_inputs(void)
                 }
             }
         }
-        if ( (is_key_pressed(KC_LALT,KMod_DONTCARE)) || (is_key_pressed(KC_RALT,KMod_DONTCARE)) )
-        {
-            set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
-            clear_key_pressed(KC_LALT);
-            clear_key_pressed(KC_RALT);
-            return 1;
-        }
     if (numkey != -1)
     {
         int num_avail = 0;

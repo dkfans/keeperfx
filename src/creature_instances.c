@@ -745,6 +745,13 @@ long instf_fart(struct Thing *creatng, long *param)
 
 long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
 {
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct PlayerInfo* player = get_my_player();
+    if ( (player->thing_under_hand != 0) || (cctrl->dragtng_idx != 0) )
+    {
+        set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
+        return 1;
+    }
     TRACE_THING(creatng);
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
@@ -772,7 +779,27 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     {
         ahead_stl_x++; 
     }
-    if ( (first_person_dig_claim_mode) || (!subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y, true)) )
+    struct Room* room;
+    TbBool diggable = subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y, true);
+    if (!diggable)
+    {
+        room = get_room_thing_is_on(creatng);
+        if (!room_is_invalid(room))
+        {
+            if (room->kind == RoK_TREASURE)
+            {
+                if (room->owner == creatng->owner)
+                {
+                    if (creatng->creature.gold_carried > 0)
+                    {
+                        set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
+    if ( (first_person_dig_claim_mode) || (!diggable) )
     {
         slb = get_slabmap_block(slb_x, slb_y);
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
@@ -781,7 +808,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             instf_destroy(creatng, NULL);
             if (slbattr->block_flags & SlbAtFlg_IsRoom)
             {
-                struct Room* room = room_get(slb->room_index);
+                room = room_get(slb->room_index);
                 if (!room_is_invalid(room))
                 {
                     char id = ((~room->kind) + 1) - 78;
@@ -825,7 +852,6 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                     {
                         if (slab_by_players_land(creatng->owner, reinforce_slb_x, reinforce_slb_y))
                         {
-                            struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
                             cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
                             instf_reinforce(creatng, NULL);
                             return 1;
