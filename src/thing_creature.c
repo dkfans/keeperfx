@@ -5678,6 +5678,7 @@ void display_controlled_picked_up_thing_name(struct Thing *picktng)
 
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
 {
+    struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
     unsigned char radius = 0;
     MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
@@ -5762,7 +5763,7 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
         }
         radius++;
     }
-    while (radius < STL_PER_SLB);
+    while (radius < shotst->health);
     return INVALID_THING;
 }
 
