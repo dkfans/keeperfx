@@ -5657,10 +5657,26 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     }
     else if (thing_is_special_box(picktng))
     {
-        str = get_string(get_special_description_strindex(box_thing_to_special(picktng)));
         char msg_buf[255];
-        strcpy(msg_buf, str);
-        str = strtok(msg_buf, ":");
+        if (picktng->model == OBJECT_TYPE_SPECBOX_CUSTOM)
+        {
+            if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
+            {
+                str = get_string(2005);
+                strcpy(msg_buf, str);
+                str = strtok(msg_buf, ":");
+            }
+            else
+            {
+                str = gameadd.box_tooltip[picktng->custom_box.box_kind];
+            }
+        }
+        else
+        {
+            str = get_string(get_special_description_strindex(box_thing_to_special(picktng)));
+            strcpy(msg_buf, str);
+            str = strtok(msg_buf, ":");
+        }
         id = -81;
     }
     else if (object_is_gold_pile(picktng))
