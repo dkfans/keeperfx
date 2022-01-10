@@ -1432,6 +1432,7 @@ short get_creature_control_action_inputs(void)
                 if (!thing_is_invalid(picktng))
                 {
                     player->thing_under_hand = picktng->index;
+                    display_controlled_pick_up_thing_name(picktng, 1);
                 }
             }
         }

@@ -5634,7 +5634,7 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
     }
 }
 
-void display_controlled_picked_up_thing_name(struct Thing *picktng)
+void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout)
 {
     char id;
     const char* str;
@@ -5669,7 +5669,7 @@ void display_controlled_picked_up_thing_name(struct Thing *picktng)
     }
     clear_messages_from_player(-81);
     clear_messages_from_player(-86);
-    message_add(id, str);
+    message_add_timeout(id, timeout, str);
 }
 
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
