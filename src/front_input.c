@@ -1430,8 +1430,6 @@ short get_creature_control_action_inputs(void)
                 struct Thing* picktng = controlled_get_thing_to_pick_up(thing);
                 if (!thing_is_invalid(picktng))
                 {
-                    clear_messages_from_player(-115);
-                    message_add_timeout(-115, 1, "");
                     player->thing_under_hand = picktng->index;
                 }
                 else

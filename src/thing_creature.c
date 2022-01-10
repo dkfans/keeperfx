@@ -5395,7 +5395,6 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
     unsigned short smpl_idx = crsound->index + 1;
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS);
-    clear_messages_from_player(-115);
     display_controlled_picked_up_thing_name(picktng);
 }
 
