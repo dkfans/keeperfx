@@ -3265,7 +3265,6 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     struct PlayerInfo *player;
     struct Thing *thing;
     long angle;
-    long scale;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
     thing = jspr->thing;
@@ -3298,16 +3297,16 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     if ( thing->field_4F & TF4F_Tint_Flags )
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-        lbSpriteReMapPtr = (int)&pixmap.ghost[256 * thing->field_51];
+        lbSpriteReMapPtr = &pixmap.ghost[256 * thing->field_51];
     }
     else if ( v6 == 0x2000 )
     {
-        lbDisplay.DrawFlags &= 0xF7FFu;
+        lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
     }
     else
     {
-        lbDisplay.DrawFlags |= 0x800u;
-        lbSpriteReMapPtr = (int)&pixmap + v6;
+        lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+        lbSpriteReMapPtr = &pixmap.fade_tables[v6];
     }
 
     EngineSpriteDrawUsingAlpha = 0;
@@ -3355,17 +3354,19 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
             )
     {
         ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
+        lbDisplay.DrawFlags = flg_mem;
+        EngineSpriteDrawUsingAlpha = alpha_mem;
         return;
     }
-    struct TrapConfigStats *trapst;
+    TbBool special_drawing = false;
+    int n;
+    long dx;
+    long dy;
+    long v16;
     if (thing->class_id == TCls_Object)
     {
-        int n;
         //TODO CONFIG object model dependency, move to config
 
-        long dx;
-        long dy;
-        long v16;
         if (thing->model == 2)
         {
             n = 113;
@@ -3380,12 +3381,14 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
                 dy = a6_2 * LbCosL(angle) >> 20;
             }
             v16 = 2 * a6_2 / 3;
+            special_drawing = true;
         }
         else if (thing->model == 4)
         {
+            n = 113;
             if (player->view_type == PVT_DungeonTop)
             {
-                dx = (a6_2 >> 2 ) / 3;
+                dx = (a6_2 >> 2) / 3;
                 dy = a6_2 / 6;
             }
             else
@@ -3394,8 +3397,9 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
                 dy = (-(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16) / 3;
             }
             v16 = a6_2 / 3;
+            special_drawing = true;
         }
-        else if ( thing->model == 28) //torchflames
+        else if (thing->model == 28) //torchflames
         {
             n = 112;
             if (player->view_type == PVT_DungeonTop)
@@ -3409,7 +3413,11 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
                 dy = -(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16;
             }
             v16 = a6_2 / 2;
+            special_drawing = true;
         }
+    }
+    if (special_drawing)
+    {
         EngineSpriteDrawUsingAlpha = 0;
         unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
         process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
