@@ -304,3 +304,151 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
     }
     return thing;
 }
+
+/**
+ * Returns location id for 2-param tunneler heading from script.
+ * @param headname
+ * @param target
+ * @param location
+ * @return
+ * @see get_map_location_id()
+ */
+#define get_map_heading_id(headname, target, location) get_map_heading_id_f(headname, target, location, __func__, text_line_number)
+TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *location, const char *func_name, long ln_num)
+{
+    // If there's no headname, then there's an error
+    if (headname == NULL)
+    {
+        SCRPTERRLOG("No heading objective");
+        *location = MLoc_NONE;
+        return false;
+    }
+    long head_id = get_rid(head_for_desc, headname);
+    if (head_id == -1)
+    {
+        SCRPTERRLOG("Unhandled heading objective, '%s'", headname);
+        *location = MLoc_NONE;
+        return false;
+    }
+    // Check if the target place exists, and set 'location'
+    // Note that we only need to support enum items which are in head_for_desc[].
+    switch (head_id)
+    {
+    case MLoc_ACTIONPOINT:
+    {
+        long n = action_point_number_to_index(target);
+        *location = ((unsigned long)n << 4) | head_id;
+        if (!action_point_exists_idx(n)) {
+            SCRPTWRNLOG("Target action point no %d doesn't exist", (int)target);
+        }
+        return true;
+    }
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_PLAYERSHEART:
+        *location = ((unsigned long)target << 4) | head_id;
+        if (!player_has_heart(target)) {
+            SCRPTWRNLOG("Target player %d has no heart", (int)target);
+        }
+        return true;
+    case MLoc_APPROPRTDUNGEON:
+        *location = (0) | head_id; // This option has no 'target' value
+        return true;
+    default:
+        *location = MLoc_NONE;
+        SCRPTWRNLOG("Unsupported Heading objective %d", (int)head_id);
+        break;
+    }
+    return false;
+}
+
+long parse_criteria(const char *criteria)
+{
+    char c;
+    int arg;
+
+    long ret = get_id(creature_select_criteria_desc, criteria);
+    if (ret == -1)
+    {
+        if (2 == sscanf(criteria, "AT_ACTION_POINT[%d%c", &arg, &c) && (c == ']'))
+        {
+            ActionPointId loc = action_point_number_to_index(arg);
+            if (loc == -1)
+            {
+                SCRPTERRLOG("Unknown action point at criteria, '%s'", criteria);
+                return -1;
+            }
+            ret = (CSelCrit_NearAP) | (loc << 4);
+        }
+    }
+    return ret;
+}
+
+#define get_players_range_single(plr_range_id) get_players_range_single_f(plr_range_id, __func__, text_line_number)
+long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num)
+{
+    if (plr_range_id < 0) {
+        return -1;
+    }
+    if (plr_range_id == ALL_PLAYERS) {
+        return -3;
+    }
+    if (plr_range_id == PLAYER_GOOD) {
+        return game.hero_player_num;
+    }
+    if (plr_range_id == PLAYER_NEUTRAL) {
+        return game.neutral_player_num;
+    }
+    if (plr_range_id < PLAYERS_COUNT)
+    {
+        return plr_range_id;
+    }
+    return -2;
+}
+
+// Variables that could be set
+TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
+{
+    char c;
+    int len = 0;
+    char arg[MAX_TEXT_LENGTH];
+
+    *varib_id = -1;
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(flag_desc, varib_name);
+      *varib_type = SVar_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(campaign_flag_desc, varib_name);
+      *varib_type = SVar_CAMPAIGN_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+        if (2 == sscanf(varib_name, "BOX%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_BOX_ACTIVATED;
+        }
+        else
+        {
+            *varib_id = -1;
+        }
+        if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_SACRIFICED;
+        }
+        if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_REWARDED;
+        }
+    }
+    if (*varib_id == -1)
+    {
+      SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
+      return false;
+    }
+    return true;
+}
