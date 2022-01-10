@@ -188,14 +188,14 @@ bool MouseStateHandler::GetMouseWindow(struct TbRect *windowRect)
     return true;
 }
 
-struct TbSprite *MouseStateHandler::GetPointer(void)
+const struct TbSprite *MouseStateHandler::GetPointer(void)
 {
     if (!this->installed)
       return NULL;
     return mssprite;
 }
 
-bool MouseStateHandler::SetPointer(struct TbSprite *spr, struct TbPoint *point)
+bool MouseStateHandler::SetPointer(const struct TbSprite *spr, struct TbPoint *point)
 {
     if (!this->installed)
       return false;
@@ -222,7 +222,7 @@ bool MouseStateHandler::SetPointer(struct TbSprite *spr, struct TbPoint *point)
     return true;
 }
 
-bool MouseStateHandler::SetMousePointerAndOffset(struct TbSprite *mouseSprite, long x, long y)
+bool MouseStateHandler::SetMousePointerAndOffset(const struct TbSprite *mouseSprite, long x, long y)
 {
     struct TbPoint point;
     LbSemaLock semlock(&semaphore,0);
@@ -231,18 +231,20 @@ bool MouseStateHandler::SetMousePointerAndOffset(struct TbSprite *mouseSprite, l
     if (mouseSprite == lbDisplay.MouseSprite)
       return true;
     if (mouseSprite != NULL)
-      if ( (mouseSprite->SWidth > 64) || (mouseSprite->SHeight > 64) )
-      {
-        WARNLOG("Mouse pointer too large");
-        return false;
-      }
+    {
+        if ((mouseSprite->SWidth > 64) || (mouseSprite->SHeight > 64))
+        {
+            WARNLOG("Mouse pointer too large");
+            return false;
+        }
+    }
     lbDisplay.MouseSprite = mouseSprite;
     point.x = x;
     point.y = y;
     return this->SetPointer(mouseSprite, &point);
 }
 
-bool MouseStateHandler::SetMousePointer(struct TbSprite *mouseSprite)
+bool MouseStateHandler::SetMousePointer(const struct TbSprite *mouseSprite)
 {
     LbSemaLock semlock(&semaphore,0);
     if (!semlock.Lock(true))

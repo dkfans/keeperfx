@@ -114,7 +114,7 @@ struct Thing {
         short word_17v;
       } valuable;
       struct {
-        short word_13;
+        short life_remaining;
         char byte_15;
         unsigned char byte_16;
         unsigned char byte_17;

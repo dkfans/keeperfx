@@ -198,6 +198,7 @@ struct GameAdd {
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
 
+    LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
     PlayerNumber script_player;
     unsigned char script_timer_id;
@@ -211,6 +212,7 @@ struct GameAdd {
     TbBool heart_lost_quick_message;
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
+    unsigned char slab_ext_data[85 * 85];
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

@@ -53,6 +53,7 @@
 #include "config_creature.h"
 #include "keeperfx.hpp"
 #include "player_states.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2680,7 +2681,7 @@ unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned shor
 {
     long slb_x = subtile_slab(stl_x);
     long slb_y = subtile_slab(stl_y);
-    return tex_id + (slab_ext_data[85 * slb_y + slb_x] & 0xF) * TEXTURE_BLOCKS_COUNT;
+    return tex_id + (gameadd.slab_ext_data[85 * slb_y + slb_x] & 0xF) * TEXTURE_BLOCKS_COUNT;
 }
 
 void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
@@ -3480,7 +3481,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     h_add = 0;
     int w;
     int h;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     int bs_units_per_px;
     spr = &button_sprite[70];
     bs_units_per_px = 17 * units_per_pixel / spr->SHeight;
@@ -3499,12 +3500,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-        spr = &button_sprite[state_spridx];
+        spr = get_button_sprite(state_spridx);
         h_add += spr->SHeight * bs_units_per_px/16;
-    } else
-    if ( state_spridx )
+    }
+    else if ( state_spridx )
     {
-        spr = &button_sprite[state_spridx];
+        spr = get_button_sprite(state_spridx);
         w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
@@ -3518,7 +3519,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         } else {
             flash_owner = thing->owner;
         }
-        spr = &button_sprite[health_spridx];
+        spr = get_button_sprite(health_spridx);
         w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
@@ -3532,7 +3533,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         || (mycam->view_mode == PVM_ParchmentView))
       {
           if (health_spridx > 0) {
-              spr = &button_sprite[health_spridx];
+              spr = get_button_sprite(health_spridx);
               w = (zoom * spr->SWidth * bs_units_per_px/16) >> 13;
               h = (zoom * spr->SHeight * bs_units_per_px/16) >> 13;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
@@ -5437,7 +5438,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       i = game.unrevealed_column_idx;
     col = get_column(i);
     mapblk = get_map_block_at(stl_x, stl_y);
-
+    unsigned short textr_idx;
     // Draw the columns base block
 
     if (*ymax > pos_y)
@@ -5445,20 +5446,21 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if ((col->baseblock != 0) && (col->cubes[0] == 0))
       {
           *ymax = pos_y;
+          textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->baseblock);
           if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
           {
-              add_textruredquad_to_polypool(pos_x, pos_y, col->baseblock, a7, 0,
+              add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, a7, 0,
                   2097152, 0, bckt_idx);
           } else
           {
-              add_lgttextrdquad_to_polypool(pos_x, pos_y, col->baseblock, a7, a7, 0,
+              add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, a7, a7, 0,
                   lightness_arr[0][0], lightness_arr[1][0], lightness_arr[2][0], lightness_arr[3][0], bckt_idx);
           }
       }
     }
 
     // Draw the columns cubes
-
+    
     y = a7 + pos_y;
     unkstrcp = NULL;
     for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
@@ -5470,7 +5472,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if (*ymax > y)
       {
         *ymax = y;
-        add_lgttextrdquad_to_polypool(pos_x, y, unkstrcp->texture_id[cube_itm], a7, delta_y, 0,
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
+        add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
             lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
       }
     }
@@ -5481,18 +5484,19 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if (*ymax > i)
       {
         *ymax = i;
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
         if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a8,
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
               2097152, 1, bckt_idx);
         } else
         if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a8,
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
               2097152, 0, bckt_idx);
         } else
         {
-          add_lgttextrdquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a7, a8,
+          add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
               lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
         }
       }
@@ -5517,7 +5521,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             unkstrcp = &game.cubes_data[col->cubes[tc]];
             if (*ymax > y)
             {
-              add_lgttextrdquad_to_polypool(pos_x, y, unkstrcp->texture_id[cube_itm], a7, delta_y, 0,
+              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
+              add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
                   lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
             }
         }
@@ -5526,7 +5531,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
           i = y - a7;
           if (*ymax > i)
           {
-            add_lgttextrdquad_to_polypool(pos_x, i, unkstrcp->texture_id[4], a7, a7, a8,
+              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
+            add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
                 lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
           }
         }

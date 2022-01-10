@@ -118,7 +118,7 @@ struct DevInput {
 extern volatile TbBool lbMouseGrab; // set to false if user sets altinput command line option
 extern volatile TbBool lbMouseGrabbed; // whether the mouse is current grabbed by the game window
 /******************************************************************************/
-TbResult LbMouseChangeSpriteAndHotspot(struct TbSprite *mouseSprite, long hot_x, long hot_y);
+TbResult LbMouseChangeSpriteAndHotspot(const struct TbSprite *mouseSprite, long hot_x, long hot_y);
 TbResult LbMouseSetup(struct TbSprite *mouseSprite);
 TbResult LbMouseSetPointerHotspot(long hot_x, long hot_y);
 TbResult LbMouseSetPosition(long x, long y);
