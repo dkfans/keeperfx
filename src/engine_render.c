@@ -3264,7 +3264,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     unsigned char alpha_mem;
     struct PlayerInfo *player;
     struct Thing *thing;
-    long angle;
+    short angle;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
     thing = jspr->thing;
@@ -3292,6 +3292,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     unsigned short v6 = 0x2000;
     if ( !(thing->field_4F & TF4F_Unknown02) )
         v6 = get_thing_shade(thing);
+    v6 >>= 8;
 
     int a6_2 = thing->sprite_size * ((cam->zoom << 13) / 0x10000 / pixel_size) / 0x10000;
     if ( thing->field_4F & TF4F_Tint_Flags )
@@ -3306,7 +3307,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     else
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-        lbSpriteReMapPtr = &pixmap.fade_tables[v6];
+        lbSpriteReMapPtr = &pixmap.fade_tables[v6 << 8];
     }
 
     EngineSpriteDrawUsingAlpha = 0;
@@ -3427,7 +3428,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
     else
     {
         if ( thing->class_id != TCls_Trap || thing->model == 1 || // TODO: Boulder is always shown here
-                get_my_player()->id_number == (char)thing->owner ||
+                player->id_number == thing->owner ||
                 thing->trap_door_active_state )
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
     }
