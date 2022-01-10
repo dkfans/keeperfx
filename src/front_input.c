@@ -1403,9 +1403,10 @@ short get_creature_control_action_inputs(void)
             message_add(CrInst, get_string(StrID));
         }
         first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
-        if (thing_is_creature_special_digger(thing))
+        player->thing_under_hand = 0;
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
             if (thing_is_trap_crate(dragtng))
             {
@@ -1431,10 +1432,6 @@ short get_creature_control_action_inputs(void)
                 if (!thing_is_invalid(picktng))
                 {
                     player->thing_under_hand = picktng->index;
-                }
-                else
-                {
-                    player->thing_under_hand = NULL;
                 }
             }
         }

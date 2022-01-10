@@ -5563,72 +5563,69 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
 void direct_control_pick_up_or_drop(struct PlayerInfo *player)
 {
     struct Thing *thing = thing_get(player->controlled_thing_idx);
-    if (thing_is_creature_special_digger(thing))
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+    if (!thing_is_invalid(dragtng))
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-        if (!thing_is_invalid(dragtng))
+        controlled_creature_drop_thing(thing, dragtng);
+    }
+    else
+    {
+        struct Thing* picktng = thing_get(player->thing_under_hand);
+        struct Room* room;
+        if (!thing_is_invalid(picktng))
         {
-            controlled_creature_drop_thing(thing, dragtng);
-        }
-        else
-        {
-            struct Thing* picktng = thing_get(player->thing_under_hand);
-            struct Room* room;
-            if (!thing_is_invalid(picktng))
+            if (object_is_gold_pile(picktng))
             {
-                if (object_is_gold_pile(picktng))
+                internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
+                return;
+            }
+            room = get_room_thing_is_on(picktng);
+            if (!room_is_invalid(room))
+            {
+                if ( (room->kind == RoK_WORKSHOP) && (room->owner == thing->owner) )
                 {
-                    internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
-                    return;
-                }
-                room = get_room_thing_is_on(picktng);
-                if (!room_is_invalid(room))
-                {
-                    if ( (room->kind == RoK_WORKSHOP) && (room->owner == thing->owner) )
+                    if (thing_is_workshop_crate(picktng))
                     {
-                        if (thing_is_workshop_crate(picktng))
+                        if (!imp_will_soon_be_getting_object(thing->owner, picktng))
                         {
-                            if (!imp_will_soon_be_getting_object(thing->owner, picktng))
+                            if (picktng->owner == thing->owner)
                             {
-                                if (picktng->owner == thing->owner)
+                                if (!remove_item_from_room_capacity(room))
                                 {
-                                    if (!remove_item_from_room_capacity(room))
-                                    {
-                                        return;
-                                    }
-                                    if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) != WrkCrtS_Stored)
-                                    {                                                  
-                                        return;
-                                    }
+                                    return;
+                                }
+                                if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) != WrkCrtS_Stored)
+                                {                                                  
+                                    return;
                                 }
                             }
                         }
-                        else
+                    }
+                    else
+                    {
+                        if (is_thing_directly_controlled_by_player(thing, my_player_number))
                         {
-                            if (is_thing_directly_controlled_by_player(thing, my_player_number))
-                            {
-                                play_non_3d_sample(119);
-                                return;
-                            }
+                            play_non_3d_sample(119);
+                            return;
                         }
                     }
                 }
-                controlled_creature_pick_thing_up(thing, picktng);
             }
-            else
+            controlled_creature_pick_thing_up(thing, picktng);
+        }
+        else
+        {
+            room = get_room_thing_is_on(thing);
+            if (!room_is_invalid(room))
             {
-                room = get_room_thing_is_on(thing);
-                if (!room_is_invalid(room))
-                {
-                    if (room->kind == RoK_TREASURE)
-                    {                                
-                        if (room->owner == thing->owner)
+                if (room->kind == RoK_TREASURE)
+                {                                
+                    if (room->owner == thing->owner)
+                    {
+                        if (thing->creature.gold_carried > 0)
                         {
-                            if (thing->creature.gold_carried > 0)
-                            {
-                                internal_set_thing_state(thing, CrSt_ImpDropsGold);
-                            }
+                            internal_set_thing_state(thing, CrSt_ImpDropsGold);
                         }
                     }
                 }
