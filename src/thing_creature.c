@@ -5728,41 +5728,14 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
         {
             if (picktng != creatng)
             {
-                if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
-                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
-                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default)) || 
-                  ( (thing_is_creature(picktng)) && creature_is_being_unconscious(picktng) ) ||
-                  ( (object_is_gold_pile(picktng)) && (radius == 0) ) 
-                    )                  
+                if (thing_is_pickable_by_digger(picktng, creatng))                 
+                {
+                    TbBool condition = (object_is_gold_pile(picktng)) ? (radius == 0) : (line_of_sight_3d(&creatng->mappos, &picktng->mappos));
+                    if (condition)
                     {
-                        if (line_of_sight_3d(&creatng->mappos, &picktng->mappos))
-                        {
-                            return picktng;
-                        }
+                        return picktng;
                     }
-                    struct Room* room = get_room_thing_is_on(creatng);
-                        if (!room_is_invalid(room))
-                        {
-                            if (room->kind == RoK_WORKSHOP)
-                            {
-                                if (room->owner == creatng->owner)
-                                {
-                                    for (picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk))
-                                    {
-                                        if (thing_is_workshop_crate(picktng))
-                                        {
-                                            if ( (picktng->owner == room->owner) && (picktng->owner == creatng->owner) )
-                                            {
-                                                if (line_of_sight_3d(&creatng->mappos, &picktng->mappos))
-                                                {
-                                                    return picktng;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                }
             }
         }
         if ( (creatng->move_angle_xy > 1920) || (creatng->move_angle_xy <= 127) )
@@ -5805,6 +5778,40 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
     }
     while (radius < shotst->health);
     return INVALID_THING;
+}
+
+TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
+{
+    struct SlabMap *slb = get_slabmap_thing_is_on(picktng);
+    if (object_is_gold_pile(picktng))
+    {
+        return ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_PATH) || (slab_kind_is_liquid(slb->kind)) );
+    }
+    else if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
+                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
+                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default)) || 
+                  ( (thing_is_creature(picktng)) && creature_is_being_unconscious(picktng) ) )
+    {
+        return (slabmap_owner(slb) == creatng->owner);              
+    }
+    else if (thing_is_trap_crate(picktng)) // for trap crates in one's own Workshop
+    {
+        struct Room* room = get_room_thing_is_on(picktng);
+        if (!room_is_invalid(room))
+        {
+            if (room->kind == RoK_WORKSHOP)
+           {
+                if (room->owner == creatng->owner)
+                {
+                    if ( (picktng->owner == room->owner) && (picktng->owner == creatng->owner) )
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 /******************************************************************************/
