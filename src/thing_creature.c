@@ -5669,6 +5669,12 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             else
             {
                 str = gameadd.box_tooltip[picktng->custom_box.box_kind];
+                char *split = strchr(str, ':');
+                if ((int)(split - str) > -1)
+                {
+                    strcpy(msg_buf, str);
+                    str = strtok(msg_buf, ":");
+                }
             }
         }
         else
