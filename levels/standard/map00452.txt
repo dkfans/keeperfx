@@ -384,8 +384,8 @@ REM Summon horny then kill hero heart and lord of the land.
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
 	IF_CONTROLS(PLAYER_GOOD,KNIGHT <= 0)
 		IF(PLAYER0,FLAG0 >= 1)
-			REM	"Victory."
-			DISPLAY_OBJECTIVE(41,PLAYER0)
+			REM	"Victory! This realm is yours Keeper."
+			DISPLAY_OBJECTIVE(42,PLAYER0)
 			WIN_GAME
 		ENDIF
 	ENDIF
