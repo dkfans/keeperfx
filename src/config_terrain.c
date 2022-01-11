@@ -1355,21 +1355,8 @@ TbBool slab_kind_is_indestructible(RoomKind slbkind)
  */
 TbBool slab_kind_is_room_wall(RoomKind slbkind)
 {
-    return
-        (slbkind == SlbT_ENTRANCE_WALL)  ||
-        (slbkind == SlbT_TREASURE_WALL)  ||
-        (slbkind == SlbT_LIBRARY_WALL)   ||
-        (slbkind == SlbT_PRISON_WALL)    ||
-        (slbkind == SlbT_TORTURE_WALL)   ||
-        (slbkind == SlbT_TRAINING_WALL)  ||
-        (slbkind == SlbT_DUNGHEART_WALL) ||
-        (slbkind == SlbT_WORKSHOP_WALL)  ||
-        (slbkind == SlbT_SCAVENGER_WALL) ||
-        (slbkind == SlbT_TEMPLE_WALL)    ||
-        (slbkind == SlbT_GRAVEYARD_WALL) ||
-        (slbkind == SlbT_GARDEN_WALL)    ||
-        (slbkind == SlbT_LAIR_WALL)      ||
-        (slbkind == SlbT_BARRACKS_WALL);
+    struct SlabAttr* attributes = get_slab_kind_attrs(slbkind);
+    return ((attributes->category == SlbAtCtg_FortifiedWall) && (attributes->slb_id != 0));
 }
 
 /**
