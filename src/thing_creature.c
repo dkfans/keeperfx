@@ -5593,8 +5593,23 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
         {
             if (object_is_gold_pile(picktng))
             {
-                internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
-                return;
+                struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+                if (thing->creature.gold_carried < crstat->gold_hold)
+                {
+                    if (setup_person_move_to_position(thing, picktng->mappos.x.stl.num, picktng->mappos.y.stl.num, NavRtF_Default))
+                    {
+                        thing->continue_state = CrSt_ImpPicksUpGoldPile;
+                        return;
+                    }
+                }
+                else
+                {
+                    if (is_thing_directly_controlled_by_player(thing, my_player_number))
+                    {
+                        play_non_3d_sample(119);
+                        return;
+                    }
+                }
             }
             room = get_room_thing_is_on(picktng);
             if (!room_is_invalid(room))
@@ -5752,8 +5767,7 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
             {
                 if (thing_is_pickable_by_digger(picktng, creatng))                 
                 {
-                    TbBool condition = (object_is_gold_pile(picktng)) ? (radius == 0) : (line_of_sight_3d(&creatng->mappos, &picktng->mappos));
-                    if (condition)
+                    if (line_of_sight_3d(&creatng->mappos, &picktng->mappos))
                     {
                         return picktng;
                     }
