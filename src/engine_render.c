@@ -6215,10 +6215,23 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
               if (thing_is_creature(creatng))
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-                  if (cctrl->dragtng_idx == 0)
+                  struct Thing *dragtng = thing_get(cctrl->dragtng_idx);
+                  if (thing_is_invalid(dragtng))
                   {
                     lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                     lbSpriteReMapPtr = white_pal;  
+                  }
+                  else if (thing_is_trap_crate(dragtng))
+                  {
+                      struct Thing *handthing = thing_get(player->thing_under_hand);
+                      if (!thing_is_invalid(handthing))
+                      {
+                          if (handthing->class_id == TCls_Trap)
+                          {
+                              lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                              lbSpriteReMapPtr = white_pal; 
+                          }
+                      }
                   }
               }
           }
