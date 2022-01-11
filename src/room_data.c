@@ -595,7 +595,11 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
                     WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
                 }
                 if (!is_neutral_thing(thing))
+                {
                     remove_power_from_player(spl_idx, room->owner);
+                    struct Dungeon* dungeon = get_dungeon(room->owner);
+                    dungeon->magic_resrchable[spl_idx] = 1;
+                }
                 delete_thing_structure(thing, 0);
             }
         }
