@@ -189,6 +189,8 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player);
 void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout);
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng);
 TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng);
+struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng);
+void controlled_continue_looking(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

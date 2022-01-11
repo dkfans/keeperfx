@@ -1416,21 +1416,10 @@ short get_creature_control_action_inputs(void)
             struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
             if (thing_is_trap_crate(dragtng))
             {
-                struct Thing* traptng = get_trap_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                struct Thing* traptng = controlled_get_trap_to_rearm(thing);
                 if (!thing_is_invalid(traptng))
                 {
-                    if (traptng->owner == thing->owner)
-                    {
-                        if (traptng->model == crate_to_workshop_item_model(dragtng->model))
-                        {
-                            if (traptng->trap.num_shots == 0)
-                            {
-                                clear_messages_from_player(-86);
-                                message_add_timeout(-86, 1, "");
-                                player->thing_under_hand = traptng->index;
-                            }
-                        }
-                    }
+                    player->thing_under_hand = traptng->index;
                 }
             }
             else if (thing_is_invalid(dragtng))

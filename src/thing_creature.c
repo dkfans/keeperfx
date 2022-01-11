@@ -5744,42 +5744,7 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
                 }
             }
         }
-        if ( (creatng->move_angle_xy > 1920) || (creatng->move_angle_xy <= 127) )
-        {
-            stl_y--;
-        }            
-        else if ( (creatng->move_angle_xy >= 128) && (creatng->move_angle_xy <= 384) )
-        {
-            stl_x++;
-            stl_y--;
-        }
-        else if ( (creatng->move_angle_xy >= 385) && (creatng->move_angle_xy <= 640) )
-        {
-            stl_x++;
-        }
-        else if ( (creatng->move_angle_xy >= 641) && (creatng->move_angle_xy <= 896) )
-        {
-            stl_x++;
-            stl_y++;            
-        }
-        else if ( (creatng->move_angle_xy >= 897) && (creatng->move_angle_xy <= 1152) )
-        {
-            stl_y++;
-        }
-        else if ( (creatng->move_angle_xy >= 1153) && (creatng->move_angle_xy <= 1408) )
-        {
-            stl_x--;
-            stl_y++;
-        }
-        else if ( (creatng->move_angle_xy >= 1409) && (creatng->move_angle_xy <= 1664) )
-        {
-            stl_x--;
-        }
-        else if ( (creatng->move_angle_xy >= 1665) && (creatng->move_angle_xy <= 1920) )
-        {
-            stl_x--;
-            stl_y--;
-        }
+        controlled_continue_looking(creatng, &stl_x, &stl_y);
         radius++;
     }
     while (radius < shotst->health);
@@ -5818,6 +5783,81 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
         }
     }
     return false;
+}
+
+struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng)
+{
+    struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+    unsigned char radius = 0;
+    MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
+    MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
+    do
+    {
+        struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
+        if (!thing_is_invalid(traptng))
+        {
+            if (traptng->owner == creatng->owner)
+            {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+                if (traptng->model == crate_to_workshop_item_model(dragtng->model))
+                {
+                    if (traptng->trap.num_shots == 0)
+                    {
+                        return traptng;
+                    }
+                }
+            }
+        }
+        controlled_continue_looking(creatng, &stl_x, &stl_y);
+        radius++;
+    }
+    while (radius < shotst->health);
+    return INVALID_THING;
+}
+
+void controlled_continue_looking(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y)
+{
+    MapSubtlCoord x = *stl_x;
+    MapSubtlCoord y = *stl_y;
+    if ( (creatng->move_angle_xy > 1920) || (creatng->move_angle_xy <= 127) )
+    {
+        y--;
+    }            
+    else if ( (creatng->move_angle_xy >= 128) && (creatng->move_angle_xy <= 384) )
+    {
+        x++;
+        y--;
+    }
+    else if ( (creatng->move_angle_xy >= 385) && (creatng->move_angle_xy <= 640) )
+    {
+        x++;
+    }
+    else if ( (creatng->move_angle_xy >= 641) && (creatng->move_angle_xy <= 896) )
+    {
+        x++;
+        y++;            
+    }
+    else if ( (creatng->move_angle_xy >= 897) && (creatng->move_angle_xy <= 1152) )
+    {
+        y++;
+    }
+    else if ( (creatng->move_angle_xy >= 1153) && (creatng->move_angle_xy <= 1408) )
+    {
+        x--;
+        y++;
+    }
+    else if ( (creatng->move_angle_xy >= 1409) && (creatng->move_angle_xy <= 1664) )
+    {
+        x--;
+    }
+    else if ( (creatng->move_angle_xy >= 1665) && (creatng->move_angle_xy <= 1920) )
+    {
+        x--;
+        y--;
+    }
+    *stl_x = x;
+    *stl_y = y;
 }
 
 /******************************************************************************/
