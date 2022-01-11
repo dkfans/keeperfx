@@ -196,6 +196,7 @@ struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 
 //TODO CONFIG identify all slab attributes and store them in config file
+// tooltip_stridx, block_flags_height, block_health_index, block_flags, noblck_flags, fill_style, category, slb_id, wibble, is_safe_land, is_unknflg13, is_diggable, wlb_type
 struct SlabAttr slab_attrs[] = {
   {0, 4, 0, SlbAtFlg_Blocking|SlbAtFlg_Filled,  SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Unclaimed,      0, 1, 0, 0, 0, 0}, // [0] HARD
   {0, 4, 1, SlbAtFlg_Blocking|SlbAtFlg_Valuable,SlbAtFlg_None,   SlbFillStl_Normal, SlbAtCtg_Unclaimed,      0, 1, 0, 0, 1, 0}, // [1] GOLD
