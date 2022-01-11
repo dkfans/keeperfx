@@ -5567,6 +5567,22 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
     if (!thing_is_invalid(dragtng))
     {
+        if (thing_is_trap_crate(dragtng))
+        {
+            struct Thing *traptng = thing_get(player->thing_under_hand);
+            if (!thing_is_invalid(traptng))
+            {
+                if (traptng->class_id == TCls_Trap)
+                {   
+                    if (setup_person_move_to_position(thing, traptng->mappos.x.stl.num, traptng->mappos.y.stl.num, NavRtF_Default))
+                    {
+                        thing->continue_state = CrSt_CreatureArmsTrap;
+                        cctrl->arming_thing_id = traptng->index;
+                        return;
+                    }
+                }
+            }
+        }
         controlled_creature_drop_thing(thing, dragtng);
     }
     else
