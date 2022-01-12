@@ -2032,7 +2032,7 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind pwkind, long resrch,
     // may be uninitialized yet when this is called.
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        ERRORDBG(11,"Cannot set trap availability; player %d has no dungeon",(int)plyr_idx);
+        ERRORDBG(11,"Cannot set power availability; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
     dungeon->magic_resrchable[pwkind] = resrch;
