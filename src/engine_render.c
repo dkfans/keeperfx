@@ -3434,6 +3434,10 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
         {
             is_shown = !gameadd.trapdoor_conf.trap_cfgstats[thing->model].hidden;
         }
+        else
+        {
+            is_shown = ((thing->field_4F & TF4F_Unknown01) == 0);
+        }
         if ( is_shown ||
                 get_my_player()->id_number == thing->owner ||
                 thing->trap_door_active_state )
