@@ -1758,7 +1758,6 @@ short creature_arms_trap(struct Thing *thing)
         ERRORLOG("Creature has invalid control structure!");
         return 0;
     }
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct Thing* cratetng = thing_get(cctrl->dragtng_idx);
     TRACE_THING(cratetng);
     struct Thing* traptng = thing_get(cctrl->arming_thing_id);
@@ -1767,6 +1766,10 @@ short creature_arms_trap(struct Thing *thing)
     {
         set_start_state(thing);
         return 0;
+    }
+    if (is_thing_directly_controlled(thing))
+    {
+        return creature_arms_trap_first_person(thing);
     }
     struct Thing* postng = get_trap_at_subtile_of_model_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, traptng->model, thing->owner);
     // Note that this means there can be only one trap of given kind at a subtile.
@@ -1778,6 +1781,7 @@ short creature_arms_trap(struct Thing *thing)
         return 0;
     }
     rearm_trap(traptng);
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);
     delete_thing_structure(cratetng, 0);
@@ -1789,6 +1793,27 @@ short creature_arms_trap(struct Thing *thing)
         cctrl->exp_points += gameadd.digger_work_experience;
         check_experience_upgrade(thing);
     }
+    return 1;
+}
+
+short creature_arms_trap_first_person(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* cratetng = thing_get(cctrl->dragtng_idx);
+    struct Thing* traptng = thing_get(cctrl->arming_thing_id);
+    controlled_creature_drop_thing(creatng, cratetng);
+    move_thing_in_map(cratetng, &traptng->mappos);
+    rearm_trap(traptng);
+    thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    dungeon->lvstats.traps_armed++;
+    if (gameadd.digger_work_experience != 0)
+    {
+        cctrl->exp_points += gameadd.digger_work_experience;
+        check_experience_upgrade(creatng);
+    }
+    delete_thing_structure(cratetng, 0);
+    set_start_state(creatng);
     return 1;
 }
 
