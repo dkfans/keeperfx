@@ -5559,9 +5559,10 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
                 struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
                 if (thing->creature.gold_carried < crstat->gold_hold)
                 {
-                    if (setup_person_move_to_position(thing, picktng->mappos.x.stl.num, picktng->mappos.y.stl.num, NavRtF_Default))
+                    if (thing->creature.gold_carried < crstat->gold_hold)
                     {
-                        thing->continue_state = CrSt_ImpPicksUpGoldPile;
+                        cctrl->pickup_object_id = picktng->index;
+                        internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
                         return;
                     }
                 }

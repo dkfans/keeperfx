@@ -1163,16 +1163,31 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(spdigtng);
+    unsigned char state;
     if (crstat->gold_hold > spdigtng->creature.gold_carried)
     {
-        long gold_taken = take_from_gold_pile(spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num, crstat->gold_hold - spdigtng->creature.gold_carried);
+        MapSubtlCoord stl_x, stl_y;
+        if (is_thing_directly_controlled(spdigtng))
+        {
+            struct CreatureControl *cctrl = creature_control_get_from_thing(spdigtng);
+            struct Thing *goldtng = thing_get(cctrl->pickup_object_id);
+            stl_x = goldtng->mappos.x.stl.num;
+            stl_y = goldtng->mappos.y.stl.num;
+            state = CrSt_Unused;
+        }
+        else
+        {
+            stl_x = spdigtng->mappos.x.stl.num;
+            stl_y = spdigtng->mappos.y.stl.num;
+            state = CrSt_ImpLastDidJob;
+        }
+        long gold_taken = take_from_gold_pile(stl_x, stl_y, crstat->gold_hold - spdigtng->creature.gold_carried);
         spdigtng->creature.gold_carried += gold_taken;
         if (gold_taken > 0)
         {
             thing_play_sample(spdigtng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
-    unsigned char state = ((spdigtng->alloc_flags & TAlF_IsControlled) == 0) ? CrSt_ImpLastDidJob : CrSt_Unused;
     internal_set_thing_state(spdigtng, state);
     return 0;
 }
