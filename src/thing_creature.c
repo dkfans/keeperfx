@@ -3510,7 +3510,6 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->solid_size_xy = crstat->thing_size_xy;
     crtng->solid_size_yz = crstat->thing_size_yz;
     crtng->fall_acceleration = 32;
-    crtng->bounce_angle = 0;
     crtng->field_23 = 32;
     crtng->field_24 = 8;
     crtng->movement_flags |= TMvF_Unknown08;
@@ -5686,20 +5685,17 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         struct Thing* creatng = thing_get(player->influenced_thing_idx);
         if (thing_is_creature(creatng))
         {
+            str = calloc(20, 1);
             struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
             long gold_remaining = (crstat->gold_hold - creatng->creature.gold_carried);
-            if (gold_remaining > 0)
+            long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
+            if (value < picktng->creature.gold_carried)
             {
-                long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
-                if (value > 0)
-                {
-                    str = calloc(10, 1);
-                    sprintf(str, "%ld", value);
-                }
+                sprintf(str, "%ld (%ld)", picktng->creature.gold_carried, value);
             }
             else
             {
-                return;
+                sprintf(str, "%ld", picktng->creature.gold_carried); 
             }
             id = (picktng->model == 43) ? -117 : -116;
         }
