@@ -54,6 +54,7 @@
 #include "gui_parchment.h"
 #include "power_hand.h"
 #include "thing_creature.h"
+#include "thing_shots.h"
 #include "thing_traps.h"
 #include "room_workshop.h"
 #include "kjm_input.h"
@@ -1411,11 +1412,11 @@ short get_creature_control_action_inputs(void)
         {
             if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &val, true))
             {
-                first_person_see_item_desc = 1;
+                first_person_see_item_desc = true;
             }
             else
             {
-                first_person_see_item_desc = 0;
+                first_person_see_item_desc = false;
             }
             struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
             if (thing_is_trap_crate(dragtng))
@@ -1428,13 +1429,29 @@ short get_creature_control_action_inputs(void)
             }
             else if (thing_is_invalid(dragtng))
             {
-                struct Thing* picktng = controlled_get_thing_to_pick_up(thing);
-                if (!thing_is_invalid(picktng))
+                struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+                TbBool diggable_subtile;
+                MapSubtlCoord stl_x = thing->mappos.x.stl.num;
+                MapSubtlCoord stl_y = thing->mappos.y.stl.num;
+                for (unsigned char range = 0; range < shotst->health; range++)
                 {
-                    player->thing_under_hand = picktng->index;
-                    if (first_person_see_item_desc)
+                    controlled_continue_looking_excluding_diagonal(thing, &stl_x, &stl_y);
+                    diggable_subtile = subtile_is_diggable_for_player(thing->owner, stl_x, stl_y, true);
+                    if (diggable_subtile)
                     {
-                        display_controlled_pick_up_thing_name(picktng, 1);
+                        break;
+                    }
+                }
+                if (!diggable_subtile)
+                {
+                    struct Thing* picktng = controlled_get_thing_to_pick_up(thing);
+                    if (!thing_is_invalid(picktng))
+                    {
+                        player->thing_under_hand = picktng->index;
+                        if (first_person_see_item_desc)
+                        {
+                            display_controlled_pick_up_thing_name(picktng, 1);
+                        }
                     }
                 }
             }

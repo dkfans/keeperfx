@@ -5735,7 +5735,7 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
                 }
             }
         }
-        controlled_continue_looking(creatng, &stl_x, &stl_y);
+        controlled_continue_looking_including_diagonal(creatng, &stl_x, &stl_y);
         radius++;
     }
     while (radius < shotst->health);
@@ -5800,14 +5800,14 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng)
                 }
             }
         }
-        controlled_continue_looking(creatng, &stl_x, &stl_y);
+        controlled_continue_looking_including_diagonal(creatng, &stl_x, &stl_y);
         radius++;
     }
     while (radius < shotst->health);
     return INVALID_THING;
 }
 
-void controlled_continue_looking(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y)
+void controlled_continue_looking_including_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y)
 {
     MapSubtlCoord x = *stl_x;
     MapSubtlCoord y = *stl_y;
@@ -5846,6 +5846,30 @@ void controlled_continue_looking(struct Thing *creatng, MapSubtlCoord *stl_x, Ma
     {
         x--;
         y--;
+    }
+    *stl_x = x;
+    *stl_y = y;
+}
+
+void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y)
+{
+    MapSubtlCoord x = *stl_x;
+    MapSubtlCoord y = *stl_y;
+    if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
+    {
+        y--;
+    }
+    else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
+    {
+        y++;
+    }
+    else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
+    {
+        x--;
+    }
+    else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
+    {
+        x++;
     }
     *stl_x = x;
     *stl_y = y;
