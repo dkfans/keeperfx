@@ -774,8 +774,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         ahead_stl_x++;
         ahead_slb_x++;
     }
-    TbBool slab_diggable = subtile_is_diggable_for_player(creatng->owner, slab_subtile_center(ahead_slb_x), slab_subtile_center(ahead_slb_y), true);
-    if ( ( (player->thing_under_hand != 0) || (cctrl->dragtng_idx != 0) ) && (!slab_diggable) )
+    if ( (player->thing_under_hand != 0) || (cctrl->dragtng_idx != 0) )
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
         return 1;
@@ -797,6 +796,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             {
                 if (room->owner == creatng->owner)
                 {
+                    TbBool slab_diggable = subtile_is_diggable_for_player(creatng->owner, slab_subtile_center(ahead_slb_x), slab_subtile_center(ahead_slb_y), true);
                     if (!slab_diggable)
                     {
                         if (creatng->creature.gold_carried > 0)
