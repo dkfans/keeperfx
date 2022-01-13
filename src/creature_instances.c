@@ -752,19 +752,19 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
     if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
     {
-        ahead_stl_y--;
+        ahead_stl_y = ahead_stl_y - STL_PER_SLB;
     }
     else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
     {
-        ahead_stl_y++;
+        ahead_stl_y = ahead_stl_y + STL_PER_SLB;
     }
     else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
     {
-        ahead_stl_x--;
+        ahead_stl_x = ahead_stl_x - STL_PER_SLB;
     }
     else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
     {
-        ahead_stl_x++; 
+        ahead_stl_x = ahead_stl_x + STL_PER_SLB;
     }
     MapSlabCoord ahead_slb_x = subtile_slab_fast(ahead_stl_x);
     MapSlabCoord ahead_slb_y = subtile_slab_fast(ahead_stl_y);
