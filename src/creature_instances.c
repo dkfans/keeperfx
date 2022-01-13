@@ -747,20 +747,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct PlayerInfo* player = get_my_player();
-    if ( (player->thing_under_hand != 0) || (cctrl->dragtng_idx != 0) )
-    {
-        set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
-        return 1;
-    }
     TRACE_THING(creatng);
-    MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
-    struct SlabMap* slb;
-    if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
-    {
-        instf_pretty_path(creatng, NULL);
-        return 1;
-    }
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
     if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
@@ -778,6 +765,21 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
     {
         ahead_stl_x++; 
+    }
+    MapSlabCoord ahead_slb_x = subtile_slab_fast(ahead_stl_x);
+    MapSlabCoord ahead_slb_y = subtile_slab_fast(ahead_stl_y);
+    struct SlabMap* ahead_slb = get_slabmap_block(ahead_slb_x, ahead_slb_y);
+    if ( ( (player->thing_under_hand != 0) || (cctrl->dragtng_idx != 0) ) && ( (ahead_slb->kind != SlbT_GOLD) && (ahead_slb->kind != SlbT_GEMS) ) )
+    {
+        set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
+        return 1;
+    }
+    MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
+    if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
+    {
+        instf_pretty_path(creatng, NULL);
+        return 1;
     }
     struct Room* room;
     TbBool diggable = subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y, true);
@@ -801,7 +803,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     }
     if ( (first_person_dig_claim_mode) || (!diggable) )
     {
-        slb = get_slabmap_block(slb_x, slb_y);
+        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
@@ -843,14 +845,11 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         {
             if (slabmap_owner(slb) == creatng->owner)
             {
-                MapSlabCoord reinforce_slb_x = subtile_slab_fast(ahead_stl_x);
-                MapSlabCoord reinforce_slb_y = subtile_slab_fast(ahead_stl_y);
-                if ( check_place_to_reinforce(creatng, reinforce_slb_x, reinforce_slb_y) )
+                if ( check_place_to_reinforce(creatng, ahead_slb_x, ahead_slb_y) )
                 {
-                    slb = get_slabmap_block(reinforce_slb_x, reinforce_slb_y);
-                    if ((slb->kind >= SlbT_EARTH) && (slb->kind <= SlbT_TORCHDIRT))
+                    if ((ahead_slb->kind >= SlbT_EARTH) && (ahead_slb->kind <= SlbT_TORCHDIRT))
                     {
-                        if (slab_by_players_land(creatng->owner, reinforce_slb_x, reinforce_slb_y))
+                        if (slab_by_players_land(creatng->owner, ahead_slb_x, ahead_slb_y))
                         {
                             cctrl->digger.working_stl = get_subtile_number(ahead_stl_x, ahead_stl_y);
                             instf_reinforce(creatng, NULL);
