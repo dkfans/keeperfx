@@ -1838,7 +1838,7 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     {
         param = 0;
         value->sac.action = SacA_None;
-        SCRPTERRLOG("Unexpcepdted parameter:%s", scline->tp[1]);
+        SCRPTERRLOG("Unexpected parameter:%s", scline->tp[1]);
     }
     value->sac.param = param;
 
