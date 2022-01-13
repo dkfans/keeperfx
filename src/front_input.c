@@ -86,7 +86,7 @@ KEEPERSPEECH_EVENT last_speech_event;
 // define the current GUI layer as the default
 struct GuiLayer gui_layer = {GuiLayer_Default};
 
-TbBool first_person_see_item_desc = true;
+TbBool first_person_see_item_desc = false;
 
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
@@ -1411,7 +1411,11 @@ short get_creature_control_action_inputs(void)
         {
             if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &val, true))
             {
-                first_person_see_item_desc ^= 1;
+                first_person_see_item_desc = 1;
+            }
+            else
+            {
+                first_person_see_item_desc = 0;
             }
             struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
             if (thing_is_trap_crate(dragtng))
