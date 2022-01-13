@@ -3510,6 +3510,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->solid_size_xy = crstat->thing_size_xy;
     crtng->solid_size_yz = crstat->thing_size_yz;
     crtng->fall_acceleration = 32;
+    crtng->bounce_angle = 0;
     crtng->field_23 = 32;
     crtng->field_24 = 8;
     crtng->movement_flags |= TMvF_Unknown08;
