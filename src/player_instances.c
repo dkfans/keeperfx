@@ -1289,9 +1289,32 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
         {
             return false;
         }
-        if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+        switch (player->instance_num)
         {
-            return (player->view_type == PVT_CreatureContrl);
+            case PI_DirctCtrl:
+            case PI_HeartZoom:
+            case PI_HeartZoomOut:
+            case PI_Drop:
+            {
+                if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+                {
+                    if (player->view_type == PVT_CreatureContrl)
+                    {
+                        return ( (thing->index == player->influenced_thing_idx) || (thing->model == 31) );
+                    }
+                }
+                return false;
+            }
+            case PI_CrCtrlFade:
+                return (thing->index == player->controlled_thing_idx);
+            case PI_DirctCtLeave:
+                return (thing->index == player->influenced_thing_idx);
+            case PI_Unset:
+            case PI_Whip: // Whip can be used at any time by comp. assistant
+            case PI_WhipEnd:
+                return (thing->index == player->controlled_thing_idx);
+            case PI_PsngrCtLeave: // Leaving the possessed creature
+                break;
         }
      }
     return false;
