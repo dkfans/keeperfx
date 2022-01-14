@@ -5559,12 +5559,9 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
                 struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
                 if (thing->creature.gold_carried < crstat->gold_hold)
                 {
-                    if (thing->creature.gold_carried < crstat->gold_hold)
-                    {
-                        cctrl->pickup_object_id = picktng->index;
-                        internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
-                        return;
-                    }
+                    cctrl->pickup_object_id = picktng->index;
+                    internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
+                    return;
                 }
                 else
                 {
