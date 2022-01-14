@@ -23,6 +23,7 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
+#include "creature_states.h"
 #include "thing_data.h"
 #include "thing_factory.h"
 #include "thing_effects.h"
@@ -301,6 +302,28 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
     }
 
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    if ((mapblk->flags & SlbAtFlg_IsRoom) != 0)
+    {
+        if (diggertng->creature.gold_carried > 0)
+        {
+            struct Thing* gldtng = drop_gold_pile(diggertng->creature.gold_carried, &diggertng->mappos);
+            diggertng->creature.gold_carried = 0;
+            struct Room* room;
+            room = get_room_xy(stl_x, stl_y);
+            if (!room_is_invalid(room))
+            {
+                if (room->kind == RoK_TREASURE)
+                {
+                    if (room->owner == diggertng->owner)
+                    {
+                        gold_being_dropped_at_treasury(gldtng, room);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     // Doors cannot be dug
     if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
     {
