@@ -746,7 +746,7 @@ long instf_fart(struct Thing *creatng, long *param)
 long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct PlayerInfo* player = get_player(creatng->owner);
+    struct PlayerInfo* player = get_my_player();
     TRACE_THING(creatng);
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
