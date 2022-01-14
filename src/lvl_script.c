@@ -7136,7 +7136,28 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 10: // SPECIAL_DIGGER
           if (val4 >= 1)
           {
+              ThingModel crtr_model = val2;
               crconf->model_flags |= CMF_IsSpecDigger;
+              if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
+              {
+                  if ((crconf->model_flags & CMF_IsEvil) != 0) {
+                      gameadd.crtr_conf.special_digger_evil = crtr_model;
+                  }
+                  else {
+                      gameadd.crtr_conf.special_digger_good = crtr_model;
+                  }
+              }
+              // Set creature start states based on the flags
+              if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
+              {
+                  creatures[crtr_model].evil_start_state = CrSt_ImpDoingNothing;
+                  creatures[crtr_model].good_start_state = CrSt_TunnellerDoingNothing;
+              }
+              else
+              {
+                  creatures[crtr_model].evil_start_state = CrSt_CreatureDoingNothing;
+                  creatures[crtr_model].good_start_state = CrSt_GoodDoingNothing;
+              }
           }
           else
           {
