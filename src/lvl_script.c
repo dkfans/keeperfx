@@ -7106,7 +7106,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           crstat->bleeds = val4;
           break;
       case 2: // UNAFFECTED_BY_WIND
-          crstat->affected_by_wind = val4;
+          if (val4)
+          {
+              crstat->affected_by_wind = 0;
+          }
+          else
+          {
+              crstat->affected_by_wind = 1;
+          }
           break;
       case 3: // IMMUNE_TO_GAS
           crstat->immune_to_gas = val4;
