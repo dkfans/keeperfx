@@ -2993,6 +2993,10 @@ void set_creature_level(struct Thing *thing, long nlvl)
         thing->health = -1;
     creature_increase_available_instances(thing);
     add_creature_score_to_owner(thing);
+    thing->clipbox_size_xy = crstat->size_xy + ((crstat->size_xy * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    thing->clipbox_size_yz = crstat->size_yz + ((crstat->size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    thing->solid_size_xy = crstat->thing_size_xy + ((crstat->thing_size_xy * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    thing->solid_size_yz = crstat->thing_size_yz + ((crstat->thing_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
 }
 
 void init_creature_level(struct Thing *thing, long nlev)
