@@ -1001,8 +1001,11 @@ long food_moves(struct Thing *objtng)
         objtng->food.life_remaining--;
         if (objtng->food.life_remaining <= 0)
         {
-            struct Dungeon* dungeon = get_dungeon(objtng->owner);
-            dungeon->lvstats.chickens_wasted++;
+            if (objtng->owner != game.neutral_player_num)
+            {
+                struct Dungeon* dungeon = get_dungeon(objtng->owner);
+                dungeon->lvstats.chickens_wasted++;
+            }
             create_effect(&objtng->mappos, TngEff_FeatherPuff, objtng->owner);
             create_effect(&objtng->mappos, TngEff_ChickenBlood, objtng->owner);
             delete_thing_structure(objtng, 0);
