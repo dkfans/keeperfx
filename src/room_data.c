@@ -70,6 +70,7 @@ void count_workers_in_room(struct Room *room);
 void count_bodies_in_room(struct Room *room);
 void count_food_in_room(struct Room *room);
 void count_lair_occupants(struct Room *room);
+long find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing* thing, struct Room* skip_room, struct Coord3d* pos);
 /******************************************************************************/
 
 RoomKind look_through_rooms[] = {
@@ -595,7 +596,11 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
                     WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
                 }
                 if (!is_neutral_thing(thing))
+                {
                     remove_power_from_player(spl_idx, room->owner);
+                    struct Dungeon* dungeon = get_dungeon(room->owner);
+                    dungeon->magic_resrchable[spl_idx] = 1;
+                }
                 delete_thing_structure(thing, 0);
             }
         }
@@ -631,6 +636,18 @@ TbBool recreate_repositioned_book_in_room_on_subtile(struct Room *room, MapSubtl
     return false;
 }
 
+TbBool move_thing_to_different_room(struct Thing* thing, struct Coord3d* pos)
+{
+    pos->z.val = get_thing_height_at(thing, pos);
+    move_thing_in_map(thing, pos);
+    create_effect(pos, TngEff_RoomSparkeLarge, thing->owner);
+    struct Room* nxroom;
+    nxroom = get_room_thing_is_on(thing);
+    update_room_contents(nxroom);
+
+    return (!room_is_invalid(nxroom));
+}
+
 int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
@@ -660,8 +677,25 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                 // If exceeded capacity of the library
                 if (room->used_capacity >= room->total_capacity)
                 {
-                    WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                    SYNCLOG("The %s capacity %d exceeded; space used is %d", room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
+                    struct Coord3d pos;
+                    // Try to move spellbook to another library
+                    if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
+                    {
+                        if (move_thing_to_different_room(thing, &pos))
+                        {
+                            break;
+                        }
+                    }
+                    // Cannot store the spellbook anywhere - remove the spell
+                    if (!is_neutral_thing(thing)) 
+                    {
+                        SYNCLOG("No free %s capacity found for player %d, deleting object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
+                        remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
+                    }
+                    delete_thing_structure(thing, 0);
                     return -1; // re-create all (this could save the object if there are duplicates)
+
                 } else
                 // If the thing is in wall, remove it but store to re-create later
                 if (thing_in_wall_at(thing, &thing->mappos))
@@ -3607,16 +3641,13 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     // Try to move spellbook to another library
                     if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
                     {
-                        pos.z.val = get_thing_height_at(thing, &pos);
-                        move_thing_in_map(thing, &pos);
-                        create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
-                        struct Room *nxroom;
-                        nxroom = get_room_thing_is_on(thing);
-                        update_room_contents(nxroom);
+                        move_thing_to_different_room(thing, &pos);
                     } else
                     // Cannot store the spellbook anywhere - remove the spell
                     {
-                        if (!is_neutral_thing(thing)) {
+                        if (!is_neutral_thing(thing)) 
+                        {
+                            SYNCLOG("No free %s capacity found for player %d, deleting object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
                             remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
                         }
                         delete_thing_structure(thing, 0);
@@ -4067,6 +4098,12 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
             }
             thing->owner = newowner;
             return;
+        }
+        break;
+    case RoK_GARDEN:
+        if (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing))
+        {
+            thing->parent_idx = -1; // All chickens escape
         }
         break;
     case RoK_LAIR:

@@ -1569,7 +1569,7 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     {
         param = 0;
         value->sac.action = SacA_None;
-        SCRPTERRLOG("Unexpcepdted parameter:%s", scline->tp[1]);
+        SCRPTERRLOG("Unexpected parameter:%s", scline->tp[1]);
     }
     value->sac.param = param;
 
@@ -2063,7 +2063,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, trapvar, value->shorts[2]);
+    SCRIPTDBG(7, "Setting trap %s property %d to %d", trapname, trapvar, value->shorts[2]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -4582,7 +4582,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           crstat->bleeds = val4;
           break;
       case 2: // UNAFFECTED_BY_WIND
-          crstat->affected_by_wind = val4;
+          if (val4)
+          {
+              crstat->affected_by_wind = 0;
+          }
+          else
+          {
+              crstat->affected_by_wind = 1;
+          }
           break;
       case 3: // IMMUNE_TO_GAS
           crstat->immune_to_gas = val4;
