@@ -92,7 +92,7 @@ static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
 static int num_added_icons = 0;
 int num_icons_total = GUI_PANEL_SPRITES_COUNT;
-unsigned char base_pal[3 * 256];
+unsigned char base_pal[PALETTE_SIZE];
 
 static void init_pal_conversion();
 
