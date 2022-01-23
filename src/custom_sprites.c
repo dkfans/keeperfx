@@ -268,6 +268,7 @@ static void init_pal_conversion()
     memset(pal_records, 0, sizeof(pal_records));
 
     struct PaletteNode pal_tree_tmp[MAX_COLOR_VALUE] = {0}; // one color
+    char* fname;
     TbBool result = true;
     fname = prepare_file_fmtpath(FGrp_StdData, "pal%05d.dat", 0);
     if (!LbFileExists(fname))
