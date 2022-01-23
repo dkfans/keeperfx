@@ -26,6 +26,7 @@
 #include "bflib_fileio.h"
 #include "gui_draw.h"
 #include "frontend.h"
+#include "bflib_dernc.h"
 
 #include <spng.h>
 #include <json.h>
@@ -91,6 +92,7 @@ static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
 static int num_added_icons = 0;
 int num_icons_total = GUI_PANEL_SPRITES_COUNT;
+unsigned char base_pal[PALETTE_SIZE];
 
 static void init_pal_conversion();
 
@@ -266,8 +268,24 @@ static void init_pal_conversion()
     memset(pal_records, 0, sizeof(pal_records));
 
     struct PaletteNode pal_tree_tmp[MAX_COLOR_VALUE] = {0}; // one color
+    char* fname;
+    TbBool result = true;
+    fname = prepare_file_fmtpath(FGrp_StdData, "pal%05d.dat", 0);
+    if (!LbFileExists(fname))
+    {
+        WARNMSG("Palette file \"%s\" doesn't exist.", fname);
+        result = false;
+    }
+    if (result)
+    {
+        result = (LbFileLoadAt(fname, base_pal) != -1);
+    }
+    else
+    {
+        ERRORLOG("Can't load palette file.");
+    }
 
-    unsigned char *pal = engine_palette;
+    unsigned char *pal = base_pal;
     for (int i = 0; i < PALETTE_COLORS; i++)
     {
         if ((pal[i * 3 + 0] > MAX_COLOR_VALUE)
