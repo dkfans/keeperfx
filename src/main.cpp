@@ -1697,6 +1697,7 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
 TbBool set_gamma(char corrlvl, TbBool do_set)
 {
     char *fname;
+    char *fname2;
     TbBool result = true;
     if (corrlvl < 0)
       corrlvl = 0;
@@ -1723,6 +1724,8 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
     }
     if (!result)
       ERRORLOG("Can't load palette file.");
+    fname2 = prepare_file_fmtpath(FGrp_StdData, "pal%05d.dat", 0);
+    LbFileLoadAt(fname2, default_palette);
     return result;
 }
 

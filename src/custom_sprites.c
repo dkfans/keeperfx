@@ -266,8 +266,7 @@ static void init_pal_conversion()
     memset(pal_records, 0, sizeof(pal_records));
 
     struct PaletteNode pal_tree_tmp[MAX_COLOR_VALUE] = {0}; // one color
-
-    unsigned char *pal = engine_palette;
+    unsigned char *pal = default_palette;
     for (int i = 0; i < PALETTE_COLORS; i++)
     {
         if ((pal[i * 3 + 0] > MAX_COLOR_VALUE)
