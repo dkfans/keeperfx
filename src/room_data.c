@@ -694,7 +694,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                         if (!is_neutral_thing(thing))
                         {
                             SYNCLOG("No free %s capacity found for player %d, deleting object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
-                            remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
+                            remove_power_from_player(spl_idx, thing->owner);
                         }
                     }
                     delete_thing_structure(thing, 0);
