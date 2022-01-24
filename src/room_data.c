@@ -4100,6 +4100,12 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
             return;
         }
         break;
+    case RoK_GARDEN:
+        if (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing))
+        {
+            thing->parent_idx = -1; // All chickens escape
+        }
+        break;
     case RoK_LAIR:
         // Lair - owns creature lairs
         if (objdat->related_creatr_model)
