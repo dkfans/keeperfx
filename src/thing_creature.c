@@ -5716,6 +5716,9 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
     unsigned char radius = 0;
     MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
+    struct Thing *result = NULL;
+    MapCoordDelta old_distance = LONG_MAX;
+    MapCoordDelta new_distance;
     do
     {
         struct Map *blk = get_map_block_at(stl_x, stl_y);
@@ -5727,7 +5730,12 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
                 {
                     if (line_of_sight_3d(&creatng->mappos, &picktng->mappos))
                     {
-                        return picktng;
+                        new_distance = get_3d_box_distance(&creatng->mappos, &picktng->mappos);
+                        if (new_distance < old_distance)
+                        {
+                            old_distance = new_distance;
+                            result = picktng;
+                        }
                     }
                 }
             }
@@ -5736,7 +5744,7 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
         radius++;
     }
     while (radius < shotst->health);
-    return INVALID_THING;
+    return result;
 }
 
 TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
