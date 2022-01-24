@@ -679,19 +679,23 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                 {
                     SYNCLOG("The %s capacity %d exceeded; space used is %d", room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
                     struct Coord3d pos;
-                    // Try to move spellbook to another library
-                    if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
+                    struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
+                    if (dungeon->magic_level[spl_idx] < 2)
                     {
-                        if (move_thing_to_different_room(thing, &pos))
+                        // Try to move spellbook to another library
+                        if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
                         {
-                            break;
+                            if (move_thing_to_different_room(thing, &pos))
+                            {
+                                break;
+                            }
                         }
-                    }
-                    // Cannot store the spellbook anywhere - remove the spell
-                    if (!is_neutral_thing(thing)) 
-                    {
-                        SYNCLOG("No free %s capacity found for player %d, deleting object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
-                        remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
+                        // Cannot store the spellbook anywhere - remove the spell
+                        if (!is_neutral_thing(thing))
+                        {
+                            SYNCLOG("No free %s capacity found for player %d, deleting object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
+                            remove_power_from_player(book_thing_to_power_kind(thing), thing->owner);
+                        }
                     }
                     delete_thing_structure(thing, 0);
                     return -1; // re-create all (this could save the object if there are duplicates)
@@ -3558,6 +3562,7 @@ struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, SlabCodedCoords slbnum)
 {
     struct Thing *thing;
+    struct Dungeon* dungeon;
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
@@ -3602,7 +3607,6 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             if (!thing_is_invalid(gldtng))
             {
                 room->capacity_used_for_storage -= gldtng->valuable.gold_stored;
-                struct Dungeon *dungeon;
                 dungeon = get_dungeon(plyr_idx);
                 if (!dungeon_invalid(dungeon)) {
                     dungeon->total_money_owned -= gldtng->valuable.gold_stored;
@@ -3628,6 +3632,8 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             // Per thing code start
             if (thing_is_spellbook(thing) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
+                PowerKind spl_idx = book_thing_to_power_kind(thing);
+                dungeon = get_dungeon(plyr_idx);
                 if (thing->owner == room->owner)
                 {
                     struct Coord3d pos;
@@ -3638,8 +3644,8 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                         move_thing_in_map(thing, &pos);
                         create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
                     } else
-                    // Try to move spellbook to another library
-                    if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
+                    // Try to move spellbook to another library, if it's the only copy
+                    if ((dungeon->magic_level[spl_idx] < 2) && (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos)))
                     {
                         move_thing_to_different_room(thing, &pos);
                     } else
