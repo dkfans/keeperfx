@@ -889,7 +889,7 @@ void process_pointer_graphic(void)
         if ((game.numfield_D & GNFldD_CreaturePasngr) != 0)
           set_pointer_graphic(MousePG_Arrow);
         else
-          set_pointer_graphic(MousePG_Invisible);
+          set_pointer_graphic(MousePG_Arrow); //todo revert this, it's for testing only
         break;
     case PVT_MapScreen:
     case PVT_MapFadeIn:
