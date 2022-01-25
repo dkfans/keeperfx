@@ -698,17 +698,6 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                         }
                         return -1; // re-create all
                     }
-                    else
-                    {
-                        SYNCLOG("Deleting from %s of player %d duplicate object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
-                        if (!is_neutral_thing(thing))
-                        {
-                            remove_power_from_player(spl_idx, thing->owner);
-                        }
-                        delete_thing_structure(thing, 0);
-                        return -2; // do nothing
-                    }
-
                 } else
                 // If the thing is in wall, remove it but store to re-create later
                 if (thing_in_wall_at(thing, &thing->mappos))
