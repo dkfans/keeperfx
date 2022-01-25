@@ -5792,11 +5792,16 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
     unsigned char radius = 0;
-    MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
-    MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
+    struct Coord3d pos;
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
+    pos.z.val = creatng->mappos.z.val;
+    long dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
+    long dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);
+    long dz = distance_with_angle_to_coord_z(shotst->speed, creatng->move_angle_z);
     do
     {
-        struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
+        struct Thing* traptng = get_trap_for_position(pos.x.stl.num, pos.y.stl.num);
         if (!thing_is_invalid(traptng))
         {
             if (traptng->owner == creatng->owner)
@@ -5812,55 +5817,13 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng)
                 }
             }
         }
-        controlled_continue_looking_including_diagonal(creatng, &stl_x, &stl_y);
+        pos.x.val += dx;
+        pos.y.val += dy;
+        pos.z.val += dz;
         radius++;
     }
     while (radius < shotst->health);
     return INVALID_THING;
-}
-
-void controlled_continue_looking_including_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y)
-{
-    MapSubtlCoord x = *stl_x;
-    MapSubtlCoord y = *stl_y;
-    if ( (creatng->move_angle_xy > 1920) || (creatng->move_angle_xy <= 127) )
-    {
-        y--;
-    }            
-    else if ( (creatng->move_angle_xy >= 128) && (creatng->move_angle_xy <= 384) )
-    {
-        x++;
-        y--;
-    }
-    else if ( (creatng->move_angle_xy >= 385) && (creatng->move_angle_xy <= 640) )
-    {
-        x++;
-    }
-    else if ( (creatng->move_angle_xy >= 641) && (creatng->move_angle_xy <= 896) )
-    {
-        x++;
-        y++;            
-    }
-    else if ( (creatng->move_angle_xy >= 897) && (creatng->move_angle_xy <= 1152) )
-    {
-        y++;
-    }
-    else if ( (creatng->move_angle_xy >= 1153) && (creatng->move_angle_xy <= 1408) )
-    {
-        x--;
-        y++;
-    }
-    else if ( (creatng->move_angle_xy >= 1409) && (creatng->move_angle_xy <= 1664) )
-    {
-        x--;
-    }
-    else if ( (creatng->move_angle_xy >= 1665) && (creatng->move_angle_xy <= 1920) )
-    {
-        x--;
-        y--;
-    }
-    *stl_x = x;
-    *stl_y = y;
 }
 
 void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y)
