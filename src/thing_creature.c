@@ -5714,14 +5714,19 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
     unsigned char radius = 0;
-    MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
-    MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
+    struct Coord3d pos;
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
+    pos.z.val = creatng->mappos.z.val;
     struct Thing *result = NULL;
     MapCoordDelta old_distance = LONG_MAX;
     MapCoordDelta new_distance;
+    long dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
+    long dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);
+    long dz = distance_with_angle_to_coord_z(shotst->speed, creatng->move_angle_z);
     do
     {
-        struct Map *blk = get_map_block_at(stl_x, stl_y);
+        struct Map *blk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
         for (struct Thing* picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk))
         {
             if (picktng != creatng)
@@ -5740,7 +5745,9 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
                 }
             }
         }
-        controlled_continue_looking_including_diagonal(creatng, &stl_x, &stl_y);
+        pos.x.val += dx;
+        pos.y.val += dy;
+        pos.z.val += dz;
         radius++;
     }
     while (radius < shotst->health);
