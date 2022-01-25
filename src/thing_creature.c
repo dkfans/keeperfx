@@ -5717,13 +5717,11 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
     struct Coord3d pos;
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
-    pos.z.val = creatng->mappos.z.val;
     struct Thing *result = NULL;
     MapCoordDelta old_distance = LONG_MAX;
     MapCoordDelta new_distance;
     long dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
     long dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);
-    long dz = distance_with_angle_to_coord_z(shotst->speed, creatng->move_angle_z);
     do
     {
         struct Map *blk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
@@ -5747,7 +5745,6 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
         }
         pos.x.val += dx;
         pos.y.val += dy;
-        pos.z.val += dz;
         radius++;
     }
     while (radius < shotst->health);
@@ -5795,10 +5792,8 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng)
     struct Coord3d pos;
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
-    pos.z.val = creatng->mappos.z.val;
     long dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
     long dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);
-    long dz = distance_with_angle_to_coord_z(shotst->speed, creatng->move_angle_z);
     do
     {
         struct Thing* traptng = get_trap_for_position(pos.x.stl.num, pos.y.stl.num);
@@ -5819,7 +5814,6 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng)
         }
         pos.x.val += dx;
         pos.y.val += dy;
-        pos.z.val += dz;
         radius++;
     }
     while (radius < shotst->health);
