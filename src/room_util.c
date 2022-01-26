@@ -415,13 +415,17 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             } else {
                 // Make correct owner so that Imps can pick it up
                 thing->owner = game.neutral_player_num;
+                return false;
             }
-            return true;
+            return false;
         }
-        if (!add_power_to_player(book_thing_to_power_kind(thing), room->owner))
+        if (room->owner != game.neutral_player_num)
         {
-            thing->owner = game.neutral_player_num;
-            return true;
+            if (!add_power_to_player(book_thing_to_power_kind(thing), room->owner))
+            {
+                thing->owner = game.neutral_player_num;
+                return false;
+            }
         }
         thing->owner = room->owner;
         return true;
