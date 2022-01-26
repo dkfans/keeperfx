@@ -128,7 +128,6 @@ unsigned char const slabs_to_centre_peices[] = {
 unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None };
 const short slab_around[] = { -85, 1, 85, -1 };
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *hoardtng, struct Room *room, struct Coord3d *pos, long a4);
 DLLIMPORT short _DK_delete_room_slab_when_no_free_room_structures(long a1, long plyr_idx, unsigned char a3);
 DLLIMPORT void _DK_free_room_structure(struct Room *room);
 DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber newowner, int rkind);
@@ -3464,9 +3463,101 @@ short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned c
     return _DK_delete_room_slab_when_no_free_room_structures(a1, a2, a3);
 }
 
-unsigned char find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *thing, struct Room *room, struct Coord3d *pos, long a4)
+TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *thing, struct Room *room, struct Coord3d *pos, long slbnum)
 {
-    return _DK_find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(thing, room, pos, a4);
+    // return _DK_find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(thing, room, pos, a4);
+    int nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing), 0);
+    if (room_is_invalid(room) || (room->slabs_count <= 0)) {
+        ERRORLOG("Invalid room or number of slabs is zero");
+        return false;
+    }
+    long selected = CREATURE_RANDOM(thing, room->slabs_count);  
+    unsigned long n = 0;
+    long i = room->slabs_list;
+    // Get the selected index
+    while (i != 0)
+    {
+        // Per room tile code
+        if (n >= selected)
+        {
+            break;
+        }
+        // Per room tile code ends
+        do
+        {
+            i = get_next_slab_number_in_room(i);
+        }
+        while (i == slbnum);
+        n++;
+    }
+    if (i == 0) 
+    {
+        if (n < room->slabs_count)
+        {
+            WARNLOG("Number of slabs in %s (%d) is smaller than count (%d)",room_code_name(room->kind), n, room->slabs_count);
+        }
+        n = 0;
+        i = room->slabs_list;
+        while (i == slbnum)
+        {
+            i = get_next_slab_number_in_room(i);
+        }
+    }
+    // Sweep rooms starting on that index
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        if (i != slbnum)
+        {
+            MapSubtlCoord stl_x = slab_subtile(slb_num_decode_x(i), 0);
+            MapSubtlCoord stl_y = slab_subtile(slb_num_decode_y(i), 0);
+            // Per room tile code
+            MapSubtlCoord start_stl = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
+            for (long nround = 0; nround < AROUND_TILES_COUNT; nround++)
+            {
+                MapSubtlCoord x = start_stl % 3 + stl_x;
+                MapSubtlCoord y = start_stl / 3 + stl_y;
+                if (get_floor_filled_subtiles_at(x, y) == 1)
+                {
+                    struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
+                    if (thing_is_invalid(objtng))
+                    {
+                        pos->x.val = subtile_coord_center(x);
+                        pos->y.val = subtile_coord_center(y);
+                        pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                        if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
+                            return true;
+                        }
+                    }
+                }
+                start_stl = (start_stl + 1) % 9;
+            }
+        }
+        // Per room tile code ends
+        if (n+1 >= room->slabs_count)
+        {
+            n = 0;
+            i = room->slabs_list;
+            while (i == slbnum)
+            {
+                i = get_next_slab_number_in_room(i);
+            }
+        } else {
+            n++;
+            do
+            {
+                i = get_next_slab_number_in_room(i);
+            }
+            while (i == slbnum);
+        }
+        k++;
+        if (k > room->slabs_count) {
+            ERRORLOG("Infinite loop detected when sweeping room slabs list");
+            break;
+        }
+    }
+    ERRORLOG("Could not find valid RANDOM point in %s for %s",room_code_name(room->kind),thing_model_name(thing));
+    return false;
 }
 
 long find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing *thing, struct Room *skip_room, struct Coord3d *pos)
