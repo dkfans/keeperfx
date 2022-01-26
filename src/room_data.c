@@ -3670,6 +3670,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                         {
                             SYNCLOG("No free %s capacity found for player %d, deleting object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
                             remove_power_from_player(spl_idx, thing->owner);
+                            dungeon->magic_resrchable[spl_idx] = 1;
                         }
                         delete_thing_structure(thing, 0);
                     }
