@@ -2399,10 +2399,14 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         i = get_next_slab_number_in_room(i);
         n++;
     }
-    if (i == 0) {
+    if (i == 0) 
+    {
+        if (n < room->slabs_count)
+        {
+            WARNLOG("Number of slabs in %s (%d) is smaller than count (%d)",room_code_name(room->kind), n, room->slabs_count);
+        }
         n = 0;
         i = room->slabs_list;
-        WARNLOG("Amount of slabs in %s is smaller than count",room_code_name(room->kind));
     }
     // Sweep rooms starting on that index
     unsigned long k = 0;
