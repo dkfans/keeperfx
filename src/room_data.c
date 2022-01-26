@@ -678,9 +678,9 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
             if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
             {
                 // If exceeded capacity of the library
-                if (room->used_capacity > room->total_capacity)
+                if (room->used_capacity >= room->total_capacity)
                 {
-                    SYNCLOG("The %s capacity %d exceeded; space used is %d", room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
+                    SYNCLOG("The %s capacity %d exceeded; space used is %d", room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity+1);
                     struct Coord3d pos;
                     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
                     if (dungeon->magic_level[spl_idx] < 2) // on multiple copies, no need to move the duplicate
