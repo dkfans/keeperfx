@@ -678,7 +678,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
             if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
             {
                 // If exceeded capacity of the library
-                if (room->used_capacity >= room->total_capacity)
+                if (room->used_capacity > room->total_capacity)
                 {
                     SYNCLOG("The %s capacity %d exceeded; space used is %d", room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
                     struct Coord3d pos;
@@ -693,15 +693,22 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                                 return -2; // do nothing
                             }
                         }
+                        // We have a single copy, but nowhere to place it. -1 will handle the rest.
+                        return -1;
+                    }
+                    else // We have more than one copy, so we can just delete it.
+                    {
                         // Cannot store the spellbook anywhere - remove the spell
                         if (!is_neutral_thing(thing))
                         {
                             SYNCLOG("No free %s capacity found for player %d, deleting object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
                             remove_power_from_player(spl_idx, thing->owner);
                         }
-                        return -1; // re-create all
+                        SYNCLOG("Deleting from %s of player %d duplicate object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
+                        delete_thing_structure(thing, 0);
                     }
-                } else
+
+                } else // we have capacity to spare, so it can stay unless it's stuck
                 // If the thing is in wall, remove it but store to re-create later
                 if (thing_in_wall_at(thing, &thing->mappos))
                 {
