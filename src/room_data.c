@@ -586,7 +586,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
         }
         i = thing->next_on_mapblk;
         // Per thing code
-        if (thing->class_id == TCls_Object)
+        if (thing_is_spellbook(thing))
         {
             ThingModel objkind = thing->model;
             PowerKind spl_idx = book_thing_to_power_kind(thing);
