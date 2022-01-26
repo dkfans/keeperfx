@@ -590,7 +590,7 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
         {
             ThingModel objkind = thing->model;
             PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & 0x80) == 0))
+            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
                 if (!store_reposition_entry(rrepos, objkind)) {
                     WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
@@ -705,7 +705,14 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                 // If the thing is in wall, remove it but store to re-create later
                 if (thing_in_wall_at(thing, &thing->mappos))
                 {
-                    return -1; // re-create all
+                    if (position_over_floor_level(thing, &thing->mappos))
+                    {
+                        matching_things_at_subtile++; 
+                    }
+                    else
+                    {
+                        return -1; // re-create all
+                    }
                 } else
                 {
                     matching_things_at_subtile++;
