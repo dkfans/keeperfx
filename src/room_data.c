@@ -643,9 +643,12 @@ TbBool move_thing_to_different_room(struct Thing* thing, struct Coord3d* pos)
     create_effect(pos, TngEff_RoomSparkeLarge, thing->owner);
     struct Room* nxroom;
     nxroom = get_room_thing_is_on(thing);
-    update_room_contents(nxroom);
-
-    return (!room_is_invalid(nxroom));
+    if (room_exists(nxroom))
+    {
+        update_room_contents(nxroom);
+        return true;
+    }
+    return false;
 }
 
 int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -669,7 +672,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         }
         i = thing->next_on_mapblk;
         // Per thing code
-        if (thing->class_id == TCls_Object)
+        if (thing_is_spellbook(thing))
         {
             PowerKind spl_idx = book_thing_to_power_kind(thing);
             if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
