@@ -429,6 +429,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             }
             else
             {
+                thing->owner = room->owner;
                 return true;
             }
         }
