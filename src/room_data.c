@@ -3587,7 +3587,7 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
           break;
         }
     }
-    if (matching_rooms <= 0)
+    if (matching_rooms == 0)
         return 0;
     int chosen_match_idx = CREATURE_RANDOM(thing, matching_rooms);
     int curr_match_idx = 0;
