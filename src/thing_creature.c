@@ -5703,7 +5703,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         str = calloc(10, 1);
         if (picktng->owner == game.neutral_player_num)
         {
-            id = (game.play_gameturn >> 1) & 3;
+            id = game.neutral_player_num;
             sprintf(str, "%s", player_desc[6]);
         }
         else if (picktng->owner == game.hero_player_num)
