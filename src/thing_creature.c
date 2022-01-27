@@ -5761,7 +5761,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     else if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
                   (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
                   (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default)) || 
-                  ( (thing_is_creature(picktng)) && creature_is_being_unconscious(picktng) ) )
+                  ( (thing_is_creature(picktng)) && (creature_is_being_unconscious(picktng)) && (picktng->owner != creatng->owner) ) )
     {
         return (slabmap_owner(slb) == creatng->owner);              
     }
