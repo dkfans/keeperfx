@@ -5629,22 +5629,22 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
 void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout)
 {
     char id;
-    char* str;
+    char str[255] = {'\0'};
     if (thing_is_trap_crate(picktng))
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(picktng));
-        str = get_string(trapst->name_stridx);
+        strcat(str, get_string(trapst->name_stridx));
         id = -86;
     }
     else if (thing_is_door_crate(picktng))
     {
         struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(picktng));
-        str = get_string(doorst->name_stridx);
+        strcat(str, get_string(doorst->name_stridx));
         id = -86;
     }
     else if (thing_is_spellbook(picktng))
     {
-        str = get_string(get_power_name_strindex(book_thing_to_power_kind(picktng)));
+        strcat(str, get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
         id = -81;
     }
     else if (thing_is_special_box(picktng))
@@ -5654,26 +5654,26 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         {
             if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
-                str = get_string(2005);
+                strcat(str, get_string(2005));
                 strcpy(msg_buf, str);
-                str = strtok(msg_buf, ":");
+                sprintf(str, strtok(msg_buf, ":"));
             }
             else
             {
-                str = gameadd.box_tooltip[picktng->custom_box.box_kind];
+                strcat(str, gameadd.box_tooltip[picktng->custom_box.box_kind]);
                 char *split = strchr(str, ':');
                 if ((int)(split - str) > -1)
                 {
                     strcpy(msg_buf, str);
-                    str = strtok(msg_buf, ":");
+                    sprintf(str, strtok(msg_buf, ":"));
                 }
             }
         }
         else
         {
-            str = get_string(get_special_description_strindex(box_thing_to_special(picktng)));
+            strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
             strcpy(msg_buf, str);
-            str = strtok(msg_buf, ":");
+            sprintf(str, strtok(msg_buf, ":"));
         }
         id = -81;
     }
@@ -5683,7 +5683,6 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         struct Thing* creatng = thing_get(player->influenced_thing_idx);
         if (thing_is_creature(creatng))
         {
-            str = calloc(20, 1);
             struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
             long gold_remaining = (crstat->gold_hold - creatng->creature.gold_carried);
             long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
@@ -5700,7 +5699,6 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     }
     else if (thing_is_creature(picktng))
     {
-        str = calloc(10, 1);
         if (picktng->owner == game.neutral_player_num)
         {
             id = game.neutral_player_num;
@@ -5719,7 +5717,6 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
-        str = calloc(1, 1);
         id = -89;
     }
     else
@@ -5728,7 +5725,6 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     }
     zero_messages();
     message_add_timeout(id, timeout, str);
-    free(str);
 }
 
 struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
