@@ -5575,7 +5575,7 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
             room = get_room_thing_is_on(picktng);
             if (!room_is_invalid(room))
             {
-                if ( (room->kind == RoK_WORKSHOP) && (room->owner == thing->owner) )
+                if ( (room_role_matches(room->kind, RoRoF_CratesStorage)) && (room->owner == thing->owner) )
                 {
                     if (thing_is_workshop_crate(picktng))
                     {
@@ -5611,7 +5611,7 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
             room = get_room_thing_is_on(thing);
             if (!room_is_invalid(room))
             {
-                if (room->kind == RoK_TREASURE)
+                if (room_role_matches(room->kind, RoRoF_GoldStorage))
                 {                                
                     if (room->owner == thing->owner)
                     {
@@ -5787,7 +5787,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
         struct Room* room = get_room_thing_is_on(picktng);
         if (!room_is_invalid(room))
         {
-            if (room->kind == RoK_WORKSHOP)
+            if (room_role_matches(room->kind, RoRoF_CratesStorage))
            {
                 if (room->owner == creatng->owner)
                 {

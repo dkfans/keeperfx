@@ -792,7 +792,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         room = get_room_thing_is_on(creatng);
         if (!room_is_invalid(room))
         {
-            if (room->kind == RoK_TREASURE)
+            if (room_role_matches(room->kind, RoRoF_GoldStorage))
             {
                 if (room->owner == creatng->owner)
                 {

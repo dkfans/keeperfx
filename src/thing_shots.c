@@ -218,7 +218,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
         room = get_room_thing_is_on(creatng);
         if (!room_is_invalid(room))
         {
-            if (room->kind == RoK_TREASURE)
+            if (room_role_matches(room->kind, RoRoF_GoldStorage))
             {
                 if (room->owner == creatng->owner)
                 {
@@ -312,7 +312,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
             room = get_room_xy(stl_x, stl_y);
             if (!room_is_invalid(room))
             {
-                if (room->kind == RoK_TREASURE)
+                if (room_role_matches(room->kind, RoRoF_GoldStorage))
                 {
                     if (room->owner == diggertng->owner)
                     {
