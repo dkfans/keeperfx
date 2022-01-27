@@ -5702,17 +5702,17 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         if (picktng->owner == game.neutral_player_num)
         {
             id = game.neutral_player_num;
-            sprintf(str, "%s", player_desc[6]);
+            sprintf(str, "%s", player_desc[6].name);
         }
         else if (picktng->owner == game.hero_player_num)
         {
             id = picktng->owner;
-            sprintf(str, "%s", player_desc[4]);
+            sprintf(str, "%s", player_desc[4].name);
         }
         else
         {
             id = picktng->owner;
-            sprintf(str, "%s", player_desc[picktng->owner]);
+            sprintf(str, "%s", player_desc[picktng->owner].name);
         }
     }
     else if (picktng->class_id == TCls_DeadCreature)
