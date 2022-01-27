@@ -107,7 +107,15 @@ void message_draw(void)
         }
         else
         {
-            spr_idx = 488+gameadd.messages[i].plyr_idx;
+            if (gameadd.messages[i].plyr_idx == game.hero_player_num)
+            {
+                // use discoloured icon for the hero player
+                spr_idx = 498;
+            }
+            else
+            {
+                spr_idx = 488+gameadd.messages[i].plyr_idx;
+            }
         }
         if (gameadd.messages[i].plyr_idx != 127)
         {

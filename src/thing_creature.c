@@ -5629,7 +5629,7 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
 void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout)
 {
     char id;
-    const char* str;
+    char* str;
     if (thing_is_trap_crate(picktng))
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(picktng));
@@ -5695,17 +5695,38 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             {
                 sprintf(str, "%ld", picktng->creature.gold_carried); 
             }
-            id = (picktng->model == 43) ? -117 : -116;
+            id = -116;
         }
+    }
+    else if (thing_is_creature(picktng))
+    {
+        str = calloc(10, 1);
+        if (picktng->owner == game.neutral_player_num)
+        {
+            id = (game.play_gameturn >> 1) & 3;
+            sprintf(str, "%s", player_desc[6]);
+        }
+        else if (picktng->owner == game.hero_player_num)
+        {
+            id = picktng->owner;
+            sprintf(str, "%s", player_desc[4]);
+        }
+        else
+        {
+            id = picktng->owner;
+            sprintf(str, "%s", player_desc[picktng->owner]);
+        }
+    }
+    else if (picktng->class_id == TCls_DeadCreature)
+    {
+        str = calloc(1, 1);
+        id = -89;
     }
     else
     {
         return;
     }
-    clear_messages_from_player(-81);
-    clear_messages_from_player(-86);
-    clear_messages_from_player(-116);
-    clear_messages_from_player(-117);
+    zero_messages();
     message_add_timeout(id, timeout, str);
     free(str);
 }
