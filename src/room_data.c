@@ -3565,49 +3565,60 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
     //return _DK_find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, pos);
     struct Dungeon* dungeon = get_players_num_dungeon(skip_room->owner);
     unsigned int matching_rooms = 0;
-    long i = dungeon->room_kind[skip_room->kind];
+    long i;
     unsigned long k = 0;
-    while (i != 0)
+    struct Room* room;
+    for (i = dungeon->room_kind[skip_room->kind]; (i != 0); i = room->next_of_owner)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
-        {
-          ERRORLOG("Jump to invalid room detected");
-          break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        if ((room->index != skip_room->index) && (room->total_capacity > room->capacity_used_for_storage))
-            matching_rooms++;
-        // Per-room code ends
         k++;
         if (k > ROOMS_COUNT)
         {
           ERRORLOG("Infinite loop detected when sweeping rooms list");
           break;
         }
-    }
-    if (matching_rooms == 0)
-        return 0;
-    int chosen_match_idx = CREATURE_RANDOM(thing, matching_rooms);
-    int curr_match_idx = 0;
-    i = dungeon->room_kind[skip_room->kind];
-    k = 0;
-    while (i != 0)
-    {
-        struct Room* room = room_get(i);
+        room = room_get(i);
         if (room_is_invalid(room))
         {
           ERRORLOG("Jump to invalid room detected");
           break;
         }
-        i = room->next_of_owner;
-        if (i <= 0) {
-            // In case we've reached end of rooms, loop the list to select previous matches
-            i = dungeon->room_kind[skip_room->kind];
+        if (room->index == skip_room->index)
+        {
+            continue;
         }
         // Per-room code
-        if ((room->index != skip_room->index) && (room->total_capacity > room->capacity_used_for_storage))
+        if (room->total_capacity > room->capacity_used_for_storage)
+        {
+            matching_rooms++;
+        }
+        // Per-room code ends
+    }
+    if (matching_rooms == 0)
+    {
+        return 0;
+    }
+    int chosen_match_idx = CREATURE_RANDOM(thing, matching_rooms);
+    int curr_match_idx = 0;
+    k = 0;
+    for (i = dungeon->room_kind[skip_room->kind]; (i != 0); i = room->next_of_owner)
+    {
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+          ERRORLOG("Jump to invalid room detected");
+          break;
+        }
+        if (room->index == skip_room->index)
+        {
+            continue;
+        }
+        if (room->total_capacity > room->capacity_used_for_storage)
         {
             if (curr_match_idx >= chosen_match_idx)
             {
@@ -3619,14 +3630,7 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
             if (curr_match_idx >= matching_rooms) {
                 // All rooms which were matched are checked
                 break;
-            }
-        }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
+            }            
         }
     }
     ERRORLOG("Found %d matching rooms but couldn't find position within any",(int)matching_rooms);
