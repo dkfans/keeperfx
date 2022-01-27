@@ -700,7 +700,6 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                         // Cannot store the spellbook anywhere - remove the spell
                         if (!is_neutral_thing(thing))
                         {
-                            SYNCLOG("No free %s capacity found for player %d, deleting object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
                             remove_power_from_player(spl_idx, thing->owner);
                         }
                         SYNCLOG("Deleting from %s of player %d duplicate object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
