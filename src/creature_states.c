@@ -2406,10 +2406,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                     {
                         if (nroom->index != room->index)
                         {
-                            if (room_is_invalid(link_adjacent_rooms_of_type(room->owner, subtile_slab_fast(aslb_x), subtile_slab_fast(aslb_y), room->kind)))
-                            {
-                                return false;
-                            }
+                            return false;
                         }
                     }
                 }
