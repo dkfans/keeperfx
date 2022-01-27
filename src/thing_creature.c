@@ -5747,7 +5747,7 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
         pos.y.val += dy;
         radius++;
     }
-    while (radius < shotst->health);
+    while (radius <= shotst->health);
     return result;
 }
 
@@ -5816,7 +5816,7 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng)
         pos.y.val += dy;
         radius++;
     }
-    while (radius < shotst->health);
+    while (radius <= shotst->health);
     return INVALID_THING;
 }
 
