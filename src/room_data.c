@@ -527,11 +527,6 @@ void init_reposition_struct(struct RoomReposition * rrepos)
 
 TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel)
 {
-    rrepos->used++;
-    if (rrepos->used > ROOM_REPOSITION_COUNT) {
-        rrepos->used = ROOM_REPOSITION_COUNT;
-        return false;
-    }
     int ri;
     // Don't store the same entry two times
     for (ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
@@ -540,10 +535,16 @@ TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmode
             return true;
         }
     }
+    if (rrepos->used >= ROOM_REPOSITION_COUNT) {
+        rrepos->used = ROOM_REPOSITION_COUNT;
+        //todo log message here
+        return false;
+    }
     for (ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
     {
         if (rrepos->models[ri] == 0) {
             rrepos->models[ri] = tngmodel;
+            rrepos->used++;
             break;
         }
     }
@@ -553,8 +554,10 @@ TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmode
 TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel explevel)
 {
     rrepos->used++;
-    if (rrepos->used > ROOM_REPOSITION_COUNT) {
+    if (rrepos->used > ROOM_REPOSITION_COUNT)
+    {
         rrepos->used = ROOM_REPOSITION_COUNT;
+        //todo Add log message here
         return false;
     }
     for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
@@ -570,6 +573,7 @@ TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingMode
 
 void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
 {
+    struct Dungeon* dungeon;
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
         return;
@@ -591,13 +595,17 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
             PowerKind spl_idx = book_thing_to_power_kind(thing);
             if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
-                if (!store_reposition_entry(rrepos, objkind)) {
-                    WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
+                dungeon = get_players_num_dungeon(room->owner);
+                if (dungeon->magic_level[spl_idx] < 2)
+                {
+                    if (!store_reposition_entry(rrepos, objkind)) {
+                        WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
+                    }
                 }
                 if (!is_neutral_thing(thing))
                 {
                     remove_power_from_player(spl_idx, room->owner);
-                    struct Dungeon* dungeon = get_dungeon(room->owner);
+                    dungeon = get_dungeon(room->owner);
                     dungeon->magic_resrchable[spl_idx] = 1;
                 }
                 delete_thing_structure(thing, 0);
@@ -650,6 +658,61 @@ TbBool move_thing_to_different_room(struct Thing* thing, struct Coord3d* pos)
     return false;
 }
 
+int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, struct RoomReposition* rrepos)
+{
+    struct Room* room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
+    struct Coord3d pos;
+    unsigned long k = 0;
+    int i = room->index;
+    int count = 0;
+    while (i != 0)
+    {
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        // Per-room code
+        pos.x.val = subtile_coord_center(room->central_stl_x);
+        pos.y.val = subtile_coord_center(room->central_stl_y);
+        pos.z.val = get_floor_height_at(&pos);
+
+        for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
+        {
+            if (rrepos->models[ri] != 0)
+            {
+                struct Thing* objtng = create_spell_in_library(room, rrepos->models[ri], room->central_stl_x, room->central_stl_y);
+                if (!thing_is_invalid(objtng))
+                {
+                    rrepos->used--;
+                    rrepos->models[ri] = 0;
+                }
+            }
+        }
+        if (rrepos->used <= 0)
+        {
+            //todo add log message
+            break;
+        }
+        room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
+        if (room_is_invalid(room))
+        {
+            //todo log message, nothing left
+            i = 0;
+            break;
+        }
+        i = room->index;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return count;
+}
+
 int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
@@ -680,18 +743,17 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                 if (room->used_capacity >= room->total_capacity)
                 {
                     SYNCLOG("The %s capacity %d exceeded; space used is %d", room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity+1);
-                    struct Coord3d pos;
+                    //struct Coord3d pos;
                     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
                     if (dungeon->magic_level[spl_idx] < 2) // on multiple copies, no need to move the duplicate
-                    {
-                        // Try to move spellbook to another library
+                    { /*                        // Try to move spellbook to another library
                         if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
                         {
                             if (move_thing_to_different_room(thing, &pos))
                             {
                                 return -2; // do nothing
                             }
-                        }
+                        }*/
                         // We have a single copy, but nowhere to place it. -1 will handle the rest.
                         return -1;
                     }
@@ -805,9 +867,20 @@ void count_books_in_room(struct Room *room)
             }
         }
     }
-    if (rrepos.used > 0) {
-        ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
-          room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);
+    if (rrepos.used > 0) 
+    {
+        if (position_books_in_room_with_capacity(room->owner, room->kind, &rrepos) > 0)
+        {
+            if (rrepos.used > 0)
+            {
+                ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
+                    room_code_name(room->kind), (int)room->index, (int)room->total_capacity, (int)rrepos.used, (int)room->owner);
+            }
+        }
+        else
+        {
+            //todo log message that says 'no more capacity, items dropped
+        }      
     }
     room->capacity_used_for_storage = room->used_capacity;
 }
