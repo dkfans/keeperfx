@@ -5412,6 +5412,11 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     pitch = 90;
                     break;
                 }
+                default:
+                {
+                    pitch = 0;
+                    break;
+                }
             }
             break;
         }
