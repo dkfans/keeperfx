@@ -5445,81 +5445,74 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     {
         if (room->owner == creatng->owner)
         {
-            switch(room->kind)
+            if (room_role_matches(room->kind, RoRoF_PowersStorage))
             {
-                case RoK_LIBRARY:
+                if (thing_is_spellbook(droptng))
                 {
-                    if (thing_is_spellbook(droptng))
+                    if (add_item_to_room_capacity(room, true))
                     {
-                        if (add_item_to_room_capacity(room, true))
-                        {
-                            droptng->owner = creatng->owner;
-                            add_power_to_player(book_thing_to_power_kind(droptng), creatng->owner);
-                        }
-                        else
-                        {
-                            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_LIBRARY));
-                            output_message(SMsg_LibraryTooSmall, 0, true);
-                        }
-                    } 
-                    else if (thing_is_special_box(droptng))
+                        droptng->owner = creatng->owner;
+                        add_power_to_player(book_thing_to_power_kind(droptng), creatng->owner);
+                    }
+                    else
+                    {
+                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_LIBRARY));
+                        output_message(SMsg_LibraryTooSmall, 0, true);
+                    }
+                } 
+                else if (thing_is_special_box(droptng))
+                {
+                    droptng->owner = creatng->owner;
+                }
+            }
+            else if (room_role_matches(room->kind, RoRoF_CratesStorage))
+            {
+                if (thing_is_workshop_crate(droptng))
+                {
+                    if (add_item_to_room_capacity(room, true))
+                    {
+                        droptng->owner = creatng->owner;
+                        add_workshop_item_to_amounts(room->owner, crate_thing_to_workshop_item_class(droptng), crate_thing_to_workshop_item_model(droptng));
+                    }
+                    else
+                    {
+                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_WORKSHOP));
+                        output_message(SMsg_WorkshopTooSmall, 0, true);
+                    }
+                }
+            }
+            else if (room_role_matches(room->kind, RoRoF_DeadStorage))
+            {
+                if (thing_is_dead_creature(droptng))
+                {
+                    if (add_body_to_graveyard(droptng, room))
                     {
                         droptng->owner = creatng->owner;
                     }
-                    break;
-                }
-                case RoK_WORKSHOP:
-                {
-                    if (thing_is_workshop_crate(droptng))
+                    else
                     {
-                        if (add_item_to_room_capacity(room, true))
+                        output_message(SMsg_GraveyardTooSmall, 0, true);
+                    }
+                }
+            }
+            else if (room_role_matches(room->kind, RoRoF_Prison))
+            {
+                if (thing_is_creature(droptng))
+                {
+                    if (creature_is_being_unconscious(droptng))
+                    {
+                        if (room->used_capacity < room->total_capacity)
                         {
-                            droptng->owner = creatng->owner;
-                            add_workshop_item_to_amounts(room->owner, crate_thing_to_workshop_item_class(droptng), crate_thing_to_workshop_item_model(droptng));
+                            make_creature_conscious(droptng);
+                            initialise_thing_state(droptng, CrSt_CreatureArrivedAtPrison);
+                            struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
+                            dropctrl->flgfield_1 |= CCFlg_NoCompControl;
                         }
                         else
                         {
-                            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_WORKSHOP));
-                            output_message(SMsg_WorkshopTooSmall, 0, true);
+                            output_message(SMsg_PrisonTooSmall, 0, true); 
                         }
                     }
-                    break;
-                }
-                case RoK_GRAVEYARD:
-                {
-                    if (thing_is_dead_creature(droptng))
-                    {
-                        if (add_body_to_graveyard(droptng, room))
-                        {
-                            droptng->owner = creatng->owner;
-                        }
-                        else
-                        {
-                            output_message(SMsg_GraveyardTooSmall, 0, true);
-                        }
-                    }
-                    break;
-                }
-                case RoK_PRISON:
-                {
-                    if (thing_is_creature(droptng))
-                    {
-                        if (creature_is_being_unconscious(droptng))
-                        {
-                            if (room->used_capacity < room->total_capacity)
-                            {
-                                make_creature_conscious(droptng);
-                                initialise_thing_state(droptng, CrSt_CreatureArrivedAtPrison);
-                                struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
-                                dropctrl->flgfield_1 |= CCFlg_NoCompControl;
-                            }
-                            else
-                            {
-                               output_message(SMsg_PrisonTooSmall, 0, true); 
-                            }
-                        }
-                    }
-                    break;
                 }
             }
         }
