@@ -5561,18 +5561,15 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
                 {
                     if (thing_is_workshop_crate(picktng))
                     {
-                        if (!imp_will_soon_be_getting_object(thing->owner, picktng))
+                        if (picktng->owner == thing->owner)
                         {
-                            if (picktng->owner == thing->owner)
+                            if (!remove_item_from_room_capacity(room))
                             {
-                                if (!remove_item_from_room_capacity(room))
-                                {
-                                    return;
-                                }
-                                if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) != WrkCrtS_Stored)
-                                {                                                  
-                                    return;
-                                }
+                                return;
+                            }
+                            if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) != WrkCrtS_Stored)
+                            {                                                  
+                                return;
                             }
                         }
                     }
