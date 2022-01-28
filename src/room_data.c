@@ -686,6 +686,13 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
                 {
                     rrepos->used--;
                     rrepos->models[ri] = 0;
+                    struct Coord3d pos;
+                    if (find_random_valid_position_for_thing_in_room_avoiding_object(objtng, room, &pos))
+                    {
+                        pos.z.val = get_thing_height_at(objtng, &pos);
+                        move_thing_in_map(objtng, &pos);
+                        create_effect(&pos, TngEff_RoomSparkeLarge, objtng->owner);
+                    }
                 }
             }
         }
