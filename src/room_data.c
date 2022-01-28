@@ -681,17 +681,22 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
         {
             if (rrepos->models[ri] != 0)
             {
-                struct Thing* objtng = create_spell_in_library(room, rrepos->models[ri], room->central_stl_x, room->central_stl_y);
-                if (!thing_is_invalid(objtng))
+                struct Thing* spelltng = create_spell_in_library(room, rrepos->models[ri], room->central_stl_x, room->central_stl_y);
+                if (!thing_is_invalid(spelltng))
                 {
-                    rrepos->used--;
-                    rrepos->models[ri] = 0;
-                    struct Coord3d pos;
-                    if (find_random_valid_position_for_thing_in_room_avoiding_object(objtng, room, &pos))
+                    if (!find_random_valid_position_for_thing_in_room_avoiding_object(spelltng, room, &pos))
                     {
-                        pos.z.val = get_thing_height_at(objtng, &pos);
-                        move_thing_in_map(objtng, &pos);
-                        create_effect(&pos, TngEff_RoomSparkeLarge, objtng->owner);
+                        //ERRORLOG("Could not find position in %s for %s artifact", room_code_name(room->kind), power_code_name(pwkind));
+                        remove_power_from_player(book_thing_to_power_kind(spelltng), plyr_idx);
+                        delete_thing_structure(spelltng, 0);
+                    }
+                    else
+                    {
+                        pos.z.val = get_thing_height_at(spelltng, &pos);
+                        move_thing_in_map(spelltng, &pos);
+                        rrepos->used--;
+                        rrepos->models[ri] = 0;
+                        //add_item_to_room_capacity(room, true);
                     }
                 }
             }
