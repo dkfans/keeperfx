@@ -3848,7 +3848,14 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     {
                         if (!is_neutral_thing(thing)) 
                         {
-                            SYNCLOG("No free %s capacity found for player %d, deleting object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
+                            if (dungeon->magic_level[spl_idx] >= 2)
+                            {
+                                SYNCLOG("Found no new location for object %s in %s for player %d, deleting object", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
+                            }
+                            else
+                            {
+                                SYNCLOG("Deleting duplicate object %s from %s of player %d ", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
+                            }
                             remove_power_from_player(spl_idx, thing->owner);
                             dungeon->magic_resrchable[spl_idx] = 1;
                         }
