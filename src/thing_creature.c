@@ -5377,7 +5377,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     }
     else
     {
-        if ((picktng->owner != creatng->owner) && (picktng->owner != game.neutral_player_num) && (picktng->owner != my_player_number) )
+        if ((picktng->owner != creatng->owner) && (picktng->owner != game.neutral_player_num) )
         {
             if (thing_is_workshop_crate(picktng))
             {
