@@ -2472,7 +2472,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
             break;
         }
     }
-    ERRORLOG("Could not find valid RANDOM point in %s for %s",room_code_name(room->kind),thing_model_name(thing));
+    SYNCLOG("Could not find valid random point in %s %d for %s",room_code_name(room->kind),room->index,thing_model_name(thing));
     return false;
 }
 
