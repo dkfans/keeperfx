@@ -2406,6 +2406,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                     {
                         if (nroom->index != room->index)
                         {
+                            ERRORLOG("Tried to find free position in %s %d but ended up looking in %s %d instead", room_code_name(room->kind),room->index,room_code_name(nroom->kind), nroom->index);
                             return false;
                         }
                     }
