@@ -94,6 +94,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITLAVASOUNDVARIANTS",  31},
   {"HITLAVAEFFECT",         32},
   {"HITCREATURESOUND",      33},
+  {"ANIMATIONTRANSPARENCY", 34},
   {NULL,                     0},
   };
 
@@ -721,6 +722,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->size_yz = 0;
           shotst->speed = 0;
           shotst->wind_immune = 0;
+          shotst->animationtransparency = 0;
       }
   }
   // Load the file
@@ -1268,6 +1270,19 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->hit_creature.sndsample_idx = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 34: //ANIMATIONTRANSPARENCY
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->animationtransparency = k;
               n++;
           }
           if (n < 1)
