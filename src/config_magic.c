@@ -722,7 +722,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->size_yz = 0;
           shotst->speed = 0;
           shotst->wind_immune = 0;
-          shotst->animationtransparency = 0;
+          shotst->animation_transparency = 0;
       }
   }
   // Load the file
@@ -1282,7 +1282,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->animationtransparency = k;
+              shotst->animation_transparency = k;
               n++;
           }
           if (n < 1)
