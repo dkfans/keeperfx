@@ -2497,6 +2497,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                         pos->y.val = subtile_coord_center(astl_y);
                         pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
                         if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
+                            SYNCMSG("Thorough check succeeded where random check failed.");
                             return true;
                         }
                     }
