@@ -694,6 +694,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
                     {
                         pos.z.val = get_thing_height_at(spelltng, &pos);
                         move_thing_in_map(spelltng, &pos);
+                        create_effect(&pos, TngEff_RoomSparkeLarge, spelltng->owner);
                         rrepos->used--;
                         rrepos->models[ri] = 0;
                         //add_item_to_room_capacity(room, true);
