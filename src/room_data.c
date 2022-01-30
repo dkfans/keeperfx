@@ -595,18 +595,21 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
             PowerKind spl_idx = book_thing_to_power_kind(thing);
             if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
-                dungeon = get_players_num_dungeon(room->owner);
-                if (dungeon->magic_level[spl_idx] < 2)
+                if (game.play_gameturn > 10) //Function is used to place books in rooms before dungeons are intialized
                 {
-                    if (!store_reposition_entry(rrepos, objkind)) {
-                        WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
+                    dungeon = get_players_num_dungeon(room->owner);
+                    if (dungeon->magic_level[spl_idx] < 2)
+                    {
+                        if (!store_reposition_entry(rrepos, objkind)) {
+                            WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
+                        }
                     }
-                }
-                if (!is_neutral_thing(thing))
-                {
-                    remove_power_from_player(spl_idx, room->owner);
-                    dungeon = get_dungeon(room->owner);
-                    dungeon->magic_resrchable[spl_idx] = 1;
+                    if (!is_neutral_thing(thing))
+                    {
+                        remove_power_from_player(spl_idx, room->owner);
+                        dungeon = get_dungeon(room->owner);
+                        dungeon->magic_resrchable[spl_idx] = 1;
+                    }
                 }
                 delete_thing_structure(thing, 0);
             }
@@ -687,7 +690,10 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
                     if (!find_random_valid_position_for_thing_in_room_avoiding_object(spelltng, room, &pos))
                     {
                         //ERRORLOG("Could not find position in %s for %s artifact", room_code_name(room->kind), power_code_name(pwkind));
-                        remove_power_from_player(book_thing_to_power_kind(spelltng), plyr_idx);
+                        if (!is_neutral_thing(spelltng))
+                        {
+                            remove_power_from_player(book_thing_to_power_kind(spelltng), plyr_idx);
+                        }
                         delete_thing_structure(spelltng, 0);
                     }
                     else
