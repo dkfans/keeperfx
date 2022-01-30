@@ -535,9 +535,10 @@ TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmode
             return true;
         }
     }
-    if (rrepos->used >= ROOM_REPOSITION_COUNT) {
+    if (rrepos->used > ROOM_REPOSITION_COUNT)
+    {
+        ERRORLOG("Reposition entries to store (%d) exceed maximum %d", rrepos->used,ROOM_REPOSITION_COUNT);
         rrepos->used = ROOM_REPOSITION_COUNT;
-        //todo log message here
         return false;
     }
     for (ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
@@ -556,8 +557,8 @@ TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingMode
     rrepos->used++;
     if (rrepos->used > ROOM_REPOSITION_COUNT)
     {
+        ERRORLOG("Creature reposition entries to store (%d) exceed maximum %d", rrepos->used, ROOM_REPOSITION_COUNT);
         rrepos->used = ROOM_REPOSITION_COUNT;
-        //todo Add log message here
         return false;
     }
     for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
@@ -689,7 +690,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
                 {
                     if (!find_random_valid_position_for_thing_in_room_avoiding_object(spelltng, room, &pos))
                     {
-                        //ERRORLOG("Could not find position in %s for %s artifact", room_code_name(room->kind), power_code_name(pwkind));
+                        SYNCDBG(7, "Could not find position in %s for %s artifact", room_code_name(room->kind), object_code_name(spelltng));
                         if (!is_neutral_thing(spelltng))
                         {
                             remove_power_from_player(book_thing_to_power_kind(spelltng), plyr_idx);
@@ -710,14 +711,13 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
         }
         if (rrepos->used <= 0)
         {
-            //todo add log message
+            SYNCDBG(7,"Nothing left to reposition")
             break;
         }
         room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
         if (room_is_invalid(room))
         {
             SYNCLOG("Could not find any spare %s capacity for %d remaining books", room_code_name(RoK_LIBRARY), rrepos->used);
-            //todo log message, nothing left
             i = 0;
             break;
         }
@@ -893,13 +893,14 @@ void count_books_in_room(struct Room *room)
         {
             if (rrepos.used > 0)
             {
-                ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
-                    room_code_name(room->kind), (int)room->index, (int)room->total_capacity, (int)rrepos.used, (int)room->owner);
+                SYNCLOG("The %s capacity wasn't enough, %d items belonging to player %d dropped",
+                    room_code_name(room->kind), (int)rrepos.used, (int)room->owner);
             }
         }
         else
         {
-            //todo log message that says 'no more capacity, items dropped
+            SYNCLOG("No %s capacity, %d items belonging to player %d dropped",
+                room_code_name(room->kind), (int)rrepos.used, (int)room->owner);
         }      
     }
     room->capacity_used_for_storage = room->used_capacity;
