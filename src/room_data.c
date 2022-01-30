@@ -774,16 +774,14 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                 if (room->used_capacity > room->total_capacity)
                 {
                     SYNCLOG("Room %d type %s capacity %d exceeded; space used is %d", room->index, room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
-                    //struct Coord3d pos;
                     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
-                    if (dungeon->magic_level[spl_idx] < 2) // on multiple copies, no need to move the duplicate
+                    if (dungeon->magic_level[spl_idx] <= 1)
                     { 
                         // We have a single copy, but nowhere to place it. -1 will handle the rest.
                         return -1;
                     }
-                    else // We have more than one copy, so we can just delete it.
+                    else // We have more than one copy, so we can just delete the book.
                     {
-                        // Cannot store the spellbook anywhere - remove the spell
                         if (!is_neutral_thing(thing))
                         {
                             remove_power_from_player(spl_idx, thing->owner);
@@ -793,16 +791,15 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                     }
 
                 } else // we have capacity to spare, so it can stay unless it's stuck
-                // If the thing is in wall, remove it but store to re-create later
-                if (thing_in_wall_at(thing, &thing->mappos))
+                if (thing_in_wall_at(thing, &thing->mappos)) 
                 {
-                    if (position_over_floor_level(thing, &thing->mappos))
+                    if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
                     {
                         matching_things_at_subtile++; 
                     }
                     else
                     {
-                        return -1; // re-create all
+                        return -1; // If it's inside the wall or cannot be moved up, recreate all items.
                     }
                 } else
                 {
@@ -821,7 +818,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
     }
     if (matching_things_at_subtile == 0)
     {
-        if (room->used_capacity == room->total_capacity)
+        if (room->used_capacity == room->total_capacity) // When 0 is returned, it would try to place books at this subtile. When at capacity already, return -2 to refuse that.
         {
             return -2;
         }
