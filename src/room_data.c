@@ -754,20 +754,13 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
             if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
             {
                 // If exceeded capacity of the library
-                if (room->used_capacity >= room->total_capacity)
+                if (room->used_capacity > room->total_capacity)
                 {
-                    SYNCLOG("The %s capacity %d exceeded; space used is %d", room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity+1);
+                    SYNCLOG("Room %d type %s capacity %d exceeded; space used is %d", room->index, room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
                     //struct Coord3d pos;
                     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
                     if (dungeon->magic_level[spl_idx] < 2) // on multiple copies, no need to move the duplicate
-                    { /*                        // Try to move spellbook to another library
-                        if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
-                        {
-                            if (move_thing_to_different_room(thing, &pos))
-                            {
-                                return -2; // do nothing
-                            }
-                        }*/
+                    { 
                         // We have a single copy, but nowhere to place it. -1 will handle the rest.
                         return -1;
                     }
@@ -807,6 +800,13 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
             ERRORLOG("Infinite loop detected when sweeping things list");
             break_mapwho_infinite_chain(mapblk);
             break;
+        }
+    }
+    if (matching_things_at_subtile == 0)
+    {
+        if (room->used_capacity == room->total_capacity)
+        {
+            return -2;
         }
     }
     return matching_things_at_subtile; // Increase used capacity
