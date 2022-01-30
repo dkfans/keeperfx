@@ -710,6 +710,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
         room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_LIBRARY);
         if (room_is_invalid(room))
         {
+            SYNCLOG("Could not find any spare %s capacity for %d remaining books", room_code_name(RoK_LIBRARY), rrepos->used);
             //todo log message, nothing left
             i = 0;
             break;
