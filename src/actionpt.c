@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_planar.h"
+#include "power_hand.h"
 
 #include "game_legacy.h"
 
@@ -159,7 +160,7 @@ TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, 
         struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl) || thing_is_picked_up(thing))
         {
             ERRORLOG("Jump to invalid creature detected");
             break;
