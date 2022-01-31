@@ -1768,6 +1768,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
 short creature_arms_trap(struct Thing *thing)
 {
     TRACE_THING(thing);
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl)) {
         ERRORLOG("Creature has invalid control structure!");
@@ -1796,7 +1797,7 @@ short creature_arms_trap(struct Thing *thing)
         return 0;
     }
     rearm_trap(traptng);
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    dungeon = get_dungeon(thing->owner);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);
     delete_thing_structure(cratetng, 0);

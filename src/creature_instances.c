@@ -748,6 +748,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct PlayerInfo* player = get_my_player();
     TRACE_THING(creatng);
+    struct SlabMap* slb;
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
@@ -811,7 +812,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     }
     if ( (first_person_dig_claim_mode) || (!subtile_diggable) )
     {
-        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+        slb = get_slabmap_block(slb_x, slb_y);
         if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
