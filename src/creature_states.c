@@ -2433,6 +2433,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
     }
     // Sweep rooms starting on that index
     unsigned long k = 0;
+    long nround;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     while (i != 0)
@@ -2441,7 +2442,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         stl_y = slab_subtile(slb_num_decode_y(i), 0);
         // Per room tile code
         MapSubtlCoord start_stl = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
-        for (long nround = 0; nround < AROUND_TILES_COUNT; nround++)
+        for (nround = 0; nround < AROUND_TILES_COUNT; nround++)
         {
             MapSubtlCoord x = start_stl % 3 + stl_x;
             MapSubtlCoord y = start_stl / 3 + stl_y;
