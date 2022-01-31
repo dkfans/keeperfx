@@ -139,11 +139,6 @@ DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
 DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
 DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
-DLLIMPORT void _DK_update_player_camera_fp(struct Camera *cam, struct Thing *thing);
-DLLIMPORT void _DK_view_move_camera_left(struct Camera *cam, long a2);
-DLLIMPORT void _DK_view_move_camera_right(struct Camera *cam, long a2);
-DLLIMPORT void _DK_view_move_camera_up(struct Camera *cam, long a2);
-DLLIMPORT void _DK_view_move_camera_down(struct Camera *cam, long a2);
 DLLIMPORT long _DK_ceiling_block_is_solid_including_corners_return_height(long a1, long a2, long a3);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
@@ -2309,123 +2304,6 @@ void process_level_script(void)
   SYNCDBG(19,"Finished");
 }
 
-void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
-{
-    struct CreatureStatsOLD *creature_stats_OLD = &game.creature_stats_OLD[thing->model];
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    creature_stats_OLD->eye_height = crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
-    _DK_update_player_camera_fp(cam, thing);
-}
-
-void view_move_camera_left(struct Camera *cam, long a2)
-{
-    _DK_view_move_camera_left(cam, a2); return;
-}
-
-void view_move_camera_right(struct Camera *cam, long a2)
-{
-    _DK_view_move_camera_right(cam, a2); return;
-}
-
-void view_move_camera_up(struct Camera *cam, long a2)
-{
-    _DK_view_move_camera_up(cam, a2); return;
-}
-
-void view_move_camera_down(struct Camera *cam, long a2)
-{
-    _DK_view_move_camera_down(cam, a2); return;
-}
-
-void view_process_camera_inertia(struct Camera *cam)
-{
-    int i;
-    i = cam->field_20;
-    if (i > 0) {
-        view_move_camera_right(cam, abs(i));
-    } else
-    if (i < 0) {
-        view_move_camera_left(cam, abs(i));
-    }
-    if ( cam->field_24 ) {
-        cam->field_24 = 0;
-    } else {
-        cam->field_20 /= 2;
-    }
-    i = cam->field_25;
-    if (i > 0) {
-        view_move_camera_down(cam, abs(i));
-    } else
-    if (i < 0) {
-        view_move_camera_up(cam, abs(i));
-    }
-    if (cam->field_29) {
-        cam->field_29 = 0;
-    } else {
-        cam->field_25 /= 2;
-    }
-    if (cam->field_1B) {
-        cam->orient_a = (cam->field_1B + cam->orient_a) & LbFPMath_AngleMask;
-    }
-    if (cam->field_1F) {
-        cam->field_1F = 0;
-    } else {
-        cam->field_1B /= 2;
-    }
-}
-
-void update_player_camera(struct PlayerInfo *player)
-{
-    //_DK_update_player_camera(player);
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
-    struct Camera *cam;
-    cam = player->acamera;
-    view_process_camera_inertia(cam);
-    switch (cam->view_mode)
-    {
-    case PVM_CreatureView:
-        if (player->controlled_thing_idx > 0) {
-            struct Thing *ctrltng;
-            ctrltng = thing_get(player->controlled_thing_idx);
-            update_player_camera_fp(cam, ctrltng);
-        } else
-        if (player->instance_num != PI_HeartZoom) {
-            ERRORLOG("Cannot go first person without controlling creature");
-        }
-        break;
-    case PVM_IsometricView:
-        player->cameras[CamIV_FrontView].mappos.x.val = cam->mappos.x.val;
-        player->cameras[CamIV_FrontView].mappos.y.val = cam->mappos.y.val;
-        break;
-    case PVM_FrontView:
-        player->cameras[CamIV_Isometric].mappos.x.val = cam->mappos.x.val;
-        player->cameras[CamIV_Isometric].mappos.y.val = cam->mappos.y.val;
-        break;
-    }
-    if (dungeon->camera_deviate_quake) {
-        dungeon->camera_deviate_quake--;
-    }
-    if (dungeon->camera_deviate_jump > 0) {
-        dungeon->camera_deviate_jump -= 32;
-    }
-}
-
-void update_all_players_cameras(void)
-{
-  int i;
-  struct PlayerInfo *player;
-  SYNCDBG(6,"Starting");
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
-    {
-          update_player_camera(player);
-    }
-  }
-}
 
 void update_flames_nearest_camera(struct Camera *camera)
 {
