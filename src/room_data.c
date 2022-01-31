@@ -701,7 +701,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
                 {
                     if (!find_random_valid_position_for_thing_in_room_avoiding_object(spelltng, room, &pos))
                     {
-                        SYNCDBG(7, "Could not find position in %s for %s artifact", room_code_name(room->kind), object_code_name(spelltng));
+                        SYNCDBG(7, "Could not find position in %s for %s artifact", room_code_name(room->kind), object_code_name(spelltng->model));
                         if (!is_neutral_thing(spelltng))
                         {
                             remove_power_from_player(book_thing_to_power_kind(spelltng), plyr_idx);
