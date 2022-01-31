@@ -715,7 +715,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
                         create_effect(&pos, TngEff_RoomSparkeLarge, spelltng->owner);
                         rrepos->used--;
                         rrepos->models[ri] = 0;
-                        //add_item_to_room_capacity(room, true);
+                        count++;
                     }
                 }
             }
@@ -773,7 +773,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                 // If exceeded capacity of the library
                 if (room->used_capacity > room->total_capacity)
                 {
-                    SYNCLOG("Room %d type %s capacity %d exceeded; space used is %d", room->index, room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
+                    SYNCDBG(7,"Room %d type %s capacity %d exceeded; space used is %d", room->index, room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
                     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
                     if (dungeon->magic_level[spl_idx] <= 1)
                     { 
@@ -897,17 +897,23 @@ void count_books_in_room(struct Room *room)
     }
     if (rrepos.used > 0) 
     {
-        if (position_books_in_room_with_capacity(room->owner, room->kind, &rrepos) > 0)
+        int move_count = position_books_in_room_with_capacity(room->owner, room->kind, &rrepos);
+        if (move_count > 0)
         {
             if (rrepos.used > 0)
             {
-                SYNCLOG("The %s capacity wasn't enough, %d items belonging to player %d dropped",
-                    room_code_name(room->kind), (int)rrepos.used, (int)room->owner);
+                SYNCLOG("The %s capacity wasn't enough, %d moved, but %d items belonging to player %d dropped",
+                    room_code_name(room->kind), move_count, (int)rrepos.used, (int)room->owner);
+            }
+            else
+            {
+                SYNCDBG(7,"Moved %d items belonging to player %d to different %s",
+                    move_count, (int)room->owner, room_code_name(room->kind));
             }
         }
         else
         {
-            SYNCLOG("No %s capacity, %d items belonging to player %d dropped",
+            SYNCLOG("No %s capacity available to move, %d items belonging to player %d dropped",
                 room_code_name(room->kind), (int)rrepos.used, (int)room->owner);
         }      
     }
@@ -3908,14 +3914,14 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                         {
                             if (dungeon->magic_level[spl_idx] >= 2)
                             {
-                                SYNCLOG("Found no new location for object %s in %s for player %d, deleting object", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
+                                SYNCLOG("Deleting duplicate object %s from %s of player %d ", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
                             }
                             else
                             {
-                                SYNCLOG("Deleting duplicate object %s from %s of player %d ", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
+                                SYNCLOG("Found no new location for object %s in %s for player %d, deleting object", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
+                                dungeon->magic_resrchable[spl_idx] = 1;
                             }
                             remove_power_from_player(spl_idx, thing->owner);
-                            dungeon->magic_resrchable[spl_idx] = 1;
                         }
                         delete_thing_structure(thing, 0);
                     }
