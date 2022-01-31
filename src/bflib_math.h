@@ -62,6 +62,9 @@ struct Proportion { // sizeof = 8
 //extern struct Proportion proportions[513];
 /******************************************************************************/
 #define LB_RANDOM(range,seed) LbRandomSeries(range, seed, __func__, __LINE__, "lb")
+#define FIXED_POLAR_TO_X(orient,distance) ((distance * LbSinL(orient)) >> 16)
+#define FIXED_POLAR_TO_Y(orient,distance) ((distance * LbCosL(orient)) >> 16)
+
 /******************************************************************************/
 
 long LbSinL(long x);

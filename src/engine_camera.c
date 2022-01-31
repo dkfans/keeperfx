@@ -430,8 +430,8 @@ void view_move_camera_left(struct Camera *cam, long distance)
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
-        pos_x = cam->mappos.x.val - ((distance * LbSinL(cam->orient_a + 512)) >> 16);
-        pos_y = cam->mappos.y.val + ((distance * LbCosL(cam->orient_a + 512)) >> 16);
+        pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
+        pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
 
         if ( pos_x < 0 )
             pos_x = 0;
@@ -472,8 +472,8 @@ void view_move_camera_right(struct Camera *cam, long distance)
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
-        pos_x = cam->mappos.x.val + ((distance * LbSinL(cam->orient_a + 512)) >> 16);
-        pos_y = cam->mappos.y.val - ((distance * LbCosL(cam->orient_a + 512)) >> 16);
+        pos_x = cam->mappos.x.val + FIXED_POLAR_TO_X(cam->orient_a + 512,distance);
+        pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a + 512,distance);
 
         if ( pos_x < 0 )
             pos_x = 0;
@@ -514,8 +514,8 @@ void view_move_camera_up(struct Camera *cam, long distance)
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
-        pos_x = cam->mappos.x.val + ((distance * LbSinL(cam->orient_a)) >> 16);
-        pos_y = cam->mappos.y.val - ((distance * LbCosL(cam->orient_a)) >> 16);
+        pos_x = cam->mappos.x.val + FIXED_POLAR_TO_X(cam->orient_a,distance);
+        pos_y = cam->mappos.y.val - FIXED_POLAR_TO_Y(cam->orient_a,distance);
 
         if ( pos_x < 0 )
             pos_x = 0;
@@ -554,8 +554,8 @@ void view_move_camera_down(struct Camera *cam, long distance)
     if ( cam->view_mode == PVM_IsometricView || cam->view_mode == PVM_FrontView)
     {
 
-        pos_x = cam->mappos.x.val - ((distance * LbSinL(cam->orient_a)) >> 16);
-        pos_y = cam->mappos.y.val + ((distance * LbCosL(cam->orient_a)) >> 16);
+        pos_x = cam->mappos.x.val - FIXED_POLAR_TO_X(cam->orient_a,distance);
+        pos_y = cam->mappos.y.val + FIXED_POLAR_TO_Y(cam->orient_a,distance);
 
         if ( pos_x < 0 )
             pos_x = 0;
