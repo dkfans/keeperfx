@@ -156,6 +156,8 @@ struct GameAdd {
     unsigned short bag_gold_hold;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
+    long scavenge_effectiveness_evil; //unused
+    long scavenge_effectiveness_good; //unused
     TbBool armegeddon_teleport_neutrals;
     unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;

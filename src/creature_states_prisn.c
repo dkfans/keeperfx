@@ -43,7 +43,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_cleanup_prison(struct Thing *creatng);
 DLLIMPORT long _DK_process_prison_food(struct Thing *creatng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -80,7 +79,11 @@ TbBool jailbreak_possible(struct Room *room, long plyr_idx)
 
 short cleanup_prison(struct Thing *thing)
 {
-  return _DK_cleanup_prison(thing);
+  // return _DK_cleanup_prison(thing);
+  struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+  cctrl->flgfield_1 &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_Unknown40 | CCFlg_Unknown80);
+  state_cleanup_in_room(thing);
+  return 1;
 }
 
 short creature_arrived_at_prison(struct Thing *creatng)
