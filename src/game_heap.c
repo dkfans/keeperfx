@@ -82,7 +82,7 @@ TbBool setup_heap_manager(void)
     }
     wait_for_cd_to_be_available();
 #ifdef SPRITE_FORMAT_V2
-    fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);
+    const char* fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);
 #else
     const char* fname = prepare_file_path(FGrp_StdData, "creature.jty");
 #endif

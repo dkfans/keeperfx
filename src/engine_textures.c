@@ -119,7 +119,7 @@ static TbBool load_one_file(unsigned long tmapidx, void *dst)
 {
     SYNCDBG(9,"Starting");
 #ifdef SPRITE_FORMAT_V2
-    fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d-%d.dat",tmapidx,32);
+    const char* fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d-%d.dat",tmapidx,32);
 #else
     char* fname = prepare_file_fmtpath(FGrp_StdData, "tmapa%03d.dat", tmapidx);
 #endif

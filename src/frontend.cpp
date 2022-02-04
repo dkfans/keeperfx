@@ -3061,21 +3061,28 @@ void toggle_gui_overlay_map(void)
 
 void draw_menu_buttons(struct GuiMenu *gmnu)
 {
+    
     int i;
     struct GuiButton *gbtn;
     Gf_Btn_Callback callback;
-    SYNCDBG(18,"Starting phase one");
+    SYNCDBG(1,"Starting phase one");
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
+        SYNCDBG(8,"ACTIVE_BUTTONS_COUNT %d",(int)ACTIVE_BUTTONS_COUNT);
+        SYNCDBG(8,"loop %d",(int)i);
         gbtn = &active_buttons[i];
+        SYNCDBG(8,"test %d",(int)i);
         callback = gbtn->draw_call;
+        SYNCDBG(8,"test2 %d",(int)i);
         if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Active) && (gbtn->gmenu_idx == gmnu->number))
         {
+            SYNCDBG(8,"callback %d",(int)callback);
           if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == LbBtnT_HorizSlider) || (callback == gui_area_null) )
             callback(gbtn);
+            SYNCDBG(8,"test4 %d",(int)i);
         }
     }
-    SYNCDBG(18,"Starting phase two");
+    SYNCDBG(1,"Starting phase two");
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
@@ -3086,7 +3093,8 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
             callback(gbtn);
         }
     }
-    SYNCDBG(19,"Finished");
+    SYNCDBG(1,"Finished");
+    
 }
 
 void update_fade_active_menus(void)
@@ -3115,10 +3123,12 @@ void draw_active_menus_buttons(void)
     SYNCDBG(8,"Starting with %d active menus",no_of_active_menus);
     for (k=0; k < no_of_active_menus; k++)
     {
+        SYNCDBG(8,"1");
         menu_num = menu_id_to_number(menu_stack[k]);
         if (menu_num < 0) continue;
         gmnu = &active_menus[menu_num];
-        //SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->visual_state,gmnu->is_turned_on);
+        SYNCMSG("DRAW menu %d, fields %d, %d",menu_num,gmnu->visual_state,gmnu->is_turned_on);
+        SYNCDBG(8,"2");
         if ((gmnu->visual_state != 0) && (gmnu->is_turned_on))
         {
             if ((gmnu->visual_state != 2) && (gmnu->fade_time))
@@ -3131,7 +3141,9 @@ void draw_active_menus_buttons(void)
             if (callback != NULL)
               callback(gmnu);
             if (gmnu->visual_state == 2)
+            SYNCDBG(8,"3");
               draw_menu_buttons(gmnu);
+              SYNCDBG(8,"4");
             lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
         }
     }

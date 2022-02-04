@@ -766,12 +766,14 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
             spridx = 14;
         }
     }
+     SYNCDBG(9,"1Drawing type %d, text \"%s\"",(int)btntype,text);
     struct TbSprite *spr;
     // Detect scaling factor
     int units_per_px;
     units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, 14, 100);
     x = gbtn->scr_pos_x;
     y = gbtn->scr_pos_y;
+     SYNCDBG(9,"2Drawing type %d, text \"%s\"",(int)btntype,text);
     switch (btntype)
     {
      case 1:
@@ -798,10 +800,11 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         x += spr->SWidth * units_per_px / 16;
         break;
     }
+     SYNCDBG(9,"3Drawing type %d, text \"%s\"",(int)btntype,text);
     spr = &frontend_sprite[spridx+2];
     LbSpriteDrawResized(x, y, units_per_px, spr);
     if (text != NULL)
-    {
+    {SYNCDBG(9,"4Drawing type %d, text \"%s\"",(int)btntype,text);
         lbDisplay.DrawFlags = drw_flags;
         LbTextSetFont(frontend_font[fntidx]);
         spr = &frontend_sprite[spridx];
@@ -1011,15 +1014,22 @@ void frontend_draw_slider_button(struct GuiButton *gbtn)
 
 void gui_area_null(struct GuiButton *gbtn)
 {
+SYNCDBG(8,"gui_area_null");
     int bs_units_per_px;
+
+    
     bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, gbtn->sprite_idx, 100);
+    SYNCDBG(8,"bs_units_per_px %d",(int)bs_units_per_px);
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
+        SYNCDBG(8,"left1");
         draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->sprite_idx);
     } else
     {
+        SYNCDBG(8,"lef2");
         draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->sprite_idx);
     }
+    SYNCDBG(8,"ex");
 }
 
 void reset_scroll_window(struct GuiMenu *gmnu)
