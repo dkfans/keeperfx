@@ -86,6 +86,7 @@
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
 #include "vidfade.h"
+#include "spdigger_stack.h"
 
 #include "keeperfx.hpp"
 
@@ -1173,6 +1174,13 @@ void process_players_creature_control_packet_action(long plyr_idx)
   {
   case PckA_DirectCtrlExit:
       player->influenced_thing_idx = pckt->actn_par1;
+      thing = thing_get(player->controlled_thing_idx);
+      cctrl = creature_control_get_from_thing(thing);
+      struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+      if (!thing_is_invalid(dragtng))
+      {
+          creature_drop_dragged_object(thing, dragtng);
+      }
       set_player_instance(player, PI_DirctCtLeave, 0);
       break;
   case PckA_CtrlCrtrSetInstnc:
@@ -1202,6 +1210,11 @@ void process_players_creature_control_packet_action(long plyr_idx)
         }
       }
       break;
+      case PckA_DirectCtrlDragDrop:
+      {
+         direct_control_pick_up_or_drop(player);
+         break;
+      }
   }
 }
 
