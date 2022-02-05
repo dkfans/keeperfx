@@ -223,6 +223,7 @@ long get_lifespan_of_animation(long ani, long frameskip)
 {
     return (keepersprite_frames(ani) << 8) / frameskip;
 }
+HOOK_DK_FUNC(get_lifespan_of_animation)
 
 static struct KeeperSprite* sprite_by_frame(long kspr_frame)
 {
@@ -524,6 +525,8 @@ void set_creature_graphic(struct Thing *thing)
     // Update tint
     update_creature_graphic_tint(thing);
 }
+HOOK_DK_FUNC(set_creature_graphic)
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

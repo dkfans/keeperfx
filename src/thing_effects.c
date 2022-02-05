@@ -608,6 +608,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     place_thing_in_mapwho(thing);
     return thing;
 }
+HOOK_DK_FUNC(create_effect_element)
 
 void process_spells_affected_by_effect_elements(struct Thing *thing)
 {
@@ -732,6 +733,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         }
     }
 }
+HOOK_DK_FUNC(process_spells_affected_by_effect_elements)
 
 void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct Coord3d *next_pos)
 {
@@ -836,6 +838,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     }
     thing->field_49 = keepersprite_frames(thing->anim_sprite);
 }
+HOOK_DK_FUNC(change_effect_element_into_another)
 
 TngUpdateRet update_effect_element(struct Thing *elemtng)
 {
@@ -953,6 +956,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     SYNCDBG(18,"Finished");
     return TUFRet_Modified;
 }
+HOOK_DK_FUNC(update_effect_element)
 
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4)
 {

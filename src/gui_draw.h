@@ -67,10 +67,8 @@ DLLIMPORT unsigned char *_DK_gui_slab;
 DLLIMPORT extern unsigned char *_DK_frontend_background;
 #define frontend_background _DK_frontend_background
 
-DLLIMPORT struct TbSprite *_DK_frontend_sprite;
-#define frontend_sprite _DK_frontend_sprite
-DLLIMPORT struct TbSprite *_DK_frontend_end_sprite;
-#define frontend_end_sprite _DK_frontend_end_sprite
+struct TbSprite *frontend_sprite;
+struct TbSprite *frontend_end_sprite;
 DLLIMPORT extern unsigned char * _DK_frontend_sprite_data;
 #define frontend_sprite_data _DK_frontend_sprite_data
 DLLIMPORT extern unsigned char * _DK_frontend_end_sprite_data;

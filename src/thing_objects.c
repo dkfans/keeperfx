@@ -522,6 +522,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
 
     return thing;
 }
+HOOK_DK_FUNC(create_object)
 
 void destroy_food(struct Thing *foodtng)
 {
@@ -943,6 +944,7 @@ TbBool delete_lair_totem(struct Thing *lairtng)
     return true;
 }
 
+
 long food_moves(struct Thing *objtng)
 {
     //return _DK_food_moves(objtng);
@@ -1106,6 +1108,7 @@ long food_moves(struct Thing *objtng)
     }
     return 1;
 }
+HOOK_DK_FUNC(food_moves)
 
 long food_grows(struct Thing *objtng)
 {
@@ -1507,6 +1510,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     stop_thing_playing_sample(objtng, powerst->select_sound_idx);
     thing_play_sample(objtng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
 }
+HOOK_DK_FUNC(set_call_to_arms_as_birthing)
 
 void set_call_to_arms_as_dying(struct Thing *objtng)
 {
@@ -1534,6 +1538,7 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
     set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->byte_13 = CTAOL_Dying;
 }
+HOOK_DK_FUNC(set_call_to_arms_as_dying)
 
 void set_call_to_arms_as_rebirthing(struct Thing *objtng)
 {
@@ -1616,6 +1621,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     }
     return 1;
 }
+HOOK_DK_FUNC(object_update_call_to_arms)
 
 TngUpdateRet object_update_armour(struct Thing *objtng)
 {
@@ -1705,6 +1711,7 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     set_thing_draw(objtng, i, objdat->anim_speed, objtng->word_15, 0, start_frame, objdat->draw_class);
     return 1;
 }
+HOOK_DK_FUNC(object_update_object_scale)
 
 TngUpdateRet object_update_armour2(struct Thing *objtng)
 {
@@ -2059,6 +2066,7 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
     return amount;
 }
+HOOK_DK_FUNC(add_gold_to_hoarde)
 
 /**
  * Removes gold from hoard stored in room.
@@ -2112,6 +2120,7 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
     return amount;
 }
+HOOK_DK_FUNC(remove_gold_from_hoarde)
 
 /**
  * Returns if given thing is a hoard of gold.

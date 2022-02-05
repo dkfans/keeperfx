@@ -1591,6 +1591,8 @@ short creature_change_from_chicken(struct Thing *creatng)
         return 1;
     }
 }
+HOOK_DK_FUNC(creature_change_from_chicken)
+
 
 short creature_change_to_chicken(struct Thing *creatng)
 {
@@ -1623,6 +1625,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     clear_creature_instance(creatng);
     return 1;
 }
+HOOK_DK_FUNC(creature_change_to_chicken)
 
 TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
 {

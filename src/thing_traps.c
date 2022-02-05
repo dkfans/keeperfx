@@ -785,6 +785,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     place_thing_in_mapwho(thing);
     return thing;
 }
+HOOK_DK_FUNC(create_trap)
 
 void init_traps(void)
 {

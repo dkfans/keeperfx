@@ -3148,6 +3148,7 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
         cctrl->targtstl_y = 0;
     }
 }
+HOOK_DK_FUNC(set_creature_instance)
 
 unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2)
 {
@@ -3556,6 +3557,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     }
     return crtng;
 }
+HOOK_DK_FUNC(create_creature)
 
 TbBool creature_increase_level(struct Thing *thing)
 {
@@ -5186,6 +5188,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     SYNCDBG(19,"Finished");
     return TUFRet_Modified;
 }
+HOOK_DK_FUNC(update_creature)
 
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {

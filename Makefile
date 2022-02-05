@@ -370,7 +370,7 @@ HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DAUTOTESTING=1
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
-CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
+CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS) -DSPRITE_FORMAT_V2
 LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
 
 CAMPAIGNS  = \
@@ -598,7 +598,8 @@ include tool_rnctools.mk
 
 include package.mk
 include pkg_lang.mk
-include pkg_gfx.mk
+#include pkg_gfx.mk
+include pkg_gfx_v2.mk
 include pkg_sfx.mk
 
 export RM CP MKDIR MV ECHO

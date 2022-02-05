@@ -287,6 +287,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     move_dead_creature(thing);
     return TUFRet_Modified;
 }
+HOOK_DK_FUNC(update_dead_creature)
 
 long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
 {
@@ -407,7 +408,7 @@ TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
     }
     return update_dead_creatures_list(dungeon, thing);
 }
-
+HOOK_DK_FUNC(create_dead_creature)
 struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, long explevel)
 {
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))

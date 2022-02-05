@@ -1472,6 +1472,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     add_thing_to_its_class_list(thing);
     return thing;
 }
+HOOK_DK_FUNC(create_shot)
 
 
 /******************************************************************************/

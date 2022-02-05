@@ -191,6 +191,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     }
     return 0;
 }
+HOOK_DK_FUNC(pinstfe_hand_grab)
 
 long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 {

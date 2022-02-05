@@ -1281,7 +1281,7 @@
  0001:000C4AA0       prepare_thing_for_power_hand
  0001:000C4B40       dump_thing_in_power_hand
  0001:000C4C00       place_thing_in_power_hand
- 0001:000C4CD0       dump_held_things_on_map
+ 0001:000C4CD0       dump_first_held_thing_on_map
  0001:000C5230       get_enemy_dungeon_heart_creature_can_see
  0001:000C5340       can_thing_be_picked_up_by_player
  0001:000C5540       can_thing_be_picked_up2_by_player
@@ -2123,3 +2123,12 @@
  0006:00001030       scale_up
  0006:00001034       xsteps_array
  0006:00001834       ysteps_array
+ 0001:00063630       create_creature
+ 0001:0007A4F0       get_lifespan_of_animation
+ 0001:000A24C0       creature_add_lair_to_room
+ 0001:00017B20       draw_iso_only_fastview_mapwho
+ 0001:0002C640       display_drawlist
+ 0001:00072980       display_fast_drawlist
+ 0001:00043F00       process_object_being_picked_up
+ 0001:00042040       set_power_hand_graphic
+ 0001:00058020       update_creature

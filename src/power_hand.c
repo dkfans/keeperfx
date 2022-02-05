@@ -306,6 +306,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
   }
   return picktng;
 }
+HOOK_DK_FUNC(process_object_being_picked_up)
 
 void set_power_hand_graphic(long plyr_idx, long a2, long a3)
 {
@@ -335,6 +336,7 @@ void set_power_hand_graphic(long plyr_idx, long a2, long a3)
     }
   }
 }
+HOOK_DK_FUNC(set_power_hand_graphic)
 
 TbBool power_hand_is_empty(const struct PlayerInfo *player)
 {
@@ -958,6 +960,8 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     return 1;
 }
+HOOK_DK_FUNC(dump_first_held_thing_on_map)
+
 
 void dump_thing_held_by_any_player(struct Thing *thing)
 {
