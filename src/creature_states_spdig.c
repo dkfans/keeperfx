@@ -1163,7 +1163,7 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(spdigtng);
-    unsigned char state;
+    unsigned char state = CrSt_ImpLastDidJob;
     if (crstat->gold_hold > spdigtng->creature.gold_carried)
     {
         MapSubtlCoord stl_x, stl_y;
@@ -1179,7 +1179,6 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
         {
             stl_x = spdigtng->mappos.x.stl.num;
             stl_y = spdigtng->mappos.y.stl.num;
-            state = CrSt_ImpLastDidJob;
         }
         long gold_taken = take_from_gold_pile(stl_x, stl_y, crstat->gold_hold - spdigtng->creature.gold_carried);
         spdigtng->creature.gold_carried += gold_taken;
