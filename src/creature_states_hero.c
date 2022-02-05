@@ -1061,6 +1061,91 @@ short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x
     return 0;
 }
 
+long send_tunneller_to_point(struct Thing *thing, struct Coord3d *pos)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    cctrl->party.target_plyr_idx = -1;
+    setup_person_tunnel_to_position(thing, pos->x.stl.num, pos->y.stl.num, 0);
+    thing->continue_state = CrSt_TunnellerDoingNothing;
+    return 1;
+}
+
+TbBool script_support_send_tunneller_to_action_point(struct Thing *thing, long apt_idx)
+{
+    SYNCDBG(7,"Starting");
+    struct ActionPoint* apt = action_point_get(apt_idx);
+    struct Coord3d pos;
+    if (action_point_exists(apt)) {
+        pos.x.val = apt->mappos.x.val;
+        pos.y.val = apt->mappos.y.val;
+    } else {
+        ERRORLOG("Attempt to send to non-existing action point %d",(int)apt_idx);
+        pos.x.val = subtile_coord_center(map_subtiles_x/2);
+        pos.y.val = subtile_coord_center(map_subtiles_y/2);
+    }
+    pos.z.val = subtile_coord(1,0);
+    send_tunneller_to_point(thing, &pos);
+    return true;
+}
+
+TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
+{
+    SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
+    struct Thing* heartng = get_player_soul_container(plyr_idx);
+    TRACE_THING(heartng);
+    if (thing_is_invalid(heartng))
+    {
+        WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    struct Coord3d pos;
+    if (!get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos)) {
+        WARNLOG("Tried to send %s to player %d but can't find position", thing_model_name(creatng), (int)plyr_idx);
+        return send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &heartng->mappos);
+    }
+    if (!send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos)) {
+        WARNLOG("Tried to send %s to player %d but can't start the task", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    SYNCDBG(17,"Moving %s to (%d,%d)",thing_model_name(creatng),(int)pos.x.stl.num,(int)pos.y.stl.num);
+    return true;
+}
+
+TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
+{
+    SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
+    struct Thing* heartng = get_player_soul_container(plyr_idx);
+    TRACE_THING(heartng);
+    if (thing_is_invalid(heartng)) {
+        WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    if (!send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &heartng->mappos)) {
+        WARNLOG("Tried to send %s to player %d but can't start the task", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    SYNCDBG(17,"Moving %s to (%d,%d)",thing_model_name(creatng),(int)heartng->mappos.x.stl.num,(int)heartng->mappos.y.stl.num);
+    return true;
+}
+
+TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng)
+{
+    SYNCDBG(7,"Starting");
+    //return _DK_script_support_send_tunneller_to_appropriate_dungeon(thing);
+    PlayerNumber plyr_idx;
+    struct Coord3d pos;
+    plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
+    if (plyr_idx == -1) {
+        ERRORLOG("Could not find appropriate dungeon to send %s to",thing_model_name(creatng));
+        return false;
+    }
+    if (!get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos)) {
+        WARNLOG("Tried to send %s to player %d but can't find position", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    return send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
+}
+
 TbBool send_tunneller_to_point_in_dungeon(struct Thing *creatng, PlayerNumber plyr_idx, struct Coord3d *pos)
 {
     SYNCDBG(17,"Move %s index %d to (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)pos->x.stl.num,(int)pos->y.stl.num);

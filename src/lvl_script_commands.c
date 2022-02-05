@@ -12,6 +12,8 @@
 /******************************************************************************/
 #include "lvl_script_commands.h"
 
+#include <strings.h>
+
 #include "bflib_math.h"
 #include "config_strings.h"
 #include "config_magic.h"
@@ -24,6 +26,7 @@
 #include "music_player.h"
 #include "lvl_script_lib.h"
 #include "lvl_script_statehandler.h"
+#include "lvl_script_conditions.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -64,6 +67,7 @@ const struct NamedCommand game_rule_desc[] = {
   {"DungeonHeartHealth",        23},
   {NULL,                         0},
 };
+
 
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)

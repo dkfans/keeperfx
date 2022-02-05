@@ -63,6 +63,10 @@ short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x
 long get_best_dungeon_to_tunnel_to(struct Thing *creatng);
 TbBool send_tunneller_to_point_in_dungeon(struct Thing *creatng, PlayerNumber plyr_idx, struct Coord3d *pos);
 TbBool is_hero_tunnelling_to_attack(struct Thing *creatng);
+TbBool script_support_send_tunneller_to_action_point(struct Thing *thing, long apt_idx);
+TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx);
+TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx);
+TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

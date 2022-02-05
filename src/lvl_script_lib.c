@@ -12,12 +12,13 @@
 /******************************************************************************/
 
 #include "lvl_script_lib.h"
-#include "config.h"
-#include "string.h"
+#include "globals.h"
 #include "thing_factory.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
 #include "dungeon_data.h"
+#include "lvl_script_conditions.h"
+#include "lvl_filesdk1.h"
 
 
 struct ScriptValue *allocate_script_value(void)
@@ -417,6 +418,89 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
     {
       *varib_id = get_id(flag_desc, varib_name);
       *varib_type = SVar_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(campaign_flag_desc, varib_name);
+      *varib_type = SVar_CAMPAIGN_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+        if (2 == sscanf(varib_name, "BOX%ld_ACTIVATE%c", varib_id, &c) && (c == 'D'))
+        {
+            // activateD
+            *varib_type = SVar_BOX_ACTIVATED;
+        }
+        else
+        {
+            *varib_id = -1;
+        }
+        if (2 == sscanf(varib_name, "SACRIFICED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_SACRIFICED;
+        }
+        if (2 == sscanf(varib_name, "REWARDED[%n%[^]]%c", &len, arg, &c) && (c == ']'))
+        {
+            *varib_id = get_id(creature_desc, arg);
+            *varib_type = SVar_REWARDED;
+        }
+    }
+    if (*varib_id == -1)
+    {
+      SCRPTERRLOG("Unknown variable name, '%s'", varib_name);
+      return false;
+    }
+    return true;
+}
+
+TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
+{
+    char c;
+    int len = 0;
+    char arg[MAX_TEXT_LENGTH];
+
+    if (level_file_version > 0)
+    {
+        *varib_type = get_id(variable_desc, varib_name);
+    } else
+    {
+        *varib_type = get_id(dk1_variable_desc, varib_name);
+    }
+    if (*varib_type == -1)
+      *varib_id = -1;
+    else
+      *varib_id = 0;
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(creature_desc, varib_name);
+      *varib_type = SVar_CREATURE_NUM;
+    }
+    //TODO: list of lambdas
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(room_desc, varib_name);
+      *varib_type = SVar_ROOM_SLABS;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(timer_desc, varib_name);
+      *varib_type = SVar_TIMER;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(flag_desc, varib_name);
+      *varib_type = SVar_FLAG;
+    }
+    if (*varib_id == -1)
+    {
+      *varib_id = get_id(door_desc, varib_name);
+      *varib_type = SVar_DOOR_NUM;
+    }
+    if (*varib_id == -1)
+    {
+        *varib_id = get_id(trap_desc, varib_name);
+        *varib_type = SVar_TRAP_NUM;
     }
     if (*varib_id == -1)
     {
