@@ -5689,8 +5689,8 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             {
                 sprintf(str, "%ld", picktng->creature.gold_carried); 
             }
-            id = -116;
         }
+        id = -116;
     }
     else if (thing_is_creature(picktng))
     {
