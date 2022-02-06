@@ -3,6 +3,7 @@
 /******************************************************************************/
 /** @file lvl_script_statehandler.c
  *     handles what the script is currently doing used by multiple files under lvl_script_*
+ * @author   KeeperFX Team
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -11,6 +12,11 @@
  */
 /******************************************************************************/
 #include "lvl_script_statehandler.h"
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static int script_current_condition = 0;
 
@@ -23,3 +29,7 @@ void set_script_current_condition(int current_condition)
 {
     script_current_condition = current_condition;
 }
+
+#ifdef __cplusplus
+}
+#endif

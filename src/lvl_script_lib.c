@@ -8,6 +8,7 @@
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation; either version 2 of the License, or
  *     (at your option) any later version.
+ * @author   KeeperFX Team
  */
 /******************************************************************************/
 
@@ -20,7 +21,9 @@
 #include "lvl_script_conditions.h"
 #include "lvl_filesdk1.h"
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 struct ScriptValue *allocate_script_value(void)
 {
     if (gameadd.script.values_num >= SCRIPT_VALUES_COUNT)
@@ -536,3 +539,7 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
     }
     return true;
 }
+
+#ifdef __cplusplus
+}
+#endif

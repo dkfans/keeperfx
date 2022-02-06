@@ -4,9 +4,10 @@
 /** @file lvl_script_statehandler.h
  *     Header file for lvl_script.c.
  * @par Purpose:
- *     handles what the script is currently doing used by multiple files under lvl_script_*
+ *     should only be used by files under lvl_script_*
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   KeeperFX Team
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -17,7 +18,14 @@
 #ifndef DK_LVLSCRIPTSTATEHANDLER_H
 #define DK_LVLSCRIPTSTATEHANDLER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int get_script_current_condition();
 void set_script_current_condition(int current_condition);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

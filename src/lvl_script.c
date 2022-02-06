@@ -7,7 +7,7 @@
  *     Load, recognize and maintain the level script.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     12 Feb 2009 - 11 Apr 2014
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify

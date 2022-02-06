@@ -7,8 +7,7 @@
  *     Load, recognize and maintain the level script.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
- * @date     12 Feb 2009 - 11 Apr 2014
+ * @author   KeeperFX Team
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,13 +17,6 @@
 /******************************************************************************/
 
 
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/******************************************************************************/
 #include "lvl_script_conditions.h"
 
 #include "globals.h"
@@ -35,6 +27,10 @@ extern "C" {
 #include "creature_states.h"
 #include "keeperfx.hpp"
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
  const struct NamedCommand variable_desc[] = {
     {"MONEY",                       SVar_MONEY},
     {"GAME_TURN",                   SVar_GAME_TURN},

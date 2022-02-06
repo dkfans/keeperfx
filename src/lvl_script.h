@@ -7,7 +7,7 @@
  *     Level script commands support.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
+ * @author   KeeperFX Team
  * @date     12 Feb 2009 - 24 Feb 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify

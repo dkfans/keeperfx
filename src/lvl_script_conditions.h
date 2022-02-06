@@ -1,9 +1,31 @@
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file lvl_script_conditions.h
+ *     Header file for lvl_script_conditions.c.
+ * @par Purpose:
+ *     should only be used by files under lvl_script_*
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   KeeperFX Team
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+
 #ifndef DK_LVLSCRIPTCOND_H
 #define DK_LVLSCRIPTCOND_H
 
 
 #include "globals.h"
 #include "config.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum ScriptVariables {
   SVar_MONEY                           =  1,
@@ -88,4 +110,7 @@ extern const struct NamedCommand dk1_variable_desc[];
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
 
 
+#ifdef __cplusplus
+}
+#endif
 #endif

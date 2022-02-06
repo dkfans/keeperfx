@@ -4,9 +4,10 @@
 /** @file lvl_script_commands.h
  *     Header file for lvl_script_commands.c.
  * @par Purpose:
- *     Level script commands support.
+ *     should only be used by files under lvl_script_*
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   KeeperFX Team
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
