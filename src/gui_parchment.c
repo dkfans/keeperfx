@@ -773,7 +773,7 @@ void draw_zoom_box(void)
 {
     struct PlayerInfo* player = get_my_player();
 
-    long draw_tiles_x = 13;
+    long draw_tiles_x = 13; //todo this value needs to go up with zoom level to keep the same window size
     long draw_tiles_y = 13;
 
     // Sizes of the parchment map on which we're drawing
@@ -785,10 +785,10 @@ void draw_zoom_box(void)
     long mouse_y = GetMouseY();
 
     // zoom box block size
-    const int subtile_size = scale_value_for_resolution(8);
+    const int subtile_size = scale_value_for_resolution(8); //todo this value needs to change to determine the zoom level
 
     // Drawing coordinates
-    long scrtop_x = mouse_x + scale_value_for_resolution(24);
+    long scrtop_x = mouse_x + scale_value_for_resolution(24); //todo figure out if this needs changing
     long scrtop_y = mouse_y + scale_value_for_resolution(24);
     if (scrtop_x > MyScreenWidth-draw_tiles_x*subtile_size)
       scrtop_x = MyScreenWidth-draw_tiles_x*subtile_size;
