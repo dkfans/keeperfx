@@ -4659,10 +4659,7 @@ void do_room_recalculation(struct Room* room)
     set_room_efficiency(room);
     recalculate_room_health(room);
     update_room_total_capacity(room);
-    if (room->kind == RoK_TREASURE)
-    {
-        update_room_contents(room);
-    }
+    update_room_contents(room);
     init_room_sparks(room);
 }
 
