@@ -45,7 +45,6 @@
 #include "player_utils.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
-#include "lvl_script.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus

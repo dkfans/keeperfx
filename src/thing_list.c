@@ -23,7 +23,6 @@
 #include "globals.h"
 #include "bflib_sound.h"
 #include "packets.h"
-#include "lvl_script.h"
 #include "light_data.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
