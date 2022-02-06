@@ -1300,7 +1300,7 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
                 {
                     if (player->view_type == PVT_CreatureContrl)
                     {
-                        return ( (thing->index == player->influenced_thing_idx) || (thing->model == 31) );
+                        return ( (thing->index == player->influenced_thing_idx) || (get_creature_model_flags(thing) & CMF_IsSpectator) );
                     }
                 }
                 return false;
