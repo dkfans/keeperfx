@@ -123,6 +123,8 @@ const struct NamedCommand dk1_variable_desc[] = {
 };
 
 
+
+
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
 {
     SYNCDBG(10,"Checking condition %d for player %d",(int)valtype,(int)plyr_idx);
@@ -366,6 +368,88 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
 }
 
 
+TbBool condition_inactive(long cond_idx)
+{
+  if ((cond_idx < 0) || (cond_idx >= CONDITIONS_COUNT))
+  {
+      return false;
+  }
+  unsigned long i = gameadd.script.conditions[cond_idx].status;
+  if (((i & 0x01) == 0) || ((i & 0x04) != 0))
+    return true;
+  return false;
+}
+
+static void process_condition(struct Condition *condt, int idx)
+{
+    TbBool new_status;
+    int plr_start;
+    int plr_end;
+    long i;
+    SYNCDBG(18,"Starting for type %d, player %d",(int)condt->variabl_type,(int)condt->plyr_range);
+    if (condition_inactive(condt->condit_idx))
+    {
+        set_flag_byte(&condt->status, 0x01, false);
+        return;
+    }
+    if ((condt->variabl_type == SVar_SLAB_OWNER) || (condt->variabl_type == SVar_SLAB_TYPE)) //These variable types abuse the plyr_range, since all slabs don't fit in an unsigned short
+    {
+        new_status = false;
+        long k = get_condition_value(condt->plyr_range, condt->variabl_type, condt->variabl_idx);
+        new_status = get_condition_status(condt->operation, k, condt->rvalue);
+    }
+    else
+    {
+        if (get_players_range(condt->plyr_range, &plr_start, &plr_end) < 0)
+        {
+            WARNLOG("Invalid player range %d in CONDITION command %d.", (int)condt->plyr_range, (int)condt->variabl_type);
+            return;
+        }
+        if (condt->variabl_type == SVar_ACTION_POINT_TRIGGERED)
+        {
+            new_status = false;
+            for (i = plr_start; i < plr_end; i++)
+            {
+                new_status = action_point_activated_by_player(condt->variabl_idx, i);
+                if (new_status) break;
+            }
+        }
+        else
+        {
+            new_status = false;
+            for (i = plr_start; i < plr_end; i++)
+            {
+                long k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
+                new_status = get_condition_status(condt->operation, k, condt->rvalue);
+                if (new_status != false)
+                {
+                  break;
+                }
+            }
+        }
+    }
+    SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
+    set_flag_byte(&condt->status, 0x01,  new_status);
+    if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))
+    {
+        set_flag_byte(&condt->status, 0x04,  false);
+    } else
+    {
+        set_flag_byte(&condt->status, 0x02,  true);
+        set_flag_byte(&condt->status, 0x04,  true);
+    }
+    SCRIPTDBG(19,"Finished");
+}
+
+void process_conditions(void)
+{
+    if (gameadd.script.conditions_num > CONDITIONS_COUNT)
+      gameadd.script.conditions_num = CONDITIONS_COUNT;
+    for (long i = 0; i < gameadd.script.conditions_num; i++)
+    {
+      process_condition(&gameadd.script.conditions[i], i);
+    }
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

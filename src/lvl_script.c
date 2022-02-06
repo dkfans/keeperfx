@@ -3514,16 +3514,6 @@ TbBool process_activation_status(struct Condition *condt)
     return new_status;
 }
 
-/**
- * Returns if the action point of given index was triggered by given player.
- */
-TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx)
-{
-    unsigned long i = get_action_point_activated_by_players_mask(apt_idx);
-    return ((i & (1 << plyr_idx)) != 0);
-}
-
-
 TbBool get_condition_status(unsigned char opkind, long val1, long val2)
 {
   return LbMathOperation(opkind, val1, val2) != 0;
@@ -3540,89 +3530,6 @@ static TbBool is_condition_met(unsigned char cond_idx)
     }
     unsigned long i = gameadd.script.conditions[cond_idx].status;
     return ((i & 0x01) != 0);
-}
-
-TbBool condition_inactive(long cond_idx)
-{
-  if ((cond_idx < 0) || (cond_idx >= CONDITIONS_COUNT))
-  {
-      return false;
-  }
-  unsigned long i = gameadd.script.conditions[cond_idx].status;
-  if (((i & 0x01) == 0) || ((i & 0x04) != 0))
-    return true;
-  return false;
-}
-
-static void process_condition(struct Condition *condt, int idx)
-{
-    TbBool new_status;
-    int plr_start;
-    int plr_end;
-    long i;
-    SYNCDBG(18,"Starting for type %d, player %d",(int)condt->variabl_type,(int)condt->plyr_range);
-    if (condition_inactive(condt->condit_idx))
-    {
-        set_flag_byte(&condt->status, 0x01, false);
-        return;
-    }
-    if ((condt->variabl_type == SVar_SLAB_OWNER) || (condt->variabl_type == SVar_SLAB_TYPE)) //These variable types abuse the plyr_range, since all slabs don't fit in an unsigned short
-    {
-        new_status = false;
-        long k = get_condition_value(condt->plyr_range, condt->variabl_type, condt->variabl_idx);
-        new_status = get_condition_status(condt->operation, k, condt->rvalue);
-    }
-    else
-    {
-        if (get_players_range(condt->plyr_range, &plr_start, &plr_end) < 0)
-        {
-            WARNLOG("Invalid player range %d in CONDITION command %d.", (int)condt->plyr_range, (int)condt->variabl_type);
-            return;
-        }
-        if (condt->variabl_type == SVar_ACTION_POINT_TRIGGERED)
-        {
-            new_status = false;
-            for (i = plr_start; i < plr_end; i++)
-            {
-                new_status = action_point_activated_by_player(condt->variabl_idx, i);
-                if (new_status) break;
-            }
-        }
-        else
-        {
-            new_status = false;
-            for (i = plr_start; i < plr_end; i++)
-            {
-                long k = get_condition_value(i, condt->variabl_type, condt->variabl_idx);
-                new_status = get_condition_status(condt->operation, k, condt->rvalue);
-                if (new_status != false)
-                {
-                  break;
-                }
-            }
-        }
-    }
-    SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
-    set_flag_byte(&condt->status, 0x01,  new_status);
-    if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))
-    {
-        set_flag_byte(&condt->status, 0x04,  false);
-    } else
-    {
-        set_flag_byte(&condt->status, 0x02,  true);
-        set_flag_byte(&condt->status, 0x04,  true);
-    }
-    SCRIPTDBG(19,"Finished");
-}
-
-void process_conditions(void)
-{
-    if (gameadd.script.conditions_num > CONDITIONS_COUNT)
-      gameadd.script.conditions_num = CONDITIONS_COUNT;
-    for (long i = 0; i < gameadd.script.conditions_num; i++)
-    {
-      process_condition(&gameadd.script.conditions[i], i);
-    }
 }
 
 static void process_party(struct PartyTrigger* pr_trig)
@@ -4793,99 +4700,27 @@ void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos
   SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, pos->x.stl.num, pos->y.stl.num);
 }
 
-char get_player_number_from_value(const char* txt)
+void process_level_script(void)
 {
-    char id;
-    if (strcasecmp(txt, "None") == 0)
-    {
-        id = 127;
-    }
-    else if (strcasecmp(txt, "Kills") == 0)
-    {
-        id = -114;
-    }
-    else if (strcasecmp(txt, "Strength") == 0)
-    {
-        id = -115;
-    }
-    else if (strcasecmp(txt, "Gold") == 0)
-    {
-        id = -116;
-    }
-    else if (strcasecmp(txt, "Wage") == 0)
-    {
-        id = -117;
-    }
-    else if (strcasecmp(txt, "Armour") == 0)
-    {
-        id = -118;
-    }
-    else if (strcasecmp(txt, "Time") == 0)
-    {
-        id = -119;
-    }
-    else if (strcasecmp(txt, "Dexterity") == 0)
-    {
-        id = -120;
-    }
-    else if (strcasecmp(txt, "Defence") == 0)
-    {
-        id = -121;
-    }
-    else if (strcasecmp(txt, "Luck") == 0)
-    {
-        id = -122;
-    }
-    else if (strcasecmp(txt, "Blood") == 0)
-    {
-        id = -123;
-    }
-    else
-    {
-        id = get_rid(player_desc, txt);
-    }
-    if (id == -1)
-    {
-        id = get_rid(cmpgn_human_player_options, txt);
-        if (id == -1)
-        {
-            id = get_rid(creature_desc, txt);
-            if (id != -1)
-            {
-                id = (~id) + 1;
-            }
-            else
-            {
-                id = get_rid(spell_desc, txt);
-                if (id != -1)
-                {
-                    id = -35 - id;
-                }
-                else
-                {
-                    id = get_rid(room_desc, txt);
-                    if (id != -1)
-                    {
-                        id = -78 - id;
-                    }
-                    else
-                    {
-                        id = get_rid(power_desc, txt);
-                        if (id != -1)
-                        {
-                            id = -94 - id;
-                        }
-                        else
-                        {
-                            id = atoi(txt);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return id;
+  SYNCDBG(6,"Starting");
+  struct PlayerInfo *player;
+  player = get_my_player();
+  // Do NOT stop executing scripts after winning if the RUN_AFTER_VICTORY(1) script command has been issued
+  if ((player->victory_state == VicS_Undecided) || (game.system_flags & GSF_RunAfterVictory))
+  {
+      process_conditions();
+      process_check_new_creature_partys();
+    //script_process_messages(); is not here, but it is in beta - check why
+      process_check_new_tunneller_partys();
+      process_values();
+      process_win_and_lose_conditions(my_player_number); //player->id_number may be uninitialized yet
+    //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],
+    //    game.dungeon[0].script_flags[2],game.dungeon[0].script_flags[3],game.dungeon[0].script_flags[4],game.dungeon[0].script_flags[5]);
+  }
+  SYNCDBG(19,"Finished");
 }
+
+
 /******************************************************************************/
 /**
  * Descriptions of script commands for parser.

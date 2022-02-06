@@ -58,6 +58,23 @@ struct MemberPos { // sizeof=3
     unsigned char flags;
 };
 
+struct PartyMember { // sizeof = 13
+  unsigned char flags;
+  unsigned char field_65;
+  unsigned char crtr_kind;
+  unsigned char objectv;
+  long countdown;
+  unsigned char crtr_level;
+  unsigned short carried_gold;
+  unsigned short field_6F;
+};
+
+struct Party { // sizeof = 208
+  char prtname[100];
+  struct PartyMember members[GROUP_MEMBERS_COUNT];
+  unsigned long members_num;
+};
+
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/

@@ -88,7 +88,6 @@ enum {
 #pragma pack(1)
 
 struct Condition;
-struct Party;
 typedef unsigned long TbMapLocation;
 struct ScriptLine;
 struct ScriptValue;
@@ -190,23 +189,6 @@ struct Condition { // sizeof = 12
   unsigned long rvalue;
 };
 
-struct PartyMember { // sizeof = 13
-  unsigned char flags;
-  unsigned char field_65;
-  unsigned char crtr_kind;
-  unsigned char objectv;
-  long countdown;
-  unsigned char crtr_level;
-  unsigned short carried_gold;
-  unsigned short field_6F;
-};
-
-
-struct Party { // sizeof = 208
-  char prtname[100];
-  struct PartyMember members[GROUP_MEMBERS_COUNT];
-  unsigned long members_num;
-};
 
 struct ScriptFxLine
 {
@@ -314,14 +296,10 @@ TbBool process_activation_status(struct Condition *condt);
 TbBool get_condition_status(unsigned char opkind, long val1, long val2);
 TbBool condition_inactive(long cond_idx);
 TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx);
-void process_conditions(void);
-void process_values(void);
-void process_win_and_lose_conditions(PlayerNumber plyr_idx);
+
 void script_process_new_creatures(PlayerNumber plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level);
-void process_check_new_creature_partys(void);
-void process_check_new_tunneller_partys(void);
-char get_player_number_from_value(const char* txt);
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
+void process_level_script(void);
 
 /******************************************************************************/
 #ifdef __cplusplus
