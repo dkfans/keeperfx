@@ -54,6 +54,7 @@
 #include "gui_parchment.h"
 #include "power_hand.h"
 #include "thing_creature.h"
+#include "thing_shots.h"
 #include "thing_traps.h"
 #include "room_workshop.h"
 #include "kjm_input.h"
@@ -85,6 +86,8 @@ KEEPERSPEECH_EVENT last_speech_event;
 
 // define the current GUI layer as the default
 struct GuiLayer gui_layer = {GuiLayer_Default};
+
+TbBool first_person_see_item_desc = false;
 
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
@@ -1403,12 +1406,55 @@ short get_creature_control_action_inputs(void)
             message_add(CrInst, get_string(StrID));
         }
         first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
-        if ( (is_key_pressed(KC_LALT,KMod_DONTCARE)) || (is_key_pressed(KC_RALT,KMod_DONTCARE)) )
+        player->thing_under_hand = 0;
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
         {
-            set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
-            clear_key_pressed(KC_LALT);
-            clear_key_pressed(KC_RALT);
-            return 1;
+            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &val, true))
+            {
+                first_person_see_item_desc = true;
+            }
+            else
+            {
+                first_person_see_item_desc = false;
+            }
+            struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+            if (thing_is_trap_crate(dragtng))
+            {
+                struct Thing* traptng = controlled_get_trap_to_rearm(thing);
+                if (!thing_is_invalid(traptng))
+                {
+                    player->thing_under_hand = traptng->index;
+                }
+            }
+            else if (thing_is_invalid(dragtng))
+            {
+                struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+                TbBool diggable_subtile;
+                MapSubtlCoord stl_x = thing->mappos.x.stl.num;
+                MapSubtlCoord stl_y = thing->mappos.y.stl.num;
+                for (unsigned char range = 0; range < shotst->health; range++)
+                {
+                    controlled_continue_looking_excluding_diagonal(thing, &stl_x, &stl_y);
+                    diggable_subtile = subtile_is_diggable_for_player(thing->owner, stl_x, stl_y, true);
+                    if (diggable_subtile)
+                    {
+                        break;
+                    }
+                }
+                if (!diggable_subtile)
+                {
+                    struct Thing* picktng = controlled_get_thing_to_pick_up(thing);
+                    if (!thing_is_invalid(picktng))
+                    {
+                        player->thing_under_hand = picktng->index;
+                        if (first_person_see_item_desc)
+                        {
+                            display_controlled_pick_up_thing_name(picktng, 1);
+                        }
+                    }
+                }
+            }
         }
     if (numkey != -1)
     {

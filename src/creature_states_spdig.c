@@ -1163,16 +1163,30 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(spdigtng);
+    unsigned char state = CrSt_ImpLastDidJob;
     if (crstat->gold_hold > spdigtng->creature.gold_carried)
     {
-        long gold_taken = take_from_gold_pile(spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num, crstat->gold_hold - spdigtng->creature.gold_carried);
+        MapSubtlCoord stl_x, stl_y;
+        if (is_thing_directly_controlled(spdigtng))
+        {
+            struct CreatureControl *cctrl = creature_control_get_from_thing(spdigtng);
+            struct Thing *goldtng = thing_get(cctrl->pickup_object_id);
+            stl_x = goldtng->mappos.x.stl.num;
+            stl_y = goldtng->mappos.y.stl.num;
+            state = CrSt_Unused;
+        }
+        else
+        {
+            stl_x = spdigtng->mappos.x.stl.num;
+            stl_y = spdigtng->mappos.y.stl.num;
+        }
+        long gold_taken = take_from_gold_pile(stl_x, stl_y, crstat->gold_hold - spdigtng->creature.gold_carried);
         spdigtng->creature.gold_carried += gold_taken;
         if (gold_taken > 0)
         {
             thing_play_sample(spdigtng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
-    unsigned char state = ((spdigtng->alloc_flags & TAlF_IsControlled) == 0) ? CrSt_ImpLastDidJob : CrSt_Unused;
     internal_set_thing_state(spdigtng, state);
     return 0;
 }
@@ -1753,12 +1767,12 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
 short creature_arms_trap(struct Thing *thing)
 {
     TRACE_THING(thing);
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl)) {
         ERRORLOG("Creature has invalid control structure!");
         return 0;
     }
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct Thing* cratetng = thing_get(cctrl->dragtng_idx);
     TRACE_THING(cratetng);
     struct Thing* traptng = thing_get(cctrl->arming_thing_id);
@@ -1767,6 +1781,10 @@ short creature_arms_trap(struct Thing *thing)
     {
         set_start_state(thing);
         return 0;
+    }
+    if (is_thing_directly_controlled(thing))
+    {
+        return creature_arms_trap_first_person(thing);
     }
     struct Thing* postng = get_trap_at_subtile_of_model_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, traptng->model, thing->owner);
     // Note that this means there can be only one trap of given kind at a subtile.
@@ -1778,9 +1796,11 @@ short creature_arms_trap(struct Thing *thing)
         return 0;
     }
     rearm_trap(traptng);
+    dungeon = get_dungeon(thing->owner);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);
     delete_thing_structure(cratetng, 0);
+    thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     // The action of moving object is now finished
     set_start_state(thing);
     if (gameadd.digger_work_experience != 0)
@@ -1788,6 +1808,27 @@ short creature_arms_trap(struct Thing *thing)
         cctrl->exp_points += gameadd.digger_work_experience;
         check_experience_upgrade(thing);
     }
+    return 1;
+}
+
+short creature_arms_trap_first_person(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* cratetng = thing_get(cctrl->dragtng_idx);
+    struct Thing* traptng = thing_get(cctrl->arming_thing_id);
+    controlled_creature_drop_thing(creatng, cratetng);
+    move_thing_in_map(cratetng, &traptng->mappos);
+    rearm_trap(traptng);
+    thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    dungeon->lvstats.traps_armed++;
+    if (gameadd.digger_work_experience != 0)
+    {
+        cctrl->exp_points += gameadd.digger_work_experience;
+        check_experience_upgrade(creatng);
+    }
+    delete_thing_structure(cratetng, 0);
+    set_start_state(creatng);
     return 1;
 }
 

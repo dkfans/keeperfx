@@ -59,8 +59,10 @@ enum ThingFlags2 {
 enum ThingFlags4F {
     TF4F_Unknown01     = 0x01, /** Not Drawn **/
     TF4F_Unknown02     = 0x02, // Not shaded
+
     TF4F_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
     TF4F_Unknown08     = 0x08, // Tint2 (not used?)
+    TF4F_Tint_Flags    = 0x0C, // Tint flags
 
     TF4F_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
     TF4F_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
@@ -114,7 +116,7 @@ struct Thing {
         short word_17v;
       } valuable;
       struct {
-        short word_13;
+        short life_remaining;
         char byte_15;
         unsigned char byte_16;
         unsigned char byte_17;

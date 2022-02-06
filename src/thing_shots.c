@@ -23,6 +23,7 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
+#include "creature_states.h"
 #include "thing_data.h"
 #include "thing_factory.h"
 #include "thing_effects.h"
@@ -211,8 +212,20 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     }
     if (crstat->gold_hold <= creatng->creature.gold_carried)
     {
-        drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos);
+        struct Thing* gldtng = drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos);
         creatng->creature.gold_carried = 0;
+        struct Room* room;
+        room = get_room_thing_is_on(creatng);
+        if (!room_is_invalid(room))
+        {
+            if (room_role_matches(room->kind, RoRoF_GoldStorage))
+            {
+                if (room->owner == creatng->owner)
+                {
+                    gold_being_dropped_at_treasury(gldtng, room);
+                }
+            }
+        }
     }
     return true;
 }
@@ -289,6 +302,28 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
     }
 
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    if ((mapblk->flags & SlbAtFlg_IsRoom) != 0)
+    {
+        if (diggertng->creature.gold_carried > 0)
+        {
+            struct Thing* gldtng = drop_gold_pile(diggertng->creature.gold_carried, &diggertng->mappos);
+            diggertng->creature.gold_carried = 0;
+            struct Room* room;
+            room = get_room_xy(stl_x, stl_y);
+            if (!room_is_invalid(room))
+            {
+                if (room_role_matches(room->kind, RoRoF_GoldStorage))
+                {
+                    if (room->owner == diggertng->owner)
+                    {
+                        gold_being_dropped_at_treasury(gldtng, room);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     // Doors cannot be dug
     if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
     {
@@ -1444,7 +1479,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & TF4F_Unknown02;
-    thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Transpar_8 * shotst->old->field_8) & (TF4F_Transpar_Flags));
+    thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ TF4F_Transpar_8 * shotst->animation_transparency) & (TF4F_Transpar_Flags));
     thing->field_4F ^= (thing->field_4F ^ shotst->old->field_7) & TF4F_Unknown01;
     thing->clipbox_size_xy = shotst->size_xy;
     thing->clipbox_size_yz = shotst->size_yz;

@@ -290,9 +290,9 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
+    thing->field_4F |= TF4F_Unknown01;
     set_start_state(thing);
     set_player_mode(player, PVT_CreatureContrl);
-    update_creature_graphic_field_4F(thing);
     if (thing_is_creature(thing))
     {
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -341,7 +341,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
     if (cam != NULL)
       player->view_mode_restore = cam->view_mode;
     set_player_mode(player, PVT_CreaturePasngr);
-    update_creature_graphic_field_4F(thing);
+    thing->field_4F |= TF4F_Unknown01;
     return true;
 }
 
@@ -5377,7 +5377,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     }
     else
     {
-        if ((picktng->owner != creatng->owner) )
+        if ((picktng->owner != creatng->owner) && (picktng->owner != game.neutral_player_num) )
         {
             if (thing_is_workshop_crate(picktng))
             {
@@ -5395,158 +5395,128 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
     unsigned short smpl_idx = crsound->index + 1;
     thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS);
-    display_controlled_picked_up_thing_name(picktng);
+    display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4));
 }
 
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng)
 {
-    struct Thing* traptng = get_trap_for_position(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
-    if (!thing_is_invalid(traptng))
+    creature_drop_dragged_object(creatng, droptng);
+    clear_messages_from_player(-81);
+    clear_messages_from_player(-86);
+    unsigned short smpl_idx, pitch;
+    switch(droptng->class_id)
     {
-        if (traptng->owner == creatng->owner)
+        case TCls_Object:
         {
-            if (thing_is_trap_crate(droptng))
+            smpl_idx = 992;
+            struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
+            switch (objst->genre)
             {
-                if (traptng->model == crate_to_workshop_item_model(droptng->model))
+                case OCtg_WrkshpBox:
+                case OCtg_SpecialBox:
                 {
-                    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-                    cctrl->arming_thing_id = traptng->index;
-                    internal_set_thing_state(creatng, CrSt_CreatureArmsTrap);
-                    clear_messages_from_player(-86);
+                    pitch = 25;
+                    break;
                 }
-                else
+                case OCtg_Spellbook:
                 {
-                    if (is_thing_directly_controlled_by_player(creatng, my_player_number))
-                    {
-                        play_non_3d_sample(119);
-                    }
+                    pitch = 90;
+                    break;
+                }
+                default:
+                {
+                    pitch = 0;
+                    break;
                 }
             }
+            break;
         }
-        else
+        case TCls_DeadCreature:
         {
-            if (is_thing_directly_controlled_by_player(creatng, my_player_number))
-            {
-                play_non_3d_sample(119);
-            }
+            smpl_idx = 58;
+            pitch = 50;
+            break;
+        }
+        default:
+        {
+            smpl_idx = 0;
+            pitch = 0;
+            break;
         }
     }
-    else
+    thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, FULL_LOUDNESS);
+    struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+    if (!room_is_invalid(room))
     {
-        creature_drop_dragged_object(creatng, droptng);
-        clear_messages_from_player(-81);
-        clear_messages_from_player(-86);
-        unsigned short smpl_idx, pitch;
-        switch(droptng->class_id)
+        if (room->owner == creatng->owner)
         {
-            case TCls_Object:
+            if (room_role_matches(room->kind, RoRoF_PowersStorage))
             {
-                smpl_idx = 992;
-                struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
-                switch (objst->genre)
+                if (thing_is_spellbook(droptng))
                 {
-                    case OCtg_WrkshpBox:
-                    case OCtg_SpecialBox:
+                    if (add_item_to_room_capacity(room, true))
                     {
-                        pitch = 25;
-                        break;
+                        droptng->owner = creatng->owner;
+                        add_power_to_player(book_thing_to_power_kind(droptng), creatng->owner);
                     }
-                    case OCtg_Spellbook:
+                    else
                     {
-                        pitch = 90;
-                        break;
+                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_LIBRARY));
+                        output_message(SMsg_LibraryTooSmall, 0, true);
+                    }
+                } 
+                else if (thing_is_special_box(droptng))
+                {
+                    droptng->owner = creatng->owner;
+                }
+            }
+            else if (room_role_matches(room->kind, RoRoF_CratesStorage))
+            {
+                if (thing_is_workshop_crate(droptng))
+                {
+                    if (add_item_to_room_capacity(room, true))
+                    {
+                        droptng->owner = creatng->owner;
+                        add_workshop_item_to_amounts(room->owner, crate_thing_to_workshop_item_class(droptng), crate_thing_to_workshop_item_model(droptng));
+                    }
+                    else
+                    {
+                        WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_WORKSHOP));
+                        output_message(SMsg_WorkshopTooSmall, 0, true);
                     }
                 }
-                break;
             }
-            case TCls_DeadCreature:
+            else if (room_role_matches(room->kind, RoRoF_DeadStorage))
             {
-                smpl_idx = 58;
-                pitch = 50;
-                break;
-            }
-        }
-        thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, FULL_LOUDNESS);
-        struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
-        if (!room_is_invalid(room))
-        {
-            if (room->owner == creatng->owner)
-            {
-                switch(room->kind)
+                if (thing_is_dead_creature(droptng))
                 {
-                    case RoK_LIBRARY:
+                    if (add_body_to_graveyard(droptng, room))
                     {
-                        if (thing_is_spellbook(droptng))
-                        {
-                            if (add_item_to_room_capacity(room, true))
-                            {
-                                droptng->owner = creatng->owner;
-                                add_power_to_player(book_thing_to_power_kind(droptng), creatng->owner);
-                            }
-                            else
-                            {
-                                WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_LIBRARY));
-                                output_message(SMsg_LibraryTooSmall, 0, true);
-                            }
-                        } 
-                        else if (thing_is_special_box(droptng))
-                        {
-                            droptng->owner = creatng->owner;
-                        }
-                        break;
+                        droptng->owner = creatng->owner;
                     }
-                    case RoK_WORKSHOP:
+                    else
                     {
-                        if (thing_is_workshop_crate(droptng))
-                        {
-                            if (add_item_to_room_capacity(room, true))
-                            {
-                                droptng->owner = creatng->owner;
-                                add_workshop_item_to_amounts(room->owner, crate_thing_to_workshop_item_class(droptng), crate_thing_to_workshop_item_model(droptng));
-                            }
-                            else
-                            {
-                                WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_code_name(RoK_WORKSHOP));
-                                output_message(SMsg_WorkshopTooSmall, 0, true);
-                            }
-                        }
-                        break;
+                        output_message(SMsg_GraveyardTooSmall, 0, true);
                     }
-                    case RoK_GRAVEYARD:
+                }
+            }
+            else if (room_role_matches(room->kind, RoRoF_Prison))
+            {
+                if (thing_is_creature(droptng))
+                {
+                    if (creature_is_being_unconscious(droptng))
                     {
-                        if (thing_is_dead_creature(droptng))
+                        if (room->used_capacity < room->total_capacity)
                         {
-                            if (add_body_to_graveyard(droptng, room))
-                            {
-                                droptng->owner = creatng->owner;
-                            }
-                            else
-                            {
-                                output_message(SMsg_GraveyardTooSmall, 0, true);
-                            }
+                            make_creature_conscious(droptng);
+                            initialise_thing_state(droptng, CrSt_CreatureArrivedAtPrison);
+                            struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
+                            dropctrl->flgfield_1 |= CCFlg_NoCompControl;
                         }
-                        break;
-                    }
-                    case RoK_PRISON:
-                    {
-                        if (thing_is_creature(droptng))
+                        else
                         {
-                            if (creature_is_being_unconscious(droptng))
-                            {
-                                if (room->used_capacity < room->total_capacity)
-                                {
-                                    make_creature_conscious(droptng);
-                                    initialise_thing_state(droptng, CrSt_CreatureArrivedAtPrison);
-                                    struct CreatureControl* dropctrl = creature_control_get_from_thing(droptng);
-                                    dropctrl->flgfield_1 |= CCFlg_NoCompControl;
-                                }
-                                else
-                                {
-                                   output_message(SMsg_PrisonTooSmall, 0, true); 
-                                }
-                            }
+                            output_message(SMsg_PrisonTooSmall, 0, true); 
                         }
-                        break;
                     }
                 }
             }
@@ -5557,103 +5527,92 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
 void direct_control_pick_up_or_drop(struct PlayerInfo *player)
 {
     struct Thing *thing = thing_get(player->controlled_thing_idx);
-    if (thing_is_creature_special_digger(thing))
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+    if (!thing_is_invalid(dragtng))
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-        if (!thing_is_invalid(dragtng))
+        if (thing_is_trap_crate(dragtng))
         {
-            controlled_creature_drop_thing(thing, dragtng);
-        }
-        else
-        {
-            struct Map *blk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-            struct Thing* picktng;
-            struct Room* room;
-            for (picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk)) 
+            struct Thing *traptng = thing_get(player->thing_under_hand);
+            if (!thing_is_invalid(traptng))
             {
-                if (picktng != thing)
+                if (traptng->class_id == TCls_Trap)
+                {   
+                    cctrl->arming_thing_id = traptng->index;
+                    internal_set_thing_state(thing, CrSt_CreatureArmsTrap);
+                    return;
+                }
+            }
+        }
+        controlled_creature_drop_thing(thing, dragtng);
+    }
+    else
+    {
+        struct Thing* picktng = thing_get(player->thing_under_hand);
+        struct Room* room;
+        if (!thing_is_invalid(picktng))
+        {
+            if (object_is_gold_pile(picktng))
+            {
+                struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+                if (thing->creature.gold_carried < crstat->gold_hold)
                 {
-                    TbBool can_be_picked_up = false;
-                    TbBool can_remove_from_storage = false;
-                    if ( (thing_is_spellbook(picktng)) || (thing_is_special_box(picktng)) )
+                    cctrl->pickup_object_id = picktng->index;
+                    internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
+                    return;
+                }
+                else
+                {
+                    if (is_thing_directly_controlled_by_player(thing, my_player_number))
                     {
-                        can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, thing->owner, RoK_LIBRARY, TngFRPickF_Default);
+                        play_non_3d_sample(119);
+                        return;
                     }
-                    else if (thing_is_workshop_crate(picktng))
+                }
+            }
+            room = get_room_thing_is_on(picktng);
+            if (!room_is_invalid(room))
+            {
+                if ( (room_role_matches(room->kind, RoRoF_CratesStorage)) && (room->owner == thing->owner) )
+                {
+                    if (thing_is_workshop_crate(picktng))
                     {
-                        can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, thing->owner, RoK_WORKSHOP, TngFRPickF_Default);
-                        can_remove_from_storage = true;
-                    }
-                    else if (thing_is_dead_creature(picktng))
-                    {
-                        can_be_picked_up = thing_can_be_picked_to_place_in_player_room(picktng, thing->owner, RoK_GRAVEYARD, TngFRPickF_Default);
-                    }
-                    else if (thing_is_creature(picktng))
-                    {
-                        can_be_picked_up = creature_is_being_unconscious(picktng);
-                    }
-                    else if (object_is_gold_pile(picktng))
-                    {
-                        internal_set_thing_state(thing, CrSt_ImpPicksUpGoldPile);
-                        break;
+                        if (picktng->owner == thing->owner)
+                        {
+                            if (!remove_item_from_room_capacity(room))
+                            {
+                                return;
+                            }
+                            if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) != WrkCrtS_Stored)
+                            {                                                  
+                                return;
+                            }
+                        }
                     }
                     else
                     {
-                        continue;
-                    }
-                    if (can_be_picked_up)
-                    {
-                        controlled_creature_pick_thing_up(thing, picktng);
-                        break;
-                    }
-                    else if (can_remove_from_storage)
-                    {
-                        room = get_room_thing_is_on(picktng);
-                        if (!room_is_invalid(room))
+                        if (is_thing_directly_controlled_by_player(thing, my_player_number))
                         {
-                            if ( (room->kind == RoK_WORKSHOP) && (room->owner == thing->owner) )
-                            {
-                                if (!imp_will_soon_be_getting_object(thing->owner, picktng))
-                                {
-                                    if (picktng->owner == thing->owner)
-                                    {
-                                        if (remove_item_from_room_capacity(room))
-                                        {
-                                            if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) == WrkCrtS_Stored)
-                                            {                                                  
-                                                controlled_creature_pick_thing_up(thing, picktng);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if (is_thing_directly_controlled_by_player(thing, my_player_number))
-                                    {
-                                        play_non_3d_sample(119);
-                                    }
-                                    break;
-                                }
-                            }
+                            play_non_3d_sample(119);
+                            return;
                         }
                     }
                 }
             }
-            if (thing_is_invalid(picktng))
+            controlled_creature_pick_thing_up(thing, picktng);
+        }
+        else
+        {
+            room = get_room_thing_is_on(thing);
+            if (!room_is_invalid(room))
             {
-                room = get_room_thing_is_on(thing);
-                if (!room_is_invalid(room))
-                {
-                    if (room->kind == RoK_TREASURE)
-                    {                                
-                        if (room->owner == thing->owner)
+                if (room_role_matches(room->kind, RoRoF_GoldStorage))
+                {                                
+                    if (room->owner == thing->owner)
+                    {
+                        if (thing->creature.gold_carried > 0)
                         {
-                            if (thing->creature.gold_carried > 0)
-                            {
-                                internal_set_thing_state(thing, CrSt_ImpDropsGold);
-                            }
+                            internal_set_thing_state(thing, CrSt_ImpDropsGold);
                         }
                     }
                 }
@@ -5662,42 +5621,239 @@ void direct_control_pick_up_or_drop(struct PlayerInfo *player)
     }
 }
 
-void display_controlled_picked_up_thing_name(struct Thing *picktng)
+void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout)
 {
     char id;
-    const char* str;
+    char str[255] = {'\0'};
     if (thing_is_trap_crate(picktng))
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(picktng));
-        str = get_string(trapst->name_stridx);
+        strcat(str, get_string(trapst->name_stridx));
         id = -86;
     }
     else if (thing_is_door_crate(picktng))
     {
         struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(picktng));
-        str = get_string(doorst->name_stridx);
+        strcat(str, get_string(doorst->name_stridx));
         id = -86;
     }
     else if (thing_is_spellbook(picktng))
     {
-        str = get_string(get_power_name_strindex(book_thing_to_power_kind(picktng)));
+        strcat(str, get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
         id = -81;
     }
     else if (thing_is_special_box(picktng))
     {
-        str = get_string(get_special_description_strindex(box_thing_to_special(picktng)));
         char msg_buf[255];
-        strcpy(msg_buf, str);
-        str = strtok(msg_buf, ":");
+        if (picktng->model == OBJECT_TYPE_SPECBOX_CUSTOM)
+        {
+            if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
+            {
+                strcat(str, get_string(2005));
+                strcpy(msg_buf, str);
+                sprintf(str, strtok(msg_buf, ":"));
+            }
+            else
+            {
+                strcat(str, gameadd.box_tooltip[picktng->custom_box.box_kind]);
+                char *split = strchr(str, ':');
+                if ((int)(split - str) > -1)
+                {
+                    strcpy(msg_buf, str);
+                    sprintf(str, strtok(msg_buf, ":"));
+                }
+            }
+        }
+        else
+        {
+            strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
+            strcpy(msg_buf, str);
+            sprintf(str, strtok(msg_buf, ":"));
+        }
         id = -81;
+    }
+    else if (object_is_gold_pile(picktng))
+    {
+        struct PlayerInfo* player = get_my_player();
+        struct Thing* creatng = thing_get(player->influenced_thing_idx);
+        if (thing_is_creature(creatng))
+        {
+            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+            long gold_remaining = (crstat->gold_hold - creatng->creature.gold_carried);
+            long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
+            if (value < picktng->creature.gold_carried)
+            {
+                sprintf(str, "%ld (%ld)", picktng->creature.gold_carried, value);
+            }
+            else
+            {
+                sprintf(str, "%ld", picktng->creature.gold_carried); 
+            }
+        }
+        id = -116;
+    }
+    else if (thing_is_creature(picktng))
+    {
+        if (picktng->owner == game.neutral_player_num)
+        {
+            id = game.neutral_player_num;
+            sprintf(str, "%s", player_desc[6].name);
+        }
+        else if (picktng->owner == game.hero_player_num)
+        {
+            id = picktng->owner;
+            sprintf(str, "%s", player_desc[4].name);
+        }
+        else
+        {
+            id = picktng->owner;
+            sprintf(str, "%s", player_desc[picktng->owner].name);
+        }
+    }
+    else if (picktng->class_id == TCls_DeadCreature)
+    {
+        id = -89;
     }
     else
     {
         return;
     }
-    clear_messages_from_player(-81);
-    clear_messages_from_player(-86);
-    message_add(id, str);
+    zero_messages();
+    message_add_timeout(id, timeout, str);
+}
+
+struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
+{
+    struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+    unsigned char radius = 0;
+    struct Coord3d pos;
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
+    struct Thing *result = NULL;
+    MapCoordDelta old_distance = LONG_MAX;
+    MapCoordDelta new_distance;
+    long dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
+    long dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);
+    do
+    {
+        struct Map *blk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+        for (struct Thing* picktng = thing_get(get_mapwho_thing_index(blk)); (!thing_is_invalid(picktng)); picktng = thing_get(picktng->next_on_mapblk))
+        {
+            if (picktng != creatng)
+            {
+                if (thing_is_pickable_by_digger(picktng, creatng))                 
+                {
+                    if (line_of_sight_3d(&creatng->mappos, &picktng->mappos))
+                    {
+                        new_distance = get_3d_box_distance(&creatng->mappos, &picktng->mappos);
+                        if (new_distance < old_distance)
+                        {
+                            old_distance = new_distance;
+                            result = picktng;
+                        }
+                    }
+                }
+            }
+        }
+        pos.x.val += dx;
+        pos.y.val += dy;
+        radius++;
+    }
+    while (radius <= shotst->health);
+    return result;
+}
+
+TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
+{
+    struct SlabMap *slb = get_slabmap_thing_is_on(picktng);
+    if (object_is_gold_pile(picktng))
+    {
+        return ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_PATH) || (slab_kind_is_liquid(slb->kind)) );
+    }
+    else if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
+                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
+                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default)) || 
+                  ( (thing_is_creature(picktng)) && (creature_is_being_unconscious(picktng)) && (picktng->owner != creatng->owner) ) )
+    {
+        return (slabmap_owner(slb) == creatng->owner);              
+    }
+    else if (thing_is_trap_crate(picktng)) // for trap crates in one's own Workshop
+    {
+        struct Room* room = get_room_thing_is_on(picktng);
+        if (!room_is_invalid(room))
+        {
+            if (room_role_matches(room->kind, RoRoF_CratesStorage))
+           {
+                if (room->owner == creatng->owner)
+                {
+                    if ( (picktng->owner == room->owner) && (picktng->owner == creatng->owner) )
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng)
+{
+    struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+    unsigned char radius = 0;
+    struct Coord3d pos;
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
+    long dx = distance_with_angle_to_coord_x(shotst->speed, creatng->move_angle_xy);
+    long dy = distance_with_angle_to_coord_y(shotst->speed, creatng->move_angle_xy);
+    do
+    {
+        struct Thing* traptng = get_trap_for_position(pos.x.stl.num, pos.y.stl.num);
+        if (!thing_is_invalid(traptng))
+        {
+            if (traptng->owner == creatng->owner)
+            {
+                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+                if (traptng->model == crate_to_workshop_item_model(dragtng->model))
+                {
+                    if (traptng->trap.num_shots == 0)
+                    {
+                        return traptng;
+                    }
+                }
+            }
+        }
+        pos.x.val += dx;
+        pos.y.val += dy;
+        radius++;
+    }
+    while (radius <= shotst->health);
+    return INVALID_THING;
+}
+
+void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y)
+{
+    MapSubtlCoord x = *stl_x;
+    MapSubtlCoord y = *stl_y;
+    if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
+    {
+        y--;
+    }
+    else if ( (creatng->move_angle_xy >= 768) && (creatng->move_angle_xy <= 1280) )
+    {
+        y++;
+    }
+    else if ( (creatng->move_angle_xy >= 1280) && (creatng->move_angle_xy <= 1792) )
+    {
+        x--;
+    }
+    else if ( (creatng->move_angle_xy >= 256) && (creatng->move_angle_xy <= 768) )
+    {
+        x++;
+    }
+    *stl_x = x;
+    *stl_y = y;
 }
 
 /******************************************************************************/

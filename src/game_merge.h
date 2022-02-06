@@ -156,6 +156,8 @@ struct GameAdd {
     unsigned short bag_gold_hold;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
+    long scavenge_effectiveness_evil; //unused
+    long scavenge_effectiveness_good; //unused
     TbBool armegeddon_teleport_neutrals;
     unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;
@@ -212,6 +214,7 @@ struct GameAdd {
     TbBool heart_lost_quick_message;
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
+    unsigned char slab_ext_data[85 * 85];
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

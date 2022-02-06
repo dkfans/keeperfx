@@ -406,25 +406,35 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_spellbook(thing))
     {
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || !player_exists(get_player(room->owner)))
+        if (room->owner != game.neutral_player_num)
         {
-            // No room - oh well, leave it as free spell
-            if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
-                // Preserve classic bug - object is claimed with the room
-                thing->owner = room->owner;
-            } else {
-                // Make correct owner so that Imps can pick it up
-                thing->owner = game.neutral_player_num;
+            if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || (!player_exists(get_player(room->owner)) && (game.play_gameturn >= 10)))
+            {
+                // No room - oh well, leave it as free spell
+                if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
+                    // Preserve classic bug - object is claimed with the room
+                    thing->owner = room->owner;
+                }
+                else {
+                    // Make correct owner so that Imps can pick it up
+                    thing->owner = game.neutral_player_num;
+                    return false;
+                }
+                return false;
             }
-            return true;
-        }
-        if (!add_power_to_player(book_thing_to_power_kind(thing), room->owner))
-        {
-            thing->owner = game.neutral_player_num;
-            return true;
+            if (!add_power_to_player(book_thing_to_power_kind(thing), room->owner))
+            {
+                thing->owner = game.neutral_player_num;
+                return false;
+            }
+            else
+            {
+                thing->owner = room->owner;
+                return true;
+            }
         }
         thing->owner = room->owner;
-        return true;
+        return false;
     }
     if (thing_is_workshop_crate(thing))
     {
