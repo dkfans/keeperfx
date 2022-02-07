@@ -1792,16 +1792,13 @@ TngUpdateRet move_object(struct Thing *thing)
             long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
             if (blocked_flags & SlbBloF_WalledZ)
             {
-                if (thing->owner != game.neutral_player_num)
+                struct Dungeon* dungeon = get_dungeon(thing->owner);
+                if (dungeon->sight_casted_thing_idx != thing->index)
                 {
-                    struct Dungeon* dungeon = get_dungeon(thing->owner);
-                    if (dungeon->sight_casted_thing_idx != thing->index)
+                    if (!find_free_position_on_slab(thing, &pos))
                     {
-                        if (!find_free_position_on_slab(thing, &pos))
-                        {
-                            SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.", pos.x.val, pos.y.val, blocked_flags);
-                            move_creature_to_nearest_valid_position(thing);
-                        }
+                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.", pos.x.val, pos.y.val, blocked_flags);
+                        move_creature_to_nearest_valid_position(thing);
                     }
                 }
             }
