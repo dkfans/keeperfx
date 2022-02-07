@@ -101,6 +101,7 @@ TbBool is_thing_passenger_controlled(const struct Thing *thing);
 TbBool is_thing_query_controlled(const struct Thing *thing);
 TbBool is_thing_some_way_controlled(const struct Thing *thing);
 TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 
 struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind);
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel);
