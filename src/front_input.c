@@ -502,7 +502,7 @@ short get_minimap_control_inputs(void)
     short packet_made = false;
     if (is_key_pressed(KC_SUBTRACT, KMod_NONE))
     {
-        if (player->minimap_zoom < 0x0800)
+        if (player->minimap_zoom < 2048)
         {
             set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
             packet_made = true;
@@ -513,7 +513,7 @@ short get_minimap_control_inputs(void)
   }
   if (is_key_pressed(KC_ADD,KMod_NONE))
   {
-      if ( player->minimap_zoom > 0x0080 )
+      if ( player->minimap_zoom > 128 )
       {
         set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
         packet_made = true;
