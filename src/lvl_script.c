@@ -317,8 +317,6 @@ static char* script_strdup(const char *src)
     return ret;
 }
 /******************************************************************************/
-DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatng);
-/******************************************************************************/
 static int filter_criteria_type(long desc_type)
 {
     return desc_type & 0x0F;
