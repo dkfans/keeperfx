@@ -26,7 +26,8 @@
 #include "room_entrance.h"
 #include "creature_states.h"
 #include "keeperfx.hpp"
-
+#include "bflib_math.h"
+#include "lvl_script_lib.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -380,6 +381,11 @@ TbBool condition_inactive(long cond_idx)
   return false;
 }
 
+TbBool get_condition_status(unsigned char opkind, long val1, long val2)
+{
+  return LbMathOperation(opkind, val1, val2) != 0;
+}
+
 static void process_condition(struct Condition *condt, int idx)
 {
     TbBool new_status;
@@ -450,6 +456,8 @@ void process_conditions(void)
       process_condition(&gameadd.script.conditions[i], i);
     }
 }
+
+
 
 /******************************************************************************/
 #ifdef __cplusplus

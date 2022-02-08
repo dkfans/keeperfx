@@ -52,26 +52,6 @@ extern "C" {
 
 
 
-enum MapLocationTypes {
-    MLoc_NONE = 0,
-    MLoc_ACTIONPOINT,
-    MLoc_HEROGATE,
-    MLoc_PLAYERSHEART,
-    MLoc_CREATUREKIND, // 4
-    MLoc_OBJECTKIND,
-    MLoc_ROOMKIND,
-    MLoc_THING,
-    MLoc_PLAYERSDUNGEON, // 8
-    MLoc_APPROPRTDUNGEON,
-    MLoc_DOORKIND,
-    MLoc_TRAPKIND,
-    MLoc_METALOCATION, // 12 // Triggered box, Combat, Last entered creature etc
-};
-
-enum MetaLocation {
-  MML_LAST_EVENT = 1,
-  MML_RECENT_COMBAT,
-};
 
 enum ScriptOperator {
     SOpr_SET = 1,
@@ -88,7 +68,6 @@ enum {
 #pragma pack(1)
 
 struct Condition;
-typedef unsigned long TbMapLocation;
 struct ScriptLine;
 struct ScriptValue;
 struct PartyTrigger;
@@ -263,38 +242,11 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 
 extern const struct NamedCommand player_desc[];
 /******************************************************************************/
-TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
-TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx);
-long script_scan_line(char *line,TbBool preloaded);
-const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc);
-const char *script_get_command_name(long cmnd_index);
-
-void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
-void command_message(const char *msgtext, unsigned char kind);
-unsigned short get_map_location_type(TbMapLocation location);
-unsigned long get_map_location_longval(TbMapLocation location);
-unsigned long get_map_location_plyrval(TbMapLocation location);
-unsigned short get_map_location_plyridx(TbMapLocation location);
-TbBool get_map_location_code_name(TbMapLocation location, char *name);
-TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i);
-
 short clear_script(void);
 short load_script(long lvl_num);
 short preload_script(long lvnum);
 /******************************************************************************/
-void script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4, struct ScriptValue *value);
-void script_process_win_game(PlayerNumber plyr_idx);
-void script_process_lose_game(PlayerNumber plyr_idx);
-struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
-struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_idx, TbMapLocation location, long copies_num);
-void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
-struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
-TbBool process_activation_status(struct Condition *condt);
-TbBool get_condition_status(unsigned char opkind, long val1, long val2);
-TbBool condition_inactive(long cond_idx);
-TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx);
 
-void script_process_new_creatures(PlayerNumber plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level);
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
 void process_level_script(void);
 

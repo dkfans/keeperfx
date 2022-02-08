@@ -46,6 +46,7 @@
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
 #include "game_legacy.h"
+#include "map_locations.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1143,6 +1144,35 @@ TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatn
         return false;
     }
     return send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
+}
+
+struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
+{
+    ThingModel diggerkind = get_players_special_digger_model(game.hero_player_num);
+    struct Thing* creatng = script_create_creature_at_location(plyr_idx, diggerkind, location);
+    if (thing_is_invalid(creatng))
+        return INVALID_THING;
+    creatng->creature.gold_carried = carried_gold;
+    init_creature_level(creatng, crtr_level);
+    switch (get_map_location_type(heading))
+    {
+    case MLoc_ACTIONPOINT:
+        script_support_send_tunneller_to_action_point(creatng, get_map_location_longval(heading));
+        break;
+    case MLoc_PLAYERSDUNGEON:
+        script_support_send_tunneller_to_dungeon(creatng, get_map_location_longval(heading));
+        break;
+    case MLoc_PLAYERSHEART:
+        script_support_send_tunneller_to_dungeon_heart(creatng, get_map_location_longval(heading));
+        break;
+    case MLoc_APPROPRTDUNGEON:
+        script_support_send_tunneller_to_appropriate_dungeon(creatng);
+        break;
+    default:
+        ERRORLOG("Invalid Heading objective %d",(int)get_map_location_type(heading));
+        break;
+    }
+    return creatng;
 }
 
 TbBool send_tunneller_to_point_in_dungeon(struct Thing *creatng, PlayerNumber plyr_idx, struct Coord3d *pos)

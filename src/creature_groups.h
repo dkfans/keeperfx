@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "map_locations.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -101,6 +102,9 @@ TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long 
 TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level);
 long process_obey_leader(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *leadtng);
+
+struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_idx, TbMapLocation location, long copies_num);
+void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
 /******************************************************************************/
 #ifdef __cplusplus
 }

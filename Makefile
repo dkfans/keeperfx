@@ -254,6 +254,7 @@ obj/map_blocks.o \
 obj/map_columns.o \
 obj/map_data.o \
 obj/map_events.o \
+obj/map_locations.o \
 obj/map_utils.o \
 obj/music_player.o \
 obj/net_game.o \

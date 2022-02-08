@@ -69,12 +69,26 @@ const struct NamedCommand game_rule_desc[] = {
   {NULL,                         0},
 };
 
-
+//TODO make commands not depend on main file
+void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value);
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
 
+void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
+{
+    ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id);
 
+    value->arg0 = val2;
+    value->arg1 = val3;
+    value->arg2 = val4;
+
+    if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0))
+    {
+        script_process_value(var_index, plr_range_id, val2, val3, val4, value);
+        return;
+    }
+}
 
 void command_create_party(const char *prtname)
 {
@@ -1274,6 +1288,18 @@ void command_reveal_map_location(long plr_range_id, const char *locname, long ra
         return;
     }
     command_add_value(Cmd_REVEAL_MAP_LOCATION, plr_range_id, location, range, 0);
+}
+
+const char *script_get_command_name(long cmnd_index)
+{
+    long i = 0;
+    while (command_desc[i].textptr != NULL)
+    {
+        if (command_desc[i].index == cmnd_index)
+            return command_desc[i].textptr;
+        i++;
+  }
+  return NULL;
 }
 
 void command_message(const char *msgtext, unsigned char kind)

@@ -202,9 +202,6 @@ long parse_creature_name(const char *creature_name);
 TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, long ln_num);
 struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg);
-TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor);
-TbBool get_coords_at_hero_door(struct Coord3d *pos, long gate_num, unsigned char random_factor);
-TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
 #define get_map_heading_id(headname, target, location) get_map_heading_id_f(headname, target, location, __func__, text_line_number)

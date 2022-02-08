@@ -70,6 +70,10 @@
 #include "custom_sprites.h"
 #include "console_cmd.h"
 #include "creature_states_hero.h"
+#include "map_locations.h"
+#include "creature_groups.h"
+#include "actionpt.h"
+
 
 #include "lvl_script_commands.h"
 #include "lvl_script_lib.h"
@@ -87,6 +91,8 @@ extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 extern void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
 extern long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
+
+void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value);
 
 
 
@@ -484,17 +490,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
     return cmnd_desc;
 }
 
-const char *script_get_command_name(long cmnd_index)
-{
-    long i = 0;
-    while (command_desc[i].textptr != NULL)
-    {
-        if (command_desc[i].index == cmnd_index)
-            return command_desc[i].textptr;
-        i++;
-  }
-  return NULL;
-}
+
 
 /**
  * Returns if the command is 'preloaded'. Preloaded commands are initialized
@@ -586,114 +582,6 @@ TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func
         ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
         return false;
       }
-    }
-    return true;
-}
-
-unsigned short get_map_location_type(TbMapLocation location)
-{
-  return location & 0x0F;
-}
-
-unsigned long get_map_location_longval(TbMapLocation location)
-{
-  return (location >> 4);
-}
-
-unsigned long get_map_location_plyrval(TbMapLocation location)
-{
-  return (location >> 12);
-}
-
-unsigned short get_map_location_plyridx(TbMapLocation location)
-{
-  return (location >> 4) & 0xFF;
-}
-
-/**
- * Writes Code Name (name to use in script file) of given map location to buffer.
- * @ name Output buffer. It should be COMMAND_WORD_LEN long.
- */
-TbBool get_map_location_code_name(TbMapLocation location, char *name)
-{
-    long i;
-    switch (get_map_location_type(location))
-    {
-    case MLoc_ACTIONPOINT:{
-        i = get_map_location_longval(location);
-        struct ActionPoint* apt = action_point_get(i);
-        if (apt->num <= 0) {
-            break;
-        }
-        itoa(apt->num, name, 10);
-        };return true;
-    case MLoc_HEROGATE:{
-        i = get_map_location_longval(location);
-        if (i <= 0) {
-            break;
-        }
-        itoa(-i, name, 10);
-        };return true;
-    case MLoc_PLAYERSHEART:{
-        i = get_map_location_longval(location);
-        const char* cnstname = get_conf_parameter_text(player_desc, i);
-        if (cnstname[0] == '\0') {
-            break;
-        }
-        strcpy(name, cnstname);
-        };return true;
-    case MLoc_CREATUREKIND:{
-        i = get_map_location_plyrval(location);
-        const char* cnstname = get_conf_parameter_text(creature_desc, i);
-        if (cnstname[0] == '\0') {
-            break;
-        }
-        strcpy(name, cnstname);
-        };return true;
-    case MLoc_ROOMKIND:{
-        i = get_map_location_plyrval(location);
-        const char* cnstname = get_conf_parameter_text(room_desc, i);
-        if (cnstname[0] == '\0') {
-            break;
-        }
-        strcpy(name, cnstname);
-        };return true;
-    case MLoc_OBJECTKIND:
-    case MLoc_THING:
-    case MLoc_PLAYERSDUNGEON:
-    case MLoc_APPROPRTDUNGEON:
-    case MLoc_DOORKIND:
-    case MLoc_TRAPKIND:
-    case MLoc_NONE:
-    default:
-        break;
-    }
-    strcpy(name, "INVALID");
-    return false;
-}
-
-TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model)
-{
-    struct PlayerInfo* player = get_player(plyridx);
-    if (player_invalid(player)) {
-        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
-        return false;
-    }
-    // It uses >= because the count will be one higher than
-    // the actual highest possible computer model number.
-    if ((comp_model < 0) || (comp_model >= COMPUTER_MODELS_COUNT)) {
-        SCRPTWRNLOG("Tried to set up player %d as outranged computer model %d",(int)plyridx,(int)comp_model);
-        comp_model = 0;
-    }
-    player->allocflags |= PlaF_Allocated;
-    player->id_number = plyridx;
-    player->is_active = 1;
-    player->allocflags |= PlaF_CompCtrl;
-    init_player_start(player, false);
-    if (!setup_a_computer_player(plyridx, comp_model)) {
-        player->allocflags &= ~PlaF_CompCtrl;
-        player->allocflags &= ~PlaF_Allocated;
-        return false;
     }
     return true;
 }
@@ -1341,21 +1229,6 @@ static void null_process(struct ScriptContext *context)
 {
 }
 
-TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
-{
-    SYNCDBG(8,"Starting for player %d",(int)plyridx);
-    struct PlayerInfo* player = get_player(plyridx);
-    if (player_invalid(player)) {
-        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
-        return false;
-    }
-    player->allocflags &= ~PlaF_Allocated; // mark as non-existing
-    player->id_number = plyridx;
-    player->is_active = 0;
-    player->allocflags &= ~PlaF_CompCtrl;
-    init_player_start(player, false);
-    return true;
-}
 
 static void delete_from_party_check(const struct ScriptLine *scline)
 {
@@ -2803,277 +2676,7 @@ short load_script(long lvnum)
     return true;
 }
 
-void script_process_win_game(PlayerNumber plyr_idx)
-{
-    struct PlayerInfo* player = get_player(plyr_idx);
-    set_player_as_won_level(player);
-}
 
-void script_process_lose_game(PlayerNumber plyr_idx)
-{
-    struct PlayerInfo* player = get_player(plyr_idx);
-    set_player_as_lost_level(player);
-}
-
-struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner)
-{
-    struct Thing* thing = create_thing(pos, tngclass, tngmodel, tngowner, -1);
-    if (thing_is_invalid(thing))
-    {
-        return INVALID_THING;
-    }
-    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    // Try to move thing out of the solid wall if it's inside one
-    if (thing_in_wall_at(thing, &thing->mappos))
-    {
-        if (!move_creature_to_nearest_valid_position(thing)) {
-            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
-            delete_thing_structure(thing, 0);
-            return INVALID_THING;
-        }
-    }
-
-    if (thing_is_creature(thing))
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        cctrl->flee_pos.x.val = thing->mappos.x.val;
-        cctrl->flee_pos.y.val = thing->mappos.y.val;
-        cctrl->flee_pos.z.val = thing->mappos.z.val;
-        cctrl->flee_pos.z.val = get_thing_height_at(thing, &thing->mappos);
-        cctrl->party.target_plyr_idx = -1;
-    }
-
-    long light_rand = GAME_RANDOM(8); // this may be unsynced random
-    if (light_rand < 2)
-    {
-        struct InitLight ilght;
-        LbMemorySet(&ilght, 0, sizeof(struct InitLight));
-        ilght.mappos.x.val = thing->mappos.x.val;
-        ilght.mappos.y.val = thing->mappos.y.val;
-        ilght.mappos.z.val = thing->mappos.z.val;
-        if (light_rand == 1)
-        {
-            ilght.intensity = 48;
-            ilght.field_3 = 5;
-        } else
-        {
-            ilght.intensity = 36;
-            ilght.field_3 = 1;
-        }
-        ilght.is_dynamic = 1;
-        ilght.radius = 2560;
-        thing->light_id = light_create_light(&ilght);
-        if (thing->light_id != 0) {
-            light_set_light_never_cache(thing->light_id);
-        } else {
-            ERRORLOG("Cannot allocate light to new hero");
-        }
-    }
-    return thing;
-}
-
-TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i)
-{
-    SYNCDBG(7,"Starting with loc:%ld", i);
-    struct Coord3d *src;
-    PlayerNumber loc_player = i & 0xF;
-    if (loc_player == 15) // CURRENT_PLAYER
-        loc_player = gameadd.script_current_player;
-
-    struct DungeonAdd* dungeonadd = get_dungeonadd(loc_player);
-
-    switch (i >> 8)
-    {
-    case MML_LAST_EVENT:
-        src = &gameadd.triggered_object_location;
-        break;
-    case MML_RECENT_COMBAT:
-        src = &dungeonadd->last_combat_location;
-        break;
-    default:
-        return false;
-    }
-
-    pos->x.val = src->x.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
-    pos->y.val = src->y.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
-    pos->z.val = src->z.val;
-
-    return true;
-}
-
-
-static struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
-{
-    long effect;
-    long i = get_map_location_longval(location);
-    struct Coord3d pos;
-    TbBool fall_from_gate = false;
-
-    const unsigned char tngclass = TCls_Creature;
-
-    switch (get_map_location_type(location))
-    {
-    case MLoc_ACTIONPOINT:
-        if (!get_coords_at_action_point(&pos, i, 1))
-        {
-            return INVALID_THING;
-        }
-        effect = 1;
-        break;
-    case MLoc_HEROGATE:
-        if (!get_coords_at_hero_door(&pos, i, 1))
-        {
-            return INVALID_THING;
-        }
-        effect = 0;
-        fall_from_gate = true;
-        break;
-    case MLoc_PLAYERSHEART:
-        if (!get_coords_at_dungeon_heart(&pos, i))
-        {
-            return INVALID_THING;
-        }
-        effect = 0;
-        break;
-    case MLoc_METALOCATION:
-        if (!get_coords_at_meta_action(&pos, plyr_idx, i))
-        {
-            return INVALID_THING;
-        }
-        effect = 0;
-        break;
-    case MLoc_CREATUREKIND:
-    case MLoc_OBJECTKIND:
-    case MLoc_ROOMKIND:
-    case MLoc_THING:
-    case MLoc_PLAYERSDUNGEON:
-    case MLoc_APPROPRTDUNGEON:
-    case MLoc_DOORKIND:
-    case MLoc_TRAPKIND:
-    case MLoc_NONE:
-    default:
-        effect = 0;
-        return INVALID_THING;
-    }
-    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, crmodel, plyr_idx);
-    if (thing_is_invalid(thing))
-    {
-        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, crmodel),(int)location);
-            // Error is already logged
-        return INVALID_THING;
-    }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (fall_from_gate)
-    {
-        cctrl->field_AE |= 0x02;
-        cctrl->spell_flags |= CSAfF_MagicFall;
-        thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
-        thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
-        if ((thing->movement_flags & TMvF_Flying) != 0) {
-            thing->veloc_push_add.z.val -= PLAYER_RANDOM(plyr_idx, 32);
-        } else {
-            thing->veloc_push_add.z.val += PLAYER_RANDOM(plyr_idx, 96) + 80;
-        }
-        thing->state_flags |= TF1_PushAdd;
-    }
-
-    if (thing->owner != PLAYER_NEUTRAL)
-    {   // Was set only when spawned from action point
-
-        struct Thing* heartng = get_player_soul_container(thing->owner);
-        if (thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner))
-        {
-            cctrl->field_AE |= 0x01;
-        }
-    }
-
-    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
-    {
-        output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
-        output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
-    }
-    switch (effect)
-    {
-    case 1:
-        if (plyr_idx == game.hero_player_num)
-        {
-            thing->mappos.z.val = get_ceiling_height(&thing->mappos);
-            create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
-            initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-            thing->field_4F |= TF4F_Unknown01;
-            cctrl->countdown_282 = 24;
-        }
-    default:
-        break;
-    }
-    return thing;
-}
-
-struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
-{
-    ThingModel diggerkind = get_players_special_digger_model(game.hero_player_num);
-    struct Thing* creatng = script_create_creature_at_location(plyr_idx, diggerkind, location);
-    if (thing_is_invalid(creatng))
-        return INVALID_THING;
-    creatng->creature.gold_carried = carried_gold;
-    init_creature_level(creatng, crtr_level);
-    switch (get_map_location_type(heading))
-    {
-    case MLoc_ACTIONPOINT:
-        script_support_send_tunneller_to_action_point(creatng, get_map_location_longval(heading));
-        break;
-    case MLoc_PLAYERSDUNGEON:
-        script_support_send_tunneller_to_dungeon(creatng, get_map_location_longval(heading));
-        break;
-    case MLoc_PLAYERSHEART:
-        script_support_send_tunneller_to_dungeon_heart(creatng, get_map_location_longval(heading));
-        break;
-    case MLoc_APPROPRTDUNGEON:
-        script_support_send_tunneller_to_appropriate_dungeon(creatng);
-        break;
-    default:
-        ERRORLOG("Invalid Heading objective %d",(int)get_map_location_type(heading));
-        break;
-    }
-    return creatng;
-}
-
-
-
-struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level)
-{
-    struct Thing* creatng = script_create_creature_at_location(plyr_idx, crmodel, location);
-    if (thing_is_invalid(creatng))
-        return INVALID_THING;
-    creatng->creature.gold_carried = carried_gold;
-    init_creature_level(creatng, crtr_level);
-    return creatng;
-}
-
-void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
-{
-    struct Thing* ldthing = script_process_new_tunneler(plyr_idx, location, heading, crtr_level, carried_gold);
-    if (thing_is_invalid(ldthing))
-    {
-        ERRORLOG("Couldn't create tunneling group leader");
-        return;
-    }
-    struct Thing* gpthing = script_process_new_party(&gameadd.script.creature_partys[prty_id], plyr_idx, location, 1);
-    if (thing_is_invalid(gpthing))
-    {
-        ERRORLOG("Couldn't create creature group");
-        return;
-    }
-    add_creature_to_group_as_leader(ldthing, gpthing);
-}
-
-void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level)
-{
-    for (long i = 0; i < copies_num; i++)
-    {
-        script_create_new_creature(plyr_idx, crmodel, location, carried_gold, crtr_level);
-    }
-}
 
 struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
 {
@@ -3514,10 +3117,7 @@ TbBool process_activation_status(struct Condition *condt)
     return new_status;
 }
 
-TbBool get_condition_status(unsigned char opkind, long val1, long val2)
-{
-  return LbMathOperation(opkind, val1, val2) != 0;
-}
+
 
 static TbBool is_condition_met(unsigned char cond_idx)
 {
