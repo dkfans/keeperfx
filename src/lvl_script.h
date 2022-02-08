@@ -158,6 +158,8 @@ struct ScriptValue { // sizeof = 16
   };
 };
 
+static_assert(sizeof(struct ScriptValue) == 16, "");
+
 struct Condition { // sizeof = 12
   short condit_idx;
   unsigned char status;
