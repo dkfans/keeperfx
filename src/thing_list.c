@@ -407,7 +407,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
     {
         if ((param->model_id == -1) || (param->model_id == CREATURE_ANY) || (thing->model == param->model_id))
         {
-            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            if ((param->plyr_idx == ALL_PLAYERS) || (thing->owner == param->plyr_idx))
             {
                 if (!thing_is_picked_up(thing))
                 {
@@ -539,11 +539,6 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFi
 {
     if (thing->class_id == param->class_id)
     {
-        if (param->model_id != -2 && (thing->model == param->model_id))
-        {
-            // Skip wrong models
-            return -1;
-        }
         switch(param->class_id)
         {
         case TCls_Creature:
@@ -1892,27 +1887,29 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, int crmodel,
 
 /** Does a function on all player creatures of given model.
  * @param plyr_idx Target player.
- * @param crmodel Creature model, or -1 for all, or -2 for all except special diggers, -3 for special diggers only.
+ * @param crmodel Creature model, or CREATURE_ANY for all, or CREATURE_NOT_A_DIGGER for all except special diggers, CREATURE_DIGGER for special diggers only.
  * @param do_cb The callback function to be executed.
  * @return Count of creatures for which the callback returned true.
  */
 long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
+    TbBool is_spec_digger = ((!is_creature_model_wildcard(crmodel) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel)) || (crmodel == CREATURE_DIGGER));
     long count = 0;
-    if (((crmodel > 0) && !is_spec_digger) || (crmodel == -1) || (crmodel == -2)) {
-        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?CREATURE_ANY:crmodel, do_cb);
+    if ((!is_creature_model_wildcard(crmodel) && !is_spec_digger) || (is_creature_model_wildcard(crmodel) && !(crmodel == CREATURE_DIGGER)))
+    {
+        count += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel, do_cb);
     }
-    if (((crmodel > 0) && is_spec_digger) || (crmodel == -1) || (crmodel == -3)) {
-        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?CREATURE_ANY:crmodel, do_cb);
+    if ((!is_creature_model_wildcard(crmodel) && is_spec_digger) || (is_creature_model_wildcard(crmodel) && !(crmodel == CREATURE_NOT_A_DIGGER)))
+    {
+        count += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel, do_cb);
     }
     return count;
 }
 
 /** Counts creatures of given model belonging to given player.
  * @param plyr_idx Target player.
- * @param crmodel Creature model, or -1 for all (except special diggers).
+ * @param crmodel Creature model, or CREATURE_ANY for all (except special diggers).
  *
  * @return Count of players creatures.
  */
@@ -1923,7 +1920,7 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     Thing_Maximizer_Filter filter = anywhere_thing_filter_is_of_class_and_model_and_owned_by;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = (crmodel<=0) ? -1 : crmodel;
+    param.model_id = (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
@@ -1934,10 +1931,14 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
-    if (((crmodel > 0) && !is_spec_digger) || (crmodel == -1) || (crmodel == -2)) {
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && !is_spec_digger) || 
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) 
+    {
         count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((crmodel > 0) && is_spec_digger) || (crmodel == -1) || (crmodel == -3)) {
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && is_spec_digger) || 
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) 
+    {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return count;
@@ -2011,7 +2012,7 @@ long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingMode
 TbBool reset_all_players_creatures_affected_by_cta(PlayerNumber plyr_idx)
 {
     SYNCDBG(3,"Processing all player %d creatures",plyr_idx);
-    int n = do_to_players_all_creatures_of_model(plyr_idx, -1, reset_creature_if_affected_by_cta);
+    int n = do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, reset_creature_if_affected_by_cta);
     return (n > 0);
 }
 
@@ -2102,7 +2103,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
  */
 long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
 {
-    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, -2, creature_is_kept_in_custody_by_enemy_or_dying);
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_NOT_A_DIGGER, creature_is_kept_in_custody_by_enemy_or_dying);
 }
 
 /**
@@ -2111,7 +2112,7 @@ long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
  */
 long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx)
 {
-    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, -3, creature_is_kept_in_custody_by_enemy_or_dying);
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_DIGGER, creature_is_kept_in_custody_by_enemy_or_dying);
 }
 
 GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
@@ -2148,7 +2149,7 @@ GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     long total_count;
-    TbBool is_spec_digger = ((crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
+    TbBool is_spec_digger = ((crmodel > CREATURE_ANY) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (is_spec_digger)
     {
@@ -2245,7 +2246,7 @@ long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Fil
 /** Counts on whole map creatures owned by given player, which match given bool filter.
  *
  * @param plyr_idx Player whose things will be searched. Allies are not included, use -1 to select all.
- * @param crmodel Creature model, or CREATURE_ANY for all, or -2 for all except special diggers, -3 for special diggers only.
+ * @param crmodel Creature model, or CREATURE_ANY for all, or CREATURE_NOT_A_DIGGER for all except special diggers, CREATURE_DIGGER for special diggers only.
  * @param matcher_cb The test callback function to be executed.
  * @return Amount of matching things.
  */
@@ -2256,7 +2257,7 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
     Thing_Maximizer_Filter filter = anywhere_thing_filter_call_bool_filter;
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
-    param.model_id = (crmodel<0) ? -1 : crmodel;
+    param.model_id = (crmodel <= 0) ? CREATURE_ANY : crmodel;
     param.plyr_idx = plyr_idx;
     param.num1 = -1;
     param.num2 = -1;
@@ -2267,10 +2268,10 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
-    if (((crmodel > 0) && !is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == -2)) {
+    if (((crmodel > 0) && !is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) {
         count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((crmodel > 0) && is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == -3)) {
+    if (((crmodel > 0) && is_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return count;
@@ -2338,7 +2339,7 @@ struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, 
 {
     SYNCDBG(19,"Starting");
     // Count all creatures in list, so that we can know range for our random index
-    long total_count = count_player_list_creatures_of_model(thing_idx, 0);
+    long total_count = count_player_list_creatures_of_model(thing_idx, CREATURE_ANY);
     struct Thing* retng = INVALID_THING;
     long maximizer = 0;
     if (total_count < 1)
@@ -2823,25 +2824,6 @@ TbBool update_thing(struct Thing *thing)
     return true;
 }
 
-TbBigChecksum get_thing_checksum(const struct Thing *thing)
-{
-    SYNCDBG(18,"Starting");
-    if (!thing_exists(thing))
-        return 0;
-    TbBigChecksum csum = (ulong)thing->class_id +
-        (ulong)thing->mappos.z.val +
-        (ulong)thing->mappos.x.val +
-        (ulong)thing->mappos.y.val +
-        (ulong)thing->health + (ulong)thing->model + (ulong)thing->owner;
-    if (thing->class_id == TCls_Creature)
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
-            + (ulong)thing->field_49 + (ulong)thing->field_48;
-    }
-    return csum * thing->index;
-}
-
 short update_thing_sound(struct Thing *thing)
 {
   SYNCDBG(18,"Starting");
@@ -3130,7 +3112,7 @@ TbBool update_creature_speed(struct Thing *thing)
 TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
 {
     SYNCDBG(3,"Processing player %d creatures of model %d",plyr_idx,(int)crmodel);
-    int n = do_to_players_all_creatures_of_model(plyr_idx, -1, update_creature_speed);
+    int n = do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
     return (n > 0);
 }
 
@@ -3690,9 +3672,9 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
         return;
     }
     // Force leave or kill normal creatures
-    do_to_players_all_creatures_of_model(plyr_idx, -2, setup_creature_leave_or_die_if_possible);
+    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_NOT_A_DIGGER, setup_creature_leave_or_die_if_possible);
     // Kill all special diggers
-    do_to_players_all_creatures_of_model(plyr_idx, -3, setup_creature_die_if_not_in_custody);
+    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_DIGGER, setup_creature_die_if_not_in_custody);
 }
 
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)

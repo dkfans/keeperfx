@@ -321,7 +321,7 @@ void kill_all_players_chickens(PlayerNumber plyr_idx)
         }
     }
     // Force leave or kill normal creatures and special diggers
-    do_to_players_all_creatures_of_model(plyr_idx, -1, kill_creature_if_under_chicken_spell);
+    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, kill_creature_if_under_chicken_spell);
 }
 
 // This is state-process function of a creature

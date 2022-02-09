@@ -400,6 +400,8 @@ TbBool creature_state_cannot_be_blocked(const struct Thing *thing);
 TbBool setup_move_off_lava(struct Thing* thing);
 TbBool setup_move_out_of_cave_in(struct Thing* thing);
 
+struct Room* get_room_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

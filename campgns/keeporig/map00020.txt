@@ -131,10 +131,6 @@ CREATE_PARTY(DWARVES)
 
 REM ****************************************************************************
 
-IF(PLAYER1,PRISON >= 9)
-	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
-ENDIF
-
 REM "This realm is begging to be plunged into darkness. The Avatar himself has a castle here. Another Keeper also seeks his soul. This could get messy."
 DISPLAY_OBJECTIVE(134,ALL_PLAYERS)
 
@@ -244,8 +240,8 @@ IF(PLAYER_GOOD,FLAG2 == 1)
 	ENDIF
 ENDIF
 
+REM "You have failed. This is a grim day for evil."
+HEART_LOST_OBJECTIVE(163,PLAYER0)
 IF(PLAYER0,DUNGEON_DESTROYED == 1)
-	REM "You have failed. This is a grim day for evil."
-	DISPLAY_OBJECTIVE(163,PLAYER0)
 	LOSE_GAME
 ENDIF

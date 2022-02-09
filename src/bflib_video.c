@@ -406,7 +406,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     long hot_x;
     long hot_y;
 
-    struct TbSprite* msspr = NULL;
+    const struct TbSprite* msspr = NULL;
     LbExeReferenceNumber();
     if (lbDisplay.MouseSprite != NULL)
     {
