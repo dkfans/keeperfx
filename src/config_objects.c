@@ -120,8 +120,8 @@ ThingModel crate_to_workshop_item_model(ThingModel tngmodel)
 
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
-        return gameadd.object_conf.workshop_object_class[0];
+    if (!thing_is_workshop_crate(thing))
+        return thing->class_id;
     ThingModel tngmodel = thing->model;
     if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
         return gameadd.object_conf.workshop_object_class[0];

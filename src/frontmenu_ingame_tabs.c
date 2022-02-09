@@ -67,7 +67,7 @@
 void gui_zoom_in(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->minimap_zoom > 0x80) {
+    if (player->minimap_zoom > 128) {
         set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
     }
 }
@@ -75,7 +75,7 @@ void gui_zoom_in(struct GuiButton *gbtn)
 void gui_zoom_out(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->minimap_zoom < 0x800) {
+    if (player->minimap_zoom < 2048) {
         set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom << 1, 0, 0, 0);
     }
 }

@@ -4265,7 +4265,7 @@ struct Room * pick_random_room(PlayerNumber plyr_idx, RoomKind rkind)
 
 TbBool remove_item_from_room_capacity(struct Room *room)
 {
-    if ((room->used_capacity <= 0) || (room->capacity_used_for_storage <= 0))
+    if ((room->used_capacity == 0) || (room->capacity_used_for_storage == 0))
     {
         ERRORLOG("Room %s index %d does not contain item to remove",room_code_name(room->kind),(int)room->index);
         return false;
