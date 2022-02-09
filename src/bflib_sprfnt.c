@@ -1059,7 +1059,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             // We already know that alignment is set - don't re-check
             {
                 posx = startx;
-                sbuf = ebuf + 1; // sbuf points at start of char, while ebuf points at end of char
+                sbuf = ebuf; // sbuf points at start of char, while ebuf points at end of char
                 starty += h;
             }
             count = 0;
