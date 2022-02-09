@@ -1290,7 +1290,10 @@ long dbc_char_widthM(unsigned long chr, long units_per_px)
     {
         ret -= 8;
     }
-
+    else
+    {
+        ret++;
+    }
     return ret;
 }
 
