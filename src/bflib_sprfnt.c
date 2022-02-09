@@ -1060,6 +1060,10 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             {
                 posx = startx;
                 sbuf = ebuf; // sbuf points at start of char, while ebuf points at end of char
+                if (is_wide_charcode(chr))
+                {
+                    sbuf++;
+                }
                 starty += h;
             }
             count = 0;
