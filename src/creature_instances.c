@@ -753,6 +753,11 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
     MapSlabCoord slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
+    if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
+    {
+        instf_pretty_path(creatng, NULL);
+        return 1;
+    }
     MapSlabCoord ahead_slb_x = slb_x;
     MapSlabCoord ahead_slb_y = slb_y;
     if ( (creatng->move_angle_xy >= 1792) || (creatng->move_angle_xy <= 255) )
@@ -778,12 +783,6 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     if ( (player->thing_under_hand != 0) || (cctrl->dragtng_idx != 0) )
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
-        return 1;
-    }
-    
-    if (check_place_to_pretty_excluding(creatng, slb_x, slb_y))
-    {
-        instf_pretty_path(creatng, NULL);
         return 1;
     }
     struct Room* room;
