@@ -625,7 +625,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return false;
             }
             unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
-            set_room_available(plyr_idx, id, 1, num);
+            set_door_buildable_and_add_to_amount(plyr_idx, id, 1, num);
             update_trap_tab_to_config();
             message_add(plyr_idx, "done!");
             return true;
