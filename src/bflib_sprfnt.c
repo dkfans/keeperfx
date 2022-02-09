@@ -81,13 +81,13 @@ TbBool is_wide_charcode(unsigned long chr)
   {
     switch (dbc_language)
     {
-    case 1:
+    case 1: //Japanese
         return ((chr >= 0x81) && (chr <= 0x9F)) || ((chr >= 0xE0) && (chr <= 0xFC));
-    case 2:
+    case 2: //Chinese Int
         return ((chr > 0x80) && (chr <= 0xFF));
-    case 3:
+    case 3: //Chinese Tra
         return ((chr > 0x80) && (chr <= 0xFF));
-    case 4:
+    case 4: //Korean
         return ((chr > 0x80) && (chr <= 0xFF));
     }
   }
