@@ -2833,12 +2833,17 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
     // Compute shot damage
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+    damage = shotst->damage;
+    if (shotst->fixed_damage == 0)
     {
-        damage = calculate_melee_damage(firing);
-    } else
-    {
-        damage = calculate_shot_damage(firing,shot_model);
+        if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+        {
+            damage = calculate_melee_damage(firing);
+        }
+        else
+        {
+            damage = calculate_shot_damage(firing, shot_model);
+        }
     }
     struct Thing* shotng = NULL;
     long target_idx = 0;
