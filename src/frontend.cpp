@@ -1521,6 +1521,14 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   text_height = scrollwnd->text_height;
   int tx_units_per_px;
   tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+  //todo replace this if with a function
+  if ((install_info.lang_id == Lang_Japanese) ||
+      (install_info.lang_id == Lang_ChineseInt) ||
+      (install_info.lang_id == Lang_ChineseTra) ||
+      (install_info.lang_id == Lang_Korean))
+  {
+      tx_units_per_px = scale_value_by_vertical_resolution(16);
+  }
   if (text_height == 0)
   {
       text_height = text_string_height(tx_units_per_px, text);
