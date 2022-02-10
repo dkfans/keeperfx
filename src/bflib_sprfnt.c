@@ -942,7 +942,7 @@ long text_string_height(int units_per_px, const char *text)
       long w;
       if (chr > 32)
       {
-          w = LbTextCharWidth(chr) * units_per_px / 16;
+          w = LbTextCharWidthM(chr, units_per_px);
           if (lnwidth + w - lnwidth_clip > lbTextJustifyWindow.width)
           {
             lnwidth = lnwidth_clip + w;
