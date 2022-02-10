@@ -1355,7 +1355,7 @@ int LbTextSetWindow(int posx, int posy, int width, int height)
     lbTextJustifyWindow.y = posy;
     lbTextJustifyWindow.width = width;
     lbTextJustifyWindow.ptr = &lbDisplay.WScreen[posx + posy * lbDisplay.GraphicsScreenWidth];
-    LbTextSetClipWindow(posx, posy, width, height);
+    LbTextSetClipWindow(posx-17, posy, width+34, height); //undo
     return 1;
 }
 
