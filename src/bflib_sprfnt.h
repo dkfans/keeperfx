@@ -85,6 +85,7 @@ struct AsianFontWindow {
   unsigned char *buf_ptr;
 };
 
+extern short dbc_language;
 extern TbBool dbc_enabled;
 
 /******************************************************************************/
