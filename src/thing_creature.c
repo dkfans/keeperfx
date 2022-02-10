@@ -5768,7 +5768,9 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     struct SlabMap *slb = get_slabmap_thing_is_on(picktng);
     if (object_is_gold_pile(picktng))
     {
-        return ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_PATH) || (slab_kind_is_liquid(slb->kind)) );
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        return ( ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_PATH) || (slab_kind_is_liquid(slb->kind)) ) &&
+                  (creatng->creature.gold_carried < crstat->gold_hold) );
     }
     else if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
                   (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
