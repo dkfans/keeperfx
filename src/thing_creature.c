@@ -5493,6 +5493,7 @@ void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long loca
     {
         script_create_new_creature(plyr_idx, crmodel, location, carried_gold, crtr_level);
     }
+}
 
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng)
 {

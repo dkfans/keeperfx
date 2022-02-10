@@ -75,7 +75,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
 
-static void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
+void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
     ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id);
 
@@ -116,6 +116,7 @@ static long pop_condition(void)
   }
   return get_script_current_condition();
 }
+
 static void command_tutorial_flash_button(long btn_id, long duration)
 {
     command_add_value(Cmd_TUTORIAL_FLASH_BUTTON, ALL_PLAYERS, btn_id, duration, 0);
@@ -348,7 +349,7 @@ static void command_dead_creatures_return_to_pool(long val)
     command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, ALL_PLAYERS, val, 0, 0);
 }
 
-void command_bonus_level_time(long game_turns, long real)
+static void command_bonus_level_time(long game_turns, long real)
 {
     if (game_turns < 0)
     {
@@ -597,7 +598,7 @@ static void command_max_creatures(long plr_range_id, long val)
     command_add_value(Cmd_MAX_CREATURES, plr_range_id, val, 0, 0);
 }
 
-void command_door_available(long plr_range_id, const char *doorname, unsigned long a3, unsigned long a4)
+static void command_door_available(long plr_range_id, const char *doorname, unsigned long a3, unsigned long a4)
 {
     long door_id = get_rid(door_desc, doorname);
     if (door_id == -1)
@@ -892,7 +893,7 @@ static void command_if_controls(long plr_range_id, const char *varib_name, const
     command_add_condition(plr_range_id, opertr_id, varib_type, varib_id, value);
 }
 
-static static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6)
+static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6)
 {
   int plr_start;
   int plr_end;
@@ -1132,7 +1133,7 @@ static void command_set_creature_fear_wounded(const char *crtr_name, long val)
   command_add_value(Cmd_SET_CREATURE_FEAR_WOUNDED, ALL_PLAYERS, crtr_id, val, 0);
 }
 
-static oid command_set_creature_fear_stronger(const char *crtr_name, long val)
+static void command_set_creature_fear_stronger(const char *crtr_name, long val)
 {
     long crtr_id = get_rid(creature_desc, crtr_name);
     if (crtr_id == -1)
@@ -1182,7 +1183,7 @@ static void command_set_creature_property(const char* crtr_name, long property, 
  * @param plr2_range_id Second player range identifier.
  * @param ally Controls whether the alliance is being created or being broken.
  */
-static oid command_ally_players(long plr1_range_id, long plr2_range_id, TbBool ally)
+static void command_ally_players(long plr1_range_id, long plr2_range_id, TbBool ally)
 {
     // Verify enemy player
     long plr2_id = get_players_range_single(plr2_range_id);

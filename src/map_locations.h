@@ -64,6 +64,8 @@ TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned ch
 TbBool get_coords_at_hero_door(struct Coord3d *pos, long gate_num, unsigned char random_factor);
 TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx);
 
+void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -248,6 +248,7 @@ obj/lvl_script_commands.o \
 obj/lvl_script_lib.o \
 obj/lvl_script_statehandler.o \
 obj/lvl_script_conditions.o \
+obj/lvl_script_parser.o \
 obj/magic.o \
 obj/main_game.o \
 obj/map_blocks.o \

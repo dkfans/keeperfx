@@ -1,8 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lvl_script_conditions.h
- *     Header file for lvl_script_conditions.c.
+/** @file lvl_script_statehandler.h
+ *     Header file for lvl_script.c.
  * @par Purpose:
  *     should only be used by files under lvl_script_*
  * @par Comment:
@@ -15,27 +15,15 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-#ifndef DK_LVLSCRIPTCOND_H
-#define DK_LVLSCRIPTCOND_H
-
-
-#include "globals.h"
-#include "config.h"
+#ifndef DK_LVLSCRIPTSTATEHANDLER_H
+#define DK_LVLSCRIPTSTATEHANDLER_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-
-extern const struct NamedCommand variable_desc[];
-extern const struct NamedCommand dk1_variable_desc[];
-
-
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
-void process_conditions(void);
-
+int get_script_current_condition();
+void set_script_current_condition(int current_condition);
 
 #ifdef __cplusplus
 }

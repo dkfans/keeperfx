@@ -4,7 +4,7 @@
 /** @file map_locations.c
  *     Map array data management functions.
  * @par Purpose:
- *     Functions to support the map locations.
+ *     Functions related to locations of points of intrest on the map
  * @par Comment:
  *     None.
  * @author   KeeperFx Team
@@ -210,6 +210,78 @@ TbBool get_map_location_code_name(TbMapLocation location, char *name)
     }
     strcpy(name, "INVALID");
     return false;
+}
+
+
+// TODO: z location
+void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name)
+{
+  struct ActionPoint *apt;
+  struct Thing *thing;
+  unsigned long i = get_map_location_longval(location);
+  memset(pos, 0, sizeof(*pos));
+
+  switch (get_map_location_type(location))
+  {
+    case MLoc_ACTIONPOINT:
+      // Location stores action point index
+      apt = action_point_get(i);
+      if (!action_point_is_invalid(apt))
+      {
+        pos->x.val = apt->mappos.x.val;
+        pos->y.val = apt->mappos.y.val;
+      } else
+        WARNMSG("%s: Action Point %d location not found",func_name,i);
+      break;
+    case MLoc_HEROGATE:
+      thing = find_hero_gate_of_number(i);
+      if (!thing_is_invalid(thing))
+      {
+        *pos = thing->mappos;
+      } else
+        WARNMSG("%s: Hero Gate %d location not found",func_name,i);
+      break;
+    case MLoc_PLAYERSHEART:
+      if (i < PLAYERS_COUNT)
+      {
+        thing = get_player_soul_container(i);
+      } else
+        thing = INVALID_THING;
+      if (!thing_is_invalid(thing))
+      {
+        *pos = thing->mappos;
+      } else
+        WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
+      break;
+    case MLoc_NONE:
+      pos->x.val = 0;
+      pos->y.val = 0;
+      pos->z.val = 0;
+      break;
+    case MLoc_THING:
+      thing = thing_get(i);
+      if (!thing_is_invalid(thing))
+      {
+        *pos = thing->mappos;
+      } else
+        WARNMSG("%s: Thing %d location not found",func_name,i);
+      break;
+    case MLoc_METALOCATION:
+      if (!get_coords_at_meta_action(pos, plyr_idx, i))
+        WARNMSG("%s: Metalocation not found %d",func_name,i);
+      break;
+    case MLoc_CREATUREKIND:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    default:
+      WARNMSG("%s: Unsupported location, %lu.",func_name,location);
+      break;
+  }
+  SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, pos->x.stl.num, pos->y.stl.num);
 }
 
 

@@ -32,96 +32,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
- const struct NamedCommand variable_desc[] = {
-    {"MONEY",                       SVar_MONEY},
-    {"GAME_TURN",                   SVar_GAME_TURN},
-    {"BREAK_IN",                    SVar_BREAK_IN},
-    //{"CREATURE_NUM",              SVar_CREATURE_NUM},
-    {"TOTAL_DIGGERS",               SVar_TOTAL_DIGGERS},
-    {"TOTAL_CREATURES",             SVar_TOTAL_CREATURES},
-    {"TOTAL_RESEARCH",              SVar_TOTAL_RESEARCH},
-    {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
-    {"TOTAL_AREA",                  SVar_TOTAL_AREA},
-    {"TOTAL_CREATURES_LEFT",        SVar_TOTAL_CREATURES_LEFT},
-    {"CREATURES_ANNOYED",           SVar_CREATURES_ANNOYED},
-    {"BATTLES_LOST",                SVar_BATTLES_LOST},
-    {"BATTLES_WON",                 SVar_BATTLES_WON},
-    {"ROOMS_DESTROYED",             SVar_ROOMS_DESTROYED},
-    {"SPELLS_STOLEN",               SVar_SPELLS_STOLEN},
-    {"TIMES_BROKEN_INTO",           SVar_TIMES_BROKEN_INTO},
-    {"GOLD_POTS_STOLEN",            SVar_GOLD_POTS_STOLEN},
-    {"HEART_HEALTH",                SVar_HEART_HEALTH},
-    {"GHOSTS_RAISED",               SVar_GHOSTS_RAISED},
-    {"SKELETONS_RAISED",            SVar_SKELETONS_RAISED},
-    {"VAMPIRES_RAISED",             SVar_VAMPIRES_RAISED},
-    {"CREATURES_CONVERTED",         SVar_CREATURES_CONVERTED},
-    {"EVIL_CREATURES_CONVERTED",    SVar_EVIL_CREATURES_CONVERTED},
-    {"GOOD_CREATURES_CONVERTED",    SVar_GOOD_CREATURES_CONVERTED},
-    {"TIMES_ANNOYED_CREATURE",      SVar_TIMES_ANNOYED_CREATURE},
-    {"TIMES_TORTURED_CREATURE",     SVar_TIMES_TORTURED_CREATURE},
-    {"TOTAL_DOORS_MANUFACTURED",    SVar_TOTAL_DOORS_MANUFACTURED},
-    {"TOTAL_TRAPS_MANUFACTURED",    SVar_TOTAL_TRAPS_MANUFACTURED},
-    {"TOTAL_MANUFACTURED",          SVar_TOTAL_MANUFACTURED},
-    {"TOTAL_TRAPS_USED",            SVar_TOTAL_TRAPS_USED},
-    {"TOTAL_DOORS_USED",            SVar_TOTAL_DOORS_USED},
-    {"KEEPERS_DESTROYED",           SVar_KEEPERS_DESTROYED},
-    {"CREATURES_SACRIFICED",        SVar_CREATURES_SACRIFICED},
-    {"CREATURES_FROM_SACRIFICE",    SVar_CREATURES_FROM_SACRIFICE},
-    {"TIMES_LEVELUP_CREATURE",      SVar_TIMES_LEVELUP_CREATURE},
-    {"TOTAL_SALARY",                SVar_TOTAL_SALARY},
-    {"CURRENT_SALARY",              SVar_CURRENT_SALARY},
-    //{"TIMER",                     SVar_TIMER},
-    {"DUNGEON_DESTROYED",           SVar_DUNGEON_DESTROYED},
-    {"TOTAL_GOLD_MINED",            SVar_TOTAL_GOLD_MINED},
-    //{"FLAG",                      SVar_FLAG},
-    //{"ROOM",                      SVar_ROOM_SLABS},
-    {"DOORS_DESTROYED",             SVar_DOORS_DESTROYED},
-    {"CREATURES_SCAVENGED_LOST",    SVar_CREATURES_SCAVENGED_LOST},
-    {"CREATURES_SCAVENGED_GAINED",  SVar_CREATURES_SCAVENGED_GAINED},
-    {"ALL_DUNGEONS_DESTROYED",      SVar_ALL_DUNGEONS_DESTROYED},
-    //{"DOOR",                      SVar_DOOR_NUM},
-    {"GOOD_CREATURES",              SVar_GOOD_CREATURES},
-    {"EVIL_CREATURES",              SVar_EVIL_CREATURES},
-    {"TRAPS_SOLD",                  SVar_TRAPS_SOLD},
-    {"DOORS_SOLD",                  SVar_DOORS_SOLD},
-    {"MANUFACTURED_SOLD",           SVar_MANUFACTURED_SOLD},
-    {"MANUFACTURE_GOLD",            SVar_MANUFACTURE_GOLD},
-    {"TOTAL_SCORE",                 SVar_TOTAL_SCORE},
-    {"BONUS_TIME",                  SVar_BONUS_TIME},
-    {NULL,                           0},
-};
 
-
-const struct NamedCommand dk1_variable_desc[] = {
-    {"MONEY",                       SVar_MONEY},
-    {"GAME_TURN",                   SVar_GAME_TURN},
-    {"BREAK_IN",                    SVar_BREAK_IN},
-    //{"CREATURE_NUM",                SVar_CREATURE_NUM},
-    {"TOTAL_IMPS",                  SVar_TOTAL_DIGGERS},
-    {"TOTAL_CREATURES",             SVar_CONTROLS_TOTAL_CREATURES},
-    {"TOTAL_RESEARCH",              SVar_TOTAL_RESEARCH},
-    {"TOTAL_DOORS",                 SVar_TOTAL_DOORS},
-    {"TOTAL_AREA",                  SVar_TOTAL_AREA},
-    {"TOTAL_CREATURES_LEFT",        SVar_TOTAL_CREATURES_LEFT},
-    {"CREATURES_ANNOYED",           SVar_CREATURES_ANNOYED},
-    {"BATTLES_LOST",                SVar_BATTLES_LOST},
-    {"BATTLES_WON",                 SVar_BATTLES_WON},
-    {"ROOMS_DESTROYED",             SVar_ROOMS_DESTROYED},
-    {"SPELLS_STOLEN",               SVar_SPELLS_STOLEN},
-    {"TIMES_BROKEN_INTO",           SVar_TIMES_BROKEN_INTO},
-    {"GOLD_POTS_STOLEN",            SVar_GOLD_POTS_STOLEN},
-    //{"TIMER",                     SVar_TIMER},
-    {"DUNGEON_DESTROYED",           SVar_DUNGEON_DESTROYED},
-    {"TOTAL_GOLD_MINED",            SVar_TOTAL_GOLD_MINED},
-    //{"FLAG",                      SVar_FLAG},
-    //{"ROOM",                      SVar_ROOM_SLABS},
-    {"DOORS_DESTROYED",             SVar_DOORS_DESTROYED},
-    {"CREATURES_SCAVENGED_LOST",    SVar_CREATURES_SCAVENGED_LOST},
-    {"CREATURES_SCAVENGED_GAINED",  SVar_CREATURES_SCAVENGED_GAINED},
-    {"ALL_DUNGEONS_DESTROYED",      SVar_ALL_DUNGEONS_DESTROYED},
-    //{"DOOR",                      SVar_DOOR_NUM},
-    {NULL,                           0},
-};
 
 
 
@@ -367,7 +278,6 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     };
     return 0;
 }
-
 
 TbBool condition_inactive(long cond_idx)
 {
