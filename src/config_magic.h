@@ -265,6 +265,7 @@ struct ShotConfigStats {
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
+    short fixed_damage;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

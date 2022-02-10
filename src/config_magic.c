@@ -144,6 +144,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"WITHSTAND_WATER_HIT", 16},
   {"NO_AIR_DAMAGE",       17},
   {"WIND_IMMUNE",         18},
+  {"FIXED_DAMAGE",        19},
   {NULL,                   0},
   };
 
@@ -721,6 +722,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->size_yz = 0;
           shotst->speed = 0;
           shotst->wind_immune = 0;
+          shotst->fixed_damage = 0;
       }
   }
   // Load the file
@@ -937,6 +939,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 18: // WIND_IMMUNE
                 shotst->wind_immune = 1;
+                n++;
+                break;
+            case 19: // FIXED_DAMAGE
+                shotst->fixed_damage = 1;
                 n++;
                 break;
             default:
