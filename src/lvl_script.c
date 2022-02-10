@@ -1467,7 +1467,7 @@ static void create_effect_check(const struct ScriptLine *scline)
             return;
         }
     }
-    value->bytes[0] = effct_id;
+    value->chars[0] = effct_id;
     const char *locname = scline->tp[1];
     if (!get_map_location_id(locname, &location))
     {
@@ -1499,7 +1499,7 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
             return;
         }
     }
-    value->bytes[0] = effct_id;
+    value->chars[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))
     {
         SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[1], scline->np[2]);
@@ -1517,13 +1517,13 @@ static void create_effect_process(struct ScriptContext *context)
     pos.x.stl.num = (MapSubtlCoord)context->value->bytes[1];
     pos.y.stl.num = (MapSubtlCoord)context->value->bytes[2];
     pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    TbBool Price = ((char)context->value->bytes[0] == -(TngEffElm_Price));
+    TbBool Price = (context->value->chars[0] == -(TngEffElm_Price));
     if (Price)
     {
         pos.z.val += 128;
     }
     struct Thing* efftng;
-    if ((char)context->value->bytes[0] >= 0)
+    if (context->value->chars[0] >= 0)
     {
         efftng = create_effect(&pos, context->value->bytes[0], game.neutral_player_num);
     }
@@ -1624,11 +1624,15 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     }
     strncpy(gameadd.quick_messages[scline->np[0]], scline->tp[1], MESSAGE_TEXT_LEN-1);
     gameadd.quick_messages[scline->np[0]][MESSAGE_TEXT_LEN-1] = '\0';
-    value->arg0 = scline->np[0];
+    
+    TbMapLocation location;
     if (scline->tp[2][0] != '\0')
     {
-        get_map_location_id(scline->tp[2], &value->arg2);
+        get_map_location_id(scline->tp[2], &location);
     }
+
+    value->arg0 = scline->np[0];
+    value->uarg2 = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -1644,10 +1648,12 @@ static void heart_lost_objective_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->arg0 = scline->np[0];
+    TbMapLocation location;
     if (scline->tp[1][0] != '\0')
     {
-        get_map_location_id(scline->tp[1], &value->arg1);
+        get_map_location_id(scline->tp[1], &location);
     }
+    value->uarg1 = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -1832,7 +1838,7 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
     {
         param = 0;
         value->sac.action = SacA_None;
-        SCRPTERRLOG("Unexpcepdted parameter:%s", scline->tp[1]);
+        SCRPTERRLOG("Unexpected parameter:%s", scline->tp[1]);
     }
     value->sac.param = param;
 
@@ -3269,7 +3275,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, trapvar, value->shorts[2]);
+    SCRIPTDBG(7, "Setting trap %s property %d to %d", trapname, trapvar, value->shorts[2]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -7100,7 +7106,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           crstat->bleeds = val4;
           break;
       case 2: // UNAFFECTED_BY_WIND
-          crstat->affected_by_wind = val4;
+          if (val4)
+          {
+              crstat->affected_by_wind = 0;
+          }
+          else
+          {
+              crstat->affected_by_wind = 1;
+          }
           break;
       case 3: // IMMUNE_TO_GAS
           crstat->immune_to_gas = val4;
@@ -7417,9 +7430,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       {
           SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val3);
       } else
-      if (val4 < 0 || val4 > 53)
+      if (val4 < 0 || val4 > 54)
       {
-          SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-53 allowed.", val4);
+          SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-54 allowed.", val4);
       } else
       {
           replace_slab_from_script(val2, val3, val4);

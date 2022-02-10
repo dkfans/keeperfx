@@ -317,7 +317,7 @@ msgstr "邪恶的死灵法师将这个王国变得死气沉沉。召集当地人
 #. Misty Bog (lv5)
 #: guitext:48
 msgctxt "In-game message"
-msgid "The Necromancer you oppose has created phylactery to protect himself from death. It will be probably difficult to defeat him once and for all?"
+msgid "The Necromancer you oppose has created phylacteries to protect himself from death. It will probably be difficult to defeat him once and for all?"
 msgstr "你的对手，死灵法师，创造了一种魔法护符来保护自己免受死亡之灾。要彻底打败他可能会很困难。"
 
 #. Misty Bog (lv5)

@@ -682,6 +682,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
 EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng)
 {
     EventIndex evidx;
+    struct PlayerInfo* player;
     ThingClass tngclass = crate_thing_to_workshop_item_class(picktng);
     if (tngclass == TCls_Trap)
     {
@@ -696,7 +697,11 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             {
                 if (picktng->owner != game.neutral_player_num)
                 {
-                    output_message(SMsg_TrapTaken, 0, true);
+                    player = get_my_player();
+                    if (creatng->index != player->influenced_thing_idx)
+                    {
+                        output_message(SMsg_TrapTaken, 0, true);
+                    }
                 }
             }
     } else if (tngclass == TCls_Door)
@@ -712,7 +717,11 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             {
                 if (picktng->owner != game.neutral_player_num)
                 {
-                    output_message(SMsg_DoorTaken, 0, true);
+                    player = get_my_player();
+                    if (creatng->index != player->influenced_thing_idx)
+                    {
+                        output_message(SMsg_DoorTaken, 0, true);
+                    }
                 }
             }
     } else

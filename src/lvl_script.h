@@ -377,6 +377,16 @@ struct ScriptValue { // sizeof = 16
     };
     struct
     {
+      unsigned long uarg0;
+      unsigned long uarg1;
+      union
+      {
+          unsigned long uarg2;
+          unsigned char* ustr2;
+      };
+    };
+    struct
+    {
         char action;
         char param;
         char victims[MAX_SACRIFICE_VICTIMS];

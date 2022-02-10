@@ -123,6 +123,7 @@ short get_creature_anim(struct Thing *thing, unsigned short frame);
 short get_creature_model_graphics(long crmodel, unsigned short frame);
 void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned long val);
 void set_creature_graphic(struct Thing *thing);
+void update_creature_graphic_field_4F(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

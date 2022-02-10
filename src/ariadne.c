@@ -1991,7 +1991,7 @@ void edgelen_init(void)
 TbBool ariadne_creature_reached_position(const struct Thing *thing, const struct Coord3d *pos)
 {
     if (thing->mappos.x.val != pos->x.val)
-        return false;
+    return false;
     if (thing->mappos.y.val != pos->y.val)
         return false;
     return true;

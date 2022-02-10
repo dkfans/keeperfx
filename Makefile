@@ -25,7 +25,6 @@
 ifneq (,$(findstring Windows,$(OS)))
   CROSS_EXEEXT = .exe
   # linker flags
-  # useful for development only: -Wl,-Map,"$(@:%.exe=%.map)"
   LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
   # The following flags are only here to prevent a dependency on libwinpthread-1.dll when keeperfx is built with MSYS2:
   # "-Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
@@ -256,6 +255,8 @@ obj/music_player.o \
 obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \
+obj/packets_cheats.o \
+obj/packets_input.o \
 obj/packets_misc.o \
 obj/player_compchecks.o \
 obj/player_compevents.o \
@@ -370,7 +371,7 @@ WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-stric
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
-LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
+LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
 
 CAMPAIGNS  = \
 ami2019 \
@@ -551,6 +552,7 @@ obj/ver_defs.h: version.mk Makefile
 	$(ECHO) \#define VER_BUILD   $(BUILD_NUMBER) >> "$(@D)/tmp"
 	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
 	$(ECHO) \#define PACKAGE_SUFFIX  \"$(PACKAGE_SUFFIX)\" >> "$(@D)/tmp"
+	$(ECHO) \#define GIT_REVISION  \"`git describe  --always`\" >> "$(@D)/tmp"
 	$(MV) "$(@D)/tmp" "$@"
 
 obj/libkeeperfx.a: bin/keeperfx.dll obj/keeperfx.def
