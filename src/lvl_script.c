@@ -53,6 +53,7 @@
 #include "thing_stats.h"
 #include "creature_states.h"
 #include "creature_states_hero.h"
+#include "creature_states_pray.h"
 #include "creature_groups.h"
 #include "power_hand.h"
 #include "room_library.h"
@@ -69,7 +70,6 @@
 #include "music_player.h"
 #include "custom_sprites.h"
 #include "console_cmd.h"
-#include "creature_states_hero.h"
 #include "map_locations.h"
 #include "creature_groups.h"
 #include "actionpt.h"
@@ -87,18 +87,12 @@ extern "C" {
 
 /******************************************************************************/
 
-extern void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial);
-extern TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
-
-
 extern long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
 
 void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value);
 
 extern const struct CommandDesc command_desc[];
 extern const struct CommandDesc dk1_command_desc[];
-
-
 
 
 /******************************************************************************/
