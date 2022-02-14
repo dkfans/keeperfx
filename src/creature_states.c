@@ -159,7 +159,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng);
 /******************************************************************************/
 //process_state, cleanup_state, move_from_slab, move_check, 
 //override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_prev_fld1F, override_prev_fld20, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
-    //state_type, field_1F, field_20, unsigned short field_21, field_23, unsigned short sprite_idx, field_26, field_27, react_to_cta
+    //state_type, field_1F, field_20, field_21, field_23, sprite_idx, field_26, field_27, react_to_cta
 struct StateInfo states[] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
