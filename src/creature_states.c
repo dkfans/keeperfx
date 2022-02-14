@@ -157,6 +157,9 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng);
 }
 #endif
 /******************************************************************************/
+//process_state, cleanup_state, move_from_slab, move_check, 
+//override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_prev_fld1F, override_prev_fld20, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
+    //state_type, field_1F, field_20, unsigned short field_21, field_23, unsigned short sprite_idx, field_26, field_27, react_to_cta
 struct StateInfo states[] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
@@ -4416,7 +4419,12 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
         }
         return 0;
     }
-    room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+    room = find_any_navigable_room_for_thing_closer_than(thing, thing->owner, RoK_TREASURE, NavRtF_Default, map_subtiles_x / 2 + map_subtiles_y / 2);
+    if (room_is_invalid(room))
+    {
+        //if we can't find an unlocked room, try a locked room, to wait in front of the door
+        room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+    }
     if (!room_is_invalid(room))
     {
         cleanup_current_thing_state(thing);
