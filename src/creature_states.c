@@ -149,6 +149,7 @@ short state_cleanup_dragging_object(struct Thing *creatng);
 short state_cleanup_in_room(struct Thing *creatng);
 short state_cleanup_unable_to_fight(struct Thing *creatng);
 short state_cleanup_unconscious(struct Thing *creatng);
+short state_cleanup_waiting_at_door(struct Thing* creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
 short creature_pick_up_spell_to_steal(struct Thing *creatng);
 
@@ -377,7 +378,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 1, 1, 1, 0, 59, 1, 0, 1},
   {creature_evacuate_room, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
-  {creature_wait_at_treasure_room_door,  NULL, NULL, NULL,
+  {creature_wait_at_treasure_room_door,  state_cleanup_waiting_at_door, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_GetsSalary, 0, 0,  1, 0, 0, 0, 0, 1},
   {at_kinky_torture_room, NULL, NULL, move_check_on_head_for_room,
     1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
@@ -4042,6 +4043,14 @@ short seek_the_enemy(struct Thing *creatng)
         return 1;
     }
     set_start_state(creatng);
+    return 1;
+}
+
+short state_cleanup_waiting_at_door(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->blocking_door_id = 0;
     return 1;
 }
 
