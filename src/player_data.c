@@ -215,7 +215,7 @@ void clear_players(void)
     bad_player.id_number = PLAYERS_COUNT;
     game.hero_player_num = hero_player_number;
     game.active_players_count = 0;
-    game.game_kind = GKind_LocalGame;
+    //game.game_kind = GKind_LocalGame;
 }
 
 void toggle_ally_with_player(long plyridx, unsigned int allyidx)
@@ -326,7 +326,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   player->allocflags &= ~PlaF_Unknown8;
   if (is_my_player(player))
   {
-    game.numfield_D &= ~GNFldD_Unkn08;
+    game.numfield_D &= ~GNFldD_CreaturePasngr;
     game.numfield_D |= GNFldD_Unkn01;
     if (is_my_player(player))
       stop_all_things_playing_samples();

@@ -60,13 +60,14 @@
 #include "keeperfx.hpp"
 #include "vidfade.h"
 #include "kjm_input.h"
+#include "custom_sprites.h"
 
 /******************************************************************************/
 /******************************************************************************/
 void gui_zoom_in(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->minimap_zoom > 0x80) {
+    if (player->minimap_zoom > 128) {
         set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
     }
 }
@@ -74,7 +75,7 @@ void gui_zoom_in(struct GuiButton *gbtn)
 void gui_zoom_out(struct GuiButton *gbtn)
 {
     struct PlayerInfo* player = get_my_player();
-    if (player->minimap_zoom < 0x800) {
+    if (player->minimap_zoom < 2048) {
         set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom << 1, 0, 0, 0);
     }
 }
@@ -1066,7 +1067,7 @@ void maintain_door(struct GuiButton *gbtn)
 
 void maintain_big_trap(struct GuiButton *gbtn)
 {
-    int manufctr_idx = game.manufactr_element % MANUFCTR_TYPES_COUNT;
+    int manufctr_idx = game.manufactr_element % gameadd.trapdoor_conf.manufacture_types_count;
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
     gbtn->content = (unsigned long *)manufctr_idx;
     gbtn->sprite_idx = game.manufactr_spridx;
@@ -1090,7 +1091,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     LbTextSetJustifyWindow((x - (dst_w / 2)), y, dst_w);
     LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, 16*dst_w/base_w);
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
-    LbTextDrawResized(0, -6*dst_w/base_w, 16*dst_w/base_w, text);
+    LbTextDrawResized(0, -6*dst_w/base_w, (22 * units_per_pixel) / LbTextLineHeight(), text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
@@ -1149,9 +1150,9 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx = get_creature_model_graphics(ctrltng->model, CGI_QuerySymbol);
-        struct TbSprite* spr = &button_sprite[spr_idx];
+        const struct TbSprite* spr = get_button_sprite(spr_idx);
         int bs_units_per_px = (gmnu->width * 35 / 100) * 16 / spr->SWidth;
-        LbSpriteDrawResized(portrt_x + 12*units_per_px/16, portrt_y + 12*units_per_px/16, bs_units_per_px, &button_sprite[spr_idx]);
+        LbSpriteDrawResized(portrt_x + 12*units_per_px/16, portrt_y + 12*units_per_px/16, bs_units_per_px, get_button_sprite(spr_idx));
     }
     {
         struct TbSprite* spr = &gui_panel_sprites[464];
@@ -1838,7 +1839,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     {
         activate_event_box(evidx);
     }
-    gbtn->sprite_idx = event_button_info[event->kind].field_0;
+    gbtn->sprite_idx = event_button_info[event->kind].bttn_sprite;
     if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
         && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((game.play_gameturn & 0x01) != 0))
     {
@@ -2127,7 +2128,7 @@ void draw_whole_status_panel(void)
     lbDisplay.DrawFlags = 0;
     LbTiledSpriteDraw(0, 0, fs_units_per_px, &status_panel, gui_panel_sprites);
     // Draws gold amount; note that button_sprite[] is used instead of full font
-    draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, bs_units_per_px, dungeon->total_money_owned);
+    draw_gold_total(player->id_number, gmnu->pos_x + gmnu->width/2, gmnu->pos_y + gmnu->height*67/200, fs_units_per_px, dungeon->total_money_owned);
     if (16/mm_units_per_px < 3)
         mmzoom = (player->minimap_zoom) / scale_value_for_resolution_with_upp(2,mm_units_per_px);
     else
@@ -2218,6 +2219,12 @@ void update_trap_tab_to_config(void)
         default:
             break;
         }
+    }
+    // Update active menu
+    if ( menu_is_active(GMnu_TRAP) )
+    {
+        turn_off_menu(GMnu_TRAP);
+        turn_on_menu(GMnu_TRAP);
     }
 }
 

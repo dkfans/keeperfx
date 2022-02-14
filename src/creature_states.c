@@ -35,6 +35,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "thing_corpses.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
@@ -90,7 +91,6 @@ DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
-DLLIMPORT long _DK_move_check_wait_at_door_for_wage(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
@@ -157,6 +157,9 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng);
 }
 #endif
 /******************************************************************************/
+//process_state, cleanup_state, move_from_slab, move_check, 
+//override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_prev_fld1F, override_prev_fld20, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
+    //state_type, field_1F, field_20, field_21, field_23, sprite_idx, field_26, field_27, react_to_cta
 struct StateInfo states[] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
@@ -933,7 +936,7 @@ short arrive_at_alarm(struct Thing *creatng)
         set_start_state(creatng);
         return 1;
     }
-    if (ACTION_RANDOM(4) == 0)
+    if (CREATURE_RANDOM(creatng, 4) == 0)
     {
         if (setup_person_move_close_to_position(creatng, cctrl->alarm_stl_x, cctrl->alarm_stl_y, NavRtF_Default))
         {
@@ -1008,7 +1011,7 @@ short arrive_at_call_to_arms(struct Thing *creatng)
     }
     if (!attempt_to_destroy_enemy_room(creatng, dungeon->cta_stl_x, dungeon->cta_stl_y))
     {
-      if (ACTION_RANDOM(7) == 0)
+      if (CREATURE_RANDOM(creatng, 7) == 0)
       {
           if (setup_person_move_close_to_position(creatng, dungeon->cta_stl_x, dungeon->cta_stl_y, NavRtF_Default))
           {
@@ -1163,15 +1166,15 @@ TbBool set_position_at_slab_for_thing(struct Coord3d *pos, const struct Thing *t
  * @return True if a position was found, false if cannot move.
  * @see find_position_around_in_room()
  */
-TbBool person_get_somewhere_adjacent_in_room_f(const struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name)
+TbBool person_get_somewhere_adjacent_in_room_f(struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name)
 {
     SYNCDBG(17,"%s: Starting for %s index %d",func_name,thing_model_name(thing),(int)thing->index);
     MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     long slab_base = get_slab_number(slb_x, slb_y);
 
-    int start_stl = ACTION_RANDOM(AROUND_MAP_LENGTH);
-    long m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    int start_stl = CREATURE_RANDOM(thing, AROUND_MAP_LENGTH);
+    long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         long slab_num = slab_base + small_around_slab[m];
@@ -1218,7 +1221,7 @@ TbBool person_get_somewhere_adjacent_in_room_f(const struct Thing *thing, const 
  * @param room Room within which the new position should be.
  * @param pos The target position pointer.
  */
-TbBool person_get_somewhere_adjacent_in_room_around_borders_f(const struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name)
+TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thing, const struct Room *room, struct Coord3d *pos, const char *func_name)
 {
     if (!room_exists(room))
     {
@@ -1229,7 +1232,7 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(const struct Thing
         return false;
     }
     long slab_base = get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num));
-    long start_stl = ACTION_RANDOM(STL_PER_SLB * STL_PER_SLB);
+    long start_stl = CREATURE_RANDOM(thing, STL_PER_SLB * STL_PER_SLB);
     // If the room is too small - don't try selecting adjacent slab
     if (room->slabs_count > 1)
     {
@@ -1302,10 +1305,10 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(const struct Thing
  * @return Coded subtiles of the new position, or 0 on failure.
  * @see person_get_somewhere_adjacent_in_room()
  */
-SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind)
+SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind, struct Thing* thing)
 {
     SubtlCodedCoords stl_num;
-    long m = ACTION_RANDOM(AROUND_MAP_LENGTH);
+    long m = CREATURE_RANDOM(thing, AROUND_MAP_LENGTH);
     for (long n = 0; n < AROUND_MAP_LENGTH; n++)
     {
         SubtlCodedCoords accepted_stl_num = 0;
@@ -1570,7 +1573,7 @@ short creature_change_from_chicken(struct Thing *creatng)
     { // Changing under way - gradually modify size of the creature
         creatng->field_4F |= TF4F_Unknown01;
         creatng->field_50 |= 0x01;
-        struct Thing* efftng = create_effect_element(&creatng->mappos, 0x3Bu, creatng->owner);
+        struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
             long n = (10 - cctrl->countdown_282) * (gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
@@ -1602,7 +1605,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     {
       creatng->field_50 |= 0x01;
       creatng->field_4F |= TF4F_Unknown01;
-      struct Thing* efftng = create_effect_element(&creatng->mappos, 59, creatng->owner);
+      struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
@@ -1729,7 +1732,7 @@ short creature_doing_nothing(struct Thing *creatng)
         }
         cctrl->job_primary_check_turn = game.play_gameturn;
     }
-    long n = ACTION_RANDOM(3);
+    long n = CREATURE_RANDOM(creatng, 3);
     for (long i = 0; i < 3; i++)
     {
         switch (n)
@@ -1807,8 +1810,8 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
     MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     long slab_base = get_slab_number(slb_x, slb_y);
 
-    MapSubtlCoord start_stl = ACTION_RANDOM(9);
-    long m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    MapSubtlCoord start_stl = CREATURE_RANDOM(thing, 9);
+    long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         long slab_num = slab_base + small_around_slab[m];
@@ -2127,7 +2130,7 @@ short creature_kill_creatures(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    long crtr_idx = ACTION_RANDOM(dungeon->num_active_creatrs);
+    long crtr_idx = CREATURE_RANDOM(creatng, dungeon->num_active_creatrs);
     struct Thing* thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, crtr_idx);
     if (thing_is_invalid(thing)) {
         set_start_state(creatng);
@@ -2218,7 +2221,7 @@ short creature_leaving_dungeon(struct Thing *creatng)
 struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Coord3d *pos)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    int n = ACTION_RANDOM(dungeon->num_active_creatrs);
+    int n = PLAYER_RANDOM(plyr_idx, dungeon->num_active_creatrs);
     unsigned long k = 0;
     int i = dungeon->creatr_list_start;
     while (i != 0)
@@ -2233,8 +2236,14 @@ struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Co
         }
         i = cctrl->players_next_creature_idx;
         // Per thing code starts
-        if (n == 0) {
-            return thing;
+        
+        if ((n <= 0) )
+        {
+            if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
+                && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+            {
+                return thing;
+            }
         }
         n--;
         // Per thing code ends
@@ -2331,6 +2340,8 @@ void creature_drop_dragged_object(struct Thing *creatng, struct Thing *dragtng)
         ERRORLOG("The %s isn't dragging %s",thing_model_name(creatng),thing_model_name(dragtng));
     }
     cctrl->dragtng_idx = 0;
+    struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
+    dragctrl->dragtng_idx = 0;
     dragtng->alloc_flags &= ~TAlF_IsDragged;
     dragtng->state_flags &= ~TF1_IsDragged1;
     move_thing_in_map(dragtng, &creatng->mappos);
@@ -2377,12 +2388,35 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         ERRORLOG("Invalid room or number of slabs is zero");
         return false;
     }
-    long selected = ACTION_RANDOM(room->slabs_count);
+    long selected = CREATURE_RANDOM(thing, room->slabs_count);
     unsigned long n = 0;
     long i = room->slabs_list;
     // Get the selected index
     while (i != 0)
     {
+        struct DungeonAdd *dungeonadd = get_dungeonadd(room->owner);
+        if (dungeonadd->roomspace.is_active)
+        {
+            MapSlabCoord slb_x = slb_num_decode_x(i);
+            MapSlabCoord slb_y = slb_num_decode_y(i);
+            for (long j = 0; j < SMALL_AROUND_LENGTH; j++)
+            {
+                MapSlabCoord aslb_x = slb_x + small_around[j].delta_x;
+                MapSlabCoord aslb_y = slb_y + small_around[j].delta_y;
+                struct Room* nroom = slab_room_get(aslb_x, aslb_y);
+                if (!room_is_invalid(nroom))
+                {
+                    if ( (nroom->kind == room->kind) && (nroom->owner == room->owner) )
+                    {
+                        if (nroom->index != room->index)
+                        {
+                            ERRORLOG("Tried to find free position in %s %d but ended up looking in %s %d instead", room_code_name(room->kind),room->index,room_code_name(nroom->kind), nroom->index);
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
         // Per room tile code
         if (n >= selected)
         {
@@ -2392,20 +2426,27 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         i = get_next_slab_number_in_room(i);
         n++;
     }
-    if (i == 0) {
+    if (i == 0) 
+    {
+        if (n < room->slabs_count)
+        {
+            WARNLOG("Number of slabs in %s (%d) is smaller than count (%d)",room_code_name(room->kind), n, room->slabs_count);
+        }
         n = 0;
         i = room->slabs_list;
-        WARNLOG("Amount of slabs in %s is smaller than count",room_code_name(room->kind));
     }
     // Sweep rooms starting on that index
     unsigned long k = 0;
+    long nround;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
     while (i != 0)
     {
-        MapSubtlCoord stl_x = slab_subtile(slb_num_decode_x(i), 0);
-        MapSubtlCoord stl_y = slab_subtile(slb_num_decode_y(i), 0);
+        stl_x = slab_subtile(slb_num_decode_x(i), 0);
+        stl_y = slab_subtile(slb_num_decode_y(i), 0);
         // Per room tile code
-        MapSubtlCoord start_stl = ACTION_RANDOM(9);
-        for (long nround = 0; nround < 9; nround++)
+        MapSubtlCoord start_stl = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
+        for (nround = 0; nround < AROUND_TILES_COUNT; nround++)
         {
             MapSubtlCoord x = start_stl % 3 + stl_x;
             MapSubtlCoord y = start_stl / 3 + stl_y;
@@ -2439,7 +2480,42 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
             break;
         }
     }
-    ERRORLOG("Could not find valid RANDOM point in %s for %s",room_code_name(room->kind),thing_model_name(thing));
+    if (room->used_capacity <= room->total_capacity)
+    {
+        SYNCLOG("Could not find valid random point in %s %d for %s. Attempting thorough check.",room_code_name(room->kind),room->index,thing_model_name(thing));
+        k = 0;
+        for (i = room->slabs_list; (i != 0); i = get_next_slab_number_in_room(i))
+        {
+            stl_x = slab_subtile_center(slb_num_decode_x(i));
+            stl_y = slab_subtile_center(slb_num_decode_y(i));
+            for (nround = 0; nround < (AROUND_TILES_COUNT - 1); nround++)
+            {
+                MapSubtlCoord astl_x = stl_x + around[nround].delta_x;
+                MapSubtlCoord astl_y = stl_y + around[nround].delta_y;
+                if (get_floor_filled_subtiles_at(astl_x, astl_y) == 1)
+                {
+                    struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, astl_x, astl_y);
+                    if (thing_is_invalid(objtng))
+                    {
+                        pos->x.val = subtile_coord_center(astl_x);
+                        pos->y.val = subtile_coord_center(astl_y);
+                        pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                        if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
+                            SYNCLOG("Thorough check succeeded where random check failed.");
+                            return true;
+                        }
+                    }
+                }
+            }
+            k++;
+            if (k > room->slabs_count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping room slabs list");
+                break;
+            }
+        }
+    }
+    SYNCLOG("Could not find any valid point in %s %d for %s",room_code_name(room->kind),room->index,thing_model_name(thing));
     return false;
 }
 
@@ -2792,6 +2868,11 @@ void make_creature_unconscious(struct Thing *creatng)
     SYNCDBG(18,"Starting");
     clear_creature_instance(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved)
+    {
+        // If the classic bug is enabled, fainted units are also added to resurrect creature.
+        update_dead_creatures_list_for_owner(creatng);
+    }
     creatng->active_state = CrSt_CreatureUnconscious;
     cctrl->flgfield_1 |= CCFlg_PreventDamage;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
@@ -2915,7 +2996,7 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     if (is_creature_other_than_given_waiting_at_closed_door_on_subtile(base_stl_x, base_stl_y, creatng))
     {
         int i = 0;
-        int n = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+        int n = CREATURE_RANDOM(creatng, SMALL_AROUND_SLAB_LENGTH);
         for (i = 0; i < SMALL_AROUND_SLAB_LENGTH; i++)
         {
             MapSubtlCoord stl_x = base_stl_x + small_around[n].delta_x;
@@ -3008,7 +3089,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     SlabCodedCoords start_slbnum = room->slabs_list;
    
     //Find a random slab to start out with
-    long n = ACTION_RANDOM(room->slabs_count);
+    long n = CREATURE_RANDOM(thing, room->slabs_count);
     for (unsigned long k = n; k > 0; k--)
     {
         if (start_slbnum == 0)
@@ -3028,7 +3109,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
 
     // If the random slab has enough space to drop all gold, go there to drop it
-    long wealth_size_holds = gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     if((max_hoard_size_in_room - gldtng->valuable.gold_stored) >= thing->creature.gold_carried)
     {
@@ -3226,7 +3307,33 @@ CrCheckRet move_check_persuade(struct Thing *creatng)
 
 CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
 {
-  return _DK_move_check_wait_at_door_for_wage(creatng);
+  // return _DK_move_check_wait_at_door_for_wage(creatng);
+  struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+  struct Thing *doortng;
+  struct Room *room;
+  if (cctrl->collided_door_subtile != 0)
+  {
+    doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
+    if (!thing_is_invalid(doortng))
+    {
+      internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
+      cctrl->blocking_door_id = doortng->index;
+      return CrCkRet_Continue;
+    }
+  }
+  else if ( cctrl->target_room_id != 0 )
+  {
+    room = get_room_thing_is_on(creatng);
+    if (!room_is_invalid(room))
+    {
+      if ( room->index == cctrl->target_room_id )
+      {
+        internal_set_thing_state(creatng, creatng->continue_state);
+        return CrCkRet_Continue;
+      }
+    }
+  }
+  return CrCkRet_Available;
 }
 
 char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
@@ -3258,11 +3365,11 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
 
         cctrl->byte_8A |= 1 << i;
         ++dgn->times_broken_into;
-        event_create_event_or_update_nearby_existing_event(
-            creatng->mappos.x.val, creatng->mappos.y.val,
-            4u, i, 0);
+        event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Breach, i, 0);
         if (is_my_player_number(i))
-            output_message(7, 0, 1);
+        {
+            output_message(SMsg_WallsBreach, 0, 1);
+        }
     }
     return 0;
 }
@@ -3271,8 +3378,8 @@ TbBool go_to_random_area_near_xy(struct Thing *creatng, MapSubtlCoord bstl_x, Ma
 {
     for (int i = 0; i < 5; i++)
     {
-        MapSubtlCoord stl_x = bstl_x + ACTION_RANDOM(5) - 2;
-        MapSubtlCoord stl_y = bstl_y + ACTION_RANDOM(5) - 2;
+        MapSubtlCoord stl_x = bstl_x + CREATURE_RANDOM(creatng, 5) - 2;
+        MapSubtlCoord stl_y = bstl_y + CREATURE_RANDOM(creatng, 5) - 2;
         if (setup_person_move_to_position(creatng, stl_x, stl_y, 0)) {
             return true;
         }
@@ -3547,7 +3654,6 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
 
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta)
 {
-    //_DK_remove_health_from_thing_and_display_health(thing, delta);
     if ((thing->health >= 0) && (delta > 0))
     {
         thing->creature.health_bar_turns = 8;
@@ -3766,7 +3872,8 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
     return enemytng;
 }
 
-TbBool wander_point_get_random_pos(const struct Wander *wandr, const struct Coord3d *prevpos, struct Coord3d *pos)
+static TbBool wander_point_get_random_pos(const struct Wander *wandr, const struct Coord3d *prevpos, struct Coord3d *pos,
+        struct Thing* thing)
 {
   SYNCDBG(12,"Selecting out of %d points",(int)wandr->points_count);
   MapSubtlCoord selected_dist = 0;
@@ -3775,7 +3882,7 @@ TbBool wander_point_get_random_pos(const struct Wander *wandr, const struct Coor
       // Select a position based on 3 tries
       for (long i = 0; i < 3; i++)
       {
-          long irnd = ACTION_RANDOM(wandr->points_count);
+          long irnd = CREATURE_RANDOM(thing, wandr->points_count);
           MapSubtlCoord stl_x = wandr->points[irnd].stl_x;
           MapSubtlCoord stl_y = wandr->points[irnd].stl_y;
           MapSubtlCoord dist = get_2d_box_distance_xy(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
@@ -3809,13 +3916,13 @@ TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsign
     }
     if (wandr_slot == CrWaS_WithinDungeon)
     {
-        if (!wander_point_get_random_pos(&player->wandr_within, &thing->mappos, pos)) {
+        if (!wander_point_get_random_pos(&player->wandr_within, &thing->mappos, pos, thing)) {
             SYNCDBG(12,"Cannot get position from wander slot %d",(int)wandr_slot);
             return false;
         }
     } else
     { // means (wandr_slot == CrWaS_OutsideDungeon)
-        if (!wander_point_get_random_pos(&player->wandr_outside, &thing->mappos, pos)) {
+        if (!wander_point_get_random_pos(&player->wandr_outside, &thing->mappos, pos, thing)) {
             SYNCDBG(12,"Cannot get position from wander slot %d",(int)wandr_slot);
             return false;
         }
@@ -3895,7 +4002,7 @@ short seek_the_enemy(struct Thing *creatng)
                 thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 return 1;
               }
-              if (ACTION_RANDOM(4) != 0)
+              if (CREATURE_RANDOM(creatng, 4) != 0)
               {
                   if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
                   {
@@ -3912,7 +4019,7 @@ short seek_the_enemy(struct Thing *creatng)
             }
             return 1;
         }
-        if (ACTION_RANDOM(64) == 0)
+        if (CREATURE_RANDOM(creatng, 64) == 0)
         {
             if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
             {
@@ -3922,7 +4029,7 @@ short seek_the_enemy(struct Thing *creatng)
     }
     // No enemy found - do some random movement
     struct Coord3d pos;
-    if (ACTION_RANDOM(12) != 0)
+    if (CREATURE_RANDOM(creatng, 12) != 0)
     {
         if ( creature_choose_random_destination_on_valid_adjacent_slab(creatng) )
         {
@@ -4316,7 +4423,12 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
         }
         return 0;
     }
-    room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+    room = find_any_navigable_room_for_thing_closer_than(thing, thing->owner, RoK_TREASURE, NavRtF_Default, map_subtiles_x / 2 + map_subtiles_y / 2);
+    if (room_is_invalid(room))
+    {
+        //if we can't find an unlocked room, try a locked room, to wait in front of the door
+        room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+    }
     if (!room_is_invalid(room))
     {
         cleanup_current_thing_state(thing);
@@ -4665,7 +4777,7 @@ TbBool setup_move_off_lava(struct Thing* thing)
         // Check all subtiles of the slab in random order
         long k;
         long n;
-        n = ACTION_RANDOM(AROUND_TILES_COUNT);
+        n = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
         for (k = 0; k < AROUND_TILES_COUNT; k++, n = (n + 1) % AROUND_TILES_COUNT)
         {
             struct Map* mapblk;
@@ -4774,7 +4886,7 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
             bx = sstep->h + slb_x;
             cx = slab_subtile_center(bx);
             cy = slab_subtile_center(by);
-            long j = ACTION_RANDOM(AROUND_TILES_COUNT);
+            long j = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
             for (long k = 0; k < AROUND_TILES_COUNT; k++, j = (j + 1) % AROUND_TILES_COUNT)
             {
                 MapSubtlCoord stl_x = cx + around[j].delta_x;

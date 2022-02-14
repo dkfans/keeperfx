@@ -21,15 +21,17 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:24+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"PO-Revision-Date: 2017-04-16 22:08+0800\n"
+"Last-Translator: YFdyh000 <yfdyh000@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Generator: Poedit 2.0.1\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SearchPath-0: .\n"
 
 #. Generic victory message
 #: guitext:0
@@ -62,7 +64,7 @@ msgid ""
 "Use the cursor keys to see other areas of the underworld. Rotate and zoom "
 "the view with the right ctrl key and cursor keys."
 msgstr ""
-"用方向键看地下世界的其它区域。按住右边的CRTL键，再按方向键可以旋转和缩放视"
+"用方向键看地下世界的其他区域。按住右边的CRTL键，再按方向键可以旋转和缩放视"
 "角。"
 
 #. Level Eversmile objective when built Treasure Room
@@ -165,7 +167,7 @@ msgid ""
 "other creatures will serve you unpaid."
 msgstr ""
 "你仍然没有修建储金室，在你建起它之前，你无法为任何怪物发薪水。只有小鬼的忠诚"
-"是免费的，其它的怪物不会为你无偿地工作。"
+"是免费的，其他怪物不会为你无偿地工作。"
 
 #. Level Eversmile objective after getting first creature
 #: guitext:13
@@ -275,9 +277,8 @@ msgid ""
 "Fortified walls keep out intruders. Rooms with reinforced walls make your "
 "creatures feel more at home and heroes more terrified."
 msgstr ""
-"如果小鬼没有接到其它的命令，它们将加固你的地下城。被加固的墙壁可以防止入侵者"
-"进入。如果房间的墙壁是被加固的，会使在里面工作的怪物觉得更加安全而使敌人更加"
-"恐惧。"
+"当小鬼没有其他命令时，它们将加固你的地下城。被加固的墙壁可以防止入侵者进入。"
+"墙壁被加固的房间会使在里面工作的怪物感觉更加安全，而使敌人更加恐惧。"
 
 #. Level Cosyton information soon after start
 #: guitext:23
@@ -298,7 +299,7 @@ msgid ""
 "Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms "
 "in squares of at least nine tiles to increase the efficiency of the room."
 msgstr ""
-"你必须建造一个储金室，一个巢穴和一个孵化室，而且你需要占领一个入口。建造至少9"
+"你必须建造一个储金室、一个巢穴和一个孵化室，而且你需要占领一个入口。建造至少9"
 "个格的正方形的房间可以提高房间的效率。"
 
 #. Level Cosyton objective after basic rooms built
@@ -391,7 +392,7 @@ msgid ""
 "Room. Make sure they're all big enough. Cramped conditions do nothing for "
 "the morale of your minions."
 msgstr ""
-"建造一个有储金室，巢穴，孵化室和一个训练室的地下城。它们必须都够大。狭窄的房"
+"建造一个有储金室、巢穴、孵化室和一个训练室的地下城。它们必须都够大。狭窄的房"
 "间对你的怪物的士气没有任何帮助。"
 
 #. Level Waterdream Warm objective after basic 5 rooms are built/claimed
@@ -527,7 +528,7 @@ msgid ""
 "least nine tiles, its mere presence will lure the underworld's finest "
 "artisans into your dungeon."
 msgstr ""
-"新的研究成果表明工厂可以制造一些重要的物品，例如，门和陷井。如果你有一个大小"
+"新的研究成果表明工厂可以制造一些重要的物品，例如，门和陷阱。如果你有一个大小"
 "为九个格以上的工厂，它将吸引地下世界中最好的工匠加入你的地下城。"
 
 #. Level Flowerhat information
@@ -538,7 +539,7 @@ msgid ""
 "creatures to it, by dropping them into the room. Manufactured items can be "
 "selected from the Workshop Panel as soon as they're ready."
 msgstr ""
-"要在你的工厂中制造陷井和门，你需要把怪物放到工厂中，指派怪物去进行制造工作。"
+"要在你的工厂中制造陷阱和门，你需要把怪物放到工厂中，指派怪物去进行制造工作。"
 "只要物品的制造完成，你就可以通过工厂面板选择并使用它们。"
 
 #. Level Flowerhat objective
@@ -606,7 +607,7 @@ msgid ""
 "Your Workshop has produced a Poison Gas trap. Position it and, when an "
 "intruder sets it off, it will envelop the area in deadly vapours."
 msgstr ""
-"你的工厂生产了一个毒气陷井。将它安置在合适的位置，当敌人经过时会被触发，致命"
+"你的工厂生产了一个毒气陷阱。将它安置在合适的位置，当敌人经过时会被触发，致命"
 "的毒气将覆盖这个区域。"
 
 #. Level Flowerhat information
@@ -768,7 +769,7 @@ msgctxt "In-game message"
 msgid ""
 "You have manufactured a powerful Lightning Trap. Try it out. It's bound to "
 "give someone a shock."
-msgstr "你已经研制成功了一个强力的闪电陷井。试试它，它将使敌人遭到电击。"
+msgstr "你已经研制成功了一个强力的闪电陷阱。试试它，它将使敌人遭到电击。"
 
 #. Level Wishvale objective
 #: guitext:71
@@ -868,8 +869,8 @@ msgid ""
 "You might have to experiment with the offerings you make. The dark gods are "
 "not easy to please."
 msgstr ""
-"研究者设计出了一个祭祀黑暗之神的庙宇。将怪物做为供品放到祭坛上，你将得到神赐"
-"予的礼物。你需要用不同的祭品来试验，黑暗之神不是容易被取悦的。"
+"研究者设计了一个祭祀黑暗之神的寺庙。将怪物作为供品放到祭坛上，你将得到神赐予"
+"的礼物。你需要献祭不同的祭品来试验结果，黑暗之神没那么容易猜透。"
 
 #. Level Moonbrush Wood objective
 #: guitext:81
@@ -973,7 +974,7 @@ msgid ""
 "You have a manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
-"你制造出了一个圆石陷井。将它放在通道上，它将发出无情的隆隆声咆哮着碾碎那些大"
+"你制造出了一个圆石陷阱。将它放在通道上，它将发出无情的隆隆声咆哮着碾碎那些大"
 "意的入侵者。"
 
 #. Level Nevergrim information
@@ -995,8 +996,8 @@ msgid ""
 "placed within a Scavenger Room will lure their kin from other dungeons and "
 "the outside world, into your domain."
 msgstr ""
-"你的不知疲倦的图书管理员研制出了招募中心。将怪物放到招募中心中，他们会引诱其"
-"它的地下城中的和外面世界中的他们的同类进入你的地下城。"
+"你那不知疲倦的图书管理员研制出了招募中心。将怪物放到招募中心中，他们会引诱其"
+"他地下城中和外面世界中的他们的同类进入你的地下城。"
 
 #. Level Nevergrim information
 #: guitext:93
@@ -1052,7 +1053,7 @@ msgid ""
 "Your manufacturers have built an Alarm Trap. It will warn you of your "
 "enemies' approach and summon nearby creatures to deal with the intruders."
 msgstr ""
-"你的工人制造出了一个警戒陷井。它将在敌人靠近时发出警报，并召唤附近的怪物去对"
+"你的工人制造出了一个警戒陷阱。它将在敌人靠近时发出警报，并召唤附近的怪物去对"
 "付入侵者。"
 
 #. Level Buffy Oak information
@@ -1107,8 +1108,8 @@ msgid ""
 "All the heroes are dead, which is as it should be. This land and all its "
 "spoils are yours. May I suggest that you waste everything?"
 msgstr ""
-"所有的英雄都得到了他们应有的下场，死亡。这片土地和所有的战利品都属于你。我会"
-"建议你浪费任何东西吗？"
+"所有的英雄都得到了他们应有的下场：死亡。这片土地和所有的战利品都属于你。"
+"把它们全都糟蹋掉怎么样？"
 
 #. Level Hearth objective
 #: guitext:105
@@ -1131,8 +1132,8 @@ msgid ""
 "triggers an expanding ring of demonic energy that incinerates anything "
 "caught in its area of effect. What a scream that should be."
 msgstr ""
-"你最后的发现物是强力咒语陷井。当它被触发时，一个扩散的火轮将把它作用范围内的"
-"任何东西化为灰烬。我已经听到了绝望的尖叫声。"
+"你的最新发明是强力咒语陷阱。当它被触发时，一个扩散的能量环将毁灭它作用范围"
+"内的任何东西。我已经听见了绝望的尖叫声。"
 
 #. Level Moonbrush Wood information
 #: guitext:107
@@ -1274,7 +1275,9 @@ msgid ""
 "Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
 "it, the area around changes into molten lava, which most creatures won't "
 "even try to pass."
-msgstr "你的工人们制造出了岩浆陷井。"
+msgstr ""
+"你的工人们制造出了岩浆陷阱。在敌人的生物踏上后，周围的地方会变成熔岩，大多数"
+"生物无法在那里生存。"
 
 #. Level Mirthshire objective
 #: guitext:122
@@ -1490,7 +1493,7 @@ msgid ""
 "helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
 "你的确有一个扭曲的灵魂，主人。你用这样夸张的手段使小鬼灭绝了，以至于除了两个"
-"黑暗女王外没有人会帮助你完成下一个目标。你可以继续你的下一个征服了。"
+"黑暗女王外没有人会帮助你完成下一个目标。你可以继续征服下一个王国了。"
 
 #. Level Bonus 3 objective
 #: guitext:144
@@ -1498,19 +1501,19 @@ msgctxt "In-game message"
 msgid ""
 "You must have lightning reflexes to complete the task ahead of you. Kill "
 "these Imps as quickly as you can."
-msgstr "你必须有闪电术才能完成你面前的任务。尽可能地迅速杀掉这些小鬼。"
+msgstr "你必须有闪电术才能完成你面前的任务。尽可能迅速地杀掉这些小鬼。"
 
 #. Level Bonus 3 information
 #: guitext:145
 msgctxt "In-game message"
 msgid "Half your allotted time has elapsed."
-msgstr "你的时间已经过去了一半。"
+msgstr "你已经用掉了一半时间。"
 
 #. Level Bonus 3 objective
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
-msgstr "你的时间用完了。这是一个可怕的成绩。"
+msgstr "你的时间用完了。这是一个可怕的表现。"
 
 #. Level Bonus 3 objective
 #: guitext:147
@@ -1520,8 +1523,8 @@ msgid ""
 "certainly had your finger on the pulse this time. The dark gods will send "
 "you a vicious creature to help you conquer the next realm."
 msgstr ""
-"完成了。许多尸体在这个小鬼曾经站立过的地方被烧烤。你把握了时间的脉搏。黑暗之"
-"神将给你一个巨人帮助你征服下一个王国。"
+"完成了。无数尸体在这个小鬼曾经站立的地方被炙烤。你把握住了时间的脉搏。黑暗之"
+"神将给你一个巨人，帮助你征服下一个王国。"
 
 #. Level Bonus 3 objective
 #: guitext:148
@@ -1538,7 +1541,7 @@ msgid ""
 "Demons by crushing them with Boulder Traps scattered around the perimeter of "
 "the dungeon. You have very little time, so rock and roll!"
 msgstr ""
-"你被召唤到这个王国惩罚一个背叛的巨魔的部落，你要用地下城周围的圆石陷井将它们"
+"你被召唤到这个王国惩罚一个背叛的巨魔的部落，你要用地下城周围的圆石陷阱将它们"
 "碾碎。你只有很少的时间，让我们干吧。"
 
 #. Level Bonus 4 objective
@@ -1553,7 +1556,7 @@ msgctxt "In-game message"
 msgid ""
 "Your time is up. You have failed. I'm embarrassed to come from the same "
 "inter-dimensional void as you."
-msgstr "时间用完了，你失败了。我同样感到尴尬。"
+msgstr "时间用完了，你失败了。我与你同样感到尴尬。"
 
 #. Level Bonus 4 objective
 #: guitext:152
@@ -1563,8 +1566,8 @@ msgid ""
 "the dark gods will repay you, by allowing you to use the warrior you found "
 "when you reach the next realm."
 msgstr ""
-"干得漂亮。你已经超越了使用大石球的境界，为此黑暗之神们将要报答你。当你达到下"
-"一个王国时你将获得三个出色的小鬼。"
+"干得漂亮。你已经精通了大石球的使用方法，黑暗之神为此要奖励你。在你到达下一个"
+"王国时，你将获得三个出色的小鬼。"
 
 #. Level Bonus 4 objective
 #: guitext:153
@@ -1575,8 +1578,8 @@ msgid ""
 "where a legendary warrior is imprisoned. That warrior will serve you well in "
 "the future."
 msgstr ""
-"这个区域将考验你横穿洞穴网的能力。时间是你真正的敌人。打败它你将发现传说中的"
-"战士的所在，乌格，被囚禁的野蛮人。乌格将在以后为你服务。"
+"这个区域考验你横穿洞穴网的能力。时间是你真正的敌人。打败它，你将发现被囚禁的"
+"野蛮人、传说中的战士 - 乌格。乌格将在以后为你服务。"
 
 #. Level Mistle objective
 #: guitext:154
@@ -1587,8 +1590,8 @@ msgid ""
 "history. This will be no mean feat. Resources are scarce because of his "
 "activities."
 msgstr ""
-"这个王国的人告诉你有关一个叫维泽的守护者的事，他将阻止你。他这样做的时候你不"
-"得不把他变成历史。资源将因为他的活动而变得稀少。"
+"这个王国的人对你讲了一个叫维泽的守护者的故事，他将阻止你。当他这样做时，你将"
+"不得不把他变成历史。资源将因为他的活动而变得稀少。"
 
 #. Level Mistle objective
 #: guitext:155
@@ -1646,7 +1649,7 @@ msgid ""
 "These Boulder Traps are ideal for crushing the foe but there are only three "
 "of them at your disposal, so use them wisely."
 msgstr ""
-"这些圆石陷井可以碾碎你的敌人，但你只有三个可支配，所以请聪明地使用它们。"
+"这些圆石陷阱可以碾碎你的敌人，但你只有三个可支配，所以请聪明地使用它们。"
 
 #: guitext:161
 msgctxt "In-game message"
@@ -1807,8 +1810,9 @@ msgid ""
 "got the creature from start, so you must only keep it safe. And the only way "
 "to make this place safe is to kill every hero in the realm."
 msgstr ""
-"你来到这个王国是为了获取一只怪物让其在以后为你服务。你一开始就获得了这只怪"
-"物，所以你必须保护它的安全。让这个王国安全的唯一方法就是除掉这里的所有英雄。"
+"你来到这个王国是为获得一只怪物，让其以后为你服务。你一开始就已获得了这只怪"
+"物，因而你必须保证它的安全。让这个王国安全的唯一方法就是，除掉这里所有的英"
+"雄。"
 
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
@@ -1961,33 +1965,33 @@ msgctxt "Creature spell"
 msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
 "hit, and provides complete immunity to electric shocks."
-msgstr "装甲: 可以降低怪物每次受到的伤害，并且使其完全免疫守护者的闪电术。"
+msgstr "护甲术: 可以降低怪物每次受到的伤害，并且使其完全免疫守护者的闪电术。"
 
 #: guitext:229
 msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
 "lighting from the creature."
-msgstr "闪电术: 一个使用闪电攻击的强力魔法武器。可以使怪物释放出一道闪电。"
+msgstr "闪电术: 有着强大威力的魔法武器。可以使怪物释放出一道闪电。"
 
 #: guitext:230
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
-msgstr "反弹术: 将向你发射的所有投射物反弹给攻击者。"
+msgstr "反弹术: 使目标所受的任何法术都反弹给攻击者。"
 
 #: guitext:231
 msgctxt "Creature spell"
 msgid ""
 "Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
-msgstr "恐惧术: 使敌人感到害怕并试图放弃参与战斗。"
+msgstr "恐惧术: 使对手颤栗，迫不及待地想要逃离战斗。"
 
 #: guitext:232
 msgctxt "Creature spell"
 msgid ""
 "Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
-msgstr "邪眼术: 使怪物暂时集中精力，可以看破隐身的怪物。"
+msgstr "邪眼术: 允许生物暂时增加其感知力，可以发现隐形者。"
 
 #: guitext:233
 msgctxt "Creature spell"
@@ -2004,7 +2008,7 @@ msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
 "bounce off walls and has the traditional delayed fuse."
 msgstr ""
-"手榴弹: 向靠近的敌人投掷一枚强力的爆弹。它可以通过墙壁反弹，"
+"手榴弹: 向靠近的敌人投掷一枚强力的爆弹。它可以被墙壁反弹，"
 "并且由传统的延时引线引爆。"
 
 #: guitext:235
@@ -2021,9 +2025,9 @@ msgctxt "Creature spell"
 msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
 "tasks really quickly."
-msgstr "速度术: 使怪物的速度提高，使其在战斗中或工作中行动非常迅速。"
+msgstr "速度术: 加速生物，使其能更快地工作和战斗。"
 
-#: guitext:237
+#: guitext:237 guitext:253
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
@@ -2053,7 +2057,7 @@ msgid ""
 "you are Possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
 msgstr ""
-"传送术: 一个拥有这项技能的怪物可以传送到地图的任何区域。如果你正在控制这个怪物，"
+"传送术: 一个拥有这项技能的怪物可以传送到地图的任何区域。如果你正在附身这个怪物，"
 "它会传送到它的巢穴处或地下城心脏处。"
 
 #: guitext:241
@@ -2066,7 +2070,7 @@ msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
-msgstr "照明术: 为黑暗带来光明，使怪物能看清别人，但同时也会被别人看到。"
+msgstr "照明术: 照亮黑暗，使怪物能看清别人，但同时也会被别人看到。"
 
 #: guitext:243
 msgctxt "Creature spell"
@@ -2074,7 +2078,7 @@ msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
 "from the air or cross lava unharmed."
 msgstr ""
-"飞行术:使怪物可以离开地面，从而在空中向其他怪物发起攻击，"
+"飞行术: 使怪物可以离开地面，从而在空中向其他怪物发起攻击，"
 "并能飞越岩浆而不受伤害。"
 
 #: guitext:244
@@ -2086,7 +2090,7 @@ msgstr "冰雹术: 发射密集的冰雹块。"
 msgctxt "Creature spell"
 msgid ""
 "Slow: Slows down the target creature, making it attacks and movement delayed."
-msgstr "缓慢术:降低目标怪物的速度，使它的行动和攻击变得迟缓。"
+msgstr "缓慢术: 降低目标怪物的速度，使它的行动和攻击变得迟缓。"
 
 #: guitext:246
 msgctxt "Creature spell"
@@ -2137,7 +2141,7 @@ msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
 "inflicts minor damage to a Dungeon's walls and doors."
-msgstr "火球术: 发射一颗火球，瞄准最近的敌人。对地下城的墙壁和门也会造成轻微伤害。"
+msgstr "火球术: 对最近的敌人施放一个火球。对地下城的墙壁和门也会造成轻微伤害。"
 
 #: guitext:252
 msgctxt "Creature spell"
@@ -2158,7 +2162,7 @@ msgctxt "Creature spell"
 msgid ""
 "Dig: This is the basic ability of the Imp and allows it to tunnel through "
 "earth."
-msgstr "挖掘: 这是小鬼的基本能力，使它可以在地底下挖掘隧道。"
+msgstr "挖掘: 小鬼的基本能力，使其可以在地底挖掘隧道。"
 
 #: guitext:255
 msgctxt "Creature spell"
@@ -2177,13 +2181,13 @@ msgid ""
 "attack but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
 msgstr ""
-"变为小鸡:暂时把敌人变成一只小鸡。敌人不能攻击，但拥有同样的力量，"
+"变为小鸡: 暂时把敌人变成一只小鸡。虽然不能攻击，但拥有同样的力量，"
 "因此不会像一只普通的小鸡那么容易被杀死。"
 
 #: guitext:257
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "定时炸弹"
+msgstr "定时炸弹: 将你的生物变成一个自杀炸弹。"
 
 #: guitext:258
 msgctxt "Creature name"
@@ -2362,7 +2366,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Anger: How angry the creature is. The higher the bar is, the angrier the "
 "creature is."
-msgstr "愤怒: 怪物生气的程度。条的长度越长，表示怪物越生气。"
+msgstr "愤怒: 怪物生气的程度。此栏越高，表示怪物越生气。"
 
 #: guitext:292
 msgctxt "In-game interface description"
@@ -2374,24 +2378,24 @@ msgctxt "In-game interface description"
 msgid ""
 "Strength: The amount of damage the creature inflicts upon its enemies with "
 "each hit."
-msgstr "力量: 怪物每一次击中敌人可以对敌人造成的伤害数量。"
+msgstr "力量: 怪物每一次击中敌人可以造成的伤害量。"
 
 #: guitext:294
 msgctxt "In-game interface description"
 msgid "Wage: The creature's salary in gold which it takes on each payday."
-msgstr "薪水: 怪物每次发薪时领取的金子。"
+msgstr "薪水: 怪物每次发薪时领取的金子数量。"
 
 #: guitext:295
 msgctxt "In-game interface description"
 msgid "Gold Held: The amount of gold the creature is carrying."
-msgstr "财产: 这个怪物所带有的金子。"
+msgstr "财产: 这个怪物携带的金子数量。"
 
 #: guitext:296
 msgctxt "In-game interface description"
 msgid ""
 "Defence: The chance a creature will avoid a blow. The higher the number, the "
 "greater the chance of avoidance."
-msgstr "防御: 怪物躲避一次攻击的机会。这个数值越高，躲避的成功率就越大。"
+msgstr "防御: 怪物躲避一次攻击的几率。这个数值越高，躲避的成功率就越大。"
 
 #: guitext:297
 msgctxt "In-game interface description"
@@ -2403,7 +2407,7 @@ msgstr "技巧: 怪物执行任务的能力。这个数值越高，怪物的表�
 #: guitext:298
 msgctxt "In-game interface description"
 msgid "Age/Time In Dungeon: The length of time you have employed the creature."
-msgstr "在地下城中的时间: 你雇佣了这个怪物多长时间。"
+msgstr "在地下城中的时间: 你已雇佣这个怪物多长时间。"
 
 #: guitext:299
 msgctxt "In-game interface description"
@@ -2411,7 +2415,7 @@ msgid ""
 "Dexterity: The chance of a successful attack. Used to break enemy defence. "
 "The higher the number, the greater the chance of hitting."
 msgstr ""
-"敏捷: 一次攻击成功的机会。用于破解敌人的防御。"
+"敏捷: 攻击成功的几率。用于破解敌人的防御。"
 "这个数值越高，击中的几率就越大。"
 
 #: guitext:300
@@ -2453,7 +2457,7 @@ msgstr "战斗中: 怪物正在进行战斗。左键拿起怪物。右键缩放�
 msgctxt "In-game interface description"
 msgid ""
 "Fight: Your creatures always attack and not avoid any combat. LMB select."
-msgstr "战斗: 你的怪物总是会攻击敌人，不会逃离战斗。左键选择。"
+msgstr "战斗: 你的怪物始终攻击敌人，不会逃离战斗。左键选择。"
 
 #: guitext:306
 msgctxt "In-game interface description"
@@ -2467,13 +2471,13 @@ msgctxt "In-game interface description"
 msgid ""
 "Imprison: Your creatures stun their enemies in battle and imprison those "
 "they defeat. LMB select."
-msgstr "囚禁: 你的怪物在战斗中只将敌人打晕并将其囚禁。左键选择。"
+msgstr "囚禁: 你的怪物在战斗中只会将敌人打晕，然后囚禁他们。左键选择。"
 
 #: guitext:308
 msgctxt "In-game interface description"
 msgid ""
 "Defending: The creature is concentrating on avoiding its adversary's blows."
-msgstr "防御:  怪物专注于避免敌人的打击。"
+msgstr "防御: 这个怪物专注于避开敌人的打击。"
 
 #: guitext:309
 msgctxt "In-game interface item"
@@ -2507,7 +2511,7 @@ msgid ""
 "view has warped walls and can be rotated, forced perspective shows larger "
 "area but can only be rotated 90 degrees. LMB toggle."
 msgstr ""
-"视角: 在默认视角和强制透视视角间切换。默认视角有弯曲的墙壁，可以旋转，"
+"视角: 在默认视角和强制透视视角间切换。默认视角有弯曲的墙壁，可以随意旋转，"
 "而强制透视视角显示的区域较大，但只能一次旋转90度。左键切换。"
 
 #: guitext:315
@@ -2539,7 +2543,7 @@ msgstr "的"
 #: guitext:319
 msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
-msgstr "空巢穴: 将满足投奔的怪物。"
+msgstr "空的巢穴: 满足来投奔的怪物。"
 
 #: guitext:320
 msgctxt "Menu interface item"
@@ -2593,7 +2597,7 @@ msgid ""
 "ground."
 msgstr ""
 "金矿: 你的财富的源泉。挖掘它，你的小鬼将把它带入你的储金室。"
-"你也可以拿起留在地上的金子。"
+"你也可以自己抓起留在地上的金子。"
 
 #: guitext:327
 msgctxt "Slab description"
@@ -2605,19 +2609,19 @@ msgctxt "Slab description"
 msgid ""
 "Water: Creatures move more slowly through water. Build the Bridge to make "
 "new land on the water."
-msgstr "水: 怪物在水中移动得很慢。在水上造桥可以创造出水上的平地。"
+msgstr "水: 怪物在水中移动更慢。在水上建造桥梁使其就像新的陆地。"
 
 #: guitext:329
 msgctxt "Slab description"
 msgid ""
 "Wall: A reinforced stone wall that enemies cannot break through. At least "
 "without the Destroy Walls spell."
-msgstr "墙: 敌人无法穿越加固过的墙。至少在他们还没有破坏墙壁魔法的时候。"
+msgstr "墙: 敌人无法穿越加固过的墙--至少在他们还没有破坏墙壁魔法的时候。"
 
 #: guitext:330
 msgctxt "Slab description"
 msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
-msgstr "被损坏的墙: 除非进行修复，否则将最终倒塌。"
+msgstr "损坏的墙: 除非被修复，否则最终将倒塌。"
 
 #: guitext:331
 msgctxt "Slab description"
@@ -2631,7 +2635,7 @@ msgctxt "Slab description"
 msgid ""
 "Claimed area: Your dungeon territory. You can build rooms and drop your "
 "creatures on it."
-msgstr "已占领的地面:你的地下城领地。你可以在此建造房间或是放置你的怪物。"
+msgstr "已占领的地面: 你的地下城领地。你可以在此建造房间或是放置你的怪物。"
 
 #: guitext:333
 msgctxt "In-game interface item"
@@ -2641,12 +2645,12 @@ msgstr "更多..."
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "任务完成 - 按ESCAPE键继续"
+msgstr "任务完成 - 按Esc键继续"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "任务失败 - 按ESCAPE键重新开始"
+msgstr "任务失败 - 按空格键重新开始"
 
 #: guitext:336
 msgctxt "On-screen message"
@@ -2721,7 +2725,7 @@ msgstr "服务菜单"
 #: guitext:351
 msgctxt "Menu interface item"
 msgid "Session Menu"
-msgstr "进程菜单"
+msgstr "会话菜单"
 
 #: guitext:352
 msgctxt "Menu interface item"
@@ -2751,7 +2755,7 @@ msgstr "统计"
 #: guitext:357
 msgctxt "Menu interface item"
 msgid "Level Completed"
-msgstr "任务完成"
+msgstr "关卡完成"
 
 #: guitext:358
 msgctxt "Menu interface item"
@@ -2941,7 +2945,7 @@ msgstr "测试"
 #: guitext:395
 msgctxt "Menu interface item"
 msgid "Sessions"
-msgstr "进程"
+msgstr "会话"
 
 #: guitext:396
 msgctxt "Menu interface item"
@@ -2991,7 +2995,7 @@ msgstr "无名"
 #: guitext:405
 msgctxt "Menu interface item"
 msgid "Players"
-msgstr "游戏者"
+msgstr "玩家"
 
 #. Creature experience level
 #: guitext:406
@@ -3002,7 +3006,7 @@ msgstr "等级"
 #: guitext:407
 msgctxt "Menu interface item"
 msgid "Levels"
-msgstr "任务"
+msgstr "关卡"
 
 #: guitext:408
 msgctxt "Menu interface item"
@@ -3017,7 +3021,7 @@ msgstr "调制解调器菜单"
 #: guitext:410
 msgctxt "Menu interface item"
 msgid "Serial Menu"
-msgstr "串口线菜单"
+msgstr "串口菜单"
 
 #: guitext:411
 msgctxt "Menu interface item"
@@ -3057,17 +3061,17 @@ msgstr "联盟"
 #: guitext:418
 msgctxt "Menu interface item"
 msgid "Credits"
-msgstr "功劳簿"
+msgstr "职员表"
 
 #: guitext:419
 msgctxt "Menu interface item"
 msgid "Ok"
-msgstr "OK"
+msgstr "确定"
 
 #: guitext:420
 msgctxt "Dungeon special decription"
 msgid "Reveal Map: Reveals the entire underground realm to you."
-msgstr "显示地图: 为你显示这个地下城的地图。"
+msgstr "显示地图: 为你揭示整个地下城的地图。"
 
 #: guitext:421
 msgctxt "Dungeon special decription"
@@ -3080,34 +3084,34 @@ msgctxt "Dungeon special decription"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
-msgstr "传送怪物: 选择一个你的怪物带入下一个任务。"
+msgstr "传送怪物: 选择一个你的怪物带入下一个王国。"
 
 #: guitext:423
 msgctxt "Dungeon special decription"
 msgid "Steal Hero: Subvert a hero to your cause."
-msgstr "偷英雄: 使一个英雄倒戈。"
+msgstr "偷英雄: 使一个英雄倒戈到你的阵营。"
 
 #: guitext:424
 msgctxt "Dungeon special decription"
 msgid "Multiply Creatures: Create a double of each of your creatures."
-msgstr "繁殖怪物: 加倍你的每一种怪物。"
+msgstr "繁殖怪物: 加倍你的每一个怪物。"
 
 #: guitext:425
 msgctxt "Dungeon special decription"
 msgid "Increase Level: Bestows greater skill on all your creatures."
-msgstr "提高等级: 授予你全部的怪物更高的等级。"
+msgstr "提高等级: 提高你所有怪物的等级。"
 
 #: guitext:426
 msgctxt "Dungeon special decription"
 msgid "Make Safe: Reinforces your entire dungeon."
-msgstr "安全: 强化你的整个地下城。"
+msgstr "安全强化: 强化你的整个地下城。"
 
 #: guitext:427
 msgctxt "Dungeon special decription"
 msgid ""
 "Locate Hidden World: You will get access to a secret realm after you "
 "have conquered this one."
-msgstr "找出了隐藏的世界: 在你征服这里后将可以通往一个秘密王国。"
+msgstr "隐藏的世界: 在你征服这里后将可以通往一个秘密王国。"
 
 #: guitext:428
 msgctxt "Dungeon special name"
@@ -3137,12 +3141,12 @@ msgstr "进入查询模式"
 #: guitext:433
 msgctxt "Menu interface item"
 msgid "More information"
-msgstr "更多的信息"
+msgstr "更多信息"
 
 #: guitext:434
 msgctxt "Menu interface item"
 msgid "Back to main Query Screen"
-msgstr "回到主查询菜单"
+msgstr "返回主查询菜单"
 
 #: guitext:435
 msgctxt "Menu interface item"
@@ -3274,7 +3278,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Number of Creatures: The number of creatures owned by this Keeper. Allows "
 "you to compare your army with other Keepers."
-msgstr "怪物数: 守护者拥有的怪物数。你可以通过它来和其他守护者比较军队数。"
+msgstr "怪物数: 守护者拥有的怪物数。你可以通过它来和其他守护者比较军队规模。"
 
 #: guitext:457
 msgctxt "Menu interface item"
@@ -3304,7 +3308,7 @@ msgstr "死亡比赛"
 #: guitext:462
 msgctxt "In-game interface description"
 msgid "Sell Room: Sell a room tile for half the building price. LMB select."
-msgstr "出售房间: 出售一格的房间并得到造价的一半。左键选择。"
+msgstr "出售房间: 出售一格房间并收回造价的一半。左键选择。"
 
 #: guitext:463
 msgctxt "In-game interface description"
@@ -3336,7 +3340,7 @@ msgstr "未安装鼠标"
 #: guitext:468
 msgctxt "Menu interface item"
 msgid "Define keys"
-msgstr "定义键"
+msgstr "定义按键"
 
 #: guitext:469
 msgctxt "Game controls"
@@ -3346,7 +3350,7 @@ msgstr "与游戏者联盟"
 #: guitext:470
 msgctxt "Game controls"
 msgid "Press a key"
-msgstr "按下一个键"
+msgstr "请按键"
 
 #: guitext:471
 msgctxt "Game controls"
@@ -3521,7 +3525,7 @@ msgstr "数字键盘Delete"
 #: guitext:505
 msgctxt "Keyboard"
 msgid "NUM 1"
-msgstr "数字键盘1"
+msgstr "数字键盘 1"
 
 #: guitext:506
 msgctxt "Keyboard"
@@ -3691,7 +3695,7 @@ msgstr "无拨号音"
 #: guitext:539
 msgctxt "Network game message"
 msgid "No Response"
-msgstr "不应答"
+msgstr "无响应"
 
 #: guitext:540
 msgctxt "Network game message"
@@ -3725,7 +3729,7 @@ msgctxt "Object description"
 msgid ""
 "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
 "closed on your side."
-msgstr "英雄门: 英雄们通过这个入口入侵你的地下城。你无法将其关闭。"
+msgstr "英雄门: 英雄们使用这个入口入侵你的地下城。你无法关闭它。"
 
 #: guitext:546
 msgctxt "Creature name"
@@ -3888,32 +3892,32 @@ msgstr "致谢"
 #: guitext:578
 msgctxt "Trap names"
 msgid "Boulder Trap"
-msgstr "圆石陷井"
+msgstr "圆石陷阱"
 
 #: guitext:579
 msgctxt "Trap names"
 msgid "Alarm Trap"
-msgstr "警戒陷井"
+msgstr "警戒陷阱"
 
 #: guitext:580
 msgctxt "Trap names"
 msgid "Poison Gas Trap"
-msgstr "毒气陷井"
+msgstr "毒气陷阱"
 
 #: guitext:581
 msgctxt "Trap names"
 msgid "Lightning Trap"
-msgstr "闪电陷井"
+msgstr "闪电陷阱"
 
 #: guitext:582
 msgctxt "Trap names"
 msgid "Word of Power Trap"
-msgstr "强力咒语陷井"
+msgstr "强力咒语陷阱"
 
 #: guitext:583
 msgctxt "Trap names"
 msgid "Lava Trap"
-msgstr "岩浆陷井"
+msgstr "岩浆陷阱"
 
 #: guitext:584
 msgctxt "Trap description"
@@ -3922,7 +3926,7 @@ msgid ""
 "when enemy creature is close and within line of sight, or when slapped by a "
 "Keeper. LMB select. RMB zoom."
 msgstr ""
-"圆石陷井: 一个滚动的巨石将碾碎一切阻挡它的东西。当敌方怪物进入它的视野时，"
+"圆石陷井: 一个滚动的巨石将碾碎一切阻挡它的东西。当敌方怪物进入它的视野时"
 "或被守护者打耳光时，圆石陷井将会被触发。左键选择。右键缩放。"
 
 #: guitext:585
@@ -3930,7 +3934,7 @@ msgctxt "Trap description"
 msgid ""
 "Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are "
 "summoned to it. LMB select. RMB zoom."
-msgstr "警戒陷井: 被触发后施展召唤军队魔法，召唤附近的怪物集合。左键选择。右键缩放。"
+msgstr "警戒陷井: 被触发后施展召唤军队魔法，召唤本区域的怪物集合。左键选择。右键缩放。"
 
 #: guitext:586
 msgctxt "Trap description"
@@ -3966,7 +3970,7 @@ msgid ""
 "are irreversible, so Bridge is needed to be able to step on affected area "
 "again. LMB select. RMB zoom."
 msgstr ""
-"岩浆陷井: 使一格地板熔化成为炙热的岩浆。此效果不可挽回，"
+"岩浆陷井: 使一格地板熔化成为炙热的岩浆。此效果不可逆转，"
 "所以必须造桥才能再次通过这个区域。左键选择。右键缩放。"
 
 #: guitext:590
@@ -4001,14 +4005,14 @@ msgctxt "Door description"
 msgid ""
 "Braced Door: A wooden door reinforced with iron to last longer. LMB select. "
 "RMB zoom."
-msgstr "铁皮门: 包有铁皮的木门，使其耐久更高。左键选择。右键缩放。"
+msgstr "铁皮门: 包有铁皮的更加耐用的木门。左键选择。右键缩放。"
 
 #: guitext:596
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
 "select. RMB zoom."
-msgstr "铁门: 重而坚固的门，可以承受巨大的攻击。左键选择。右键缩放。"
+msgstr "铁门: 重而坚固的门，可以承受巨大的伤害。左键选择。右键缩放。"
 
 #: guitext:597
 msgctxt "Door description"
@@ -4206,8 +4210,8 @@ msgid ""
 "Scavenger Room: Creatures placed onto the room lure their kin away from "
 "other dungeons or through portals. LMB select. RMB zoom. [17.14]"
 msgstr ""
-"招募中心: 在这里的怪物会引诱在其它的地下城中的或入口外的他们的同类。左键选"
-"择。右键缩放。[17.14]"
+"招募中心: 在这里的怪物会引诱在其他地下城中或入口外的同类怪物。左键选择。右键"
+"缩放。[17.14]"
 
 #: guitext:630
 msgctxt "Keeper spell name"
@@ -4329,7 +4333,7 @@ msgctxt "Keeper spell description"
 msgid ""
 "Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. "
 "RMB zoom. [18.8]"
-msgstr "召唤术: 召唤你的全部的怪物来到地下城的心脏。右键缩放。[18.8]"
+msgstr "召唤术: 召唤你的全部怪物到地下城的心脏。右键缩放。[18.8]"
 
 #: guitext:652
 msgctxt "Keeper spell description"
@@ -4477,7 +4481,7 @@ msgstr "研制出新房间"
 #: guitext:678
 msgctxt "Game event name"
 msgid "New Trap"
-msgstr "新的陷井"
+msgstr "新的陷阱"
 
 #: guitext:679
 msgctxt "Game event name"
@@ -4522,7 +4526,7 @@ msgstr "怪物已经饿了"
 #: guitext:687
 msgctxt "Game event name"
 msgid "Trap crate found"
-msgstr "发现一个可用的陷井"
+msgstr "发现一个可用的陷阱"
 
 #: guitext:688
 msgctxt "Game event name"
@@ -4552,7 +4556,7 @@ msgstr "怪物的发薪日: 左键切换。右键删除。"
 #: guitext:693
 msgctxt "Game event description"
 msgid "New spell picked up: LMB toggle. RMB delete."
-msgstr "得到新魔法: 左键切换。右键删除。"
+msgstr "得到了新魔法: 左键切换。右键删除。"
 
 #: guitext:694
 msgctxt "Game event description"
@@ -4562,7 +4566,7 @@ msgstr "占领了新房间: 左键切换。右键删除。"
 #: guitext:695
 msgctxt "Game event description"
 msgid "New area discovered: LMB toggle. RMB delete."
-msgstr "发现新区域: 左键切换。右键删除。"
+msgstr "发现一个新区域: 左键切换。右键删除。"
 
 #: guitext:696
 msgctxt "Game event description"
@@ -4572,12 +4576,12 @@ msgstr "信息: 左键切换。右键删除。"
 #: guitext:697
 msgctxt "Game event description"
 msgid "Room lost: LMB toggle. RMB delete."
-msgstr "失去房间: 左键切换。右键删除。"
+msgstr "失去了房间: 左键切换。右键删除。"
 
 #: guitext:698
 msgctxt "Game event description"
 msgid "Dungeon Heart Attacked: LMB toggle. RMB delete."
-msgstr "地下城的心脏受到攻击: 左键切换。右键删除。"
+msgstr "地下城的心脏遭到攻击: 左键切换。右键删除。"
 
 #: guitext:699
 msgctxt "Game event description"
@@ -4607,7 +4611,7 @@ msgstr "新房间研制成功: 左键切换。右键删除。"
 #: guitext:704
 msgctxt "Game event description"
 msgid "New trap: LMB toggle. RMB delete."
-msgstr "新的陷井: 左键切换。右键删除。"
+msgstr "新的陷阱: 左键切换。右键删除。"
 
 #: guitext:705
 msgctxt "Game event description"
@@ -4617,7 +4621,7 @@ msgstr "新的门: 左键切换。右键删除。"
 #: guitext:706
 msgctxt "Game event description"
 msgid "New creature in dungeon: LMB toggle. RMB delete."
-msgstr "新怪物进入地下城: 左键切换。右键删除。"
+msgstr "有新怪物进入地下城: 左键切换。右键删除。"
 
 #: guitext:707
 msgctxt "Game event description"
@@ -4627,7 +4631,7 @@ msgstr "怪物生气了: 左键切换。右键删除。"
 #: guitext:708
 msgctxt "Game event description"
 msgid "No more living set: LMB toggle. RMB delete."
-msgstr "没有更多的生活空间了: 左键切换。右键删除。"
+msgstr "没有更多的生活空间: 左键切换。右键删除。"
 
 #: guitext:709
 msgctxt "Game event description"
@@ -4652,7 +4656,7 @@ msgstr "怪物已经饿了: 左键切换。右键删除。"
 #: guitext:713
 msgctxt "Game event description"
 msgid "Trap crate found: LMB toggle. RMB delete."
-msgstr "发现可用的陷井: 左键切换。右键删除。"
+msgstr "发现可用的陷阱: 左键切换。右键删除。"
 
 #: guitext:714
 msgctxt "Game event description"
@@ -4682,12 +4686,12 @@ msgstr "声音选项"
 #: guitext:719
 msgctxt "In-game interface item"
 msgid "Load"
-msgstr "载入"
+msgstr "读档"
 
 #: guitext:720
 msgctxt "In-game interface item"
 msgid "Save"
-msgstr "储存"
+msgstr "存档"
 
 #: guitext:721
 msgctxt "In-game interface item"
@@ -4707,17 +4711,17 @@ msgstr "画面菜单: 定义画面。[3.2.2]"
 #: guitext:724
 msgctxt "In-game interface description"
 msgid "Sound Menu: Adjust the sound and music volumes. [3.2.3]"
-msgstr "声音菜单: 调整声音和音乐的音量。[3.2.3]"
+msgstr "声音菜单: 调整音效和音乐的音量。[3.2.3]"
 
 #: guitext:725
 msgctxt "In-game interface description"
 msgid "Load Game: Load a previously saved game. [3.2.1]"
-msgstr "载入游戏: 载入一个以前储存的游戏。[3.2.1]"
+msgstr "载入游戏: 加载一个以前保存的游戏进度。[3.2.1]"
 
 #: guitext:726
 msgctxt "In-game interface description"
 msgid "Save Game: Save your current game. [3.2.1]"
-msgstr "储存游戏: 储存你现在进行的游戏。[3.2.1]"
+msgstr "储存游戏: 储存你目前的游戏进度。[3.2.1]"
 
 #: guitext:727
 msgctxt "In-game interface description"
@@ -4748,7 +4752,8 @@ msgctxt "In-game interface description"
 msgid ""
 "Construction Only Computer Assistant: Digs, places rooms and traps but does "
 "not move creatures. LMB select. [3.2.4]"
-msgstr "仅进行建筑计算机助手: 挖掘，建筑房间但不移动怪物。左键选择。[3.2.4]"
+msgstr ""
+"仅进行建筑计算机助手: 挖掘、建筑房间和陷阱，但不移动怪物。左键选择。[3.2.4]"
 
 #: guitext:732
 msgctxt "In-game interface description"
@@ -4800,17 +4805,17 @@ msgstr "更加灵敏。"
 #: guitext:740
 msgctxt "In-game interface description"
 msgid "Less sensitive."
-msgstr "不灵敏。"
+msgstr "更不灵敏。"
 
 #: guitext:741
 msgctxt "Statistic name"
 msgid "Number of Creatures"
-msgstr "怪物的数量"
+msgstr "怪物数量"
 
 #: guitext:742
 msgctxt "Statistic name"
 msgid "Gold Mined"
-msgstr "开采的金矿"
+msgstr "已开采金矿"
 
 #: guitext:743
 msgctxt "Statistic name"
@@ -4930,17 +4935,17 @@ msgstr "被盗魔法"
 #: guitext:766
 msgctxt "Statistic name"
 msgid "Traps Manufactured"
-msgstr "制造陷井"
+msgstr "已制造陷阱"
 
 #: guitext:767
 msgctxt "Statistic name"
 msgid "Traps Unused"
-msgstr "未使用陷井"
+msgstr "未使用陷阱"
 
 #: guitext:768
 msgctxt "Statistic name"
 msgid "Doors Manufactured"
-msgstr "制造门"
+msgstr "已制造门"
 
 #: guitext:769
 msgctxt "Statistic name"
@@ -5005,7 +5010,7 @@ msgstr "建造房间"
 #: guitext:781
 msgctxt "Statistic name"
 msgid "Traps Used"
-msgstr "使用陷井"
+msgstr "使用陷阱"
 
 #: guitext:782
 msgctxt "Statistic name"
@@ -5085,7 +5090,7 @@ msgstr "失去领土"
 #: guitext:797
 msgctxt "Statistic name"
 msgid "Traps Armed"
-msgstr "武装陷井"
+msgstr "武装陷阱"
 
 #: guitext:798
 msgctxt "Statistic name"
@@ -5124,12 +5129,12 @@ msgstr ""
 #: guitext:804
 msgctxt "Easter egg"
 msgid "If thou art bold and pure of heart, Come down here, be torn apart."
-msgstr "如果你巧妙地拥有无耻和纯洁的心，到这来，你将被撕成碎片。"
+msgstr "如果你巧妙地拥有无耻与纯洁的心，到这来，你将被撕成碎片。"
 
 #: guitext:805
 msgctxt "Easter egg"
 msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
-msgstr "你可以穿越我的地下城，但他们担保你的结局是死亡。"
+msgstr "你可能会尝试穿越我的地下城，但我保证，你的结局是死亡。"
 
 #: guitext:806
 msgctxt "Easter egg"
@@ -5139,7 +5144,7 @@ msgstr "如果你发现自己输掉了一切，为什么不玩玩《主题医院
 #: guitext:807
 msgctxt "Easter egg"
 msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
-msgstr "身被铠甲的骑士在小雨中可以更快地被烤焦。"
+msgstr "身披铠甲的骑士在小雨中，可以更快地被烤焦。"
 
 #: guitext:808
 msgctxt "Easter egg"
@@ -5159,7 +5164,7 @@ msgstr "邪恶、怨恨、死亡、腐败，没有更好的方法了。"
 #: guitext:811
 msgctxt "Easter egg"
 msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
-msgstr "巨人、矮人、小偷和仙女，没有人是胆小鬼。"
+msgstr "巨人、矮人、小偷和仙女，都不是那么可怕。"
 
 #: guitext:812
 msgctxt "Easter egg"
@@ -5174,12 +5179,12 @@ msgstr "雇佣更好的怪物，享受更残忍的屠杀。"
 #: guitext:814
 msgctxt "Easter egg"
 msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
-msgstr "听！圣者逃亡了，我闻到了被惊吓的统治者的气味。"
+msgstr "听！圣者逃走了。我闻到了被吓坏的统治者的气息。"
 
 #: guitext:815
 msgctxt "Easter egg"
 msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
-msgstr "在你的地下城中的审讯室，入侵者将被毁灭。"
+msgstr "在你的地下城审讯室中，入侵者将承担他们应得的代价。"
 
 #: guitext:816
 msgctxt "Easter egg"
@@ -5191,7 +5196,7 @@ msgctxt "Easter egg"
 msgid ""
 "Your tunnels will be dark and cold, And no place for a Knight of old, Even "
 "if he claims he's bold."
-msgstr "你的隧道将变得阴冷，没有一个老骑士的位置，即使他说他曾经辉煌。"
+msgstr "你的隧道变得黑暗又寒冷，再也找不见一个老骑士，即使他说他如何强大。"
 
 #: guitext:818
 msgctxt "Easter egg"
@@ -5224,12 +5229,12 @@ msgstr "利用怪物对你的恐惧，强迫他们做你让他们做的事。"
 #: guitext:823
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
-msgstr "地下城中的巫师可怕吗？一个陷井将节约用在它们身上的时间。"
+msgstr "地下城中的巫师可怕吗？一个陷阱将节约用在它们身上的时间。"
 
 #: guitext:824
 msgctxt "Easter egg"
 msgid "When your creatures give you hell, Stick them in your Prison Cell."
-msgstr "当你的怪物给你找麻烦时，把他们关进监狱中。"
+msgstr "当你的怪物给你找麻烦时，把他们关到监狱里。"
 
 #: guitext:825
 msgctxt "Easter egg"
@@ -5244,12 +5249,12 @@ msgstr "你是守护者，选择一个，做坏人乐趣无穷。"
 #: guitext:827
 msgctxt "Easter egg"
 msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
-msgstr "当你的军队遭受饥荒，你的孵化室里有快乐的小鸡。"
+msgstr "当你的军队遭遇饥荒，你的孵化室里有好吃的小鸡。"
 
 #: guitext:828
 msgctxt "Easter egg"
 msgid "Fill the Avatar with dread. Really make him wet the bed."
-msgstr "让恐惧笼罩圣者，这会使他尿床。"
+msgstr "让恐惧笼罩圣者。他肯定会尿床的。"
 
 #: guitext:829
 msgctxt "In-game hint message"
@@ -5263,7 +5268,7 @@ msgctxt "In-game hint message"
 msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
 "spend some time torturing..."
-msgstr "觉得乏味？将你的奴才送入监狱，当它被填满后再用一些时间拷打他们。"
+msgstr "觉得乏味？将你的奴仆送入监狱，当监狱被填满时，花一些时间来拷打他们..."
 
 #: guitext:831
 msgctxt "In-game hint message"
@@ -5278,53 +5283,53 @@ msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
 "show pity, even when the intruders are defenceless and pathetic."
 msgstr ""
-"地下世界是你的王国，冒险者进入来偷窃。永远不要怜悯，即使入侵者可怜得手无寸"
-"铁。"
+"地下世界是你的王国，而冒险者会进来偷走宝物。永远不要怜悯，即使入侵者可怜得手"
+"无寸铁。"
 
 #: guitext:833
 msgctxt "In-game hint message"
 msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
 "Only evil ones."
-msgstr "怜悯是善良的守护者的性格。但他们是永远的失败者。"
+msgstr "怜悯是善良守护者的特质。但他们将是永远的失败者。邪恶永存。"
 
 #: guitext:834
 msgctxt "In-game hint message"
 msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
 "queuing up to enter your dungeon. So stop reading this and get going."
-msgstr "惜时如金。勇士已经列队进入了你的地下城。因此停止阅读开始战斗吧。"
+msgstr "惜时如金。勇士已经列队进入了你的地下城。停止阅读，开始战斗吧！"
 
 #: guitext:835
 msgctxt "In-game hint message"
 msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
 "the intruders."
-msgstr "快速建设。你会需要一个尽可能大的欢迎委员会来迎接入侵者。"
+msgstr "快速建设。你将需要一个尽可能大的欢迎委员会来迎接入侵者。"
 
 #: guitext:836
 msgctxt "In-game hint message"
 msgid ""
 "Keep your Imps digging. There are always surprises to be found deep in the "
 "earth."
-msgstr "不要使你的小鬼停止挖掘。在地下深处总能发现一些惊喜。"
+msgstr "不要让你的小鬼停止挖掘。地下深处总有惊喜等着你。"
 
 #: guitext:837
 msgctxt "In-game hint message"
 msgid "He who controls the most gold controls the entire Underworld."
-msgstr "控制最多金子的人将控制整个地下世界。"
+msgstr "掌控最多金子的人将控制整个地下世界。"
 
 #: guitext:838
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
-msgstr "恐怖和无情是你最好的武器。明智地使用它们。"
+msgstr "恐怖与无情是你最好的武器。明智地使用它们。"
 
 #: guitext:839
 msgctxt "In-game hint message"
 msgid ""
 "Foolish is the Keeper who sells all his rooms and refuses to pay his "
 "creatures."
-msgstr "愚蠢就是一个守护者出售了他的全部房间并且拒绝为怪物发工资。"
+msgstr "愚蠢就是，守护者出售了全部的房间，并且拒绝为怪物发工资。"
 
 #: guitext:840
 msgctxt "Menu interface item"
@@ -5344,7 +5349,7 @@ msgstr "音频"
 #: guitext:843
 msgctxt "Menu interface item"
 msgid "Invert Mouse"
-msgstr "颠倒鼠标"
+msgstr "反转鼠标"
 
 #: guitext:844
 msgctxt "Menu interface item"
@@ -5359,7 +5364,7 @@ msgstr "计算机"
 #: guitext:846
 msgctxt "Menu interface item"
 msgid "Computer Players"
-msgstr "计算机游戏者"
+msgstr "电脑玩家"
 
 #: guitext:847
 msgctxt "Menu interface item"
@@ -5409,7 +5414,7 @@ msgstr "内存不足"
 #: guitext:856
 msgctxt "On-screen message"
 msgid "Unable To Change Screen Resolution"
-msgstr "无法改变画面解析度"
+msgstr "无法更改屏幕分辨率"
 
 #: guitext:857
 msgctxt "Menu interface item"
@@ -5464,12 +5469,12 @@ msgstr "本地化语音经理"
 #: guitext:868
 msgctxt "Network game message"
 msgid "Attempting To Join"
-msgstr "尝试加入"
+msgstr "尝试加入中"
 
 #: guitext:869
 msgctxt "Network game message"
 msgid "Resyncing"
-msgstr "重新同步化中"
+msgstr "重新同步中"
 
 #: guitext:870
 msgctxt "Menu interface item"
@@ -5564,7 +5569,7 @@ msgstr "存储错误"
 #: guitext:888
 msgctxt "Menu interface message"
 msgid "New Levels"
-msgstr "新任务"
+msgstr "新关卡"
 
 #: guitext:889
 msgctxt "Menu interface message"
@@ -5792,7 +5797,7 @@ msgctxt "In-game message"
 msgid ""
 "Choices, choices Keeper. Choose your path wisely. Some routes are more "
 "perilous than others ..."
-msgstr "选择，选择守护者。聪明地选择你的道路。有些路比其它的道路更致命……"
+msgstr "选择！选择！守护者：明智地选择你的道路。有些路线比其他的更加致命……"
 
 #. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
@@ -5959,7 +5964,7 @@ msgctxt "In-game message"
 msgid ""
 "Your magical powers are restored Keeper. You can finally show these fools "
 "what you are made of."
-msgstr "你的魔法能力恢复了。你终于能让这群笨蛋知道你是谁了。"
+msgstr "你的魔法能力恢复了。你可以让这群笨蛋知道你是谁了。"
 
 #. DD Level Caddis Fell objective after AP reached
 #: guitext:933
@@ -5995,7 +6000,7 @@ msgstr "更深的地下城"
 #: guitext:942
 msgctxt "Menu interface item"
 msgid "Land selection"
-msgstr "地图选择"
+msgstr "选择关卡"
 
 #: guitext:943
 msgctxt "Menu interface item"
@@ -6033,13 +6038,12 @@ msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
 msgstr ""
-"装甲: 降低怪物受到的部分伤害。这个数值越高，降低的伤害量就越多。"
+"护甲: 降低怪物受到的部分伤害。这个数值越高，降低的伤害量就越多。"
 
 #: guitext:950
 msgctxt "In-game interface description"
 msgid "Speed: How fast the creature moves and perform its dungeon tasks."
-msgstr ""
-"速度：怪物在地下城执行任务时的移动速度有多快。"
+msgstr "速度: 生物在移动和执行地下城任务时的速度。"
 
 #: guitext:951
 msgctxt "In-game interface description"
@@ -6118,7 +6122,7 @@ msgctxt "Keeper spell description"
 msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr ""
-"邪恶之手：一项能拿起你的怪物，并把它们举在手上的能力。但是不要一直举着它们，"
+"邪恶之手：可以抓起生物并拿在手中。但是不要一直举着它们，"
 "否则它们会生气的。"
 
 #: guitext:964
@@ -6126,8 +6130,8 @@ msgctxt "Keeper spell description"
 msgid "Slap: Makes your creatures work harder, for some time. "
 "Your creatures take some damage from each slap they receive."
 msgstr ""
-"如果你想让你的怪物工作更努力，可以将邪恶之手放在它们头上，单击鼠标右键可以打"
-"它们的耳光，但每一下都会使它们受伤。"
+"打耳光: 如果你想让你的怪物更努力地工作，可以将邪恶之手放在它们头上，单击鼠标"
+"右键打它们的耳光。但是，每一下也都会使它们受伤。"
 
 #: guitext:965
 msgctxt "In-game interface description"
@@ -6315,3 +6319,8 @@ msgstr "快照相机"
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "神秘物品：没有说明它是干什么用的。"
+
+#: guitext:1006
+msgctxt "Network game message"
+msgid "Joined player has different map version from host."
+msgstr "已加入的玩家的主机中的地图版本不相同。"

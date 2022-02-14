@@ -38,6 +38,7 @@
 #include "creature_graphics.h"
 #include "creature_states.h"
 #include "player_data.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,16 +106,16 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NO_IMPRISONMENT",   24},
   {"IMMUNE_TO_DISEASE", 25},
   {"ILLUMINATED",       26},
+  {"ALLURING_SCVNGR",   27},
   {NULL,                 0},
   };
 
 const struct NamedCommand creatmodel_attraction_commands[] = {
   {"ENTRANCEROOM",       1},
   {"ROOMSLABSREQUIRED",  2},
-  {"ENTRANCEFORCE",      3},
-  {"BASEENTRANCESCORE",  4},
-  {"SCAVENGEREQUIREMENT",5},
-  {"TORTURETIME",        6},
+  {"BASEENTRANCESCORE",  3},
+  {"SCAVENGEREQUIREMENT",4},
+  {"TORTURETIME",        5},
   {NULL,                 0},
   };
 
@@ -736,6 +737,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crstat->illuminated = true;
                 n++;
                 break;
+            case 27: // ALLURING_SCVNGR
+                crstat->entrance_force = true;
+                n++;
+                break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -836,7 +841,6 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
         crstat->entrance_rooms[n] = 0;
         crstat->entrance_slabs_req[n] = 0;
       }
-      crstat->entrance_force = 0;
       crstat->entrance_score = 10;
       crstat->scavenge_require = 1;
       crstat->torture_break_time = 1;
@@ -897,20 +901,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
             }
           }
           break;
-      case 3: // ENTRANCEFORCE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->entrance_force = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // BASEENTRANCESCORE
+      case 3: // BASEENTRANCESCORE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -923,7 +914,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 5: // SCAVENGEREQUIREMENT
+      case 4: // SCAVENGEREQUIREMENT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -936,7 +927,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 6: // TORTURETIME
+      case 5: // TORTURETIME
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -2051,12 +2042,34 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       n = 0;
-      if ((cmd_num > 0) && (cmd_num <= CREATURE_GRAPHICS_INSTANCES))
+      if ((cmd_num == (CGI_HandSymbol + 1)) || (cmd_num == (CGI_QuerySymbol + 1)))
+      {
+          char word_buf[COMMAND_WORD_LEN];
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              n = get_icon_id(word_buf);
+              if (n >= 0)
+              {
+                  set_creature_model_graphics(crtr_model, cmd_num-1, n);
+              }
+              else
+              {
+                  set_creature_model_graphics(crtr_model, cmd_num-1, bad_icon_id);
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                             COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              }
+          }
+      }
+      else if ((cmd_num > 0) && (cmd_num <= CREATURE_GRAPHICS_INSTANCES))
       {
           char word_buf[COMMAND_WORD_LEN];
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
+            if ((k == 0) && (strcmp(word_buf, "0") != 0))
+            {
+                CONFWRNLOG("Custom animations are not supported yet");
+            }
             set_creature_model_graphics(crtr_model, cmd_num-1, k);
             n++;
           }
@@ -2085,9 +2098,6 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
 
 TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-    // Block name and parameter word store variables
-    // Initialize block data
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "sounds");

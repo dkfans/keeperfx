@@ -39,57 +39,65 @@ msgstr "成功了！你拥有了这片土地。按空格键进入下一个王国
 
 #: guitext:1
 msgctxt "In-game message"
-msgid "Make haste master, it won't be long before your rival breaks into this realm."
+msgid ""
+"Make haste Master. It won't be long before your rival breaks into this realm."
 msgstr "快点行动吧，主人，你的敌人用不了多久就要来到这个王国了。"
 
 #: guitext:2
 msgctxt "In-game message"
-msgid "Your rival is advancing from the south. There is also word that reinforcements from Rosefield have arrived."
+msgid ""
+"Your rival is advancing from the south. There is also word that reinforcements from Rosefield have arrived."
 msgstr "你的敌人正从南方前往这里。还有消息说罗斯菲尔德的援军也已经赶来了。"
 
 #: guitext:3
 msgctxt "In-game message"
-msgid "The first domino falls here. The prisoners will be taken care off properly, I hope?"
+msgid ""
+"The first domino falls here! Can we assume the prisoners will be properly taken care of?!"
 msgstr "第一块多米诺骨牌被推倒了。我希望你明白如何好好照料这些囚犯，没问题吧？"
 
 #: guitext:4
 msgctxt "In-game message"
-msgid "The Cathedral is currently under siege by one of Keeper Bane's underlings. Make haste and unearth the treasuries burried here."
+msgid ""
+"The Cathedral is currently under siege by one of Keeper Bane's underlings. Make haste and unearth the treasuries buried here."
 msgstr "这里的大教堂正被守护者贝恩的一支军队围攻。抓紧行动，把国库中的财宝挖掘出来。"
 
 #: guitext:5
 msgctxt "In-game message"
-msgid "Outstanding, master. Now things will be a little more intresting."
+msgid "Outstanding, Master! Now things will become more interesting."
 msgstr "很出色，主人。现在事情开始变得更加有趣了。"
 
 #: guitext:6
 msgctxt "In-game message"
-msgid "Just as I thought, the victor was decided before the fight even began!"
+msgid "Just as I thought, the Victor was decided before the fight even began!"
 msgstr "正如我想象的一样，战斗还没有开始，胜负就已然分晓了！"
 
 #: guitext:7
 msgctxt "In-game message"
-msgid "This fortress is the last bastion of the Heroes. Some people claim its construction took several hunderd years, so perhaps you can demolish it in a worldrecord. Be alert though, I can sense something evil within those walls."
+msgid ""
+"This fortress is the last bastion of the Heroes. It is said that the construction took several hundred years, but I'm sure you can demolish it in an instant? However, be warned; there is evil within those walls."
 msgstr "这座要塞是英雄们的最后一座堡垒了。有人声称它的建造工程已经花了几百年的时间，也许你可以彻底摧毁它，将它从世界记录上抹除。不过要小心，我感觉到这些墙壁后面还散发着邪恶的气息。"
 
 #: guitext:8
 msgctxt "In-game message"
-msgid "The Wizards of this realm have robbed you of your spells. They haven't obvious ever heard of the saying ''What goes around comes around''! Expect some reprisals for doing that though."
+msgid ""
+"The Wizards of this realm have robbed you of your spells. They obviously haven't heard of the saying ''What goes around comes around''! Reprisals are to be expected."
 msgstr "这个王国的巫师们偷走了你的魔法书。他们显然还不明白“出来混，迟早是要还的”道理！当然，他们肯定不会乖乖就范的。"
 
 #: guitext:9
 msgctxt "In-game message"
-msgid "The Avatar is present aswel! May I suggest we capture, torture him and listen to the wonderful sound of bones being shattered?"
+msgid ""
+"The Avatar is also among us! May I suggest we capture, torture him and listen to the wonderful sound of his bones being shattered?"
 msgstr "圣者出现了！我建议你把他抓起来拷打，然后聆听他的骨头被打断的美妙声音，怎么样？"
 
 #: guitext:10
 msgctxt "In-game message"
-msgid "Ahh, now this is what I like to call absolute CARNAGE! Can we move on, please? This place has gone too corpsy to my liking."
+msgid "Ahh, now this is what I like to call absolute CARNAGE! Can we move on please? This place has become too corpsy for my liking."
 msgstr "啊，这才是我所谓的真正的大屠杀！请问，我们能进入下一个王国了吗？这里的尸气已经让我有点难以忍受了。"
 
 #: guitext:11
 msgctxt "In-game message"
-msgid "You are outnumbered here, so use the land itself to your advantage. Speaking of that; this ancient realm is full of riches, all for you for the taking. Also, your library has been captured by some vile rogue warlocks in the east, make them regret it with their lifes."
+msgid ""
+"This is an ancient realm full of riches, which you must use to your advantage. You are outnumbered, and your library has been captured by the vile warlocks in the East. Make them pay for this theft with their lives!"
 msgstr "这个王国中，敌人的力量远超于你，所以你必须充分利用这片土地的资源来取得优势。说起这一点，这个远古王国充满各种财富，任由你来掠夺。另外，你的图书馆被东边的一群卑鄙的邪恶魔术师占领了，让他们交出性命来作为代价吧。"
 
 #: guitext:12
@@ -99,32 +107,38 @@ msgstr "棒极了，现在我们可以开始研究房间和魔法了！"
 
 #: guitext:13
 msgctxt "In-game message"
-msgid "Another one bites the dust. Let us not waste too much time on these rookies, there are more challenges on the horizon."
+msgid ""
+"Another one bites the dust! Let us not waste too much time on these rookies, as greater challenges await on the horizon."
 msgstr "你又一次把敌人打得一败涂地了。我们没必要在这些菜鸟身上浪费时间了，这里还有更多的挑战等待着你。"
 
 #: guitext:14
 msgctxt "In-game message"
-msgid "A vast legion is hosted in this realm, however with it's commanders at odds this make the fight quite more diverse. Quickly, gather your forces and attack while there is still a state of confusion!"
+msgid ""
+"A vast legion is hosted in this realm. However, with it's commanders being at odds, this makes the battle quite diverse. Quickly gather your forces and attack whilst there is still a state of confusion!"
 msgstr "这个王国有一支人数众多的军团，不过，由于指挥官之间产生了分歧，使得战况可能会有所改变。快一点，集结你的部队，趁着敌军混乱之时发起进攻！"
 
 #: guitext:15
 msgctxt "In-game message"
-msgid "You cannot hope for victory without a portal to attract creatures. Go out and seek one."
+msgid ""
+"You cannot hope for victory without a portal to attract creatures. Go out and seek one."
 msgstr "如果你没有入口吸引怪物加入的话，你根本不可能取得胜利。先去寻找一个入口吧。"
 
 #: guitext:16
 msgctxt "In-game message"
-msgid "A truly devastating victory. You've just routed and destroyed the last barrier between Keeper Bane and you, now... let's kill that dirtbag."
+msgid ""
+"A truly devastating victory. You've just routed and destroyed the last barrier between Keeper Bane and yourself. Now... let's kill that dirtbag!"
 msgstr "一次真正可怕的胜利。你已经清除了你和守护者贝恩之间的最后一道障碍，现在…是时候杀掉这个混蛋了。"
 
 #: guitext:17
 msgctxt "In-game message"
-msgid "Keeper Bane has barricaded himself in, the pathetic wretch. But the more suprising news is that most of the Elite Heroes along with their leader, the Avatar, have survived and are preparing to attack you!"
+msgid ""
+"Keeper Bane has barricaded himself in, the pathetic wretch. But the more suprising news is that most of the Elite Heroes along with their leader, the Avatar, have survived and are preparing to attack you!"
 msgstr "守护者贝恩已经把自己封在了城墙里，真是个可悲的蠢货。不过更令人震惊的消息是，绝大部分英雄精锐部队和他们的首领，圣者，居然都还活着，并且他们正准备向你发起进攻！"
 
 #: guitext:18
 msgctxt "In-game message"
-msgid "Keeper Bane is very powerful because all creatures in this realm are supporting him. The Dark Gods, however, are willing to help you, but they demand a tribute in the form of 100 Souls, preferably dead, of course!"
+msgid ""
+"Keeper Bane is very powerful because he has the support of all the creatures in this realm. The Dark Gods, however, are willing to help you, but they demand a tribute in the form of 100 Souls; preferably dead, of course!"
 msgstr "守护者贝恩非常强大，因为这个王国中的所有怪物都听命于他。不过，黑暗之神将会帮助你，只要你能献祭给他100个怪物的灵魂，当然了，最好是亡灵生物！"
 
 #: guitext:19
@@ -134,22 +148,26 @@ msgstr "黑暗之神对你的祭祀感到满意！"
 
 #: guitext:20
 msgctxt "In-game message"
-msgid "Beware, the Avatar has returned and he's stronger than ever. Make this lunatic see the error of his ways because he just won't give up!"
+msgid ""
+"Beware, the Avatar has returned. He won't give up and he's stronger than ever, so show this lunatic the error of his ways!"
 msgstr "注意，圣者又一次回来了，而且他变得比从前更加强大了。让这个疯子认识到他的一切所作所为都是错误的吧，因为他不撞南墙是不会回头的！"
 
 #: guitext:21
 msgctxt "In-game message"
-msgid "The Avatar is badly wounded, finish him off now so we can turn to the real prize of this realm, Bane."
+msgid ""
+"The Avatar is badly wounded. Finish him off now so we can turn to the real prize of this realm - Bane!"
 msgstr "圣者已经身负重伤，现在是时候解决掉他了。这样我们就能得到这个王国最终的奖赏了：守护者贝恩。"
 
 #: guitext:22
 msgctxt "In-game message"
-msgid "Finally, Keeper Bane is destroyed, all his minions dead, and so are the Heroes. There are no more living creatures on this continent, and there is nothing left to conquer; you have won."
+msgid ""
+"Finally, Keeper Bane is destroyed, his minions are dead, and so are the Heroes. There are no more living creatures on this continent, and there is nothing left to conquer; you have won!"
 msgstr "终于，守护者贝恩被击败了，他的所有爪牙都死了，所有的英雄也都被杀光了。在这片大陆中已经见不到任何存活的生灵了，也已经没有其他王国可以征服了。你取得了最终的胜利。"
 
 #: guitext:23
 msgctxt "In-game message"
-msgid "An evil Keeper by the name of Dracovich has his designs for this realm. Let him know how you feel about those plans... in the appriopiate way of course."
+msgid ""
+"An evil Keeper by the name of Dracovich has his designs for this realm. Let him know how you feel about those plans... in the appropriate way of course!"
 msgstr "一个名为德拉克维奇的邪恶守护者计划要征服这个王国。告诉他，你对他的这一计划有些看法……当然了，要以一种恰当的方式。"
 
 #: guitext:24

@@ -40,6 +40,8 @@ short LbDataFree(struct TbLoadFiles *load_file)
   if (load_file == NULL)
     return 0;
   unsigned char** data = load_file->SEnd;
+  if (load_file->FName[0] == '!')
+      return 1;
   if (data != NULL)
   {
       (*data) = NULL;
@@ -82,6 +84,9 @@ short LbDataLoad(struct TbLoadFiles *load_file)
     alloc_func = LbMemoryAlloc;
   LbDataFree(load_file);
   char *fname = modify_data_load_filename_function(load_file);
+  TbBool is_static = (fname[0] == '!');
+  if (is_static)
+      fname++;
   if (fname[0] == '*')
   {
 #ifdef __DEBUG
@@ -99,7 +104,10 @@ short LbDataLoad(struct TbLoadFiles *load_file)
     load_file->SLength = slength;
     if (slength <= 0)
         return -101;
-    *(load_file->Start) = alloc_func(slength + 512);
+    if (!is_static)
+    {
+        *(load_file->Start) = alloc_func(slength + 512);
+    }
     if ((*(load_file->Start)) == NULL)
         return -100;
     if (LbFileLoadAt(fname, *(load_file->Start)) != load_file->SLength)
@@ -118,6 +126,8 @@ short LbDataLoad(struct TbLoadFiles *load_file)
 
 /*
  * Loads a list of files. Allocates memory and loads new data.
+ * ! - prefix means memory already allocated
+ * * - prefix means no file to open
  * @return Returns amount of entries failed, or 0 on success.
  */
 short LbDataLoadAll(struct TbLoadFiles load_files[])

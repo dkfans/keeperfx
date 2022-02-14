@@ -115,7 +115,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
             objtng->long_13 = gold_picked;
             pos.z.val += 128;
             struct Thing *efftng;
-            efftng = create_effect_element(&pos, 0x29u, owner);
+            efftng = create_effect_element(&pos, TngEffElm_Price, owner);
             if (!thing_is_invalid(efftng))
                 efftng->long_13 = gold_picked;
         }
@@ -258,6 +258,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     case 3:
     case 6:
     case 43:
+    case 136:
       i = thing->creature.gold_carried;
       if (i != 0)
       {
@@ -750,13 +751,13 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
 {
     struct Coord3d locpos;
     int i;
-    locpos.z.val = get_ceiling_height_at(pos) - ACTION_RANDOM(128);
+    locpos.z.val = get_ceiling_height_at(pos) - PLAYER_RANDOM(plyr_idx, 128);
     for (i = 0; i < 8; i++)
     {
         if (i > 0)
         {
             long angle;
-            angle = ACTION_RANDOM(2*LbFPMath_PI);
+            angle = PLAYER_RANDOM(plyr_idx, 2*LbFPMath_PI);
             locpos.x.val = pos->x.val + distance_with_angle_to_coord_x(127, angle);
             locpos.y.val = pos->y.val + distance_with_angle_to_coord_y(127, angle);
         } else
@@ -770,7 +771,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
             break;
         if (i > 0)
         {
-            thing->fall_acceleration += ACTION_RANDOM(thing->fall_acceleration) - thing->fall_acceleration / 2;
+            thing->fall_acceleration += PLAYER_RANDOM(plyr_idx, thing->fall_acceleration) - thing->fall_acceleration / 2;
             thing->valuable.gold_stored = 0;
         } else
         {
@@ -1370,9 +1371,11 @@ TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     if (subtile_has_sacrificial_on_top(stl_x, stl_y)) {
         return true;
     }
-    //long cube_id;
-    //cube_id = get_top_cube_at(stl_x, stl_y, NULL);
-    //TODO do the same with entrance cube
+    struct Room* droproom = (subtile_room_get(stl_x, stl_y));
+    if (room_role_matches(droproom->kind, RoRoF_CrPoolLeave))
+    {
+        return true;
+    }
     return false;
 }
 

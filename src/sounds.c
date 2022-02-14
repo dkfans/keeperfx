@@ -37,7 +37,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
-
+#include "config_settings.h"
 #include "music_player.h"
 
 #include "keeperfx.hpp"
@@ -207,9 +207,12 @@ void find_nearest_rooms_for_ambient_sound(void)
         return;
     struct PlayerInfo* player = get_my_player();
     struct Camera* cam = player->acamera;
-    if (cam == NULL)
+    if (cam == NULL || LbIsFrozenOrPaused())
     {
-        ERRORLOG("No active camera");
+        if (cam == NULL)
+        {
+            ERRORLOG("No active camera");
+        }
         set_room_playing_ambient_sound(NULL, 0);
         return;
     }
@@ -285,7 +288,7 @@ void update_player_sounds(void)
         // Rare message easter egg
         if ((game.play_gameturn % 20000) == 0)
         {
-            if (ACTION_RANDOM(2000) == 0)
+            if (UNSYNC_RANDOM(2000) == 0)
             {
               k = UNSYNC_RANDOM(10);
               SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
@@ -662,6 +665,48 @@ void stop_thing_playing_sample(struct Thing *heartng, short a2)
     {
         if (S3DEmitterIsPlayingSample(eidx, a2, 0)) {
             S3DDeleteSampleFromEmitter(eidx, a2, 0);
+        }
+    }
+}
+
+void mute_audio(TbBool mute)
+{
+    if (!SoundDisabled)
+    {
+        if (mute)
+        {
+            SetSoundMasterVolume(0);
+            SetMusicPlayerVolume(0);
+            SetMusicMasterVolume(0);
+            if (IsRedbookMusicActive())
+            {
+                PauseRedbookTrack(); // volume seems to have no effect on CD audio, so just pause/resume it
+            }
+        }
+        else
+        {
+            SetMusicPlayerVolume(settings.redbook_volume);
+            SetSoundMasterVolume(settings.sound_volume);
+            SetMusicMasterVolume(settings.sound_volume);
+            if (IsRedbookMusicActive())
+            {
+                ResumeRedbookTrack();
+            }
+        }
+    }
+}
+
+void pause_music(TbBool pause)
+{
+    if (!SoundDisabled)
+    {
+        if (pause)
+        {
+            PauseMusicPlayer();
+        }
+        else
+        {
+            ResumeMusicPlayer();
         }
     }
 }

@@ -68,7 +68,6 @@ TbBool thing_above_flight_altitude(const struct Thing* thing)
 
 void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
-   // _DK_slide_thing_against_wall_at(thing, pos, a3); return;
   unsigned short x_thing;
   unsigned short sizexy;
   unsigned short x_pos;
@@ -200,14 +199,14 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
   {
     case SlbBloF_WalledX:
       pos->x.val = thing->mappos.x.val;
-      thing->veloc_base.x.val = -(short)(x * thing->field_22 / 128);
+      thing->veloc_base.x.val = -(short)(x * thing->bounce_angle / 128);
       i = 256 - thing->field_23;
       thing->veloc_base.y.val = i * (short)thing->veloc_base.y.val / 256;
       thing->veloc_base.z.val = i * (short)thing->veloc_base.z.val / 256;
       break;
     case SlbBloF_WalledY:
       pos->y.val = thing->mappos.y.val;
-      thing->veloc_base.y.val = -(short)(y * thing->field_22 / 128);
+      thing->veloc_base.y.val = -(short)(y * thing->bounce_angle / 128);
       i = 256 - thing->field_23;
       thing->veloc_base.x.val = i * (short)thing->veloc_base.x.val / 256;
       thing->veloc_base.z.val = i * (short)thing->veloc_base.z.val / 256;
@@ -215,13 +214,13 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
     case SlbBloF_WalledX|SlbBloF_WalledY:
       pos->x.val = thing->mappos.x.val;
       pos->y.val = thing->mappos.y.val;
-      i = thing->field_22;
+      i = thing->bounce_angle;
       thing->veloc_base.x.val = -(short)(i * x / 128);
       thing->veloc_base.y.val = -(short)(i * y / 128);
       break;
     case SlbBloF_WalledZ:
       pos->z.val = thing->mappos.z.val;
-      thing->veloc_base.z.val = -(short)(z * thing->field_22 / 128);
+      thing->veloc_base.z.val = -(short)(z * thing->bounce_angle / 128);
       i = 256 - thing->field_23;
       thing->veloc_base.x.val = i * (short)thing->veloc_base.x.val / 256;
       thing->veloc_base.y.val = i * (short)thing->veloc_base.y.val / 256;
@@ -229,14 +228,14 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
     case SlbBloF_WalledZ|SlbBloF_WalledX:
       pos->z.val = thing->mappos.z.val;
       pos->x.val = thing->mappos.x.val;
-      i = thing->field_22;
+      i = thing->bounce_angle;
       thing->veloc_base.x.val = -(short)(i * x / 128);
       thing->veloc_base.z.val = -(short)(i * z / 128);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
       pos->y.val = thing->mappos.y.val;
       pos->z.val = thing->mappos.z.val;
-      i = thing->field_22;
+      i = thing->bounce_angle;
       thing->veloc_base.y.val = -(short)(i * y / 128);
       int n = i * y;
       int j = thing->field_23;
@@ -248,7 +247,7 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       pos->x.val = thing->mappos.x.val;
       pos->y.val = thing->mappos.y.val;
       pos->z.val = thing->mappos.z.val;
-      i = thing->field_22;
+      i = thing->bounce_angle;
       thing->veloc_base.x.val = -(short)(i * x / 128);
       thing->veloc_base.y.val = -(short)(i * y / 128);
       thing->veloc_base.z.val = -(short)(i * z / 128);
@@ -258,32 +257,32 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
   }
 }
 
-void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long a3)
+void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
 {
-    switch ( a3 )
+    switch (blocked_flags)
     {
-    case 1:
+    case SlbBloF_WalledX:
         thing->veloc_base.x.val = 0;
         break;
-    case 2:
+    case SlbBloF_WalledY:
         thing->veloc_base.y.val = 0;
         break;
-    case 3:
+    case SlbBloF_WalledX|SlbBloF_WalledY:
         thing->veloc_base.x.val = 0;
         thing->veloc_base.y.val = 0;
         break;
-    case 4:
+    case SlbBloF_WalledZ:
         thing->veloc_base.z.val = 0;
         break;
-    case 5:
+    case SlbBloF_WalledX|SlbBloF_WalledZ:
         thing->veloc_base.x.val = 0;
         thing->veloc_base.z.val = 0;
         break;
-    case 6:
+    case SlbBloF_WalledY|SlbBloF_WalledZ:
         thing->veloc_base.y.val = 0;
         thing->veloc_base.z.val = 0;
         break;
-    case 7:
+    case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
         thing->veloc_base.x.val = 0;
         thing->veloc_base.y.val = 0;
         thing->veloc_base.z.val = 0;

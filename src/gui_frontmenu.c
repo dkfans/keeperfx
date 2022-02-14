@@ -348,7 +348,7 @@ void set_menu_visible_on(MenuID menu_id)
     for (int idx = 0; idx < ACTIVE_BUTTONS_COUNT; idx++)
     {
       struct GuiButton *gbtn = &active_buttons[idx];
-      if (gbtn->flags & LbBtnF_Unknown01)
+      if (gbtn->flags & LbBtnF_Active)
       {
           Gf_Btn_Callback callback = gbtn->maintain_call;
           if ((gbtn->gmenu_idx == menu_num) && (callback != NULL))
@@ -373,7 +373,7 @@ void kill_menu(struct GuiMenu *gmnu)
       for (int i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
       {
           struct GuiButton* gbtn = &active_buttons[i];
-          if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number)) {
+          if ((gbtn->flags & LbBtnF_Active) && (gbtn->gmenu_idx == gmnu->number)) {
               kill_button(gbtn);
           }
       }

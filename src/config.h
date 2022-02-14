@@ -74,6 +74,12 @@ enum TbFeature {
     Ft_Atmossounds  =  0x0040,
     Ft_Resizemovies =  0x0080,
     Ft_Wibble       =  0x0100,
+    Ft_LiquidWibble =  0x0200,
+    Ft_FreezeOnLoseFocus      = 0x0400,
+    Ft_UnlockCursorOnPause    = 0x0800,
+    Ft_LockCursorInPossession = 0x1000,
+    Ft_PauseMusicOnGamePause  = 0x2000,
+    Ft_MuteAudioOnLoseFocus   = 0x4000,
 };
 
 enum TbExtraLevels {
@@ -207,6 +213,12 @@ TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
 TbBool resize_movies_enabled(void);
 TbBool wibble_enabled(void);
+TbBool liquid_wibble_enabled(void);
+TbBool freeze_game_on_focus_lost(void);
+TbBool unlock_cursor_when_game_paused(void);
+TbBool lock_cursor_in_possession(void);
+TbBool pause_music_when_game_paused(void);
+TbBool mute_audio_on_focus_lost(void);
 short load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);
@@ -266,6 +278,10 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);
+int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen);
+
+int get_conf_list_int(const char *buf, const char **state, int *dst);
+
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_id(const struct NamedCommand *desc, const char *itmname);

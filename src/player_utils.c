@@ -147,7 +147,9 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))
+    {
         frontstats_initialise();
+    }
     player->victory_state = VicS_LostLevel;
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     // Computing player score
@@ -509,7 +511,7 @@ TbBool check_map_explored_at_current_pos(struct Thing *creatng)
 
 void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player)
 {
-    do_to_players_all_creatures_of_model(player->id_number, -1, check_map_explored_at_current_pos);
+    do_to_players_all_creatures_of_model(player->id_number, CREATURE_ANY, check_map_explored_at_current_pos);
 }
 
 void init_player_as_single_keeper(struct PlayerInfo *player)
@@ -517,8 +519,8 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
     player->field_4CD = 0;
-    ilght.field_0 = 2560;
-    ilght.field_2 = 48;
+    ilght.radius = 2560;
+    ilght.intensity = 48;
     ilght.field_3 = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
@@ -939,7 +941,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
 	dungeon->camera_deviate_jump = 192;
-	long sell_value = gameadd.doors_config[thing->model].selling_value;
+    long sell_value = compute_value_percentage(gameadd.doors_config[thing->model].selling_value, gameadd.door_sale_percent);
 
 	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
 	dungeonadd->doors_sold++;
@@ -976,32 +978,26 @@ PlayerNumber get_selected_player_for_cheat(PlayerNumber defplayer)
         if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
         {
             return 0;
-            clear_key_pressed(KC_NUMPAD0);
         }
         else if (is_key_pressed(KC_NUMPAD1, KMod_DONTCARE))
         {
             return 1;
-            clear_key_pressed(KC_NUMPAD1);
         }
         else if (is_key_pressed(KC_NUMPAD2, KMod_DONTCARE))
         {
             return 2;
-            clear_key_pressed(KC_NUMPAD2);
         }
         else if (is_key_pressed(KC_NUMPAD3, KMod_DONTCARE))
         {
             return 3;
-            clear_key_pressed(KC_NUMPAD3);
         }
         else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
         {
-            return 4;
-            clear_key_pressed(KC_NUMPAD4);
+            return game.hero_player_num;
         }
         else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
         {
-            return 5;
-            clear_key_pressed(KC_NUMPAD5);
+            return game.neutral_player_num;
         }
         else
         {

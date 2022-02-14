@@ -274,7 +274,7 @@ static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dun
     {
         if (cum_freq > 0)
         {
-            long rnd = ACTION_RANDOM(cum_freq);
+            long rnd = PLAYER_RANDOM(dungeon->owner, cum_freq);
 
             crmodel = 1;
             while (rnd >= crtr_freq[crmodel])
@@ -395,3 +395,28 @@ void process_entrance_generation(void)
     }
 }
 /******************************************************************************/
+TbBool update_creature_pool_state(void)
+{
+    int i;
+    game.pool.is_empty = true;
+    for (i=1; i < CREATURE_TYPES_COUNT; i++)
+    {
+        if (game.pool.crtr_kind[i] > 0)
+        { game.pool.is_empty = false; break; }
+    }
+    return true;
+}
+
+void add_creature_to_pool(long kind, long amount, unsigned long a3)
+{
+    long prev_amount;
+    kind %= CREATURE_TYPES_COUNT;
+    prev_amount = game.pool.crtr_kind[kind];
+    if ((a3 == 0) || (prev_amount != -1))
+    {
+        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
+            game.pool.crtr_kind[kind] = prev_amount + amount;
+        else
+            game.pool.crtr_kind[kind] = amount;
+    }
+}

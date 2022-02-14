@@ -80,7 +80,7 @@ void LbCursorSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
 /**
  * Draws the mouse pointer sprite on a display buffer.
  */
-long PointerDraw(long x, long y, struct TbSprite *spr, TbPixel *outbuf, unsigned long scanline)
+static long PointerDraw(long x, long y, const struct TbSprite *spr, TbPixel *outbuf, unsigned long scanline)
 {
     unsigned int dwidth;
     unsigned int dheight;
@@ -185,7 +185,7 @@ void LbI_PointerHandler::ClipHotspot(void)
     }
 }
 
-void LbI_PointerHandler::Initialise(struct TbSprite *spr, struct TbPoint *npos, struct TbPoint *noffset)
+void LbI_PointerHandler::Initialise(const struct TbSprite *spr, struct TbPoint *npos, struct TbPoint *noffset)
 {
     void *surfbuf;
     TbPixel *buf;

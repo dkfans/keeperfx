@@ -69,7 +69,10 @@ const struct NamedCommand rules_game_commands[] = {
   {"DEATHMATCHOBJECTREAPPERTIME",27},
   {"GEMEFFECTIVENESS",           28},
   {"ROOMSELLGOLDBACKPERCENT",    29},
-  {"PLACETRAPSONSUBTILES",       30},
+  {"DOORSELLVALUEPERCENT",       30},
+  {"TRAPSELLVALUEPERCENT",       31},
+  {"PLACETRAPSONSUBTILES",       32},
+  {"BAGGOLDHOLD",                33},
   {NULL,                          0},
   };
 
@@ -85,7 +88,8 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"FULLY_HAPPY_WITH_GOLD",       9},
   {"FAINTED_IMMUNE_TO_BOULDER",  10},
   {"REBIRTH_KEEPS_SPELLS",       11},
-  {"PASSIVE_NEUTRALS",           12},
+  {"STUN_FRIENDLY_UNITS",        12},
+  {"PASSIVE_NEUTRALS",           13},
   {NULL,                          0},
   };
 
@@ -95,6 +99,7 @@ const struct NamedCommand rules_computer_commands[] = {
   {"CHECKEXPANDTIME",            3},
   {"MAXDISTANCETODIG",           4},
   {"WAITAFTERROOMAREA",          5},
+  {"DISEASEHPTEMPLEPERCENTAGE",  6},
   {NULL,                         0},
   };
 
@@ -293,15 +298,20 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         game.pay_day_gap = 5000;
         game.chest_gold_hold = 1000;
         game.dungeon_heart_health = 100;
+        gameadd.object_conf.base_config[5].health = 100;
         game.objects_config[5].health = 100;
         game.dungeon_heart_heal_time = 10;
         game.dungeon_heart_heal_health = 1;
         game.hero_door_wait_time = 100;
+        gameadd.bag_gold_hold = 200;
         gameadd.classic_bugs_flags = ClscBug_None;
+        gameadd.door_sale_percent = 100;
         gameadd.room_sale_percent = 50;
+        gameadd.trap_sale_percent = 100;
         gameadd.gem_effectiveness = 17;
         gameadd.pay_day_speed = 100;
         gameadd.place_traps_on_subtiles = false;
+        gameadd.gold_per_hoard = 2000;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -394,7 +404,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gold_per_hoard = k;
+              gameadd.gold_per_hoard = k;
               n++;
             }
             if (n < 1)
@@ -561,6 +571,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
               k = atoi(word_buf);
               game.dungeon_heart_health = k;
               game.objects_config[5].health = k;
+              gameadd.object_conf.base_config[5].health = k;
               n++;
             }
             if (n < 1)
@@ -659,10 +670,12 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   gameadd.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
                   n++;
                   break;
-              case 12: // PASSIVE_NEUTRALS
-                  gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
+              case 12: // STUN_FRIENDLY_UNITS
+                  gameadd.classic_bugs_flags |= ClscBug_FriendlyFaint;
                   n++;
                   break;
+              case 13: // PASSIVE_NEUTRALS
+                  gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
               default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -702,11 +715,50 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 30: // PLACETRAPSONSUBTILES
+        case 30: // DOORSELLVALUEPERCENT
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.door_sale_percent = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 31: // TRAPSELLVALUEPERCENT
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.trap_sale_percent = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 32: // PLACETRAPSONSUBTILES
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
                 gameadd.place_traps_on_subtiles = (TbBool)k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 33: // BAGGOLDHOLD
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.bag_gold_hold = k;
                 n++;
             }
             if (n < 1)
@@ -740,6 +792,7 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
         game.check_expand_time = 1000;
         game.max_distance_to_dig = 96;
         game.wait_after_room_area = 200;
+        gameadd.disease_to_temple_pct = 500;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -816,6 +869,19 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 6: // DISEASEHPTEMPLEPERCENTAGE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                gameadd.disease_to_temple_pct = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case 0: // comment

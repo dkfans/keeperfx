@@ -142,7 +142,7 @@ short mad_killing_psycho(struct Thing *creatng)
     // Find a position for killing - use random dungeon
     struct Coord3d pos;
     int i;
-    int n = ACTION_RANDOM(PLAYERS_COUNT);
+    int n = CREATURE_RANDOM(creatng, PLAYERS_COUNT);
     for (i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(n);

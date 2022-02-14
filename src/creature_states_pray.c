@@ -321,7 +321,7 @@ void kill_all_players_chickens(PlayerNumber plyr_idx)
         }
     }
     // Force leave or kill normal creatures and special diggers
-    do_to_players_all_creatures_of_model(plyr_idx, -1, kill_creature_if_under_chicken_spell);
+    do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, kill_creature_if_under_chicken_spell);
 }
 
 // This is state-process function of a creature
@@ -339,7 +339,7 @@ short creature_being_summoned(struct Thing *thing)
     if (cctrl->word_9A <= 0)
     {
         get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
-        create_effect(&thing->mappos, TngEff_Unknown04, thing->owner);
+        create_effect(&thing->mappos, TngEff_Explosion4, thing->owner);
         thing->movement_flags |= TMvF_Unknown04;
         cctrl->word_9A = 1;
         cctrl->word_9C = 48;//orig_h;
@@ -667,7 +667,7 @@ short creature_sacrifice(struct Thing *thing)
 TbBool find_random_sacrifice_center(struct Coord3d *pos, const struct Room *room)
 {
     // Find a random slab in the room to be used as our starting point
-    long i = ACTION_RANDOM(room->slabs_count);
+    long i = PLAYER_RANDOM(room->owner, room->slabs_count);
     unsigned long n = room->slabs_list;
     while (i > 0)
     {
