@@ -91,7 +91,6 @@ DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *creatng);
 DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
-DLLIMPORT long _DK_move_check_wait_at_door_for_wage(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
@@ -3301,7 +3300,33 @@ CrCheckRet move_check_persuade(struct Thing *creatng)
 
 CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
 {
-  return _DK_move_check_wait_at_door_for_wage(creatng);
+  // return _DK_move_check_wait_at_door_for_wage(creatng);
+  struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+  struct Thing *doortng;
+  struct Room *room;
+  if (cctrl->collided_door_subtile != 0)
+  {
+    doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
+    if (!thing_is_invalid(doortng))
+    {
+      internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
+      cctrl->blocking_door_id = doortng->index;
+      return CrCkRet_Continue;
+    }
+  }
+  else if ( cctrl->target_room_id != 0 )
+  {
+    room = get_room_thing_is_on(creatng);
+    if (!room_is_invalid(room))
+    {
+      if ( room->index == cctrl->target_room_id )
+      {
+        internal_set_thing_state(creatng, creatng->continue_state);
+        return CrCkRet_Continue;
+      }
+    }
+  }
+  return CrCkRet_Available;
 }
 
 char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
