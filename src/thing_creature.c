@@ -1929,6 +1929,8 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
     MapSubtlCoord end_y = coord_subtile(pos->y.val + nav_sizexy);
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
+    struct Thing *doortng;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ((blocked_flags & 0x01) != 0)
     {
         stl_x = end_x;
@@ -1936,12 +1938,14 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
             stl_x = start_x;
         for (stl_y = start_y; stl_y <= end_y; stl_y++)
         {
-            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & SlbAtFlg_IsDoor) != 0) {
-                SYNCDBG(18,"Door collision at X with %s",thing_model_name(thing));
-                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                cctrl->collided_door_subtile = get_subtile_number(stl_x, stl_y);
-                return true;
+            doortng = get_door_for_position(stl_x, stl_y);
+            if (!thing_is_invalid(doortng)) {
+                if (doortng->active_state == DorSt_Closed)
+                {
+                    SYNCDBG(18,"Door collision at X with %s",thing_model_name(thing));
+                    cctrl->collided_door_subtile = get_subtile_number(stl_x, stl_y);
+                    return true;
+                }
             }
         }
     }
@@ -1952,15 +1956,19 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
             stl_y = start_y;
         for (stl_x = start_x; stl_x <= end_x; stl_x++)
         {
-            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            if ((mapblk->flags & SlbAtFlg_IsDoor) != 0) {
-                SYNCDBG(18,"Door collision at Y with %s",thing_model_name(thing));
-                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                cctrl->collided_door_subtile = get_subtile_number(stl_x, stl_y);
-                return true;
+            doortng = get_door_for_position(stl_x, stl_y);
+            if (!thing_is_invalid(doortng)) {
+                if (doortng->active_state == DorSt_Closed)
+                {
+                    SYNCDBG(18,"Door collision at X with %s",thing_model_name(thing));
+                    cctrl->collided_door_subtile = get_subtile_number(stl_x, stl_y);
+                    return true;
+                }
             }
         }
     }
+    cctrl->collided_door_subtile = 0;
+    cctrl->blocking_door_id = 0;
     SYNCDBG(18,"No door collision with %s",thing_model_name(thing));
     return false;
 }

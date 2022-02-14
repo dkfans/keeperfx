@@ -2986,8 +2986,10 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     } else {
         doortng = INVALID_THING;
     }
-    if (!thing_is_deployed_door(doortng) || ((game.play_gameturn - doortng->creation_turn) <= 3) || !doortng->door.is_locked)
+    if ( (!thing_is_deployed_door(doortng)) || ((game.play_gameturn - doortng->creation_turn) <= 3) || (doortng->active_state == DorSt_Open) )
     {
+        cctrl->blocking_door_id = 0;
+        cctrl->collided_door_subtile = 0;
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
         return 1;
     }
@@ -3312,11 +3314,10 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
   if (cctrl->collided_door_subtile != 0)
   {
     doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
-    if (!thing_is_invalid(doortng) && (creatng->owner == doortng->owner)) //todo check if this needs to be allied too.
+    if (!thing_is_invalid(doortng))
     {
       internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
       cctrl->blocking_door_id = doortng->index;
-      cctrl->collided_door_subtile = 0;
       return CrCkRet_Continue;
     }
   }
