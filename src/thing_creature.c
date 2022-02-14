@@ -1819,12 +1819,14 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                     {
                         if (set_creature_door_combat(thing, doortng))
                         {
+                            // If the door gets attacked, we're not running into it
                             cctrl->collided_door_subtile = 0;
                         }
                     }
                 }
                 else
                 {
+                    // If the door does not exist, clear this field too.
                     cctrl->collided_door_subtile = 0;
                 }
             }
