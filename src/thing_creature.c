@@ -1817,8 +1817,10 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                 {
                     if (thing->owner != doortng->owner)
                     {
-                        set_creature_door_combat(thing, doortng);
-                        cctrl->collided_door_subtile = 0;
+                        if (set_creature_door_combat(thing, doortng))
+                        {
+                            cctrl->collided_door_subtile = 0;
+                        }
                     }
                 }
                 else
