@@ -61,7 +61,6 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng);
 TngUpdateRet object_update_call_to_arms(struct Thing *objtng);
 TngUpdateRet object_update_armour(struct Thing *objtng);
 TngUpdateRet object_update_object_scale(struct Thing *objtng);
-TngUpdateRet object_update_armour2(struct Thing *objtng);
 TngUpdateRet object_update_power_sight(struct Thing *objtng);
 TngUpdateRet object_update_power_lightning(struct Thing *objtng);
 
@@ -187,7 +186,7 @@ Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
     NULL,
     NULL,
     NULL,
-    object_update_armour2,
+    object_update_armour,
     NULL,
     NULL,
     NULL,
@@ -391,7 +390,6 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_object_update_armour2(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_power_sight(struct Thing *objtng);
 DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *gldtng);
 /******************************************************************************/
@@ -1704,11 +1702,6 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
     }
     set_thing_draw(objtng, i, objdat->anim_speed, objtng->word_15, 0, start_frame, objdat->draw_class);
     return 1;
-}
-
-TngUpdateRet object_update_armour2(struct Thing *objtng)
-{
-    return _DK_object_update_armour2(objtng);
 }
 
 TngUpdateRet object_update_power_sight(struct Thing *objtng)
