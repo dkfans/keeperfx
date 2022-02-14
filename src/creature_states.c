@@ -3310,10 +3310,11 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
   if (cctrl->collided_door_subtile != 0)
   {
     doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
-    if (!thing_is_invalid(doortng))
+    if (!thing_is_invalid(doortng) && (creatng->owner == doortng->owner)) //todo check if this needs to be allied too.
     {
       internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
       cctrl->blocking_door_id = doortng->index;
+      cctrl->collided_door_subtile = 0;
       return CrCkRet_Continue;
     }
   }

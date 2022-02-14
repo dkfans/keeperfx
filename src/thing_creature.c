@@ -1823,13 +1823,6 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                             cctrl->collided_door_subtile = 0;
                         }
                     }
-                    else
-                    {
-                        if (!doortng->door.is_locked)
-                        {
-                            cctrl->collided_door_subtile = 0;
-                        }
-                    }
                 }
                 else
                 {
