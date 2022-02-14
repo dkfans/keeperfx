@@ -46,7 +46,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short max_dist, long a4);
 DLLIMPORT long _DK_move_effect(struct Thing *efftng);
 
 /******************************************************************************/
@@ -954,9 +953,33 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     return TUFRet_Modified;
 }
 
-struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4)
+struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx)
 {
-  return _DK_create_effect_generator(pos, a1, a2, a3, a4);
+  struct Thing *effect_generator_thing;
+
+  if ( i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
+  {
+    effect_generator_thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    effect_generator_thing->class_id = TCls_EffectGen;
+    effect_generator_thing->model = model;
+    effect_generator_thing->parent_idx = parent_idx;
+    if ( parent_idx == -1 )
+      effect_generator_thing->parent_idx = -1;
+    effect_generator_thing->owner = owner;
+    effect_generator_thing->effect_generator.range = range;
+    effect_generator_thing->mappos = *pos;
+    effect_generator_thing->creation_turn = game.play_gameturn;
+    effect_generator_thing->health = -1;
+    effect_generator_thing->field_4F |= TF4F_Unknown01;
+    add_thing_to_list(effect_generator_thing, get_list_for_thing_class(TCls_EffectGen));
+    place_thing_in_mapwho(effect_generator_thing);
+    return effect_generator_thing;
+  }
+  else
+  {
+    ERRORLOG("Cannot create effect generator because there are too many fucking things allocated.");
+    return 0;
+  }
 }
 
 long move_effect(struct Thing *thing)
@@ -1119,9 +1142,9 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         SYNCDBG(18,"No player sees %s at (%d,%d,%d)",thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)thing->mappos.z.stl.num);
         return TUFRet_Modified;
     }
-    if (thing->long_15 > 0)
-        thing->long_15--;
-    if (thing->long_15 > 0)
+    if (thing->effect_generator.long_15 > 0)
+        thing->effect_generator.long_15--;
+    if (thing->effect_generator.long_15 > 0)
     {
         return TUFRet_Modified;
     }
