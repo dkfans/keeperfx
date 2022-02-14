@@ -1994,7 +1994,8 @@ long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingMode
         int slbwnr = get_slab_owner_thing_is_on(thing);
         if ( ((thing->model == crmodel) || (crmodel == CREATURE_ANY)) &&
             ( (players_are_enemies(thing->owner,slbwnr) && (friendly == 0)) ||
-            (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ) )
+              (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ||
+              (slbwnr == game.neutral_player_num && (friendly == 2)) ) )
         {
             count++;
         }
@@ -2058,40 +2059,49 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
         {
             ERRORLOG("Jump to invalid thing detected");
             return INVALID_THING;
-      }
-      struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-      i = cctrl->players_next_creature_idx;
-      // Per creature code
-      int slbwnr = get_slab_owner_thing_is_on(thing);
-      int match = 0;
-      if (friendly)
-      {
-        if (players_are_mutual_allies(thing->owner,slbwnr))
-        {
-          match = 1;
         }
-      } else
-      {
-        if (players_are_enemies(thing->owner,slbwnr))
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        int slbwnr = get_slab_owner_thing_is_on(thing);
+        int match = 0;
+        if (friendly == 1)
         {
-          match = 1;
+            if (players_are_mutual_allies(thing->owner,slbwnr))
+            {
+                match = 1;
+            }
+        } 
+        else if (friendly == 0)
+        {
+            if (players_are_enemies(thing->owner,slbwnr))
+            {
+                match = 1;
+            }
         }
-      }
-      if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel && crtr_idx <= 1)) && (match == 1))
-      {
-          return thing;
-      }
-      if ((crmodel == 0) || (crmodel == CREATURE_ANY) || ((thing->model == crmodel) && (match == 1)))
-      {
-          crtr_idx--;
-      }
-      // Per creature code ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping things list");
-        return INVALID_THING;
-      }
+        else
+        {
+            if (slbwnr == game.neutral_player_num)
+            {
+                match = 1;
+            }
+        }
+
+        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel && crtr_idx <= 1)) && (match == 1))
+        {
+            return thing;
+        }
+        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || ((thing->model == crmodel) && (match == 1)))
+        {
+            crtr_idx--;
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            return INVALID_THING;
+        }
     }
     ERRORLOG("Tried to get creature of index exceeding list");
     return INVALID_THING;
