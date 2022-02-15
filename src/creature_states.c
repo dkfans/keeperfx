@@ -4052,6 +4052,7 @@ short state_cleanup_wait_at_door(struct Thing* creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->blocking_door_id = 0;
+    cctrl->collided_door_subtile = 0;
     return 1;
 }
 
