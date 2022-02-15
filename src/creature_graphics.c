@@ -32,6 +32,7 @@
 #include "vidfade.h"
 #include "keeperfx.hpp"
 #include "engine_render.h"
+#include "player_instances.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -357,7 +358,7 @@ void update_creature_graphic_field_4F(struct Thing *thing)
     thing->field_4F &= ~TF4F_Transpar_Flags;
     thing->field_4F &= ~TF4F_Unknown40;
     // Now set only those that should be
-    if (((thing->alloc_flags & TAlF_IsControlled) != 0) && is_my_player_number(thing->owner))
+    if ( (is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)) )
     {
         thing->field_4F |= TF4F_Unknown01;
     }
@@ -373,7 +374,21 @@ void update_creature_graphic_field_4F(struct Thing *thing)
           thing->field_4F |= TF4F_Transpar_4;
       } else
       {
-          thing->field_4F |= TF4F_Unknown01;
+            thing->field_4F |= TF4F_Unknown01;
+            struct PlayerInfo* player = get_my_player();
+            struct Thing* creatng = thing_get(player->influenced_thing_idx);
+            if (creatng != thing)
+            {
+                if ( (is_thing_directly_controlled_by_player(creatng, player->id_number)) || (is_thing_passenger_controlled_by_player(creatng, player->id_number)) )
+                {
+                    if (creature_can_see_invisible(creatng))
+                    {
+                        thing->field_4F &= ~TF4F_Unknown01;
+                        thing->field_4F &= ~TF4F_Transpar_Flags;
+                        thing->field_4F |= TF4F_Transpar_4;
+                    }
+                }
+            }
       }
     }
 }

@@ -61,7 +61,6 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng);
 TngUpdateRet object_update_call_to_arms(struct Thing *objtng);
 TngUpdateRet object_update_armour(struct Thing *objtng);
 TngUpdateRet object_update_object_scale(struct Thing *objtng);
-TngUpdateRet object_update_armour2(struct Thing *objtng);
 TngUpdateRet object_update_power_sight(struct Thing *objtng);
 TngUpdateRet object_update_power_lightning(struct Thing *objtng);
 
@@ -187,7 +186,7 @@ Thing_Class_Func object_update_functions[OBJECT_TYPES_MAX] = {
     NULL,
     NULL,
     NULL,
-    object_update_armour2,
+    object_update_armour,
     NULL,
     NULL,
     NULL,
@@ -391,7 +390,6 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT long _DK_object_update_armour2(struct Thing *objtng);
 DLLIMPORT long _DK_object_update_power_sight(struct Thing *objtng);
 DLLIMPORT struct Thing * _DK_find_base_thing_on_mapwho_excluding_self(struct Thing *gldtng);
 /******************************************************************************/
@@ -1713,11 +1711,6 @@ TngUpdateRet object_update_object_scale(struct Thing *objtng)
 }
 HOOK_DK_FUNC(object_update_object_scale)
 
-TngUpdateRet object_update_armour2(struct Thing *objtng)
-{
-    return _DK_object_update_armour2(objtng);
-}
-
 TngUpdateRet object_update_power_sight(struct Thing *objtng)
 {
     return _DK_object_update_power_sight(objtng);
@@ -1799,16 +1792,13 @@ TngUpdateRet move_object(struct Thing *thing)
             long blocked_flags = get_thing_blocked_flags_at(thing, &pos);
             if (blocked_flags & SlbBloF_WalledZ)
             {
-                if (thing->owner != game.neutral_player_num)
+                struct Dungeon* dungeon = get_dungeon(thing->owner);
+                if (dungeon->sight_casted_thing_idx != thing->index)
                 {
-                    struct Dungeon* dungeon = get_dungeon(thing->owner);
-                    if (dungeon->sight_casted_thing_idx != thing->index)
+                    if (!find_free_position_on_slab(thing, &pos))
                     {
-                        if (!find_free_position_on_slab(thing, &pos))
-                        {
-                            SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.", pos.x.val, pos.y.val, blocked_flags);
-                            move_creature_to_nearest_valid_position(thing);
-                        }
+                        SYNCDBG(7, "Found no free position next to (%ld,%ld) due to blocked flag %d. Move to valid position.", pos.x.val, pos.y.val, blocked_flags);
+                        move_creature_to_nearest_valid_position(thing);
                     }
                 }
             }

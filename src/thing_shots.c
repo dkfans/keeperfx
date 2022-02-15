@@ -23,6 +23,7 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
+#include "creature_states.h"
 #include "thing_data.h"
 #include "thing_factory.h"
 #include "thing_effects.h"
@@ -211,8 +212,20 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     }
     if (crstat->gold_hold <= creatng->creature.gold_carried)
     {
-        drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos);
+        struct Thing* gldtng = drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos);
         creatng->creature.gold_carried = 0;
+        struct Room* room;
+        room = get_room_thing_is_on(creatng);
+        if (!room_is_invalid(room))
+        {
+            if (room_role_matches(room->kind, RoRoF_GoldStorage))
+            {
+                if (room->owner == creatng->owner)
+                {
+                    gold_being_dropped_at_treasury(gldtng, room);
+                }
+            }
+        }
     }
     return true;
 }
@@ -289,6 +302,28 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
     }
 
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    if ((mapblk->flags & SlbAtFlg_IsRoom) != 0)
+    {
+        if (diggertng->creature.gold_carried > 0)
+        {
+            struct Thing* gldtng = drop_gold_pile(diggertng->creature.gold_carried, &diggertng->mappos);
+            diggertng->creature.gold_carried = 0;
+            struct Room* room;
+            room = get_room_xy(stl_x, stl_y);
+            if (!room_is_invalid(room))
+            {
+                if (room_role_matches(room->kind, RoRoF_GoldStorage))
+                {
+                    if (room->owner == diggertng->owner)
+                    {
+                        gold_being_dropped_at_treasury(gldtng, room);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     // Doors cannot be dug
     if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
     {
