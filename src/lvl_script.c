@@ -3137,6 +3137,11 @@ void command_set_computer_checks(long plr_range_id, const char *chkname, long va
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
+  if (!player_exists(get_player(plr_range_id)))
+  {
+      SCRPTERRLOG("Player %d does not exist; cannot modify check", (int)plr_range_id);
+      return;
+  }
   if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer check altered inside conditional block; condition ignored");
