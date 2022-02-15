@@ -162,7 +162,7 @@ struct Thing {
       };
       struct {
       short range;
-      long long_15;
+      long generation_delay;
       } effect_generator;
       struct {
       short belongs_to;
