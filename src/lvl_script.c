@@ -1070,6 +1070,8 @@ static struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long
         return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 0);
     case CSelCrit_OnFriendlyGround:
         return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 1);
+    case CSelCrit_OnNeutralGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 2);
     case CSelCrit_NearAP:
     {
         int loc = filter_criteria_loc(criteria);
