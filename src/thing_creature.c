@@ -2591,6 +2591,15 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
     //return _DK_kill_creature(creatng, killertng, killer_plyr_idx, (flags&CrDed_NoEffects)!=0, (flags&CrDed_DiedInBattle)!=0, (flags&CrDed_NoUnconscious)!=0);
+    struct PlayerInfo *player = get_my_player();
+    if (creatng->index == player->influenced_thing_idx)
+    {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+        if (cctrl->dragtng_idx != 0)
+        {
+            creature_drop_dragged_object(creatng, thing_get(cctrl->dragtng_idx));
+        }
+    }
     if ((flags & CrDed_NotReallyDying) == 0)
     {
         EVM_CREATURE_EVENT("died", creatng->owner, creatng);
