@@ -143,51 +143,17 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
 
 struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, long arg)
 {
-    long i = get_map_location_longval(location);
+    
     int tngowner = 5; // Neutral
     struct Coord3d pos;
 
     const unsigned char tngclass = TCls_Object;
 
-    // TODO: move into a function
-    switch (get_map_location_type(location))
+    if(!get_coords_at_location(&pos,location))
     {
-    case MLoc_ACTIONPOINT:
-        if (!get_coords_at_action_point(&pos, i, 1))
-        {
-            return INVALID_THING;
-        }
-        break;
-    case MLoc_HEROGATE:
-        if (!get_coords_at_hero_door(&pos, i, 1))
-        {
-            return INVALID_THING;
-        }
-        break;
-    case MLoc_PLAYERSHEART:
-        if (!get_coords_at_dungeon_heart(&pos, i))
-        {
-            return INVALID_THING;
-        }
-        break;
-    case MLoc_METALOCATION:
-        if (!get_coords_at_meta_action(&pos, 0, i))
-        {
-            return INVALID_THING;
-        }
-        break;
-    case MLoc_CREATUREKIND:
-    case MLoc_OBJECTKIND:
-    case MLoc_ROOMKIND:
-    case MLoc_THING:
-    case MLoc_PLAYERSDUNGEON:
-    case MLoc_APPROPRTDUNGEON:
-    case MLoc_DOORKIND:
-    case MLoc_TRAPKIND:
-    case MLoc_NONE:
-    default:
         return INVALID_THING;
     }
+
     struct Thing* thing = create_thing(&pos, tngclass, tngmodel, tngowner, -1);
     if (thing_is_invalid(thing))
     {

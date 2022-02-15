@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file map_locations.c
- *     Map array data management functions.
+ *     Map location functions.
  * @par Purpose:
  *     Functions related to locations of points of intrest on the map
  * @par Comment:
@@ -28,8 +28,51 @@ extern "C" {
 /******************************************************************************/
 
 
+TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
+{
 
-/******************************************************************************/
+    long i = get_map_location_longval(location);
+
+    switch (get_map_location_type(location))
+    {
+    case MLoc_ACTIONPOINT:
+        if (!get_coords_at_action_point(&pos, i, 1))
+        {
+            return false;
+        }
+        break;
+    case MLoc_HEROGATE:
+        if (!get_coords_at_hero_door(&pos, i, 1))
+        {
+            return false;
+        }
+        break;
+    case MLoc_PLAYERSHEART:
+        if (!get_coords_at_dungeon_heart(&pos, i))
+        {
+            return false;
+        }
+        break;
+    case MLoc_METALOCATION:
+        if (!get_coords_at_meta_action(&pos, 0, i))
+        {
+            return false;
+        }
+        break;
+    case MLoc_CREATUREKIND:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    case MLoc_THING:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    case MLoc_NONE:
+    default:
+        return false;
+    }
+}
+
 
 TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i)
 {
