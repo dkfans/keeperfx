@@ -81,7 +81,6 @@ TbBool setup_heap_manager(void)
 #else
     const char* fname = prepare_file_path(FGrp_StdData, "creature.jty");
 #endif
-    //TODO CREATURE_SPRITE Use rewritten file handling when reading is rewritten
     file_handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (file_handle == -1) {
         ERRORLOG("Can not open JTY file, \"%s\"",fname);
@@ -138,7 +137,6 @@ void reset_heap_manager(void)
     SYNCDBG(8,"Starting");
     if (file_handle != -1)
     {
-        //TODO CREATURE_SPRITE Use rewritten file handling when reading is rewritten
         LbFileClose(file_handle);
         file_handle = -1;
     }
