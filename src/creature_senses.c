@@ -34,8 +34,6 @@
 #include "game_legacy.h"
 
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_line_of_sight_2d(const struct Coord3d *pos1, const struct Coord3d *pos2);
-/******************************************************************************/
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
@@ -677,9 +675,71 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
     }
 }
 
-TbBool line_of_sight_2d(const struct Coord3d *pos1, const struct Coord3d *pos2)
+TbBool line_of_sight_2d(const struct Coord3d *frpos, const struct Coord3d *topos)
 {
-    return _DK_line_of_sight_2d(pos1, pos2);
+    MapCoordDelta increase_x;
+    MapCoordDelta deltaX;
+    MapCoordDelta deltaY;
+    MapCoordDelta increase_y;
+    MapCoordDelta deltaXplus1;
+    MapCoordDelta deltaYplus1;
+    int rayPathEnd;
+    int v10;
+    struct Coord3d rayPos;
+        
+    deltaX = abs(topos->x.val - frpos->x.val);
+    deltaY = abs(topos->y.val - frpos->y.val);
+
+    if ( frpos->x.val > topos->x.val )
+    {
+        increase_x = -80;
+    }
+    else
+    {
+        increase_x = 80;
+    }
+    
+    if ( frpos->y.val > topos->y.val )
+    {
+        increase_y = -80;
+    }
+    else
+    {
+        increase_y = 80;
+    }
+    
+    
+    if ( deltaY == deltaX )
+    {
+      rayPathEnd = (deltaX + 1) / 80;
+    }
+    else if ( deltaY > deltaX )
+    {
+      increase_x = (deltaX + 1) * increase_x / (deltaY + 1);
+      rayPathEnd = (deltaY + 1) / 80;
+    }
+    else if ( deltaY < deltaX )
+    {
+      increase_y = (deltaY + 1) * increase_y / (deltaX + 1);
+      rayPathEnd = (deltaX + 1) / 80;
+    }
+    
+    v10 = rayPathEnd;
+    rayPos.x = frpos->x;
+    rayPos.y = frpos->y;
+    rayPos.z = frpos->z;
+
+    if ( rayPathEnd == 0 )
+      return true;
+
+    while ( !point_in_map_is_solid(&rayPos) )
+    {
+      rayPos.x.val += increase_x;
+      rayPos.y.val += increase_y;
+      if ( !--v10 )
+        return true;
+    }
+    return false;
 }
 
 TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos)
