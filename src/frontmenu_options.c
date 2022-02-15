@@ -312,6 +312,11 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
     }
 }
 
+void gui_switch_video_mode(struct GuiButton *gbtn)
+{
+    switch_to_next_video_mode();
+}
+
 void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
 {
     settings.first_person_move_sensitivity = fe_mouse_sensitivity;
