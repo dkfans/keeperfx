@@ -3526,6 +3526,11 @@ void command_set_computer_events(long plr_range_id, const char *evntname, long v
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
+  if (!player_exists(get_player(plr_range_id)))
+  {
+      SCRPTERRLOG("Player %d does not exist; cannot modify events", (int)plr_range_id);
+      return;
+  }
   if (script_current_condition != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer event altered inside conditional block; condition ignored");
