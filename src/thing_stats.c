@@ -830,6 +830,30 @@ long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, 
     return gold;
 }
 
+long compute_creature_weight(const struct Thing* creatng, struct CreatureStats* crstat, struct CreatureControl* cctrl)
+{
+    long eye_height = (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    long weight = eye_height >> 2;
+    weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
+    
+    if (!crstat->affected_by_wind)
+    {
+        weight = weight * 3 / 2;
+    }
+    
+    if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
+    {
+        weight = weight * 3 / 2;
+    }
+
+    if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
+    {
+        weight = weight / 2;
+    }
+
+    return weight;
+}
+
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)
 {
     const char *text;
@@ -954,14 +978,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_Weight:
-        i = ((crstat->thing_size_xy * crstat->thing_size_yz >> 8) * crstat->thing_size_xy >> 10);
-        i += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->explevel;
-        if (!crstat->affected_by_wind)
-            i = i*3/2;
-        if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
-            i = i*3/2;
-        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) != 0)
-            i = i/2;
+        i = compute_creature_weight(creatng, crstat, cctrl);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;
