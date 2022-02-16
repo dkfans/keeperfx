@@ -87,9 +87,9 @@ struct GuiButtonInit video_menu_buttons[] = {
   {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_shadows,  NULL,        NULL,               0,   8,  38,  10,  38, 46, 64, gui_area_no_anim_button,          27, GUIStr_OptionShadowsDesc, 0,{(long)&_DK_video_shadows}, 4, NULL },
   {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_view_distance_level,NULL,NULL,             0,  56,  38,  58,  38, 46, 64, gui_area_no_anim_button,          36, GUIStr_OptionViewDistanceDesc,0,{(long)&video_view_distance_level}, 3, NULL },
   {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_rotate_mode,NULL,      NULL,               0, 104,  38, 106,  38, 46, 64, gui_area_no_anim_button,          32, GUIStr_OptionViewTypeDesc,0,{(long)&settings.video_rotate_mode}, 1, NULL },
-  {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_cluedo_mode,NULL,      NULL,               0,  32,  90,  32,  90, 46, 64, gui_area_no_anim_button,          42, GUIStr_OptionWallHeightDesc,0,{(long)&_DK_video_cluedo_mode},1, gui_video_cluedo_maintain },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_video_gamma_correction,NULL, NULL,               0,  80,  90,  80,  90, 46, 64, gui_area_no_anim_button,          44, GUIStr_OptionGammaCorrectionDesc,0,{(long)&video_gamma_correction}, 0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_switch_video_mode, NULL, NULL,                   0,  56, 148,  58,  148, 46, 64, gui_area_no_anim_button,         25, GUIStr_Empty,0,NULL, 0, NULL },
+  {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_cluedo_mode,NULL,      NULL,               0,  8,  90,  10,  90, 46, 64, gui_area_no_anim_button,          42, GUIStr_OptionWallHeightDesc,0,{(long)&_DK_video_cluedo_mode},1, gui_video_cluedo_maintain },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_video_gamma_correction,NULL, NULL,               0,  56,  90,  58,  90, 46, 64, gui_area_no_anim_button,          44, GUIStr_OptionGammaCorrectionDesc,0,{(long)&video_gamma_correction}, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_switch_video_mode, NULL, NULL,                   0,  104,  90,  106, 90, 46, 64, gui_area_no_anim_button,         25, GUIStr_Empty,0,NULL, 0, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 
@@ -125,7 +125,7 @@ struct GuiMenu autopilot_menu =
  { GMnu_AUTOPILOT,    0, 4, autopilot_menu_buttons,     POS_GAMECTR,POS_GAMECTR,224, 120, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 
 struct GuiMenu video_menu =
- { GMnu_VIDEO, 0, 4, video_menu_buttons,         POS_GAMECTR,POS_GAMECTR,160, 220, gui_pretty_background,       0, NULL,    init_video_menu,         0, 1, 0,};
+ { GMnu_VIDEO, 0, 4, video_menu_buttons,         POS_GAMECTR,POS_GAMECTR,160, 170, gui_pretty_background,       0, NULL,    init_video_menu,         0, 1, 0,};
 struct GuiMenu sound_menu =
  { GMnu_SOUND, 0, 4, sound_menu_buttons,         POS_GAMECTR,POS_GAMECTR,280, 170, gui_pretty_background,       0, NULL,    init_audio_menu,         0, 1, 0,};
  
