@@ -315,6 +315,7 @@ void gui_video_cluedo_maintain(struct GuiButton *gbtn)
 void gui_switch_video_mode(struct GuiButton *gbtn)
 {
     switch_to_next_video_mode();
+    turn_on_menu(GMnu_VIDEO);
 }
 
 void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
