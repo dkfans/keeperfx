@@ -5420,8 +5420,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     clear_messages_from_player(-81);
     clear_messages_from_player(-86);
     unsigned short smpl_idx, pitch;
-    struct SlabMap *slb = get_slabmap_for_subtile(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num);
-    if (slb->kind == SlbT_WATER)
+    if (subtile_has_water_on_top(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num))
     {
         smpl_idx = (rand() % (24 - 22)) + 21;
         pitch = 75;
