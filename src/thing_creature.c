@@ -5449,14 +5449,31 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
         }
         case TCls_Creature:
         {
-            smpl_idx = (rand() % (20 - 18)) + 17;
+            struct SlabMap *slb = get_slabmap_for_subtile(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num);
+            if (slb->kind == SlbT_WATER)
+            {
+                smpl_idx = (rand() % (24 - 22)) + 21;
+            }
+            else
+            {
+                smpl_idx = (rand() % (20 - 18)) + 17;
+            }
             pitch = 75;
             break;
         }
         case TCls_DeadCreature:
         {
-            smpl_idx = 58;
-            pitch = 50;
+            struct SlabMap *slb = get_slabmap_for_subtile(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num);
+            if (slb->kind == SlbT_WATER)
+            {
+                smpl_idx = (rand() % (24 - 22)) + 21;
+                pitch = 75;
+            }
+            else
+            {
+                smpl_idx = 58;
+                pitch = 50;
+            }
             break;
         }
         default:
