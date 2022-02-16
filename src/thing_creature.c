@@ -5449,7 +5449,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
         }
         case TCls_Creature:
         {
-            smpl_idx = (rand() % (20 - 17 + 1)) + 17;
+            smpl_idx = (rand() % (20 - 18)) + 17;
             pitch = 75;
             break;
         }
