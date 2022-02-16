@@ -4063,7 +4063,15 @@ short state_cleanup_dragging_body(struct Thing *creatng)
     if (cctrl->dragtng_idx > 0)
     {
         struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-        stop_creature_being_dragged_by(dragtng, creatng);
+        if (dragtng->class_id == TCls_Creature)
+        {
+            stop_creature_being_dragged_by(dragtng, creatng);
+        } else 
+        if (dragtng->class_id == TCls_DeadCreature)
+        {
+            creature_drop_dragged_object(creatng, dragtng);
+            dragtng->owner = game.neutral_player_num;
+        }
     }
     return 1;
 }
@@ -4200,6 +4208,7 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     }
     remove_events_thing_is_attached_to(creatng);
     delete_effects_attached_to_creature(creatng);
+    state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
     return true;
 }
