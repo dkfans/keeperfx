@@ -5703,25 +5703,15 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     }
     else if (thing_is_creature(picktng))
     {
-        if (picktng->owner == game.neutral_player_num)
-        {
-            id = game.neutral_player_num;
-            sprintf(str, "%s", player_desc[6].name);
-        }
-        else if (picktng->owner == game.hero_player_num)
-        {
-            id = picktng->owner;
-            sprintf(str, "%s", player_desc[4].name);
-        }
-        else
-        {
-            id = picktng->owner;
-            sprintf(str, "%s", player_desc[picktng->owner].name);
-        }
+        id = picktng->owner;
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[picktng->model];
+        sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
         id = -89;
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[picktng->model];
+        sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else
     {
