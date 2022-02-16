@@ -37,6 +37,7 @@
 #include "packets.h"
 #include "config_settings.h"
 #include "keeperfx.hpp"
+#include "gui_topmsg.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -316,6 +317,12 @@ void gui_switch_video_mode(struct GuiButton *gbtn)
 {
     switch_to_next_video_mode();
     turn_on_menu(GMnu_VIDEO);
+}
+
+void gui_display_current_resolution(struct GuiButton *gbtn)
+{
+    char* mode = get_vidmode_name(lbDisplay.ScreenMode);
+    show_onscreen_msg(40, "%s", mode);
 }
 
 void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
