@@ -4189,6 +4189,7 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     }
     remove_events_thing_is_attached_to(creatng);
     delete_effects_attached_to_creature(creatng);
+    state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
     return true;
 }
