@@ -5409,7 +5409,14 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
 
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng)
 {
-    creature_drop_dragged_object(creatng, droptng);
+    if (droptng->class_id == TCls_Creature)
+    {
+        stop_creature_being_dragged_by(droptng, creatng);
+    }
+    else
+    {
+        creature_drop_dragged_object(creatng, droptng);
+    }
     clear_messages_from_player(-81);
     clear_messages_from_player(-86);
     unsigned short smpl_idx, pitch;
@@ -5440,6 +5447,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
             }
             break;
         }
+        case TCls_Creature:
         case TCls_DeadCreature:
         {
             smpl_idx = 58;
