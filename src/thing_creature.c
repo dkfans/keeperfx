@@ -5420,67 +5420,59 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     clear_messages_from_player(-81);
     clear_messages_from_player(-86);
     unsigned short smpl_idx, pitch;
-    switch(droptng->class_id)
+    struct SlabMap *slb = get_slabmap_for_subtile(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num);
+    if (slb->kind == SlbT_WATER)
     {
-        case TCls_Object:
+        smpl_idx = (rand() % (24 - 22)) + 21;
+        pitch = 75;
+    }
+    else
+    {
+        switch(droptng->class_id)
         {
-            smpl_idx = 992;
-            struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
-            switch (objst->genre)
+            case TCls_Object:
             {
-                case OCtg_WrkshpBox:
-                case OCtg_SpecialBox:
+                smpl_idx = 992;
+                struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
+                switch (objst->genre)
                 {
-                    pitch = 25;
-                    break;
+                    case OCtg_WrkshpBox:
+                    case OCtg_SpecialBox:
+                    {
+                        pitch = 25;
+                        break;
+                    }
+                    case OCtg_Spellbook:
+                    {
+                        pitch = 90;
+                        break;
+                    }
+                    default:
+                    {
+                        pitch = 0;
+                        break;
+                    }
                 }
-                case OCtg_Spellbook:
-                {
-                    pitch = 90;
-                    break;
-                }
-                default:
-                {
-                    pitch = 0;
-                    break;
-                }
+                break;
             }
-            break;
-        }
-        case TCls_Creature:
-        {
-            struct SlabMap *slb = get_slabmap_for_subtile(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num);
-            if (slb->kind == SlbT_WATER)
-            {
-                smpl_idx = (rand() % (24 - 22)) + 21;
-            }
-            else
+            case TCls_Creature:
             {
                 smpl_idx = (rand() % (20 - 18)) + 17;
-            }
-            pitch = 75;
-            break;
-        }
-        case TCls_DeadCreature:
-        {
-            struct SlabMap *slb = get_slabmap_for_subtile(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num);
-            if (slb->kind == SlbT_WATER)
-            {
-                smpl_idx = (rand() % (24 - 22)) + 21;
                 pitch = 75;
+                break;
             }
-            else
+            case TCls_DeadCreature:
             {
                 smpl_idx = 58;
                 pitch = 50;
+                break;
             }
-            break;
-        }
-        default:
-        {
-            smpl_idx = 0;
-            pitch = 0;
-            break;
+            default:
+            {
+                smpl_idx = 0;
+                pitch = 0;
+                break;
+            }
         }
     }
     thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, FULL_LOUDNESS);
