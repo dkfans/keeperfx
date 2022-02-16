@@ -5448,6 +5448,11 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
             break;
         }
         case TCls_Creature:
+        {
+            smpl_idx = 18;
+            pitch = 75;
+            break;
+        }
         case TCls_DeadCreature:
         {
             smpl_idx = 58;
