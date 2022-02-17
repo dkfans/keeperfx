@@ -49,10 +49,6 @@ extern "C" {
 
 #define SENSIBLE_GOLD 99999999
 
-
-
-
-
 enum ScriptOperator {
     SOpr_SET = 1,
     SOpr_INCREASE,
@@ -229,9 +225,6 @@ struct LevelScript {
 };
 
 /******************************************************************************/
-// DLLIMPORT short _DK_script_current_condition;
-// #define script_current_condition _DK_script_current_condition
-DLLIMPORT unsigned long _DK_script_line_number;
 DLLIMPORT unsigned char _DK_next_command_reusable;
 #define next_command_reusable _DK_next_command_reusable
 
