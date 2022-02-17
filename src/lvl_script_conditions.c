@@ -34,7 +34,13 @@ extern "C" {
 #endif
 
 
+static int script_current_condition = 0;
 
+
+DLLIMPORT unsigned short _DK_condition_stack_pos;
+#define condition_stack_pos _DK_condition_stack_pos
+DLLIMPORT unsigned short _DK_condition_stack[48];
+#define condition_stack _DK_condition_stack
 
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
@@ -367,7 +373,58 @@ void process_conditions(void)
     }
 }
 
+long pop_condition(void)
+{
+  if (script_current_condition == CONDITION_ALWAYS)
+  {
+    SCRPTERRLOG("unexpected ENDIF");
+    return -1;
+  }
+  if ( condition_stack_pos )
+  {
+    condition_stack_pos--;
+    script_current_condition = condition_stack[condition_stack_pos];
+  } else
+  {
+    script_current_condition = CONDITION_ALWAYS;
+  }
+  return script_current_condition;
+}
 
+int get_script_current_condition()
+{
+    return script_current_condition;
+}
+
+void set_script_current_condition(int current_condition)
+{
+    script_current_condition = current_condition;
+}
+
+static void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
+{
+    // TODO: replace with pointer to functions
+    struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
+    condt->condit_idx = script_current_condition;
+    condt->plyr_range = plr_range_id;
+    condt->variabl_type = varib_type;
+    condt->variabl_idx = varib_id;
+    condt->operation = opertr_id;
+    condt->rvalue = value;
+    if (condition_stack_pos >= CONDITIONS_COUNT)
+    {
+        gameadd.script.conditions_num++;
+        SCRPTWRNLOG("Conditions too deep in script");
+        return;
+    }
+    if (script_current_condition != CONDITION_ALWAYS)
+    {
+        condition_stack[condition_stack_pos] = script_current_condition;
+        condition_stack_pos++;
+    }
+    script_current_condition = gameadd.script.conditions_num;
+    gameadd.script.conditions_num++;
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

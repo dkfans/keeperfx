@@ -234,10 +234,7 @@ struct LevelScript {
 DLLIMPORT unsigned long _DK_script_line_number;
 DLLIMPORT unsigned char _DK_next_command_reusable;
 #define next_command_reusable _DK_next_command_reusable
-DLLIMPORT unsigned short _DK_condition_stack_pos;
-#define condition_stack_pos _DK_condition_stack_pos
-DLLIMPORT unsigned short _DK_condition_stack[48];
-#define condition_stack _DK_condition_stack
+
 
 #pragma pack()
 /******************************************************************************/

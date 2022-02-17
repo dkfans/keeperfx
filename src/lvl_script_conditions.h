@@ -35,7 +35,12 @@ extern const struct NamedCommand dk1_variable_desc[];
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
 void process_conditions(void);
+long pop_condition(void);
 
+int get_script_current_condition();
+void set_script_current_condition(int current_condition);
+
+static void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value);
 
 #ifdef __cplusplus
 }

@@ -99,24 +99,6 @@ static void command_create_party(const char *prtname)
     create_party(prtname);
 }
 
-static long pop_condition(void)
-{
-  if (get_script_current_condition() == CONDITION_ALWAYS)
-  {
-    SCRPTERRLOG("unexpected ENDIF");
-    return -1;
-  }
-  if ( condition_stack_pos )
-  {
-    condition_stack_pos--;
-    set_script_current_condition(condition_stack[condition_stack_pos]);
-  } else
-  {
-    set_script_current_condition(CONDITION_ALWAYS);
-  }
-  return get_script_current_condition();
-}
-
 static void command_tutorial_flash_button(long btn_id, long duration)
 {
     command_add_value(Cmd_TUTORIAL_FLASH_BUTTON, ALL_PLAYERS, btn_id, duration, 0);
@@ -256,31 +238,6 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         pr_trig->condit_idx = get_script_current_condition();
         gameadd.script.party_triggers_num++;
     }
-}
-
-static void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
-{
-    // TODO: replace with pointer to functions
-    struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
-    condt->condit_idx = get_script_current_condition();
-    condt->plyr_range = plr_range_id;
-    condt->variabl_type = varib_type;
-    condt->variabl_idx = varib_id;
-    condt->operation = opertr_id;
-    condt->rvalue = value;
-    if (condition_stack_pos >= CONDITIONS_COUNT)
-    {
-        gameadd.script.conditions_num++;
-        SCRPTWRNLOG("Conditions too deep in script");
-        return;
-    }
-    if (get_script_current_condition() != CONDITION_ALWAYS)
-    {
-        condition_stack[condition_stack_pos] = get_script_current_condition();
-        condition_stack_pos++;
-    }
-    set_script_current_condition(gameadd.script.conditions_num);
-    gameadd.script.conditions_num++;
 }
 
 static void command_if(long plr_range_id, const char *varib_name, const char *operatr, long value)
