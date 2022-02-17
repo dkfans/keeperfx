@@ -89,7 +89,7 @@ struct GuiButtonInit video_menu_buttons[] = {
   {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_rotate_mode,NULL,      NULL,               0, 104,  38, 106,  38, 46, 64, gui_area_no_anim_button,          32, GUIStr_OptionViewTypeDesc,0,{(long)&settings.video_rotate_mode}, 1, NULL },
   {LbBtnT_ToggleBtn,  BID_DEFAULT, 0, 0, gui_video_cluedo_mode,NULL,      NULL,               0,  8,  90,  10,  90, 46, 64, gui_area_no_anim_button,          42, GUIStr_OptionWallHeightDesc,0,{(long)&_DK_video_cluedo_mode},1, gui_video_cluedo_maintain },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_video_gamma_correction,NULL, NULL,               0,  56,  90,  58,  90, 46, 64, gui_area_no_anim_button,          44, GUIStr_OptionGammaCorrectionDesc,0,{(long)&video_gamma_correction}, 0, NULL },
-  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_switch_video_mode, gui_display_current_resolution, NULL,                   0,  104,  90,  106, 90, 46, 64, gui_area_no_anim_button,         25, GUIStr_Empty,0,NULL, 0, NULL },
+  {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, gui_switch_video_mode, gui_display_current_resolution, NULL,                   0,  104,  90,  106, 90, 46, 64, gui_area_no_anim_button,         25, GUIStr_DisplayResolution,0,NULL, 0, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 

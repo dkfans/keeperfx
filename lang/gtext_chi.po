@@ -6324,3 +6324,8 @@ msgstr "神秘物品：没有说明它是干什么用的。"
 msgctxt "Network game message"
 msgid "Joined player has different map version from host."
 msgstr "已加入的玩家的主机中的地图版本不相同。"
+
+#: guitext:1007
+msgctxt "In-game interface description"
+msgid "Display Mode: Switch to the next configured display mode. LMB toggle. RMB display current mode."
+msgstr ""
