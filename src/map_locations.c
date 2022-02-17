@@ -36,29 +36,17 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
     switch (get_map_location_type(location))
     {
     case MLoc_ACTIONPOINT:
-        if (!get_coords_at_action_point(&pos, i, 1))
-        {
-            return false;
-        }
-        break;
+        return get_coords_at_action_point(pos, i, 1);
+
     case MLoc_HEROGATE:
-        if (!get_coords_at_hero_door(&pos, i, 1))
-        {
-            return false;
-        }
-        break;
+        return get_coords_at_hero_door(pos, i, 1);
+
     case MLoc_PLAYERSHEART:
-        if (!get_coords_at_dungeon_heart(&pos, i))
-        {
-            return false;
-        }
-        break;
+        return get_coords_at_dungeon_heart(pos, i);
+        
     case MLoc_METALOCATION:
-        if (!get_coords_at_meta_action(&pos, 0, i))
-        {
-            return false;
-        }
-        break;
+        return get_coords_at_meta_action(pos, 0, i);
+        
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
@@ -71,6 +59,7 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location)
     default:
         return false;
     }
+    
 }
 
 
