@@ -11,7 +11,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include "lvl_script_statehandler.h"
+#include "lvl_script_conditions.h"
 #include "lvl_script_lib.h"
 
 #include <math.h>

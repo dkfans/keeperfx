@@ -26,7 +26,6 @@
 #include "game_legacy.h"
 #include "music_player.h"
 #include "lvl_script_lib.h"
-#include "lvl_script_statehandler.h"
 #include "lvl_script_conditions.h"
 #include "keeperfx.hpp"
 

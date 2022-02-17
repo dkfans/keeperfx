@@ -77,7 +77,6 @@
 
 #include "lvl_script_commands.h"
 #include "lvl_script_lib.h"
-#include "lvl_script_statehandler.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_parser.h"
 

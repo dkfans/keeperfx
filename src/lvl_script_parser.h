@@ -1,8 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lvl_script_statehandler.h
- *     Header file for lvl_script.c.
+/** @file lvl_script_parser.h
+ *     Header file for lvl_script_parser.c.
  * @par Purpose:
  *     should only be used by files under lvl_script_*
  * @par Comment:
@@ -15,8 +15,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_LVLSCRIPTSTATEHANDLER_H
-#define DK_LVLSCRIPTSTATEHANDLER_H
+#ifndef DK_LVLSCRIPTPARSER_H
+#define DK_LVLSCRIPTPARSER_H
 
 #ifdef __cplusplus
 extern "C" {

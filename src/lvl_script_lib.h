@@ -25,7 +25,6 @@
 #include "bflib_math.h"
 #include "player_instances.h"
 #include "game_legacy.h"
-#include "lvl_script_statehandler.h"
 
 #ifdef __cplusplus
 extern "C" {

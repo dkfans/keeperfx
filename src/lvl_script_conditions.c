@@ -401,7 +401,7 @@ void set_script_current_condition(int current_condition)
     script_current_condition = current_condition;
 }
 
-static void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
+void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
 {
     // TODO: replace with pointer to functions
     struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
