@@ -169,12 +169,16 @@ TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, 
         struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl) || thing_is_picked_up(thing))
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
-            ERRORLOG("Jump to invalid creature detected");
+            ERRORLOG("Jump to invalid creature (%d) detected", i);
             break;
         }
         i = cctrl->players_next_creature_idx;
+        if (thing_is_picked_up(thing))
+        {
+            continue;
+        }
         // Thing list loop body
         // Range of 0 means activate when on the same subtile
         if (apt->range <= 0)

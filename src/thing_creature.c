@@ -5829,25 +5829,15 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     }
     else if (thing_is_creature(picktng))
     {
-        if (picktng->owner == game.neutral_player_num)
-        {
-            id = game.neutral_player_num;
-            sprintf(str, "%s", player_desc[6].name);
-        }
-        else if (picktng->owner == game.hero_player_num)
-        {
-            id = picktng->owner;
-            sprintf(str, "%s", player_desc[4].name);
-        }
-        else
-        {
-            id = picktng->owner;
-            sprintf(str, "%s", player_desc[picktng->owner].name);
-        }
+        id = picktng->owner;
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[picktng->model];
+        sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
         id = -89;
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[picktng->model];
+        sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else
     {
@@ -5911,10 +5901,19 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
         return ( ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_PATH) || (slab_kind_is_liquid(slb->kind)) ) &&
                   (creatng->creature.gold_carried < crstat->gold_hold) );
     }
-    else if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
-                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
-                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default)) || 
-                  ( (thing_is_creature(picktng)) && (creature_is_being_unconscious(picktng)) && (picktng->owner != creatng->owner) ) )
+    else if (thing_is_creature(picktng))
+    {        
+        if (creature_is_being_unconscious(picktng))
+        {
+            return (picktng->owner != creatng->owner);
+        }
+    }
+    else if (thing_is_dead_creature(picktng))
+    {
+        return ( (get_room_slabs_count(creatng->owner, RoK_GRAVEYARD) > 0) && (corpse_ready_for_collection(picktng)) );
+    }
+    else if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default)) ||
+                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) )
     {
         return (slabmap_owner(slb) == creatng->owner);              
     }

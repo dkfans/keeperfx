@@ -148,6 +148,7 @@ short state_cleanup_dragging_object(struct Thing *creatng);
 short state_cleanup_in_room(struct Thing *creatng);
 short state_cleanup_unable_to_fight(struct Thing *creatng);
 short state_cleanup_unconscious(struct Thing *creatng);
+short state_cleanup_wait_at_door(struct Thing* creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
 short creature_pick_up_spell_to_steal(struct Thing *creatng);
 
@@ -376,7 +377,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 1, 1, 1, 0, 59, 1, 0, 1},
   {creature_evacuate_room, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
-  {creature_wait_at_treasure_room_door,  NULL, NULL, NULL,
+  {creature_wait_at_treasure_room_door,  state_cleanup_wait_at_door, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_GetsSalary, 0, 0,  1, 0, 0, 0, 0, 1},
   {at_kinky_torture_room, NULL, NULL, move_check_on_head_for_room,
     1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
@@ -2988,6 +2989,11 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
         return 1;
     }
+    EventIndex evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, creatng->owner, RoK_TREASURE);
+    if (evidx > 0) 
+    {
+        output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_TREASURE, OMsg_RoomNoRoute);
+    }
     if (is_creature_other_than_given_waiting_at_closed_door_on_subtile(base_stl_x, base_stl_y, creatng))
     {
         int i = 0;
@@ -3313,6 +3319,7 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
     {
       internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
       cctrl->blocking_door_id = doortng->index;
+      cctrl->collided_door_subtile = 0;
       return CrCkRet_Continue;
     }
   }
@@ -4044,6 +4051,15 @@ short seek_the_enemy(struct Thing *creatng)
     return 1;
 }
 
+short state_cleanup_wait_at_door(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->blocking_door_id = 0;
+    cctrl->collided_door_subtile = 0;
+    return 1;
+}
+
 short state_cleanup_dragging_body(struct Thing *creatng)
 {
     TRACE_THING(creatng);
@@ -4051,7 +4067,15 @@ short state_cleanup_dragging_body(struct Thing *creatng)
     if (cctrl->dragtng_idx > 0)
     {
         struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-        stop_creature_being_dragged_by(dragtng, creatng);
+        if (dragtng->class_id == TCls_Creature)
+        {
+            stop_creature_being_dragged_by(dragtng, creatng);
+        } else 
+        if (dragtng->class_id == TCls_DeadCreature)
+        {
+            creature_drop_dragged_object(creatng, dragtng);
+            dragtng->owner = game.neutral_player_num;
+        }
     }
     return 1;
 }
@@ -4188,6 +4212,7 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     }
     remove_events_thing_is_attached_to(creatng);
     delete_effects_attached_to_creature(creatng);
+    state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
     return true;
 }
