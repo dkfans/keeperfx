@@ -581,7 +581,6 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
         // Read the next parameter
         const struct CommandDesc *funcmd_desc;
         {
-
             char* funline = *line;
             int funpara_level = *para_level;
             char funcmd_buf[MAX_TEXT_LENGTH];

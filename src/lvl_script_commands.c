@@ -885,6 +885,11 @@ static void command_set_computer_checks(long plr_range_id, const char *chkname, 
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
       return;
   }
+  if (!player_exists(get_player(plr_range_id)))
+  {
+      SCRPTERRLOG("Player %d does not exist; cannot modify check", (int)plr_range_id);
+      return;
+  }
   if (get_script_current_condition() != CONDITION_ALWAYS)
   {
     SCRPTWRNLOG("Computer check altered inside conditional block; condition ignored");
@@ -928,6 +933,11 @@ static void command_set_computer_events(long plr_range_id, const char *evntname,
   int plr_end;
   if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0) {
       SCRPTERRLOG("Given owning player range %d is not supported in this command",(int)plr_range_id);
+      return;
+  }
+  if (!player_exists(get_player(plr_range_id)))
+  {
+      SCRPTERRLOG("Player %d does not exist; cannot modify events", (int)plr_range_id);
       return;
   }
   if (get_script_current_condition() != CONDITION_ALWAYS)
