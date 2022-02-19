@@ -85,7 +85,8 @@ enum CreatureSelectCriteria {
     CSelCrit_NearEnemyHeart    = 10,
     CSelCrit_OnEnemyGround     = 11,
     CSelCrit_OnFriendlyGround  = 12,
-    CSelCrit_NearAP            = 13,
+    CSelCrit_OnNeutralGround   = 13,
+    CSelCrit_NearAP            = 14,
 };
 
 //TODO replace HitType with these
@@ -195,7 +196,7 @@ long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val
 
 // Filters to select creature anywhere on map but belonging to given player
 struct Thing *get_player_list_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
-struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, PlayerNumber plyr_idx);
 long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr_idx, int tngmodel, Thing_Bool_Filter matcher_cb);
 // Final routines to select creature anywhere on map but belonging to given player
@@ -248,7 +249,7 @@ long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord p
 long switch_owned_objects_on_destoyed_slab_to_neutral(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber prev_owner);
 
 // Filters to select thing anywhere on map but only of one given class
-struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, PlayerNumber plyr_idx);
 struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, long tngindex);
 long count_things_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long do_to_all_things_of_class_and_model(int tngclass, int tngmodel, Thing_Bool_Modifier do_cb);
@@ -316,6 +317,7 @@ void break_mapwho_infinite_chain(const struct Map *mapblk);
 TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short update_thing_sound(struct Thing *thing);
+struct Thing* find_players_dungeon_heart(PlayerNumber plyridx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

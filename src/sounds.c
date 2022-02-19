@@ -37,7 +37,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
-
+#include "config_settings.h"
 #include "music_player.h"
 
 #include "keeperfx.hpp"
@@ -54,12 +54,6 @@ const char foot_down_sound_sample_variant[] = {
 
 char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
-/******************************************************************************/
-DLLIMPORT TbFileHandle _DK_LbFileOpen(const char *fname, int mode);
-DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
-DLLIMPORT int _DK_LbFileSeek(TbFileHandle handle, long offset, int origin);
-DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
-DLLIMPORT int _DK_LbFilePosition(TbFileHandle handle);
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
 {
@@ -207,9 +201,12 @@ void find_nearest_rooms_for_ambient_sound(void)
         return;
     struct PlayerInfo* player = get_my_player();
     struct Camera* cam = player->acamera;
-    if (cam == NULL)
+    if (cam == NULL || LbIsFrozenOrPaused())
     {
-        ERRORLOG("No active camera");
+        if (cam == NULL)
+        {
+            ERRORLOG("No active camera");
+        }
         set_room_playing_ambient_sound(NULL, 0);
         return;
     }
@@ -285,7 +282,7 @@ void update_player_sounds(void)
         // Rare message easter egg
         if ((game.play_gameturn % 20000) == 0)
         {
-            if (ACTION_RANDOM(2000) == 0)
+            if (UNSYNC_RANDOM(2000) == 0)
             {
               k = UNSYNC_RANDOM(10);
               SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
@@ -435,17 +432,17 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
     default:
         return 0;
     }
-    _DK_LbFileSeek(fileh, 0, Lb_FILE_SEEK_END);
-    long fsize = _DK_LbFilePosition(fileh);
-    _DK_LbFileSeek(fileh, fsize-4, Lb_FILE_SEEK_BEGINNING);
+    LbFileSeek(fileh, 0, Lb_FILE_SEEK_END);
+    long fsize = LbFilePosition(fileh);
+    LbFileSeek(fileh, fsize-4, Lb_FILE_SEEK_BEGINNING);
     unsigned char rbuf[8];
-    _DK_LbFileRead(fileh, &rbuf, 4);
+    LbFileRead(fileh, &rbuf, 4);
     long i = read_int32_le_buf(rbuf);
-    _DK_LbFileSeek(fileh, i, Lb_FILE_SEEK_BEGINNING);
+    LbFileSeek(fileh, i, Lb_FILE_SEEK_BEGINNING);
     struct SoundBankHead bhead;
-    _DK_LbFileRead(fileh, &bhead, sizeof(bhead));
+    LbFileRead(fileh, &bhead, sizeof(bhead));
     struct SoundBankEntry bentries[9];
-    _DK_LbFileRead(fileh, bentries, sizeof(bentries));
+    LbFileRead(fileh, bentries, sizeof(bentries));
     struct SoundBankEntry* bentry = &bentries[k];
     if (bentry->field_0 == 0) {
         return 0;
@@ -458,13 +455,13 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
     if (sizeof(struct SampleTable) * (*nsamples) >= buf_len) {
         return 0;
     }
-    _DK_LbFileSeek(fileh, bentry->field_0, Lb_FILE_SEEK_BEGINNING);
+    LbFileSeek(fileh, bentry->field_0, Lb_FILE_SEEK_BEGINNING);
     struct SampleTable* smpl = (struct SampleTable*)buf;
     k = bentry->field_4;
     for (i=0; i < *nsamples; i++)
     {
         struct SoundBankSample bsample;
-        _DK_LbFileRead(fileh, &bsample, sizeof(struct SoundBankSample));
+        LbFileRead(fileh, &bsample, sizeof(struct SoundBankSample));
         smpl->file_pos = k + bsample.field_12;
         smpl->data_size = bsample.data_size;
         smpl->sfxid = bsample.sfxid;
@@ -522,7 +519,7 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
     if (sound_file != -1)
         close_sound_bank(0);
     samples_in_bank = 0;
-    sound_file = _DK_LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
+    sound_file = LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
     if (sound_file == -1)
     {
         ERRORLOG("Couldn't open primary sound bank file \"%s\"",snd_fname);
@@ -550,7 +547,7 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
     if (sound_file2 != -1)
         close_sound_bank(1);
     samples_in_bank2 = 0;
-    sound_file2 = _DK_LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
+    sound_file2 = LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
     if (sound_file2 == -1)
     {
         ERRORLOG("Couldn't open secondary sound bank file \"%s\"",spc_fname);
@@ -662,6 +659,48 @@ void stop_thing_playing_sample(struct Thing *heartng, short a2)
     {
         if (S3DEmitterIsPlayingSample(eidx, a2, 0)) {
             S3DDeleteSampleFromEmitter(eidx, a2, 0);
+        }
+    }
+}
+
+void mute_audio(TbBool mute)
+{
+    if (!SoundDisabled)
+    {
+        if (mute)
+        {
+            SetSoundMasterVolume(0);
+            SetMusicPlayerVolume(0);
+            SetMusicMasterVolume(0);
+            if (IsRedbookMusicActive())
+            {
+                PauseRedbookTrack(); // volume seems to have no effect on CD audio, so just pause/resume it
+            }
+        }
+        else
+        {
+            SetMusicPlayerVolume(settings.redbook_volume);
+            SetSoundMasterVolume(settings.sound_volume);
+            SetMusicMasterVolume(settings.sound_volume);
+            if (IsRedbookMusicActive())
+            {
+                ResumeRedbookTrack();
+            }
+        }
+    }
+}
+
+void pause_music(TbBool pause)
+{
+    if (!SoundDisabled)
+    {
+        if (pause)
+        {
+            PauseMusicPlayer();
+        }
+        else
+        {
+            ResumeMusicPlayer();
         }
     }
 }

@@ -112,7 +112,7 @@ void draw_swipe_graphic(void);
 long creature_available_for_combat_this_turn(struct Thing *thing);
 TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char a2, unsigned char hit_type);
+void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
 void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
@@ -168,9 +168,9 @@ void init_creature_scores(void);
 long get_creature_thing_score(const struct Thing *thing);
 TbBool add_creature_score_to_owner(struct Thing *thing);
 TbBool remove_creature_score_from_owner(struct Thing *thing);
-long calculate_melee_damage(const struct Thing *thing);
+long calculate_melee_damage(struct Thing *thing);
 long project_melee_damage(const struct Thing *thing);
-long calculate_shot_damage(const struct Thing *thing, ThingModel shot_model);
+long calculate_shot_damage(struct Thing *thing, ThingModel shot_model);
 long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model);
 
 long update_creature_levels(struct Thing *thing);
@@ -182,6 +182,15 @@ void illuminate_creature(struct Thing *creatng);
 
 long get_spell_slot(const struct Thing *thing, SpellKind spkind);
 TbBool free_spell_slot(struct Thing *thing, long slot_idx);
+
+void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng);
+void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng);
+void direct_control_pick_up_or_drop(struct PlayerInfo *player);
+void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout);
+struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng);
+TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng);
+struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng);
+void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

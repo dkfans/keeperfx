@@ -324,12 +324,32 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     if (room->slabs_count <= 1)
     {
         delete_room_flag(room);
-        // Create a new one-slab room
-        place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
+        // If we're looking to place a non-room slab, simply place it.
+        if (rkind == 0)
+        {
+            if (slab_kind_is_animated(slabkind))
+            {
+                place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+            }
+            else
+            {
+                place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+            }
+        }
+        else
+        {
+            // Create a new one-slab room
+            place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
+        }
+        if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
+        {
+            event_create_event_or_update_nearby_existing_event(slb_x, slb_y, EvKind_RoomLost, room->owner, room->kind);
+        }
         //Clean up old room
         kill_all_room_slabs_and_contents(room);
         free_room_structure(room);
         do_slab_efficiency_alteration(slb_x, slb_y);
+        return true;
     }
     else
     {
@@ -386,25 +406,35 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_spellbook(thing))
     {
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || !player_exists(get_player(room->owner)))
+        if (room->owner != game.neutral_player_num)
         {
-            // No room - oh well, leave it as free spell
-            if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
-                // Preserve classic bug - object is claimed with the room
-                thing->owner = room->owner;
-            } else {
-                // Make correct owner so that Imps can pick it up
-                thing->owner = game.neutral_player_num;
+            if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || (!player_exists(get_player(room->owner)) && (game.play_gameturn >= 10)))
+            {
+                // No room - oh well, leave it as free spell
+                if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
+                    // Preserve classic bug - object is claimed with the room
+                    thing->owner = room->owner;
+                }
+                else {
+                    // Make correct owner so that Imps can pick it up
+                    thing->owner = game.neutral_player_num;
+                    return false;
+                }
+                return false;
             }
-            return true;
-        }
-        if (!add_power_to_player(book_thing_to_power_kind(thing), room->owner))
-        {
-            thing->owner = game.neutral_player_num;
-            return true;
+            if (!add_power_to_player(book_thing_to_power_kind(thing), room->owner))
+            {
+                thing->owner = game.neutral_player_num;
+                return false;
+            }
+            else
+            {
+                thing->owner = room->owner;
+                return true;
+            }
         }
         thing->owner = room->owner;
-        return true;
+        return false;
     }
     if (thing_is_workshop_crate(thing))
     {

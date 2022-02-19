@@ -78,6 +78,7 @@ struct Objects {
     unsigned char related_creatr_model;
     unsigned char own_category;
     unsigned char destroy_on_liquid;
+    unsigned char rotation_flag;
 };
 
 struct CallToArmsGraphics {
@@ -87,11 +88,14 @@ struct CallToArmsGraphics {
 };
 
 /******************************************************************************/
+/*
+TODO: Test and remove these
 DLLIMPORT unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
 DLLIMPORT unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 DLLIMPORT extern unsigned char _DK_magic_to_object[24];
+*/
 
 #pragma pack()
 /******************************************************************************/
@@ -101,7 +105,7 @@ extern unsigned short player_guardflag_objects[];
 extern unsigned short dungeon_flame_objects[];
 
 /******************************************************************************/
-struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
+struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
 void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
@@ -153,6 +157,7 @@ struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value);
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, GoldAmount amount);
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, GoldAmount amount);
+long gold_being_dropped_at_treasury(struct Thing* thing, struct Room* room);
 
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx);
@@ -163,6 +168,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
 
+void define_custom_object(int obj_id, short anim_idx);
 void init_thing_objects();
 /******************************************************************************/
 #ifdef __cplusplus

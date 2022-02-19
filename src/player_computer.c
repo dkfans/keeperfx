@@ -43,6 +43,7 @@
 #include "power_hand.h"
 #include "room_data.h"
 #include "game_legacy.h"
+#include "game_merge.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -628,12 +629,12 @@ long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx)
 
 long count_creatures_in_dungeon(const struct Dungeon *dungeon)
 {
-    return count_player_list_creatures_of_model(dungeon->creatr_list_start, 0);
+    return count_player_list_creatures_of_model(dungeon->creatr_list_start, CREATURE_ANY);
 }
 
 long count_diggers_in_dungeon(const struct Dungeon *dungeon)
 {
-    return count_player_list_creatures_of_model(dungeon->digger_list_start, 0);
+    return count_player_list_creatures_of_model(dungeon->digger_list_start, CREATURE_ANY);
 }
 
 /**
@@ -1157,6 +1158,9 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         return false;
     }
     LbMemorySet(comp, 0, sizeof(struct Computer2));
+    comp->events = &get_dungeonadd(plyr_idx)->computer_info.events[0];
+    comp->checks = &get_dungeonadd(plyr_idx)->computer_info.checks[0];
+
     struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp_model);
     comp->dungeon = get_players_num_dungeon(plyr_idx);
     comp->model = comp_model;
@@ -1525,6 +1529,8 @@ void setup_computer_players2(void)
         }
 #endif
       }
+      get_computer_player(i)->events = &get_dungeonadd(i)->computer_info.events[0];
+      get_computer_player(i)->checks = &get_dungeonadd(i)->computer_info.checks[0];
     }
   }
 }
@@ -1552,6 +1558,8 @@ void restore_computer_player_after_load(void)
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
+        comp->events = &get_dungeonadd(plyr_idx)->computer_info.events[0];
+        comp->checks = &get_dungeonadd(plyr_idx)->computer_info.checks[0];
         struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp->model);
 
         long i;

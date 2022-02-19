@@ -1354,6 +1354,13 @@ TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
     LbMemoryCopy(&campaign, &campbuf, sizeof(struct GameCampaign));
     return result;
 }
+
+TbBool is_map_pack(void)
+{
+    if (campaign.fname[0]=='\0')
+        return false;
+    return (campaign.single_levels_count == 0) && (campaign.multi_levels_count == 0) && (campaign.freeplay_levels_count > 0);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
