@@ -5422,7 +5422,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     unsigned short smpl_idx, pitch;
     if (subtile_has_water_on_top(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num))
     {
-        smpl_idx = (rand() % (24 - 22)) + 21;
+        smpl_idx = 21 + SOUND_RANDOM(4);
         pitch = 75;
     }
     else
@@ -5456,7 +5456,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
             }
             case TCls_Creature:
             {
-                smpl_idx = (rand() % (20 - 18)) + 17;
+                smpl_idx = 17 + SOUND_RANDOM(4);
                 pitch = 75;
                 break;
             }
