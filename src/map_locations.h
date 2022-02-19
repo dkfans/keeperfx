@@ -67,6 +67,12 @@ TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx);
 
 void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 
+#define get_map_location_id(locname, location) get_map_location_id_f(locname, location, __func__, text_line_number)
+TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, long ln_num);
+
+#define get_map_heading_id(headname, target, location) get_map_heading_id_f(headname, target, location, __func__, text_line_number)
+TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *location, const char *func_name, long ln_num);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

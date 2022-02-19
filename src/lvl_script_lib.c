@@ -13,12 +13,14 @@
 /******************************************************************************/
 
 #include "lvl_script_lib.h"
+#include "lvl_script_conditions.h"
+#include "lvl_script_parser.h"
+
 #include "globals.h"
 #include "thing_factory.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
 #include "dungeon_data.h"
-#include "lvl_script_conditions.h"
 #include "lvl_filesdk1.h"
 
 #ifdef __cplusplus
@@ -43,99 +45,7 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
 }
 
 
-/**
- * Returns location id for 1-param location from script.
- * @param locname
- * @param location
- * @return
- * @see get_map_heading_id()
- */
-#define get_map_location_id(locname, location) get_map_location_id_f(locname, location, __func__, text_line_number)
-TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, long ln_num)
-{
-    // If there's no locname, then coordinates are set directly as (x,y)
-    if (locname == NULL)
-    {
-      *location = MLoc_NONE;
-      return true;
-    }
-    // Player name means the location of player's Dungeon Heart
-    long i = get_rid(player_desc, locname);
-    if (i != -1)
-    {
-      if ((i != ALL_PLAYERS) && (i != PLAYER_NEUTRAL)) {
-          if (!player_has_heart(i)) {
-              WARNMSG("%s(line %lu): Target player %d has no heart",func_name,ln_num, (int)i);
-          }
-          *location = ((unsigned long)i << 4) | MLoc_PLAYERSHEART;
-      } else {
-          *location = MLoc_NONE;
-      }
-      return true;
-    }
-    // Creature name means location of such creature belonging to player0
-    i = get_rid(creature_desc, locname);
-    if (i != -1)
-    {
-        *location = ((unsigned long)i << 12) | ((unsigned long)my_player_number << 4) | MLoc_CREATUREKIND;
-        return true;
-    }
-    // Room name means location of such room belonging to player0
-    i = get_rid(room_desc, locname);
-    if (i != -1)
-    {
-        *location = ((unsigned long)i << 12) | ((unsigned long)my_player_number << 4) | MLoc_ROOMKIND;
-        return true;
-    }
-    // Todo list of functions
-    if (strcmp(locname, "LAST_EVENT") == 0)
-    {
-        *location = (((unsigned long)MML_LAST_EVENT) << 12)
-            | (((unsigned long)CurrentPlayer) << 4) //TODO: other players
-            | MLoc_METALOCATION;
-        return true;
-    }
-    else if (strcmp(locname, "COMBAT") == 0)
-    {
-        *location = (((unsigned long)MML_RECENT_COMBAT) << 12)
-            | ((unsigned long)my_player_number << 4)
-            | MLoc_METALOCATION;
-        return true;
-    }
-    i = atol(locname);
-    // Negative number means Hero Gate
-    if (i < 0)
-    {
-        long n = -i;
-        struct Thing* thing = find_hero_gate_of_number(n);
-        if (thing_is_invalid(thing))
-        {
-            ERRORMSG("%s(line %lu): Non-existing Hero Door, no %d",func_name,ln_num,(int)-i);
-            *location = MLoc_NONE;
-            return false;
-        }
-        *location = (((unsigned long)n) << 4) | MLoc_HEROGATE;
-    } else
-    // Positive number means Action Point
-    if (i > 0)
-    {
-        long n = action_point_number_to_index(i);
-        if (!action_point_exists_idx(n))
-        {
-            ERRORMSG("%s(line %lu): Non-existing Action Point, no %d",func_name,ln_num,(int)i);
-            *location = MLoc_NONE;
-            return false;
-        }
-        // Set to action point number
-        *location = (((unsigned long)n) << 4) | MLoc_ACTIONPOINT;
-    } else
-    // Zero is an error; reset to no location
-    {
-      ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'",func_name,ln_num, locname);
-      *location = MLoc_NONE;
-    }
-    return true;
-}
+
 
 
 
@@ -182,62 +92,6 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
             break;
     }
     return thing;
-}
-
-/**
- * Returns location id for 2-param tunneler heading from script.
- * @param headname
- * @param target
- * @param location
- * @return
- * @see get_map_location_id()
- */
-#define get_map_heading_id(headname, target, location) get_map_heading_id_f(headname, target, location, __func__, text_line_number)
-TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *location, const char *func_name, long ln_num)
-{
-    // If there's no headname, then there's an error
-    if (headname == NULL)
-    {
-        SCRPTERRLOG("No heading objective");
-        *location = MLoc_NONE;
-        return false;
-    }
-    long head_id = get_rid(head_for_desc, headname);
-    if (head_id == -1)
-    {
-        SCRPTERRLOG("Unhandled heading objective, '%s'", headname);
-        *location = MLoc_NONE;
-        return false;
-    }
-    // Check if the target place exists, and set 'location'
-    // Note that we only need to support enum items which are in head_for_desc[].
-    switch (head_id)
-    {
-    case MLoc_ACTIONPOINT:
-    {
-        long n = action_point_number_to_index(target);
-        *location = ((unsigned long)n << 4) | head_id;
-        if (!action_point_exists_idx(n)) {
-            SCRPTWRNLOG("Target action point no %d doesn't exist", (int)target);
-        }
-        return true;
-    }
-    case MLoc_PLAYERSDUNGEON:
-    case MLoc_PLAYERSHEART:
-        *location = ((unsigned long)target << 4) | head_id;
-        if (!player_has_heart(target)) {
-            SCRPTWRNLOG("Target player %d has no heart", (int)target);
-        }
-        return true;
-    case MLoc_APPROPRTDUNGEON:
-        *location = (0) | head_id; // This option has no 'target' value
-        return true;
-    default:
-        *location = MLoc_NONE;
-        SCRPTWRNLOG("Unsupported Heading objective %d", (int)head_id);
-        break;
-    }
-    return false;
 }
 
 long parse_criteria(const char *criteria)

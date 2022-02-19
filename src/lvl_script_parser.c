@@ -11,6 +11,10 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+
+
+#include "lvl_script_parser.h"
+
 #include "lvl_script_conditions.h"
 #include "lvl_script_lib.h"
 
@@ -36,8 +40,7 @@ extern "C" {
 
 extern long level_file_version;
 
-const struct CommandDesc command_desc[];
-const struct CommandDesc dk1_command_desc[];
+
 
 const struct CommandDesc subfunction_desc[] = {
     {"RANDOM",                     "Aaaaaaaa", Cmd_RANDOM, NULL, NULL},
@@ -75,14 +78,6 @@ const struct NamedCommand comparison_desc[] = {
   {"<=",     MOp_SMALLER_EQ},
   {">=",     MOp_GREATER_EQ},
   {NULL,     0},
-};
-
-const struct NamedCommand head_for_desc[] = {
-  {"ACTION_POINT",         MLoc_ACTIONPOINT},
-  {"DUNGEON",              MLoc_PLAYERSDUNGEON},
-  {"DUNGEON_HEART",        MLoc_PLAYERSHEART},
-  {"APPROPIATE_DUNGEON",   MLoc_APPROPRTDUNGEON},
-  {NULL,                   0},
 };
 
 const struct NamedCommand timer_desc[] = {

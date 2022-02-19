@@ -32,16 +32,13 @@
 #include "lvl_script_conditions.h"
 #include "lvl_script_value.h"
 #include "lvl_script_commands.h"
+#include "lvl_script_parser.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /******************************************************************************/
-
-extern const struct CommandDesc command_desc[];
-extern const struct CommandDesc dk1_command_desc[];
-
 
 
 const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc)
