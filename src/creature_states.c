@@ -4220,6 +4220,10 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
 
 TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_state, CrtrStateId next_state)
 {
+    if (is_thing_directly_controlled_by_player(thing, my_player_number))
+    {
+        return false;
+    }
     struct StateInfo* curr_stati = get_thing_state_info_num(curr_state);
     if (curr_stati->state_type == CrStTyp_Move)
       curr_stati = get_thing_state_info_num(thing->continue_state);
