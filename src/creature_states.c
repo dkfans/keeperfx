@@ -4224,7 +4224,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     if (curr_stati->state_type == CrStTyp_Move)
       curr_stati = get_thing_state_info_num(thing->continue_state);
     struct StateInfo* next_stati = get_thing_state_info_num(next_state);
-    if (is_thing_directly_controlled_by_player(thing, my_player_number))
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         if ( (next_stati->state_type != CrStTyp_Idle) )
         {
