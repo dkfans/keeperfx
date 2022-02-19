@@ -29,9 +29,9 @@
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "config_compp.h"
-#include "custom_sprites.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "frontmenu_ingame_tabs.h"
 #include "front_landview.h"
 #include "front_highscore.h"
 #include "front_lvlstats.h"
@@ -206,7 +206,6 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 load_stats_files();
                 check_and_auto_fix_stats();
                 init_creature_scores();
-                // Update interface items
                 strncpy(high_score_entry,centry->player_name,PLAYER_NAME_LENGTH);
             }
             break;
@@ -288,7 +287,11 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         }
     }
     if ((chunks_done & SGF_SavedGame) == SGF_SavedGame)
+    {
+        // Update interface items
+        update_trap_tab_to_config();
         return GLoad_SavedGame;
+    }
     return GLoad_Failed;
 }
 
@@ -402,7 +405,6 @@ TbBool load_game(long slot_num)
         init_lookups();
         return false;
     }
-    init_custom_sprites(get_selected_level_number());
     my_player_number = game.local_plyr_idx;
     LbFileClose(fh);
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));

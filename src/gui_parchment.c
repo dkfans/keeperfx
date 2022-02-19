@@ -773,8 +773,35 @@ void draw_zoom_box(void)
 {
     struct PlayerInfo* player = get_my_player();
 
-    long draw_tiles_x = 13;
-    long draw_tiles_y = 13;
+    long draw_tiles = 13;
+    long subtile_unscaled = 8;
+    if (player->minimap_zoom == 128)
+    {
+        draw_tiles = 6;
+        subtile_unscaled = 18;
+    } else
+    if (player->minimap_zoom == 256)
+    {
+        draw_tiles = 9;
+        subtile_unscaled = 12;
+    } else
+    if (player->minimap_zoom == 512)
+    {
+        draw_tiles = 12;
+        subtile_unscaled = 9;
+    } else
+    if (player->minimap_zoom == 1024)
+    {
+        draw_tiles = 18;
+        subtile_unscaled = 6;
+    } else
+    if (player->minimap_zoom == 2048)
+    {
+        draw_tiles = 36;
+        subtile_unscaled = 3;
+    }
+    long draw_tiles_x = draw_tiles;
+    long draw_tiles_y = draw_tiles;
 
     // Sizes of the parchment map on which we're drawing
     // Needed only to figure out map position pointed by cursor
@@ -785,7 +812,7 @@ void draw_zoom_box(void)
     long mouse_y = GetMouseY();
 
     // zoom box block size
-    const int subtile_size = scale_value_for_resolution(8);
+    const int subtile_size = scale_value_for_resolution(subtile_unscaled);
 
     // Drawing coordinates
     long scrtop_x = mouse_x + scale_value_for_resolution(24);

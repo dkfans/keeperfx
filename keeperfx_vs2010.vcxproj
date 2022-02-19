@@ -191,6 +191,8 @@
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_sync.c" />
     <ClCompile Include="src\packets.c" />
+    <ClCompile Include="src\packets_cheats.c" />
+    <ClCompile Include="src\packets_input.c" />
     <ClCompile Include="src\packets_misc.c" />
     <ClCompile Include="src\player_compchecks.c" />
     <ClCompile Include="src\player_compevents.c" />

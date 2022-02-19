@@ -174,6 +174,8 @@ enum TbScriptCommands {
     Cmd_HIDE_VARIABLE                     = 142,
     Cmd_CREATE_EFFECT                     = 143,
     Cmd_CREATE_EFFECT_AT_POS              = 144,
+    Cmd_HEART_LOST_QUICK_OBJECTIVE        = 145,
+    Cmd_HEART_LOST_OBJECTIVE              = 146,
 };
 
 enum ScriptVariables {
@@ -371,6 +373,16 @@ struct ScriptValue { // sizeof = 16
       {
           long arg2;
           char* str2;
+      };
+    };
+    struct
+    {
+      unsigned long uarg0;
+      unsigned long uarg1;
+      union
+      {
+          unsigned long uarg2;
+          unsigned char* ustr2;
       };
     };
     struct

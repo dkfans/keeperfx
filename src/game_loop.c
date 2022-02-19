@@ -141,6 +141,14 @@ void process_dungeon_destroy(struct Thing* heartng)
         efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
         if (!thing_is_invalid(efftng))
             efftng->hit_type = THit_HeartOnlyNotOwn;
+        if (gameadd.heart_lost_display_message)
+        {
+            if (is_my_player_number(heartng->owner))
+            {
+                const char *objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
+                process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
+            }
+        }
         destroy_dungeon_heart_room(plyr_idx, heartng);
         delete_thing_structure(heartng, 0);
     }

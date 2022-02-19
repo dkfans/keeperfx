@@ -1558,6 +1558,8 @@ void restore_computer_player_after_load(void)
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
+        comp->events = &get_dungeonadd(plyr_idx)->computer_info.events[0];
+        comp->checks = &get_dungeonadd(plyr_idx)->computer_info.checks[0];
         struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp->model);
 
         long i;

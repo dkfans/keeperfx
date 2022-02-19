@@ -39,6 +39,7 @@
 #include "creature_jobs.h"
 #include "engine_arrays.h"
 #include "game_legacy.h"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1013,7 +1014,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
         case 10: // SYMBOLSPRITES
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
+              k = get_icon_id(word_buf);
               if (k >= 0)
               {
                   //TODO CONFIG Add when InstanceInfo can be changed

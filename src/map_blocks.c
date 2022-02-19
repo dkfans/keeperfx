@@ -742,9 +742,18 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
         ERRORLOG("%s: Illegal animating slab style: %d", func_name, (int)style);
         style = 0;
     }
-    if ((pick >= 9) || ((style == 3) && (pick >= 1))) {
-        ERRORLOG("%s: Illegal animating slab pick: %d", func_name, (int)pick);
-        pick = 0;
+    if ((pick >= 9) || ((style == (SlbFillStl_Water+1)) && (pick >= 1)))
+    {
+        if (slab_kind_is_room_wall(slbkind) && (pick < 9))
+        {
+            style = SlbFillStl_Water;
+            slbkind = SlbT_DAMAGEDWALL; // There's no columns for room walls next to water, so we're using a regular wall instead.
+        }
+        else
+        {
+            ERRORLOG("%s: Illegal animating slab pick: %d", func_name, (int)pick);
+            pick = 0;
+        }
     }
     return 28 * slbkind + 9 * style + pick;
 }
@@ -786,8 +795,8 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 ilght.mappos.x.val = pos.x.val;
                 ilght.mappos.y.val = pos.y.val;
                 ilght.mappos.z.val = pos.z.val;
-                ilght.field_0 = sobj->sofield_C << 8;
-                ilght.field_2 = sobj->sofield_B;
+                ilght.radius = sobj->sofield_C << 8;
+                ilght.intensity = sobj->sofield_B;
                 ilght.field_3 = 0;
                 ilght.is_dynamic = 0;
                 long lgt_id;
@@ -869,9 +878,9 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 } else
                 if (sobj->field_A == TCls_EffectGen)
                 {
-                    struct Thing *efftng;
-                    efftng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
-                    if (thing_is_invalid(efftng)) {
+                    struct Thing *effgentng;
+                    effgentng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
+                    if (thing_is_invalid(effgentng)) {
                         ERRORLOG("Cannot create effect generator, type %d", sobj->sofield_B);
                         continue;
                     }
@@ -1355,7 +1364,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     slb = get_slabmap_block(slb_x, slb_y);
     slb->kind = slbkind;
     pannel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
-    if ((slbkind == SlbT_SLAB50) || (slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
+    if ((slbkind == SlbT_SLAB50) || (slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_PURPLE))
     {
         MapSubtlCoord stl_xb;
         MapSubtlCoord stl_yb;

@@ -309,10 +309,7 @@ IF(PLAYER_GOOD,FLAG2 == 1)
 	ENDIF
 ENDIF
 
-IF(PLAYER0,DUNGEON_DESTROYED == 1)
-	REM "You have failed. This is a grim day for evil."
-	DISPLAY_OBJECTIVE(163,PLAYER0)
-	LOSE_GAME
-ENDIF
+REM "You have failed. This is a grim day for evil."
+HEART_LOST_OBJECTIVE(163,PLAYER0)
 
 REM ****************************************************************************

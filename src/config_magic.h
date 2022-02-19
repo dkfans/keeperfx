@@ -217,6 +217,14 @@ struct SpellConfigStats {
     char code_name[COMMAND_WORD_LEN];
 };
 
+
+struct ShotHitConfig {
+    short effect_model; /**< Effect kind to be created when the shot hits. */
+    short sndsample_idx; /**< Base sound sample to be played on hit. */
+    unsigned char sndsample_range; /**< Range for random sound sample selection. */
+    unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
+};
+
 /**
  * Configuration parameters for shots.
  */
@@ -234,15 +242,30 @@ struct ShotConfigStats {
     /** Strength of the blow which pushes creatures on explosion. */
     MapCoordDelta area_blow;
     /** Type of the damage inflicted by this shot. */
+    short damage;
+    short speed;
     DamageType damage_type;
     struct ShotStats *old;
+    struct ShotHitConfig hit_generic;
+    struct ShotHitConfig hit_door;
+    struct ShotHitConfig hit_water;
+    struct ShotHitConfig hit_lava;
+    struct ShotHitConfig hit_creature;
     short firing_sound;
     short shot_sound;
     unsigned char firing_sound_variants;
     short max_range;
     unsigned short sprite_anim_idx;
     unsigned short sprite_size_max;
+    short size_xy;
+    short size_yz;
+    unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
+    unsigned char push_on_hit;
+    short bounce_angle;
+    short wind_immune;
+    short no_air_damage;
+    short animation_transparency;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -296,13 +319,6 @@ struct SpellConfig { // sizeof=4
   int duration;
 };
 
-struct ShotHitConfig {
-    short effect_model; /**< Effect kind to be created when the shot hits. */
-    short sndsample_idx; /**< Base sound sample to be played on hit. */
-    unsigned char sndsample_range; /**< Range for random sound sample selection. */
-    unsigned char destroyed; /**< Whether the shot is destroyed after hit; could be converted to flags. */
-};
-
 struct ShotStats // sizeof = 101
 {
   short sprite_anim_idx_UNUSED;
@@ -310,42 +326,42 @@ struct ShotStats // sizeof = 101
   unsigned char field_4[2];
   unsigned char field_6;
   unsigned char field_7;
-  unsigned char field_8; // transparency mode
-  short size_xy;
-  short size_yz;
-  short field_D;
-  unsigned char field_F;
+  unsigned char animation_transparency_UNUSED; // transparency mode
+  short size_xy_UNUSED;
+  short size_yz_UNUSED;
+  short bounce_angle_UNUSED;
+  unsigned char fall_acceleration_UNUSED;
   unsigned char field_10;
   unsigned char field_11;
   unsigned char field_12;
   unsigned char field_13;
   short health_UNUSED;
-  short damage;
+  short damage_UNUSED;
   unsigned char destroy_on_first_hit;
-  short speed;
+  short speed_UNUSED;
   short firing_sound_UNUSED;
   unsigned char firing_sound_variants_UNUSED;
   short shot_sound_UNUSED;
   short field_20;
-  short hit_sound;
+  short hit_sound_UNUSED;
   unsigned char field_24;
   short cast_spell_kind_UNUSED;
   unsigned char health_drain_UNUSED;
   unsigned char cannot_hit_thing_UNUSED;
   unsigned char rebound_immune_UNUSED;
-  unsigned char push_on_hit;
-  struct ShotHitConfig hit_generic;
-  struct ShotHitConfig hit_door;
-  short hit_water_effect_model;
-  short hit_water_sndsample_idx;
-  unsigned char hit_water_destroyed;
-  short hit_lava_effect_model;
-  short hit_lava_sndsample_idx;
-  unsigned char hit_lava_destroyed;
+  unsigned char push_on_hit_UNUSED;
+  struct ShotHitConfig hit_generic_UNUSED;
+  struct ShotHitConfig hit_door_UNUSED;
+  short hit_water_effect_model_UNUSED;
+  short hit_water_sndsample_idx_UNUSED;
+  unsigned char hit_water_destroyed_UNUSED;
+  short hit_lava_effect_model_UNUSED;
+  short hit_lava_sndsample_idx_UNUSED;
+  unsigned char hit_lava_destroyed_UNUSED;
   short area_range_UNUSED;
   short area_damage_UNUSED;
   short is_boulder_UNUSED;
-  unsigned char field_47;
+  unsigned char takes_air_damage_UNUSED;
   unsigned char is_melee_UNUSED;
   unsigned char is_digging_UNUSED;
   unsigned char area_hit_type_UNUSED;
@@ -359,7 +375,7 @@ struct ShotStats // sizeof = 101
   unsigned char field_54[4];
   unsigned char field_58[8];
   unsigned char field_60[4];
-  unsigned char affected_by_wind;
+  unsigned char affected_by_wind_UNUSED;
 };
 
 struct MagicStats {  // sizeof=0x4C

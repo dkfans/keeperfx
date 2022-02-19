@@ -31,6 +31,7 @@
 #include "bflib_memory.h"
 #include "bflib_network.h"
 #include "bflib_inputctrl.h"
+#include "bflib_sound.h"
 
 #include "kjm_input.h"
 #include "frontend.h"
@@ -53,11 +54,17 @@
 #include "gui_parchment.h"
 #include "power_hand.h"
 #include "thing_creature.h"
+#include "thing_shots.h"
 #include "thing_traps.h"
 #include "room_workshop.h"
 #include "kjm_input.h"
 #include "config_settings.h"
 #include "game_legacy.h"
+#include "spdigger_stack.h"
+#include "room_graveyard.h"
+#include "gui_soundmsgs.h"
+#include "creature_states_spdig.h"
+#include "room_data.h"
 
 #include "keeperfx.hpp"
 #include "KeeperSpeech.h"
@@ -79,6 +86,8 @@ KEEPERSPEECH_EVENT last_speech_event;
 
 // define the current GUI layer as the default
 struct GuiLayer gui_layer = {GuiLayer_Default};
+
+TbBool first_person_see_item_desc = false;
 
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
@@ -493,7 +502,7 @@ short get_minimap_control_inputs(void)
     short packet_made = false;
     if (is_key_pressed(KC_SUBTRACT, KMod_NONE))
     {
-        if (player->minimap_zoom < 0x0800)
+        if (player->minimap_zoom < 2048)
         {
             set_players_packet_action(player, PckA_SetMinimapConf, 2 * (long)player->minimap_zoom, 0, 0, 0);
             packet_made = true;
@@ -504,7 +513,7 @@ short get_minimap_control_inputs(void)
   }
   if (is_key_pressed(KC_ADD,KMod_NONE))
   {
-      if ( player->minimap_zoom > 0x0080 )
+      if ( player->minimap_zoom > 128 )
       {
         set_players_packet_action(player, PckA_SetMinimapConf, player->minimap_zoom >> 1, 0, 0, 0);
         packet_made = true;
@@ -1397,6 +1406,56 @@ short get_creature_control_action_inputs(void)
             message_add(CrInst, get_string(StrID));
         }
         first_person_dig_claim_mode = is_game_key_pressed(Gkey_CrtrContrlMod, &val, false);
+        player->thing_under_hand = 0;
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
+        {
+            if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &val, true))
+            {
+                first_person_see_item_desc = true;
+            }
+            else
+            {
+                first_person_see_item_desc = false;
+            }
+            struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+            if (thing_is_trap_crate(dragtng))
+            {
+                struct Thing* traptng = controlled_get_trap_to_rearm(thing);
+                if (!thing_is_invalid(traptng))
+                {
+                    player->thing_under_hand = traptng->index;
+                }
+            }
+            else if (thing_is_invalid(dragtng))
+            {
+                struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+                TbBool diggable_subtile;
+                MapSubtlCoord stl_x = thing->mappos.x.stl.num;
+                MapSubtlCoord stl_y = thing->mappos.y.stl.num;
+                for (unsigned char range = 0; range < shotst->health; range++)
+                {
+                    controlled_continue_looking_excluding_diagonal(thing, &stl_x, &stl_y);
+                    diggable_subtile = subtile_is_diggable_for_player(thing->owner, stl_x, stl_y, true);
+                    if (diggable_subtile)
+                    {
+                        break;
+                    }
+                }
+                if (!diggable_subtile)
+                {
+                    struct Thing* picktng = controlled_get_thing_to_pick_up(thing);
+                    if (!thing_is_invalid(picktng))
+                    {
+                        player->thing_under_hand = picktng->index;
+                        if (first_person_see_item_desc)
+                        {
+                            display_controlled_pick_up_thing_name(picktng, 1);
+                        }
+                    }
+                }
+            }
+        }
     if (numkey != -1)
     {
         int num_avail = 0;
@@ -1415,7 +1474,7 @@ short get_creature_control_action_inputs(void)
                 }
                 num_avail++;
             }
-      }
+        }
     }
     return false;
 }
@@ -2336,7 +2395,7 @@ short get_gui_inputs(short gameplay_on)
       for (int idx = 0; idx < ACTIVE_BUTTONS_COUNT; idx++)
       {
         struct GuiButton *gbtn = &active_buttons[idx];
-        if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gbtype == LbBtnT_Unknown6))
+        if ((gbtn->flags & LbBtnF_Active) && (gbtn->gbtype == LbBtnT_Unknown6))
             gbtn->gbactn_1 = 0;
       }
   }
@@ -2351,7 +2410,7 @@ short get_gui_inputs(short gameplay_on)
   for (int gidx = 0; gidx < ACTIVE_BUTTONS_COUNT; gidx++)
   {
       gbtn = &active_buttons[gidx];
-      if ((gbtn->flags & LbBtnF_Unknown01) == 0)
+      if ((gbtn->flags & LbBtnF_Active) == 0)
           continue;
       if (!get_active_menu(gbtn->gmenu_idx)->is_turned_on)
           continue;

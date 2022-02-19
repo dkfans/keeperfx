@@ -1272,4 +1272,85 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     return 1;
 }
+
+TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (!thing_exists(thing))
+        return false;
+     struct PlayerInfo* player = get_player(plyr_idx);
+     if (player_invalid(player))
+     {
+         ERRORLOG("Bad player: $d", plyr_idx);
+         return false;
+     }
+     else
+     {
+        if ((player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_FreeCtrlDirect) && (player->work_state != PSt_CtrlDungeon))
+        {
+            return false;
+        }
+        switch (player->instance_num)
+        {
+            case PI_DirctCtrl:
+            case PI_HeartZoom:
+            case PI_HeartZoomOut:
+            case PI_Drop:
+            {
+                if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+                {
+                    if (player->view_type == PVT_CreatureContrl)
+                    {
+                        return ( (thing->index == player->influenced_thing_idx) || (get_creature_model_flags(thing) & CMF_IsSpectator) );
+                    }
+                }
+                return false;
+            }
+            case PI_CrCtrlFade:
+                return (thing->index == player->controlled_thing_idx);
+            case PI_DirctCtLeave:
+                return (thing->index == player->influenced_thing_idx);
+            case PI_Unset:
+            case PI_Whip: // Whip can be used at any time by comp. assistant
+            case PI_WhipEnd:
+                return (thing->index == player->controlled_thing_idx);
+            case PI_PsngrCtLeave: // Leaving the possessed creature
+                break;
+        }
+     }
+    return false;
+}
+
+TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (!thing_exists(thing))
+        return false;
+     struct PlayerInfo* player = get_player(plyr_idx);
+     if (player_invalid(player))
+     {
+         ERRORLOG("Bad player: $d", plyr_idx);
+         return false;
+     }
+    else
+    {
+        if ((player->work_state != PSt_CtrlPassngr) && (player->work_state != PSt_FreeCtrlPassngr))
+            return false;
+        switch (player->instance_num)
+        {
+        case PI_PsngrCtrl:
+            return ( (thing->index == player->influenced_thing_idx) && (player->view_type == PVT_CreaturePasngr) );
+        case PI_CrCtrlFade:
+            return (thing->index == player->controlled_thing_idx);
+        case PI_PsngrCtLeave:
+            return (thing->index == player->influenced_thing_idx);
+        case PI_Unset:
+        case PI_Whip: // Whip can be used at any time by comp. assistant
+        case PI_WhipEnd:
+            return (thing->index == player->controlled_thing_idx);
+        default:
+            ERRORLOG("Bad player %d instance %d",plyr_idx,(int)player->instance_num);
+            break;
+        }
+    }
+    return false;
+}
 /******************************************************************************/
