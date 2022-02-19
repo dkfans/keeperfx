@@ -29,6 +29,8 @@
 #include "lvl_script_conditions.h"
 #include "keeperfx.hpp"
 
+#include "lvl_script_value.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -68,8 +70,6 @@ const struct NamedCommand game_rule_desc[] = {
   {NULL,                         0},
 };
 
-//TODO make commands not depend on main file
-void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value);
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
