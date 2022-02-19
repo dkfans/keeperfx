@@ -306,13 +306,10 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         create_light_for_possession(thing);
     }
-    if (is_my_player_number(thing->owner))
+    if (thing->class_id == TCls_Creature)
     {
-      if (thing->class_id == TCls_Creature)
-      {
         crstat = creature_stats_get_from_thing(thing);
         setup_eye_lens(crstat->eye_effect);
-      }
     }
     return true;
 }
