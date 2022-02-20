@@ -277,9 +277,13 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       cam->mappos.z.val += (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
       return true;
     }
-    cctrl->moveto_pos.x.val = 0;
-    cctrl->moveto_pos.y.val = 0;
-    cctrl->moveto_pos.z.val = 0;
+    TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
+    if (!chicken)
+    {
+        cctrl->moveto_pos.x.val = 0;
+        cctrl->moveto_pos.y.val = 0;
+        cctrl->moveto_pos.z.val = 0;
+    }
     if (is_my_player(player))
     {
       toggle_status_menu(0);
@@ -291,7 +295,14 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= TF4F_Unknown01;
-    set_start_state(thing);
+    if (!chicken)
+    {
+        set_start_state(thing);
+    }
+    else
+    {
+        internal_set_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
+    }
     set_player_mode(player, PVT_CreatureContrl);
     if (thing_is_creature(thing))
     {

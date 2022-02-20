@@ -1456,26 +1456,29 @@ short get_creature_control_action_inputs(void)
                 }
             }
         }
-    if (numkey != -1)
-    {
-        int num_avail = 0;
-        for (int idx = 0; idx < LEARNED_INSTANCES_COUNT; idx++)
+        if (!creature_affected_by_spell(thing, SplK_Chicken))
         {
-            struct Thing* cthing = thing_get(player->controlled_thing_idx);
-            TRACE_THING(cthing);
-            struct CreatureStats* crstat = creature_stats_get_from_thing(cthing);
-            int inst_id = crstat->learned_instance_id[idx];
-            if (creature_instance_is_available(cthing, inst_id))
+            if (numkey != -1)
             {
-                if (numkey == num_avail)
+                int num_avail = 0;
+                for (int idx = 0; idx < LEARNED_INSTANCES_COUNT; idx++)
                 {
-                    set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, inst_id, 0, 0, 0);
-                    break;
+                    struct Thing* cthing = thing_get(player->controlled_thing_idx);
+                    TRACE_THING(cthing);
+                    struct CreatureStats* crstat = creature_stats_get_from_thing(cthing);
+                    int inst_id = crstat->learned_instance_id[idx];
+                    if (creature_instance_is_available(cthing, inst_id))
+                    {
+                        if (numkey == num_avail)
+                        {
+                            set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, inst_id, 0, 0, 0);
+                            break;
+                        }
+                        num_avail++;
+                    }
                 }
-                num_avail++;
             }
         }
-    }
     return false;
 }
 
