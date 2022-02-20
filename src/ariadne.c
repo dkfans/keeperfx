@@ -1990,11 +1990,14 @@ void edgelen_init(void)
 
 TbBool ariadne_creature_reached_position(const struct Thing *thing, const struct Coord3d *pos)
 {
-    if (thing->mappos.x.val != pos->x.val)
-    return false;
-    if (thing->mappos.y.val != pos->y.val)
-        return false;
-    return true;
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        return ( (thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num) );
+    }
+    else
+    {
+        return ( (thing->mappos.x.val == pos->x.val) && (thing->mappos.y.val == pos->y.val) );
+    }
 }
 
 long ariadne_creature_blocked_by_wall_at(struct Thing *thing, const struct Coord3d *pos)
