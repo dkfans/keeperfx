@@ -520,7 +520,7 @@ void redraw_creature_view(void)
     draw_tooltip();
     long x = 148 * units_per_pixel / 16;
     static const SpellKind Spells[] = {SplK_Freeze, SplK_Armour, SplK_Rebound, SplK_Invisibility, SplK_Speed, SplK_Slow, SplK_Light, SplK_Fly, SplK_Sight, SplK_Disease, SplK_Chicken};
-    for (int Spell = 0; Spell < sizeof(Spells); Spell++)
+    for (int Spell = 0; Spell < sizeof(Spells) / sizeof(Spells[0]); Spell++)
     {
         if (creature_affected_by_spell(thing, Spells[Spell]))
         {
