@@ -518,6 +518,23 @@ void redraw_creature_view(void)
     message_draw();
     gui_draw_all_boxes();
     draw_tooltip();
+    long x = 148 * units_per_pixel / 16;
+    static const SpellKind Spells[] = {SplK_Freeze, SplK_Armour, SplK_Rebound, SplK_Invisibility, SplK_Speed, SplK_Slow, SplK_Light, SplK_Fly, SplK_Sight, SplK_Disease, SplK_Chicken};
+    for (int Spell = 0; Spell <= sizeof(Spells); Spell++)
+    {
+        if (creature_affected_by_spell(thing, Spells[Spell]))
+        {
+            long y = (MyScreenHeight - (LbTextLineHeight()*units_per_pixel/8));
+            int ps_units_per_px;
+            {
+                struct TbSprite* spr = &gui_panel_sprites[488];
+                ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
+            }
+            struct SpellInfo* spinfo = get_magic_info(Spells[Spell]);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, spinfo->medsym_sprite_idx);
+            x += LbTextLineHeight()*units_per_pixel/16;
+        }
+    }
 }
 
 void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, long scanln)
