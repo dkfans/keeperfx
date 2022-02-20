@@ -2795,6 +2795,18 @@ static void display_objective_process(struct ScriptContext *context)
 
 static void change_slab_owner_check(const struct ScriptLine *scline)
 {
+
+    if (scline->np[0] < 0 || scline->np[0] > 85) //x coord
+    {
+        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        return;
+    }
+    if (scline->np[1] < 0 || scline->np[1] > 85) //y coord
+    {
+        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[1]);
+        return;
+    }
+
     command_add_value(Cmd_CHANGE_SLAB_OWNER, scline->np[2], scline->np[0], scline->np[1], get_id(fill_desc, scline->tp[3]));
 }
 
@@ -2803,23 +2815,15 @@ static void change_slab_owner_process(struct ScriptContext *context)
     MapSlabCoord x = context->value->arg0;
     MapSlabCoord y = context->value->arg1;
     long fill_type = context->value->arg2;
-    if (x < 0 || x > 85)
+    if (fill_type != -1)
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", x);
-    } else
-    if (y < 0 || y > 85)
-    {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", y);
-    } else
-    {
-        if (fill_type != -1)
-        {
-          struct CompoundCoordFilterParam iter_param;
-          iter_param.plyr_idx = context->player_idx;
-          iter_param.num1 = fill_type;
-          iter_param.num2 = get_slabmap_block(x, y)->kind;
-          slabs_fill_iterate_from_slab(x, y, slabs_change_owner, &iter_param);
-        } else change_slab_owner_from_script(x, y, context->player_idx);
+        struct CompoundCoordFilterParam iter_param;
+        iter_param.plyr_idx = context->player_idx;
+        iter_param.num1 = fill_type;
+        iter_param.num2 = get_slabmap_block(x, y)->kind;
+        slabs_fill_iterate_from_slab(x, y, slabs_change_owner, &iter_param);
+    } else {
+        change_slab_owner_from_script(x, y, context->player_idx);
     }
 }
 
