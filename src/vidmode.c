@@ -45,6 +45,7 @@
 #include "game_legacy.h"
 #include "creature_graphics.h"
 #include "keeperfx.hpp"
+#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
