@@ -91,6 +91,7 @@ enum MousePointerGraphics {
     MousePG_PlaceLava = 150,
     MousePG_PlaceWater = 151,
     MousePG_PlaceGems = 152,
+    MousePG_MkDigger = 153,
 };
 /******************************************************************************/
 #pragma pack(1)
