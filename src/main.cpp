@@ -1100,8 +1100,10 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
     int i;
     i = player->work_state;
     if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) || (i == PSt_PlaceTerrain) || (i == PSt_MkGoodDigger)
-        || (i == PSt_OrderCreatr) || (i == PSt_MkGoodCreatr) || PSt_MkBadCreatr )
+        || (i == PSt_MkGoodCreatr) || PSt_MkBadCreatr )
         return true;
+    if ( (i == PSt_OrderCreatr) && (player->controlled_thing_idx > 0) )
+        return true;        
     if ( (i == PSt_CtrlDungeon) && (player->primary_cursor_state != CSt_DefaultArrow) && (player->thing_under_hand == 0) )
         return true;
     return false;
