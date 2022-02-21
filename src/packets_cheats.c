@@ -24,7 +24,7 @@
 extern void clear_input(struct Packet* packet);
 
 /******************************************************************************/
-short place_terrain = 0;
+SlabKind place_terrain = 0;
 /******************************************************************************/
 
 TbBool packets_process_cheats(
