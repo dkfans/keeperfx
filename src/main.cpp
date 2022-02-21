@@ -4555,13 +4555,13 @@ void tag_cursor_blocks_place_terrain(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     if ( is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && game.small_map_state != 2 )
     {
-        map_volume_box.visible = 1;
+        map_volume_box.visible = true;
         map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
         map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
         map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 3), 0);
         map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 3), 0);
         map_volume_box.floor_height_z = floor_height_z;
-        map_volume_box.color = 1;
+        map_volume_box.color = SLC_GREEN;
     }
 }
 
