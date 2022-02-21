@@ -31,8 +31,8 @@
 
 #include "lvl_script_conditions.h"
 #include "lvl_script_value.h"
+#include "lvl_script_commands_old.h"
 #include "lvl_script_commands.h"
-#include "lvl_script_parser.h"
 
 #ifdef __cplusplus
 extern "C" {
