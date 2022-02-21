@@ -41,25 +41,50 @@ TbBool packets_process_cheats(
     PowerKind pwkind;
     struct SlabMap *slb;
     struct PlayerInfo* player = get_player(plyr_idx);
-
+    TbBool allowed;
     switch (player->work_state)
     {
         case PSt_MkGoodDigger:
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (allowed)
             {
                 create_owned_special_digger(x, y, get_selected_player_for_cheat(game.hero_player_num));
-                unset_packet_control(pckt, PCtr_LBtnRelease);
             }
-            break;
+            else
+            {
+                if (is_my_player(player))
+                {
+                    play_non_3d_sample(119);
+                }
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        break;
         case PSt_MkGoodCreatr:
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (allowed)
             {
                 create_random_hero_creature(x, y, get_selected_player_for_cheat(game.hero_player_num), CREATURE_MAX_LEVEL);
-                unset_packet_control(pckt, PCtr_LBtnRelease);
             }
-            break;
+            else
+            {
+                if (is_my_player(player))
+                {
+                    play_non_3d_sample(119);
+                }
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        break;
         case PSt_MkGoldPot:
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (allowed)
             {
                 thing = create_gold_pot_at(x, y, player->id_number);
                 if (!thing_is_invalid(thing))
@@ -77,9 +102,17 @@ TbBool packets_process_cheats(
                         }
                     }
                 }
-                unset_packet_control(pckt, PCtr_LBtnRelease);
             }
-            break;
+            else
+            {
+                if (is_my_player(player))
+                {
+                    play_non_3d_sample(119);
+                }
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        break;
         case PSt_OrderCreatr:
             *influence_own_creatures = 1;
             thing = get_creature_near(x, y);
@@ -131,12 +164,23 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_MkBadCreatr:
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (allowed)
             {
                 create_random_evil_creature(x, y, get_selected_player_for_cheat(plyr_idx), CREATURE_MAX_LEVEL);
-                unset_packet_control(pckt, PCtr_LBtnRelease);
             }
-            break;
+            else
+            {
+                if (is_my_player(player))
+                {
+                    play_non_3d_sample(119);
+                }
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        break;
         case PSt_FreeDestroyWalls:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
