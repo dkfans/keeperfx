@@ -1,8 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lvl_script_parser.c
- *     functions that take strings from the script txt and translate them into values the rest of the code can understand
+/** @file lvl_script_commands.c
+ *     Commands that can be used by level script
  * @author   KeeperFX Team
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 /******************************************************************************/
 
 
-#include "lvl_script_parser.h"
+#include "lvl_script_commands.h"
 
 #include "lvl_script_conditions.h"
 #include "lvl_script_lib.h"

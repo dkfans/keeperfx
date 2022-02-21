@@ -179,10 +179,10 @@
     <ClCompile Include="src\light_data.c" />
     <ClCompile Include="src\lvl_filesdk1.c" />
     <ClCompile Include="src\lvl_script.c" />
-    <ClCompile Include="src\lvl_script_commands.c" />
+    <ClCompile Include="src\lvl_script_commands_old.c" />
     <ClCompile Include="src\lvl_script_conditions.c" />
     <ClCompile Include="src\lvl_script_lib.c" />
-    <ClCompile Include="src\lvl_script_parser.c" />
+    <ClCompile Include="src\lvl_script_commands.c" />
     <ClCompile Include="src\lvl_script_value.c" />
     <ClCompile Include="src\magic.c" />
     <ClCompile Include="src\main.cpp" />
@@ -404,7 +404,7 @@
     <ClInclude Include="src\lvl_script_commands.h" />
     <ClInclude Include="src\lvl_script_conditions.h" />
     <ClInclude Include="src\lvl_script_lib.h" />
-    <ClInclude Include="src\lvl_script_parser.h" />
+    <ClInclude Include="src\lvl_script_commands_old.h" />
     <ClInclude Include="src\lvl_script_value.h" />
     <ClInclude Include="src\magic.h" />
     <ClInclude Include="src\map_blocks.h" />
