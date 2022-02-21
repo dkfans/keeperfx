@@ -7013,11 +7013,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct CreatureModelConfig *crconf;
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  struct TrapConfigStats* trapst;
-  struct DoorConfigStats* doorst;
-  struct ManfctrConfig* mconf;
-  struct ManufactureData* manufctr;
-  struct SlabMap *slb;
   int plr_start;
   int plr_end;
   long i;
