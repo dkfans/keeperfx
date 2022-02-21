@@ -876,6 +876,17 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_MkGoodDigger:
         set_pointer_graphic(MousePG_MkDigger);
         break;
+    case PSt_MkGoodCreatr:
+    case PSt_MkBadCreatr:
+        set_pointer_graphic(MousePG_MkCreature);
+        break;
+    case PSt_OrderCreatr:
+    {
+        struct Thing* creatng = thing_get(player->controlled_thing_idx);
+        i = (thing_is_creature(creatng)) ? MousePG_MvCreature : MousePG_Arrow;
+        set_pointer_graphic(i);
+        break;
+    }
     default:
         set_pointer_graphic(MousePG_Arrow);
         break;

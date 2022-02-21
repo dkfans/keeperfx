@@ -474,6 +474,8 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_PlaceWater:
   case MousePG_PlaceGems:
   case MousePG_MkDigger:
+  case MousePG_MkCreature:
+  case MousePG_MvCreature:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
