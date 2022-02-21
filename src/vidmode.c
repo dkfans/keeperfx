@@ -45,7 +45,6 @@
 #include "game_legacy.h"
 #include "creature_graphics.h"
 #include "keeperfx.hpp"
-#include "custom_sprites.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -464,15 +463,15 @@ TbBool set_pointer_graphic(long ptr_idx)
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
-  case 144:
-  case 145:
-  case 146:
-  case 147:
-  case 148:
-  case 149:
-  case 150:
-  case 151:
-  case 152:
+  case MousePG_PlaceImpRock:
+  case MousePG_PlaceGold:
+  case MousePG_PlaceEarth:
+  case MousePG_PlaceWall:
+  case MousePG_PlacePath:
+  case MousePG_PlaceClaimed:
+  case MousePG_PlaceLava:
+  case MousePG_PlaceWater:
+  case MousePG_PlaceGems:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;

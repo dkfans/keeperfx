@@ -82,6 +82,15 @@ enum MousePointerGraphics {
     MousePG_Unkn47,
     MousePG_Unkn48,
     MousePG_Unkn49,
+    MousePG_PlaceImpRock = 144,
+    MousePG_PlaceGold = 145,
+    MousePG_PlaceEarth = 146,
+    MousePG_PlaceWall = 147,
+    MousePG_PlacePath = 148,
+    MousePG_PlaceClaimed = 149,
+    MousePG_PlaceLava = 150,
+    MousePG_PlaceWater = 151,
+    MousePG_PlaceGems = 152,
 };
 /******************************************************************************/
 #pragma pack(1)

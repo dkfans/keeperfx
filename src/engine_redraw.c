@@ -1080,18 +1080,18 @@ int get_place_terrain_pointer_graphics(SlabKind skind)
     {
         case SlbT_ROCK:
         {
-            result = 144;
+            result = MousePG_PlaceImpRock;
             break;
         }
         case SlbT_GOLD:
         {
-            result = 145;
+            result = MousePG_PlaceGold;
             break;
         }
         case SlbT_EARTH:
         case SlbT_TORCHDIRT:
         {
-            result = 146;
+            result = MousePG_PlaceEarth;
             break;
         }
         case SlbT_WALLDRAPE:
@@ -1101,32 +1101,32 @@ int get_place_terrain_pointer_graphics(SlabKind skind)
         case SlbT_WALLPAIRSHR:
         case SlbT_DAMAGEDWALL:
         {
-            result = 147;
+            result = MousePG_PlaceWall;
             break;
         }
         case SlbT_PATH:
         {
-            result = 148;
+            result = MousePG_PlacePath;
             break;
         }
         case SlbT_CLAIMED:
         {
-            result = 149;
+            result = MousePG_PlaceClaimed;
             break;
         }
         case SlbT_LAVA:
         {
-            result = 150;
+            result = MousePG_PlaceLava;
             break;
         }
         case SlbT_WATER:
         {
-            result = 151;
+            result = MousePG_PlaceWater;
             break;
         }
         case SlbT_GEMS:
         {
-            result = 152;
+            result = MousePG_PlaceGems;
             break;
         }
         default:
