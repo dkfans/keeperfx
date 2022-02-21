@@ -24,6 +24,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_workshop.h"
+#include "cursor_tag.h"
 
 extern TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx);
 extern TbBool packets_process_cheats(

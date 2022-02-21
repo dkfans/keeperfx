@@ -464,6 +464,18 @@ TbBool set_pointer_graphic(long ptr_idx)
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
+  case MousePG_PlaceImpRock:
+  case MousePG_PlaceGold:
+  case MousePG_PlaceEarth:
+  case MousePG_PlaceWall:
+  case MousePG_PlacePath:
+  case MousePG_PlaceClaimed:
+  case MousePG_PlaceLava:
+  case MousePG_PlaceWater:
+  case MousePG_PlaceGems:
+      spr = &pointer_sprites[ptr_idx];
+      x = 12; y = 38;
+      break;
   default:
       spr = get_new_icon_sprite(ptr_idx);
       if (spr != NULL)

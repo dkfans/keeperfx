@@ -56,6 +56,7 @@
 #include "power_hand.h"
 #include "power_process.h"
 #include "game_legacy.h"
+#include "cursor_tag.h"
 
 #include "keeperfx.hpp"
 

@@ -57,6 +57,7 @@
 #include "magic.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "packets.h"
 
 #include "keeperfx.hpp"
 
@@ -868,6 +869,10 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_Sell:
         set_pointer_graphic(MousePG_Sell);
         break;
+    case PSt_PlaceTerrain:
+        i = get_place_terrain_pointer_graphics(place_terrain);
+        set_pointer_graphic(i);
+        break;
     default:
         set_pointer_graphic(MousePG_Arrow);
         break;
@@ -1066,5 +1071,70 @@ TbBool keeper_screen_redraw(void)
         return true;
     }
     return false;
+}
+
+int get_place_terrain_pointer_graphics(SlabKind skind)
+{
+    int result;
+    switch (skind)
+    {
+        case SlbT_ROCK:
+        {
+            result = MousePG_PlaceImpRock;
+            break;
+        }
+        case SlbT_GOLD:
+        {
+            result = MousePG_PlaceGold;
+            break;
+        }
+        case SlbT_EARTH:
+        case SlbT_TORCHDIRT:
+        {
+            result = MousePG_PlaceEarth;
+            break;
+        }
+        case SlbT_WALLDRAPE:
+        case SlbT_WALLTORCH:
+        case SlbT_WALLWTWINS:
+        case SlbT_WALLWWOMAN:
+        case SlbT_WALLPAIRSHR:
+        case SlbT_DAMAGEDWALL:
+        {
+            result = MousePG_PlaceWall;
+            break;
+        }
+        case SlbT_PATH:
+        {
+            result = MousePG_PlacePath;
+            break;
+        }
+        case SlbT_CLAIMED:
+        {
+            result = MousePG_PlaceClaimed;
+            break;
+        }
+        case SlbT_LAVA:
+        {
+            result = MousePG_PlaceLava;
+            break;
+        }
+        case SlbT_WATER:
+        {
+            result = MousePG_PlaceWater;
+            break;
+        }
+        case SlbT_GEMS:
+        {
+            result = MousePG_PlaceGems;
+            break;
+        }
+        default:
+        {
+            result = MousePG_Arrow;
+            break;
+        }
+    }
+    return result;
 }
 /******************************************************************************/
