@@ -41,6 +41,7 @@
 #include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "cursor_tags.h"
 
 #include "keeperfx.hpp"
 

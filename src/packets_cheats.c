@@ -20,6 +20,7 @@
 #include "frontend.h"
 #include "room_util.h"
 #include "room_workshop.h"
+#include "cursor_tags.h"
 
 extern void clear_input(struct Packet* packet);
 

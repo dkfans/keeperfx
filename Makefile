@@ -180,6 +180,7 @@ obj/creature_states_tortr.o \
 obj/creature_states_train.o \
 obj/creature_states_tresr.o \
 obj/creature_states_wrshp.o \
+obj/cursor_tags.o \
 obj/dungeon_data.o \
 obj/dungeon_stats.o \
 obj/engine_arrays.o \
