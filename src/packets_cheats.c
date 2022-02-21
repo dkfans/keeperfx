@@ -21,6 +21,7 @@
 #include "room_util.h"
 #include "room_workshop.h"
 #include "cursor_tag.h"
+#include "gui_boxmenu.h"
 
 extern void clear_input(struct Packet* packet);
 
@@ -29,6 +30,14 @@ SlabKind place_terrain = 0;
 /******************************************************************************/
 
 TbBool packets_process_cheats(
+struct GuiBox* gbox_over = gui_get_box_point_over(GetMouseX(), GetMouseY());
+    if (gbox_over != NULL)
+    {
+        if (gui_get_box_option_point_over(gbox_over, GetMouseX(), GetMouseY()) != NULL)
+        {
+            return false;
+        }
+    }
         PlayerNumber plyr_idx,
         MapCoord x, MapCoord y,
         struct Packet* pckt,
