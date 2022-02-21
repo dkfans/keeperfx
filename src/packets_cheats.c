@@ -115,55 +115,73 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_OrderCreatr:
-            *influence_own_creatures = 1;
+        influence_own_creatures = 1;
+        thing = get_creature_near(x, y);
+        if (!thing_is_creature(thing))
+            player->thing_under_hand = 0;
+        else
+            player->thing_under_hand = thing->index;
+        thing = thing_get(player->controlled_thing_idx);
+        if (thing_is_creature(thing))
+        {
+            allowed = tag_cursor_blocks_order_creature(plyr_idx, stl_x, stl_y, thing);
+        }
+        else
+        {
+            allowed = false;
+        }
+        if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+        {
+          if (player->thing_under_hand > 0)
+          {
+            if (player->controlled_thing_idx != player->thing_under_hand)
+            {
+                player->influenced_thing_idx = player->thing_under_hand;
+            }
+          }
+          if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
+          {
+            if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
+            {
+              if (allowed)
+              {
+                if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
+                    WARNLOG("Move %s order failed",thing_model_name(thing));
+                thing->continue_state = CrSt_ManualControl;
+              }
+              else
+              {
+                if (is_my_player(player))
+                {
+                    play_non_3d_sample(119);
+                }
+              }
+            }
+          } else
+          {
             thing = get_creature_near(x, y);
-            if (!thing_is_creature(thing))
-                player->thing_under_hand = 0;
-            else
-                player->thing_under_hand = thing->index;
-            if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+            if (!thing_is_invalid(thing))
             {
-                if (player->thing_under_hand > 0)
-                {
-                    if (player->controlled_thing_idx != player->thing_under_hand)
-                    {
-                        player->influenced_thing_idx = player->thing_under_hand;
-                    }
+                set_selected_creature(player, thing);
+                initialise_thing_state(thing, CrSt_ManualControl);
+                if (creature_is_group_member(thing)) {
+                    make_group_member_leader(thing);
                 }
-                if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
-                {
-                    if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
-                    {
-                        thing = thing_get(player->controlled_thing_idx);
-                        if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
-                            WARNLOG("Move %s order failed",thing_model_name(thing));
-                        thing->continue_state = CrSt_ManualControl;
-                    }
-                } else
-                {
-                    thing = get_creature_near(x, y);
-                    if (!thing_is_invalid(thing))
-                    {
-                        set_selected_creature(player, thing);
-                        initialise_thing_state(thing, CrSt_ManualControl);
-                        if (creature_is_group_member(thing)) {
-                            make_group_member_leader(thing);
-                        }
-                    }
-                }
-                unset_packet_control(pckt, PCtr_LBtnRelease);
             }
-            if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
-            {
-                if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
-                {
-                    thing = thing_get(player->controlled_thing_idx);
-                    set_start_state(thing);
-                    clear_selected_thing(player);
-                }
-                unset_packet_control(pckt, PCtr_RBtnRelease);
-            }
-            break;
+          }
+          unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
+        {
+          if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
+          {
+            thing = thing_get(player->controlled_thing_idx);
+            set_start_state(thing);
+            clear_selected_thing(player);
+          }
+          unset_packet_control(pckt, PCtr_RBtnRelease);
+        }
+        break;
         case PSt_MkBadCreatr:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))

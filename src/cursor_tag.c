@@ -10,6 +10,7 @@
 #include "power_hand.h"
 #include "frontend.h"
 #include "thing_physics.h"
+#include "thing_navigate.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -252,6 +253,39 @@ TbBool tag_cursor_blocks_place_thing(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     else if (map_pos_is_lava(stl_x, stl_y))
     {
         colour = SLC_YELLOW;
+    }
+    else
+    {
+        colour = SLC_GREEN;
+    }
+    if ( is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && game.small_map_state != 2 )
+    {
+        map_volume_box.visible = true;
+        map_volume_box.beg_x = subtile_coord(stl_x, 0);
+        map_volume_box.beg_y = subtile_coord(stl_y, 0);
+        map_volume_box.end_x = subtile_coord(stl_x + 1, 0);
+        map_volume_box.end_y = subtile_coord(stl_y + 1, 0);
+        map_volume_box.floor_height_z = floor_height_z;
+        map_volume_box.color = colour;
+        render_roomspace.is_roomspace_a_single_subtile = true;
+    }
+    return (colour != SLC_RED);
+}
+
+TbBool tag_cursor_blocks_order_creature(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing* creatng)
+{
+    SYNCDBG(7,"Starting");
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
+    unsigned char colour;
+    struct Coord3d pos;
+    pos.x.stl.num = stl_x;
+    pos.y.stl.num = stl_y;
+    pos.z.val = get_floor_height(stl_x, stl_y);
+    if (!creature_can_navigate_to(creatng, &pos, NavRtF_Default))
+    {
+        colour = SLC_RED;
     }
     else
     {
