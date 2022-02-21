@@ -5923,7 +5923,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     else if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default)) ||
                   (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) )
     {
-        return (slabmap_owner(slb) == creatng->owner);              
+        return true;  
     }
     else if (thing_is_trap_crate(picktng)) // for trap crates in one's own Workshop
     {
