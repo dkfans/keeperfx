@@ -615,12 +615,12 @@ TbBool packets_process_cheats(
                 char msg_buf[255];
                 strcpy(msg_buf, msg);
                 char* dis_msg = strtok(msg_buf, ":");
-                message_add(-127, dis_msg);
+                message_add_timeout(-127, 1, dis_msg);
             }
             else
             {
                 slab_cfgstats = get_slab_kind_stats(place_terrain);
-                message_add(-127, slab_cfgstats->code_name);
+                message_add_timeout(-127, 1, slab_cfgstats->code_name);
             }
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
