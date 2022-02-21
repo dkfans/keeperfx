@@ -1,8 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lvl_script_commands.c
- *     
+/** @file lvl_script_commands_old.c
+ * @par  This file is the old way of working 
+ * DON'T ADD NEW LOGIC HERE
+ * see lvl_script_commands.c on how new commands should be added
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -11,7 +13,7 @@
  * @author   KeeperFX Team
  */
 /******************************************************************************/
-#include "lvl_script_commands.h"
+#include "lvl_script_commands_old.h"
 
 #include <strings.h>
 
@@ -30,7 +32,7 @@
 #include "lvl_script_value.h"
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
-#include "lvl_script_parser.h"
+#include "lvl_script_commands.h"
 
 #ifdef __cplusplus
 extern "C" {

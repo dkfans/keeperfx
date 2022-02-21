@@ -723,7 +723,7 @@
     <ClCompile Include="src\lvl_script_lib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lvl_script_parser.c">
+    <ClCompile Include="src\lvl_script_commands_old.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\map_locations.c">
@@ -1352,7 +1352,7 @@
     <ClInclude Include="src\lvl_script_lib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lvl_script_parser.h">
+    <ClInclude Include="src\lvl_script_commands_old.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\map_locations.h">
