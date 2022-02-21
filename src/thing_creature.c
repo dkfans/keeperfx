@@ -277,9 +277,13 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       cam->mappos.z.val += (crstat->eye_height + (crstat->eye_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
       return true;
     }
-    cctrl->moveto_pos.x.val = 0;
-    cctrl->moveto_pos.y.val = 0;
-    cctrl->moveto_pos.z.val = 0;
+    TbBool chicken = (creature_affected_by_spell(thing, SplK_Chicken));
+    if (!chicken)
+    {
+        cctrl->moveto_pos.x.val = 0;
+        cctrl->moveto_pos.y.val = 0;
+        cctrl->moveto_pos.z.val = 0;
+    }
     if (is_my_player(player))
     {
       toggle_status_menu(0);
@@ -291,7 +295,14 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       player->view_mode_restore = cam->view_mode;
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= TF4F_Unknown01;
-    set_start_state(thing);
+    if (!chicken)
+    {
+        set_start_state(thing);
+    }
+    else
+    {
+        internal_set_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
+    }
     set_player_mode(player, PVT_CreatureContrl);
     if (thing_is_creature(thing))
     {
@@ -306,13 +317,10 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     {
         create_light_for_possession(thing);
     }
-    if (is_my_player_number(thing->owner))
+    if (thing->class_id == TCls_Creature)
     {
-      if (thing->class_id == TCls_Creature)
-      {
         crstat = creature_stats_get_from_thing(thing);
         setup_eye_lens(crstat->eye_effect);
-      }
     }
     return true;
 }
@@ -5378,6 +5386,132 @@ void illuminate_creature(struct Thing *creatng)
     lgt->radius <<= 1;    
 }
 
+struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
+{
+    long effect;
+    long i = get_map_location_longval(location);
+    struct Coord3d pos;
+    TbBool fall_from_gate = false;
+
+    const unsigned char tngclass = TCls_Creature;
+
+    switch (get_map_location_type(location))
+    {
+    case MLoc_ACTIONPOINT:
+        if (!get_coords_at_action_point(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
+        effect = 1;
+        break;
+    case MLoc_HEROGATE:
+        if (!get_coords_at_hero_door(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
+        effect = 0;
+        fall_from_gate = true;
+        break;
+    case MLoc_PLAYERSHEART:
+        if (!get_coords_at_dungeon_heart(&pos, i))
+        {
+            return INVALID_THING;
+        }
+        effect = 0;
+        break;
+    case MLoc_METALOCATION:
+        if (!get_coords_at_meta_action(&pos, plyr_idx, i))
+        {
+            return INVALID_THING;
+        }
+        effect = 0;
+        break;
+    case MLoc_CREATUREKIND:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    case MLoc_THING:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    case MLoc_NONE:
+    default:
+        effect = 0;
+        return INVALID_THING;
+    }
+    
+    struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, crmodel, plyr_idx);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, crmodel),(int)location);
+            // Error is already logged
+        return INVALID_THING;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (fall_from_gate)
+    {
+        cctrl->field_AE |= 0x02;
+        cctrl->spell_flags |= CSAfF_MagicFall;
+        thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
+        thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
+        if ((thing->movement_flags & TMvF_Flying) != 0) {
+            thing->veloc_push_add.z.val -= PLAYER_RANDOM(plyr_idx, 32);
+        } else {
+            thing->veloc_push_add.z.val += PLAYER_RANDOM(plyr_idx, 96) + 80;
+        }
+        thing->state_flags |= TF1_PushAdd;
+    }
+
+    if (thing->owner != PLAYER_NEUTRAL)
+    {   // Was set only when spawned from action point
+
+        struct Thing* heartng = get_player_soul_container(thing->owner);
+        if (thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, NavRtF_NoOwner))
+        {
+            cctrl->field_AE |= 0x01;
+        }
+    }
+
+    if ((get_creature_model_flags(thing) & CMF_IsLordOTLand) != 0)
+    {
+        output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
+        output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
+    }
+    switch (effect)
+    {
+    case 1:
+        if (plyr_idx == game.hero_player_num)
+        {
+            thing->mappos.z.val = get_ceiling_height(&thing->mappos);
+            create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
+            initialise_thing_state(thing, CrSt_CreatureHeroEntering);
+            thing->field_4F |= TF4F_Unknown01;
+            cctrl->countdown_282 = 24;
+        }
+    default:
+        break;
+    }
+    return thing;
+}
+
+struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level)
+{
+    struct Thing* creatng = script_create_creature_at_location(plyr_idx, crmodel, location);
+    if (thing_is_invalid(creatng))
+        return INVALID_THING;
+    creatng->creature.gold_carried = carried_gold;
+    init_creature_level(creatng, crtr_level);
+    return creatng;
+}
+
+void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level)
+{
+    for (long i = 0; i < copies_num; i++)
+    {
+        script_create_new_creature(plyr_idx, crmodel, location, carried_gold, crtr_level);
+    }
+}
+
 void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *picktng)
 {
     if (picktng->class_id == TCls_Creature)
@@ -5703,25 +5837,15 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     }
     else if (thing_is_creature(picktng))
     {
-        if (picktng->owner == game.neutral_player_num)
-        {
-            id = game.neutral_player_num;
-            sprintf(str, "%s", player_desc[6].name);
-        }
-        else if (picktng->owner == game.hero_player_num)
-        {
-            id = picktng->owner;
-            sprintf(str, "%s", player_desc[4].name);
-        }
-        else
-        {
-            id = picktng->owner;
-            sprintf(str, "%s", player_desc[picktng->owner].name);
-        }
+        id = picktng->owner;
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[picktng->model];
+        sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
         id = -89;
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[picktng->model];
+        sprintf(str, "%s", get_string(crconf->namestr_idx));
     }
     else
     {
@@ -5785,10 +5909,19 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
         return ( ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_PATH) || (slab_kind_is_liquid(slb->kind)) ) &&
                   (creatng->creature.gold_carried < crstat->gold_hold) );
     }
-    else if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default) ) ||
-                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) || 
-                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_GRAVEYARD, TngFRPickF_Default)) || 
-                  ( (thing_is_creature(picktng)) && (creature_is_being_unconscious(picktng)) && (picktng->owner != creatng->owner) ) )
+    else if (thing_is_creature(picktng))
+    {        
+        if (creature_is_being_unconscious(picktng))
+        {
+            return (picktng->owner != creatng->owner);
+        }
+    }
+    else if (thing_is_dead_creature(picktng))
+    {
+        return ( (get_room_slabs_count(creatng->owner, RoK_GRAVEYARD) > 0) && (corpse_ready_for_collection(picktng)) );
+    }
+    else if ( (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_LIBRARY, TngFRPickF_Default)) ||
+                  (thing_can_be_picked_to_place_in_player_room(picktng, creatng->owner, RoK_WORKSHOP, TngFRPickF_Default)) )
     {
         return (slabmap_owner(slb) == creatng->owner);              
     }

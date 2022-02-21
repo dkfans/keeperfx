@@ -161,6 +161,10 @@ struct Thing {
       long long_15;
       };
       struct {
+      short range;
+      long generation_delay;
+      } effect_generator;
+      struct {
       short belongs_to;
       short word_15;
       short size;

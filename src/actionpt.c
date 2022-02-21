@@ -141,6 +141,15 @@ TbBool action_point_reset_idx(ActionPointId apt_idx)
 }
 
 /**
+ * Returns if the action point of given index was triggered by given player.
+ */
+TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx)
+{
+    unsigned long i = get_action_point_activated_by_players_mask(apt_idx);
+    return ((i & (1 << plyr_idx)) != 0);
+}
+
+/**
  * Returns an action point activation bitmask.
  * Bits which are set in the bitmask corresponds to players which have triggered action point.
  */
@@ -160,12 +169,16 @@ TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, 
         struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl) || thing_is_picked_up(thing))
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
-            ERRORLOG("Jump to invalid creature detected");
+            ERRORLOG("Jump to invalid creature (%d) detected", i);
             break;
         }
         i = cctrl->players_next_creature_idx;
+        if (thing_is_picked_up(thing))
+        {
+            continue;
+        }
         // Thing list loop body
         // Range of 0 means activate when on the same subtile
         if (apt->range <= 0)
