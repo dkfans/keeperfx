@@ -713,6 +713,7 @@ TbBool packets_process_cheats(
                     do_slab_efficiency_alteration(slb_x, slb_y);
                 }
             }
+            tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             unset_packet_control(pckt, PCtr_LBtnRelease);
             break;
         }

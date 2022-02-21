@@ -357,6 +357,7 @@ void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
 void update_time(void);
+void tag_cursor_blocks_place_terrain(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 extern TbClockMSec timerstarttime;
 struct TimerTime {
         unsigned char Hours;
