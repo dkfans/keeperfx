@@ -45,10 +45,8 @@ extern "C" {
 
 extern long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
 
-
 extern const struct CommandDesc command_desc[];
 extern const struct CommandDesc dk1_command_desc[];
-
 
 
 /******************************************************************************/
@@ -1452,12 +1450,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
   }
 }
-
-
-
-
-
-/******************************************************************************/
 
 /******************************************************************************/
 #ifdef __cplusplus

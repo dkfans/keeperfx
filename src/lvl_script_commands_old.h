@@ -3,8 +3,9 @@
 /******************************************************************************/
 /** @file lvl_script_commands.h
  *     Header file for lvl_script_commands.c.
- * @par Purpose:
- *     should only be used by files under lvl_script_*
+ * @par  This file is the old way of working 
+ * DON'T ADD NEW LOGIC HERE
+ * see lvl_script_commands.c on how new commands should be added
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
@@ -23,7 +24,7 @@ extern "C" {
 #endif
 
 #include "lvl_script_lib.h"
-#include "lvl_script_parser.h"
+#include "lvl_script_commands.h"
 
 void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptLine *scline);
 

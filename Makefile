@@ -245,9 +245,9 @@ obj/light_data.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
 obj/lvl_script_commands.o \
+obj/lvl_script_commands_old.o \
 obj/lvl_script_lib.o \
 obj/lvl_script_conditions.o \
-obj/lvl_script_parser.o \
 obj/lvl_script_value.o \
 obj/magic.o \
 obj/main_game.o \

@@ -14,7 +14,7 @@
 
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
-#include "lvl_script_parser.h"
+#include "lvl_script_commands.h"
 
 #include "globals.h"
 #include "thing_factory.h"
@@ -43,13 +43,6 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
     value->plyr_range = plr_range_id;
     value->condit_idx = get_script_current_condition();
 }
-
-
-
-
-
-
-
 
 struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, long arg)
 {

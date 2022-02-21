@@ -1,10 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lvl_script_parser.h
- *     Header file for lvl_script_parser.c.
- * @par Purpose:
- *     should only be used by files under lvl_script_*
+/** @file lvl_script_commands.h
+ *     Header file for lvl_script_commands.c.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
@@ -27,8 +25,6 @@ extern "C" {
 
 extern const struct CommandDesc command_desc[];
 extern const struct CommandDesc dk1_command_desc[];
-
-
 extern const struct CommandDesc subfunction_desc[];
 extern const struct NamedCommand newcrtr_desc[];
 extern const struct NamedCommand player_desc[];
