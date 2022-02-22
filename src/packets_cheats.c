@@ -616,17 +616,22 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_KillPlayer:
-            i = get_selected_player_for_cheat(-1);
-            struct PlayerInfo* PlayerToKill = get_player(i);
-            if (player_exists(PlayerToKill))
-            {
+          clear_messages_from_player(selected_player);
+          selected_player = get_selected_player_for_cheat(selected_player);
+          struct PlayerInfo* PlayerToKill = get_player(selected_player);
+          if (player_exists(PlayerToKill))
+          {
+              message_add_timeout(selected_player, 1, str);
+              if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+              {
                 thing = get_player_soul_container(PlayerToKill->id_number);
                 if (thing_is_dungeon_heart(thing))
                 {
                     thing->health = 0;
                 }
-            }
-            break;
+              }
+          }
+        break;
         case PSt_HeartHealth:
             thing = get_player_soul_container(plyr_idx);
             if (is_key_pressed(KC_ADD, KMod_ALT))
