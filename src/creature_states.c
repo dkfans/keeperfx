@@ -55,7 +55,6 @@
 #include "player_utils.h"
 #include "player_instances.h"
 #include "player_computer.h"
-#include "lvl_script.h"
 #include "thing_traps.h"
 #include "magic.h"
 #include "sounds.h"
@@ -4224,6 +4223,13 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     if (curr_stati->state_type == CrStTyp_Move)
       curr_stati = get_thing_state_info_num(thing->continue_state);
     struct StateInfo* next_stati = get_thing_state_info_num(next_state);
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        if ( (next_stati->state_type != CrStTyp_Idle) )
+        {
+            return false;
+        }
+    }
     if ((curr_stati->field_20) && (!next_stati->override_prev_fld20))
         return false;
     if ((curr_stati->field_1F) && (!next_stati->override_prev_fld1F))

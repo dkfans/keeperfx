@@ -699,6 +699,8 @@ TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const stru
 TbBool computer_force_dump_specific_held_thing(struct Computer2 *comp, struct Thing *thing, const struct Coord3d *pos);
 TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing* find_creature_for_defend_pickup(struct Computer2* comp);
+
+TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
 /******************************************************************************/
 #ifdef __cplusplus
 }
