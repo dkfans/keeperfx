@@ -441,28 +441,31 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_ConvertCreatr:
-            thing = get_creature_near(x, y);
-            if (!thing_is_creature(thing))
+        clear_messages_from_player(selected_player);
+        selected_player = get_selected_player_for_cheat(selected_player);
+        message_add_timeout(selected_player, 1, str);
+        thing = get_creature_near(x, y);
+        if ((!thing_is_creature(thing)) || (thing->owner == selected_player))
+        {
+            player->thing_under_hand = 0;
+        }
+        else
+        {
+            player->thing_under_hand = thing->index;
+        }
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                player->thing_under_hand = 0;
+                return false;
             }
-            else
+            if (player->thing_under_hand > 0)
             {
-                player->thing_under_hand = thing->index;
+                change_creature_owner(thing, selected_player);
             }
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
-            {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    return false;
-                }
-                if (player->thing_under_hand > 0)
-                {
-                    change_creature_owner(thing, get_selected_player_for_cheat(plyr_idx));
-                }
-                unset_packet_control(pckt, PCtr_LBtnRelease);
-            }
-            break;
+            unset_packet_control(pckt, PCtr_LBtnRelease);    
+        }
+        break;
         case PSt_StealSlab:
         allowed = tag_cursor_blocks_steal_slab(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(selected_player);
