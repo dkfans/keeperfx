@@ -633,60 +633,37 @@ TbBool packets_process_cheats(
           }
         break;
         case PSt_HeartHealth:
-            thing = get_player_soul_container(plyr_idx);
-            if (is_key_pressed(KC_ADD, KMod_ALT))
-            {
-                if (thing_is_dungeon_heart(thing))
-                {
-                    thing->health++;
-                }
-            }
-            else if (is_key_pressed(KC_EQUALS, KMod_SHIFT))
-            {
-                if (thing_is_dungeon_heart(thing))
-                {
-                    thing->health++;
-                }
-            }
-            else if (is_key_pressed(KC_PERIOD, KMod_SHIFT))
-            {
-                if (thing_is_dungeon_heart(thing))
-                {
-                    thing->health = thing->health + 100;
-                }
-            }
-            else if (is_key_pressed(KC_COMMA, KMod_SHIFT))
-            {
-                if (thing_is_dungeon_heart(thing))
-                {
-                    thing->health = thing->health - 100;
-                }
-            }
-            else if (is_key_pressed(KC_SUBTRACT, KMod_ALT))
-            {
-                if (thing_is_dungeon_heart(thing))
-                {
-                    thing->health--;
-                }
-            }
-            else if (is_key_pressed(KC_MINUS, KMod_NONE))
-            {
-                if (thing_is_dungeon_heart(thing))
-                {
-                    thing->health--;
-                }
-            }
-            else if (is_key_pressed(KC_SLASH, KMod_SHIFT))
-            {
-                if (thing_is_dungeon_heart(thing))
-                {
-                    char hhealth[5];
-                    itoa(thing->health, hhealth, 10);
-                    message_add(plyr_idx, hhealth);
-                    clear_key_pressed(KC_SLASH);
-                }
-            }
+        clear_messages_from_player(selected_player);
+        selected_player = get_selected_player_for_cheat(selected_player);
+        thing = get_player_soul_container(selected_player);
+        if (!thing_is_invalid(thing))
+        {
+            message_add_timeout(thing->owner, 1, "%d/%d", thing->health, game.dungeon_heart_health);
+        }
+        else
+        {
             break;
+        }
+        if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
+        {
+            if (thing->health < game.dungeon_heart_health)
+            {
+                thing->health++;
+            }
+        }
+        else if ( (is_key_pressed(KC_PERIOD, KMod_SHIFT)) || (is_key_pressed(KC_PERIOD, KMod_NONE)) )
+        {
+            thing->health = thing->health + 100;
+        }
+        else if ( (is_key_pressed(KC_COMMA, KMod_SHIFT)) || (is_key_pressed(KC_COMMA, KMod_NONE)) )
+        {
+            thing->health = thing->health - 100;
+        }
+        else if ( (is_key_pressed(KC_SUBTRACT, KMod_ALT)) || (is_key_pressed(KC_MINUS, KMod_NONE)) )
+        {
+            thing->health--;
+        }
+        break;
         case PSt_CreatrQueryAll:
         case PSt_CreatrInfoAll:
             *influence_own_creatures = 1;
