@@ -851,7 +851,7 @@ long compute_creature_weight(const struct Thing* creatng, struct CreatureStats* 
         weight = weight / 2;
     }
 
-    if (crstat->can_go_locked_doors = true)
+    if (crstat->can_go_locked_doors == true)
     {
         weight = weight / 10;
     }
