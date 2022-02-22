@@ -2504,75 +2504,153 @@ short get_gui_inputs(short gameplay_on)
 void set_cheat_selected_value(unsigned char *value)
 {
     unsigned char new_value;
-    if (is_key_pressed(KC_1, KMod_NONE))
+    struct PlayerInfo *player = get_my_player();
+    switch (player->work_state)
     {
-        *value = 1;
-        clear_key_pressed(KC_1);
-    }
-    else if (is_key_pressed(KC_2, KMod_NONE))
-    {
-        *value = 2;
-        clear_key_pressed(KC_2);
-    }
-    else if (is_key_pressed(KC_3, KMod_NONE))
-    {
-        *value = 3;
-        clear_key_pressed(KC_3);
-    }
-    else if (is_key_pressed(KC_4, KMod_NONE))
-    {
-        *value = 4;
-        clear_key_pressed(KC_4);
-    }
-    else if (is_key_pressed(KC_5, KMod_NONE))
-    {
-        *value = 5;
-        clear_key_pressed(KC_5);
-    }
-    else if (is_key_pressed(KC_5, KMod_NONE))
-    {
-        *value = 6;
-        clear_key_pressed(KC_6);
-    }
-    else if (is_key_pressed(KC_7, KMod_NONE))
-    {
-        *value = 7;
-        clear_key_pressed(KC_7);
-    }
-    else if (is_key_pressed(KC_8, KMod_NONE))
-    {
-        *value = 8;
-        clear_key_pressed(KC_8);
-    }
-    else if (is_key_pressed(KC_9, KMod_NONE))
-    {
-        *value = 9;
-        clear_key_pressed(KC_9);
-    }
-    else if (is_key_pressed(KC_0, KMod_NONE))
-    {
-        *value = 10;
-        clear_key_pressed(KC_0);
-    }
-    else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
-    {
-        new_value = *value;
-        if (new_value < 10)
+        case PSt_MkBadCreatr:
+        case PSt_MkGoodCreatr:
+        case PSt_MkGoodDigger:
         {
-            new_value++;
-            *value = new_value;
+            if (is_key_pressed(KC_1, KMod_NONE))
+            {
+                *value = 1;
+                clear_key_pressed(KC_1);
+            }
+            else if (is_key_pressed(KC_2, KMod_NONE))
+            {
+                *value = 2;
+                clear_key_pressed(KC_2);
+            }
+            else if (is_key_pressed(KC_3, KMod_NONE))
+            {
+                *value = 3;
+                clear_key_pressed(KC_3);
+            }
+            else if (is_key_pressed(KC_4, KMod_NONE))
+            {
+                *value = 4;
+                clear_key_pressed(KC_4);
+            }
+            else if (is_key_pressed(KC_5, KMod_NONE))
+            {
+                *value = 5;
+                clear_key_pressed(KC_5);
+            }
+            else if (is_key_pressed(KC_5, KMod_NONE))
+            {
+                *value = 6;
+                clear_key_pressed(KC_6);
+            }
+            else if (is_key_pressed(KC_7, KMod_NONE))
+            {
+                *value = 7;
+                clear_key_pressed(KC_7);
+            }
+            else if (is_key_pressed(KC_8, KMod_NONE))
+            {
+                *value = 8;
+                clear_key_pressed(KC_8);
+            }
+            else if (is_key_pressed(KC_9, KMod_NONE))
+            {
+                *value = 9;
+                clear_key_pressed(KC_9);
+            }
+            else if (is_key_pressed(KC_0, KMod_NONE))
+            {
+                *value = 10;
+                clear_key_pressed(KC_0);
+            }
+            else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
+            {
+                new_value = *value;
+                if (new_value < 10)
+                {
+                    new_value++;
+                    *value = new_value;
+                }
+                clear_key_pressed(KC_EQUALS);
+            }
+            else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
+            {
+                new_value = *value;
+                if (new_value > 1)
+                {
+                    new_value--;
+                    *value = new_value;
+                }
+                clear_key_pressed(KC_MINUS); 
+            }
+            break;
         }
-        clear_key_pressed(KC_EQUALS);
-    }
-    else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
-    {
-        new_value = *value;
-        if (new_value > 1)
+        case PSt_PlaceTerrain:
         {
-            new_value--;
-            *value = new_value;
+            if (is_key_pressed(KC_0, KMod_NONE))
+            {
+                *value = SlbT_ROCK;
+                clear_key_pressed(KC_0);
+            }
+            else if (is_key_pressed(KC_1, KMod_NONE))
+            {
+                *value = SlbT_GOLD;
+                clear_key_pressed(KC_1);
+            }
+            else if (is_key_pressed(KC_2, KMod_NONE))
+            {
+                *value = SlbT_GEMS;
+                clear_key_pressed(KC_2);
+            }
+            else if (is_key_pressed(KC_3, KMod_NONE))
+            {
+                *value = SlbT_EARTH;
+                clear_key_pressed(KC_3);
+            }
+            else if (is_key_pressed(KC_4, KMod_NONE))
+            {
+                *value = SlbT_TORCHDIRT;
+                clear_key_pressed(KC_4);
+            }
+            else if (is_key_pressed(KC_5, KMod_NONE))
+            {
+                *value = SlbT_PATH;
+                clear_key_pressed(KC_5);
+            }
+            else if (is_key_pressed(KC_6, KMod_NONE))
+            {
+                *value = SlbT_CLAIMED;
+                clear_key_pressed(KC_6);
+            }
+            else if (is_key_pressed(KC_7, KMod_NONE))
+            {
+                *value = SlbT_LAVA;
+                clear_key_pressed(KC_7);
+            }
+            else if (is_key_pressed(KC_8, KMod_NONE))
+            {
+                *value = SlbT_WATER;
+                clear_key_pressed(KC_8);
+            }
+            else if (is_key_pressed(KC_9, KMod_NONE))
+            {
+                *value = rand() % (5) + 4;
+                clear_key_pressed(KC_9);
+            }
+            else if (is_key_pressed(KC_MINUS, KMod_NONE))
+            {
+                *value = SlbT_DAMAGEDWALL;
+                clear_key_pressed(KC_MINUS);
+            }
+            else if (is_key_pressed(KC_EQUALS, KMod_NONE))
+            {
+                *value = SlbT_SLAB50;
+                clear_key_pressed(KC_EQUALS);
+            }
+            break;
         }
-        clear_key_pressed(KC_MINUS); 
+        default:
+        {
+            break;
+        }
     }
 }
 

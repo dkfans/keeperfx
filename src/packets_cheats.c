@@ -756,66 +756,7 @@ TbBool packets_process_cheats(
             break;
         case PSt_PlaceTerrain:
         {
-            if (is_key_pressed(KC_0, KMod_NONE))
-            {
-                place_terrain = SlbT_ROCK;
-                clear_key_pressed(KC_0);
-            }
-            else if (is_key_pressed(KC_1, KMod_NONE))
-            {
-                place_terrain = SlbT_GOLD;
-                clear_key_pressed(KC_1);
-            }
-            else if (is_key_pressed(KC_2, KMod_NONE))
-            {
-                place_terrain = SlbT_GEMS;
-                clear_key_pressed(KC_2);
-            }
-            else if (is_key_pressed(KC_3, KMod_NONE))
-            {
-                place_terrain = SlbT_EARTH;
-                clear_key_pressed(KC_3);
-            }
-            else if (is_key_pressed(KC_4, KMod_NONE))
-            {   
-                place_terrain = SlbT_TORCHDIRT;
-                clear_key_pressed(KC_4);
-            }
-            else if (is_key_pressed(KC_5, KMod_NONE))
-            {
-                place_terrain = SlbT_PATH;
-                clear_key_pressed(KC_5);
-            }
-            else if (is_key_pressed(KC_6, KMod_NONE))
-            {
-                place_terrain = SlbT_CLAIMED;
-                clear_key_pressed(KC_6);
-            }
-            else if (is_key_pressed(KC_7, KMod_NONE))
-            {
-                place_terrain = SlbT_LAVA;
-                clear_key_pressed(KC_7);
-            }
-            else if (is_key_pressed(KC_8, KMod_NONE))
-            {
-                place_terrain = SlbT_WATER;
-                clear_key_pressed(KC_8);
-            }
-            else if (is_key_pressed(KC_9, KMod_NONE))
-            {
-                place_terrain = rand() % (5) + 4;
-                clear_key_pressed(KC_9);
-            }
-            else if (is_key_pressed(KC_MINUS, KMod_NONE))
-            {
-                place_terrain = SlbT_DAMAGEDWALL;
-                clear_key_pressed(KC_MINUS);
-            }
-            else if (is_key_pressed(KC_EQUALS, KMod_NONE))
-            {
-                place_terrain = SlbT_SLAB50;
-                clear_key_pressed(KC_EQUALS);
-            }
+            set_cheat_selected_value(&place_terrain);
             struct SlabConfigStats* slab_cfgstats;
             clear_messages_from_player(selected_player);
             get_selected_player_for_cheat(&selected_player);
