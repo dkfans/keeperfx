@@ -823,6 +823,11 @@ TbBool get_level_lost_inputs(void)
 
 short get_status_panel_keyboard_action_inputs(void)
 {
+  struct PlayerInfo* player = get_my_player();
+  if (player->work_state == PSt_PlaceTerrain)
+  {
+      return false;
+  }
   if (is_key_pressed(KC_1, KMod_NONE))
   {
     clear_key_pressed(KC_1);
