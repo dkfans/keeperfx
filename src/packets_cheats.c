@@ -851,7 +851,6 @@ TbBool packets_process_cheats(
             char msg_buf[255];
             strcpy(msg_buf, msg);
             char* dis_msg = strtok(msg_buf, ":");
-            // message_add(-127, dis_msg);
             message_add_timeout(selected_player, 1, dis_msg);
         }
         else
