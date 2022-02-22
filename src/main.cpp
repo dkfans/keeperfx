@@ -280,8 +280,9 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     if ((thing->index == shotng->index) || (thing->index == shotng->parent_idx)) {
         return TUFRet_Unchanged;
     }
-    MapCoordDelta dist;
-    dist = LONG_MAX;
+    long blow_distance = param->num1;
+    MapCoordDelta creature_distance;
+    creature_distance = LONG_MAX;
     TbBool apply_velocity;
     apply_velocity = false;
     if (thing->class_id == TCls_Creature)
@@ -290,12 +291,14 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
-            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && crstat->affected_by_wind)
+            struct CreatureControl* cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+            long weight = compute_creature_weight(thing);
+            blow_distance = blow_distance - (3 * weight);
+            creature_distance = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && crstat->affected_by_wind)
             {
                 set_start_state(thing);
-                struct CreatureControl *cctrl;
-                cctrl = creature_control_get_from_thing(thing);
                 cctrl->idle.start_gameturn = game.play_gameturn;
                 apply_velocity = true;
             }
@@ -307,8 +310,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct EffectElementStats *eestat;
             eestat = get_effect_element_model_stats(thing->model);
-            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && eestat->affected_by_wind)
+            creature_distance = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && eestat->affected_by_wind)
             {
                 apply_velocity = true;
             }
@@ -320,8 +323,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct ShotConfigStats *shotst;
             shotst = get_shot_model_stats(thing->model);
-            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && !shotst->wind_immune)
+            creature_distance = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && !shotst->wind_immune)
             {
                 apply_velocity = true;
             }
@@ -334,8 +337,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
 
             struct EffectConfigStats *effcst;
             effcst = get_effect_model_stats(thing->model);
-            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && effcst->old->affected_by_wind)
+            creature_distance = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((creature_distance < blow_distance) && effcst->old->affected_by_wind)
             {
                 apply_velocity = true;
             }
@@ -344,9 +347,9 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     if (apply_velocity)
     {
         struct ComponentVector wind_push;
-        wind_push.x = (shotng->veloc_base.x.val * param->num1) / dist;
-        wind_push.y = (shotng->veloc_base.y.val * param->num1) / dist;
-        wind_push.z = (shotng->veloc_base.z.val * param->num1) / dist;
+        wind_push.x = (shotng->veloc_base.x.val * blow_distance) / creature_distance;
+        wind_push.y = (shotng->veloc_base.y.val * blow_distance) / creature_distance;
+        wind_push.z = (shotng->veloc_base.z.val * blow_distance) / creature_distance;
         SYNCDBG(8,"Applying (%d,%d,%d) to %s index %d",(int)wind_push.x,(int)wind_push.y,(int)wind_push.z,thing_model_name(thing),(int)thing->index);
         apply_transitive_velocity_to_thing(thing, &wind_push);
         return TUFRet_Modified;
