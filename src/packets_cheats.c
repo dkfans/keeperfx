@@ -56,7 +56,8 @@ TbBool packets_process_cheats(
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(selected_player);
         selected_player = get_selected_player_for_cheat(selected_player);
-        message_add_timeout(selected_player, 1, "");
+        set_cheat_selected_value(&selected_experience);
+        message_add_timeout(selected_player, 1, "%d", selected_experience);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -65,7 +66,11 @@ TbBool packets_process_cheats(
             }
             if (allowed)
             {
-                create_owned_special_digger(x, y, selected_player);
+                thing = create_owned_special_digger(x, y, selected_player);
+                if (!thing_is_invalid(thing))
+                {
+                    set_creature_level(thing, selected_experience - 1);
+                }
             }
             else
             {
@@ -90,22 +95,7 @@ TbBool packets_process_cheats(
             }
             clear_key_pressed(KC_LSHIFT);
         }
-        if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
-        {
-            if (selected_experience < 10)
-            {
-                selected_experience++;
-            }
-            clear_key_pressed(KC_EQUALS);
-        }
-        else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
-        {
-            if (selected_experience > 1)
-            {
-                selected_experience--;
-            }
-            clear_key_pressed(KC_MINUS); 
-        }
+        set_cheat_selected_value(&selected_experience);
         if (selected_hero == 0)
         {
             sprintf(str, "?");
@@ -266,22 +256,7 @@ TbBool packets_process_cheats(
             }
             clear_key_pressed(KC_LSHIFT);
         }
-        if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
-        {
-            if (selected_experience < 10)
-            {
-                selected_experience++;
-            }
-            clear_key_pressed(KC_EQUALS);
-        }
-        else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
-        {
-            if (selected_experience > 1)
-            {
-                selected_experience--;
-            }
-            clear_key_pressed(KC_MINUS); 
-        }
+        set_cheat_selected_value(&selected_experience);
         if (selected_creature == 0)
         {
             sprintf(str, "?");

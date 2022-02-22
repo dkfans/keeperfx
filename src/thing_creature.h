@@ -91,7 +91,7 @@ TngUpdateRet process_creature_state(struct Thing *thing);
 
 TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv);
 TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv);
-TbBool create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner);
+struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner);
 
 TbBool creature_increase_level(struct Thing *thing);
 TbBool creature_increase_multiple_levels(struct Thing *thing, int count);

@@ -824,7 +824,7 @@ TbBool get_level_lost_inputs(void)
 short get_status_panel_keyboard_action_inputs(void)
 {
   struct PlayerInfo* player = get_my_player();
-  if (player->work_state == PSt_PlaceTerrain)
+  if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkGoodDigger) || (player->work_state == PSt_MkGoodCreatr) || (player->work_state == PSt_MkBadCreatr) )
   {
       return false;
   }
@@ -2499,6 +2499,81 @@ short get_gui_inputs(short gameplay_on)
   input_gameplay_tooltips(gameplay_on);
   SYNCDBG(8,"Finished");
   return result;
+}
+
+void set_cheat_selected_value(unsigned char *value)
+{
+    unsigned char new_value;
+    if (is_key_pressed(KC_1, KMod_NONE))
+    {
+        *value = 1;
+        clear_key_pressed(KC_1);
+    }
+    else if (is_key_pressed(KC_2, KMod_NONE))
+    {
+        *value = 2;
+        clear_key_pressed(KC_2);
+    }
+    else if (is_key_pressed(KC_3, KMod_NONE))
+    {
+        *value = 3;
+        clear_key_pressed(KC_3);
+    }
+    else if (is_key_pressed(KC_4, KMod_NONE))
+    {
+        *value = 4;
+        clear_key_pressed(KC_4);
+    }
+    else if (is_key_pressed(KC_5, KMod_NONE))
+    {
+        *value = 5;
+        clear_key_pressed(KC_5);
+    }
+    else if (is_key_pressed(KC_5, KMod_NONE))
+    {
+        *value = 6;
+        clear_key_pressed(KC_6);
+    }
+    else if (is_key_pressed(KC_7, KMod_NONE))
+    {
+        *value = 7;
+        clear_key_pressed(KC_7);
+    }
+    else if (is_key_pressed(KC_8, KMod_NONE))
+    {
+        *value = 8;
+        clear_key_pressed(KC_8);
+    }
+    else if (is_key_pressed(KC_9, KMod_NONE))
+    {
+        *value = 9;
+        clear_key_pressed(KC_9);
+    }
+    else if (is_key_pressed(KC_0, KMod_NONE))
+    {
+        *value = 10;
+        clear_key_pressed(KC_0);
+    }
+    else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
+    {
+        new_value = *value;
+        if (new_value < 10)
+        {
+            new_value++;
+            *value = new_value;
+        }
+        clear_key_pressed(KC_EQUALS);
+    }
+    else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
+    {
+        new_value = *value;
+        if (new_value > 1)
+        {
+            new_value--;
+            *value = new_value;
+        }
+        clear_key_pressed(KC_MINUS); 
+    }
 }
 
 /******************************************************************************/

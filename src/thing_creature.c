@@ -3750,7 +3750,7 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
  * @param owner
  * @return
  */
-TbBool create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner)
+struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner)
 {
     ThingModel crmodel = get_players_special_digger_model(owner);
     struct Coord3d pos;
@@ -3761,21 +3761,21 @@ TbBool create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner)
     if (thing_is_invalid(thing))
     {
         ERRORLOG("Cannot create creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
-        return false;
+        return INVALID_THING;
     }
     pos.z.val = get_thing_height_at(thing, &pos);
     if (thing_in_wall_at(thing, &pos))
     {
         delete_thing_structure(thing, 0);
         ERRORLOG("Creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
-        return false;
+        return INVALID_THING;
     }
     thing->mappos.x.val = pos.x.val;
     thing->mappos.y.val = pos.y.val;
     thing->mappos.z.val = pos.z.val;
     remove_first_creature(thing);
     set_first_creature(thing);
-    return true;
+    return thing;
 }
 
 /**
