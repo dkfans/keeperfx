@@ -832,6 +832,12 @@ short gui_process_inputs(void)
     return result;
 }
 
+TbBool pos_is_on_gui_box(MapCoord x, MapCoord y)
+{
+    struct GuiBox *gbox = gui_get_box_point_over(x, y);
+    return (gbox != NULL);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
