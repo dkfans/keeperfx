@@ -367,19 +367,16 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_StealRoom:
-        allowed = false;
-        clear_messages_from_player(-127);
+        clear_messages_from_player(selected_player);
         selected_player = get_selected_player_for_cheat(selected_player);
         slb = get_slabmap_block(slb_x, slb_y);
         room = room_get(slb->room_index);
-        if (room_exists(room))
+        allowed = ( (room_exists(room)) && (room->owner != selected_player) );
+        if (allowed)
         {
-            if (room->owner != selected_player)
-            {
-                message_add_timeout(-127, 1, get_string(419));
-                allowed = true;
-            }
+            sprintf(str, get_string(419));
         }
+        message_add_timeout(selected_player, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {    
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -400,7 +397,6 @@ TbBool packets_process_cheats(
         break;
         case PSt_DestroyRoom:
         clear_messages_from_player(-127);
-        selected_player = get_selected_player_for_cheat(selected_player);
         slb = get_slabmap_block(slb_x, slb_y);
         room = room_get(slb->room_index);
         allowed = (room_exists(room));
