@@ -11,6 +11,7 @@
 #include "frontend.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
+#include "packets.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -172,8 +173,8 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         map_volume_box.visible = 1;
         map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
         map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
-        map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 3), 0);
-        map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 3), 0);
+        map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, STL_PER_SLB), 0);
+        map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, STL_PER_SLB), 0);
         map_volume_box.floor_height_z = floor_height_z;
         map_volume_box.color = allowed;
         render_roomspace.is_roomspace_a_box = true;
@@ -231,8 +232,8 @@ void tag_cursor_blocks_place_terrain(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
         map_volume_box.visible = true;
         map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
         map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
-        map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, 3), 0);
-        map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, 3), 0);
+        map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, STL_PER_SLB), 0);
+        map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, STL_PER_SLB), 0);
         map_volume_box.floor_height_z = floor_height_z;
         map_volume_box.color = SLC_GREEN;
     }
@@ -301,6 +302,37 @@ TbBool tag_cursor_blocks_order_creature(PlayerNumber plyr_idx, MapSubtlCoord stl
         map_volume_box.floor_height_z = floor_height_z;
         map_volume_box.color = colour;
         render_roomspace.is_roomspace_a_single_subtile = true;
+    }
+    return (colour != SLC_RED);
+}
+
+TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    SYNCDBG(7,"Starting");
+    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
+    unsigned char colour;
+    if ( ( ( ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_FortifiedWall) ) && (slabmap_owner(slb) != selected_player) ) )
+        || ( (slbattr->category == SlbAtCtg_FriableDirt) || ( (slbattr->category == SlbAtCtg_Unclaimed) && (slbattr->is_safe_land) ) ) )
+    {
+        colour = SLC_GREEN;
+    }
+    else
+    {
+        colour = SLC_RED;
+    }
+    if ( is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && game.small_map_state != 2 )
+    {
+        map_volume_box.visible = true;
+        map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
+        map_volume_box.beg_y = subtile_coord(slab_subtile(slb_y, 0), 0);
+        map_volume_box.end_x = subtile_coord(slab_subtile(slb_x, STL_PER_SLB), 0);
+        map_volume_box.end_y = subtile_coord(slab_subtile(slb_y, STL_PER_SLB), 0);
+        map_volume_box.floor_height_z = floor_height_z;
+        map_volume_box.color = colour;
     }
     return (colour != SLC_RED);
 }

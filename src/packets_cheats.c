@@ -453,17 +453,22 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_StealSlab:
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        allowed = tag_cursor_blocks_steal_slab(plyr_idx, stl_x, stl_y);
+        clear_messages_from_player(selected_player);
+        selected_player = get_selected_player_for_cheat(selected_player);
+        message_add_timeout(selected_player, 1, str);
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    return false;
-                }
+                return false;
+            }   
+            if (allowed)
+            {
                 slb = get_slabmap_block(slb_x, slb_y);
                 if (slb->kind >= SlbT_EARTH && slb->kind <= SlbT_CLAIMED)
                 {
-                    short slbkind;
-                    i = get_selected_player_for_cheat(plyr_idx);
+                    SlabKind slbkind;
                     switch(slb->kind)
                     {
                         case SlbT_PATH:
@@ -475,7 +480,7 @@ TbBool packets_process_cheats(
                         {
                             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
                             {
-                                slbkind = choose_pretty_type(i, slb_x, slb_y);
+                                slbkind = choose_pretty_type(selected_player, slb_x, slb_y);
                             }
                             else
                             {
@@ -487,7 +492,7 @@ TbBool packets_process_cheats(
                         {
                             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
                             {
-                                slbkind = choose_pretty_type(i, slb_x, slb_y);
+                                slbkind = choose_pretty_type(selected_player, slb_x, slb_y);
                             }
                             else
                             {
@@ -505,14 +510,14 @@ TbBool packets_process_cheats(
                     {
                         if (is_key_pressed(KC_RALT, KMod_DONTCARE))
                         {
-                            struct Coord3d pos;
+                            struct Coord3d pos;                    
                             if (slbkind == SlbT_CLAIMED)
                             {
                                 pos.x.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_x)));
-                                pos.y.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_y)));
+                                pos.y.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_y))); 
                                 pos.z.val = subtile_coord_center(1);
                                 play_non_3d_sample(76);
-                                create_effect(&pos, imp_spangle_effects[i], i);
+                                create_effect(&pos, imp_spangle_effects[selected_player], selected_player);
                             }
                             else
                             {
@@ -525,18 +530,16 @@ TbBool packets_process_cheats(
                                     pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
                                     pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
                                     struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
-                                    if (map_block_revealed(mapblk, i) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
+                                    if (map_block_revealed(mapblk, selected_player) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
                                     {
                                         pos.z.val = get_floor_height_at(&pos);
-                                        create_effect(&pos, imp_spangle_effects[i], i);
-                                        // thing = thing_get(player->hand_thing_idx);
-                                        // pos.z.val = get_thing_height_at(thing, &pos);
+                                        create_effect(&pos, imp_spangle_effects[selected_player], selected_player);  
                                     }
                                 }
                             }
                         }
                     }
-                    place_slab_type_on_map(slbkind, stl_x, stl_y, i, 0);
+                    place_slab_type_on_map(slbkind, stl_x, stl_y, selected_player, 0);
                     do_slab_efficiency_alteration(slb_x, slb_y);
                     slb = get_slabmap_block(slb_x, slb_y);
                     for (i = 0; i < PLAYERS_COUNT; i++)
@@ -547,9 +550,17 @@ TbBool packets_process_cheats(
                         }
                     }
                 }
-                unset_packet_control(pckt, PCtr_LBtnRelease);
             }
-            break;
+            else
+            {
+                if (is_my_player(player))
+                {
+                    play_non_3d_sample(119);
+                }
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        break;
         case PSt_LevelCreatureUp:
         case PSt_LevelCreatureDown:
             thing = get_creature_near(x, y);
