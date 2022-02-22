@@ -214,6 +214,9 @@ struct PlayerInfo;
 struct CatalogueEntry;
 extern SlabKind place_terrain;
 extern PlayerNumber selected_player;
+extern ThingModel selected_creature;
+extern ThingModel selected_hero;
+extern unsigned char selected_experience;
 
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
