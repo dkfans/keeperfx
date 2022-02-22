@@ -664,8 +664,11 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         {
             apply_health_to_thing(creatng, shotng->damagepoints/2);
         }
-        apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
-        target->byte_13 = 20;
+        if (!object_is_indestructible)
+        {
+            apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
+            target->byte_13 = 20; //todo figure out what this is, and if it needs to be within this if statement or below
+        }
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
     if (target->health < 0) {
