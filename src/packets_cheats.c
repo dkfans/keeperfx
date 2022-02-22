@@ -27,6 +27,7 @@ extern void clear_input(struct Packet* packet);
 
 /******************************************************************************/
 SlabKind place_terrain = 0;
+PlayerNumber selected_player = 0;
 /******************************************************************************/
 
 TbBool packets_process_cheats(
@@ -48,6 +49,9 @@ TbBool packets_process_cheats(
     {
         case PSt_MkGoodDigger:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        clear_messages_from_player(selected_player);
+        selected_player = get_selected_player_for_cheat(selected_player);
+        message_add_timeout(selected_player, 1, "");
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -56,7 +60,7 @@ TbBool packets_process_cheats(
             }
             if (allowed)
             {
-                create_owned_special_digger(x, y, get_selected_player_for_cheat(game.hero_player_num));
+                create_owned_special_digger(x, y, selected_player);
             }
             else
             {
@@ -70,6 +74,9 @@ TbBool packets_process_cheats(
         break;
         case PSt_MkGoodCreatr:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        clear_messages_from_player(selected_player);
+        selected_player = get_selected_player_for_cheat(selected_player);
+        message_add_timeout(selected_player, 1, "");
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -78,7 +85,7 @@ TbBool packets_process_cheats(
             }
             if (allowed)
             {
-                create_random_hero_creature(x, y, get_selected_player_for_cheat(game.hero_player_num), CREATURE_MAX_LEVEL);
+                create_random_hero_creature(x, y, selected_player, CREATURE_MAX_LEVEL);
             }
             else
             {
@@ -201,6 +208,9 @@ TbBool packets_process_cheats(
         break;
         case PSt_MkBadCreatr:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
+        clear_messages_from_player(selected_player);
+        selected_player = get_selected_player_for_cheat(selected_player);
+        message_add_timeout(selected_player, 1, "");
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -209,7 +219,7 @@ TbBool packets_process_cheats(
             }
             if (allowed)
             {
-                create_random_evil_creature(x, y, get_selected_player_for_cheat(plyr_idx), CREATURE_MAX_LEVEL);
+                create_random_evil_creature(x, y, selected_player, CREATURE_MAX_LEVEL);
             }
             else
             {

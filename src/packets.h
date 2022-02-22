@@ -213,6 +213,7 @@ enum ChecksumKind {
 struct PlayerInfo;
 struct CatalogueEntry;
 extern SlabKind place_terrain;
+extern PlayerNumber selected_player;
 
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
