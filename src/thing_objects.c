@@ -576,8 +576,8 @@ TbBool object_is_indestructable (const struct Thing* thing)
     if (thing->class_id != TCls_Object)
         return false;
     if (thing_is_dungeon_heart(thing) || object_is_mature_food(thing) || object_is_growing_food(thing))
-        return true;
-    return false;
+        return false;
+    return true;
 }
 
 TbBool thing_is_object(const struct Thing *thing)

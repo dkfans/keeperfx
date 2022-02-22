@@ -657,18 +657,22 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
             thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
     }
+    HitPoints damage = 0;
     if (shotng->damagepoints)
     {
-        // Drain allows caster to regain half of damage
-        if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(creatng)) 
+        if (!object_is_indestructable(target))
         {
-            apply_health_to_thing(creatng, shotng->damagepoints/2);
+            damage = apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
         }
-        if (!object_is_indestructible)
+        else
         {
-            apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
-            target->byte_13 = 20; //todo figure out what this is, and if it needs to be within this if statement or below
+            // Drain allows caster to regain half of damage
+            if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(creatng))
+            {
+                apply_health_to_thing(creatng, shotng->damagepoints / 2);
+            }
         }
+        target->byte_13 = 20; //todo figure out what this is, and if it needs to be within this if statement above/below
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
     if (target->health < 0) {
@@ -677,7 +681,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     if (shotst->old->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
     }
-    return 1;
+    return damage;
 }
 
 long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target)
