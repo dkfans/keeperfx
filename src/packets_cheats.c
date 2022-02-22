@@ -217,7 +217,12 @@ TbBool packets_process_cheats(
           }
           if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
           {
-            if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
+            if ( (stl_x == thing->mappos.x.stl.num) && (stl_y == thing->mappos.y.stl.num) )
+            {
+                set_start_state(thing);
+                clear_selected_thing(player);
+            }
+            else if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
             {
               if (allowed)
               {
@@ -246,16 +251,6 @@ TbBool packets_process_cheats(
             }
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
-        }
-        if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
-        {
-          if ((player->controlled_thing_idx > 0) && (player->controlled_thing_idx < THINGS_COUNT))
-          {
-            thing = thing_get(player->controlled_thing_idx);
-            set_start_state(thing);
-            clear_selected_thing(player);
-          }
-          unset_packet_control(pckt, PCtr_RBtnRelease);
         }
         break;
         case PSt_MkBadCreatr:
