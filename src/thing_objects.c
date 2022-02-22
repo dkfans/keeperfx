@@ -571,6 +571,7 @@ void destroy_object(struct Thing *thing)
 
 TbBool object_is_indestructable (const struct Thing* thing)
 {
+    //todo make this an object property. Then include the possibility to kill the other object types.
     if (thing_is_invalid(thing))
         return false;
     if (thing->class_id != TCls_Object)
