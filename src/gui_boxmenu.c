@@ -832,7 +832,7 @@ short gui_process_inputs(void)
     return result;
 }
 
-TbBool pos_is_on_gui_box(MapCoord x, MapCoord y)
+TbBool pos_is_on_gui_box(ScreenCoord x, ScreenCoord y)
 {
     struct GuiBox *gbox = gui_get_box_point_over(x, y);
     return (gbox != NULL);
