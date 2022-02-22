@@ -55,7 +55,7 @@ TbBool packets_process_cheats(
         case PSt_MkGoodDigger:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(selected_player);
-        selected_player = get_selected_player_for_cheat(selected_player);
+        get_selected_player_for_cheat(&selected_player);
         set_cheat_selected_value(&selected_experience);
         message_add_timeout(selected_player, 1, "%d", selected_experience);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -85,7 +85,7 @@ TbBool packets_process_cheats(
         case PSt_MkGoodCreatr:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(selected_player);
-        selected_player = get_selected_player_for_cheat(selected_player);
+        get_selected_player_for_cheat(&selected_player);
         if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
         {
             selected_hero++;
@@ -246,7 +246,7 @@ TbBool packets_process_cheats(
         case PSt_MkBadCreatr:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(selected_player);
-        selected_player = get_selected_player_for_cheat(selected_player);
+        get_selected_player_for_cheat(&selected_player);
         if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
         {
             selected_creature++;
@@ -343,7 +343,7 @@ TbBool packets_process_cheats(
             break;
         case PSt_StealRoom:
         clear_messages_from_player(selected_player);
-        selected_player = get_selected_player_for_cheat(selected_player);
+        get_selected_player_for_cheat(&selected_player);
         slb = get_slabmap_block(slb_x, slb_y);
         room = room_get(slb->room_index);
         allowed = ( (room_exists(room)) && (room->owner != selected_player) );
@@ -417,7 +417,7 @@ TbBool packets_process_cheats(
             break;
         case PSt_ConvertCreatr:
         clear_messages_from_player(selected_player);
-        selected_player = get_selected_player_for_cheat(selected_player);
+        get_selected_player_for_cheat(&selected_player);
         message_add_timeout(selected_player, 1, str);
         thing = get_creature_near(x, y);
         if ((!thing_is_creature(thing)) || (thing->owner == selected_player))
@@ -444,7 +444,7 @@ TbBool packets_process_cheats(
         case PSt_StealSlab:
         allowed = tag_cursor_blocks_steal_slab(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(selected_player);
-        selected_player = get_selected_player_for_cheat(selected_player);
+        get_selected_player_for_cheat(&selected_player);
         message_add_timeout(selected_player, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
@@ -592,7 +592,7 @@ TbBool packets_process_cheats(
             break;
         case PSt_KillPlayer:
           clear_messages_from_player(selected_player);
-          selected_player = get_selected_player_for_cheat(selected_player);
+          get_selected_player_for_cheat(&selected_player);
           struct PlayerInfo* PlayerToKill = get_player(selected_player);
           if (player_exists(PlayerToKill))
           {
@@ -609,7 +609,7 @@ TbBool packets_process_cheats(
         break;
         case PSt_HeartHealth:
         clear_messages_from_player(selected_player);
-        selected_player = get_selected_player_for_cheat(selected_player);
+        get_selected_player_for_cheat(&selected_player);
         thing = get_player_soul_container(selected_player);
         if (!thing_is_invalid(thing))
         {
@@ -818,7 +818,7 @@ TbBool packets_process_cheats(
             }
             struct SlabConfigStats* slab_cfgstats;
             clear_messages_from_player(selected_player);
-            selected_player = get_selected_player_for_cheat(selected_player);
+            get_selected_player_for_cheat(&selected_player);
             struct SlabAttr *slbattr = get_slab_kind_attrs(place_terrain);
             if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
             {
