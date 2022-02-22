@@ -848,9 +848,8 @@ TbBool packets_process_cheats(
             if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
             {
                 const char* msg = get_string(slbattr->tooltip_stridx);
-                char msg_buf[255];
-                strcpy(msg_buf, msg);
-                char* dis_msg = strtok(msg_buf, ":");
+                strcpy(str, msg);
+                char* dis_msg = strtok(str, ":");
                 message_add_timeout(selected_player, 1, dis_msg);
             }
             else
