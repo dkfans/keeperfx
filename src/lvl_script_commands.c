@@ -33,6 +33,7 @@
 #include "console_cmd.h"
 #include "creature_states_pray.h"
 #include "creature_states_mood.h"
+#include "room_util.h"
 
 #ifdef __cplusplus
 extern "C" {
