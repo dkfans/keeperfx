@@ -652,7 +652,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         }
     } else
     {
-        int i = shotst->hit_creature.sndsample_idx;
+        int i = shotst->hit_generic.sndsample_idx;
         if (i > 0) {
             thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
