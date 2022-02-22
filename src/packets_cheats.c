@@ -367,45 +367,60 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_StealRoom:
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        allowed = false;
+        clear_messages_from_player(-127);
+        selected_player = get_selected_player_for_cheat(selected_player);
+        slb = get_slabmap_block(slb_x, slb_y);
+        room = room_get(slb->room_index);
+        if (room_exists(room))
+        {
+            if (room->owner != selected_player)
             {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    return false;
-                }
-                slb = get_slabmap_block(slb_x, slb_y);
-                if (slb->room_index)
-                {
-                    room = room_get(slb->room_index);
-                    i = get_selected_player_for_cheat(plyr_idx);
-                    if (is_key_pressed(KC_RALT, KMod_DONTCARE))
-                    {
-                        play_non_3d_sample(116);
-                        create_effects_on_room_slabs(room, imp_spangle_effects[i], 0, i);
-                    }
-                    {
-                        take_over_room(room, i);
-                    }
-                }
-                unset_packet_control(pckt, PCtr_LBtnRelease);
+                message_add_timeout(-127, 1, get_string(419));
+                allowed = true;
             }
-            break;
+        }
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {    
+            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
+            {
+                return false;
+            }   
+            if (allowed)
+            {
+                if (is_key_pressed(KC_RALT, KMod_DONTCARE))
+                {
+                    play_non_3d_sample(116);
+                    create_effects_on_room_slabs(room, imp_spangle_effects[selected_player], 0, selected_player);
+                }
+                take_over_room(room, selected_player);
+            }
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        break;
         case PSt_DestroyRoom:
-            if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        clear_messages_from_player(-127);
+        selected_player = get_selected_player_for_cheat(selected_player);
+        slb = get_slabmap_block(slb_x, slb_y);
+        room = room_get(slb->room_index);
+        allowed = (room_exists(room));
+        if (allowed)
+        {
+            message_add_timeout(-127, 1, get_string(419));
+        }
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+        {
+            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    return false;
-                }
-                slb = get_slabmap_block(slb_x, slb_y);
-                if (slb->room_index)
-                {
-                    room = room_get(slb->room_index);
-                    destroy_room_leaving_unclaimed_ground(room);
-                }
-                unset_packet_control(pckt, PCtr_LBtnRelease);
+                return false;
+            }            
+            if (allowed)
+            {
+                destroy_room_leaving_unclaimed_ground(room);
             }
-            break;
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        break;
         case PSt_KillCreatr:
             thing = get_creature_near(x, y);
             if (!thing_is_creature(thing))
