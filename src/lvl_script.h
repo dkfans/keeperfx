@@ -241,7 +241,10 @@ short preload_script(long lvnum);
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
 void process_level_script(void);
-
+void process_values(void);
+void process_win_and_lose_conditions(PlayerNumber plyr_idx);
+void process_check_new_tunneller_partys(void);
+void process_check_new_creature_partys(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
