@@ -52,7 +52,7 @@ TbBool packets_process_cheats(
     char str[255] = {'\0'};
     switch (player->work_state)
     {
-        case PSt_MkGoodDigger:
+        case PSt_MkDigger:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(selected_player);
         get_selected_player_for_cheat(&selected_player);

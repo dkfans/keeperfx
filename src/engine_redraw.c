@@ -873,7 +873,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         i = get_place_terrain_pointer_graphics(place_terrain);
         set_pointer_graphic(i);
         break;
-    case PSt_MkGoodDigger:
+    case PSt_MkDigger:
         set_pointer_graphic(MousePG_MkDigger);
         break;
     case PSt_MkGoodCreatr:

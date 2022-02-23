@@ -1099,7 +1099,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
 {
     int i;
     i = player->work_state;
-    if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) || (i == PSt_PlaceTerrain) || (i == PSt_MkGoodDigger)
+    if ( (i == PSt_BuildRoom) || (i == PSt_PlaceDoor) || (i == PSt_PlaceTrap) || (i == PSt_SightOfEvil) || (i == PSt_Sell) || (i == PSt_PlaceTerrain) || (i == PSt_MkDigger)
         || (i == PSt_MkGoodCreatr) || PSt_MkBadCreatr )
         return true;
     if ( (i == PSt_OrderCreatr) && (player->controlled_thing_idx > 0) )

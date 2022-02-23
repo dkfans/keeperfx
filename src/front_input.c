@@ -824,7 +824,7 @@ TbBool get_level_lost_inputs(void)
 short get_status_panel_keyboard_action_inputs(void)
 {
   struct PlayerInfo* player = get_my_player();
-  if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkGoodDigger) || (player->work_state == PSt_MkGoodCreatr) || (player->work_state == PSt_MkBadCreatr) )
+  if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkGoodCreatr) || (player->work_state == PSt_MkBadCreatr) )
   {
       return false;
   }
@@ -2509,7 +2509,7 @@ void set_cheat_selected_value(unsigned char *value)
     {
         case PSt_MkBadCreatr:
         case PSt_MkGoodCreatr:
-        case PSt_MkGoodDigger:
+        case PSt_MkDigger:
         {
             if (is_key_pressed(KC_1, KMod_NONE))
             {
