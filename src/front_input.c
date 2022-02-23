@@ -2663,22 +2663,28 @@ void process_cheat_heart_health_inputs(short *value)
         {
             new_health++;
             *value = new_health;
+            clear_key_pressed(KC_ADD);
+            clear_key_pressed(KC_EQUALS);
         }
     }
     else if ( (is_key_pressed(KC_PERIOD, KMod_SHIFT)) || (is_key_pressed(KC_PERIOD, KMod_NONE)) )
     {
         new_health += 100;
         *value = new_health;
+        clear_key_pressed(KC_PERIOD);
     }
     else if ( (is_key_pressed(KC_COMMA, KMod_SHIFT)) || (is_key_pressed(KC_COMMA, KMod_NONE)) )
     {
         new_health -= 100;
         *value = new_health;
+        clear_key_pressed(KC_COMMA);
     }
     else if ( (is_key_pressed(KC_SUBTRACT, KMod_ALT)) || (is_key_pressed(KC_MINUS, KMod_NONE)) )
     {
         new_health--;
         *value = new_health;
+        clear_key_pressed(KC_SUBTRACT);
+        clear_key_pressed(KC_MINUS);
     }
 }
 
