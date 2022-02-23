@@ -520,7 +520,7 @@ void get_player_gui_clicks(void)
       break;
   }
 
-  if ( game_is_busy_doing_gui() )
+  if ( game_is_busy_doing_gui_for_player(player->id_number) )
   {
     set_players_packet_control(player, 0x4000u);
   }
@@ -648,10 +648,10 @@ void create_message_box(const char *title, const char *line1, const char *line2,
     turn_on_menu(GMnu_MSG_BOX);
 }
 
-short game_is_busy_doing_gui(void)
+short game_is_busy_doing_gui_for_player(PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
-    player = get_my_player();
+    player = get_player(plyr_idx);
     struct DungeonAdd *dungeonadd = get_dungeonadd(player->id_number);
     if (dungeonadd->one_click_lock_cursor)
       return false;

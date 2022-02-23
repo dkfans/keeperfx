@@ -539,7 +539,7 @@ void draw_power_hand(void)
         }
         return;
     }
-    if (game_is_busy_doing_gui())
+    if (game_is_busy_doing_gui_for_player(player->id_number))
     {
         SYNCDBG(7,"Drawing while GUI busy");
         draw_mini_things_in_hand(GetMouseX()+scale_ui_value(10), GetMouseY()+scale_ui_value(10));
