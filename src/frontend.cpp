@@ -520,7 +520,7 @@ void get_player_gui_clicks(void)
       break;
   }
 
-  if (game_is_busy_doing_gui_for_player(player->id_number))
+  if ( game_is_busy_doing_gui_for_player(player->id_number) )
   {
     set_players_packet_control(player, 0x4000u);
   }
