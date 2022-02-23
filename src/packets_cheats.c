@@ -22,6 +22,7 @@
 #include "room_workshop.h"
 #include "cursor_tag.h"
 #include "gui_boxmenu.h"
+#include "front_input.h"
 
 extern void clear_input(struct Packet* packet);
 
