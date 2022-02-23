@@ -766,7 +766,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         return;
     }
     // GUI action being processed
-    if (game_is_busy_doing_gui())
+    if (game_is_busy_doing_gui_for_player(player->id_number))
     {
         set_pointer_graphic(MousePG_Arrow);
         return;

@@ -993,7 +993,7 @@ TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     int floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     if (is_my_player_number(plyr_idx))
     {
-        if (!game_is_busy_doing_gui() && (game.small_map_state != 2))
+        if (!game_is_busy_doing_gui_for_player(plyr_idx) && (game.small_map_state != 2))
         {
             render_roomspace.is_roomspace_a_box = true;
             render_roomspace.render_roomspace_as_box = true;
