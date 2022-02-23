@@ -604,7 +604,7 @@ TbBool packets_process_cheats(
                     return false;
                 }
                 thing = get_player_soul_container(PlayerToKill->id_number);
-                if (thing_is_dungeon_heart(thing))
+                if (!thing_is_invalid(thing))
                 {
                     thing->health = 0;
                 }
