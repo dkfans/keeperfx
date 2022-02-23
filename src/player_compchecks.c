@@ -43,8 +43,6 @@
 #include "game_legacy.h"
 #include "cursor_tag.h"
 
-#include "keeperfx.hpp"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
