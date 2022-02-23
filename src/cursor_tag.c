@@ -51,7 +51,7 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     {
         line_color = SLC_YELLOW;
     }
-    if ((!game_is_busy_doing_gui_for_player(plyr_idx)) && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
+    if ((is_my_player_number(plyr_idx)) && (!game_is_busy_doing_gui_for_player(plyr_idx)) && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
     {
         map_volume_box.visible = 1;
         map_volume_box.color = line_color;
@@ -70,7 +70,7 @@ void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
   // _DK_tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_special_digger, full_slab);
   MapSlabCoord slb_x = subtile_slab_fast(stl_x);
   MapSlabCoord slb_y = subtile_slab_fast(stl_y);  
-  if ((!game_is_busy_doing_gui_for_player(plyr_idx)) && (game.small_map_state != 2) )
+  if ((is_my_player_number(plyr_idx)) && (!game_is_busy_doing_gui_for_player(plyr_idx)) && (game.small_map_state != 2) )
     {
         map_volume_box.visible = true;
         map_volume_box.color = can_drop_thing_here(stl_x, stl_y, plyr_idx, is_special_digger);
@@ -115,7 +115,7 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
             allowed = true;
         }
     }
-    if ((!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
+    if ((is_my_player_number(plyr_idx)) && (!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
     {
         map_volume_box.visible = 1;
         map_volume_box.color = allowed;
@@ -168,7 +168,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
             allowed = true;
         }
     }
-    if ((!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
+    if ((is_my_player_number(plyr_idx)) && (!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
     {
         map_volume_box.visible = 1;
         map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
@@ -207,7 +207,7 @@ TbBool tag_cursor_blocks_place_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         SYNCDBG(7,"Cannot build %s on %s slabs centered at (%d,%d)", room_code_name(player->chosen_room_kind), slab_code_name(slb->kind), (int)slb_x, (int)slb_y);
     }
     
-    if ((!game_is_busy_doing_gui_for_player(plyr_idx)) && (game.small_map_state != 2))
+    if ((is_my_player_number(plyr_idx)) && (!game_is_busy_doing_gui_for_player(plyr_idx)) && (game.small_map_state != 2))
     {
         map_volume_box.visible = 1;
         map_volume_box.color = allowed;
@@ -227,7 +227,7 @@ void tag_cursor_blocks_place_terrain(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     MapSlabCoord slb_x = subtile_slab_fast(stl_x);
     MapSlabCoord slb_y = subtile_slab_fast(stl_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
-    if ((!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
+    if ((is_my_player_number(plyr_idx)) && (!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
     {
         map_volume_box.visible = true;
         map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
@@ -259,7 +259,7 @@ TbBool tag_cursor_blocks_place_thing(PlayerNumber plyr_idx, MapSubtlCoord stl_x,
     {
         colour = SLC_GREEN;
     }
-    if ((!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
+    if ((is_my_player_number(plyr_idx)) && (!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
     {
         map_volume_box.visible = true;
         map_volume_box.beg_x = subtile_coord(stl_x, 0);
@@ -292,7 +292,7 @@ TbBool tag_cursor_blocks_order_creature(PlayerNumber plyr_idx, MapSubtlCoord stl
     {
         colour = SLC_GREEN;
     }
-    if ((!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
+    if ((is_my_player_number(plyr_idx)) && (!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
     {
         map_volume_box.visible = true;
         map_volume_box.beg_x = subtile_coord(stl_x, 0);
@@ -324,7 +324,7 @@ TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     {
         colour = SLC_RED;
     }
-    if ((!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
+    if ((is_my_player_number(plyr_idx)) && (!game_is_busy_doing_gui_for_player(plyr_idx)) && game.small_map_state != 2 )
     {
         map_volume_box.visible = true;
         map_volume_box.beg_x = subtile_coord(slab_subtile(slb_x, 0), 0);
