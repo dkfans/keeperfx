@@ -318,9 +318,9 @@ const struct NamedCommand dk1_variable_desc[] = {
 };
 
 const struct NamedCommand fill_desc[] = {
-  {"FILL",                  FillIterType_Match},
-  {"FILL_FLOOR",            FillIterType_Floor},
-  {"FILL_FLOOR_BRIDGE",     FillIterType_FloorBridge},
+  {"MATCH",         FillIterType_Match},
+  {"FLOOR",         FillIterType_Floor},
+  {"BRIDGE",        FillIterType_FloorBridge},
   {NULL,            0},
 };
 
