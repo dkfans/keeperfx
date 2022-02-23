@@ -519,10 +519,9 @@ void redraw_creature_view(void)
     gui_draw_all_boxes();
     draw_tooltip();
     long x = scale_value_by_horizontal_resolution(148);
-    static const SpellKind Spells[] = {SplK_Freeze, SplK_Armour, SplK_Rebound, SplK_Invisibility, SplK_Speed, SplK_Slow, SplK_Light, SplK_Fly, SplK_Sight, SplK_Disease, SplK_Chicken};
-    for (int Spell = 0; Spell < sizeof(Spells) / sizeof(Spells[0]); Spell++)
+    for (int Spell = SplK_Freeze; Spell < SplK_TimeBomb; Spell++)
     {
-        if (creature_affected_by_spell(thing, Spells[Spell]))
+        if (creature_affected_by_spell(thing, Spell))
         {
             long y = (MyScreenHeight - (scale_value_by_vertical_resolution((LbTextLineHeight())) * 2));
             int ps_units_per_px;
@@ -530,7 +529,7 @@ void redraw_creature_view(void)
                 struct TbSprite* spr = &gui_panel_sprites[488];
                 ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
             }
-            struct SpellInfo* spinfo = get_magic_info(Spells[Spell]);
+            struct SpellInfo* spinfo = get_magic_info(Spell);
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spinfo->medsym_sprite_idx);
             x += scale_value_by_horizontal_resolution(LbTextLineHeight());
         }
