@@ -56,7 +56,7 @@ TbBool packets_process_cheats(
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(selected_player);
         get_selected_player_for_cheat(&selected_player);
-        set_cheat_selected_value(&selected_experience);
+        process_cheat_mode_selection_inputs(&selected_experience);
         message_add_timeout(selected_player, 1, "%d", selected_experience);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
@@ -95,7 +95,7 @@ TbBool packets_process_cheats(
             }
             clear_key_pressed(KC_LSHIFT);
         }
-        set_cheat_selected_value(&selected_experience);
+        process_cheat_mode_selection_inputs(&selected_experience);
         if (selected_hero == 0)
         {
             sprintf(str, "?");
@@ -256,7 +256,7 @@ TbBool packets_process_cheats(
             }
             clear_key_pressed(KC_LSHIFT);
         }
-        set_cheat_selected_value(&selected_experience);
+        process_cheat_mode_selection_inputs(&selected_experience);
         if (selected_creature == 0)
         {
             sprintf(str, "?");
@@ -623,25 +623,7 @@ TbBool packets_process_cheats(
         {
             break;
         }
-        if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
-        {
-            if (thing->health < game.dungeon_heart_health)
-            {
-                thing->health++;
-            }
-        }
-        else if ( (is_key_pressed(KC_PERIOD, KMod_SHIFT)) || (is_key_pressed(KC_PERIOD, KMod_NONE)) )
-        {
-            thing->health = thing->health + 100;
-        }
-        else if ( (is_key_pressed(KC_COMMA, KMod_SHIFT)) || (is_key_pressed(KC_COMMA, KMod_NONE)) )
-        {
-            thing->health = thing->health - 100;
-        }
-        else if ( (is_key_pressed(KC_SUBTRACT, KMod_ALT)) || (is_key_pressed(KC_MINUS, KMod_NONE)) )
-        {
-            thing->health--;
-        }
+        process_cheat_heart_health_inputs(&thing->health);
         break;
         case PSt_CreatrQueryAll:
         case PSt_CreatrInfoAll:
@@ -760,7 +742,7 @@ TbBool packets_process_cheats(
             break;
         case PSt_PlaceTerrain:
         {
-            set_cheat_selected_value(&place_terrain);
+            process_cheat_mode_selection_inputs(&place_terrain);
             struct SlabConfigStats* slab_cfgstats;
             clear_messages_from_player(selected_player);
             get_selected_player_for_cheat(&selected_player);

@@ -2501,9 +2501,8 @@ short get_gui_inputs(short gameplay_on)
   return result;
 }
 
-void set_cheat_selected_value(unsigned char *value)
+void process_cheat_mode_selection_inputs(unsigned char *value)
 {
-    unsigned char new_value;
     struct PlayerInfo *player = get_my_player();
     switch (player->work_state)
     {
@@ -2511,6 +2510,7 @@ void set_cheat_selected_value(unsigned char *value)
         case PSt_MkGoodCreatr:
         case PSt_MkDigger:
         {
+            unsigned char new_value;
             if (is_key_pressed(KC_1, KMod_NONE))
             {
                 *value = 1;
@@ -2651,6 +2651,34 @@ void set_cheat_selected_value(unsigned char *value)
         {
             break;
         }
+    }
+}
+
+void process_cheat_heart_health_inputs(short *value)
+{
+   short new_health = *value;
+   if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
+   {
+        if (new_health < game.dungeon_heart_health)
+        {
+            new_health++;
+            *value = new_health;
+        }
+    }
+    else if ( (is_key_pressed(KC_PERIOD, KMod_SHIFT)) || (is_key_pressed(KC_PERIOD, KMod_NONE)) )
+    {
+        new_health += 100;
+        *value = new_health;
+    }
+    else if ( (is_key_pressed(KC_COMMA, KMod_SHIFT)) || (is_key_pressed(KC_COMMA, KMod_NONE)) )
+    {
+        new_health -= 100;
+        *value = new_health;
+    }
+    else if ( (is_key_pressed(KC_SUBTRACT, KMod_ALT)) || (is_key_pressed(KC_MINUS, KMod_NONE)) )
+    {
+        new_health--;
+        *value = new_health;
     }
 }
 
