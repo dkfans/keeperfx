@@ -613,7 +613,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return false;
             }
             unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
-            set_trap_buildable_and_add_to_amount(plyr_idx, id, 1, num);
+            command_add_value(Cmd_TRAP_AVAILABLE, plyr_idx, id, 1, num);
             update_trap_tab_to_config();
             message_add(plyr_idx, "done!");
             return true;
@@ -625,7 +625,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return false;
             }
             unsigned char num = (pr3str != NULL) ? atoi(pr3str) : 1;
-            set_door_buildable_and_add_to_amount(plyr_idx, id, 1, num);
+            script_process_value(Cmd_DOOR_AVAILABLE, plyr_idx, id, 1, num, &tmp_value);
             update_trap_tab_to_config();
             message_add(plyr_idx, "done!");
             return true;
@@ -888,7 +888,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if (strcasecmp(parstr, "room.available") == 0)
         {
-            TbBool available = (pr3str == NULL) ? 1 : atoi(pr3str);
+            unsigned char available = (pr3str == NULL) ? 1 : atoi(pr3str);
             PlayerNumber id = get_player_number_for_command(pr4str);
             long roomid;
             if (strcasecmp(pr2str, "all") == 0)
@@ -897,7 +897,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     if (roomid != RoK_DUNGHEART)
                     {
-                        set_room_available(id, roomid, available, available);
+                        script_process_value(Cmd_ROOM_AVAILABLE, id, roomid, (TbBool)available, (TbBool)available, &tmp_value);
                     }                   
                 }
             }
@@ -919,7 +919,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         roomid = atoi(pr2str);
                     }
                 }
-                set_room_available(id, roomid, available, available);
+                script_process_value(Cmd_ROOM_AVAILABLE, id, roomid, (TbBool)available, (TbBool)available, &tmp_value);
             }
             update_room_tab_to_config();
             return true;
@@ -930,8 +930,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
                 {
-                    if (!set_power_available(plyr_idx, pw, 1, 1))
-                        WARNLOG("Setting power %s availability for player %d failed.",power_code_name(pw),1);
+                    script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, pw, 1, 1, &tmp_value);                     
                 }
                 update_powers_tab_to_config();
                 return true; 
@@ -943,8 +942,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     power = atoi(pr2str);
                 }
-                if (!set_power_available(plyr_idx, power, 1, 1))
-                        WARNLOG("Setting power %s availability for player %d failed.",power_code_name(power),1);
+                script_process_value(Cmd_MAGIC_AVAILABLE, plyr_idx, power, 1, 1, &tmp_value);
                 update_powers_tab_to_config();
                 return true;
             }                
@@ -972,11 +970,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if (strcasecmp(parstr, "creature.available") == 0)
         {
             long crmodel = get_creature_model_for_command(pr2str);
-            TbBool available = (pr3str == NULL) ? 1 : atoi(pr3str);
+            unsigned char available = (pr3str == NULL) ? 1 : atoi(pr3str);
             PlayerNumber id = get_player_number_for_command(pr4str);
-            if (!set_creature_available(id, crmodel, available, available))
-              WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(crmodel),(int)id);
-          
+            script_process_value(Cmd_CREATURE_AVAILABLE, id, crmodel, (TbBool)available, (TbBool)available, &tmp_value);
             return true;
         }
         else if ( (strcasecmp(parstr, "creature.addhealth") == 0) || (strcasecmp(parstr, "creature.health.add") == 0) )
@@ -1099,7 +1095,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 else
                 {
-                    player_add_offmap_gold(id, atoi(pr3str));
+                    script_process_value(Cmd_ADD_GOLD_TO_PLAYER, id, atoi(pr3str), 0, 0, &tmp_value);
                     return true;
                 }
             }

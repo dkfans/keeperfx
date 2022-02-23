@@ -25,7 +25,6 @@
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"
 #include "thing_list.h"
-#include "map_locations.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -200,10 +199,6 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);
 TbBool creature_can_see_invisible(const struct Thing *thing);
 int get_creature_health_permil(const struct Thing *thing);
-/******************************************************************************/
-struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
-struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location);
-void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level);
 /******************************************************************************/
 #ifdef __cplusplus
 }

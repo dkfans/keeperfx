@@ -20,8 +20,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_math.h"
-#include "bflib_memory.h"
 
 #include "thing_data.h"
 #include "thing_doors.h"
@@ -33,8 +31,6 @@
 #include "thing_shots.h"
 #include "thing_traps.h"
 #include "thing_corpses.h"
-#include "thing_physics.h"
-#include "thing_navigate.h"
 #include "room_util.h"
 #include "sounds.h"
 #include "dungeon_data.h"
@@ -215,62 +211,5 @@ short thing_create_thing(struct InitThing *itng)
         return false;
     }
     return true;
-}
-
-struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner)
-{
-    struct Thing* thing = create_thing(pos, tngclass, tngmodel, tngowner, -1);
-    if (thing_is_invalid(thing))
-    {
-        return INVALID_THING;
-    }
-    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    // Try to move thing out of the solid wall if it's inside one
-    if (thing_in_wall_at(thing, &thing->mappos))
-    {
-        if (!move_creature_to_nearest_valid_position(thing)) {
-            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
-            delete_thing_structure(thing, 0);
-            return INVALID_THING;
-        }
-    }
-
-    if (thing_is_creature(thing))
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        cctrl->flee_pos.x.val = thing->mappos.x.val;
-        cctrl->flee_pos.y.val = thing->mappos.y.val;
-        cctrl->flee_pos.z.val = thing->mappos.z.val;
-        cctrl->flee_pos.z.val = get_thing_height_at(thing, &thing->mappos);
-        cctrl->party.target_plyr_idx = -1;
-    }
-
-    long light_rand = GAME_RANDOM(8); // this may be unsynced random
-    if (light_rand < 2)
-    {
-        struct InitLight ilght;
-        LbMemorySet(&ilght, 0, sizeof(struct InitLight));
-        ilght.mappos.x.val = thing->mappos.x.val;
-        ilght.mappos.y.val = thing->mappos.y.val;
-        ilght.mappos.z.val = thing->mappos.z.val;
-        if (light_rand == 1)
-        {
-            ilght.intensity = 48;
-            ilght.field_3 = 5;
-        } else
-        {
-            ilght.intensity = 36;
-            ilght.field_3 = 1;
-        }
-        ilght.is_dynamic = 1;
-        ilght.radius = 2560;
-        thing->light_id = light_create_light(&ilght);
-        if (thing->light_id != 0) {
-            light_set_light_never_cache(thing->light_id);
-        } else {
-            ERRORLOG("Cannot allocate light to new hero");
-        }
-    }
-    return thing;
 }
 /******************************************************************************/

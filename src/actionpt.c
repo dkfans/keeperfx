@@ -141,15 +141,6 @@ TbBool action_point_reset_idx(ActionPointId apt_idx)
 }
 
 /**
- * Returns if the action point of given index was triggered by given player.
- */
-TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx)
-{
-    unsigned long i = get_action_point_activated_by_players_mask(apt_idx);
-    return ((i & (1 << plyr_idx)) != 0);
-}
-
-/**
  * Returns an action point activation bitmask.
  * Bits which are set in the bitmask corresponds to players which have triggered action point.
  */

@@ -55,6 +55,7 @@
 #include "player_utils.h"
 #include "player_instances.h"
 #include "player_computer.h"
+#include "lvl_script.h"
 #include "thing_traps.h"
 #include "magic.h"
 #include "sounds.h"

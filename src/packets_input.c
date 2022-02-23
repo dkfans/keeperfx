@@ -230,7 +230,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
     {
-        if (!game_is_busy_doing_gui_for_player(plyr_idx))
+        if (is_my_player(player) && !game_is_busy_doing_gui())
         {
             if (player->primary_cursor_state == CSt_PickAxe)
             {
@@ -473,7 +473,7 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     player->full_slab_cursor = (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true));
     if (is_my_player(player))
     {
-        if (!game_is_busy_doing_gui_for_player(player->id_number))
+        if (!game_is_busy_doing_gui())
         {
             get_dungeon_sell_user_roomspace(player->id_number, stl_x, stl_y);
             tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->full_slab_cursor);
