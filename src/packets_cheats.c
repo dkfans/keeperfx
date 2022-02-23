@@ -599,6 +599,10 @@ TbBool packets_process_cheats(
               message_add_timeout(selected_player, 1, str);
               if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
               {
+                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
+                {
+                    return false;
+                }
                 thing = get_player_soul_container(PlayerToKill->id_number);
                 if (thing_is_dungeon_heart(thing))
                 {
