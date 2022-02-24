@@ -106,9 +106,10 @@ long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbki
 TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 
 enum FillIterType {
-  FillIterType_Match = 1,
-  FillIterType_Floor,
-  FillIterType_FloorBridge,
+    FillIterType_NoFill,
+    FillIterType_Match,
+    FillIterType_Floor,
+    FillIterType_FloorBridge,
 };
 
 /******************************************************************************/

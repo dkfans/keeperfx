@@ -318,6 +318,7 @@ const struct NamedCommand dk1_variable_desc[] = {
 };
 
 const struct NamedCommand fill_desc[] = {
+  {"NONE",          FillIterType_NoFill},
   {"MATCH",         FillIterType_Match},
   {"FLOOR",         FillIterType_Floor},
   {"BRIDGE",        FillIterType_FloorBridge},
@@ -1935,6 +1936,12 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
         return;
     }
 
+    long filltype = get_id(fill_desc, scline->tp[3]);
+    if ((scline->tp[3] != NULL) && (filltype == -1))
+    {
+        SCRPTWRNLOG("Fill type not recognized", scline->np[1], game.dungeon_heart_health);
+    }
+
     command_add_value(Cmd_CHANGE_SLAB_OWNER, scline->np[2], scline->np[0], scline->np[1], get_id(fill_desc, scline->tp[3]));
 }
 
@@ -1943,7 +1950,7 @@ static void change_slab_owner_process(struct ScriptContext *context)
     MapSlabCoord x = context->value->arg0;
     MapSlabCoord y = context->value->arg1;
     long fill_type = context->value->arg2;
-    if (fill_type != -1)
+    if (fill_type > 0)
     {
         struct CompoundCoordFilterParam iter_param;
         iter_param.plyr_idx = context->player_idx;
