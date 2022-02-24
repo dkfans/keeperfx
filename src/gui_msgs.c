@@ -109,7 +109,6 @@ void message_draw(void)
         {
             if (gameadd.messages[i].plyr_idx == game.hero_player_num)
             {
-                // use discoloured icon for the hero player
                 spr_idx = 533;
             }
             else if (gameadd.messages[i].plyr_idx == game.neutral_player_num)
