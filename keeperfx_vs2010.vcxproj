@@ -179,6 +179,11 @@
     <ClCompile Include="src\light_data.c" />
     <ClCompile Include="src\lvl_filesdk1.c" />
     <ClCompile Include="src\lvl_script.c" />
+    <ClCompile Include="src\lvl_script_commands_old.c" />
+    <ClCompile Include="src\lvl_script_conditions.c" />
+    <ClCompile Include="src\lvl_script_lib.c" />
+    <ClCompile Include="src\lvl_script_commands.c" />
+    <ClCompile Include="src\lvl_script_value.c" />
     <ClCompile Include="src\magic.c" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\main_game.c" />
@@ -186,6 +191,7 @@
     <ClCompile Include="src\map_columns.c" />
     <ClCompile Include="src\map_data.c" />
     <ClCompile Include="src\map_events.c" />
+    <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
     <ClCompile Include="src\music_player.c" />
     <ClCompile Include="src\net_game.c" />
@@ -395,11 +401,17 @@
     <ClInclude Include="src\light_data.h" />
     <ClInclude Include="src\lvl_filesdk1.h" />
     <ClInclude Include="src\lvl_script.h" />
+    <ClInclude Include="src\lvl_script_commands.h" />
+    <ClInclude Include="src\lvl_script_conditions.h" />
+    <ClInclude Include="src\lvl_script_lib.h" />
+    <ClInclude Include="src\lvl_script_commands_old.h" />
+    <ClInclude Include="src\lvl_script_value.h" />
     <ClInclude Include="src\magic.h" />
     <ClInclude Include="src\map_blocks.h" />
     <ClInclude Include="src\map_columns.h" />
     <ClInclude Include="src\map_data.h" />
     <ClInclude Include="src\map_events.h" />
+    <ClInclude Include="src\map_locations.h" />
     <ClInclude Include="src\map_utils.h" />
     <ClInclude Include="src\music_player.h" />
     <ClInclude Include="src\net_game.h" />

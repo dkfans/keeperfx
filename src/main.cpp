@@ -221,7 +221,8 @@ long get_foot_creature_has_down(struct Thing *thing)
     val = thing->field_48;
     if (val == (cctrl->field_CE >> 8))
         return 0;
-    n = get_creature_model_graphics(thing->model, CGI_Ambulate);
+    unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
+    n = get_creature_model_graphics(thing->model, frame);
     i = convert_td_iso(n);
     if (i != thing->anim_sprite)
         return 0;
@@ -2282,26 +2283,6 @@ void process_dungeons(void)
   process_payday();
   process_things_in_dungeon_hand();
   SYNCDBG(9,"Finished");
-}
-
-void process_level_script(void)
-{
-  SYNCDBG(6,"Starting");
-  struct PlayerInfo *player;
-  player = get_my_player();
-  // Do NOT stop executing scripts after winning if the RUN_AFTER_VICTORY(1) script command has been issued
-  if ((player->victory_state == VicS_Undecided) || (game.system_flags & GSF_RunAfterVictory))
-  {
-      process_conditions();
-      process_check_new_creature_partys();
-    //script_process_messages(); is not here, but it is in beta - check why
-      process_check_new_tunneller_partys();
-      process_values();
-      process_win_and_lose_conditions(my_player_number); //player->id_number may be uninitialized yet
-    //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],
-    //    game.dungeon[0].script_flags[2],game.dungeon[0].script_flags[3],game.dungeon[0].script_flags[4],game.dungeon[0].script_flags[5]);
-  }
-  SYNCDBG(19,"Finished");
 }
 
 

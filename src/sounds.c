@@ -130,23 +130,22 @@ void play_thing_walking(struct Thing *thing)
                 cctrl->mood_flags |=  (UNSYNC_RANDOM(4) << 2);
                 cctrl->field_67 &= ~0x1F;
             }
-
             //TODO CONFIG creature model dependency; remove, add config file option for this
-            int v15 = thing->model;
-            unsigned short smpl_delay;
-            if (v15 == 19 || v15 == 24)
+            ThingModel crmodel = thing->model;
+            unsigned short smpl_pitch;
+            if (crmodel == 19 || crmodel == 24)
             { //FLY or BUG
-                smpl_delay = 400;
+                smpl_pitch = 400;
             }
-            else if (v15 == 27)
+            else if (crmodel == 27)
             { //HELL_HOUND
-                smpl_delay = 300;
+                smpl_pitch = 300;
             }
             else
             {
-                smpl_delay = 100;
+                smpl_pitch = 100;
             }
-            thing_play_sample(thing, smpl_idx, smpl_delay, 0, 3, 3, 1, loudness);
+            thing_play_sample(thing, smpl_idx, smpl_pitch, 0, 3, 3, 1, loudness);
             if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
                 thing_play_sample(thing, 21 + SOUND_RANDOM(4), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
             }

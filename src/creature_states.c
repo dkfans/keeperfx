@@ -55,7 +55,6 @@
 #include "player_utils.h"
 #include "player_instances.h"
 #include "player_computer.h"
-#include "lvl_script.h"
 #include "thing_traps.h"
 #include "magic.h"
 #include "sounds.h"
@@ -2990,6 +2989,11 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
         return 1;
     }
+    EventIndex evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, creatng->owner, RoK_TREASURE);
+    if (evidx > 0) 
+    {
+        output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_TREASURE, OMsg_RoomNoRoute);
+    }
     if (is_creature_other_than_given_waiting_at_closed_door_on_subtile(base_stl_x, base_stl_y, creatng))
     {
         int i = 0;
@@ -4219,6 +4223,13 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     if (curr_stati->state_type == CrStTyp_Move)
       curr_stati = get_thing_state_info_num(thing->continue_state);
     struct StateInfo* next_stati = get_thing_state_info_num(next_state);
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        if ( (next_stati->state_type != CrStTyp_Idle) )
+        {
+            return false;
+        }
+    }
     if ((curr_stati->field_20) && (!next_stati->override_prev_fld20))
         return false;
     if ((curr_stati->field_1F) && (!next_stati->override_prev_fld1F))

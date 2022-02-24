@@ -42,6 +42,7 @@ struct InitThing { // sizeof=0x15
 /******************************************************************************/
 short thing_create_thing(struct InitThing *itng);
 struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long a4);
+struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner);
 /******************************************************************************/
 #ifdef __cplusplus
 }
