@@ -1939,7 +1939,7 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
     long filltype = get_id(fill_desc, scline->tp[3]);
     if ((scline->tp[3] != NULL) && (filltype == -1))
     {
-        SCRPTWRNLOG("Fill type not recognized", scline->np[1], game.dungeon_heart_health);
+        SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
     }
 
     command_add_value(Cmd_CHANGE_SLAB_OWNER, scline->np[2], scline->np[0], scline->np[1], get_id(fill_desc, scline->tp[3]));
@@ -1997,6 +1997,10 @@ static void change_slab_type_check(const struct ScriptLine *scline)
     }
 
     value->shorts[3] = get_id(fill_desc, scline->tp[3]);
+    if ((scline->tp[3] != NULL) && (value->shorts[3] == -1))
+    {
+        SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2007,7 +2011,7 @@ static void change_slab_type_process(struct ScriptContext *context)
     long slab_kind = context->value->shorts[2];
     long fill_type = context->value->shorts[3];
 
-    if (fill_type != -1)
+    if (fill_type > 0)
     {
         struct CompoundCoordFilterParam iter_param;
         iter_param.num1 = slab_kind;
