@@ -5543,6 +5543,7 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
 
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng)
 {
+    long volume = FULL_LOUDNESS;
     if (droptng->class_id == TCls_Creature)
     {
         stop_creature_being_dragged_by(droptng, creatng);
@@ -5600,8 +5601,9 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     }
                     case 100 ... 199:
                     {
-                        smpl_idx = 916;
-                        pitch = 75;
+                        smpl_idx = 17 + SOUND_RANDOM(4);
+                        pitch = 120;
+                        volume = FULL_LOUDNESS * 3 / 4;
                         break;
                     }
                     default:
@@ -5627,7 +5629,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
             }
         }
     }
-    thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, volume);
     struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     if (!room_is_invalid(room))
     {
