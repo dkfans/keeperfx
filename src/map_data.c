@@ -304,22 +304,28 @@ TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, M
     return true;
 }
 
+TbBool slabs_iter_will_change(SlabKind orig_slab_kind, SlabKind current, long fill_type)
+{
+    TbBool check_for_any_earth = orig_slab_kind == SlbT_EARTH;
+    TbBool check_for_any_wall = orig_slab_kind >= SlbT_WALLDRAPE && orig_slab_kind <= SlbT_WALLPAIRSHR;
+    TbBool will_change = current == orig_slab_kind;
+    will_change |= check_for_any_earth && (current == SlbT_EARTH || current == SlbT_TORCHDIRT);
+    will_change |= check_for_any_wall && (current >= SlbT_WALLDRAPE && current <= SlbT_WALLPAIRSHR);
+    will_change |= (fill_type == FillIterType_Floor || fill_type == FillIterType_FloorBridge) && (
+        (fill_type == FillIterType_FloorBridge && current == SlbT_BRIDGE) ||
+        current == SlbT_PATH || current == SlbT_CLAIMED || current == SlbT_GUARDPOST ||
+        (current >= SlbT_TREASURE && current <= SlbT_BARRACKS && current != SlbT_DUNGHEART)
+    );
+    return will_change;
+}
+
 TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
     unsigned long plr_range_id = param->plyr_idx;
     long fill_type = param->num1;
     SlabKind orig_slab_kind = param->num2;
-    SlabKind ck = get_slabmap_block(slb_x, slb_y)->kind; // current kind
-
-    TbBool check_for_any_wall = orig_slab_kind >= SlbT_WALLDRAPE && orig_slab_kind <= SlbT_WALLPAIRSHR;
-    TbBool will_change = ck == orig_slab_kind;
-    will_change |= check_for_any_wall && (ck >= SlbT_WALLDRAPE && ck <= SlbT_WALLPAIRSHR);
-    will_change |= (fill_type == FillIterType_Floor || fill_type == FillIterType_FloorBridge) && (
-        (fill_type == FillIterType_FloorBridge && ck == SlbT_BRIDGE) ||
-        ck == SlbT_PATH || ck == SlbT_CLAIMED || ck == SlbT_GUARDPOST ||
-        (ck >= SlbT_TREASURE && ck <= SlbT_BARRACKS && ck != SlbT_DUNGHEART)
-    );
-    if (will_change)
+    SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind;
+    if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
     {
         change_slab_owner_from_script(slb_x, slb_y, plr_range_id);
         return true;
@@ -332,21 +338,10 @@ TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterP
     SlabKind target_slab_kind = param->num1;
     long fill_type = param->num2;
     SlabKind orig_slab_kind = param->num3;
-    SlabKind ck = get_slabmap_block(slb_x, slb_y)->kind; // current kind
-
-    TbBool check_for_any_earth = orig_slab_kind == SlbT_EARTH;
-    TbBool check_for_any_wall = orig_slab_kind >= SlbT_WALLDRAPE && orig_slab_kind <= SlbT_WALLPAIRSHR;
-    TbBool will_change = ck == orig_slab_kind;
-    will_change |= check_for_any_earth && (ck == SlbT_EARTH || ck == SlbT_TORCHDIRT);
-    will_change |= check_for_any_wall && (ck >= SlbT_WALLDRAPE && ck <= SlbT_WALLPAIRSHR);
-    will_change |= (fill_type == FillIterType_Floor || fill_type == FillIterType_FloorBridge) && (
-        (fill_type == FillIterType_FloorBridge && ck == SlbT_BRIDGE) ||
-        ck == SlbT_PATH || ck == SlbT_CLAIMED || ck == SlbT_GUARDPOST ||
-        (ck >= SlbT_TREASURE && ck <= SlbT_BARRACKS && ck != SlbT_DUNGHEART)
-    );
-    if (will_change)
+    SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
+    if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
     {
-        if (ck != target_slab_kind)
+        if (current_kind != target_slab_kind)
             replace_slab_from_script(slb_x, slb_y, target_slab_kind);
         return true;
     }
