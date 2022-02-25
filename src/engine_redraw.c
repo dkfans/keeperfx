@@ -519,6 +519,7 @@ void redraw_creature_view(void)
     gui_draw_all_boxes();
     draw_tooltip();
     long x = scale_value_by_horizontal_resolution(148);
+    long y = (MyScreenHeight - (scale_value_by_vertical_resolution((LbTextLineHeight())) * 2));
     int ps_units_per_px;
     {
         struct TbSprite* spr = &gui_panel_sprites[488];
@@ -528,11 +529,50 @@ void redraw_creature_view(void)
     {
         if (creature_affected_by_spell(thing, Spell))
         {
-            long y = (MyScreenHeight - (scale_value_by_vertical_resolution((LbTextLineHeight())) * 2));
             struct SpellInfo* spinfo = get_magic_info(Spell);
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spinfo->medsym_sprite_idx);
             x += scale_value_by_horizontal_resolution(LbTextLineHeight());
         }
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if ( (cctrl->dragtng_idx != 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) )
+    {
+        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+        x = MyScreenWidth - (x / 4);
+        unsigned long spr_idx;
+        switch(dragtng->class_id)
+        {
+            struct RoomConfigStats *roomst;
+            case TCls_Object:
+            {
+                if (thing_is_workshop_crate(dragtng))
+                {
+                    roomst = get_room_kind_stats(RoK_WORKSHOP);
+                }
+                else
+                {
+                    roomst = get_room_kind_stats(RoK_LIBRARY);
+                }
+                spr_idx = roomst->medsym_sprite_idx;
+                break;
+            }
+            case TCls_DeadCreature:
+            case TCls_Creature:
+            {
+                spr_idx = get_creature_model_graphics(dragtng->model, CGI_HandSymbol);
+                if (dragtng->class_id == TCls_DeadCreature)
+                {
+                    spr_idx++;
+                }
+                break;
+            }
+            default:
+            {
+                spr_idx = 0;
+                break;
+            }
+        }
+        draw_gui_panel_sprite_left(x, y, ps_units_per_px, spr_idx);
     }
 }
 
