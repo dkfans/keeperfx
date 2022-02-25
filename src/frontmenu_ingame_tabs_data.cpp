@@ -107,7 +107,8 @@ void maintain_event_button(struct GuiButton *gbtn);
 void gui_toggle_ally(struct GuiButton *gbtn);
 void maintain_ally(struct GuiButton *gbtn);
 void maintain_prison_bar(struct GuiButton *gbtn);
-void maintain_room_and_creature_button(struct GuiButton *gbtn);
+void maintain_room_button(struct GuiButton *gbtn);
+void maintain_creature_button(struct GuiButton* gbtn);
 void pick_up_next_wanderer(struct GuiButton *gbtn);
 void gui_go_to_next_wanderer(struct GuiButton *gbtn);
 void pick_up_next_worker(struct GuiButton *gbtn);
@@ -275,14 +276,14 @@ struct GuiButtonInit query_menu_buttons[] = {
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 216,   4, 222,132, 24, gui_area_payday_button,          341, GUIStr_PayTimeDesc,          0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   2, 246,   2, 246, 60, 24, gui_area_research_bar,            61, GUIStr_ResearchTimeDesc,     0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  74, 246,  74, 246, 60, 24, gui_area_workshop_bar,            75, GUIStr_WorkshopTimeDesc,     0,       {0},            0, NULL },
-  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  74, 274,  74, 274, 60, 24, gui_area_player_creature_info,   323, GUIStr_NumberOfCreaturesDesc,0,       {0},            0, maintain_room_and_creature_button },
-  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  74, 298,  74, 298, 60, 24, gui_area_player_creature_info,   325, GUIStr_NumberOfCreaturesDesc,0,       {1},            0, maintain_room_and_creature_button },
-  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  74, 322,  74, 322, 60, 24, gui_area_player_creature_info,   327, GUIStr_NumberOfCreaturesDesc,0,       {2},            0, maintain_room_and_creature_button },
-  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  74, 346,  74, 346, 60, 24, gui_area_player_creature_info,   329, GUIStr_NumberOfCreaturesDesc,0,       {3},            0, maintain_room_and_creature_button },
-  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 274,   4, 274, 60, 24, gui_area_player_room_info,       324, GUIStr_NumberOfRoomsDesc,    0,       {0},            0, maintain_room_and_creature_button },
-  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 298,   4, 298, 60, 24, gui_area_player_room_info,       326, GUIStr_NumberOfRoomsDesc,    0,       {1},            0, maintain_room_and_creature_button },
-  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 322,   4, 322, 60, 24, gui_area_player_room_info,       328, GUIStr_NumberOfRoomsDesc,    0,       {2},            0, maintain_room_and_creature_button },
-  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_player_room_info,       330, GUIStr_NumberOfRoomsDesc,    0,       {3},            0, maintain_room_and_creature_button },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  74, 274,  74, 274, 60, 24, gui_area_player_creature_info,   323, GUIStr_NumberOfCreaturesDesc,0,       {0},            0, maintain_creature_button },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  74, 298,  74, 298, 60, 24, gui_area_player_creature_info,   325, GUIStr_NumberOfCreaturesDesc,0,       {1},            0, maintain_creature_button },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  74, 322,  74, 322, 60, 24, gui_area_player_creature_info,   327, GUIStr_NumberOfCreaturesDesc,0,       {2},            0, maintain_creature_button },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,  74, 346,  74, 346, 60, 24, gui_area_player_creature_info,   329, GUIStr_NumberOfCreaturesDesc,0,       {3},            0, maintain_creature_button },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 274,   4, 274, 60, 24, gui_area_player_room_info,       324, GUIStr_NumberOfRoomsDesc,    0,       {0},            0, maintain_room_button },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 298,   4, 298, 60, 24, gui_area_player_room_info,       326, GUIStr_NumberOfRoomsDesc,    0,       {1},            0, maintain_room_button },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 322,   4, 322, 60, 24, gui_area_player_room_info,       328, GUIStr_NumberOfRoomsDesc,    0,       {2},            0, maintain_room_button },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   4, 346,   4, 346, 60, 24, gui_area_player_room_info,       330, GUIStr_NumberOfRoomsDesc,    0,       {3},            0, maintain_room_button },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, gui_toggle_ally,    NULL,        NULL,               0,  62, 274,  62, 274, 14, 22, gui_area_ally,                     0, GUIStr_AllyWithPlayer,       0,       {0},            0, maintain_ally },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, gui_toggle_ally,    NULL,        NULL,               0,  62, 298,  62, 298, 14, 22, gui_area_ally,                     0, GUIStr_AllyWithPlayer,       0,       {1},            0, maintain_ally },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, gui_toggle_ally,    NULL,        NULL,               0,  62, 322,  62, 322, 14, 22, gui_area_ally,                     0, GUIStr_AllyWithPlayer,       0,       {2},            0, maintain_ally },
@@ -359,7 +360,7 @@ struct GuiMenu room_menu =
 struct GuiMenu spell_menu =
  {          GMnu_SPELL, 0, 1, spell_menu_buttons,                          0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 struct GuiMenu spell_lost_menu =
- {     GMnu_SPELL_LOST, 0, 1, spell_lost_menu_buttons,                    0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
+ {     GMnu_SPELL_LOST, 0, 1, spell_lost_menu_buttons,                     0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 struct GuiMenu trap_menu =
  {           GMnu_TRAP, 0, 1, trap_menu_buttons,                           0,   0, 140, 400, NULL,                        0, NULL,    NULL,                    0, 0, 1,};
 struct GuiMenu creature_menu =
