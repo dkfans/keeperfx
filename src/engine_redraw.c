@@ -542,9 +542,9 @@ void redraw_creature_view(void)
         unsigned long spr_idx;
         switch(dragtng->class_id)
         {
-            struct RoomConfigStats *roomst;
             case TCls_Object:
             {
+                struct RoomConfigStats *roomst;
                 if (thing_is_workshop_crate(dragtng))
                 {
                     roomst = get_room_kind_stats(RoK_WORKSHOP);
