@@ -285,7 +285,7 @@ void update_god_lightning_ball(struct Thing *thing)
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        draw_lightning(&thing->mappos,&target->mappos, 96, 60);
+        draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
         break;
     case 2:
     {
@@ -381,7 +381,7 @@ void draw_god_lightning(struct Thing *shotng)
         locpos.x.val +=  (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
         locpos.y.val += -(LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
         locpos.z.val = subtile_coord(12,0);
-        draw_lightning(&locpos, &shotng->mappos, 256, 60);
+        draw_lightning(&locpos, &shotng->mappos, 256, TngEffElm_ElectricBall3);
     }
 }
 

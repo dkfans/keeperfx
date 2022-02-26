@@ -282,21 +282,29 @@ short checksums_different()
     return false;
 }
 
-TbBigChecksum get_thing_checksum(const struct Thing *thing)
+TbBigChecksum get_thing_checksum(const struct Thing* thing)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     if (!thing_exists(thing))
         return 0;
-    TbBigChecksum csum = (ulong)thing->class_id +
-                         (ulong)thing->mappos.z.val +
-                         (ulong)thing->mappos.x.val +
-                         (ulong)thing->mappos.y.val +
-                         (ulong)thing->health + (ulong)thing->model + (ulong)thing->owner;
+    TbBigChecksum csum = (ulong)thing->class_id + ((ulong)thing->model << 4) + (ulong)thing->owner;
+
     if (thing->class_id == TCls_Creature)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
-                + (ulong)thing->field_49 + (ulong)thing->field_48;
+            + (ulong)thing->field_49 + (ulong)thing->field_48;
+    }
+    else if (thing->class_id == TCls_EffectElem)
+    {
+        // No syncing on Effect Elements
+    }
+    else
+    {
+        csum += (ulong)thing->mappos.z.val +
+            (ulong)thing->mappos.x.val +
+            (ulong)thing->mappos.y.val +
+            (ulong)thing->health;
     }
     return csum * thing->index;
 }
