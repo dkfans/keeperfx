@@ -26,6 +26,8 @@
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
 #include "map_blocks.h"
+#include "map_utils.h"
+#include "room_util.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -255,6 +257,95 @@ void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
     unsigned short nflag = (1 << plyr_idx);
     unsigned long i = (mapblk->data >> 28) | nflag;
     mapblk->data |= (i & 0x0F) << 28;
+}
+
+TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param)
+{
+    PlayerNumber plyr_idx = param->plyr_idx;
+    long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
+    long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);
+    MapSubtlCoord stl_cx = slab_subtile_center(slab_x), stl_cy = slab_subtile_center(slab_y);
+    long s = STL_PER_SLB;
+    reveal_map_area(plyr_idx, stl_cx, stl_cx, stl_cy, stl_cy);
+    if (slab_is_wall(slab_x, slab_y))
+        return false;
+    if (slab_is_door(slab_x, slab_y))
+    {
+        if (slabmap_owner(get_slabmap_for_subtile(stl_cx, stl_cy)) != plyr_idx)
+            return false;
+    }
+    // now also reveal wall corners
+    if (slab_x - 1 >= 0)
+    {
+        if (slab_y - 1 >= 0)
+        {
+            if (slab_is_wall(slab_x - 1, slab_y) && slab_is_wall(slab_x, slab_y - 1) && slab_is_wall(slab_x - 1, slab_y - 1))
+                reveal_map_area(plyr_idx, stl_cx - s, stl_cx - s, stl_cy - s, stl_cy - s);
+        }
+        if (slab_y + 1 < max_slb_dim_y)
+        {
+            if (slab_is_wall(slab_x - 1, slab_y) && slab_is_wall(slab_x, slab_y + 1) && slab_is_wall(slab_x - 1, slab_y + 1))
+                reveal_map_area(plyr_idx, stl_cx - s, stl_cx - s, stl_cy + s, stl_cy + s);
+        }
+    }
+    if (slab_x + 1 < max_slb_dim_x)
+    {
+        if (slab_y - 1 >= 0)
+        {
+            if (slab_is_wall(slab_x + 1, slab_y) && slab_is_wall(slab_x, slab_y - 1) && slab_is_wall(slab_x + 1, slab_y - 1))
+                reveal_map_area(plyr_idx, stl_cx + s, stl_cx + s, stl_cy - s, stl_cy - s);
+        }
+        if (slab_y + 1 < max_slb_dim_y)
+        {
+            if (slab_is_wall(slab_x + 1, slab_y) && slab_is_wall(slab_x, slab_y + 1) && slab_is_wall(slab_x + 1, slab_y + 1))
+                reveal_map_area(plyr_idx, stl_cx + s, stl_cx + s, stl_cy + s, stl_cy + s);
+        }
+    }
+    return true;
+}
+
+TbBool slabs_iter_will_change(SlabKind orig_slab_kind, SlabKind current, long fill_type)
+{
+    TbBool check_for_any_earth = orig_slab_kind == SlbT_EARTH;
+    TbBool check_for_any_wall = orig_slab_kind >= SlbT_WALLDRAPE && orig_slab_kind <= SlbT_WALLPAIRSHR;
+    TbBool will_change = current == orig_slab_kind;
+    will_change |= check_for_any_earth && (current == SlbT_EARTH || current == SlbT_TORCHDIRT);
+    will_change |= check_for_any_wall && (current >= SlbT_WALLDRAPE && current <= SlbT_WALLPAIRSHR);
+    will_change |= (fill_type == FillIterType_Floor || fill_type == FillIterType_FloorBridge) && (
+        (fill_type == FillIterType_FloorBridge && current == SlbT_BRIDGE) ||
+        current == SlbT_PATH || current == SlbT_CLAIMED || current == SlbT_GUARDPOST ||
+        (current >= SlbT_TREASURE && current <= SlbT_BARRACKS && current != SlbT_DUNGHEART)
+    );
+    return will_change;
+}
+
+TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
+{
+    unsigned long plr_range_id = param->plyr_idx;
+    long fill_type = param->num1;
+    SlabKind orig_slab_kind = param->num2;
+    SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind;
+    if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
+    {
+        change_slab_owner_from_script(slb_x, slb_y, plr_range_id);
+        return true;
+    }
+    return false;
+}
+
+TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
+{
+    SlabKind target_slab_kind = param->num1;
+    long fill_type = param->num2;
+    SlabKind orig_slab_kind = param->num3;
+    SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
+    if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
+    {
+        if (current_kind != target_slab_kind)
+            replace_slab_from_script(slb_x, slb_y, target_slab_kind);
+        return true;
+    }
+    return false;
 }
 
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)

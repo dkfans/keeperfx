@@ -1241,25 +1241,6 @@ static void command_reveal_map_rect(long plr_range_id, long x, long y, long w, l
     command_add_value(Cmd_REVEAL_MAP_RECT, plr_range_id, x, y, (h<<16)+w);
 }
 
-static void command_change_slab_owner(long x, long y, long plr_range_id)
-{
-    command_add_value(Cmd_CHANGE_SLAB_OWNER, plr_range_id, x, y, 0);
-}
-
-static void command_change_slab_type(long x, long y, long slab_type)
-{
-    command_add_value(Cmd_CHANGE_SLAB_TYPE, 0, x, y, slab_type);
-}
-
-static void command_reveal_map_location(long plr_range_id, const char *locname, long range)
-{
-    TbMapLocation location;
-    if (!get_map_location_id(locname, &location)) {
-        return;
-    }
-    command_add_value(Cmd_REVEAL_MAP_LOCATION, plr_range_id, location, range, 0);
-}
-
 static const char *script_get_command_name(long cmnd_index)
 {
     long i = 0;
@@ -2028,9 +2009,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_REVEAL_MAP_RECT:
         command_reveal_map_rect(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4]);
         break;
-    case Cmd_REVEAL_MAP_LOCATION:
-        command_reveal_map_location(scline->np[0], scline->tp[1], scline->np[2]);
-        break;
     case Cmd_KILL_CREATURE:
         command_kill_creature(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
@@ -2091,12 +2069,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_GAME_RULE:
         command_set_game_rule(scline->tp[0], scline->np[1]);
-        break;
-    case Cmd_CHANGE_SLAB_OWNER:
-        command_change_slab_owner(scline->np[0], scline->np[1], scline->np[2]);
-        break;
-    case Cmd_CHANGE_SLAB_TYPE:
-        command_change_slab_type(scline->np[0], scline->np[1], scline->np[2]);
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);

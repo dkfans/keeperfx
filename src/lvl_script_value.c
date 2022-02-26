@@ -74,20 +74,6 @@ static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w
   reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
 }
 
-void player_reveal_map_location(int plyr_idx, TbMapLocation target, long r)
-{
-    SYNCDBG(0, "Revealing location type %d", target);
-    long x = 0;
-    long y = 0;
-    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
-    if ((x == 0) && (y == 0))
-    {
-        WARNLOG("Can't decode location %d", target);
-        return;
-  }
-  reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
-}
-
 struct Thing *get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
 {
     int n = GAME_RANDOM(PLAYERS_COUNT);
@@ -546,7 +532,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   struct CreatureModelConfig *crconf;
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
-  struct SlabMap *slb;
   int plr_start;
   int plr_end;
   long i;
@@ -1021,60 +1006,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           player_reveal_map_area(i, val2, val3, (val4)&0xffff, (val4>>16)&0xffff);
-      }
-      break;
-  case Cmd_REVEAL_MAP_LOCATION:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          player_reveal_map_location(i, val2, val3);
-      }
-      break;
-  case Cmd_CHANGE_SLAB_OWNER:
-      if (val2 < 0 || val2 > 85)
-      {
-          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val2);
-      } else
-      if (val3 < 0 || val3 > 85)
-      {
-          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val3);
-      } else
-      {
-          slb = get_slabmap_block(val2, val3);
-          if (slb->room_index)
-          {
-              struct Room* room = room_get(slb->room_index);
-              take_over_room(room, plr_range_id);
-          } else
-          if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
-          {
-              short slbkind;
-              if (slb->kind == SlbT_PATH)
-              {
-                  slbkind = SlbT_CLAIMED;
-              }
-              else
-              {
-                  slbkind = slb->kind;
-              }
-              place_slab_type_on_map(slbkind, slab_subtile(val2, 0), slab_subtile(val3, 0), plr_range_id, 0);
-          }
-      }
-      break;
-  case Cmd_CHANGE_SLAB_TYPE:
-      if (val2 < 0 || val2 > 85)
-      {
-          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val2);
-      } else
-      if (val3 < 0 || val3 > 85)
-      {
-          SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", val3);
-      } else
-      if (val4 < 0 || val4 > 54)
-      {
-          SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-54 allowed.", val4);
-      } else
-      {
-          replace_slab_from_script(val2, val3, val4);
       }
       break;
   case Cmd_KILL_CREATURE:
