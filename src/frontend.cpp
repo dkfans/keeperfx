@@ -1526,7 +1526,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   }
   else
   {
-      tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+      tx_units_per_px = scale_ui_value(16); //scale_value_by_horizontal_resolution?
   }
   if (text_height == 0)
   {
