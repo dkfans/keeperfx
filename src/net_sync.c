@@ -32,6 +32,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "frontend.h"
+#include "thing_effects.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -288,16 +289,27 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
     if (!thing_exists(thing))
         return 0;
     TbBigChecksum csum = (ulong)thing->class_id + ((ulong)thing->model << 4) + (ulong)thing->owner;
-
     if (thing->class_id == TCls_Creature)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
             + (ulong)thing->field_49 + (ulong)thing->field_48;
     }
-    else if (thing->class_id == TCls_EffectElem)
+    else if ((thing->class_id == TCls_EffectElem) || (thing->class_id == TCls_AmbientSnd))
     {
-        // No syncing on Effect Elements
+        // No syncing on Effect Elements or Sounds
+    }
+    else if (thing->class_id == TCls_Effect)
+    {
+        const struct InitEffect* effnfo = get_effect_info_for_thing(thing);
+        if (effnfo->area_affect_type != AAffT_None)
+        {
+            csum += (ulong)thing->mappos.z.val +
+                (ulong)thing->mappos.x.val +
+                (ulong)thing->mappos.y.val +
+                (ulong)thing->health;
+        }
+        //else: No syncing on Effects that do not affect the area around them
     }
     else
     {
