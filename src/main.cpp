@@ -2509,9 +2509,9 @@ long update_cave_in(struct Thing *thing)
     if ((game.play_gameturn % 3) == 0)
     {
         int n;
-        n = UNSYNC_RANDOM(AROUND_TILES_COUNT);
-        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_x;
-        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_y;
+        n = GAME_RANDOM(AROUND_TILES_COUNT);
+        pos.x.val = thing->mappos.x.val + GAME_RANDOM(0x2C0) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + GAME_RANDOM(0x2C0) * around[n].delta_y;
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
@@ -2528,8 +2528,8 @@ long update_cave_in(struct Thing *thing)
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
-        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(128);
-        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(128);
+        pos.x.val = thing->mappos.x.val + GAME_RANDOM(128);
+        pos.y.val = thing->mappos.y.val + GAME_RANDOM(128);
         pos.z.val = get_floor_height_at(&pos) + 384;
         create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
