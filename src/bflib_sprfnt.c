@@ -1050,7 +1050,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
                 continue;
             }
             // If the char exceeds screen, and there were no spaces in that line, and alignment is set - divide the line here
-            w = LbTextCharWidth(' ') * units_per_px / 16;
+            w = LbTextCharWidthM(' ', units_per_px);
             posx += w;
             x = LbGetJustifiedCharPosX(startx, posx, w, 1, lbDisplay.DrawFlags);
             y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
@@ -1071,7 +1071,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         } else
         if (chr == ' ')
         {
-            w = LbTextCharWidth(' ') * units_per_px / 16;
+            w = LbTextCharWidthM(' ', units_per_px);
             len = LbSprFontWordWidth(lbFontPtr,ebuf+1) * units_per_px / 16;
             if (posx+w+len-justifyx <= lbTextJustifyWindow.width)
             {
@@ -1098,7 +1098,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             w = 0;
             x = LbGetJustifiedCharPosX(startx, posx, w, 1, lbDisplay.DrawFlags);
             y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
-            len = LbTextCharWidth(' ') * units_per_px / 16;
+            len = LbTextCharWidthM(' ', units_per_px);
             y = starty;
             put_down_sprites(sbuf, ebuf, x, y, len, units_per_px);
             // We've got EOL sign - end the line
@@ -1109,7 +1109,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         } else
         if (chr == '\t')
         {
-            w = LbTextCharWidth(' ') * units_per_px / 16;
+            w = LbTextCharWidthM(' ', units_per_px);
             posx += lbSpacesPerTab*w;
             len = LbSprFontWordWidth(lbFontPtr,ebuf+1) * units_per_px / 16;
             if (posx+len-justifyx <= lbTextJustifyWindow.width)
@@ -1136,7 +1136,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             {
               x = startx;
               y = starty;
-              len = LbTextCharWidth(' ') * units_per_px / 16;
+              len = LbTextCharWidthM(' ', units_per_px);
               put_down_sprites(sbuf, ebuf, x, y, len, units_per_px);
               posx = startx;
               sbuf = ebuf;
@@ -1168,7 +1168,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
     }
     x = LbGetJustifiedCharPosX(startx, posx, 0, 1, lbDisplay.DrawFlags);
     y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
-    len = LbTextCharWidth(' ') * units_per_px / 16;
+    len = LbTextCharWidthM(' ', units_per_px);
     put_down_sprites(sbuf, ebuf, x, y, len, units_per_px);
     LbScreenLoadGraphicsWindow(&grwnd);
     return true;

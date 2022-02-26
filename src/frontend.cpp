@@ -1522,7 +1522,7 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   int tx_units_per_px;
   if (dbc_language > 0)
   {
-      tx_units_per_px = scale_value_by_vertical_resolution(16);
+      tx_units_per_px = scale_value_by_vertical_resolution(14);
   }
   else
   {
