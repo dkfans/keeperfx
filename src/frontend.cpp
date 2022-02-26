@@ -1522,11 +1522,11 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   int tx_units_per_px;
   if (dbc_language > 0)
   {
-      tx_units_per_px = scale_value_by_horizontal_resolution(16);
+      tx_units_per_px = scale_value_by_horizontal_resolution((MyScreenWidth >= 640) ? 16 : 32);
   }
   else
   {
-      tx_units_per_px = scale_ui_value(16);
+      tx_units_per_px = scale_ui_value((MyScreenWidth >= 640) ? 16 : 32);
   }
   if (text_height == 0)
   {
