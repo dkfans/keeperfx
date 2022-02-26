@@ -598,9 +598,9 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
         deviat_y = 0;
         deviat_z = 0;
         struct Coord3d curpos;
-        curpos.x.val = pos1->x.val + GAME_RANDOM(eeinterspace/4);
-        curpos.y.val = pos1->y.val + GAME_RANDOM(eeinterspace/4);
-        curpos.z.val = pos1->z.val + GAME_RANDOM(eeinterspace/4);
+        curpos.x.val = pos1->x.val + UNSYNC_RANDOM(eeinterspace/4);
+        curpos.y.val = pos1->y.val + UNSYNC_RANDOM(eeinterspace/4);
+        curpos.z.val = pos1->z.val + UNSYNC_RANDOM(eeinterspace/4);
         int i;
         for (i=nsteps+1; i > 0; i--)
         {
@@ -612,17 +612,17 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             {
                 create_thing(&tngpos, TCls_EffectElem, eemodel, game.neutral_player_num, -1);
             }
-            if (GAME_RANDOM(6) >= 3) {
+            if (UNSYNC_RANDOM(6) >= 3) {
                 deviat_x -= 32;
             } else {
                 deviat_x += 32;
             }
-            if (GAME_RANDOM(6) >= 3) {
+            if (UNSYNC_RANDOM(6) >= 3) {
                 deviat_y -= 32;
             } else {
                 deviat_y += 32;
             }
-            if (GAME_RANDOM(6) >= 3) {
+            if (UNSYNC_RANDOM(6) >= 3) {
                 deviat_z -= 32;
             } else {
                 deviat_z += 32;
