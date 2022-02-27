@@ -660,7 +660,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     HitPoints damage = 0;
     if (shotng->damagepoints)
     {
-        if (object_is_destructable(target)) // do not damage objects that cannot be destroyed
+        if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
             damage = apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
             // Drain allows caster to regain half of damage, even against objects
