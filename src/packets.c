@@ -1037,7 +1037,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
               place_slab_type_on_map(pckt->actn_par1, stl_x, stl_y, pckt->actn_par2, 0);
           }
           do_slab_efficiency_alteration(slb_x, slb_y);
-          return 0;
+          break;
     }
     default:
         return false;
