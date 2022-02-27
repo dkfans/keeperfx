@@ -1087,12 +1087,18 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
                 pos.x.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_x)));
                 pos.y.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_y))); 
                 pos.z.val = subtile_coord_center(1);
-                play_non_3d_sample(76);
+                if (is_my_player(player))
+                {
+                    play_non_3d_sample(76);
+                }
                 create_effect(&pos, imp_spangle_effects[id], id);
             }
             else
             {
-                play_non_3d_sample(41);
+                if (is_my_player(player))
+                {
+                    play_non_3d_sample(41);
+                }
                 for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
                 {
                     pos.x.stl.pos = 128;
@@ -1132,7 +1138,10 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         {
             if (pckt->actn_par2)
             {
-                play_non_3d_sample(116);
+                if (is_my_player(player))
+                {
+                    play_non_3d_sample(116);
+                }
                 create_effects_on_room_slabs(room, imp_spangle_effects[pckt->actn_par1], 0, pckt->actn_par1);
             }
             take_over_room(room, pckt->actn_par1);
