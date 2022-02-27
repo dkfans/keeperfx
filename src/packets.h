@@ -156,7 +156,8 @@ enum TbPacketAction {
         PckA_CheatMakeDigger,
         PckA_CheatStealSlab,
         PckA_CheatStealRoom,
-        PckA_CheatHeartHealth
+        PckA_CheatHeartHealth,
+        PckA_CheatKillPlayer
 };
 
 /** Packet flags for non-action player operation. */

@@ -1157,6 +1157,15 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         }
         break;
     }
+    case PckA_CheatKillPlayer:
+    {
+        thing = get_player_soul_container(pckt->actn_par1);
+        if (!thing_is_invalid(thing))
+        {
+            thing->health = 0;
+        }
+        break;
+    }
     default:
         return false;
     }

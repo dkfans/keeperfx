@@ -591,11 +591,7 @@ TbBool packets_process_cheats(
                 {
                     return false;
                 }
-                thing = get_player_soul_container(PlayerToKill->id_number);
-                if (!thing_is_invalid(thing))
-                {
-                    thing->health = 0;
-                }
+                set_players_packet_action(player, PckA_CheatKillPlayer, PlayerToKill->id_number, 0, 0, 0);
               }
           }
         break;
