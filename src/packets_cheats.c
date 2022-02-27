@@ -23,6 +23,7 @@
 #include "cursor_tag.h"
 #include "gui_boxmenu.h"
 #include "front_input.h"
+#include "bflib_math.h"
 
 extern void clear_input(struct Packet* packet);
 
