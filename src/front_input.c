@@ -2536,7 +2536,7 @@ void process_cheat_mode_selection_inputs(unsigned char *value)
                 *value = 5;
                 clear_key_pressed(KC_5);
             }
-            else if (is_key_pressed(KC_5, KMod_NONE))
+            else if (is_key_pressed(KC_6, KMod_NONE))
             {
                 *value = 6;
                 clear_key_pressed(KC_6);
