@@ -2510,8 +2510,8 @@ long update_cave_in(struct Thing *thing)
     {
         int n;
         n = UNSYNC_RANDOM(AROUND_TILES_COUNT);
-        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_x;
-        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_y;
+        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(704) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(704) * around[n].delta_y;
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;

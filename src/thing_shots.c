@@ -1420,7 +1420,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               if (thing_exists(target))
               {
                   shotst = get_shot_model_stats(ShM_GodLightBall);
-                  draw_lightning(&thing->mappos,&target->mappos, 96, 60);
+                  draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
                   apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
               }
             }

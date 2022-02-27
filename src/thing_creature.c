@@ -2882,9 +2882,9 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         if (thing_is_invalid(shotng))
           return;
         if (shot_model == ShM_Drain)
-          draw_lightning(&pos1, &pos2, 96, 93);
+          draw_lightning(&pos1, &pos2, 96, TngEffElm_RedDot);
         else
-          draw_lightning(&pos1, &pos2, 96, 60);
+          draw_lightning(&pos1, &pos2, 96, TngEffElm_ElectricBall3);
         shotng->health = shotst->health;
         shotng->shot.damage = shotst->damage;
         shotng->parent_idx = firing->index;
