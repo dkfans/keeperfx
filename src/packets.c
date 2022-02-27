@@ -1166,6 +1166,15 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         }
         break;
     }
+    case PckA_CheatConvertCreature:
+    {
+        thing = thing_get(player->thing_under_hand);
+        if (thing_is_creature(thing))
+        {
+            change_creature_owner(thing, pckt->actn_par1);
+        }
+        break;
+    }
     default:
         return false;
     }

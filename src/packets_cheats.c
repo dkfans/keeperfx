@@ -454,10 +454,7 @@ TbBool packets_process_cheats(
             {
                 return false;
             }
-            if (player->thing_under_hand > 0)
-            {
-                change_creature_owner(thing, selected_player);
-            }
+            set_players_packet_action(player, PckA_CheatConvertCreature, selected_player, 0, 0, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
         break;
