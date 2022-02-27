@@ -384,12 +384,8 @@ TbBool packets_process_cheats(
             }   
             if (allowed)
             {
-                if (is_key_pressed(KC_RALT, KMod_DONTCARE))
-                {
-                    play_non_3d_sample(116);
-                    create_effects_on_room_slabs(room, imp_spangle_effects[selected_player], 0, selected_player);
-                }
-                take_over_room(room, selected_player);
+                TbBool effect = (is_key_pressed(KC_RALT, KMod_DONTCARE));
+                set_players_packet_action(player, PckA_CheatStealRoom, selected_player, effect, 0, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }

@@ -1081,7 +1081,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         PlayerNumber id = pckt->actn_par2;
         TbBool effect = pckt->actn_par2 >> 8;
         if (effect)
-        { 
+        {
             if (pckt->actn_par1 == SlbT_CLAIMED)
             {
                 pos.x.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_x)));
@@ -1118,6 +1118,24 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
             {
                 untag_blocks_for_digging_in_area(stl_x, stl_y, i);
             }
+        }
+        break;
+    }
+    case PckA_CheatStealRoom:
+    {
+        x = ((unsigned short)pckt->pos_x);
+        y = ((unsigned short)pckt->pos_y);
+        stl_x = coord_subtile(x);
+        stl_y = coord_subtile(y);
+        struct Room* room = subtile_room_get(stl_x, stl_y);
+        if (room_exists(room))
+        {
+            if (pckt->actn_par2)
+            {
+                play_non_3d_sample(116);
+                create_effects_on_room_slabs(room, imp_spangle_effects[pckt->actn_par1], 0, pckt->actn_par1);
+            }
+            take_over_room(room, pckt->actn_par1);
         }
         break;
     }
