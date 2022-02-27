@@ -1055,6 +1055,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         {
             set_creature_level(thing, exp - 1);
         }
+        break;
     }
     case PckA_CheatMakeDigger:
     {
@@ -1065,6 +1066,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         {
             set_creature_level(thing, pckt->actn_par2 - 1);
         }
+        break;
     }
     default:
         return false;
