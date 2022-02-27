@@ -1020,6 +1020,25 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     case PckA_ToggleComputer:
         toggle_computer_player(plyr_idx);
         break;
+    case PckA_CheatPlaceTerrain:
+    {
+        MapCoord x = ((unsigned short)pckt->pos_x);
+        MapCoord y = ((unsigned short)pckt->pos_y);
+        MapSubtlCoord stl_x = coord_subtile(x);
+        MapSubtlCoord stl_y = coord_subtile(y);
+        MapSlabCoord slb_x = subtile_slab_fast(stl_x);
+        MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+        if (slab_kind_is_animated(pckt->actn_par1))
+          {
+              place_animating_slab_type_on_map(pckt->actn_par1, 0, stl_x, stl_y, pckt->actn_par2);
+          }
+          else
+          {
+              place_slab_type_on_map(pckt->actn_par1, stl_x, stl_y, pckt->actn_par2, 0);
+          }
+          do_slab_efficiency_alteration(slb_x, slb_y);
+          return 0;
+    }
     default:
         return false;
     }

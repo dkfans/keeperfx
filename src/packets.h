@@ -150,7 +150,8 @@ enum TbPacketAction {
         PckA_LoadViewType,//120
         PckA_PlyrMsgChar    =  121,
         PckA_PlyrMsgClear,
-        PckA_DirectCtrlDragDrop
+        PckA_DirectCtrlDragDrop,
+        PckA_CheatPlaceTerrain
 };
 
 /** Packet flags for non-action player operation. */
