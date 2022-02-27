@@ -1001,6 +1001,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
+    MapCoord x, y;
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     switch (pckt->action)
     {
@@ -1022,8 +1023,8 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         break;
     case PckA_CheatPlaceTerrain:
     {
-        MapCoord x = ((unsigned short)pckt->pos_x);
-        MapCoord y = ((unsigned short)pckt->pos_y);
+        x = ((unsigned short)pckt->pos_x);
+        y = ((unsigned short)pckt->pos_y);
         MapSubtlCoord stl_x = coord_subtile(x);
         MapSubtlCoord stl_y = coord_subtile(y);
         MapSlabCoord slb_x = subtile_slab_fast(stl_x);
@@ -1038,6 +1039,21 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         }
         do_slab_efficiency_alteration(slb_x, slb_y);
         break;
+    }
+    case PckA_CheatMakeCreature:
+    {
+        x = ((unsigned short)pckt->pos_x);
+        y = ((unsigned short)pckt->pos_y);
+        struct Coord3d pos;
+        pos.x.val = x;
+        pos.y.val = y;
+        PlayerNumber id = pckt->actn_par2;
+        unsigned char exp = pckt->actn_par2 >> 8;
+        struct Thing* thing = create_creature(&pos, pckt->actn_par1, id);
+        if (!thing_is_invalid(thing))
+        {
+            set_creature_level(thing, exp - 1);
+        }
     }
     default:
         return false;

@@ -151,7 +151,8 @@ enum TbPacketAction {
         PckA_PlyrMsgChar    =  121,
         PckA_PlyrMsgClear,
         PckA_DirectCtrlDragDrop,
-        PckA_CheatPlaceTerrain
+        PckA_CheatPlaceTerrain,
+        PckA_CheatMakeCreature
 };
 
 /** Packet flags for non-action player operation. */

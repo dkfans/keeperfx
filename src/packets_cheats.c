@@ -116,20 +116,36 @@ TbBool packets_process_cheats(
             }
             if (allowed)
             {
+                ThingModel crmodel;
+                unsigned char exp;
                 if (selected_hero == 0)
                 {
-                    create_random_hero_creature(x, y, selected_player, CREATURE_MAX_LEVEL);
+                    while (1) 
+                    {
+                        crmodel = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
+                        if (crmodel >= gameadd.crtr_conf.model_count)
+                        {
+                            continue;
+                        }
+                        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+                        if ((crconf->model_flags & CMF_IsSpectator) != 0) 
+                        {
+                            continue;
+                        }
+                        if ((crconf->model_flags & CMF_IsEvil) == 0)
+                        {
+                            break;
+                        }
+                    }
+                    exp = GAME_RANDOM(CREATURE_MAX_LEVEL);                    
                 }
                 else
                 {
-                    pos.x.val = x;
-                    pos.y.val = y;
-                    thing = create_creature(&pos, selected_hero, selected_player);
-                    if (!thing_is_invalid(thing))
-                    {
-                        set_creature_level(thing, selected_experience - 1);
-                    }
+                    crmodel = selected_hero;
+                    exp = selected_experience;
                 }
+                unsigned short param2 = selected_player | (exp << 8);
+                set_players_packet_action(player, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
             }
             else
             {
@@ -277,20 +293,30 @@ TbBool packets_process_cheats(
             }
             if (allowed)
             {
+                ThingModel crmodel;
+                unsigned char exp;
                 if (selected_creature == 0)
                 {
-                    create_random_evil_creature(x, y, selected_player, CREATURE_MAX_LEVEL);
+                    while (1)
+                    {
+                        crmodel = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
+                        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+                        if ((crconf->model_flags & CMF_IsSpectator) != 0) {
+                            continue;
+                        }
+                        if ((crconf->model_flags & CMF_IsEvil) != 0) {
+                            break;
+                        }
+                    }
+                    exp = GAME_RANDOM(CREATURE_MAX_LEVEL);                    
                 }
                 else
                 {
-                    pos.x.val = x;
-                    pos.y.val = y;
-                    thing = create_creature(&pos, selected_creature + 13, selected_player);
-                    if (!thing_is_invalid(thing))
-                    {
-                        set_creature_level(thing, selected_experience - 1);
-                    }
+                    crmodel = selected_creature + 13;
+                    exp = selected_experience;
                 }
+                unsigned short param2 = selected_player | (exp << 8);
+                set_players_packet_action(player, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
             }
             else
             {
