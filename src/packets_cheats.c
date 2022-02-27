@@ -611,7 +611,9 @@ TbBool packets_process_cheats(
         {
             break;
         }
-        process_cheat_heart_health_inputs(&thing->health);
+        short new_health = thing->health;
+        process_cheat_heart_health_inputs(&new_health);
+        set_players_packet_action(player, PckA_CheatHeartHealth, selected_player, new_health, 0, 0);
         break;
         case PSt_CreatrQueryAll:
         case PSt_CreatrInfoAll:
