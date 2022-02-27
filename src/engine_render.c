@@ -3461,8 +3461,8 @@ void draw_engine_number(struct Number *num)
     player = get_my_player();
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     spr = &button_sprite[71];
-    w = spr->SWidth;
-    h = spr->SHeight;
+    w = scale_ui_value(spr->SWidth);
+    h = scale_ui_value(spr->SHeight);
     if ((player->acamera->view_mode == PVM_IsometricView) || (player->acamera->view_mode == PVM_FrontView))
     {
         // Count digits to be displayed
