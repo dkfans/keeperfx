@@ -152,7 +152,8 @@ enum TbPacketAction {
         PckA_PlyrMsgClear,
         PckA_DirectCtrlDragDrop,
         PckA_CheatPlaceTerrain,
-        PckA_CheatMakeCreature
+        PckA_CheatMakeCreature,
+        PckA_CheatMakeDigger
 };
 
 /** Packet flags for non-action player operation. */

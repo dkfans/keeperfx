@@ -68,11 +68,7 @@ TbBool packets_process_cheats(
             }
             if (allowed)
             {
-                thing = create_owned_special_digger(x, y, selected_player);
-                if (!thing_is_invalid(thing))
-                {
-                    set_creature_level(thing, selected_experience - 1);
-                }
+                set_players_packet_action(player, PckA_CheatMakeDigger, selected_player, selected_experience, 0, 0);
             }
             else
             {
