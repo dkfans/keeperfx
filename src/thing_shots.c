@@ -630,9 +630,9 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
         return 0;
     }
-    struct Thing* creatng = INVALID_THING;
+    struct Thing* shootertng = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
-        creatng = thing_get(shotng->parent_idx);
+        shootertng = thing_get(shotng->parent_idx);
     }
     if (thing_is_dungeon_heart(target))
     {
@@ -645,27 +645,31 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
             thing_play_sample(target, 144+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
         event_create_event_or_update_nearby_existing_event(
-            creatng->mappos.x.val, creatng->mappos.y.val,
-          EvKind_HeartAttacked, target->owner, creatng->index);
+            shootertng->mappos.x.val, shootertng->mappos.y.val,
+          EvKind_HeartAttacked, target->owner, shootertng->index);
         if (is_my_player_number(target->owner)) {
             output_message(SMsg_HeartUnderAttack, 400, true);
         }
     } else
     {
-        int i = shotst->hit_creature.sndsample_idx;
+        int i = shotst->hit_generic.sndsample_idx;
         if (i > 0) {
             thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
     }
+    HitPoints damage = 0;
     if (shotng->damagepoints)
     {
-        // Drain allows caster to regain half of damage
-        if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(creatng)) 
+        if (object_is_destructable(target)) // do not damage objects that cannot be destroyed
         {
-            apply_health_to_thing(creatng, shotng->damagepoints/2);
+            damage = apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
+            // Drain allows caster to regain half of damage, even against objects
+            if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
+            {
+                apply_health_to_thing(shootertng, shotng->damagepoints / 2);
+            }
         }
-        apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
-        target->byte_13 = 20;
+        target->byte_13 = 20; //todo figure out what this is, and if it needs to be within this if statement above/below
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
     if (target->health < 0) {
@@ -674,7 +678,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     if (shotst->old->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
     }
-    return 1;
+    return damage;
 }
 
 long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target)
@@ -1175,7 +1179,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Th
     return false;
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5)
+struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long hit_targets, long a5)
 {
     MapSubtlCoord stl_x_min;
     MapSubtlCoord stl_y_min;
@@ -1200,7 +1204,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng,
     {
         for (MapSubtlCoord stl_x = stl_x_min; stl_x <= stl_x_max; stl_x++)
         {
-            struct Thing* coltng = get_thing_collided_with_at_satisfying_filter_for_subtile(shotng, pos, filter, a4, a5, stl_x, stl_y);
+            struct Thing* coltng = get_thing_collided_with_at_satisfying_filter_for_subtile(shotng, pos, filter, hit_targets, a5, stl_x, stl_y);
             if (!thing_is_invalid(coltng)) {
                 return coltng;
             }

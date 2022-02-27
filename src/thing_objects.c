@@ -569,6 +569,16 @@ void destroy_object(struct Thing *thing)
     }
 }
 
+TbBool object_can_be_damaged (const struct Thing* thing)
+{
+    //todo make this an object property. Then include the possibility to kill the other object types.
+    if (thing->class_id != TCls_Object)
+        return false;
+    if (thing_is_dungeon_heart(thing) || object_is_mature_food(thing) || object_is_growing_food(thing))
+        return true;
+    return false;
+}
+
 TbBool thing_is_object(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
