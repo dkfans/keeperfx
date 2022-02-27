@@ -229,7 +229,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
       } else
       if (((mapblk->flags & SlbAtFlg_Digable) == 0) && (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) != plyr_idx)))
       {
-          add_task_list_entry(plyr_idx, SDDigTask_Unknown3, i);
+          add_task_list_entry(plyr_idx, SDDigTask_MineGems, i);
           task_added = true;
       } else
       {

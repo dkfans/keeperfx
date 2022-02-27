@@ -372,6 +372,29 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     return true;
 }
 
+void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    if (slb->room_index)
+    {
+        struct Room* room = room_get(slb->room_index);
+        take_over_room(room, plyr_idx);
+    } else
+    if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
+    {
+        short slbkind;
+        if (slb->kind == SlbT_PATH)
+        {
+            slbkind = SlbT_CLAIMED;
+        }
+        else
+        {
+            slbkind = slb->kind;
+        }
+        place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+    }
+}
+
 /**
  * Updates thing interaction with rooms. Sometimes deletes the given thing.
  * @param thing Thing to be checked, and assimilated or deleted.

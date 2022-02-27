@@ -79,6 +79,10 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
         gui_room_type_highlighted = player->chosen_room_kind;
     }
     TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
+    if (game.system_flags & GSF_NetworkActive)
+    {
+        drag_check = false; // Disable due to lack of network support
+    }
     get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, stl_x, stl_y, &mode, drag_check);
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
 
@@ -229,13 +233,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
     {
-        if (is_my_player(player) && !game_is_busy_doing_gui())
+        if (player->primary_cursor_state == CSt_PickAxe)
         {
-            if (player->primary_cursor_state == CSt_PickAxe)
-            {
-                get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
-                tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
-            }
+            get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
+            tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {

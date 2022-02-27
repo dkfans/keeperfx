@@ -1276,7 +1276,7 @@ long process_temple_special(struct Thing *thing, long sacowner)
     if (object_is_mature_food(thing))
     {
         dungeon->chickens_sacrificed++;
-        if (temple_check_for_arachnid_join_dungeon(dungeon))
+        if (temple_check_for_arachnid_join_dungeon(dungeon) && (game.flags_font & FFlg_AlexCheat))
             return true;
     } else
     {
