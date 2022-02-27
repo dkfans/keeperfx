@@ -431,6 +431,7 @@ short toggle_main_cheat_menu(void)
       return false;
     gui_box = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
     gui_move_box(gui_box, mouse_x, mouse_y, Fnt_CenterPos);
+    set_players_packet_action(get_my_player(), PckA_CheatEnter, 0, 0, 0, 0);
   } else
   {
     gui_delete_box(gui_box);
@@ -478,6 +479,7 @@ TbBool open_creature_cheat_menu(void)
   if (!gui_box_is_not_valid(gui_cheat_box))
     return false;
   gui_cheat_box = gui_create_box(150,20,gui_creature_cheat_option_list);
+  set_players_packet_action(get_my_player(), PckA_CheatEnter, 0, 0, 0, 0);
   return (!gui_box_is_not_valid(gui_cheat_box));
 }
 
