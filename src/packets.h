@@ -153,7 +153,8 @@ enum TbPacketAction {
         PckA_DirectCtrlDragDrop,
         PckA_CheatPlaceTerrain,
         PckA_CheatMakeCreature,
-        PckA_CheatMakeDigger
+        PckA_CheatMakeDigger,
+        PckA_CheatStealSlab
 };
 
 /** Packet flags for non-action player operation. */

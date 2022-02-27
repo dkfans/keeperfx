@@ -1003,6 +1003,9 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     struct Packet* pckt = get_packet_direct(player->packet_num);
     MapCoord x, y;
     struct Thing* thing;
+    MapSubtlCoord stl_x, stl_y;
+    MapSlabCoord slb_x, slb_y;
+    struct Coord3d pos;
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     switch (pckt->action)
     {
@@ -1026,10 +1029,10 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     {
         x = ((unsigned short)pckt->pos_x);
         y = ((unsigned short)pckt->pos_y);
-        MapSubtlCoord stl_x = coord_subtile(x);
-        MapSubtlCoord stl_y = coord_subtile(y);
-        MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-        MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+        stl_x = coord_subtile(x);
+        stl_y = coord_subtile(y);
+        slb_x = subtile_slab_fast(stl_x);
+        slb_y = subtile_slab_fast(stl_y);
         if (slab_kind_is_animated(pckt->actn_par1))
         {
             place_animating_slab_type_on_map(pckt->actn_par1, 0, stl_x, stl_y, pckt->actn_par2);
@@ -1045,7 +1048,6 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     {
         x = ((unsigned short)pckt->pos_x);
         y = ((unsigned short)pckt->pos_y);
-        struct Coord3d pos;
         pos.x.val = x;
         pos.y.val = y;
         PlayerNumber id = pckt->actn_par2;
@@ -1065,6 +1067,58 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         if (!thing_is_invalid(thing))
         {
             set_creature_level(thing, pckt->actn_par2 - 1);
+        }
+        break;
+    }
+    case PckA_CheatStealSlab:
+    {
+        x = ((unsigned short)pckt->pos_x);
+        y = ((unsigned short)pckt->pos_y);
+        stl_x = coord_subtile(x);
+        stl_y = coord_subtile(y);
+        slb_x = subtile_slab_fast(stl_x);
+        slb_y = subtile_slab_fast(stl_y);
+        PlayerNumber id = pckt->actn_par2;
+        TbBool effect = pckt->actn_par2 >> 8;
+        if (effect)
+        {
+                  
+            if (pckt->actn_par1 == SlbT_CLAIMED)
+            {
+                pos.x.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_x)));
+                pos.y.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_y))); 
+                pos.z.val = subtile_coord_center(1);
+                play_non_3d_sample(76);
+                create_effect(&pos, imp_spangle_effects[id], id);
+            }
+            else
+            {
+                play_non_3d_sample(41);
+                for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+                {
+                    pos.x.stl.pos = 128;
+                    pos.y.stl.pos = 128;
+                    pos.z.stl.pos = 128;
+                    pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
+                    pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
+                    struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+                    if (map_block_revealed(mapblk, id) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
+                    {
+                        pos.z.val = get_floor_height_at(&pos);
+                        create_effect(&pos, imp_spangle_effects[id], id);  
+                    }
+                }
+            }
+        }
+        place_slab_type_on_map(pckt->actn_par1, stl_x, stl_y, id, 0);
+        do_slab_efficiency_alteration(slb_x, slb_y);
+        struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+        for (int i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if (i != slabmap_owner(slb))
+            {
+                untag_blocks_for_digging_in_area(stl_x, stl_y, i);
+            }
         }
         break;
     }
