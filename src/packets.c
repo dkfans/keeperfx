@@ -1081,8 +1081,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         PlayerNumber id = pckt->actn_par2;
         TbBool effect = pckt->actn_par2 >> 8;
         if (effect)
-        {
-                  
+        { 
             if (pckt->actn_par1 == SlbT_CLAIMED)
             {
                 pos.x.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_x)));
