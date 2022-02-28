@@ -1063,6 +1063,10 @@ long get_dungeon_control_action_inputs(void)
     {
         return 1;
     }
+    if (player->work_state == PSt_PlaceTerrain)
+    {
+        process_cheat_mode_selection_inputs(&gameadd.chosen_terrain_kind);
+    }
     if (is_game_key_pressed(Gkey_SwitchToMap, &val, false))
     {
       clear_key_pressed(val);
@@ -2585,64 +2589,77 @@ void process_cheat_mode_selection_inputs(unsigned char *value)
         }
         case PSt_PlaceTerrain:
         {
+            SlabKind new_value = gameadd.chosen_terrain_kind;
             if (is_key_pressed(KC_0, KMod_NONE))
             {
-                *value = SlbT_ROCK;
+                new_value = SlbT_ROCK;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_0);
             }
             else if (is_key_pressed(KC_1, KMod_NONE))
             {
-                *value = SlbT_GOLD;
+                new_value = SlbT_GOLD;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_1);
             }
             else if (is_key_pressed(KC_2, KMod_NONE))
             {
-                *value = SlbT_GEMS;
+                new_value = SlbT_GEMS;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_2);
             }
             else if (is_key_pressed(KC_3, KMod_NONE))
             {
-                *value = SlbT_EARTH;
+                new_value = SlbT_EARTH;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_3);
             }
             else if (is_key_pressed(KC_4, KMod_NONE))
             {
-                *value = SlbT_TORCHDIRT;
+                new_value = SlbT_TORCHDIRT;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_4);
             }
             else if (is_key_pressed(KC_5, KMod_NONE))
             {
-                *value = SlbT_PATH;
+                new_value = SlbT_PATH;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_5);
             }
             else if (is_key_pressed(KC_6, KMod_NONE))
             {
-                *value = SlbT_CLAIMED;
+                new_value = SlbT_CLAIMED;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_6);
             }
             else if (is_key_pressed(KC_7, KMod_NONE))
             {
-                *value = SlbT_LAVA;
+                new_value = SlbT_LAVA;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_7);
             }
             else if (is_key_pressed(KC_8, KMod_NONE))
             {
-                *value = SlbT_WATER;
+                new_value = SlbT_WATER;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_8);
             }
             else if (is_key_pressed(KC_9, KMod_NONE))
             {
-                *value = rand() % (5) + 4;
+                new_value = rand() % (5) + 4;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_9);
             }
             else if (is_key_pressed(KC_MINUS, KMod_NONE))
             {
-                *value = SlbT_DAMAGEDWALL;
+                new_value = SlbT_DAMAGEDWALL;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_MINUS);
             }
             else if (is_key_pressed(KC_EQUALS, KMod_NONE))
             {
-                *value = SlbT_SLAB50;
+                new_value = SlbT_SLAB50;
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_EQUALS);
             }
             break;

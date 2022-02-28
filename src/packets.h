@@ -220,7 +220,6 @@ enum ChecksumKind {
 
 struct PlayerInfo;
 struct CatalogueEntry;
-extern SlabKind place_terrain;
 extern PlayerNumber selected_player;
 extern ThingModel selected_creature;
 extern ThingModel selected_hero;

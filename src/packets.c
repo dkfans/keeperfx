@@ -909,6 +909,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_mode(player, pckt->actn_par1);
       set_engine_view(player, player->view_mode_restore);
       return false;
+  case PckA_CheatSwitchTerrain:
+  {
+      gameadd.chosen_terrain_kind = pckt->actn_par1;
+      return false;
+  }
     default:
       return false;
   }
