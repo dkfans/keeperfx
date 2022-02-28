@@ -1081,7 +1081,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         thing = create_creature(&pos, pckt->actn_par1, id);
         if (!thing_is_invalid(thing))
         {
-            set_creature_level(thing, exp - 1);
+            set_creature_level(thing, exp);
         }
         break;
     }
@@ -1092,7 +1092,7 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         thing = create_owned_special_digger(x, y, pckt->actn_par1);
         if (!thing_is_invalid(thing))
         {
-            set_creature_level(thing, pckt->actn_par2 - 1);
+            set_creature_level(thing, pckt->actn_par2);
         }
         break;
     }

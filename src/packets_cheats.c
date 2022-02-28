@@ -53,7 +53,7 @@ TbBool packets_process_cheats(
         case PSt_MkDigger:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         clear_messages_from_player(gameadd.chosen_player);
-        message_add_timeout(gameadd.chosen_player, 1, "%d", gameadd.chosen_experience_level);
+        message_add_timeout(gameadd.chosen_player, 1, "%d", gameadd.chosen_experience_level + 1);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -84,7 +84,7 @@ TbBool packets_process_cheats(
         else
         {
             struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[gameadd.chosen_hero_kind];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), gameadd.chosen_experience_level);
+            sprintf(str, "%s %d", get_string(crconf->namestr_idx), gameadd.chosen_experience_level + 1);
         }
         message_add_timeout(gameadd.chosen_player, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -250,7 +250,7 @@ TbBool packets_process_cheats(
         else
         {
             struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[gameadd.chosen_creature_kind + 13];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), gameadd.chosen_experience_level);
+            sprintf(str, "%s %d", get_string(crconf->namestr_idx), gameadd.chosen_experience_level + 1);
         }
         message_add_timeout(gameadd.chosen_player, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))

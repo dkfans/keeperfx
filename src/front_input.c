@@ -2557,61 +2557,61 @@ void process_cheat_mode_selection_inputs()
         {
             if (is_key_pressed(KC_1, KMod_NONE))
             {
-                new_value = 1;
+                new_value = 0;
                 set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 clear_key_pressed(KC_1);
             }
             else if (is_key_pressed(KC_2, KMod_NONE))
             {
-                new_value = 2;
+                new_value = 1;
                 set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 clear_key_pressed(KC_2);
             }
             else if (is_key_pressed(KC_3, KMod_NONE))
             {
-                new_value = 3;
+                new_value = 2;
                 set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 clear_key_pressed(KC_3);
             }
             else if (is_key_pressed(KC_4, KMod_NONE))
             {
-                new_value = 4;
+                new_value = 3;
                 set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 clear_key_pressed(KC_4);
             }
             else if (is_key_pressed(KC_5, KMod_NONE))
             {
-                new_value = 5;
+                new_value = 4;
                 set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 clear_key_pressed(KC_5);
             }
             else if (is_key_pressed(KC_6, KMod_NONE))
             {
-                new_value = 6;
+                new_value = 5;
                 set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 clear_key_pressed(KC_6);
             }
             else if (is_key_pressed(KC_7, KMod_NONE))
             {
-                new_value = 7;
+                new_value = 6;
                 set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 clear_key_pressed(KC_7);
             }
             else if (is_key_pressed(KC_8, KMod_NONE))
             {
-                new_value = 8;
+                new_value = 7;
                 set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 clear_key_pressed(KC_8);
             }
             else if (is_key_pressed(KC_9, KMod_NONE))
             {
-                new_value = 9;
+                new_value = 8;
                 set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 clear_key_pressed(KC_9);
             }
             else if (is_key_pressed(KC_0, KMod_NONE))
             {
-                new_value = 10;
+                new_value = 9;
                 set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
                 clear_key_pressed(KC_0);
             }
@@ -2619,7 +2619,7 @@ void process_cheat_mode_selection_inputs()
             {
                 
                 new_value = gameadd.chosen_experience_level;
-                if (new_value < 10)
+                if (new_value < 9)
                 {
                     new_value++;
                     set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
@@ -2629,7 +2629,7 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
             {
                 new_value = gameadd.chosen_experience_level;
-                if (new_value > 1)
+                if (new_value > 0)
                 {
                     new_value--;
                     set_players_packet_action(player, PckA_CheatSwitchExperience, new_value, 0, 0, 0);
