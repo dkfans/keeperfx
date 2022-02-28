@@ -256,7 +256,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->cursor_stl_x,(int)player->cursor_stl_y);
                         break;
                     }
-                    if (thing->trap_door_active_state)
+                    if (thing->door.is_locked)
                         unlock_door(thing);
                     else
                         lock_door(thing);

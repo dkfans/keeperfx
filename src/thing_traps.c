@@ -765,8 +765,8 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->health = trapstat->field_0;
     thing->field_4F &= ~TF4F_Transpar_Flags;
     thing->field_4F |= TF4F_Transpar_4;
-    thing->byte_13 = 0;
-    thing->long_14 = game.play_gameturn;
+    thing->trap.num_shots = 0;
+    thing->trap.rearm_turn = game.play_gameturn;
     if (trapstat->light_1C != 0)
     {
         ilght.mappos.x.val = thing->mappos.x.val;
@@ -885,12 +885,12 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
         && (trapstat->activation_type != TrpAcT_HeadforTarget90))
     {
         activate_trap(thing, hand);
-        if (thing->byte_13 != 255)
+        if (thing->trap.num_shots != 255)
         {
-            if (thing->byte_13 > 0) {
-                thing->byte_13--;
+            if (thing->trap.num_shots > 0) {
+                thing->trap.num_shots--;
             }
-            if (thing->byte_13 <= 0) {
+            if (thing->trap.num_shots <= 0) {
                 thing->health = -1;
             }
         }
@@ -911,13 +911,13 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     shotng->state_flags |= TF1_PushAdd;
     shotng->hit_type = trapstat->hit_type;
     const struct ManfctrConfig* mconf = &gameadd.traps_config[thing->model];
-    thing->long_14 = game.play_gameturn + mconf->shots_delay;
-    if (thing->byte_13 != 255)
+    thing->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
+    if (thing->trap.num_shots != 255)
     {
-        if (thing->byte_13 > 0) {
-            thing->byte_13--;
+        if (thing->trap.num_shots > 0) {
+            thing->trap.num_shots--;
         }
-        if (thing->byte_13 <= 0) {
+        if (thing->trap.num_shots <= 0) {
             thing->health = -1;
         }
     }

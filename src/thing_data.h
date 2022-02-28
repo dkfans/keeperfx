@@ -107,10 +107,8 @@ struct Thing {
     long creation_turn;
     struct Coord3d mappos;
     union {
-      struct {
-        long gold_carried;
-        short health_bar_turns;
-      } creature;
+//TCls_Empty
+//TCls_Object
       struct {
         long gold_stored;
         short word_17v;
@@ -119,85 +117,103 @@ struct Thing {
         short life_remaining;
         char byte_15;
         unsigned char byte_16;
-        unsigned char byte_17;
+        TbBool some_chicken_was_sacrifised;
         unsigned short word_18;
       } food;
       struct {
-        unsigned char num_shots;
-        long rearm_turn;
-        unsigned char revealed;
-        unsigned char byte_19t;
-      } trap;
+        unsigned char box_kind;
+      } custom_box;
       struct {
-        long number;
-        short word_17e;
-        unsigned char byte_19e;
-      } price;
+        short belongs_to;
+        short cssize;
+        short spr_size;
+      } lair;
+      struct {
+        unsigned char state;
+      } call_to_arms_flag;
+      struct {
+        unsigned char some_countdown;
+        unsigned char beat_rate;
+      } heart;
+      struct {
+        unsigned char number;
+      } hero_gate;
+      struct {
+        unsigned char spell_level;
+      } lightning;
+      struct {
+        short belongs_to;
+        unsigned char shspeed;
+      } armor;
+      struct {
+        short belongs_to;
+        unsigned char byte_15;
+      } disease;
+      struct {
+        long room_idx;
+      } roomflag;
+      struct {
+      short unused8;
+      long long_15;
+      unsigned char byte_19;
+      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and long_15 
+//TCls_Shot
       struct {
         unsigned char dexterity;
         short damage;
         unsigned char hit_type;
         short target_idx;
-        unsigned char byte_19;
+        unsigned char spell_level;
       } shot;
+      struct {
+        long x;
+        short target_idx;
+        unsigned char range;
+        unsigned char posint;
+      } shot_lizard;
+//TCls_EffectElem
+//TCls_DeadCreature
+      struct {
+          unsigned char exp_level;
+          unsigned char laid_to_rest;
+      } corpse;
+//TCls_Creature
+      struct {
+        long gold_carried;
+        short health_bar_turns;
+      } creature;
+//TCls_Effect
+      struct {
+        long number;
+      } price_effect;
+//TCls_EffectGen
+      struct {
+      short range;
+      long generation_delay;
+      } effect_generator;
+//TCls_Trap
+      struct {
+        unsigned char num_shots;
+        long rearm_turn;
+        unsigned char revealed;
+      } trap;
+//TCls_Door
       struct {
       short orientation;
       unsigned char byte_15d;
       short word_16d;
       unsigned char is_locked;
-      unsigned char byte_19d;
       } door;
+//TCls_Unkn10
+//TCls_Unkn11
+//TCls_AmbientSnd
+//TCls_CaveIn
       struct {
-        long room_idx;
-        short word_17r;
-        unsigned char byte_19r;
-      } roomflag;
-      struct {
-      long long_13;
-      short word_17a;
-      };
-      struct {
-      short word_13a;
-      long long_15;
-      };
-      struct {
-      short range;
-      long generation_delay;
-      } effect_generator;
-      struct {
-      short belongs_to;
-      short word_15;
-      short size;
-      };
-      struct {
-      unsigned char byte_13b;
-      short damagepoints;
-      short word_16;
-      unsigned char byte_18b;
-      unsigned char byte_19b;
-      };
-      struct {
-      unsigned char byte_13a;
-      long long_14;
-      unsigned char byte_18a;
-      unsigned char byte_19a;
-      };
-      struct {
-      unsigned char box_kind;
-      } custom_box;
-      struct {
-          unsigned char exp_level;
-          unsigned char laid_to_rest;
-      } corpse;
-      struct {
-        unsigned char byte_13;
-        unsigned char byte_14;
-        unsigned char byte_15;
-        unsigned char hit_type;
-        unsigned char byte_17;
-        unsigned char trap_door_active_state; // For Doors: if byte_18 = 1 then door is locked/ For Traps: seems to be, if byte_18 = 1 then trap is still active
-        unsigned char byte_19;
-      };
+        unsigned char x;
+        unsigned char y;
+        short time;
+        unsigned char model;
+      }cave_in;
     };
     unsigned char model;
     unsigned short index;

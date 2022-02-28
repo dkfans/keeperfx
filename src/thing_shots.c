@@ -333,7 +333,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
     {
         return;
     }
-    int damage = thing->damagepoints;
+    int damage = thing->shot.damage;
     if ((damage >= slb->health) && !slab_kind_is_indestructible(slb->kind))
     {
         if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
@@ -446,11 +446,11 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         {
             if (shotng->model == ShM_Lizard)
             {
-                if (shotng->shot.dexterity >= CREATURE_RANDOM(shotng, 90))
+                if (shotng->shot_lizard.range >= CREATURE_RANDOM(shotng, 90))
                 {
                     struct Coord3d target_pos;
-                    target_pos.x.val = shotng->price.number;
-                    target_pos.y.val = shotng->shot.byte_19 * gameadd.crtr_conf.sprite_size;
+                    target_pos.x.val = shotng->shot_lizard.x;
+                    target_pos.y.val = shotng->shot_lizard.posint * gameadd.crtr_conf.sprite_size;
                     target_pos.z.val = pos->z.val;
                     const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
                     if (dist <= 800) return detonate_shot(shotng);
@@ -657,15 +657,15 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
             thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
     }
-    if (shotng->damagepoints)
+    if (shotng->shot.damage)
     {
         // Drain allows caster to regain half of damage
         if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(creatng)) 
         {
-            apply_health_to_thing(creatng, shotng->damagepoints/2);
+            apply_health_to_thing(creatng, shotng->shot.damage/2);
         }
-        apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
-        target->byte_13 = 20;
+        apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
+        target->heart.some_countdown = 20;
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
     if (target->health < 0) {
@@ -1389,8 +1389,8 @@ TngUpdateRet update_shot(struct Thing *thing)
             **/
         case ShM_Lizard:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
-            int skill = thing->shot.dexterity;
-            target = thing_get(thing->shot.target_idx);
+            int skill = thing->shot_lizard.range;
+            target = thing_get(thing->shot_lizard.target_idx);
             if (thing_is_invalid(target)) break;
             MapCoordDelta dist;
             if (skill <= 35)
@@ -1401,8 +1401,8 @@ TngUpdateRet update_shot(struct Thing *thing)
             else
             {
                 struct Coord3d target_pos;
-                target_pos.x.val = thing->price.number;
-                target_pos.y.val = thing->shot.byte_19 * gameadd.crtr_conf.sprite_size;
+                target_pos.x.val = thing->shot_lizard.x;
+                target_pos.y.val = thing->shot_lizard.posint * gameadd.crtr_conf.sprite_size;
                 target_pos.z.val = target->mappos.z.val;
                 dist = get_2d_distance(&thing->mappos, &target_pos);
                 if (dist <= 260) hit = true;
@@ -1414,7 +1414,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         case ShM_TrapLightning:
             if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
             {
-              thing->shot.byte_19 = 5;
+              thing->shot.spell_level = 5;
               god_lightning_choose_next_creature(thing);
               target = thing_get(thing->shot.target_idx);
               if (thing_exists(target))

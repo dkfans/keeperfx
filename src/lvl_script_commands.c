@@ -1082,7 +1082,7 @@ static void create_effect_process(struct ScriptContext *context)
         }
         if (Price)
         {
-            efftng->long_13 = context->value->arg1;
+            efftng->price_effect.number = context->value->arg1;
         }
     }
 }

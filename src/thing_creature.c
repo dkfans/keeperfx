@@ -916,8 +916,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 {
                     cctrl->spell_tngidx_armour[k] = ntng->index;
                     ntng->health = pwrdynst->strength[spell_lev] + 1;
-                    ntng->belongs_to = thing->index;
-                    ntng->byte_15 = k;
+                    ntng->armor.belongs_to = thing->index;
+                    ntng->armor.shspeed = k;
                     ntng->move_angle_xy = thing->move_angle_xy;
                     ntng->move_angle_z = thing->move_angle_z;
                     angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
@@ -1032,8 +1032,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
               {
                 cctrl->spell_tngidx_disease[k] = ntng->index;
                 ntng->health = pwrdynst->strength[spell_lev] + 1;
-                ntng->belongs_to = thing->index;
-                ntng->byte_15 = k;
+                ntng->disease.belongs_to = thing->index;
+                ntng->disease.byte_15 = k;
                 ntng->move_angle_xy = thing->move_angle_xy;
                 ntng->move_angle_z = thing->move_angle_z;
                 angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
@@ -2951,9 +2951,9 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
                     long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
                     long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
                     int posint = y / gameadd.crtr_conf.sprite_size;
-                    shotng->price.number = x;
-                    shotng->shot.byte_19 = posint;
-                    shotng->shot.dexterity = range / 10;
+                    shotng->shot_lizard.x = x;
+                    shotng->shot_lizard.posint = posint;
+                    shotng->shot_lizard.range = range / 10;
                 }
             }
         break;
@@ -2961,7 +2961,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     if (!thing_is_invalid(shotng))
     {
 #if (BFDEBUG_LEVEL > 0)
-      damage = shotng->damagepoints;
+      damage = shotng->shot.damage;
       // Special debug code that shows amount of damage the shot will make
       if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
           create_price_effect(&pos1, my_player_number, damage);

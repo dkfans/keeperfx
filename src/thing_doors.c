@@ -128,7 +128,7 @@ TbBool add_key_on_door(struct Thing *thing)
 
 void unlock_door(struct Thing *thing)
 {
-    thing->trap_door_active_state = 0;
+    thing->door.is_locked = false;
     game.field_14EA4B = 1;
     update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
       thing->mappos.x.stl.num+1, thing->mappos.y.stl.num+1);
@@ -168,7 +168,7 @@ long destroy_door(struct Thing *doortng)
     remove_key_on_door(doortng);
     ceiling_partially_recompute_heights(stl_x - 1, stl_y - 1, stl_x + 2, stl_y + 2);
     create_dirt_rubble_for_dug_block(stl_x, stl_y, 4, plyr_idx);
-    if (doortng->belongs_to)
+    if (doortng->door.orientation)
     {
         create_dirt_rubble_for_dug_block(stl_x, stl_y + 1, 4, plyr_idx);
         create_dirt_rubble_for_dug_block(stl_x, stl_y - 1, 4, plyr_idx);
