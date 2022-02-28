@@ -158,7 +158,12 @@ enum TbPacketAction {
         PckA_CheatStealRoom,
         PckA_CheatHeartHealth,
         PckA_CheatKillPlayer,
-        PckA_CheatConvertCreature
+        PckA_CheatConvertCreature,
+        PckA_CheatSwitchTerrain,
+        PckA_CheatSwitchPlayer,
+        PckA_CheatSwitchCreature,
+        PckA_CheatSwitchHero,
+        PckA_CheatSwitchExperience
 };
 
 /** Packet flags for non-action player operation. */
@@ -220,10 +225,6 @@ enum ChecksumKind {
 
 struct PlayerInfo;
 struct CatalogueEntry;
-extern PlayerNumber selected_player;
-extern ThingModel selected_creature;
-extern ThingModel selected_hero;
-extern unsigned char selected_experience;
 
 /**
  * Stores data exchanged between players each turn and used to re-create their input.

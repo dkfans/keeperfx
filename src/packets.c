@@ -914,6 +914,26 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       gameadd.chosen_terrain_kind = pckt->actn_par1;
       return false;
   }
+  case PckA_CheatSwitchPlayer:
+    {
+        gameadd.chosen_player = pckt->actn_par1;
+        return false;
+    }
+  case PckA_CheatSwitchCreature:
+    {
+        gameadd.chosen_creature_kind = pckt->actn_par1;
+        return false;
+    }
+  case PckA_CheatSwitchHero:
+    {
+        gameadd.chosen_hero_kind = pckt->actn_par1;
+        return false;
+    }
+  case PckA_CheatSwitchExperience:
+    {
+        gameadd.chosen_experience_level = pckt->actn_par1;
+        return false;
+    }
     default:
       return false;
   }

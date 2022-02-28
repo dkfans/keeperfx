@@ -28,10 +28,6 @@
 extern void clear_input(struct Packet* packet);
 
 /******************************************************************************/
-PlayerNumber selected_player = 0;
-ThingModel selected_creature = 0;
-ThingModel selected_hero = 0;
-unsigned char selected_experience = 1;
 TbBool terrain_details = false;
 /******************************************************************************/
 
@@ -56,10 +52,9 @@ TbBool packets_process_cheats(
     {
         case PSt_MkDigger:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(selected_player);
-        get_selected_player_for_cheat(&selected_player);
-        process_cheat_mode_selection_inputs(&selected_experience);
-        message_add_timeout(selected_player, 1, "%d", selected_experience);
+        clear_messages_from_player(gameadd.chosen_player);
+        get_selected_player_for_cheat(&gameadd.chosen_player);
+        message_add_timeout(gameadd.chosen_player, 1, "%d", gameadd.chosen_experience_level);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -68,7 +63,7 @@ TbBool packets_process_cheats(
             }
             if (allowed)
             {
-                set_players_packet_action(player, PckA_CheatMakeDigger, selected_player, selected_experience, 0, 0);
+                set_players_packet_action(player, PckA_CheatMakeDigger, gameadd.chosen_player, gameadd.chosen_experience_level, 0, 0);
             }
             else
             {
@@ -82,28 +77,18 @@ TbBool packets_process_cheats(
         break;
         case PSt_MkGoodCreatr:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(selected_player);
-        get_selected_player_for_cheat(&selected_player);
-        if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
-        {
-            selected_hero++;
-            if (selected_hero > 13)
-            {
-                selected_hero = 0;
-            }
-            clear_key_pressed(KC_LSHIFT);
-        }
-        process_cheat_mode_selection_inputs(&selected_experience);
-        if (selected_hero == 0)
+        clear_messages_from_player(gameadd.chosen_player);
+        get_selected_player_for_cheat(&gameadd.chosen_player);
+        if (gameadd.chosen_hero_kind == 0)
         {
             sprintf(str, "?");
         }
         else
         {
-            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[selected_hero];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), selected_experience);
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[gameadd.chosen_hero_kind];
+            sprintf(str, "%s %d", get_string(crconf->namestr_idx), gameadd.chosen_experience_level);
         }
-        message_add_timeout(selected_player, 1, "%s", str);
+        message_add_timeout(gameadd.chosen_player, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -114,7 +99,7 @@ TbBool packets_process_cheats(
             {
                 ThingModel crmodel;
                 unsigned char exp;
-                if (selected_hero == 0)
+                if (gameadd.chosen_hero_kind == 0)
                 {
                     while (1) 
                     {
@@ -137,10 +122,10 @@ TbBool packets_process_cheats(
                 }
                 else
                 {
-                    crmodel = selected_hero;
-                    exp = selected_experience;
+                    crmodel = gameadd.chosen_hero_kind;
+                    exp = gameadd.chosen_experience_level;
                 }
-                unsigned short param2 = selected_player | (exp << 8);
+                unsigned short param2 = gameadd.chosen_player | (exp << 8);
                 set_players_packet_action(player, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
             }
             else
@@ -259,28 +244,18 @@ TbBool packets_process_cheats(
         break;
         case PSt_MkBadCreatr:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(selected_player);
-        get_selected_player_for_cheat(&selected_player);
-        if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
-        {
-            selected_creature++;
-            if (selected_creature > 17)
-            {
-                selected_creature = 0;
-            }
-            clear_key_pressed(KC_LSHIFT);
-        }
-        process_cheat_mode_selection_inputs(&selected_experience);
-        if (selected_creature == 0)
+        clear_messages_from_player(gameadd.chosen_player);
+        get_selected_player_for_cheat(&gameadd.chosen_player);
+        if (gameadd.chosen_creature_kind == 0)
         {
             sprintf(str, "?");
         }
         else
         {
-            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[selected_creature + 13];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), selected_experience);
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[gameadd.chosen_creature_kind + 13];
+            sprintf(str, "%s %d", get_string(crconf->namestr_idx), gameadd.chosen_experience_level);
         }
-        message_add_timeout(selected_player, 1, "%s", str);
+        message_add_timeout(gameadd.chosen_player, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -291,7 +266,7 @@ TbBool packets_process_cheats(
             {
                 ThingModel crmodel;
                 unsigned char exp;
-                if (selected_creature == 0)
+                if (gameadd.chosen_creature_kind == 0)
                 {
                     while (1)
                     {
@@ -308,10 +283,10 @@ TbBool packets_process_cheats(
                 }
                 else
                 {
-                    crmodel = selected_creature + 13;
-                    exp = selected_experience;
+                    crmodel = gameadd.chosen_creature_kind + 13;
+                    exp = gameadd.chosen_experience_level;
                 }
-                unsigned short param2 = selected_player | (exp << 8);
+                unsigned short param2 = gameadd.chosen_player | (exp << 8);
                 set_players_packet_action(player, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
             }
             else
