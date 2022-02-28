@@ -475,7 +475,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->hit_type = shotst->area_hit_type;
+        efftng->effect.hit_type = shotst->area_hit_type;
     }
     if ( destroy_shot )
     {
@@ -542,7 +542,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
       }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->hit_type = shotst->area_hit_type;
+        efftng->effect.hit_type = shotst->area_hit_type;
     }
     if ( shot_explodes )
     {
@@ -658,6 +658,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         }
     }
 
+    HitPoints damage = 0;
     if (shotng->shot.damage)
     {
         if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
@@ -667,7 +668,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
             // Drain allows caster to regain half of damage, even against objects
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
             {
-                apply_health_to_thing(shootertng, shotng->damagepoints / 2);
+                apply_health_to_thing(shootertng, shotng->shot.damage / 2);
             }
         }
         target->heart.some_countdown = 20; //todo figure out what this is, and if it needs to be within this if statement above/below
@@ -740,7 +741,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case ShM_PoisonCloud:
             efftng = create_effect(&shotng->mappos, TngEff_Gas3, shotng->owner);
             if ( !thing_is_invalid(efftng) ) {
-                efftng->hit_type = THit_CrtrsOnly;
+                efftng->effect.hit_type = THit_CrtrsOnly;
             }
             break;
         case ShM_NaviMissile:
@@ -955,7 +956,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             struct Thing* efftng = create_effect(&trgtng->mappos, TngEff_WoPExplosion, trgtng->owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->hit_type = THit_HeartOnlyNotOwn;
+                efftng->effect.hit_type = THit_HeartOnlyNotOwn;
             }
             shotng->health = -1;
             return 1;

@@ -153,7 +153,7 @@ struct Thing {
         long room_idx;
       } roomflag;
       struct {
-      short unused8;
+      short unused3;
       long long_15;
       unsigned char byte_19;
       }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and long_15 
@@ -183,6 +183,11 @@ struct Thing {
         short health_bar_turns;
       } creature;
 //TCls_Effect
+      struct {
+        char unused;
+        short unused2;
+        unsigned char hit_type;
+      } effect;
       struct {
         long number;
       } price_effect;
