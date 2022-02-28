@@ -124,6 +124,10 @@ enum ThingEffectKind {
     TngEff_SpecialBox,
     TngEff_BoulderSink, // boulder sink
     TngEff_Unknown69,
+    TngEff_Gas10, // GasDamage
+    TngEff_Gas11, // GasSlow
+    TngEff_Gas12, // GasSlowDamage
+    TngEff_Gas13, // GasDisease
 };
 
 enum ThingEffectElements {
