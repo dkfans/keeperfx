@@ -1063,7 +1063,9 @@ long get_dungeon_control_action_inputs(void)
     {
         return 1;
     }
-    if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) )
+    if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr) 
+        || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) || 
+        (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) )
     {
         process_cheat_mode_selection_inputs();
     }
@@ -2508,13 +2510,51 @@ short get_gui_inputs(short gameplay_on)
 void process_cheat_mode_selection_inputs()
 {
     struct PlayerInfo *player = get_my_player();
+    unsigned char new_value;
+    // player selection
+    if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
+    {
+        new_value = 0;
+        set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
+        clear_key_pressed(KC_NUMPAD0);
+    }
+    else if (is_key_pressed(KC_NUMPAD1, KMod_DONTCARE))
+    {
+        new_value = 1;
+        set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
+        clear_key_pressed(KC_NUMPAD1);
+    }
+    else if (is_key_pressed(KC_NUMPAD2, KMod_DONTCARE))
+    {
+        new_value = 2;
+        set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
+        clear_key_pressed(KC_NUMPAD2);
+    }
+    else if (is_key_pressed(KC_NUMPAD3, KMod_DONTCARE))
+    {
+        new_value = 3;
+        set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
+        clear_key_pressed(KC_NUMPAD3);
+    }
+    else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
+    {
+        new_value = game.hero_player_num;
+        set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
+        clear_key_pressed(KC_NUMPAD4);
+    }
+    else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
+    {
+        new_value = game.neutral_player_num;
+        set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
+        clear_key_pressed(KC_NUMPAD5);
+    }
+    // state-specific inputs
     switch (player->work_state)
     {
         case PSt_MkBadCreatr:
         case PSt_MkGoodCreatr:
         case PSt_MkDigger:
         {
-            unsigned char new_value;
             if (is_key_pressed(KC_1, KMod_NONE))
             {
                 new_value = 1;
@@ -2624,7 +2664,7 @@ void process_cheat_mode_selection_inputs()
         }
         case PSt_PlaceTerrain:
         {
-            SlabKind new_value = gameadd.chosen_terrain_kind;
+            new_value = gameadd.chosen_terrain_kind;
             if (is_key_pressed(KC_0, KMod_NONE))
             {
                 new_value = SlbT_ROCK;

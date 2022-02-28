@@ -973,38 +973,4 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
     dungeon->creatures_total_pay = compute_player_payday_total(dungeon);
 }
 
-void get_selected_player_for_cheat(PlayerNumber *plyr_idx)
-{
-    if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
-    {
-        *plyr_idx = 0;
-        clear_key_pressed(KC_NUMPAD0);
-    }
-    else if (is_key_pressed(KC_NUMPAD1, KMod_DONTCARE))
-    {
-        *plyr_idx = 1;
-        clear_key_pressed(KC_NUMPAD1);
-    }
-    else if (is_key_pressed(KC_NUMPAD2, KMod_DONTCARE))
-    {
-        *plyr_idx = 2;
-        clear_key_pressed(KC_NUMPAD2);
-    }
-    else if (is_key_pressed(KC_NUMPAD3, KMod_DONTCARE))
-    {
-        *plyr_idx = 3;
-        clear_key_pressed(KC_NUMPAD3);
-    }
-    else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
-    {
-        *plyr_idx = game.hero_player_num;
-        clear_key_pressed(KC_NUMPAD4);
-    }
-    else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
-    {
-        *plyr_idx = game.neutral_player_num;
-        clear_key_pressed(KC_NUMPAD5);
-    }
-}
-
 /******************************************************************************/

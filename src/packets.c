@@ -916,6 +916,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   }
   case PckA_CheatSwitchPlayer:
     {
+        clear_messages_from_player(gameadd.chosen_player);
         gameadd.chosen_player = pckt->actn_par1;
         return false;
     }

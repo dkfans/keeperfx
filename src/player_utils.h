@@ -43,7 +43,6 @@ TbBool player_has_lost(PlayerNumber plyr_idx);
 TbBool player_cannot_win(PlayerNumber plyr_idx);
 void set_player_as_won_level(struct PlayerInfo *player);
 void set_player_as_lost_level(struct PlayerInfo *player);
-void get_selected_player_for_cheat(PlayerNumber *plyr_idx);
 
 long compute_player_final_score(struct PlayerInfo *player, long gameplay_score);
 
