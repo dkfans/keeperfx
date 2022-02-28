@@ -157,7 +157,7 @@ TbBool detonate_shot(struct Thing *shotng)
     }
     if ((shotst->impact_effect & ShMF_LightningEffect) != 0 && NoEffect == 0)
     {
-        create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
+        create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
         PaletteSetPlayerPalette(myplyr, engine_palette);
     }
     if ((shotst->impact_effect & ShMF_DirtEffect) != 0 && NoEffect == 0)
@@ -1545,7 +1545,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         return TUFRet_Deleted;
     }
     if (hit) {
-        NoEffect = 0;
+        NoEffect = 1;
         detonate_shot(thing);
         return TUFRet_Deleted;
     }
