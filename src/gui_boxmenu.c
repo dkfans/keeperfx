@@ -446,15 +446,14 @@ short toggle_instance_cheat_menu(void)
     {
         if ((game.flags_font & FFlg_AlexCheat) == 0)
             return false;
-        gui_box = gui_create_box(200,20,gui_instance_option_list);
+        set_players_packet_action(get_my_player(), PckA_InstanceCheatEnter, 0, 0, 0, 0);
 /*
           player->unknownbyte  |= 0x08;
           game.unknownbyte |= 0x08;
 */
     } else
     {
-        gui_delete_box(gui_box);
-        gui_box=NULL;
+        set_players_packet_action(get_my_player(), PckA_CheatExit, 0, 0, 0, 0);
 /*
           player->unknownbyte &= 0xF7;
           game.unknownbyte &= 0xF7;

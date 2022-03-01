@@ -730,6 +730,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           gui_cheat_box = NULL;
       }
       return 1;
+  case PckA_InstanceCheatEnter:
+      if (is_my_player(player))
+      {
+        gui_box = gui_create_box(200,20,gui_instance_option_list);
+      }
+      show_onscreen_msg(2*game.num_fps, "Cheat mode activated by player %d", plyr_idx);
+      return 1;
   case PckA_CheatAllFree:
       make_all_creatures_free();
       make_all_rooms_free();
