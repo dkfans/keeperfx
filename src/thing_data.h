@@ -129,6 +129,11 @@ struct Thing {
         short spr_size;
       } lair;
       struct {
+        short belongs_to;
+        short cssize;
+        short spr_size;
+      } torturer;
+      struct {
         unsigned char state;
       } call_to_arms_flag;
       struct {
