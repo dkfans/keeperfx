@@ -298,6 +298,14 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   case PSt_PlaceDoor:
       player->chosen_door_kind = chosen_kind;
       break;
+      case PSt_MkGoodCreatr:
+      clear_messages_from_player(gameadd.chosen_player);
+        gameadd.chosen_player = game.hero_player_num;
+        break;
+    case PSt_MkBadCreatr:
+    clear_messages_from_player(gameadd.chosen_player);
+        gameadd.chosen_player = my_player_number;
+        break;
   default:
       break;
   }
