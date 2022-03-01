@@ -5596,7 +5596,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     case 0 ... 99:
                     {
                         smpl_idx = 914;
-                        pitch = 100;
+                        pitch = 200;
                         break;
                     }
                     case 100 ... 199:
