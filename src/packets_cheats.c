@@ -59,7 +59,7 @@ TbBool packets_process_cheats(
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                return false;
+                break;
             }
             if (allowed)
             {
@@ -92,7 +92,7 @@ TbBool packets_process_cheats(
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                return false;
+                break;
             }
             if (allowed)
             {
@@ -143,7 +143,7 @@ TbBool packets_process_cheats(
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                return false;
+                break;
             }
             if (allowed)
             {
@@ -194,7 +194,7 @@ TbBool packets_process_cheats(
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                return false;
+                break;
             }
           if (player->thing_under_hand > 0)
           {
@@ -258,7 +258,7 @@ TbBool packets_process_cheats(
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                return false;
+                break;
             }
             if (allowed)
             {
@@ -302,7 +302,7 @@ TbBool packets_process_cheats(
             {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
                 {
-                    return false;
+                    break;
                 }
                 i = get_power_overcharge_level(player);
                 magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, i, PwMod_CastForFree);
@@ -323,7 +323,7 @@ TbBool packets_process_cheats(
             {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
                 {
-                    return false;
+                    break;
                 }
                 i = get_power_overcharge_level(player);
                 switch (pwkind)
@@ -352,7 +352,7 @@ TbBool packets_process_cheats(
         {    
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                return false;
+                break;
             }   
             if (allowed)
             {
@@ -375,7 +375,7 @@ TbBool packets_process_cheats(
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                return false;
+                break;
             }            
             if (allowed)
             {
@@ -398,7 +398,7 @@ TbBool packets_process_cheats(
             {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
                 {
-                    return false;
+                    break;
                 }
                 if (player->thing_under_hand > 0)
                 {
@@ -423,7 +423,7 @@ TbBool packets_process_cheats(
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                return false;
+                break;
             }
             set_players_packet_action(player, PckA_CheatConvertCreature, dungeonadd->chosen_player, 0, 0, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);    
@@ -437,7 +437,7 @@ TbBool packets_process_cheats(
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
             {
-                return false;
+                break;
             }   
             if (allowed)
             {
@@ -520,7 +520,7 @@ TbBool packets_process_cheats(
             {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
                 {
-                    return false;
+                    break;
                 }
                 if (player->thing_under_hand > 0)
                 {
@@ -555,7 +555,7 @@ TbBool packets_process_cheats(
               {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
                 {
-                    return false;
+                    break;
                 }
                 set_players_packet_action(player, PckA_CheatKillPlayer, PlayerToKill->id_number, 0, 0, 0);
               }
@@ -606,7 +606,7 @@ TbBool packets_process_cheats(
             {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
                 {
-                    return false;
+                    break;
                 }
                 if (player->thing_under_hand > 0)
                 {
@@ -675,7 +675,7 @@ TbBool packets_process_cheats(
             {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
                 {
-                    return false;
+                    break;
                 }
                 if (player->thing_under_hand > 0)
                 {
@@ -725,7 +725,7 @@ TbBool packets_process_cheats(
             {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
                 {
-                    return false;
+                    break;
                 }             
                 if (subtile_is_room(stl_x, stl_y)) 
                 {
@@ -779,7 +779,7 @@ TbBool packets_process_cheats(
             {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
                 {
-                    return false;
+                    break;
                 }
                 if (player->thing_under_hand > 0)
                 {
