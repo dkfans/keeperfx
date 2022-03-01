@@ -446,7 +446,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         {
             if (shotng->model == ShM_Lizard)
             {
-                if (shotng->shot_lizard.range >= CREATURE_RANDOM(shotng, 90))
+                if (shotng->shot_lizard2.range >= CREATURE_RANDOM(shotng, 90))
                 {
                     struct Coord3d target_pos;
                     target_pos.x.val = shotng->shot_lizard.x;
@@ -663,7 +663,6 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     {
         if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-
             damage = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
             // Drain allows caster to regain half of damage, even against objects
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
@@ -1395,7 +1394,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             **/
         case ShM_Lizard:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
-            int skill = thing->shot_lizard.range;
+            int skill = thing->shot_lizard2.range;
             target = thing_get(thing->shot_lizard.target_idx);
             if (thing_is_invalid(target)) break;
             MapCoordDelta dist;
