@@ -2511,6 +2511,7 @@ void process_cheat_mode_selection_inputs()
 {
     struct PlayerInfo *player = get_my_player();
     unsigned char new_value;
+    struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
     // player selection
     if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
     {
@@ -2618,7 +2619,7 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
             {
                 
-                new_value = gameadd.chosen_experience_level;
+                new_value = dungeonadd->chosen_experience_level;
                 if (new_value < 9)
                 {
                     new_value++;
@@ -2628,7 +2629,7 @@ void process_cheat_mode_selection_inputs()
             }
             else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
             {
-                new_value = gameadd.chosen_experience_level;
+                new_value = dungeonadd->chosen_experience_level;
                 if (new_value > 0)
                 {
                     new_value--;
@@ -2640,7 +2641,7 @@ void process_cheat_mode_selection_inputs()
             {
                 if (player->work_state == PSt_MkGoodCreatr)
                 {
-                    new_value = gameadd.chosen_hero_kind;
+                    new_value = dungeonadd->chosen_hero_kind;
                     new_value++;
                     if (new_value> 13)
                     {
@@ -2650,7 +2651,7 @@ void process_cheat_mode_selection_inputs()
                 }
                 else if (player->work_state == PSt_MkBadCreatr)
                 {
-                    new_value = gameadd.chosen_creature_kind;
+                    new_value = dungeonadd->chosen_creature_kind;
                     new_value++;
                     if (new_value > 17)
                     {
@@ -2664,7 +2665,7 @@ void process_cheat_mode_selection_inputs()
         }
         case PSt_PlaceTerrain:
         {
-            new_value = gameadd.chosen_terrain_kind;
+            new_value = dungeonadd->chosen_terrain_kind;
             if (is_key_pressed(KC_0, KMod_NONE))
             {
                 new_value = SlbT_ROCK;

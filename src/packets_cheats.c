@@ -48,12 +48,13 @@ TbBool packets_process_cheats(
     TbBool allowed;
     struct Coord3d pos;
     char str[255] = {'\0'};
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     switch (player->work_state)
     {
         case PSt_MkDigger:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(gameadd.chosen_player);
-        message_add_timeout(gameadd.chosen_player, 1, "%d", gameadd.chosen_experience_level + 1);
+        clear_messages_from_player(dungeonadd->chosen_player);
+        message_add_timeout(dungeonadd->chosen_player, 1, "%d", dungeonadd->chosen_experience_level + 1);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -62,7 +63,7 @@ TbBool packets_process_cheats(
             }
             if (allowed)
             {
-                set_players_packet_action(player, PckA_CheatMakeDigger, gameadd.chosen_player, gameadd.chosen_experience_level, 0, 0);
+                set_players_packet_action(player, PckA_CheatMakeDigger, dungeonadd->chosen_player, dungeonadd->chosen_experience_level, 0, 0);
             }
             else
             {
@@ -76,17 +77,17 @@ TbBool packets_process_cheats(
         break;
         case PSt_MkGoodCreatr:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(gameadd.chosen_player);
-        if (gameadd.chosen_hero_kind == 0)
+        clear_messages_from_player(dungeonadd->chosen_player);
+        if (dungeonadd->chosen_hero_kind == 0)
         {
             sprintf(str, "?");
         }
         else
         {
             struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[gameadd.chosen_hero_kind];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), gameadd.chosen_experience_level + 1);
+            sprintf(str, "%s %d", get_string(crconf->namestr_idx), dungeonadd->chosen_experience_level + 1);
         }
-        message_add_timeout(gameadd.chosen_player, 1, "%s", str);
+        message_add_timeout(dungeonadd->chosen_player, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -97,7 +98,7 @@ TbBool packets_process_cheats(
             {
                 ThingModel crmodel;
                 unsigned char exp;
-                if (gameadd.chosen_hero_kind == 0)
+                if (dungeonadd->chosen_hero_kind == 0)
                 {
                     while (1) 
                     {
@@ -120,10 +121,10 @@ TbBool packets_process_cheats(
                 }
                 else
                 {
-                    crmodel = gameadd.chosen_hero_kind;
-                    exp = gameadd.chosen_experience_level;
+                    crmodel = dungeonadd->chosen_hero_kind;
+                    exp = dungeonadd->chosen_experience_level;
                 }
-                unsigned short param2 = gameadd.chosen_player | (exp << 8);
+                unsigned short param2 = dungeonadd->chosen_player | (exp << 8);
                 set_players_packet_action(player, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
             }
             else
@@ -242,17 +243,17 @@ TbBool packets_process_cheats(
         break;
         case PSt_MkBadCreatr:
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(gameadd.chosen_player);
-        if (gameadd.chosen_creature_kind == 0)
+        clear_messages_from_player(dungeonadd->chosen_player);
+        if (dungeonadd->chosen_creature_kind == 0)
         {
             sprintf(str, "?");
         }
         else
         {
             struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[gameadd.chosen_creature_kind + 13];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), gameadd.chosen_experience_level + 1);
+            sprintf(str, "%s %d", get_string(crconf->namestr_idx), dungeonadd->chosen_experience_level + 1);
         }
-        message_add_timeout(gameadd.chosen_player, 1, "%s", str);
+        message_add_timeout(dungeonadd->chosen_player, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -263,7 +264,7 @@ TbBool packets_process_cheats(
             {
                 ThingModel crmodel;
                 unsigned char exp;
-                if (gameadd.chosen_creature_kind == 0)
+                if (dungeonadd->chosen_creature_kind == 0)
                 {
                     while (1)
                     {
@@ -280,10 +281,10 @@ TbBool packets_process_cheats(
                 }
                 else
                 {
-                    crmodel = gameadd.chosen_creature_kind + 13;
-                    exp = gameadd.chosen_experience_level;
+                    crmodel = dungeonadd->chosen_creature_kind + 13;
+                    exp = dungeonadd->chosen_experience_level;
                 }
-                unsigned short param2 = gameadd.chosen_player | (exp << 8);
+                unsigned short param2 = dungeonadd->chosen_player | (exp << 8);
                 set_players_packet_action(player, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
             }
             else
@@ -338,15 +339,15 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_StealRoom:
-        clear_messages_from_player(gameadd.chosen_player);
+        clear_messages_from_player(dungeonadd->chosen_player);
         slb = get_slabmap_block(slb_x, slb_y);
         room = room_get(slb->room_index);
-        allowed = ( (room_exists(room)) && (room->owner != gameadd.chosen_player) );
+        allowed = ( (room_exists(room)) && (room->owner != dungeonadd->chosen_player) );
         if (allowed)
         {
             sprintf(str, get_string(419));
         }
-        message_add_timeout(gameadd.chosen_player, 1, str);
+        message_add_timeout(dungeonadd->chosen_player, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {    
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -356,7 +357,7 @@ TbBool packets_process_cheats(
             if (allowed)
             {
                 TbBool effect = (is_key_pressed(KC_RALT, KMod_DONTCARE));
-                set_players_packet_action(player, PckA_CheatStealRoom, gameadd.chosen_player, effect, 0, 0);
+                set_players_packet_action(player, PckA_CheatStealRoom, dungeonadd->chosen_player, effect, 0, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -407,10 +408,10 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_ConvertCreatr:
-        clear_messages_from_player(gameadd.chosen_player);
-        message_add_timeout(gameadd.chosen_player, 1, str);
+        clear_messages_from_player(dungeonadd->chosen_player);
+        message_add_timeout(dungeonadd->chosen_player, 1, str);
         thing = get_creature_near(x, y);
-        if ((!thing_is_creature(thing)) || (thing->owner == gameadd.chosen_player))
+        if ((!thing_is_creature(thing)) || (thing->owner == dungeonadd->chosen_player))
         {
             player->thing_under_hand = 0;
         }
@@ -424,14 +425,14 @@ TbBool packets_process_cheats(
             {
                 return false;
             }
-            set_players_packet_action(player, PckA_CheatConvertCreature, gameadd.chosen_player, 0, 0, 0);
+            set_players_packet_action(player, PckA_CheatConvertCreature, dungeonadd->chosen_player, 0, 0, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
         break;
         case PSt_StealSlab:
         allowed = tag_cursor_blocks_steal_slab(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(gameadd.chosen_player);
-        message_add_timeout(gameadd.chosen_player, 1, str);
+        clear_messages_from_player(dungeonadd->chosen_player);
+        message_add_timeout(dungeonadd->chosen_player, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -455,7 +456,7 @@ TbBool packets_process_cheats(
                         {
                             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
                             {
-                                slbkind = choose_pretty_type(gameadd.chosen_player, slb_x, slb_y);
+                                slbkind = choose_pretty_type(dungeonadd->chosen_player, slb_x, slb_y);
                             }
                             else
                             {
@@ -467,7 +468,7 @@ TbBool packets_process_cheats(
                         {
                             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
                             {
-                                slbkind = choose_pretty_type(gameadd.chosen_player, slb_x, slb_y);
+                                slbkind = choose_pretty_type(dungeonadd->chosen_player, slb_x, slb_y);
                             }
                             else
                             {
@@ -490,7 +491,7 @@ TbBool packets_process_cheats(
                     {
                         effect = false;
                     }
-                    unsigned short param2 = gameadd.chosen_player | (effect << 8);
+                    unsigned short param2 = dungeonadd->chosen_player | (effect << 8);
                     set_players_packet_action(player, PckA_CheatStealSlab, slbkind, param2, 0, 0);
                 }
             }
@@ -545,11 +546,11 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_KillPlayer:
-          clear_messages_from_player(gameadd.chosen_player);
-          struct PlayerInfo* PlayerToKill = get_player(gameadd.chosen_player);
+          clear_messages_from_player(dungeonadd->chosen_player);
+          struct PlayerInfo* PlayerToKill = get_player(dungeonadd->chosen_player);
           if (player_exists(PlayerToKill))
           {
-              message_add_timeout(gameadd.chosen_player, 1, str);
+              message_add_timeout(dungeonadd->chosen_player, 1, str);
               if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
               {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -561,8 +562,8 @@ TbBool packets_process_cheats(
           }
         break;
         case PSt_HeartHealth:
-        clear_messages_from_player(gameadd.chosen_player);
-        thing = get_player_soul_container(gameadd.chosen_player);
+        clear_messages_from_player(dungeonadd->chosen_player);
+        thing = get_player_soul_container(dungeonadd->chosen_player);
         if (!thing_is_invalid(thing))
         {
             message_add_timeout(thing->owner, 1, "%d/%d", thing->health, game.dungeon_heart_health);
@@ -573,7 +574,7 @@ TbBool packets_process_cheats(
         }
         short new_health = thing->health;
         process_cheat_heart_health_inputs(&new_health);
-        set_players_packet_action(player, PckA_CheatHeartHealth, gameadd.chosen_player, new_health, 0, 0);
+        set_players_packet_action(player, PckA_CheatHeartHealth, dungeonadd->chosen_player, new_health, 0, 0);
         break;
         case PSt_CreatrQueryAll:
         case PSt_CreatrInfoAll:
@@ -694,19 +695,19 @@ TbBool packets_process_cheats(
         {
             tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
-            clear_messages_from_player(gameadd.chosen_player);
-            struct SlabAttr *slbattr = get_slab_kind_attrs(gameadd.chosen_terrain_kind);
+            clear_messages_from_player(dungeonadd->chosen_player);
+            struct SlabAttr *slbattr = get_slab_kind_attrs(dungeonadd->chosen_terrain_kind);
             if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
             {
                 const char* msg = get_string(slbattr->tooltip_stridx);
                 strcpy(str, msg);
                 char* dis_msg = strtok(str, ":");
-                message_add_timeout(gameadd.chosen_player, 1, dis_msg);
+                message_add_timeout(dungeonadd->chosen_player, 1, dis_msg);
             }
             else
             {
-                slab_cfgstats = get_slab_kind_stats(gameadd.chosen_terrain_kind);
-                message_add_timeout(gameadd.chosen_player, 1, slab_cfgstats->code_name);            
+                slab_cfgstats = get_slab_kind_stats(dungeonadd->chosen_terrain_kind);
+                message_add_timeout(dungeonadd->chosen_player, 1, slab_cfgstats->code_name);            
             }
             clear_messages_from_player(-127);
             if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
@@ -732,7 +733,7 @@ TbBool packets_process_cheats(
                     delete_room_slab(slb_x, slb_y, true);
                 }
                 PlayerNumber id;
-                if ( (gameadd.chosen_terrain_kind == SlbT_CLAIMED) || ( (gameadd.chosen_terrain_kind >= SlbT_WALLDRAPE) && (gameadd.chosen_terrain_kind <= SlbT_DAMAGEDWALL) ) )
+                if ( (dungeonadd->chosen_terrain_kind == SlbT_CLAIMED) || ( (dungeonadd->chosen_terrain_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_DAMAGEDWALL) ) )
                 {
                     slb = get_slabmap_block(slb_x, slb_y);
                     if ( (slb->kind == SlbT_CLAIMED) || ( (slb->kind >= SlbT_WALLDRAPE) && (slb->kind <= SlbT_DAMAGEDWALL) ) )
@@ -741,24 +742,24 @@ TbBool packets_process_cheats(
                     }
                     else
                     {
-                        id = gameadd.chosen_player;
+                        id = dungeonadd->chosen_player;
                     }
                 }
                 else
                 {
                     id = game.neutral_player_num;
                 }
-                if ( (gameadd.chosen_terrain_kind >= SlbT_WALLDRAPE) && (gameadd.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
+                if ( (dungeonadd->chosen_terrain_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
                 {
                     if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
                     {
-                        gameadd.chosen_terrain_kind = choose_pretty_type(id, slb_x, slb_y);
+                        dungeonadd->chosen_terrain_kind = choose_pretty_type(id, slb_x, slb_y);
                     }
                 }
-                set_players_packet_action(player, PckA_CheatPlaceTerrain, gameadd.chosen_terrain_kind, id, 0, 0);
-                if ( (player->chosen_room_kind >= SlbT_WALLDRAPE) && (gameadd.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
+                set_players_packet_action(player, PckA_CheatPlaceTerrain, dungeonadd->chosen_terrain_kind, id, 0, 0);
+                if ( (player->chosen_room_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
                 {
-                    gameadd.chosen_terrain_kind = rand() % (5) + 4;
+                    dungeonadd->chosen_terrain_kind = rand() % (5) + 4;
                 }
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);

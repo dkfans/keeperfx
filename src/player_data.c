@@ -233,6 +233,7 @@ TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
 {
+  struct DungeonAdd* dungeonadd;
   SYNCDBG(6,"Player %d state %s to %s",(int)player->id_number,player_state_code_name(player->work_state),player_state_code_name(nwrk_state));
   // Selecting the same state again - update only 2nd parameter
   if (player->work_state == nwrk_state)
@@ -299,12 +300,14 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
       player->chosen_door_kind = chosen_kind;
       break;
       case PSt_MkGoodCreatr:
-      clear_messages_from_player(gameadd.chosen_player);
-        gameadd.chosen_player = game.hero_player_num;
+      dungeonadd = get_dungeonadd(player->id_number);
+      clear_messages_from_player(dungeonadd->chosen_player);
+        dungeonadd->chosen_player = game.hero_player_num;
         break;
     case PSt_MkBadCreatr:
-    clear_messages_from_player(gameadd.chosen_player);
-        gameadd.chosen_player = my_player_number;
+    dungeonadd = get_dungeonadd(player->id_number);
+    clear_messages_from_player(dungeonadd->chosen_player);
+        dungeonadd->chosen_player = my_player_number;
         break;
   default:
       break;

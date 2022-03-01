@@ -559,6 +559,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct Packet* pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   struct Dungeon *dungeon;
+  struct DungeonAdd* dungeonadd;
   struct Thing *thing;
   int i;
   switch (pckt->action)
@@ -910,29 +911,34 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_engine_view(player, player->view_mode_restore);
       return false;
   case PckA_CheatSwitchTerrain:
-  {
-      gameadd.chosen_terrain_kind = pckt->actn_par1;
-      return false;
-  }
+    {
+        dungeonadd = get_dungeonadd(player->id_number);
+        dungeonadd->chosen_terrain_kind = pckt->actn_par1;
+        return false;
+    }
   case PckA_CheatSwitchPlayer:
     {
-        clear_messages_from_player(gameadd.chosen_player);
-        gameadd.chosen_player = pckt->actn_par1;
+        dungeonadd = get_dungeonadd(player->id_number);
+        clear_messages_from_player(dungeonadd->chosen_player);
+        dungeonadd->chosen_player = pckt->actn_par1;
         return false;
     }
   case PckA_CheatSwitchCreature:
     {
-        gameadd.chosen_creature_kind = pckt->actn_par1;
+        dungeonadd = get_dungeonadd(player->id_number);
+        dungeonadd->chosen_creature_kind = pckt->actn_par1;
         return false;
     }
   case PckA_CheatSwitchHero:
     {
-        gameadd.chosen_hero_kind = pckt->actn_par1;
+        dungeonadd = get_dungeonadd(player->id_number);
+        dungeonadd->chosen_hero_kind = pckt->actn_par1;
         return false;
     }
   case PckA_CheatSwitchExperience:
     {
-        gameadd.chosen_experience_level = pckt->actn_par1;
+        dungeonadd = get_dungeonadd(player->id_number);
+        dungeonadd->chosen_experience_level = pckt->actn_par1;
         return false;
     }
     default:

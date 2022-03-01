@@ -215,11 +215,6 @@ struct GameAdd {
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
     unsigned char slab_ext_data[85 * 85];
-    SlabKind chosen_terrain_kind;
-    PlayerNumber chosen_player;
-    unsigned char chosen_creature_kind;
-    unsigned char chosen_hero_kind;
-    unsigned char chosen_experience_level;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

@@ -870,9 +870,12 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         set_pointer_graphic(MousePG_Sell);
         break;
     case PSt_PlaceTerrain:
-        i = get_place_terrain_pointer_graphics(gameadd.chosen_terrain_kind);
+    {
+        struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
+        i = get_place_terrain_pointer_graphics(dungeonadd->chosen_terrain_kind);
         set_pointer_graphic(i);
         break;
+    }
     case PSt_MkDigger:
         set_pointer_graphic(MousePG_MkDigger);
         break;
