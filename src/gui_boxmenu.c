@@ -473,7 +473,7 @@ TbBool open_creature_cheat_menu(void)
     return false;
   if (!gui_box_is_not_valid(gui_cheat_box))
     return false;
-  gui_cheat_box = gui_create_box(150,20,gui_creature_cheat_option_list);
+  set_players_packet_action(get_my_player(), PckA_CreatureCheatEnter, 0, 0, 0, 0);
   return (!gui_box_is_not_valid(gui_cheat_box));
 }
 
@@ -485,8 +485,7 @@ TbBool close_creature_cheat_menu(void)
 {
   if (gui_box_is_not_valid(gui_cheat_box))
     return false;
-  gui_delete_box(gui_cheat_box);
-  gui_cheat_box = NULL;
+  set_players_packet_action(get_my_player(), PckA_CreatureCheatExit, 0, 0, 0, 0);
   return true;
 }
 

@@ -164,7 +164,9 @@ enum TbPacketAction {
         PckA_CheatSwitchCreature,
         PckA_CheatSwitchHero,
         PckA_CheatSwitchExperience,
-        PckA_CheatExit
+        PckA_CheatExit,
+        PckA_CreatureCheatEnter,
+        PckA_CreatureCheatExit
 };
 
 /** Packet flags for non-action player operation. */
