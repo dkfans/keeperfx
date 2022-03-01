@@ -338,15 +338,15 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_StealRoom:
-        clear_messages_from_player(selected_player);
+        clear_messages_from_player(gameadd.chosen_player);
         slb = get_slabmap_block(slb_x, slb_y);
         room = room_get(slb->room_index);
-        allowed = ( (room_exists(room)) && (room->owner != selected_player) );
+        allowed = ( (room_exists(room)) && (room->owner != gameadd.chosen_player) );
         if (allowed)
         {
             sprintf(str, get_string(419));
         }
-        message_add_timeout(selected_player, 1, str);
+        message_add_timeout(gameadd.chosen_player, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {    
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -356,7 +356,7 @@ TbBool packets_process_cheats(
             if (allowed)
             {
                 TbBool effect = (is_key_pressed(KC_RALT, KMod_DONTCARE));
-                set_players_packet_action(player, PckA_CheatStealRoom, selected_player, effect, 0, 0);
+                set_players_packet_action(player, PckA_CheatStealRoom, gameadd.chosen_player, effect, 0, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -407,10 +407,10 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_ConvertCreatr:
-        clear_messages_from_player(selected_player);
-        message_add_timeout(selected_player, 1, str);
+        clear_messages_from_player(gameadd.chosen_player);
+        message_add_timeout(gameadd.chosen_player, 1, str);
         thing = get_creature_near(x, y);
-        if ((!thing_is_creature(thing)) || (thing->owner == selected_player))
+        if ((!thing_is_creature(thing)) || (thing->owner == gameadd.chosen_player))
         {
             player->thing_under_hand = 0;
         }
@@ -424,14 +424,14 @@ TbBool packets_process_cheats(
             {
                 return false;
             }
-            set_players_packet_action(player, PckA_CheatConvertCreature, selected_player, 0, 0, 0);
+            set_players_packet_action(player, PckA_CheatConvertCreature, gameadd.chosen_player, 0, 0, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
         break;
         case PSt_StealSlab:
         allowed = tag_cursor_blocks_steal_slab(plyr_idx, stl_x, stl_y);
-        clear_messages_from_player(selected_player);
-        message_add_timeout(selected_player, 1, str);
+        clear_messages_from_player(gameadd.chosen_player);
+        message_add_timeout(gameadd.chosen_player, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -455,7 +455,7 @@ TbBool packets_process_cheats(
                         {
                             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
                             {
-                                slbkind = choose_pretty_type(selected_player, slb_x, slb_y);
+                                slbkind = choose_pretty_type(gameadd.chosen_player, slb_x, slb_y);
                             }
                             else
                             {
@@ -467,7 +467,7 @@ TbBool packets_process_cheats(
                         {
                             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
                             {
-                                slbkind = choose_pretty_type(selected_player, slb_x, slb_y);
+                                slbkind = choose_pretty_type(gameadd.chosen_player, slb_x, slb_y);
                             }
                             else
                             {
@@ -490,7 +490,7 @@ TbBool packets_process_cheats(
                     {
                         effect = false;
                     }
-                    unsigned short param2 = selected_player | (effect << 8);
+                    unsigned short param2 = gameadd.chosen_player | (effect << 8);
                     set_players_packet_action(player, PckA_CheatStealSlab, slbkind, param2, 0, 0);
                 }
             }
@@ -545,11 +545,11 @@ TbBool packets_process_cheats(
             }
             break;
         case PSt_KillPlayer:
-          clear_messages_from_player(selected_player);
-          struct PlayerInfo* PlayerToKill = get_player(selected_player);
+          clear_messages_from_player(gameadd.chosen_player);
+          struct PlayerInfo* PlayerToKill = get_player(gameadd.chosen_player);
           if (player_exists(PlayerToKill))
           {
-              message_add_timeout(selected_player, 1, str);
+              message_add_timeout(gameadd.chosen_player, 1, str);
               if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
               {
                 if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
@@ -561,8 +561,8 @@ TbBool packets_process_cheats(
           }
         break;
         case PSt_HeartHealth:
-        clear_messages_from_player(selected_player);
-        thing = get_player_soul_container(selected_player);
+        clear_messages_from_player(gameadd.chosen_player);
+        thing = get_player_soul_container(gameadd.chosen_player);
         if (!thing_is_invalid(thing))
         {
             message_add_timeout(thing->owner, 1, "%d/%d", thing->health, game.dungeon_heart_health);
@@ -573,7 +573,7 @@ TbBool packets_process_cheats(
         }
         short new_health = thing->health;
         process_cheat_heart_health_inputs(&new_health);
-        set_players_packet_action(player, PckA_CheatHeartHealth, selected_player, new_health, 0, 0);
+        set_players_packet_action(player, PckA_CheatHeartHealth, gameadd.chosen_player, new_health, 0, 0);
         break;
         case PSt_CreatrQueryAll:
         case PSt_CreatrInfoAll:
@@ -694,19 +694,19 @@ TbBool packets_process_cheats(
         {
             tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
-            clear_messages_from_player(selected_player);
+            clear_messages_from_player(gameadd.chosen_player);
             struct SlabAttr *slbattr = get_slab_kind_attrs(gameadd.chosen_terrain_kind);
             if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
             {
                 const char* msg = get_string(slbattr->tooltip_stridx);
                 strcpy(str, msg);
                 char* dis_msg = strtok(str, ":");
-                message_add_timeout(selected_player, 1, dis_msg);
+                message_add_timeout(gameadd.chosen_player, 1, dis_msg);
             }
             else
             {
                 slab_cfgstats = get_slab_kind_stats(gameadd.chosen_terrain_kind);
-                message_add_timeout(selected_player, 1, slab_cfgstats->code_name);            
+                message_add_timeout(gameadd.chosen_player, 1, slab_cfgstats->code_name);            
             }
             clear_messages_from_player(-127);
             if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
@@ -741,7 +741,7 @@ TbBool packets_process_cheats(
                     }
                     else
                     {
-                        id = selected_player;
+                        id = gameadd.chosen_player;
                     }
                 }
                 else
