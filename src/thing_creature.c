@@ -1033,7 +1033,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 cctrl->spell_tngidx_disease[k] = ntng->index;
                 ntng->health = pwrdynst->strength[spell_lev] + 1;
                 ntng->disease.belongs_to = thing->index;
-                ntng->disease.byte_15 = k;
+                ntng->disease.effect_slot = k;
                 ntng->move_angle_xy = thing->move_angle_xy;
                 ntng->move_angle_z = thing->move_angle_z;
                 angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
@@ -1649,7 +1649,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         if (!thing_is_invalid(efthing))
         {
           if (spinfo->cast_effect_model == 14)
-            efthing->hit_type = THit_CrtrsNObjctsNotOwn;
+            efthing->shot_effect.hit_type = THit_CrtrsNObjctsNotOwn;
         }
     }
 }

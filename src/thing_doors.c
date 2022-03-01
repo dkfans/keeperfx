@@ -144,7 +144,7 @@ void lock_door(struct Thing *doortng)
     long stl_x = doortng->mappos.x.stl.num;
     long stl_y = doortng->mappos.y.stl.num;
     doortng->active_state = DorSt_Closed;
-    doortng->door.word_16d = 0;
+    doortng->door.closing_counter = 0;
     doortng->door.is_locked = 1;
     game.field_14EA4B = 1;
     place_animating_slab_type_on_map(dostat->slbkind, 0, stl_x, stl_y, doortng->owner);
@@ -309,15 +309,15 @@ long process_door_open(struct Thing *thing)
 {
     // If doors are locked, delay to closing = 0
     if (thing->door.is_locked)
-        thing->door.byte_15d = 0;
+        thing->door.opening_counter = 0;
     if ( check_door_should_open(thing) )
     {
-        thing->door.byte_15d = 10;
+        thing->door.opening_counter = 10;
         return 0;
     }
-    if (thing->door.byte_15d > 0)
+    if (thing->door.opening_counter > 0)
     {
-        thing->door.byte_15d--;
+        thing->door.opening_counter--;
         return 0;
     }
     thing->active_state = DorSt_Closing;
@@ -337,19 +337,19 @@ long process_door_closed(struct Thing *thing)
 long process_door_opening(struct Thing *thing)
 {
     struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
-    int old_frame = (thing->door.word_16d / 256);
+    int old_frame = (thing->door.closing_counter / 256);
     short delta_h = dostat->field_6;
     int slbparam = dostat->slbkind;
-    if (thing->door.word_16d+delta_h < 768)
+    if (thing->door.closing_counter+delta_h < 768)
     {
-        thing->door.word_16d += delta_h;
+        thing->door.closing_counter += delta_h;
     } else
     {
         thing->active_state = DorSt_Open;
-        thing->door.byte_15d = 10;
-        thing->door.word_16d = 768;
+        thing->door.opening_counter = 10;
+        thing->door.closing_counter = 768;
     }
-    int new_frame = (thing->door.word_16d / 256);
+    int new_frame = (thing->door.closing_counter / 256);
     if (new_frame != old_frame)
       place_animating_slab_type_on_map(slbparam, new_frame, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
     return 1;
@@ -357,7 +357,7 @@ long process_door_opening(struct Thing *thing)
 
 long process_door_closing(struct Thing *thing)
 {
-    int old_frame = (thing->door.word_16d / 256);
+    int old_frame = (thing->door.closing_counter / 256);
     struct DoorStats* dostat = &door_stats[thing->model][thing->door.orientation];
     int delta_h = dostat->field_6;
     int slbparam = dostat->slbkind;
@@ -366,15 +366,15 @@ long process_door_closing(struct Thing *thing)
         thing->active_state = DorSt_Opening;
         thing_play_sample(thing, 91, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
-    if (thing->door.word_16d > delta_h)
+    if (thing->door.closing_counter > delta_h)
     {
-        thing->door.word_16d -= delta_h;
+        thing->door.closing_counter -= delta_h;
     } else
     {
         thing->active_state = DorSt_Closed;
-        thing->door.word_16d = 0;
+        thing->door.closing_counter = 0;
     }
-    int new_frame = (thing->door.word_16d / 256);
+    int new_frame = (thing->door.closing_counter / 256);
     if (new_frame != old_frame)
       place_animating_slab_type_on_map(slbparam, new_frame, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
     return 1;

@@ -137,10 +137,10 @@ void process_dungeon_destroy(struct Thing* heartng)
         struct Thing* efftng;
         efftng = create_effect(central_pos, TngEff_Explosion4, plyr_idx);
         if (!thing_is_invalid(efftng))
-            efftng->effect.hit_type = THit_HeartOnlyNotOwn;
+            efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
         efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
         if (!thing_is_invalid(efftng))
-            efftng->effect.hit_type = THit_HeartOnlyNotOwn;
+            efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
         if (gameadd.heart_lost_display_message)
         {
             if (is_my_player_number(heartng->owner))

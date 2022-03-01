@@ -118,7 +118,7 @@ struct Thing {
         char byte_15;
         unsigned char byte_16;
         TbBool some_chicken_was_sacrifised;
-        unsigned short word_18;
+        unsigned short angle;
       } food;
       struct {
         unsigned char box_kind;
@@ -147,7 +147,7 @@ struct Thing {
       } armor;
       struct {
         short belongs_to;
-        unsigned char byte_15;
+        unsigned char effect_slot;
       } disease;
       struct {
         long room_idx;
@@ -187,7 +187,7 @@ struct Thing {
         char unused;
         short unused2;
         unsigned char hit_type;
-      } effect;
+      } shot_effect;
       struct {
         long number;
       } price_effect;
@@ -205,8 +205,8 @@ struct Thing {
 //TCls_Door
       struct {
       short orientation;
-      unsigned char byte_15d;
-      short word_16d;
+      unsigned char opening_counter;
+      short closing_counter;
       unsigned char is_locked;
       } door;
 //TCls_Unkn10

@@ -1004,7 +1004,7 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
         SYNCDBG(18,"Effect tried to shoot its maker; suicide not implemented");
         return false;
     }
-    HitTargetFlags hit_targets = hit_type_to_hit_targets(efftng->effect.hit_type);
+    HitTargetFlags hit_targets = hit_type_to_hit_targets(efftng->shot_effect.hit_type);
     return area_effect_can_affect_thing(thing, hit_targets, efftng->owner);
 }
 
@@ -1409,7 +1409,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         }
         i = thing->next_on_mapblk;
         // Per thing processing block
-        if ((thing->class_id == TCls_Door) && (efftng->effect.hit_type != 4)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
+        if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != 4)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
             if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
             {
@@ -1453,7 +1453,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         return;
     }
     struct ShotConfigStats* shotst;
-    if (efftng->effect.hit_type == 4) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
+    if (efftng->shot_effect.hit_type == 4) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
     {
         shotst = get_shot_model_stats(31); //SHOT_TRAP_WORD_OF_POWER
     }
@@ -1785,7 +1785,7 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
     {
         for (MapSubtlCoord stl_x = start_x; stl_x <= end_x; stl_x++)
         {
-            HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->effect.hit_type);
+            HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->shot_effect.hit_type);
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage/dmg_divider, 0, hit_targets, area_affect_type, DmgT_Respiratory);
         }

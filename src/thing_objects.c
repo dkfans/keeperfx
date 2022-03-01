@@ -1039,7 +1039,7 @@ long food_moves(struct Thing *objtng)
         has_near_creature = (thing_exists(near_creatng) && (get_2d_box_distance(&objtng->mappos, &near_creatng->mappos) < 768));
         if (has_near_creature)
         {
-            objtng->food.word_18 = get_angle_xy_to(&near_creatng->mappos, &pos);
+            objtng->food.angle = get_angle_xy_to(&near_creatng->mappos, &pos);
             if (objtng->snd_emitter_id == 0)
             {
                 if (UNSYNC_RANDOM(16) == 0) {
@@ -1064,7 +1064,7 @@ long food_moves(struct Thing *objtng)
         {
             set_thing_draw(objtng, 819, -1, -1, -1, 0, 2);
             objtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x39);
-            objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
+            objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
             objtng->food.byte_16 = 0;
         } else
         if ((objtng->anim_speed * objtng->field_49 <= objtng->anim_speed + objtng->field_40) && (objtng->food.byte_16 < 5))
@@ -1074,20 +1074,20 @@ long food_moves(struct Thing *objtng)
     }
     else
     {
-        int vel_x = 32 * LbSinL(objtng->food.word_18) >> 16;
+        int vel_x = 32 * LbSinL(objtng->food.angle) >> 16;
         pos.x.val += vel_x;
-        int vel_y = -(32 * LbCosL(objtng->food.word_18) >> 8) >> 8;
+        int vel_y = -(32 * LbCosL(objtng->food.angle) >> 8) >> 8;
         pos.y.val += vel_y;
         if (thing_in_wall_at(objtng, &pos))
         {
-            objtng->food.word_18 = CREATURE_RANDOM(objtng, 0x7FF);
+            objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
         }
-        long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.word_18);
-        int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.word_18);
+        long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.angle);
+        int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.angle);
         if (dangle > 62)
             dangle = 62;
         objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & LbFPMath_AngleMask;
-        if (get_angle_difference(objtng->move_angle_xy, objtng->food.word_18) < 284)
+        if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < 284)
         {
             struct ComponentVector cvec;
             cvec.x = vel_x;
