@@ -84,7 +84,7 @@ TbBool packets_process_cheats(
         }
         else
         {
-            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[gameadd.chosen_hero_kind];
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[dungeonadd->chosen_hero_kind];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), dungeonadd->chosen_experience_level + 1);
         }
         message_add_timeout(dungeonadd->chosen_player, 1, "%s", str);
@@ -250,7 +250,7 @@ TbBool packets_process_cheats(
         }
         else
         {
-            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[gameadd.chosen_creature_kind + 13];
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[dungeonadd->chosen_creature_kind + 13];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), dungeonadd->chosen_experience_level + 1);
         }
         message_add_timeout(dungeonadd->chosen_player, 1, "%s", str);
