@@ -485,7 +485,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     switch (thing->model)
     {
       case 5:
-        thing->heart.beat_rate = 1;
+        thing->heart.beat_direction = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
         break;
       case 33: // Why it is hardcoded? And what is TempleS
@@ -1401,7 +1401,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     static long bounce = 0;
     if (heartng->active_state != ObSt_BeingDestroyed)
     {
-        long i = (char)heartng->heart.beat_rate;
+        long i = (char)heartng->heart.beat_direction;
         heartng->anim_speed = 0;
         struct ObjectConfig* objconf = get_object_model_stats2(5);
         long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
@@ -1412,13 +1412,13 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         {
             heartng->field_40 = 0;
             light_set_light_intensity(heartng->light_id, 20);
-            heartng->heart.beat_rate = 1;
+            heartng->heart.beat_direction = 1;
         }
         if (heartng->field_40 > base_heart_beat_rate-1)
         {
             heartng->field_40 = base_heart_beat_rate-1;
             light_set_light_intensity(heartng->light_id, 56);
-            heartng->heart.beat_rate = (unsigned char)-1;
+            heartng->heart.beat_direction = (unsigned char)-1;
             if ( bounce )
             {
                 thing_play_sample(heartng, 151, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);

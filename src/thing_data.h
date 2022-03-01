@@ -133,7 +133,7 @@ struct Thing {
       } call_to_arms_flag;
       struct {
         unsigned char some_countdown;
-        unsigned char beat_rate;
+        unsigned char beat_direction;
       } heart;
       struct {
         unsigned char number;
@@ -154,9 +154,9 @@ struct Thing {
       } roomflag;
       struct {
       short unused3;
-      long long_15;
+      long turntime;
       unsigned char byte_19;
-      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and long_15 
+      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and turntime 
 //TCls_Shot
       struct {
         unsigned char dexterity;
