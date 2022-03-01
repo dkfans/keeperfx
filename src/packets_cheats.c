@@ -757,7 +757,7 @@ TbBool packets_process_cheats(
                     }
                 }
                 set_players_packet_action(player, PckA_CheatPlaceTerrain, dungeonadd->chosen_terrain_kind, id, 0, 0);
-                if ( (player->chosen_room_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
+                if ( (dungeonadd->chosen_terrain_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
                 {
                     dungeonadd->chosen_terrain_kind = rand() % (5) + 4;
                 }
