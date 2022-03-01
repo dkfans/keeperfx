@@ -159,7 +159,7 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crea
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             creatng->continue_state = get_continue_state_for_job(jobpref);
             tortrtng->torturer.belongs_to = creatng->index;
-            tortrtng->torturer.spr_size = tortrtng->sprite_size;
+            tortrtng->torturer.cssize = tortrtng->sprite_size;
             cctrl->assigned_torturer = tortrtng->index;
             return 1;
         }
