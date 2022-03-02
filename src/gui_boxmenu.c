@@ -52,7 +52,7 @@ extern struct GuiBoxOption gui_instance_option_list[];
 */
 
 long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
-long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
+long gf_change_creature_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_research_rooms(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_make_everything_free(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
@@ -109,37 +109,37 @@ struct GuiBoxOption gui_creature_cheat_option_list[] = {
 };
 
 struct GuiBoxOption gui_instance_option_list[] = {
- {"Fireball",1,gfa_controlled_creature_has_instance,gf_change_player_instance, CrInst_FIREBALL, 0, 0,  5, 0, 0, 0, 0},
- {"Meteor",1, gfa_controlled_creature_has_instance, gf_change_player_instance, CrInst_FIRE_BOMB, 0, 0,  6, 0, 0, 0, 0},
- {"Freeze",1, gfa_controlled_creature_has_instance, gf_change_player_instance, CrInst_FREEZE, 0, 0,  7, 0, 0, 0, 0},
- {"Armour",1, gfa_controlled_creature_has_instance, gf_change_player_instance, CrInst_ARMOUR, 0, 0,  8, 0, 0, 0, 0},
- {"Lightning",1,gfa_controlled_creature_has_instance,gf_change_player_instance,CrInst_LIGHTNING, 0, 0,  9, 0, 0, 0, 0},
- {"Rebound",1,gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_REBOUND, 0, 0, 10, 0, 0, 0, 0},
- {"Heal",1,   gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_HEAL, 0, 0, 11, 0, 0, 0, 0},
- {"Poison Cloud",1,gfa_controlled_creature_has_instance,gf_change_player_instance,CrInst_POISON_CLOUD,0,0,12,0, 0, 0, 0},
- {"Invisibility",1,gfa_controlled_creature_has_instance,gf_change_player_instance,CrInst_INVISIBILITY,0,0,13,0, 0, 0, 0},
- {"Teleport",1,gfa_controlled_creature_has_instance,gf_change_player_instance,CrInst_TELEPORT, 0, 0, 14, 0, 0, 0, 0},
- {"Speed", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_SPEED, 0, 0, 15, 0, 0, 0, 0},
- {"Slow",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_SLOW, 0, 0, 16, 0, 0, 0, 0},
- {"Drain", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_DRAIN, 0, 0, 17, 0, 0, 0, 0},
- {"Fear",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_FEAR, 0, 0, 18, 0, 0, 0, 0},
- {"Missile",1,gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_MISSILE, 0, 0, 19, 0, 0, 0, 0},
- {"Homer", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_NAVIGATING_MISSILE, 0, 0, 20, 0, 0, 0, 0},
- {"Breath",1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_FLAME_BREATH, 0, 0, 21, 0, 0, 0, 0},
- {"Wind",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_WIND, 0, 0, 22, 0, 0, 0, 0},
- {"Light", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_LIGHT, 0, 0, 23, 0, 0, 0, 0},
- {"Fly",   1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_FLY, 0, 0, 24, 0, 0, 0, 0},
- {"Sight", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_SIGHT, 0, 0, 25, 0, 0, 0, 0},
- {"Grenade",1,gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_GRENADE, 0, 0, 26, 0, 0, 0, 0},
- {"Hail",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_HAILSTORM, 0, 0, 27, 0, 0, 0, 0},
- {"WOP",   1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_WORD_OF_POWER, 0, 0, 28, 0, 0, 0, 0},
- {"Fart",  1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_FART, 0, 0, 29, 0, 0, 0, 0},
- {"Dig",   1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_FIRST_PERSON_DIG, 0, 0, 39, 0, 0, 0, 0},
- {"Arrow", 1, gfa_controlled_creature_has_instance, gf_change_player_instance, CrInst_FIRE_ARROW, 0, 0,  4, 0, 0, 0, 0},
- {"Lizard", 1, gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_LIZARD, 0, 0, 40, 0, 0, 0, 0},
- {"Disease",1,gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_CAST_SPELL_DISEASE, 0, 0, 41, 0, 0, 0, 0},
- {"Chicken",1,gfa_controlled_creature_has_instance, gf_change_player_instance,CrInst_CAST_SPELL_CHICKEN, 0, 0, 42, 0, 0, 0, 0},
- {"!",     0,                          NULL,                             NULL, 0, 0, 0,  0, 0, 0, 0, 0},
+ {"Fireball",1,NULL,gf_change_creature_instance, CrInst_FIREBALL, 0, 0,  CrInst_FIREBALL, 0, 0, 0, true},
+ {"Meteor",1, NULL, gf_change_creature_instance, CrInst_FIRE_BOMB, 0, 0,  CrInst_FIRE_BOMB, 0, 0, 0, true},
+ {"Freeze",1, NULL, gf_change_creature_instance, CrInst_FREEZE, 0, 0,  CrInst_FREEZE, 0, 0, 0, true},
+ {"Armour",1, NULL, gf_change_creature_instance, CrInst_ARMOUR, 0, 0,  CrInst_ARMOUR, 0, 0, 0, true},
+ {"Lightning",1,NULL,gf_change_creature_instance,CrInst_LIGHTNING, 0, 0,  CrInst_LIGHTNING, 0, 0, 0, true},
+ {"Rebound",1,NULL, gf_change_creature_instance,CrInst_REBOUND, 0, 0, CrInst_REBOUND, 0, 0, 0, true},
+ {"Heal",1,   NULL, gf_change_creature_instance,CrInst_HEAL, 0, 0, CrInst_HEAL, 0, 0, 0, true},
+ {"Poison Cloud",1,NULL,gf_change_creature_instance,CrInst_POISON_CLOUD,0,0,CrInst_POISON_CLOUD,0, 0, 0, true},
+ {"Invisibility",1,NULL,gf_change_creature_instance,CrInst_INVISIBILITY,0,0,CrInst_INVISIBILITY,0, 0, 0, true},
+ {"Teleport",1,NULL,gf_change_creature_instance,CrInst_TELEPORT, 0, 0, CrInst_TELEPORT, 0, 0, 0, true},
+ {"Speed", 1, NULL, gf_change_creature_instance,CrInst_SPEED, 0, 0, CrInst_SPEED, 0, 0, 0, true},
+ {"Slow",  1, NULL, gf_change_creature_instance,CrInst_SLOW, 0, 0, CrInst_SLOW, 0, 0, 0, true},
+ {"Drain", 1, NULL, gf_change_creature_instance,CrInst_DRAIN, 0, 0, CrInst_DRAIN, 0, 0, 0, true},
+ {"Fear",  1, NULL, gf_change_creature_instance,CrInst_FEAR, 0, 0, CrInst_FEAR, 0, 0, 0, true},
+ {"Missile",1,NULL, gf_change_creature_instance,CrInst_MISSILE, 0, 0, CrInst_MISSILE, 0, 0, 0, true},
+ {"Homer", 1, NULL, gf_change_creature_instance,CrInst_NAVIGATING_MISSILE, 0, 0, CrInst_NAVIGATING_MISSILE, 0, 0, 0, true},
+ {"Breath",1, NULL, gf_change_creature_instance,CrInst_FLAME_BREATH, 0, 0, CrInst_FLAME_BREATH, 0, 0, 0, true},
+ {"Wind",  1, NULL, gf_change_creature_instance,CrInst_WIND, 0, 0, CrInst_WIND, 0, 0, 0, true},
+ {"Light", 1, NULL, gf_change_creature_instance,CrInst_LIGHT, 0, 0, CrInst_LIGHT, 0, 0, 0, true},
+ {"Fly",   1, NULL, gf_change_creature_instance,CrInst_FLY, 0, 0, CrInst_FLY, 0, 0, 0, true},
+ {"Sight", 1, NULL, gf_change_creature_instance,CrInst_SIGHT, 0, 0, CrInst_SIGHT, 0, 0, 0, true},
+ {"Grenade",1,NULL, gf_change_creature_instance,CrInst_GRENADE, 0, 0, CrInst_GRENADE, 0, 0, 0, true},
+ {"Hail",  1, NULL, gf_change_creature_instance,CrInst_HAILSTORM, 0, 0, CrInst_HAILSTORM, 0, 0, 0, true},
+ {"WOP",   1, NULL, gf_change_creature_instance,CrInst_WORD_OF_POWER, 0, 0, CrInst_WORD_OF_POWER, 0, 0, 0, true},
+ {"Fart",  1, NULL, gf_change_creature_instance,CrInst_FART, 0, 0, CrInst_FART, 0, 0, 0, true},
+ {"Dig",   1, NULL, gf_change_creature_instance,CrInst_FIRST_PERSON_DIG, 0, 0, CrInst_FIRST_PERSON_DIG, 0, 0, 0, true},
+ {"Arrow", 1, NULL, gf_change_creature_instance, CrInst_FIRE_ARROW, 0, 0,  CrInst_FIRE_ARROW, 0, 0, 0, true},
+ {"Lizard", 1, NULL, gf_change_creature_instance,CrInst_LIZARD, 0, 0, CrInst_LIZARD, 0, 0, 0, true},
+ {"Disease",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_DISEASE, 0, 0, CrInst_CAST_SPELL_DISEASE, 0, 0, 0, true},
+ {"Chicken",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_CHICKEN, 0, 0, CrInst_CAST_SPELL_CHICKEN, 0, 0, 0, true},
+ {"!",     0,                          NULL,                             NULL, 0, 0, 0,  0, 0, 0, 0, false},
 };
 
 // Boxes used for service/cheat menu
@@ -181,10 +181,10 @@ long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
   return 1;
 }
 
-long gf_change_player_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
+long gf_change_creature_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
     struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, *tag, 0, 0, 0);
+    set_players_packet_action(player, PckA_CheatCtrlCrtrSetInstnc, *tag, 0, 0, 0);
     return 1;
 }
 

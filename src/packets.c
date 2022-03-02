@@ -1409,6 +1409,21 @@ void process_players_creature_control_packet_action(long plyr_idx)
         }
       }
       break;
+  case PckA_CheatCtrlCrtrSetInstnc:
+      thing = thing_get(player->controlled_thing_idx);
+      if (thing_is_invalid(thing))
+        break;
+      cctrl = creature_control_get_from_thing(thing);
+      if (creature_control_invalid(cctrl))
+        break;
+      i = pckt->actn_par1;
+      inst_inf = creature_instance_info_get(i);
+      k = (!inst_inf->instant) ? get_human_controlled_creature_target(thing, inst_inf->field_1D) : 0;
+      set_creature_instance(thing, i, 1, k, 0);
+      if ( (plyr_idx == my_player_number) && creature_instance_is_available(thing,i) ) {
+          instant_instance_selected(i);
+      }
+      break;
       case PckA_DirectCtrlDragDrop:
       {
          direct_control_pick_up_or_drop(player);
