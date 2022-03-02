@@ -2078,7 +2078,7 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
-TbBool cheat_menu_active = (gui_box != NULL);
+TbBool cheat_menu_active = ( (gui_box != NULL) || (gui_cheat_box != NULL) );
 if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
   {
       if (cheat_menu_active == false)
