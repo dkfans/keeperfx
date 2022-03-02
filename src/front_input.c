@@ -2078,58 +2078,67 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
+TbBool cheat_menu_active = (gui_box != NULL);
 if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
-    LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
-  // Set pos_x and pos_y
-  if (settings.first_person_move_invert)
-    pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
-  else
-    pckt->pos_y = 255 * y / MyScreenHeight;
-  pckt->pos_x = 255 * x / MyScreenWidth;
-  // Update the position based on current settings
-  long i = settings.first_person_move_sensitivity + 1;
-  x = pckt->pos_x - 127;
-  y = pckt->pos_y - 127;
-  if (i < 6)
   {
-      k = 5 - settings.first_person_move_sensitivity;
-      pckt->pos_x = x/k + 127;
-      pckt->pos_y = y/k + 127;
-  } else
-  if (i > 6)
-  {
-      k = settings.first_person_move_sensitivity - 5;
-      pckt->pos_x = k*x + 127;
-      pckt->pos_y = k*y + 127;
+      if (cheat_menu_active == false)
+      {
+          LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
+      }
   }
-  // Bound posx and pos_y
-  if (pckt->pos_x > map_subtiles_x)
-    pckt->pos_x = map_subtiles_x;
-  if (pckt->pos_y > map_subtiles_y)
-    pckt->pos_y = map_subtiles_y;
-  // Now do user actions
-  if (thing_is_invalid(thing))
-    return;
-  if (thing->class_id == TCls_Creature)
+  // Set pos_x and pos_y
+  if (cheat_menu_active == false)
   {
-      if ( left_button_clicked )
+      if (settings.first_person_move_invert)
+        pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
+      else
+        pckt->pos_y = 255 * y / MyScreenHeight;
+      pckt->pos_x = 255 * x / MyScreenWidth;
+      // Update the position based on current settings
+      long i = settings.first_person_move_sensitivity + 1;
+      x = pckt->pos_x - 127;
+      y = pckt->pos_y - 127;
+      if (i < 6)
       {
-          left_button_clicked = 0;
-          left_button_released = 0;
-      }
-      if ( right_button_clicked )
+          k = 5 - settings.first_person_move_sensitivity;
+          pckt->pos_x = x/k + 127;
+          pckt->pos_y = y/k + 127;
+      } else
+      if (i > 6)
       {
-          right_button_clicked = 0;
-          right_button_released = 0;
+          k = settings.first_person_move_sensitivity - 5;
+          pckt->pos_x = k*x + 127;
+          pckt->pos_y = k*y + 127;
       }
-      if ( is_game_key_pressed(Gkey_MoveLeft, NULL, true) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
-          set_packet_control(pckt, PCtr_MoveLeft);
-      if ( is_game_key_pressed(Gkey_MoveRight, NULL, true) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
-          set_packet_control(pckt, PCtr_MoveRight);
-      if ( is_game_key_pressed(Gkey_MoveUp, NULL, true) || is_key_pressed(KC_UP,KMod_DONTCARE) )
-          set_packet_control(pckt, PCtr_MoveUp);
-      if ( is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
-          set_packet_control(pckt, PCtr_MoveDown);
+      // Bound posx and pos_y
+      if (pckt->pos_x > map_subtiles_x)
+        pckt->pos_x = map_subtiles_x;
+      if (pckt->pos_y > map_subtiles_y)
+        pckt->pos_y = map_subtiles_y;
+      // Now do user actions
+      if (thing_is_invalid(thing))
+        return;
+      if (thing->class_id == TCls_Creature)
+      {
+          if ( left_button_clicked )
+          {
+              left_button_clicked = 0;
+              left_button_released = 0;
+          }
+          if ( right_button_clicked )
+          {
+              right_button_clicked = 0;
+              right_button_released = 0;
+          }
+          if ( is_game_key_pressed(Gkey_MoveLeft, NULL, true) || is_key_pressed(KC_LEFT,KMod_DONTCARE) )
+              set_packet_control(pckt, PCtr_MoveLeft);
+          if ( is_game_key_pressed(Gkey_MoveRight, NULL, true) || is_key_pressed(KC_RIGHT,KMod_DONTCARE) )
+              set_packet_control(pckt, PCtr_MoveRight);
+          if ( is_game_key_pressed(Gkey_MoveUp, NULL, true) || is_key_pressed(KC_UP,KMod_DONTCARE) )
+              set_packet_control(pckt, PCtr_MoveUp);
+          if ( is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
+              set_packet_control(pckt, PCtr_MoveDown);
+      }
   }
 }
 
