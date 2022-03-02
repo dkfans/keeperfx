@@ -86,7 +86,7 @@ struct GuiBoxOption {
        long acb_param1;
        long field_11;
        long field_15;
-       long field_19;
+       long cb_param1;
        long field_1D;
        long field_21;
        TbBool active;

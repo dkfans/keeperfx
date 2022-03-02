@@ -596,7 +596,7 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
   {
     goptn = &gbox->optn_list[opt_num];
     if (goptn->callback != NULL)
-      goptn->callback(gbox, goptn, 1, &goptn->field_19);
+      goptn->callback(gbox, goptn, 1, &goptn->cb_param1);
 //TODO GUI: activate option
     return goptn;
   }
@@ -710,7 +710,7 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
     if (goptn->numfield_4 == 1)
     {
       if (goptn->callback != NULL)
-        goptn->callback(gbox, goptn, button_num, &goptn->field_19);
+        goptn->callback(gbox, goptn, button_num, &goptn->cb_param1);
     }
     return true;
   }
