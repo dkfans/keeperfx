@@ -423,14 +423,18 @@ short gui_move_box(struct GuiBox *gbox, long x, long y, unsigned short fdflags)
  */
 short toggle_main_cheat_menu(void)
 {
+  long mouse_x = GetMouseX();
+  long mouse_y = GetMouseY();
   if ((gui_box==NULL) || (gui_box_is_not_valid(gui_box)))
   {
     if ((game.flags_font & FFlg_AlexCheat) == 0)
       return false;
-    set_players_packet_action(get_my_player(), PckA_CheatEnter, 0, 0, 0, 0);
+    gui_box = gui_create_box(mouse_x,mouse_y,gui_main_cheat_list);
+    gui_move_box(gui_box, mouse_x, mouse_y, Fnt_CenterPos);
   } else
   {
-      set_players_packet_action(get_my_player(), PckA_CheatExit, 0, 0, 0, 0);
+    gui_delete_box(gui_box);
+    gui_box=NULL;
   }
   return true;
 }
@@ -446,14 +450,15 @@ short toggle_instance_cheat_menu(void)
     {
         if ((game.flags_font & FFlg_AlexCheat) == 0)
             return false;
-        set_players_packet_action(get_my_player(), PckA_InstanceCheatEnter, 0, 0, 0, 0);
+        gui_box = gui_create_box(200,20,gui_instance_option_list);
 /*
           player->unknownbyte  |= 0x08;
           game.unknownbyte |= 0x08;
 */
     } else
     {
-        set_players_packet_action(get_my_player(), PckA_CheatExit, 0, 0, 0, 0);
+        gui_delete_box(gui_box);
+        gui_box=NULL;
 /*
           player->unknownbyte &= 0xF7;
           game.unknownbyte &= 0xF7;
@@ -472,7 +477,7 @@ TbBool open_creature_cheat_menu(void)
     return false;
   if (!gui_box_is_not_valid(gui_cheat_box))
     return false;
-  set_players_packet_action(get_my_player(), PckA_CreatureCheatEnter, 0, 0, 0, 0);
+  gui_cheat_box = gui_create_box(150,20,gui_creature_cheat_option_list);
   return (!gui_box_is_not_valid(gui_cheat_box));
 }
 
@@ -484,7 +489,8 @@ TbBool close_creature_cheat_menu(void)
 {
   if (gui_box_is_not_valid(gui_cheat_box))
     return false;
-  set_players_packet_action(get_my_player(), PckA_CreatureCheatExit, 0, 0, 0, 0);
+  gui_delete_box(gui_cheat_box);
+  gui_cheat_box = NULL;
   return true;
 }
 
