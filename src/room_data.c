@@ -2247,12 +2247,19 @@ TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlC
 short room_grow_food(struct Room *room)
 {
     //return _DK_room_grow_food(room);
-    if (room->slabs_count < 1) {
+    if (room->slabs_count < 1)
+    {
         ERRORLOG("Room %s index %d has no slabs",room_code_name(room->kind),(int)room->index);
         return 0;
     }
+    if (room->used_capacity > room->total_capacity)
+    {
+        ERRORLOG("Room %s index %d has too much used capacity: %d/%d", room_code_name(room->kind), (int)room->index, room->used_capacity, room->total_capacity);
+        count_food_in_room(room);
+    }
     if ((room->used_capacity >= room->total_capacity)
-      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1)) {
+      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1))
+    {
         return 0;
     }
     unsigned long k;
