@@ -177,7 +177,7 @@ struct Thing {
       } shot_lizard;
       struct {
         unsigned char range;
-      } shot_lizard2;// both shot_lizard and shot_lizard2 are used in same function on same object but have 1 byte overlapping between target_idx and range 
+      } shot_lizard2;// both shot_lizard and shot_lizard2 are used in same function on same object but have 1 byte overlapping between x and range 
 //TCls_EffectElem
 //TCls_DeadCreature
       struct {
