@@ -2115,6 +2115,7 @@ if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
         pckt->pos_x = map_subtiles_x;
       if (pckt->pos_y > map_subtiles_y)
         pckt->pos_y = map_subtiles_y;
+  }
       // Now do user actions
       if (thing_is_invalid(thing))
         return;
@@ -2139,7 +2140,6 @@ if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
           if ( is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN,KMod_DONTCARE) )
               set_packet_control(pckt, PCtr_MoveDown);
       }
-  }
 }
 
 static void speech_pickup_of_gui_job(int job_idx)
