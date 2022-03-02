@@ -697,6 +697,10 @@ TbBool packets_process_cheats(
             struct SlabConfigStats* slab_cfgstats;
             clear_messages_from_player(dungeonadd->chosen_player);
             struct SlabAttr *slbattr = get_slab_kind_attrs(dungeonadd->chosen_terrain_kind);
+            if (slab_kind_has_no_ownership(dungeonadd->chosen_terrain_kind))
+            {
+                dungeonadd->chosen_player = game.neutral_player_num;
+            }
             if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
             {
                 const char* msg = get_string(slbattr->tooltip_stridx);

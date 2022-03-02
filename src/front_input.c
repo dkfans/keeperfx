@@ -2513,6 +2513,13 @@ void process_cheat_mode_selection_inputs()
     unsigned char new_value;
     struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
     // player selection
+    if (player->work_state == PSt_PlaceTerrain)
+    {
+        if (slab_kind_has_no_ownership(dungeonadd->chosen_terrain_kind))
+        {
+            goto INPUTS;
+        }
+    }        
     if (is_key_pressed(KC_NUMPAD0, KMod_DONTCARE))
     {
         new_value = 0;
@@ -2549,6 +2556,7 @@ void process_cheat_mode_selection_inputs()
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD5);
     }
+    INPUTS:
     // state-specific inputs
     switch (player->work_state)
     {

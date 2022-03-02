@@ -948,6 +948,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     {
         dungeonadd = get_dungeonadd(player->id_number);
         dungeonadd->chosen_terrain_kind = pckt->actn_par1;
+        if (slab_kind_has_no_ownership(dungeonadd->chosen_terrain_kind))
+        {
+           clear_messages_from_player(dungeonadd->chosen_player);
+           dungeonadd->chosen_player = game.neutral_player_num; 
+        }
         return false;
     }
   case PckA_CheatSwitchPlayer:
