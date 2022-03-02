@@ -139,6 +139,7 @@ struct GuiBoxOption gui_instance_option_list[] = {
  {"Lizard", 1, NULL, gf_change_creature_instance,CrInst_LIZARD, 0, 0, CrInst_LIZARD, 0, 0, 0, true},
  {"Disease",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_DISEASE, 0, 0, CrInst_CAST_SPELL_DISEASE, 0, 0, 0, true},
  {"Chicken",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_CHICKEN, 0, 0, CrInst_CAST_SPELL_CHICKEN, 0, 0, 0, true},
+ {"Time Bomb",1,NULL, gf_change_creature_instance,CrInst_CAST_SPELL_TIME_BOMB, 0, 0, CrInst_CAST_SPELL_TIME_BOMB, 0, 0, 0, true},
  {"!",     0,                          NULL,                             NULL, 0, 0, 0,  0, 0, 0, 0, false},
 };
 
