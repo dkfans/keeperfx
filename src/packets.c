@@ -1321,7 +1321,7 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    if (pckt->pos_x > 0)
+    if (pckt->pos_x != 0)
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
         i = pckt->pos_y;
