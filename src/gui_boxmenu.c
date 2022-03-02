@@ -640,7 +640,7 @@ void gui_draw_box(struct GuiBox *gbox)
         while (goptn->label[0] != '!')
         {
           if (goptn->active_cb != NULL)
-            goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->field_D);
+            goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->acb_param1);
           else
             goptn->field_26 = 1;
           if (!goptn->field_26)
@@ -672,7 +672,7 @@ void gui_draw_box(struct GuiBox *gbox)
         while (goptn->label[0] != '!')
         {
             if (goptn->active_cb != NULL)
-              goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->field_D);
+              goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->acb_param1);
             else
               goptn->field_26 = 1;
             if (!goptn->field_26)
