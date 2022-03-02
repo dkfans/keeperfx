@@ -161,9 +161,9 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
 
         data_list[i].numfield_4 = 1;
         data_list[i].callback = click_fn;
-        data_list[i].field_D = plyr_idx;
+        data_list[i].acb_param1 = plyr_idx;
         data_list[i].field_11 = max_count;
-        data_list[i].field_19 = plyr_idx;
+        data_list[i].cb_param1 = plyr_idx;
         data_list[i].field_1D = i;
     }
     data_list[i].label = "!";
