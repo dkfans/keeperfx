@@ -1321,37 +1321,40 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
-    i = pckt->pos_y;
-    if (i < 5)
-      i = 5;
-    else
-    if (i > 250)
-      i = 250;
-    long k = i - 127;
-    long angle = (pckt->pos_x - 127) / player->field_14;
-    if (angle != 0)
+    if (gui_box == NULL)
     {
-      if (angle < -32)
-          angle = -32;
-      else
-      if (angle > 32)
-          angle = 32;
-      ccctrl->field_6C += 56 * angle / 32;
+        struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
+        i = pckt->pos_y;
+        if (i < 5)
+          i = 5;
+        else
+        if (i > 250)
+          i = 250;
+        long k = i - 127;
+        long angle = (pckt->pos_x - 127) / player->field_14;
+        if (angle != 0)
+        {
+          if (angle < -32)
+              angle = -32;
+          else
+          if (angle > 32)
+              angle = 32;
+          ccctrl->field_6C += 56 * angle / 32;
+        }
+        long angle_limit = crstat->max_angle_change;
+        if (angle_limit < 1)
+            angle_limit = 1;
+        angle = ccctrl->field_6C;
+        if (angle < -angle_limit)
+            angle = -angle_limit;
+        else
+        if (angle > angle_limit)
+            angle = angle_limit;
+        cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
+        cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
+        ccctrl->field_CC = 170 * angle / angle_limit;
+        ccctrl->field_6C = 4 * angle / 8;
     }
-    long angle_limit = crstat->max_angle_change;
-    if (angle_limit < 1)
-        angle_limit = 1;
-    angle = ccctrl->field_6C;
-    if (angle < -angle_limit)
-        angle = -angle_limit;
-    else
-    if (angle > angle_limit)
-        angle = angle_limit;
-    cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
-    cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
-    ccctrl->field_CC = 170 * angle / angle_limit;
-    ccctrl->field_6C = 4 * angle / 8;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
