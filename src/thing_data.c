@@ -182,17 +182,44 @@ struct Thing *thing_get_f(long tng_idx, const char *func_name)
     return INVALID_THING;
 }
 
+/**
+ * Returns object of given array index. similar to thing_get_f but only for objects
+ * @param obj_idx
+ * @return Returns object, or invalid thing pointer if not found.
+ */
+struct Thing *object_get_f(long obj_idx, const char *func_name)
+{
+    if ((obj_idx > 0) && (obj_idx < THINGS_COUNT)) {
+        return gameadd.objects.lookup[obj_idx];
+    }
+    if ((obj_idx < -1) || (obj_idx >= THINGS_COUNT)) {
+        ERRORMSG("%s: Request of invalid thing (no %d) intercepted",func_name,(int)obj_idx);
+    }
+    return INVALID_THING;
+}
+
 long thing_get_index(const struct Thing *thing)
 {
-    long tng_idx = (thing - game.things.lookup[0]);
-    if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
-        return tng_idx;
+    if (thing->class_id == TCls_Object)
+    {
+        long tng_idx = (thing - gameadd.objects.lookup[0]);
+        if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
+            return tng_idx;
+    }
+    else
+    {
+        long tng_idx = (thing - game.things.lookup[0]);
+        if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
+            return tng_idx;
+    }
     return 0;
 }
 
 short thing_is_invalid(const struct Thing *thing)
 {
-    return (thing <= game.things.lookup[0]) || (thing > game.things.lookup[THINGS_COUNT-1]) || (thing == NULL);
+    short out_of_bounds_objects = (thing <= gameadd.objects.lookup[0]) || (thing > gameadd.objects.lookup[THINGS_COUNT-1]);
+    short out_of_bounds_things  = (thing <= game.things.lookup[0])     || (thing > game.things.lookup[THINGS_COUNT-1]);
+    return  (out_of_bounds_objects && out_of_bounds_things) || (thing == NULL);
 }
 
 TbBool thing_exists_idx(long tng_idx)

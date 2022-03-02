@@ -276,6 +276,8 @@ TbBool is_in_free_things_list(long tng_idx);
 
 #define thing_get(tng_idx) thing_get_f(tng_idx, __func__)
 struct Thing *thing_get_f(long tng_idx, const char *func_name);
+#define object_get(tng_idx) object_get_f(tng_idx, __func__)
+struct Thing *object_get_f(long tng_idx, const char *func_name);
 TbBool thing_exists_idx(long tng_idx);
 TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);

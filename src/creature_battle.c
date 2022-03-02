@@ -171,7 +171,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
         return 0;
     }
     // Other creatures can flee to heart or their lair
-    struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
+    struct Thing* lairtng = object_get(cctrl->lairtng_idx);
     if ( (!thing_is_invalid(lairtng)) && (creature_can_navigate_to_with_storage(creatng, &lairtng->mappos, NavRtF_Default)) )
     {
         TRACE_THING(lairtng);

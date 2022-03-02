@@ -91,7 +91,10 @@ void add_thing_to_list(struct Thing *thing, struct StructureList *list)
     }
     struct Thing* prevtng = INVALID_THING;
     if (list->index > 0) {
-        prevtng = thing_get(list->index);
+        if (thing->class_id == TCls_Object)
+            prevtng = object_get(list->index);
+        else
+            prevtng = thing_get(list->index);
     }
     list->count++;
     thing->alloc_flags |= TAlF_IsInStrucList;
@@ -113,7 +116,11 @@ void remove_thing_from_list(struct Thing *thing, struct StructureList *slist)
         slist->index = thing->next_of_class;
         if (thing->next_of_class > 0)
         {
-            sibtng = thing_get(thing->next_of_class);
+            if (thing->class_id == TCls_Object)
+                sibtng = object_get(thing->next_of_class);
+            else
+                sibtng = thing_get(thing->next_of_class);
+
             if (!thing_is_invalid(sibtng))
             {
                 sibtng->prev_of_class = 0;
@@ -133,7 +140,10 @@ void remove_thing_from_list(struct Thing *thing, struct StructureList *slist)
         }
         if (thing->next_of_class > 0)
         {
-            sibtng = thing_get(thing->next_of_class);
+            if (thing->class_id == TCls_Object)
+                sibtng = object_get(thing->next_of_class);
+            else
+                sibtng = thing_get(thing->next_of_class);
             if (!thing_is_invalid(sibtng))
             {
                 sibtng->prev_of_class = thing->prev_of_class;
@@ -852,7 +862,13 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
     int i = list->index;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing* thing;
+
+        if (thing->class_id == TCls_Object)
+            thing = object_get(i);
+        else
+            thing = thing_get(i);
+
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -1014,7 +1030,7 @@ struct Thing *find_players_dungeon_heart(PlayerNumber plyridx)
     int i = game.thing_lists[TngList_Objects].index;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing* thing = object_get(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");

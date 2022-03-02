@@ -929,7 +929,7 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
     //Remove the totem thing
     if (cctrl->lairtng_idx > 0)
     {
-        struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
+        struct Thing* lairtng = object_get(cctrl->lairtng_idx);
         TRACE_THING(lairtng);
         create_effect(&lairtng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
         delete_lair_totem(lairtng);
@@ -939,7 +939,7 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
 
 TbBool delete_lair_totem(struct Thing *lairtng)
 {
-    struct Thing* creatng = thing_get(lairtng->belongs_to);
+    struct Thing* creatng = object_get(lairtng->belongs_to);
     if (thing_is_creature(creatng)) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         cctrl->lair_room_id = 0;
@@ -2135,7 +2135,7 @@ struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing* thing = object_get(i);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");
