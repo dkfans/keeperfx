@@ -1321,6 +1321,7 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
+    // TODO find a better way of intercepting this, as this doesn't work in packet replay
     if ( (gui_box == NULL) && (gui_cheat_box == NULL) )
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
