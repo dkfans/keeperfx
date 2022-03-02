@@ -89,8 +89,8 @@ struct GuiBoxOption {
        long field_19;
        long field_1D;
        long field_21;
-       char active;
-       char field_26;
+       TbBool active;
+       TbBool enabled;
 };
 
 struct GuiBox {

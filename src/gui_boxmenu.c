@@ -562,7 +562,7 @@ struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, 
             long width = LbTextStringWidth(gboptn->label) * ((long)pixel_size);
             if ((x >= sx) && (x < sx + width))
             {
-                if ((gboptn->numfield_4 == 2) || (gboptn->field_26 == 0))
+                if ((gboptn->numfield_4 == 2) || (gboptn->enabled == 0))
                     return NULL;
                 return gboptn;
             }
@@ -640,10 +640,10 @@ void gui_draw_box(struct GuiBox *gbox)
         while (goptn->label[0] != '!')
         {
           if (goptn->active_cb != NULL)
-            goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->acb_param1);
+            goptn->enabled = (goptn->active_cb)(gbox, goptn, &goptn->acb_param1);
           else
-            goptn->field_26 = 1;
-          if (!goptn->field_26)
+            goptn->enabled = 1;
+          if (!goptn->enabled)
             lbDisplay.DrawColour = colours[0][0][0];
           else
             lbDisplay.DrawColour = colours[3][3][3];
@@ -672,10 +672,10 @@ void gui_draw_box(struct GuiBox *gbox)
         while (goptn->label[0] != '!')
         {
             if (goptn->active_cb != NULL)
-              goptn->field_26 = (goptn->active_cb)(gbox, goptn, &goptn->acb_param1);
+              goptn->enabled = (goptn->active_cb)(gbox, goptn, &goptn->acb_param1);
             else
-              goptn->field_26 = 1;
-            if (!goptn->field_26)
+              goptn->enabled = 1;
+            if (!goptn->enabled)
               lbDisplay.DrawColour = colours[0][0][0];
             else
             if ( ((gbox == gbox_over) && (goptn == goptn_over) && (gbox != dragging_box.gbox)) ||
