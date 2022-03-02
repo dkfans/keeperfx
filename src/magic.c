@@ -91,6 +91,16 @@ unsigned char destroy_effect[][9] = {
  */
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player->work_state == PSt_FreeDestroyWalls)
+    {
+        struct SlabAttr *slbattr = get_slab_attrs(get_slabmap_for_subtile(stl_x, stl_y));
+        return ( (slbattr->category == SlbAtCtg_FortifiedWall) || (slbattr->category == SlbAtCtg_FriableDirt) );
+    }
+    else if ( (player->work_state == PSt_FreeCastDisease) || (player->work_state == PSt_FreeTurnChicken) )
+    {
+        return (slab_is_wall(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) == false);
+    }
     if ((flags & CastChk_SkipAvailiabilty) == 0)
     {
         if (!is_power_available(plyr_idx, pwkind)) {
