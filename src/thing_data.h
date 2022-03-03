@@ -88,7 +88,7 @@ enum ThingMovementFlags {
     TMvF_Unknown10          = 0x10, //Stopped by walls?
     TMvF_Flying             = 0x20,
     TMvF_Unknown40          = 0x40,
-    TMvF_IsOnSnow          = 0x80,
+    TMvF_IsOnSnow           = 0x80,
 };
 
 /******************************************************************************/
