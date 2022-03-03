@@ -284,8 +284,8 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
 
 void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rkind, long *total_cap, long *used_cap)
 {
-    int total_capacity = 0;
-    int used_capacity = 0;
+    unsigned int total_capacity = 0;
+    unsigned int used_capacity = 0;
     long i = dungeon->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
@@ -314,8 +314,8 @@ void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rki
 
 void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, RoomKind rkind, long *total_cap, long *used_cap, long *storaged_cap)
 {
-    int total_capacity = 0;
-    int used_capacity = 0;
+    unsigned int total_capacity = 0;
+    unsigned int used_capacity = 0;
     int storaged_capacity = 0;
     long i = dungeon->room_kind[rkind];
     unsigned long k = 0;
