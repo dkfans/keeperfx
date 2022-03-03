@@ -4859,15 +4859,18 @@ void process_creature_leave_footsteps(struct Thing *thing)
             cctrl->bloody_footsteps_turns--;
         }
     } else
-    // Snow footprints
-    if (game.texture_id == 2)
     {
-        struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-        if (slb->kind == SlbT_PATH)
+        // Snow footprints
+        unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num))];
+        if ( ( (ext_txtr == 0) && (game.texture_id == 2) ) || (ext_txtr == 3) )
         {
-          thing->movement_flags |= TMvF_Unknown80;
-          nfoot = get_foot_creature_has_down(thing);
-          footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
+            struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            if (slb->kind == SlbT_PATH)
+            {
+              thing->movement_flags |= TMvF_IsOnSnow;
+              nfoot = get_foot_creature_has_down(thing);
+              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, 94, thing->owner);
+            }
         }
     }
 }
@@ -4903,7 +4906,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
     SYNCDBG(18,"Starting");
     thing->movement_flags &= ~TMvF_IsOnWater;
     thing->movement_flags &= ~TMvF_IsOnLava;
-    thing->movement_flags &= ~TMvF_Unknown80;
+    thing->movement_flags &= ~TMvF_IsOnSnow;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
