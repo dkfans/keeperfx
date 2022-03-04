@@ -149,9 +149,6 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
         add_thing_to_its_class_list(doortng);
         place_thing_in_mapwho(doortng);
 
-        MapSubtlCoord stl_x = coord_subtile(pos->x.val);
-        MapSubtlCoord stl_y = coord_subtile(pos->y.val);
-
         place_animating_slab_type_on_map(dostat->slbkind, 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
         //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
         if ( game.neutral_player_num != plyr_idx )
