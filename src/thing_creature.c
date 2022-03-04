@@ -5595,8 +5595,9 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                 {
                     case 0 ... 99:
                     {
-                        smpl_idx = 914;
-                        pitch = 200;
+                        smpl_idx = 17 + SOUND_RANDOM(4);
+                        pitch = 240;
+                        volume = FULL_LOUDNESS / 2;
                         break;
                     }
                     case 100 ... 199:
