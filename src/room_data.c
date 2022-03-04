@@ -284,8 +284,8 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
 
 void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rkind, long *total_cap, long *used_cap)
 {
-    int total_capacity = 0;
-    int used_capacity = 0;
+    unsigned int total_capacity = 0;
+    unsigned int used_capacity = 0;
     long i = dungeon->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
@@ -314,8 +314,8 @@ void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rki
 
 void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, RoomKind rkind, long *total_cap, long *used_cap, long *storaged_cap)
 {
-    int total_capacity = 0;
-    int used_capacity = 0;
+    unsigned int total_capacity = 0;
+    unsigned int used_capacity = 0;
     int storaged_capacity = 0;
     long i = dungeon->room_kind[rkind];
     unsigned long k = 0;
@@ -2247,12 +2247,19 @@ TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlC
 short room_grow_food(struct Room *room)
 {
     //return _DK_room_grow_food(room);
-    if (room->slabs_count < 1) {
+    if (room->slabs_count < 1)
+    {
         ERRORLOG("Room %s index %d has no slabs",room_code_name(room->kind),(int)room->index);
         return 0;
     }
+    if (room->used_capacity > room->total_capacity)
+    {
+        ERRORLOG("Room %s index %d has too much used capacity: %d/%d", room_code_name(room->kind), (int)room->index, room->used_capacity, room->total_capacity);
+        count_food_in_room(room);
+    }
     if ((room->used_capacity >= room->total_capacity)
-      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1)) {
+      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1))
+    {
         return 0;
     }
     unsigned long k;

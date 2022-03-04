@@ -89,7 +89,7 @@ struct Room {
     unsigned char central_stl_y;
     unsigned short kind;
     unsigned short health;
-    short total_capacity;
+    unsigned short total_capacity;
     unsigned short used_capacity;
     /* Informs whether players are interested in that room.
      * Usually used for neutral rooms, set if a player is starting to dig to that room. */

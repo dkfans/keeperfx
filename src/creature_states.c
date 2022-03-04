@@ -2805,7 +2805,7 @@ short creature_take_salary(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage) ||
-      ((room->used_capacity <= 0) && (dungeon->offmap_money_owned <= 0)))
+      ((room->used_capacity == 0) && (dungeon->offmap_money_owned <= 0)))
     {
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
         return 1;
