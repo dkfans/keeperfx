@@ -2322,7 +2322,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
         i = thing->next_of_class;
         // Per-thing code
         thing->state_flags &= ~TF1_DoFootsteps;
-        if (!thing_is_picked_up(thing))
+        if ( (!thing_is_picked_up(thing)) && (!thing_is_dragged_or_pulled(thing)) )
         {
             struct CreatureSound *crsound;
             crsound = get_creature_sound(thing, CrSnd_Foot);

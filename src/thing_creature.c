@@ -5537,57 +5537,98 @@ void controlled_creature_pick_thing_up(struct Thing *creatng, struct Thing *pick
     cctrl->pickup_object_id = picktng->index;
     struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Hurt);
     unsigned short smpl_idx = crsound->index + 1;
-    thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, smpl_idx, 90, 0, 3, 0, 2, FULL_LOUDNESS * 5/4);
     display_controlled_pick_up_thing_name(picktng, (GUI_MESSAGES_DELAY >> 4));
 }
 
 void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng)
 {
-    creature_drop_dragged_object(creatng, droptng);
+    long volume = FULL_LOUDNESS;
+    if (droptng->class_id == TCls_Creature)
+    {
+        stop_creature_being_dragged_by(droptng, creatng);
+    }
+    else
+    {
+        creature_drop_dragged_object(creatng, droptng);
+    }
     clear_messages_from_player(-81);
     clear_messages_from_player(-86);
     unsigned short smpl_idx, pitch;
-    switch(droptng->class_id)
+    if (subtile_has_water_on_top(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num))
     {
-        case TCls_Object:
+        smpl_idx = 21 + SOUND_RANDOM(4);
+        pitch = 75;
+    }
+    else
+    {
+        switch(droptng->class_id)
         {
-            smpl_idx = 992;
-            struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
-            switch (objst->genre)
+            case TCls_Object:
             {
-                case OCtg_WrkshpBox:
-                case OCtg_SpecialBox:
+                smpl_idx = 992;
+                struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
+                switch (objst->genre)
                 {
-                    pitch = 25;
-                    break;
+                    case OCtg_WrkshpBox:
+                    case OCtg_SpecialBox:
+                    {
+                        pitch = 25;
+                        break;
+                    }
+                    case OCtg_Spellbook:
+                    {
+                        pitch = 90;
+                        break;
+                    }
+                    default:
+                    {
+                        pitch = 0;
+                        break;
+                    }
                 }
-                case OCtg_Spellbook:
-                {
-                    pitch = 90;
-                    break;
-                }
-                default:
-                {
-                    pitch = 0;
-                    break;
-                }
+                break;
             }
-            break;
-        }
-        case TCls_DeadCreature:
-        {
-            smpl_idx = 58;
-            pitch = 50;
-            break;
-        }
-        default:
-        {
-            smpl_idx = 0;
-            pitch = 0;
-            break;
+            case TCls_Creature:
+            {
+                switch (compute_creature_weight(droptng))
+                {
+                    case 0 ... 99:
+                    {
+                        pitch = 240;
+                        volume = FULL_LOUDNESS / 2;
+                        break;
+                    }
+                    case 100 ... 199:
+                    {
+                        pitch = 120;
+                        volume = FULL_LOUDNESS * 3 / 4;
+                        break;
+                    }
+                    default:
+                    {
+                        pitch = 75;
+                        break;
+                    }
+                }
+                smpl_idx = 17 + SOUND_RANDOM(4);
+                break;
+            }
+            case TCls_DeadCreature:
+            {
+                smpl_idx = 58;
+                pitch = 50;
+                break;
+            }
+            default:
+            {
+                smpl_idx = 0;
+                pitch = 0;
+                break;
+            }
         }
     }
-    thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(droptng, smpl_idx, pitch, 0, 3, 0, 2, volume);
     struct Room* room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     if (!room_is_invalid(room))
     {
