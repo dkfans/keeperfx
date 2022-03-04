@@ -4835,6 +4835,22 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     }
 }
 
+TbBool thing_is_on_snow_texture(struct Thing* thing)
+{
+    #define SNOW_TEXTURE 2
+    unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num))];
+
+    if ((ext_txtr == 0) && (game.texture_id == SNOW_TEXTURE)) //Snow map and on default texture
+    {
+        return true;
+    }
+    if (ext_txtr == SNOW_TEXTURE+1) //On non-default texture that is snow
+    {
+        return true;
+    }
+    return false;
+}
+
 void process_creature_leave_footsteps(struct Thing *thing)
 {
     struct Thing *footng;
@@ -4861,8 +4877,8 @@ void process_creature_leave_footsteps(struct Thing *thing)
     } else
     {
         // Snow footprints
-        unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num))];
-        if ( ( (ext_txtr == 0) && (game.texture_id == 2) ) || (ext_txtr == 3) )
+        TbBool SnowTexture = thing_is_on_snow_texture(thing);
+        if (SnowTexture == true)
         {
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
