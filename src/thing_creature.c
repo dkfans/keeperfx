@@ -4869,7 +4869,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
             {
               thing->movement_flags |= TMvF_IsOnSnow;
               nfoot = get_foot_creature_has_down(thing);
-              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, 94, thing->owner);
+              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
             }
         }
     }
