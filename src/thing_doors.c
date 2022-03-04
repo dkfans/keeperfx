@@ -124,7 +124,7 @@ char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y)
     }
 }
 
-struct Thing *create_door(struct Coord3d *pos, unsigned short tngmodel, unsigned char orient, unsigned short plyr_idx, TbBool is_locked)
+struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned char orient, PlayerNumber plyr_idx, TbBool is_locked)
 {
     struct Thing *doortng;
     struct DoorStats* dostat = &door_stats[tngmodel][orient];
