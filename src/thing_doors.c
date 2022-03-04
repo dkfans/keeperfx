@@ -48,9 +48,7 @@ const short door_names[] = {
     201, 590, 591, 592, 593, 0,
 };
 */
-/******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
-DLLIMPORT char _DK_find_door_angle(unsigned char stl_x, unsigned char stl_y, unsigned char plyr_idx);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
