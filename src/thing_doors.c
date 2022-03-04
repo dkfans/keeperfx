@@ -58,7 +58,30 @@ DLLIMPORT char _DK_find_door_angle(unsigned char stl_x, unsigned char stl_y, uns
 /******************************************************************************/
 char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    return _DK_find_door_angle(stl_x, stl_y, plyr_idx);
+    MapSlabCoord door_slb_x = subtile_slab_fast(stl_x);
+    MapSlabCoord door_slb_y = subtile_slab_fast(stl_y);
+
+    struct SlabMap* door_slb = get_slabmap_block(door_slb_x, door_slb_y);
+    
+    if ( door_slb->kind != SlbT_CLAIMED || slabmap_owner(door_slb) != plyr_idx )
+    {
+        return -1;
+    }
+
+    unsigned int wall_flags = 0;
+    for ( int i = 0; i < SMALL_AROUND_LENGTH; ++i )
+    {
+        wall_flags *= 2;
+        MapSlabCoord slb_x = door_slb_x + small_around[i].delta_x;
+        MapSlabCoord slb_y = door_slb_y + small_around[i].delta_y;
+        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+        struct SlabAttr* slbattr = get_slab_attrs(slb);
+
+        if ((slbattr->category == SlbAtCtg_FortifiedWall) || (slb->kind == SlbT_ROCK) || (slbattr->category == SlbAtCtg_FriableDirt) || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_GEMS))
+            wall_flags |= 0x01;
+    }
+
+    return build_door_angle[wall_flags];
 }
 
 char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -101,10 +124,50 @@ char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y)
     }
 }
 
-struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4)
+struct Thing *create_door(struct Coord3d *pos, unsigned short tngmodel, unsigned char orient, unsigned short plyr_idx, TbBool is_locked)
 {
-  return _DK_create_door(pos, a1, a2, a3, a4);
+    struct Thing *doortng;
+    struct DoorStats* dostat = &door_stats[tngmodel][orient];
+
+    if ( i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
+    {
+        doortng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+
+        doortng->class_id = TCls_Door;
+        doortng->model = tngmodel;
+        doortng->mappos.x.val = pos->x.val;
+        doortng->mappos.y.val = pos->y.val;
+        doortng->mappos.z.val = 384;
+        doortng->next_on_mapblk = 0;
+        doortng->parent_idx = doortng->index;
+        doortng->owner = plyr_idx;
+        doortng->field_4F |= TF4F_Unknown01;
+        doortng->door.orientation = orient;
+        doortng->active_state = DorSt_Closed;
+        doortng->creation_turn = game.play_gameturn;
+        doortng->health = dostat->health;
+        doortng->door.is_locked = is_locked;
+
+        add_thing_to_its_class_list(doortng);
+        place_thing_in_mapwho(doortng);
+
+        MapSubtlCoord stl_x = coord_subtile(pos->x.val);
+        MapSubtlCoord stl_y = coord_subtile(pos->y.val);
+
+        place_animating_slab_type_on_map(dostat->slbkind, 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
+        //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
+        if ( game.neutral_player_num != plyr_idx )
+            ++game.dungeon[plyr_idx].total_doors;
+        return doortng;
+    }
+    else
+    {
+        ERRORLOG("error! Cannot create door because there are too many fucking things allocated.");
+        return INVALID_THING;
+    }
+    
 }
+
 
 TbBool remove_key_on_door(struct Thing *thing)
 {
@@ -276,7 +339,7 @@ TbBool thing_is_deployed_door(const struct Thing *thing)
 TbBool door_can_stand(struct Thing *thing)
 {
     unsigned int wall_flags = 0;
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
         wall_flags *= 2;
         long slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (int)small_around[i].delta_x;
