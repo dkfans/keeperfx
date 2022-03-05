@@ -1374,7 +1374,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_player_check_func_type);
                 if (k > 0)
                 {
-                    jobcfg->func_plyr_check = creature_job_player_check_func_list[k];
+                    jobcfg->func_plyr_check_idx = k;
+                    jobcfg->func_plyr_check = creature_job_player_check_func_list[jobcfg->func_plyr_check_idx];
                     n++;
                 }
                 k = recognize_conf_parameter(buf,&pos,len,creature_job_player_assign_func_type);
