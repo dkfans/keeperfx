@@ -3044,7 +3044,7 @@ short creature_wants_a_home(struct Thing *creatng)
     return 0;
 }
 
-struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char navtype)
+struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *navtype)
 {
     TRACE_THING(creatng);
     RoomKind job_rkind = get_room_for_job(Job_TAKE_SALARY);
@@ -3053,7 +3053,7 @@ struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char navt
         return INVALID_ROOM;
     }
         
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    //struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Room* room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, job_rkind, NavRtF_Default, 1);
     if (!room_is_invalid(room))
     {
@@ -3088,7 +3088,8 @@ struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char navt
 short creature_wants_salary(struct Thing *creatng)
 {
     SYNCDBG(8,"Starting for %s index %d owner %d", thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-    unsigned char navtype = NavRtF_Default;
+    struct Coord3d pos;
+    unsigned char *navtype;
     struct Room* room = get_room_for_thing_salary(creatng,&navtype);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (room_is_invalid(room))
@@ -3100,31 +3101,34 @@ short creature_wants_salary(struct Thing *creatng)
             JUSTMSG("testlog: could not find room");
             anger_apply_anger_to_creature(creatng, crstat->annoy_no_salary, AngR_NotPaid, 1);
         }
+        SYNCDBG(5, "No player %d %s with used capacity found to pay %s", (int)creatng->owner, room_code_name(get_room_for_job(Job_TAKE_SALARY)), thing_model_name(creatng));
         set_start_state(creatng);
         return 1;
     }
     else
-    if (creature_setup_random_move_for_job_in_room(creatng, room, Job_TAKE_SALARY, NavRtF_Default))
     {
-        creatng->continue_state = CrSt_CreatureTakeSalary;
-        cctrl->target_room_id = room->index;
-        return 1;
-    }
-        //anger_set_creature_anger(creatng, 0, AngR_NotPaid);
-
-        SYNCDBG(5,"No player %d %s with used capacity found to pay %s",(int)creatng->owner,room_code_name(RoK_TREASURE),thing_model_name(creatng));
-
-    
-    struct Coord3d pos;
-    if (find_random_valid_position_for_thing_in_room(creatng, room, &pos))
-    {
-        if (setup_person_move_to_coord(creatng, &pos, NavRtF_NoOwner))
+        if (navtype == NavRtF_NoOwner)
         {
-            creatng->continue_state = CrSt_CreatureTakeSalary;
-            cctrl->target_room_id = room->index;
+            if (find_random_valid_position_for_thing_in_room(creatng, room, &pos))
+            {
+                if (setup_person_move_to_coord(creatng, &pos, NavRtF_NoOwner))
+                {
+                    creatng->continue_state = CrSt_CreatureTakeSalary;
+                    cctrl->target_room_id = room->index;
+                }
+            }
+        }
+        else
+        {
+            if (creature_setup_random_move_for_job_in_room(creatng, room, Job_TAKE_SALARY, NavRtF_Default))
+            {
+                creatng->continue_state = CrSt_CreatureTakeSalary;
+                cctrl->target_room_id = room->index;
+            }
         }
     }
     return 1;
+        //anger_set_creature_anger(creatng, 0, AngR_NotPaid);   
 }
 
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
