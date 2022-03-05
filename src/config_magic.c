@@ -95,6 +95,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"HITLAVAEFFECT",         32},
   {"HITCREATURESOUND",      33},
   {"ANIMATIONTRANSPARENCY", 34},
+  {"IMPACTEFFECT",          35},
   {NULL,                     0},
   };
 
@@ -147,6 +148,23 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"WIND_IMMUNE",         18},
   {NULL,                   0},
   };
+
+const struct NamedCommand shotmodel_impacteffect_commands[] = {
+  {"FIREBALLEFFECT",                     1},
+  {"METEOREFFECT",                       2},
+  {"MISSILEEFFECT",                      3},
+  {"DAMAGEPOISONCLOUDEFFECT",            4},
+  {"SLOWPOISONCLOUDEFFECT",              5},
+  {"DAMAGESLOWPOISONCLOUDEFFECT",        6},
+  {"DISEASEPOISONCLOUDEFFECT",           7},
+  {"FRIENDLYDAMAGEPOISONCLOUDEFFECT",    8},
+  {"LIGHTNINGEFFECT",                    9},
+  {"BLADEEFFECT",                       10},
+  {"DIRTEFFECT",                        11},
+  {"GODLIGHTNINGEFFECT",                12},
+  {"BOULDERDIRTEFFECT",                 13},
+  {NULL,                                 0},
+};
 
 const struct NamedCommand powermodel_castability_commands[] = {
   {"CUSTODY_CRTRS",    PwCast_CustodyCrtrs},
@@ -723,6 +741,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           shotst->speed = 0;
           shotst->wind_immune = 0;
           shotst->animation_transparency = 0;
+          shotst->impact_effect = 0;
       }
   }
   // Load the file
@@ -1136,16 +1155,68 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           break;
       case 23: //HITWALLEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          shotst->hit_generic.effect_model = 0;
+          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
-              shotst->hit_generic.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              k = get_id(shotmodel_impacteffect_commands, word_buf);
+              switch (k)
+              {
+              case 1: // FIREBALLEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_FireballEffect;
+                  n++;
+                  break;
+              case 2: // METEOREFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_MeteorEffect;
+                  n++;
+                  break;
+              case 3: // MISSILEEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_MissileEffect;
+                  n++;
+                  break;
+              case 4: // DAMAGEPOISONCLOUDEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_DamagePoisoncloudEffect;
+                  n++;
+                  break;
+              case 5: // SLOWPOISONCLOUDEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_SlowPoisoncloudEffect;
+                  n++;
+                  break;
+              case 6: // DAMAGESLOWPOISONCLOUDEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_DamageSlowPoisoncloudEffect;
+                  n++;
+                  break;
+              case 7: // DISEASEPOISONCLOUDEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_DiseasePoisoncloudEffect;
+                  n++;
+                  break;
+              case 8: // FRIENDLYPOISONCLOUDEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_FriendlyDamagePoisoncloudEffect;
+                  n++;
+                  break;
+              case 9: // LIGHTNINGEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_LightningEffect;
+                  n++;
+                  break;
+              case 10: // BLADEEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_BladeEffect;
+                  n++;
+                  break;
+              case 11: // DIRTEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_DirtEffect;
+                  n++;
+                  break;
+              case 12: // GODLIGHTNINGEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_GodLightningEffect;
+                  n++;
+                  break;
+              case 13: // BOULDERDIRTEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_BoulderDirtEffect;
+                  n++;
+                  break;
+              default:
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), word_buf, block_buf, config_textname);
+              }
           }
           break;
       case 24: //HITDOORSOUND

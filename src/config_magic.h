@@ -132,6 +132,23 @@ enum ShotModelFlags {
     ShMF_CanCollide     = 0x0800,
 };
 
+enum ShotImpactEffectFlags {
+    /** Spell effects on impact. */
+    ShIEF_FireballEffect                  = 0x0001,
+    ShIEF_MeteorEffect                    = 0x0002,
+    ShIEF_MissileEffect                   = 0x0004,
+    ShIEF_DamagePoisoncloudEffect         = 0x0008,
+    ShIEF_SlowPoisoncloudEffect           = 0x0010,
+    ShIEF_DamageSlowPoisoncloudEffect     = 0x0020,
+    ShIEF_DiseasePoisoncloudEffect        = 0x0040,
+    ShIEF_FriendlyDamagePoisoncloudEffect = 0x0080,
+    ShIEF_LightningEffect                 = 0x0100,
+    ShIEF_BladeEffect                     = 0x0200,
+    ShIEF_DirtEffect                      = 0x0400,
+    ShIEF_GodLightningEffect              = 0x0800,
+    ShIEF_BoulderDirtEffect               = 0x1000,
+};
+
 enum PowerCanCastFlags {
     PwCast_None          = 0x00000000,
     /** Allow casting the spell on enemy creatures kept in custody. */
@@ -266,6 +283,7 @@ struct ShotConfigStats {
     short wind_immune;
     short no_air_damage;
     short animation_transparency;
+    short impact_effect;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
