@@ -3089,7 +3089,7 @@ short creature_wants_salary(struct Thing *creatng)
 {
     SYNCDBG(8,"Starting for %s index %d owner %d", thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
     struct Coord3d pos;
-    unsigned char *navtype;
+    unsigned char navtype;
     struct Room* room = get_room_for_thing_salary(creatng,&navtype);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (room_is_invalid(room))
