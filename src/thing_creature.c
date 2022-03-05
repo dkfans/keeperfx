@@ -4878,7 +4878,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     {
         // Snow footprints
         TbBool SnowTexture = thing_is_on_snow_texture(thing);
-        if (SnowTexture == true)
+        if (SnowTexture)
         {
             struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if (slb->kind == SlbT_PATH)
