@@ -1155,16 +1155,68 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           }
           break;
       case 23: //HITWALLEFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          shotst->hit_generic.effect_model = 0;
+          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
-              shotst->hit_generic.effect_model = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              k = get_id(shotmodel_impacteffect_commands, word_buf);
+              switch (k)
+              {
+              case 1: // FIREBALLEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_FireballEffect;
+                  n++;
+                  break;
+              case 2: // METEOREFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_MeteorEffect;
+                  n++;
+                  break;
+              case 3: // MISSILEEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_MissileEffect;
+                  n++;
+                  break;
+              case 4: // DAMAGEPOISONCLOUDEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_DamagePoisoncloudEffect;
+                  n++;
+                  break;
+              case 5: // SLOWPOISONCLOUDEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_SlowPoisoncloudEffect;
+                  n++;
+                  break;
+              case 6: // DAMAGESLOWPOISONCLOUDEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_DamageSlowPoisoncloudEffect;
+                  n++;
+                  break;
+              case 7: // DISEASEPOISONCLOUDEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_DiseasePoisoncloudEffect;
+                  n++;
+                  break;
+              case 8: // FRIENDLYPOISONCLOUDEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_FriendlyDamagePoisoncloudEffect;
+                  n++;
+                  break;
+              case 9: // LIGHTNINGEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_LightningEffect;
+                  n++;
+                  break;
+              case 10: // BLADEEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_BladeEffect;
+                  n++;
+                  break;
+              case 11: // DIRTEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_DirtEffect;
+                  n++;
+                  break;
+              case 12: // GODLIGHTNINGEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_GodLightningEffect;
+                  n++;
+                  break;
+              case 13: // BOULDERDIRTEFFECT
+                  shotst->hit_generic.effect_model |= ShIEF_BoulderDirtEffect;
+                  n++;
+                  break;
+              default:
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), word_buf, block_buf, config_textname);
+              }
           }
           break;
       case 24: //HITDOORSOUND
@@ -1308,71 +1360,6 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 35: //IMPACTEFFECT
-          shotst->impact_effect = 0;
-          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(shotmodel_impacteffect_commands, word_buf);
-              switch (k)
-              {
-              case 1: // FIREBALLEFFECT
-                  shotst->impact_effect |= ShMF_FireballEffect;
-                  n++;
-                  break;
-              case 2: // METEOREFFECT
-                  shotst->impact_effect |= ShMF_MeteorEffect;
-                  n++;
-                  break;
-              case 3: // MISSILEEFFECT
-                  shotst->impact_effect |= ShMF_MissileEffect;
-                  n++;
-                  break;
-              case 4: // DAMAGEPOISONCLOUDEFFECT
-                  shotst->impact_effect |= ShMF_DamagePoisoncloudEffect;
-                  n++;
-                  break;
-              case 5: // SLOWPOISONCLOUDEFFECT
-                  shotst->impact_effect |= ShMF_SlowPoisoncloudEffect;
-                  n++;
-                  break;
-              case 6: // DAMAGESLOWPOISONCLOUDEFFECT
-                  shotst->impact_effect |= ShMF_DamageSlowPoisoncloudEffect;
-                  n++;
-                  break;
-              case 7: // DISEASEPOISONCLOUDEFFECT
-                  shotst->impact_effect |= ShMF_DiseasePoisoncloudEffect;
-                  n++;
-                  break;
-              case 8: // FRIENDLYPOISONCLOUDEFFECT
-                  shotst->impact_effect |= ShMF_FriendlyDamagePoisoncloudEffect;
-                  n++;
-                  break;
-              case 9: // LIGHTNINGEFFECT
-                  shotst->impact_effect |= ShMF_LightningEffect;
-                  n++;
-                  break;
-              case 10: // BLADEEFFECT
-                  shotst->impact_effect |= ShMF_BladeEffect;
-                  n++;
-                  break;
-              case 11: // DIRTEFFECT
-                  shotst->impact_effect |= ShMF_DirtEffect;
-                  n++;
-                  break;
-              case 12: // GODLIGHTNINGEFFECT
-                  shotst->impact_effect |= ShMF_GodLightningEffect;
-                  n++;
-                  break;
-              case 13: // BOULDERDIRTEFFECT
-                  shotst->impact_effect |= ShMF_BoulderDirtEffect;
-                  n++;
-                  break;
-              default:
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), word_buf, block_buf, config_textname);
-              }
           }
           break;
       case 0: // comment

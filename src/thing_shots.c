@@ -107,68 +107,68 @@ TbBool detonate_shot(struct Thing *shotng)
         explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
     //TODO CONFIG shot model dependency, make config option instead
-    if ((shotst->impact_effect & ShMF_FireballEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_FireballEffect) != 0 && NoEffect == 0)
     {
         create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
     }
-    if ((shotst->impact_effect & ShMF_MeteorEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_MeteorEffect) != 0 && NoEffect == 0)
     {
         create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
         create_effect(&shotng->mappos, TngEff_Blood4, shotng->owner);
     }
-    if ((shotst->impact_effect & ShMF_MissileEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_MissileEffect) != 0 && NoEffect == 0)
     {
         create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
     }
-    if ((shotst->impact_effect & ShMF_DamagePoisoncloudEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_DamagePoisoncloudEffect) != 0 && NoEffect == 0)
     {
         castng = create_effect(&shotng->mappos, TngEff_Gas10, shotng->owner);
         if (!thing_is_invalid(castng)) {
             castng->hit_type = THit_CrtrsOnly;
         }
     }
-    if ((shotst->impact_effect & ShMF_SlowPoisoncloudEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_SlowPoisoncloudEffect) != 0 && NoEffect == 0)
     {
         castng = create_effect(&shotng->mappos, TngEff_Gas11, shotng->owner);
         if (!thing_is_invalid(castng)) {
             castng->hit_type = THit_CrtrsOnly;
         }
     }
-    if ((shotst->impact_effect & ShMF_DamageSlowPoisoncloudEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_DamageSlowPoisoncloudEffect) != 0 && NoEffect == 0)
     {
         castng = create_effect(&shotng->mappos, TngEff_Gas12, shotng->owner);
         if (!thing_is_invalid(castng)) {
             castng->hit_type = THit_CrtrsOnly;
         }
     }
-    if ((shotst->impact_effect & ShMF_DiseasePoisoncloudEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_DiseasePoisoncloudEffect) != 0 && NoEffect == 0)
     {
         castng = create_effect(&shotng->mappos, TngEff_Gas13, shotng->owner);
         if (!thing_is_invalid(castng)) {
             castng->hit_type = THit_CrtrsOnly;
         }
     }
-    if ((shotst->impact_effect & ShMF_FriendlyDamagePoisoncloudEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_FriendlyDamagePoisoncloudEffect) != 0 && NoEffect == 0)
     {
         castng = create_effect(&shotng->mappos, TngEff_Gas10, shotng->owner);
         if (!thing_is_invalid(castng)) {
             castng->hit_type = THit_CrtrsOnlyNotOwn;
         }
     }
-    if ((shotst->impact_effect & ShMF_LightningEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_LightningEffect) != 0 && NoEffect == 0)
     {
         create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
         PaletteSetPlayerPalette(myplyr, engine_palette);
     }
-    if ((shotst->impact_effect & ShMF_DirtEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_DirtEffect) != 0 && NoEffect == 0)
     {
         create_effect(&shotng->mappos, TngEff_DirtRubble, shotng->owner);
     }
-    if ((shotst->impact_effect & ShMF_GodLightningEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_GodLightningEffect) != 0 && NoEffect == 0)
     {
         PaletteSetPlayerPalette(myplyr, engine_palette);
     }
-    if ((shotst->impact_effect & ShMF_BoulderDirtEffect) != 0 && NoEffect == 0)
+    if ((shotst->hit_generic.effect_model & ShIEF_BoulderDirtEffect) != 0 && NoEffect == 0)
     {
         create_effect_around_thing(shotng, TngEff_DirtRubble);
     }
@@ -410,7 +410,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
 struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long eff_kind, long snd_idx, long snd_range)
 {
     struct Thing* efftng = INVALID_THING;
-    if (eff_kind > 0) {
+    if (eff_kind >= 0) {
         efftng = create_effect(effpos, eff_kind, effowner);
         TRACE_THING(efftng);
     }
@@ -444,7 +444,6 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
 
     struct Thing* efftng = INVALID_THING;
     TbBool destroy_shot = 0;
-    TbBool destroy_shot_water = 0;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (shotst->model_flags & ShMF_Digging)
@@ -469,7 +468,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         {
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_water.effect_model, shotst->hit_water.sndsample_idx, shotst->hit_water.sndsample_range);
             if (!shotst->hit_water.withstand) {
-                destroy_shot_water = 1;
+                destroy_shot = 1;
             }
         } else
         if (cube_is_lava(cube_id))
@@ -478,9 +477,10 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             if (!shotst->hit_lava.withstand) {
                 destroy_shot = 1;
             }
-        } else
+        }
+        else
         {
-            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, (shotst->hit_generic.effect_model * 0), shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
             if (!shotst->hit_generic.withstand) {
                 destroy_shot = 1;
             }
@@ -514,7 +514,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
             } else
             {
-                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->hit_generic.effect_model, shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, (shotst->hit_generic.effect_model * 0), shotst->hit_generic.sndsample_idx, shotst->hit_generic.sndsample_range);
                 if (!shotst->hit_generic.withstand)
                 {
                     destroy_shot = 1;
@@ -528,11 +528,6 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     if ( destroy_shot )
     {
         NoEffect = 0;
-        return detonate_shot(shotng);
-    }
-    if (destroy_shot_water)
-    {
-        NoEffect = 1;
         return detonate_shot(shotng);
     }
     if (shotng->bounce_angle <= 0)
@@ -786,60 +781,60 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
     struct PlayerInfo* myplyr = get_my_player();
     if (target->class_id == TCls_Creature)
     {
-        if ((shotst->impact_effect & ShMF_FireballEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_FireballEffect) != 0)
         {
             efftng = create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
         }
-        if ((shotst->impact_effect & ShMF_MeteorEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_MeteorEffect) != 0)
         {
             efftng = create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
             efftng = create_effect(&shotng->mappos, TngEff_Blood4, shotng->owner);
         }
-        if ((shotst->impact_effect & ShMF_MissileEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_MissileEffect) != 0)
         {
             efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
         }
-        if ((shotst->impact_effect & ShMF_DamagePoisoncloudEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_DamagePoisoncloudEffect) != 0)
         {
             efftng = create_effect(&shotng->mappos, TngEff_Gas10, shotng->owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->hit_type = THit_CrtrsOnly;
             }
         }
-        if ((shotst->impact_effect & ShMF_SlowPoisoncloudEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_SlowPoisoncloudEffect) != 0)
         {
             efftng = create_effect(&shotng->mappos, TngEff_Gas11, shotng->owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->hit_type = THit_CrtrsOnly;
             }
         }
-        if ((shotst->impact_effect & ShMF_DamageSlowPoisoncloudEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_DamageSlowPoisoncloudEffect) != 0)
         {
             efftng = create_effect(&shotng->mappos, TngEff_Gas12, shotng->owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->hit_type = THit_CrtrsOnly;
             }
         }
-        if ((shotst->impact_effect & ShMF_DiseasePoisoncloudEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_DiseasePoisoncloudEffect) != 0)
         {
             efftng = create_effect(&shotng->mappos, TngEff_Gas13, shotng->owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->hit_type = THit_CrtrsOnly;
             }
         }
-        if ((shotst->impact_effect & ShMF_FriendlyDamagePoisoncloudEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_FriendlyDamagePoisoncloudEffect) != 0)
         {
             efftng = create_effect(&shotng->mappos, TngEff_Gas10, shotng->owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->hit_type = THit_CrtrsOnlyNotOwn;
             }
         }
-        if ((shotst->impact_effect & ShMF_LightningEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_LightningEffect) != 0)
         {
             efftng = create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
             PaletteSetPlayerPalette(myplyr, engine_palette);
         }
-        if ((shotst->impact_effect & ShMF_BladeEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_BladeEffect) != 0)
         {
             if (creature_affected_by_spell(target, SplK_Freeze)) {
                 efftng = create_effect(&shotng->mappos, TngEff_HitFrozenUnit, shotng->owner);
@@ -849,7 +844,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
                     efftng = create_effect(&shotng->mappos, TngEff_HitBleedingUnit, shotng->owner);
                 }
         }
-        if ((shotst->impact_effect & ShMF_DirtEffect) != 0)
+        if ((shotst->hit_generic.effect_model & ShIEF_DirtEffect) != 0)
         {
             efftng = create_effect(&shotng->mappos, TngEff_DirtRubble, shotng->owner);
         }
