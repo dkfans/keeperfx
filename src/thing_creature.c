@@ -1564,6 +1564,7 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
         delete_thing_structure(goldtng, 0);
       }
     }
+    JUSTMSG("testlog: where is my pile?");
     anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, AngR_NotPaid, 1);
     return true;
 }
