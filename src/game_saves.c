@@ -290,6 +290,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     {
         // Update interface items
         update_trap_tab_to_config();
+        jobcfg->func_plyr_check = creature_job_player_check_func_list[jobcfg->func_plyr_check_idx];
         return GLoad_SavedGame;
     }
     return GLoad_Failed;
