@@ -134,19 +134,23 @@ enum ShotModelFlags {
 
 enum ShotImpactEffectFlags {
     /** Spell effects on impact. */
-    ShIEF_FireballEffect                  = 0x0001,
-    ShIEF_MeteorEffect                    = 0x0002,
-    ShIEF_MissileEffect                   = 0x0004,
-    ShIEF_DamagePoisoncloudEffect         = 0x0008,
-    ShIEF_SlowPoisoncloudEffect           = 0x0010,
-    ShIEF_DamageSlowPoisoncloudEffect     = 0x0020,
-    ShIEF_DiseasePoisoncloudEffect        = 0x0040,
-    ShIEF_FriendlyDamagePoisoncloudEffect = 0x0080,
-    ShIEF_LightningEffect                 = 0x0100,
-    ShIEF_BladeEffect                     = 0x0200,
-    ShIEF_DirtEffect                      = 0x0400,
-    ShIEF_GodLightningEffect              = 0x0800,
-    ShIEF_BoulderDirtEffect               = 0x1000,
+    ShIEF_FireballEffect                  = 0x000001,
+    ShIEF_MeteorEffect                    = 0x000002,
+    ShIEF_MissileEffect                   = 0x000004,
+    ShIEF_DamagePoisoncloudEffect         = 0x000008,
+    ShIEF_SlowPoisoncloudEffect           = 0x000010,
+    ShIEF_DamageSlowPoisoncloudEffect     = 0x000020,
+    ShIEF_DiseasePoisoncloudEffect        = 0x000040,
+    ShIEF_FriendlyDamagePoisoncloudEffect = 0x000080,
+    ShIEF_LightningEffect                 = 0x000100,
+    ShIEF_BladeEffect                     = 0x000200,
+    ShIEF_DirtEffect                      = 0x000400,
+    ShIEF_HailEffect                      = 0x000800,
+    ShIEF_DripEffect                      = 0x001000,
+    ShIEF_GodLightningEffect              = 0x002000,
+    ShIEF_BoulderDirtEffect               = 0x004000,
+    ShIEF_BoulderWaterEffect              = 0x008000,
+    ShIEF_BoulderLavaEffect               = 0x010000,
 };
 
 enum PowerCanCastFlags {
@@ -283,7 +287,7 @@ struct ShotConfigStats {
     short wind_immune;
     short no_air_damage;
     short animation_transparency;
-    short impact_effect;
+    short hit_creature_effect;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
