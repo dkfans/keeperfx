@@ -176,24 +176,12 @@ struct Thing *thing_get_f(long tng_idx, const char *func_name)
     if ((tng_idx > 0) && (tng_idx < THINGS_COUNT)) {
         return game.things.lookup[tng_idx];
     }
-    if ((tng_idx < -1) || (tng_idx >= THINGS_COUNT)) {
-        ERRORMSG("%s: Request of invalid thing (no %d) intercepted",func_name,(int)tng_idx);
-    }
-    return INVALID_THING;
-}
-
-/**
- * Returns object of given array index. similar to thing_get_f but only for objects
- * @param obj_idx
- * @return Returns object, or invalid thing pointer if not found.
- */
-struct Thing *object_get_f(long obj_idx, const char *func_name)
-{
-    if ((obj_idx > 0) && (obj_idx < THINGS_COUNT)) {
+    else if ((tng_idx >= THINGS_COUNT) && (tng_idx < THINGS_COUNT*2)) 
+    {
         return gameadd.objects.lookup[obj_idx];
     }
-    if ((obj_idx < -1) || (obj_idx >= THINGS_COUNT)) {
-        ERRORMSG("%s: Request of invalid thing (no %d) intercepted",func_name,(int)obj_idx);
+    if ((tng_idx < -1) || (tng_idx >= THINGS_COUNT)) {
+        ERRORMSG("%s: Request of invalid thing (no %d) intercepted",func_name,(int)tng_idx);
     }
     return INVALID_THING;
 }
@@ -202,8 +190,8 @@ long thing_get_index(const struct Thing *thing)
 {
     if (thing->class_id == TCls_Object)
     {
-        long tng_idx = (thing - gameadd.objects.lookup[0]);
-        if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
+        long tng_idx = (thing - gameadd.objects.lookup[0]) + THINGS_COUNT;
+        if ((tng_idx > THINGS_COUNT) && (tng_idx < THINGS_COUNT * 2))
             return tng_idx;
     }
     else
