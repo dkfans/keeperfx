@@ -945,7 +945,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_GoldWage:
-        i = cctrl->paydays_owed;
+        i = calculate_correct_creature_pay(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;

@@ -2828,7 +2828,6 @@ short creature_take_salary(struct Thing *creatng)
     struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, salary);
     if (!(gameadd.classic_bugs_flags & ClscBug_FullyHappyWithGold))
     {
-        JUSTMSG("this is good right");
         anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage);
     }
     thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -2975,7 +2974,6 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     MapSubtlCoord base_stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord base_stl_y = creatng->mappos.y.stl.num;
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    JUSTMSG("testlog: waiting at door");
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing *doortng;
     if (cctrl->blocking_door_id > 0) {
@@ -3098,7 +3096,6 @@ short creature_wants_salary(struct Thing *creatng)
         {
             cctrl->paydays_owed--;
             struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-            JUSTMSG("testlog: could not find room");
             anger_apply_anger_to_creature(creatng, crstat->annoy_no_salary, AngR_NotPaid, 1);
         }
         SYNCDBG(5, "No player %d %s with used capacity found to pay %s", (int)creatng->owner, room_code_name(get_room_for_job(Job_TAKE_SALARY)), thing_model_name(creatng));
@@ -3128,7 +3125,6 @@ short creature_wants_salary(struct Thing *creatng)
         }
     }
     return 1;
-        //anger_set_creature_anger(creatng, 0, AngR_NotPaid);   
 }
 
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
@@ -4491,7 +4487,6 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
     {
         if (external_set_thing_state(thing, CrSt_CreatureWantsSalary))
         {
-            JUSTMSG("testlog: why are we angry?");
             anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, AngR_NotPaid, 1);
             return 1;
         }
@@ -4529,7 +4524,6 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
         set_start_state(thing);
         return 0;
     }
-    JUSTMSG("testlog I hate this");
     cctrl->paydays_owed--;
     anger_apply_anger_to_creature(thing, crstat->annoy_no_salary, AngR_NotPaid, 1);
     return 0;
