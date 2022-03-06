@@ -146,6 +146,13 @@ void update_gui_layer()
 {
     // Determine the current/correct GUI Layer to use at this moment
 
+    if ((game.system_flags & GSF_NetworkActive) == 1) // no one click on multiplayer.
+    {
+        //todo Make multiplayer work with 1-click
+        set_current_gui_layer(GuiLayer_Default);
+        return;
+    }
+
     struct PlayerInfo* player = get_my_player();
     if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
@@ -1456,26 +1463,29 @@ short get_creature_control_action_inputs(void)
                 }
             }
         }
-    if (numkey != -1)
-    {
-        int num_avail = 0;
-        for (int idx = 0; idx < LEARNED_INSTANCES_COUNT; idx++)
+        if (!creature_affected_by_spell(thing, SplK_Chicken))
         {
-            struct Thing* cthing = thing_get(player->controlled_thing_idx);
-            TRACE_THING(cthing);
-            struct CreatureStats* crstat = creature_stats_get_from_thing(cthing);
-            int inst_id = crstat->learned_instance_id[idx];
-            if (creature_instance_is_available(cthing, inst_id))
+            if (numkey != -1)
             {
-                if (numkey == num_avail)
+                int num_avail = 0;
+                for (int idx = 0; idx < LEARNED_INSTANCES_COUNT; idx++)
                 {
-                    set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, inst_id, 0, 0, 0);
-                    break;
+                    struct Thing* cthing = thing_get(player->controlled_thing_idx);
+                    TRACE_THING(cthing);
+                    struct CreatureStats* crstat = creature_stats_get_from_thing(cthing);
+                    int inst_id = crstat->learned_instance_id[idx];
+                    if (creature_instance_is_available(cthing, inst_id))
+                    {
+                        if (numkey == num_avail)
+                        {
+                            set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, inst_id, 0, 0, 0);
+                            break;
+                        }
+                        num_avail++;
+                    }
                 }
-                num_avail++;
             }
         }
-    }
     return false;
 }
 
@@ -2064,7 +2074,7 @@ void get_creature_control_nonaction_inputs(void)
   pckt->pos_y = 127;
   if ((player->allocflags & PlaF_Unknown8) != 0)
     return;
-  while (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
+if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
     LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
   // Set pos_x and pos_y
   if (settings.first_person_move_invert)

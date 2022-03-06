@@ -327,7 +327,7 @@ struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel);
 
 TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);
-struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
+struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx);
 struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short a2, unsigned short a3);
 TngUpdateRet update_effect_element(struct Thing *thing);
 TngUpdateRet update_effect(struct Thing *thing);

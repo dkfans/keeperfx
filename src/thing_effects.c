@@ -46,7 +46,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short max_dist, long a4);
 DLLIMPORT long _DK_move_effect(struct Thing *efftng);
 
 /******************************************************************************/
@@ -954,9 +953,33 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     return TUFRet_Modified;
 }
 
-struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4)
+struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx)
 {
-  return _DK_create_effect_generator(pos, a1, a2, a3, a4);
+  struct Thing *effgentng;
+
+  if ( i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
+  {
+    effgentng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    effgentng->class_id = TCls_EffectGen;
+    effgentng->model = model;
+    effgentng->parent_idx = parent_idx;
+    if ( parent_idx == -1 )
+      effgentng->parent_idx = -1;
+    effgentng->owner = owner;
+    effgentng->effect_generator.range = range;
+    effgentng->mappos = *pos;
+    effgentng->creation_turn = game.play_gameturn;
+    effgentng->health = -1;
+    effgentng->field_4F |= TF4F_Unknown01;
+    add_thing_to_list(effgentng, get_list_for_thing_class(TCls_EffectGen));
+    place_thing_in_mapwho(effgentng);
+    return effgentng;
+  }
+  else
+  {
+    ERRORLOG("Cannot create effect generator because there are too many fucking things allocated.");
+    return 0;
+  }
 }
 
 long move_effect(struct Thing *thing)
@@ -981,7 +1004,7 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
         SYNCDBG(18,"Effect tried to shoot its maker; suicide not implemented");
         return false;
     }
-    HitTargetFlags hit_targets = hit_type_to_hit_targets(efftng->hit_type);
+    HitTargetFlags hit_targets = hit_type_to_hit_targets(efftng->shot_effect.hit_type);
     return area_effect_can_affect_thing(thing, hit_targets, efftng->owner);
 }
 
@@ -1119,9 +1142,9 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         SYNCDBG(18,"No player sees %s at (%d,%d,%d)",thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)thing->mappos.z.stl.num);
         return TUFRet_Modified;
     }
-    if (thing->long_15 > 0)
-        thing->long_15--;
-    if (thing->long_15 > 0)
+    if (thing->effect_generator.generation_delay > 0)
+        thing->effect_generator.generation_delay--;
+    if (thing->effect_generator.generation_delay > 0)
     {
         return TUFRet_Modified;
     }
@@ -1129,7 +1152,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
     for (long i = 0; i < egenstat->genation_amount; i++)
     {
         long deviation_angle = EFFECT_RANDOM(thing, 0x800);
-        long deviation_mag = EFFECT_RANDOM(thing, thing->belongs_to + 1);
+        long deviation_mag = EFFECT_RANDOM(thing, thing->effect_generator.range + 1);
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
         SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
@@ -1180,7 +1203,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             }
         }
     }
-    thing->long_15 = egenstat->genation_delay_min + EFFECT_RANDOM(thing, egenstat->genation_delay_max - egenstat->genation_delay_min + 1);
+    thing->effect_generator.generation_delay = egenstat->genation_delay_min + EFFECT_RANDOM(thing, egenstat->genation_delay_max - egenstat->genation_delay_min + 1);
     return TUFRet_Modified;
 }
 
@@ -1386,7 +1409,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         }
         i = thing->next_on_mapblk;
         // Per thing processing block
-        if ((thing->class_id == TCls_Door) && (efftng->shot.hit_type != 4)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
+        if ((thing->class_id == TCls_Door) && (efftng->shot_effect.hit_type != 4)) //TODO: Find pretty way to say that WoP traps should not destroy doors. And make it configurable through configs.
         {
             if (explosion_affecting_door(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
             {
@@ -1430,7 +1453,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         return;
     }
     struct ShotConfigStats* shotst;
-    if (efftng->shot.hit_type == 4) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
+    if (efftng->shot_effect.hit_type == 4) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
     {
         shotst = get_shot_model_stats(31); //SHOT_TRAP_WORD_OF_POWER
     }
@@ -1762,7 +1785,7 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
     {
         for (MapSubtlCoord stl_x = start_x; stl_x <= end_x; stl_x++)
         {
-            HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->hit_type);
+            HitTargetFlags hit_targets = hit_type_to_hit_targets(tngsrc->shot_effect.hit_type);
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             num_affected += poison_cloud_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage/dmg_divider, 0, hit_targets, area_affect_type, DmgT_Respiratory);
         }
@@ -1812,7 +1835,7 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
     struct Thing* elemtng = create_effect_element(pos, TngEffElm_Price, plyr_idx);
     TRACE_THING(elemtng);
     if (!thing_is_invalid(elemtng)) {
-        elemtng->price.number = abs(price);
+        elemtng->price_effect.number = abs(price);
     }
     return elemtng;
 }

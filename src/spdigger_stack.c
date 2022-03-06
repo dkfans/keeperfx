@@ -987,7 +987,7 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
         mtask = &dungeon->task_list[i];
         if (mtask->kind == SDDigTask_None)
             continue;
-        if (mtask->kind != SDDigTask_Unknown3)
+        if (mtask->kind != SDDigTask_MineGems)
         {
             SubtlCodedCoords tsk_stl_num;
             MapSubtlCoord tsk_dist;

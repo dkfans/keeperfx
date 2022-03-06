@@ -229,7 +229,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
       } else
       if (((mapblk->flags & SlbAtFlg_Digable) == 0) && (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) != plyr_idx)))
       {
-          add_task_list_entry(plyr_idx, SDDigTask_Unknown3, i);
+          add_task_list_entry(plyr_idx, SDDigTask_MineGems, i);
           task_added = true;
       } else
       {
@@ -878,9 +878,9 @@ void place_slab_object(unsigned short a1, long a2, long a3, unsigned short slabc
                 } else
                 if (sobj->field_A == TCls_EffectGen)
                 {
-                    struct Thing *efftng;
-                    efftng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
-                    if (thing_is_invalid(efftng)) {
+                    struct Thing *effgentng;
+                    effgentng = create_effect_generator(&pos, sobj->sofield_B, sobj->sofield_C << 8, a6, a1);
+                    if (thing_is_invalid(effgentng)) {
                         ERRORLOG("Cannot create effect generator, type %d", sobj->sofield_B);
                         continue;
                     }

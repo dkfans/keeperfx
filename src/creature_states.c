@@ -55,7 +55,6 @@
 #include "player_utils.h"
 #include "player_instances.h"
 #include "player_computer.h"
-#include "lvl_script.h"
 #include "thing_traps.h"
 #include "magic.h"
 #include "sounds.h"
@@ -149,6 +148,7 @@ short state_cleanup_dragging_object(struct Thing *creatng);
 short state_cleanup_in_room(struct Thing *creatng);
 short state_cleanup_unable_to_fight(struct Thing *creatng);
 short state_cleanup_unconscious(struct Thing *creatng);
+short state_cleanup_wait_at_door(struct Thing* creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
 short creature_pick_up_spell_to_steal(struct Thing *creatng);
 
@@ -157,6 +157,9 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng);
 }
 #endif
 /******************************************************************************/
+//process_state, cleanup_state, move_from_slab, move_check, 
+//override_feed, override_own_needs, override_sleep, override_fight_crtr, override_gets_salary, override_prev_fld1F, override_prev_fld20, override_escape, override_unconscious, override_anger_job, override_fight_object, override_fight_door, override_call2arms, override_follow,
+    //state_type, field_1F, field_20, field_21, field_23, sprite_idx, field_26, field_27, react_to_cta
 struct StateInfo states[] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 0},
@@ -374,7 +377,7 @@ struct StateInfo states[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 1, 1, 1, 0, 59, 1, 0, 1},
   {creature_evacuate_room, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
-  {creature_wait_at_treasure_room_door,  NULL, NULL, NULL,
+  {creature_wait_at_treasure_room_door,  state_cleanup_wait_at_door, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_GetsSalary, 0, 0,  1, 0, 0, 0, 0, 1},
   {at_kinky_torture_room, NULL, NULL, move_check_on_head_for_room,
     1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
@@ -2802,7 +2805,7 @@ short creature_take_salary(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage) ||
-      ((room->used_capacity <= 0) && (dungeon->offmap_money_owned <= 0)))
+      ((room->used_capacity == 0) && (dungeon->offmap_money_owned <= 0)))
     {
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
         return 1;
@@ -2985,6 +2988,11 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     {
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
         return 1;
+    }
+    EventIndex evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, creatng->owner, RoK_TREASURE);
+    if (evidx > 0) 
+    {
+        output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_TREASURE, OMsg_RoomNoRoute);
     }
     if (is_creature_other_than_given_waiting_at_closed_door_on_subtile(base_stl_x, base_stl_y, creatng))
     {
@@ -3311,6 +3319,7 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
     {
       internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
       cctrl->blocking_door_id = doortng->index;
+      cctrl->collided_door_subtile = 0;
       return CrCkRet_Continue;
     }
   }
@@ -4042,6 +4051,15 @@ short seek_the_enemy(struct Thing *creatng)
     return 1;
 }
 
+short state_cleanup_wait_at_door(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->blocking_door_id = 0;
+    cctrl->collided_door_subtile = 0;
+    return 1;
+}
+
 short state_cleanup_dragging_body(struct Thing *creatng)
 {
     TRACE_THING(creatng);
@@ -4049,7 +4067,15 @@ short state_cleanup_dragging_body(struct Thing *creatng)
     if (cctrl->dragtng_idx > 0)
     {
         struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-        stop_creature_being_dragged_by(dragtng, creatng);
+        if (dragtng->class_id == TCls_Creature)
+        {
+            stop_creature_being_dragged_by(dragtng, creatng);
+        } else 
+        if (dragtng->class_id == TCls_DeadCreature)
+        {
+            creature_drop_dragged_object(creatng, dragtng);
+            dragtng->owner = game.neutral_player_num;
+        }
     }
     return 1;
 }
@@ -4186,6 +4212,7 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     }
     remove_events_thing_is_attached_to(creatng);
     delete_effects_attached_to_creature(creatng);
+    state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
     return true;
 }
@@ -4196,6 +4223,13 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     if (curr_stati->state_type == CrStTyp_Move)
       curr_stati = get_thing_state_info_num(thing->continue_state);
     struct StateInfo* next_stati = get_thing_state_info_num(next_state);
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        if ( (next_stati->state_type != CrStTyp_Idle) )
+        {
+            return false;
+        }
+    }
     if ((curr_stati->field_20) && (!next_stati->override_prev_fld20))
         return false;
     if ((curr_stati->field_1F) && (!next_stati->override_prev_fld1F))
@@ -4416,7 +4450,12 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
         }
         return 0;
     }
-    room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+    room = find_any_navigable_room_for_thing_closer_than(thing, thing->owner, RoK_TREASURE, NavRtF_Default, map_subtiles_x / 2 + map_subtiles_y / 2);
+    if (room_is_invalid(room))
+    {
+        //if we can't find an unlocked room, try a locked room, to wait in front of the door
+        room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_TREASURE, NavRtF_NoOwner, 1);
+    }
     if (!room_is_invalid(room))
     {
         cleanup_current_thing_state(thing);
