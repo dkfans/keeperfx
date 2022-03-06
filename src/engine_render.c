@@ -3440,7 +3440,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct JontySpr *jspr)
         }
         if ( is_shown ||
                 get_my_player()->id_number == thing->owner ||
-                thing->trap_door_active_state )
+                thing->trap.revealed )
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->field_48, a6_2);
     }
     lbDisplay.DrawFlags = flg_mem;
@@ -3695,7 +3695,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         h_add += h;
     }
-    if ((thing->size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
+    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_owner;
         if (is_neutral_thing(thing)) {
@@ -3713,7 +3713,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
       if ( (myplyr->thing_under_hand == thing->index)
         || ((myplyr->id_number != thing->owner) && !creature_is_invisible(thing))
         || (cctrl->combat_flags != 0)
-        || (thing->size > 0)
+        || (thing->lair.spr_size > 0)
         || (mycam->view_mode == PVM_ParchmentView))
       {
           if (health_spridx > 0) {
@@ -7084,7 +7084,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            add_number_to_polypool(ecor.view_width, ecor.view_height, thing->long_13, 1);
+            add_number_to_polypool(ecor.view_width, ecor.view_height, thing->price_effect.number, 1);
         }
         break;
     case 5:
@@ -7094,16 +7094,16 @@ static void do_map_who_for_thing(struct Thing *thing)
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            if (game.play_gameturn - thing->long_15 == 1)
+            if (game.play_gameturn - thing->roomflag2.turntime == 1)
             {
-              if (thing->byte_19 < 40)
-                thing->byte_19++;
+              if (thing->roomflag2.byte_19 < 40)
+                thing->roomflag2.byte_19++;
             } else
             {
-                thing->byte_19 = 0;
+                thing->roomflag2.byte_19 = 0;
             }
-            thing->long_15 = game.play_gameturn;
-            if (thing->byte_19 == 40)
+            thing->roomflag2.turntime = game.play_gameturn;
+            if (thing->roomflag2.byte_19 == 40)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
                 add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
@@ -7192,16 +7192,16 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-          if (game.play_gameturn - thing->long_15 != 1)
+          if (game.play_gameturn - thing->roomflag2.turntime != 1)
           {
-              thing->byte_19 = 0;
+              thing->roomflag2.byte_19 = 0;
           } else
-          if (thing->byte_19 < 40)
+          if (thing->roomflag2.byte_19 < 40)
           {
-              thing->byte_19++;
+              thing->roomflag2.byte_19++;
           }
-          thing->long_15 = game.play_gameturn;
-          if (thing->byte_19 == 40)
+          thing->roomflag2.turntime = game.play_gameturn;
+          if (thing->roomflag2.byte_19 == 40)
           {
               add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
               if (is_free_space_in_poly_pool(1))
