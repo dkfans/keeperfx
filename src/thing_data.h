@@ -117,7 +117,7 @@ struct Thing {
         short life_remaining;
         char byte_15;
         unsigned char byte_16;
-        TbBool some_chicken_was_sacrifised;
+        TbBool some_chicken_was_sacrificed;
         unsigned short angle;
       } food;
       struct {

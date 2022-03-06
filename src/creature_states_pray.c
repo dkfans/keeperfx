@@ -310,7 +310,7 @@ void kill_all_players_chickens(PlayerNumber plyr_idx)
         // Per-thing code
         if (thing_exists(thing) && thing_is_mature_food(thing) && (thing->owner == plyr_idx)
           && !thing_is_picked_up(thing)) {
-            thing->food.some_chicken_was_sacrifised = true;
+            thing->food.some_chicken_was_sacrificed = true;
         }
         // Per-thing code ends
         k++;

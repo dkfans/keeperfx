@@ -959,7 +959,7 @@ long food_moves(struct Thing *objtng)
     pos.y.val = objtng->mappos.y.val;
     pos.z.val = objtng->mappos.z.val;
     unsigned int snd_smplidx = 0;
-    if (objtng->food.some_chicken_was_sacrifised)
+    if (objtng->food.some_chicken_was_sacrificed)
     {
         destroy_food(objtng);
         return -1;
