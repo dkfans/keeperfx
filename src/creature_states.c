@@ -3080,7 +3080,7 @@ struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *nav
     }
     else
     {
-        navtype = NavRtF_NoOwner;
+        *navtype = NavRtF_NoOwner; 
     }
     return room;
 }
