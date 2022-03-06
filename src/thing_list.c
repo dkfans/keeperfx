@@ -1261,7 +1261,7 @@ struct Thing *find_hero_gate_of_number(long num)
       }
       i = thing->next_of_class;
       // Per-thing code
-      if ((object_is_hero_gate(thing)) && (thing->byte_13 == num))
+      if ((object_is_hero_gate(thing)) && (thing->hero_gate.number == num))
       {
         return thing;
       }
