@@ -57,10 +57,6 @@ TbBool packets_process_cheats(
         message_add_timeout(dungeonadd->chosen_player, 1, "%d", dungeonadd->chosen_experience_level + 1);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-            {
-                break;
-            }
             if (allowed)
             {
                 set_players_packet_action(player, PckA_CheatMakeDigger, dungeonadd->chosen_player, dungeonadd->chosen_experience_level, 0, 0);
@@ -90,10 +86,6 @@ TbBool packets_process_cheats(
         message_add_timeout(dungeonadd->chosen_player, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-            {
-                break;
-            }
             if (allowed)
             {
                 ThingModel crmodel;
@@ -141,10 +133,6 @@ TbBool packets_process_cheats(
         allowed = tag_cursor_blocks_place_thing(plyr_idx, stl_x, stl_y);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-            {
-                break;
-            }
             if (allowed)
             {
                 thing = create_gold_pot_at(x, y, player->id_number);
@@ -192,10 +180,6 @@ TbBool packets_process_cheats(
         }
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-            {
-                break;
-            }
           if (player->thing_under_hand > 0)
           {
             if (player->controlled_thing_idx != player->thing_under_hand)
@@ -256,10 +240,6 @@ TbBool packets_process_cheats(
         message_add_timeout(dungeonadd->chosen_player, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-            {
-                break;
-            }
             if (allowed)
             {
                 ThingModel crmodel;
@@ -300,10 +280,6 @@ TbBool packets_process_cheats(
         case PSt_FreeDestroyWalls:
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    break;
-                }
                 i = get_power_overcharge_level(player);
                 magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, i, PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -321,10 +297,6 @@ TbBool packets_process_cheats(
             player->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    break;
-                }
                 i = get_power_overcharge_level(player);
                 switch (pwkind)
                 {
@@ -350,10 +322,6 @@ TbBool packets_process_cheats(
         message_add_timeout(dungeonadd->chosen_player, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {    
-            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-            {
-                break;
-            }   
             if (allowed)
             {
                 TbBool effect = (is_key_pressed(KC_RALT, KMod_DONTCARE));
@@ -372,11 +340,7 @@ TbBool packets_process_cheats(
             message_add_timeout(-127, 1, get_string(419));
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
-        {
-            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-            {
-                break;
-            }            
+        {          
             if (allowed)
             {
                 destroy_room_leaving_unclaimed_ground(room);
@@ -396,10 +360,6 @@ TbBool packets_process_cheats(
             }
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    break;
-                }
                 if (player->thing_under_hand > 0)
                 {
                     kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
@@ -421,10 +381,6 @@ TbBool packets_process_cheats(
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-            {
-                break;
-            }
             set_players_packet_action(player, PckA_CheatConvertCreature, dungeonadd->chosen_player, 0, 0, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
@@ -435,10 +391,6 @@ TbBool packets_process_cheats(
         message_add_timeout(dungeonadd->chosen_player, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-            {
-                break;
-            }   
             if (allowed)
             {
                 slb = get_slabmap_block(slb_x, slb_y);
@@ -518,10 +470,6 @@ TbBool packets_process_cheats(
             }
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    break;
-                }
                 if (player->thing_under_hand > 0)
                 {
                     switch (player->work_state)
@@ -553,10 +501,6 @@ TbBool packets_process_cheats(
               message_add_timeout(dungeonadd->chosen_player, 1, str);
               if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
               {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    break;
-                }
                 set_players_packet_action(player, PckA_CheatKillPlayer, PlayerToKill->id_number, 0, 0, 0);
               }
           }
@@ -604,10 +548,6 @@ TbBool packets_process_cheats(
             }
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    break;
-                }
                 if (player->thing_under_hand > 0)
                 {
                     if (thing->class_id == TCls_Creature)
@@ -673,10 +613,6 @@ TbBool packets_process_cheats(
             }
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    break;
-                }
                 if (player->thing_under_hand > 0)
                 {
                     if (player->work_state == PSt_MkHappy)
@@ -726,11 +662,7 @@ TbBool packets_process_cheats(
                 message_add_timeout(-127, 1, "%s (%d) %d %d (%d) %d %d (%d)", slab_cfgstats->code_name, slabmap_owner(slb), slb_x, slb_y, get_slab_number(slb_x, slb_y), stl_x, stl_y, get_subtile_number(stl_x, stl_y));
             }        
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
-            {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    break;
-                }             
+            {          
                 if (subtile_is_room(stl_x, stl_y)) 
                 {
                     room = subtile_room_get(stl_x, stl_y);
@@ -781,10 +713,6 @@ TbBool packets_process_cheats(
             }
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
             {
-                if (pos_is_on_gui_box(left_button_clicked_x, left_button_clicked_y))
-                {
-                    break;
-                }
                 if (player->thing_under_hand > 0)
                 {
                     room = get_room_thing_is_on(thing);

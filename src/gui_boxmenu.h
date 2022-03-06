@@ -50,7 +50,7 @@ void gui_insert_box_at_list_top(struct GuiBox *gbox);
 struct GuiBox *gui_get_box_point_over(long x, long y);
 struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, long y);
 short gui_process_inputs(void);
-TbBool pos_is_on_gui_box(ScreenCoord x, ScreenCoord y);
+TbBool point_is_over_gui_box(ScreenCoord x, ScreenCoord y);
 
 extern struct GuiBoxOption gui_main_cheat_list[];
 extern struct GuiBoxOption gui_creature_cheat_option_list[];
