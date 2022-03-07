@@ -958,13 +958,13 @@ struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model,
   
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
-        ERRORDBG(3,"Cannot create door model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        ERRORDBG(3,"Cannot create effect generator model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     struct Thing* effgentng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (effgentng->index == 0) {
-        ERRORDBG(3,"Should be able to allocate door %d for player %d, but failed.",(int)model,(int)owner);
+        ERRORDBG(3,"Should be able to allocate effect generator %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
