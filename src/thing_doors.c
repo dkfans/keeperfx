@@ -124,8 +124,6 @@ char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned char orient, PlayerNumber plyr_idx, TbBool is_locked)
 {
-    struct Thing *doortng;
-
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create door model %d for player %d. There are too many things allocated.",(int)tngmodel,(int)plyr_idx);
@@ -140,7 +138,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     }
 
     struct DoorStats* dostat = &door_stats[tngmodel][orient];
-    
+
     doortng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
 
     doortng->class_id = TCls_Door;

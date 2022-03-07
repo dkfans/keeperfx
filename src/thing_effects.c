@@ -955,7 +955,6 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
 
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx)
 {
-  struct Thing *effgentng;
   
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
