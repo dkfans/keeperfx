@@ -69,7 +69,7 @@ char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr
     unsigned int wall_flags = 0;
     for ( int i = 0; i < SMALL_AROUND_LENGTH; ++i )
     {
-        wall_flags *= 2;
+        wall_flags <<= 1;
         MapSlabCoord slb_x = door_slb_x + small_around[i].delta_x;
         MapSlabCoord slb_y = door_slb_y + small_around[i].delta_y;
         struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
@@ -154,13 +154,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
         if ( game.neutral_player_num != plyr_idx )
             ++game.dungeon[plyr_idx].total_doors;
         return doortng;
-    }
-    else
-    {
-        ERRORLOG("error! Cannot create door because there are too many fucking things allocated.");
-        return INVALID_THING;
-    }
-    
+    }    
 }
 
 
