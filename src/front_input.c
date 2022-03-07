@@ -2755,6 +2755,16 @@ void process_cheat_mode_selection_inputs()
                 set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_EQUALS);
             }
+            else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
+            {
+                new_value++;
+                if (new_value > SlbT_PURPLE)
+                {
+                    new_value = SlbT_ROCK;
+                }
+                set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
+                clear_key_pressed(KC_LSHIFT);
+            }
             break;
         }
         default:

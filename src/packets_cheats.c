@@ -650,10 +650,10 @@ TbBool packets_process_cheats(
                 message_add_timeout(dungeonadd->chosen_player, 1, slab_cfgstats->code_name);            
             }
             clear_messages_from_player(-127);
-            if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
+            if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
             {
                 terrain_details ^= 1;
-                clear_key_pressed(KC_LSHIFT);
+                clear_key_pressed(KC_RSHIFT);
             }
             if (terrain_details)
             {
