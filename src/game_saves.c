@@ -42,12 +42,16 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 
+#include "creature_jobs.h"
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry);
+void config_creature_stuff();
 /******************************************************************************/
 long const VersionMajor = 1;
 long const VersionMinor = 12;
@@ -290,11 +294,26 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     {
         // Update interface items
         update_trap_tab_to_config();
-        jobcfg->func_plyr_check = creature_job_player_check_func_list[jobcfg->func_plyr_check_idx];
+        config_creature_stuff();
+
         return GLoad_SavedGame;
     }
     return GLoad_Failed;
 }
+
+
+void config_creature_stuff()
+{
+    struct CreatureJobConfig *jobcfg;
+    int arr_size = sizeof(gameadd.crtr_conf.jobs)/sizeof(gameadd.crtr_conf.jobs[0]);
+    for (int i=0; i < arr_size; i++)
+    {
+        jobcfg = &gameadd.crtr_conf.jobs[i];
+        jobcfg->func_plyr_check = creature_job_player_check_func_list[jobcfg->func_plyr_check_idx];
+    }
+    
+}
+
 
 /**
  * Saves the game state file (savegame).
