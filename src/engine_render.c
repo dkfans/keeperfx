@@ -7153,7 +7153,7 @@ static void do_map_who(short tnglist_idx)
         }
         // Per thing code end
         k++;
-        if (k > THINGS_COUNT)
+        if (k > TOTAL_THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
@@ -7242,7 +7242,7 @@ static void draw_frontview_things_on_element(struct Map *mapblk, struct Camera *
         i = thing->next_on_mapblk;
         draw_frontview_thing_on_element(thing, mapblk, cam);
         k++;
-        if (k > THINGS_COUNT)
+        if (k > TOTAL_THINGS_COUNT)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break_mapwho_infinite_chain(mapblk);

@@ -195,7 +195,7 @@ struct GameAdd {
 
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 
-    struct ThingAdd things[THINGS_COUNT];
+    struct ThingAdd things[OBJECTS_COUNT];
 
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
@@ -215,10 +215,11 @@ struct GameAdd {
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
     unsigned char slab_ext_data[85 * 85];
-    unsigned short free_objects[THINGS_COUNT-1];
+    unsigned short free_objects[OBJECTS_COUNT-1];
     /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
     unsigned short free_objects_start_index;
     struct Things objects;
+    struct Thing objects_data[THINGS_COUNT];
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

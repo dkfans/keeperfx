@@ -328,7 +328,7 @@ long map_fade_out(long a)
 
 void set_sprite_view_3d(void)
 {
-    for (long i = 1; i < THINGS_COUNT; i++)
+    for (long i = 1; i < TOTAL_THINGS_COUNT; i++)
     {
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing))
@@ -359,7 +359,7 @@ void set_sprite_view_3d(void)
 
 void set_sprite_view_isometric(void)
 {
-    for (long i = 1; i < THINGS_COUNT; i++)
+    for (long i = 1; i < TOTAL_THINGS_COUNT; i++)
     {
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing))

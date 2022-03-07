@@ -157,7 +157,8 @@ long get_ceiling_height(const struct Coord3d *pos)
 
 long get_mapwho_thing_index(const struct Map *mapblk)
 {
-  return ((mapblk->data >> 11) & 0x7FF);
+  mapblk->
+  //return ((mapblk->data >> 11) & 0x7FF);
   //could also be ((mapblk->data & 0x3FF800) >> 11);
 }
 
