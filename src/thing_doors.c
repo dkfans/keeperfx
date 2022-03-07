@@ -125,36 +125,47 @@ char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y)
 struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned char orient, PlayerNumber plyr_idx, TbBool is_locked)
 {
     struct Thing *doortng;
-    struct DoorStats* dostat = &door_stats[tngmodel][orient];
 
-    if ( i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
+    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
-        doortng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+        ERRORDBG(3,"Cannot create door model %d for player %d. There are too many things allocated.",(int)tngmodel,(int)plyr_idx);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
+    struct Thing* doortng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    if (doortng->index == 0) {
+        ERRORDBG(3,"Should be able to allocate door %d for player %d, but failed.",(int)tngmodel,(int)plyr_idx);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
 
-        doortng->class_id = TCls_Door;
-        doortng->model = tngmodel;
-        doortng->mappos.x.val = pos->x.val;
-        doortng->mappos.y.val = pos->y.val;
-        doortng->mappos.z.val = 384;
-        doortng->next_on_mapblk = 0;
-        doortng->parent_idx = doortng->index;
-        doortng->owner = plyr_idx;
-        doortng->field_4F |= TF4F_Unknown01;
-        doortng->door.orientation = orient;
-        doortng->active_state = DorSt_Closed;
-        doortng->creation_turn = game.play_gameturn;
-        doortng->health = dostat->health;
-        doortng->door.is_locked = is_locked;
+    struct DoorStats* dostat = &door_stats[tngmodel][orient];
+    
+    doortng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
 
-        add_thing_to_its_class_list(doortng);
-        place_thing_in_mapwho(doortng);
+    doortng->class_id = TCls_Door;
+    doortng->model = tngmodel;
+    doortng->mappos.x.val = pos->x.val;
+    doortng->mappos.y.val = pos->y.val;
+    doortng->mappos.z.val = 384;
+    doortng->next_on_mapblk = 0;
+    doortng->parent_idx = doortng->index;
+    doortng->owner = plyr_idx;
+    doortng->field_4F |= TF4F_Unknown01;
+    doortng->door.orientation = orient;
+    doortng->active_state = DorSt_Closed;
+    doortng->creation_turn = game.play_gameturn;
+    doortng->health = dostat->health;
+    doortng->door.is_locked = is_locked;
 
-        place_animating_slab_type_on_map(dostat->slbkind, 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
-        //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
-        if ( game.neutral_player_num != plyr_idx )
-            ++game.dungeon[plyr_idx].total_doors;
-        return doortng;
-    }    
+    add_thing_to_its_class_list(doortng);
+    place_thing_in_mapwho(doortng);
+
+    place_animating_slab_type_on_map(dostat->slbkind, 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
+    //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
+    if ( game.neutral_player_num != plyr_idx )
+        ++game.dungeon[plyr_idx].total_doors;
+    return doortng; 
 }
 
 
