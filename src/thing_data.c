@@ -41,8 +41,13 @@ extern "C" {
 struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const char *func_name)
 {
     struct Thing *thing;
+    long i;
+
     // Get a thing from "free things list"
-    long i = game.free_things_start_index;
+    if ((allocflags & FTAF_ObjectsStruct) != 0)
+        i = gameadd.free_objects_start_index;
+    else 
+        i = game.free_things_start_index;
     // If there is no free thing, try to free an effect
     if (i >= THINGS_COUNT-1)
     {
@@ -70,7 +75,11 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
         return INVALID_THING;
     }
     // And if there is free one, allocate it
-    thing = thing_get(game.free_things[i]);
+    
+    if ((allocflags & FTAF_ObjectsStruct) != 0)
+        thing = thing_get(gameadd.free_objects[i]);
+    else
+        thing = thing_get(game.free_things[i]);
 #if (BFDEBUG_LEVEL > 0)
     if (thing_exists(thing)) {
         ERRORMSG("%s: Found existing thing %d in free things list at pos %d!",func_name,(int)game.free_things[i],(int)i);
@@ -78,28 +87,47 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
 #endif
     LbMemorySet(thing, 0, sizeof(struct Thing));
     if (thing_is_invalid(thing)) {
-        ERRORMSG("%s: Got invalid thing slot instead of free one!",func_name);
+        ERRORMSG("%s: Got invalid thing slot instead of free one! index: %i",func_name,thing->index);
         return INVALID_THING;
     }
     thing->alloc_flags |= TAlF_Exists;
-    thing->index = game.free_things[i];
-    game.free_things[game.free_things_start_index] = 0;
-    game.free_things_start_index++;
+    if ((allocflags & FTAF_ObjectsStruct) != 0)
+    {
+        thing->index = gameadd.free_objects[i];
+        gameadd.free_objects[gameadd.free_objects_start_index] = 0;
+        gameadd.free_objects_start_index++;
+    }
+    else 
+    {
+        thing->index = game.free_things[i];
+        game.free_things[game.free_things_start_index] = 0;
+        game.free_things_start_index++;
+    }
+
     TRACE_THING(thing);
     return thing;
 }
 
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
 {
-    // Check if there are free slots
-    if (game.free_things_start_index < THINGS_COUNT-1)
-        return true;
-    // Check if there are effect slots that could be freed
-    if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
-    {
-        if (game.thing_lists[TngList_EffectElems].index > 0)
+    if ((allocflags & FTAF_ObjectsStruct) != 0){
+        // Check if there are free slots
+        if (gameadd.free_objects_start_index < THINGS_COUNT-1)
             return true;
     }
+    else
+    {
+        // Check if there are free slots
+        if (game.free_things_start_index < THINGS_COUNT-1)
+            return true;
+        // Check if there are effect slots that could be freed
+        if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
+        {
+            if (game.thing_lists[TngList_EffectElems].index > 0)
+                return true;
+        }
+    }
+
     // Couldn't find free slot - fail
     if ((allocflags & FTAF_LogFailures) != 0)
     {
@@ -155,10 +183,16 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     }
     remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
-    if (thing->index > 0) {
+    if (thing->index > THINGS_COUNT) {
+        gameadd.free_objects_start_index--;
+        gameadd.free_objects[gameadd.free_objects_start_index] = thing->index;
+    } 
+    else if (thing->index > 0) {
         game.free_things_start_index--;
         game.free_things[game.free_things_start_index] = thing->index;
-    } else {
+    } 
+    else
+    {
 #if (BFDEBUG_LEVEL > 0)
         ERRORMSG("%s: Performed deleting of thing with bad index %d!",func_name,(int)thing->index);
 #endif
@@ -178,7 +212,7 @@ struct Thing *thing_get_f(long tng_idx, const char *func_name)
     }
     else if ((tng_idx >= THINGS_COUNT) && (tng_idx < THINGS_COUNT*2)) 
     {
-        return gameadd.objects.lookup[obj_idx];
+        return gameadd.objects.lookup[tng_idx - THINGS_COUNT];
     }
     if ((tng_idx < -1) || (tng_idx >= THINGS_COUNT)) {
         ERRORMSG("%s: Request of invalid thing (no %d) intercepted",func_name,(int)tng_idx);

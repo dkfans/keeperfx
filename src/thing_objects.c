@@ -413,13 +413,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     long i;
     long k;
 
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(FTAF_ObjectsStruct))
     {
         ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(FTAF_ObjectsStruct);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate object %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -929,7 +929,7 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
     //Remove the totem thing
     if (cctrl->lairtng_idx > 0)
     {
-        struct Thing* lairtng = object_get(cctrl->lairtng_idx);
+        struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
         TRACE_THING(lairtng);
         create_effect(&lairtng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
         delete_lair_totem(lairtng);
@@ -939,7 +939,6 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
 
 TbBool delete_lair_totem(struct Thing *lairtng)
 {
-
     struct Thing* creatng = thing_get(lairtng->lair.belongs_to);
     if (thing_is_creature(creatng)) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -2136,7 +2135,7 @@ struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = object_get(i);
+        struct Thing* thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");

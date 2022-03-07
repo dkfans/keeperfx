@@ -76,6 +76,7 @@ enum ThingFlags4F {
 enum FreeThingAllocFlags {
     FTAF_Default             = 0x00,
     FTAF_FreeEffectIfNoSlots = 0x01,
+    FTAF_ObjectsStruct       = 0x02,
     FTAF_LogFailures         = 0x80,
 };
 

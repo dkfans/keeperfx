@@ -971,7 +971,7 @@ struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model,
     effgentng->creation_turn = game.play_gameturn;
     effgentng->health = -1;
     effgentng->field_4F |= TF4F_Unknown01;
-    add_thing_to_list(effgentng, get_list_for_thing_class(TCls_EffectGen));
+    add_thing_to_its_class_list(effgentng);
     place_thing_in_mapwho(effgentng);
     return effgentng;
   }

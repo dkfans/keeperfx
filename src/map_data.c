@@ -164,7 +164,7 @@ long get_mapwho_thing_index(const struct Map *mapblk)
 void set_mapwho_thing_index(struct Map *mapblk, long thing_idx)
 {
   // Check if new value is correct
-  if ((unsigned long)thing_idx > 0x7FF)
+  if ((unsigned long)thing_idx > (2 * THINGS_COUNT - 1))
   {
       ERRORLOG("Tried to set invalid thing %ld",thing_idx);
       return;

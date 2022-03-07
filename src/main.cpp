@@ -1569,7 +1569,7 @@ void delete_all_thing_structures(void)
 {
     long i;
     struct Thing *thing;
-    for (i=1; i < THINGS_COUNT; i++)
+    for (i=1; i < THINGS_COUNT *2; i++)
     {
       thing = thing_get(i);
       if (thing_exists(thing)) {
@@ -1580,6 +1580,11 @@ void delete_all_thing_structures(void)
       game.free_things[i] = i+1;
     }
     game.free_things_start_index = 0;
+
+    for (i=0; i < THINGS_COUNT-1; i++) {
+      gameadd.free_objects[i] = i+1;
+    }
+    gameadd.free_objects_start_index = 0;
 }
 
 void delete_all_structures(void)
@@ -1991,6 +1996,12 @@ void clear_lookups(void)
       game.things.lookup[i] = NULL;
     }
     game.things.end = NULL;
+
+    for (i=0; i < THINGS_COUNT; i++)
+    {
+       gameadd.objects.lookup[i] = NULL;
+    }
+    gameadd.objects.end = NULL;
 
     memset(&game.persons, 0, sizeof(struct Persons));
 

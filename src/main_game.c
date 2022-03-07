@@ -88,6 +88,11 @@ void init_lookups(void)
     }
     game.things.end = &game.things_data[THINGS_COUNT];
 
+    for (i=0; i < THINGS_COUNT; i++)
+    {
+        gameadd.objects.lookup[i] = &game.things_data[i];
+    }
+
     memset(&game.persons, 0, sizeof(struct Persons));
     for (i=0; i < CREATURES_COUNT; i++)
     {

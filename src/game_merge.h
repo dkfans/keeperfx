@@ -215,7 +215,9 @@ struct GameAdd {
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
     unsigned char slab_ext_data[85 * 85];
-
+    unsigned short free_objects[THINGS_COUNT-1];
+    /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
+    unsigned short free_objects_start_index;
     struct Things objects;
 };
 
