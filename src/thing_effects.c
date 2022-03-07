@@ -955,10 +955,21 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
 
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx)
 {
-  struct Thing *effgentng;
+  
+    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    {
+        ERRORDBG(3,"Cannot create effect generator model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
+    struct Thing* effgentng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    if (effgentng->index == 0) {
+        ERRORDBG(3,"Should be able to allocate effect generator %d for player %d, but failed.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
 
-  if ( i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
-  {
+
     effgentng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     effgentng->class_id = TCls_EffectGen;
     effgentng->model = model;
@@ -971,15 +982,10 @@ struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model,
     effgentng->creation_turn = game.play_gameturn;
     effgentng->health = -1;
     effgentng->field_4F |= TF4F_Unknown01;
-    add_thing_to_list(effgentng, get_list_for_thing_class(TCls_EffectGen));
+    add_thing_to_its_class_list(effgentng);
     place_thing_in_mapwho(effgentng);
     return effgentng;
-  }
-  else
-  {
-    ERRORLOG("Cannot create effect generator because there are too many fucking things allocated.");
-    return 0;
-  }
+
 }
 
 long move_effect(struct Thing *thing)
