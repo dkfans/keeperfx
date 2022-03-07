@@ -1499,7 +1499,7 @@ void get_packet_control_mouse_clicks(void)
     static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
-    if ((game.operation_flags & GOF_Paused) != 0)
+    if ( ((game.operation_flags & GOF_Paused) != 0) || (busy_doing_gui) )
     {
         return;
     }
