@@ -3044,14 +3044,12 @@ short creature_wants_a_home(struct Thing *creatng)
 
 struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *navtype)
 {
-    TRACE_THING(creatng);
     RoomKind job_rkind = get_room_for_job(Job_TAKE_SALARY);
     if (!player_has_room(creatng->owner, job_rkind))
     {
         return INVALID_ROOM;
     }
         
-    //struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Room* room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, job_rkind, NavRtF_Default, 1);
     if (!room_is_invalid(room))
     {
@@ -3086,6 +3084,7 @@ struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *nav
 short creature_wants_salary(struct Thing *creatng)
 {
     SYNCDBG(8,"Starting for %s index %d owner %d", thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+    TRACE_THING(creatng);
     struct Coord3d pos;
     unsigned char navtype;
     struct Room* room = get_room_for_thing_salary(creatng,&navtype);
