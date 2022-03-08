@@ -916,8 +916,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 {
                     cctrl->spell_tngidx_armour[k] = ntng->index;
                     ntng->health = pwrdynst->strength[spell_lev] + 1;
-                    ntng->belongs_to = thing->index;
-                    ntng->byte_15 = k;
+                    ntng->armor.belongs_to = thing->index;
+                    ntng->armor.shspeed = k;
                     ntng->move_angle_xy = thing->move_angle_xy;
                     ntng->move_angle_z = thing->move_angle_z;
                     angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
@@ -1032,8 +1032,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
               {
                 cctrl->spell_tngidx_disease[k] = ntng->index;
                 ntng->health = pwrdynst->strength[spell_lev] + 1;
-                ntng->belongs_to = thing->index;
-                ntng->byte_15 = k;
+                ntng->disease.belongs_to = thing->index;
+                ntng->disease.effect_slot = k;
                 ntng->move_angle_xy = thing->move_angle_xy;
                 ntng->move_angle_z = thing->move_angle_z;
                 angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
@@ -1649,7 +1649,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         if (!thing_is_invalid(efthing))
         {
           if (spinfo->cast_effect_model == 14)
-            efthing->hit_type = THit_CrtrsNObjctsNotOwn;
+            efthing->shot_effect.hit_type = THit_CrtrsNObjctsNotOwn;
         }
     }
 }
@@ -2951,9 +2951,9 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
                     long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
                     long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
                     int posint = y / gameadd.crtr_conf.sprite_size;
-                    shotng->price.number = x;
-                    shotng->shot.byte_19 = posint;
-                    shotng->shot.dexterity = range / 10;
+                    shotng->shot_lizard.x = x;
+                    shotng->shot_lizard.posint = posint;
+                    shotng->shot_lizard2.range = range / 10;
                 }
             }
         break;
@@ -2961,7 +2961,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     if (!thing_is_invalid(shotng))
     {
 #if (BFDEBUG_LEVEL > 0)
-      damage = shotng->damagepoints;
+      damage = shotng->shot.damage;
       // Special debug code that shows amount of damage the shot will make
       if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
           create_price_effect(&pos1, my_player_number, damage);
@@ -4835,6 +4835,22 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     }
 }
 
+TbBool thing_is_on_snow_texture(struct Thing* thing)
+{
+    #define SNOW_TEXTURE 2
+    unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num))];
+
+    if ((ext_txtr == 0) && (game.texture_id == SNOW_TEXTURE)) //Snow map and on default texture
+    {
+        return true;
+    }
+    if (ext_txtr == SNOW_TEXTURE+1) //On non-default texture that is snow
+    {
+        return true;
+    }
+    return false;
+}
+
 void process_creature_leave_footsteps(struct Thing *thing)
 {
     struct Thing *footng;
@@ -4859,15 +4875,18 @@ void process_creature_leave_footsteps(struct Thing *thing)
             cctrl->bloody_footsteps_turns--;
         }
     } else
-    // Snow footprints
-    if (game.texture_id == 2)
     {
-        struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-        if (slb->kind == SlbT_PATH)
+        // Snow footprints
+        TbBool SnowTexture = thing_is_on_snow_texture(thing);
+        if (SnowTexture)
         {
-          thing->movement_flags |= TMvF_Unknown80;
-          nfoot = get_foot_creature_has_down(thing);
-          footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
+            struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            if (slb->kind == SlbT_PATH)
+            {
+              thing->movement_flags |= TMvF_IsOnSnow;
+              nfoot = get_foot_creature_has_down(thing);
+              footng = create_footprint_sine(&thing->mappos, thing->move_angle_xy, nfoot, TngEffElm_IceMelt3, thing->owner);
+            }
         }
     }
 }
@@ -4903,7 +4922,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
     SYNCDBG(18,"Starting");
     thing->movement_flags &= ~TMvF_IsOnWater;
     thing->movement_flags &= ~TMvF_IsOnLava;
-    thing->movement_flags &= ~TMvF_Unknown80;
+    thing->movement_flags &= ~TMvF_IsOnSnow;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {

@@ -1363,7 +1363,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
         shtng->shot.hit_type = THit_CrtrsOnly;
-        shtng->shot.byte_19 = splevel;
+        shtng->shot.spell_level = splevel;
     }
     pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
     shotst = get_shot_model_stats(ShM_GodLightning);
@@ -1376,7 +1376,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     obtng = create_object(&pos, 124, plyr_idx, -1);
     if (!thing_is_invalid(obtng))
     {
-        obtng->byte_13 = splevel;
+        obtng->lightning.spell_level = splevel;
         obtng->field_4F |= TF4F_Unknown01;
     }
     i = electricity_affecting_area(&pos, plyr_idx, range, max_damage);
