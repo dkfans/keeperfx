@@ -211,10 +211,10 @@ typedef TbBool (*Creature_Job_Coords_Assign_Func)(struct Thing *creatng, MapSubt
 
 struct CreatureJobConfig {
     char name[COMMAND_WORD_LEN];
-    Creature_Job_Player_Check_Func func_plyr_check;
-    Creature_Job_Player_Assign_Func func_plyr_assign;
-    Creature_Job_Coords_Check_Func func_cord_check;
-    Creature_Job_Coords_Assign_Func func_cord_assign;
+    unsigned char func_plyr_check_idx;
+    unsigned char func_plyr_assign_idx;
+    unsigned char func_cord_check_idx;
+    unsigned char func_cord_assign_idx;
     RoomRole room_role;
     EventKind event_kind;
     /** The state creature should go into when job is started. */

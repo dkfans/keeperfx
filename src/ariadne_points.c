@@ -33,6 +33,8 @@ DLLIMPORT long _DK_ix_Points;
 #define ix_Points _DK_ix_Points
 DLLIMPORT long _DK_free_Points;
 #define free_Points _DK_free_Points
+
+struct Point ari_Points[POINTS_COUNT];
 /******************************************************************************/
 /**
  * Checks if there's space for given amount of points.

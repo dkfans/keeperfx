@@ -80,6 +80,10 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
         gui_room_type_highlighted = player->chosen_room_kind;
     }
     TbBool drag_check = ((is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true) || is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) && ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld));
+    if (game.system_flags & GSF_NetworkActive)
+    {
+        drag_check = false; // Disable due to lack of network support
+    }
     get_dungeon_build_user_roomspace(player->id_number, player->chosen_room_kind, stl_x, stl_y, &mode, drag_check);
     long i = tag_cursor_blocks_place_room(player->id_number, stl_x, stl_y, player->full_slab_cursor);
 
@@ -232,11 +236,11 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     {
         if (!game_is_busy_doing_gui_for_player(plyr_idx))
         {
-            if (player->primary_cursor_state == CSt_PickAxe)
-            {
-                get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
-                tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
-            }
+          if (player->primary_cursor_state == CSt_PickAxe)
+          {
+              get_dungeon_highlight_user_roomspace(player->id_number, stl_x, stl_y);
+              tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+          }
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
@@ -256,7 +260,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->cursor_stl_x,(int)player->cursor_stl_y);
                         break;
                     }
-                    if (thing->trap_door_active_state)
+                    if (thing->door.is_locked)
                         unlock_door(thing);
                     else
                         lock_door(thing);

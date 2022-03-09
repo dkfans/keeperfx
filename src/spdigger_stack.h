@@ -57,7 +57,7 @@ enum SpecialDiggerDigTaskKinds {
     SDDigTask_None = 0,
     SDDigTask_DigEarth,
     SDDigTask_MineGold,
-    SDDigTask_Unknown3,
+    SDDigTask_MineGems,
 };
 
 enum ThingForRoomPickabilityFlags {

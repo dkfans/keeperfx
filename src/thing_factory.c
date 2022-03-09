@@ -66,15 +66,15 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
     struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
-    thing->word_15 = pwrdynst->time;
-    thing->byte_13 = pos->x.stl.num;
-    thing->byte_14 = pos->y.stl.num;
-    thing->byte_17 = cimodel;
+    thing->cave_in.time = pwrdynst->time;
+    thing->cave_in.x = pos->x.stl.num;
+    thing->cave_in.y = pos->y.stl.num;
+    thing->cave_in.model = cimodel;
     thing->health = pwrdynst->time;
     if (owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(owner);
-        dungeon->camera_deviate_quake = thing->word_15;
+        dungeon->camera_deviate_quake = thing->cave_in.time;
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
@@ -149,7 +149,7 @@ short thing_create_thing(struct InitThing *itng)
         {
             if (object_is_hero_gate(thing))
             {
-                thing->byte_13 = itng->params[1];
+                thing->hero_gate.number = itng->params[1];
             }
             else if (thing->model == OBJECT_TYPE_SPECBOX_CUSTOM)
             {

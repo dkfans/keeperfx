@@ -146,6 +146,13 @@ void update_gui_layer()
 {
     // Determine the current/correct GUI Layer to use at this moment
 
+    if ((game.system_flags & GSF_NetworkActive) == 1) // no one click on multiplayer.
+    {
+        //todo Make multiplayer work with 1-click
+        set_current_gui_layer(GuiLayer_Default);
+        return;
+    }
+
     struct PlayerInfo* player = get_my_player();
     if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )

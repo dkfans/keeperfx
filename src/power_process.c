@@ -285,7 +285,7 @@ void update_god_lightning_ball(struct Thing *thing)
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        draw_lightning(&thing->mappos,&target->mappos, 96, 60);
+        draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
         break;
     case 2:
     {
@@ -334,7 +334,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
             if (dist < best_dist)
             {
                 const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-                int spell_lev = shotng->shot.byte_19;
+                int spell_lev = shotng->shot.spell_level;
                 if (spell_lev > SPELL_MAX_LEVEL)
                     spell_lev = SPELL_MAX_LEVEL;
                 if (subtile_coord(pwrdynst->strength[spell_lev],0) > dist)
@@ -381,7 +381,7 @@ void draw_god_lightning(struct Thing *shotng)
         locpos.x.val +=  (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
         locpos.y.val += -(LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
         locpos.z.val = subtile_coord(12,0);
-        draw_lightning(&locpos, &shotng->mappos, 256, 60);
+        draw_lightning(&locpos, &shotng->mappos, 256, TngEffElm_ElectricBall3);
     }
 }
 

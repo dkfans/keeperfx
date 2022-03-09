@@ -1911,7 +1911,7 @@ void maintain_prison_bar(struct GuiButton *gbtn)
     }
 }
 
-void maintain_room_and_creature_button(struct GuiButton *gbtn)
+void maintain_room_button(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = (int)gbtn->content;
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -1920,6 +1920,30 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else
+    {
+        gbtn->btype_value |= LbBFeF_NoMouseOver;
+        gbtn->flags &= ~LbBtnF_Enabled;
+        gbtn->tooltip_stridx = 201;
+    }
+}
+void maintain_creature_button(struct GuiButton* gbtn)
+{
+    PlayerNumber plyr_idx = (int)gbtn->content;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_exists(player))
+    {
+        if (player_has_heart(plyr_idx))
+        {
+            gbtn->sprite_idx = 323 + (plyr_idx * 2);
+        }
+        else
+        {
+            gbtn->sprite_idx = 535 + (plyr_idx);
+        }
+        gbtn->btype_value &= LbBFeF_IntValueMask;
+        gbtn->flags |= LbBtnF_Enabled;
+    }
+    else
     {
         gbtn->btype_value |= LbBFeF_NoMouseOver;
         gbtn->flags &= ~LbBtnF_Enabled;
