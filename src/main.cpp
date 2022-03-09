@@ -132,9 +132,6 @@ extern "C" {
 #endif
 
 // DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
-DLLIMPORT void _DK_tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
-DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);

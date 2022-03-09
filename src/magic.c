@@ -107,7 +107,6 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
             return false;
         }
     }
-    struct PlayerInfo* player = get_player(plyr_idx);
     if (player->work_state == PSt_FreeCtrlDirect)
     {
         return true;
