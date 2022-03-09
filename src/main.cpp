@@ -45,7 +45,6 @@
 #include "config_compp.h"
 #include "config_effects.h"
 #include "lvl_script.h"
-#include "lvl_script_conditions.h"
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
