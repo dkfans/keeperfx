@@ -661,14 +661,17 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     HitPoints damage = 0;
     if (shotng->shot.damage)
     {
-        HitPoints damage_done;
-        damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
-        target->heart.some_countdown = 20;
-
-        // Drain allows caster to regain half of damage
-        if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng)) 
+        if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-            apply_health_to_thing(shootertng, damage_done/2);
+            HitPoints damage_done;
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
+            target->heart.some_countdown = 20;
+
+            // Drain allows caster to regain half of damage
+            if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
+            {
+                apply_health_to_thing(shootertng, damage_done / 2);
+            }
         }
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
