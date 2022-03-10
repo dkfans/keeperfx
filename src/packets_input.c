@@ -251,7 +251,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
     {
-        if (!game_is_busy_doing_gui_for_player(plyr_idx))
+        if (!game_is_busy_doing_gui())
         {
           if (player->primary_cursor_state == CSt_PickAxe)
           {
