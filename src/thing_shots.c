@@ -670,7 +670,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
             {
-                apply_health_to_thing(shootertng, damage_done / 2);
+                give_shooter_drained_health(shootertng, damage_done / 2);
             }
         }
     }
