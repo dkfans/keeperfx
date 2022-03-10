@@ -2794,8 +2794,8 @@ void process_cheat_mode_selection_inputs()
                         }
                         new_value = choose_pretty_type(id, slb_x, slb_y);
                         set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
-                        clear_key_pressed(KC_LALT);
                     }
+                    clear_key_pressed(KC_LALT);
                 }
             }
             break;
