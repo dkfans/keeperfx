@@ -180,7 +180,7 @@ TbBool packets_process_cheats(
         }
         break;
         case PSt_OrderCreatr:
-        influence_own_creatures = 1;
+        *influence_own_creatures = 1;
         thing = get_creature_near(x, y);
         if (!thing_is_creature(thing))
             player->thing_under_hand = 0;
