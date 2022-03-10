@@ -65,6 +65,7 @@
 #include "gui_soundmsgs.h"
 #include "creature_states_spdig.h"
 #include "room_data.h"
+#include "map_blocks.h"
 
 #include "keeperfx.hpp"
 #include "KeeperSpeech.h"
@@ -2771,6 +2772,31 @@ void process_cheat_mode_selection_inputs()
                 }
                 set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_LSHIFT);
+            }
+            if ( (dungeonadd->chosen_terrain_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
+            {
+                if (is_key_pressed(KC_LALT, KMod_DONTCARE))
+                {
+                    struct Coord3d pos;
+                    if (screen_to_map(player->acamera, GetMouseX(), GetMouseY(), &pos))
+                    {
+                        MapSlabCoord slb_x = subtile_slab_fast(pos.x.stl.num);
+                        MapSlabCoord slb_y = subtile_slab_fast(pos.y.stl.num);
+                        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+                        PlayerNumber id;
+                        if ( (slb->kind == SlbT_CLAIMED) || ( (slb->kind >= SlbT_WALLDRAPE) && (slb->kind <= SlbT_DAMAGEDWALL) ) )
+                        {
+                            id = slabmap_owner(slb);
+                        }
+                        else
+                        {
+                            id = dungeonadd->chosen_player;
+                        }
+                        new_value = choose_pretty_type(id, slb_x, slb_y);
+                        set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
+                        clear_key_pressed(KC_LALT);
+                    }
+                }
             }
             break;
         }

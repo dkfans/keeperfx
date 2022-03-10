@@ -703,13 +703,6 @@ TbBool packets_process_cheats(
                 {
                     id = game.neutral_player_num;
                 }
-                if ( (dungeonadd->chosen_terrain_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
-                {
-                    if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
-                    {
-                        dungeonadd->chosen_terrain_kind = choose_pretty_type(id, slb_x, slb_y);
-                    }
-                }
                 set_players_packet_action(player, PckA_CheatPlaceTerrain, dungeonadd->chosen_terrain_kind, id, 0, 0);
                 if ( (dungeonadd->chosen_terrain_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
                 {
