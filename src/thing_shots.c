@@ -665,7 +665,6 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
         {
             HitPoints damage_done;
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
-            target->heart.some_countdown = 20;
 
             // Drain allows caster to regain half of damage
             if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))

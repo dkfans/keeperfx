@@ -1481,8 +1481,6 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     SYNCDBG(18,"Beat update");
     if ((heartng->alloc_flags & TAlF_Exists) == 0)
       return 0;
-    if ( heartng->heart.some_countdown )
-      heartng->heart.some_countdown--;
     update_dungeon_heart_beat(heartng);
     return TUFRet_Modified;
 }

@@ -137,7 +137,7 @@ struct Thing {
         unsigned char state;
       } call_to_arms_flag;
       struct {
-        unsigned char some_countdown;
+        unsigned char countdown_UNUSED;
         unsigned char beat_direction;
       } heart;
       struct {
