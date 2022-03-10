@@ -1,3 +1,21 @@
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file cursor_tag.h
+ *     Header file for cursor_tag.c.
+ * @par Purpose:
+ *     Cursor box functions.
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   KeeperFX Team
+ * @date     10 March 2022
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
 #include "globals.h"
 #include "bflib_basics.h"
 
