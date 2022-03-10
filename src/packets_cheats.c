@@ -713,7 +713,7 @@ TbBool packets_process_cheats(
                 set_players_packet_action(player, PckA_CheatPlaceTerrain, dungeonadd->chosen_terrain_kind, id, 0, 0);
                 if ( (dungeonadd->chosen_terrain_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
                 {
-                    dungeonadd->chosen_terrain_kind = rand() % (5) + 4;
+                    dungeonadd->chosen_terrain_kind = SlbT_WALLDRAPE + GAME_RANDOM(5);
                 }
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
