@@ -64,7 +64,6 @@ TbBool packets_process_cheats(
     struct SlabMap *slb;
     struct PlayerInfo* player = get_player(plyr_idx);
     TbBool allowed;
-    struct Coord3d pos;
     char str[255] = {'\0'};
     struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     switch (player->work_state)
