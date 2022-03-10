@@ -2855,12 +2855,17 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
     // Compute shot damage
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+    damage = shotst->damage;
+    if (shotst->fixed_damage == 0)
     {
-        damage = calculate_melee_damage(firing);
-    } else
-    {
-        damage = calculate_shot_damage(firing,shot_model);
+        if ((shotst->model_flags & ShMF_StrengthBased) != 0)
+        {
+            damage = calculate_melee_damage(firing);
+        }
+        else
+        {
+            damage = calculate_shot_damage(firing, shot_model);
+        }
     }
     struct Thing* shotng = NULL;
     long target_idx = 0;
@@ -2886,7 +2891,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         else
           draw_lightning(&pos1, &pos2, 96, TngEffElm_ElectricBall3);
         shotng->health = shotst->health;
-        shotng->shot.damage = shotst->damage;
+        shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
     case ShM_FlameBreathe:
@@ -2897,7 +2902,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
           return;
         draw_flame_breath(&pos1, &pos2, 96, 2);
         shotng->health = shotst->health;
-        shotng->shot.damage = shotst->damage;
+        shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
     case ShM_Hail_storm:
