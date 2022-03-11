@@ -534,8 +534,10 @@ TbBool packets_process_cheats(
             break;
         }
         short new_health = thing->health;
-        process_cheat_heart_health_inputs(&new_health);
-        set_packet_action(pckt, PckA_CheatHeartHealth, dungeonadd->chosen_player, new_health, 0, 0);
+        if (process_cheat_heart_health_inputs(&new_health))
+        {
+            set_packet_action(pckt, PckA_CheatHeartHealth, dungeonadd->chosen_player, new_health, 0, 0);
+        }
         break;
         case PSt_CreatrQueryAll:
         case PSt_CreatrInfoAll:

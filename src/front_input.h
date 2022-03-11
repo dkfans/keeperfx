@@ -112,7 +112,7 @@ TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn);
 long get_current_gui_layer();
 TbBool check_current_gui_layer(long layer_id);
 void process_cheat_mode_selection_inputs();
-void process_cheat_heart_health_inputs(short *value);
+TbBool process_cheat_heart_health_inputs(short *value);
 /******************************************************************************/
 #ifdef __cplusplus
 }

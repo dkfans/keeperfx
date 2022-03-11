@@ -2807,7 +2807,7 @@ void process_cheat_mode_selection_inputs()
     }
 }
 
-void process_cheat_heart_health_inputs(short *value)
+TbBool process_cheat_heart_health_inputs(short *value)
 {
    short new_health = *value;
    if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
@@ -2818,6 +2818,7 @@ void process_cheat_heart_health_inputs(short *value)
             *value = new_health;
             clear_key_pressed(KC_ADD);
             clear_key_pressed(KC_EQUALS);
+            return true;
         }
     }
     else if ( (is_key_pressed(KC_PERIOD, KMod_SHIFT)) || (is_key_pressed(KC_PERIOD, KMod_NONE)) )
@@ -2825,12 +2826,14 @@ void process_cheat_heart_health_inputs(short *value)
         new_health += 100;
         *value = new_health;
         clear_key_pressed(KC_PERIOD);
+        return true;
     }
     else if ( (is_key_pressed(KC_COMMA, KMod_SHIFT)) || (is_key_pressed(KC_COMMA, KMod_NONE)) )
     {
         new_health -= 100;
         *value = new_health;
         clear_key_pressed(KC_COMMA);
+        return true;
     }
     else if ( (is_key_pressed(KC_SUBTRACT, KMod_ALT)) || (is_key_pressed(KC_MINUS, KMod_NONE)) )
     {
@@ -2838,7 +2841,9 @@ void process_cheat_heart_health_inputs(short *value)
         *value = new_health;
         clear_key_pressed(KC_SUBTRACT);
         clear_key_pressed(KC_MINUS);
+        return true;
     }
+    return false;
 }
 
 /******************************************************************************/
