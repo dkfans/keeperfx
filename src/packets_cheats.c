@@ -76,7 +76,7 @@ TbBool packets_process_cheats(
         {
             if (allowed)
             {
-                set_players_packet_action(player, PckA_CheatMakeDigger, dungeonadd->chosen_player, dungeonadd->chosen_experience_level, 0, 0);
+                set_packet_action(pckt, PckA_CheatMakeDigger, dungeonadd->chosen_player, dungeonadd->chosen_experience_level, 0, 0);
             }
             else
             {
@@ -134,7 +134,7 @@ TbBool packets_process_cheats(
                     exp = dungeonadd->chosen_experience_level;
                 }
                 unsigned short param2 = dungeonadd->chosen_player | (exp << 8);
-                set_players_packet_action(player, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
+                set_packet_action(pckt, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
             }
             else
             {
@@ -282,7 +282,7 @@ TbBool packets_process_cheats(
                     exp = dungeonadd->chosen_experience_level;
                 }
                 unsigned short param2 = dungeonadd->chosen_player | (exp << 8);
-                set_players_packet_action(player, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
+                set_packet_action(pckt, PckA_CheatMakeCreature, crmodel, param2, 0, 0);
             }
             else
             {
@@ -342,7 +342,7 @@ TbBool packets_process_cheats(
             if (allowed)
             {
                 TbBool effect = (is_key_pressed(KC_RALT, KMod_DONTCARE));
-                set_players_packet_action(player, PckA_CheatStealRoom, dungeonadd->chosen_player, effect, 0, 0);
+                set_packet_action(pckt, PckA_CheatStealRoom, dungeonadd->chosen_player, effect, 0, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -398,7 +398,7 @@ TbBool packets_process_cheats(
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            set_players_packet_action(player, PckA_CheatConvertCreature, dungeonadd->chosen_player, 0, 0, 0);
+            set_packet_action(pckt, PckA_CheatConvertCreature, dungeonadd->chosen_player, 0, 0, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);    
         }
         break;
@@ -461,7 +461,7 @@ TbBool packets_process_cheats(
                         effect = false;
                     }
                     unsigned short param2 = dungeonadd->chosen_player | (effect << 8);
-                    set_players_packet_action(player, PckA_CheatStealSlab, slbkind, param2, 0, 0);
+                    set_packet_action(pckt, PckA_CheatStealSlab, slbkind, param2, 0, 0);
                 }
             }
             else
@@ -518,7 +518,7 @@ TbBool packets_process_cheats(
               message_add_timeout(dungeonadd->chosen_player, 1, str);
               if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
               {
-                set_players_packet_action(player, PckA_CheatKillPlayer, PlayerToKill->id_number, 0, 0, 0);
+                set_packet_action(pckt, PckA_CheatKillPlayer, PlayerToKill->id_number, 0, 0, 0);
               }
           }
         break;
@@ -535,7 +535,7 @@ TbBool packets_process_cheats(
         }
         short new_health = thing->health;
         process_cheat_heart_health_inputs(&new_health);
-        set_players_packet_action(player, PckA_CheatHeartHealth, dungeonadd->chosen_player, new_health, 0, 0);
+        set_packet_action(pckt, PckA_CheatHeartHealth, dungeonadd->chosen_player, new_health, 0, 0);
         break;
         case PSt_CreatrQueryAll:
         case PSt_CreatrInfoAll:
@@ -702,7 +702,7 @@ TbBool packets_process_cheats(
                 {
                     id = game.neutral_player_num;
                 }
-                set_players_packet_action(player, PckA_CheatPlaceTerrain, dungeonadd->chosen_terrain_kind, id, 0, 0);
+                set_packet_action(pckt, PckA_CheatPlaceTerrain, dungeonadd->chosen_terrain_kind, id, 0, 0);
                 if ( (dungeonadd->chosen_terrain_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
                 {
                     dungeonadd->chosen_terrain_kind = SlbT_WALLDRAPE + GAME_RANDOM(5);
