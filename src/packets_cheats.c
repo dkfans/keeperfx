@@ -519,6 +519,7 @@ TbBool packets_process_cheats(
               if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
               {
                 set_packet_action(pckt, PckA_CheatKillPlayer, PlayerToKill->id_number, 0, 0, 0);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
               }
           }
         break;
