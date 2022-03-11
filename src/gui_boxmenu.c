@@ -68,7 +68,7 @@ struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Null mode",                1,           NULL,      gf_change_player_state, 0, 0, 0,            PSt_None, 0, 0, 0, 0},
   {"Place digger mode",        1,           NULL,      gf_change_player_state, 0, 0, 0,        PSt_MkDigger, 0, 0, 0, 0},
   {"Place creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,     PSt_MkBadCreatr, 0, 0, 0, 0},
-  {"Place hero mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_MkGoodCreatr, 0, 0, 0, 0},
+  {"Place hero mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,    PSt_MkGoodCreatr, 4, 0, 0, 0},
   {"Destroy walls mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_FreeDestroyWalls, 0, 0, 0, 0},
   {"Disease mode",             1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeCastDisease, 0, 0, 0, 0},
   {"Peter mode",               1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_FreeTurnChicken, 0, 0, 0, 0},
@@ -159,7 +159,7 @@ struct DraggingBox dragging_box;
 long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
   // Note: reworked from beta and unchecked
-  struct PlayerInfo *player=get_my_player();
+  struct PlayerInfo *player = get_my_player();
   set_players_packet_action(player, PckA_SetPlyrState, tag[0], tag[1], 0, 0);
   struct GuiBoxOption* guop = gbox->optn_list;
   while (guop->label[0] != '!')
