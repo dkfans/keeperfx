@@ -76,8 +76,6 @@ long navigation_map_size_y = 256;
 unsigned char *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
-DLLIMPORT void _DK_clear_slab_dig(long a1, long a2, char a3);
-/******************************************************************************/
 /**
  * Returns if the subtile coords are in range of subtiles which have slab entry.
  */
@@ -614,8 +612,6 @@ void clear_mapmap(void)
  */
 void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
 {
-  //_DK_clear_slab_dig(slb_x, slb_y, plyr_idx);
-
     const struct SlabMap *slb = &game.slabmap[slb_x + 85 * slb_y];
     if ( get_slab_attrs(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
     {
