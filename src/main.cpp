@@ -221,7 +221,8 @@ long get_foot_creature_has_down(struct Thing *thing)
     val = thing->field_48;
     if (val == (cctrl->field_CE >> 8))
         return 0;
-    n = get_creature_model_graphics(thing->model, CGI_Ambulate);
+    unsigned short frame = (creature_is_dragging_something(thing)) ? CGI_Drag : CGI_Ambulate;
+    n = get_creature_model_graphics(thing->model, frame);
     i = convert_td_iso(n);
     if (i != thing->anim_sprite)
         return 0;
@@ -2284,26 +2285,6 @@ void process_dungeons(void)
   SYNCDBG(9,"Finished");
 }
 
-void process_level_script(void)
-{
-  SYNCDBG(6,"Starting");
-  struct PlayerInfo *player;
-  player = get_my_player();
-  // Do NOT stop executing scripts after winning if the RUN_AFTER_VICTORY(1) script command has been issued
-  if ((player->victory_state == VicS_Undecided) || (game.system_flags & GSF_RunAfterVictory))
-  {
-      process_conditions();
-      process_check_new_creature_partys();
-    //script_process_messages(); is not here, but it is in beta - check why
-      process_check_new_tunneller_partys();
-      process_values();
-      process_win_and_lose_conditions(my_player_number); //player->id_number may be uninitialized yet
-    //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],
-    //    game.dungeon[0].script_flags[2],game.dungeon[0].script_flags[3],game.dungeon[0].script_flags[4],game.dungeon[0].script_flags[5]);
-  }
-  SYNCDBG(19,"Finished");
-}
-
 
 void update_flames_nearest_camera(struct Camera *camera)
 {
@@ -2341,7 +2322,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
         i = thing->next_of_class;
         // Per-thing code
         thing->state_flags &= ~TF1_DoFootsteps;
-        if (!thing_is_picked_up(thing))
+        if ( (!thing_is_picked_up(thing)) && (!thing_is_dragged_or_pulled(thing)) )
         {
             struct CreatureSound *crsound;
             crsound = get_creature_sound(thing, CrSnd_Foot);
@@ -2529,8 +2510,8 @@ long update_cave_in(struct Thing *thing)
     {
         int n;
         n = UNSYNC_RANDOM(AROUND_TILES_COUNT);
-        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_x;
-        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(0x2C0) * around[n].delta_y;
+        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(704) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(704) * around[n].delta_y;
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
@@ -2585,20 +2566,20 @@ long update_cave_in(struct Thing *thing)
                 {
                     long dist;
                     struct Coord3d pos2;
-                    pos2.x.val = subtile_coord(thing->byte_13,0);
-                    pos2.y.val = subtile_coord(thing->byte_14,0);
+                    pos2.x.val = subtile_coord(thing->cave_in.x,0);
+                    pos2.y.val = subtile_coord(thing->cave_in.y,0);
                     pos2.z.val = subtile_coord(1,0);
                     dist = get_2d_box_distance(&pos, &pos2);
-                    if (pwrdynst->strength[thing->byte_17] >= coord_subtile(dist))
+                    if (pwrdynst->strength[thing->cave_in.model] >= coord_subtile(dist))
                     {
-                        ncavitng = create_thing(&pos, TCls_CaveIn, thing->byte_17, owner, -1);
+                        ncavitng = create_thing(&pos, TCls_CaveIn, thing->cave_in.model, owner, -1);
                         if (!thing_is_invalid(ncavitng))
                         {
                             thing->health += 5;
                             if (thing->health > 0)
                             {
-                                ncavitng->byte_13 = thing->byte_13;
-                                ncavitng->byte_14 = thing->byte_14;
+                                ncavitng->cave_in.x = thing->cave_in.x;
+                                ncavitng->cave_in.y = thing->cave_in.y;
                             }
                         }
                     }

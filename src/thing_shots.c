@@ -333,7 +333,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags)
     {
         return;
     }
-    int damage = thing->damagepoints;
+    int damage = thing->shot.damage;
     if ((damage >= slb->health) && !slab_kind_is_indestructible(slb->kind))
     {
         if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
@@ -446,11 +446,11 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         {
             if (shotng->model == ShM_Lizard)
             {
-                if (shotng->shot.dexterity >= CREATURE_RANDOM(shotng, 90))
+                if (shotng->shot_lizard2.range >= CREATURE_RANDOM(shotng, 90))
                 {
                     struct Coord3d target_pos;
-                    target_pos.x.val = shotng->price.number;
-                    target_pos.y.val = shotng->shot.byte_19 * gameadd.crtr_conf.sprite_size;
+                    target_pos.x.val = shotng->shot_lizard.x;
+                    target_pos.y.val = shotng->shot_lizard.posint * gameadd.crtr_conf.sprite_size;
                     target_pos.z.val = pos->z.val;
                     const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
                     if (dist <= 800) return detonate_shot(shotng);
@@ -475,7 +475,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->hit_type = shotst->area_hit_type;
+        efftng->shot_effect.hit_type = shotst->area_hit_type;
     }
     if ( destroy_shot )
     {
@@ -542,7 +542,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
       }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->hit_type = shotst->area_hit_type;
+        efftng->shot_effect.hit_type = shotst->area_hit_type;
     }
     if ( shot_explodes )
     {
@@ -630,9 +630,9 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
         return 0;
     }
-    struct Thing* creatng = INVALID_THING;
+    struct Thing* shootertng = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
-        creatng = thing_get(shotng->parent_idx);
+        shootertng = thing_get(shotng->parent_idx);
     }
     if (thing_is_dungeon_heart(target))
     {
@@ -645,27 +645,33 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
             thing_play_sample(target, 144+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
         event_create_event_or_update_nearby_existing_event(
-            creatng->mappos.x.val, creatng->mappos.y.val,
-          EvKind_HeartAttacked, target->owner, creatng->index);
+            shootertng->mappos.x.val, shootertng->mappos.y.val,
+          EvKind_HeartAttacked, target->owner, shootertng->index);
         if (is_my_player_number(target->owner)) {
             output_message(SMsg_HeartUnderAttack, 400, true);
         }
     } else
     {
-        int i = shotst->hit_creature.sndsample_idx;
+        int i = shotst->hit_generic.sndsample_idx;
         if (i > 0) {
             thing_play_sample(target, i, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
     }
-    if (shotng->damagepoints)
+
+    HitPoints damage = 0;
+    if (shotng->shot.damage)
     {
-        // Drain allows caster to regain half of damage
-        if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(creatng)) 
+        if (object_can_be_damaged(target)) // do not damage objects that cannot be destroyed
         {
-            apply_health_to_thing(creatng, shotng->damagepoints/2);
+            HitPoints damage_done;
+            damage_done = apply_damage_to_thing(target, shotng->shot.damage, shotst->damage_type, -1);
+
+            // Drain allows caster to regain half of damage
+            if ((shotst->model_flags & ShMF_LifeDrain) && thing_is_creature(shootertng))
+            {
+                give_shooter_drained_health(shootertng, damage_done / 2);
+            }
         }
-        apply_damage_to_thing(target, shotng->damagepoints, shotst->damage_type, -1);
-        target->byte_13 = 20;
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
     if (target->health < 0) {
@@ -674,7 +680,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     if (shotst->old->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
     }
-    return 1;
+    return damage;
 }
 
 long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target)
@@ -735,7 +741,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case ShM_PoisonCloud:
             efftng = create_effect(&shotng->mappos, TngEff_Gas3, shotng->owner);
             if ( !thing_is_invalid(efftng) ) {
-                efftng->hit_type = THit_CrtrsOnly;
+                efftng->shot_effect.hit_type = THit_CrtrsOnly;
             }
             break;
         case ShM_NaviMissile:
@@ -950,7 +956,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         {
             struct Thing* efftng = create_effect(&trgtng->mappos, TngEff_WoPExplosion, trgtng->owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->hit_type = THit_HeartOnlyNotOwn;
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             }
             shotng->health = -1;
             return 1;
@@ -958,14 +964,15 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (shotng->shot.damage != 0)
     {
+        HitPoints damage_done;
+        if (!thing_is_invalid(shooter)) {
+            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
+        } else {
+            damage_done = apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+        }
         if (shotst->model_flags & ShMF_LifeDrain)
         {
-            give_shooter_drained_health(shooter, shotng->shot.damage / 2);
-        }
-        if (!thing_is_invalid(shooter)) {
-            apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
-        } else {
-            apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+            give_shooter_drained_health(shooter, damage_done / 2);
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(trgtng);
@@ -1175,7 +1182,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_for_subtile(struct Th
     return false;
 }
 
-struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5)
+struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long hit_targets, long a5)
 {
     MapSubtlCoord stl_x_min;
     MapSubtlCoord stl_y_min;
@@ -1200,7 +1207,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng,
     {
         for (MapSubtlCoord stl_x = stl_x_min; stl_x <= stl_x_max; stl_x++)
         {
-            struct Thing* coltng = get_thing_collided_with_at_satisfying_filter_for_subtile(shotng, pos, filter, a4, a5, stl_x, stl_y);
+            struct Thing* coltng = get_thing_collided_with_at_satisfying_filter_for_subtile(shotng, pos, filter, hit_targets, a5, stl_x, stl_y);
             if (!thing_is_invalid(coltng)) {
                 return coltng;
             }
@@ -1389,8 +1396,8 @@ TngUpdateRet update_shot(struct Thing *thing)
             **/
         case ShM_Lizard:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
-            int skill = thing->shot.dexterity;
-            target = thing_get(thing->shot.target_idx);
+            int skill = thing->shot_lizard2.range;
+            target = thing_get(thing->shot_lizard.target_idx);
             if (thing_is_invalid(target)) break;
             MapCoordDelta dist;
             if (skill <= 35)
@@ -1401,8 +1408,8 @@ TngUpdateRet update_shot(struct Thing *thing)
             else
             {
                 struct Coord3d target_pos;
-                target_pos.x.val = thing->price.number;
-                target_pos.y.val = thing->shot.byte_19 * gameadd.crtr_conf.sprite_size;
+                target_pos.x.val = thing->shot_lizard.x;
+                target_pos.y.val = thing->shot_lizard.posint * gameadd.crtr_conf.sprite_size;
                 target_pos.z.val = target->mappos.z.val;
                 dist = get_2d_distance(&thing->mappos, &target_pos);
                 if (dist <= 260) hit = true;
@@ -1414,13 +1421,13 @@ TngUpdateRet update_shot(struct Thing *thing)
         case ShM_TrapLightning:
             if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
             {
-              thing->shot.byte_19 = 5;
+              thing->shot.spell_level = 5;
               god_lightning_choose_next_creature(thing);
               target = thing_get(thing->shot.target_idx);
               if (thing_exists(target))
               {
                   shotst = get_shot_model_stats(ShM_GodLightBall);
-                  draw_lightning(&thing->mappos,&target->mappos, 96, 60);
+                  draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
                   apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
               }
             }

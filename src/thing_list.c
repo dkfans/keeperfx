@@ -23,7 +23,6 @@
 #include "globals.h"
 #include "bflib_sound.h"
 #include "packets.h"
-#include "lvl_script.h"
 #include "light_data.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
@@ -1073,6 +1072,22 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
     }
 }
 
+TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
+{
+    SYNCDBG(8,"Starting for player %d",(int)plyridx);
+    struct PlayerInfo* player = get_player(plyridx);
+    if (player_invalid(player)) {
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+        return false;
+    }
+    player->allocflags &= ~PlaF_Allocated; // mark as non-existing
+    player->id_number = plyridx;
+    player->is_active = 0;
+    player->allocflags &= ~PlaF_CompCtrl;
+    init_player_start(player, false);
+    return true;
+}
+
 void setup_computer_player(int plr_idx)
 {
     SYNCDBG(5,"Starting for player %d",plr_idx);
@@ -1246,7 +1261,7 @@ struct Thing *find_hero_gate_of_number(long num)
       }
       i = thing->next_of_class;
       // Per-thing code
-      if ((object_is_hero_gate(thing)) && (thing->byte_13 == num))
+      if ((object_is_hero_gate(thing)) && (thing->hero_gate.number == num))
       {
         return thing;
       }
@@ -2159,7 +2174,7 @@ GoldAmount compute_player_payday_total(const struct Dungeon *dungeon)
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     long total_count;
-    TbBool is_spec_digger = ((crmodel > CREATURE_ANY) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
+    TbBool is_spec_digger = ((crmodel == CREATURE_DIGGER) || creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (is_spec_digger)
     {

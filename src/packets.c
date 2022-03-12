@@ -1098,9 +1098,12 @@ void process_players_creature_control_packet_control(long idx)
             {
                 if (creature_instance_has_reset(cctng, i))
                 {
-                    inst_inf = creature_instance_info_get(i);
-                    n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
-                    set_creature_instance(cctng, i, 1, n, 0);
+                    if (!creature_affected_by_spell(cctng, SplK_Chicken))
+                    {
+                        inst_inf = creature_instance_info_get(i);
+                        n = get_human_controlled_creature_target(cctng, inst_inf->field_1D);
+                        set_creature_instance(cctng, i, 1, n, 0);
+                    }
                 }
             }
         }

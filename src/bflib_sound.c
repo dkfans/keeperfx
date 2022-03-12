@@ -38,11 +38,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT TbFileHandle _DK_LbFileOpen(const char *fname, int mode);
-DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
-DLLIMPORT int _DK_LbFileSeek(TbFileHandle handle, long offset, int origin);
-DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
-DLLIMPORT int _DK_LbFilePosition(TbFileHandle handle);
 // Global variables
 long NoSoundEmitters = SOUND_EMITTERS_MAX;
 int atmos_sound_volume = 128;
@@ -586,14 +581,14 @@ void close_sound_bank(SoundBankID bank_id)
     case 0:
         if (sound_file != -1)
         {
-            _DK_LbFileClose(sound_file);
+            LbFileClose(sound_file);
             sound_file = -1;
         }
         break;
     case 1:
         if (sound_file2 != -1)
         {
-            _DK_LbFileClose(sound_file2);
+            LbFileClose(sound_file2);
             sound_file2 = -1;
         }
         break;
@@ -879,13 +874,13 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
     if (bank_id > 0)
     {
         hmhandle->idx = samples_in_bank + smpl_idx;
-        _DK_LbFileSeek(sound_file2, file_pos, Lb_FILE_SEEK_BEGINNING);
-        _DK_LbFileRead(sound_file2, hmhandle->buf, smpl_len);
+        LbFileSeek(sound_file2, file_pos, Lb_FILE_SEEK_BEGINNING);
+        LbFileRead(sound_file2, hmhandle->buf, smpl_len);
     } else
     {
         hmhandle->idx = smpl_idx;
-        _DK_LbFileSeek(sound_file, file_pos, Lb_FILE_SEEK_BEGINNING);
-        _DK_LbFileRead(sound_file, hmhandle->buf, smpl_len);
+        LbFileSeek(sound_file, file_pos, Lb_FILE_SEEK_BEGINNING);
+        LbFileRead(sound_file, hmhandle->buf, smpl_len);
     }
     return hmhandle;
 }
