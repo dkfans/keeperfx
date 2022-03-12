@@ -1280,9 +1280,9 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
     place_slab_objects(slb_x, slb_y, slab_number_list, plyr_idx);
 }
 
-void shuffle_unattached_things_on_slab(long a1, long a2)
+void shuffle_unattached_things_on_slab(long stl_x, long stl_y)
 {
-    _DK_shuffle_unattached_things_on_slab(a1, a2); return;
+    _DK_shuffle_unattached_things_on_slab(stl_x, stl_y);
 }
 
 void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)

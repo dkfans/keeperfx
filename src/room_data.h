@@ -165,7 +165,6 @@ struct RoomReposition {
 
 /******************************************************************************/
 DLLIMPORT extern struct RoomData _DK_room_data[];
-//#define room_data _DK_room_data
 
 #pragma pack()
 /******************************************************************************/
