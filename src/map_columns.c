@@ -29,7 +29,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-DLLIMPORT long _DK_find_column(struct Column *col);
 DLLIMPORT long _DK_create_column(struct Column *col);
 /******************************************************************************/
 struct Column *get_column(long idx)
@@ -321,12 +320,16 @@ long get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return get_map_ceiling_height(mapblk);
 }
 
-long find_column(struct Column *colmn)
+static TbBool column_is_equivalent(struct Column * const src, struct Column *dst)
 {
-  return _DK_find_column(colmn);
+    if ((src->baseblock != dst->baseblock) ||
+        (src->solidmask != dst->solidmask) ||
+        (src->orient != dst->orient))
+        return 0;
+    return 0 == memcmp(src->cubes, dst->cubes, sizeof(src->cubes));
 }
 
-/*long find_column(struct Column *srccol)
+long find_column(struct Column *srccol)
 {
     int i;
     for (i=1; i < COLUMNS_COUNT; i++) {
@@ -337,7 +340,7 @@ long find_column(struct Column *colmn)
         }
     }
     return 0;
-}*/
+}
 
 long create_column(struct Column *colmn)
 {
