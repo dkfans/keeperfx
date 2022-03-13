@@ -676,6 +676,8 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   break;
               case 13: // PASSIVE_NEUTRALS
                   gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
+                  n++;
+                  break;
               default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);

@@ -62,7 +62,7 @@ TbBool jailbreak_possible(struct Room *room, long creature_owner)
     unsigned long i = room->slabs_list;
     while (i > 0)
     {
-        struct SlabMap* slb = get_slabmap_direct(i);
+        slb = get_slabmap_direct(i);
         if (slabmap_block_invalid(slb))
         {
             ERRORLOG("Jump to invalid room slab detected");
