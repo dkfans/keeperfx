@@ -1464,8 +1464,8 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         struct Objects* objdat = get_objects_data_for_thing(heartng);
         heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
         heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
-    } else
-    if (heartng->owner != game.neutral_player_num)
+    }
+    else if (heartng->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(heartng->owner);
         if (dungeon->heart_destroy_state == 0)

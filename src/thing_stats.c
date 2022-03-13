@@ -95,9 +95,9 @@ const char *thing_class_code_name(int class_id)
  */
 const char *thing_class_and_model_name(int class_id, int model)
 {
-    static char name_buffer[2][32];
+    static char name_buffer[4][64];
     static int bid = 0;
-    bid = (bid+1)%2;
+    bid = (bid+1)%4;
     switch (class_id)
     {
     case TCls_Creature:
