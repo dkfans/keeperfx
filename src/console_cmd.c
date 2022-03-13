@@ -338,7 +338,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     struct Packet* pckt;
     struct SlabMap *slb;
     struct Coord3d pos;
-    struct ScriptValue tmp_value = {0};
     if (strcasecmp(parstr, "stats") == 0)
     {
       message_add_fmt(plyr_idx, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
@@ -1074,6 +1073,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = thing_get(player->influenced_thing_idx);
             if (!thing_is_invalid(thing))
             {
+                message_add_fmt(plyr_idx, "sprite_size: %d", thing->sprite_size);
                 message_add_fmt(plyr_idx, "health: %d", thing->health);
                 message_add_fmt(plyr_idx, "pos: %d %d %d", thing->mappos.x.stl.num,
                                 thing->mappos.y.stl.num,
@@ -1161,6 +1161,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     pos.x.stl.num = atoi(pr2str);
                     pos.y.stl.num = atoi(pr3str);
+                    if ((pos.x.stl.num >= map_subtiles_x) ||
+                            (pos.y.stl.num >= map_subtiles_y))
+                    {
+                        message_add_fmt(plyr_idx, "invalid location");
+                        return true;
+                    }
                     if (pr4str != NULL)
                     {
                         pos.z.stl.num = atoi(pr4str);
@@ -1257,7 +1263,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     crmodel = atoi(pr2str);
                 }
+                if (crmodel == 0)
+                {
+                    message_add_fmt(plyr_idx, "invalid creature model");
+                    return true;
+                }
                 game.pool.crtr_kind[crmodel] += atoi(pr3str);
+                if (game.pool.crtr_kind[crmodel] < 0)
+                    game.pool.crtr_kind[crmodel] = 0;
                 return true;
             }
         }
@@ -1270,7 +1283,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     crmodel = atoi(pr2str);
                 }
+                if (crmodel == 0)
+                {
+                    message_add_fmt(plyr_idx, "invalid creature model");
+                    return true;
+                }
                 game.pool.crtr_kind[crmodel] -= atoi(pr3str);
+                if (game.pool.crtr_kind[crmodel] < 0)
+                    game.pool.crtr_kind[crmodel] = 0;
                 return true;
             }
         }
