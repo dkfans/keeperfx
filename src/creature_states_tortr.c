@@ -488,7 +488,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    if (room->owner == game.neutral_player_num || creatng->owner == game.neutral_player_num)
+    if (room->owner == game.neutral_player_num || is_neutral_thing(creatng))
     {
         return CrCkRet_Available;
     }
