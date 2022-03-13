@@ -1068,6 +1068,20 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
             }
         }
+        else if (strcasecmp(parstr, "thing.info") == 0)
+        {
+            player = get_player(plyr_idx);
+            thing = thing_get(player->influenced_thing_idx);
+            if (!thing_is_invalid(thing))
+            {
+                message_add_fmt(plyr_idx, "health: %d", thing->health);
+                message_add_fmt(plyr_idx, "pos: %d %d %d", thing->mappos.x.stl.num,
+                                thing->mappos.y.stl.num,
+                                thing->mappos.z.stl.num);
+                message_add_fmt(plyr_idx, "%s", thing_class_and_model_name(thing->class_id, thing->model));
+                return true;
+            }
+        }
         else if (strcasecmp(parstr, "creature.attackheart") == 0)
         {
             if (pr2str != NULL)
@@ -1113,7 +1127,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_object_at_position(stl_x, stl_y);
             if (!thing_is_invalid(thing))
             {
-                message_add_fmt(plyr_idx, "Got thing ID %d", thing->index);
+                message_add_fmt(plyr_idx, "Got thing ID %d %s",
+                                thing->index,
+                                thing_class_and_model_name(thing->class_id, thing->model));
                 player->influenced_thing_idx = thing->index;
                 return true;
             }
@@ -1135,21 +1151,38 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return true;
             }
         }
-        else if (strcasecmp(parstr, "thing.pos") == 0)
+        else if (strcasecmp(parstr, "thing.move") == 0)
         {
             player = get_player(plyr_idx);
             thing = thing_get(player->influenced_thing_idx);
-            if (pr4str != NULL)
+            if (!thing_is_invalid(thing))
             {
-                pos.x.stl.num = atoi(pr2str);
-                pos.y.stl.num = atoi(pr3str);
-                pos.z.stl.num = atoi(pr4str);
-                move_thing_in_map(thing, &pos);                
+                if (pr3str != NULL)
+                {
+                    pos.x.stl.num = atoi(pr2str);
+                    pos.y.stl.num = atoi(pr3str);
+                    if (pr4str != NULL)
+                    {
+                        pos.z.stl.num = atoi(pr4str);
+                    }
+                    else
+                    {
+                        pos.z.val = get_floor_height_at(&pos);
+                    }
+                }
+                else
+                {
+                    pckt = get_packet_direct(player->packet_num);
+                    pos.x.val = ((unsigned short) pckt->pos_x);
+                    pos.y.val = ((unsigned short) pckt->pos_y);
+                    pos.z.val = get_floor_height_at(&pos);
+                }
+
+                move_thing_in_map(thing, &pos);
             }
-            else if (!thing_is_invalid(thing))
+            else
             {
-                message_add_fmt(plyr_idx, "Thing ID %d X: %d Y: %d Z: %d", thing->index, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
-                return true;
+                message_add_fmt(plyr_idx, "no thing selected");
             }
         }
         else if (strcasecmp(parstr, "thing.destroy") == 0)
