@@ -1071,7 +1071,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (pr3str == NULL)
             {
-                message_add_fmt(plyr_idx, "mapwho.first stl_x stl_x");
+                message_add_fmt(plyr_idx, "mapwho.info <stl_x> <stl_y>");
                 return true;
             }
             pos.x.stl.num = atoi(pr2str);
@@ -1141,13 +1141,24 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
             }
         }
+        else if (strcasecmp(parstr, "cursor.pos") == 0)
+        {
+            player = get_player(plyr_idx);
+            pckt = get_packet_direct(player->packet_num);
+            pos.x.val = ((unsigned short) pckt->pos_x);
+            pos.y.val = ((unsigned short) pckt->pos_y);
+            pos.z.val = get_floor_height_at(&pos);
+            message_add_fmt(plyr_idx, "Cursor at %d, %d, %d",
+                            (int)pos.x.stl.num, (int)pos.y.stl.num, (int)pos.z.stl.num);
+            return true;
+        }
         else if (strcasecmp(parstr, "thing.get") == 0)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
             MapSubtlCoord stl_x = coord_subtile(((unsigned short)pckt->pos_x));
             MapSubtlCoord stl_y = coord_subtile(((unsigned short)pckt->pos_y));
-            thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_object_at_position(stl_x, stl_y);
+            thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_thing_at_position(stl_x, stl_y);
             if (!thing_is_invalid(thing))
             {
                 message_add_fmt(plyr_idx, "Got thing ID %d %s",
