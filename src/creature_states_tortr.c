@@ -488,6 +488,10 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
+    if (room->owner == game.neutral_player_num || is_neutral_thing(creatng))
+    {
+        return CrCkRet_Available;
+    }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
