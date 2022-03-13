@@ -2660,12 +2660,12 @@ TbBool init_creature_state(struct Thing *creatng)
             SYNCDBG(3,"Trying to assign initial job at (%d,%d) for neutral %s index %d owner %d",(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
             return false;
         }
-        SYNCDBG(3,"Assigning initial job at (%d,%d) for neutral %s index %d owner %d",(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(3,"Assigning initial job at (%d,%d) for neutral %s index %d owner %d",stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
     }
     CreatureJob new_job = get_job_for_subtile(creatng, stl_x, stl_y, JoKF_AssignCeatureInit);
     if (new_job == Job_NULL)
     {
-        SYNCDBG(3,"No job found at (%d,%d) for %s index %d owner %d",(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        SYNCDBG(3,"No job found at (%d,%d) for %s index %d owner %d",stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
         return false;
     }
     // Check if specific conditions are met for this job to be assigned
