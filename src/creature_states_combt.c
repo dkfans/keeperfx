@@ -389,6 +389,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (!thing_is_creature(thing) || creature_control_invalid(cctrl)) {
       ERRORLOG("Creature should have been already removed due to death");
+      return;
     }
     struct CreatureBattle* battle = creature_battle_get(cctrl->battle_id);
     // Change next index in prev creature

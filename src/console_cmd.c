@@ -337,7 +337,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     struct Room* room;
     struct Packet* pckt;
     struct SlabMap *slb;
-    struct Coord3d pos;
+    struct Coord3d pos = {0};
     if (strcasecmp(parstr, "stats") == 0)
     {
       message_add_fmt(plyr_idx, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
@@ -1069,13 +1069,18 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if (strcasecmp(parstr, "mapwho.info") == 0)
         {
-            if (pr3str == NULL)
+            if (pr2str == NULL)
             {
-                message_add_fmt(plyr_idx, "mapwho.info <stl_x> <stl_y>");
-                return true;
+                player = get_player(plyr_idx);
+                pckt = get_packet_direct(player->packet_num);
+                pos.x.val = ((unsigned short) pckt->pos_x);
+                pos.y.val = ((unsigned short) pckt->pos_y);
             }
-            pos.x.stl.num = atoi(pr2str);
-            pos.y.stl.num = atoi(pr3str);
+            else
+            {
+                pos.x.stl.num = atoi(pr2str);
+                pos.y.stl.num = atoi(pr3str);
+            }
             if ((pos.x.stl.num >= map_subtiles_x) ||
                 (pos.y.stl.num >= map_subtiles_y))
             {
@@ -1084,11 +1089,11 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             }
             player = get_player(plyr_idx);
             struct Map *block = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
-            player->influenced_thing_idx = (short)get_mapwho_thing_index(block);
-            thing = thing_get(player->influenced_thing_idx);
-            message_add_fmt(plyr_idx, "first_thing:%d %s", player->influenced_thing_idx, thing_class_and_model_name(thing->class_id, thing->model));
+            short thing_id = (short) get_mapwho_thing_index(block);
+            thing = thing_get(thing_id);
+            message_add_fmt(plyr_idx, "first_thing:%d %s", thing_id, thing_class_and_model_name(thing->class_id, thing->model));
             message_add_fmt(plyr_idx, "flags: %02x, data: %04lx", block->flags, block->data);
-            message_add_fmt(plyr_idx, "stl_x: %d, stl_x:%d", pos.x.stl.num, pos.y.stl.num);
+            message_add_fmt(plyr_idx, "stl_x: %d, stl_y:%d", pos.x.stl.num, pos.y.stl.num);
         }
         else if (strcasecmp(parstr, "thing.info") == 0)
         {
