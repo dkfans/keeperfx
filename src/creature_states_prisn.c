@@ -49,12 +49,12 @@ DLLIMPORT long _DK_process_prison_food(struct Thing *creatng, struct Room *room)
 }
 #endif
 /******************************************************************************/
-TbBool jailbreak_possible(struct Room *room, long creature_owner)
+TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
 {
     struct SlabMap *slb;
     // Neutral creatures (in any player's prison)
     // and creatures in the prisons of their owner can't jailbreak
-    if (creature_owner == NEUTRAL_PLAYER || room->owner == creature_owner)
+    if (creature_owner == game.neutral_player_num || room->owner == creature_owner)
     {
         return false;
     }
