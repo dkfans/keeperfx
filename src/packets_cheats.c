@@ -42,6 +42,7 @@
 #include "gui_boxmenu.h"
 #include "front_input.h"
 #include "bflib_math.h"
+#include "gui_topmsg.h"
 
 extern void clear_input(struct Packet* packet);
 
@@ -779,5 +780,248 @@ TbBool packets_process_cheats(
         default:
             return false;
     }
+    return true;
+}
+
+TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt)
+{
+  struct DungeonAdd* dungeonadd;
+  switch (pckt->action)
+  {
+      case PckA_CheatEnter:
+    //      game.???[my_player_number].cheat_mode = 1;
+          show_onscreen_msg(2*game.num_fps, "Cheat mode activated by player %d", plyr_idx);
+          return true;
+      case PckA_CheatAllFree:
+          make_all_creatures_free();
+          make_all_rooms_free();
+          make_all_powers_cost_free();
+          return true;
+      case PckA_CheatCrtSpells:
+          //TODO: remake from beta
+          return false;
+      case PckA_CheatRevealMap:
+      {
+          struct PlayerInfo* player = get_player(plyr_idx);
+          reveal_whole_map(player);
+          return false;
+      }
+      case PckA_CheatCrAllSpls:
+          //TODO: remake from beta
+          return false;
+      case PckA_CheatAllMagic:
+          make_available_all_researchable_powers(plyr_idx);
+          return false;
+      case PckA_CheatAllRooms:
+          make_available_all_researchable_rooms(plyr_idx);
+          return false;
+      case PckA_CheatAllResrchbl:
+          make_all_powers_researchable(plyr_idx);
+          make_all_rooms_researchable(plyr_idx);
+          return false;
+      case PckA_CheatSwitchTerrain:
+        {
+            dungeonadd = get_dungeonadd(plyr_idx);
+            dungeonadd->cheatselection.chosen_terrain_kind = pckt->actn_par1;
+            if (slab_kind_has_no_ownership(dungeonadd->cheatselection.chosen_terrain_kind))
+            {
+               clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
+               dungeonadd->cheatselection.chosen_player = game.neutral_player_num; 
+            }
+            return false;
+        }
+      case PckA_CheatSwitchPlayer:
+        {
+            dungeonadd = get_dungeonadd(plyr_idx);
+            clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
+            dungeonadd->cheatselection.chosen_player = pckt->actn_par1;
+            return false;
+        }
+      case PckA_CheatSwitchCreature:
+        {
+            dungeonadd = get_dungeonadd(plyr_idx);
+            dungeonadd->cheatselection.chosen_creature_kind = pckt->actn_par1;
+            return false;
+        }
+      case PckA_CheatSwitchHero:
+        {
+            dungeonadd = get_dungeonadd(plyr_idx);
+            dungeonadd->cheatselection.chosen_hero_kind = pckt->actn_par1;
+            return false;
+        }
+      case PckA_CheatSwitchExperience:
+        {
+            dungeonadd = get_dungeonadd(plyr_idx);
+            dungeonadd->cheatselection.chosen_experience_level = pckt->actn_par1;
+            return false;
+        }
+        default:
+          return false;
+  }
+}
+
+TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    MapCoord x, y;
+    struct Thing* thing;
+    MapSubtlCoord stl_x, stl_y;
+    MapSlabCoord slb_x, slb_y;
+    struct Coord3d pos;
+    switch (pckt->action)
+    {
+        case PckA_CheatPlaceTerrain:
+        {
+            x = ((unsigned short)pckt->pos_x);
+            y = ((unsigned short)pckt->pos_y);
+            stl_x = coord_subtile(x);
+            stl_y = coord_subtile(y);
+            slb_x = subtile_slab_fast(stl_x);
+            slb_y = subtile_slab_fast(stl_y);
+            if (slab_kind_is_animated(pckt->actn_par1))
+            {
+                place_animating_slab_type_on_map(pckt->actn_par1, 0, stl_x, stl_y, pckt->actn_par2);
+            }
+            else
+            {
+                place_slab_type_on_map(pckt->actn_par1, stl_x, stl_y, pckt->actn_par2, 0);
+            }
+            do_slab_efficiency_alteration(slb_x, slb_y);
+            break;
+        }
+        case PckA_CheatMakeCreature:
+        {
+            x = ((unsigned short)pckt->pos_x);
+            y = ((unsigned short)pckt->pos_y);
+            pos.x.val = x;
+            pos.y.val = y;
+            PlayerNumber id = pckt->actn_par2;
+            unsigned char exp = pckt->actn_par2 >> 8;
+            thing = create_creature(&pos, pckt->actn_par1, id);
+            if (!thing_is_invalid(thing))
+            {
+                set_creature_level(thing, exp);
+            }
+            break;
+        }
+        case PckA_CheatMakeDigger:
+        {
+            x = ((unsigned short)pckt->pos_x);
+            y = ((unsigned short)pckt->pos_y);
+            thing = create_owned_special_digger(x, y, pckt->actn_par1);
+            if (!thing_is_invalid(thing))
+            {
+                set_creature_level(thing, pckt->actn_par2);
+            }
+            break;
+        }
+        case PckA_CheatStealSlab:
+        {
+            x = ((unsigned short)pckt->pos_x);
+            y = ((unsigned short)pckt->pos_y);
+            stl_x = coord_subtile(x);
+            stl_y = coord_subtile(y);
+            slb_x = subtile_slab_fast(stl_x);
+            slb_y = subtile_slab_fast(stl_y);
+            PlayerNumber id = pckt->actn_par2;
+            TbBool effect = pckt->actn_par2 >> 8;
+            if (effect)
+            {
+                if (pckt->actn_par1 == SlbT_CLAIMED)
+                {
+                    pos.x.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_x)));
+                    pos.y.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_y))); 
+                    pos.z.val = subtile_coord_center(1);
+                    if (is_my_player(player))
+                    {
+                        play_non_3d_sample(76);
+                    }
+                    create_effect(&pos, imp_spangle_effects[id], id);
+                }
+                else
+                {
+                    if (is_my_player(player))
+                    {
+                        play_non_3d_sample(41);
+                    }
+                    for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
+                    {
+                        pos.x.stl.pos = 128;
+                        pos.y.stl.pos = 128;
+                        pos.z.stl.pos = 128;
+                        pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
+                        pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
+                        struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+                        if (map_block_revealed(mapblk, id) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
+                        {
+                            pos.z.val = get_floor_height_at(&pos);
+                            create_effect(&pos, imp_spangle_effects[id], id);  
+                        }
+                    }
+                }
+            }
+            place_slab_type_on_map(pckt->actn_par1, stl_x, stl_y, id, 0);
+            do_slab_efficiency_alteration(slb_x, slb_y);
+            struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+            for (int i = 0; i < PLAYERS_COUNT; i++)
+            {
+                if (i != slabmap_owner(slb))
+                {
+                    untag_blocks_for_digging_in_area(stl_x, stl_y, i);
+                }
+            }
+            break;
+        }
+        case PckA_CheatStealRoom:
+        {
+            x = ((unsigned short)pckt->pos_x);
+            y = ((unsigned short)pckt->pos_y);
+            stl_x = coord_subtile(x);
+            stl_y = coord_subtile(y);
+            struct Room* room = subtile_room_get(stl_x, stl_y);
+            if (room_exists(room))
+            {
+                if (pckt->actn_par2)
+                {
+                    if (is_my_player(player))
+                    {
+                        play_non_3d_sample(116);
+                    }
+                    create_effects_on_room_slabs(room, imp_spangle_effects[pckt->actn_par1], 0, pckt->actn_par1);
+                }
+                take_over_room(room, pckt->actn_par1);
+            }
+            break;
+        }
+        case PckA_CheatHeartHealth:
+        {
+            thing = get_player_soul_container(pckt->actn_par1);
+            if (!thing_is_invalid(thing))
+            {
+                thing->health = (short)pckt->actn_par2;
+            }
+            break;
+        }
+        case PckA_CheatKillPlayer:
+        {
+            thing = get_player_soul_container(pckt->actn_par1);
+            if (!thing_is_invalid(thing))
+            {
+                thing->health = 0;
+            }
+            break;
+        }
+        case PckA_CheatConvertCreature:
+        {
+            thing = thing_get(player->thing_under_hand);
+            if (thing_is_creature(thing))
+            {
+                change_creature_owner(thing, pckt->actn_par1);
+            }
+            break;
+        }
+        default:
+            return false;
+        }
     return true;
 }
