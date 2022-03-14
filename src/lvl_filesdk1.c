@@ -839,7 +839,7 @@ TbBool columns_add_static_entries(void)
           if (ncol == 0)
             ncol = create_column(&lcolmn);
           struct Column* colmn = get_column(ncol);
-          colmn->bitfields |= 0x01;
+          colmn->bitfields |= CLF_ACTIVE;
           *wptr = -(short)ncol;
           wptr++;
         }
@@ -866,7 +866,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
                 {
                     ncol = create_column(&lcolmn);
                     struct Column* colmn = get_column(ncol);
-                    colmn->bitfields |= 0x01;
+                    colmn->bitfields |= CLF_ACTIVE;
                 }
             } else
           {
@@ -896,7 +896,7 @@ TbBool create_columns_from_list(struct Column *cols, long ccount)
             if (ncol == 0)
                 ncol = create_column(&cols[i]);
             struct Column* colmn = get_column(ncol);
-            colmn->bitfields |= 0x01;
+            colmn->bitfields |= CLF_ACTIVE;
         }
     }
     return true;
