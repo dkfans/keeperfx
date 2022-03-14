@@ -207,7 +207,6 @@ TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, 
 
 PerPlayerFlags action_point_get_players_within(long apt_idx)
 {
-    //return _DK_action_point_get_players_within(apt_idx);
     struct ActionPoint* apt = action_point_get(apt_idx);
     PerPlayerFlags activated = apt->activated;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)

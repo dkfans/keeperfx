@@ -1169,6 +1169,11 @@ void remove_thing_from_mapwho(struct Thing *thing)
     } else
     {
         struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        if (get_mapwho_thing_index(mapblk) != thing->index)
+        {
+            WARNLOG("Moving lost %s %d from %d, %d", thing_class_and_model_name(thing->class_id, thing->model),
+                    thing->index, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        }
         set_mapwho_thing_index(mapblk, thing->next_on_mapblk);
     }
     if (thing->next_on_mapblk > 0)
@@ -1261,7 +1266,7 @@ struct Thing *find_hero_gate_of_number(long num)
       }
       i = thing->next_of_class;
       // Per-thing code
-      if ((object_is_hero_gate(thing)) && (thing->byte_13 == num))
+      if ((object_is_hero_gate(thing)) && (thing->hero_gate.number == num))
       {
         return thing;
       }

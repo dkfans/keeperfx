@@ -256,7 +256,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         ERRORLOG("Door thing not found at map pos (%d,%d)",(int)player->cursor_stl_x,(int)player->cursor_stl_y);
                         break;
                     }
-                    if (thing->trap_door_active_state)
+                    if (thing->door.is_locked)
                         unlock_door(thing);
                     else
                         lock_door(thing);
@@ -471,14 +471,8 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
     player->full_slab_cursor = (!is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true));
-    if (is_my_player(player))
-    {
-        if (!game_is_busy_doing_gui())
-        {
-            get_dungeon_sell_user_roomspace(player->id_number, stl_x, stl_y);
-            tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->full_slab_cursor);
-        }
-    }
+    get_dungeon_sell_user_roomspace(player->id_number, stl_x, stl_y);
+    tag_cursor_blocks_sell_area(player->id_number, stl_x, stl_y, player->full_slab_cursor);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->full_slab_cursor != 0))

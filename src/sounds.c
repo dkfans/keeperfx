@@ -117,7 +117,7 @@ void play_thing_walking(struct Thing *thing)
         {
             int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->field_67 & 0x1F)];
             long smpl_idx;
-            if ((thing->movement_flags & TMvF_Unknown80) != 0) {
+            if ((thing->movement_flags & TMvF_IsOnSnow) != 0) {
                 smpl_idx = 181 + smpl_variant;
             } else {
                 struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);

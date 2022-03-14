@@ -317,7 +317,7 @@ unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 void init_lookups(void);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
-void shuffle_unattached_things_on_slab(long a1, long a2);
+void shuffle_unattached_things_on_slab(long stl_x, long stl_y);
 void turn_off_query(PlayerNumber plyr_idx);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);
