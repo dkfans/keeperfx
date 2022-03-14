@@ -729,6 +729,12 @@
     <ClCompile Include="src\map_locations.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\cursor_tag.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\event_monitoring.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -1356,6 +1362,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\map_locations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\console_cmd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cursor_tag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\event_monitoring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

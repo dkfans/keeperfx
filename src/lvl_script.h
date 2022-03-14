@@ -241,7 +241,6 @@ short preload_script(long lvnum);
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
 void process_level_script(void);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

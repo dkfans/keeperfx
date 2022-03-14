@@ -1,4 +1,21 @@
-
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file packets_input.c
+ *     Packet processing routines.
+ * @par Purpose:
+ *     Functions for creating and executing packets.
+ * @par Comment:
+ *     None.
+ * @author   KeeperFX Team
+ * @date     30 Jan 2009 - 10 Mar 2022
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
 #include "config_players.h"
 #include "packets.h"
 #include "player_data.h"
@@ -24,6 +41,7 @@
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_workshop.h"
+#include "cursor_tag.h"
 
 extern TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx);
 extern TbBool packets_process_cheats(

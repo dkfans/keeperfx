@@ -83,14 +83,14 @@ struct GuiBoxOption {
        unsigned char numfield_4;
        Gf_OptnBox_3Callback active_cb;
        Gf_OptnBox_4Callback callback;
-       long field_D;
+       long acb_param1;
        long field_11;
        long field_15;
-       long field_19;
+       long cb_param1;
        long field_1D;
        long field_21;
-       char active;
-       char field_26;
+       TbBool active;
+       TbBool enabled;
 };
 
 struct GuiBox {
