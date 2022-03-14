@@ -301,14 +301,14 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
       break;
   case PSt_MkGoodCreatr:
       dungeonadd = get_dungeonadd(player->id_number);
-      clear_messages_from_player(dungeonadd->chosen_player);
-        dungeonadd->chosen_player = game.hero_player_num;
+      clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
+        dungeonadd->cheatselection.chosen_player = game.hero_player_num;
         break;
     case PSt_MkBadCreatr:
     case PSt_MkDigger:
     dungeonadd = get_dungeonadd(player->id_number);
-    clear_messages_from_player(dungeonadd->chosen_player);
-        dungeonadd->chosen_player = player->id_number;
+    clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
+        dungeonadd->cheatselection.chosen_player = player->id_number;
         break;
   default:
       break;

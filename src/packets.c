@@ -914,37 +914,37 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_CheatSwitchTerrain:
     {
         dungeonadd = get_dungeonadd(player->id_number);
-        dungeonadd->chosen_terrain_kind = pckt->actn_par1;
-        if (slab_kind_has_no_ownership(dungeonadd->chosen_terrain_kind))
+        dungeonadd->cheatselection.chosen_terrain_kind = pckt->actn_par1;
+        if (slab_kind_has_no_ownership(dungeonadd->cheatselection.chosen_terrain_kind))
         {
-           clear_messages_from_player(dungeonadd->chosen_player);
-           dungeonadd->chosen_player = game.neutral_player_num; 
+           clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
+           dungeonadd->cheatselection.chosen_player = game.neutral_player_num; 
         }
         return false;
     }
   case PckA_CheatSwitchPlayer:
     {
         dungeonadd = get_dungeonadd(player->id_number);
-        clear_messages_from_player(dungeonadd->chosen_player);
-        dungeonadd->chosen_player = pckt->actn_par1;
+        clear_messages_from_player(dungeonadd->cheatselection.chosen_player);
+        dungeonadd->cheatselection.chosen_player = pckt->actn_par1;
         return false;
     }
   case PckA_CheatSwitchCreature:
     {
         dungeonadd = get_dungeonadd(player->id_number);
-        dungeonadd->chosen_creature_kind = pckt->actn_par1;
+        dungeonadd->cheatselection.chosen_creature_kind = pckt->actn_par1;
         return false;
     }
   case PckA_CheatSwitchHero:
     {
         dungeonadd = get_dungeonadd(player->id_number);
-        dungeonadd->chosen_hero_kind = pckt->actn_par1;
+        dungeonadd->cheatselection.chosen_hero_kind = pckt->actn_par1;
         return false;
     }
   case PckA_CheatSwitchExperience:
     {
         dungeonadd = get_dungeonadd(player->id_number);
-        dungeonadd->chosen_experience_level = pckt->actn_par1;
+        dungeonadd->cheatselection.chosen_experience_level = pckt->actn_par1;
         return false;
     }
     default:

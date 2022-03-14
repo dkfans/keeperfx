@@ -872,7 +872,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_PlaceTerrain:
     {
         struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
-        i = get_place_terrain_pointer_graphics(dungeonadd->chosen_terrain_kind);
+        i = get_place_terrain_pointer_graphics(dungeonadd->cheatselection.chosen_terrain_kind);
         set_pointer_graphic(i);
         break;
     }

@@ -2532,7 +2532,7 @@ void process_cheat_mode_selection_inputs()
     // player selection
     if (player->work_state == PSt_PlaceTerrain)
     {
-        if (slab_kind_has_no_ownership(dungeonadd->chosen_terrain_kind))
+        if (slab_kind_has_no_ownership(dungeonadd->cheatselection.chosen_terrain_kind))
         {
             goto INPUTS;
         }
@@ -2644,7 +2644,7 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
             {
                 
-                new_value = dungeonadd->chosen_experience_level;
+                new_value = dungeonadd->cheatselection.chosen_experience_level;
                 if (new_value < 9)
                 {
                     new_value++;
@@ -2654,7 +2654,7 @@ void process_cheat_mode_selection_inputs()
             }
             else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
             {
-                new_value = dungeonadd->chosen_experience_level;
+                new_value = dungeonadd->cheatselection.chosen_experience_level;
                 if (new_value > 0)
                 {
                     new_value--;
@@ -2666,7 +2666,7 @@ void process_cheat_mode_selection_inputs()
             {
                 if (player->work_state == PSt_MkGoodCreatr)
                 {
-                    new_value = dungeonadd->chosen_hero_kind;
+                    new_value = dungeonadd->cheatselection.chosen_hero_kind;
                     new_value++;
                     if (new_value> 13)
                     {
@@ -2676,7 +2676,7 @@ void process_cheat_mode_selection_inputs()
                 }
                 else if (player->work_state == PSt_MkBadCreatr)
                 {
-                    new_value = dungeonadd->chosen_creature_kind;
+                    new_value = dungeonadd->cheatselection.chosen_creature_kind;
                     new_value++;
                     if (new_value > 17)
                     {
@@ -2690,7 +2690,7 @@ void process_cheat_mode_selection_inputs()
         }
         case PSt_PlaceTerrain:
         {
-            new_value = dungeonadd->chosen_terrain_kind;
+            new_value = dungeonadd->cheatselection.chosen_terrain_kind;
             if (is_key_pressed(KC_0, KMod_NONE))
             {
                 new_value = SlbT_ROCK;
@@ -2773,7 +2773,7 @@ void process_cheat_mode_selection_inputs()
                 set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_LSHIFT);
             }
-            if ( (dungeonadd->chosen_terrain_kind >= SlbT_WALLDRAPE) && (dungeonadd->chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
+            if ( (dungeonadd->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (dungeonadd->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
             {
                 if (is_key_pressed(KC_LALT, KMod_DONTCARE))
                 {
@@ -2790,7 +2790,7 @@ void process_cheat_mode_selection_inputs()
                         }
                         else
                         {
-                            id = dungeonadd->chosen_player;
+                            id = dungeonadd->cheatselection.chosen_player;
                         }
                         new_value = choose_pretty_type(id, slb_x, slb_y);
                         set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
