@@ -969,8 +969,6 @@ struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model,
         return INVALID_THING;
     }
 
-
-    effgentng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     effgentng->class_id = TCls_EffectGen;
     effgentng->model = model;
     effgentng->parent_idx = parent_idx;
